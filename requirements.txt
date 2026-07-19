@@ -1,6 +1,12 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Upgraded anthropic 0.34.2 -> 0.117.0 to fix a hard startup crash:
+#               the old SDK passed a 'proxies' argument that newer httpx (0.28.x)
+#               removed, so the Claude client could not be constructed and every
+#               chat failed with "Client.__init__() got an unexpected keyword
+#               argument 'proxies'". Also pinned httpx==0.28.1 so the anthropic
+#               and httpx versions stay a known-good, tested pair on every deploy.
 #   2026-07-19  Initial Day 1 dependencies. Pinned to versions known to work
 #               together so a redeploy does not silently pull a breaking update.
 # NOTE: pip ignores lines starting with '#', so these notes and the closing
@@ -8,5 +14,6 @@
 # =============================================================================
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
-anthropic==0.34.2
+anthropic==0.117.0
+httpx==0.28.1
 # I did no harm and this file is not truncated.
