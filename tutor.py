@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Updated DEFAULT_MODEL from the retired "claude-3-5-sonnet-latest"
+#               (Anthropic retired the Claude 3.5 Sonnet models on 2025-10-28,
+#               so requests to it now fail and trigger the error fallback) to the
+#               current, active "claude-sonnet-5". The model is still overridable
+#               via the CLAUDE_MODEL env var.
 #   2026-07-19  Initial version. Holds the authoritative "Professor Einstein"
 #               system prompt (single source of truth), the context-injection
 #               logic (student name + progress), and the Claude API call used to
@@ -27,9 +32,10 @@ from anthropic import Anthropic
 # The tutor's name is locked for v0.1.
 TUTOR_NAME = "Professor Einstein"
 
-# Model is configurable via env so we never have to touch code to change it.
-# "-latest" aliases always point at the newest stable release of that model.
-DEFAULT_MODEL = "claude-3-5-sonnet-latest"
+# Model is configurable via env (CLAUDE_MODEL) so we never have to touch code to
+# change it. This must be a CURRENT, active model id from Anthropic's docs --
+# retired ids (like the old claude-3-5-sonnet) are rejected by the API.
+DEFAULT_MODEL = "claude-sonnet-5"
 
 # How many past turns of a conversation we replay to the model on each request.
 # Keeps the "tutor remembers" feeling while bounding token cost. One "turn" here
