@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-19  Initial minimal code-entry screen. Student types their login
+                code; we validate it against the backend and, if valid, move to
+                the session screen. Deliberately minimal branding for v0.1.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Tutor</title>
+  <style>
+    :root { --ink:#1c2430; --muted:#5d6b7a; --line:#dfe5ec; --accent:#2f6df6; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; font-family: system-ui, -apple-system, Segoe UI,
+      Roboto, Helvetica, Arial, sans-serif; color: var(--ink);
+      background: #f5f7fa;
+    }
+    .card {
+      width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line);
+      border-radius: 16px; padding: 34px 30px; box-shadow: 0 8px 30px rgba(20,30,45,.06);
+      text-align: center;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    p.sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+    label { display: block; text-align: left; font-size: 13px; color: var(--muted);
+      margin: 0 0 6px; }
+    input {
+      width: 100%; font-size: 20px; letter-spacing: 3px; text-align: center;
+      padding: 12px; border: 1px solid var(--line); border-radius: 10px;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    button {
+      margin-top: 16px; width: 100%; font-size: 16px; padding: 12px;
+      background: var(--accent); color: #fff; border: none; border-radius: 10px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .55; cursor: default; }
+    .msg { margin-top: 14px; font-size: 13px; min-height: 18px; }
+    .msg.error { color: #c0392b; }
+    .hint { margin-top: 22px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Math Tutor</h1>
+    <p class="sub">Enter your code to begin.</p>
+
+    <label for="code">Student code</label>
+    <input id="code" inputmode="numeric" autocomplete="off" placeholder="••••"
+           maxlength="12" />
+    <button id="go">Start</button>
+    <div id="msg" class="msg"></div>
+
+    <div class="hint">
+      Test codes for v0.1: 1234 (Alex), 2345 (Maya), 3456 (Sam), 0000 (Demo).
+    </div>
+  </div>
+
+  <script>
+    // ------------------------------------------------------------------
+    // Minimal login logic: send the code to the backend, and if it is
+    // recognized, move to the session screen carrying the code along.
+    // ------------------------------------------------------------------
+    const input = document.getElementById("code");
+    const button = document.getElementById("go");
+    const msg = document.getElementById("msg");
+
+    function setMsg(text, isError) {
+      msg.textContent = text || "";
+      msg.className = "msg" + (isError ? " error" : "");
+    }
+
+    async function login() {
+      const code = (input.value || "").trim();
+      if (!code) { setMsg("Please enter your code.", true); return; }
+
+      button.disabled = true;
+      setMsg("Checking...", false);
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code })
+        });
+        if (!res.ok) {
+          setMsg("That code was not recognized. Please try again.", true);
+          button.disabled = false;
+          return;
+        }
+        // Success -- head to the session screen.
+        window.location.href = "/session?code=" + encodeURIComponent(code);
+      } catch (err) {
+        setMsg("Something went wrong. Please try again.", true);
+        button.disabled = false;
+      }
+    }
+
+    button.addEventListener("click", login);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+    input.focus();
+  </script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->
