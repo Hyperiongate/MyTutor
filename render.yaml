@@ -1,0 +1,28 @@
+# =============================================================================
+# render.yaml  --  Math Tutor MVP  --  Hyperion Shift LLC
+# -----------------------------------------------------------------------------
+# CHANGE NOTES (keep newest at top):
+#   2026-07-19  Initial Render blueprint. Defines one Python web service that
+#               builds from requirements.txt and starts the FastAPI app with
+#               uvicorn on Render's provided $PORT.
+#
+# HOW TO USE:
+#   With this file in your GitHub repo, Render can create the service
+#   automatically ("Blueprint"). You still must set the ANTHROPIC_API_KEY value
+#   in the Render dashboard (it is intentionally NOT stored in code or git).
+#
+# NOTE: YAML uses '#' for comments, so these notes and the closing line are safe.
+# =============================================================================
+services:
+  - type: web
+    name: math-tutor-mvp
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false            # you set this secret in the Render dashboard
+      - key: CLAUDE_MODEL
+        value: claude-3-5-sonnet-latest
+# I did no harm and this file is not truncated.
