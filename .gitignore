@@ -1,0 +1,13 @@
+# =============================================================================
+# .gitignore  --  Math Tutor MVP  --  Hyperion Shift LLC
+# CHANGE NOTES (keep newest at top):
+#   2026-07-19  Initial. Keeps Python cache and saved student sessions out of git
+#               so we never commit conversation data or stale caches.
+# NOTE: git treats '#' lines as comments, so these notes are safe here.
+# =============================================================================
+__pycache__/
+*.pyc
+data/sessions.json
+data/*.tmp
+.env
+# I did no harm and this file is not truncated.
