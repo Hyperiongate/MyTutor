@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Set the default ELEVENLABS_VOICE_ID to Jim's chosen voice
+#               (sB7vwSCyX0tQmU24cW2C) so a fresh deploy uses it even without the
+#               env var. Still overridable via the ELEVENLABS_VOICE_ID env var.
+#   2026-07-19  Added POST /api/speak: proxies ElevenLabs text-to-speech so the
+#               tutor can talk in a natural voice. The API key stays server-side
+#               (env ELEVENLABS_API_KEY). If the key is missing or the call fails,
+#               it returns 204 and the browser falls back to its built-in voice.
+#               Voice/model configurable via ELEVENLABS_VOICE_ID / ELEVENLABS_MODEL.
 #   2026-07-19  Initial Day 1 backbone. FastAPI backend that:
 #                 - serves the minimal code-entry screen and the session screen
 #                 - validates a student login code against students.json
@@ -28,12 +36,23 @@ import os
 import threading
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import tutor
+
+# ---- ElevenLabs voice config (all optional; empty key -> browser voice) -----
+# Set these in Render (NOT in code). If ELEVENLABS_API_KEY is missing, the app
+# still talks using the browser's built-in voice.
+ELEVEN_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
+# Default voice = Jim's chosen ElevenLabs voice. Override with any other voice_id
+# from your ElevenLabs Voice Library via the ELEVENLABS_VOICE_ID env var.
+ELEVEN_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "sB7vwSCyX0tQmU24cW2C")
+# eleven_multilingual_v2 = high quality; "eleven_flash_v2_5" = faster/lower latency.
+ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
 
 # ---- Paths -----------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
@@ -100,6 +119,10 @@ class LoginRequest(BaseModel):
 class ChatRequest(BaseModel):
     code: str
     message: str
+
+
+class SpeakRequest(BaseModel):
+    text: str
 
 
 # ---- App -------------------------------------------------------------------
@@ -183,6 +206,36 @@ def chat(req: ChatRequest):
     save_session(code, session)
 
     return {"reply": reply}
+
+
+@app.post("/api/speak")
+def speak(req: SpeakRequest):
+    """
+    Turn the tutor's words into a natural ElevenLabs voice and return MP3 audio.
+    If ELEVENLABS_API_KEY is not set (or the call fails), we return 204 No Content
+    so the browser falls back to its built-in voice -- the app always talks.
+    """
+    text = (req.text or "").strip()
+    if not text or not ELEVEN_API_KEY:
+        return Response(status_code=204)
+    try:
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
+        headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
+        payload = {
+            "text": text,
+            "model_id": ELEVEN_MODEL,
+            "voice_settings": {"stability": 0.45, "similarity_boost": 0.8},
+        }
+        with httpx.Client(timeout=30.0) as client:
+            r = client.post(url, headers=headers, json=payload)
+        if r.status_code != 200 or not r.content:
+            # Log for the developer; the student just hears the browser voice.
+            print(f"[speak] ElevenLabs {r.status_code}: {r.text[:200]}")
+            return Response(status_code=204)
+        return Response(content=r.content, media_type="audio/mpeg")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[speak] ElevenLabs error: {exc}")
+        return Response(status_code=204)
 
 
 # Serve the static folder (css/js/images if we add them) under /static.

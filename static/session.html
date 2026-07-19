@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-19  NATURAL VOICE. Tutor replies are now spoken with the ElevenLabs
+                voice from the backend (/api/speak); the oscilloscope is driven by
+                the REAL audio via a Web Audio analyser. If ElevenLabs isn't
+                configured, it falls back to the browser voice automatically. The
+                mic tap unlocks audio playback.
     2026-07-19  Added a [[card title="..." items="a | b | c"]] visual so the tutor
                 can show a list (e.g. the opening "cool questions") on the stage.
     2026-07-19  REDESIGN: visual, voice-first lesson screen.
@@ -268,6 +273,11 @@
     let lastTutorText = "";
     let busy = false;
 
+    // Audio graph for the ElevenLabs voice + real waveform.
+    const ttsAudio = new Audio();
+    ttsAudio.crossOrigin = "anonymous";
+    let audioCtx = null, analyser = null, timeData = null, usingAnalyser = false;
+
     // ==================================================================
     // Today's plan (fixed lesson agenda). Ids match the tutor's [[covered]] tags.
     // ==================================================================
@@ -324,25 +334,47 @@
     const sctx = scopeCanvas.getContext("2d");
     let speaking = false, phase = 0;
     function drawScope() {
-      const w = scopeCanvas.width, h = scopeCanvas.height;
+      const w = scopeCanvas.width, h = scopeCanvas.height, mid = h / 2;
       sctx.clearRect(0, 0, w, h);
       sctx.lineWidth = 3; sctx.strokeStyle = "#7fe0ff";
       sctx.beginPath();
-      const mid = h / 2;
-      for (let x = 0; x <= w; x += 2) {
-        // idle = gentle flat line; speaking = lively multi-frequency wave
-        const amp = speaking ? (h * 0.28) : (h * 0.04);
-        const k = speaking ? 0.16 : 0.10;
-        const y = mid
-          + Math.sin(x * k + phase) * amp
-          + (speaking ? Math.sin(x * 0.34 + phase * 1.7) * amp * 0.4 : 0);
-        if (x === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+      if (usingAnalyser && analyser) {
+        // REAL waveform from the ElevenLabs audio.
+        analyser.getByteTimeDomainData(timeData);
+        const step = timeData.length / w;
+        for (let x = 0; x <= w; x++) {
+          const v = (timeData[Math.floor(x * step)] - 128) / 128;
+          const y = mid + v * (h * 0.42);
+          if (x === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+        }
+      } else {
+        // Synthetic wave (used with the browser fallback voice / when idle).
+        for (let x = 0; x <= w; x += 2) {
+          const amp = speaking ? (h * 0.28) : (h * 0.04);
+          const k = speaking ? 0.16 : 0.10;
+          const y = mid + Math.sin(x * k + phase) * amp
+            + (speaking ? Math.sin(x * 0.34 + phase * 1.7) * amp * 0.4 : 0);
+          if (x === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+        }
       }
       sctx.stroke();
       phase += speaking ? 0.35 : 0.06;
       requestAnimationFrame(drawScope);
     }
     drawScope();
+
+    // Build the Web Audio graph once (needs a user gesture to start cleanly).
+    function ensureAudioGraph() {
+      if (audioCtx) { if (audioCtx.state === "suspended") audioCtx.resume(); return; }
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = audioCtx.createMediaElementSource(ttsAudio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        timeData = new Uint8Array(analyser.fftSize);
+        src.connect(analyser); analyser.connect(audioCtx.destination);
+      } catch (e) { audioCtx = null; analyser = null; }
+    }
 
     // ==================================================================
     // SPEAKING (male voice) + waveform sync.
@@ -370,7 +402,8 @@
         .replace(/\s*\*\s*/g, " times ")
         .replace(/\s*\/\s*/g, " divided by ");
     }
-    function speak(text) {
+    // Browser's built-in voice (fallback when ElevenLabs isn't configured).
+    function browserSpeak(text) {
       if (!window.speechSynthesis || !text) return;
       try {
         speechSynthesis.cancel();
@@ -382,6 +415,39 @@
         u.onerror = () => { speaking = false; };
         speechSynthesis.speak(u);
       } catch (e) {}
+    }
+
+    // Play ElevenLabs MP3 and drive the waveform from the real audio.
+    function playTts(blob) {
+      return new Promise((resolve, reject) => {
+        ensureAudioGraph();
+        const url = URL.createObjectURL(blob);
+        ttsAudio.src = url;
+        ttsAudio.onplay = () => { speaking = true; usingAnalyser = !!analyser; };
+        ttsAudio.onended = () => { speaking = false; usingAnalyser = false; URL.revokeObjectURL(url); resolve(); };
+        ttsAudio.onerror = () => { speaking = false; usingAnalyser = false; reject(new Error("audio error")); };
+        const p = ttsAudio.play();
+        if (p && p.catch) p.catch(reject);
+      });
+    }
+
+    // Main speak(): try the natural ElevenLabs voice, else the browser voice.
+    async function speak(text) {
+      if (!text) return;
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+      try { ttsAudio.pause(); } catch (e) {}
+      try {
+        const res = await fetch("/api/speak", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: forSpeech(text) })
+        });
+        if (res.status === 200 && (res.headers.get("content-type") || "").includes("audio")) {
+          const blob = await res.blob();
+          await playTts(blob);
+          return;
+        }
+      } catch (e) { /* fall through to browser voice */ }
+      browserSpeak(text);
     }
     replayBtn.addEventListener("click", () => { if (lastTutorText) speak(lastTutorText); });
 
@@ -537,6 +603,7 @@
       micHint.textContent = "Voice isn't supported in this browser — type instead. (Chrome works best.)";
     }
     function toggleListen() {
+      ensureAudioGraph();   // the mic tap is our user gesture -> unlock audio
       if (!recognition || busy) return;
       if (listening) { try { recognition.stop(); } catch (e) {} return; }
       try { recognition.start(); } catch (e) {}
