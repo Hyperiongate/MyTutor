@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "file": "students.json",
+    "purpose": "Hardcoded test students for v0.1. The login code is the key. These are PERSONAS (made-up), not real minors, so we can demo and test safely before COPPA/FERPA work. Add or edit students here; no code change needed. NOTE: JSON files cannot contain code comments or a trailing sentence without becoming invalid and breaking the app, so the required change-notes and closing statement live inside this _meta block instead of as comments.",
+    "change_notes": "2026-07-19  Initial version. Four personas with starting progress notes.",
+    "last_updated": "2026-07-19",
+    "closing_statement": "I did no harm and this file is not truncated."
+  },
+  "students": {
+    "1234": {
+      "name": "Alex",
+      "grade": 9,
+      "progress": "Brand new. Has not started solving linear equations yet. Says math makes them nervous."
+    },
+    "2345": {
+      "name": "Maya",
+      "grade": 9,
+      "progress": "Comfortable with one-step equations like x + 4 = 9. Ready to try two-step equations such as 2x + 3 = 11."
+    },
+    "3456": {
+      "name": "Sam",
+      "grade": 10,
+      "progress": "Can solve two-step equations. Working on equations with the variable on both sides, like 5x - 4 = 3x + 2."
+    },
+    "0000": {
+      "name": "Demo Student",
+      "grade": 9,
+      "progress": "A neutral demo login for showing the tutor to other people. No strong prior history."
+    }
+  }
+}
