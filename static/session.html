@@ -4,21 +4,22 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-19  VOICE-FIRST REWRITE. This screen is now the voice tutor:
-                  - Large avatar (image at /static/avatar.jpg) that glows while
-                    the tutor is speaking; falls back to an animated orb if the
-                    image is missing.
-                  - "Tap to talk" mic button using the browser's built-in speech
-                    recognition (student speech -> text). No API keys, no cost.
-                  - Tutor replies are spoken aloud with the browser's built-in
-                    speech synthesis (a female voice is chosen when available).
-                  - Live captions show what was heard and what the tutor said.
-                  - Still loads remembered history and calls the same /api/chat
-                    backend (no backend changes were needed).
-                  - Graceful fallback: if the browser has no speech recognition
-                    (e.g. some non-Chrome browsers), a text box appears so the
-                    student can still type. Voice is the primary experience.
-    2026-07-19  Initial text-only session screen (superseded by the rewrite).
+    2026-07-19  REDESIGN: visual, voice-first lesson screen.
+                  - 3-column layout: LEFT "Today's plan", CENTER stage,
+                    RIGHT "Covered".
+                  - Avatar is now a CIRCLE WITH AN OSCILLOSCOPE WAVEFORM that
+                    oscillates while the tutor speaks (canvas). No face image.
+                  - MALE voice chosen for speech synthesis.
+                  - Animated BALANCE-SCALE (seesaw) visual with monkey/box icons,
+                    driven by hidden control tags the tutor emits:
+                       [[balance left="x + 4" right="12" state="level" caption="..."]]
+                       [[covered id="what-is-equation"]]
+                    The parser renders the visual, ticks the plan/covered lists,
+                    and STRIPS all tags from the text shown and spoken.
+                  - Still uses browser speech recognition (tap to talk), live
+                    captions, session memory, and the same /api/chat backend.
+    2026-07-19  Voice-first screen with avatar image (superseded by this redesign).
+    2026-07-19  Initial text-only screen (superseded).
   =============================================================================
 -->
 <html lang="en">
@@ -27,79 +28,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Math Tutor — Session</title>
   <style>
-    :root { --ink:#1c2430; --muted:#5d6b7a; --line:#dfe5ec; --accent:#2f6df6;
-            --tutor:#eef3fe; --student:#e8f7ee; --glow:#7fb0ff; }
+    :root {
+      --ink:#1c2430; --muted:#5d6b7a; --line:#e1e7ee; --accent:#2f6df6;
+      --tutor:#eef3fe; --student:#e8f7ee; --panel:#ffffff; --wood:#b9852f;
+      --glow:#7fb0ff; --ok:#2e9e6b;
+    }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto,
       Helvetica, Arial, sans-serif; color: var(--ink);
-      background: radial-gradient(1200px 600px at 50% -10%, #eaf1ff, #f5f7fa 60%);
-      display: flex; flex-direction: column; height: 100vh;
+      background: radial-gradient(1200px 700px at 50% -10%, #e9f1ff, #f4f7fb 60%);
     }
 
-    header {
-      display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+    .app {
+      display: grid; grid-template-columns: 250px 1fr 250px;
+      grid-template-rows: 100vh; gap: 0;
     }
-    header .title { font-weight: 600; font-size: 15px; }
-    header .spacer { flex: 1; }
-    header a { font-size: 13px; color: var(--muted); text-decoration: none; }
 
-    /* ---- Avatar ---- */
+    /* ---------- Sidebars ---------- */
+    .side {
+      padding: 18px 16px; overflow-y: auto; background: rgba(255,255,255,.55);
+      border-right: 1px solid var(--line);
+    }
+    .side.right { border-right: none; border-left: 1px solid var(--line); }
+    .side h2 {
+      font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); margin: 4px 0 14px;
+    }
+    .plan-item, .covered-item {
+      display: flex; gap: 9px; align-items: flex-start; font-size: 14px;
+      padding: 8px 9px; border-radius: 9px; margin-bottom: 4px; line-height: 1.3;
+    }
+    .plan-item .dot {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid #c3ccd8;
+      flex: 0 0 auto; margin-top: 1px;
+    }
+    .plan-item.current { background: #eaf1ff; color: var(--ink); font-weight: 600; }
+    .plan-item.current .dot { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,109,246,.15); }
+    .plan-item.done { color: var(--muted); }
+    .plan-item.done .dot { background: var(--ok); border-color: var(--ok); position: relative; }
+    .plan-item.done .dot::after {
+      content: "\2713"; color: #fff; font-size: 11px; position: absolute;
+      left: 2px; top: -2px;
+    }
+    .covered-item { color: var(--ink); background: #eefaf3; }
+    .covered-item .check { color: var(--ok); font-weight: 700; flex: 0 0 auto; }
+    .covered-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+
+    /* ---------- Center stage ---------- */
+    .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+    .topbar {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+    }
+    .scope {
+      position: relative; width: 60px; height: 60px; border-radius: 50%;
+      background: #0f1830; box-shadow: 0 4px 14px rgba(15,24,48,.3);
+      flex: 0 0 auto; overflow: hidden;
+    }
+    .scope canvas { width: 100%; height: 100%; display: block; }
+    .who .t { font-weight: 700; font-size: 16px; line-height: 1.1; }
+    .who .s { font-size: 12px; color: var(--muted); }
+    .topbar .spacer { flex: 1; }
+    .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
+
+    /* Visual stage: the animated balance lives here */
     .stage {
-      flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;
-      padding: 6px 18px 2px;
+      flex: 1; margin: 4px 20px 0; border-radius: 18px; background: var(--panel);
+      border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(20,30,45,.06);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 18px; min-height: 220px; position: relative; overflow: hidden;
     }
-    .avatar-wrap {
-      position: relative; width: 180px; height: 180px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .avatar-img, .avatar-orb {
-      width: 180px; height: 180px; border-radius: 50%; object-fit: cover;
-      box-shadow: 0 6px 24px rgba(20,30,45,.18);
-      transition: box-shadow .2s ease, transform .2s ease;
-    }
-    .avatar-orb {
-      background: radial-gradient(circle at 32% 30%, var(--glow), var(--accent) 72%);
-    }
-    /* the glow/pulse while the tutor is speaking */
-    .avatar-wrap.speaking .avatar-img,
-    .avatar-wrap.speaking .avatar-orb {
-      animation: speak 1.0s ease-in-out infinite;
-      box-shadow: 0 0 0 0 rgba(47,109,246,.55), 0 6px 24px rgba(20,30,45,.18);
-    }
-    @keyframes speak {
-      0%   { box-shadow: 0 0 0 0 rgba(47,109,246,.55), 0 6px 24px rgba(20,30,45,.18); transform: scale(1); }
-      60%  { box-shadow: 0 0 0 20px rgba(47,109,246,0), 0 6px 24px rgba(20,30,45,.18); transform: scale(1.03); }
-      100% { box-shadow: 0 0 0 0 rgba(47,109,246,0), 0 6px 24px rgba(20,30,45,.18); transform: scale(1); }
-    }
-    .tutor-name { margin-top: 12px; font-weight: 700; font-size: 18px; }
-    .student-name { font-size: 13px; color: var(--muted); }
-    .status { margin-top: 6px; font-size: 13px; color: var(--accent); min-height: 18px; }
+    .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
 
-    /* ---- Captions / transcript ---- */
-    main {
-      flex: 1; overflow-y: auto; padding: 12px 18px; display: flex;
-      flex-direction: column; gap: 8px; max-width: 720px; width: 100%;
-      margin: 0 auto;
+    /* Balance scale */
+    .scale { width: 100%; max-width: 460px; }
+    .scale .beamwrap { position: relative; height: 150px; }
+    .scale .pivot {
+      position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 26px solid transparent;
+      border-right: 26px solid transparent; border-bottom: 84px solid #9aa7b6;
     }
-    .bubble { padding: 9px 13px; border-radius: 14px; max-width: 82%;
-      font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
-    .bubble.tutor { background: var(--tutor); align-self: flex-start;
-      border-bottom-left-radius: 4px; }
-    .bubble.student { background: var(--student); align-self: flex-end;
-      border-bottom-right-radius: 4px; }
-    .bubble.system { align-self: center; background: transparent;
-      color: var(--muted); font-size: 13px; text-align: center; }
+    .scale .beam {
+      position: absolute; left: 10%; right: 10%; top: 34px; height: 8px;
+      background: var(--wood); border-radius: 6px; transform-origin: 50% 50%;
+      transition: transform .7s cubic-bezier(.34,1.2,.5,1);
+    }
+    .scale .pan {
+      position: absolute; top: 30px; width: 130px; transform: translateX(-50%);
+      text-align: center;
+    }
+    .scale .pan.left { left: 12%; }
+    .scale .pan.right { left: 88%; }
+    .scale .tray {
+      min-height: 46px; border: 2px solid #c9d2dd; border-top: none;
+      border-radius: 0 0 60px 60px; background: #f7fafc; padding: 6px 6px 10px;
+      display: flex; flex-wrap: wrap; gap: 2px; align-items: center; justify-content: center;
+      font-size: 22px; line-height: 1;
+    }
+    .scale .rope { height: 26px; width: 2px; background: #c9d2dd; margin: 0 auto; }
+    .scale .label {
+      margin-top: 8px; font-weight: 700; font-size: 18px; letter-spacing: .01em;
+    }
+    .scale .box {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 30px; height: 30px; padding: 0 6px; border-radius: 7px;
+      background: #ffe6b0; border: 2px solid var(--wood); font-size: 15px;
+      font-weight: 700; color: #6b4c15;
+    }
+    .scale .eq { text-align: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
+    .scale .cap { text-align: center; margin-top: 6px; font-size: 14px; color: var(--ink); }
+    .pop { animation: pop .4s ease; }
+    @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* ---- Controls ---- */
-    footer {
-      padding: 12px 18px 20px; display: flex; flex-direction: column;
-      align-items: center; gap: 10px;
+    /* Captions + transcript */
+    .caption {
+      margin: 12px 20px 4px; font-size: 17px; line-height: 1.4; text-align: center;
+      min-height: 24px; font-weight: 500;
     }
+    .transcript {
+      margin: 0 20px; max-height: 132px; overflow-y: auto; display: flex;
+      flex-direction: column; gap: 6px; padding: 4px 0;
+    }
+    .bubble { padding: 7px 12px; border-radius: 13px; max-width: 88%; font-size: 14px;
+      line-height: 1.4; white-space: pre-wrap; }
+    .bubble.tutor { background: var(--tutor); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .bubble.student { background: var(--student); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bubble.system { align-self: center; background: transparent; color: var(--muted); font-size: 13px; }
+
+    /* Controls */
+    .controls { padding: 10px 20px 18px; display: flex; flex-direction: column;
+      align-items: center; gap: 8px; }
     .mic {
-      width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer;
-      background: var(--accent); color: #fff; font-size: 30px; line-height: 1;
+      width: 70px; height: 70px; border-radius: 50%; border: none; cursor: pointer;
+      background: var(--accent); color: #fff; font-size: 28px;
       box-shadow: 0 6px 18px rgba(47,109,246,.35);
       display: flex; align-items: center; justify-content: center;
       transition: transform .1s ease, background .2s ease;
@@ -108,95 +170,313 @@
     .mic.listening { background: #e0392b; animation: micpulse 1.1s ease-in-out infinite; }
     .mic:disabled { opacity: .5; cursor: default; }
     @keyframes micpulse {
-      0%   { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
-      70%  { box-shadow: 0 0 0 16px rgba(224,57,43,0); }
+      0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
+      70% { box-shadow: 0 0 0 15px rgba(224,57,43,0); }
       100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); }
     }
-    .mic-hint { font-size: 13px; color: var(--muted); }
+    .hint { font-size: 13px; color: var(--muted); }
     .replay { font-size: 12px; color: var(--muted); background: none; border: none;
       cursor: pointer; text-decoration: underline; }
-
-    /* text fallback (hidden unless speech recognition is unavailable) */
-    .composer { display: none; gap: 8px; width: 100%; max-width: 480px; }
+    .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
-    .composer input {
-      flex: 1; font-size: 15px; padding: 11px 13px; border: 1px solid var(--line);
-      border-radius: 12px; outline: none;
-    }
+    .composer input { flex: 1; font-size: 15px; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 11px; outline: none; }
     .composer input:focus { border-color: var(--accent); }
-    .composer button {
-      font-size: 15px; padding: 11px 16px; background: var(--accent); color: #fff;
-      border: none; border-radius: 12px; cursor: pointer;
+    .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent);
+      color: #fff; border: none; border-radius: 11px; cursor: pointer; }
+
+    /* Responsive: stack sidebars away on small screens */
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .side { display: none; }
+      .center { height: 100vh; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="title" id="headerTitle">Math Tutor</div>
-    <div class="spacer"></div>
-    <a href="/">Exit</a>
-  </header>
+  <div class="app">
+    <!-- LEFT: today's plan -->
+    <aside class="side left">
+      <h2>Today's plan</h2>
+      <div id="planList"></div>
+    </aside>
 
-  <div class="stage">
-    <div class="avatar-wrap" id="avatarWrap">
-      <!-- The avatar image. If /static/avatar.jpg is missing, we swap to an orb. -->
-      <img id="avatarImg" class="avatar-img" src="/static/avatar.jpg" alt="Tutor avatar" />
+    <!-- CENTER: the lesson -->
+    <div class="center">
+      <div class="topbar">
+        <div class="scope"><canvas id="scope" width="120" height="120"></canvas></div>
+        <div class="who">
+          <div class="t" id="tutorName">Tutor</div>
+          <div class="s" id="studentName">&nbsp;</div>
+        </div>
+        <div class="spacer"></div>
+        <a href="/">Exit</a>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="stage-hint" id="stageHint">Your lesson will appear here.</div>
+      </div>
+
+      <div class="caption" id="caption">&nbsp;</div>
+      <div class="transcript" id="log"></div>
+
+      <div class="controls">
+        <button class="mic" id="mic" title="Tap to talk" aria-label="Tap to talk">&#127908;</button>
+        <div class="hint" id="micHint">Tap the mic and start talking</div>
+        <button class="replay" id="replay" style="display:none;">Repeat that</button>
+        <div class="composer" id="composer">
+          <input id="input" placeholder="Type to your tutor…" autocomplete="off" />
+          <button id="send">Send</button>
+        </div>
+      </div>
     </div>
-    <div class="tutor-name" id="tutorName">Tutor</div>
-    <div class="student-name" id="studentName">&nbsp;</div>
-    <div class="status" id="status">&nbsp;</div>
+
+    <!-- RIGHT: covered -->
+    <aside class="side right">
+      <h2>Covered</h2>
+      <div id="coveredList"><div class="covered-empty">Nothing yet — let's begin!</div></div>
+    </aside>
   </div>
-
-  <main id="log"></main>
-
-  <footer>
-    <button class="mic" id="mic" title="Tap to talk" aria-label="Tap to talk">&#127908;</button>
-    <div class="mic-hint" id="micHint">Tap the mic and start talking</div>
-    <button class="replay" id="replay" style="display:none;">Repeat that</button>
-
-    <div class="composer" id="composer">
-      <input id="input" placeholder="Type to your tutor…" autocomplete="off" />
-      <button id="send">Send</button>
-    </div>
-  </footer>
 
   <script>
     // ==================================================================
-    // Setup: who is the student (from the login code in the URL)?
+    // Student identity from the URL.
     // ==================================================================
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { window.location.href = "/"; }
 
-    const log = document.getElementById("log");
-    const statusEl = document.getElementById("status");
-    const tutorNameEl = document.getElementById("tutorName");
-    const studentNameEl = document.getElementById("studentName");
-    const headerTitleEl = document.getElementById("headerTitle");
-    const avatarWrap = document.getElementById("avatarWrap");
-    const avatarImg = document.getElementById("avatarImg");
-    const micBtn = document.getElementById("mic");
-    const micHint = document.getElementById("micHint");
-    const replayBtn = document.getElementById("replay");
-    const composer = document.getElementById("composer");
-    const input = document.getElementById("input");
-    const sendBtn = document.getElementById("send");
+    const el = (id) => document.getElementById(id);
+    const stage = el("stage"), stageHint = el("stageHint");
+    const caption = el("caption"), log = el("log");
+    const statusName = el("studentName"), tutorNameEl = el("tutorName");
+    const micBtn = el("mic"), micHint = el("micHint"), replayBtn = el("replay");
+    const composer = el("composer"), input = el("input"), sendBtn = el("send");
+    const planList = el("planList"), coveredList = el("coveredList");
 
     let tutorName = "Tutor";
     let lastTutorText = "";
     let busy = false;
 
-    // If the avatar image fails to load, fall back to an animated orb so the
-    // screen never looks broken.
-    avatarImg.addEventListener("error", () => {
-      avatarImg.remove();
-      const orb = document.createElement("div");
-      orb.className = "avatar-orb";
-      avatarWrap.appendChild(orb);
-    });
+    // ==================================================================
+    // Today's plan (fixed lesson agenda). Ids match the tutor's [[covered]] tags.
+    // ==================================================================
+    const AGENDA = [
+      { id: "what-is-equation", label: "What an equation is" },
+      { id: "balance-rule",     label: "Keeping both sides equal" },
+      { id: "both-sides",       label: "Doing the same to both sides" },
+      { id: "one-step",         label: "Solving a one-step equation" },
+      { id: "two-step",         label: "Solving a two-step equation" },
+      { id: "check-answer",     label: "Checking your answer" },
+    ];
+    const covered = new Set();
+    let currentId = AGENDA[0].id;
 
-    function setStatus(text) { statusEl.textContent = text || " "; }
+    function renderPlan() {
+      planList.innerHTML = "";
+      for (const item of AGENDA) {
+        const div = document.createElement("div");
+        const done = covered.has(item.id);
+        div.className = "plan-item" + (done ? " done" : (item.id === currentId ? " current" : ""));
+        div.innerHTML = '<span class="dot"></span><span>' + item.label + '</span>';
+        planList.appendChild(div);
+      }
+    }
+    function renderCovered() {
+      if (!covered.size) {
+        coveredList.innerHTML = '<div class="covered-empty">Nothing yet — let\'s begin!</div>';
+        return;
+      }
+      coveredList.innerHTML = "";
+      for (const item of AGENDA) {
+        if (!covered.has(item.id)) continue;
+        const div = document.createElement("div");
+        div.className = "covered-item";
+        div.innerHTML = '<span class="check">✓</span><span>' + item.label + '</span>';
+        coveredList.appendChild(div);
+      }
+    }
+    function markCovered(id) {
+      const item = AGENDA.find(a => a.id === id);
+      if (!item) return;
+      covered.add(id);
+      // advance the "current" pointer to the first not-yet-covered item
+      const next = AGENDA.find(a => !covered.has(a.id));
+      currentId = next ? next.id : null;
+      renderPlan(); renderCovered();
+    }
+    renderPlan(); renderCovered();
 
+    // ==================================================================
+    // OSCILLOSCOPE avatar: a waveform that oscillates while speaking.
+    // ==================================================================
+    const scopeCanvas = el("scope");
+    const sctx = scopeCanvas.getContext("2d");
+    let speaking = false, phase = 0;
+    function drawScope() {
+      const w = scopeCanvas.width, h = scopeCanvas.height;
+      sctx.clearRect(0, 0, w, h);
+      sctx.lineWidth = 3; sctx.strokeStyle = "#7fe0ff";
+      sctx.beginPath();
+      const mid = h / 2;
+      for (let x = 0; x <= w; x += 2) {
+        // idle = gentle flat line; speaking = lively multi-frequency wave
+        const amp = speaking ? (h * 0.28) : (h * 0.04);
+        const k = speaking ? 0.16 : 0.10;
+        const y = mid
+          + Math.sin(x * k + phase) * amp
+          + (speaking ? Math.sin(x * 0.34 + phase * 1.7) * amp * 0.4 : 0);
+        if (x === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+      }
+      sctx.stroke();
+      phase += speaking ? 0.35 : 0.06;
+      requestAnimationFrame(drawScope);
+    }
+    drawScope();
+
+    // ==================================================================
+    // SPEAKING (male voice) + waveform sync.
+    // ==================================================================
+    let maleVoice = null;
+    function pickVoice() {
+      const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+      if (!voices || !voices.length) return;
+      const preferred = ["david", "daniel", "alex", "fred", "google uk english male",
+                         "microsoft david", "rishi", "male", "guy", "tom", "aaron"];
+      const en = voices.filter(v => /en(-|_)?/i.test(v.lang));
+      for (const name of preferred) {
+        const hit = en.find(v => v.name.toLowerCase().includes(name));
+        if (hit) { maleVoice = hit; return; }
+      }
+      maleVoice = en[0] || voices[0];
+    }
+    if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+
+    function forSpeech(text) {
+      return text
+        .replace(/\s*=\s*/g, " equals ")
+        .replace(/\s*\+\s*/g, " plus ")
+        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2")
+        .replace(/\s*\*\s*/g, " times ")
+        .replace(/\s*\/\s*/g, " divided by ");
+    }
+    function speak(text) {
+      if (!window.speechSynthesis || !text) return;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(forSpeech(text));
+        if (maleVoice) u.voice = maleVoice;
+        u.rate = 0.98; u.pitch = 0.9;
+        u.onstart = () => { speaking = true; };
+        u.onend = () => { speaking = false; };
+        u.onerror = () => { speaking = false; };
+        speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+    replayBtn.addEventListener("click", () => { if (lastTutorText) speak(lastTutorText); });
+
+    // ==================================================================
+    // CONTROL TAGS: parse [[...]] out of the tutor's reply.
+    //   [[balance left="x + 4" right="12" state="level" caption="..."]]
+    //   [[covered id="what-is-equation"]]
+    // Everything in [[...]] is removed from what we show and speak.
+    // ==================================================================
+    function parseAttrs(s) {
+      const attrs = {};
+      const re = /(\w+)\s*=\s*("([^"]*)"|'([^']*)'|(\S+))/g;
+      let m;
+      while ((m = re.exec(s)) !== null) {
+        attrs[m[1].toLowerCase()] = (m[3] !== undefined ? m[3]
+          : m[4] !== undefined ? m[4] : m[5]);
+      }
+      return attrs;
+    }
+    function handleTags(text) {
+      const tagRe = /\[\[\s*(\w+)([^\]]*?)\]\]/g;
+      let m;
+      while ((m = tagRe.exec(text)) !== null) {
+        const name = m[1].toLowerCase();
+        const attrs = parseAttrs(m[2]);
+        if (name === "balance") showBalance(attrs);
+        else if (name === "covered" && attrs.id) markCovered(attrs.id);
+        else if (name === "clear") clearStage();
+      }
+      // strip every [[...]] (even malformed) so nothing leaks to the student
+      return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\s{2,}/g, " ").trim();
+    }
+
+    // ==================================================================
+    // BALANCE VISUAL renderer.
+    // ==================================================================
+    function iconsFor(expr) {
+      // Render a side of the scale. '+'-separated tokens. Integers -> monkeys,
+      // anything with a letter or '?' -> a labeled box, else text.
+      const wrap = document.createElement("div");
+      wrap.className = "tray";
+      const tokens = String(expr).split("+").map(t => t.trim()).filter(Boolean);
+      let rendered = false;
+      for (const tok of tokens) {
+        if (/^\d+$/.test(tok)) {
+          const n = Math.min(parseInt(tok, 10), 12);
+          for (let i = 0; i < n; i++) { wrap.appendChild(document.createTextNode("🐵")); }
+          rendered = true;
+        } else if (/[a-zA-Z?]/.test(tok)) {
+          const box = document.createElement("span");
+          box.className = "box"; box.textContent = tok;
+          wrap.appendChild(box); rendered = true;
+        } else {
+          const span = document.createElement("span");
+          span.style.fontSize = "16px"; span.textContent = tok;
+          wrap.appendChild(span); rendered = true;
+        }
+      }
+      if (!rendered) wrap.textContent = String(expr);
+      return wrap;
+    }
+    function pan(side, expr) {
+      const p = document.createElement("div");
+      p.className = "pan " + side;
+      const rope = document.createElement("div"); rope.className = "rope";
+      const tray = iconsFor(expr);
+      const label = document.createElement("div"); label.className = "label"; label.textContent = expr;
+      p.appendChild(rope); p.appendChild(tray); p.appendChild(label);
+      return p;
+    }
+    function clearStage() {
+      stage.innerHTML = '<div class="stage-hint">Your lesson will appear here.</div>';
+    }
+    function showBalance(a) {
+      const left = a.left || "", right = a.right || "";
+      const state = (a.state || "level").toLowerCase();
+      let deg = 0;
+      if (state.includes("left")) deg = -9;        // left side heavier -> tips left
+      else if (state.includes("right")) deg = 9;
+      else if (state === "tip" || state === "unbalanced") deg = -9;
+
+      stage.innerHTML = "";
+      const scale = document.createElement("div");
+      scale.className = "scale pop";
+      const beamwrap = document.createElement("div"); beamwrap.className = "beamwrap";
+      const beam = document.createElement("div"); beam.className = "beam";
+      beam.style.transform = "rotate(" + deg + "deg)";
+      const pivot = document.createElement("div"); pivot.className = "pivot";
+      beamwrap.appendChild(beam);
+      beamwrap.appendChild(pan("left", left));
+      beamwrap.appendChild(pan("right", right));
+      beamwrap.appendChild(pivot);
+      scale.appendChild(beamwrap);
+      const eq = document.createElement("div"); eq.className = "eq";
+      eq.textContent = left + "  =  " + right;
+      scale.appendChild(eq);
+      if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; scale.appendChild(c); }
+      stage.appendChild(scale);
+      // reflect the tilt after paint so the CSS transition animates
+      requestAnimationFrame(() => { beam.style.transform = "rotate(" + deg + "deg)"; });
+    }
+
+    // ==================================================================
+    // Transcript + captions.
+    // ==================================================================
     function addBubble(role, text) {
       const div = document.createElement("div");
       div.className = "bubble " + role;
@@ -207,154 +487,71 @@
     }
 
     // ==================================================================
-    // SPEAKING: the browser reads the tutor's reply aloud.
-    // ==================================================================
-    let femaleVoice = null;
-    function pickVoice() {
-      const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-      if (!voices || !voices.length) return;
-      // Prefer an English voice that is likely female.
-      const preferred = ["samantha", "zira", "google us english", "victoria",
-                         "female", "karen", "moira", "tessa", "fiona"];
-      const en = voices.filter(v => /en(-|_)?/i.test(v.lang));
-      for (const name of preferred) {
-        const hit = en.find(v => v.name.toLowerCase().includes(name));
-        if (hit) { femaleVoice = hit; return; }
-      }
-      femaleVoice = en[0] || voices[0];
-    }
-    if (window.speechSynthesis) {
-      pickVoice();
-      speechSynthesis.onvoiceschanged = pickVoice;
-    }
-
-    // Make spoken math sound natural (the on-screen caption keeps the symbols).
-    function forSpeech(text) {
-      return text
-        .replace(/\s*=\s*/g, " equals ")
-        .replace(/\s*\+\s*/g, " plus ")
-        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2")
-        .replace(/\s*\*\s*/g, " times ")
-        .replace(/\s*\/\s*/g, " divided by ");
-    }
-
-    function speak(text) {
-      if (!window.speechSynthesis) return;
-      try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(forSpeech(text));
-        if (femaleVoice) u.voice = femaleVoice;
-        u.rate = 1.0; u.pitch = 1.05;
-        u.onstart = () => { avatarWrap.classList.add("speaking"); };
-        u.onend = () => { avatarWrap.classList.remove("speaking"); };
-        u.onerror = () => { avatarWrap.classList.remove("speaking"); };
-        speechSynthesis.speak(u);
-      } catch (e) { /* speaking is best-effort */ }
-    }
-
-    replayBtn.addEventListener("click", () => { if (lastTutorText) speak(lastTutorText); });
-
-    // ==================================================================
-    // LISTENING: the browser turns the student's speech into text.
+    // LISTENING (browser speech recognition).
     // ==================================================================
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let listening = false;
-
+    let recognition = null, listening = false;
     if (SR) {
       recognition = new SR();
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = () => {
-        listening = true;
-        micBtn.classList.add("listening");
-        setStatus("Listening…");
-        micHint.textContent = "Listening — tap again to stop";
-      };
-      recognition.onerror = (e) => {
-        listening = false;
-        micBtn.classList.remove("listening");
-        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-          setStatus("Microphone blocked — allow mic access and try again.");
-        } else if (e.error === "no-speech") {
-          setStatus("I didn't catch that — tap the mic and try again.");
-        } else {
-          setStatus("");
-        }
-        micHint.textContent = "Tap the mic and start talking";
-      };
-      recognition.onend = () => {
-        listening = false;
-        micBtn.classList.remove("listening");
-        if (!busy) micHint.textContent = "Tap the mic and start talking";
-      };
-      recognition.onresult = (event) => {
-        const said = event.results[0][0].transcript.trim();
-        if (said) handleStudentMessage(said);
-      };
+      recognition.lang = "en-US"; recognition.interimResults = false; recognition.maxAlternatives = 1;
+      recognition.onstart = () => { listening = true; micBtn.classList.add("listening");
+        caption.textContent = "Listening…"; micHint.textContent = "Listening — tap again to stop"; };
+      recognition.onerror = (e) => { listening = false; micBtn.classList.remove("listening");
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") caption.textContent = "Microphone blocked — allow mic access and try again.";
+        else if (e.error === "no-speech") caption.textContent = "I didn't catch that — tap the mic and try again.";
+        micHint.textContent = "Tap the mic and start talking"; };
+      recognition.onend = () => { listening = false; micBtn.classList.remove("listening");
+        if (!busy) micHint.textContent = "Tap the mic and start talking"; };
+      recognition.onresult = (event) => { const said = event.results[0][0].transcript.trim(); if (said) handleStudentMessage(said); };
     } else {
-      // No speech recognition in this browser -> show the text fallback.
-      composer.classList.add("show");
-      micBtn.style.display = "none";
+      composer.classList.add("show"); micBtn.style.display = "none";
       micHint.textContent = "Voice isn't supported in this browser — type instead. (Chrome works best.)";
     }
-
     function toggleListen() {
       if (!recognition || busy) return;
       if (listening) { try { recognition.stop(); } catch (e) {} return; }
-      // Tapping the mic is also the user gesture that unlocks audio playback.
-      try { recognition.start(); } catch (e) { /* already started */ }
+      try { recognition.start(); } catch (e) {}
     }
     micBtn.addEventListener("click", toggleListen);
 
     // ==================================================================
-    // TALKING TO THE TUTOR: send text to /api/chat, show + speak the reply.
+    // TALKING TO THE TUTOR.
     // ==================================================================
     async function handleStudentMessage(message) {
       if (busy) return;
       busy = true;
       addBubble("student", message);
-      setStatus(tutorName + " is thinking…");
-      micBtn.disabled = true;
-      sendBtn && (sendBtn.disabled = true);
+      caption.textContent = tutorName + " is thinking…";
+      micBtn.disabled = true; if (sendBtn) sendBtn.disabled = true;
       try {
         const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: CODE, message })
         });
         const data = await res.json();
-        const reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
+        let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
+        reply = handleTags(reply);           // act on tags, strip them out
         addBubble("tutor", reply);
+        caption.textContent = reply;
         lastTutorText = reply;
         replayBtn.style.display = "inline";
-        setStatus("");
         speak(reply);
       } catch (err) {
-        addBubble("tutor", "I couldn't reach the server. Please try again.");
-        setStatus("");
+        caption.textContent = "I couldn't reach the server. Please try again.";
       } finally {
-        busy = false;
-        micBtn.disabled = false;
-        sendBtn && (sendBtn.disabled = false);
+        busy = false; micBtn.disabled = false; if (sendBtn) sendBtn.disabled = false;
         micHint.textContent = "Tap the mic and start talking";
       }
     }
-
-    // Text fallback handlers.
     function sendTyped() {
       const message = (input.value || "").trim();
-      if (!message) return;
-      input.value = "";
-      handleStudentMessage(message);
+      if (!message) return; input.value = ""; handleStudentMessage(message);
     }
     if (sendBtn) sendBtn.addEventListener("click", sendTyped);
     if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
 
     // ==================================================================
-    // On load: greet, and replay any remembered conversation.
+    // On load: greet + replay remembered history (acting on any tags in it).
     // ==================================================================
     async function loadSession() {
       try {
@@ -363,26 +560,23 @@
         const data = await res.json();
         tutorName = data.tutor_name || "Tutor";
         tutorNameEl.textContent = tutorName;
-        headerTitleEl.textContent = "Math Tutor";
-        avatarImg.alt = tutorName;
-        studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
+        statusName.textContent = data.name ? ("Student: " + data.name) : "";
 
         const history = data.history || [];
         if (history.length === 0) {
-          addBubble("system", "Tap the mic and say hello to start.");
+          caption.textContent = "Tap the mic and say hello to start.";
         } else {
           addBubble("system", "Welcome back — picking up where you left off.");
           for (const m of history) {
-            addBubble(m.role === "assistant" ? "tutor" : "student", m.content);
+            const isTutor = m.role === "assistant";
+            const shown = isTutor ? handleTags(m.content) : m.content;
+            addBubble(isTutor ? "tutor" : "student", shown);
+            if (isTutor) { lastTutorText = shown; caption.textContent = shown; }
           }
-          const lastTutor = [...history].reverse().find(m => m.role === "assistant");
-          if (lastTutor) { lastTutorText = lastTutor.content; replayBtn.style.display = "inline"; }
+          if (lastTutorText) replayBtn.style.display = "inline";
         }
-      } catch (err) {
-        window.location.href = "/";
-      }
+      } catch (err) { window.location.href = "/"; }
     }
-
     loadSession();
   </script>
 </body>
