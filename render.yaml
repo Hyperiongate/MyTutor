@@ -2,6 +2,8 @@
 # render.yaml  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Updated CLAUDE_MODEL default from the retired
+#               "claude-3-5-sonnet-latest" to the active "claude-sonnet-5".
 #   2026-07-19  Initial Render blueprint. Defines one Python web service that
 #               builds from requirements.txt and starts the FastAPI app with
 #               uvicorn on Render's provided $PORT.
@@ -24,5 +26,5 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false            # you set this secret in the Render dashboard
       - key: CLAUDE_MODEL
-        value: claude-3-5-sonnet-latest
+        value: claude-sonnet-5
 # I did no harm and this file is not truncated.
