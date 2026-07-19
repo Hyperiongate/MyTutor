@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-19  Initial session screen. Shows a simple pulsing orb (placeholder
+                for the Day 5 animated avatar), loads any remembered conversation
+                so the tutor "remembers," and runs a text chat with the tutor.
+                Voice input/output (Day 3) is not wired yet -- this proves the
+                tutor works via text first, per the build plan.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Tutor — Session</title>
+  <style>
+    :root { --ink:#1c2430; --muted:#5d6b7a; --line:#dfe5ec; --accent:#2f6df6;
+            --tutor:#eef3fe; --student:#e8f7ee; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto,
+      Helvetica, Arial, sans-serif; color: var(--ink); background: #f5f7fa;
+      display: flex; flex-direction: column; height: 100vh;
+    }
+    header {
+      display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+      background: #fff; border-bottom: 1px solid var(--line);
+    }
+    .orb {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, #7fb0ff, var(--accent) 70%);
+      box-shadow: 0 0 0 0 rgba(47,109,246,.45);
+      flex: 0 0 auto;
+    }
+    .orb.thinking { animation: pulse 1.1s ease-in-out infinite; }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(47,109,246,.45); }
+      70%  { box-shadow: 0 0 0 14px rgba(47,109,246,0); }
+      100% { box-shadow: 0 0 0 0 rgba(47,109,246,0); }
+    }
+    header .who { line-height: 1.2; }
+    header .who .t { font-weight: 600; font-size: 15px; }
+    header .who .s { font-size: 12px; color: var(--muted); }
+    header .spacer { flex: 1; }
+    header a { font-size: 13px; color: var(--muted); text-decoration: none; }
+
+    main {
+      flex: 1; overflow-y: auto; padding: 18px; display: flex;
+      flex-direction: column; gap: 10px; max-width: 720px; width: 100%;
+      margin: 0 auto;
+    }
+    .bubble { padding: 10px 14px; border-radius: 14px; max-width: 80%;
+      font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
+    .bubble.tutor { background: var(--tutor); align-self: flex-start;
+      border-bottom-left-radius: 4px; }
+    .bubble.student { background: var(--student); align-self: flex-end;
+      border-bottom-right-radius: 4px; }
+    .bubble.system { align-self: center; background: transparent;
+      color: var(--muted); font-size: 13px; }
+
+    footer {
+      background: #fff; border-top: 1px solid var(--line); padding: 12px 18px;
+    }
+    .composer { display: flex; gap: 10px; max-width: 720px; margin: 0 auto; }
+    .composer input {
+      flex: 1; font-size: 15px; padding: 12px 14px; border: 1px solid var(--line);
+      border-radius: 12px; outline: none;
+    }
+    .composer input:focus { border-color: var(--accent); }
+    .composer button {
+      font-size: 15px; padding: 12px 18px; background: var(--accent); color: #fff;
+      border: none; border-radius: 12px; cursor: pointer;
+    }
+    .composer button:disabled { opacity: .55; cursor: default; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="orb" class="orb"></div>
+    <div class="who">
+      <div class="t" id="tutorName">Tutor</div>
+      <div class="s" id="studentName">&nbsp;</div>
+    </div>
+    <div class="spacer"></div>
+    <a href="/">Exit</a>
+  </header>
+
+  <main id="log"></main>
+
+  <footer>
+    <div class="composer">
+      <input id="input" placeholder="Type what you'd say to your tutor…"
+             autocomplete="off" />
+      <button id="send">Send</button>
+    </div>
+  </footer>
+
+  <script>
+    // ------------------------------------------------------------------
+    // Read the login code from the URL. If it is missing, go back home.
+    // ------------------------------------------------------------------
+    const params = new URLSearchParams(window.location.search);
+    const CODE = (params.get("code") || "").trim();
+    if (!CODE) { window.location.href = "/"; }
+
+    const log = document.getElementById("log");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+    const orb = document.getElementById("orb");
+    const tutorNameEl = document.getElementById("tutorName");
+    const studentNameEl = document.getElementById("studentName");
+
+    let tutorName = "Tutor";
+
+    function addBubble(role, text) {
+      const div = document.createElement("div");
+      div.className = "bubble " + role;
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+      return div;
+    }
+
+    function setThinking(on) {
+      orb.classList.toggle("thinking", on);
+      sendBtn.disabled = on;
+      input.disabled = on;
+      if (!on) input.focus();
+    }
+
+    // ------------------------------------------------------------------
+    // On load, fetch the student's remembered conversation so the tutor
+    // "remembers" prior sessions. If there is none, greet them fresh.
+    // ------------------------------------------------------------------
+    async function loadSession() {
+      try {
+        const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+        if (!res.ok) { window.location.href = "/"; return; }
+        const data = await res.json();
+        tutorName = data.tutor_name || "Tutor";
+        tutorNameEl.textContent = tutorName;
+        studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
+
+        const history = data.history || [];
+        if (history.length === 0) {
+          addBubble("system", "Say hello to start your session.");
+        } else {
+          addBubble("system", "Welcome back — picking up where you left off.");
+          for (const m of history) {
+            addBubble(m.role === "assistant" ? "tutor" : "student", m.content);
+          }
+        }
+      } catch (err) {
+        window.location.href = "/";
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Send a message to the tutor and show the reply.
+    // ------------------------------------------------------------------
+    async function send() {
+      const message = (input.value || "").trim();
+      if (!message) return;
+      input.value = "";
+      addBubble("student", message);
+      setThinking(true);
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, message })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          addBubble("tutor", data.detail || "Sorry, something went wrong.");
+        } else {
+          addBubble("tutor", data.reply);
+        }
+      } catch (err) {
+        addBubble("tutor", "I couldn't reach the server. Please try again.");
+      } finally {
+        setThinking(false);
+      }
+    }
+
+    sendBtn.addEventListener("click", send);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+
+    loadSession();
+  </script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->
