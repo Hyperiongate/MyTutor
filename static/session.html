@@ -4,6 +4,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-20  VOICE REWORK -> TAP-TO-TALK. The mic is now OFF except while the
+                student is actively recording (they tapped the glowing button), so
+                there is no echo and the tutor never replies to phantom/noise input.
+                The talk button is DARK/disabled while the tutor talks, then LIGHTS
+                UP ("Tap to talk") the instant he finishes. While recording, the
+                student's words show live and the button turns red ("tap when
+                done"); a pause auto-sends, or they tap to send. Mr. Cadabra opens
+                the session first. Also: forSpeech() now converts notation to spoken
+                words (f(x)->"f of x", strips parentheses/symbols) and the stray
+                lead-in was removed, fixing garbled/made-up words.
     2026-07-19  Added "🎯 Find my level" links (sidebar + welcome) to Mr. Cadabra's
                 Challenge placement quiz (/challenge?code=...).
     2026-07-19  Relayout: Mr. Cadabra (smaller orb) + name + status in a compact
@@ -192,11 +202,20 @@
     .bubble.student { background: var(--student); align-self: flex-end; border-bottom-right-radius: 5px; }
     .bubble.system { align-self: center; background: transparent; color: var(--muted); font-size: 13px; }
 
-    .controls { padding: 8px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .btn { border: none; border-radius: 26px; cursor: pointer; font-size: 16px; font-weight: 600;
-      padding: 13px 26px; display: inline-flex; align-items: center; gap: 9px; }
-    .btn.primary { background: var(--accent); color: #fff; box-shadow: 0 6px 18px rgba(47,109,246,.32); }
-    .btn.stop { background: #eef1f5; color: var(--ink); }
+    .controls { padding: 8px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
+    .live { min-height: 24px; font-size: 17px; font-weight: 600; color: var(--ink); text-align: center;
+      max-width: 620px; line-height: 1.3; }
+    .talkbtn { border: none; border-radius: 30px; font-size: 17px; font-weight: 800; padding: 15px 30px;
+      display: inline-flex; align-items: center; gap: 9px; color: #fff; background: #c3ccd8; cursor: default;
+      transition: background .2s ease, box-shadow .2s ease, transform .08s ease; }
+    .talkbtn.ready { background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer;
+      animation: talkglow 1.5s ease-in-out infinite; }
+    .talkbtn.ready:active { transform: scale(.97); }
+    .talkbtn.recording { background: #e0392b; cursor: pointer; animation: recpulse 1.15s ease-in-out infinite; }
+    @keyframes talkglow { 0%,100% { box-shadow: 0 8px 20px rgba(91,91,214,.32); }
+      50% { box-shadow: 0 10px 30px rgba(91,91,214,.65); } }
+    @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
+      70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
@@ -246,9 +265,9 @@
       <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
 
       <div class="controls">
-        <button class="btn primary" id="startBtn">🎙️ Start talking</button>
-        <button class="btn stop" id="stopBtn" style="display:none;">⏸ Pause</button>
-        <div class="hint" id="hint">Tap to begin — then just talk, no buttons.</div>
+        <div class="live" id="live"></div>
+        <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
           <input id="input" placeholder="Type to your tutor…" autocomplete="off" />
@@ -295,14 +314,15 @@
 
     const stage = el("stage"), statusEl = el("status"), log = el("log");
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
-    const startBtn = el("startBtn"), stopBtn = el("stopBtn"), hint = el("hint");
+    const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
     const planList = el("planList"), coveredList = el("coveredList");
 
     let tutorName = "Tutor";
     let lastTutorText = "";
-    let busy = false;              // handling a turn (thinking + speaking)
-    let convoActive = false;       // hands-free conversation running
+    let busy = false;              // tutor is thinking/speaking (student can't talk)
+    let phase = "idle";            // idle | ready | recording | busy (drives the talk button)
+    let started = false;           // has the session been started (audio unlocked)?
     let elevenEnabled = false;     // natural voice available?
     let state = "idle";            // idle | listening | thinking | speaking
     function setState(s) { state = s; }
@@ -477,9 +497,24 @@
     }
     if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 
+    // Turn written math into words the voice can say cleanly (the visuals carry
+    // the actual notation). Prevents "x parenthesis parenthesis", "times x", etc.
     function forSpeech(text) {
-      return text.replace(/\s*=\s*/g, " equals ").replace(/\s*\+\s*/g, " plus ")
-        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2").replace(/\s*\*\s*/g, " times ").replace(/\s*\/\s*/g, " divided by ");
+      return String(text)
+        .replace(/\*+/g, " ")                                       // strip markdown *
+        .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")  // f(x) -> f of x
+        .replace(/[()]/g, " ")                                      // drop stray parentheses
+        .replace(/\s*=\s*/g, " equals ")
+        .replace(/\s*\+\s*/g, " plus ")
+        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2")
+        .replace(/\s-\s/g, " minus ")
+        .replace(/\s*[×*]\s*/g, " times ")
+        .replace(/\s*[÷]\s*/g, " divided by ")
+        .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")
+        .replace(/\^/g, " to the power ")
+        .replace(/√/g, " square root of ")
+        .replace(/\s{2,}/g, " ")
+        .trim();
     }
     function browserSpeak(text, done) {
       if (!window.speechSynthesis) { if (done) done(); return; }
@@ -511,8 +546,7 @@
         ttsAudio.addEventListener("playing", onPlaying);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        // Prepend a tiny pause so ElevenLabs doesn't clip the first word.
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent("… " + forSpeech(text));
+        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         setTimeout(() => { if (!started && !doneCalled) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); } }, 5000);
@@ -586,61 +620,95 @@
       log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
     }
 
-    // ---------- Hands-free speech recognition ----------
+    // ---------- Tap-to-talk speech recognition ----------
+    // The mic is ONLY on while the student is actively recording (they tapped the
+    // glowing button). It is OFF while the tutor talks -> no echo, no phantom input.
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null, pending = "", silenceTimer = null;
     if (SR) {
       recognition = new SR();
       recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
-      recognition.onstart = () => { if (convoActive && !busy) setState("listening"); };
-      recognition.onerror = (e) => { /* no-speech/aborted are normal; onend will restart */ };
-      recognition.onend = () => { if (convoActive && !busy && state !== "speaking") setTimeout(startRecognition, 200); };
+      recognition.onerror = (e) => {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed")
+          hint.textContent = "Microphone blocked — allow mic access in your browser, then tap again.";
+      };
       recognition.onresult = (e) => {
-        if (busy) return;
+        if (phase !== "recording") return;   // ignore anything not during an active tap-to-talk
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const tr = e.results[i][0].transcript;
           if (e.results[i].isFinal) pending += tr + " "; else interim += tr;
         }
-        const shown = (pending + interim).trim();
-        if (shown) statusEl.textContent = shown;
+        live.textContent = (pending + interim).trim();
         clearTimeout(silenceTimer);
-        silenceTimer = setTimeout(flushUtterance, 1100);
+        if ((pending + interim).trim().length > 0) silenceTimer = setTimeout(() => stopRecording(true), 2400);
       };
     }
-    function startRecognition() { if (!recognition || !convoActive || busy || state === "speaking") return; try { recognition.start(); } catch (e) {} }
-    function flushUtterance() { const text = pending.trim(); pending = ""; if (text && !busy) sendToTutor(text); }
 
-    function startConversation() {
+    // ---------- Turn / button state ----------
+    function setPhase(p) {
+      phase = p;
+      talkBtn.classList.remove("ready", "recording");
+      if (p === "ready") {
+        talkBtn.disabled = false; talkBtn.classList.add("ready");
+        talkLabel.textContent = "Tap to talk";
+        hint.textContent = "Your turn — tap, talk, then tap when you're done.";
+        statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
+      } else if (p === "recording") {
+        talkBtn.disabled = false; talkBtn.classList.add("recording");
+        talkLabel.textContent = "Listening… tap when done";
+        hint.textContent = "I'm listening — tap when you're finished.";
+        statusEl.textContent = "🎤 Listening…"; setState("listening");
+      } else { // busy / idle -> button dark and unavailable
+        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = "";
+      }
+    }
+
+    function startRecording() {
+      if (phase !== "ready" || !recognition) return;
       ensureAudioGraph();
-      if (!recognition) { showComposer(); return; }
-      convoActive = true;
-      startBtn.style.display = "none"; stopBtn.style.display = "inline-flex";
-      hint.textContent = "Listening — just talk. I'll answer out loud.";
-      setState("listening"); startRecognition();
+      pending = ""; live.textContent = "";
+      setPhase("recording");
+      try { recognition.start(); } catch (e) {}
     }
-    function stopConversation() {
-      convoActive = false; try { recognition && recognition.stop(); } catch (e) {}
-      try { ttsAudio.pause(); } catch (e) {} try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
-      setState("idle"); startBtn.style.display = "inline-flex"; stopBtn.style.display = "none";
-      hint.textContent = "Paused — tap to keep talking.";
+    function stopRecording(send) {
+      clearTimeout(silenceTimer);
+      try { recognition && recognition.stop(); } catch (e) {}
+      const text = pending.trim(); pending = ""; live.textContent = "";
+      if (send && text.length >= 1) sendToTutor(text);
+      else setPhase("ready");   // nothing real captured -> back to your turn; never a phantom reply
     }
-    startBtn.addEventListener("click", startConversation);
-    stopBtn.addEventListener("click", stopConversation);
+    talkBtn.addEventListener("click", () => {
+      if (phase === "ready") startRecording();
+      else if (phase === "recording") stopRecording(true);
+    });
 
-    // Welcome / how-to overlay — shows on load; its button starts the conversation.
+    // ---------- Welcome overlay -> begin the session ----------
     const welcome = el("welcome");
-    el("welcomeGo").addEventListener("click", () => { welcome.classList.remove("show"); startConversation(); });
+    let hasHistory = false;
+    function begin() {
+      welcome.classList.remove("show");
+      ensureAudioGraph(); started = true;
+      if (!recognition) showComposer();
+      if (!hasHistory) { busy = true; setPhase("busy"); kickoff(); }     // Mr. Cadabra opens first
+      else if (recognition) setPhase("ready");                          // returning: student's turn
+    }
+    el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
+
+    async function kickoff() {
+      statusEl.textContent = tutorName + " is starting…";
+      await runTutor("Hi!");   // greets and begins; no student bubble
+    }
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy) return; busy = true;
-      // NOTE: we deliberately do NOT stop recognition here. It keeps running while
-      // the tutor thinks/speaks (its results are ignored via `if (busy) return`),
-      // so the moment the tutor finishes, the mic is already live and catches the
-      // student immediately -- even if they start talking quickly.
+      if (busy) return;
+      busy = true; setPhase("busy");
       addBubble("student", message);
+      await runTutor(message);
+    }
+    async function runTutor(message) {
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
         const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
@@ -648,26 +716,24 @@
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         reply = handleTags(reply);
-        addBubble("tutor", reply); lastTutorText = reply; statusEl.textContent = "";
+        addBubble("tutor", reply); lastTutorText = reply;
+        statusEl.textContent = tutorName + " is talking…";
         await speak(reply);
-      } catch (e) { statusEl.textContent = "I couldn't reach the server. Please try again."; }
-      finally { busy = false; pending = "";
-        if (convoActive) { setState("listening"); statusEl.textContent = "Listening…"; startRecognition(); }
-        else { setState("idle"); statusEl.textContent = ""; } }
+      } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
+      finally { busy = false; statusEl.textContent = ""; setPhase("ready"); }
     }
 
-    // ---------- Text fallback ----------
-    function showComposer() { composer.classList.add("show"); typeToggle.style.display = "none"; input.focus(); }
+    // ---------- Text fallback (no speech recognition, or 'Type instead') ----------
+    function showComposer() { composer.classList.add("show"); typeToggle.style.display = "none"; if (input) input.focus(); }
     typeToggle.addEventListener("click", showComposer);
-    function sendTyped() { const m = (input.value || "").trim(); if (!m) return; input.value = ""; ensureAudioGraph(); sendToTutor(m); }
+    function sendTyped() { const m = (input.value || "").trim(); if (!m || busy) return; input.value = ""; ensureAudioGraph(); sendToTutor(m); }
     if (sendBtn) sendBtn.addEventListener("click", sendTyped);
     if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
 
     // ---------- Load ----------
     async function loadSession() {
-      // is the natural voice available?
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
-      if (!SR) { startBtn.style.display = "none"; hint.textContent = "Voice input isn't supported here — type instead. (Chrome works best.)"; showComposer(); }
+      if (!SR) { talkBtn.style.display = "none"; hint.textContent = "Voice isn't supported here — type instead. (Chrome works best.)"; }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE));
         if (!res.ok) { window.location.href = "/"; return; }
@@ -676,8 +742,8 @@
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
         const history = data.history || [];
-        if (history.length === 0) { statusEl.textContent = ""; }
-        else {
+        hasHistory = history.length > 0;
+        if (hasHistory) {
           addBubble("system", "Welcome back — picking up where you left off.");
           for (const m of history) { const isT = m.role === "assistant"; const shown = isT ? handleTags(m.content) : m.content;
             addBubble(isT ? "tutor" : "student", shown); if (isT) { lastTutorText = shown; } }

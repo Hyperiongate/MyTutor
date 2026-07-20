@@ -232,7 +232,7 @@
     function say(text, spoken) {
       el("say").textContent = text;
       const line = spoken || text;
-      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent("… " + line);
+      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent(line);
         const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line)); }
       else browserSay(line);
     }
