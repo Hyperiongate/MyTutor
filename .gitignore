@@ -10,4 +10,7 @@ __pycache__/
 data/sessions.json
 data/*.tmp
 .env
+node_modules/
+package-lock.json
+# NOTE: static/chart.umd.min.js IS committed on purpose (bundled Chart.js library).
 # I did no harm and this file is not truncated.

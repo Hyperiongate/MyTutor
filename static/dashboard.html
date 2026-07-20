@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-19  Initial spectacular progress dashboard. Dark, cinematic, 14
+                metrics: overall progress ring, level/XP, streak, accuracy ring,
+                sessions, problems, minutes, avg session, concepts, plus charts:
+                per-unit progress bars, mastery doughnut, skill-growth line,
+                time-on-task bars, and a strengths radar. Colors use the validated
+                data-viz palette (dark). Data from /api/progress/{code} (currently
+                representative SAMPLE data, clearly labeled). Charts: Chart.js (CDN).
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Tutor — Progress</title>
+  <!-- Chart.js bundled locally (no external CDN dependency) -->
+  <script src="/static/chart.umd.min.js"></script>
+  <style>
+    :root {
+      /* validated data-viz palette (dark) */
+      --plane:#0d0d0d; --surface:#161615; --surface2:#1c1c1b;
+      --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --border:rgba(255,255,255,0.09);
+      --blue:#3987e5; --green:#008300; --magenta:#d55181; --yellow:#c98500;
+      --aqua:#199e70; --orange:#d95926; --violet:#9085e9; --red:#e66767;
+      --good:#0ca30c; --warning:#fab219;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink); min-height: 100vh;
+      background:
+        radial-gradient(900px 500px at 12% -8%, rgba(57,135,229,.18), transparent 60%),
+        radial-gradient(900px 500px at 92% 0%, rgba(144,133,233,.16), transparent 55%),
+        var(--plane);
+    }
+    a { color: var(--ink2); text-decoration: none; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 22px 22px 60px; }
+
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    header .who .t { font-size: 20px; font-weight: 800; letter-spacing: .01em; }
+    header .who .s { font-size: 13px; color: var(--muted); }
+    header .spacer { flex: 1; }
+    .badge { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      color: #0d0d0d; background: var(--warning); padding: 4px 9px; border-radius: 20px; }
+    .backlink { font-size: 13px; padding: 8px 14px; border: 1px solid var(--border);
+      border-radius: 20px; color: var(--ink2); }
+    .backlink:hover { background: rgba(255,255,255,.05); }
+
+    .section-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin: 22px 2px 10px; }
+
+    .grid { display: grid; gap: 14px; }
+    .hero { grid-template-columns: 1.25fr 1fr 1fr 1fr; }
+    .tiles { grid-template-columns: repeat(6, 1fr); }
+    .charts { grid-template-columns: 1.4fr 1fr; }
+    .charts2 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .card { background: linear-gradient(180deg, var(--surface2), var(--surface));
+      border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35); position: relative; overflow: hidden; }
+    .card h3 { margin: 0 0 10px; font-size: 13px; color: var(--ink2); font-weight: 600; }
+    .card .sub { font-size: 12px; color: var(--muted); }
+
+    /* Hero ring */
+    .ring-card { display: flex; align-items: center; gap: 18px; }
+    .ring { --p: 0; --c: var(--blue); width: 132px; height: 132px; border-radius: 50%; flex: 0 0 auto;
+      background: conic-gradient(var(--c) calc(var(--p) * 1%), rgba(255,255,255,.08) 0);
+      display: flex; align-items: center; justify-content: center; position: relative;
+      transition: background 1.1s ease; }
+    .ring::before { content: ""; position: absolute; inset: 12px; border-radius: 50%;
+      background: var(--surface); }
+    .ring .rv { position: relative; text-align: center; }
+    .ring .rv b { font-size: 30px; font-weight: 800; }
+    .ring .rv span { display: block; font-size: 11px; color: var(--muted); }
+    .ring.sm { width: 96px; height: 96px; }
+    .ring.sm::before { inset: 9px; }
+    .ring.sm .rv b { font-size: 22px; }
+
+    .big { font-size: 34px; font-weight: 800; line-height: 1; }
+    .big.small { font-size: 26px; }
+    .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .row { display: flex; align-items: baseline; gap: 8px; }
+    .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+      background: rgba(12,163,12,.16); color: #4fd47f; }
+
+    /* Level / XP */
+    .xpbar { height: 10px; border-radius: 6px; background: rgba(255,255,255,.08); margin-top: 12px; overflow: hidden; }
+    .xpbar > span { display: block; height: 100%; width: 0; border-radius: 6px;
+      background: linear-gradient(90deg, var(--violet), var(--blue)); transition: width 1.1s ease; }
+    .lvlbadge { width: 46px; height: 46px; border-radius: 12px; flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
+      color: #fff; background: linear-gradient(135deg, var(--violet), var(--blue));
+      box-shadow: 0 6px 16px rgba(144,133,233,.4); }
+
+    .tile .big { font-size: 26px; }
+    .tile .t { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
+    .chartbox { position: relative; height: 260px; }
+    .chartbox.tall { height: 300px; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 12px; color: var(--ink2); }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+    .foot { margin-top: 26px; font-size: 12px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 980px) {
+      .hero, .tiles, .charts, .charts2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 620px) {
+      .hero, .tiles, .charts, .charts2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="who">
+        <div class="t" id="tutorName">Progress</div>
+        <div class="s" id="studentName">&nbsp;</div>
+      </div>
+      <div class="spacer"></div>
+      <span class="badge" id="sampleBadge" style="display:none;">Sample data</span>
+      <a class="backlink" id="backLink" href="/">← Back to lesson</a>
+    </header>
+
+    <!-- HERO -->
+    <div class="grid hero">
+      <div class="card ring-card">
+        <div class="ring" id="overallRing" style="--c:var(--blue);">
+          <div class="rv"><b id="overallVal">0%</b><span>complete</span></div>
+        </div>
+        <div>
+          <h3>Course progress</h3>
+          <div class="sub" id="overallSub">Algebra I</div>
+          <div class="row" style="margin-top:10px;">
+            <span class="pill" id="masteredPill">0 mastered</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Level</h3>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="lvlbadge" id="lvlBadge">1</div>
+          <div>
+            <div class="big small" id="lvlTitle">—</div>
+            <div class="lbl"><span id="xpNow">0</span> / <span id="xpNext">0</span> XP</div>
+          </div>
+        </div>
+        <div class="xpbar"><span id="xpFill"></span></div>
+      </div>
+
+      <div class="card">
+        <h3>Streak</h3>
+        <div class="row"><div class="big" id="streakVal">0</div><div class="lbl">days 🔥</div></div>
+        <div class="lbl" style="margin-top:10px;">Longest: <span id="longestStreak">0</span> days</div>
+      </div>
+
+      <div class="card ring-card">
+        <div class="ring sm" id="accRing" style="--c:var(--aqua);">
+          <div class="rv"><b id="accVal">0%</b></div>
+        </div>
+        <div>
+          <h3>Accuracy</h3>
+          <div class="lbl"><span id="correctVal">0</span> of <span id="attemptVal">0</span> correct</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT TILES -->
+    <div class="section-title">This week &amp; overall</div>
+    <div class="grid tiles">
+      <div class="card tile"><div class="t">Sessions</div><div class="big" id="mSessions">0</div></div>
+      <div class="card tile"><div class="t">Problems solved</div><div class="big" id="mProblems">0</div></div>
+      <div class="card tile"><div class="t">Minutes this week</div><div class="big" id="mMinutes">0</div></div>
+      <div class="card tile"><div class="t">Avg session</div><div class="big" id="mAvg">0</div></div>
+      <div class="card tile"><div class="t">Concepts mastered</div><div class="big" id="mMastered">0</div></div>
+      <div class="card tile"><div class="t">In progress</div><div class="big" id="mInProg">0</div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="section-title">Progress by unit</div>
+    <div class="grid charts">
+      <div class="card">
+        <h3>Unit mastery</h3>
+        <div class="chartbox tall"><canvas id="unitChart"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--good)"></i>Mastered</span>
+          <span><i style="background:var(--blue)"></i>In progress</span>
+          <span><i style="background:#4a4a47"></i>Not started</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Mastery breakdown</h3>
+        <div class="chartbox tall"><canvas id="masteryChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-title">Growth, effort &amp; strengths</div>
+    <div class="grid charts2">
+      <div class="card">
+        <h3>Skill growth over time</h3>
+        <div class="chartbox"><canvas id="growthChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Time on task (last 7 days)</h3>
+        <div class="chartbox"><canvas id="timeChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Strengths</h3>
+        <div class="chartbox"><canvas id="radarChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="foot" id="footNote"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const CODE = (params.get("code") || "").trim();
+    document.getElementById("backLink").href = CODE ? ("/session?code=" + encodeURIComponent(CODE)) : "/";
+
+    // Chart.js dark defaults
+    if (window.Chart) {
+      Chart.defaults.color = "#c3c2b7";
+      Chart.defaults.borderColor = "#2c2c2a";
+      Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+    }
+    const C = { blue:"#3987e5", green:"#008300", magenta:"#d55181", yellow:"#c98500",
+                aqua:"#199e70", orange:"#d95926", violet:"#9085e9", red:"#e66767",
+                good:"#0ca30c", muted:"#4a4a47", grid:"#2c2c2a", ink2:"#c3c2b7" };
+
+    function animateNumber(el, to, suffix) {
+      const dur = 900, start = performance.now();
+      function step(now) {
+        const p = Math.min(1, (now - start) / dur);
+        const val = Math.round(to * (0.5 - Math.cos(p * Math.PI) / 2)); // ease
+        el.textContent = val + (suffix || "");
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    async function load() {
+      if (!CODE) { location.href = "/"; return; }
+      let d;
+      try {
+        const res = await fetch("/api/progress/" + encodeURIComponent(CODE));
+        if (!res.ok) { location.href = "/"; return; }
+        d = await res.json();
+      } catch (e) { location.href = "/"; return; }
+
+      document.getElementById("tutorName").textContent = d.student + "'s Progress";
+      document.getElementById("studentName").textContent = "Algebra I";
+      if (d.sample) document.getElementById("sampleBadge").style.display = "inline-block";
+      document.getElementById("footNote").textContent = d.sample
+        ? "Showing representative sample data for demonstration. Real progress will populate these charts as students use the tutor."
+        : "";
+
+      // Hero: overall ring
+      const ring = document.getElementById("overallRing");
+      setTimeout(() => ring.style.setProperty("--p", d.overall_percent), 120);
+      animateNumber(document.getElementById("overallVal"), d.overall_percent, "%");
+      document.getElementById("masteredPill").textContent = d.concepts_mastered + " units mastered";
+
+      // Level / XP
+      document.getElementById("lvlBadge").textContent = d.level;
+      document.getElementById("lvlTitle").textContent = d.level_title;
+      document.getElementById("xpNow").textContent = d.xp;
+      document.getElementById("xpNext").textContent = d.xp_to_next;
+      setTimeout(() => { document.getElementById("xpFill").style.width =
+        Math.min(100, Math.round(100 * d.xp / d.xp_to_next)) + "%"; }, 150);
+
+      // Streak / accuracy
+      animateNumber(document.getElementById("streakVal"), d.streak_days, "");
+      document.getElementById("longestStreak").textContent = d.longest_streak;
+      const accRing = document.getElementById("accRing");
+      setTimeout(() => accRing.style.setProperty("--p", d.accuracy), 120);
+      animateNumber(document.getElementById("accVal"), d.accuracy, "%");
+      document.getElementById("correctVal").textContent = d.problems_correct;
+      document.getElementById("attemptVal").textContent = d.problems_attempted;
+
+      // Stat tiles
+      animateNumber(document.getElementById("mSessions"), d.sessions, "");
+      animateNumber(document.getElementById("mProblems"), d.problems_correct, "");
+      animateNumber(document.getElementById("mMinutes"), d.minutes_this_week, "");
+      animateNumber(document.getElementById("mAvg"), d.avg_session_min, "m");
+      animateNumber(document.getElementById("mMastered"), d.concepts_mastered, "");
+      animateNumber(document.getElementById("mInProg"), d.concepts_in_progress, "");
+
+      const anim = { duration: 1100, easing: "easeOutQuart" };
+      const colorFor = (s) => s === "mastered" ? C.good : (s === "in_progress" ? C.blue : C.muted);
+
+      // Unit mastery (horizontal bars, colored by status)
+      new Chart(document.getElementById("unitChart"), {
+        type: "bar",
+        data: { labels: d.units.map(u => u.name),
+          datasets: [{ data: d.units.map(u => u.percent),
+            backgroundColor: d.units.map(u => colorFor(u.status)),
+            borderRadius: 5, borderSkipped: false, barThickness: 16 }] },
+        options: { indexAxis: "y", animation: anim, responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: (c) => c.parsed.x + "% — " + d.units[c.dataIndex].status.replace("_"," ") } } },
+          scales: { x: { max: 100, grid: { color: C.grid }, ticks: { callback: v => v + "%" } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+      });
+
+      // Mastery doughnut
+      new Chart(document.getElementById("masteryChart"), {
+        type: "doughnut",
+        data: { labels: ["Mastered","In progress","Not started"],
+          datasets: [{ data: [d.mastery.mastered, d.mastery.in_progress, d.mastery.not_started],
+            backgroundColor: [C.good, C.blue, C.muted], borderColor: "#161615", borderWidth: 3 }] },
+        options: { animation: anim, responsive: true, maintainAspectRatio: false, cutout: "62%",
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 14 } } } }
+      });
+
+      // Skill growth line
+      new Chart(document.getElementById("growthChart"), {
+        type: "line",
+        data: { labels: d.skill_growth.map(p => p.label),
+          datasets: [{ data: d.skill_growth.map(p => p.value), label: "Mastery %",
+            borderColor: C.blue, backgroundColor: "rgba(57,135,229,.18)", fill: true,
+            borderWidth: 2, tension: .35, pointRadius: 3, pointBackgroundColor: C.blue }] },
+        options: { animation: anim, responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100, grid: { color: C.grid }, ticks: { callback: v => v + "%" } },
+            x: { grid: { display: false } } } }
+      });
+
+      // Time on task bars
+      new Chart(document.getElementById("timeChart"), {
+        type: "bar",
+        data: { labels: d.time_by_day.map(p => p.label),
+          datasets: [{ data: d.time_by_day.map(p => p.value), backgroundColor: C.aqua,
+            borderRadius: 5, borderSkipped: false }] },
+        options: { animation: anim, responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + " min" } } },
+          scales: { y: { beginAtZero: true, grid: { color: C.grid }, ticks: { callback: v => v + "m" } },
+            x: { grid: { display: false } } } }
+      });
+
+      // Strengths radar
+      new Chart(document.getElementById("radarChart"), {
+        type: "radar",
+        data: { labels: d.strengths.map(s => s.skill),
+          datasets: [{ data: d.strengths.map(s => s.value), label: "Strength",
+            borderColor: C.violet, backgroundColor: "rgba(144,133,233,.22)",
+            borderWidth: 2, pointBackgroundColor: C.violet, pointRadius: 3 }] },
+        options: { animation: anim, responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { r: { min: 0, max: 100, angleLines: { color: C.grid }, grid: { color: C.grid },
+            pointLabels: { font: { size: 11 }, color: C.ink2 }, ticks: { display: false } } } }
+      });
+    }
+    load();
+  </script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

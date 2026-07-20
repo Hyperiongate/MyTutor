@@ -4,6 +4,9 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-19  Left sidebar now has a collapsible CURRICULUM navigator (9 units;
+                click a unit for its details in a modal) and a PROGRESS DASHBOARD
+                link (/dashboard?code=...).
     2026-07-19  INTERFACE REBUILD (three fixes):
                   1) The "teacher" is now a LIVING VOICE ORB (canvas): a glowing,
                      colorful sphere that breathes when idle, pulses while
@@ -58,6 +61,31 @@
     .covered-item { background: #eefaf3; }
     .covered-item .check { color: var(--ok); font-weight: 700; flex: 0 0 auto; }
     .covered-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+
+    /* Curriculum navigator + dashboard link */
+    .navbtn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+      font-size: 14px; font-weight: 600; color: var(--ink); cursor: pointer; margin-bottom: 8px; text-decoration: none; }
+    .navbtn:hover { background: #f3f6fb; }
+    .navbtn .chev { margin-left: auto; transition: transform .2s ease; color: var(--muted); }
+    .navbtn.open .chev { transform: rotate(90deg); }
+    .curriculum { margin: 0 0 10px; }
+    .unit { display: flex; gap: 8px; align-items: baseline; font-size: 13px; padding: 8px 10px;
+      border-radius: 8px; cursor: pointer; }
+    .unit:hover { background: #eef3fe; }
+    .unit .n { color: var(--accent); font-weight: 700; flex: 0 0 auto; }
+    .modal { position: fixed; inset: 0; background: rgba(20,28,40,.5); display: none;
+      align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .modal.show { display: flex; }
+    .modal-card { background: #fff; border-radius: 16px; max-width: 460px; width: 100%;
+      padding: 22px 24px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .modal-card h3 { margin: 0 0 4px; font-size: 19px; }
+    .modal-card .mnum { color: var(--accent); font-weight: 700; }
+    .modal-card p { color: var(--ink); font-size: 14px; line-height: 1.5; }
+    .modal-card ul { margin: 8px 0 0; padding-left: 18px; }
+    .modal-card li { font-size: 14px; line-height: 1.5; margin-bottom: 3px; }
+    .modal-close { margin-top: 16px; background: var(--accent); color: #fff; border: none;
+      border-radius: 10px; padding: 9px 16px; font-size: 14px; cursor: pointer; }
 
     /* Center */
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
@@ -143,7 +171,10 @@
 <body>
   <div class="app">
     <aside class="side left">
-      <h2>Today's plan</h2>
+      <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
+      <div class="curriculum" id="curriculumList" style="display:none;"></div>
+      <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+      <h2 style="margin-top:18px;">Today's plan</h2>
       <div id="planList"></div>
     </aside>
 
@@ -181,6 +212,15 @@
       <h2>Covered</h2>
       <div id="coveredList"><div class="covered-empty">Nothing yet — let's begin!</div></div>
     </aside>
+  </div>
+
+  <div class="modal" id="unitModal">
+    <div class="modal-card">
+      <h3><span class="mnum" id="mUnitNum"></span> <span id="mUnitName"></span></h3>
+      <p id="mUnitBlurb"></p>
+      <ul id="mUnitTopics"></ul>
+      <button class="modal-close" id="mUnitClose">Got it</button>
+    </div>
   </div>
 
   <script>
@@ -237,6 +277,55 @@
       renderPlan(); renderCovered();
     }
     renderPlan(); renderCovered();
+
+    // ---------- Curriculum navigator ----------
+    const CURRICULUM = [
+      { n: 1, name: "Foundations & Expressions", blurb: "The building blocks of algebra: variables, terms, and how to rewrite expressions.",
+        topics: ["Variables, terms & coefficients", "Combining like terms", "The distributive property", "The real number system"] },
+      { n: 2, name: "Linear Equations & Inequalities", blurb: "Finding an unknown value by keeping both sides balanced — where you are now.",
+        topics: ["One-, two- & multi-step equations", "Variables on both sides", "Solving & graphing inequalities", "Rearranging formulas"] },
+      { n: 3, name: "Functions & Notation", blurb: "The idea of a function: one input, one output — and how we write it.",
+        topics: ["What makes a function", "Function notation f(x)", "Domain & range", "Reading a graph"] },
+      { n: 4, name: "Linear Functions & Graphs", blurb: "Straight-line relationships: slope, intercepts, and modeling with lines.",
+        topics: ["Slope as rate of change", "Slope-intercept & point-slope forms", "Graphing lines", "Parallel & perpendicular lines"] },
+      { n: 5, name: "Systems of Equations", blurb: "Solving two relationships at once — where the lines meet.",
+        topics: ["Solving by graphing", "Substitution", "Elimination", "Systems of inequalities"] },
+      { n: 6, name: "Exponents & Exponential Functions", blurb: "Repeated multiplication, and growth that speeds up over time.",
+        topics: ["Laws of exponents", "Exponential growth & decay", "Linear vs. exponential", "Modeling real situations"] },
+      { n: 7, name: "Polynomials & Factoring", blurb: "Multiplying and, crucially, un-multiplying algebraic expressions.",
+        topics: ["Adding & multiplying polynomials", "Greatest common factor", "Factoring trinomials", "Difference of squares"] },
+      { n: 8, name: "Quadratic Functions", blurb: "U-shaped curves and the many ways to solve them.",
+        topics: ["Graphing parabolas", "Solving by factoring", "The quadratic formula", "Vertex & intercepts"] },
+      { n: 9, name: "Data & Statistics", blurb: "Describing data and fitting lines to it.",
+        topics: ["Center & spread", "Scatter plots & association", "Line of best fit", "Correlation vs. causation"] },
+    ];
+    const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
+    el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
+    function renderCurriculum() {
+      curriculumList.innerHTML = "";
+      CURRICULUM.forEach((u, i) => {
+        const div = document.createElement("div"); div.className = "unit";
+        div.innerHTML = '<span class="n">' + u.n + '.</span><span>' + u.name + '</span>';
+        div.addEventListener("click", () => openUnit(i));
+        curriculumList.appendChild(div);
+      });
+    }
+    renderCurriculum();
+    curriculumBtn.addEventListener("click", () => {
+      const open = curriculumList.style.display !== "none";
+      curriculumList.style.display = open ? "none" : "block";
+      curriculumBtn.classList.toggle("open", !open);
+    });
+    function openUnit(i) {
+      const u = CURRICULUM[i];
+      el("mUnitNum").textContent = "Unit " + u.n; el("mUnitName").textContent = u.name;
+      el("mUnitBlurb").textContent = u.blurb;
+      const ul = el("mUnitTopics"); ul.innerHTML = "";
+      u.topics.forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+      unitModal.classList.add("show");
+    }
+    el("mUnitClose").addEventListener("click", () => unitModal.classList.remove("show"));
+    unitModal.addEventListener("click", (e) => { if (e.target === unitModal) unitModal.classList.remove("show"); });
 
     // ---------- Audio graph (streaming voice + analyser) ----------
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";

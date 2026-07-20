@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Added the progress DASHBOARD: GET /dashboard (serves
+#               dashboard.html) and GET /api/progress/{code} (data from
+#               progress.py -- currently representative sample data, real shape).
 #   2026-07-19  LOW-LATENCY VOICE. /api/speak is now a STREAMING GET that proxies
 #               ElevenLabs' stream endpoint (audio starts playing before it's fully
 #               generated), and the default model is now eleven_flash_v2_5 (fast).
@@ -48,6 +51,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import tutor
+import progress
 
 # ---- ElevenLabs voice config (all optional; empty key -> browser voice) -----
 # Set these in Render (NOT in code). If ELEVENLABS_API_KEY is missing, the app
@@ -149,6 +153,19 @@ def home():
 def session_page():
     """The screen where the student talks with the tutor."""
     return FileResponse(STATIC_DIR / "session.html")
+
+
+@app.get("/dashboard")
+def dashboard_page():
+    """The full-screen progress dashboard."""
+    return FileResponse(STATIC_DIR / "dashboard.html")
+
+
+@app.get("/api/progress/{code}")
+def progress_state(code: str):
+    """Return the student's progress data (currently representative sample data)."""
+    student = _student_or_404(code)
+    return progress.get_progress(code.strip(), student)
 
 
 @app.get("/health")
