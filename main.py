@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-20  Added POST /api/transcribe: server-side speech-to-text via
+#               ElevenLabs Scribe (reuses ELEVENLABS_API_KEY). The browser records
+#               the student's audio and posts it here; we return the text. This
+#               replaces the flaky browser SpeechRecognition. Model via
+#               ELEVENLABS_STT_MODEL (default scribe_v1).
 #   2026-07-19  Added Mr. Cadabra's Challenge (placement quiz): GET /challenge,
 #               POST/GET /api/placement/{code} (persisted to data/placements.json).
 #               Placement now feeds BOTH the dashboard (via progress.py) and the
@@ -52,7 +57,7 @@ import threading
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -70,6 +75,8 @@ ELEVEN_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "sB7vwSCyX0tQmU24cW2C")
 # eleven_flash_v2_5 = low latency (best for live conversation); override with
 # ELEVENLABS_MODEL="eleven_multilingual_v2" for higher quality at more latency.
 ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_flash_v2_5")
+# Speech-to-text model (ElevenLabs "Scribe"). Used by /api/transcribe.
+ELEVEN_STT_MODEL = os.environ.get("ELEVENLABS_STT_MODEL", "scribe_v1")
 
 # ---- Paths -----------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
@@ -345,6 +352,38 @@ def speak(text: str = ""):
             print(f"[speak] stream error: {exc}")
 
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
+
+
+@app.post("/api/transcribe")
+async def transcribe(audio: UploadFile = File(...)):
+    """
+    Transcribe the student's recorded audio with ElevenLabs Speech-to-Text (Scribe).
+    Browser records the audio (works in every modern browser) and posts it here;
+    we return {"text": "..."}. Returns empty text on any failure so the UI can ask
+    the student to try again. Reuses ELEVENLABS_API_KEY.
+    """
+    if not ELEVEN_API_KEY:
+        return {"text": "", "error": "no_key"}
+    try:
+        content = await audio.read()
+        if not content:
+            return {"text": ""}
+        files = {"file": (audio.filename or "speech.webm", content,
+                          audio.content_type or "audio/webm")}
+        with httpx.Client(timeout=60.0) as client:
+            r = client.post(
+                "https://api.elevenlabs.io/v1/speech-to-text",
+                headers={"xi-api-key": ELEVEN_API_KEY},
+                data={"model_id": ELEVEN_STT_MODEL},
+                files=files,
+            )
+        if r.status_code != 200:
+            print(f"[transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
+            return {"text": ""}
+        return {"text": (r.json() or {}).get("text", "")}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[transcribe] error: {exc}")
+        return {"text": ""}
 
 
 # Serve the static folder (css/js/images if we add them) under /static.

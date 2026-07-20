@@ -1,6 +1,9 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-20  Added python-multipart (needed for the /api/transcribe file upload
+#               / ElevenLabs speech-to-text). fastapi also pulls it transitively,
+#               but pinning it explicitly is safer.
 #   2026-07-19  Upgraded anthropic 0.34.2 -> 0.117.0 to fix a hard startup crash:
 #               the old SDK passed a 'proxies' argument that newer httpx (0.28.x)
 #               removed, so the Claude client could not be constructed and every
@@ -16,4 +19,5 @@ fastapi==0.111.0
 uvicorn[standard]==0.30.1
 anthropic==0.117.0
 httpx==0.28.1
+python-multipart==0.0.9
 # I did no harm and this file is not truncated.

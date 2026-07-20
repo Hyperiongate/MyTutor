@@ -4,6 +4,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-20  SPEECH-TO-TEXT VIA SERVER. Replaced the browser's flaky speech
+                recognition with MediaRecorder capture + POST /api/transcribe
+                (ElevenLabs Scribe). Works the same in every modern browser. Tap to
+                record, tap when done -> audio is transcribed on the server -> the
+                text becomes the student's message. Fixes "button reacts but it
+                can't hear me."
     2026-07-20  Mic reliability: request microphone permission UP FRONT (on "Start"),
                 recover if the recognizer stalls (onend restart), and show clear
                 messages if the mic is blocked or nothing was heard. Fixes "button
@@ -625,39 +631,12 @@
       log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
     }
 
-    // ---------- Tap-to-talk speech recognition ----------
-    // The mic is ONLY on while the student is actively recording (they tapped the
-    // glowing button). It is OFF while the tutor talks -> no echo, no phantom input.
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null, pending = "", silenceTimer = null, recognizerActive = false, micReady = false;
-    if (SR) {
-      recognition = new SR();
-      recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true; recognition.maxAlternatives = 1;
-      recognition.onerror = (e) => {
-        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-          hint.textContent = "Microphone is blocked. Click the 🔒 (or mic) icon in the address bar, allow the microphone, reload, and try again.";
-          if (phase === "recording") setPhase("ready");
-        } else if (e.error === "no-speech") {
-          live.textContent = ""; // keep listening; onend will restart
-        }
-      };
-      // If recognition ends on its own while we're still recording, restart it so
-      // it keeps listening until the student taps "done".
-      recognition.onend = () => {
-        if (phase === "recording" && recognizerActive) { try { recognition.start(); } catch (e) {} }
-      };
-      recognition.onresult = (e) => {
-        if (phase !== "recording") return;   // ignore anything not during an active tap-to-talk
-        let interim = "";
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const tr = e.results[i][0].transcript;
-          if (e.results[i].isFinal) pending += tr + " "; else interim += tr;
-        }
-        live.textContent = (pending + interim).trim();
-        clearTimeout(silenceTimer);
-        if ((pending + interim).trim().length > 0) silenceTimer = setTimeout(() => stopRecording(true), 2400);
-      };
-    }
+    // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
+    // The mic is ONLY on while the student is recording (they tapped the glowing
+    // button). Recorded audio is posted to /api/transcribe (ElevenLabs Scribe),
+    // which is reliable in every modern browser -- unlike the built-in recognizer.
+    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
     function setPhase(p) {
@@ -666,53 +645,65 @@
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready");
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — tap, talk, then tap when you're done.";
+        hint.textContent = "Your turn — tap, say your answer, then tap when you're done.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
         talkBtn.disabled = false; talkBtn.classList.add("recording");
-        talkLabel.textContent = "Listening… tap when done";
-        hint.textContent = "I'm listening — tap when you're finished.";
-        statusEl.textContent = "🎤 Listening…"; setState("listening");
+        talkLabel.textContent = "Tap when you're done";
+        hint.textContent = "Recording — say your answer, then tap when you're finished.";
+        statusEl.textContent = "🎤 Recording…"; setState("listening"); live.textContent = "Recording…";
       } else { // busy / idle -> button dark and unavailable
         talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = "";
       }
     }
 
-    async function ensureMic() {
-      if (micReady) return true;
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-          s.getTracks().forEach(tk => tk.stop());   // just needed the permission; release it
-        }
-        micReady = true; return true;
-      } catch (e) {
-        hint.textContent = "I need microphone access to hear you. Allow the mic in your browser (address-bar icon), then tap again — or use 'Type instead'.";
-        return false;
-      }
-    }
+    function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
+
     async function startRecording() {
-      if (phase !== "ready" || !recognition) return;
+      if (phase !== "ready" || !canRecord) return;
       ensureAudioGraph();
-      if (!(await ensureMic())) return;             // stays in "ready" if mic denied
-      pending = ""; live.textContent = "";
-      setPhase("recording");
-      recognizerActive = true;
-      try { recognition.start(); }
+      try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) {
-        // Recognizer was still winding down -- reset and retry once.
-        try { recognition.stop(); } catch (_) {}
-        setTimeout(() => { if (phase === "recording") { try { recognition.start(); } catch (_) {} } }, 300);
+        hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or use 'Type instead'.";
+        return;
       }
+      chunks = []; sendOnStop = true;
+      try { mediaRecorder = new MediaRecorder(mediaStream); }
+      catch (e) {
+        try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" }); }
+        catch (_) { hint.textContent = "Recording isn't supported here — use 'Type instead'."; releaseMic(); return; }
+      }
+      mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      mediaRecorder.onstop = onRecordingStop;
+      mediaRecorder.start();
+      setPhase("recording");
+      recTimer = setTimeout(() => stopRecording(true), 30000);   // 30s safety cap
     }
     function stopRecording(send) {
-      clearTimeout(silenceTimer);
-      recognizerActive = false;
-      try { recognition && recognition.stop(); } catch (e) {}
-      const text = pending.trim(); pending = ""; live.textContent = "";
-      if (send && text.length >= 1) { sendToTutor(text); }
-      else { setPhase("ready"); hint.textContent = "I didn't catch anything — tap to talk and try again."; }
+      clearTimeout(recTimer);
+      sendOnStop = send;
+      try { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); } catch (e) {}
     }
+    async function onRecordingStop() {
+      releaseMic();
+      if (!sendOnStop) { setPhase("ready"); return; }
+      const blob = new Blob(chunks, { type: (chunks[0] && chunks[0].type) || "audio/webm" });
+      if (!blob.size) { setPhase("ready"); hint.textContent = "I didn't catch anything — tap and try again."; return; }
+      // Transcribe on the server.
+      phase = "busy"; talkBtn.disabled = true; talkBtn.classList.remove("ready", "recording"); talkLabel.textContent = "…";
+      setState("thinking"); statusEl.textContent = "Got it — one sec…"; live.textContent = "";
+      try {
+        const fd = new FormData(); fd.append("audio", blob, "speech.webm");
+        const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+        const data = await res.json();
+        const text = (data.text || "").trim();
+        if (text) { sendToTutor(text); }
+        else { setPhase("ready"); hint.textContent = "I didn't quite catch that — tap and try again."; }
+      } catch (e) {
+        setPhase("ready"); hint.textContent = "Sorry, I couldn't hear that — tap and try again.";
+      }
+    }
+
     talkBtn.addEventListener("click", () => {
       if (phase === "ready") startRecording();
       else if (phase === "recording") stopRecording(true);
@@ -724,10 +715,12 @@
     async function begin() {
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
-      if (recognition) await ensureMic();   // prompt for the mic up front so tap-to-talk just works
-      if (!recognition) showComposer();
+      if (canRecord) {   // prompt for the mic up front so tap-to-talk just works
+        try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); }
+        catch (e) { hint.textContent = "Mic access is needed to talk — allow it in your browser, or use 'Type instead'."; }
+      } else { showComposer(); }
       if (!hasHistory) { busy = true; setPhase("busy"); kickoff(); }     // Mr. Cadabra opens first
-      else if (recognition) setPhase("ready");                          // returning: student's turn
+      else if (canRecord) setPhase("ready");                            // returning: student's turn
     }
     el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
@@ -769,7 +762,7 @@
     // ---------- Load ----------
     async function loadSession() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
-      if (!SR) { talkBtn.style.display = "none"; hint.textContent = "Voice isn't supported here — type instead. (Chrome works best.)"; }
+      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "Voice recording isn't supported here — type instead."; showComposer(); }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE));
         if (!res.ok) { window.location.href = "/"; return; }
