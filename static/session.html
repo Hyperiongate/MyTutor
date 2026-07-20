@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-19  Warmer, more colorful palette; removed the duplicate big caption
+                (conversation now shows in ONE place, the transcript; a small
+                status line under the orb shows Listening/Thinking); added a
+                first-screen WELCOME/how-to overlay; prepend a tiny pause to the
+                ElevenLabs text so the tutor's first word isn't clipped.
     2026-07-19  Left sidebar now has a collapsible CURRICULUM navigator (9 units;
                 click a unit for its details in a modal) and a PROGRESS DASHBOARD
                 link (/dashboard?code=...).
@@ -31,15 +36,19 @@
   <title>Math Tutor — Session</title>
   <style>
     :root {
-      --ink:#1c2430; --muted:#5d6b7a; --line:#e1e7ee; --accent:#2f6df6;
-      --tutor:#eef3fe; --student:#e8f7ee; --panel:#ffffff; --wood:#b9852f; --ok:#2e9e6b;
+      --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
+      --warm:#ff7a59; --tutor:#eeeeff; --student:#e6f7f1; --panel:#ffffff; --wood:#b9852f; --ok:#16a34a;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto,
       Helvetica, Arial, sans-serif; color: var(--ink);
-      background: radial-gradient(1200px 700px at 50% -10%, #e9f1ff, #f4f7fb 60%);
+      background:
+        radial-gradient(760px 500px at 6% -10%, rgba(91,91,214,.16), transparent 60%),
+        radial-gradient(760px 480px at 96% -6%, rgba(20,184,166,.15), transparent 55%),
+        radial-gradient(700px 520px at 60% 112%, rgba(255,122,89,.12), transparent 55%),
+        #f5f5fc;
     }
     .app { display: grid; grid-template-columns: 240px 1fr 240px; grid-template-rows: 100vh; }
 
@@ -87,18 +96,46 @@
     .modal-close { margin-top: 16px; background: var(--accent); color: #fff; border: none;
       border-radius: 10px; padding: 9px 16px; font-size: 14px; cursor: pointer; }
 
+    /* Welcome / how-to overlay */
+    .welcome { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
+      padding: 20px; background:
+        radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
+        radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
+        radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
+        rgba(22,22,40,.72); }
+    .welcome.show { display: flex; }
+    .welcome-card { background: #fff; border-radius: 22px; max-width: 480px; width: 100%; padding: 30px 30px 26px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
+    .welcome-card h2 { margin: 6px 0 4px; font-size: 25px; }
+    .welcome-card .lead { color: var(--muted); font-size: 15px; margin: 0 0 16px; }
+    .welcome-card .lead b { color: var(--ink); }
+    .welcome-card ul { list-style: none; margin: 0 0 20px; padding: 0; text-align: left; }
+    .welcome-card li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; line-height: 1.4;
+      background: #f5f5fc; border-radius: 12px; padding: 11px 13px; margin-bottom: 9px; }
+    .welcome-card li .ic { font-size: 20px; flex: 0 0 auto; }
+    .welcome-go { width: 100%; border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 17px;
+      font-weight: 800; padding: 15px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 24px rgba(91,91,214,.4); }
+    .welcome-badge { width: 66px; height: 66px; margin: 0 auto 6px; border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #b8a8ff, var(--accent) 72%);
+      box-shadow: 0 8px 22px rgba(91,91,214,.45); display: flex; align-items: center; justify-content: center;
+      font-size: 30px; }
+
     /* Center */
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
     .topbar { display: flex; align-items: center; padding: 12px 20px; }
-    .topbar .title { font-weight: 600; font-size: 15px; }
+    .topbar .title { font-weight: 800; font-size: 16px; letter-spacing: .01em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
     .topbar .spacer { flex: 1; }
     .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
 
     .teacher { display: flex; flex-direction: column; align-items: center; padding: 2px 0 4px; }
     .orbwrap { width: 150px; height: 150px; }
     .orbwrap canvas { width: 100%; height: 100%; display: block; }
-    .tutor-name { margin-top: 4px; font-weight: 700; font-size: 18px; }
+    .tutor-name { margin-top: 4px; font-weight: 800; font-size: 19px; }
     .student-name { font-size: 12px; color: var(--muted); }
+    .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 6px; font-weight: 600; text-align: center; }
 
     .stage { flex: 1; margin: 6px 20px 0; border-radius: 18px; background: var(--panel);
       border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(20,30,45,.06);
@@ -137,14 +174,13 @@
       border-radius: 10px; padding: 10px 13px; margin-bottom: 9px; font-size: 15px; line-height: 1.35; }
     .qcard .qcap { text-align: center; margin-top: 4px; font-size: 14px; color: var(--muted); }
 
-    .caption { margin: 10px 20px 4px; font-size: 17px; line-height: 1.4; text-align: center;
-      min-height: 24px; font-weight: 500; }
-    .transcript { margin: 0 20px; max-height: 110px; overflow-y: auto; display: flex;
-      flex-direction: column; gap: 6px; padding: 4px 0; }
-    .bubble { padding: 7px 12px; border-radius: 13px; max-width: 88%; font-size: 14px;
-      line-height: 1.4; white-space: pre-wrap; }
-    .bubble.tutor { background: var(--tutor); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .bubble.student { background: var(--student); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .transcript { margin: 14px auto 0; max-width: 660px; width: 100%; max-height: 190px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 9px; padding: 4px 20px; }
+    .bubble { padding: 10px 14px; border-radius: 15px; max-width: 86%; font-size: 15.5px;
+      line-height: 1.45; white-space: pre-wrap; }
+    .bubble.tutor { background: var(--tutor); align-self: flex-start; border-bottom-left-radius: 5px; }
+    .bubble.tutor.latest { box-shadow: 0 3px 14px rgba(91,91,214,.18); }
+    .bubble.student { background: var(--student); align-self: flex-end; border-bottom-right-radius: 5px; }
     .bubble.system { align-self: center; background: transparent; color: var(--muted); font-size: 13px; }
 
     .controls { padding: 8px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -189,11 +225,11 @@
         <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
         <div class="tutor-name" id="tutorName">Tutor</div>
         <div class="student-name" id="studentName">&nbsp;</div>
+        <div class="status" id="status">&nbsp;</div>
       </div>
 
       <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
 
-      <div class="caption" id="caption">&nbsp;</div>
       <div class="transcript" id="log"></div>
 
       <div class="controls">
@@ -223,13 +259,27 @@
     </div>
   </div>
 
+  <div class="welcome" id="welcome">
+    <div class="welcome-card">
+      <div class="welcome-badge">✨</div>
+      <h2>Welcome to Math Tutor!</h2>
+      <p class="lead">You'll be learning algebra with <b id="wTutor">your tutor</b>. Here's how it works:</p>
+      <ul>
+        <li><span class="ic">🎙️</span><span>Tap the button below and just <b>talk</b> — no typing, no buttons to hunt for.</span></li>
+        <li><span class="ic">🗣️</span><span>Your tutor <b>listens and answers out loud</b>, and draws on the board as you go.</span></li>
+        <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
+      </ul>
+      <button class="welcome-go" id="welcomeGo">🎙️ Start talking</button>
+    </div>
+  </div>
+
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { window.location.href = "/"; }
 
-    const stage = el("stage"), caption = el("caption"), log = el("log");
+    const stage = el("stage"), statusEl = el("status"), log = el("log");
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const startBtn = el("startBtn"), stopBtn = el("stopBtn"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
@@ -445,7 +495,8 @@
         ttsAudio.addEventListener("playing", onPlaying);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
+        // Prepend a tiny pause so ElevenLabs doesn't clip the first word.
+        ttsAudio.src = "/api/speak?text=" + encodeURIComponent("… " + forSpeech(text));
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         setTimeout(() => { if (!started && !doneCalled) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); } }, 5000);
@@ -515,6 +566,7 @@
 
     function addBubble(role, text) {
       const div = document.createElement("div"); div.className = "bubble " + role; div.textContent = text;
+      if (role === "tutor") { const prev = log.querySelector(".bubble.tutor.latest"); if (prev) prev.classList.remove("latest"); div.classList.add("latest"); }
       log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
     }
 
@@ -535,7 +587,7 @@
           if (e.results[i].isFinal) pending += tr + " "; else interim += tr;
         }
         const shown = (pending + interim).trim();
-        if (shown) caption.textContent = shown;
+        if (shown) statusEl.textContent = shown;
         clearTimeout(silenceTimer);
         silenceTimer = setTimeout(flushUtterance, 1100);
       };
@@ -560,22 +612,27 @@
     startBtn.addEventListener("click", startConversation);
     stopBtn.addEventListener("click", stopConversation);
 
+    // Welcome / how-to overlay — shows on load; its button starts the conversation.
+    const welcome = el("welcome");
+    el("welcomeGo").addEventListener("click", () => { welcome.classList.remove("show"); startConversation(); });
+    welcome.classList.add("show");
+
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
       if (busy) return; busy = true;
       try { recognition && recognition.stop(); } catch (e) {}
       addBubble("student", message);
-      setState("thinking"); caption.textContent = tutorName + " is thinking…";
+      setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
         const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: CODE, message }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         reply = handleTags(reply);
-        addBubble("tutor", reply); caption.textContent = reply; lastTutorText = reply;
+        addBubble("tutor", reply); lastTutorText = reply; statusEl.textContent = "";
         await speak(reply);
-      } catch (e) { caption.textContent = "I couldn't reach the server. Please try again."; }
-      finally { busy = false; if (convoActive) { setState("listening"); startRecognition(); } else setState("idle"); }
+      } catch (e) { statusEl.textContent = "I couldn't reach the server. Please try again."; }
+      finally { busy = false; if (convoActive) { setState("listening"); statusEl.textContent = "Listening…"; startRecognition(); } else { setState("idle"); statusEl.textContent = ""; } }
     }
 
     // ---------- Text fallback ----------
@@ -595,13 +652,14 @@
         if (!res.ok) { window.location.href = "/"; return; }
         const data = await res.json();
         tutorName = data.tutor_name || "Tutor"; tutorNameEl.textContent = tutorName;
+        el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
         const history = data.history || [];
-        if (history.length === 0) { caption.textContent = "Tap “Start talking” and say hello."; }
+        if (history.length === 0) { statusEl.textContent = ""; }
         else {
           addBubble("system", "Welcome back — picking up where you left off.");
           for (const m of history) { const isT = m.role === "assistant"; const shown = isT ? handleTags(m.content) : m.content;
-            addBubble(isT ? "tutor" : "student", shown); if (isT) { lastTutorText = shown; caption.textContent = shown; } }
+            addBubble(isT ? "tutor" : "student", shown); if (isT) { lastTutorText = shown; } }
         }
       } catch (e) { window.location.href = "/"; }
     }

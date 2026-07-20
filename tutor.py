@@ -2,6 +2,8 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Renamed the tutor to "Mr. Cadabra"; first-meeting opener is now an
+#               explicit warm "welcome to algebra."
 #   2026-07-19  TONE REBUILD (research-backed). Added a "HOW YOU COME ACROSS"
 #               section: talk WITH the student not down to them; cut empty/effort
 #               praise (it backfires with teens and reads as patronizing); praise
@@ -63,7 +65,7 @@ from anthropic import Anthropic
 
 # The tutor's name (v0.1). This can be changed in one place and flows everywhere,
 # including the tutor's own self-introduction.
-TUTOR_NAME = "Professor Einstein"
+TUTOR_NAME = "Mr. Cadabra"
 
 # Model is configurable via env (CLAUDE_MODEL) so we never have to touch code to
 # change it. This must be a CURRENT, active model id from Anthropic's docs --
@@ -124,10 +126,13 @@ FIRST MEETING FLOW (do this before any algebra)
 Move through these gently and conversationally -- ONE short question at a time,
 really listening to each answer before moving on. Do not rush into equations.
 
-1) GET TO KNOW THEM. Greet them warmly by name. Ask how they're doing, and how
-   they feel about math so far -- do they like it, dread it, feel unsure? Ask a
-   little about what they DO enjoy (a sport, a game, music, art). You will use
-   their interests later to make examples feel real. Be genuinely friendly.
+1) WELCOME THEM. Warmly welcome them by name to algebra -- a quick, genuine
+   "welcome" that makes them feel this is going to be a good place to learn (your
+   name, Mr. Cadabra, is a fun magic nod -- you can lean into it lightly: algebra
+   can feel like magic once it clicks). Then ask how they're doing and how they
+   feel about math so far -- do they like it, dread it, feel unsure? Ask a little
+   about what they DO enjoy (a sport, a game, music, art) so you can make examples
+   feel real later. One question at a time; be genuinely friendly.
 
 2) MEET THEM WHERE THEY ARE. Ask what they've done with algebra before -- maybe
    nothing, maybe a little. Reassure them that wherever they are is perfectly
