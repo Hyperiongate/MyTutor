@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  LOW-LATENCY VOICE. /api/speak is now a STREAMING GET that proxies
+#               ElevenLabs' stream endpoint (audio starts playing before it's fully
+#               generated), and the default model is now eleven_flash_v2_5 (fast).
+#               Added /api/voice-status so the frontend knows whether the natural
+#               voice is available before requesting it. Removed the old POST speak.
 #   2026-07-19  Set the default ELEVENLABS_VOICE_ID to Jim's chosen voice
 #               (sB7vwSCyX0tQmU24cW2C) so a fresh deploy uses it even without the
 #               env var. Still overridable via the ELEVENLABS_VOICE_ID env var.
@@ -38,7 +43,7 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -51,8 +56,9 @@ ELEVEN_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 # Default voice = Jim's chosen ElevenLabs voice. Override with any other voice_id
 # from your ElevenLabs Voice Library via the ELEVENLABS_VOICE_ID env var.
 ELEVEN_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "sB7vwSCyX0tQmU24cW2C")
-# eleven_multilingual_v2 = high quality; "eleven_flash_v2_5" = faster/lower latency.
-ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+# eleven_flash_v2_5 = low latency (best for live conversation); override with
+# ELEVENLABS_MODEL="eleven_multilingual_v2" for higher quality at more latency.
+ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_flash_v2_5")
 
 # ---- Paths -----------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
@@ -119,10 +125,6 @@ class LoginRequest(BaseModel):
 class ChatRequest(BaseModel):
     code: str
     message: str
-
-
-class SpeakRequest(BaseModel):
-    text: str
 
 
 # ---- App -------------------------------------------------------------------
@@ -208,34 +210,48 @@ def chat(req: ChatRequest):
     return {"reply": reply}
 
 
-@app.post("/api/speak")
-def speak(req: SpeakRequest):
+@app.get("/api/voice-status")
+def voice_status():
+    """Tell the frontend whether the natural ElevenLabs voice is configured."""
+    return {"eleven": bool(ELEVEN_API_KEY)}
+
+
+@app.get("/api/speak")
+def speak(text: str = ""):
     """
-    Turn the tutor's words into a natural ElevenLabs voice and return MP3 audio.
-    If ELEVENLABS_API_KEY is not set (or the call fails), we return 204 No Content
-    so the browser falls back to its built-in voice -- the app always talks.
+    STREAM the tutor's words as a natural ElevenLabs voice (low latency): audio
+    starts playing in the browser before the whole clip is generated. The browser
+    plays this via <audio src="/api/speak?text=...">.
+
+    If ELEVENLABS_API_KEY is not set, returns 204 and the browser uses its built-in
+    voice instead. (Check /api/voice-status first to avoid an empty request.)
     """
-    text = (req.text or "").strip()
+    text = (text or "").strip()
     if not text or not ELEVEN_API_KEY:
         return Response(status_code=204)
-    try:
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
-        headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
-        payload = {
-            "text": text,
-            "model_id": ELEVEN_MODEL,
-            "voice_settings": {"stability": 0.45, "similarity_boost": 0.8},
-        }
-        with httpx.Client(timeout=30.0) as client:
-            r = client.post(url, headers=headers, json=payload)
-        if r.status_code != 200 or not r.content:
-            # Log for the developer; the student just hears the browser voice.
-            print(f"[speak] ElevenLabs {r.status_code}: {r.text[:200]}")
-            return Response(status_code=204)
-        return Response(content=r.content, media_type="audio/mpeg")
-    except Exception as exc:  # noqa: BLE001
-        print(f"[speak] ElevenLabs error: {exc}")
-        return Response(status_code=204)
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}/stream"
+    headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
+    payload = {
+        "text": text,
+        "model_id": ELEVEN_MODEL,
+        "output_format": "mp3_44100_128",
+        "voice_settings": {"stability": 0.45, "similarity_boost": 0.8},
+    }
+
+    def audio_stream():
+        try:
+            with httpx.stream("POST", url, headers=headers, json=payload, timeout=30.0) as r:
+                if r.status_code != 200:
+                    print(f"[speak] ElevenLabs {r.status_code}: {r.read()[:200]!r}")
+                    return
+                for chunk in r.iter_bytes():
+                    if chunk:
+                        yield chunk
+        except Exception as exc:  # noqa: BLE001
+            print(f"[speak] stream error: {exc}")
+
+    return StreamingResponse(audio_stream(), media_type="audio/mpeg")
 
 
 # Serve the static folder (css/js/images if we add them) under /static.
