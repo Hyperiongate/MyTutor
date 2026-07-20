@@ -4,6 +4,22 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-20  OPENING PAGE TOUR + LAYOUT + QUICK BUTTONS + FIRST-WORD FIX.
+                (1) New [[highlight id="..."]] control tag: the tutor can spotlight
+                    parts of the screen (curriculum, find-my-level, dashboard,
+                    todays-plan, covered) during the opening walk-through -- the
+                    element glows and scrolls into view; the spotlight clears at the
+                    start of each tutor turn. Wrapped "Today's plan" (planPanel) and
+                    tagged the right sidebar (coveredPanel) as tour targets.
+                (2) THREE QUICK BUTTONS (Yes / No / I'm confused) beside tap-to-talk,
+                    enabled only on the student's turn, so they can answer without
+                    talking. Tap-to-talk is still the primary control.
+                (3) LAYOUT: gave the tutor row breathing room, capped the transcript
+                    height, and pushed the whiteboard down so student replies aren't
+                    squeezed between the text and the board.
+                (4) FIRST-WORD CLIP FIX: play a short SILENT WAV through the audio
+                    element once on the opening tap to warm up the pipeline, so
+                    Mr. Cadabra's first word or two is no longer cut off.
     2026-07-20  SPEECH-TO-TEXT VIA SERVER. Replaced the browser's flaky speech
                 recognition with MediaRecorder capture + POST /api/transcribe
                 (ElevenLabs Scribe). Works the same in every modern browser. Tap to
@@ -159,17 +175,17 @@
     .topbar .spacer { flex: 1; }
     .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
 
-    .tutor-head { display: flex; align-items: center; gap: 18px; padding: 4px 22px 8px; }
+    .tutor-head { display: flex; align-items: center; gap: 18px; padding: 4px 22px 16px; }
     .tutor-id { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
     .orbwrap { width: 96px; height: 96px; flex: 0 0 auto; }
     .orbwrap canvas { width: 100%; height: 100%; display: block; }
     .tutor-name { font-weight: 800; font-size: 18px; }
     .student-name { font-size: 12px; color: var(--muted); }
     .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 2px; font-weight: 600; }
-    .convo { flex: 1; align-self: stretch; max-height: 118px; overflow-y: auto; display: flex;
+    .convo { flex: 1; align-self: stretch; max-height: 150px; overflow-y: auto; display: flex;
       flex-direction: column; justify-content: center; gap: 8px; padding: 6px 6px; }
 
-    .stage { flex: 1; margin: 4px 24px 14px; border-radius: 20px; background: var(--panel);
+    .stage { flex: 1; margin: 16px 24px 14px; border-radius: 20px; background: var(--panel);
       border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 22px; min-height: 320px; position: relative; overflow: hidden; }
@@ -228,7 +244,20 @@
     @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
       70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
+    .quickrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .quick { border: 1.5px solid var(--line); background: #fff; border-radius: 22px; padding: 9px 16px;
+      font-size: 14px; font-weight: 700; cursor: pointer; color: var(--ink); }
+    .quick:not(:disabled):hover { background: #f5f5fc; }
+    .quick:disabled { opacity: .4; cursor: default; }
+    .quick.yes { color: var(--ok); border-color: #bfe6cd; }
+    .quick.no { color: #c0392b; border-color: #f3c6c6; }
+    .quick.conf { color: var(--accent); border-color: #ccccf2; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+    /* Tour highlight (Mr. Cadabra walking through the page) */
+    .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
+      animation: tourpulse 1.3s ease-in-out infinite; position: relative; z-index: 5; }
+    @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(91,91,214,.14); }
+      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px rgba(91,91,214,.28); } }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
     .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
@@ -250,8 +279,10 @@
       <div class="curriculum" id="curriculumList" style="display:none;"></div>
       <a class="navbtn" id="challengeLink" href="#">🎯 Find my level</a>
       <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
-      <h2 style="margin-top:18px;">Today's plan</h2>
-      <div id="planList"></div>
+      <div id="planPanel">
+        <h2 style="margin-top:18px;">Today's plan</h2>
+        <div id="planList"></div>
+      </div>
     </aside>
 
     <div class="center">
@@ -278,6 +309,11 @@
       <div class="controls">
         <div class="live" id="live"></div>
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <div class="quickrow" id="quickRow">
+          <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
+          <button class="quick no" data-say="No" disabled>✗ No</button>
+          <button class="quick conf" data-say="I'm confused" disabled>🤔 I'm confused</button>
+        </div>
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
@@ -287,7 +323,7 @@
       </div>
     </div>
 
-    <aside class="side right">
+    <aside class="side right" id="coveredPanel">
       <h2>Covered</h2>
       <div id="coveredList"><div class="covered-empty">Nothing yet — let's begin!</div></div>
     </aside>
@@ -438,6 +474,39 @@
       } catch (e) { audioCtx = null; analyser = null; }
     }
 
+    // Build a short SILENT WAV as a data URI. Playing this through ttsAudio once,
+    // on the opening tap (a real user gesture), "warms up" the whole audio pipeline
+    // (the <audio> element, the decoder, and the Web-Audio MediaElementSource) so
+    // the FIRST real sentence from ElevenLabs doesn't lose its first word or two.
+    function silentWavUri(ms) {
+      const sampleRate = 8000;
+      const numSamples = Math.max(1, Math.round(sampleRate * (ms / 1000)));
+      const dataSize = numSamples;                 // 8-bit mono => 1 byte/sample
+      const buffer = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(buffer);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, "RIFF"); view.setUint32(4, 36 + dataSize, true); writeStr(8, "WAVE");
+      writeStr(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate, true);
+      view.setUint16(32, 1, true); view.setUint16(34, 8, true);
+      writeStr(36, "data"); view.setUint32(40, dataSize, true);
+      for (let i = 0; i < numSamples; i++) view.setUint8(44 + i, 128);   // 128 = 8-bit silence
+      let bin = ""; const bytes = new Uint8Array(buffer);
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return "data:audio/wav;base64," + btoa(bin);
+    }
+    let audioWarmed = false;
+    async function warmUpAudio() {
+      if (audioWarmed) return;
+      audioWarmed = true;
+      ensureAudioGraph();
+      try {
+        ttsAudio.src = silentWavUri(250);
+        const p = ttsAudio.play();
+        if (p && p.then) { await p.catch(() => {}); }
+      } catch (e) { /* non-fatal: worst case the first word is a touch clipped */ }
+    }
+
     // ---------- The living voice orb ----------
     const orb = el("orb"), octx = orb.getContext("2d");
     let t = 0, smooth = 0, hue = 210;
@@ -570,13 +639,48 @@
       while ((m = re.exec(s)) !== null) attrs[m[1].toLowerCase()] = (m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : m[5]);
       return attrs;
     }
+    // ---------- Page tour: spotlight parts of the screen ----------
+    // The tutor can point at things on screen during the opening walk-through by
+    // emitting [[highlight id="curriculum"]] etc. We glow that element and scroll
+    // it into view. Highlights are cleared at the start of every tutor turn, so a
+    // spotlight lasts exactly the turn that asks for it (then moves on / clears).
+    const TOUR_TARGETS = {
+      "curriculum":   "curriculumBtn",
+      "find-my-level": "challengeLink",
+      "level":         "challengeLink",
+      "dashboard":    "dashLink",
+      "todays-plan":  "planPanel",
+      "plan":         "planPanel",
+      "covered":      "coveredPanel",
+    };
+    function clearHighlight() {
+      document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
+    }
+    function highlightEl(id) {
+      clearHighlight();
+      const key = String(id || "").toLowerCase();
+      if (key === "none" || key === "clear" || key === "off") return;
+      const targetId = TOUR_TARGETS[key];
+      if (!targetId) return;
+      const node = el(targetId);
+      if (!node) return;
+      // If we're spotlighting the curriculum, open it so there's something to see.
+      if (key === "curriculum" && curriculumList.style.display === "none") {
+        curriculumList.style.display = "block"; curriculumBtn.classList.add("open");
+      }
+      node.classList.add("tourglow");
+      try { node.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+    }
+
     function handleTags(text) {
-      const tagRe = /\[\[\s*(\w+)([^\]]*?)\]\]/g; let m;
+      clearHighlight();                          // each turn starts with a clean page
+      const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "covered" && attrs.id) markCovered(attrs.id);
+        else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
         else if (name === "clear") clearStage();
       }
       return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\s{2,}/g, " ").trim();
@@ -639,21 +743,26 @@
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
+    const quickRow = el("quickRow");
+    function setQuick(on) { quickRow.querySelectorAll(".quick").forEach(b => b.disabled = !on); }
+    quickRow.querySelectorAll(".quick").forEach(b =>
+      b.addEventListener("click", () => { if (phase === "ready") sendToTutor(b.dataset.say); }));
+
     function setPhase(p) {
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {
-        talkBtn.disabled = false; talkBtn.classList.add("ready");
+        talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true);
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — tap, say your answer, then tap when you're done.";
+        hint.textContent = "Your turn — tap to talk, or use a quick button.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
-        talkBtn.disabled = false; talkBtn.classList.add("recording");
+        talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false);
         talkLabel.textContent = "Tap when you're done";
         hint.textContent = "Recording — say your answer, then tap when you're finished.";
         statusEl.textContent = "🎤 Recording…"; setState("listening"); live.textContent = "Recording…";
-      } else { // busy / idle -> button dark and unavailable
-        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = "";
+      } else { // busy / idle -> everything dark and unavailable
+        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; setQuick(false);
       }
     }
 
@@ -715,6 +824,7 @@
     async function begin() {
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
+      await warmUpAudio();   // prime the audio pipeline so his first word isn't clipped
       if (canRecord) {   // prompt for the mic up front so tap-to-talk just works
         try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); }
         catch (e) { hint.textContent = "Mic access is needed to talk — allow it in your browser, or use 'Type instead'."; }
