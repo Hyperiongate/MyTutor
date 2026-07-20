@@ -8,6 +8,7 @@
 __pycache__/
 *.pyc
 data/sessions.json
+data/placements.json
 data/*.tmp
 .env
 node_modules/

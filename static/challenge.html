@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-19  Initial "Mr. Cadabra's Challenge": an adaptive, game-show-style
+                placement quiz. Mr. Cadabra (orb + voice) hosts; the student taps
+                answers; difficulty climbs and gives a second chance at a tier
+                before stopping. Points + streak HUD. Ends in a fun result that
+                names a level and the unit to start in, and posts the placement to
+                /api/placement/{code} (so the tutor and dashboard can use it).
+                Reusable engine (same bank can drive topic quizzes later).
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mr. Cadabra's Challenge</title>
+  <style>
+    :root { --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
+      --warm:#ff7a59; --good:#16a34a; --bad:#e5484d; --panel:#ffffff; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink); min-height: 100vh; display: flex; flex-direction: column;
+      background:
+        radial-gradient(760px 500px at 8% -10%, rgba(91,91,214,.20), transparent 60%),
+        radial-gradient(760px 480px at 94% -6%, rgba(20,184,166,.18), transparent 55%),
+        radial-gradient(760px 520px at 55% 112%, rgba(255,122,89,.16), transparent 55%),
+        #f4f4fc; }
+    .top { display: flex; align-items: center; padding: 14px 22px; }
+    .top .title { font-weight: 800; font-size: 17px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
+    .top .spacer { flex: 1; }
+    .top a { font-size: 13px; color: var(--muted); text-decoration: none; }
+
+    .wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px 20px 30px; width: 100%; max-width: 720px; margin: 0 auto; }
+
+    /* HUD */
+    .hud { display: flex; gap: 10px; align-items: center; width: 100%; max-width: 560px; margin-bottom: 12px; }
+    .hud .chip { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
+      font-size: 13px; font-weight: 700; box-shadow: 0 4px 12px rgba(20,30,45,.05); }
+    .hud .chip.pts { color: var(--accent); } .hud .chip.streak { color: var(--warm); }
+    .hud .spacer { flex: 1; }
+    .hud .prog { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    /* Host */
+    .host { display: flex; align-items: center; gap: 14px; width: 100%; max-width: 560px; margin-bottom: 10px; }
+    .orbwrap { width: 72px; height: 72px; flex: 0 0 auto; }
+    .orbwrap canvas { width: 100%; height: 100%; display: block; }
+    .host .say { font-size: 16px; font-weight: 600; min-height: 22px; }
+
+    /* Card */
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; width: 100%;
+      max-width: 560px; padding: 24px; box-shadow: 0 16px 44px rgba(20,30,45,.10); }
+    .qtext { font-size: 23px; font-weight: 800; text-align: center; margin: 4px 0 20px; line-height: 1.3; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .choice { border: 2px solid var(--line); border-radius: 14px; padding: 16px; font-size: 19px; font-weight: 700;
+      background: #fbfbff; cursor: pointer; text-align: center; transition: transform .08s ease, border-color .15s ease; }
+    .choice:hover { border-color: var(--accent); }
+    .choice:active { transform: scale(.97); }
+    .choice.correct { border-color: var(--good); background: #e9f9ef; color: var(--good); }
+    .choice.wrong { border-color: var(--bad); background: #fdeced; color: var(--bad); }
+    .choice.dim { opacity: .5; }
+
+    /* Buttons */
+    .btn { border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 17px; font-weight: 800;
+      padding: 15px 30px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 24px rgba(91,91,214,.38); }
+    .btn.ghost { background: #eef; color: var(--accent); box-shadow: none; }
+
+    /* Start / result panels */
+    .panel { background: var(--panel); border-radius: 22px; width: 100%; max-width: 560px; padding: 30px;
+      box-shadow: 0 18px 50px rgba(20,30,45,.14); text-align: center; }
+    .panel .badge { width: 84px; height: 84px; margin: 0 auto 8px; border-radius: 50%; font-size: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 34% 30%, #b8a8ff, var(--accent) 72%);
+      box-shadow: 0 10px 26px rgba(91,91,214,.45); }
+    .panel h1 { font-size: 26px; margin: 6px 0 4px; }
+    .panel p { color: var(--muted); font-size: 15px; margin: 0 0 8px; }
+    .level-badge { display: inline-flex; align-items: center; gap: 10px; margin: 12px auto; padding: 12px 20px;
+      border-radius: 16px; background: linear-gradient(135deg, rgba(91,91,214,.12), rgba(20,184,166,.12));
+      border: 1px solid var(--line); }
+    .level-badge .lvl { width: 48px; height: 48px; border-radius: 12px; color: #fff; font-weight: 800; font-size: 20px;
+      display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+    .level-badge .lt { text-align: left; }
+    .level-badge .lt b { font-size: 18px; } .level-badge .lt span { font-size: 12px; color: var(--muted); }
+    .startu { margin: 8px 0 4px; font-size: 16px; }
+    .startu b { color: var(--accent); }
+    .strengths { list-style: none; padding: 0; margin: 14px 0; text-align: left; }
+    .strengths li { font-size: 14px; padding: 7px 10px; border-radius: 9px; margin-bottom: 5px; background: #f4f8f5; }
+    .strengths li .ck { color: var(--good); font-weight: 800; margin-right: 8px; }
+    .result-btns { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="title">🎯 Mr. Cadabra's Challenge</div>
+    <div class="spacer"></div>
+    <a id="exitLink" href="/">Exit</a>
+  </div>
+
+  <div class="wrap">
+    <!-- START -->
+    <div class="panel" id="startPanel">
+      <div class="badge">🎩</div>
+      <h1>Let's find your level!</h1>
+      <p>A few quick questions — they get trickier as you go. Just tap your answer. Ready?</p>
+      <button class="btn" id="beginBtn" style="margin-top:12px;">Start the challenge →</button>
+    </div>
+
+    <!-- QUIZ (hidden until start) -->
+    <div id="quiz" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+      <div class="hud">
+        <div class="chip pts">⭐ <span id="pts">0</span></div>
+        <div class="chip streak">🔥 <span id="streak">0</span></div>
+        <div class="spacer"></div>
+        <div class="prog" id="prog">Question 1</div>
+      </div>
+      <div class="host">
+        <div class="orbwrap"><canvas id="orb" width="220" height="220"></canvas></div>
+        <div class="say" id="say">Here we go!</div>
+      </div>
+      <div class="card">
+        <div class="qtext" id="qtext">…</div>
+        <div class="choices" id="choices"></div>
+      </div>
+    </div>
+
+    <!-- RESULT (hidden until finish) -->
+    <div class="panel" id="resultPanel" style="display:none;">
+      <div class="badge" id="rBadge">✨</div>
+      <h1 id="rTitle">Nice work!</h1>
+      <p id="rSub">Here's where you are.</p>
+      <div class="level-badge">
+        <div class="lvl" id="rLvl">1</div>
+        <div class="lt"><b id="rLvlTitle">—</b><span id="rPts">0 points</span></div>
+      </div>
+      <div class="startu">Let's start you at <b id="rStartUnit">Unit 1</b>.</div>
+      <ul class="strengths" id="rStrengths"></ul>
+      <div class="result-btns">
+        <button class="btn" id="goLearn">Start learning with Mr. Cadabra →</button>
+        <button class="btn ghost" id="goDash">See my dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const CODE = (params.get("code") || "").trim();
+    if (!CODE) location.href = "/";
+    el("exitLink").href = CODE ? ("/session?code=" + encodeURIComponent(CODE)) : "/";
+    el("goLearn").onclick = () => location.href = "/session?code=" + encodeURIComponent(CODE);
+    el("goDash").onclick = () => location.href = "/dashboard?code=" + encodeURIComponent(CODE);
+
+    // ---- Question bank: 9 tiers (climbing difficulty), 2 questions each ----
+    // Tier N roughly maps to Algebra I Unit N. answer = index of correct choice.
+    const BANK = {
+      1: [ {q:"What is 7 − 10?", c:["3","−3","−17","17"], a:1},
+           {q:"What is 3 + 2 × 4?", c:["20","11","14","24"], a:1} ],
+      2: [ {q:"Solve: x + 5 = 12.  x = ?", c:["7","17","5","60"], a:0},
+           {q:"Solve: 2x = 14.  x = ?", c:["7","12","28","16"], a:0} ],
+      3: [ {q:"Solve: 2x + 3 = 11.  x = ?", c:["4","7","5","8"], a:0},
+           {q:"Solve: 5x − 4 = 3x + 2.  x = ?", c:["3","1","6","−3"], a:0} ],
+      4: [ {q:"If f(x) = 2x + 1, what is f(3)?", c:["7","6","5","9"], a:0},
+           {q:"If g(x) = x² − 1, what is g(4)?", c:["15","7","16","8"], a:0} ],
+      5: [ {q:"What is the slope of y = 3x − 2?", c:["3","−2","2","⅓"], a:0},
+           {q:"A line passes through (0,1) and (2,5). Its slope is?", c:["2","3","4","1"], a:0} ],
+      6: [ {q:"Where do y = x and y = 4 cross?", c:["(4, 4)","(0, 4)","(4, 0)","(2, 2)"], a:0},
+           {q:"System: y = 2x and x + y = 6.  x = ?", c:["2","3","6","4"], a:0} ],
+      7: [ {q:"Simplify: x³ · x²", c:["x⁵","x⁶","x¹","2x⁵"], a:0},
+           {q:"What is 2⁻²?", c:["¼","−4","4","½"], a:0} ],
+      8: [ {q:"Factor: x² − 9", c:["(x−3)(x+3)","(x−9)(x+1)","(x−3)²","(x+9)(x−1)"], a:0},
+           {q:"Expand: (x + 2)(x + 3)", c:["x² + 5x + 6","x² + 6x + 5","x² + 6","x² + 5x + 5"], a:0} ],
+      9: [ {q:"Solve: x² = 25.  x = ?", c:["±5","5","25","±25"], a:0},
+           {q:"The solutions of (x − 2)(x + 3) = 0 are:", c:["2 and −3","−2 and 3","2 and 3","−2 and −3"], a:0} ],
+    };
+    const MAX_TIER = 9;
+    const UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
+      3:"Functions & Notation", 4:"Linear Functions & Graphs", 5:"Systems of Equations",
+      6:"Exponents & Exponential Functions", 7:"Polynomials & Factoring", 8:"Quadratic Functions", 9:"Data & Statistics" };
+    const TIER_SKILL = { 1:"Number sense", 2:"Solving equations", 3:"Multi-step solving", 4:"Functions",
+      5:"Slope & graphs", 6:"Systems", 7:"Exponents", 8:"Factoring", 9:"Quadratics" };
+    const LEVELS = ["Getting Started","Equation Rookie","Equation Solver","Function Finder","Graph Explorer",
+      "Systems Thinker","Power Player","Factoring Pro","Quadratic Whiz","Algebra Ace"];
+
+    // ---- State ----
+    let tier = 1, second = false, points = 0, streak = 0, asked = 0, highestPassed = 0;
+    let locked = false;
+    const passedTiers = [];
+
+    // ---- Orb (reused, simplified) ----
+    const orb = el("orb"), octx = orb.getContext("2d");
+    let t = 0, smooth = 0, hue = 210, orbState = "idle";
+    function orbLevel() {
+      if (orbState === "happy") return 0.7 + 0.2 * Math.abs(Math.sin(t * 0.08));
+      if (orbState === "think") return 0.3 + 0.15 * Math.sin(t * 0.1);
+      return 0.12 + 0.05 * Math.sin(t * 0.04);
+    }
+    function drawOrb() {
+      const w = orb.width, h = orb.height, cx = w/2, cy = h/2;
+      octx.clearRect(0,0,w,h);
+      const lv = orbLevel(); smooth += (lv - smooth) * 0.2; hue += 0.2 + smooth * 0.8;
+      const h1 = hue % 360, h2 = (hue + 55) % 360, baseR = w * 0.26, R = baseR * (1 + smooth * 0.3);
+      const aura = octx.createRadialGradient(cx,cy,R*0.4,cx,cy,R*2.1);
+      aura.addColorStop(0, `hsla(${h1},90%,62%,${0.28+smooth*0.3})`); aura.addColorStop(1, `hsla(${h1},90%,62%,0)`);
+      octx.fillStyle = aura; octx.beginPath(); octx.arc(cx,cy,R*2.1,0,7); octx.fill();
+      octx.save(); octx.shadowColor = `hsla(${h2},95%,60%,.8)`; octx.shadowBlur = 26 + smooth*34;
+      octx.beginPath();
+      for (let i=0;i<=60;i++){ const a=(i/60)*Math.PI*2;
+        const wob = 1 + (0.05+smooth*0.09)*Math.sin(a*3+t*0.06) + (smooth*0.05)*Math.sin(a*5-t*0.05);
+        const rr=R*wob, x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr; i?octx.lineTo(x,y):octx.moveTo(x,y); }
+      octx.closePath();
+      const body = octx.createRadialGradient(cx-R*0.3,cy-R*0.35,R*0.1,cx,cy,R*1.15);
+      body.addColorStop(0,`hsla(${h1},100%,88%,1)`); body.addColorStop(0.45,`hsla(${h1},95%,64%,1)`); body.addColorStop(1,`hsla(${h2},90%,45%,1)`);
+      octx.fillStyle = body; octx.fill(); octx.restore();
+      octx.beginPath(); octx.arc(cx-R*0.28,cy-R*0.32,R*0.3,0,7); octx.fillStyle="rgba(255,255,255,.55)"; octx.fill();
+      t += 1; requestAnimationFrame(drawOrb);
+    }
+    drawOrb();
+
+    // ---- Voice (optional; streams if ElevenLabs configured, else browser) ----
+    const ttsAudio = new Audio(); let elevenOn = false, maleVoice = null;
+    function pickVoice(){ const v = window.speechSynthesis ? speechSynthesis.getVoices() : []; if(!v.length) return;
+      const en = v.filter(x => /en/i.test(x.lang)); maleVoice = en.find(x => /david|daniel|alex|male|fred/i.test(x.name)) || en[0] || v[0]; }
+    if (window.speechSynthesis){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+    function say(text, spoken) {
+      el("say").textContent = text;
+      const line = spoken || text;
+      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent("… " + line);
+        const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line)); }
+      else browserSay(line);
+    }
+    function browserSay(line){ if(!window.speechSynthesis) return; try { speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(line); if(maleVoice) u.voice=maleVoice; u.rate=1.02; u.pitch=0.95; speechSynthesis.speak(u);}catch(e){} }
+
+    // ---- Flow ----
+    async function begin() {
+      try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenOn = !!(await vs.json()).eleven; } catch(e){}
+      el("startPanel").style.display = "none";
+      el("quiz").style.display = "flex";
+      say("Alright — let's find your level. Here we go!", "Alright! Let's find your level. Here we go!");
+      setTimeout(nextQuestion, 700);
+    }
+    el("beginBtn").onclick = begin;
+
+    function nextQuestion() {
+      if (tier > MAX_TIER) return finish();
+      locked = false; orbState = "think";
+      const q = BANK[tier][second ? 1 : 0];
+      asked++;
+      el("prog").textContent = "Question " + asked;
+      el("qtext").textContent = q.q;
+      const box = el("choices"); box.innerHTML = "";
+      q.c.forEach((choice, i) => {
+        const d = document.createElement("div"); d.className = "choice"; d.textContent = choice;
+        d.onclick = () => answer(i, q, d); box.appendChild(d);
+      });
+    }
+
+    function answer(i, q, node) {
+      if (locked) return; locked = true;
+      const correct = (i === q.a);
+      const nodes = el("choices").children;
+      for (const n of nodes) n.classList.add("dim");
+      node.classList.remove("dim");
+      if (correct) {
+        node.classList.add("correct");
+        const gain = 100 + streak * 20; points += gain; streak++;
+        highestPassed = tier; if (!passedTiers.includes(tier)) passedTiers.push(tier);
+        orbState = "happy";
+        say(pick(["Yes! 🎉","Nailed it!","Boom — correct!","Exactly right!"]), pick(["Yes!","Nailed it!","Correct!","Exactly right!"]));
+        el("pts").textContent = points; el("streak").textContent = streak;
+        second = false; tier++;
+        setTimeout(nextQuestion, 1100);
+      } else {
+        node.classList.add("wrong");
+        // reveal correct
+        for (let k=0;k<nodes.length;k++) if (k === q.a) nodes[k].classList.add("correct");
+        streak = 0; el("streak").textContent = 0; orbState = "idle";
+        if (!second) { say("Ooh, not quite — one more at this level.", "Not quite. One more at this level.");
+          second = true; setTimeout(nextQuestion, 1300); }
+        else { say("No worries — that's a perfect place to start!", "No worries. That's a perfect place to start.");
+          setTimeout(finish, 1300); }
+      }
+    }
+    function pick(arr){ return arr[asked % arr.length]; }
+
+    function finish() {
+      const startUnit = Math.min(highestPassed + 1, 9);
+      const lvlIdx = highestPassed;            // 0..9
+      const lvlTitle = LEVELS[lvlIdx];
+      el("quiz").style.display = "none";
+      const rp = el("resultPanel"); rp.style.display = "block";
+      el("rBadge").textContent = highestPassed >= 6 ? "🏆" : (highestPassed >= 3 ? "🌟" : "🚀");
+      el("rTitle").textContent = highestPassed >= 6 ? "Impressive!" : (highestPassed >= 3 ? "Great job!" : "Nice start!");
+      el("rSub").textContent = "Here's where you are — and where we'll begin.";
+      el("rLvl").textContent = Math.max(1, lvlIdx);
+      el("rLvlTitle").textContent = lvlTitle;
+      el("rPts").textContent = points + " points";
+      el("rStartUnit").textContent = "Unit " + startUnit + ": " + UNIT_NAMES[startUnit];
+      const ul = el("rStrengths"); ul.innerHTML = "";
+      if (passedTiers.length) {
+        passedTiers.sort((a,b)=>a-b).forEach(tr => { const li=document.createElement("li");
+          li.innerHTML = '<span class="ck">✓</span>' + TIER_SKILL[tr]; ul.appendChild(li); });
+      } else {
+        const li=document.createElement("li"); li.textContent = "We'll build your foundation together — a perfect place to start."; ul.appendChild(li);
+      }
+      say("Awesome — you're a " + lvlTitle + "! We'll start you at Unit " + startUnit + ". Let's go learn some algebra!",
+          "Awesome! You're a " + lvlTitle + ". We'll start you at unit " + startUnit + ". Let's go learn some algebra!");
+      // Save placement so the tutor and dashboard can use it.
+      try {
+        fetch("/api/placement/" + encodeURIComponent(CODE), {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level: Math.max(1, lvlIdx), level_title: lvlTitle,
+            start_unit: startUnit, start_unit_name: UNIT_NAMES[startUnit],
+            points: points, highest_tier: highestPassed, strengths: passedTiers.map(tr => TIER_SKILL[tr]) })
+        });
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

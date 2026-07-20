@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Added Mr. Cadabra's Challenge (placement quiz): GET /challenge,
+#               POST/GET /api/placement/{code} (persisted to data/placements.json).
+#               Placement now feeds BOTH the dashboard (via progress.py) and the
+#               tutor (the placement is injected into the tutor's progress context
+#               in /api/chat, so he starts each student at the right level).
 #   2026-07-19  Firmed up ElevenLabs voice_settings (stability 0.55 + speaker
 #               boost) to reduce garbled words.
 #   2026-07-19  Added the progress DASHBOARD: GET /dashboard (serves
@@ -72,6 +77,7 @@ STATIC_DIR = BASE_DIR / "static"
 DATA_DIR = BASE_DIR / "data"
 STUDENTS_FILE = BASE_DIR / "students.json"
 SESSIONS_FILE = DATA_DIR / "sessions.json"
+PLACEMENTS_FILE = DATA_DIR / "placements.json"  # results of Mr. Cadabra's Challenge
 
 DATA_DIR.mkdir(exist_ok=True)  # make sure the memory folder exists
 
@@ -123,6 +129,34 @@ def save_session(code: str, session: dict) -> None:
         _write_all_sessions(all_sessions)
 
 
+# ---- Placement results (from Mr. Cadabra's Challenge) ----------------------
+def read_placement(code: str) -> dict:
+    """Return this student's saved placement result, or {} if none."""
+    if not PLACEMENTS_FILE.exists():
+        return {}
+    try:
+        with open(PLACEMENTS_FILE, "r", encoding="utf-8") as fh:
+            return json.load(fh).get(code, {})
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_placement(code: str, result: dict) -> None:
+    with _sessions_lock:
+        all_p = {}
+        if PLACEMENTS_FILE.exists():
+            try:
+                with open(PLACEMENTS_FILE, "r", encoding="utf-8") as fh:
+                    all_p = json.load(fh)
+            except (json.JSONDecodeError, OSError):
+                all_p = {}
+        all_p[code] = result
+        tmp = PLACEMENTS_FILE.with_suffix(".json.tmp")
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(all_p, fh, ensure_ascii=False, indent=2)
+        tmp.replace(PLACEMENTS_FILE)
+
+
 # ---- Request models --------------------------------------------------------
 class LoginRequest(BaseModel):
     code: str
@@ -131,6 +165,16 @@ class LoginRequest(BaseModel):
 class ChatRequest(BaseModel):
     code: str
     message: str
+
+
+class PlacementIn(BaseModel):
+    level: int = 1
+    level_title: str = ""
+    start_unit: int = 1
+    start_unit_name: str = ""
+    points: int = 0
+    highest_tier: int = 0
+    strengths: list = []
 
 
 # ---- App -------------------------------------------------------------------
@@ -163,11 +207,32 @@ def dashboard_page():
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
+@app.get("/challenge")
+def challenge_page():
+    """Mr. Cadabra's Challenge -- the fun adaptive placement quiz."""
+    return FileResponse(STATIC_DIR / "challenge.html")
+
+
 @app.get("/api/progress/{code}")
 def progress_state(code: str):
-    """Return the student's progress data (currently representative sample data)."""
+    """Return the student's progress data (sample data + any real placement)."""
     student = _student_or_404(code)
-    return progress.get_progress(code.strip(), student)
+    return progress.get_progress(code.strip(), student, read_placement(code.strip()))
+
+
+@app.post("/api/placement/{code}")
+def post_placement(code: str, body: PlacementIn):
+    """Save the result of Mr. Cadabra's Challenge for this student."""
+    _student_or_404(code)
+    save_placement(code.strip(), body.model_dump())
+    return {"ok": True}
+
+
+@app.get("/api/placement/{code}")
+def get_placement(code: str):
+    """Return this student's saved placement result (or {})."""
+    _student_or_404(code)
+    return read_placement(code.strip())
 
 
 @app.get("/health")
@@ -218,6 +283,15 @@ def chat(req: ChatRequest):
 
     # Give the tutor the student's remembered progress plus the live history.
     student_context = dict(student)
+    placement = read_placement(code)
+    if placement:
+        note = (" [Placement result from the Challenge: this student tested as "
+                f"'{placement.get('level_title', '')}' and should start around "
+                f"Unit {placement.get('start_unit')} "
+                f"({placement.get('start_unit_name', '')}). Strengths: "
+                f"{', '.join(placement.get('strengths', [])) or 'building foundations'}. "
+                "Meet them at that level -- don't start below it unless they struggle.]")
+        student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
     reply = tutor.get_tutor_reply(student_context, history, message)
 
     # Remember this exchange so the tutor recalls it next time.

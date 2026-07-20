@@ -155,6 +155,7 @@
           </div>
         </div>
         <div class="xpbar"><span id="xpFill"></span></div>
+        <div class="lbl" id="placedNote" style="margin-top:9px; color:#4fd47f; display:none;"></div>
       </div>
 
       <div class="card">
@@ -273,6 +274,12 @@
       // Level / XP
       document.getElementById("lvlBadge").textContent = d.level;
       document.getElementById("lvlTitle").textContent = d.level_title;
+      if (d.placed) {
+        const pn = document.getElementById("placedNote");
+        pn.style.display = "block";
+        pn.textContent = "🎯 Placed by the Challenge — starting at Unit " + d.placed.unit +
+          (d.placed.unit_name ? (": " + d.placed.unit_name) : "");
+      }
       document.getElementById("xpNow").textContent = d.xp;
       document.getElementById("xpNext").textContent = d.xp_to_next;
       setTimeout(() => { document.getElementById("xpFill").style.width =

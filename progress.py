@@ -2,6 +2,9 @@
 # progress.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  get_progress() now accepts a `placement` (from Mr. Cadabra's
+#               Challenge) and reflects it: real level/level_title + a "placed"
+#               object (start unit, points, strengths) for the dashboard.
 #   2026-07-19  Initial version. Provides the progress data that powers the
 #               dashboard. For now this returns RICH REPRESENTATIVE ("sample")
 #               data per test student so the dashboard looks spectacular for demos
@@ -87,10 +90,12 @@ _DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 _WEEKS = ["6 wks ago", "5 wks", "4 wks", "3 wks", "2 wks", "This wk"]
 
 
-def get_progress(code: str, student: dict) -> dict:
+def get_progress(code: str, student: dict, placement: dict = None) -> dict:
     """
     Return the progress object for this student. Currently representative sample
     data; shape is final. `student` is the record from students.json (for name).
+    If `placement` (from Mr. Cadabra's Challenge) is provided, the level and a
+    "placed" badge reflect the real placement result.
     """
     name = (student or {}).get("name", "Student")
     prof = _PROFILES.get(code)
@@ -112,12 +117,27 @@ def get_progress(code: str, student: dict) -> dict:
     overall = round(sum(prof["percents"]) / len(prof["percents"]))
     accuracy = round(100 * prof["correct"] / prof["attempted"]) if prof["attempted"] else 0
 
+    # If the student took the Challenge, reflect that real placement.
+    level = prof["level"]
+    level_title = prof["level_title"]
+    placed = None
+    if placement:
+        level = placement.get("level", level)
+        level_title = placement.get("level_title", level_title)
+        placed = {
+            "unit": placement.get("start_unit"),
+            "unit_name": placement.get("start_unit_name", ""),
+            "points": placement.get("points", 0),
+            "strengths": placement.get("strengths", []),
+        }
+
     return {
         "sample": True,  # <-- representative demo data; swap real tracking in later
+        "placed": placed,  # real placement result, or None if the Challenge wasn't taken
         "student": name,
         "overall_percent": overall,
-        "level": prof["level"],
-        "level_title": prof["level_title"],
+        "level": level,
+        "level_title": level_title,
         "xp": prof["xp"],
         "xp_to_next": prof["xp_to_next"],
         "streak_days": prof["streak"],

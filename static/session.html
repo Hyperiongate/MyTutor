@@ -4,6 +4,8 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-19  Added "🎯 Find my level" links (sidebar + welcome) to Mr. Cadabra's
+                Challenge placement quiz (/challenge?code=...).
     2026-07-19  Relayout: Mr. Cadabra (smaller orb) + name + status in a compact
                 TOP-LEFT row, with the conversation to the RIGHT of it; the
                 whiteboard now expands to fill the space and the balance visual is
@@ -216,6 +218,7 @@
     <aside class="side left">
       <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
       <div class="curriculum" id="curriculumList" style="display:none;"></div>
+      <a class="navbtn" id="challengeLink" href="#">🎯 Find my level</a>
       <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
       <h2 style="margin-top:18px;">Today's plan</h2>
       <div id="planList"></div>
@@ -280,6 +283,7 @@
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">🎙️ Start talking</button>
+      <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take a quick challenge to find your level 🎯</a>
     </div>
   </div>
 
@@ -361,6 +365,8 @@
     ];
     const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
     el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
+    el("challengeLink").href = "/challenge?code=" + encodeURIComponent(CODE);
+    el("welcomeChallenge").href = "/challenge?code=" + encodeURIComponent(CODE);
     function renderCurriculum() {
       curriculumList.innerHTML = "";
       CURRICULUM.forEach((u, i) => {
