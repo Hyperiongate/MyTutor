@@ -4,6 +4,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-19  Relayout: Mr. Cadabra (smaller orb) + name + status in a compact
+                TOP-LEFT row, with the conversation to the RIGHT of it; the
+                whiteboard now expands to fill the space and the balance visual is
+                bigger. Voice: the mic now stays LIVE through the tutor's turn (its
+                results are ignored while he speaks) so it catches the student
+                immediately even if they talk quickly.
     2026-07-19  Warmer, more colorful palette; removed the duplicate big caption
                 (conversation now shows in ONE place, the transcript; a small
                 status line under the orb shows Listening/Thinking); added a
@@ -130,41 +136,44 @@
     .topbar .spacer { flex: 1; }
     .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
 
-    .teacher { display: flex; flex-direction: column; align-items: center; padding: 2px 0 4px; }
-    .orbwrap { width: 150px; height: 150px; }
+    .tutor-head { display: flex; align-items: center; gap: 18px; padding: 4px 22px 8px; }
+    .tutor-id { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
+    .orbwrap { width: 96px; height: 96px; flex: 0 0 auto; }
     .orbwrap canvas { width: 100%; height: 100%; display: block; }
-    .tutor-name { margin-top: 4px; font-weight: 800; font-size: 19px; }
+    .tutor-name { font-weight: 800; font-size: 18px; }
     .student-name { font-size: 12px; color: var(--muted); }
-    .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 6px; font-weight: 600; text-align: center; }
+    .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 2px; font-weight: 600; }
+    .convo { flex: 1; align-self: stretch; max-height: 118px; overflow-y: auto; display: flex;
+      flex-direction: column; justify-content: center; gap: 8px; padding: 6px 6px; }
 
-    .stage { flex: 1; margin: 6px 20px 0; border-radius: 18px; background: var(--panel);
-      border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(20,30,45,.06);
+    .stage { flex: 1; margin: 4px 24px 14px; border-radius: 20px; background: var(--panel);
+      border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 16px; min-height: 180px; position: relative; overflow: hidden; }
+      padding: 22px; min-height: 320px; position: relative; overflow: hidden; }
     .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
 
     /* Balance scale */
-    .scale { width: 100%; max-width: 440px; }
-    .scale .beamwrap { position: relative; height: 140px; }
+    .scale { width: 100%; max-width: 580px; }
+    .scale .beamwrap { position: relative; height: 190px; }
     .scale .pivot { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-      width: 0; height: 0; border-left: 24px solid transparent; border-right: 24px solid transparent;
-      border-bottom: 78px solid #9aa7b6; }
-    .scale .beam { position: absolute; left: 10%; right: 10%; top: 32px; height: 8px;
+      width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent;
+      border-bottom: 104px solid #9aa7b6; }
+    .scale .beam { position: absolute; left: 9%; right: 9%; top: 42px; height: 10px;
       background: var(--wood); border-radius: 6px; transform-origin: 50% 50%;
       transition: transform .7s cubic-bezier(.34,1.2,.5,1); }
-    .scale .pan { position: absolute; top: 28px; width: 128px; transform: translateX(-50%); text-align: center; }
+    .scale .pan { position: absolute; top: 38px; width: 168px; transform: translateX(-50%); text-align: center; }
     .scale .pan.left { left: 12%; } .scale .pan.right { left: 88%; }
-    .scale .tray { min-height: 44px; border: 2px solid #c9d2dd; border-top: none;
-      border-radius: 0 0 60px 60px; background: #f7fafc; padding: 6px 6px 10px;
-      display: flex; flex-wrap: wrap; gap: 2px; align-items: center; justify-content: center;
-      font-size: 22px; line-height: 1; }
-    .scale .rope { height: 24px; width: 2px; background: #c9d2dd; margin: 0 auto; }
-    .scale .label { margin-top: 8px; font-weight: 700; font-size: 18px; }
+    .scale .tray { min-height: 58px; border: 2px solid #c9d2dd; border-top: none;
+      border-radius: 0 0 78px 78px; background: #f7fafc; padding: 8px 8px 12px;
+      display: flex; flex-wrap: wrap; gap: 3px; align-items: center; justify-content: center;
+      font-size: 28px; line-height: 1; }
+    .scale .rope { height: 30px; width: 2px; background: #c9d2dd; margin: 0 auto; }
+    .scale .label { margin-top: 10px; font-weight: 700; font-size: 22px; }
     .scale .box { display: inline-flex; align-items: center; justify-content: center;
-      min-width: 30px; height: 30px; padding: 0 6px; border-radius: 7px; background: #ffe6b0;
-      border: 2px solid var(--wood); font-size: 15px; font-weight: 700; color: #6b4c15; }
-    .scale .eq { text-align: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
-    .scale .cap { text-align: center; margin-top: 6px; font-size: 14px; }
+      min-width: 40px; height: 40px; padding: 0 8px; border-radius: 8px; background: #ffe6b0;
+      border: 2px solid var(--wood); font-size: 19px; font-weight: 700; color: #6b4c15; }
+    .scale .eq { text-align: center; margin-top: 12px; font-size: 17px; color: var(--muted); }
+    .scale .cap { text-align: center; margin-top: 8px; font-size: 15px; }
     .pop { animation: pop .4s ease; }
     @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .qcard { width: 100%; max-width: 480px; text-align: left; }
@@ -174,9 +183,7 @@
       border-radius: 10px; padding: 10px 13px; margin-bottom: 9px; font-size: 15px; line-height: 1.35; }
     .qcard .qcap { text-align: center; margin-top: 4px; font-size: 14px; color: var(--muted); }
 
-    .transcript { margin: 14px auto 0; max-width: 660px; width: 100%; max-height: 190px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 9px; padding: 4px 20px; }
-    .bubble { padding: 10px 14px; border-radius: 15px; max-width: 86%; font-size: 15.5px;
+    .bubble { padding: 10px 14px; border-radius: 15px; max-width: 92%; font-size: 15px;
       line-height: 1.45; white-space: pre-wrap; }
     .bubble.tutor { background: var(--tutor); align-self: flex-start; border-bottom-left-radius: 5px; }
     .bubble.tutor.latest { box-shadow: 0 3px 14px rgba(91,91,214,.18); }
@@ -221,16 +228,19 @@
         <a href="/">Exit</a>
       </div>
 
-      <div class="teacher">
-        <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
-        <div class="tutor-name" id="tutorName">Tutor</div>
-        <div class="student-name" id="studentName">&nbsp;</div>
-        <div class="status" id="status">&nbsp;</div>
+      <div class="tutor-head">
+        <div class="tutor-id">
+          <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
+          <div class="tutor-meta">
+            <div class="tutor-name" id="tutorName">Tutor</div>
+            <div class="student-name" id="studentName">&nbsp;</div>
+            <div class="status" id="status">&nbsp;</div>
+          </div>
+        </div>
+        <div class="convo" id="log"></div>
       </div>
 
       <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
-
-      <div class="transcript" id="log"></div>
 
       <div class="controls">
         <button class="btn primary" id="startBtn">🎙️ Start talking</button>
@@ -620,7 +630,10 @@
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
       if (busy) return; busy = true;
-      try { recognition && recognition.stop(); } catch (e) {}
+      // NOTE: we deliberately do NOT stop recognition here. It keeps running while
+      // the tutor thinks/speaks (its results are ignored via `if (busy) return`),
+      // so the moment the tutor finishes, the mic is already live and catches the
+      // student immediately -- even if they start talking quickly.
       addBubble("student", message);
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
@@ -632,7 +645,9 @@
         addBubble("tutor", reply); lastTutorText = reply; statusEl.textContent = "";
         await speak(reply);
       } catch (e) { statusEl.textContent = "I couldn't reach the server. Please try again."; }
-      finally { busy = false; if (convoActive) { setState("listening"); statusEl.textContent = "Listening…"; startRecognition(); } else { setState("idle"); statusEl.textContent = ""; } }
+      finally { busy = false; pending = "";
+        if (convoActive) { setState("listening"); statusEl.textContent = "Listening…"; startRecognition(); }
+        else { setState("idle"); statusEl.textContent = ""; } }
     }
 
     // ---------- Text fallback ----------

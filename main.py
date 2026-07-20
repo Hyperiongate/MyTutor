@@ -2,6 +2,8 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-19  Firmed up ElevenLabs voice_settings (stability 0.55 + speaker
+#               boost) to reduce garbled words.
 #   2026-07-19  Added the progress DASHBOARD: GET /dashboard (serves
 #               dashboard.html) and GET /api/progress/{code} (data from
 #               progress.py -- currently representative sample data, real shape).
@@ -253,7 +255,7 @@ def speak(text: str = ""):
         "text": text,
         "model_id": ELEVEN_MODEL,
         "output_format": "mp3_44100_128",
-        "voice_settings": {"stability": 0.45, "similarity_boost": 0.8},
+        "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "use_speaker_boost": True},
     }
 
     def audio_stream():
