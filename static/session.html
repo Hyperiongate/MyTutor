@@ -4,6 +4,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  VOICE-STALL FREEZE FIX. If the streamed ElevenLabs audio started and
+                then STALLED mid-sentence (a stream hiccup), the "ended" event never
+                fired, so speak() waited forever and the whole turn froze (student
+                stuck, button never re-enabled). speak() now runs a WATCHDOG that
+                guarantees it always resolves: never-starts -> browser-voice fallback
+                (5s); starts-then-stalls -> hand the turn back after ~3.5s of no
+                playback progress; end-missed -> detect near-end+paused. browserSpeak
+                also self-resolves if the engine never fires onend. No more freezes.
     2026-07-21  FIRST-TIME VS RETURNING FLOW. The page now reads `placed`/`history`
                 from /api/session and behaves accordingly:
                   • Never placed AND no history -> redirect to the Challenge (you
@@ -621,38 +629,67 @@
     }
     function browserSpeak(text, done) {
       if (!window.speechSynthesis) { if (done) done(); return; }
+      let called = false;
+      const finish = () => { if (called) return; called = true; if (done) done(); };
       try {
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(forSpeech(text));
+        const spoken = forSpeech(text);
+        const u = new SpeechSynthesisUtterance(spoken);
         if (maleVoice) u.voice = maleVoice; u.rate = 1.0; u.pitch = 0.9;
         u.onstart = () => { usingAnalyser = false; setState("speaking"); };
-        u.onend = () => { if (done) done(); };
-        u.onerror = () => { if (done) done(); };
+        u.onend = finish;
+        u.onerror = finish;
         speechSynthesis.speak(u);
-      } catch (e) { if (done) done(); }
+        // Safety: the browser's speech engine sometimes never fires onend (a known
+        // Chrome quirk on longer text). Resolve anyway after a generous estimate so
+        // the turn can never hang here.
+        const words = spoken.split(/\s+/).filter(Boolean).length;
+        setTimeout(finish, 4000 + words * 450);
+      } catch (e) { finish(); }
     }
     function speak(text) {
       return new Promise((resolve) => {
         if (!text) { resolve(); return; }
         if (!elevenEnabled) { browserSpeak(text, resolve); return; }
         ensureAudioGraph();
-        let started = false, doneCalled = false;
+        let started = false, doneCalled = false, lastProgress = Date.now(), watchdog = null;
         const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); resolve(); };
-        const onPlaying = () => { started = true; usingAnalyser = !!analyser; setState("speaking"); };
+        const onPlaying = () => { started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now(); };
+        const onProgress = () => { lastProgress = Date.now(); };   // fires ~4x/sec while audio actually advances
         const onEnded = () => { finish(); };
         const onError = () => { cleanup(); if (!started) browserSpeak(text, resolve); else finish(); };
         function cleanup() {
+          if (watchdog) { clearInterval(watchdog); watchdog = null; }
           ttsAudio.removeEventListener("playing", onPlaying);
+          ttsAudio.removeEventListener("timeupdate", onProgress);
           ttsAudio.removeEventListener("ended", onEnded);
           ttsAudio.removeEventListener("error", onError);
         }
         ttsAudio.addEventListener("playing", onPlaying);
+        ttsAudio.addEventListener("timeupdate", onProgress);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
         ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
-        setTimeout(() => { if (!started && !doneCalled) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); } }, 5000);
+        // WATCHDOG: guarantees this promise ALWAYS resolves, so the student is never
+        // frozen mid-sentence. Covers three cases:
+        //   1) audio never starts  -> after 5s, fall back to the browser voice
+        //   2) audio starts then STALLS (stream hiccup, "ended" never fires) -> after
+        //      ~3.5s with no playback progress, stop waiting and hand the turn back
+        //   3) audio reaches the end but "ended" is missed -> detect near-end + paused
+        watchdog = setInterval(() => {
+          if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
+          const idle = Date.now() - lastProgress;
+          if (!started) {
+            if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); }
+            return;
+          }
+          const a = ttsAudio;
+          const nearEnd = a.duration && isFinite(a.duration) && (a.duration - a.currentTime) < 0.4;
+          if (a.ended || (a.paused && nearEnd)) { finish(); return; }
+          if (idle > 3500) { try { a.pause(); } catch (e) {} finish(); }
+        }, 500);
       });
     }
 

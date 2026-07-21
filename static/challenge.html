@@ -4,6 +4,13 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  READABILITY FIX. Questions were one cramped line like
+                "Solve: x + 5 = 12.  x = ?", where the sentence period after 12 ran
+                into the "x" and looked like the decimal "12.x". Each question is now
+                two SEPARATE lines: a small plain-words instruction (e.g. "Solve for
+                x") above, and the equation itself shown BIG on its own line below.
+                The trailing "x = ?" is gone (the four choices already ARE the x
+                values). Bank entries changed from {q} to {p, e}; render + CSS updated.
     2026-07-19  Initial "Mr. Cadabra's Challenge": an adaptive, game-show-style
                 placement quiz. Mr. Cadabra (orb + voice) hosts; the student taps
                 answers; difficulty climbs and gives a second chance at a tier
@@ -57,7 +64,14 @@
     /* Card */
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; width: 100%;
       max-width: 560px; padding: 24px; box-shadow: 0 16px 44px rgba(20,30,45,.10); }
-    .qtext { font-size: 23px; font-weight: 800; text-align: center; margin: 4px 0 20px; line-height: 1.3; }
+    /* Question is shown in TWO parts on SEPARATE lines: a small words instruction
+       (qprompt) above, and the math itself (qexpr) big below. Keeping them apart
+       means a trailing period after a number can never look like a decimal joining
+       the next letter (the old "= 12.  x = ?" read as "12.x"). */
+    .qprompt { font-size: 15px; font-weight: 700; color: var(--muted); text-align: center;
+      margin: 2px 0 8px; letter-spacing: .01em; }
+    .qexpr { font-size: 30px; font-weight: 800; text-align: center; margin: 0 0 22px; line-height: 1.25;
+      letter-spacing: .04em; font-variant-numeric: tabular-nums; }
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .choice { border: 2px solid var(--line); border-radius: 14px; padding: 16px; font-size: 19px; font-weight: 700;
       background: #fbfbff; cursor: pointer; text-align: center; transition: transform .08s ease, border-color .15s ease; }
@@ -126,7 +140,8 @@
         <div class="say" id="say">Here we go!</div>
       </div>
       <div class="card">
-        <div class="qtext" id="qtext">…</div>
+        <div class="qprompt" id="qprompt"></div>
+        <div class="qexpr" id="qexpr">…</div>
         <div class="choices" id="choices"></div>
       </div>
     </div>
@@ -160,25 +175,29 @@
 
     // ---- Question bank: 9 tiers (climbing difficulty), 2 questions each ----
     // Tier N roughly maps to Algebra I Unit N. answer = index of correct choice.
+    // Each question has two shown parts: p = plain-words instruction (small, on top)
+    // and e = the math itself (big, on its own line). c = choices, a = index of the
+    // correct one. Keeping the instruction and the equation on SEPARATE lines is what
+    // fixes the old "= 12.  x = ?" reading as the decimal "12.x".
     const BANK = {
-      1: [ {q:"What is 7 − 10?", c:["3","−3","−17","17"], a:1},
-           {q:"What is 3 + 2 × 4?", c:["20","11","14","24"], a:1} ],
-      2: [ {q:"Solve: x + 5 = 12.  x = ?", c:["7","17","5","60"], a:0},
-           {q:"Solve: 2x = 14.  x = ?", c:["7","12","28","16"], a:0} ],
-      3: [ {q:"Solve: 2x + 3 = 11.  x = ?", c:["4","7","5","8"], a:0},
-           {q:"Solve: 5x − 4 = 3x + 2.  x = ?", c:["3","1","6","−3"], a:0} ],
-      4: [ {q:"If f(x) = 2x + 1, what is f(3)?", c:["7","6","5","9"], a:0},
-           {q:"If g(x) = x² − 1, what is g(4)?", c:["15","7","16","8"], a:0} ],
-      5: [ {q:"What is the slope of y = 3x − 2?", c:["3","−2","2","⅓"], a:0},
-           {q:"A line passes through (0,1) and (2,5). Its slope is?", c:["2","3","4","1"], a:0} ],
-      6: [ {q:"Where do y = x and y = 4 cross?", c:["(4, 4)","(0, 4)","(4, 0)","(2, 2)"], a:0},
-           {q:"System: y = 2x and x + y = 6.  x = ?", c:["2","3","6","4"], a:0} ],
-      7: [ {q:"Simplify: x³ · x²", c:["x⁵","x⁶","x¹","2x⁵"], a:0},
-           {q:"What is 2⁻²?", c:["¼","−4","4","½"], a:0} ],
-      8: [ {q:"Factor: x² − 9", c:["(x−3)(x+3)","(x−9)(x+1)","(x−3)²","(x+9)(x−1)"], a:0},
-           {q:"Expand: (x + 2)(x + 3)", c:["x² + 5x + 6","x² + 6x + 5","x² + 6","x² + 5x + 5"], a:0} ],
-      9: [ {q:"Solve: x² = 25.  x = ?", c:["±5","5","25","±25"], a:0},
-           {q:"The solutions of (x − 2)(x + 3) = 0 are:", c:["2 and −3","−2 and 3","2 and 3","−2 and −3"], a:0} ],
+      1: [ {p:"Work it out", e:"7 − 10", c:["3","−3","−17","17"], a:1},
+           {p:"Work it out", e:"3 + 2 × 4", c:["20","11","14","24"], a:1} ],
+      2: [ {p:"Solve for x", e:"x + 5 = 12", c:["7","17","5","60"], a:0},
+           {p:"Solve for x", e:"2x = 14", c:["7","12","28","16"], a:0} ],
+      3: [ {p:"Solve for x", e:"2x + 3 = 11", c:["4","7","5","8"], a:0},
+           {p:"Solve for x", e:"5x − 4 = 3x + 2", c:["3","1","6","−3"], a:0} ],
+      4: [ {p:"Find f(3) when", e:"f(x) = 2x + 1", c:["7","6","5","9"], a:0},
+           {p:"Find g(4) when", e:"g(x) = x² − 1", c:["15","7","16","8"], a:0} ],
+      5: [ {p:"Find the slope", e:"y = 3x − 2", c:["3","−2","2","⅓"], a:0},
+           {p:"Find the slope of the line through", e:"(0, 1) and (2, 5)", c:["2","3","4","1"], a:0} ],
+      6: [ {p:"Where do these lines cross?", e:"y = x   and   y = 4", c:["(4, 4)","(0, 4)","(4, 0)","(2, 2)"], a:0},
+           {p:"Solve the system for x", e:"y = 2x   and   x + y = 6", c:["2","3","6","4"], a:0} ],
+      7: [ {p:"Simplify", e:"x³ · x²", c:["x⁵","x⁶","x¹","2x⁵"], a:0},
+           {p:"Work it out", e:"2⁻²", c:["¼","−4","4","½"], a:0} ],
+      8: [ {p:"Factor", e:"x² − 9", c:["(x−3)(x+3)","(x−9)(x+1)","(x−3)²","(x+9)(x−1)"], a:0},
+           {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 5x + 6","x² + 6x + 5","x² + 6","x² + 5x + 5"], a:0} ],
+      9: [ {p:"Solve for x", e:"x² = 25", c:["±5","5","25","±25"], a:0},
+           {p:"Find the solutions", e:"(x − 2)(x + 3) = 0", c:["2 and −3","−2 and 3","2 and 3","−2 and −3"], a:0} ],
     };
     const MAX_TIER = 9;
     const UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
@@ -255,7 +274,8 @@
       const q = BANK[tier][second ? 1 : 0];
       asked++;
       el("prog").textContent = "Question " + asked;
-      el("qtext").textContent = q.q;
+      el("qprompt").textContent = q.p;
+      el("qexpr").textContent = q.e;
       const box = el("choices"); box.innerHTML = "";
       q.c.forEach((choice, i) => {
         const d = document.createElement("div"); d.className = "choice"; d.textContent = choice;
