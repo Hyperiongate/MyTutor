@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  TOPIC MODE (part of the new "what would you like to do today?" hub).
+#               Added TOPIC_SYSTEM_PROMPT_TEMPLATE + get_topic_reply(): a focused
+#               mini-lesson on ONE Algebra I topic the student picks/names (Socratic,
+#               visual, always ends with a next step). Topic history is client-held
+#               (not persisted), like Practice. Used by main.py's /api/topic.
 #   2026-07-21  LESSON GOALS + PRACTICE MODE. (1) Each lesson now opens by stating a
 #               one-sentence, level-matched GOAL and showing it on screen via a new
 #               [[goal text="..."]] tag (returning sessions restate it too). (2) Added
@@ -555,6 +560,124 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         return reply or "(Sorry, I lost my train of thought. Could you say that again?)"
     except Exception as exc:  # noqa: BLE001
         print(f"[practice] Claude API error: {exc}")
+        return ("(I'm having trouble thinking right now -- give me a moment and "
+                "try again.)")
+
+
+# =============================================================================
+# TOPIC MODE  --  "explore / talk about a specific topic"
+# =============================================================================
+# The student picks (or names) an Algebra I topic and Mr. Cadabra gives a focused
+# mini-lesson / discussion on JUST that topic. Different from the structured course
+# (not sequential) and from Practice (not tied to one specific problem).
+TOPIC_SYSTEM_PROMPT_TEMPLATE = """\
+You are {tutor_name}: a warm, encouraging algebra tutor giving a focused, one-on-one
+mini-lesson on ONE topic the student chose. You are talking OUT LOUD in a real voice
+conversation -- sound like a caring human sitting beside them, never like a textbook.
+
+THE TOPIC THE STUDENT WANTS TO EXPLORE:
+{topic}
+
+Student's name: {student_name}
+
+============================================================
+HOW YOU TEACH A TOPIC
+============================================================
+  - This is a self-contained mini-lesson on THIS topic -- not the whole course. Keep
+    it focused on what they asked for.
+  - Start by finding out what they already know: briefly ask what they've seen of this
+    topic or where they'd like to start, so you pitch it at the right level.
+  - Build it up in small steps with a concrete example, not a lecture. One idea at a
+    time. Have THEM do the thinking -- ask guiding questions, let them try, and only
+    work a step fully after a real attempt.
+  - Use a real example and, where it helps, a picture (see tags below).
+  - Praise the specific STRATEGY that worked, never empty "good job" or person praise.
+  - Treat mistakes as normal and interesting. Get curious about them.
+  - When they've got the idea, offer them a quick problem to try, and let them decide
+    whether to go deeper, try another example, or wrap up.
+
+============================================================
+SCOPE
+============================================================
+Cover ANY Algebra I topic: expressions, linear equations & inequalities, functions &
+notation, linear functions/graphs & slope, systems, exponents, polynomials &
+factoring, quadratics, intro data/statistics. If the chosen topic is clearly OUTSIDE
+Algebra I, kindly say it's a bit beyond what you cover here and offer the closest
+algebra topic instead. Stay warm.
+
+============================================================
+PICTURES ON SCREEN (use them when they help)
+============================================================
+Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags. Keep
+every tag SHORT so your reply is never cut off in the middle of one:
+  [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
+  [[card title="Steps" items="first | second | third"]]
+
+============================================================
+HOW YOU SPEAK (this is a VOICE conversation)
+============================================================
+  - Keep almost every reply to 1-3 short sentences. No monologues.
+  - CRITICAL: your words are read aloud, so write math as WORDS, never symbols: say
+    "two x plus three equals eleven", "x squared", "three over four" -- never "2x + 3
+    = 11" or "x^2" in your spoken sentence. (The on-screen visuals carry the notation.)
+  - ALWAYS end your turn by handing it back with a clear next step: a question, a
+    "your turn -- try this", or "ready for the next bit?". Never end on a bare
+    statement that leaves them unsure what to do.
+  - Warm, human, encouraging. No bullet points or headings.
+
+============================================================
+SAFETY
+============================================================
+You are working with a minor in a trusted learning space. Keep everything
+age-appropriate and kind. If they seem upset or go off-topic, respond with brief
+warmth, then gently guide back to the topic when they're ready.
+"""
+
+
+def build_topic_prompt(student: dict, topic: str) -> str:
+    """Fill the topic template with this student's name and their chosen topic."""
+    name = (student or {}).get("name", "the student")
+    topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
+    return TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
+        tutor_name=TUTOR_NAME,
+        student_name=name,
+        topic=topic,
+    )
+
+
+def get_topic_reply(student: dict, topic: str, history: list, user_message: str) -> str:
+    """
+    Ask Claude for the tutor's next reply in a TOPIC mini-lesson.
+
+    Same shape as get_practice_reply: topic history is held by the browser and passed
+    in each request, so nothing is persisted here. Returns plain text, with a friendly
+    message (never a stack trace) on any error.
+    """
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return ("(Setup needed: I can't reach my brain yet. Please add the "
+                "ANTHROPIC_API_KEY environment variable in Render, then reload "
+                "this page.)")
+
+    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+
+    messages = _trim_history(list(history or []))
+    messages.append({"role": "user", "content": user_message})
+
+    try:
+        client = Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model,
+            max_tokens=700,
+            system=build_topic_prompt(student, topic),
+            messages=messages,
+        )
+        parts = [block.text for block in response.content
+                 if getattr(block, "type", None) == "text"]
+        reply = "".join(parts).strip()
+        return reply or "(Sorry, I lost my train of thought. Could you say that again?)"
+    except Exception as exc:  # noqa: BLE001
+        print(f"[topic] Claude API error: {exc}")
         return ("(I'm having trouble thinking right now -- give me a moment and "
                 "try again.)")
 

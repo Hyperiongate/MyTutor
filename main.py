@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  HOME HUB + TOPIC MODE. Added GET /home (the "what would you like to
+#               do today?" hub: course / practice / topic), GET /topic (topic page),
+#               and POST /api/topic (mini-lesson on a chosen topic via
+#               tutor.get_topic_reply; client-held history, not persisted). Login and
+#               the Challenge now land placed students on /home instead of /session.
 #   2026-07-21  PRACTICE MODE. Added GET /practice (serves practice.html) and
 #               POST /api/practice: the student brings a specific problem from school
 #               and Mr. Cadabra coaches them through it (tutor.get_practice_reply).
@@ -203,6 +208,13 @@ class PracticeRequest(BaseModel):
     history: list = []         # prior practice turns, held by the browser (not persisted)
 
 
+class TopicRequest(BaseModel):
+    code: str
+    topic: str = ""            # the topic the student chose to explore
+    message: str               # what the student just said (or the topic, first turn)
+    history: list = []         # prior topic turns, held by the browser (not persisted)
+
+
 class PlacementIn(BaseModel):
     level: int = 1
     level_title: str = ""
@@ -253,6 +265,18 @@ def challenge_page():
 def practice_page():
     """Practice mode -- bring a specific problem from school and get coached on it."""
     return FileResponse(STATIC_DIR / "practice.html")
+
+
+@app.get("/home")
+def home_page():
+    """The 'what would you like to do today?' hub (course / practice / topic)."""
+    return FileResponse(STATIC_DIR / "home.html")
+
+
+@app.get("/topic")
+def topic_page():
+    """Topic mode -- pick or name a topic for a focused mini-lesson."""
+    return FileResponse(STATIC_DIR / "topic.html")
 
 
 @app.get("/api/progress/{code}")
@@ -390,6 +414,36 @@ def practice(req: PracticeRequest):
             safe_history.append({"role": role, "content": content})
 
     reply = tutor.get_practice_reply(student, req.problem, safe_history, message)
+    return {"reply": reply}
+
+
+def _sanitize_history(raw):
+    """Keep only clean {user|assistant: text} turns from client-supplied history."""
+    out = []
+    for m in (raw or [])[-tutor.MAX_HISTORY_MESSAGES:]:
+        if not isinstance(m, dict):
+            continue
+        role, content = m.get("role"), m.get("content")
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            out.append({"role": role, "content": content})
+    return out
+
+
+@app.post("/api/topic")
+def topic(req: TopicRequest):
+    """
+    Give a focused mini-lesson on the topic the student chose (topic mode).
+
+    Like /api/practice, this is NOT tied to the curriculum/placement/saved memory:
+    the browser holds the conversation and passes it back each turn, so nothing is
+    persisted. (Real per-topic tracking lands in the next phase, once durable
+    storage is on.)
+    """
+    student = _student_or_404(req.code)
+    message = (req.message or "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
+    reply = tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message)
     return {"reply": reply}
 
 

@@ -4,6 +4,8 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  After placement, Exit and "Start learning" now go to the HOME HUB
+                (/home) so the student can choose course / practice / topic.
     2026-07-21  READABILITY FIX. Questions were one cramped line like
                 "Solve: x + 5 = 12.  x = ?", where the sentence period after 12 ran
                 into the "x" and looked like the decimal "12.x". Each question is now
@@ -169,8 +171,8 @@
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
     if (!CODE) location.href = "/";
-    el("exitLink").href = CODE ? ("/session?code=" + encodeURIComponent(CODE)) : "/";
-    el("goLearn").onclick = () => location.href = "/session?code=" + encodeURIComponent(CODE);
+    el("exitLink").href = CODE ? ("/home?code=" + encodeURIComponent(CODE)) : "/";
+    el("goLearn").onclick = () => location.href = "/home?code=" + encodeURIComponent(CODE);
     el("goDash").onclick = () => location.href = "/dashboard?code=" + encodeURIComponent(CODE);
 
     // ---- Question bank: 9 tiers (climbing difficulty), 2 questions each ----

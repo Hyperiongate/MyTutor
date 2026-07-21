@@ -345,7 +345,7 @@
       <div class="topbar">
         <div class="title">Math Tutor</div>
         <div class="spacer"></div>
-        <a href="/">Exit</a>
+        <a id="homeLink" href="#">☰ Menu</a>
       </div>
 
       <div class="tutor-head">
@@ -492,6 +492,7 @@
     el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
     el("challengeLink").href = "/challenge?code=" + encodeURIComponent(CODE);
     el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
+    el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("welcomeChallenge").href = "/challenge?code=" + encodeURIComponent(CODE);
     function renderCurriculum() {
       curriculumList.innerHTML = "";

@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <!--
   =============================================================================
-  practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-21  New PRACTICE page ("bring your own problem"). A student who is stuck
-                on a specific problem from school types OR says it, then Mr. Cadabra
-                coaches them through THAT problem -- same voice orb, tap-to-talk,
-                whiteboard visuals ([[balance]]/[[card]]), and quick buttons as the
-                lesson, but talking to POST /api/practice (any Algebra I topic;
-                Socratic; not tied to the curriculum/placement). Practice history is
-                held here in the browser and posted each turn -- nothing is saved.
-                Reuses the proven speak()/tap-to-talk code from session.html,
-                including the stall WATCHDOG and the control-tag leak guard.
+    2026-07-21  New TOPIC mode ("explore a topic"), reached from the home hub. The
+                student picks one of the 9 Algebra I units (tap) OR types/says any
+                topic, then Mr. Cadabra gives a focused mini-lesson on JUST that topic
+                -- same voice orb, tap-to-talk, whiteboard visuals ([[balance]]/[[card]])
+                and quick buttons as the lesson, talking to POST /api/topic. Topic
+                history is held here in the browser and posted each turn -- nothing is
+                saved yet (real per-topic tracking is the next phase). Reuses the proven
+                speak()/tap-to-talk code (stall watchdog + control-tag leak guard).
   =============================================================================
 -->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Math Tutor — Practice</title>
+  <title>Math Tutor — Explore a Topic</title>
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -28,8 +27,7 @@
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color: var(--ink);
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--ink);
       background:
         radial-gradient(760px 500px at 6% -10%, rgba(91,91,214,.16), transparent 60%),
         radial-gradient(760px 480px at 96% -6%, rgba(20,184,166,.15), transparent 55%),
@@ -38,7 +36,7 @@
     }
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; max-width: 1000px; margin: 0 auto; }
     .topbar { display: flex; align-items: center; padding: 12px 20px; }
-    .topbar .title { font-weight: 800; font-size: 16px; letter-spacing: .01em;
+    .topbar .title { font-weight: 800; font-size: 16px;
       background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
       background-clip: text; -webkit-text-fill-color: transparent; }
     .topbar .spacer { flex: 1; }
@@ -53,14 +51,14 @@
     .convo { flex: 1; align-self: stretch; max-height: 150px; overflow-y: auto; display: flex;
       flex-direction: column; justify-content: center; gap: 8px; padding: 6px 6px; }
 
-    .probbar { display: none; align-items: center; gap: 10px; margin: 0 24px 2px; padding: 10px 16px;
+    .topicbar { display: none; align-items: center; gap: 10px; margin: 0 24px 2px; padding: 10px 16px;
       border-radius: 14px; font-size: 15px; line-height: 1.3;
-      background: linear-gradient(90deg, rgba(255,122,89,.14), rgba(91,91,214,.10)); border: 1px solid var(--line); }
-    .probbar.show { display: flex; }
-    .probbar .pi { font-size: 18px; flex: 0 0 auto; }
-    .probbar .pl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px;
+      background: linear-gradient(90deg, rgba(20,184,166,.16), rgba(91,91,214,.10)); border: 1px solid var(--line); }
+    .topicbar.show { display: flex; }
+    .topicbar .ti { font-size: 18px; flex: 0 0 auto; }
+    .topicbar .tl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px;
       letter-spacing: .05em; flex: 0 0 auto; }
-    .probbar b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .topicbar b { color: var(--ink); }
 
     .stage { flex: 1; margin: 8px 24px 14px; border-radius: 20px; background: var(--panel);
       border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
@@ -68,7 +66,6 @@
       padding: 22px; min-height: 300px; position: relative; overflow: hidden; }
     .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
 
-    /* Balance scale */
     .scale { width: 100%; max-width: 580px; }
     .scale .beamwrap { position: relative; height: 190px; }
     .scale .pivot { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
@@ -107,19 +104,15 @@
     .bubble.system { align-self: center; background: transparent; color: var(--muted); font-size: 13px; }
 
     .controls { padding: 8px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
-    .live { min-height: 24px; font-size: 17px; font-weight: 600; color: var(--ink); text-align: center;
-      max-width: 620px; line-height: 1.3; }
+    .live { min-height: 24px; font-size: 17px; font-weight: 600; color: var(--ink); text-align: center; max-width: 620px; line-height: 1.3; }
     .talkbtn { border: none; border-radius: 30px; font-size: 17px; font-weight: 800; padding: 15px 30px;
       display: inline-flex; align-items: center; gap: 9px; color: #fff; background: #c3ccd8; cursor: default;
       transition: background .2s ease, box-shadow .2s ease, transform .08s ease; }
-    .talkbtn.ready { background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer;
-      animation: talkglow 1.5s ease-in-out infinite; }
+    .talkbtn.ready { background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer; animation: talkglow 1.5s ease-in-out infinite; }
     .talkbtn.ready:active { transform: scale(.97); }
     .talkbtn.recording { background: #e0392b; cursor: pointer; animation: recpulse 1.15s ease-in-out infinite; }
-    @keyframes talkglow { 0%,100% { box-shadow: 0 8px 20px rgba(91,91,214,.32); }
-      50% { box-shadow: 0 10px 30px rgba(91,91,214,.65); } }
-    @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
-      70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
+    @keyframes talkglow { 0%,100% { box-shadow: 0 8px 20px rgba(91,91,214,.32); } 50% { box-shadow: 0 10px 30px rgba(91,91,214,.65); } }
+    @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); } 70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
     .quickrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
     .quick { border: 1.5px solid var(--line); background: #fff; border-radius: 22px; padding: 9px 16px;
@@ -129,51 +122,53 @@
     .quick.yes { color: var(--ok); border-color: #bfe6cd; }
     .quick.no { color: #c0392b; border-color: #f3c6c6; }
     .quick.conf { color: var(--accent); border-color: #ccccf2; }
-    .quick.newp { color: var(--warm); border-color: #ffd2c4; }
+    .quick.newp { color: var(--accent2); border-color: #b9e8e0; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
-    .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
-      border-radius: 11px; outline: none; }
-    .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
-      border: none; border-radius: 11px; cursor: pointer; }
+    .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px; outline: none; }
+    .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff; border: none; border-radius: 11px; cursor: pointer; }
 
-    /* Problem-entry overlay */
+    /* Topic-picker overlay */
     .entry { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
-      padding: 20px; background:
+      padding: 20px; overflow-y: auto; background:
         radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
         radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .entry.hide { display: none; }
-    .entry-card { background: #fff; border-radius: 22px; max-width: 520px; width: 100%; padding: 28px 28px 24px;
+    .entry-card { background: #fff; border-radius: 22px; max-width: 560px; width: 100%; padding: 26px 26px 22px;
       box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
-    .entry-badge { width: 66px; height: 66px; margin: 0 auto 8px; border-radius: 50%;
-      background: radial-gradient(circle at 34% 30%, #ffd0a8, var(--warm) 72%);
-      box-shadow: 0 8px 22px rgba(255,122,89,.45); display: flex; align-items: center; justify-content: center; font-size: 30px; }
-    .entry-card h2 { margin: 4px 0 4px; font-size: 23px; }
-    .entry-card .lead { color: var(--muted); font-size: 15px; margin: 0 0 16px; }
-    .entry-card textarea { width: 100%; min-height: 84px; resize: vertical; font-size: 17px; padding: 12px 14px;
-      border: 1px solid var(--line); border-radius: 12px; outline: none; font-family: inherit; }
-    .entry-card textarea:focus { border-color: var(--accent); }
-    .entry-or { color: var(--muted); font-size: 13px; margin: 12px 0 6px; }
-    .entry-mic { border: 1.5px solid var(--line); background: #fff; border-radius: 24px; padding: 11px 20px;
+    .entry-badge { width: 62px; height: 62px; margin: 0 auto 8px; border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #a8f0e2, var(--accent2) 72%);
+      box-shadow: 0 8px 22px rgba(20,184,166,.45); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .entry-card h2 { margin: 4px 0 4px; font-size: 22px; }
+    .entry-card .lead { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+    .unitgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; text-align: left; }
+    .unitbtn { display: flex; gap: 9px; align-items: center; background: #f7f8fe; border: 1.5px solid var(--line);
+      border-radius: 12px; padding: 11px 12px; font-size: 14px; font-weight: 600; color: var(--ink); cursor: pointer; }
+    .unitbtn:hover { background: #eef1fe; border-color: var(--accent); }
+    .unitbtn .n { color: var(--accent); font-weight: 800; flex: 0 0 auto; }
+    .entry-or { color: var(--muted); font-size: 13px; margin: 14px 0 8px; }
+    .entry-row { display: flex; gap: 8px; }
+    .entry-row input { flex: 1; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; outline: none; }
+    .entry-row input:focus { border-color: var(--accent); }
+    .entry-mic { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 0 14px;
       font-size: 15px; font-weight: 700; cursor: pointer; color: var(--accent); }
     .entry-mic.recording { background: #e0392b; color: #fff; border-color: #e0392b; animation: recpulse 1.15s ease-in-out infinite; }
-    .entry-go { width: 100%; margin-top: 18px; border: none; border-radius: 28px; cursor: pointer; color: #fff;
-      font-size: 17px; font-weight: 800; padding: 14px; background: linear-gradient(90deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 24px rgba(91,91,214,.4); }
+    .entry-go { width: 100%; margin-top: 14px; border: none; border-radius: 26px; cursor: pointer; color: #fff;
+      font-size: 16px; font-weight: 800; padding: 13px; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 10px 24px rgba(91,91,214,.4); }
     .entry-go:disabled { opacity: .5; cursor: default; }
-    .entry-note { font-size: 12px; color: var(--muted); margin-top: 12px; }
-    .entry-back { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--muted); text-decoration: underline; }
+    .entry-note { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 16px; }
+    .entry-back { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--muted); text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="center">
     <div class="topbar">
-      <div class="title">✏️ Practice with Mr. Cadabra</div>
+      <div class="title">💡 Explore a Topic with Mr. Cadabra</div>
       <div class="spacer"></div>
-      <a id="lessonLink" href="#">← Home</a>
+      <a id="homeLink" href="#">← Home</a>
     </div>
 
     <div class="tutor-head">
@@ -187,9 +182,9 @@
       <div class="convo" id="log"></div>
     </div>
 
-    <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
+    <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
 
-    <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
+    <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your topic will appear here.</div></div>
 
     <div class="controls">
       <div class="live" id="live"></div>
@@ -197,10 +192,10 @@
       <div class="quickrow" id="quickRow">
         <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
         <button class="quick no" data-say="No" disabled>✗ No</button>
-        <button class="quick conf" data-say="I'm stuck" disabled>🤔 I'm stuck</button>
-        <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
+        <button class="quick conf" data-say="I'm confused" disabled>🤔 I'm confused</button>
+        <button class="quick newp" id="newTopic" disabled>💡 New topic</button>
       </div>
-      <div class="hint" id="hint">Let's take a look at your problem…</div>
+      <div class="hint" id="hint">Let's dig into your topic…</div>
       <button class="link" id="typeToggle">Type instead</button>
       <div class="composer" id="composer">
         <input id="input" placeholder="Type to Mr. Cadabra…" autocomplete="off" />
@@ -209,17 +204,20 @@
     </div>
   </div>
 
-  <!-- Problem-entry overlay -->
+  <!-- Topic-picker overlay -->
   <div class="entry" id="entry">
     <div class="entry-card">
-      <div class="entry-badge">✏️</div>
-      <h2>What problem are you stuck on?</h2>
-      <p class="lead">Type the problem exactly as it looks, and Mr. Cadabra will help you work through it.</p>
-      <textarea id="problemInput" placeholder="e.g.  3x + 5 = 20"></textarea>
-      <div class="entry-or">— or —</div>
-      <button class="entry-mic" id="entryMic">🎙️ Tap and say the problem</button>
-      <button class="entry-go" id="entryGo" disabled>Let's work on it →</button>
-      <div class="entry-note" id="entryNote">You can practice any Algebra I problem.</div>
+      <div class="entry-badge">💡</div>
+      <h2>What would you like to explore?</h2>
+      <p class="lead">Pick a topic below — or type/say your own.</p>
+      <div class="unitgrid" id="unitGrid"></div>
+      <div class="entry-or">— or tell me your own —</div>
+      <div class="entry-row">
+        <input id="topicInput" placeholder="e.g. how slope works" />
+        <button class="entry-mic" id="entryMic">🎙️</button>
+      </div>
+      <button class="entry-go" id="entryGo" disabled>Let's explore it →</button>
+      <div class="entry-note" id="entryNote"></div>
       <a class="entry-back" id="entryBack" href="#">← Back home</a>
     </div>
   </div>
@@ -229,22 +227,29 @@
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { window.location.href = "/"; }
-    el("lessonLink").href = "/home?code=" + encodeURIComponent(CODE);
+    el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
 
     const stage = el("stage"), statusEl = el("status"), log = el("log");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
 
-    let problem = "";
-    let history = [];              // client-held practice conversation [{role,content}]
+    let topic = "";
+    let history = [];
     let busy = false;
-    let phase = "idle";            // idle | ready | recording | busy
+    let phase = "idle";
     let elevenEnabled = false;
-    let state = "idle";            // idle | listening | thinking | speaking
+    let state = "idle";
     function setState(s) { state = s; }
 
-    // ---------- Audio graph (streaming voice + analyser) ----------
+    // The 9 Algebra I units (topic picker).
+    const UNITS = [
+      "Foundations & Expressions", "Linear Equations & Inequalities", "Functions & Notation",
+      "Linear Functions & Graphs", "Systems of Equations", "Exponents & Exponential Functions",
+      "Polynomials & Factoring", "Quadratic Functions", "Data & Statistics",
+    ];
+
+    // ---------- Audio graph ----------
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";
     let audioCtx = null, analyser = null, timeData = null, usingAnalyser = false;
     function ensureAudioGraph() {
@@ -280,9 +285,9 @@
       try { ttsAudio.src = silentWavUri(250); const p = ttsAudio.play(); if (p && p.then) await p.catch(() => {}); } catch (e) {}
     }
 
-    // ---------- The living voice orb ----------
+    // ---------- Orb ----------
     const orb = el("orb"), octx = orb.getContext("2d");
-    let t = 0, smooth = 0, hue = 20;
+    let t = 0, smooth = 0, hue = 150;
     function level() {
       if (state === "speaking" && usingAnalyser && analyser) {
         analyser.getByteTimeDomainData(timeData);
@@ -297,14 +302,12 @@
     function drawOrb() {
       const w = orb.width, h = orb.height, cx = w / 2, cy = h / 2;
       octx.clearRect(0, 0, w, h);
-      const lv = level(); smooth += (lv - smooth) * 0.22;
-      hue += 0.15 + smooth * 0.8;
+      const lv = level(); smooth += (lv - smooth) * 0.22; hue += 0.15 + smooth * 0.8;
       const h1 = (hue) % 360, h2 = (hue + 55) % 360;
       const baseR = w * 0.26, R = baseR * (1 + smooth * 0.33);
       octx.save();
       const aura = octx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 2.1);
-      aura.addColorStop(0, `hsla(${h1},90%,60%,${0.30 + smooth * 0.35})`);
-      aura.addColorStop(1, `hsla(${h1},90%,60%,0)`);
+      aura.addColorStop(0, `hsla(${h1},90%,60%,${0.30 + smooth * 0.35})`); aura.addColorStop(1, `hsla(${h1},90%,60%,0)`);
       octx.fillStyle = aura; octx.beginPath(); octx.arc(cx, cy, R * 2.1, 0, 7); octx.fill();
       octx.restore();
       octx.save();
@@ -319,9 +322,7 @@
       }
       octx.closePath();
       const body = octx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R * 1.15);
-      body.addColorStop(0, `hsla(${h1},100%,88%,1)`);
-      body.addColorStop(0.45, `hsla(${h1},95%,64%,1)`);
-      body.addColorStop(1, `hsla(${h2},90%,45%,1)`);
+      body.addColorStop(0, `hsla(${h1},100%,88%,1)`); body.addColorStop(0.45, `hsla(${h1},95%,64%,1)`); body.addColorStop(1, `hsla(${h2},90%,45%,1)`);
       octx.fillStyle = body; octx.fill();
       octx.restore();
       octx.beginPath(); octx.arc(cx - R * 0.28, cy - R * 0.32, R * 0.32, 0, 7);
@@ -330,7 +331,7 @@
     }
     drawOrb();
 
-    // ---------- Speak: stream ElevenLabs, else browser voice (with stall watchdog) ----------
+    // ---------- Speak (with stall watchdog) ----------
     let maleVoice = null;
     function pickVoice() {
       const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
@@ -341,7 +342,6 @@
       maleVoice = en[0] || voices[0];
     }
     if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-
     function forSpeech(text) {
       return String(text)
         .replace(/\*+/g, " ")
@@ -356,13 +356,11 @@
         .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")
         .replace(/\^/g, " to the power ")
         .replace(/√/g, " square root of ")
-        .replace(/\s{2,}/g, " ")
-        .trim();
+        .replace(/\s{2,}/g, " ").trim();
     }
     function browserSpeak(text, done) {
       if (!window.speechSynthesis) { if (done) done(); return; }
-      let called = false;
-      const finish = () => { if (called) return; called = true; if (done) done(); };
+      let called = false; const finish = () => { if (called) return; called = true; if (done) done(); };
       try {
         speechSynthesis.cancel();
         const spoken = forSpeech(text);
@@ -412,7 +410,7 @@
       });
     }
 
-    // ---------- Control tags (whiteboard visuals) ----------
+    // ---------- Control tags ----------
     function parseAttrs(s) {
       const attrs = {}; const re = /(\w+)\s*=\s*("([^"]*)"|'([^']*)'|(\S+))/g; let m;
       while ((m = re.exec(s)) !== null) attrs[m[1].toLowerCase()] = (m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : m[5]);
@@ -426,13 +424,9 @@
         else if (name === "card") showCard(attrs);
         else if (name === "clear") clearStage();
       }
-      return text
-        .replace(/\[\[[^\]]*\]\]/g, "")
-        .replace(/\[\[[\s\S]*$/, "")
-        .replace(/\s{2,}/g, " ")
-        .trim();
+      return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
     }
-    function clearStage() { stage.innerHTML = '<div class="stage-hint">Your work will appear here.</div>'; }
+    function clearStage() { stage.innerHTML = '<div class="stage-hint">Your topic will appear here.</div>'; }
     function showCard(a) {
       const items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean);
       stage.innerHTML = ""; const card = document.createElement("div"); card.className = "qcard pop";
@@ -482,7 +476,7 @@
       log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
     }
 
-    // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
+    // ---------- Tap-to-talk ----------
     const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
@@ -490,27 +484,26 @@
     function setQuick(on) { quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf").forEach(b => b.disabled = !on); }
     quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf").forEach(b =>
       b.addEventListener("click", () => { if (phase === "ready") sendToTutor(b.dataset.say); }));
-    el("newProblem").addEventListener("click", () => { if (!busy) resetToEntry(); });
+    el("newTopic").addEventListener("click", () => { if (!busy) resetToEntry(); });
 
     function setPhase(p) {
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {
-        talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true); el("newProblem").disabled = false;
+        talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true); el("newTopic").disabled = false;
         talkLabel.textContent = "Tap to talk";
         hint.textContent = "Your turn — tap to talk, or use a quick button.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
-        talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false); el("newProblem").disabled = true;
+        talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false); el("newTopic").disabled = true;
         talkLabel.textContent = "Tap when you're done";
         hint.textContent = "Recording — say your answer, then tap when you're finished.";
         statusEl.textContent = "🎤 Recording…"; setState("listening"); live.textContent = "Recording…";
       } else {
-        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; setQuick(false); el("newProblem").disabled = true;
+        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; setQuick(false); el("newTopic").disabled = true;
       }
     }
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
-
     async function startRecording() {
       if (phase !== "ready" || !canRecord) return;
       ensureAudioGraph();
@@ -521,10 +514,8 @@
       catch (e) { try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" }); }
         catch (_) { hint.textContent = "Recording isn't supported here — use 'Type instead'."; releaseMic(); return; } }
       mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
-      mediaRecorder.onstop = onRecordingStop;
-      mediaRecorder.start();
-      setPhase("recording");
-      recTimer = setTimeout(() => stopRecording(true), 30000);
+      mediaRecorder.onstop = onRecordingStop; mediaRecorder.start();
+      setPhase("recording"); recTimer = setTimeout(() => stopRecording(true), 30000);
     }
     function stopRecording(send) {
       clearTimeout(recTimer); sendOnStop = send;
@@ -554,7 +545,7 @@
       else if (phase === "recording") stopRecording(true);
     });
 
-    // ---------- Talk to the coach ----------
+    // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
       if (busy) return;
       busy = true; setPhase("busy");
@@ -565,8 +556,8 @@
     async function runTutor(message) {
       setState("thinking"); statusEl.textContent = "Mr. Cadabra is thinking…";
       try {
-        const res = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, problem, message, history: history.slice(0, -1) }) });
+        const res = await fetch("/api/topic", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, topic, message, history: history.slice(0, -1) }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         reply = handleTags(reply);
@@ -585,60 +576,64 @@
     if (sendBtn) sendBtn.addEventListener("click", sendTyped);
     if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
 
-    // ---------- Problem entry ----------
-    const entry = el("entry"), problemInput = el("problemInput"), entryGo = el("entryGo"), entryMic = el("entryMic");
-    problemInput.addEventListener("input", () => { entryGo.disabled = !problemInput.value.trim(); });
-    problemInput.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) startPractice(); });
+    // ---------- Topic entry ----------
+    const entry = el("entry"), topicInput = el("topicInput"), entryGo = el("entryGo"), entryMic = el("entryMic");
+    const unitGrid = el("unitGrid");
+    UNITS.forEach((u, i) => {
+      const b = document.createElement("button"); b.className = "unitbtn";
+      b.innerHTML = '<span class="n">' + (i + 1) + '.</span><span>' + u + '</span>';
+      b.addEventListener("click", () => startTopic(u));
+      unitGrid.appendChild(b);
+    });
+    topicInput.addEventListener("input", () => { entryGo.disabled = !topicInput.value.trim(); });
+    topicInput.addEventListener("keydown", (e) => { if (e.key === "Enter" && topicInput.value.trim()) startTopic(topicInput.value.trim()); });
 
-    // Say-the-problem: reuse tap-to-talk just for the entry box.
     let entryStream = null, entryRec = null, entryChunks = [], entryRecording = false;
     entryMic.addEventListener("click", async () => {
-      if (!canRecord) { el("entryNote").textContent = "Voice isn't supported here — please type the problem."; return; }
+      if (!canRecord) { el("entryNote").textContent = "Voice isn't supported here — please type a topic."; return; }
       if (entryRecording) { try { entryRec && entryRec.state !== "inactive" && entryRec.stop(); } catch (e) {} return; }
       try { entryStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) { el("entryNote").textContent = "I need mic access to hear the problem — allow it, or type it."; return; }
+      catch (e) { el("entryNote").textContent = "I need mic access to hear the topic — allow it, or type it."; return; }
       entryChunks = [];
-      try { entryRec = new MediaRecorder(entryStream); } catch (e) { try { entryRec = new MediaRecorder(entryStream, { mimeType: "audio/webm" }); } catch (_) { el("entryNote").textContent = "Recording isn't supported here — please type the problem."; return; } }
+      try { entryRec = new MediaRecorder(entryStream); } catch (e) { try { entryRec = new MediaRecorder(entryStream, { mimeType: "audio/webm" }); } catch (_) { el("entryNote").textContent = "Recording isn't supported here — please type a topic."; return; } }
       entryRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) entryChunks.push(ev.data); };
       entryRec.onstop = async () => {
-        entryRecording = false; entryMic.classList.remove("recording"); entryMic.textContent = "🎙️ Tap and say the problem";
+        entryRecording = false; entryMic.classList.remove("recording"); entryMic.textContent = "🎙️";
         try { entryStream.getTracks().forEach(t => t.stop()); } catch (e) {}
         const blob = new Blob(entryChunks, { type: (entryChunks[0] && entryChunks[0].type) || "audio/webm" });
         if (!blob.size) { el("entryNote").textContent = "I didn't catch that — try again or type it."; return; }
         el("entryNote").textContent = "Got it — one sec…";
         const text = await transcribe(blob);
-        if (text) { problemInput.value = text; entryGo.disabled = false; el("entryNote").textContent = "Check it looks right, then press the button."; }
+        if (text) { topicInput.value = text; entryGo.disabled = false; el("entryNote").textContent = "Check it looks right, then press the button."; }
         else { el("entryNote").textContent = "I couldn't quite hear that — try again or type it."; }
       };
-      entryRec.start(); entryRecording = true; entryMic.classList.add("recording"); entryMic.textContent = "⏹ Tap when you're done";
+      entryRec.start(); entryRecording = true; entryMic.classList.add("recording"); entryMic.textContent = "⏹";
       setTimeout(() => { if (entryRecording) { try { entryRec.stop(); } catch (e) {} } }, 30000);
     });
+    entryGo.addEventListener("click", () => { const tp = (topicInput.value || "").trim(); if (tp) startTopic(tp); });
 
-    entryGo.addEventListener("click", startPractice);
-
-    async function startPractice() {
-      const p = (problemInput.value || "").trim();
-      if (!p) return;
-      problem = p;
-      el("probText").textContent = p; el("probBar").classList.add("show");
+    async function startTopic(tp) {
+      topic = tp;
+      el("topicText").textContent = tp; el("topicBar").classList.add("show");
       entry.classList.add("hide");
       ensureAudioGraph(); await warmUpAudio();
       if (canRecord) { try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); } catch (e) {} }
       else { showComposer(); }
       busy = true; setPhase("busy");
-      addBubble("student", p);
-      history.push({ role: "user", content: p });
-      await runTutor(p);   // coach opens by engaging with the problem
+      const opener = "I'd like to explore: " + tp;
+      addBubble("student", opener);
+      history.push({ role: "user", content: opener });
+      await runTutor(opener);
     }
 
     function resetToEntry() {
-      problem = ""; history = [];
+      topic = ""; history = [];
       log.innerHTML = ""; clearStage();
-      el("probBar").classList.remove("show"); el("probText").textContent = "";
-      problemInput.value = ""; entryGo.disabled = true; el("entryNote").textContent = "You can practice any Algebra I problem.";
+      el("topicBar").classList.remove("show"); el("topicText").textContent = "";
+      topicInput.value = ""; entryGo.disabled = true; el("entryNote").textContent = "";
       composer.classList.remove("show"); typeToggle.style.display = "";
       setPhase("idle"); statusEl.textContent = "";
-      entry.classList.remove("hide"); problemInput.focus();
+      entry.classList.remove("hide"); topicInput.focus();
     }
 
     // ---------- Load ----------
@@ -647,7 +642,6 @@
       if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "Voice recording isn't supported here — type instead."; }
     }
     loadVoice();
-    problemInput.focus();
 
     window.__setState = setState;
   </script>

@@ -4,6 +4,8 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  Placed students now land on the HOME HUB (/home) instead of straight
+                into the lesson, so they can choose course / practice / topic.
     2026-07-21  Login now branches on placement: a student who hasn't done the
                 placement Challenge yet is sent there first ("find your level");
                 a placed student goes straight to the lesson. Uses the new `placed`
@@ -106,8 +108,8 @@
         // the lesson, where the tutor either tours+teaches (first time) or welcomes
         // them back with a recap (returning).
         if (data && data.placed) {
-          setMsg("Welcome back! Taking you to your lesson…", false);
-          window.location.href = "/session?code=" + encodeURIComponent(code);
+          setMsg("Welcome back!", false);
+          window.location.href = "/home?code=" + encodeURIComponent(code);
         } else {
           setMsg("First, let's find your level…", false);
           window.location.href = "/challenge?code=" + encodeURIComponent(code);
