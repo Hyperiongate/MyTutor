@@ -127,7 +127,13 @@
     el("dashChip").href = "/dashboard" + q;
     el("levelChip").href = "/challenge" + q;
 
-    // Personalize: greet by name, and label the course tile Continue vs Start.
+    // Personalize + route the COURSE tile:
+    //   - greet by name
+    //   - "Start" vs "Continue" label based on saved lesson history
+    //   - if the student has NOT been placed yet, the course tile sends them to the
+    //     placement exam FIRST (that's the only place the exam is triggered now).
+    //     If they're already placed, it goes straight into the lesson. (The /session
+    //     page also guards this, so a fast click before this resolves is still safe.)
     (async () => {
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE));
@@ -135,6 +141,9 @@
         const data = await res.json();
         if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
         const hasHistory = (data.history || []).length > 0;
+        if (!data.placed) {
+          el("courseTile").href = "/challenge" + q;   // take the level exam first
+        }
         if (!hasHistory) {
           el("courseTitle").textContent = "Start my Algebra course";
           el("courseBlurb").textContent = "Begin your start-to-finish Algebra I journey with Mr. Cadabra.";

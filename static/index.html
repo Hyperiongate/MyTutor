@@ -4,6 +4,10 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  Placement is NO LONGER forced at login. EVERYONE goes to the HOME HUB.
+                The level exam now happens only when the student clicks "Start my
+                Algebra course" without having been placed yet (routing on the hub) --
+                so a student who just wants problem help or a topic chat skips it.
     2026-07-21  Placed students now land on the HOME HUB (/home) instead of straight
                 into the lesson, so they can choose course / practice / topic.
     2026-07-21  Login now branches on placement: a student who hasn't done the
@@ -102,18 +106,12 @@
           button.disabled = false;
           return;
         }
-        const data = await res.json().catch(() => ({}));
-        // Enforce the flow. A student who has NOT been placed yet must FIND THEIR
-        // LEVEL first (Mr. Cadabra's Challenge); once placed, they go straight to
-        // the lesson, where the tutor either tours+teaches (first time) or welcomes
-        // them back with a recap (returning).
-        if (data && data.placed) {
-          setMsg("Welcome back!", false);
-          window.location.href = "/home?code=" + encodeURIComponent(code);
-        } else {
-          setMsg("First, let's find your level…", false);
-          window.location.href = "/challenge?code=" + encodeURIComponent(code);
-        }
+        // Everyone lands on the HOME HUB. Placement is NOT forced at login anymore --
+        // the level exam only happens when a student chooses to START THE COURSE
+        // without having been placed yet (that routing lives on the hub). Someone who
+        // only wants help with a problem or to explore a topic never has to take it.
+        setMsg("Welcome!", false);
+        window.location.href = "/home?code=" + encodeURIComponent(code);
       } catch (err) {
         setMsg("Something went wrong. Please try again.", true);
         button.disabled = false;
