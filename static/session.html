@@ -4,6 +4,19 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  TOUR NOW AUTO-PLAYS (no taps between stops). The opening walk-through
+                is a scripted client-side sequence (runTour): Mr. Cadabra speaks the
+                welcome + one-line definition of algebra, then narrates each stop in
+                his own voice while the matching spot lights up, and moves on by
+                itself -- no "ready for next?" prompts. Order + content per Jim:
+                  • Curriculum  -> note you can click each of the nine units to see
+                    the topics covered in that section.
+                  • Find my level.
+                  • Progress dashboard -> describe what each part shows.
+                  • Today's plan (bottom-left) -> what we'll do today.
+                  • Covered (right side) -> what we've done today.
+                When the walk ends it hands off to the lesson (tutor's first reply).
+                Each line dwells long enough to read even if the voice is off.
     2026-07-20  OPENING PAGE TOUR + LAYOUT + QUICK BUTTONS + FIRST-WORD FIX.
                 (1) New [[highlight id="..."]] control tag: the tutor can spotlight
                     parts of the screen (curriculum, find-my-level, dashboard,
@@ -829,15 +842,54 @@
         try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); }
         catch (e) { hint.textContent = "Mic access is needed to talk — allow it in your browser, or use 'Type instead'."; }
       } else { showComposer(); }
-      if (!hasHistory) { busy = true; setPhase("busy"); kickoff(); }     // Mr. Cadabra opens first
+      if (!hasHistory) { busy = true; setPhase("busy"); runTour(); }     // Mr. Cadabra welcomes + tours, then teaches
       else if (canRecord) setPhase("ready");                            // returning: student's turn
     }
     el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
 
-    async function kickoff() {
+    // ---------- The opening TOUR (scripted, auto-plays, no taps needed) ----------
+    // On a first session Mr. Cadabra welcomes the student, gives the one-line idea
+    // of algebra, then walks the screen HIMSELF -- speaking each line in his voice
+    // while the matching spot lights up -- and moves on automatically. No "ready
+    // for next?" prompts. When the walk is done he hands off to the real lesson.
+    const TOUR_STEPS = [
+      { id: "curriculum",
+        text: "First, over here on the left is your Curriculum. It's everything we'll learn together, laid out in nine units — and you can click any one of the nine to see exactly which topics are covered in that section." },
+      { id: "find-my-level",
+        text: "Right below that is Find my level. It's a quick, fun challenge that figures out the best place for you to start." },
+      { id: "dashboard",
+        text: "Next is your Progress dashboard. That's where you'll see how you're doing — the levels you've completed, the ones you've mastered, what's still in progress, plus your accuracy, your streaks, and how you're growing over time." },
+      { id: "todays-plan",
+        text: "Down here at the bottom is Today's plan — the small steps you and I are going to work through together today." },
+      { id: "covered",
+        text: "And over on the right is Covered. It starts out empty, and it fills up with each idea you master as we go." },
+    ];
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    // Minimum time to dwell on a line so the tour stays readable even if the voice
+    // is unavailable and speak() returns instantly (~360ms per word, min 2.6s).
+    const readMs = (text) => Math.max(2600, String(text).trim().split(/\s+/).length * 360);
+    async function sayTourLine(text) {
+      addBubble("tutor", text); lastTutorText = text;
+      await Promise.all([ speak(text), delay(readMs(text)) ]);
+    }
+    async function runTour() {
+      setState("speaking"); statusEl.textContent = tutorName + " is talking…";
+      await sayTourLine(
+        "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen."
+      );
+      for (const step of TOUR_STEPS) {
+        highlightEl(step.id);
+        await sayTourLine(step.text);
+      }
+      clearHighlight();
+      await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
+      await runTutor("Hi!");   // hand off to the lesson (cool-questions card + big idea)
+    }
+
+    async function kickoff() {   // returning-student opener (no tour)
       statusEl.textContent = tutorName + " is starting…";
-      await runTutor("Hi!");   // greets and begins; no student bubble
+      await runTutor("Hi!");
     }
 
     // ---------- Talk to the tutor ----------
