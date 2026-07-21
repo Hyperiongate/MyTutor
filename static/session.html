@@ -4,6 +4,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  CONTROL-TAG LEAK FIX (garbled speech + empty whiteboard). When the
+                tutor's reply was cut off mid-tag (e.g. the long [[card ...]]), the
+                unterminated tag was left in the bubble AND read aloud as gibberish,
+                and the card never drew. Two fixes: (1) handleTags now strips a
+                DANGLING/unterminated "[[..." fragment too, so raw markup is never
+                shown or spoken; (2) added PRESET_CARDS + [[card id="..."]] so the big
+                opening card is a SHORT, truncation-proof tag (id "cool-questions")
+                that always renders. Inline [[card title items]] still works.
     2026-07-21  VOICE-STALL FREEZE FIX. If the streamed ElevenLabs audio started and
                 then STALLED mid-sentence (a stream hiccup), the "ended" event never
                 fired, so speak() waited forever and the whole turn froze (student
@@ -743,13 +751,35 @@
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
         else if (name === "clear") clearStage();
       }
-      return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\s{2,}/g, " ").trim();
+      return text
+        .replace(/\[\[[^\]]*\]\]/g, "")   // remove complete control tags
+        .replace(/\[\[[\s\S]*$/, "")       // remove a DANGLING/unterminated tag (a reply cut off
+                                           // mid-tag) so raw markup is never shown or read aloud
+        .replace(/\s{2,}/g, " ")
+        .trim();
     }
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your lesson will appear here.</div>'; }
+    // Ready-made cards the tutor can show with a SHORT tag like [[card id="cool-questions"]].
+    // Keeping the long content here (instead of inline in the tutor's reply) means the
+    // tag can never be truncated mid-stream, so the card always renders on the board.
+    const PRESET_CARDS = {
+      "cool-questions": {
+        title: "Stuff algebra can figure out",
+        items: [
+          "How many weeks of saving until you can buy that $240 console?",
+          "A recipe for 4 needs 2 cups of flour — how much for 10 people?",
+          "Your phone plan is $30 plus $5 a gig — how many gigs fit a $55 budget?",
+        ],
+      },
+    };
     function showCard(a) {
-      const items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean);
+      let title = a.title;
+      let items;
+      const preset = a.id ? PRESET_CARDS[String(a.id).toLowerCase()] : null;
+      if (preset) { title = title || preset.title; items = preset.items.slice(); }
+      else { items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean); }
       stage.innerHTML = ""; const card = document.createElement("div"); card.className = "qcard pop";
-      if (a.title) { const tt = document.createElement("div"); tt.className = "qtitle"; tt.textContent = a.title; card.appendChild(tt); }
+      if (title) { const tt = document.createElement("div"); tt.className = "qtitle"; tt.textContent = title; card.appendChild(tt); }
       const ul = document.createElement("ul");
       for (const it of items) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
       card.appendChild(ul);

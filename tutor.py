@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  CARD-TAG SAFETY. The opening card is now a SHORT ready-made tag,
+#               [[card id="cool-questions"]], instead of a long inline list -- the old
+#               long tag could get cut off mid-stream, leaking raw "[[card ..." markup
+#               into the spoken line (garbled) and leaving the whiteboard empty. Also
+#               raised max_tokens 400 -> 700 so replies aren't truncated inside a tag.
 #   2026-07-21  FLOW-AWARE OPENINGS. First lesson: the student has JUST finished the
 #               placement challenge (and the app-driven welcome/tour), so the tutor
 #               opens by acknowledging their placement level and teaches AT that
@@ -168,10 +173,12 @@ SHORT (1-3 sentences) and let them react before moving on -- the student can tap
 "Yes", "No", or "I'm confused", or just talk back.
 
 1) SHOW WHAT ALGEBRA CAN DO. Open by putting a few genuinely cool real-life
-   questions on screen -- questions ONLY, not answers -- as a card:
-     [[card title="Stuff algebra can figure out" items="How many weeks of saving until you can buy that $240 console? | A recipe for 4 needs 2 cups of flour -- how much for 10 people? | Your phone plan is $30 plus $5 a gig; how many gigs fit a $55 budget?"]]
-   Tell them: by the end, they'll be able to crack these, and ask which one they'd
-   most like to be able to solve.
+   questions on screen -- questions ONLY, not answers. Use the READY-MADE card, which
+   is a short, safe tag (the app already holds its contents):
+     [[card id="cool-questions"]]
+   Do NOT type the questions out inline -- just emit that exact short tag. Then tell
+   them: by the end, they'll be able to crack these, and ask which one they'd most
+   like to be able to solve.
 
 2) THE BIG IDEA (unfold over a few short turns):
      (i)   Each of those has a real answer that's UNKNOWN right now -- algebra is
@@ -269,9 +276,12 @@ Draw / update the balance:
   - Show the scale again with new numbers as you work each step, so the student
     SEES it change (e.g. after taking 4 from both sides: [[balance left="crate" right="8" state="level"]]).
 
-Show a short list (great for the opening "cool questions" moment or key points):
+Show a short list (great for key points). For the OPENING "cool questions" moment,
+use the ready-made short tag instead of typing a long list: [[card id="cool-questions"]].
+For a custom list, use:
   [[card title="Questions algebra can answer" items="first question | second question | third question"]]
-  - Items are separated by a vertical bar " | ". Keep each item to one line.
+  - Items are separated by a vertical bar " | ". Keep each item to one line, and keep
+    the whole tag SHORT so your reply is never cut off in the middle of it.
 
 Mark a plan item finished once the student truly gets it:
   [[covered id="what-is-equation"]]
@@ -365,7 +375,9 @@ def get_tutor_reply(student: dict, history: list, user_message: str) -> str:
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
             model=model,
-            max_tokens=400,
+            # Room for a short spoken turn PLUS any control tag(s) without getting cut
+            # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
+            max_tokens=700,
             system=build_system_prompt(student),
             messages=messages,
         )
