@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  LESSON GOAL BANNER + PRACTICE LINK. (1) New [[goal text="..."]] tag ->
+                a "🎯 Today's goal" banner above the whiteboard, set once when the
+                tutor states the day's goal. showGoal() renders it. (2) Added a
+                "✏️ Practice a problem" link in the left sidebar -> /practice (bring a
+                problem from school and get coached on it).
     2026-07-21  CONTROL-TAG LEAK FIX (garbled speech + empty whiteboard). When the
                 tutor's reply was cut off mid-tag (e.g. the long [[card ...]]), the
                 unterminated tag was left in the bubble AND read aloud as gibberish,
@@ -304,6 +309,17 @@
     .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
       border: none; border-radius: 11px; cursor: pointer; }
 
+    /* Today's goal banner (set once at the start of a lesson) */
+    .goalbar { display: none; align-items: center; gap: 10px; margin: 0 24px 2px; padding: 10px 16px;
+      border-radius: 14px; font-size: 15px; line-height: 1.3;
+      background: linear-gradient(90deg, rgba(91,91,214,.12), rgba(20,184,166,.12));
+      border: 1px solid var(--line); }
+    .goalbar.show { display: flex; }
+    .goalbar .gi { font-size: 18px; flex: 0 0 auto; }
+    .goalbar .gl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px;
+      letter-spacing: .05em; flex: 0 0 auto; }
+    .goalbar b { color: var(--ink); }
+
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: auto; }
       .side { display: none; }
@@ -317,6 +333,7 @@
       <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
       <div class="curriculum" id="curriculumList" style="display:none;"></div>
       <a class="navbtn" id="challengeLink" href="#">🎯 Find my level</a>
+      <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
       <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
       <div id="planPanel">
         <h2 style="margin-top:18px;">Today's plan</h2>
@@ -342,6 +359,8 @@
         </div>
         <div class="convo" id="log"></div>
       </div>
+
+      <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
 
       <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
 
@@ -472,6 +491,7 @@
     const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
     el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
     el("challengeLink").href = "/challenge?code=" + encodeURIComponent(CODE);
+    el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
     el("welcomeChallenge").href = "/challenge?code=" + encodeURIComponent(CODE);
     function renderCurriculum() {
       curriculumList.innerHTML = "";
@@ -749,6 +769,7 @@
         else if (name === "card") showCard(attrs);
         else if (name === "covered" && attrs.id) markCovered(attrs.id);
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
+        else if (name === "goal" && attrs.text) showGoal(attrs.text);
         else if (name === "clear") clearStage();
       }
       return text
@@ -759,6 +780,8 @@
         .trim();
     }
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your lesson will appear here.</div>'; }
+    // Today's goal banner (the tutor sets it once at the start via [[goal text="..."]]).
+    function showGoal(text) { el("goalText").textContent = String(text || "").trim(); el("goalBar").classList.add("show"); }
     // Ready-made cards the tutor can show with a SHORT tag like [[card id="cool-questions"]].
     // Keeping the long content here (instead of inline in the tutor's reply) means the
     // tag can never be truncated mid-stream, so the card always renders on the board.

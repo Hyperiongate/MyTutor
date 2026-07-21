@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  PRACTICE MODE. Added GET /practice (serves practice.html) and
+#               POST /api/practice: the student brings a specific problem from school
+#               and Mr. Cadabra coaches them through it (tutor.get_practice_reply).
+#               Practice history is CLIENT-held and passed in each request (sanitized
+#               here), so nothing is persisted -- a homework problem is a one-off.
 #   2026-07-21  ENTRY-FLOW + DURABLE-MEMORY GROUNDWORK.
 #               • /api/login now also returns `placed` (has the student done the
 #                 placement Challenge?) so the login screen can force first-timers
@@ -191,6 +196,13 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class PracticeRequest(BaseModel):
+    code: str
+    problem: str = ""          # the specific problem the student is stuck on
+    message: str               # what the student just said (or the problem, first turn)
+    history: list = []         # prior practice turns, held by the browser (not persisted)
+
+
 class PlacementIn(BaseModel):
     level: int = 1
     level_title: str = ""
@@ -235,6 +247,12 @@ def dashboard_page():
 def challenge_page():
     """Mr. Cadabra's Challenge -- the fun adaptive placement quiz."""
     return FileResponse(STATIC_DIR / "challenge.html")
+
+
+@app.get("/practice")
+def practice_page():
+    """Practice mode -- bring a specific problem from school and get coached on it."""
+    return FileResponse(STATIC_DIR / "practice.html")
 
 
 @app.get("/api/progress/{code}")
@@ -342,6 +360,36 @@ def chat(req: ChatRequest):
     session["history"] = history
     save_session(code, session)
 
+    return {"reply": reply}
+
+
+@app.post("/api/practice")
+def practice(req: PracticeRequest):
+    """
+    Coach the student through a SPECIFIC problem they brought (homework help).
+
+    Unlike /api/chat, practice is NOT tied to the curriculum, placement, or saved
+    session memory. The browser holds the practice conversation and sends it back in
+    `history` each turn, so nothing is persisted here -- a homework problem is a
+    one-off. We validate the code so only real students can use it.
+    """
+    student = _student_or_404(req.code)
+
+    message = (req.message or "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Please say what you're stuck on first.")
+
+    # Sanitize the client-supplied history to just clean user/assistant text turns.
+    safe_history = []
+    for m in (req.history or [])[-tutor.MAX_HISTORY_MESSAGES:]:
+        if not isinstance(m, dict):
+            continue
+        role = m.get("role")
+        content = m.get("content")
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            safe_history.append({"role": role, "content": content})
+
+    reply = tutor.get_practice_reply(student, req.problem, safe_history, message)
     return {"reply": reply}
 
 
