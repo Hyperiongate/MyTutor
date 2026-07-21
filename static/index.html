@@ -4,6 +4,10 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  Login now branches on placement: a student who hasn't done the
+                placement Challenge yet is sent there first ("find your level");
+                a placed student goes straight to the lesson. Uses the new `placed`
+                flag from /api/login.
     2026-07-19  Initial minimal code-entry screen. Student types their login
                 code; we validate it against the backend and, if valid, move to
                 the session screen. Deliberately minimal branding for v0.1.
@@ -96,8 +100,18 @@
           button.disabled = false;
           return;
         }
-        // Success -- head to the session screen.
-        window.location.href = "/session?code=" + encodeURIComponent(code);
+        const data = await res.json().catch(() => ({}));
+        // Enforce the flow. A student who has NOT been placed yet must FIND THEIR
+        // LEVEL first (Mr. Cadabra's Challenge); once placed, they go straight to
+        // the lesson, where the tutor either tours+teaches (first time) or welcomes
+        // them back with a recap (returning).
+        if (data && data.placed) {
+          setMsg("Welcome back! Taking you to your lesson…", false);
+          window.location.href = "/session?code=" + encodeURIComponent(code);
+        } else {
+          setMsg("First, let's find your level…", false);
+          window.location.href = "/challenge?code=" + encodeURIComponent(code);
+        }
       } catch (err) {
         setMsg("Something went wrong. Please try again.", true);
         button.disabled = false;

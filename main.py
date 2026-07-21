@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  ENTRY-FLOW + DURABLE-MEMORY GROUNDWORK.
+#               • /api/login now also returns `placed` (has the student done the
+#                 placement Challenge?) so the login screen can force first-timers
+#                 to "find their level" before any lesson.
+#               • /api/session/{code} now also returns `placement` + `placed` so the
+#                 lesson page can enforce the flow and pick first-tour vs welcome-back.
+#               • DATA_DIR is now overridable via the DATA_DIR env var so memory can
+#                 live on a Render PERSISTENT DISK (e.g. /var/data) and survive
+#                 redeploys/sleeps. Default unchanged (BASE_DIR/data).
 #   2026-07-20  Added POST /api/transcribe: server-side speech-to-text via
 #               ElevenLabs Scribe (reuses ELEVENLABS_API_KEY). The browser records
 #               the student's audio and posts it here; we return the text. This
@@ -44,11 +53,13 @@
 #   Render:   uvicorn main:app --host 0.0.0.0 --port $PORT   (see render.yaml)
 #
 # IMPORTANT NOTE ABOUT MEMORY ON RENDER:
-#   data/sessions.json lets the tutor remember students. On Render's free/basic
-#   web services the disk is EPHEMERAL -- it can reset on redeploy or restart, so
-#   memory may not survive forever yet. True durable persistence (a database or a
-#   Render persistent disk) is planned for Day 4. This is honest scaffolding, not
-#   a permanent solution.
+#   sessions.json + placements.json (under DATA_DIR) let the tutor remember each
+#   student and their placement. On Render's FREE web service the disk is EPHEMERAL
+#   -- it resets on every redeploy AND whenever the service sleeps (~15 min idle) --
+#   so students look brand new each time. To make memory DURABLE, attach a Render
+#   PERSISTENT DISK (needs a paid Starter instance), mount it at e.g. /var/data, and
+#   set env var DATA_DIR=/var/data. The code already reads DATA_DIR, so no code
+#   change is needed once the disk is attached.
 # =============================================================================
 
 import json
@@ -81,7 +92,13 @@ ELEVEN_STT_MODEL = os.environ.get("ELEVENLABS_STT_MODEL", "scribe_v1")
 # ---- Paths -----------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
-DATA_DIR = BASE_DIR / "data"
+# DATA_DIR holds the tutor's MEMORY (each student's conversation + placement).
+# It defaults to a "data" folder next to the code, but can be pointed at a Render
+# PERSISTENT DISK by setting the DATA_DIR env var (e.g. DATA_DIR=/var/data) so that
+# memory SURVIVES redeploys and restarts. On an ephemeral (free-plan) disk this
+# folder is wiped on every deploy and whenever the service sleeps -- which is why,
+# without a persistent disk, students appear brand new each time.
+DATA_DIR = Path(os.environ.get("DATA_DIR", str(BASE_DIR / "data")))
 STUDENTS_FILE = BASE_DIR / "students.json"
 SESSIONS_FILE = DATA_DIR / "sessions.json"
 PLACEMENTS_FILE = DATA_DIR / "placements.json"  # results of Mr. Cadabra's Challenge
@@ -250,28 +267,46 @@ def health():
 
 @app.post("/api/login")
 def login(req: LoginRequest):
-    """Validate a login code and return who the student is."""
+    """
+    Validate a login code and return who the student is, PLUS the two flags the
+    entry flow branches on:
+      - placed:    has this student done Mr. Cadabra's Challenge yet? If not, the
+                   login screen sends them there first ("find your level").
+      - returning: do we have prior conversation for them? If so, the tutor
+                   welcomes them back with a recap instead of a first-time tour.
+    """
     student = _student_or_404(req.code)
-    session = get_session(req.code.strip())
-    returning = bool(session.get("history"))
+    code = req.code.strip()
+    session = get_session(code)
+    placement = read_placement(code)
     return {
         "ok": True,
-        "code": req.code.strip(),
+        "code": code,
         "name": student.get("name"),
-        "returning": returning,
+        "returning": bool(session.get("history")),
+        "placed": bool(placement),
         "tutor_name": tutor.TUTOR_NAME,
     }
 
 
 @app.get("/api/session/{code}")
 def session_state(code: str):
-    """Return the student's info and remembered conversation (for resume)."""
+    """
+    Return the student's info, remembered conversation (for resume), and their
+    placement. The session page uses `placed` to enforce the flow (a never-placed
+    student with no history is sent to the Challenge first) and `history` to decide
+    between a first-time tour and a welcome-back recap.
+    """
     student = _student_or_404(code)
-    session = get_session(code.strip())
+    code = code.strip()
+    session = get_session(code)
+    placement = read_placement(code)
     return {
         "name": student.get("name"),
         "tutor_name": tutor.TUTOR_NAME,
         "history": session.get("history", []),
+        "placement": placement,
+        "placed": bool(placement),
     }
 
 

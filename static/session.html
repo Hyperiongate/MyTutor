@@ -4,6 +4,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  FIRST-TIME VS RETURNING FLOW. The page now reads `placed`/`history`
+                from /api/session and behaves accordingly:
+                  • Never placed AND no history -> redirect to the Challenge (you
+                    must find your level before a lesson). Login already routes this
+                    way; this guard also covers opening /session directly.
+                  • Placed, no history (just finished the Challenge) -> the auto tour
+                    plays, then Mr. Cadabra teaches at the placed level.
+                  • Has history (returning) -> NO tour; the opening overlay says
+                    "Welcome back", and Mr. Cadabra opens with a short spoken recap
+                    of where you are, then continues.
     2026-07-21  TOUR NOW AUTO-PLAYS (no taps between stops). The opening walk-through
                 is a scripted client-side sequence (runTour): Mr. Cadabra speaks the
                 welcome + one-line definition of algebra, then narrates each stop in
@@ -354,8 +364,8 @@
   <div class="welcome" id="welcome">
     <div class="welcome-card">
       <div class="welcome-badge">✨</div>
-      <h2>Welcome to Math Tutor!</h2>
-      <p class="lead">You'll be learning algebra with <b id="wTutor">your tutor</b>. Here's how it works:</p>
+      <h2 id="welcomeTitle">Welcome to Math Tutor!</h2>
+      <p class="lead" id="welcomeLead">You'll be learning algebra with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
         <li><span class="ic">🎙️</span><span>Tap the button below and just <b>talk</b> — no typing, no buttons to hunt for.</span></li>
         <li><span class="ic">🗣️</span><span>Your tutor <b>listens and answers out loud</b>, and draws on the board as you go.</span></li>
@@ -842,8 +852,8 @@
         try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); }
         catch (e) { hint.textContent = "Mic access is needed to talk — allow it in your browser, or use 'Type instead'."; }
       } else { showComposer(); }
-      if (!hasHistory) { busy = true; setPhase("busy"); runTour(); }     // Mr. Cadabra welcomes + tours, then teaches
-      else if (canRecord) setPhase("ready");                            // returning: student's turn
+      if (!hasHistory) { busy = true; setPhase("busy"); runTour(); }     // first lesson: Mr. Cadabra welcomes + tours, then teaches
+      else { busy = true; setPhase("busy"); kickoff(); }                 // returning: welcome back + recap, then continue
     }
     el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
@@ -929,12 +939,24 @@
         const res = await fetch("/api/session/" + encodeURIComponent(CODE));
         if (!res.ok) { window.location.href = "/"; return; }
         const data = await res.json();
+        const placed = !!data.placed;
+        const history = data.history || [];
+        hasHistory = history.length > 0;
+        // Enforce the flow: a brand-new student (never placed AND no history) has to
+        // FIND THEIR LEVEL first. Login already routes this way, but this also covers
+        // someone opening /session directly or after their placement was reset.
+        if (!hasHistory && !placed) {
+          window.location.href = "/challenge?code=" + encodeURIComponent(CODE);
+          return;
+        }
         tutorName = data.tutor_name || "Tutor"; tutorNameEl.textContent = tutorName;
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
-        const history = data.history || [];
-        hasHistory = history.length > 0;
         if (hasHistory) {
+          // Returning student: reword the opening overlay + replay the transcript.
+          el("welcomeTitle").textContent = "Welcome back!";
+          el("welcomeLead").innerHTML = "Let's pick up where you left off with <b>" + tutorName + "</b>.";
+          el("welcomeGo").innerHTML = "▶️ Continue my lesson";
           addBubble("system", "Welcome back — picking up where you left off.");
           for (const m of history) { const isT = m.role === "assistant"; const shown = isT ? handleTags(m.content) : m.content;
             addBubble(isT ? "tutor" : "student", shown); if (isT) { lastTutorText = shown; } }
