@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-21  FULL COURSE MAP. The left "Today's plan" (6 linear-equation steps) is
+                now "Your Algebra I course" -- the 9 units, with the student's CURRENT
+                unit highlighted (from placement.start_unit) and earlier units marked
+                done. Matches the tutor now teaching all 9 units. The right "Covered"
+                panel + [[covered]] tags still work for the Linear Equations unit.
     2026-07-21  LESSON GOAL BANNER + PRACTICE LINK. (1) New [[goal text="..."]] tag ->
                 a "🎯 Today's goal" banner above the whiteboard, set once when the
                 tutor states the day's goal. showGoal() renders it. (2) Added a
@@ -336,7 +341,7 @@
       <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
       <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
       <div id="planPanel">
-        <h2 style="margin-top:18px;">Today's plan</h2>
+        <h2 style="margin-top:18px;">Your Algebra I course</h2>
         <div id="planList"></div>
       </div>
     </aside>
@@ -432,7 +437,10 @@
     let state = "idle";            // idle | listening | thinking | speaking
     function setState(s) { state = s; }
 
-    // ---------- Today's plan ----------
+    // ---------- Your Algebra I course (left panel) + Covered (right panel) ----------
+    // The left panel now shows the full 9-unit COURSE with the student's current unit
+    // highlighted (set from their placement). The right "Covered" panel still fills in
+    // from the tutor's [[covered]] tags during the Linear Equations unit.
     const AGENDA = [
       { id: "what-is-equation", label: "What an equation is" },
       { id: "balance-rule",     label: "Keeping both sides equal" },
@@ -442,14 +450,16 @@
       { id: "check-answer",     label: "Checking your answer" },
     ];
     const covered = new Set();
-    let currentId = AGENDA[0].id;
-    function renderPlan() {
+    let currentUnit = 1;   // which of the 9 units the student is on (set from placement)
+    function renderCourse() {
+      if (!planList || typeof CURRICULUM === "undefined") return;
       planList.innerHTML = "";
-      for (const item of AGENDA) {
+      for (const u of CURRICULUM) {
         const div = document.createElement("div");
-        const done = covered.has(item.id);
-        div.className = "plan-item" + (done ? " done" : (item.id === currentId ? " current" : ""));
-        div.innerHTML = '<span class="dot"></span><span>' + item.label + '</span>';
+        const state = u.n < currentUnit ? "done" : (u.n === currentUnit ? "current" : "");
+        div.className = "plan-item" + (state ? " " + state : "");
+        div.innerHTML = '<span class="dot"></span><span><b>' + u.n + '.</b> ' + u.name + '</span>';
+        if (u.blurb) div.title = u.blurb;
         planList.appendChild(div);
       }
     }
@@ -462,10 +472,9 @@
     }
     function markCovered(id) {
       const item = AGENDA.find(a => a.id === id); if (!item) return;
-      covered.add(id); const next = AGENDA.find(a => !covered.has(a.id)); currentId = next ? next.id : null;
-      renderPlan(); renderCovered();
+      covered.add(id); renderCovered();
     }
-    renderPlan(); renderCovered();
+    renderCovered();
 
     // ---------- Curriculum navigator ----------
     const CURRICULUM = [
@@ -504,6 +513,7 @@
       });
     }
     renderCurriculum();
+    renderCourse();   // draw the 9-unit course map (current unit set later from placement)
     curriculumBtn.addEventListener("click", () => {
       const open = curriculumList.style.display !== "none";
       curriculumList.style.display = open ? "none" : "block";
@@ -962,7 +972,7 @@
       { id: "dashboard",
         text: "Next is your Progress dashboard. That's where you'll see how you're doing — the levels you've completed, the ones you've mastered, what's still in progress, plus your accuracy, your streaks, and how you're growing over time." },
       { id: "todays-plan",
-        text: "Down here at the bottom is Today's plan — the small steps you and I are going to work through together today." },
+        text: "Down here on the left is your Algebra I course — all nine units. We'll work through them together, starting right where your level check placed you." },
       { id: "covered",
         text: "And over on the right is Covered. It starts out empty, and it fills up with each idea you master as we go." },
     ];
@@ -1040,6 +1050,9 @@
           window.location.href = "/challenge?code=" + encodeURIComponent(CODE);
           return;
         }
+        // Highlight the student's current unit on the course map (from placement).
+        const su = data.placement && parseInt(data.placement.start_unit, 10);
+        if (su >= 1 && su <= 9) { currentUnit = su; renderCourse(); }
         tutorName = data.tutor_name || "Tutor"; tutorNameEl.textContent = tutorName;
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";

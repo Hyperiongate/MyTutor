@@ -480,9 +480,17 @@ def chat(req: ChatRequest):
     session["history"] = history
     save_session(code, session)
 
-    # Real tracking: the structured COURSE currently teaches Unit 2 (Linear
-    # Equations & Inequalities), so course activity counts as "learning" that unit.
-    _track_topic(code, 2, curriculum.UNIT_NAME[2], "learning")
+    # Real tracking: the COURSE now teaches all 9 units starting at the student's
+    # placed unit, so course activity counts as "learning" whatever unit they're on
+    # (from placement; default Unit 2 if unplaced/unknown).
+    course_unit = 2
+    try:
+        su = int((placement or {}).get("start_unit") or 0)
+        if 1 <= su <= 9:
+            course_unit = su
+    except (TypeError, ValueError):
+        course_unit = 2
+    _track_topic(code, course_unit, curriculum.UNIT_NAME.get(course_unit, ""), "learning")
 
     return {"reply": reply}
 
