@@ -326,9 +326,14 @@ def get_placement(code: str):
 
 @app.get("/health")
 def health():
-    """Simple check that the service is up (handy for Render). Includes DB status so
-    you can confirm whether durable (Postgres) storage is active."""
-    return {"status": "ok", "students_loaded": len(STUDENTS), "storage": store.status()}
+    """Simple check that the service is up (handy for Render). Includes the active
+    student-facing model and DB status so you can confirm both at a glance."""
+    return {
+        "status": "ok",
+        "students_loaded": len(STUDENTS),
+        "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
+        "storage": store.status(),
+    }
 
 
 @app.post("/api/login")

@@ -2,6 +2,10 @@
 # render.yaml  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  CLAUDE_MODEL -> claude-haiku-4-5 (cheaper student-facing model; see
+#               tutor.py). NOTE: the live mytutor-2 service was built manually, so this
+#               blueprint value only applies to services created FROM this file -- the
+#               live switch is setting CLAUDE_MODEL in the Render dashboard.
 #   2026-07-19  Updated CLAUDE_MODEL default from the retired
 #               "claude-3-5-sonnet-latest" to the active "claude-sonnet-5".
 #   2026-07-19  Initial Render blueprint. Defines one Python web service that
@@ -26,5 +30,5 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false            # you set this secret in the Render dashboard
       - key: CLAUDE_MODEL
-        value: claude-sonnet-5
+        value: claude-haiku-4-5
 # I did no harm and this file is not truncated.

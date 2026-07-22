@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  COST SWITCH -> Claude Haiku 4.5 for students. DEFAULT_MODEL is now
+#               "claude-haiku-4-5" (cheaper, same SDK, US vendor). Paired with a new
+#               always-on "ACCURACY -- CHECK YOUR OWN WORK" rule added to all three
+#               prompts (lesson/practice/topic): verify every number/answer (substitute
+#               back or recompute) BEFORE speaking it. This is the self-check that makes
+#               a cheaper model reliable for algebra -- zero added latency (in-prompt),
+#               unlike a slow second API pass. NOTE: the LIVE switch is the Render env
+#               var CLAUDE_MODEL=claude-haiku-4-5 (env overrides this default).
 #   2026-07-21  TOPIC MODE (part of the new "what would you like to do today?" hub).
 #               Added TOPIC_SYSTEM_PROMPT_TEMPLATE + get_topic_reply(): a focused
 #               mini-lesson on ONE Algebra I topic the student picks/names (Socratic,
@@ -115,10 +123,15 @@ from anthropic import Anthropic
 # including the tutor's own self-introduction.
 TUTOR_NAME = "Mr. Cadabra"
 
-# Model is configurable via env (CLAUDE_MODEL) so we never have to touch code to
-# change it. This must be a CURRENT, active model id from Anthropic's docs --
-# retired ids (like the old claude-3-5-sonnet) are rejected by the API.
-DEFAULT_MODEL = "claude-sonnet-5"
+# The STUDENT-FACING model. Configurable via env (CLAUDE_MODEL) so we never have to
+# touch code to change it. This must be a CURRENT alias from Anthropic's docs --
+# retired/guessed ids are rejected by the API.
+# 2026-07-21: switched students to the cheaper "claude-haiku-4-5" (Haiku 4.5). It's
+# ~7-18x cheaper per token than Sonnet, runs on the same Anthropic SDK (a one-line
+# change), keeps us on a US vendor (important for school-district data review), and is
+# paired with the self-check accuracy rule in the prompts below so quality holds.
+# (Premium models like Opus/Sonnet are for DEVELOPMENT; students use Haiku.)
+DEFAULT_MODEL = "claude-haiku-4-5"
 
 # How many past messages we replay to the model each request. Keeps the "tutor
 # remembers" feeling while bounding token cost (one message = one turn).
@@ -355,6 +368,15 @@ HOW YOU SPEAK (this is a VOICE conversation)
   - Warm, human, encouraging. No bullet points, no headings, no "as an AI."
 
 ============================================================
+ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
+============================================================
+Getting the math RIGHT matters more than getting it fast. Before you state any
+number, result, or solution, verify it yourself first: plug the value back into the
+original equation, or redo the calculation a second way. If it doesn't check out, fix
+it BEFORE you say it. Never present an answer you haven't checked. If you're genuinely
+unsure, work it through step by step WITH the student rather than guessing.
+
+============================================================
 SAFETY
 ============================================================
 You are working with a minor in a trusted learning space. Keep everything
@@ -503,6 +525,15 @@ HOW YOU SPEAK (this is a VOICE conversation)
   - Warm, human, encouraging. No bullet points or headings.
 
 ============================================================
+ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
+============================================================
+Getting the math RIGHT matters more than getting it fast. Before you state any
+number, result, or solution, verify it yourself first: plug the value back into the
+original equation, or redo the calculation a second way. If it doesn't check out, fix
+it BEFORE you say it. Never present an answer you haven't checked. If you're genuinely
+unsure, work it through step by step WITH the student rather than guessing.
+
+============================================================
 SAFETY
 ============================================================
 You are working with a minor in a trusted learning space. Keep everything
@@ -624,6 +655,15 @@ HOW YOU SPEAK (this is a VOICE conversation)
     "your turn -- try this", or "ready for the next bit?". Never end on a bare
     statement that leaves them unsure what to do.
   - Warm, human, encouraging. No bullet points or headings.
+
+============================================================
+ACCURACY -- CHECK YOUR OWN WORK BEFORE YOU SPEAK
+============================================================
+Getting the math RIGHT matters more than getting it fast. Before you state any
+number, result, or solution, verify it yourself first: plug the value back into the
+original equation, or redo the calculation a second way. If it doesn't check out, fix
+it BEFORE you say it. Never present an answer you haven't checked. If you're genuinely
+unsure, work it through step by step WITH the student rather than guessing.
 
 ============================================================
 SAFETY
