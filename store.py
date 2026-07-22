@@ -2,6 +2,9 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  Diagnostics: /health status() now reports `configured` (did we see a
+#               DATABASE_URL) and `reason` (why the DB is disabled, credentials
+#               redacted) so a failed connection is visible without digging in logs.
 #   2026-07-21  NEW durable storage layer (the "data foundation" for the roadmap:
 #               accounts, progress, session memory, and per-topic tracking). It is
 #               a DROP-IN, OPT-IN backend:
@@ -41,8 +44,18 @@ _ENABLED = False
 _engine = None
 _meta = None
 _tables = {}
+_INIT_ERROR = None   # human-readable reason we stayed disabled (shown in /health)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+
+
+def _redact(msg: str) -> str:
+    """Strip anything that looks like a password out of an error string before we
+    show it in /health, so the diagnostic can't leak the DB credentials."""
+    import re
+    s = str(msg)
+    s = re.sub(r"://([^:/@\s]+):[^@/\s]+@", r"://\1:***@", s)  # user:pass@ -> user:***@
+    return s[:400]
 
 
 def _normalize_url(url: str) -> str:
@@ -66,8 +79,9 @@ def init():
     DATABASE_URL is unset or the DB can't be reached, we stay disabled and the app
     uses its file storage. Returns True if the DB backend is active.
     """
-    global _ENABLED, _engine, _meta, _tables
+    global _ENABLED, _engine, _meta, _tables, _INIT_ERROR
     if not DATABASE_URL:
+        _INIT_ERROR = "DATABASE_URL is not set (the app didn't receive the env var)."
         return False
     try:
         from sqlalchemy import (create_engine, MetaData, Table, Column, String,
@@ -117,10 +131,12 @@ def init():
         with _engine.connect() as conn:
             conn.execute(_text("SELECT 1"))
         _ENABLED = True
+        _INIT_ERROR = None
         print("[store] Database backend ENABLED (durable storage).")
     except Exception as exc:  # noqa: BLE001
         _ENABLED = False
-        print(f"[store] Database backend disabled (falling back to files): {exc}")
+        _INIT_ERROR = f"{type(exc).__name__}: {_redact(exc)}"
+        print(f"[store] Database backend disabled (falling back to files): {_INIT_ERROR}")
     return _ENABLED
 
 
@@ -252,8 +268,14 @@ def get_topics(code: str) -> list:
 
 
 def status() -> dict:
-    """Small diagnostic for a health/status endpoint."""
-    return {"db_enabled": _ENABLED, "dialect": (_engine.dialect.name if _engine else None)}
+    """Small diagnostic for a health/status endpoint. `configured` = did the app see a
+    DATABASE_URL at all; `reason` = why it's disabled (credentials redacted)."""
+    return {
+        "db_enabled": _ENABLED,
+        "dialect": (_engine.dialect.name if _engine else None),
+        "configured": bool(DATABASE_URL),
+        "reason": (None if _ENABLED else _INIT_ERROR),
+    }
 
 
 # I did no harm and this file is not truncated.
