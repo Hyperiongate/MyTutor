@@ -4,6 +4,20 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-22  BRIGHT & WARM REDESIGN (no new/fake data). Reskinned the whole
+                dashboard from the old near-black "cinematic" theme to the app's
+                bright, warm palette (matches home/session/practice/topic) so it
+                no longer feels dark and out of place. Added REAL CSS graphics that
+                visualize ONLY data we actually track from GET /api/topics/{code}:
+                  - a brighter KPI row (progress ring, total activity, level, last active),
+                  - a new "Your learning journey" -> the 9 units as a connected path,
+                    each node colored by its real status, the placed start-unit marked,
+                  - a new "How far you've gone" status-breakdown meter (real counts of
+                    Practiced / Learning / Explored / Not started across the 9 units),
+                    with the deepest status reached called out,
+                  - the 9-unit cards + strengths chips, restyled bright.
+                Still 100% honest: nothing invented, Chart.js-free (pure CSS), tracking-off
+                and empty states preserved. Status = label + icon + color (never color alone).
     2026-07-21  PHASE 2 -- REAL & HONEST DASHBOARD. Rebuilt to show the student's
                 ACTUAL by-topic progress from GET /api/topics/{code} instead of the
                 old sample metrics. Nothing here is invented: the 9 Algebra I units
@@ -11,9 +25,8 @@
                 yet), real touch counts, and last-active dates; the summary (units
                 started, activity, level, strengths) is all real. It starts sparse
                 for a new student and fills in as they work. If the database isn't on,
-                it says tracking is off rather than showing fake numbers. Dark
-                cinematic look retained (validated palette); Chart.js dependency
-                dropped in favor of lightweight CSS visuals.
+                it says tracking is off rather than showing fake numbers. (Was dark
+                cinematic; Chart.js dependency dropped in favor of lightweight CSS.)
     2026-07-19  (superseded) dark cinematic sample dashboard w/ Chart.js + 14 metrics.
   =============================================================================
 -->
@@ -24,11 +37,10 @@
   <title>Math Tutor — My Progress</title>
   <style>
     :root {
-      --plane:#0d0d0d; --surface:#161615; --surface2:#1c1c1b;
-      --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
-      --border:rgba(255,255,255,0.09);
-      --blue:#3987e5; --green:#0ca30c; --violet:#9085e9; --aqua:#199e70;
-      --yellow:#c98500; --muted2:#5a5954;
+      --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
+      --warm:#ff7a59; --panel:#ffffff; --ok:#16a34a;
+      /* Status palette (state, not series): always paired with a label + icon. */
+      --st-practiced:#16a34a; --st-learning:#d97706; --st-explored:#5b5bd6; --st-none:#9aa7b6;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
@@ -36,62 +48,100 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--ink); min-height: 100vh;
       background:
-        radial-gradient(900px 500px at 12% -8%, rgba(57,135,229,.18), transparent 60%),
-        radial-gradient(900px 500px at 92% 0%, rgba(144,133,233,.16), transparent 55%),
-        radial-gradient(800px 500px at 60% 112%, rgba(25,158,112,.14), transparent 55%),
-        var(--plane);
+        radial-gradient(760px 500px at 6% -10%, rgba(91,91,214,.16), transparent 60%),
+        radial-gradient(760px 480px at 96% -6%, rgba(20,184,166,.15), transparent 55%),
+        radial-gradient(700px 520px at 60% 112%, rgba(255,122,89,.12), transparent 55%),
+        #f5f5fc;
     }
-    .wrap { max-width: 1000px; margin: 0 auto; padding: 22px 22px 60px; }
-    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
-    .top .title { font-size: 22px; font-weight: 800; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 24px 22px 64px; }
+    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+    .top .title { font-size: 23px; font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
     .top .spacer { flex: 1; }
-    .top a { color: var(--ink2); text-decoration: none; font-size: 14px;
-      border: 1px solid var(--border); border-radius: 20px; padding: 8px 15px; }
-    .top a:hover { background: var(--surface2); }
-    .sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+    .top a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-radius: 20px; padding: 8px 15px; background: #fff; }
+    .top a:hover { background: #f3f6fb; }
+    .sub { color: var(--muted); font-size: 14.5px; margin: 0 0 22px; }
 
-    .offnote { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-      padding: 16px 18px; color: var(--ink2); font-size: 15px; margin-bottom: 22px; }
+    .offnote { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--warm);
+      border-radius: 14px; padding: 16px 18px; color: var(--ink); font-size: 15px; margin-bottom: 22px;
+      box-shadow: 0 8px 24px rgba(20,30,45,.06); }
 
-    /* Summary tiles */
-    .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
-    .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; overflow: hidden; }
+    .card-shadow { box-shadow: 0 10px 28px rgba(20,30,45,.07); }
+
+    /* KPI tiles */
+    .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 12px; }
+    .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+      position: relative; overflow: hidden; box-shadow: 0 10px 28px rgba(20,30,45,.07); }
     .tile .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
     .tile .big { font-size: 30px; font-weight: 800; line-height: 1; }
-    .tile .small { color: var(--ink2); font-size: 13px; margin-top: 6px; }
+    .tile .small { color: var(--muted); font-size: 13px; margin-top: 6px; }
     .ring { --p: 0; width: 58px; height: 58px; border-radius: 50%; position: absolute; top: 16px; right: 16px;
-      background: conic-gradient(var(--aqua) calc(var(--p) * 3.6deg), #2c2c2a 0); display: grid; place-items: center; }
-    .ring::before { content: ""; width: 42px; height: 42px; border-radius: 50%; background: var(--surface); position: absolute; }
-    .ring span { position: relative; font-size: 12px; font-weight: 800; }
+      background: conic-gradient(var(--accent2) calc(var(--p) * 3.6deg), #e7e6f2 0); display: grid; place-items: center; }
+    .ring::before { content: ""; width: 42px; height: 42px; border-radius: 50%; background: var(--panel); position: absolute; }
+    .ring span { position: relative; font-size: 12px; font-weight: 800; color: var(--ink); }
 
-    .section-h { font-size: 15px; font-weight: 700; color: var(--ink2); margin: 6px 0 12px;
-      text-transform: uppercase; letter-spacing: .05em; }
+    .section-h { font-size: 15px; font-weight: 800; color: var(--ink); margin: 26px 0 12px;
+      display: flex; align-items: baseline; gap: 10px; }
+    .section-h .note { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; }
 
-    /* Units */
+    /* Learning journey: the 9 units as a connected path */
+    .journey { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 16px 16px;
+      box-shadow: 0 10px 28px rgba(20,30,45,.07); }
+    .track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 6px; }
+    .stop { flex: 1 1 0; min-width: 74px; display: flex; flex-direction: column; align-items: center; position: relative; }
+    .stop .bar { position: absolute; top: 21px; left: -50%; width: 100%; height: 4px; background: var(--line); z-index: 0; }
+    .stop:first-child .bar { display: none; }
+    .stop .node { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid;
+      place-items: center; font-weight: 800; font-size: 15px; color: #fff; border: 3px solid #fff;
+      box-shadow: 0 3px 10px rgba(20,30,45,.16); }
+    .stop.practiced .node { background: var(--st-practiced); } .stop.practiced .bar { background: var(--st-practiced); }
+    .stop.learning  .node { background: var(--st-learning);  } .stop.learning  .bar { background: var(--st-learning); }
+    .stop.explored  .node { background: var(--st-explored);  } .stop.explored  .bar { background: var(--st-explored); }
+    .stop.notstarted .node { background: #cdd3e0; color: #6b6f82; }
+    .stop .caption { font-size: 11px; color: var(--muted); text-align: center; margin-top: 7px; line-height: 1.25; max-width: 88px; }
+    .stop.here .node { box-shadow: 0 0 0 4px rgba(91,91,214,.25), 0 3px 10px rgba(20,30,45,.16); }
+    .stop .heretag { font-size: 10px; font-weight: 800; color: var(--accent); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Status breakdown meter */
+    .breakdown { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 16px;
+      box-shadow: 0 10px 28px rgba(20,30,45,.07); }
+    .meter { display: flex; gap: 2px; height: 26px; border-radius: 8px; overflow: hidden; background: #eef0f7; }
+    .seg { height: 100%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; min-width: 0; }
+    .seg.practiced { background: var(--st-practiced); } .seg.learning { background: var(--st-learning); }
+    .seg.explored { background: var(--st-explored); } .seg.notstarted { background: #cdd3e0; color: #6b6f82; }
+    .mkey { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
+    .mkey .k { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink); }
+    .mkey .sw { width: 12px; height: 12px; border-radius: 4px; flex: 0 0 auto; }
+    .mkey .k b { font-weight: 800; }
+
+    /* Unit cards */
     .units { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .unit { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 15px 16px;
-      display: flex; align-items: center; gap: 14px; }
-    .unit.untouched { opacity: .5; }
-    .unit .n { width: 34px; height: 34px; border-radius: 10px; background: var(--surface2); color: var(--ink2);
+    .unit { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 15px 16px;
+      display: flex; align-items: center; gap: 14px; box-shadow: 0 6px 18px rgba(20,30,45,.05); }
+    .unit.untouched { opacity: .62; }
+    .unit .n { width: 34px; height: 34px; border-radius: 10px; background: #eef2ff; color: var(--accent);
       display: grid; place-items: center; font-weight: 800; flex: 0 0 auto; }
     .unit .body { flex: 1; min-width: 0; }
     .unit .nm { font-weight: 700; font-size: 15px; }
     .unit .meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
-    .pill { font-size: 12px; font-weight: 800; padding: 5px 11px; border-radius: 20px; white-space: nowrap; }
-    .pill.practiced { background: rgba(12,163,12,.16); color: #57d957; border: 1px solid rgba(12,163,12,.4); }
-    .pill.learning { background: rgba(201,133,0,.16); color: #f4b53a; border: 1px solid rgba(201,133,0,.4); }
-    .pill.explored { background: rgba(57,135,229,.16); color: #6fb0f5; border: 1px solid rgba(57,135,229,.4); }
-    .pill.notstarted { background: #202020; color: var(--muted2); border: 1px solid var(--border); }
+    .pill { font-size: 12px; font-weight: 800; padding: 5px 11px; border-radius: 20px; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 5px; }
+    .pill .ic { font-size: 11px; }
+    .pill.practiced { background: rgba(22,163,74,.12); color: #12813b; border: 1px solid rgba(22,163,74,.35); }
+    .pill.learning { background: rgba(217,119,6,.12); color: #b45309; border: 1px solid rgba(217,119,6,.35); }
+    .pill.explored { background: rgba(91,91,214,.12); color: #4a4ac0; border: 1px solid rgba(91,91,214,.35); }
+    .pill.notstarted { background: #f1f3f8; color: #7a7f8f; border: 1px solid var(--line); }
 
-    .strengths { margin: 24px 0 0; }
+    .strengths { margin: 26px 0 0; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { background: rgba(25,158,112,.14); border: 1px solid rgba(25,158,112,.4); color: #43c496;
-      border-radius: 20px; padding: 7px 13px; font-size: 13px; font-weight: 600; }
-    .legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin: 18px 0 0; }
-    .legend b { color: var(--ink2); }
-    .foot { color: var(--muted); font-size: 12.5px; margin-top: 26px; line-height: 1.5;
-      border-top: 1px solid var(--border); padding-top: 16px; }
-    .cta { display: inline-block; margin-top: 6px; color: #6fb0f5; text-decoration: none; font-size: 14px; }
+    .chip { background: rgba(20,184,166,.12); border: 1px solid rgba(20,184,166,.4); color: #0f8a76;
+      border-radius: 20px; padding: 7px 13px; font-size: 13px; font-weight: 700; }
+    .foot { color: var(--muted); font-size: 12.5px; margin-top: 28px; line-height: 1.5;
+      border-top: 1px solid var(--line); padding-top: 16px; }
+    .foot b { color: var(--ink); }
+    .cta { display: inline-block; margin-top: 6px; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 700; }
 
     @media (max-width: 760px) {
       .tiles { grid-template-columns: 1fr 1fr; }
@@ -115,19 +165,25 @@
 
     <div class="tiles" id="tiles"></div>
 
+    <div id="journeyWrap" style="display:none;">
+      <div class="section-h">Your learning journey <span class="note">— your path through the 9 Algebra I units</span></div>
+      <div class="journey"><div class="track" id="track"></div></div>
+    </div>
+
+    <div id="breakdownWrap" style="display:none;">
+      <div class="section-h">How far you've gone <span class="note" id="deepestNote"></span></div>
+      <div class="breakdown">
+        <div class="meter" id="meter"></div>
+        <div class="mkey" id="mkey"></div>
+      </div>
+    </div>
+
     <div class="section-h">Your 9 Algebra units</div>
     <div class="units" id="units"></div>
 
     <div class="strengths" id="strengthsWrap" style="display:none;">
-      <div class="section-h">Strengths from your level check</div>
+      <div class="section-h" style="margin-top:0;">Strengths from your level check</div>
       <div class="chips" id="strengths"></div>
-    </div>
-
-    <div class="legend">
-      <span><b>Practiced</b> — worked problems in it</span>
-      <span><b>Learning</b> — in your course lessons</span>
-      <span><b>Explored</b> — talked through it</span>
-      <span><b>Not started yet</b> — haven't touched it</span>
     </div>
 
     <div class="foot" id="foot">
@@ -143,12 +199,14 @@
     if (!CODE) { location.href = "/"; }
     el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
 
+    // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
     const STATUS = {
-      "practiced":  { label: "Practiced",       cls: "practiced" },
-      "learning":   { label: "Learning",        cls: "learning" },
-      "explored":   { label: "Explored",        cls: "explored" },
-      "not-started":{ label: "Not started yet", cls: "notstarted" },
+      "practiced":   { label: "Practiced",       cls: "practiced",  ic: "✓", rank: 3 },
+      "learning":    { label: "Learning",        cls: "learning",   ic: "◐", rank: 2 },
+      "explored":    { label: "Explored",        cls: "explored",   ic: "○", rank: 1 },
+      "not-started": { label: "Not started yet", cls: "notstarted", ic: "·", rank: 0 },
     };
+    const ORDER = ["practiced", "learning", "explored", "not-started"];
     function fmtDate(iso) {
       if (!iso) return "";
       try { const d = new Date(iso); return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
@@ -166,10 +224,14 @@
       if (data.name) el("title").textContent = "📊 " + data.name + "'s Progress";
       if (!data.tracking) { el("offnote").style.display = "block"; }
 
-      // Summary tiles (all real).
+      const units = data.units || [];
       const s = data.summary || {};
+      const placement = data.placement || {};
+      const startUnit = parseInt(placement.start_unit, 10) || 0;
+
+      // ----- KPI tiles (all real) -----
       const pct = s.units_total ? Math.round((s.units_started / s.units_total) * 100) : 0;
-      const level = (data.placement && data.placement.level_title) ? data.placement.level_title : null;
+      const level = placement.level_title ? placement.level_title : null;
       const tiles = [
         { lbl: "Units started", big: (s.units_started || 0) + " / " + (s.units_total || 9), ring: pct },
         { lbl: "Total activity", big: String(s.total_touches || 0), small: "lessons · problems · topics" },
@@ -184,8 +246,50 @@
           ${t.small ? `<div class="small">${t.small}</div>` : ""}
         </div>`).join("");
 
-      // The 9 units.
-      el("units").innerHTML = (data.units || []).map(u => {
+      // ----- Learning journey (real status per unit; placed start-unit marked) -----
+      if (units.length) {
+        el("journeyWrap").style.display = "block";
+        el("track").innerHTML = units.map(u => {
+          const st = STATUS[u.status] || STATUS["not-started"];
+          const here = startUnit && u.unit === startUnit;
+          return `
+            <div class="stop ${st.cls}${here ? " here" : ""}">
+              <div class="bar"></div>
+              <div class="node" title="${st.label}">${u.unit}</div>
+              <div class="caption">${u.name}</div>
+              ${here ? '<div class="heretag">start</div>' : ""}
+            </div>`;
+        }).join("");
+      }
+
+      // ----- Status breakdown meter (real counts across the 9 units) -----
+      const counts = { "practiced": 0, "learning": 0, "explored": 0, "not-started": 0 };
+      units.forEach(u => { counts[u.status] = (counts[u.status] || 0) + 1; });
+      const total = units.length || 9;
+      if (units.length) {
+        el("breakdownWrap").style.display = "block";
+        el("meter").innerHTML = ORDER.filter(k => counts[k] > 0).map(k => {
+          const st = STATUS[k];
+          const w = (counts[k] / total) * 100;
+          return `<div class="seg ${st.cls}" style="width:${w}%" title="${st.label}: ${counts[k]}">${counts[k]}</div>`;
+        }).join("");
+        const swColor = { practiced: "var(--st-practiced)", learning: "var(--st-learning)",
+                          explored: "var(--st-explored)", "not-started": "#cdd3e0" };
+        el("mkey").innerHTML = ORDER.map(k => {
+          const st = STATUS[k];
+          return `<span class="k"><span class="sw" style="background:${swColor[k]}"></span>
+            ${st.ic} ${st.label} — <b>${counts[k]}</b></span>`;
+        }).join("");
+        // Deepest status reached (real).
+        const started = units.filter(u => u.status !== "not-started");
+        if (started.length) {
+          const deepest = started.reduce((a, u) => (STATUS[u.status].rank > a.rank ? STATUS[u.status] : a), STATUS["explored"]);
+          el("deepestNote").textContent = "— deepest so far: " + deepest.label;
+        }
+      }
+
+      // ----- The 9 unit cards -----
+      el("units").innerHTML = units.map(u => {
         const st = STATUS[u.status] || STATUS["not-started"];
         const touched = u.status !== "not-started";
         const meta = touched
@@ -195,18 +299,18 @@
           <div class="unit ${touched ? "" : "untouched"}">
             <div class="n">${u.unit}</div>
             <div class="body"><div class="nm">${u.name}</div><div class="meta">${meta}</div></div>
-            <div class="pill ${st.cls}">${st.label}</div>
+            <div class="pill ${st.cls}"><span class="ic">${st.ic}</span>${st.label}</div>
           </div>`;
       }).join("");
 
-      // Strengths from the placement challenge (real).
-      const str = (data.placement && data.placement.strengths) || [];
+      // ----- Strengths from the placement challenge (real) -----
+      const str = placement.strengths || [];
       if (str.length) {
         el("strengthsWrap").style.display = "block";
         el("strengths").innerHTML = str.map(x => `<span class="chip">✓ ${x}</span>`).join("");
       }
 
-      // Friendly nudge if nothing yet.
+      // ----- Friendly nudge if nothing yet -----
       if ((s.units_started || 0) === 0 && data.tracking) {
         el("foot").innerHTML = "You haven't worked on anything yet — that's the perfect place to start! "
           + "Head back and take a lesson, practice a problem, or explore a topic. "
