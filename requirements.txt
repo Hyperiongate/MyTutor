@@ -1,6 +1,11 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  Added SQLAlchemy + psycopg2-binary for the new durable storage layer
+#               (store.py). These are only USED when the DATABASE_URL env var is set
+#               (e.g. a Render PostgreSQL instance); with no DATABASE_URL the app
+#               still runs on JSON files exactly as before. Pinned to known-good
+#               versions so a redeploy can't pull a breaking update.
 #   2026-07-20  Added python-multipart (needed for the /api/transcribe file upload
 #               / ElevenLabs speech-to-text). fastapi also pulls it transitively,
 #               but pinning it explicitly is safer.
@@ -20,4 +25,6 @@ uvicorn[standard]==0.30.1
 anthropic==0.117.0
 httpx==0.28.1
 python-multipart==0.0.9
+SQLAlchemy==2.0.34
+psycopg2-binary==2.9.9
 # I did no harm and this file is not truncated.

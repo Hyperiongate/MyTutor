@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  DURABLE STORAGE FOUNDATION (opt-in). Added store.py (SQLAlchemy) and
+#               routed session + placement persistence through it: when DATABASE_URL
+#               is set (e.g. a Render PostgreSQL instance) memory lives in the DB and
+#               survives deploys/sleeps; when it's NOT set the app uses the SAME JSON
+#               files as before, so nothing changes for the current deploy. /health
+#               now reports storage status. This is the base for real per-topic
+#               tracking, accounts, and subscriptions.
 #   2026-07-21  HOME HUB + TOPIC MODE. Added GET /home (the "what would you like to
 #               do today?" hub: course / practice / topic), GET /topic (topic page),
 #               and POST /api/topic (mini-lesson on a chosen topic via
@@ -85,6 +92,12 @@ from pydantic import BaseModel
 
 import tutor
 import progress
+import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
+
+# Bring up the database backend if DATABASE_URL is configured. If it isn't (or the
+# DB can't be reached), store.enabled() stays False and we use the JSON-file storage
+# below, exactly as before -- so the current app is unaffected until a DB is added.
+store.init()
 
 # ---- ElevenLabs voice config (all optional; empty key -> browser voice) -----
 # Set these in Render (NOT in code). If ELEVENLABS_API_KEY is missing, the app
@@ -152,11 +165,16 @@ def _write_all_sessions(all_sessions: dict) -> None:
 
 def get_session(code: str) -> dict:
     """Return this student's saved session, creating an empty one if needed."""
+    if store.enabled():
+        return store.get_session(code)
     all_sessions = _read_all_sessions()
     return all_sessions.get(code, {"history": []})
 
 
 def save_session(code: str, session: dict) -> None:
+    if store.enabled():
+        store.save_session(code, session)
+        return
     with _sessions_lock:
         all_sessions = _read_all_sessions()
         all_sessions[code] = session
@@ -166,6 +184,8 @@ def save_session(code: str, session: dict) -> None:
 # ---- Placement results (from Mr. Cadabra's Challenge) ----------------------
 def read_placement(code: str) -> dict:
     """Return this student's saved placement result, or {} if none."""
+    if store.enabled():
+        return store.read_placement(code)
     if not PLACEMENTS_FILE.exists():
         return {}
     try:
@@ -176,6 +196,9 @@ def read_placement(code: str) -> dict:
 
 
 def save_placement(code: str, result: dict) -> None:
+    if store.enabled():
+        store.save_placement(code, result)
+        return
     with _sessions_lock:
         all_p = {}
         if PLACEMENTS_FILE.exists():
@@ -303,8 +326,9 @@ def get_placement(code: str):
 
 @app.get("/health")
 def health():
-    """Simple check that the service is up (handy for Render)."""
-    return {"status": "ok", "students_loaded": len(STUDENTS)}
+    """Simple check that the service is up (handy for Render). Includes DB status so
+    you can confirm whether durable (Postgres) storage is active."""
+    return {"status": "ok", "students_loaded": len(STUDENTS), "storage": store.status()}
 
 
 @app.post("/api/login")
