@@ -239,17 +239,38 @@ def ensure_account(code: str, name: str = "", email: str = "") -> None:
 
 
 # ---- per-topic tracking (Phase 2 foundation) -------------------------------
-def record_topic(code: str, unit: int, unit_name: str = "", status: str = "discussed") -> None:
-    """Record that a student engaged with a unit (increments touches, updates status)."""
+# Honest engagement levels, ranked. We only ever UPGRADE a unit's status, never
+# downgrade it (exploring a unit you've already practiced shouldn't demote it).
+STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3}
+
+
+def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explored") -> None:
+    """Record that a student engaged with a unit: +1 touch, and upgrade the status if
+    the new engagement is deeper than what's already recorded."""
     from sqlalchemy import select
     t = _tables["topic_progress"]
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.touches).where(
+        r = conn.execute(select(t.c.touches, t.c.status).where(
             (t.c.code == code) & (t.c.unit == unit))).first()
     touches = (r[0] if r else 0) + 1
+    prev_status = r[1] if r else None
+    # keep the deeper of prev vs incoming
+    best = status
+    if prev_status and STATUS_RANK.get(prev_status, 0) >= STATUS_RANK.get(status, 0):
+        best = prev_status
     _upsert("topic_progress", {"code": code, "unit": unit}, {
-        "unit_name": unit_name, "status": status, "touches": touches, "last_touched": _now(),
+        "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""), "status": best,
+        "touches": touches, "last_touched": _now(),
     })
+
+
+# Minimal fallback names so a record without a name still stores one.
+UNIT_NAME_HINT = {
+    1: "Foundations & Expressions", 2: "Linear Equations & Inequalities",
+    3: "Functions & Notation", 4: "Linear Functions & Graphs", 5: "Systems of Equations",
+    6: "Exponents & Exponential Functions", 7: "Polynomials & Factoring",
+    8: "Quadratic Functions", 9: "Data & Statistics",
+}
 
 
 def get_topics(code: str) -> list:

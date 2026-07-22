@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  PHASE 2 -- REAL PER-TOPIC TRACKING. Course chats record Unit 2
+#               (linear equations) as "learning"; Practice classifies the problem's
+#               unit and records "practiced"; Topic records the chosen unit as
+#               "explored" (via curriculum.classify_unit). All guarded by
+#               store.enabled() and wrapped so tracking never breaks a turn. New
+#               GET /api/topics/{code} returns all 9 units + honest summary for the
+#               real dashboard.
 #   2026-07-21  DURABLE STORAGE FOUNDATION (opt-in). Added store.py (SQLAlchemy) and
 #               routed session + placement persistence through it: when DATABASE_URL
 #               is set (e.g. a Render PostgreSQL instance) memory lives in the DB and
@@ -93,6 +100,7 @@ from pydantic import BaseModel
 import tutor
 import progress
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
+import curriculum   # 9 units + classify_unit() for real per-topic tracking
 
 # Bring up the database backend if DATABASE_URL is configured. If it isn't (or the
 # DB can't be reached), store.enabled() stays False and we use the JSON-file storage
@@ -193,6 +201,17 @@ def read_placement(code: str) -> dict:
             return json.load(fh).get(code, {})
     except (json.JSONDecodeError, OSError):
         return {}
+
+
+def _track_topic(code: str, unit, name: str, status: str) -> None:
+    """Record real per-topic engagement (Phase 2), but only when the database is on,
+    and never let a tracking hiccup break a student's turn."""
+    if not (store.enabled() and unit):
+        return
+    try:
+        store.record_topic(code, unit, name, status)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[track] record_topic failed (ignored): {exc}")
 
 
 def save_placement(code: str, result: dict) -> None:
@@ -309,6 +328,54 @@ def progress_state(code: str):
     return progress.get_progress(code.strip(), student, read_placement(code.strip()))
 
 
+@app.get("/api/topics/{code}")
+def topics_state(code: str):
+    """
+    REAL, honest per-topic progress for the dashboard: all 9 Algebra I units with the
+    student's actual engagement (explored / learning / practiced) or 'not-started'.
+    Only meaningful when the database is on (`tracking:true`); otherwise it reports
+    tracking is off so the dashboard can say so rather than invent numbers.
+    """
+    student = _student_or_404(code)
+    code = code.strip()
+    placement = read_placement(code)
+    tracking = store.enabled()
+
+    recorded = {}
+    if tracking:
+        try:
+            for row in store.get_topics(code):
+                recorded[row["unit"]] = row
+        except Exception as exc:  # noqa: BLE001
+            print(f"[topics] get_topics failed: {exc}")
+
+    units = []
+    for n, name in curriculum.UNITS:
+        r = recorded.get(n)
+        units.append({
+            "unit": n,
+            "name": name,
+            "status": (r["status"] if r else "not-started"),
+            "touches": (r["touches"] if r else 0),
+            "last_touched": (r.get("last_touched") if r else None),
+        })
+
+    started = [u for u in units if u["status"] != "not-started"]
+    summary = {
+        "units_started": len(started),
+        "units_total": len(units),
+        "total_touches": sum(u["touches"] for u in units),
+        "last_active": max([u["last_touched"] for u in started if u["last_touched"]], default=None),
+    }
+    return {
+        "name": student.get("name"),
+        "tracking": tracking,
+        "placement": placement,
+        "units": units,
+        "summary": summary,
+    }
+
+
 @app.post("/api/placement/{code}")
 def post_placement(code: str, body: PlacementIn):
     """Save the result of Mr. Cadabra's Challenge for this student."""
@@ -413,6 +480,10 @@ def chat(req: ChatRequest):
     session["history"] = history
     save_session(code, session)
 
+    # Real tracking: the structured COURSE currently teaches Unit 2 (Linear
+    # Equations & Inequalities), so course activity counts as "learning" that unit.
+    _track_topic(code, 2, curriculum.UNIT_NAME[2], "learning")
+
     return {"reply": reply}
 
 
@@ -443,6 +514,11 @@ def practice(req: PracticeRequest):
             safe_history.append({"role": role, "content": content})
 
     reply = tutor.get_practice_reply(student, req.problem, safe_history, message)
+
+    # Real tracking: classify the problem to a unit and count it as "practiced".
+    unit, name = curriculum.classify_unit(req.problem or message)
+    _track_topic(req.code.strip(), unit, name, "practiced")
+
     return {"reply": reply}
 
 
@@ -473,6 +549,11 @@ def topic(req: TopicRequest):
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
     reply = tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message)
+
+    # Real tracking: classify the chosen topic to a unit and count it as "explored".
+    unit, name = curriculum.classify_unit(req.topic or message)
+    _track_topic(req.code.strip(), unit, name, "explored")
+
     return {"reply": reply}
 
 
