@@ -4,21 +4,23 @@
   avatar-lab.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-22  NEW EXPERIMENT PAGE (does NOT touch the live tutor). A lab to TRY a
-                Ready Player Me 3D avatar for Mr. Cadabra instead of the voice orb.
-                  - LEFT: the embedded Ready Player Me avatar CREATOR (iframe frameApi).
-                    Design Mr. Cadabra; on "Done" RPM posts the avatar .glb URL back.
-                  - RIGHT: a three.js viewer renders that .glb as a talking head. A
-                    "Make him talk" demo plays a line through /api/speak (ElevenLabs,
-                    same voice as the live tutor) and drives the avatar's MOUTH from the
-                    real audio level (the same amplitude trick the orb already uses),
-                    plus idle blinking and a gentle sway.
-                  - The chosen avatar URL is shown + copyable and saved in this browser,
-                    so it sticks between visits. Send that URL to bake Mr. Cadabra's face
-                    into the real /session page later.
-                Brain stays CLAUDE (this is only the face/voice shell). three.js +
-                loaders come from the jsDelivr CDN. Reached at /avatar-lab (optional
-                ?code=... just to keep the Home link working).
+    2026-07-22  REWORK v2 (two real fixes after the first version showed a broken
+                builder frame + depended on a CDN):
+                  1) NO MORE EMBEDDED BUILDER. Ready Player Me refuses to load inside
+                     an <iframe> (X-Frame-Options), which is why the left panel was a
+                     broken box. Replaced it with: an "Open the builder" button (opens
+                     RPM in a NEW TAB), a paste-your-avatar-link box, and a one-click
+                     "sample avatar" so you can see a talking 3D head immediately.
+                  2) three.js is now BUNDLED LOCALLY at /static/vendor/three/ (importmap
+                     points there) instead of a jsDelivr CDN -- so it works even if a
+                     network blocks CDNs, and it was render-tested headless here.
+                Paste-link is normalized (accepts a models.readyplayer.me .glb URL, a
+                readyplayer.me share link, or a bare avatar id). Chosen URL is saved in
+                this browser + shown/copyable. Lip-sync still = the tutor's real audio
+                level via /api/speak (ElevenLabs), same trick as the orb; plus blink +
+                idle sway. Brain stays CLAUDE. Live /session is untouched.
+    2026-07-22  NEW EXPERIMENT PAGE (v1): embedded RPM creator iframe + three.js talking
+                head. (Superseded: the iframe embed is blocked by RPM; CDN dependency.)
   =============================================================================
 -->
 <html lang="en">
@@ -62,35 +64,43 @@
       display: flex; align-items: center; gap: 8px; }
     .card h2 .step { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff;
       display: grid; place-items: center; font-size: 12px; flex: 0 0 auto; }
-    .framebox { position: relative; width: 100%; height: 560px; background: #f2f3fb; }
-    .framebox iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-    .viewer { position: relative; width: 100%; height: 560px; background:
+    .steps { margin: 0; padding-left: 18px; color: var(--ink); font-size: 14px; line-height: 1.55; }
+    .steps li { margin-bottom: 4px; }
+    .steps small { color: var(--muted); }
+    .btn { border: none; border-radius: 22px; font-size: 14.5px; font-weight: 800; padding: 12px 18px; color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:disabled { opacity: .45; cursor: default; }
+    .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .btn.block { width: 100%; }
+    .field { display: flex; gap: 8px; align-items: center; }
+    .field input { flex: 1; min-width: 0; font-size: 13.5px; padding: 11px 12px; border: 1px solid var(--line);
+      border-radius: 11px; outline: none; }
+    .or { text-align: center; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .note b { color: var(--ink); }
+
+    .viewer { position: relative; width: 100%; height: 520px; background:
       radial-gradient(420px 420px at 50% 34%, #ffffff, #eef0fb 78%); }
     .viewer canvas { width: 100%; height: 100%; display: block; }
     .vhint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
       color: var(--muted); font-size: 15px; padding: 30px; line-height: 1.5; }
-    .loading { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,.9); border: 1px solid var(--line);
+    .loading { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,.92); border: 1px solid var(--line);
       border-radius: 20px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: var(--accent); display: none; }
     .loading.show { display: block; }
-
     .controls { padding: 14px 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
     .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .row input[type=text] { flex: 1; min-width: 160px; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line);
       border-radius: 11px; outline: none; }
-    .btn { border: none; border-radius: 22px; font-size: 14px; font-weight: 800; padding: 10px 18px; color: #fff;
-      background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer; }
-    .btn:disabled { opacity: .45; cursor: default; }
-    .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .status { font-size: 13px; font-weight: 700; color: var(--accent); min-height: 18px; }
     .urlrow { display: none; gap: 8px; align-items: center; }
     .urlrow.show { display: flex; }
     .urlrow input { flex: 1; font-size: 12.5px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px;
       color: var(--muted); background: #fafaff; }
-    .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
-    .note b { color: var(--ink); }
-    .status { font-size: 13px; font-weight: 700; color: var(--accent); min-height: 18px; }
 
-    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } .framebox, .viewer { height: 460px; } }
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } .viewer { height: 440px; } }
   </style>
 </head>
 <body>
@@ -101,18 +111,26 @@
       <div class="spacer"></div>
       <a id="homeLink" href="#">← Home</a>
     </div>
-    <p class="sub">Design Mr. Cadabra as a 3D character, then watch him talk. This is a sandbox — your live lesson isn't affected.</p>
+    <p class="sub">Give Mr. Cadabra a 3D face, then watch him talk. This is a sandbox — your live lesson isn't affected.</p>
 
     <div class="grid">
-      <!-- LEFT: Ready Player Me creator -->
+      <!-- LEFT: get an avatar (no embed — RPM blocks being iframed) -->
       <div class="card">
-        <h2><span class="step">1</span> Design Mr. Cadabra</h2>
-        <div class="framebox">
-          <iframe id="rpm" allow="camera *; microphone *; clipboard-write"
-            src="https://demo.readyplayer.me/avatar?frameApi"></iframe>
-        </div>
-        <div class="controls">
-          <div class="note">Pick a look and hit <b>Next / Done</b> in the builder. When it finishes, he'll appear on the right and start talking.</div>
+        <h2><span class="step">1</span> Give him a face</h2>
+        <div class="pad">
+          <button class="btn block" id="sampleBtn">✨ See it now — load a sample Mr. Cadabra</button>
+          <div class="or">— or design your own —</div>
+          <ol class="steps">
+            <li><b>Open the builder</b> (opens in a new tab).</li>
+            <li>Create an avatar, then <b>copy your avatar link</b> — it ends in <small>.glb</small>.</li>
+            <li><b>Paste it below</b> and press Show.</li>
+          </ol>
+          <a class="btn ghost block" id="openBuilder" href="https://readyplayer.me/avatar" target="_blank" rel="noopener">🔗 Open the Ready Player Me builder ↗</a>
+          <div class="field">
+            <input type="text" id="pasteUrl" placeholder="Paste your avatar link (…readyplayer.me/….glb)" />
+            <button class="btn" id="showBtn">Show</button>
+          </div>
+          <div class="note">Tip: on <b>readyplayer.me</b>, finish your avatar, then use <b>“Copy .glb URL”</b> / the share link. Paste that here.</div>
         </div>
       </div>
 
@@ -121,7 +139,7 @@
         <h2><span class="step">2</span> Meet him — and hear him</h2>
         <div class="viewer" id="viewer">
           <div class="loading" id="loading">Loading avatar…</div>
-          <div class="vhint" id="vhint">Your 3D Mr. Cadabra will appear here once you finish designing him on the left.</div>
+          <div class="vhint" id="vhint">Load the sample, or paste your avatar link on the left, and Mr. Cadabra appears here.</div>
         </div>
         <div class="controls">
           <div class="row">
@@ -134,19 +152,19 @@
             <button class="btn ghost" id="copyBtn">Copy</button>
           </div>
           <div class="note" id="urlNote" style="display:none;">
-            ☝️ That's his avatar link, saved in this browser. <b>Send it to Claude</b> to make it Mr. Cadabra's official face on the real lesson page.
+            ☝️ His avatar link, saved in this browser. <b>Send it to Claude</b> to make it his official face on the real lesson page.
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- three.js (ES modules) from jsDelivr -->
+  <!-- three.js is BUNDLED LOCALLY (no CDN) -->
   <script type="importmap">
   {
     "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      "three": "/static/vendor/three/three.module.js",
+      "three/addons/": "/static/vendor/three/addons/"
     }
   }
   </script>
@@ -161,15 +179,16 @@
     $("homeLink").href = CODE ? ("/home?code=" + encodeURIComponent(CODE)) : "/home";
 
     const SAVE_KEY = "mrcadabra_avatar_url";
+    // A public Ready Player Me sample avatar (best-effort). If it ever fails to load,
+    // the "design your own" paste flow still works.
+    const SAMPLE_URL = "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb";
+
     const viewer = $("viewer"), loading = $("loading"), vhint = $("vhint");
     const status = $("status"), sayBtn = $("sayBtn");
 
     // -------------------- three.js scene --------------------
     let renderer, scene, camera, controls, clock;
-    let avatarRoot = null;                 // the loaded avatar's root Object3D
-    let mouthTargets = [], blinkTargets = []; // [{mesh, index}] for morph influences
-    let headBone = null;
-    let ready = false;
+    let avatarRoot = null, mouthTargets = [], blinkTargets = [], headBone = null, ready = false;
 
     function initThree() {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -177,101 +196,83 @@
       renderer.setSize(viewer.clientWidth, viewer.clientHeight);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       viewer.appendChild(renderer.domElement);
-
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(30, viewer.clientWidth / viewer.clientHeight, 0.1, 100);
       camera.position.set(0, 1.5, 0.95);
-
       controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.enablePan = false;
-      controls.minDistance = 0.45;
-      controls.maxDistance = 2.4;
+      controls.enableDamping = true; controls.enablePan = false;
+      controls.minDistance = 0.45; controls.maxDistance = 2.4;
       controls.target.set(0, 1.5, 0);
-
       scene.add(new THREE.HemisphereLight(0xffffff, 0x8a94a6, 1.05));
       const key = new THREE.DirectionalLight(0xffffff, 1.25); key.position.set(1.4, 2.2, 2.0); scene.add(key);
       const fill = new THREE.DirectionalLight(0xdfe6ff, 0.55); fill.position.set(-1.6, 1.2, 1.2); scene.add(fill);
       const rim = new THREE.DirectionalLight(0xffffff, 0.45); rim.position.set(0, 1.4, -2.2); scene.add(rim);
-
       clock = new THREE.Clock();
       window.addEventListener("resize", onResize);
       animate();
     }
     function onResize() {
       if (!renderer) return;
-      camera.aspect = viewer.clientWidth / viewer.clientHeight;
-      camera.updateProjectionMatrix();
+      camera.aspect = viewer.clientWidth / viewer.clientHeight; camera.updateProjectionMatrix();
       renderer.setSize(viewer.clientWidth, viewer.clientHeight);
     }
 
     const MOUTH_NAMES = ["jawOpen", "mouthOpen", "viseme_aa", "viseme_O", "viseme_E"];
     const BLINK_NAMES = ["eyeBlinkLeft", "eyeBlinkRight", "eyesClosed"];
-
     function collectMorphs(root) {
       mouthTargets = []; blinkTargets = [];
       root.traverse((o) => {
         if (o.isMesh && o.morphTargetDictionary && o.morphTargetInfluences) {
-          for (const name of MOUTH_NAMES) {
-            if (name in o.morphTargetDictionary) mouthTargets.push({ mesh: o, index: o.morphTargetDictionary[name], w: name === "jawOpen" ? 1 : 0.75 });
-          }
-          for (const name of BLINK_NAMES) {
-            if (name in o.morphTargetDictionary) blinkTargets.push({ mesh: o, index: o.morphTargetDictionary[name] });
-          }
+          for (const n of MOUTH_NAMES) if (n in o.morphTargetDictionary)
+            mouthTargets.push({ mesh: o, index: o.morphTargetDictionary[n], w: n === "jawOpen" ? 1 : 0.75 });
+          for (const n of BLINK_NAMES) if (n in o.morphTargetDictionary)
+            blinkTargets.push({ mesh: o, index: o.morphTargetDictionary[n] });
         }
       });
     }
-
     function frameOnHead(root) {
       headBone = null;
       root.traverse((o) => { if (!headBone && o.isBone && /head/i.test(o.name) && !/top|end/i.test(o.name)) headBone = o; });
       let hy = 1.55;
       if (headBone) { const p = new THREE.Vector3(); headBone.getWorldPosition(p); hy = p.y; }
-      else {
-        const box = new THREE.Box3().setFromObject(root);
-        hy = box.max.y - (box.max.y - box.min.y) * 0.08;
-      }
-      controls.target.set(0, hy, 0);
-      camera.position.set(0, hy + 0.02, 0.9);
-      controls.update();
+      else { const box = new THREE.Box3().setFromObject(root); hy = box.max.y - (box.max.y - box.min.y) * 0.08; }
+      controls.target.set(0, hy, 0); camera.position.set(0, hy + 0.02, 0.9); controls.update();
     }
 
     const gltfLoader = new GLTFLoader();
-    function withMorphs(url) {
-      const base = String(url).split("?")[0];
+    // Turn various pasted forms into a loadable .glb URL with facial morph targets.
+    function normalizeUrl(raw) {
+      let u = String(raw || "").trim();
+      if (!u) return "";
+      const idMatch = u.match(/([0-9a-fA-F]{24})/);
+      if (!/\.glb($|\?)/i.test(u) && idMatch) u = "https://models.readyplayer.me/" + idMatch[1] + ".glb";
+      const base = u.split("?")[0];
       return base + "?morphTargets=" + encodeURIComponent("ARKit,Oculus Visemes") + "&lod=0&textureAtlas=1024";
     }
-    function loadAvatar(url) {
+    function loadAvatar(rawUrl) {
+      const url = normalizeUrl(rawUrl);
+      if (!url) { status.textContent = "Paste an avatar link first."; return; }
       if (!renderer) initThree();
-      vhint.style.display = "none";
-      loading.classList.add("show");
-      status.textContent = "Building your avatar…";
-      gltfLoader.load(withMorphs(url), (gltf) => {
-        if (avatarRoot) { scene.remove(avatarRoot); }
-        avatarRoot = gltf.scene;
-        avatarRoot.rotation.y = 0;                       // face the camera
-        scene.add(avatarRoot);
-        collectMorphs(avatarRoot);
-        frameOnHead(avatarRoot);
-        ready = true; sayBtn.disabled = false;
-        loading.classList.remove("show");
-        status.textContent = "Ready — press “Make him talk”.";
-        showUrl(url);
-        try { localStorage.setItem(SAVE_KEY, url); } catch (e) {}
+      vhint.style.display = "none"; loading.classList.add("show"); status.textContent = "Building your avatar…";
+      gltfLoader.load(url, (gltf) => {
+        if (avatarRoot) scene.remove(avatarRoot);
+        avatarRoot = gltf.scene; avatarRoot.rotation.y = 0; scene.add(avatarRoot);
+        collectMorphs(avatarRoot); frameOnHead(avatarRoot);
+        ready = true; sayBtn.disabled = false; loading.classList.remove("show");
+        status.textContent = mouthTargets.length ? "Ready — press “Make him talk”." : "Loaded (no mouth shapes on this avatar).";
+        showUrl(rawUrl);
+        try { localStorage.setItem(SAVE_KEY, String(rawUrl).trim()); } catch (e) {}
       }, undefined, (err) => {
-        loading.classList.remove("show");
-        vhint.style.display = "flex";
-        vhint.textContent = "Couldn't load that avatar. Try designing one again on the left.";
-        status.textContent = "";
-        console.warn("GLB load failed:", err);
+        loading.classList.remove("show"); vhint.style.display = "flex";
+        vhint.textContent = "Couldn't load that avatar link. Design one on the left and paste the .glb link, or try the sample.";
+        status.textContent = ""; console.warn("GLB load failed:", err);
       });
     }
+    function showUrl(url) { $("urlOut").value = url; $("urlrow").classList.add("show"); $("urlNote").style.display = "block"; }
 
-    function showUrl(url) {
-      $("urlOut").value = url;
-      $("urlrow").classList.add("show");
-      $("urlNote").style.display = "block";
-    }
+    $("sampleBtn").addEventListener("click", () => loadAvatar(SAMPLE_URL));
+    $("showBtn").addEventListener("click", () => loadAvatar($("pasteUrl").value));
+    $("pasteUrl").addEventListener("keydown", (e) => { if (e.key === "Enter") loadAvatar($("pasteUrl").value); });
     $("copyBtn").addEventListener("click", async () => {
       try { await navigator.clipboard.writeText($("urlOut").value); $("copyBtn").textContent = "Copied!"; setTimeout(() => $("copyBtn").textContent = "Copy", 1400); }
       catch (e) { $("urlOut").select(); }
@@ -283,41 +284,31 @@
       requestAnimationFrame(animate);
       const t = clock ? clock.getElapsedTime() : 0;
       const dt = clock ? clock.getDelta() : 0.016;
-
-      // mouth target from the tutor's real (or synthetic) voice level
       let target = 0;
       if (speaking) target = useSynthetic ? (0.30 + 0.30 * Math.abs(Math.sin(t * 9.0))) : voiceLevel();
       mouthSmooth += (target - mouthSmooth) * 0.4;
       for (const m of mouthTargets) m.mesh.morphTargetInfluences[m.index] = Math.min(1, mouthSmooth * m.w);
-
-      // blink
-      if (blinkPhase < 0) { if (t > nextBlink) { blinkPhase = 0; } }
+      if (blinkPhase < 0) { if (t > nextBlink) blinkPhase = 0; }
       else {
-        blinkPhase += dt / 0.13;                 // ~130ms full blink
-        blink = blinkPhase < 1 ? Math.sin(Math.min(blinkPhase, 1) * Math.PI) : 0;
+        blinkPhase += dt / 0.13; blink = blinkPhase < 1 ? Math.sin(Math.min(blinkPhase, 1) * Math.PI) : 0;
         if (blinkPhase >= 1) { blinkPhase = -1; blink = 0; nextBlink = t + 2.4 + Math.random() * 3.2; }
       }
       for (const b of blinkTargets) b.mesh.morphTargetInfluences[b.index] = blink;
-
-      // gentle idle head sway
       if (headBone) { headBone.rotation.y = 0.05 * Math.sin(t * 0.6); headBone.rotation.x = 0.03 * Math.sin(t * 0.9 + 1); }
-      else if (avatarRoot) { avatarRoot.rotation.y = 0.04 * Math.sin(t * 0.5); }
-
+      else if (avatarRoot) avatarRoot.rotation.y = 0.04 * Math.sin(t * 0.5);
       if (controls) controls.update();
       if (renderer) renderer.render(scene, camera);
     }
 
     // -------------------- talk demo (ElevenLabs via /api/speak; browser fallback) --------------------
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";
-    let audioCtx = null, analyser = null, timeData = null;
-    let speaking = false, useSynthetic = false;
+    let audioCtx = null, analyser = null, timeData = null, speaking = false, useSynthetic = false;
     function ensureAudio() {
       if (audioCtx) { if (audioCtx.state === "suspended") audioCtx.resume(); return; }
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const src = audioCtx.createMediaElementSource(ttsAudio);
-        analyser = audioCtx.createAnalyser(); analyser.fftSize = 512;
-        timeData = new Uint8Array(analyser.fftSize);
+        analyser = audioCtx.createAnalyser(); analyser.fftSize = 512; timeData = new Uint8Array(analyser.fftSize);
         src.connect(analyser); analyser.connect(audioCtx.destination);
       } catch (e) { audioCtx = null; analyser = null; }
     }
@@ -327,7 +318,6 @@
       let s = 0; for (let i = 0; i < timeData.length; i++) { const v = (timeData[i] - 128) / 128; s += v * v; }
       return Math.min(1, Math.sqrt(s / timeData.length) * 3.2);
     }
-    // Say math as words so the voice reads cleanly (matches the live tutor's forSpeech).
     function forSpeech(text) {
       return String(text).replace(/\*+/g, " ")
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")
@@ -340,61 +330,38 @@
       try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(forSpeech(text));
-        u.rate = 1.0; u.pitch = 0.9;
-        u.onend = endSpeak; u.onerror = endSpeak;
-        useSynthetic = true; speaking = true; setBusy(true);
-        speechSynthesis.speak(u);
+        u.rate = 1.0; u.pitch = 0.9; u.onend = endSpeak; u.onerror = endSpeak;
+        useSynthetic = true; speaking = true; setBusy(true); speechSynthesis.speak(u);
       } catch (e) { endSpeak(); }
     }
     function endSpeak() { speaking = false; useSynthetic = false; setBusy(false); status.textContent = "Ready — press “Make him talk”."; }
-    function setBusy(b) { sayBtn.disabled = b || !ready; status.textContent = b ? "🗣️ Mr. Cadabra is talking…" : status.textContent; }
-
+    function setBusy(b) { sayBtn.disabled = b || !ready; if (b) status.textContent = "🗣️ Mr. Cadabra is talking…"; }
     function say(text) {
       if (!ready) return;
-      ensureAudio();
-      useSynthetic = false;
+      ensureAudio(); useSynthetic = false;
       let started = false;
       const onPlaying = () => { started = true; speaking = true; setBusy(true); };
       const onEnded = () => { cleanup(); endSpeak(); };
       const onError = () => { cleanup(); if (!started) browserSpeak(text); else endSpeak(); };
       function cleanup() {
-        ttsAudio.removeEventListener("playing", onPlaying);
-        ttsAudio.removeEventListener("ended", onEnded);
+        ttsAudio.removeEventListener("playing", onPlaying); ttsAudio.removeEventListener("ended", onEnded);
         ttsAudio.removeEventListener("error", onError);
       }
-      ttsAudio.addEventListener("playing", onPlaying);
-      ttsAudio.addEventListener("ended", onEnded);
+      ttsAudio.addEventListener("playing", onPlaying); ttsAudio.addEventListener("ended", onEnded);
       ttsAudio.addEventListener("error", onError);
       status.textContent = "Warming up his voice…";
       ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
       const p = ttsAudio.play();
       if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text); } });
-      // Safety: if /api/speak never starts within 4s, fall back to the browser voice.
       setTimeout(() => { if (!started && !speaking) { cleanup(); browserSpeak(text); } }, 4000);
     }
     sayBtn.addEventListener("click", () => say($("line").value || "Hello!"));
 
-    // -------------------- Ready Player Me creator wiring --------------------
-    const rpm = $("rpm");
-    function subscribe() {
-      rpm.contentWindow.postMessage(JSON.stringify({ target: "readyplayerme", type: "subscribe", eventName: "v1.**" }), "*");
-    }
-    window.addEventListener("message", (event) => {
-      let json;
-      try { json = typeof event.data === "string" ? JSON.parse(event.data) : event.data; } catch (e) { return; }
-      if (!json || (json.source !== "readyplayerme" && json.target !== "readyplayerme")) return;
-      if (json.eventName === "v1.frame.ready") subscribe();
-      if (json.eventName === "v1.avatar.exported" && json.data && json.data.url) {
-        status.textContent = "Got your avatar!";
-        loadAvatar(json.data.url);
-      }
-    });
-
-    // Restore a previously designed avatar (this browser) so it sticks between visits.
+    // Restore a previously chosen avatar (this browser) so it sticks between visits.
     (function restore() {
       let saved = null;
       try { saved = localStorage.getItem(SAVE_KEY); } catch (e) {}
-      if (saved) { loadAvatar(saved); }
+      if (saved) { $("pasteUrl").value = saved; loadAvatar(saved); }
     })();
   </script>
 </body>
