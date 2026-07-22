@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-22  AVATAR LAB (experiment). Added GET /avatar-lab -> serves
+#               static/avatar-lab.html, a Ready Player Me 3D-avatar sandbox for
+#               Mr. Cadabra (design an avatar, watch it talk via /api/speak). It does
+#               NOT touch the live /session tutor; brain stays Claude. New route only.
 #   2026-07-21  PHASE 2 -- REAL PER-TOPIC TRACKING. Course chats record Unit 2
 #               (linear equations) as "learning"; Practice classifies the problem's
 #               unit and records "practiced"; Topic records the chosen unit as
@@ -319,6 +323,13 @@ def home_page():
 def topic_page():
     """Topic mode -- pick or name a topic for a focused mini-lesson."""
     return FileResponse(STATIC_DIR / "topic.html")
+
+
+@app.get("/avatar-lab")
+def avatar_lab_page():
+    """EXPERIMENT (not wired into the live tutor): a Ready Player Me 3D avatar lab for
+    Mr. Cadabra -- design an avatar, then watch it talk (mouth driven by /api/speak)."""
+    return FileResponse(STATIC_DIR / "avatar-lab.html")
 
 
 @app.get("/api/progress/{code}")
