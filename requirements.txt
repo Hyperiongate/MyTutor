@@ -1,6 +1,11 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  Pinned Python to 3.12 via a `.python-version` file in the repo root.
+#               Render now defaults new services to Python 3.14, and psycopg2-binary
+#               2.9.9 has no working build for 3.14 (ImportError: undefined symbol
+#               _PyInterpreterState_Get), which kept the DB disabled. 3.12 is fully
+#               supported by every dependency here.
 #   2026-07-21  Added SQLAlchemy + psycopg2-binary for the new durable storage layer
 #               (store.py). These are only USED when the DATABASE_URL env var is set
 #               (e.g. a Render PostgreSQL instance); with no DATABASE_URL the app
