@@ -4,6 +4,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
+                rule="2x+1" output="7" fname="f"]] visual: showMachine() draws
+                input -> rule box -> output, with the worked line "2 × 3 + 1 = 7" and
+                "f(3) = 7". Used for Unit 3 FUNCTIONS instead of the balance/monkeys
+                (the balance stays for Unit 2 equations). Fixes the picture where f(3)
+                looked like the input was 1. handleTags gains a "machine" case.
+                (2) styleVars(): every algebra variable now renders BOLD, CAPITAL, and
+                RED (.mvar) in BOTH the chat bubbles and the visuals. A variable = a
+                lone letter; ordinary words, "a"/"I", and function names f/g/h are left
+                alone. addBubble now uses innerHTML=styleVars(text) (HTML-escaped first).
     2026-07-21  FULL COURSE MAP. The left "Today's plan" (6 linear-equation steps) is
                 now "Your Algebra I course" -- the 9 units, with the student's CURRENT
                 unit highlighted (from placement.start_unit) and earlier units marked
@@ -277,6 +287,29 @@
     .glegend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
     .glg { font-size: 14px; font-weight: 700; }
     .graphwrap .cap { text-align: center; margin-top: 6px; font-size: 15px; color: var(--ink); }
+
+    /* Variable styling: every algebra variable shows BOLD, CAPITAL, and RED --
+       here in the visuals AND in the chat bubbles (styleVars() does the wrapping). */
+    .mvar { color:#e0392b; font-weight:800; }
+
+    /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
+       function -- a number goes IN, the rule runs, a number comes OUT. Used for
+       functions instead of the balance scale (which stays for equations). */
+    .machine { width:100%; max-width:560px; text-align:center; }
+    .machine .mflow { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .machine .mnode { min-width:96px; padding:12px 14px; border-radius:14px; background:#eef2ff; border:2px solid #c9d2f5; }
+    .machine .mnode.mout { background:#eafaf3; border-color:#bfe6cd; }
+    .machine .mcap { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+    .machine .mval { font-size:34px; font-weight:800; line-height:1.1; margin-top:2px; color:var(--ink); }
+    .machine .marrow { font-size:30px; color:var(--accent); flex:0 0 auto; }
+    .machine .mbox { min-width:120px; padding:16px 18px; border-radius:16px; background:#fff7e6;
+      border:2px solid var(--wood); box-shadow:0 8px 20px rgba(185,133,47,.18); }
+    .machine .mboxlabel { font-size:14px; color:#6b4c15; font-weight:700; margin-bottom:4px; }
+    .machine .mrule { font-size:26px; font-weight:800; color:#6b4c15; }
+    .machine .mwork { margin-top:16px; font-size:20px; font-weight:700; color:var(--ink); }
+    .machine .mfx { margin-top:6px; font-size:16px; color:var(--muted); font-weight:700; }
+    .machine .cap { margin-top:8px; font-size:15px; color:var(--ink); }
+    @media (max-width:560px){ .machine .mflow{ gap:6px; } .machine .mval{ font-size:26px; } .machine .marrow{ font-size:22px; } }
 
     .bubble { padding: 10px 14px; border-radius: 15px; max-width: 92%; font-size: 15px;
       line-height: 1.45; white-space: pre-wrap; }
@@ -786,6 +819,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showGraph(attrs);
+        else if (name === "machine") showMachine(attrs);
         else if (name === "covered" && attrs.id) markCovered(attrs.id);
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
@@ -961,8 +995,67 @@
         + (a.caption ? '<div class="cap">' + esc(a.caption) + '</div>' : "") + '</div>';
     }
 
+    // ---------- Variable styling + function machine ----------
+    // A "variable" is a SINGLE isolated letter (x, y, n) -- NEVER a letter inside a
+    // word (next, box, explain), NEVER a single-letter English word (a, I), and NEVER
+    // a function name (the f in "f("). styleVars() HTML-escapes its input first, so it
+    // is safe to inject with innerHTML. Variables render bold, CAPITAL, red (.mvar).
+    const VAR_SKIP = { a: 1, i: 1, f: 1, g: 1, h: 1 };  // a,i = English words; f,g,h = function names
+    function escapeHTML(s) {
+      return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function styleVars(raw) {
+      const text = String(raw == null ? "" : raw);
+      let out = "", last = 0, m; const re = /[A-Za-z]+/g;
+      while ((m = re.exec(text)) !== null) {
+        out += escapeHTML(text.slice(last, m.index));
+        const run = m[0], after = text[m.index + run.length] || "";
+        if (run.length === 1 && after !== "(" && !VAR_SKIP[run.toLowerCase()]) {
+          out += '<span class="mvar">' + run.toUpperCase() + '</span>';
+        } else { out += escapeHTML(run); }
+        last = m.index + run.length;
+      }
+      out += escapeHTML(text.slice(last));
+      return out;
+    }
+    // Put the input value in for the variable, for the worked line "2 × 3 + 1".
+    function machineSub(rule, val) {
+      let s = String(rule).replace(/(\d)\s*([A-Za-z])/g, "$1 × $2");      // 2x -> 2 × x
+      s = s.replace(/[A-Za-z]+/g, (run, idx, whole) => {
+        const after = whole[idx + run.length] || "";
+        if (run.length === 1 && after !== "(" && !VAR_SKIP[run.toLowerCase()]) return String(val);
+        return run;
+      });
+      return s.replace(/\s*\+\s*/g, " + ").replace(/\s{2,}/g, " ").trim();
+    }
+    // [[machine input="3" rule="2x+1" output="7" fname="f" caption="..."]]
+    function showMachine(a) {
+      const input  = String(a.input  == null ? "" : a.input ).trim();
+      const rule   = String(a.rule   == null ? "" : a.rule  ).trim();
+      const output = String(a.output == null ? "" : a.output).trim();
+      const fname  = String(a.fname || "f").trim();
+      stage.innerHTML = "";
+      const wrap = document.createElement("div"); wrap.className = "machine pop";
+      let html = '<div class="mflow">';
+      html += '<div class="mnode min"><div class="mcap">input</div><div class="mval">' + escapeHTML(input) + '</div></div>';
+      html += '<div class="marrow">&#10230;</div>';
+      html += '<div class="mbox"><div class="mboxlabel">' + styleVars(fname + "(x)") + '</div><div class="mrule">' + styleVars(rule) + '</div></div>';
+      html += '<div class="marrow">&#10230;</div>';
+      html += '<div class="mnode mout"><div class="mcap">output</div><div class="mval">' + escapeHTML(output) + '</div></div>';
+      html += '</div>';
+      if (input !== "" && rule !== "") {
+        html += '<div class="mwork">' + escapeHTML(machineSub(rule, input)) + (output !== "" ? " = " + escapeHTML(output) : "") + '</div>';
+      }
+      if (fname && input !== "" && output !== "") {
+        html += '<div class="mfx">' + escapeHTML(fname) + '(' + escapeHTML(input) + ') = ' + escapeHTML(output) + '</div>';
+      }
+      if (a.caption) html += '<div class="cap">' + escapeHTML(a.caption) + '</div>';
+      wrap.innerHTML = html;
+      stage.appendChild(wrap);
+    }
+
     function addBubble(role, text) {
-      const div = document.createElement("div"); div.className = "bubble " + role; div.textContent = text;
+      const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
       if (role === "tutor") { const prev = log.querySelector(".bubble.tutor.latest"); if (prev) prev.classList.remove("latest"); div.classList.add("latest"); }
       log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
     }

@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
+#               rule="2x+1" output="7" fname="f"]] control tag documented in all three
+#               prompts: for Unit 3 (functions) EVALUATE with the function machine --
+#               a number goes IN, the rule runs, a number comes OUT -- NOT the balance
+#               scale (the balance is for Unit 2 equations only). This fixes the
+#               confusing "monkeys" picture where f(3) looked like the input was 1.
+#               (2) Variables now render BOLD, CAPITAL, and RED everywhere on screen
+#               (chat + visuals); the app styles them automatically, so keep writing
+#               normally -- you do not need to do anything for that.
 #   2026-07-21  WHITEBOARD GRAPHER. Added the [[graph]] control tag to all three
 #               prompts (lesson/practice/topic): the tutor can now draw a real
 #               coordinate plane with lines (y=mx+b), parabolas (y=ax^2+bx+c), points,
@@ -297,11 +306,12 @@ model, precision, use structure). And the cross-cutting ERROR WATCH-LIST -- nega
 signs (-3^2 = -9 but (-3)^2 = 9), distribute to EVERY term, (x+y)^2 has a middle term
 2xy, flip the inequality sign, and "f of x" is not "f times x."
 
-VISUALS: you have the animated balance scale (perfect for Unit 2 equations) and the
-list card for steps/lists. For units without a bespoke picture yet (graphs, parabolas,
-data), describe them vividly in words and lay out steps on a list card -- richer
-graphers are coming. Keep the same warm, Socratic, one-step-at-a-time style in EVERY
-unit, and keep checking answers.
+VISUALS: you have the animated balance scale (perfect for Unit 2 equations), the
+FUNCTION MACHINE (perfect for Unit 3 -- evaluating a function: input -> rule -> output),
+the coordinate GRAPH (Units 4-8: lines, slope, systems, parabolas), and the list card
+for steps/lists. For the few units without a bespoke picture yet (e.g. data/statistics),
+describe them vividly in words and lay out steps on a list card. Keep the same warm,
+Socratic, one-step-at-a-time style in EVERY unit, and keep checking answers.
 
 ============================================================
 HOW YOU TEACH (works for any unit)
@@ -396,6 +406,16 @@ Draw a real COORDINATE GRAPH (use it for Units 4-8: lines, slope, systems, parab
   - attrs: lines (one or more "y=mx+b" separated by ; -- vertical "x=3" ok), parabola
     ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"), caption. Two
     lines auto-mark their intersection. Write equations in this y= form.
+
+Draw a FUNCTION MACHINE (use it for Unit 3 -- evaluating a function: a number goes IN,
+the rule runs on it, a number comes OUT). Use THIS, not the balance scale, whenever you
+show what f(x) does to an input:
+  [[machine input="3" rule="2x+1" output="7" fname="f" caption="put in 3, get out 7"]]
+  - input = the number you put in; rule = the function written with x (e.g. "2x+1");
+    output = the result; fname = the function's letter (default f). The screen draws
+    3 going in, the rule box, and 7 coming out, and shows "2 × 3 + 1 = 7" and "f(3) = 7".
+  - Write the rule with x as the variable; the screen makes the variable bold, CAPITAL,
+    and RED on its own -- so the student can never mistake which part is the input.
 
 Show TODAY'S GOAL as a banner at the top of the lesson (set it once at the start):
   [[goal text="Solve two-step equations like 2x + 3 = 11 on your own"]]
@@ -593,6 +613,13 @@ systems, or parabolas:
     parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"),
     caption. Two lines auto-mark their intersection. Write equations in this y= form.
 
+Draw a FUNCTION MACHINE for evaluating a function (Unit 3) -- a number goes IN, the rule
+runs, a number comes OUT. Use this (not the balance) whenever you show what f(x) does:
+  [[machine input="3" rule="2x+1" output="7" fname="f" caption="put in 3, get out 7"]]
+  - input/output = the numbers in and out; rule = the function written with x; fname =
+    the function's letter (default f). The screen shows the work and makes the variable
+    bold, CAPITAL, and RED on its own.
+
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
@@ -724,6 +751,12 @@ Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags.
 every tag SHORT so your reply is never cut off in the middle of one:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
+For a FUNCTION (Unit 3), draw the function machine -- a number goes IN, the rule runs, a
+number comes OUT -- instead of the balance:
+  [[machine input="3" rule="2x+1" output="7" fname="f" caption="put in 3, get out 7"]]
+  - input/output = the numbers in and out; rule = the function written with x; fname =
+    the function's letter (default f). The screen shows the work and makes the variable
+    bold, CAPITAL, and RED on its own.
 
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
