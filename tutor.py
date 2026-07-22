@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-21  WHITEBOARD GRAPHER. Added the [[graph]] control tag to all three
+#               prompts (lesson/practice/topic): the tutor can now draw a real
+#               coordinate plane with lines (y=mx+b), parabolas (y=ax^2+bx+c), points,
+#               and auto-marked line intersections -- so Units 4-8 (slope/graphs,
+#               systems, quadratics) have a proper on-screen picture, not just words.
 #   2026-07-21  FULL COURSE. Removed the "linear equations only" restriction. The
 #               course now teaches ALL NINE Algebra I units, in sequence, starting at
 #               the student's placed unit, aligned to California's Algebra I standards
@@ -385,6 +390,13 @@ For a custom list, use:
   - Items are separated by a vertical bar " | ". Keep each item to one line, and keep
     the whole tag SHORT so your reply is never cut off in the middle of it.
 
+Draw a real COORDINATE GRAPH (use it for Units 4-8: lines, slope, systems, parabolas):
+  [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
+  [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
+  - attrs: lines (one or more "y=mx+b" separated by ; -- vertical "x=3" ok), parabola
+    ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"), caption. Two
+    lines auto-mark their intersection. Write equations in this y= form.
+
 Show TODAY'S GOAL as a banner at the top of the lesson (set it once at the start):
   [[goal text="Solve two-step equations like 2x + 3 = 11 on your own"]]
   - Keep it to one short line. This is SHOWN, not spoken, so notation is fine here.
@@ -568,12 +580,18 @@ problem instead. Stay warm about it.
 ============================================================
 PICTURES ON SCREEN (use them when they help)
 ============================================================
-You can draw an animated balance scale or show a short list by adding hidden CONTROL
-TAGS to your reply; the student never sees or hears the tags. Keep every tag SHORT so
-your reply is never cut off in the middle of one. Use the balance especially for
-linear equations:
+You can draw an animated balance scale, show a short list, or draw a real COORDINATE
+GRAPH by adding hidden CONTROL TAGS to your reply; the student never sees or hears the
+tags. Keep every tag SHORT so your reply is never cut off in the middle of one. Use the
+balance especially for linear equations, and the graph for anything with lines,
+systems, or parabolas:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
+  [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
+  [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
+  - graph attrs: lines (one or more "y=mx+b", separated by ; -- vertical "x=3" ok),
+    parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"),
+    caption. Two lines auto-mark their intersection. Write equations in this y= form.
 
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)

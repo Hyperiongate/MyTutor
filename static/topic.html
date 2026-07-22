@@ -96,6 +96,14 @@
       border-radius: 10px; padding: 10px 13px; margin-bottom: 9px; font-size: 15px; line-height: 1.35; }
     .qcard .qcap { text-align: center; margin-top: 4px; font-size: 14px; color: var(--muted); }
 
+    /* Coordinate grapher */
+    .graphwrap { width: 100%; max-width: 440px; text-align: center; }
+    .grapher { width: 100%; height: auto; display: block; border-radius: 12px; }
+    .glegend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+    .glg { font-size: 14px; font-weight: 700; }
+    .graphwrap .cap { text-align: center; margin-top: 6px; font-size: 15px; color: var(--ink); }
+
+
     .bubble { padding: 10px 14px; border-radius: 15px; max-width: 92%; font-size: 15px;
       line-height: 1.45; white-space: pre-wrap; }
     .bubble.tutor { background: var(--tutor); align-self: flex-start; border-bottom-left-radius: 5px; }
@@ -422,6 +430,7 @@
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
+        else if (name === "graph") showGraph(attrs);
         else if (name === "clear") clearStage();
       }
       return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
@@ -468,6 +477,106 @@
       if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; scale.appendChild(c); }
       stage.appendChild(scale);
       requestAnimationFrame(() => { beam.style.transform = "rotate(" + deg + "deg)"; });
+    }
+
+    // ---------- Coordinate grapher (lines, parabolas, points) ----------
+    // Driven by [[graph lines="y=2x+1; y=-x+3" parabola="y=x^2-4x+1" points="(1,3),(0,5)"
+    //            caption="..." range="-10..10"]]. Draws an SVG coordinate plane.
+    function parseLinear(expr) {
+      let s = String(expr).replace(/\s+/g, "").toLowerCase();
+      let vm = s.match(/^x=(-?\d*\.?\d+)$/);
+      if (vm) return { vertical: true, x: parseFloat(vm[1]) };
+      s = s.replace(/^y=/, "");
+      let m = 0, b = 0, hasX = false;
+      let xm = s.match(/([+-]?\d*\.?\d*)x/);
+      if (xm) { hasX = true; let c = xm[1];
+        m = (c === "" || c === "+") ? 1 : (c === "-" ? -1 : parseFloat(c)); s = s.replace(xm[0], ""); }
+      s = s.replace(/^\+/, "");
+      if (s !== "") { let bv = parseFloat(s); if (!isNaN(bv)) b = bv; }
+      if (!hasX && s === "") return null;
+      return { vertical: false, m, b };
+    }
+    function parseQuadratic(expr) {
+      let s = String(expr).replace(/\s+/g, "").toLowerCase().replace(/²/g, "^2").replace(/^y=/, "");
+      let am = s.match(/([+-]?\d*\.?\d*)x\^2/); if (!am) return null;
+      let cc = am[1]; let a = (cc === "" || cc === "+") ? 1 : (cc === "-" ? -1 : parseFloat(cc));
+      s = s.replace(am[0], ""); let lin = parseLinear("y=" + (s || "0"));
+      return { a, b: lin ? lin.m : 0, c: lin ? lin.b : 0 };
+    }
+    function parsePts(str) {
+      const pts = []; const re = /\(\s*(-?\d*\.?\d+)\s*,\s*(-?\d*\.?\d+)\s*\)/g; let m;
+      while ((m = re.exec(String(str))) !== null) pts.push([parseFloat(m[1]), parseFloat(m[2])]);
+      return pts;
+    }
+    const GRAPH_COLORS = ["#5b5bd6", "#14b8a6", "#ff7a59", "#9333ea"];
+    function showGraph(a) {
+      const S = 440, PAD = 28;
+      let xmin = -10, xmax = 10, ymin = -10, ymax = 10;
+      const rng = String(a.range || "").match(/(-?\d+)\.\.(-?\d+)/);
+      if (rng) { xmin = ymin = parseInt(rng[1], 10); xmax = ymax = parseInt(rng[2], 10); }
+      const plot = S - 2 * PAD;
+      const mapX = (x) => PAD + (x - xmin) / (xmax - xmin) * plot;
+      const mapY = (y) => PAD + (ymax - y) / (ymax - ymin) * plot;
+      const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      let svg = '<svg viewBox="0 0 ' + S + ' ' + S + '" class="grapher" xmlns="http://www.w3.org/2000/svg">';
+      svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
+      svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="#fbfbff" stroke="#e7e6f2"/>';
+      // grid + tick labels
+      for (let x = xmin; x <= xmax; x++) {
+        const px = mapX(x);
+        svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (x === 0 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (x === 0 ? 1.5 : 1) + '"/>';
+        if (x !== 0 && x % 2 === 0) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="#8890a0" text-anchor="middle">' + x + '</text>';
+      }
+      for (let y = ymin; y <= ymax; y++) {
+        const py = mapY(y);
+        svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (y === 0 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (y === 0 ? 1.5 : 1) + '"/>';
+        if (y !== 0 && y % 2 === 0) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="#8890a0" text-anchor="end">' + y + '</text>';
+      }
+      svg += '<text x="' + (S - PAD + 2) + '" y="' + (mapY(0) + 3) + '" font-size="11" fill="#6b6f82">x</text>';
+      svg += '<text x="' + (mapX(0) + 4) + '" y="' + (PAD - 2) + '" font-size="11" fill="#6b6f82">y</text>';
+      // lines
+      const lines = String(a.lines || "").split(/[;|]/).map(s => s.trim()).filter(Boolean);
+      const parsedLines = [];
+      svg += '<g clip-path="url(#gclip)">';
+      lines.forEach((expr, i) => {
+        const L = parseLinear(expr); if (!L) return; parsedLines.push(L);
+        const col = GRAPH_COLORS[i % GRAPH_COLORS.length];
+        if (L.vertical) {
+          svg += '<line x1="' + mapX(L.x) + '" y1="' + mapY(ymin) + '" x2="' + mapX(L.x) + '" y2="' + mapY(ymax) + '" stroke="' + col + '" stroke-width="2.5"/>';
+        } else {
+          svg += '<line x1="' + mapX(xmin) + '" y1="' + mapY(L.m * xmin + L.b) + '" x2="' + mapX(xmax) + '" y2="' + mapY(L.m * xmax + L.b) + '" stroke="' + col + '" stroke-width="2.5"/>';
+        }
+      });
+      // parabolas
+      const paras = String(a.parabola || a.parabolas || "").split(/[;|]/).map(s => s.trim()).filter(Boolean);
+      paras.forEach((expr, i) => {
+        const Q = parseQuadratic(expr); if (!Q) return;
+        const col = GRAPH_COLORS[(lines.length + i) % GRAPH_COLORS.length];
+        let pts = [];
+        for (let x = xmin; x <= xmax + 0.001; x += 0.2) pts.push(mapX(x) + "," + mapY(Q.a * x * x + Q.b * x + Q.c));
+        svg += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + col + '" stroke-width="2.5"/>';
+      });
+      // intersection of the first two straight lines
+      if (parsedLines.length >= 2 && !parsedLines[0].vertical && !parsedLines[1].vertical && parsedLines[0].m !== parsedLines[1].m) {
+        const ix = (parsedLines[1].b - parsedLines[0].b) / (parsedLines[0].m - parsedLines[1].m);
+        const iy = parsedLines[0].m * ix + parsedLines[0].b;
+        if (ix >= xmin && ix <= xmax && iy >= ymin && iy <= ymax) {
+          svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>';
+          svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="#c0392b">(' + (+ix.toFixed(2)) + ", " + (+iy.toFixed(2)) + ')</text>';
+        }
+      }
+      // points
+      parsePts(a.points).forEach(([x, y]) => {
+        svg += '<circle cx="' + mapX(x) + '" cy="' + mapY(y) + '" r="4.5" fill="#5b5bd6"/>';
+        svg += '<text x="' + (mapX(x) + 8) + '" y="' + (mapY(y) - 6) + '" font-size="10.5" fill="#26263a">(' + x + ", " + y + ')</text>';
+      });
+      svg += '</g></svg>';
+      // legend of the equations shown
+      const legend = lines.concat(paras).map((e, i) =>
+        '<span class="glg" style="color:' + GRAPH_COLORS[i % GRAPH_COLORS.length] + '">&#9644; ' + esc(e) + '</span>').join("");
+      stage.innerHTML = '<div class="graphwrap pop">' + svg
+        + (legend ? '<div class="glegend">' + legend + '</div>' : "")
+        + (a.caption ? '<div class="cap">' + esc(a.caption) + '</div>' : "") + '</div>';
     }
 
     function addBubble(role, text) {
