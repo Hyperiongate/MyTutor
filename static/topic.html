@@ -74,6 +74,14 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 22px; min-height: 300px; position: relative; overflow: hidden; }
     .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
+    /* Eraser sweep when the board is cleared for a new turn */
+    .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: 20px; }
+    .wipe::before { content: ""; position: absolute; inset: 0; background: var(--panel);
+      transform: translateX(-102%); animation: wipefill .62s ease forwards; }
+    .wipe .eraser { position: absolute; top: calc(50% - 24px); left: -12%; font-size: 46px;
+      filter: drop-shadow(0 4px 6px rgba(20,30,45,.2)); animation: erasermove .62s ease forwards; }
+    @keyframes wipefill { to { transform: translateX(0); } }
+    @keyframes erasermove { to { left: 104%; } }
 
     .scale { width: 100%; max-width: 580px; }
     .scale .beamwrap { position: relative; height: 190px; }
@@ -469,6 +477,15 @@
       return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
     }
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your topic will appear here.</div>'; }
+    // Erase the board with a quick eraser sweep, then leave it blank (only if it shows something).
+    function wipeBoard() {
+      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .tiles, .scatter");
+      if (!hasContent) { stage.innerHTML = ""; return; }
+      const wipe = document.createElement("div"); wipe.className = "wipe";
+      wipe.innerHTML = '<div class="eraser">🧽</div>';
+      stage.appendChild(wipe);
+      setTimeout(() => { if (stage.querySelector(".wipe")) stage.innerHTML = ""; }, 640);
+    }
     function showCard(a) {
       const items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean);
       stage.innerHTML = ""; const card = document.createElement("div"); card.className = "qcard pop";
@@ -761,7 +778,9 @@
           body: JSON.stringify({ code: CODE, topic, message, history: history.slice(0, -1) }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
+        const hasVisual = /\[\[\s*(balance|card|graph|machine|tiles|area|scatter)\b/i.test(reply);
         reply = handleTags(reply);
+        if (!hasVisual) wipeBoard();
         addBubble("tutor", reply);
         history.push({ role: "assistant", content: reply });
         statusEl.textContent = "Mr. Cadabra is talking…";

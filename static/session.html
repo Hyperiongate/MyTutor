@@ -4,6 +4,15 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-23  "SHOW NOW" FIXES (per Jim). (1) On login we NO LONGER replay the old
+                transcript into the chat -- seeing yesterday's messages up top made the
+                current turn hard to find. The chat starts clean; Mr. Cadabra still
+                remembers server-side and opens with a fresh recap. (2) The whiteboard now
+                reflects ONLY the current turn: runTutor checks the reply for a picture
+                tag; if there's a picture it draws it, if not it calls wipeBoard() to
+                ERASE the board (a quick eraser 🧽 sweep, .wipe CSS) so an old diagram
+                never lingers. (3) Contraction fix: a lone letter right after an
+                apostrophe is no longer styled as a variable (I'm/Let's stay normal).
     2026-07-23  LESSON RELAYOUT + CHAT CLEANUP. (1) Mr. Cadabra (orb) + his spoken
                 conversation + the tap-to-talk controls moved OUT of the center and INTO
                 the RIGHT column; the whiteboard now owns the center. (2) Removed the
@@ -260,6 +269,14 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 22px; min-height: 320px; position: relative; overflow: hidden; }
     .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
+    /* Eraser sweep when the whiteboard is cleared for a new turn */
+    .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: 20px; }
+    .wipe::before { content: ""; position: absolute; inset: 0; background: var(--panel);
+      transform: translateX(-102%); animation: wipefill .62s ease forwards; }
+    .wipe .eraser { position: absolute; top: calc(50% - 24px); left: -12%; font-size: 46px;
+      filter: drop-shadow(0 4px 6px rgba(20,30,45,.2)); animation: erasermove .62s ease forwards; }
+    @keyframes wipefill { to { transform: translateX(0); } }
+    @keyframes erasermove { to { left: 104%; } }
 
     /* Balance scale */
     .scale { width: 100%; max-width: 580px; }
@@ -839,6 +856,16 @@
         .trim();
     }
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your lesson will appear here.</div>'; }
+    // Erase the whiteboard with a quick eraser sweep, then leave it blank. Only animates
+    // if the board currently shows a drawing; otherwise it just clears instantly.
+    function wipeBoard() {
+      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .tiles, .scatter");
+      if (!hasContent) { stage.innerHTML = ""; return; }
+      const wipe = document.createElement("div"); wipe.className = "wipe";
+      wipe.innerHTML = '<div class="eraser">🧽</div>';
+      stage.appendChild(wipe);
+      setTimeout(() => { if (stage.querySelector(".wipe")) stage.innerHTML = ""; }, 640);
+    }
     // Today's goal banner (the tutor sets it once at the start via [[goal text="..."]]).
     function showGoal(text) { el("goalText").textContent = String(text || "").trim(); el("goalBar").classList.add("show"); }
     // Ready-made cards the tutor can show with a SHORT tag like [[card id="cool-questions"]].
@@ -1222,7 +1249,12 @@
           body: JSON.stringify({ code: CODE, message }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
+        // The whiteboard reflects THIS turn only: if the reply draws a picture, show it;
+        // if it doesn't, wipe the board clean (with an eraser sweep) so an old diagram
+        // from earlier never lingers while Mr. Cadabra talks about something new.
+        const hasVisual = /\[\[\s*(balance|card|graph|machine|tiles|area|scatter)\b/i.test(reply);
         reply = handleTags(reply);
+        if (!hasVisual) wipeBoard();
         addBubble("tutor", reply); lastTutorText = reply;
         statusEl.textContent = tutorName + " is talking…";
         await speak(reply);
@@ -1262,13 +1294,14 @@
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
         if (hasHistory) {
-          // Returning student: reword the opening overlay + replay the transcript.
+          // Returning student: reword the opening overlay. We DO NOT replay the old
+          // transcript into the chat anymore -- seeing yesterday's messages up top made
+          // "now" hard to find. Mr. Cadabra still remembers server-side and opens with a
+          // fresh spoken recap, so the chat starts clean and only shows THIS session.
           el("welcomeTitle").textContent = "Welcome back!";
           el("welcomeLead").innerHTML = "Let's pick up where you left off with <b>" + tutorName + "</b>.";
           el("welcomeGo").innerHTML = "▶️ Continue my lesson";
-          addBubble("system", "Welcome back — picking up where you left off.");
-          for (const m of history) { const isT = m.role === "assistant"; const shown = isT ? handleTags(m.content) : m.content;
-            addBubble(isT ? "tutor" : "student", shown); if (isT) { lastTutorText = shown; } }
+          addBubble("system", "Welcome back — let's pick up where you left off.");
         }
       } catch (e) { window.location.href = "/"; }
     }
