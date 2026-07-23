@@ -4,6 +4,13 @@
   avatar-lab.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-23  LIVELINESS + WARMTH. Jim: the demo face was "non-engaging" (plain gray,
+                blank stare). Added idle life that applies to ANY loaded avatar (incl. a
+                real RPM one): a resting half-smile (mouthSmile morphs), occasional
+                eyebrow raises (browInnerUp/browOuterUp), natural blink + organic head
+                motion. Warmer lighting + ACES tone mapping; the untextured demo skin is
+                tinted warm (textured RPM avatars untouched). collectMorphs now also
+                gathers smile + brow targets (RPM + facecap name variants).
     2026-07-23  SAMPLE NOW ACTUALLY WORKS. The hard-coded Ready Player Me sample URL was
                 dead (and this build sandbox can't reach RPM to verify one), so "load a
                 sample" flashed and failed. Replaced it with a BUNDLED demo face:
@@ -201,13 +208,14 @@
 
     // -------------------- three.js scene --------------------
     let renderer, scene, camera, controls, clock;
-    let avatarRoot = null, mouthTargets = [], blinkTargets = [], headBone = null, ready = false;
+    let avatarRoot = null, mouthTargets = [], blinkTargets = [], smileTargets = [], browTargets = [], headBone = null, ready = false;
 
     function initThree() {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(viewer.clientWidth, viewer.clientHeight);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
       viewer.appendChild(renderer.domElement);
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(30, viewer.clientWidth / viewer.clientHeight, 0.01, 1000);
@@ -216,10 +224,10 @@
       controls.enableDamping = true; controls.enablePan = false;
       controls.minDistance = 0.45; controls.maxDistance = 2.4;
       controls.target.set(0, 1.5, 0);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x8a94a6, 1.05));
-      const key = new THREE.DirectionalLight(0xffffff, 1.25); key.position.set(1.4, 2.2, 2.0); scene.add(key);
-      const fill = new THREE.DirectionalLight(0xdfe6ff, 0.55); fill.position.set(-1.6, 1.2, 1.2); scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xffffff, 0.45); rim.position.set(0, 1.4, -2.2); scene.add(rim);
+      scene.add(new THREE.HemisphereLight(0xfff4e6, 0x9aa0b0, 1.15));
+      const key = new THREE.DirectionalLight(0xfff1e0, 1.5); key.position.set(1.4, 2.2, 2.4); scene.add(key);
+      const fill = new THREE.DirectionalLight(0xe6ecff, 0.6); fill.position.set(-1.8, 1.0, 1.4); scene.add(fill);
+      const rim = new THREE.DirectionalLight(0xffe9d0, 0.7); rim.position.set(-0.5, 1.6, -2.4); scene.add(rim);
       clock = new THREE.Clock();
       window.addEventListener("resize", onResize);
       animate();
@@ -232,14 +240,33 @@
 
     const MOUTH_NAMES = ["jawOpen", "mouthOpen", "viseme_aa", "viseme_O", "viseme_E"];
     const BLINK_NAMES = ["eyeBlinkLeft", "eyeBlinkRight", "eyeBlink_L", "eyeBlink_R", "eyesClosed"];
+    const SMILE_NAMES = ["mouthSmileLeft", "mouthSmileRight", "mouthSmile_L", "mouthSmile_R", "mouthSmile"];
+    const BROW_NAMES  = ["browInnerUp", "browOuterUpLeft", "browOuterUpRight", "browOuterUp_L", "browOuterUp_R"];
     function collectMorphs(root) {
-      mouthTargets = []; blinkTargets = [];
+      mouthTargets = []; blinkTargets = []; smileTargets = []; browTargets = [];
       root.traverse((o) => {
         if (o.isMesh && o.morphTargetDictionary && o.morphTargetInfluences) {
-          for (const n of MOUTH_NAMES) if (n in o.morphTargetDictionary)
-            mouthTargets.push({ mesh: o, index: o.morphTargetDictionary[n], w: n === "jawOpen" ? 1 : 0.75 });
-          for (const n of BLINK_NAMES) if (n in o.morphTargetDictionary)
-            blinkTargets.push({ mesh: o, index: o.morphTargetDictionary[n] });
+          const d = o.morphTargetDictionary;
+          for (const n of MOUTH_NAMES) if (n in d) mouthTargets.push({ mesh: o, index: d[n], w: n === "jawOpen" ? 1 : 0.75 });
+          for (const n of BLINK_NAMES) if (n in d) blinkTargets.push({ mesh: o, index: d[n] });
+          for (const n of SMILE_NAMES) if (n in d) smileTargets.push({ mesh: o, index: d[n] });
+          for (const n of BROW_NAMES)  if (n in d) browTargets.push({ mesh: o, index: d[n] });
+        }
+      });
+    }
+    // The bundled demo head is untextured (renders gray). Give any untextured skin mesh
+    // a warm tone so it doesn't look lifeless. Textured avatars (RPM) are left alone.
+    function warmUntextured(root) {
+      root.traverse((o) => {
+        if (!o.isMesh || !o.material) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          if (m && !m.map && m.color) {
+            m.color.setRGB(0.96, 0.80, 0.70);
+            if ("roughness" in m) m.roughness = 0.72;
+            if ("metalness" in m) m.metalness = 0.0;
+            m.needsUpdate = true;
+          }
         }
       });
     }
@@ -287,7 +314,7 @@
       gltfLoader.load(url, (gltf) => {
         if (avatarRoot) scene.remove(avatarRoot);
         avatarRoot = gltf.scene; avatarRoot.rotation.y = 0; scene.add(avatarRoot);
-        collectMorphs(avatarRoot); frameOnHead(avatarRoot);
+        collectMorphs(avatarRoot); warmUntextured(avatarRoot); frameOnHead(avatarRoot);
         ready = true; sayBtn.disabled = false; loading.classList.remove("show");
         status.textContent = mouthTargets.length ? "Ready — press “Make him talk”." : "Loaded (no mouth shapes on this avatar).";
         showUrl(rawUrl);
@@ -309,7 +336,7 @@
     });
 
     // -------------------- animation: mouth + blink + idle --------------------
-    let mouthSmooth = 0, blink = 0, nextBlink = 1.2, blinkPhase = -1;
+    let mouthSmooth = 0, blink = 0, nextBlink = 1.2, blinkPhase = -1, smileSmooth = 0, browVal = 0, nextBrow = 3.0, browPhase = -1;
     function animate() {
       requestAnimationFrame(animate);
       const t = clock ? clock.getElapsedTime() : 0;
@@ -324,8 +351,18 @@
         if (blinkPhase >= 1) { blinkPhase = -1; blink = 0; nextBlink = t + 2.4 + Math.random() * 3.2; }
       }
       for (const b of blinkTargets) b.mesh.morphTargetInfluences[b.index] = blink;
-      if (headBone) { headBone.rotation.y = 0.05 * Math.sin(t * 0.6); headBone.rotation.x = 0.03 * Math.sin(t * 0.9 + 1); }
-      else if (avatarRoot) avatarRoot.rotation.y = 0.04 * Math.sin(t * 0.5);
+      // resting half-smile (eases in on load, softens a touch while talking)
+      const smileTarget = 0.18 - (speaking ? 0.08 : 0) + 0.03 * Math.sin(t * 0.4);
+      smileSmooth += (smileTarget - smileSmooth) * 0.05;
+      for (const s of smileTargets) s.mesh.morphTargetInfluences[s.index] = Math.max(0, smileSmooth);
+      // occasional friendly eyebrow raise
+      if (browPhase < 0) { if (t > nextBrow) browPhase = 0; }
+      else { browPhase += dt / 0.9; browVal = browPhase < 1 ? Math.sin(Math.min(browPhase, 1) * Math.PI) * 0.5 : 0;
+        if (browPhase >= 1) { browPhase = -1; browVal = 0; nextBrow = t + 5 + Math.random() * 6; } }
+      for (const b of browTargets) b.mesh.morphTargetInfluences[b.index] = browVal;
+      // gentle, slightly organic head motion
+      if (headBone) { headBone.rotation.y = 0.05 * Math.sin(t * 0.55); headBone.rotation.x = 0.028 * Math.sin(t * 0.83 + 1); }
+      else if (avatarRoot) { avatarRoot.rotation.y = 0.045 * Math.sin(t * 0.5); avatarRoot.rotation.x = 0.02 * Math.sin(t * 0.7 + 0.5); }
       if (controls) controls.update();
       if (renderer) renderer.render(scene, camera);
     }
