@@ -4,6 +4,16 @@
   avatar-lab.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-23  SAMPLE NOW ACTUALLY WORKS. The hard-coded Ready Player Me sample URL was
+                dead (and this build sandbox can't reach RPM to verify one), so "load a
+                sample" flashed and failed. Replaced it with a BUNDLED demo face:
+                three.js's facecap head (ARKit jawOpen + eyeBlink morphs), decompressed
+                at build time to a plain GLB at /static/vendor/sample-avatar.glb -- loads
+                with the basic loader, no external servers, RENDER-TESTED here (face shows
+                forward, mouth opens, blinks). Also: adaptive camera framing (works for a
+                head-only model AND a full-body RPM avatar via bbox aspect ratio), added
+                eyeBlink_L/_R to the blink names, and normalizeUrl only appends RPM
+                morphTarget params for readyplayer.me links (local sample loads as-is).
     2026-07-22  REWORK v2 (two real fixes after the first version showed a broken
                 builder frame + depended on a CDN):
                   1) NO MORE EMBEDDED BUILDER. Ready Player Me refuses to load inside
@@ -118,8 +128,9 @@
       <div class="card">
         <h2><span class="step">1</span> Give him a face</h2>
         <div class="pad">
-          <button class="btn block" id="sampleBtn">✨ See it now — load a sample Mr. Cadabra</button>
-          <div class="or">— or design your own —</div>
+          <button class="btn block" id="sampleBtn">✨ See it work — load a demo face</button>
+          <div class="note" style="margin-top:-4px;">A generic 3D face, just to show the talking + blinking works. Your <b>own</b> Mr. Cadabra will look however you design him below.</div>
+          <div class="or">— design your own —</div>
           <ol class="steps">
             <li><b>Open the builder</b> (opens in a new tab).</li>
             <li>Create an avatar, then <b>copy your avatar link</b> — it ends in <small>.glb</small>.</li>
@@ -179,9 +190,11 @@
     $("homeLink").href = CODE ? ("/home?code=" + encodeURIComponent(CODE)) : "/home";
 
     const SAVE_KEY = "mrcadabra_avatar_url";
-    // A public Ready Player Me sample avatar (best-effort). If it ever fails to load,
-    // the "design your own" paste flow still works.
-    const SAMPLE_URL = "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb";
+    // The "see it work" sample is a BUNDLED demo face (three.js facecap head, ARKit
+    // jawOpen + eyeBlink morphs), decompressed to a plain GLB and served locally — so
+    // it never depends on an outside server. Your own Ready Player Me avatar (pasted
+    // below) is what makes it actually look like Mr. Cadabra.
+    const SAMPLE_URL = "/static/vendor/sample-avatar.glb";
 
     const viewer = $("viewer"), loading = $("loading"), vhint = $("vhint");
     const status = $("status"), sayBtn = $("sayBtn");
@@ -197,7 +210,7 @@
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       viewer.appendChild(renderer.domElement);
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(30, viewer.clientWidth / viewer.clientHeight, 0.1, 100);
+      camera = new THREE.PerspectiveCamera(30, viewer.clientWidth / viewer.clientHeight, 0.01, 1000);
       camera.position.set(0, 1.5, 0.95);
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true; controls.enablePan = false;
@@ -218,7 +231,7 @@
     }
 
     const MOUTH_NAMES = ["jawOpen", "mouthOpen", "viseme_aa", "viseme_O", "viseme_E"];
-    const BLINK_NAMES = ["eyeBlinkLeft", "eyeBlinkRight", "eyesClosed"];
+    const BLINK_NAMES = ["eyeBlinkLeft", "eyeBlinkRight", "eyeBlink_L", "eyeBlink_R", "eyesClosed"];
     function collectMorphs(root) {
       mouthTargets = []; blinkTargets = [];
       root.traverse((o) => {
@@ -230,13 +243,26 @@
         }
       });
     }
+    // Adaptive framing: works for a full-body Ready Player Me avatar AND a head-only
+    // demo model, by measuring the bounding box shape rather than assuming a height.
     function frameOnHead(root) {
       headBone = null;
       root.traverse((o) => { if (!headBone && o.isBone && /head/i.test(o.name) && !/top|end/i.test(o.name)) headBone = o; });
-      let hy = 1.55;
-      if (headBone) { const p = new THREE.Vector3(); headBone.getWorldPosition(p); hy = p.y; }
-      else { const box = new THREE.Box3().setFromObject(root); hy = box.max.y - (box.max.y - box.min.y) * 0.08; }
-      controls.target.set(0, hy, 0); camera.position.set(0, hy + 0.02, 0.9); controls.update();
+      const box = new THREE.Box3().setFromObject(root);
+      const size = box.getSize(new THREE.Vector3());
+      const c = box.getCenter(new THREE.Vector3());
+      const fullBody = (size.y / Math.max(size.x, 0.001)) > 2.2;   // tall + narrow => standing avatar
+      let ty, dist;
+      if (fullBody) {
+        ty = box.max.y - size.y * 0.12; dist = size.y * 0.55;      // frame just the head
+        if (headBone) { const p = new THREE.Vector3(); headBone.getWorldPosition(p); ty = p.y; }
+      } else {
+        ty = c.y + size.y * 0.06; dist = Math.max(size.x, size.y) * 1.35;   // head/bust: frame it all
+      }
+      controls.target.set(c.x, ty, c.z);
+      camera.position.set(c.x, ty, c.z + dist);
+      controls.minDistance = dist * 0.5; controls.maxDistance = dist * 2.6;
+      controls.update();
     }
 
     const gltfLoader = new GLTFLoader();
@@ -247,7 +273,11 @@
       const idMatch = u.match(/([0-9a-fA-F]{24})/);
       if (!/\.glb($|\?)/i.test(u) && idMatch) u = "https://models.readyplayer.me/" + idMatch[1] + ".glb";
       const base = u.split("?")[0];
-      return base + "?morphTargets=" + encodeURIComponent("ARKit,Oculus Visemes") + "&lod=0&textureAtlas=1024";
+      // Only Ready Player Me serves facial morph targets via this query; local/other files load as-is.
+      if (/readyplayer\.me/i.test(base)) {
+        return base + "?morphTargets=" + encodeURIComponent("ARKit,Oculus Visemes") + "&lod=0&textureAtlas=1024";
+      }
+      return base;
     }
     function loadAvatar(rawUrl) {
       const url = normalizeUrl(rawUrl);
