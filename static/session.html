@@ -4,6 +4,17 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-23  LESSON RELAYOUT + CHAT CLEANUP. (1) Mr. Cadabra (orb) + his spoken
+                conversation + the tap-to-talk controls moved OUT of the center and INTO
+                the RIGHT column; the whiteboard now owns the center. (2) Removed the
+                "🎯 Find my level" placement link from the LEFT sidebar (placement still
+                happens from the Home hub). (3) Removed the right-side "Covered" panel and
+                all its JS (AGENDA/covered/markCovered/renderCovered; the [[covered]] tag
+                is now a harmless no-op). (4) Opening tour updated (dropped the find-my-
+                level + covered stops; added a "that's me on the right" stop; tour target
+                `tutor`→`tutorPanel`). (5) Chat bubbles now strip markdown `*` so *word*
+                no longer shows raw asterisks (styleVars). Layout via an override CSS
+                block at the end of <style>; mobile stacks whiteboard over the tutor panel.
     2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
                 rule="2x+1" output="7" fname="f"]] visual: showMachine() draws
                 input -> rule box -> output, with the worked line "2 × 3 + 1 = 7" and
@@ -370,6 +381,31 @@
       .side { display: none; }
       .center { height: 100vh; }
     }
+
+    /* ===== 2026-07-23 LESSON RELAYOUT (overrides the layout rules above) =====
+       Mr. Cadabra + his speech + the talk controls now live in the RIGHT column;
+       the whiteboard owns the center; the placement link and "Covered" panel are gone. */
+    .app { grid-template-columns: 230px 1fr 344px; }
+    .side.right { border-left: 1px solid var(--line); border-right: none;
+      display: flex; flex-direction: column; padding: 16px 14px; gap: 8px; overflow: hidden; }
+    .side.right .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 10px;
+      margin: 0; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
+    .side.right .orbwrap { width: 76px; height: 76px; }
+    .side.right .convo { flex: 1 1 auto; min-height: 90px; max-height: none; overflow-y: auto;
+      display: flex; flex-direction: column; justify-content: flex-start; gap: 8px; padding: 8px 2px; }
+    .side.right .bubble { max-width: 100%; font-size: 14.5px; }
+    .side.right .controls { flex: 0 0 auto; padding: 8px 0 2px; display: flex; flex-direction: column;
+      align-items: stretch; gap: 9px; }
+    .side.right .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
+    .side.right .live { max-width: 100%; font-size: 15px; }
+    .side.right .composer { max-width: 100%; }
+    .side.right .quickrow { justify-content: center; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .center { height: auto; min-height: 56vh; }
+      .side.right { border-left: none; border-top: 1px solid var(--line); overflow: visible; }
+      .side.right .convo { max-height: 220px; }
+    }
   </style>
 </head>
 <body>
@@ -377,7 +413,6 @@
     <aside class="side left">
       <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
       <div class="curriculum" id="curriculumList" style="display:none;"></div>
-      <a class="navbtn" id="challengeLink" href="#">🎯 Find my level</a>
       <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
       <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
       <div id="planPanel">
@@ -393,21 +428,22 @@
         <a id="homeLink" href="#">☰ Menu</a>
       </div>
 
-      <div class="tutor-head">
-        <div class="tutor-id">
-          <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
-          <div class="tutor-meta">
-            <div class="tutor-name" id="tutorName">Tutor</div>
-            <div class="student-name" id="studentName">&nbsp;</div>
-            <div class="status" id="status">&nbsp;</div>
-          </div>
-        </div>
-        <div class="convo" id="log"></div>
-      </div>
-
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
 
       <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+    </div>
+
+    <aside class="side right" id="tutorPanel">
+      <div class="tutor-head">
+        <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
+        <div class="tutor-meta">
+          <div class="tutor-name" id="tutorName">Tutor</div>
+          <div class="student-name" id="studentName">&nbsp;</div>
+          <div class="status" id="status">&nbsp;</div>
+        </div>
+      </div>
+
+      <div class="convo" id="log"></div>
 
       <div class="controls">
         <div class="live" id="live"></div>
@@ -424,11 +460,6 @@
           <button id="send">Send</button>
         </div>
       </div>
-    </div>
-
-    <aside class="side right" id="coveredPanel">
-      <h2>Covered</h2>
-      <div id="coveredList"><div class="covered-empty">Nothing yet — let's begin!</div></div>
     </aside>
   </div>
 
@@ -466,7 +497,7 @@
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
-    const planList = el("planList"), coveredList = el("coveredList");
+    const planList = el("planList");
 
     let tutorName = "Tutor";
     let lastTutorText = "";
@@ -477,19 +508,10 @@
     let state = "idle";            // idle | listening | thinking | speaking
     function setState(s) { state = s; }
 
-    // ---------- Your Algebra I course (left panel) + Covered (right panel) ----------
-    // The left panel now shows the full 9-unit COURSE with the student's current unit
-    // highlighted (set from their placement). The right "Covered" panel still fills in
-    // from the tutor's [[covered]] tags during the Linear Equations unit.
-    const AGENDA = [
-      { id: "what-is-equation", label: "What an equation is" },
-      { id: "balance-rule",     label: "Keeping both sides equal" },
-      { id: "both-sides",       label: "Doing the same to both sides" },
-      { id: "one-step",         label: "Solving a one-step equation" },
-      { id: "two-step",         label: "Solving a two-step equation" },
-      { id: "check-answer",     label: "Checking your answer" },
-    ];
-    const covered = new Set();
+    // ---------- Your Algebra I course (left panel) ----------
+    // The left panel shows the full 9-unit COURSE with the student's current unit
+    // highlighted (set from their placement). (The old right-side "Covered" panel was
+    // removed 2026-07-23 when Mr. Cadabra + his speech moved into the right column.)
     let currentUnit = 1;   // which of the 9 units the student is on (set from placement)
     function renderCourse() {
       if (!planList || typeof CURRICULUM === "undefined") return;
@@ -503,18 +525,6 @@
         planList.appendChild(div);
       }
     }
-    function renderCovered() {
-      if (!covered.size) { coveredList.innerHTML = '<div class="covered-empty">Nothing yet — let\'s begin!</div>'; return; }
-      coveredList.innerHTML = "";
-      for (const item of AGENDA) { if (!covered.has(item.id)) continue;
-        const div = document.createElement("div"); div.className = "covered-item";
-        div.innerHTML = '<span class="check">✓</span><span>' + item.label + '</span>'; coveredList.appendChild(div); }
-    }
-    function markCovered(id) {
-      const item = AGENDA.find(a => a.id === id); if (!item) return;
-      covered.add(id); renderCovered();
-    }
-    renderCovered();
 
     // ---------- Curriculum navigator ----------
     const CURRICULUM = [
@@ -539,7 +549,6 @@
     ];
     const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
     el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
-    el("challengeLink").href = "/challenge?code=" + encodeURIComponent(CODE);
     el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
     el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("welcomeChallenge").href = "/challenge?code=" + encodeURIComponent(CODE);
@@ -785,12 +794,10 @@
     // spotlight lasts exactly the turn that asks for it (then moves on / clears).
     const TOUR_TARGETS = {
       "curriculum":   "curriculumBtn",
-      "find-my-level": "challengeLink",
-      "level":         "challengeLink",
       "dashboard":    "dashLink",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
-      "covered":      "coveredPanel",
+      "tutor":        "tutorPanel",
     };
     function clearHighlight() {
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
@@ -820,7 +827,6 @@
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showGraph(attrs);
         else if (name === "machine") showMachine(attrs);
-        else if (name === "covered" && attrs.id) markCovered(attrs.id);
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
         else if (name === "clear") clearStage();
@@ -1005,12 +1011,12 @@
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function styleVars(raw) {
-      const text = String(raw == null ? "" : raw);
+      const text = String(raw == null ? "" : raw).replace(/\*+/g, "");   // drop markdown * so *word* never shows raw
       let out = "", last = 0, m; const re = /[A-Za-z]+/g;
       while ((m = re.exec(text)) !== null) {
         out += escapeHTML(text.slice(last, m.index));
-        const run = m[0], after = text[m.index + run.length] || "";
-        if (run.length === 1 && after !== "(" && !VAR_SKIP[run.toLowerCase()]) {
+        const run = m[0], after = text[m.index + run.length] || "", before = m.index > 0 ? text[m.index - 1] : "";
+        if (run.length === 1 && after !== "(" && before !== "'" && before !== "’" && !VAR_SKIP[run.toLowerCase()]) {
           out += '<span class="mvar">' + run.toUpperCase() + '</span>';
         } else { out += escapeHTML(run); }
         last = m.index + run.length;
@@ -1168,14 +1174,12 @@
     const TOUR_STEPS = [
       { id: "curriculum",
         text: "First, over here on the left is your Curriculum. It's everything we'll learn together, laid out in nine units — and you can click any one of the nine to see exactly which topics are covered in that section." },
-      { id: "find-my-level",
-        text: "Right below that is Find my level. It's a quick, fun challenge that figures out the best place for you to start." },
       { id: "dashboard",
-        text: "Next is your Progress dashboard. That's where you'll see how you're doing — the levels you've completed, the ones you've mastered, what's still in progress, plus your accuracy, your streaks, and how you're growing over time." },
+        text: "Next is your Progress dashboard. That's where you'll see how you're doing — the units you've worked on, what's still to come, plus your accuracy and streaks as they grow." },
       { id: "todays-plan",
         text: "Down here on the left is your Algebra I course — all nine units. We'll work through them together, starting right where your level check placed you." },
-      { id: "covered",
-        text: "And over on the right is Covered. It starts out empty, and it fills up with each idea you master as we go." },
+      { id: "tutor",
+        text: "And over here on the right, that's me — Mr. Cadabra. The big board in the middle is where I'll draw things out, and any time it's your turn you just tap the button under me and talk." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice

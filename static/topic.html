@@ -622,12 +622,12 @@
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function styleVars(raw) {
-      const text = String(raw == null ? "" : raw);
+      const text = String(raw == null ? "" : raw).replace(/\*+/g, "");   // drop markdown * so *word* never shows raw
       let out = "", last = 0, m; const re = /[A-Za-z]+/g;
       while ((m = re.exec(text)) !== null) {
         out += escapeHTML(text.slice(last, m.index));
-        const run = m[0], after = text[m.index + run.length] || "";
-        if (run.length === 1 && after !== "(" && !VAR_SKIP[run.toLowerCase()]) {
+        const run = m[0], after = text[m.index + run.length] || "", before = m.index > 0 ? text[m.index - 1] : "";
+        if (run.length === 1 && after !== "(" && before !== "'" && before !== "’" && !VAR_SKIP[run.toLowerCase()]) {
           out += '<span class="mvar">' + run.toUpperCase() + '</span>';
         } else { out += escapeHTML(run); }
         last = m.index + run.length;
