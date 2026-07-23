@@ -405,7 +405,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23c-solve+opener"
+APP_BUILD = "2026-07-23d-boardnet"
 
 
 @app.get("/health")

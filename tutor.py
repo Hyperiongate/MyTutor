@@ -138,6 +138,7 @@
 # =============================================================================
 
 import os
+import re
 
 from anthropic import Anthropic
 
@@ -542,6 +543,80 @@ def _trim_history(history: list) -> list:
     return history[-MAX_HISTORY_MESSAGES:]
 
 
+# =============================================================================
+# WHITEBOARD SAFETY NET -- the backend GUARANTEES the board shows the math
+# =============================================================================
+# The main model (Haiku) does not reliably emit whiteboard control tags even when the
+# system prompt demands it. So after every reply we check: did the tutor draw the math?
+# If the reply talks math but has no board tag, a focused second model call converts the
+# current math into ONE tag and we append it. Wrapped so any failure is a silent no-op.
+_BOARD_TAG_RE = re.compile(r"\[\[\s*(balance|machine|graph|card|write|solve|clear)\b", re.I)
+_MATH_HINT_RE = re.compile(
+    r"[0-9]\s*[-+=]|[0-9]\s*x\b|\bx\s*[-+=]|"
+    r"\b(equals?|equation|plus|minus|times|divide[sd]?|dividing|subtract|multipl|"
+    r"solve|solving|squared?|slope|intercept|graph|function|variable|f of)\b", re.I)
+
+BOARD_TAG_SYSTEM = """\
+You turn a math tutor's spoken message into ONE hidden whiteboard control tag that draws
+the math they are working with RIGHT NOW. The tutor speaks in words (e.g. "two x plus one
+equals eleven"); you output SYMBOLIC math inside a tag. Use lowercase x and y for variables.
+
+Pick exactly ONE tag:
+- SOLVING an equation step by step (the most common case) -- starting equation on top, then
+  each step as "operation : resulting equation":
+    [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5" caption="solve for x"]]
+  Include only the steps actually reached so far (at least the starting equation).
+- A single equation / expression / function definition (not a full solve):
+    [[write lines="f(x) = 2x + 1 | 2x + 1 = 15"]]
+- Evaluating a function at a value:
+    [[machine input="4" rule="2x+1" output="9" fname="f"]]
+- A straight line or parabola:
+    [[graph lines="y=2x+1"]]
+
+Output ONLY the tag -- no other words. If there is genuinely NO specific equation, number
+sentence, expression, or function to draw this turn, output exactly: NONE"""
+
+
+def board_tag_for(tutor_message: str, user_message: str = "", history=None) -> str:
+    """Focused second call: return ONE whiteboard tag for the current math, or ""."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return ""
+    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+    ctx = ""
+    for m in (history or [])[-4:]:
+        who = "Tutor" if m.get("role") == "assistant" else "Student"
+        ctx += who + ": " + str(m.get("content", ""))[:300] + "\n"
+    user = ("Recent conversation:\n" + ctx +
+            "Student just said: " + (user_message or "(nothing)") + "\n"
+            "Tutor just said (out loud): " + tutor_message + "\n\n"
+            "Output the ONE whiteboard tag for the math being worked right now, or NONE.")
+    client = Anthropic(api_key=api_key)
+    resp = client.messages.create(model=model, max_tokens=220, system=BOARD_TAG_SYSTEM,
+                                  messages=[{"role": "user", "content": user}])
+    out = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip()
+    if not out or out.upper().startswith("NONE"):
+        return ""
+    hit = re.search(r"\[\[[\s\S]*\]\]", out)
+    return hit.group(0) if hit else ""
+
+
+def ensure_board(reply: str, user_message: str = "", history=None) -> str:
+    """If the tutor talked math but drew nothing on the board, append a whiteboard tag.
+    Silent no-op if there's no math, the board is already drawn, or anything errors."""
+    try:
+        if not reply or _BOARD_TAG_RE.search(reply):
+            return reply                       # already has a picture
+        if not _MATH_HINT_RE.search(reply):
+            return reply                       # no math this turn -> leave the board alone
+        tag = board_tag_for(reply, user_message, history)
+        if tag:
+            return reply.rstrip() + " " + tag
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] ensure_board failed: {exc}")
+    return reply
+
+
 def get_tutor_reply(student: dict, history: list, user_message: str) -> str:
     """
     Ask Claude for the tutor's next reply.
@@ -579,8 +654,8 @@ def get_tutor_reply(student: dict, history: list, user_message: str) -> str:
         # Concatenate any text blocks the model returned.
         parts = [block.text for block in response.content
                  if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip()
-        return reply or "(Sorry, I lost my train of thought. Could you say that again?)"
+        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.
@@ -735,8 +810,8 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         )
         parts = [block.text for block in response.content
                  if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip()
-        return reply or "(Sorry, I lost my train of thought. Could you say that again?)"
+        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[practice] Claude API error: {exc}")
         return ("(I'm having trouble thinking right now -- give me a moment and "
@@ -871,8 +946,8 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str)
         )
         parts = [block.text for block in response.content
                  if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip()
-        return reply or "(Sorry, I lost my train of thought. Could you say that again?)"
+        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[topic] Claude API error: {exc}")
         return ("(I'm having trouble thinking right now -- give me a moment and "
