@@ -1291,12 +1291,12 @@
       }
       clearHighlight();
       await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
-      await runTutor("Hi!");   // hand off to the lesson (cool-questions card + big idea)
+      await runTutor("__open__");   // hand off to the lesson (cool-questions card + big idea)
     }
 
     async function kickoff() {   // returning-student opener (no tour)
       statusEl.textContent = tutorName + " is starting…";
-      await runTutor("Hi!");
+      await runTutor("__open__");
     }
 
     // ---------- Talk to the tutor ----------

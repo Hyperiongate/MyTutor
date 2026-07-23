@@ -402,12 +402,19 @@ def get_placement(code: str):
     return read_placement(code.strip())
 
 
+# Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
+# Render actually redeployed the new code (if /health still shows an old build, the deploy
+# didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
+APP_BUILD = "2026-07-23c-solve+opener"
+
+
 @app.get("/health")
 def health():
     """Simple check that the service is up (handy for Render). Includes the active
     student-facing model and DB status so you can confirm both at a glance."""
     return {
         "status": "ok",
+        "build": APP_BUILD,
         "students_loaded": len(STUDENTS),
         "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
         "storage": store.status(),
@@ -483,6 +490,28 @@ def chat(req: ChatRequest):
                 f"{', '.join(placement.get('strengths', [])) or 'building foundations'}. "
                 "Meet them at that level -- don't start below it unless they struggle.]")
         student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
+
+    # OPENER: the app auto-sends "__open__" when the student opens the lesson (they did NOT
+    # type anything). The OLD app sent a literal "Hi!" that got stored as a student turn, so
+    # after a few logins the tutor saw "Hi Hi Hi..." and turned snappish. Fix: never store a
+    # fake student greeting, strip any leftover junk ones, generate a warm recap, and save
+    # ONLY the tutor's reply so the conversation stays coherent.
+    if message == "__open__":
+        junk = ("hi", "hi!", "hi.", "hello", "hey", "__open__")
+        history = [m for m in history if not (
+            m.get("role") == "user" and str(m.get("content", "")).strip().lower() in junk)]
+        opener_note = (
+            "(SYSTEM: The student just OPENED the lesson — they did NOT type anything, and this "
+            "is NOT an interruption. If you have met before, warmly greet them back by name and "
+            "give a SHORT recap of where you two are and what's next, then invite them to keep "
+            "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
+            "them, do NOT tell them to focus, and do NOT act annoyed.)")
+        reply = tutor.get_tutor_reply(student_context, history, opener_note)
+        history.append({"role": "assistant", "content": reply})
+        session["history"] = history
+        save_session(code, session)
+        return {"reply": reply}
+
     reply = tutor.get_tutor_reply(student_context, history, message)
 
     # Remember this exchange so the tutor recalls it next time.
