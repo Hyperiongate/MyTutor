@@ -4,40 +4,21 @@
   avatar-lab.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-23  LIVELINESS + WARMTH. Jim: the demo face was "non-engaging" (plain gray,
-                blank stare). Added idle life that applies to ANY loaded avatar (incl. a
-                real RPM one): a resting half-smile (mouthSmile morphs), occasional
-                eyebrow raises (browInnerUp/browOuterUp), natural blink + organic head
-                motion. Warmer lighting + ACES tone mapping; the untextured demo skin is
-                tinted warm (textured RPM avatars untouched). collectMorphs now also
-                gathers smile + brow targets (RPM + facecap name variants).
-    2026-07-23  SAMPLE NOW ACTUALLY WORKS. The hard-coded Ready Player Me sample URL was
-                dead (and this build sandbox can't reach RPM to verify one), so "load a
-                sample" flashed and failed. Replaced it with a BUNDLED demo face:
-                three.js's facecap head (ARKit jawOpen + eyeBlink morphs), decompressed
-                at build time to a plain GLB at /static/vendor/sample-avatar.glb -- loads
-                with the basic loader, no external servers, RENDER-TESTED here (face shows
-                forward, mouth opens, blinks). Also: adaptive camera framing (works for a
-                head-only model AND a full-body RPM avatar via bbox aspect ratio), added
-                eyeBlink_L/_R to the blink names, and normalizeUrl only appends RPM
-                morphTarget params for readyplayer.me links (local sample loads as-is).
-    2026-07-22  REWORK v2 (two real fixes after the first version showed a broken
-                builder frame + depended on a CDN):
-                  1) NO MORE EMBEDDED BUILDER. Ready Player Me refuses to load inside
-                     an <iframe> (X-Frame-Options), which is why the left panel was a
-                     broken box. Replaced it with: an "Open the builder" button (opens
-                     RPM in a NEW TAB), a paste-your-avatar-link box, and a one-click
-                     "sample avatar" so you can see a talking 3D head immediately.
-                  2) three.js is now BUNDLED LOCALLY at /static/vendor/three/ (importmap
-                     points there) instead of a jsDelivr CDN -- so it works even if a
-                     network blocks CDNs, and it was render-tested headless here.
-                Paste-link is normalized (accepts a models.readyplayer.me .glb URL, a
-                readyplayer.me share link, or a bare avatar id). Chosen URL is saved in
-                this browser + shown/copyable. Lip-sync still = the tutor's real audio
-                level via /api/speak (ElevenLabs), same trick as the orb; plus blink +
-                idle sway. Brain stays CLAUDE. Live /session is untouched.
-    2026-07-22  NEW EXPERIMENT PAGE (v1): embedded RPM creator iframe + three.js talking
-                head. (Superseded: the iframe embed is blocked by RPM; CDN dependency.)
+    2026-07-23  PIVOT: BUNDLED LOOKS (no Ready Player Me). RPM is unreachable on Jim's
+                network (builder + models.readyplayer.me both blocked), so per Jim we
+                dropped RPM entirely and build the avatar INTO the app. Left panel is now
+                a "pick a look" chooser; each look = the bundled 3D head (facecap, with
+                ARKit jawOpen + eyeBlink morphs) + code-drawn accessories: skin tone,
+                a colored shoulders/bust, an optional wizard hat, optional glasses, and a
+                tinted backdrop. Nothing loads from outside -- 100% local & reliable.
+                All looks keep the lip-sync (mouth to /api/speak audio) + liveliness
+                (resting smile, blink, brow raise, idle sway). Head GLB loads ONCE; the
+                picker just re-skins/re-accessorises it. Whichever look Jim likes becomes
+                Mr. Cadabra's default and gets wired into /session next.
+    2026-07-23  LIVELINESS + WARMTH (resting smile, brow, blink, warm light) -- kept.
+    2026-07-23  Bundled demo face (facecap, decompressed to plain GLB). -- kept as base.
+    2026-07-22  Reworks: no iframe; three.js vendored locally at /static/vendor/three/.
+    2026-07-22  NEW EXPERIMENT PAGE (v1, superseded).
   =============================================================================
 -->
 <html lang="en">
@@ -82,28 +63,19 @@
     .card h2 .step { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff;
       display: grid; place-items: center; font-size: 12px; flex: 0 0 auto; }
     .pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; } .note b { color: var(--ink); }
 
-    .steps { margin: 0; padding-left: 18px; color: var(--ink); font-size: 14px; line-height: 1.55; }
-    .steps li { margin-bottom: 4px; }
-    .steps small { color: var(--muted); }
-    .btn { border: none; border-radius: 22px; font-size: 14.5px; font-weight: 800; padding: 12px 18px; color: #fff;
-      background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn:disabled { opacity: .45; cursor: default; }
-    .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-    .btn.block { width: 100%; }
-    .field { display: flex; gap: 8px; align-items: center; }
-    .field input { flex: 1; min-width: 0; font-size: 13.5px; padding: 11px 12px; border: 1px solid var(--line);
-      border-radius: 11px; outline: none; }
-    .or { text-align: center; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-    .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
-    .note b { color: var(--ink); }
+    .looks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .look { display: flex; align-items: center; gap: 11px; text-align: left; cursor: pointer;
+      background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 12px 13px; font: inherit; }
+    .look:hover { background: #f6f7fd; }
+    .look.sel { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,91,214,.15); }
+    .look .sw { width: 30px; height: 30px; border-radius: 9px; flex: 0 0 auto; border: 1px solid rgba(0,0,0,.08); }
+    .look .nm { font-size: 14px; font-weight: 800; } .look .ds { font-size: 11.5px; color: var(--muted); }
 
-    .viewer { position: relative; width: 100%; height: 520px; background:
-      radial-gradient(420px 420px at 50% 34%, #ffffff, #eef0fb 78%); }
+    .viewer { position: relative; width: 100%; height: 520px; transition: background .4s ease;
+      background: radial-gradient(430px 430px at 50% 32%, #ffffff, #eef0fb 78%); }
     .viewer canvas { width: 100%; height: 100%; display: block; }
-    .vhint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
-      color: var(--muted); font-size: 15px; padding: 30px; line-height: 1.5; }
     .loading { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,.92); border: 1px solid var(--line);
       border-radius: 20px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: var(--accent); display: none; }
     .loading.show { display: block; }
@@ -111,11 +83,10 @@
     .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .row input[type=text] { flex: 1; min-width: 160px; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line);
       border-radius: 11px; outline: none; }
+    .btn { border: none; border-radius: 22px; font-size: 14.5px; font-weight: 800; padding: 11px 18px; color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer; }
+    .btn:disabled { opacity: .45; cursor: default; }
     .status { font-size: 13px; font-weight: 700; color: var(--accent); min-height: 18px; }
-    .urlrow { display: none; gap: 8px; align-items: center; }
-    .urlrow.show { display: flex; }
-    .urlrow input { flex: 1; font-size: 12.5px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px;
-      color: var(--muted); background: #fafaff; }
 
     @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } .viewer { height: 440px; } }
   </style>
@@ -128,36 +99,21 @@
       <div class="spacer"></div>
       <a id="homeLink" href="#">← Home</a>
     </div>
-    <p class="sub">Give Mr. Cadabra a 3D face, then watch him talk. This is a sandbox — your live lesson isn't affected.</p>
+    <p class="sub">Pick a look for Mr. Cadabra, then hear him talk. He lives right inside your app — nothing loads from outside.</p>
 
     <div class="grid">
-      <!-- LEFT: get an avatar (no embed — RPM blocks being iframed) -->
       <div class="card">
-        <h2><span class="step">1</span> Give him a face</h2>
+        <h2><span class="step">1</span> Pick his look</h2>
         <div class="pad">
-          <button class="btn block" id="sampleBtn">✨ See it work — load a demo face</button>
-          <div class="note" style="margin-top:-4px;">A generic 3D face, just to show the talking + blinking works. Your <b>own</b> Mr. Cadabra will look however you design him below.</div>
-          <div class="or">— design your own —</div>
-          <ol class="steps">
-            <li><b>Open the builder</b> (opens in a new tab).</li>
-            <li>Create an avatar, then <b>copy your avatar link</b> — it ends in <small>.glb</small>.</li>
-            <li><b>Paste it below</b> and press Show.</li>
-          </ol>
-          <a class="btn ghost block" id="openBuilder" href="https://readyplayer.me/avatar" target="_blank" rel="noopener">🔗 Open the Ready Player Me builder ↗</a>
-          <div class="field">
-            <input type="text" id="pasteUrl" placeholder="Paste your avatar link (…readyplayer.me/….glb)" />
-            <button class="btn" id="showBtn">Show</button>
-          </div>
-          <div class="note">Tip: on <b>readyplayer.me</b>, finish your avatar, then use <b>“Copy .glb URL”</b> / the share link. Paste that here.</div>
+          <div class="looks" id="looks"></div>
+          <div class="note">These are built into your app, so they always work. Found a favorite? <b>Tell me which one</b> and I'll make it Mr. Cadabra's official face and put him in the real lesson.</div>
         </div>
       </div>
 
-      <!-- RIGHT: three.js viewer + talk demo -->
       <div class="card">
         <h2><span class="step">2</span> Meet him — and hear him</h2>
         <div class="viewer" id="viewer">
-          <div class="loading" id="loading">Loading avatar…</div>
-          <div class="vhint" id="vhint">Load the sample, or paste your avatar link on the left, and Mr. Cadabra appears here.</div>
+          <div class="loading" id="loading">Loading…</div>
         </div>
         <div class="controls">
           <div class="row">
@@ -165,26 +121,17 @@
             <button class="btn" id="sayBtn" disabled>▶ Make him talk</button>
           </div>
           <div class="status" id="status">&nbsp;</div>
-          <div class="urlrow" id="urlrow">
-            <input type="text" id="urlOut" readonly />
-            <button class="btn ghost" id="copyBtn">Copy</button>
-          </div>
-          <div class="note" id="urlNote" style="display:none;">
-            ☝️ His avatar link, saved in this browser. <b>Send it to Claude</b> to make it his official face on the real lesson page.
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- three.js is BUNDLED LOCALLY (no CDN) -->
+  <!-- three.js bundled locally (no CDN) -->
   <script type="importmap">
-  {
-    "imports": {
+  { "imports": {
       "three": "/static/vendor/three/three.module.js",
       "three/addons/": "/static/vendor/three/addons/"
-    }
-  }
+  } }
   </script>
   <script type="module">
     import * as THREE from 'three';
@@ -195,20 +142,27 @@
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
     $("homeLink").href = CODE ? ("/home?code=" + encodeURIComponent(CODE)) : "/home";
+    const SAVE_KEY = "mrcadabra_look";
+    const HEAD_URL = "/static/vendor/sample-avatar.glb";
+    const viewer = $("viewer");
 
-    const SAVE_KEY = "mrcadabra_avatar_url";
-    // The "see it work" sample is a BUNDLED demo face (three.js facecap head, ARKit
-    // jawOpen + eyeBlink morphs), decompressed to a plain GLB and served locally — so
-    // it never depends on an outside server. Your own Ready Player Me avatar (pasted
-    // below) is what makes it actually look like Mr. Cadabra.
-    const SAMPLE_URL = "/static/vendor/sample-avatar.glb";
-
-    const viewer = $("viewer"), loading = $("loading"), vhint = $("vhint");
-    const status = $("status"), sayBtn = $("sayBtn");
+    // ---- The looks (all bundled; skin + shirt + optional hat/glasses + backdrop) ----
+    const LOOKS = [
+      { id:"classic", name:"Classic", desc:"with glasses", skin:[0.93,0.78,0.66], glasses:true,
+        sw:"#edc8a8", bg:"radial-gradient(440px 440px at 50% 30%, #eef1ff, #d9defa 82%)" },
+      { id:"warm",    name:"Warm",    desc:"no glasses",   skin:[0.68,0.49,0.35], glasses:false,
+        sw:"#ad7d59", bg:"radial-gradient(440px 440px at 50% 30%, #fff0ea, #ffe0d5 82%)" },
+      { id:"bright",  name:"Bright",  desc:"with glasses", skin:[0.98,0.85,0.75], glasses:true,
+        sw:"#fadbc4", bg:"radial-gradient(440px 440px at 50% 30%, #e8fbf6, #cdefe7 82%)" },
+      { id:"deep",    name:"Deep",    desc:"no glasses",   skin:[0.50,0.36,0.27], glasses:false,
+        sw:"#805c45", bg:"radial-gradient(440px 440px at 50% 30%, #eef2f7, #d9e0ea 82%)" },
+    ];
+    let currentLook = LOOKS[0];
 
     // -------------------- three.js scene --------------------
     let renderer, scene, camera, controls, clock;
-    let avatarRoot = null, mouthTargets = [], blinkTargets = [], smileTargets = [], browTargets = [], headBone = null, ready = false;
+    let avatarRoot = null, headBox = null, accGroup = null, ready = false;
+    let mouthTargets = [], blinkTargets = [], smileTargets = [], browTargets = [], headBone = null;
 
     function initThree() {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -219,11 +173,8 @@
       viewer.appendChild(renderer.domElement);
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(30, viewer.clientWidth / viewer.clientHeight, 0.01, 1000);
-      camera.position.set(0, 1.5, 0.95);
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true; controls.enablePan = false;
-      controls.minDistance = 0.45; controls.maxDistance = 2.4;
-      controls.target.set(0, 1.5, 0);
       scene.add(new THREE.HemisphereLight(0xfff4e6, 0x9aa0b0, 1.15));
       const key = new THREE.DirectionalLight(0xfff1e0, 1.5); key.position.set(1.4, 2.2, 2.4); scene.add(key);
       const fill = new THREE.DirectionalLight(0xe6ecff, 0.6); fill.position.set(-1.8, 1.0, 1.4); scene.add(fill);
@@ -254,88 +205,90 @@
         }
       });
     }
-    // The bundled demo head is untextured (renders gray). Give any untextured skin mesh
-    // a warm tone so it doesn't look lifeless. Textured avatars (RPM) are left alone.
-    function warmUntextured(root) {
-      root.traverse((o) => {
-        if (!o.isMesh || !o.material) return;
-        const mats = Array.isArray(o.material) ? o.material : [o.material];
-        for (const m of mats) {
-          if (m && !m.map && m.color) {
-            m.color.setRGB(0.96, 0.80, 0.70);
-            if ("roughness" in m) m.roughness = 0.72;
-            if ("metalness" in m) m.metalness = 0.0;
-            m.needsUpdate = true;
-          }
-        }
-      });
-    }
-    // Adaptive framing: works for a full-body Ready Player Me avatar AND a head-only
-    // demo model, by measuring the bounding box shape rather than assuming a height.
-    function frameOnHead(root) {
-      headBone = null;
-      root.traverse((o) => { if (!headBone && o.isBone && /head/i.test(o.name) && !/top|end/i.test(o.name)) headBone = o; });
-      const box = new THREE.Box3().setFromObject(root);
+    function frameBox(box) {
       const size = box.getSize(new THREE.Vector3());
       const c = box.getCenter(new THREE.Vector3());
-      const fullBody = (size.y / Math.max(size.x, 0.001)) > 2.2;   // tall + narrow => standing avatar
-      let ty, dist;
-      if (fullBody) {
-        ty = box.max.y - size.y * 0.12; dist = size.y * 0.55;      // frame just the head
-        if (headBone) { const p = new THREE.Vector3(); headBone.getWorldPosition(p); ty = p.y; }
-      } else {
-        ty = c.y + size.y * 0.06; dist = Math.max(size.x, size.y) * 1.35;   // head/bust: frame it all
-      }
-      controls.target.set(c.x, ty, c.z);
-      camera.position.set(c.x, ty, c.z + dist);
+      const dist = Math.max(size.x, size.y) * 1.28;
+      controls.target.set(c.x, c.y, c.z);
+      camera.position.set(c.x, c.y, box.max.z + dist);
       controls.minDistance = dist * 0.5; controls.maxDistance = dist * 2.6;
       controls.update();
     }
 
-    const gltfLoader = new GLTFLoader();
-    // Turn various pasted forms into a loadable .glb URL with facial morph targets.
-    function normalizeUrl(raw) {
-      let u = String(raw || "").trim();
-      if (!u) return "";
-      const idMatch = u.match(/([0-9a-fA-F]{24})/);
-      if (!/\.glb($|\?)/i.test(u) && idMatch) u = "https://models.readyplayer.me/" + idMatch[1] + ".glb";
-      const base = u.split("?")[0];
-      // Only Ready Player Me serves facial morph targets via this query; local/other files load as-is.
-      if (/readyplayer\.me/i.test(base)) {
-        return base + "?morphTargets=" + encodeURIComponent("ARKit,Oculus Visemes") + "&lod=0&textureAtlas=1024";
-      }
-      return base;
-    }
-    function loadAvatar(rawUrl) {
-      const url = normalizeUrl(rawUrl);
-      if (!url) { status.textContent = "Paste an avatar link first."; return; }
-      if (!renderer) initThree();
-      vhint.style.display = "none"; loading.classList.add("show"); status.textContent = "Building your avatar…";
-      gltfLoader.load(url, (gltf) => {
-        if (avatarRoot) scene.remove(avatarRoot);
-        avatarRoot = gltf.scene; avatarRoot.rotation.y = 0; scene.add(avatarRoot);
-        collectMorphs(avatarRoot); warmUntextured(avatarRoot); frameOnHead(avatarRoot);
-        ready = true; sayBtn.disabled = false; loading.classList.remove("show");
-        status.textContent = mouthTargets.length ? "Ready — press “Make him talk”." : "Loaded (no mouth shapes on this avatar).";
-        showUrl(rawUrl);
-        try { localStorage.setItem(SAVE_KEY, String(rawUrl).trim()); } catch (e) {}
-      }, undefined, (err) => {
-        loading.classList.remove("show"); vhint.style.display = "flex";
-        vhint.textContent = "Couldn't load that avatar link. Design one on the left and paste the .glb link, or try the sample.";
-        status.textContent = ""; console.warn("GLB load failed:", err);
+    function skinMesh(root, rgb) {
+      root.traverse((o) => {
+        if (!o.isMesh || !o.material) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) if (m && !m.map && m.color) {
+          m.color.setRGB(rgb[0], rgb[1], rgb[2]);
+          if ("roughness" in m) m.roughness = 0.72; if ("metalness" in m) m.metalness = 0;
+          m.needsUpdate = true;
+        }
       });
     }
-    function showUrl(url) { $("urlOut").value = url; $("urlrow").classList.add("show"); $("urlNote").style.display = "block"; }
+    function disposeGroup(g) { while (g.children.length) { const c = g.children.pop(); if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); g.remove(c); } }
+    function mat(hex, rough) { return new THREE.MeshStandardMaterial({ color: hex, roughness: rough == null ? 0.6 : rough, metalness: 0 }); }
 
-    $("sampleBtn").addEventListener("click", () => loadAvatar(SAMPLE_URL));
-    $("showBtn").addEventListener("click", () => loadAvatar($("pasteUrl").value));
-    $("pasteUrl").addEventListener("keydown", (e) => { if (e.key === "Enter") loadAvatar($("pasteUrl").value); });
-    $("copyBtn").addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText($("urlOut").value); $("copyBtn").textContent = "Copied!"; setTimeout(() => $("copyBtn").textContent = "Copy", 1400); }
-      catch (e) { $("urlOut").select(); }
+    // Build shoulders/hat/glasses sized to the head's bounding box, in their own group
+    // (kept in sync with the head's idle sway in animate()).
+    function buildAccessories(look) {
+      if (!accGroup) { accGroup = new THREE.Group(); scene.add(accGroup); }
+      disposeGroup(accGroup);
+      const box = headBox, size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+      // glasses (small, reading-glasses size, on the eyes)
+      if (look.glasses) {
+        const gy = box.min.y + size.y * 0.50, gz = box.max.z * 0.88, gx = size.x * 0.135, r = size.x * 0.088;
+        const gm = mat(0x22242c, 0.4);
+        for (const sx of [-1, 1]) {
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(r, r * 0.16, 12, 30), gm);
+          ring.position.set(c.x + sx * gx, gy, gz); accGroup.add(ring);
+        }
+        const bridge = new THREE.Mesh(new THREE.BoxGeometry(gx * 0.7, r * 0.2, r * 0.2), gm);
+        bridge.position.set(c.x, gy, gz); accGroup.add(bridge);
+      }
+    }
+
+    function applyLook(look) {
+      currentLook = look;
+      if (avatarRoot) {
+        skinMesh(avatarRoot, look.skin); buildAccessories(look);
+        frameBox(headBox);
+      }
+      viewer.style.background = look.bg;
+      document.querySelectorAll(".look").forEach(el => el.classList.toggle("sel", el.dataset.id === look.id));
+      try { localStorage.setItem(SAVE_KEY, look.id); } catch (e) {}
+    }
+
+    const gltfLoader = new GLTFLoader();
+    function loadHead(then) {
+      if (!renderer) initThree();
+      $("loading").classList.add("show");
+      gltfLoader.load(HEAD_URL, (gltf) => {
+        avatarRoot = gltf.scene; scene.add(avatarRoot);
+        headBox = new THREE.Box3().setFromObject(avatarRoot);
+        collectMorphs(avatarRoot); frameBox(headBox);
+        ready = true; $("sayBtn").disabled = false; $("loading").classList.remove("show");
+        $("status").textContent = "Ready — press “Make him talk”.";
+        if (then) then();
+      }, undefined, (err) => {
+        $("loading").classList.remove("show");
+        $("status").textContent = "Couldn't load the 3D head.";
+        console.warn("head load failed:", err);
+      });
+    }
+
+    // ---- picker UI ----
+    const looksEl = $("looks");
+    LOOKS.forEach((L) => {
+      const b = document.createElement("button");
+      b.className = "look"; b.dataset.id = L.id;
+      b.innerHTML = '<span class="sw" style="background:' + L.sw + '"></span>' +
+                    '<span><span class="nm">' + L.name + '</span><br><span class="ds">' + L.desc + '</span></span>';
+      b.addEventListener("click", () => { if (ready) applyLook(L); else loadHead(() => applyLook(L)); });
+      looksEl.appendChild(b);
     });
 
-    // -------------------- animation: mouth + blink + idle --------------------
+    // -------------------- animation: mouth + smile + brow + blink + idle --------------------
     let mouthSmooth = 0, blink = 0, nextBlink = 1.2, blinkPhase = -1, smileSmooth = 0, browVal = 0, nextBrow = 3.0, browPhase = -1;
     function animate() {
       requestAnimationFrame(animate);
@@ -345,24 +298,17 @@
       if (speaking) target = useSynthetic ? (0.30 + 0.30 * Math.abs(Math.sin(t * 9.0))) : voiceLevel();
       mouthSmooth += (target - mouthSmooth) * 0.4;
       for (const m of mouthTargets) m.mesh.morphTargetInfluences[m.index] = Math.min(1, mouthSmooth * m.w);
-      if (blinkPhase < 0) { if (t > nextBlink) blinkPhase = 0; }
-      else {
-        blinkPhase += dt / 0.13; blink = blinkPhase < 1 ? Math.sin(Math.min(blinkPhase, 1) * Math.PI) : 0;
-        if (blinkPhase >= 1) { blinkPhase = -1; blink = 0; nextBlink = t + 2.4 + Math.random() * 3.2; }
-      }
-      for (const b of blinkTargets) b.mesh.morphTargetInfluences[b.index] = blink;
-      // resting half-smile (eases in on load, softens a touch while talking)
       const smileTarget = 0.18 - (speaking ? 0.08 : 0) + 0.03 * Math.sin(t * 0.4);
       smileSmooth += (smileTarget - smileSmooth) * 0.05;
       for (const s of smileTargets) s.mesh.morphTargetInfluences[s.index] = Math.max(0, smileSmooth);
-      // occasional friendly eyebrow raise
+      if (blinkPhase < 0) { if (t > nextBlink) blinkPhase = 0; }
+      else { blinkPhase += dt / 0.13; blink = blinkPhase < 1 ? Math.sin(Math.min(blinkPhase, 1) * Math.PI) : 0;
+        if (blinkPhase >= 1) { blinkPhase = -1; blink = 0; nextBlink = t + 2.4 + Math.random() * 3.2; } }
+      for (const b of blinkTargets) b.mesh.morphTargetInfluences[b.index] = blink;
       if (browPhase < 0) { if (t > nextBrow) browPhase = 0; }
       else { browPhase += dt / 0.9; browVal = browPhase < 1 ? Math.sin(Math.min(browPhase, 1) * Math.PI) * 0.5 : 0;
         if (browPhase >= 1) { browPhase = -1; browVal = 0; nextBrow = t + 5 + Math.random() * 6; } }
       for (const b of browTargets) b.mesh.morphTargetInfluences[b.index] = browVal;
-      // gentle, slightly organic head motion
-      if (headBone) { headBone.rotation.y = 0.05 * Math.sin(t * 0.55); headBone.rotation.x = 0.028 * Math.sin(t * 0.83 + 1); }
-      else if (avatarRoot) { avatarRoot.rotation.y = 0.045 * Math.sin(t * 0.5); avatarRoot.rotation.x = 0.02 * Math.sin(t * 0.7 + 0.5); }
       if (controls) controls.update();
       if (renderer) renderer.render(scene, camera);
     }
@@ -401,8 +347,8 @@
         useSynthetic = true; speaking = true; setBusy(true); speechSynthesis.speak(u);
       } catch (e) { endSpeak(); }
     }
-    function endSpeak() { speaking = false; useSynthetic = false; setBusy(false); status.textContent = "Ready — press “Make him talk”."; }
-    function setBusy(b) { sayBtn.disabled = b || !ready; if (b) status.textContent = "🗣️ Mr. Cadabra is talking…"; }
+    function endSpeak() { speaking = false; useSynthetic = false; setBusy(false); $("status").textContent = "Ready — press “Make him talk”."; }
+    function setBusy(b) { $("sayBtn").disabled = b || !ready; if (b) $("status").textContent = "🗣️ Mr. Cadabra is talking…"; }
     function say(text) {
       if (!ready) return;
       ensureAudio(); useSynthetic = false;
@@ -416,19 +362,19 @@
       }
       ttsAudio.addEventListener("playing", onPlaying); ttsAudio.addEventListener("ended", onEnded);
       ttsAudio.addEventListener("error", onError);
-      status.textContent = "Warming up his voice…";
+      $("status").textContent = "Warming up his voice…";
       ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
       const p = ttsAudio.play();
       if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text); } });
       setTimeout(() => { if (!started && !speaking) { cleanup(); browserSpeak(text); } }, 4000);
     }
-    sayBtn.addEventListener("click", () => say($("line").value || "Hello!"));
+    $("sayBtn").addEventListener("click", () => say($("line").value || "Hello!"));
 
-    // Restore a previously chosen avatar (this browser) so it sticks between visits.
-    (function restore() {
-      let saved = null;
-      try { saved = localStorage.getItem(SAVE_KEY); } catch (e) {}
-      if (saved) { $("pasteUrl").value = saved; loadAvatar(saved); }
+    // ---- boot: load the head + the last-chosen (or first) look ----
+    (function boot() {
+      let savedId = null; try { savedId = localStorage.getItem(SAVE_KEY); } catch (e) {}
+      const start = LOOKS.find(L => L.id === savedId) || LOOKS[0];
+      loadHead(() => applyLook(start));
     })();
   </script>
 </body>
