@@ -4,6 +4,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-23  WHITEBOARD "SHOW THE MATH" (corrects the earlier same-day per-turn wipe).
+                The board now PERSISTS the current picture across turns -- it does NOT
+                auto-blank on talk-only turns. It only erases when Mr. Cadabra sends
+                [[clear]] (which now triggers the eraser 🧽 sweep). New catch-all
+                [[write lines="2X + 1 = 15" caption="..."]] -> showWrite() writes any
+                equation/expression BIG on the board (variables auto-styled). tutor.py now
+                tells him to SHOW the math he's discussing on the board EVERY time (he was
+                under-using it), update it as it changes, and only [[clear]] on move-on.
     2026-07-23  "SHOW NOW" FIXES (per Jim). (1) On login we NO LONGER replay the old
                 transcript into the chat -- seeing yesterday's messages up top made the
                 current turn hard to find. The chat starts clean; Mr. Cadabra still
@@ -319,6 +327,13 @@
     /* Variable styling: every algebra variable shows BOLD, CAPITAL, and RED --
        here in the visuals AND in the chat bubbles (styleVars() does the wrapping). */
     .mvar { color:#e0392b; font-weight:800; }
+
+    /* "Write on the whiteboard" -- the catch-all for showing the current equation/
+       expression big and clear (via [[write]]). */
+    .writeboard { width:100%; max-width:640px; text-align:center; }
+    .writeboard .wline { font-size:36px; font-weight:800; color:var(--ink); line-height:1.55; letter-spacing:.4px; }
+    .writeboard .wcap { margin-top:16px; font-size:16px; color:var(--muted); }
+    @media (max-width:560px){ .writeboard .wline { font-size:28px; } }
 
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
        function -- a number goes IN, the rule runs, a number comes OUT. Used for
@@ -845,8 +860,9 @@
         else if (name === "graph") showGraph(attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
+        else if (name === "write") showWrite(attrs);
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
-        else if (name === "clear") clearStage();
+        else if (name === "clear") wipeBoard();
       }
       return text
         .replace(/\[\[[^\]]*\]\]/g, "")   // remove complete control tags
@@ -859,7 +875,7 @@
     // Erase the whiteboard with a quick eraser sweep, then leave it blank. Only animates
     // if the board currently shows a drawing; otherwise it just clears instantly.
     function wipeBoard() {
-      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .tiles, .scatter");
+      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .tiles, .scatter");
       if (!hasContent) { stage.innerHTML = ""; return; }
       const wipe = document.createElement("div"); wipe.className = "wipe";
       wipe.innerHTML = '<div class="eraser">🧽</div>';
@@ -1087,6 +1103,19 @@
       stage.appendChild(wrap);
     }
 
+    // [[write lines="2X + 1 = 15 | X = 7" caption="solve for X"]] -- write the current
+    // math straight on the whiteboard (any equation/expression). Variables auto-styled.
+    function showWrite(a) {
+      const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
+      stage.innerHTML = "";
+      const wrap = document.createElement("div"); wrap.className = "writeboard pop";
+      let html = "";
+      for (const ln of lines) html += '<div class="wline">' + styleVars(ln) + '</div>';
+      if (a.caption) html += '<div class="wcap">' + escapeHTML(a.caption) + '</div>';
+      wrap.innerHTML = html;
+      stage.appendChild(wrap);
+    }
+
     function addBubble(role, text) {
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
       if (role === "tutor") { const prev = log.querySelector(".bubble.tutor.latest"); if (prev) prev.classList.remove("latest"); div.classList.add("latest"); }
@@ -1249,12 +1278,10 @@
           body: JSON.stringify({ code: CODE, message }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
-        // The whiteboard reflects THIS turn only: if the reply draws a picture, show it;
-        // if it doesn't, wipe the board clean (with an eraser sweep) so an old diagram
-        // from earlier never lingers while Mr. Cadabra talks about something new.
-        const hasVisual = /\[\[\s*(balance|card|graph|machine|tiles|area|scatter)\b/i.test(reply);
+        // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
+        // math he's discussing (and updates it as it changes); it only erases when he
+        // moves on and sends [[clear]]. So we simply render whatever tags this reply has.
         reply = handleTags(reply);
-        if (!hasVisual) wipeBoard();
         addBubble("tutor", reply); lastTutorText = reply;
         statusEl.textContent = tutorName + " is talking…";
         await speak(reply);

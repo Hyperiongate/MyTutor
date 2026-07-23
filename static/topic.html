@@ -123,6 +123,10 @@
     /* Variable styling: every algebra variable shows BOLD, CAPITAL, and RED --
        here in the visuals AND in the chat bubbles (styleVars() does the wrapping). */
     .mvar { color:#e0392b; font-weight:800; }
+    .writeboard { width:100%; max-width:640px; text-align:center; }
+    .writeboard .wline { font-size:36px; font-weight:800; color:var(--ink); line-height:1.55; letter-spacing:.4px; }
+    .writeboard .wcap { margin-top:16px; font-size:16px; color:var(--muted); }
+    @media (max-width:560px){ .writeboard .wline { font-size:28px; } }
 
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
        function -- a number goes IN, the rule runs, a number comes OUT. Used for
@@ -472,14 +476,15 @@
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showGraph(attrs);
         else if (name === "machine") showMachine(attrs);
-        else if (name === "clear") clearStage();
+        else if (name === "write") showWrite(attrs);
+        else if (name === "clear") wipeBoard();
       }
       return text.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
     }
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your topic will appear here.</div>'; }
     // Erase the board with a quick eraser sweep, then leave it blank (only if it shows something).
     function wipeBoard() {
-      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .tiles, .scatter");
+      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .tiles, .scatter");
       if (!hasContent) { stage.innerHTML = ""; return; }
       const wipe = document.createElement("div"); wipe.className = "wipe";
       wipe.innerHTML = '<div class="eraser">🧽</div>';
@@ -688,6 +693,19 @@
       stage.appendChild(wrap);
     }
 
+    // [[write lines="2X + 1 = 15 | X = 7" caption="solve for X"]] -- write the current
+    // math straight on the whiteboard (any equation/expression). Variables auto-styled.
+    function showWrite(a) {
+      const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
+      stage.innerHTML = "";
+      const wrap = document.createElement("div"); wrap.className = "writeboard pop";
+      let html = "";
+      for (const ln of lines) html += '<div class="wline">' + styleVars(ln) + '</div>';
+      if (a.caption) html += '<div class="wcap">' + escapeHTML(a.caption) + '</div>';
+      wrap.innerHTML = html;
+      stage.appendChild(wrap);
+    }
+
     function addBubble(role, text) {
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
       if (role === "tutor") { const prev = log.querySelector(".bubble.tutor.latest"); if (prev) prev.classList.remove("latest"); div.classList.add("latest"); }
@@ -778,9 +796,7 @@
           body: JSON.stringify({ code: CODE, topic, message, history: history.slice(0, -1) }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
-        const hasVisual = /\[\[\s*(balance|card|graph|machine|tiles|area|scatter)\b/i.test(reply);
         reply = handleTags(reply);
-        if (!hasVisual) wipeBoard();
         addBubble("tutor", reply);
         history.push({ role: "assistant", content: reply });
         statusEl.textContent = "Mr. Cadabra is talking…";

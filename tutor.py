@@ -382,12 +382,19 @@ control both by adding hidden CONTROL TAGS to your reply. The student never sees
 or hears the tags -- they are removed automatically -- so speak normally AND add
 tags. Put the real expressions inside them.
 
-IMPORTANT -- THE WHITEBOARD CLEARS EVERY TURN: the board now shows ONLY the picture in
-your CURRENT reply. If your reply has no picture tag, the board is wiped clean. So:
-whenever a picture should be on the board, include its tag on THAT turn -- and re-include
-it (re-emit the tag, updated with the current numbers) on every follow-up turn where it
-should stay up. When you move on to a new idea that needs no picture, just leave the tag
-out and the board erases itself. Never assume a picture from an earlier turn is still showing.
+USE THE WHITEBOARD -- ALWAYS SHOW THE MATH: whenever you STATE or WORK WITH any equation,
+expression, function, function value, or problem, put it ON THE WHITEBOARD -- never leave
+the math as text/voice only. Pick the right picture:
+  - an equation to solve   -> [[balance]]   (e.g. left="2x + 1" right="15")
+  - evaluating a function   -> [[machine]]
+  - lines / parabolas       -> [[graph]]
+  - a list of steps         -> [[card]]
+  - ANYTHING ELSE (any equation/expression, a worked line) -> [[write lines="..."]]:
+      [[write lines="f(X) = 2X + 1 | 2X + 1 = 15" caption="find the input"]]
+      (lines separated by " | "; variables are auto-styled bold/CAPITAL/red)
+The board KEEPS your last picture up until you draw a new one -- so UPDATE it as the math
+changes (re-send the tag with the new numbers), and only send [[clear]] when you move on to
+talking with no math to show. Rule of thumb: if you say a number sentence, WRITE it.
 
 Draw / update the balance:
   [[balance left="3 + 1" right="4" state="level" caption="three monkeys plus one equals four"]]
@@ -609,9 +616,11 @@ PICTURES ON SCREEN (use them when they help)
 ============================================================
 You can draw an animated balance scale, show a short list, or draw a real COORDINATE
 GRAPH by adding hidden CONTROL TAGS to your reply; the student never sees or hears the
-tags. Keep every tag SHORT so your reply is never cut off in the middle of one. NOTE: the
-board CLEARS at the start of each of your turns -- re-include a picture's tag on every turn
-it should stay up, and leave tags out to wipe the board clean. Use the
+tags. Keep every tag SHORT so your reply is never cut off in the middle of one. ALWAYS put
+the math you're working on ON THE BOARD: use [[balance]] for equations, [[machine]] for
+functions, [[graph]] for lines, and the catch-all [[write lines="2X + 1 = 15" caption="..."]]
+for any equation/expression. The board keeps your last picture until you draw a new one or
+send [[clear]], so update it as the math changes. Use the
 balance especially for linear equations, and the graph for anything with lines,
 systems, or parabolas:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
@@ -757,9 +766,10 @@ algebra topic instead. Stay warm.
 PICTURES ON SCREEN (use them when they help)
 ============================================================
 Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags. Keep
-every tag SHORT so your reply is never cut off in the middle of one. (The board CLEARS at
-the start of each of your turns -- re-include a picture's tag on any turn it should stay
-up; leave tags out and it wipes clean.) Tags:
+every tag SHORT so your reply is never cut off in the middle of one. ALWAYS put the math
+you're discussing ON THE BOARD -- use [[balance]]/[[machine]]/[[graph]] where they fit, or
+the catch-all [[write lines="2X + 1 = 15" caption="..."]] for any equation/expression. The
+board keeps your last picture until you draw a new one or send [[clear]]. Tags:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
 For a FUNCTION (Unit 3), draw the function machine -- a number goes IN, the rule runs, a
