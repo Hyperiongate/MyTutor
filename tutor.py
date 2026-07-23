@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  BOARD NEVER RUNS AHEAD OF THE STUDENT (Socratic pacing fix). The
+#               whiteboard was answering the very question the tutor had just asked:
+#               Mr. Cadabra would ask "what's the next step?" while the board already
+#               showed that step's answer. Root cause was the server-side safety net
+#               (ensure_board -> board_tag_for): a second model call that computed the
+#               FULL solution regardless of how far the conversation had actually gone.
+#               Fixes (this file only; the board renderer is fine):
+#                 (1) BOARD_TAG_SYSTEM rewritten around one rule -- show ONLY steps
+#                     already established; when the tutor is ASKING the student to find
+#                     the next step, show only the current line (or the start with an
+#                     EMPTY steps list), never the answer. Mirror the spoken math, never
+#                     solve ahead.
+#                 (2) Lesson prompt: added the "GOLDEN RULE OF THE BOARD -- never run
+#                     ahead of the student"; grow [[solve]] one line at a time, and only
+#                     AFTER the student answers / you narrate a step as done. Trimmed the
+#                     example so it no longer models dumping the whole solution.
+#                 (3) Same "never run the board ahead of the student" note added to the
+#                     PRACTICE and TOPIC prompts. (showSolve already renders steps="" as
+#                     just the starting line, so an empty steps list is safe.)
 #   2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
 #               rule="2x+1" output="7" fname="f"]] control tag documented in all three
 #               prompts: for Unit 3 (functions) EVALUATE with the function machine --
@@ -181,12 +200,22 @@ reply where you say ANY math -- an equation, a number sentence, a function, a va
 step -- MUST include a hidden whiteboard tag that shows that math. Saying "two x plus one
 equals fifteen" out loud while the board sits blank is NOT allowed and is a failure.
   - SOLVING AN EQUATION STEP BY STEP (your most common job!) -> [[solve]]:
-        [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5" caption="get x by itself"]]
+        [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10" caption="get x by itself"]]
         The board shows the starting equation on TOP, then each operation and the new
-        equation MARCHING DOWN, one line per step. As you talk through each step, RE-SEND
-        [[solve]] with one MORE step added, so the board grows line by line in sync with
-        you. This full worked solution -- NOT a single lonely equation -- is what solving
-        looks like on the board. (steps: "operation : resulting equation", separated by "|".)
+        equation MARCHING DOWN, one line per step. As you and the student FINISH each step
+        together, RE-SEND [[solve]] with that ONE new step added, so the board grows line
+        by line IN SYNC with the conversation. (steps: "operation : resulting equation",
+        separated by "|".)
+
+        ⛔ GOLDEN RULE OF THE BOARD -- NEVER RUN AHEAD OF THE STUDENT. The board may only
+        show steps you have ALREADY worked out together. The moment you ASK the student to
+        find the next step ("what do we do first?", "your turn -- try it", "what's next?"),
+        you must NOT put that step's answer on the board. Send [[solve]] with only the steps
+        done SO FAR -- or, if you're still on the very first line, just the start with an
+        EMPTY steps list: [[solve start="2x + 1 = 11" steps="" caption="solve for x"]].
+        Add the next line ONLY after the student has answered it, or after you have narrated
+        that step as done. A board that answers the question you just asked spoils the whole
+        lesson -- when in doubt, show LESS, never more.
   - The "keep both sides balanced" IDEA -> [[balance left="2x + 1" right="11"]]
   - Evaluating a function?  -> [[machine input="4" rule="2x+1" output="9" fname="f"]]
   - Lines / parabolas?      -> [[graph lines="y=2x+1"]]
@@ -557,24 +586,37 @@ _MATH_HINT_RE = re.compile(
     r"solve|solving|squared?|slope|intercept|graph|function|variable|f of)\b", re.I)
 
 BOARD_TAG_SYSTEM = """\
-You turn a math tutor's spoken message into ONE hidden whiteboard control tag that draws
-the math they are working with RIGHT NOW. The tutor speaks in words (e.g. "two x plus one
-equals eleven"); you output SYMBOLIC math inside a tag. Use lowercase x and y for variables.
+You turn a math tutor's spoken message into ONE hidden whiteboard control tag that shows
+ONLY the math that has ALREADY been established in the conversation -- never math the
+student has not reached yet. The tutor speaks in words (e.g. "two x plus one equals
+eleven"); you output SYMBOLIC math inside a tag. Use lowercase x and y for variables.
+
+⛔ THE ONE RULE THAT MATTERS MOST -- NEVER RUN AHEAD OF THE STUDENT.
+The board must never reveal a step the tutor is currently ASKING the student to find. Read
+the tutor's message: if it hands the next step to the student -- a question or a "your turn"
+like "what should we do first?", "what's the next step?", "your turn -- try it", "what do
+we get?", "can you solve for x?" -- then you must NOT compute or show that step. Show only
+the equation AS IT STANDS right now (the starting equation, or the steps already worked out
+together), and stop there. Do the SAME arithmetic the tutor has actually spoken -- never
+solve further than the conversation has gone. When in doubt, show LESS, not more.
 
 Pick exactly ONE tag:
-- SOLVING an equation step by step (the most common case) -- starting equation on top, then
-  each step as "operation : resulting equation":
-    [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5" caption="solve for x"]]
-  Include only the steps actually reached so far (at least the starting equation).
-- A single equation / expression / function definition (not a full solve):
+- SOLVING an equation -- show ONLY the steps already completed together (starting equation
+  on top, then each FINISHED step as "operation : resulting equation"):
+    [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10" caption="solve for x"]]
+  Include ONLY steps the tutor has already stated as done. If they are still on the starting
+  equation -- the tutor just posed it, or is asking what to do first -- use the start with an
+  EMPTY steps list (this shows just the one line, spoiling nothing):
+    [[solve start="2x + 1 = 11" steps="" caption="solve for x"]]
+- A single equation / expression / function definition (not a solve in progress):
     [[write lines="f(x) = 2x + 1 | 2x + 1 = 15"]]
-- Evaluating a function at a value:
+- Evaluating a function at a value the tutor has already stated:
     [[machine input="4" rule="2x+1" output="9" fname="f"]]
-- A straight line or parabola:
+- A straight line or parabola the tutor has already stated:
     [[graph lines="y=2x+1"]]
 
 Output ONLY the tag -- no other words. If there is genuinely NO specific equation, number
-sentence, expression, or function to draw this turn, output exactly: NONE"""
+sentence, expression, or function that has been stated yet, output exactly: NONE"""
 
 
 def board_tag_for(tutor_message: str, user_message: str = "", history=None) -> str:
@@ -717,7 +759,10 @@ tags. Keep every tag SHORT so your reply is never cut off in the middle of one. 
 the math you're working on ON THE BOARD: use [[balance]] for equations, [[machine]] for
 functions, [[graph]] for lines, and the catch-all [[write lines="2X + 1 = 15" caption="..."]]
 for any equation/expression. The board keeps your last picture until you draw a new one or
-send [[clear]], so update it as the math changes. Use the
+send [[clear]], so update it as the math changes. NEVER RUN THE BOARD AHEAD OF THE STUDENT:
+when you ASK them to find the next step ("your turn -- try it", "what's next?"), do NOT put
+that step's answer on the board yet -- show only what you've worked out together so far, and
+add the new line only after they've answered it. Use the
 balance especially for linear equations, and the graph for anything with lines,
 systems, or parabolas:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
@@ -866,7 +911,10 @@ Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags.
 every tag SHORT so your reply is never cut off in the middle of one. ALWAYS put the math
 you're discussing ON THE BOARD -- use [[balance]]/[[machine]]/[[graph]] where they fit, or
 the catch-all [[write lines="2X + 1 = 15" caption="..."]] for any equation/expression. The
-board keeps your last picture until you draw a new one or send [[clear]]. Tags:
+board keeps your last picture until you draw a new one or send [[clear]]. NEVER RUN THE
+BOARD AHEAD OF THE STUDENT: when you ASK them to find the next step, do NOT show that step's
+answer on the board yet -- show only what you've worked out together so far, and add the new
+line only after they've answered it. Tags:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
 For a FUNCTION (Unit 3), draw the function machine -- a number goes IN, the rule runs, a

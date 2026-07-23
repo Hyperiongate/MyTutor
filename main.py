@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  BUILD STAMP BUMP -> "2026-07-23e-boardsync". Backend-only reason: the
+#               tutor.py whiteboard logic changed (the board no longer runs ahead of the
+#               student / answers the question it just asked). No route or handler change
+#               here -- the stamp bump exists so /health confirms Render redeployed the new
+#               tutor.py. If /health still shows an OLDER build, the new pacing fix is NOT
+#               live yet (static files push instantly, but the Python backend only updates
+#               on a Render rebuild).
 #   2026-07-22  AVATAR LAB (experiment). Added GET /avatar-lab -> serves
 #               static/avatar-lab.html, a Ready Player Me 3D-avatar sandbox for
 #               Mr. Cadabra (design an avatar, watch it talk via /api/speak). It does
@@ -405,7 +412,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23d-boardnet"
+APP_BUILD = "2026-07-23e-boardsync"
 
 
 @app.get("/health")
