@@ -138,6 +138,22 @@
     @keyframes stepin { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
     @media (max-width:560px){ .solveboard .sline { font-size:26px; } }
 
+    /* ---- Persistent WORKLIST board: a running column that STACKS and STAYS ---- */
+    .worklist { width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center;
+      gap:2px; max-height:100%; overflow-y:auto; }
+    .worklist .wrow { display:grid; grid-template-columns:1fr auto 1fr; align-items:baseline; column-gap:14px;
+      width:100%; max-width:520px; font-size:33px; font-weight:800; color:var(--ink); line-height:1.2;
+      margin:2px 0; opacity:0; animation: stepin .45s ease forwards; }
+    .worklist .wrow .wl { text-align:right; } .worklist .wrow .we { color:var(--muted); } .worklist .wrow .wr { text-align:left; }
+    .worklist .wrow.solo { grid-template-columns:1fr; } .worklist .wrow.solo .wl { text-align:center; }
+    .worklist .worow { display:grid; grid-template-columns:1fr auto 1fr; column-gap:14px; width:100%; max-width:520px;
+      font-size:18px; font-weight:800; color:var(--accent); margin:0 0 2px; opacity:0; animation: stepin .4s ease forwards; }
+    .worklist .worow .ol { text-align:right; } .worklist .worow .orr { text-align:left; }
+    .worklist .wcheck { font-size:25px; font-weight:800; color:#0e9f6e; margin-top:12px; text-align:center;
+      opacity:0; animation: stepin .45s ease forwards; }
+    .worklist .wcap { margin-top:12px; font-size:15px; color:var(--muted); text-align:center; }
+    @media (max-width:560px){ .worklist .wrow { font-size:24px; } .worklist .wcheck { font-size:19px; } }
+
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
        function -- a number goes IN, the rule runs, a number comes OUT. Used for
        functions instead of the balance scale (which stays for equations). */
@@ -486,6 +502,7 @@
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showGraph(attrs);
         else if (name === "machine") showMachine(attrs);
+        else if (name === "step") showStep(attrs);
         else if (name === "write") showWrite(attrs);
         else if (name === "solve") showSolve(attrs);
         else if (name === "clear") wipeBoard();
@@ -495,7 +512,7 @@
     function clearStage() { stage.innerHTML = '<div class="stage-hint">Your topic will appear here.</div>'; }
     // Erase the board with a quick eraser sweep, then leave it blank (only if it shows something).
     function wipeBoard() {
-      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .solveboard, .tiles, .scatter");
+      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .solveboard, .worklist, .tiles, .scatter");
       if (!hasContent) { stage.innerHTML = ""; return; }
       const wipe = document.createElement("div"); wipe.className = "wipe";
       wipe.innerHTML = '<div class="eraser">🧽</div>';
@@ -704,17 +721,60 @@
       stage.appendChild(wrap);
     }
 
-    // [[write lines="2X + 1 = 15 | X = 7" caption="solve for X"]] -- write the current
-    // math straight on the whiteboard (any equation/expression). Variables auto-styled.
+    // ---------- Persistent WORKLIST board (the main solving surface) ----------
+    // A running column that STACKS and STAYS: [[step]] APPENDS one row that stays below
+    // the previous one, so the whole worked solution builds up. Nothing replaces earlier
+    // lines -- only [[clear]] wipes it. Equation rows use a 3-column grid (left | = |
+    // right) so a both-sides operation lines up under each side, like working on paper.
+    function getWorklist() {
+      let wl = stage.querySelector(".worklist");
+      if (!wl) { stage.innerHTML = ""; wl = document.createElement("div"); wl.className = "worklist"; stage.appendChild(wl); }
+      return wl;
+    }
+    function eqRow(eqText) {
+      const s = String(eqText == null ? "" : eqText).trim();
+      const row = document.createElement("div"); row.className = "wrow";
+      const i = s.indexOf("=");
+      if (i >= 0) {
+        const left = s.slice(0, i).trim(), right = s.slice(i + 1).trim();
+        row.innerHTML = '<span class="wl">' + styleVars(left) + '</span>'
+          + '<span class="we">=</span><span class="wr">' + styleVars(right) + '</span>';
+      } else {
+        row.classList.add("solo");
+        row.innerHTML = '<span class="wl">' + styleVars(s) + '</span>';
+      }
+      return row;
+    }
+    function opRow(opText) {
+      const op = styleVars(String(opText == null ? "" : opText).trim());
+      const row = document.createElement("div"); row.className = "worow";
+      row.innerHTML = '<span class="ol">' + op + '</span><span class="oe"></span><span class="orr">' + op + '</span>';
+      return row;
+    }
+    function setWorkCap(wl, capText) {
+      const old = wl.querySelector(".wcap"); if (old) old.remove();
+      if (capText) { const cap = document.createElement("div"); cap.className = "wcap"; cap.textContent = capText; wl.appendChild(cap); }
+    }
+    // [[step eq="2X + 1 = 25"]] | [[step op="- 1" eq="2X = 24"]] | [[step check="2(12)+1 = 25 ✓"]]
+    function showStep(a) {
+      const wl = getWorklist();
+      const oldCap = wl.querySelector(".wcap"); if (oldCap) oldCap.remove();
+      const eq = a.eq || a.result || a.line || a.text || "";
+      if (a.op) wl.appendChild(opRow(a.op));
+      if (eq) wl.appendChild(eqRow(eq));
+      if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
+      if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
+      wl.scrollTop = wl.scrollHeight;
+    }
+
+    // [[write ...]] -- legacy catch-all, now APPENDS to the persistent worklist (stacks
+    // instead of replacing the board). Prefer [[step]]; kept so older behavior still works.
     function showWrite(a) {
+      const wl = getWorklist();
       const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
-      stage.innerHTML = "";
-      const wrap = document.createElement("div"); wrap.className = "writeboard pop";
-      let html = "";
-      for (const ln of lines) html += '<div class="wline">' + styleVars(ln) + '</div>';
-      if (a.caption) html += '<div class="wcap">' + escapeHTML(a.caption) + '</div>';
-      wrap.innerHTML = html;
-      stage.appendChild(wrap);
+      for (const ln of lines) wl.appendChild(eqRow(ln));
+      if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
+      wl.scrollTop = wl.scrollHeight;
     }
 
     // [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5"]]

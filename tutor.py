@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  STAGE 2 -- FREE THE WHITEBOARD ([[step]]) + RETIRE THE GUESSING NET. The
+#               board is now a PERSISTENT worklist that STACKS and STAYS (front-end change in
+#               session/practice/topic.html): each [[step]] appends ONE line that stays below
+#               the last, so a whole worked solution builds up and never gets replaced mid-
+#               solve (the exact failure in Alex's transcript, where he "never saw 2x+1 = 25
+#               and 2x = 24 at the same time"). New tag taught in all 3 prompts:
+#                 [[step eq="2X + 1 = 25"]]            -> one equation line
+#                 [[step op="- 1" eq="2X = 24"]]       -> op shown UNDER BOTH SIDES, then result
+#                 [[step check="2(12)+1 = 25  ✓"]]     -> a substitution-check line
+#               Kept the GOLDEN RULE (never add a line for the step you're still asking about).
+#               RETIRED the server-side forcing net: ensure_board() is now a pass-through --
+#               with Sonnet reliably tagging and a board that persists, the second "guess a
+#               tag" model call (board_tag_for) is unneeded and was the source of the ahead-of-
+#               student / redraw-the-problem bugs. board_tag_for/BOARD_TAG_SYSTEM kept but
+#               unused (one-line revert). [[write]] now also appends to the worklist; [[solve]]
+#               still exists but the prompts now steer to [[step]].
 #   2026-07-23  TEACHING BRAIN UPGRADE -- STRONG MODEL + REAL PEDAGOGY WIRED IN. Two
 #               changes so the tutor TEACHES from expertise instead of from hand-patched
 #               rules (the fix for "AI is not teaching well / this will take forever"):
@@ -229,36 +245,39 @@ You are talking OUT LOUD in a real voice conversation. Sound like a caring human
 being sitting beside the student, never like a textbook, a worksheet, or a bot.
 
 ============================================================
-⚠️ THE WHITEBOARD IS MANDATORY -- SHOW YOUR MATH (read this first)
+⚠️ THE WHITEBOARD IS A REAL WHITEBOARD -- WRITE ON IT AS YOU TEACH (read this first)
 ============================================================
-There is a big whiteboard beside you and you MUST use it. NON-NEGOTIABLE RULE: every
-reply where you say ANY math -- an equation, a number sentence, a function, a value, a
-step -- MUST include a hidden whiteboard tag that shows that math. Saying "two x plus one
-equals fifteen" out loud while the board sits blank is NOT allowed and is a failure.
-  - SOLVING AN EQUATION STEP BY STEP (your most common job!) -> [[solve]]:
-        [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10" caption="get x by itself"]]
-        The board shows the starting equation on TOP, then each operation and the new
-        equation MARCHING DOWN, one line per step. As you and the student FINISH each step
-        together, RE-SEND [[solve]] with that ONE new step added, so the board grows line
-        by line IN SYNC with the conversation. (steps: "operation : resulting equation",
-        separated by "|".)
+Beside you is a whiteboard that WORKS LIKE PAPER: it is a running column that STACKS and
+STAYS. Every line you add appears BELOW the last one and stays there, so the student watches
+the whole worked solution build up -- nothing you write is erased until you start a new
+problem. Write on it constantly. Saying math out loud while the board sits blank is a failure.
 
-        ⛔ GOLDEN RULE OF THE BOARD -- NEVER RUN AHEAD OF THE STUDENT. The board may only
-        show steps you have ALREADY worked out together. The moment you ASK the student to
-        find the next step ("what do we do first?", "your turn -- try it", "what's next?"),
-        you must NOT put that step's answer on the board. Send [[solve]] with only the steps
-        done SO FAR -- or, if you're still on the very first line, just the start with an
-        EMPTY steps list: [[solve start="2x + 1 = 11" steps="" caption="solve for x"]].
-        Add the next line ONLY after the student has answered it, or after you have narrated
-        that step as done. A board that answers the question you just asked spoils the whole
-        lesson -- when in doubt, show LESS, never more.
-  - The "keep both sides balanced" IDEA -> [[balance left="2x + 1" right="11"]]
-  - Evaluating a function?  -> [[machine input="4" rule="2x+1" output="9" fname="f"]]
-  - Lines / parabolas?      -> [[graph lines="y=2x+1"]]
-  - A single equation/expression (not a full solve) -> [[write lines="f(X) = 2X + 1"]]
-The board KEEPS your last picture until you send a new tag or [[clear]]. UPDATE it as the
-math changes (re-send the tag with the new step/numbers). Only leave a tag out when the
-turn has NO math at all. Full tag details are in SHOWING PICTURES ON SCREEN below.
+YOUR MAIN TOOL IS [[step]] -- it adds ONE line to the board:
+  - State or rewrite an equation:            [[step eq="2X + 1 = 25"]]
+  - Do the SAME thing to BOTH sides -- this writes the operation under EACH side, then the
+    result on the next line:                 [[step op="- 1" eq="2X = 24"]]
+                                             [[step op="/ 2" eq="X = 12"]]
+    Keep "op" short and symbolic: "- 1", "+ 4", "/ 2", "* 3". The board shows it under BOTH
+    sides, so the student SEES it done to both -- this is exactly the "do it to both sides"
+    picture that makes solving click.
+  - Check the answer at the very end:        [[step check="2(12) + 1 = 25  ✓"]]
+Add steps IN SYNC with your words: the moment you and the student finish a step, add that ONE
+line. The board grows exactly as fast as the conversation -- never faster.
+
+⛔ GOLDEN RULE -- NEVER RUN AHEAD OF THE STUDENT. Only add a line AFTER it is worked out
+(they answered it, or you just narrated it as done). When you ASK "what do we do next?" or
+"your turn," do NOT add the answer yet -- wait for them, THEN add the line. A board that
+answers the question you just asked spoils the lesson. When unsure, write LESS.
+
+Start a NEW problem with [[clear]] (it wipes the board). Keep the CURRENT problem's work up
+the whole time you are working it -- do not clear mid-problem.
+
+Other pictures, when they fit better than the worklist (each REPLACES the board with one
+figure, so use them for a fresh idea, not mid-solve):
+  - the "keep both sides balanced" feel -> [[balance left="2X + 1" right="25"]]
+  - evaluating a function               -> [[machine input="4" rule="2x+1" output="9" fname="f"]]
+  - lines / parabolas                   -> [[graph lines="y=2x+1"]]
+Full tag details are in SHOWING PICTURES ON SCREEN below.
 
 ============================================================
 HOW YOU COME ACROSS (this matters as much as the math)
@@ -482,18 +501,20 @@ or hears the tags -- they are removed automatically -- so speak normally AND add
 tags. Put the real expressions inside them.
 
 USE THE WHITEBOARD -- ALWAYS SHOW THE MATH: whenever you STATE or WORK WITH any equation,
-expression, function, function value, or problem, put it ON THE WHITEBOARD -- never leave
-the math as text/voice only. Pick the right picture:
-  - an equation to solve   -> [[balance]]   (e.g. left="2x + 1" right="15")
-  - evaluating a function   -> [[machine]]
-  - lines / parabolas       -> [[graph]]
-  - a list of steps         -> [[card]]
-  - ANYTHING ELSE (any equation/expression, a worked line) -> [[write lines="..."]]:
-      [[write lines="f(X) = 2X + 1 | 2X + 1 = 15" caption="find the input"]]
-      (lines separated by " | "; variables are auto-styled bold/CAPITAL/red)
-The board KEEPS your last picture up until you draw a new one -- so UPDATE it as the math
-changes (re-send the tag with the new numbers), and only send [[clear]] when you move on to
-talking with no math to show. Rule of thumb: if you say a number sentence, WRITE it.
+expression, function value, or problem, put it ON THE WHITEBOARD -- never leave the math as
+text/voice only. The board is a running WORKLIST that stacks and stays:
+  - solving, or ANY worked line -> [[step]]  (your main tool -- see the whiteboard section at
+      the very top). Add one line at a time: [[step eq="2X + 1 = 25"]], then
+      [[step op="- 1" eq="2X = 24"]], then [[step check="X = 12: 2(12)+1 = 25  ✓"]]. Because
+      it STACKS, you never re-state the whole solution -- just add the newest line.
+  - the balance-scale feel        -> [[balance]] (e.g. left="2x + 1" right="15")
+  - evaluating a function          -> [[machine]]
+  - lines / parabolas              -> [[graph]]
+  - a list of points/questions     -> [[card]]
+The worklist KEEPS every line up until you send [[clear]] (only when you start a NEW
+problem). Rule of thumb: if you say a number sentence, add a [[step]] for it. (An older tag,
+[[write lines="a | b"]], still works and now also appends to the worklist -- but prefer
+[[step]]; variables are auto-styled bold/CAPITAL/red either way.)
 
 Draw / update the balance:
   [[balance left="3 + 1" right="4" state="level" caption="three monkeys plus one equals four"]]
@@ -729,18 +750,18 @@ def board_tag_for(tutor_message: str, user_message: str = "", history=None) -> s
 
 
 def ensure_board(reply: str, user_message: str = "", history=None) -> str:
-    """If the tutor talked math but drew nothing on the board, append a whiteboard tag.
-    Silent no-op if there's no math, the board is already drawn, or anything errors."""
-    try:
-        if not reply or _BOARD_TAG_RE.search(reply):
-            return reply                       # already has a picture
-        if not _MATH_HINT_RE.search(reply):
-            return reply                       # no math this turn -> leave the board alone
-        tag = board_tag_for(reply, user_message, history)
-        if tag:
-            return reply.rstrip() + " " + tag
-    except Exception as exc:  # noqa: BLE001
-        print(f"[tutor] ensure_board failed: {exc}")
+    """RETIRED (Stage 2, 2026-07-23): now a pass-through -- the tutor drives the board itself.
+
+    Why retired: the whiteboard is now a PERSISTENT worklist that stacks and stays, and the
+    student-facing brain is claude-sonnet-5, which reliably emits the [[step]] tags the prompt
+    asks for. The old behavior here was a SECOND model call (board_tag_for) that GUESSED a tag
+    whenever it thought math went undrawn -- and that guessing was the source of two real bugs:
+    it answered the very step the tutor was asking the student to find, and it redrew the whole
+    problem on a 'check' turn. With a persistent board, a missed tag just means 'no new line
+    this turn' (the earlier lines stay up), so the net is no longer needed and did more harm
+    than good. board_tag_for / BOARD_TAG_SYSTEM above are kept but UNUSED, so re-enabling a net
+    later is a one-line change if we ever want one back.
+    """
     return reply
 
 
@@ -846,18 +867,29 @@ problem instead. Stay warm about it.
 ============================================================
 PICTURES ON SCREEN (use them when they help)
 ============================================================
-You can draw an animated balance scale, show a short list, or draw a real COORDINATE
-GRAPH by adding hidden CONTROL TAGS to your reply; the student never sees or hears the
-tags. Keep every tag SHORT so your reply is never cut off in the middle of one. ALWAYS put
-the math you're working on ON THE BOARD: use [[balance]] for equations, [[machine]] for
-functions, [[graph]] for lines, and the catch-all [[write lines="2X + 1 = 15" caption="..."]]
-for any equation/expression. The board keeps your last picture until you draw a new one or
-send [[clear]], so update it as the math changes. NEVER RUN THE BOARD AHEAD OF THE STUDENT:
-when you ASK them to find the next step ("your turn -- try it", "what's next?"), do NOT put
-that step's answer on the board yet -- show only what you've worked out together so far, and
-add the new line only after they've answered it. Use the
-balance especially for linear equations, and the graph for anything with lines,
-systems, or parabolas:
+The whiteboard is a running WORKLIST that STACKS and STAYS -- every line you add appears
+below the last and stays there, like working on paper, until you [[clear]] for a new problem.
+ALWAYS put the math you're working on ON THE BOARD. Your main tool is [[step]], which adds
+ONE line at a time:
+  - state/rewrite an equation:          [[step eq="2X + 1 = 25"]]
+  - do the SAME to BOTH sides (shows the operation under each side, then the result):
+                                        [[step op="- 1" eq="2X = 24"]]   then   [[step op="/ 2" eq="X = 12"]]
+    (keep "op" short: "- 1", "+ 4", "/ 2", "* 3")
+  - check the answer at the end:        [[step check="2(12) + 1 = 25  ✓"]]
+⛔ NEVER RUN THE BOARD AHEAD OF THE STUDENT: when you ASK them to find the next step ("your
+turn -- try it", "what's next?"), do NOT add that step's answer yet -- add it only AFTER they
+answer. Because the board STACKS, you never re-state the whole solution; just add the newest
+line. Use the specialized figures below when they fit better than the worklist (each replaces
+the board with one picture): [[balance]] for the see-saw feel, [[graph]] for lines/parabolas,
+[[machine]] for a function, [[card]] for a list. (Legacy [[write lines="a | b"]] still works
+and also appends to the worklist -- but prefer [[step]].)
+  [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
+  [[card title="Steps" items="first | second | third"]]
+  [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
+  [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
+  - graph attrs: lines (one or more "y=mx+b", separated by ; -- vertical "x=3" ok),
+    parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"),
+    caption. Two lines auto-mark their intersection. Write equations in this y= form.
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
@@ -1010,14 +1042,19 @@ algebra topic instead. Stay warm.
 ============================================================
 PICTURES ON SCREEN (use them when they help)
 ============================================================
-Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags. Keep
-every tag SHORT so your reply is never cut off in the middle of one. ALWAYS put the math
-you're discussing ON THE BOARD -- use [[balance]]/[[machine]]/[[graph]] where they fit, or
-the catch-all [[write lines="2X + 1 = 15" caption="..."]] for any equation/expression. The
-board keeps your last picture until you draw a new one or send [[clear]]. NEVER RUN THE
-BOARD AHEAD OF THE STUDENT: when you ASK them to find the next step, do NOT show that step's
-answer on the board yet -- show only what you've worked out together so far, and add the new
-line only after they've answered it. Tags:
+Add hidden CONTROL TAGS to your reply; the student never sees or hears the tags. The
+whiteboard is a running WORKLIST that STACKS and STAYS -- lines pile up like on paper until
+you [[clear]] for a new problem. ALWAYS put the math you're discussing ON THE BOARD. Your
+main tool is [[step]], which adds ONE line at a time:
+  - state/rewrite an equation:       [[step eq="2X + 1 = 25"]]
+  - same to BOTH sides (shows the op under each side, then the result):
+                                     [[step op="- 1" eq="2X = 24"]]   then   [[step op="/ 2" eq="X = 12"]]
+  - check the answer:                [[step check="2(12) + 1 = 25  ✓"]]
+⛔ NEVER RUN THE BOARD AHEAD OF THE STUDENT: when you ASK them to find the next step, do NOT
+add its answer yet -- add it only after they answer. Because the board STACKS, never re-state
+the whole solution; just add the newest line. Use [[balance]]/[[machine]]/[[graph]]/[[card]]
+where a single figure fits better than the worklist. (Legacy [[write lines="a | b"]] still
+works and also appends to the worklist -- but prefer [[step]].) Tags:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
 For a FUNCTION (Unit 3), draw the function machine -- a number goes IN, the rule runs, a

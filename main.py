@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  BUILD STAMP BUMP -> "2026-07-23g-stepboard". Reason: Stage 2 -- the
+#               whiteboard is now a persistent STACKING worklist driven by the new [[step]]
+#               tag, and the server-side board-guessing net (ensure_board) was retired (see
+#               tutor.py notes). Front-end changes are in session/practice/topic.html; this
+#               stamp bump lets /health confirm the tutor.py backend redeployed too.
 #   2026-07-23  BUILD STAMP BUMP -> "2026-07-23f-strongbrain". Backend reason: the tutor
 #               now runs on the stronger claude-sonnet-5 brain AND injects real per-unit
 #               pedagogy from the new pedagogy.py KB (see tutor.py notes). No route change
@@ -419,7 +424,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23f-strongbrain"
+APP_BUILD = "2026-07-23g-stepboard"
 
 
 @app.get("/health")
