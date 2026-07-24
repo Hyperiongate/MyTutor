@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  BUILD STAMP BUMP -> "2026-07-24d-alltranscript". Reason: practice.html and
+#               topic.html were rebuilt to the SAME transcript + left-sidebar layout as the
+#               lesson (scrollable feed of tutor chat + student chat + math blocks, auto-scroll,
+#               controls on the left). Fixes the Topic bug where a graph overlapped the tutor's
+#               text (each figure is now its own block in the flow). Front-end only; stamp
+#               confirms the deploy.
 #   2026-07-24  BUILD STAMP BUMP -> "2026-07-24c-autoscroll". Reason: session.html transcript
 #               feed now AUTO-SCROLLS to the newest content (rAF + a MutationObserver, and it
 #               stays put if the student scrolled up to read history). Front-end only; stamp
@@ -444,7 +450,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24c-autoscroll"
+APP_BUILD = "2026-07-24d-alltranscript"
 
 
 @app.get("/health")

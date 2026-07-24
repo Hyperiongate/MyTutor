@@ -45,7 +45,41 @@
         radial-gradient(700px 520px at 60% 112%, rgba(255,122,89,.12), transparent 55%),
         #f5f5fc;
     }
-    .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; max-width: 1000px; margin: 0 auto; }
+    .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+
+    /* ===== 2026-07-24 TRANSCRIPT + LEFT-SIDEBAR (match the lesson page) ===== */
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 100vh; height: 100vh; }
+    .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto;
+      border-right: 1px solid var(--line); background: rgba(255,255,255,.55); }
+    .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
+      border-bottom: 1px solid var(--line); }
+    .side.left .orbwrap { width: 72px; height: 72px; flex: 0 0 auto; }
+    .side.left .orbwrap canvas { width: 72px; height: 72px; }
+    .side.left .controls { margin-top: auto; display: flex; flex-direction: column; align-items: stretch;
+      gap: 9px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .side.left .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
+    .side.left .quickrow { justify-content: center; flex-wrap: wrap; }
+    .side.left .composer { max-width: 100%; }
+    .side.left .live { max-width: 100%; font-size: 15px; }
+    .feed { flex: 1; margin: 16px 24px 16px; border-radius: 20px; background: var(--panel);
+      border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
+      padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+    .feed .stage-hint { margin: auto; }
+    .feed .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }
+    .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
+      color: var(--ink); border-bottom-left-radius: 5px; }
+    .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
+    .feed .bubble.student .mvar { color: #ffe08a; }
+    .feed .bubble.system { align-self: center; background: transparent; border: none; color: var(--muted);
+      font-size: 13px; padding: 2px; }
+    .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
+    .feed .feeddiv { align-self: stretch; text-align: center; color: var(--muted); font-size: 12px;
+      border-top: 1px dashed var(--line); margin: 8px 0 2px; padding-top: 8px; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .center { height: auto; min-height: 60vh; }
+      .feed { margin: 12px; min-height: 52vh; }
+    }
     .topbar { display: flex; align-items: center; padding: 12px 20px; }
     .topbar .title { font-weight: 800; font-size: 16px; letter-spacing: .01em;
       background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
@@ -260,48 +294,42 @@
   </style>
 </head>
 <body>
-  <div class="center">
-    <div class="topbar">
-      <div class="title">✏️ Practice with Mr. Cadabra</div>
-      <div class="spacer"></div>
-      <a id="lessonLink" href="#">← Home</a>
-    </div>
-
-    <div class="tutor-head">
-      <div class="tutor-id">
+  <div class="app">
+    <aside class="side left">
+      <div class="tutor-head">
         <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
         <div class="tutor-meta">
           <div class="tutor-name">Mr. Cadabra</div>
           <div class="status" id="status">&nbsp;</div>
         </div>
       </div>
-      <div class="convo" id="log" hidden></div>
-      <div class="youecho" id="youEcho"></div>
-    </div>
-
-    <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
-
-    <div class="stage" id="stage">
-      <div class="boardsay" id="boardSay"></div>
-      <div class="boardwork" id="board"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
-    </div>
-
-    <div class="controls">
-      <div class="live" id="live"></div>
-      <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
-      <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
-      <div class="quickrow" id="quickRow">
-        <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
-        <button class="quick no" data-say="No" disabled>✗ No</button>
-        <button class="quick conf" data-say="I'm stuck" disabled>🤔 I'm stuck</button>
-        <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
+      <div class="controls">
+        <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
+        <div class="quickrow" id="quickRow">
+          <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
+          <button class="quick no" data-say="No" disabled>✗ No</button>
+          <button class="quick conf" data-say="I'm stuck" disabled>🤔 I'm stuck</button>
+          <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
+        </div>
+        <div class="hint" id="hint">Let's take a look at your problem…</div>
+        <button class="link" id="typeToggle">Type instead</button>
+        <div class="composer" id="composer">
+          <input id="input" placeholder="Type to Mr. Cadabra…" autocomplete="off" />
+          <button id="send">Send</button>
+        </div>
+        <div class="live" id="live"></div>
       </div>
-      <div class="hint" id="hint">Let's take a look at your problem…</div>
-      <button class="link" id="typeToggle">Type instead</button>
-      <div class="composer" id="composer">
-        <input id="input" placeholder="Type to Mr. Cadabra…" autocomplete="off" />
-        <button id="send">Send</button>
+    </aside>
+
+    <div class="center">
+      <div class="topbar">
+        <div class="title">✏️ Practice with Mr. Cadabra</div>
+        <div class="spacer"></div>
+        <a id="lessonLink" href="#">← Home</a>
       </div>
+      <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
+      <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
     </div>
   </div>
 
@@ -328,9 +356,9 @@
     el("lessonLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
 
-    const stage = el("board"), statusEl = el("status"), log = el("log");
-    const boardSay = el("boardSay"), youEcho = el("youEcho"), pauseBtn = el("pauseBtn");
-    let paused = false;
+    const feed = el("feed"), statusEl = el("status");
+    const pauseBtn = el("pauseBtn");
+    let paused = false, curWork = null;
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
 
@@ -517,7 +545,12 @@
       while ((m = re.exec(s)) !== null) attrs[m[1].toLowerCase()] = (m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : m[5]);
       return attrs;
     }
+    function stripTags(text) {
+      return String(text == null ? "" : text)
+        .replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
+    }
     function handleTags(text) {
+      curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
@@ -530,25 +563,18 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "clear") wipeBoard();
       }
-      return text
-        .replace(/\[\[[^\]]*\]\]/g, "")
-        .replace(/\[\[[\s\S]*$/, "")
-        .replace(/\s{2,}/g, " ")
-        .trim();
+      return stripTags(text);
     }
-    function clearStage() { stage.innerHTML = '<div class="stage-hint">Your work will appear here.</div>'; }
-    // Erase the board with a quick eraser sweep, then leave it blank (only if it shows something).
+    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your work will appear here.</div>'; }
+    // [[clear]] = "new problem." The transcript RETAINS history, so we drop a divider instead of erasing.
     function wipeBoard() {
-      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .solveboard, .worklist, .tiles, .scatter");
-      if (!hasContent) { stage.innerHTML = ""; return; }
-      const wipe = document.createElement("div"); wipe.className = "wipe";
-      wipe.innerHTML = '<div class="eraser">🧽</div>';
-      stage.appendChild(wipe);
-      setTimeout(() => { if (stage.querySelector(".wipe")) stage.innerHTML = ""; }, 640);
+      curWork = null;
+      const div = document.createElement("div"); div.className = "feeddiv"; div.textContent = "— new problem —";
+      feed.appendChild(div); scrollFeed();
     }
     function showCard(a) {
       const items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean);
-      stage.innerHTML = ""; const card = document.createElement("div"); card.className = "qcard pop";
+      const stage = feedBlock(); const card = document.createElement("div"); card.className = "qcard pop";
       if (a.title) { const tt = document.createElement("div"); tt.className = "qtitle"; tt.textContent = a.title; card.appendChild(tt); }
       const ul = document.createElement("ul");
       for (const it of items) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
@@ -577,7 +603,7 @@
       const left = a.left || "", right = a.right || "", st = (a.state || "level").toLowerCase();
       let deg = 0; if (st.includes("left")) deg = -9; else if (st.includes("right")) deg = 9;
       else if (st === "tip" || st === "unbalanced") deg = -9;
-      stage.innerHTML = ""; const scale = document.createElement("div"); scale.className = "scale pop";
+      const stage = feedBlock(); const scale = document.createElement("div"); scale.className = "scale pop";
       const bw = document.createElement("div"); bw.className = "beamwrap";
       const beam = document.createElement("div"); beam.className = "beam"; beam.style.transform = "rotate(" + deg + "deg)";
       const pivot = document.createElement("div"); pivot.className = "pivot";
@@ -684,7 +710,7 @@
       // legend of the equations shown
       const legend = lines.concat(paras).map((e, i) =>
         '<span class="glg" style="color:' + GRAPH_COLORS[i % GRAPH_COLORS.length] + '">&#9644; ' + esc(e) + '</span>').join("");
-      stage.innerHTML = '<div class="graphwrap pop">' + svg
+      feedBlock().innerHTML = '<div class="graphwrap pop">' + svg
         + (legend ? '<div class="glegend">' + legend + '</div>' : "")
         + (a.caption ? '<div class="cap">' + esc(a.caption) + '</div>' : "") + '</div>';
     }
@@ -728,7 +754,7 @@
       const rule   = String(a.rule   == null ? "" : a.rule  ).trim();
       const output = String(a.output == null ? "" : a.output).trim();
       const fname  = String(a.fname || "f").trim();
-      stage.innerHTML = "";
+      const stage = feedBlock();
       const wrap = document.createElement("div"); wrap.className = "machine pop";
       let html = '<div class="mflow">';
       html += '<div class="mnode min"><div class="mcap">input</div><div class="mval">' + escapeHTML(input) + '</div></div>';
@@ -754,9 +780,13 @@
     // lines -- only [[clear]] wipes it. Equation rows use a 3-column grid (left | = |
     // right) so a both-sides operation lines up under each side, like working on paper.
     function getWorklist() {
-      let wl = stage.querySelector(".worklist");
-      if (!wl) { stage.innerHTML = ""; wl = document.createElement("div"); wl.className = "worklist"; stage.appendChild(wl); }
-      return wl;
+      if (!curWork) {
+        clearHint();
+        const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
+        curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
+      }
+      scrollFeed();
+      return curWork;
     }
     function eqRow(eqText) {
       const s = String(eqText == null ? "" : eqText).trim();
@@ -791,7 +821,7 @@
       if (eq) wl.appendChild(eqRow(eq));
       if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
       if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
-      wl.scrollTop = wl.scrollHeight;
+      scrollFeed();
     }
 
     // [[write ...]] -- legacy catch-all, now APPENDS to the persistent worklist (stacks
@@ -801,7 +831,7 @@
       const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
       for (const ln of lines) wl.appendChild(eqRow(ln));
       if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
-      wl.scrollTop = wl.scrollHeight;
+      scrollFeed();
     }
 
     // [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5"]]
@@ -820,19 +850,25 @@
       }
       let html = rows.map((r, i) => r.replace(/^<div /, '<div style="animation-delay:' + (i * 0.14).toFixed(2) + 's" ')).join("");
       if (a.caption) html += '<div class="scap">' + escapeHTML(a.caption) + '</div>';
-      stage.innerHTML = "";
+      const stage = feedBlock();
       const wrap = document.createElement("div"); wrap.className = "solveboard"; wrap.innerHTML = html;
       stage.appendChild(wrap);
     }
 
-    // Mr. Cadabra's WORDS now live ON THE BOARD (top), so the student reads his speech and
-    // the math in ONE place -- the side chat is gone. addBubble routes accordingly.
-    function setBoardSay(text) { boardSay.innerHTML = styleVars(text || ""); }
-    function setYouEcho(text) { youEcho.textContent = text ? ("You: " + text) : ""; }
+    // ---------- The transcript feed (tutor chat + student chat + worked math) ----------
+    function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
+    let stickBottom = true;
+    feed.addEventListener("scroll", () => { stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48; });
+    function scrollFeed() { requestAnimationFrame(() => { if (stickBottom) feed.scrollTop = feed.scrollHeight; }); }
+    new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });
     function addBubble(role, text) {
-      if (role === "student") { setYouEcho(text); return null; }
-      setBoardSay(text);            // tutor + system messages show as the board's spoken line
-      return null;
+      clearHint();
+      const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
+      feed.appendChild(div); scrollFeed(); return div;
+    }
+    function feedBlock() {
+      clearHint(); curWork = null;
+      const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
     }
 
     // ---------- Pause / resume ----------
@@ -940,11 +976,12 @@
           body: JSON.stringify({ code: CODE, problem, message, history: history.slice(0, -1) }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
-        reply = handleTags(reply);
-        addBubble("tutor", reply);
-        history.push({ role: "assistant", content: reply });
+        const clean = stripTags(reply);
+        addBubble("tutor", clean);           // his words first (chat bubble)
+        handleTags(reply);                   // then his worked math, right below
+        history.push({ role: "assistant", content: clean });
         statusEl.textContent = "Mr. Cadabra is talking…";
-        await speak(reply);
+        await speak(clean);
       } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
       finally { busy = false; statusEl.textContent = ""; setPhase("ready"); }
     }
@@ -1004,7 +1041,7 @@
 
     function resetToEntry() {
       problem = ""; history = [];
-      log.innerHTML = ""; clearStage();
+      clearStage();   // reset the transcript feed to its empty hint
       el("probBar").classList.remove("show"); el("probText").textContent = "";
       problemInput.value = ""; entryGo.disabled = true; el("entryNote").textContent = "You can practice any Algebra I problem.";
       composer.classList.remove("show"); typeToggle.style.display = "";
