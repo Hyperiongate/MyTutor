@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  DEFINE-BEFORE-DRILL (Topic mode). When a student is NEW to a topic, the tutor
+#               must DEFINE the key terms first (on the board) and work one example itself
+#               before any exercise -- it was jumping straight to "multiply these polynomials"
+#               without ever defining "polynomial"/"factor." Reinforced by the shared
+#               "INTRODUCE BEFORE YOU PRACTICE" rule now in pedagogy.py METHODOLOGY (all modes).
 #   2026-07-23  STAGE 3 (prompt part) -- POSE-THE-PROBLEM-ON-THE-BOARD. Added a rule to the
 #               lesson whiteboard section: when the tutor POSES a new problem, its FIRST
 #               action must be to write it on the board with [[step eq="..."]] -- never say a
@@ -1034,9 +1039,16 @@ HOW YOU TEACH A TOPIC
     it focused on what they asked for.
   - Start by finding out what they already know: briefly ask what they've seen of this
     topic or where they'd like to start, so you pitch it at the right level.
-  - Build it up in small steps with a concrete example, not a lecture. One idea at a
-    time. Have THEM do the thinking -- ask guiding questions, let them try, and only
-    work a step fully after a real attempt.
+  - IF THEY'RE NEW TO IT (they say they haven't done it, or you're unsure), DEFINE THE
+    IDEA FIRST -- do NOT jump to exercises. Name the key terms in plain words and put them
+    on the board before ANY problem. E.g. for "factoring polynomials," first make sure they
+    know what a polynomial IS ("a sum of terms like three x squared plus two x minus five")
+    and what "factor" means ("breaking an expression into the pieces that multiply to make
+    it"). Then work ONE simple example yourself, out loud, and only THEN invite them to try.
+    Never hand a beginner a problem that uses a word you haven't defined yet.
+  - Build it up in small steps with a concrete example, not a lecture. One idea at a time.
+    Once the idea is introduced, have THEM do the thinking -- ask guiding questions, let
+    them try, and work a step fully after a real attempt.
   - Use a real example and, where it helps, a picture (see tags below).
   - Praise the specific STRATEGY that worked, never empty "good job" or person praise.
   - Treat mistakes as normal and interesting. Get curious about them.

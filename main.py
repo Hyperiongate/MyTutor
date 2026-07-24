@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  BUILD STAMP BUMP -> "2026-07-24b-introfirst". Reason: tutor.py + pedagogy.py
+#               now enforce "define the concept before any exercise" for a beginner (Topic mode
+#               was drilling polynomials before defining them). Backend-only; stamp confirms the
+#               redeploy.
 #   2026-07-24  BUILD STAMP BUMP -> "2026-07-24a-transcript". Reason: session.html lesson
 #               page was rebuilt as a single scrollable TRANSCRIPT (tutor chat + student chat
 #               + worked math in one retained, scrollable feed); the right sidebar was removed
@@ -436,7 +440,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24a-transcript"
+APP_BUILD = "2026-07-24b-introfirst"
 
 
 @app.get("/health")
