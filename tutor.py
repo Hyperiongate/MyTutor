@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  TEACHING BRAIN UPGRADE -- STRONG MODEL + REAL PEDAGOGY WIRED IN. Two
+#               changes so the tutor TEACHES from expertise instead of from hand-patched
+#               rules (the fix for "AI is not teaching well / this will take forever"):
+#                 (1) MODEL: student-facing brain switched to the stronger
+#                     "claude-sonnet-5" (teaching JUDGMENT -- when to push vs. show, how
+#                     to read a student -- is exactly where a stronger model wins). NOTE:
+#                     the Render env var CLAUDE_MODEL OVERRIDES this default, so it must be
+#                     updated (or removed) in Render for the switch to take effect live.
+#                 (2) KNOWLEDGE BASE: new pedagogy.py (distilled from the two project KBs)
+#                     is now injected into EVERY prompt. build_system_prompt reads the
+#                     student's placed Unit from their progress note and injects that
+#                     unit's misconceptions + how-to-teach; practice/topic classify the
+#                     problem/topic to a unit (via curriculum.classify_unit) and inject the
+#                     same, plus the universal developmental/feedback methodology + the
+#                     cross-cutting error watch-list. Imports are guarded so the tutor
+#                     still runs if a module is missing (do no harm).
 #   2026-07-23  BOARD NEVER RUNS AHEAD OF THE STUDENT (Socratic pacing fix). The
 #               whiteboard was answering the very question the tutor had just asked:
 #               Mr. Cadabra would ask "what's the next step?" while the board already
@@ -161,6 +177,21 @@ import re
 
 from anthropic import Anthropic
 
+# The tutor's TEACHING KNOWLEDGE BASE (per-unit misconceptions + how-to-teach) and the
+# unit CLASSIFIER. Imported defensively: if either module is somehow missing on deploy,
+# the tutor must still answer (it just won't get the extra pedagogy that turn) -- do no
+# harm. See pedagogy.py / curriculum.py.
+try:
+    import pedagogy
+except Exception as _exc:  # noqa: BLE001
+    pedagogy = None
+    print(f"[tutor] pedagogy KB unavailable: {_exc}")
+try:
+    import curriculum
+except Exception as _exc:  # noqa: BLE001
+    curriculum = None
+    print(f"[tutor] curriculum classifier unavailable: {_exc}")
+
 # The tutor's name (v0.1). This can be changed in one place and flows everywhere,
 # including the tutor's own self-introduction.
 TUTOR_NAME = "Mr. Cadabra"
@@ -168,12 +199,17 @@ TUTOR_NAME = "Mr. Cadabra"
 # The STUDENT-FACING model. Configurable via env (CLAUDE_MODEL) so we never have to
 # touch code to change it. This must be a CURRENT alias from Anthropic's docs --
 # retired/guessed ids are rejected by the API.
-# 2026-07-21: switched students to the cheaper "claude-haiku-4-5" (Haiku 4.5). It's
-# ~7-18x cheaper per token than Sonnet, runs on the same Anthropic SDK (a one-line
-# change), keeps us on a US vendor (important for school-district data review), and is
-# paired with the self-check accuracy rule in the prompts below so quality holds.
-# (Premium models like Opus/Sonnet are for DEVELOPMENT; students use Haiku.)
-DEFAULT_MODEL = "claude-haiku-4-5"
+# 2026-07-23: switched the student-facing brain to the stronger "claude-sonnet-5"
+# (Sonnet 5). Teaching JUDGMENT -- knowing when to push vs. show, reading a student,
+# adapting on the fly -- is exactly where a stronger model is dramatically better, and
+# the whole app is still in DEVELOPMENT (no live students yet), so we tune for teaching
+# quality now and can revisit per-student cost before launch. (Haiku 4.5 was the prior
+# cheap choice; we can drop back to it for production if Sonnet-with-real-pedagogy proves
+# more than we need.)
+# IMPORTANT: the Render env var CLAUDE_MODEL OVERRIDES this default. To go live on
+# Sonnet, set CLAUDE_MODEL=claude-sonnet-5 in Render (or delete the var so this default
+# is used).
+DEFAULT_MODEL = "claude-sonnet-5"
 
 # How many past messages we replay to the model each request. Keeps the "tutor
 # remembers" feeling while bounding token cost (one message = one turn).
@@ -427,6 +463,17 @@ TEACHING HABITS (research-backed, use always):
   - Tie examples to their interests whenever you can.
 
 ============================================================
+YOUR TEACHING PLAYBOOK FOR THIS STUDENT (your expertise -- lean on it)
+============================================================
+This is real, evidence-based teaching guidance for exactly where this student is right
+now -- how to reach a learner their age, the feedback that actually helps, and the
+specific places students trip on this material and how to teach around them. Use it as a
+skilled tutor would: naturally, in the background, adapting to THIS student -- not as a
+script to recite.
+
+{playbook}
+
+============================================================
 SHOWING PICTURES ON SCREEN (do this often -- pictures beat words)
 ============================================================
 The screen can draw an animated balance scale, and it tracks today's plan. You
@@ -558,10 +605,12 @@ def build_system_prompt(student: dict) -> str:
     if not progress:
         progress = ("(No prior sessions yet -- this is your FIRST meeting with "
                     "this student. Begin with the first-meeting flow.)")
+    playbook = _playbook(_unit_from_progress(progress))
     return SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         progress=progress,
+        playbook=playbook,
     )
 
 
@@ -570,6 +619,42 @@ def _trim_history(history: list) -> list:
     if not history:
         return []
     return history[-MAX_HISTORY_MESSAGES:]
+
+
+# -----------------------------------------------------------------------------
+# TEACHING PLAYBOOK INJECTION -- give the tutor real pedagogy for THIS student's unit
+# -----------------------------------------------------------------------------
+# We figure out which Algebra I unit the student is on, then pull that unit's
+# misconceptions + how-to-teach (plus the universal methodology) from pedagogy.py and
+# drop it into the system prompt. Every step is wrapped so a failure never breaks a turn.
+def _unit_from_progress(progress) -> "int | None":
+    """The lesson stores the placed unit in the progress note as 'Unit N'. Read it."""
+    try:
+        m = re.search(r"\bUnit\s+(\d+)", str(progress or ""))
+        return int(m.group(1)) if m else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _unit_from_text(text) -> "int | None":
+    """Classify a free-text problem/topic to a unit (practice + topic modes)."""
+    try:
+        if curriculum and text:
+            unit, _name = curriculum.classify_unit(text)
+            return unit
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def _playbook(unit) -> str:
+    """The teaching guidance to inject this turn (or '' if the KB is unavailable)."""
+    try:
+        if pedagogy:
+            return pedagogy.teaching_playbook(unit)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] playbook build failed: {exc}")
+    return ""
 
 
 # =============================================================================
@@ -725,6 +810,14 @@ THE PROBLEM THE STUDENT IS STUCK ON:
 Student's name: {student_name}
 
 ============================================================
+YOUR TEACHING PLAYBOOK (your expertise -- lean on it, don't recite it)
+============================================================
+Real, evidence-based guidance for reaching this learner and for the exact spots students
+trip on this kind of problem. Use it naturally as a skilled coach would:
+
+{playbook}
+
+============================================================
 HOW YOU HELP (this is the whole job)
 ============================================================
   - COACH them through THIS problem -- do not just hand over the answer. Guide with
@@ -814,10 +907,12 @@ def build_practice_prompt(student: dict, problem: str) -> str:
     """Fill the practice template with this student's name and their problem."""
     name = (student or {}).get("name", "the student")
     problem = (problem or "").strip() or "(The student hasn't stated the problem clearly yet -- ask them what it is.)"
+    playbook = _playbook(_unit_from_text(problem))
     return PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         problem=problem,
+        playbook=playbook,
     )
 
 
@@ -878,6 +973,14 @@ THE TOPIC THE STUDENT WANTS TO EXPLORE:
 {topic}
 
 Student's name: {student_name}
+
+============================================================
+YOUR TEACHING PLAYBOOK (your expertise -- lean on it, don't recite it)
+============================================================
+Real, evidence-based guidance for reaching this learner and for the exact spots students
+trip on this topic. Use it naturally as a skilled tutor would:
+
+{playbook}
 
 ============================================================
 HOW YOU TEACH A TOPIC
@@ -958,10 +1061,12 @@ def build_topic_prompt(student: dict, topic: str) -> str:
     """Fill the topic template with this student's name and their chosen topic."""
     name = (student or {}).get("name", "the student")
     topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
+    playbook = _playbook(_unit_from_text(topic))
     return TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         topic=topic,
+        playbook=playbook,
     )
 
 

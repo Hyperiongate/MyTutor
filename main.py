@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  BUILD STAMP BUMP -> "2026-07-23f-strongbrain". Backend reason: the tutor
+#               now runs on the stronger claude-sonnet-5 brain AND injects real per-unit
+#               pedagogy from the new pedagogy.py KB (see tutor.py notes). No route change
+#               here -- the bump exists so /health confirms Render redeployed. REMINDER:
+#               the live model is set by the Render env var CLAUDE_MODEL, which OVERRIDES
+#               the code default -- set CLAUDE_MODEL=claude-sonnet-5 in Render (or delete
+#               it) or the tutor stays on whatever that var says (currently Haiku).
 #   2026-07-23  BUILD STAMP BUMP -> "2026-07-23e-boardsync". Backend-only reason: the
 #               tutor.py whiteboard logic changed (the board no longer runs ahead of the
 #               student / answers the question it just asked). No route or handler change
@@ -412,7 +419,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23e-boardsync"
+APP_BUILD = "2026-07-23f-strongbrain"
 
 
 @app.get("/health")
