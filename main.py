@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE A3 -- MASTERY DASHBOARD. Stamp -> "2026-07-24h-dashboard". dashboard.html
+#               rebuilt on the real mastery data (units mastered ring, day streak, accuracy,
+#               problems practiced) + a "Strengthen next" section naming started-but-not-mastered
+#               units (weakest first) with a Work-on-it link. No backend change (uses the
+#               /api/topics fields A1 added). Completes Phase A (measurement spine).
 #   2026-07-24  PHASE A2 -- CHECK FLOW LIVE. Stamp -> "2026-07-24g-checks". The tutor now runs
 #               end-of-unit checks and marks practice problems (tutor.py prompt); the frontends
 #               POST to the A1 endpoints (/api/check, /api/mark) and show a result card. Backend
@@ -523,7 +528,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24g-checks"
+APP_BUILD = "2026-07-24h-dashboard"
 
 
 @app.get("/health")
