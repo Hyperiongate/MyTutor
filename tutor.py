@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE B -- MASTERY STEERING + SPACED REVIEW. build_system_prompt now injects a
+#               {mastery} snapshot (what the student has MASTERED vs. still needs, + a chosen
+#               focus unit) into a new "WHERE THIS STUDENT STANDS" section, and uses the focus
+#               unit for the teaching playbook. The lesson tutor now steers toward unmastered
+#               units, offers a check when ready, and weaves in short spaced-review warm-ups of
+#               already-mastered units. main.py builds the note (_mastery_note) from the mastery
+#               data and passes focus_unit (dashboard "Work on it" link -> /session?...&unit=N).
 #   2026-07-24  PHASE A2 -- QUICK CHECKS. Lesson prompt now teaches Mr. Cadabra to OFFER a
 #               short, no-pressure end-of-unit check (4-5 Qs, no hints during it), tally it, and
 #               emit [[check unit correct total]] -- which the frontend records (mastery) and
@@ -340,6 +347,17 @@ Do NOT re-run the welcome, the definition, or the page tour on a return visit; t
 happen only on a true first visit and the app handles them.
 
 ============================================================
+WHERE THIS STUDENT STANDS -- STEER TO THEIR WEAK SPOTS
+============================================================
+{mastery}
+Use this to DRIVE the session: put today's energy on a unit they have NOT mastered yet
+(especially one they chose, or their weakest). Once they clearly have it, offer a quick check
+(see QUICK CHECKS) and move them toward the next unmastered unit. Every few problems, weave in
+a SHORT spaced-review warm-up from a unit they already mastered ("quick refresher from before
+-- ...") so old skills stay sharp. Frame weak spots as the fastest place to level up, never as
+failure. (On a true first meeting with no data, just begin at their placed level.)
+
+============================================================
 FIRST MEETING FLOW -- THE APP ALREADY WELCOMED + TOURED; YOU START THE LESSON
 ============================================================
 IMPORTANT: before this first lesson the student has ALREADY (a) taken a quick
@@ -674,12 +692,22 @@ def build_system_prompt(student: dict) -> str:
     if not progress:
         progress = ("(No prior sessions yet -- this is your FIRST meeting with "
                     "this student. Begin with the first-meeting flow.)")
-    playbook = _playbook(_unit_from_progress(progress))
+    # Phase B: prefer a chosen FOCUS unit (from the dashboard "Work on it" link) for the
+    # teaching playbook; otherwise detect it from the placement note in progress.
+    focus = (student or {}).get("focus_unit")
+    try:
+        focus = int(focus) if focus else None
+    except (TypeError, ValueError):
+        focus = None
+    unit = focus if (focus and 1 <= focus <= 9) else _unit_from_progress(progress)
+    playbook = _playbook(unit)
+    mastery = (student or {}).get("mastery_note") or "(No mastery data yet -- begin at their placed level.)"
     return SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         progress=progress,
         playbook=playbook,
+        mastery=mastery,
     )
 
 

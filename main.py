@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE B -- STRENGTHEN-WEAK-POINTS LOOP. Stamp -> "2026-07-24i-steering".
+#               ChatRequest gains optional `unit` (focus). New _mastery_note() summarizes what
+#               the student has mastered vs. still needs; /api/chat injects it (+ focus_unit)
+#               into the tutor context so Mr. Cadabra STEERS to weak units and does spaced
+#               review. Dashboard "Work on it" -> /session?code=..&unit=N; session.html forwards
+#               the unit; a focused session tracks toward THAT unit. (tutor.py: {mastery} section.)
 #   2026-07-24  PHASE A3 -- MASTERY DASHBOARD. Stamp -> "2026-07-24h-dashboard". dashboard.html
 #               rebuilt on the real mastery data (units mastered ring, day streak, accuracy,
 #               problems practiced) + a "Strengthen next" section naming started-but-not-mastered
@@ -284,6 +290,44 @@ def _track_topic(code: str, unit, name: str, status: str) -> None:
         print(f"[track] record_topic failed (ignored): {exc}")
 
 
+def _mastery_note(code: str, focus_unit: int = 0) -> str:
+    """PHASE B: a short, human-readable summary of what this student has MASTERED vs. still
+    needs, for the tutor to STEER by (spend effort on weak units + spaced review). Empty
+    string when the DB is off or anything errors -- never breaks a turn."""
+    if not store.enabled():
+        return ""
+    try:
+        topics = {r["unit"]: r for r in store.get_topics(code)}
+        checks = (store.get_mastery(code) or {}).get("checks", {})
+    except Exception as exc:  # noqa: BLE001
+        print(f"[mastery-note] failed (ignored): {exc}")
+        return ""
+    mastered, working, notstarted = [], [], []
+    for n, name in curriculum.UNITS:
+        best = int((checks.get(n) or {}).get("best_pct") or 0)
+        t = topics.get(n)
+        if best >= 80:
+            mastered.append(f"Unit {n} ({name})")
+        elif t and t.get("status") not in (None, "not-started"):
+            tag = ("best " + str(best) + "%") if best else "no check yet"
+            working.append(f"Unit {n} ({name}, {tag})")
+        else:
+            notstarted.append(str(n))
+    parts = []
+    if mastered:
+        parts.append("MASTERED: " + "; ".join(mastered) + ".")
+    if working:
+        parts.append("STILL TO MASTER (focus here): " + "; ".join(working) + ".")
+    if notstarted:
+        parts.append("Not started: units " + ", ".join(notstarted) + ".")
+    note = " ".join(parts) if parts else "Just getting started -- no mastery data yet."
+    fu = int(focus_unit or 0)
+    if 1 <= fu <= 9:
+        note += (f" TODAY the student chose to work on Unit {fu} "
+                 f"({curriculum.UNIT_NAME.get(fu, '')}) -- center this session there.")
+    return note
+
+
 def save_placement(code: str, result: dict) -> None:
     if store.enabled():
         store.save_placement(code, result)
@@ -311,6 +355,7 @@ class LoginRequest(BaseModel):
 class ChatRequest(BaseModel):
     code: str
     message: str
+    unit: int = 0              # optional focus unit (from the dashboard "Work on it" link)
 
 
 class PracticeRequest(BaseModel):
@@ -528,7 +573,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24h-dashboard"
+APP_BUILD = "2026-07-24i-steering"
 
 
 @app.get("/health")
@@ -614,6 +659,19 @@ def chat(req: ChatRequest):
                 "Meet them at that level -- don't start below it unless they struggle.]")
         student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
 
+    # Phase B -- MASTERY STEERING: tell the tutor what they've mastered vs. still need, and
+    # (from the dashboard "Work on it" link) which unit to focus on today.
+    focus_unit = 0
+    try:
+        focus_unit = int(getattr(req, "unit", 0) or 0)
+    except (TypeError, ValueError):
+        focus_unit = 0
+    mnote = _mastery_note(code, focus_unit)
+    if mnote:
+        student_context["mastery_note"] = mnote
+    if 1 <= focus_unit <= 9:
+        student_context["focus_unit"] = focus_unit
+
     # OPENER: the app auto-sends "__open__" when the student opens the lesson (they did NOT
     # type anything). The OLD app sent a literal "Hi!" that got stored as a student turn, so
     # after a few logins the tutor saw "Hi Hi Hi..." and turned snappish. Fix: never store a
@@ -653,6 +711,8 @@ def chat(req: ChatRequest):
             course_unit = su
     except (TypeError, ValueError):
         course_unit = 2
+    if 1 <= focus_unit <= 9:
+        course_unit = focus_unit        # a focused session counts toward THAT unit
     _track_topic(code, course_unit, curriculum.UNIT_NAME.get(course_unit, ""), "learning")
 
     return {"reply": reply}

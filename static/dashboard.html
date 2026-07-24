@@ -282,7 +282,7 @@
             <div class="weak">
               <div class="n">${u.unit}</div>
               <div class="body"><div class="nm">${esc(u.name)}</div><div class="meta">${meta}</div></div>
-              <a class="work" href="/session?code=${encodeURIComponent(CODE)}">Work on it →</a>
+              <a class="work" href="/session?code=${encodeURIComponent(CODE)}&unit=${u.unit}">Work on it →</a>
             </div>`;
         }).join("");
       } else if (anyStarted && data.tracking) {
