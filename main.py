@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE A2 -- CHECK FLOW LIVE. Stamp -> "2026-07-24g-checks". The tutor now runs
+#               end-of-unit checks and marks practice problems (tutor.py prompt); the frontends
+#               POST to the A1 endpoints (/api/check, /api/mark) and show a result card. Backend
+#               endpoints unchanged from A1. Next: A3 dashboard shows the accumulated mastery.
 #   2026-07-24  PHASE A1 -- MASTERY BACKEND. New endpoints POST /api/check/{code} (record an
 #               end-of-unit check score) and POST /api/mark/{code} (count a practiced problem);
 #               /api/topics now also returns per-unit best_pct/checks_taken/mastered + a summary
@@ -519,7 +523,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24f-mastery"
+APP_BUILD = "2026-07-24g-checks"
 
 
 @app.get("/health")

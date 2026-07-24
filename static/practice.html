@@ -66,6 +66,13 @@
       padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
     .feed .stage-hint { margin: auto; }
     .feed sup { font-size: 0.62em; }
+    .feed .checkcard { text-align:center; padding:16px 24px; border-radius:16px; min-width:230px; }
+    .feed .checkcard.pass { background:#e9f9f0; border:1px solid #b6e6cd; }
+    .feed .checkcard.keep { background:#fff6e6; border:1px solid #f2d59a; }
+    .feed .checkcard .ck-top { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
+    .feed .checkcard .ck-score { font-size:42px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
+    .feed .checkcard.pass .ck-badge { color:#0e9f6e; font-weight:800; }
+    .feed .checkcard.keep .ck-badge { color:#a5741a; font-weight:800; }
     .feed .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }
     .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
       color: var(--ink); border-bottom-left-radius: 5px; }
@@ -562,6 +569,8 @@
         else if (name === "step") showStep(attrs);
         else if (name === "write") showWrite(attrs);
         else if (name === "solve") showSolve(attrs);
+        else if (name === "check") showCheck(attrs);
+        else if (name === "mark") postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: (parseInt(attrs.correct, 10) || 0), attempted: (parseInt(attrs.attempted, 10) || 1) });
         else if (name === "clear") wipeBoard();
       }
       return stripTags(text);
@@ -874,6 +883,23 @@
     function feedBlock() {
       clearHint(); curWork = null;
       const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
+    }
+
+    // ---- Quick-check result + silent progress marks (Phase A2) ----
+    function postJSON(url, body) {
+      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); } catch (e) {}
+    }
+    function showCheck(a) {
+      const unit = parseInt(a.unit, 10) || 0;
+      const correct = Math.max(0, parseInt(a.correct, 10) || 0);
+      const total = Math.max(1, parseInt(a.total, 10) || 1);
+      const passed = Math.round(100 * correct / total) >= 80;
+      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total });
+      const host = feedBlock();
+      host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
+        + '<div class="ck-top">Quick check</div>'
+        + '<div class="ck-score">' + correct + ' / ' + total + '</div>'
+        + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
     }
 
     // ---------- Pause / resume ----------
