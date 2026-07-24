@@ -460,61 +460,53 @@
       .center { height: 100vh; }
     }
 
-    /* ===== 2026-07-23 LESSON RELAYOUT (overrides the layout rules above) =====
-       Mr. Cadabra + his speech + the talk controls now live in the RIGHT column;
-       the whiteboard owns the center; the placement link and "Covered" panel are gone. */
-    .app { grid-template-columns: 230px 1fr 344px; }
-    .side.right { border-left: 1px solid var(--line); border-right: none;
-      display: flex; flex-direction: column; padding: 16px 14px; gap: 8px; overflow: hidden; }
-    .side.right .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 10px;
-      margin: 0; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
-    .side.right .orbwrap { width: 76px; height: 76px; }
-    .side.right .convo { flex: 1 1 auto; min-height: 90px; max-height: none; overflow-y: auto;
-      display: flex; flex-direction: column; justify-content: flex-start; gap: 8px; padding: 8px 2px; }
-    .side.right .bubble { max-width: 100%; font-size: 14.5px; }
-    .side.right .controls { flex: 0 0 auto; padding: 8px 0 2px; display: flex; flex-direction: column;
-      align-items: stretch; gap: 9px; }
-    .side.right .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
-    .side.right .live { max-width: 100%; font-size: 15px; }
-    .side.right .composer { max-width: 100%; }
-    .side.right .quickrow { justify-content: center; }
+    /* ===== 2026-07-24 TRANSCRIPT RELAYOUT (overrides the layout rules above) =====
+       No right sidebar. The CENTER is ONE scrollable transcript that shows the tutor's
+       chat, the student's chat, and the worked math -- all retained, scroll up/down.
+       Mr. Cadabra's avatar, the Curriculum/Practice/Dashboard nav, and ALL controls
+       (Pause, Tap-to-talk, Yes/No/confused) live on the LEFT. */
+    .app { grid-template-columns: 280px 1fr; }
+    .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto; }
+    .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
+      margin: 0; border-bottom: 1px solid var(--line); }
+    .side.left .orbwrap { width: 72px; height: 72px; flex: 0 0 auto; }
+    .side.left .orbwrap canvas { width: 72px; height: 72px; }
+    .side.left .leftnav { display: flex; flex-direction: column; gap: 6px; }
+    .side.left .controls { margin-top: auto; display: flex; flex-direction: column; align-items: stretch;
+      gap: 9px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .side.left .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
+    .side.left .quickrow { justify-content: center; }
+    .side.left .composer { max-width: 100%; }
+    .side.left .live { max-width: 100%; font-size: 15px; }
+
+    /* The transcript feed: chat bubbles + worked-math blocks, scrollable, retained. */
+    .feed { flex: 1; margin: 16px 24px 16px; border-radius: 20px; background: var(--panel);
+      border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
+      padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+    .feed .stage-hint { margin: auto; }
+    .feed .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }
+    .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
+      color: var(--ink); border-bottom-left-radius: 5px; }
+    .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff;
+      border-bottom-right-radius: 5px; }
+    .feed .bubble.student .mvar { color: #ffe08a; }
+    .feed .bubble.system { align-self: center; background: transparent; border: none; color: var(--muted);
+      font-size: 13px; padding: 2px; }
+    .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
+      align-items: center; padding: 6px 0; }
+    .feed .feeddiv { align-self: stretch; text-align: center; color: var(--muted); font-size: 12px;
+      border-top: 1px dashed var(--line); margin: 8px 0 2px; padding-top: 8px; }
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: auto; }
-      .center { height: auto; min-height: 56vh; }
-      .side.right { border-left: none; border-top: 1px solid var(--line); overflow: visible; }
-      .side.right .convo { max-height: 220px; }
+      .side.left { display: flex; }
+      .center { height: auto; min-height: 60vh; }
+      .feed { margin: 12px; min-height: 52vh; }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="side left">
-      <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
-      <div class="curriculum" id="curriculumList" style="display:none;"></div>
-      <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
-      <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
-      <div id="planPanel">
-        <h2 style="margin-top:18px;">Your Algebra I course</h2>
-        <div id="planList"></div>
-      </div>
-    </aside>
-
-    <div class="center">
-      <div class="topbar">
-        <div class="title">Math Tutor</div>
-        <div class="spacer"></div>
-        <a id="homeLink" href="#">☰ Menu</a>
-      </div>
-
-      <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
-
-      <div class="stage" id="stage">
-        <div class="boardsay" id="boardSay"></div>
-        <div class="boardwork" id="board"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
-      </div>
-    </div>
-
-    <aside class="side right" id="tutorPanel">
       <div class="tutor-head">
         <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
         <div class="tutor-meta">
@@ -524,11 +516,14 @@
         </div>
       </div>
 
-      <div class="convo" id="log" hidden></div>
-      <div class="youecho" id="youEcho"></div>
+      <nav class="leftnav">
+        <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
+        <div class="curriculum" id="curriculumList" style="display:none;"></div>
+        <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
+        <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+      </nav>
 
       <div class="controls">
-        <div class="live" id="live"></div>
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
         <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="quickrow" id="quickRow">
@@ -542,8 +537,23 @@
           <input id="input" placeholder="Type to your tutor…" autocomplete="off" />
           <button id="send">Send</button>
         </div>
+        <div class="live" id="live"></div>
       </div>
+
+      <div id="planPanel" hidden><div id="planList"></div></div>
     </aside>
+
+    <div class="center">
+      <div class="topbar">
+        <div class="title">Math Tutor</div>
+        <div class="spacer"></div>
+        <a id="homeLink" href="#">☰ Menu</a>
+      </div>
+
+      <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
+
+      <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+    </div>
   </div>
 
   <div class="modal" id="unitModal">
@@ -576,9 +586,9 @@
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { window.location.href = "/"; }
 
-    const stage = el("board"), statusEl = el("status"), log = el("log");
-    const boardSay = el("boardSay"), youEcho = el("youEcho"), pauseBtn = el("pauseBtn");
-    let paused = false;
+    const feed = el("feed"), statusEl = el("status");
+    const pauseBtn = el("pauseBtn");
+    let paused = false, curWork = null;   // curWork = the current turn's worklist block
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
@@ -904,8 +914,17 @@
       try { node.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
     }
 
+    // Strip all control tags so the spoken/shown TEXT never leaks raw markup.
+    function stripTags(text) {
+      return String(text == null ? "" : text)
+        .replace(/\[\[[^\]]*\]\]/g, "")   // remove complete control tags
+        .replace(/\[\[[\s\S]*$/, "")       // remove a DANGLING/unterminated tag (reply cut off mid-tag)
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    }
     function handleTags(text) {
       clearHighlight();                          // each turn starts with a clean page
+      curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
@@ -920,23 +939,15 @@
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
         else if (name === "clear") wipeBoard();
       }
-      return text
-        .replace(/\[\[[^\]]*\]\]/g, "")   // remove complete control tags
-        .replace(/\[\[[\s\S]*$/, "")       // remove a DANGLING/unterminated tag (a reply cut off
-                                           // mid-tag) so raw markup is never shown or read aloud
-        .replace(/\s{2,}/g, " ")
-        .trim();
+      return stripTags(text);
     }
-    function clearStage() { stage.innerHTML = '<div class="stage-hint">Your lesson will appear here.</div>'; }
-    // Erase the whiteboard with a quick eraser sweep, then leave it blank. Only animates
-    // if the board currently shows a drawing; otherwise it just clears instantly.
+    function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your lesson will appear here.</div>'; }
+    // [[clear]] = "new problem." The transcript RETAINS history, so instead of erasing we drop
+    // a subtle divider and let the next problem's math start in a fresh block below it.
     function wipeBoard() {
-      const hasContent = stage.querySelector(".scale, .qcard, .graphwrap, .machine, .writeboard, .solveboard, .worklist, .tiles, .scatter");
-      if (!hasContent) { stage.innerHTML = ""; return; }
-      const wipe = document.createElement("div"); wipe.className = "wipe";
-      wipe.innerHTML = '<div class="eraser">🧽</div>';
-      stage.appendChild(wipe);
-      setTimeout(() => { if (stage.querySelector(".wipe")) stage.innerHTML = ""; }, 640);
+      curWork = null;
+      const div = document.createElement("div"); div.className = "feeddiv"; div.textContent = "— new problem —";
+      feed.appendChild(div); scrollFeed();
     }
     // Today's goal banner (the tutor sets it once at the start via [[goal text="..."]]).
     function showGoal(text) { el("goalText").textContent = String(text || "").trim(); el("goalBar").classList.add("show"); }
@@ -959,7 +970,7 @@
       const preset = a.id ? PRESET_CARDS[String(a.id).toLowerCase()] : null;
       if (preset) { title = title || preset.title; items = preset.items.slice(); }
       else { items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean); }
-      stage.innerHTML = ""; const card = document.createElement("div"); card.className = "qcard pop";
+      const stage = feedBlock(); const card = document.createElement("div"); card.className = "qcard pop";
       if (title) { const tt = document.createElement("div"); tt.className = "qtitle"; tt.textContent = title; card.appendChild(tt); }
       const ul = document.createElement("ul");
       for (const it of items) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
@@ -988,7 +999,7 @@
       const left = a.left || "", right = a.right || "", st = (a.state || "level").toLowerCase();
       let deg = 0; if (st.includes("left")) deg = -9; else if (st.includes("right")) deg = 9;
       else if (st === "tip" || st === "unbalanced") deg = -9;
-      stage.innerHTML = ""; const scale = document.createElement("div"); scale.className = "scale pop";
+      const stage = feedBlock(); const scale = document.createElement("div"); scale.className = "scale pop";
       const bw = document.createElement("div"); bw.className = "beamwrap";
       const beam = document.createElement("div"); beam.className = "beam"; beam.style.transform = "rotate(" + deg + "deg)";
       const pivot = document.createElement("div"); pivot.className = "pivot";
@@ -1095,7 +1106,7 @@
       // legend of the equations shown
       const legend = lines.concat(paras).map((e, i) =>
         '<span class="glg" style="color:' + GRAPH_COLORS[i % GRAPH_COLORS.length] + '">&#9644; ' + esc(e) + '</span>').join("");
-      stage.innerHTML = '<div class="graphwrap pop">' + svg
+      feedBlock().innerHTML = '<div class="graphwrap pop">' + svg
         + (legend ? '<div class="glegend">' + legend + '</div>' : "")
         + (a.caption ? '<div class="cap">' + esc(a.caption) + '</div>' : "") + '</div>';
     }
@@ -1139,7 +1150,7 @@
       const rule   = String(a.rule   == null ? "" : a.rule  ).trim();
       const output = String(a.output == null ? "" : a.output).trim();
       const fname  = String(a.fname || "f").trim();
-      stage.innerHTML = "";
+      const stage = feedBlock();
       const wrap = document.createElement("div"); wrap.className = "machine pop";
       let html = '<div class="mflow">';
       html += '<div class="mnode min"><div class="mcap">input</div><div class="mval">' + escapeHTML(input) + '</div></div>';
@@ -1165,10 +1176,17 @@
     // replaces earlier lines -- only [[clear]] (a new problem) wipes the board. Equation
     // rows use a 3-column grid (left | = | right) so a both-sides operation lines up
     // under each side, exactly like working on paper.
+    // The current turn's worklist block. Created once per turn (a .worklist inside a fresh
+    // .mblock appended to the feed); the turn's [[step]] lines stack inside it. Next turn
+    // makes a new one lower in the transcript, so the whole solve is retained + scrollable.
     function getWorklist() {
-      let wl = stage.querySelector(".worklist");
-      if (!wl) { stage.innerHTML = ""; wl = document.createElement("div"); wl.className = "worklist"; stage.appendChild(wl); }
-      return wl;
+      if (!curWork) {
+        clearHint();
+        const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
+        curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
+      }
+      feed.scrollTop = feed.scrollHeight;
+      return curWork;
     }
     // One equation/expression row. If it has an "=", split into left | = | right so
     // columns line up down the board; otherwise render it centered on its own.
@@ -1210,7 +1228,7 @@
       if (eq) wl.appendChild(eqRow(eq));
       if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
       if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
-      wl.scrollTop = wl.scrollHeight;
+      feed.scrollTop = feed.scrollHeight;
     }
 
     // [[write lines="2X + 1 = 15 | X = 7" caption="..."]] -- legacy catch-all. It now
@@ -1221,7 +1239,7 @@
       const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
       for (const ln of lines) wl.appendChild(eqRow(ln));
       if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
-      wl.scrollTop = wl.scrollHeight;
+      feed.scrollTop = feed.scrollHeight;
     }
 
     // [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5" caption="..."]]
@@ -1241,20 +1259,26 @@
       }
       let html = rows.map((r, i) => r.replace(/^<div /, '<div style="animation-delay:' + (i * 0.14).toFixed(2) + 's" ')).join("");
       if (a.caption) html += '<div class="scap">' + escapeHTML(a.caption) + '</div>';
-      stage.innerHTML = "";
+      const stage = feedBlock();
       const wrap = document.createElement("div"); wrap.className = "solveboard"; wrap.innerHTML = html;
       stage.appendChild(wrap);
     }
 
-    // Mr. Cadabra's WORDS now live ON THE BOARD (top), so the student reads his speech and
-    // the math in ONE place -- the side chat is gone. addBubble routes accordingly:
-    //   tutor / system -> the board's spoken line;  student -> a small "You said" echo.
-    function setBoardSay(text) { boardSay.innerHTML = styleVars(text || ""); }
-    function setYouEcho(text) { youEcho.textContent = text ? ("You: " + text) : ""; }
+    // ---------- The transcript feed (tutor chat + student chat + worked math) ----------
+    // Everything appends to #feed and is RETAINED (scroll up/down). addBubble adds a chat
+    // bubble; the worked-math blocks append right after the tutor's words on that turn.
+    function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
+    function scrollFeed() { feed.scrollTop = feed.scrollHeight; }
     function addBubble(role, text) {
-      if (role === "student") { setYouEcho(text); return null; }
-      setBoardSay(text);            // tutor + system messages show as the board's spoken line
-      return null;
+      clearHint();
+      const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
+      feed.appendChild(div); scrollFeed(); return div;
+    }
+    // A FRESH math block appended to the feed -- used by the FIGURES (balance/graph/machine/
+    // card/solve). Resets the current worklist so a following [[step]] starts a new block.
+    function feedBlock() {
+      clearHint(); curWork = null;
+      const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
     }
 
     // ---------- Pause / resume ----------
@@ -1436,10 +1460,11 @@
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
         // math he's discussing (and updates it as it changes); it only erases when he
         // moves on and sends [[clear]]. So we simply render whatever tags this reply has.
-        reply = handleTags(reply);
-        addBubble("tutor", reply); lastTutorText = reply;
+        const clean = stripTags(reply);
+        addBubble("tutor", clean); lastTutorText = clean;   // his words first (as a chat bubble)
+        handleTags(reply);                                   // then his worked math, right below
         statusEl.textContent = tutorName + " is talking…";
-        await speak(reply);
+        await speak(clean);
       } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
       finally { busy = false; statusEl.textContent = ""; setPhase("ready"); }
     }

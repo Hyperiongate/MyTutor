@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  BUILD STAMP BUMP -> "2026-07-24a-transcript". Reason: session.html lesson
+#               page was rebuilt as a single scrollable TRANSCRIPT (tutor chat + student chat
+#               + worked math in one retained, scrollable feed); the right sidebar was removed
+#               and the avatar + Curriculum/Practice/Dashboard nav + all controls (Pause, Tap-
+#               to-talk, Yes/No/confused) moved to the LEFT; the always-on 9-unit course list
+#               was removed. Front-end only (session.html); this stamp just confirms the deploy
+#               landed. (practice.html/topic.html not yet converted -- pending Jim's OK.)
 #   2026-07-23  BUILD STAMP BUMP -> "2026-07-23h-boardstage". Reason: Stage 3 -- the tutor's
 #               spoken words now render ON the whiteboard (words + math in one place), the side
 #               chat was removed, a Pause button was added (all front-end in session/practice/
@@ -429,7 +436,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23h-boardstage"
+APP_BUILD = "2026-07-24a-transcript"
 
 
 @app.get("/health")
