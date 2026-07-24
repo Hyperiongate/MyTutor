@@ -4,6 +4,15 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-24  PHASE E VISUAL POLISH. Brought the challenge screen fully onto the app's
+                design system so it matches the login/hub/dashboard: primary buttons now
+                have the same hover-lift + disabled behavior as the rest of the app, the
+                ghost button is now white-with-accent-border (was a flat #eef), the START
+                and RESULT panel titles now use the brand purple->teal gradient, and the
+                answer choices + buttons no longer show a blue mobile tap-highlight or let
+                a double-tap select their text. Also removed a duplicate "display:none" on
+                the quiz container (cosmetic; behavior unchanged). No game logic, IDs, or
+                the placement POST were touched.
     2026-07-21  Placement is now reached via the hub's "Start my Algebra course" tile
                 (only when unplaced). So "Start learning" after the quiz goes INTO the
                 course (/session); Exit (bailing mid-quiz) goes back to the hub (/home).
@@ -77,7 +86,8 @@
       letter-spacing: .04em; font-variant-numeric: tabular-nums; }
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .choice { border: 2px solid var(--line); border-radius: 14px; padding: 16px; font-size: 19px; font-weight: 700;
-      background: #fbfbff; cursor: pointer; text-align: center; transition: transform .08s ease, border-color .15s ease; }
+      background: #fbfbff; cursor: pointer; text-align: center; transition: transform .08s ease, border-color .15s ease;
+      user-select: none; -webkit-tap-highlight-color: transparent; }
     .choice:hover { border-color: var(--accent); }
     .choice:active { transform: scale(.97); }
     .choice.correct { border-color: var(--good); background: #e9f9ef; color: var(--good); }
@@ -87,8 +97,14 @@
     /* Buttons */
     .btn { border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 17px; font-weight: 800;
       padding: 15px 30px; background: linear-gradient(90deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 24px rgba(91,91,214,.38); }
-    .btn.ghost { background: #eef; color: var(--accent); box-shadow: none; }
+      box-shadow: 0 10px 24px rgba(91,91,214,.38);
+      transition: transform .12s ease, box-shadow .12s ease;
+      user-select: none; -webkit-tap-highlight-color: transparent; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(91,91,214,.46); }
+    .btn:active { transform: translateY(0) scale(.98); }
+    .btn:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+    .btn.ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); box-shadow: none; }
+    .btn.ghost:hover { background: #f3f3fc; transform: none; box-shadow: none; }
 
     /* Start / result panels */
     .panel { background: var(--panel); border-radius: 22px; width: 100%; max-width: 560px; padding: 30px;
@@ -97,14 +113,16 @@
       display: flex; align-items: center; justify-content: center;
       background: radial-gradient(circle at 34% 30%, #b8a8ff, var(--accent) 72%);
       box-shadow: 0 10px 26px rgba(91,91,214,.45); }
-    .panel h1 { font-size: 26px; margin: 6px 0 4px; }
+    .panel h1 { font-size: 26px; margin: 6px 0 4px; font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
     .panel p { color: var(--muted); font-size: 15px; margin: 0 0 8px; }
     .level-badge { display: inline-flex; align-items: center; gap: 10px; margin: 12px auto; padding: 12px 20px;
       border-radius: 16px; background: linear-gradient(135deg, rgba(91,91,214,.12), rgba(20,184,166,.12));
       border: 1px solid var(--line); }
     .level-badge .lvl { width: 48px; height: 48px; border-radius: 12px; color: #fff; font-weight: 800; font-size: 20px;
       display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), var(--accent2)); }
-    .level-badge .lt { text-align: left; }
+    .level-badge .lt { text-align: left; display: flex; flex-direction: column; line-height: 1.25; }
     .level-badge .lt b { font-size: 18px; } .level-badge .lt span { font-size: 12px; color: var(--muted); }
     .startu { margin: 8px 0 4px; font-size: 16px; }
     .startu b { color: var(--accent); }
@@ -131,7 +149,7 @@
     </div>
 
     <!-- QUIZ (hidden until start) -->
-    <div id="quiz" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+    <div id="quiz" style="display:none; width:100%; flex-direction:column; align-items:center;">
       <div class="hud">
         <div class="chip pts">⭐ <span id="pts">0</span></div>
         <div class="chip streak">🔥 <span id="streak">0</span></div>
