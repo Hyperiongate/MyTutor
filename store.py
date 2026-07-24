@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE A -- MASTERY MODEL. Added two additive tables (unit_checks,
+#               student_stats) + functions: record_check() (end-of-unit check score ->
+#               best/last pct, cumulative accuracy, day streak, marks unit 'mastered' at
+#               >= PASS_PCT=80), record_practice() (counts practiced problems + accuracy +
+#               streak), get_mastery() (assembles the dashboard picture). "mastered" added
+#               to STATUS_RANK (rank 4, top). Existing tables untouched -> do no harm.
 #   2026-07-21  Diagnostics: /health status() now reports `configured` (did we see a
 #               DATABASE_URL) and `reason` (why the DB is disabled, credentials
 #               redacted) so a failed connection is visible without digging in logs.
@@ -125,6 +131,33 @@ def init():
             Column("touches", Integer, default=0),
             Column("last_touched", DateTime(timezone=True)),
         )
+        # Phase A -- MASTERY: results of end-of-unit CHECKS, per student per unit.
+        # best_pct drives "mastered" (>= PASS_PCT). Separate from topic_progress so it's
+        # a clean, additive table (create_all makes it; existing tables untouched).
+        _tables["unit_checks"] = Table(
+            "unit_checks", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("unit", Integer, primary_key=True),
+            Column("checks_taken", Integer, default=0),
+            Column("best_pct", Integer, default=0),      # best score ever on this unit's check
+            Column("last_pct", Integer, default=0),       # most recent check score
+            Column("correct", Integer, default=0),        # cumulative correct across checks
+            Column("attempted", Integer, default=0),      # cumulative questions across checks
+            Column("updated_at", DateTime(timezone=True)),
+        )
+        # Phase A -- overall student STATS for the dashboard: problems practiced, accuracy,
+        # day streak. One row per student.
+        _tables["student_stats"] = Table(
+            "student_stats", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("problems_practiced", Integer, default=0),
+            Column("correct_total", Integer, default=0),
+            Column("attempted_total", Integer, default=0),
+            Column("checks_taken", Integer, default=0),
+            Column("streak_days", Integer, default=0),
+            Column("last_active", String(10)),            # 'YYYY-MM-DD'
+            Column("updated_at", DateTime(timezone=True)),
+        )
         _meta.create_all(_engine)
         # Prove the connection works.
         from sqlalchemy import text as _text
@@ -241,7 +274,7 @@ def ensure_account(code: str, name: str = "", email: str = "") -> None:
 # ---- per-topic tracking (Phase 2 foundation) -------------------------------
 # Honest engagement levels, ranked. We only ever UPGRADE a unit's status, never
 # downgrade it (exploring a unit you've already practiced shouldn't demote it).
-STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3}
+STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3, "mastered": 4}
 
 
 def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explored") -> None:
@@ -286,6 +319,133 @@ def get_topics(code: str) -> list:
          "last_touched": r[4].isoformat() if r[4] else None}
         for r in rows
     ]
+
+
+# ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------
+# A unit is "mastered" when the student passes a check (best score >= PASS_PCT).
+PASS_PCT = 80
+
+
+def _today() -> str:
+    return _now().date().isoformat()
+
+
+def _get_stats_row(code: str) -> dict:
+    from sqlalchemy import select
+    t = _tables["student_stats"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(
+            t.c.problems_practiced, t.c.correct_total, t.c.attempted_total,
+            t.c.checks_taken, t.c.streak_days, t.c.last_active
+        ).where(t.c.code == code)).first()
+    if not r:
+        return {"problems_practiced": 0, "correct_total": 0, "attempted_total": 0,
+                "checks_taken": 0, "streak_days": 0, "last_active": None}
+    return {"problems_practiced": r[0] or 0, "correct_total": r[1] or 0,
+            "attempted_total": r[2] or 0, "checks_taken": r[3] or 0,
+            "streak_days": r[4] or 0, "last_active": r[5]}
+
+
+def _touch_streak(s: dict) -> None:
+    """Update streak_days + last_active for activity happening TODAY (in-place)."""
+    today = _today()
+    last = s.get("last_active")
+    if last == today:
+        return                                   # already counted today
+    yday = (_now().date() - _dt.timedelta(days=1)).isoformat()
+    s["streak_days"] = (s.get("streak_days") or 0) + 1 if last == yday else 1
+    s["last_active"] = today
+
+
+def _save_stats(code: str, s: dict) -> None:
+    _upsert("student_stats", {"code": code}, {
+        "problems_practiced": s["problems_practiced"], "correct_total": s["correct_total"],
+        "attempted_total": s["attempted_total"], "checks_taken": s["checks_taken"],
+        "streak_days": s["streak_days"], "last_active": s["last_active"], "updated_at": _now(),
+    })
+
+
+def _set_unit_status(code: str, unit: int, status: str, unit_name: str = "") -> None:
+    """Upgrade a unit's topic_progress status (never downgrade), without touching touches."""
+    from sqlalchemy import select
+    t = _tables["topic_progress"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.status).where(
+            (t.c.code == code) & (t.c.unit == unit))).first()
+    prev = r[0] if r else None
+    if prev and STATUS_RANK.get(prev, 0) >= STATUS_RANK.get(status, 0):
+        return
+    _upsert("topic_progress", {"code": code, "unit": unit}, {
+        "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""),
+        "status": status, "last_touched": _now(),
+    })
+
+
+def record_check(code: str, unit: int, correct: int, total: int, unit_name: str = "") -> dict:
+    """Record an end-of-unit check result. Updates best/last score, cumulative accuracy,
+    the day streak, and marks the unit 'mastered' if the student passed. Returns a small
+    summary {pct, best_pct, mastered}."""
+    correct = max(0, int(correct)); total = max(1, int(total))
+    pct = round(100 * correct / total)
+    from sqlalchemy import select
+    t = _tables["unit_checks"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.checks_taken, t.c.best_pct, t.c.correct, t.c.attempted).where(
+            (t.c.code == code) & (t.c.unit == unit))).first()
+    checks_taken = (r[0] if r else 0) + 1
+    best_pct = max(pct, (r[1] if r else 0))
+    _upsert("unit_checks", {"code": code, "unit": unit}, {
+        "checks_taken": checks_taken, "best_pct": best_pct, "last_pct": pct,
+        "correct": (r[2] if r else 0) + correct, "attempted": (r[3] if r else 0) + total,
+        "updated_at": _now(),
+    })
+    if pct >= PASS_PCT:
+        _set_unit_status(code, unit, "mastered", unit_name)
+    s = _get_stats_row(code)
+    s["checks_taken"] += 1
+    s["correct_total"] += correct
+    s["attempted_total"] += total
+    s["problems_practiced"] += total
+    _touch_streak(s)
+    _save_stats(code, s)
+    return {"pct": pct, "best_pct": best_pct, "mastered": pct >= PASS_PCT}
+
+
+def record_practice(code: str, correct: int, attempted: int = 1) -> None:
+    """Count practice problems the tutor marked right/wrong (feeds 'problems practiced',
+    accuracy, and the day streak)."""
+    correct = max(0, int(correct)); attempted = max(1, int(attempted))
+    s = _get_stats_row(code)
+    s["problems_practiced"] += attempted
+    s["correct_total"] += correct
+    s["attempted_total"] += attempted
+    _touch_streak(s)
+    _save_stats(code, s)
+
+
+def get_mastery(code: str) -> dict:
+    """Assemble the student's mastery picture for the dashboard: per-unit check scores +
+    overall stats (problems practiced, accuracy, streak)."""
+    from sqlalchemy import select
+    t = _tables["unit_checks"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(
+            t.c.unit, t.c.checks_taken, t.c.best_pct, t.c.last_pct, t.c.correct, t.c.attempted
+        ).where(t.c.code == code)).all()
+    checks = {r[0]: {"checks_taken": r[1], "best_pct": r[2], "last_pct": r[3],
+                     "correct": r[4], "attempted": r[5]} for r in rows}
+    s = _get_stats_row(code)
+    acc = round(100 * s["correct_total"] / s["attempted_total"]) if s["attempted_total"] else None
+    return {
+        "checks": checks,
+        "stats": {
+            "problems_practiced": s["problems_practiced"],
+            "accuracy_pct": acc,
+            "checks_taken": s["checks_taken"],
+            "streak_days": s["streak_days"],
+            "last_active": s["last_active"],
+        },
+    }
 
 
 def status() -> dict:

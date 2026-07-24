@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE A1 -- MASTERY BACKEND. New endpoints POST /api/check/{code} (record an
+#               end-of-unit check score) and POST /api/mark/{code} (count a practiced problem);
+#               /api/topics now also returns per-unit best_pct/checks_taken/mastered + a summary
+#               with units_mastered and stats (problems_practiced, accuracy_pct, streak_days).
+#               Backed by new store.py tables (unit_checks, student_stats). Additive + guarded
+#               (tracking:false when DB off) -> do no harm. Stamp -> "2026-07-24f-mastery".
+#               (A2 = the tutor-run check flow that CALLS these; A3 = the dashboard that SHOWS
+#               them. This A1 step is invisible plumbing until A2/A3 land.)
 #   2026-07-24  BUILD STAMP BUMP -> "2026-07-24e-superscript". Reason: the board now renders
 #               POWERS as real superscripts (x^2 -> x squared shown as x², 10^3 -> 10³, plus
 #               pre-formed ²/³) in styleVars across session/practice/topic -- fixes "I don't see
@@ -316,6 +324,17 @@ class PlacementIn(BaseModel):
     start_unit: int = 1
     start_unit_name: str = ""
     points: int = 0
+
+
+class CheckIn(BaseModel):
+    unit: int                  # which of the 9 units this end-of-unit check covered
+    correct: int = 0           # questions the student got right
+    total: int = 1             # questions on the check
+
+
+class MarkIn(BaseModel):
+    correct: int = 1           # was the practice problem right (1) or wrong (0)
+    attempted: int = 1         # how many problems this represents (usually 1)
     highest_tier: int = 0
     strengths: list = []
 
@@ -402,30 +421,43 @@ def topics_state(code: str):
     tracking = store.enabled()
 
     recorded = {}
+    mastery = {"checks": {}, "stats": {}}
     if tracking:
         try:
             for row in store.get_topics(code):
                 recorded[row["unit"]] = row
         except Exception as exc:  # noqa: BLE001
             print(f"[topics] get_topics failed: {exc}")
+        try:
+            mastery = store.get_mastery(code)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[topics] get_mastery failed: {exc}")
 
+    checks = mastery.get("checks", {})
     units = []
     for n, name in curriculum.UNITS:
         r = recorded.get(n)
+        c = checks.get(n) or {}
+        best = int(c.get("best_pct") or 0)
         units.append({
             "unit": n,
             "name": name,
             "status": (r["status"] if r else "not-started"),
             "touches": (r["touches"] if r else 0),
             "last_touched": (r.get("last_touched") if r else None),
+            "best_pct": best,                       # best end-of-unit check score (0 if none)
+            "checks_taken": int(c.get("checks_taken") or 0),
+            "mastered": best >= 80,
         })
 
     started = [u for u in units if u["status"] != "not-started"]
     summary = {
         "units_started": len(started),
         "units_total": len(units),
+        "units_mastered": len([u for u in units if u["mastered"]]),
         "total_touches": sum(u["touches"] for u in units),
         "last_active": max([u["last_touched"] for u in started if u["last_touched"]], default=None),
+        "stats": mastery.get("stats", {}),          # problems_practiced, accuracy_pct, streak_days
     }
     return {
         "name": student.get("name"),
@@ -444,6 +476,39 @@ def post_placement(code: str, body: PlacementIn):
     return {"ok": True}
 
 
+@app.post("/api/check/{code}")
+def post_check(code: str, body: CheckIn):
+    """PHASE A: record an end-of-unit CHECK score for this student (feeds mastery). No-op
+    (tracking:false) when the DB is off; never raises to the caller."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False}
+    try:
+        name = curriculum.UNIT_NAME.get(int(body.unit), "")
+        res = store.record_check(code, int(body.unit), int(body.correct), int(body.total), name)
+        return {"ok": True, "tracking": True, **res}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[check] record_check failed: {exc}")
+        return {"ok": False, "tracking": True}
+
+
+@app.post("/api/mark/{code}")
+def post_mark(code: str, body: MarkIn):
+    """PHASE A: count a practice problem the tutor marked right/wrong (problems practiced +
+    accuracy + streak). No-op when the DB is off; never raises to the caller."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False}
+    try:
+        store.record_practice(code, int(body.correct), int(body.attempted))
+        return {"ok": True, "tracking": True}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[mark] record_practice failed: {exc}")
+        return {"ok": False, "tracking": True}
+
+
 @app.get("/api/placement/{code}")
 def get_placement(code: str):
     """Return this student's saved placement result (or {})."""
@@ -454,7 +519,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24e-superscript"
+APP_BUILD = "2026-07-24f-mastery"
 
 
 @app.get("/health")
