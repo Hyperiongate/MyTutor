@@ -149,6 +149,16 @@
       border-top: 1px solid var(--line); padding-top: 16px; }
     .foot b { color: var(--ink); }
     .cta { display: inline-block; margin-top: 6px; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 700; }
+    /* Parent/Teacher review view */
+    .ptbadge { display:inline-block; margin-left:9px; font-size:11px; font-weight:800; color:#4a4ac0;
+      background:rgba(91,91,214,.12); border:1px solid rgba(91,91,214,.3); border-radius:20px; padding:3px 10px; vertical-align:middle; }
+    .teacherbox { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+      border-radius: 16px; padding: 16px 18px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(20,30,45,.06);
+      font-size: 14.5px; line-height: 1.6; }
+    .teacherbox h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+    .teacherbox b { color: var(--ink); }
+    .focustag { font-size: 12px; font-weight: 800; color: #b45309; background: rgba(217,119,6,.12);
+      border: 1px solid rgba(217,119,6,.35); border-radius: 20px; padding: 6px 12px; white-space: nowrap; flex: 0 0 auto; }
 
     @media (max-width: 760px) {
       .tiles { grid-template-columns: 1fr 1fr; }
@@ -164,6 +174,8 @@
       <a id="homeLink" href="#">← Home</a>
     </div>
     <p class="sub">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
+
+    <div id="teacherBox" class="teacherbox" style="display:none;"></div>
 
     <div id="offnote" class="offnote" style="display:none;">
       Progress tracking isn't switched on yet, so there's nothing to show. Once it's on,
@@ -208,8 +220,11 @@
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
+    const VIEW = (params.get("view") || "").toLowerCase();
+    const isTeacher = (VIEW === "teacher" || VIEW === "parent");
     if (!CODE) { location.href = "/"; }
-    el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
+    if (isTeacher) { el("homeLink").href = "/"; el("homeLink").textContent = "← Back"; }
+    else { el("homeLink").href = "/home?code=" + encodeURIComponent(CODE); }
 
     // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
     const STATUS = {
@@ -282,7 +297,7 @@
             <div class="weak">
               <div class="n">${u.unit}</div>
               <div class="body"><div class="nm">${esc(u.name)}</div><div class="meta">${meta}</div></div>
-              <a class="work" href="/session?code=${encodeURIComponent(CODE)}&unit=${u.unit}">Work on it →</a>
+              ${isTeacher ? '<span class="focustag">Focus area</span>' : `<a class="work" href="/session?code=${encodeURIComponent(CODE)}&unit=${u.unit}">Work on it →</a>`}
             </div>`;
         }).join("");
       } else if (anyStarted && data.tracking) {
@@ -359,8 +374,29 @@
         el("strengths").innerHTML = str.map(x => `<span class="chip">✓ ${esc(x)}</span>`).join("");
       }
 
-      // ----- Friendly nudge if nothing yet -----
-      if (!anyStarted && data.tracking) {
+      // ----- Parent/Teacher review view: a plain-language "how to help" summary -----
+      if (isTeacher) {
+        document.querySelector(".sub").textContent =
+          "A read-only view of this student's real progress — where they're strong and where they need help.";
+        el("title").insertAdjacentHTML("beforeend", '<span class="ptbadge">Parent/Teacher view</span>');
+        const weakT = units.filter(u => u.status !== "not-started" && !u.mastered);
+        const weakTxt = weakT.length
+          ? weakT.slice(0, 3).map(u => u.name + (u.checks_taken ? " (" + u.best_pct + "%)" : " (no check yet)")).join(", ")
+          : "nothing outstanding — they've mastered everything they've started";
+        const str2 = placement.strengths || [];
+        const box = el("teacherBox");
+        box.style.display = "block";
+        box.innerHTML = "<h3>👪 How " + esc(data.name || "this student") + " is doing</h3>"
+          + "<div><b>" + (s.units_mastered || 0) + " of " + total + "</b> units mastered"
+          + (stats.streak_days ? " · <b>" + stats.streak_days + "-day</b> streak" : "")
+          + (acc === null ? "" : " · <b>" + acc + "%</b> accuracy")
+          + " · <b>" + (stats.problems_practiced || 0) + "</b> problems practiced.</div>"
+          + "<div style=\"margin-top:6px\"><b>Where to help next:</b> " + esc(weakTxt) + ".</div>"
+          + (str2.length ? "<div style=\"margin-top:6px\"><b>Strengths:</b> " + str2.map(esc).join(", ") + ".</div>" : "");
+      }
+
+      // ----- Friendly nudge if nothing yet (student view only) -----
+      if (!isTeacher && !anyStarted && data.tracking) {
         el("foot").innerHTML = "You haven't worked on anything yet — that's the perfect place to start! "
           + "Head back and take a lesson, practice a problem, or take a quick check. "
           + '<a class="cta" href="/home?code=' + encodeURIComponent(CODE) + '">Let\'s go →</a>';

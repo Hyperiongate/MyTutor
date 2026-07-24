@@ -57,6 +57,10 @@
     .msg { margin-top: 14px; font-size: 13px; min-height: 18px; }
     .msg.error { color: #c0392b; }
     .hint { margin-top: 22px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .pt { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+    .ptlink { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+    .ptform { margin-top: 14px; }
+    .ptbtn { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
   </style>
 </head>
 <body>
@@ -72,6 +76,16 @@
 
     <div class="hint">
       Test codes for v0.1: 1234 (Alex), 2345 (Maya), 3456 (Sam), 0000 (Demo).
+    </div>
+
+    <div class="pt">
+      <a id="ptToggle" class="ptlink">👪 Parent or teacher? View a student's progress →</a>
+      <div id="ptForm" class="ptform" style="display:none;">
+        <label for="ptcode">Student's code</label>
+        <input id="ptcode" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+        <button id="ptgo" class="ptbtn">View progress</button>
+        <div id="ptmsg" class="msg"></div>
+      </div>
     </div>
   </div>
 
@@ -120,6 +134,31 @@
 
     button.addEventListener("click", login);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+
+    // Parent/Teacher: view a student's progress read-only (no lesson, no separate password
+    // in dev -- a homeschool parent uses their child's code).
+    const ptToggle = document.getElementById("ptToggle");
+    const ptForm = document.getElementById("ptForm");
+    const ptcode = document.getElementById("ptcode");
+    const ptgo = document.getElementById("ptgo");
+    const ptmsg = document.getElementById("ptmsg");
+    ptToggle.addEventListener("click", () => {
+      ptForm.style.display = (ptForm.style.display === "none" ? "block" : "none");
+      if (ptForm.style.display === "block") ptcode.focus();
+    });
+    async function viewProgress() {
+      const code = (ptcode.value || "").trim();
+      if (!code) { ptmsg.textContent = "Enter the student's code."; ptmsg.className = "msg error"; return; }
+      ptgo.disabled = true; ptmsg.textContent = "Checking…"; ptmsg.className = "msg";
+      try {
+        const res = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) });
+        if (!res.ok) { ptmsg.textContent = "That code wasn't recognized."; ptmsg.className = "msg error"; ptgo.disabled = false; return; }
+        window.location.href = "/dashboard?code=" + encodeURIComponent(code) + "&view=teacher";
+      } catch (err) { ptmsg.textContent = "Something went wrong."; ptmsg.className = "msg error"; ptgo.disabled = false; }
+    }
+    ptgo.addEventListener("click", viewProgress);
+    ptcode.addEventListener("keydown", (e) => { if (e.key === "Enter") viewProgress(); });
+
     input.focus();
   </script>
 </body>
