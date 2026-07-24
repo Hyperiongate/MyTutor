@@ -1185,7 +1185,7 @@
         const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
         curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
       }
-      feed.scrollTop = feed.scrollHeight;
+      scrollFeed();
       return curWork;
     }
     // One equation/expression row. If it has an "=", split into left | = | right so
@@ -1228,7 +1228,7 @@
       if (eq) wl.appendChild(eqRow(eq));
       if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
       if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
-      feed.scrollTop = feed.scrollHeight;
+      scrollFeed();
     }
 
     // [[write lines="2X + 1 = 15 | X = 7" caption="..."]] -- legacy catch-all. It now
@@ -1239,7 +1239,7 @@
       const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
       for (const ln of lines) wl.appendChild(eqRow(ln));
       if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
-      feed.scrollTop = feed.scrollHeight;
+      scrollFeed();
     }
 
     // [[solve start="2x + 1 = 11" steps="subtract 1 from both sides : 2x = 10 | divide both sides by 2 : x = 5" caption="..."]]
@@ -1268,7 +1268,20 @@
     // Everything appends to #feed and is RETAINED (scroll up/down). addBubble adds a chat
     // bubble; the worked-math blocks append right after the tutor's words on that turn.
     function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
-    function scrollFeed() { feed.scrollTop = feed.scrollHeight; }
+    // Keep the newest content visible. We pin to the bottom on any new content -- UNLESS the
+    // student has deliberately scrolled up to read history (then we leave them alone until
+    // they return to the bottom). requestAnimationFrame lets the new content lay out FIRST, so
+    // we measure the true height (fixes the "new line hides below the fold" scrolling).
+    let stickBottom = true;
+    feed.addEventListener("scroll", () => {
+      stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
+    });
+    function scrollFeed() {
+      requestAnimationFrame(() => { if (stickBottom) feed.scrollTop = feed.scrollHeight; });
+    }
+    // Belt-and-suspenders: re-pin after ANY later size change (a diagram finishing layout, a
+    // long line wrapping, the step-in animation) so the bottom is always in view.
+    new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
