@@ -277,6 +277,20 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 22px; min-height: 320px; position: relative; overflow: hidden; }
     .stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
+    /* Board split: Mr. Cadabra's WORDS on top, the MATH work area below -- so the student
+       reads his speech AND the problem in ONE place (no looking back and forth). */
+    .stage { justify-content: flex-start; }
+    .boardsay { width:100%; max-width:660px; margin:2px auto 8px; text-align:center; font-size:20px;
+      line-height:1.5; color:var(--ink); font-weight:600; }
+    .boardsay:empty { display:none; }
+    .boardwork { position:relative; flex:1; width:100%; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; min-height:0; }
+    @media (max-width:560px){ .boardsay { font-size:17px; } }
+    .youecho { font-size:12px; color:var(--muted); text-align:center; margin:2px 0 6px; }
+    .youecho:empty { display:none; }
+    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
+      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
+    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
     /* Eraser sweep when the whiteboard is cleared for a new turn */
     .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: 20px; }
     .wipe::before { content: ""; position: absolute; inset: 0; background: var(--panel);
@@ -494,7 +508,10 @@
 
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
 
-      <div class="stage" id="stage"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+      <div class="stage" id="stage">
+        <div class="boardsay" id="boardSay"></div>
+        <div class="boardwork" id="board"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+      </div>
     </div>
 
     <aside class="side right" id="tutorPanel">
@@ -507,11 +524,13 @@
         </div>
       </div>
 
-      <div class="convo" id="log"></div>
+      <div class="convo" id="log" hidden></div>
+      <div class="youecho" id="youEcho"></div>
 
       <div class="controls">
         <div class="live" id="live"></div>
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="quickrow" id="quickRow">
           <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
           <button class="quick no" data-say="No" disabled>✗ No</button>
@@ -557,7 +576,9 @@
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { window.location.href = "/"; }
 
-    const stage = el("stage"), statusEl = el("status"), log = el("log");
+    const stage = el("board"), statusEl = el("status"), log = el("log");
+    const boardSay = el("boardSay"), youEcho = el("youEcho"), pauseBtn = el("pauseBtn");
+    let paused = false;
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
@@ -832,6 +853,7 @@
         //   3) audio reaches the end but "ended" is missed -> detect near-end + paused
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
+          if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
           const idle = Date.now() - lastProgress;
           if (!started) {
             if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); }
@@ -1224,11 +1246,36 @@
       stage.appendChild(wrap);
     }
 
+    // Mr. Cadabra's WORDS now live ON THE BOARD (top), so the student reads his speech and
+    // the math in ONE place -- the side chat is gone. addBubble routes accordingly:
+    //   tutor / system -> the board's spoken line;  student -> a small "You said" echo.
+    function setBoardSay(text) { boardSay.innerHTML = styleVars(text || ""); }
+    function setYouEcho(text) { youEcho.textContent = text ? ("You: " + text) : ""; }
     function addBubble(role, text) {
-      const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
-      if (role === "tutor") { const prev = log.querySelector(".bubble.tutor.latest"); if (prev) prev.classList.remove("latest"); div.classList.add("latest"); }
-      log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
+      if (role === "student") { setYouEcho(text); return null; }
+      setBoardSay(text);            // tutor + system messages show as the board's spoken line
+      return null;
     }
+
+    // ---------- Pause / resume ----------
+    // Pause stops Mr. Cadabra mid-sentence and HOLDS the session (no new turn starts);
+    // Resume continues the sentence and hands the turn back as normal.
+    function setPaused(on) {
+      paused = on;
+      if (on) {
+        try { ttsAudio.pause(); } catch (e) {}
+        pauseBtn.classList.add("on"); pauseBtn.textContent = "▶ Resume";
+        statusEl.textContent = "Paused"; setState("idle");
+      } else {
+        pauseBtn.classList.remove("on"); pauseBtn.textContent = "⏸ Pause";
+        try {
+          if (ttsAudio.src && ttsAudio.paused && !ttsAudio.ended && ttsAudio.currentTime > 0) {
+            ttsAudio.play(); setState("speaking");
+          }
+        } catch (e) {}
+      }
+    }
+    if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
 
     // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
     // The mic is ONLY on while the student is recording (they tapped the glowing
@@ -1264,7 +1311,7 @@
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
 
     async function startRecording() {
-      if (phase !== "ready" || !canRecord) return;
+      if (phase !== "ready" || !canRecord || paused) return;
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) {
@@ -1374,7 +1421,7 @@
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy) return;
+      if (busy || paused) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
       await runTutor(message);

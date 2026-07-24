@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  BUILD STAMP BUMP -> "2026-07-23h-boardstage". Reason: Stage 3 -- the tutor's
+#               spoken words now render ON the whiteboard (words + math in one place), the side
+#               chat was removed, a Pause button was added (all front-end in session/practice/
+#               topic.html), and tutor.py gained a "write the problem on the board when you pose
+#               it" rule. This stamp confirms the tutor.py backend redeployed.
 #   2026-07-23  BUILD STAMP BUMP -> "2026-07-23g-stepboard". Reason: Stage 2 -- the
 #               whiteboard is now a persistent STACKING worklist driven by the new [[step]]
 #               tag, and the server-side board-guessing net (ensure_board) was retired (see
@@ -424,7 +429,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-23g-stepboard"
+APP_BUILD = "2026-07-23h-boardstage"
 
 
 @app.get("/health")

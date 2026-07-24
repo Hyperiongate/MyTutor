@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-23  STAGE 3 (prompt part) -- POSE-THE-PROBLEM-ON-THE-BOARD. Added a rule to the
+#               lesson whiteboard section: when the tutor POSES a new problem, its FIRST
+#               action must be to write it on the board with [[step eq="..."]] -- never say a
+#               problem out loud while the board is empty (this was the "new problem, blank
+#               board" gap in Jim's screenshot). Clarified this is NOT "running ahead." (The
+#               rest of Stage 3 -- tutor's words moved ONTO the board, side chat removed, and a
+#               Pause button -- is front-end, in session/practice/topic.html.)
 #   2026-07-23  STAGE 2 -- FREE THE WHITEBOARD ([[step]]) + RETIRE THE GUESSING NET. The
 #               board is now a PERSISTENT worklist that STACKS and STAYS (front-end change in
 #               session/practice/topic.html): each [[step]] appends ONE line that stays below
@@ -263,6 +270,12 @@ YOUR MAIN TOOL IS [[step]] -- it adds ONE line to the board:
   - Check the answer at the very end:        [[step check="2(12) + 1 = 25  ✓"]]
 Add steps IN SYNC with your words: the moment you and the student finish a step, add that ONE
 line. The board grows exactly as fast as the conversation -- never faster.
+
+WHEN YOU POSE A NEW PROBLEM, your VERY FIRST action is to write it on the board with a
+[[step]] -- e.g. say "let's try this one" and send [[step eq="3X - 2 = 13"]]. NEVER say a
+problem out loud while the board is empty. (Posing the problem is NOT "running ahead" -- the
+golden rule only stops you from writing the ANSWER to a step you're asking the student to
+find; the problem itself always goes up.)
 
 ⛔ GOLDEN RULE -- NEVER RUN AHEAD OF THE STUDENT. Only add a line AFTER it is worked out
 (they answered it, or you just narrated it as done). When you ASK "what do we do next?" or
