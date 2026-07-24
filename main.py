@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE D -- CONTENT-ENGINE GUARDRAILS. Stamp -> "2026-07-24k-guardrails". The
+#               "verify every problem you make up" rule now lives in pedagogy.py METHODOLOGY, so
+#               it reaches all three tutor modes (lesson/practice/topic) via the injected
+#               playbook: the tutor solves+checks every invented problem, keeps it on-standard,
+#               calibrates difficulty, and discards bad ones. Backend prompt change only.
 #   2026-07-24  PHASE C -- PARENT/TEACHER PORTAL. Stamp -> "2026-07-24j-teacher". Front-end only:
 #               index.html gains a "Parent or teacher? View a student's progress" entry (enter the
 #               student's code -> /dashboard?code=..&view=teacher); dashboard.html adds a read-only
@@ -579,7 +584,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24j-teacher"
+APP_BUILD = "2026-07-24k-guardrails"
 
 
 @app.get("/health")

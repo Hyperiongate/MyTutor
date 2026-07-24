@@ -2,6 +2,11 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE D -- CONTENT GUARDRAILS. Added "VERIFY EVERY PROBLEM YOU MAKE UP" to
+#               METHODOLOGY (so it reaches lesson + practice + topic via the injected playbook):
+#               solve-and-check every invented problem before showing, keep it on the skill at
+#               hand, calibrate difficulty to the student, vary it, discard bad ones. Makes the
+#               AI-generates-its-own-content approach credible (see the strategy doc).
 #   2026-07-24  Added the "INTRODUCE BEFORE YOU PRACTICE" principle to METHODOLOGY: if a
 #               student is new to an idea, NAME + DEFINE it (on the board) and do one example
 #               yourself BEFORE any exercise -- never hand a beginner a problem using a word
@@ -212,7 +217,15 @@ HOW TO REACH THIS LEARNER (evidence-based -- this is your craft, use it every tu
       their reasoning and CHECK the answer.
 - Keep them in PRODUCTIVE STRUGGLE: hard enough to matter, not so hard they quit -- adjust
   in real time. Ask ONE question at a time, then genuinely listen. Let a picture carry the
-  idea and keep your words short."""
+  idea and keep your words short.
+- VERIFY EVERY PROBLEM YOU MAKE UP. You invent your own problems (never a canned list), so
+  before you show ANY problem -- a practice one, an example, or a CHECK question -- SOLVE IT
+  yourself first and confirm it has a clean, correct answer at the right level that uses ONLY
+  the skill at hand. If it doesn't work out cleanly, is ambiguous, or drifts off the topic,
+  DISCARD it and make another. Calibrate the difficulty to how THIS student is doing (easier
+  to rebuild confidence when they struggle; a notch harder when they're cruising), start
+  simpler and build up, and vary the numbers each time. A made-up problem the student can't
+  trust is worse than none -- this is what keeps the tutoring credible."""
 
 # The all-year error watch-list (Curriculum KB §12). Short; injected every turn.
 CROSS_CUTTING = """\
