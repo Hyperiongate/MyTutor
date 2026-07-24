@@ -4,19 +4,17 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-21  Placement is NO LONGER forced at login. EVERYONE goes to the HOME HUB.
-                The level exam now happens only when the student clicks "Start my
-                Algebra course" without having been placed yet (routing on the hub) --
-                so a student who just wants problem help or a topic chat skips it.
-    2026-07-21  Placed students now land on the HOME HUB (/home) instead of straight
-                into the lesson, so they can choose course / practice / topic.
-    2026-07-21  Login now branches on placement: a student who hasn't done the
-                placement Challenge yet is sent there first ("find your level");
-                a placed student goes straight to the lesson. Uses the new `placed`
-                flag from /api/login.
-    2026-07-19  Initial minimal code-entry screen. Student types their login
-                code; we validate it against the backend and, if valid, move to
-                the session screen. Deliberately minimal branding for v0.1.
+    2026-07-24  PHASE E VISUAL POLISH. Restyled the login page onto the app's real
+                design system (bright warm gradient background, purple/teal brand
+                gradient, the app's card/shadow/rounded style, gradient primary button,
+                a little Mr. Cadabra orb) so the FRONT DOOR matches the hub, dashboard,
+                and lesson pages instead of looking like a bare v0.1 form. Same logic
+                and element IDs -- student login + the Parent/Teacher "view progress"
+                entry are unchanged in behavior.
+    2026-07-24  Added a Parent/Teacher entry: enter a student's code -> read-only
+                /dashboard?..&view=teacher (Phase C portal).
+    2026-07-21  Everyone lands on the HOME HUB after login (placement no longer forced).
+    2026-07-19  Initial minimal code-entry screen.
   =============================================================================
 -->
 <html lang="en">
@@ -25,53 +23,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Math Tutor</title>
   <style>
-    :root { --ink:#1c2430; --muted:#5d6b7a; --line:#dfe5ec; --accent:#2f6df6; }
+    :root {
+      --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
+      --warm:#ff7a59; --panel:#ffffff;
+    }
     * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
     body {
-      margin: 0; min-height: 100vh; display: flex; align-items: center;
-      justify-content: center; font-family: system-ui, -apple-system, Segoe UI,
-      Roboto, Helvetica, Arial, sans-serif; color: var(--ink);
-      background: #f5f7fa;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink);
+      background:
+        radial-gradient(760px 500px at 8% -10%, rgba(91,91,214,.18), transparent 60%),
+        radial-gradient(760px 480px at 94% -6%, rgba(20,184,166,.16), transparent 55%),
+        radial-gradient(760px 520px at 55% 112%, rgba(255,122,89,.14), transparent 55%),
+        #f4f4fc;
     }
     .card {
-      width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line);
-      border-radius: 16px; padding: 34px 30px; box-shadow: 0 8px 30px rgba(20,30,45,.06);
+      width: 100%; max-width: 400px; background: var(--panel); border: 1px solid var(--line);
+      border-radius: 20px; padding: 34px 32px 30px; box-shadow: 0 16px 44px rgba(20,30,45,.10);
       text-align: center;
     }
-    h1 { font-size: 22px; margin: 0 0 4px; }
-    p.sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
-    label { display: block; text-align: left; font-size: 13px; color: var(--muted);
-      margin: 0 0 6px; }
+    .orb { width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 14px;
+      background: radial-gradient(circle at 34% 30%, #a7f3e6 0%, #5b5bd6 62%, #4038b8 100%);
+      box-shadow: 0 8px 22px rgba(91,91,214,.35); }
+    h1 { font-size: 26px; margin: 0 0 4px; font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
+    p.sub { color: var(--muted); margin: 0 0 26px; font-size: 14.5px; }
+    label { display: block; text-align: left; font-size: 13px; color: var(--muted); margin: 0 0 6px; font-weight: 600; }
     input {
-      width: 100%; font-size: 20px; letter-spacing: 3px; text-align: center;
-      padding: 12px; border: 1px solid var(--line); border-radius: 10px;
-      outline: none;
+      width: 100%; font-size: 20px; letter-spacing: 3px; text-align: center; padding: 13px;
+      border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fbfbff;
+      transition: border-color .12s ease, box-shadow .12s ease;
     }
-    input:focus { border-color: var(--accent); }
-    button {
-      margin-top: 16px; width: 100%; font-size: 16px; padding: 12px;
-      background: var(--accent); color: #fff; border: none; border-radius: 10px;
-      cursor: pointer;
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,91,214,.16); }
+    .btn {
+      margin-top: 16px; width: 100%; font-size: 16px; font-weight: 700; padding: 13px; border-radius: 12px;
+      cursor: pointer; border: none; color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 10px 24px rgba(91,91,214,.32);
+      transition: transform .12s ease, box-shadow .12s ease;
     }
-    button:disabled { opacity: .55; cursor: default; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(91,91,214,.4); }
+    .btn:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+    .btn.ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); box-shadow: none; }
+    .btn.ghost:hover { background: #f3f3fc; transform: none; box-shadow: none; }
     .msg { margin-top: 14px; font-size: 13px; min-height: 18px; }
     .msg.error { color: #c0392b; }
     .hint { margin-top: 22px; font-size: 12px; color: var(--muted); line-height: 1.5; }
     .pt { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
-    .ptlink { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
-    .ptform { margin-top: 14px; }
-    .ptbtn { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+    .ptlink { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
+    .ptform { margin-top: 14px; text-align: left; }
   </style>
 </head>
 <body>
   <div class="card">
+    <div class="orb"></div>
     <h1>Math Tutor</h1>
-    <p class="sub">Enter your code to begin.</p>
+    <p class="sub">Learn algebra with Mr. Cadabra. Enter your code to begin.</p>
 
     <label for="code">Student code</label>
-    <input id="code" inputmode="numeric" autocomplete="off" placeholder="••••"
-           maxlength="12" />
-    <button id="go">Start</button>
+    <input id="code" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+    <button id="go" class="btn">Start</button>
     <div id="msg" class="msg"></div>
 
     <div class="hint">
@@ -83,7 +95,7 @@
       <div id="ptForm" class="ptform" style="display:none;">
         <label for="ptcode">Student's code</label>
         <input id="ptcode" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
-        <button id="ptgo" class="ptbtn">View progress</button>
+        <button id="ptgo" class="btn ghost">View progress</button>
         <div id="ptmsg" class="msg"></div>
       </div>
     </div>
@@ -91,8 +103,9 @@
 
   <script>
     // ------------------------------------------------------------------
-    // Minimal login logic: send the code to the backend, and if it is
-    // recognized, move to the session screen carrying the code along.
+    // Login logic: validate the code with the backend; on success move to
+    // the HOME HUB (placement is no longer forced at login). The Parent/
+    // Teacher entry sends a code straight to the read-only dashboard.
     // ------------------------------------------------------------------
     const input = document.getElementById("code");
     const button = document.getElementById("go");
@@ -106,24 +119,17 @@
     async function login() {
       const code = (input.value || "").trim();
       if (!code) { setMsg("Please enter your code.", true); return; }
-
       button.disabled = true;
-      setMsg("Checking...", false);
+      setMsg("Checking…", false);
       try {
         const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code })
         });
         if (!res.ok) {
           setMsg("That code was not recognized. Please try again.", true);
-          button.disabled = false;
-          return;
+          button.disabled = false; return;
         }
-        // Everyone lands on the HOME HUB. Placement is NOT forced at login anymore --
-        // the level exam only happens when a student chooses to START THE COURSE
-        // without having been placed yet (that routing lives on the hub). Someone who
-        // only wants help with a problem or to explore a topic never has to take it.
         setMsg("Welcome!", false);
         window.location.href = "/home?code=" + encodeURIComponent(code);
       } catch (err) {

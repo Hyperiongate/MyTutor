@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  PHASE E -- VISUAL POLISH. Stamp -> "2026-07-24l-polish". Restyled index.html
+#               (login) onto the app's design system (warm gradient bg, purple/teal brand
+#               gradient, app card/shadow, gradient primary button, Mr. Cadabra orb) so the front
+#               door matches the hub/dashboard/lesson pages. Front-end only (index.html); other
+#               pages already share the system. (challenge.html not yet reviewed for polish.)
 #   2026-07-24  PHASE D -- CONTENT-ENGINE GUARDRAILS. Stamp -> "2026-07-24k-guardrails". The
 #               "verify every problem you make up" rule now lives in pedagogy.py METHODOLOGY, so
 #               it reaches all three tutor modes (lesson/practice/topic) via the injected
@@ -584,7 +589,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24k-guardrails"
+APP_BUILD = "2026-07-24l-polish"
 
 
 @app.get("/health")
