@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-24  BUILD STAMP BUMP -> "2026-07-24e-superscript". Reason: the board now renders
+#               POWERS as real superscripts (x^2 -> x squared shown as x², 10^3 -> 10³, plus
+#               pre-formed ²/³) in styleVars across session/practice/topic -- fixes "I don't see
+#               the square" (it was showing a literal caret "x^2"). Front-end only.
 #   2026-07-24  BUILD STAMP BUMP -> "2026-07-24d-alltranscript". Reason: practice.html and
 #               topic.html were rebuilt to the SAME transcript + left-sidebar layout as the
 #               lesson (scrollable feed of tutor chat + student chat + math blocks, auto-scroll,
@@ -450,7 +454,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-24d-alltranscript"
+APP_BUILD = "2026-07-24e-superscript"
 
 
 @app.get("/health")

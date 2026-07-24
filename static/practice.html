@@ -65,6 +65,7 @@
       border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
       padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
     .feed .stage-hint { margin: auto; }
+    .feed sup { font-size: 0.62em; }
     .feed .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }
     .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
       color: var(--ink); border-bottom-left-radius: 5px; }
@@ -736,6 +737,10 @@
         last = m.index + run.length;
       }
       out += escapeHTML(text.slice(last));
+      // Render powers as REAL superscripts so a squared/cubed term is unmistakable on the
+      // board: x^2 -> x squared, 10^3 -> 10 cubed, (x-1)^2 -> ..., plus any pre-formed ²/³.
+      out = out.replace(/\^\(?(-?\d+)\)?/g, "<sup>$1</sup>")
+               .replace(/²/g, "<sup>2</sup>").replace(/³/g, "<sup>3</sup>");
       return out;
     }
     // Put the input value in for the variable, for the worked line "2 × 3 + 1".
