@@ -4,6 +4,15 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-25  STUDENT-LED PRACTICE + HINT BUTTON. Practice is now driven by the student:
+                Mr. Cadabra boards the problem, asks "what do you want to do first?", then
+                carries out each move the student names on the whiteboard (the behavior lives
+                in the backend PRACTICE prompt in tutor.py). Front-end change here: a new
+                "💡 Hint" quick button sits in the controls row beside Yes / No / I'm stuck.
+                It sends "Can I have a hint?" through the same sendToTutor path, so the tutor
+                replies with a small nudge (never the whole step). setQuick() + the quick-button
+                click wiring now include ".quick.hintbtn" so it enables/disables with the others
+                and only fires when it's the student's turn. No other logic changed.
     2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
                 rule="2x+1" output="7" fname="f"]] visual: showMachine() draws
                 input -> rule box -> output, with the worked line "2 × 3 + 1 = 7" and
@@ -262,6 +271,8 @@
     .quick.yes { color: var(--ok); border-color: #bfe6cd; }
     .quick.no { color: #c0392b; border-color: #f3c6c6; }
     .quick.conf { color: var(--accent); border-color: #ccccf2; }
+    .quick.hintbtn { color: #c98a00; border-color: #f2dca0; }
+    .quick.hintbtn:not(:disabled):hover { background: #fdf6e3; }
     .quick.newp { color: var(--warm); border-color: #ffd2c4; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
@@ -318,6 +329,7 @@
           <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
           <button class="quick no" data-say="No" disabled>✗ No</button>
           <button class="quick conf" data-say="I'm stuck" disabled>🤔 I'm stuck</button>
+          <button class="quick hintbtn" data-say="Can I have a hint?" disabled>💡 Hint</button>
           <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
         </div>
         <div class="hint" id="hint">Let's take a look at your problem…</div>
@@ -925,8 +937,8 @@
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     const quickRow = el("quickRow");
-    function setQuick(on) { quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf").forEach(b => b.disabled = !on); }
-    quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf").forEach(b =>
+    function setQuick(on) { quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf,.quick.hintbtn").forEach(b => b.disabled = !on); }
+    quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf,.quick.hintbtn").forEach(b =>
       b.addEventListener("click", () => { if (phase === "ready") sendToTutor(b.dataset.say); }));
     el("newProblem").addEventListener("click", () => { if (!busy) resetToEntry(); });
 
