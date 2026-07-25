@@ -2,6 +2,10 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-25  TOPIC NO-SELF-WRAPUP GUARD. Added a rule to TOPIC_SYSTEM_PROMPT_TEMPLATE: never
+#               wrap up / say goodbye / give an "outro" unless the student CLEARLY says they're
+#               done; an odd/unparseable message -> ask them to repeat, never end. Backs up the
+#               main.py STT scrub (a hallucinated "[outro jingle]" had ended a topic after one Q).
 #   2026-07-25  STUDENT-LED PRACTICE. Reworked PRACTICE_SYSTEM_PROMPT_TEMPLATE so Practice is now
 #               DRIVEN BY THE STUDENT: the tutor puts the problem on the board, asks "what would
 #               you like to do first?", then carries out EACH move the student names (and only
@@ -1154,6 +1158,10 @@ HOW YOU TEACH A TOPIC
   - Treat mistakes as normal and interesting. Get curious about them.
   - When they've got the idea, offer them a quick problem to try, and let them decide
     whether to go deeper, try another example, or wrap up.
+  - ⛔ DO NOT wrap up, say goodbye, or give a closing "outro" unless the student CLEARLY
+    says they're finished ("I'm done", "goodbye", "stop", "that's all for now"). A short,
+    odd, or hard-to-parse message is NOT a signal to end -- if you can't tell what they
+    said, just warmly ask them to say it again. Never end the session on your own.
 
 ============================================================
 SCOPE

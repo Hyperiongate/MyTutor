@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-25  STT NON-SPEECH SCRUB. Stamp -> "2026-07-25b-navtype-stt". Added _clean_transcript()
+#               and applied it to /api/transcribe: speech-to-text hallucinations on silence/noise
+#               ("[outro jingle]", "[music]", "(applause)", musical notes) are stripped, and if
+#               nothing real remains the endpoint returns "" so the UI says "didn't catch that"
+#               instead of feeding garbage to the tutor. (A hallucinated "[outro jingle]" had made
+#               Mr. Cadabra end a whole topic after one question.) tutor.py adds a matching topic
+#               no-self-wrapup guard. Also this build ships the topic/practice nav + type-box UI.
 #   2026-07-24  PHASE E -- VISUAL POLISH. Stamp -> "2026-07-24l-polish". Restyled index.html
 #               (login) onto the app's design system (warm gradient bg, purple/teal brand
 #               gradient, app card/shadow, gradient primary button, Mr. Cadabra orb) so the front
@@ -180,6 +187,7 @@
 
 import json
 import os
+import re
 import threading
 from pathlib import Path
 
@@ -589,7 +597,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-25a-ledpractice"
+APP_BUILD = "2026-07-25b-navtype-stt"
 
 
 @app.get("/health")
@@ -848,13 +856,33 @@ def speak(text: str = ""):
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
 
 
+# Speech-to-text engines (Scribe/Whisper-family) HALLUCINATE non-speech captions on silence
+# or background noise -- things like "[outro jingle]", "[music]", "(applause)", "* silence *",
+# or musical notes. If one of those slips through as if the student "said" it, the tutor can
+# mistake it for a real cue (e.g. "[outro jingle]" once made Mr. Cadabra wrap up a whole topic
+# after one question). So we scrub bracketed/parenthesized non-speech captions, and if nothing
+# real remains, return "" -- which the UI treats as "I didn't catch that, try again."
+def _clean_transcript(text: str) -> str:
+    t = (text or "").strip()
+    if not t:
+        return ""
+    # Remove [ ... ] / ( ... ) caption blocks (STT non-speech annotations) and musical notes.
+    scrubbed = re.sub(r"[\[\(][^\]\)]{0,60}[\]\)]", " ", t)
+    scrubbed = scrubbed.replace("♪", " ").replace("♫", " ").replace("*", " ").strip()
+    # If what's left has no letters or digits, it was pure annotation/noise -> treat as silence.
+    if not re.search(r"[A-Za-z0-9]", scrubbed):
+        return ""
+    return scrubbed
+
+
 @app.post("/api/transcribe")
 async def transcribe(audio: UploadFile = File(...)):
     """
     Transcribe the student's recorded audio with ElevenLabs Speech-to-Text (Scribe).
     Browser records the audio (works in every modern browser) and posts it here;
     we return {"text": "..."}. Returns empty text on any failure so the UI can ask
-    the student to try again. Reuses ELEVENLABS_API_KEY.
+    the student to try again. Reuses ELEVENLABS_API_KEY. Non-speech hallucinations
+    (e.g. "[outro jingle]") are scrubbed via _clean_transcript so they never reach the tutor.
     """
     if not ELEVEN_API_KEY:
         return {"text": "", "error": "no_key"}
@@ -874,7 +902,7 @@ async def transcribe(audio: UploadFile = File(...)):
         if r.status_code != 200:
             print(f"[transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
             return {"text": ""}
-        return {"text": (r.json() or {}).get("text", "")}
+        return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
     except Exception as exc:  # noqa: BLE001
         print(f"[transcribe] error: {exc}")
         return {"text": ""}

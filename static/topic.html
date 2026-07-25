@@ -4,6 +4,14 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-25  NAV BUTTONS + TYPE-UNDER-THE-BOARD. The left sidebar was missing the
+                cross-mode nav the lesson page has, and typing was hidden behind a "Type
+                instead" link. Fixed both: (1) added a <nav class="leftnav"> with My course /
+                Practice a problem / Progress dashboard links (hrefs set from CODE in JS);
+                (2) added a persistent .feedbar (chatInput + chatSend) UNDER the whiteboard
+                that's always visible and posts through the same sendToTutor path (guarded by
+                `busy`); (3) retired the old sidebar "Type instead" link via #typeToggle
+                {display:none}. New CSS: .leftnav/.navbtn/.feedbar. No other logic changed.
     2026-07-22  FUNCTION MACHINE + VARIABLES POP. (1) New [[machine input="3"
                 rule="2x+1" output="7" fname="f"]] visual: showMachine() draws
                 input -> rule box -> output, with the worked line "2 × 3 + 1 = 7" and
@@ -81,10 +89,30 @@
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
     .feed .feeddiv { align-self: stretch; text-align: center; color: var(--muted); font-size: 12px;
       border-top: 1px dashed var(--line); margin: 8px 0 2px; padding-top: 8px; }
+
+    /* Cross-mode nav in the left sidebar (match the lesson page) */
+    .side.left .leftnav { display: flex; flex-direction: column; gap: 6px; }
+    .navbtn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+      font-size: 14px; font-weight: 600; color: var(--ink); cursor: pointer; text-decoration: none; }
+    .navbtn:hover { background: #f3f6fb; }
+
+    /* Persistent "type your answer" bar UNDER the whiteboard */
+    .feedbar { display: flex; gap: 8px; margin: 0 24px 16px; }
+    .feedbar input { flex: 1; font-size: 15px; padding: 12px 14px; border: 1px solid var(--line);
+      border-radius: 12px; outline: none; background: #fff; }
+    .feedbar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,91,214,.14); }
+    .feedbar button { font-size: 15px; font-weight: 700; padding: 12px 20px; color: #fff; border: none;
+      border-radius: 12px; cursor: pointer; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .feedbar button:disabled { opacity: .5; cursor: default; }
+    /* The old sidebar "Type instead" link is retired -- typing now lives under the board */
+    #typeToggle { display: none !important; }
+
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: auto; }
       .center { height: auto; min-height: 60vh; }
       .feed { margin: 12px; min-height: 52vh; }
+      .feedbar { margin: 0 12px 12px; }
     }
     .topbar { display: flex; align-items: center; padding: 12px 20px; }
     .topbar .title { font-weight: 800; font-size: 16px;
@@ -306,6 +334,11 @@
           <div class="status" id="status">&nbsp;</div>
         </div>
       </div>
+      <nav class="leftnav">
+        <a class="navbtn" id="courseLink" href="#">📚 My course</a>
+        <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
+        <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+      </nav>
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
         <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
@@ -333,6 +366,10 @@
       </div>
       <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your topic will appear here.</div></div>
+      <div class="feedbar">
+        <input id="chatInput" placeholder="Type your reply to Mr. Cadabra…" autocomplete="off" />
+        <button id="chatSend">Send</button>
+      </div>
     </div>
   </div>
 
@@ -361,6 +398,11 @@
     if (!CODE) { window.location.href = "/"; }
     el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
+    // Cross-mode nav (so you can move between the course, practice, and dashboard
+    // without going back to the hub first).
+    el("courseLink").href = "/session?code=" + encodeURIComponent(CODE);
+    el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
+    el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
 
     const feed = el("feed"), statusEl = el("status");
     const pauseBtn = el("pauseBtn");
@@ -1018,6 +1060,13 @@
     function sendTyped() { const m = (input.value || "").trim(); if (!m || busy) return; input.value = ""; ensureAudioGraph(); sendToTutor(m); }
     if (sendBtn) sendBtn.addEventListener("click", sendTyped);
     if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
+
+    // Persistent "type your reply" bar under the whiteboard (always visible). Same send
+    // path as the mic; guarded by `busy` so you can't double-send while he's thinking.
+    const chatInput = el("chatInput"), chatSend = el("chatSend");
+    function sendChat() { const m = (chatInput.value || "").trim(); if (!m || busy) return; chatInput.value = ""; ensureAudioGraph(); sendToTutor(m); }
+    if (chatSend) chatSend.addEventListener("click", sendChat);
+    if (chatInput) chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendChat(); });
 
     // ---------- Topic entry ----------
     const entry = el("entry"), topicInput = el("topicInput"), entryGo = el("entryGo"), entryMic = el("entryMic");
