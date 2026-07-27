@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 2) -- COURSE-AWARE PROGRESS DB. Stamp -> "2026-07-27b-coursedb".
+#               store.py's per-unit tables (topic_progress, unit_checks) are now keyed by
+#               (code, course, unit) with a self-healing migration that stamps all EXISTING rows
+#               'algebra1' (nothing lost). Every store function defaults course to 'algebra1', so
+#               main.py's calls here are UNCHANGED and student-facing behavior is identical until
+#               the course picker (Phase 3) supplies a course. Verified on SQLite: fresh-create,
+#               old-schema migration, course separation, idempotent restart. See the project doc
+#               Multi_Course_Expansion_Plan.md.
 #   2026-07-27  MULTI-COURSE CATALOG (Phase 1). Stamp -> "2026-07-27a-catalog". curriculum.py and
 #               pedagogy.py became a two-level course CATALOG (Course -> units) with a second course,
 #               Geometry, added; both stay BACKWARD-COMPATIBLE so main.py / tutor.py are unchanged and
@@ -604,7 +612,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-27a-catalog"
+APP_BUILD = "2026-07-27b-coursedb"
 
 
 @app.get("/health")

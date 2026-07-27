@@ -2,6 +2,18 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  PHASE 2 (multi-course) -- COURSE-AWARE PROGRESS. The two per-unit tables
+#               (topic_progress, unit_checks) gained a `course` column and their primary key
+#               is now (code, course, unit) instead of (code, unit), so a student's progress
+#               in Geometry is tracked separately from Algebra I. A self-healing, ADDITIVE
+#               migration (_migrate_course_columns) runs at startup: it adds the column with
+#               DEFAULT 'algebra1', stamps every EXISTING row as 'algebra1' (nothing is lost),
+#               and rebuilds the primary key -- on PostgreSQL via ALTER, on SQLite via a table
+#               rebuild. Every function gained an optional course=DEFAULT_COURSE argument, so
+#               callers that don't pass a course behave EXACTLY as before (all activity counts
+#               as Algebra I until the course picker supplies a course in Phase 3). student_stats
+#               (problems practiced / accuracy / day streak) stays whole-student on purpose;
+#               per-course "units mastered" comes from unit_checks filtered by course. Do no harm.
 #   2026-07-24  PHASE A -- MASTERY MODEL. Added two additive tables (unit_checks,
 #               student_stats) + functions: record_check() (end-of-unit check score ->
 #               best/last pct, cumulative accuracy, day streak, marks unit 'mastered' at
@@ -53,6 +65,10 @@ _tables = {}
 _INIT_ERROR = None   # human-readable reason we stayed disabled (shown in /health)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+
+# The default course. Existing single-course data + any call that doesn't name a course
+# resolve here, so Algebra I behaves exactly as it did before the multi-course work.
+DEFAULT_COURSE = "algebra1"
 
 
 def _redact(msg: str) -> str:
@@ -124,7 +140,9 @@ def init():
         # unit = 1..9 (the nine Algebra I units). status is a short label.
         _tables["topic_progress"] = Table(
             "topic_progress", _meta,
-            Column("code", String(64), primary_key=True),   # composite via (code, unit)
+            Column("code", String(64), primary_key=True),   # composite via (code, course, unit)
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
             Column("unit", Integer, primary_key=True),
             Column("unit_name", String(128)),
             Column("status", String(32)),      # e.g. discussed / practiced / in-progress / mastered
@@ -137,6 +155,8 @@ def init():
         _tables["unit_checks"] = Table(
             "unit_checks", _meta,
             Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
             Column("unit", Integer, primary_key=True),
             Column("checks_taken", Integer, default=0),
             Column("best_pct", Integer, default=0),      # best score ever on this unit's check
@@ -159,6 +179,9 @@ def init():
             Column("updated_at", DateTime(timezone=True)),
         )
         _meta.create_all(_engine)
+        # Give the per-unit tables a `course` dimension if they predate the multi-course
+        # work (additive; preserves all existing rows as 'algebra1'). No-ops once migrated.
+        _migrate_course_columns()
         # Prove the connection works.
         from sqlalchemy import text as _text
         with _engine.connect() as conn:
@@ -175,6 +198,66 @@ def init():
 
 def enabled() -> bool:
     return _ENABLED
+
+
+# ---- multi-course migration (Phase 2) --------------------------------------
+def _migrate_course_columns():
+    """One-time, ADDITIVE migration: give topic_progress + unit_checks a `course` column
+    (default 'algebra1') and rebuild their primary key to (code, course, unit). Existing
+    rows are preserved and stamped course='algebra1', so all current Algebra I progress is
+    kept. Safe to run on EVERY startup: it no-ops once the column exists, and if a table was
+    just created fresh by create_all it already has the course key (so nothing to do)."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    existing = set(insp.get_table_names())
+    for tname in ("topic_progress", "unit_checks"):
+        if tname not in existing:
+            continue  # create_all already built it new, with the (code, course, unit) key
+        cols = [c["name"] for c in insp.get_columns(tname)]
+        if "course" in cols:
+            continue  # already migrated
+        dialect = _engine.dialect.name
+        if dialect == "postgresql":
+            with _engine.begin() as conn:
+                conn.execute(_text(
+                    f"ALTER TABLE {tname} ADD COLUMN course VARCHAR(32) "
+                    f"NOT NULL DEFAULT '{DEFAULT_COURSE}'"))
+                pk = conn.execute(_text(
+                    f"SELECT conname FROM pg_constraint "
+                    f"WHERE conrelid = '{tname}'::regclass AND contype = 'p'")).first()
+                if pk:
+                    conn.execute(_text(f'ALTER TABLE {tname} DROP CONSTRAINT "{pk[0]}"'))
+                conn.execute(_text(
+                    f"ALTER TABLE {tname} ADD PRIMARY KEY (code, course, unit)"))
+            print(f"[store] migrated {tname}: +course column, key -> (code, course, unit).")
+        elif dialect == "sqlite":
+            _sqlite_rebuild_with_course(tname)
+            print(f"[store] migrated {tname} (sqlite rebuild): +course column.")
+        else:
+            # Portable fallback: at least add the column so writes don't fail.
+            with _engine.begin() as conn:
+                conn.execute(_text(
+                    f"ALTER TABLE {tname} ADD COLUMN course VARCHAR(32) "
+                    f"NOT NULL DEFAULT '{DEFAULT_COURSE}'"))
+
+
+def _sqlite_rebuild_with_course(tname):
+    """SQLite can't alter a primary key in place, so rebuild the table: rename the old one
+    aside, let the new-schema table be created, copy the rows in (stamping course='algebra1'),
+    then drop the old table."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    old_cols = [c["name"] for c in insp.get_columns(tname)]
+    with _engine.begin() as conn:
+        conn.execute(_text(f"DROP TABLE IF EXISTS {tname}_old"))  # clear any stale rebuild
+        conn.execute(_text(f"ALTER TABLE {tname} RENAME TO {tname}_old"))
+    _tables[tname].create(_engine, checkfirst=True)
+    collist = ", ".join(old_cols)
+    with _engine.begin() as conn:
+        conn.execute(_text(
+            f"INSERT INTO {tname} ({collist}, course) "
+            f"SELECT {collist}, '{DEFAULT_COURSE}' FROM {tname}_old"))
+        conn.execute(_text(f"DROP TABLE {tname}_old"))
 
 
 # ---- small helpers ---------------------------------------------------------
@@ -277,21 +360,22 @@ def ensure_account(code: str, name: str = "", email: str = "") -> None:
 STATUS_RANK = {"explored": 1, "learning": 2, "practiced": 3, "mastered": 4}
 
 
-def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explored") -> None:
-    """Record that a student engaged with a unit: +1 touch, and upgrade the status if
-    the new engagement is deeper than what's already recorded."""
+def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explored",
+                 course: str = DEFAULT_COURSE) -> None:
+    """Record that a student engaged with a unit of a course: +1 touch, and upgrade the
+    status if the new engagement is deeper than what's already recorded."""
     from sqlalchemy import select
     t = _tables["topic_progress"]
     with _engine.connect() as conn:
         r = conn.execute(select(t.c.touches, t.c.status).where(
-            (t.c.code == code) & (t.c.unit == unit))).first()
+            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
     touches = (r[0] if r else 0) + 1
     prev_status = r[1] if r else None
     # keep the deeper of prev vs incoming
     best = status
     if prev_status and STATUS_RANK.get(prev_status, 0) >= STATUS_RANK.get(status, 0):
         best = prev_status
-    _upsert("topic_progress", {"code": code, "unit": unit}, {
+    _upsert("topic_progress", {"code": code, "course": course, "unit": unit}, {
         "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""), "status": best,
         "touches": touches, "last_touched": _now(),
     })
@@ -306,14 +390,14 @@ UNIT_NAME_HINT = {
 }
 
 
-def get_topics(code: str) -> list:
-    """Return this student's per-unit topic progress rows (for the real dashboard)."""
+def get_topics(code: str, course: str = DEFAULT_COURSE) -> list:
+    """Return this student's per-unit topic progress rows for a course (for the dashboard)."""
     from sqlalchemy import select
     t = _tables["topic_progress"]
     with _engine.connect() as conn:
         rows = conn.execute(select(
             t.c.unit, t.c.unit_name, t.c.status, t.c.touches, t.c.last_touched
-        ).where(t.c.code == code).order_by(t.c.unit)).all()
+        ).where((t.c.code == code) & (t.c.course == course)).order_by(t.c.unit)).all()
     return [
         {"unit": r[0], "unit_name": r[1], "status": r[2], "touches": r[3],
          "last_touched": r[4].isoformat() if r[4] else None}
@@ -365,42 +449,44 @@ def _save_stats(code: str, s: dict) -> None:
     })
 
 
-def _set_unit_status(code: str, unit: int, status: str, unit_name: str = "") -> None:
+def _set_unit_status(code: str, unit: int, status: str, unit_name: str = "",
+                     course: str = DEFAULT_COURSE) -> None:
     """Upgrade a unit's topic_progress status (never downgrade), without touching touches."""
     from sqlalchemy import select
     t = _tables["topic_progress"]
     with _engine.connect() as conn:
         r = conn.execute(select(t.c.status).where(
-            (t.c.code == code) & (t.c.unit == unit))).first()
+            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
     prev = r[0] if r else None
     if prev and STATUS_RANK.get(prev, 0) >= STATUS_RANK.get(status, 0):
         return
-    _upsert("topic_progress", {"code": code, "unit": unit}, {
+    _upsert("topic_progress", {"code": code, "course": course, "unit": unit}, {
         "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""),
         "status": status, "last_touched": _now(),
     })
 
 
-def record_check(code: str, unit: int, correct: int, total: int, unit_name: str = "") -> dict:
-    """Record an end-of-unit check result. Updates best/last score, cumulative accuracy,
-    the day streak, and marks the unit 'mastered' if the student passed. Returns a small
-    summary {pct, best_pct, mastered}."""
+def record_check(code: str, unit: int, correct: int, total: int, unit_name: str = "",
+                 course: str = DEFAULT_COURSE) -> dict:
+    """Record an end-of-unit check result for a course. Updates best/last score, cumulative
+    accuracy, the day streak, and marks the unit 'mastered' if the student passed. Returns a
+    small summary {pct, best_pct, mastered}."""
     correct = max(0, int(correct)); total = max(1, int(total))
     pct = round(100 * correct / total)
     from sqlalchemy import select
     t = _tables["unit_checks"]
     with _engine.connect() as conn:
         r = conn.execute(select(t.c.checks_taken, t.c.best_pct, t.c.correct, t.c.attempted).where(
-            (t.c.code == code) & (t.c.unit == unit))).first()
+            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
     checks_taken = (r[0] if r else 0) + 1
     best_pct = max(pct, (r[1] if r else 0))
-    _upsert("unit_checks", {"code": code, "unit": unit}, {
+    _upsert("unit_checks", {"code": code, "course": course, "unit": unit}, {
         "checks_taken": checks_taken, "best_pct": best_pct, "last_pct": pct,
         "correct": (r[2] if r else 0) + correct, "attempted": (r[3] if r else 0) + total,
         "updated_at": _now(),
     })
     if pct >= PASS_PCT:
-        _set_unit_status(code, unit, "mastered", unit_name)
+        _set_unit_status(code, unit, "mastered", unit_name, course)
     s = _get_stats_row(code)
     s["checks_taken"] += 1
     s["correct_total"] += correct
@@ -423,15 +509,15 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> None:
     _save_stats(code, s)
 
 
-def get_mastery(code: str) -> dict:
-    """Assemble the student's mastery picture for the dashboard: per-unit check scores +
-    overall stats (problems practiced, accuracy, streak)."""
+def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
+    """Assemble the student's mastery picture for a course's dashboard: per-unit check scores
+    (for THIS course) + overall stats (problems practiced, accuracy, streak, whole-student)."""
     from sqlalchemy import select
     t = _tables["unit_checks"]
     with _engine.connect() as conn:
         rows = conn.execute(select(
             t.c.unit, t.c.checks_taken, t.c.best_pct, t.c.last_pct, t.c.correct, t.c.attempted
-        ).where(t.c.code == code)).all()
+        ).where((t.c.code == code) & (t.c.course == course))).all()
     checks = {r[0]: {"checks_taken": r[1], "best_pct": r[2], "last_pct": r[3],
                      "correct": r[4], "attempted": r[5]} for r in rows}
     s = _get_stats_row(code)
