@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 3, step 1) -- PRACTICE + TOPIC MODES ARE COURSE-AWARE. Threaded
+#               a `course` argument through _unit_from_text / _playbook and the practice/topic
+#               builders + get_*_reply. The two coach templates now use a per-course SUBJECT word
+#               and a per-course SCOPE block (COURSE_SUBJECT / PRACTICE_SCOPE / TOPIC_SCOPE), so
+#               they serve any course instead of hard-refusing non-algebra work (the old templates
+#               literally told the tutor to decline "a geometry proof"). Algebra I reproduces the
+#               original text BYTE-FOR-BYTE (verified) and every param defaults to 'algebra1', so
+#               single-course behavior is unchanged. Geometry now works in Practice + Topic, drawing
+#               its misconceptions/how-to-teach from pedagogy.COURSE_PEDAGOGY['geometry']. NOTE: the
+#               structured full-course LESSON prompt (SYSTEM_PROMPT_TEMPLATE) is still Algebra-only;
+#               course-mode Geometry + per-course placement + the course picker are the next steps.
+#               See Multi_Course_Expansion_Plan.md.
 #   2026-07-25  TOPIC NO-SELF-WRAPUP GUARD. Added a rule to TOPIC_SYSTEM_PROMPT_TEMPLATE: never
 #               wrap up / say goodbye / give an "outro" unless the student CLEARLY says they're
 #               done; an odd/unparseable message -> ask them to repeat, never end. Backs up the
@@ -247,6 +259,10 @@ try:
 except Exception as _exc:  # noqa: BLE001
     curriculum = None
     print(f"[tutor] curriculum classifier unavailable: {_exc}")
+
+# The default course. Until the course picker (Phase 3 UI) supplies a course, everything
+# resolves to Algebra I, so single-course behavior is exactly as before.
+DEFAULT_COURSE = "algebra1"
 
 # The tutor's name (v0.1). This can be changed in one place and flows everywhere,
 # including the tutor's own self-introduction.
@@ -748,22 +764,22 @@ def _unit_from_progress(progress) -> "int | None":
         return None
 
 
-def _unit_from_text(text) -> "int | None":
-    """Classify a free-text problem/topic to a unit (practice + topic modes)."""
+def _unit_from_text(text, course: str = DEFAULT_COURSE) -> "int | None":
+    """Classify a free-text problem/topic to a unit WITHIN a course (practice + topic modes)."""
     try:
         if curriculum and text:
-            unit, _name = curriculum.classify_unit(text)
+            unit, _name = curriculum.classify_unit(text, course)
             return unit
     except Exception:  # noqa: BLE001
         pass
     return None
 
 
-def _playbook(unit) -> str:
+def _playbook(unit, course: str = DEFAULT_COURSE) -> str:
     """The teaching guidance to inject this turn (or '' if the KB is unavailable)."""
     try:
         if pedagogy:
-            return pedagogy.teaching_playbook(unit)
+            return pedagogy.teaching_playbook(unit, course)
     except Exception as exc:  # noqa: BLE001
         print(f"[tutor] playbook build failed: {exc}")
     return ""
@@ -910,8 +926,57 @@ def get_tutor_reply(student: dict, history: list, user_message: str) -> str:
 # session, hands Mr. Cadabra that one problem, and he coaches them through it.
 # Different from the structured lesson: it is not tied to the curriculum plan or
 # placement, and it can cover ANY Algebra I topic. Same warm, Socratic style.
+# -----------------------------------------------------------------------------
+# PER-COURSE SCOPE for the Practice + Topic coaches (multi-course, Phase 3). The subject
+# word + the "what you cover / what's out of scope" block are swapped per course so the
+# SAME coach templates serve any course. Algebra I reproduces the original text EXACTLY
+# (do no harm); Geometry is new. Unknown course -> Algebra I fallback.
+# -----------------------------------------------------------------------------
+COURSE_SUBJECT = {"algebra1": "algebra", "geometry": "geometry"}
+
+PRACTICE_SCOPE = {
+    "algebra1": (
+        "You can help with ANY Algebra I topic: expressions, linear equations & inequalities,\n"
+        "functions & notation, linear functions/graphs & slope, systems, exponents, polynomials\n"
+        "& factoring, quadratics, and intro data/statistics. If the problem is clearly OUTSIDE\n"
+        "Algebra I (e.g. calculus, trigonometry, a geometry proof), kindly say it's a bit beyond\n"
+        "what you cover here, and offer to help with any algebra part or a similar algebra\n"
+        "problem instead. Stay warm about it."
+    ),
+    "geometry": (
+        "You can help with ANY Geometry topic: foundations & constructions, transformations &\n"
+        "symmetry, congruence & triangle proofs, similarity & dilations, right triangles &\n"
+        "trigonometry, circles, coordinate geometry, area/surface area/volume, and probability.\n"
+        "If the problem is clearly OUTSIDE Geometry (e.g. calculus or a pure Algebra II topic),\n"
+        "kindly say it's a bit beyond what you cover here, and offer to help with any geometry\n"
+        "part or a similar geometry problem instead. Stay warm about it."
+    ),
+}
+
+TOPIC_SCOPE = {
+    "algebra1": (
+        "Cover ANY Algebra I topic: expressions, linear equations & inequalities, functions &\n"
+        "notation, linear functions/graphs & slope, systems, exponents, polynomials &\n"
+        "factoring, quadratics, intro data/statistics. If the chosen topic is clearly OUTSIDE\n"
+        "Algebra I, kindly say it's a bit beyond what you cover here and offer the closest\n"
+        "algebra topic instead. Stay warm."
+    ),
+    "geometry": (
+        "Cover ANY Geometry topic: foundations & constructions, transformations & symmetry,\n"
+        "congruence & triangle proofs, similarity & dilations, right triangles & trigonometry,\n"
+        "circles, coordinate geometry, area/surface area/volume, and probability. If the chosen\n"
+        "topic is clearly OUTSIDE Geometry, kindly say it's a bit beyond what you cover here and\n"
+        "offer the closest geometry topic instead. Stay warm."
+    ),
+}
+
+
+def _subject(course: str) -> str:
+    return COURSE_SUBJECT.get(course or DEFAULT_COURSE, "math")
+
+
 PRACTICE_SYSTEM_PROMPT_TEMPLATE = """\
-You are {tutor_name}: a warm, encouraging algebra coach in a one-on-one PRACTICE
+You are {tutor_name}: a warm, encouraging {subject} coach in a one-on-one PRACTICE
 session. The student is stuck on a specific problem from school and brought it to
 you for help. You are talking OUT LOUD in a real voice conversation -- sound like a
 caring human sitting beside them, never like a textbook or a bot.
@@ -977,12 +1042,7 @@ WHEN IT'S SOLVED (you reach X = a value):
 ============================================================
 SCOPE
 ============================================================
-You can help with ANY Algebra I topic: expressions, linear equations & inequalities,
-functions & notation, linear functions/graphs & slope, systems, exponents, polynomials
-& factoring, quadratics, and intro data/statistics. If the problem is clearly OUTSIDE
-Algebra I (e.g. calculus, trigonometry, a geometry proof), kindly say it's a bit beyond
-what you cover here, and offer to help with any algebra part or a similar algebra
-problem instead. Stay warm about it.
+{scope_block}
 
 ============================================================
 PICTURES ON SCREEN (use them when they help)
@@ -1057,20 +1117,23 @@ warmth, then gently guide back to the problem when they're ready.
 """
 
 
-def build_practice_prompt(student: dict, problem: str) -> str:
-    """Fill the practice template with this student's name and their problem."""
+def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COURSE) -> str:
+    """Fill the practice template with this student's name and their problem, for a course."""
     name = (student or {}).get("name", "the student")
     problem = (problem or "").strip() or "(The student hasn't stated the problem clearly yet -- ask them what it is.)"
-    playbook = _playbook(_unit_from_text(problem))
+    playbook = _playbook(_unit_from_text(problem, course), course)
     return PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         problem=problem,
         playbook=playbook,
+        subject=_subject(course),
+        scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
     )
 
 
-def get_practice_reply(student: dict, problem: str, history: list, user_message: str) -> str:
+def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
+                       course: str = DEFAULT_COURSE) -> str:
     """
     Ask Claude for the coach's next reply in a PRACTICE session.
 
@@ -1099,7 +1162,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         response = client.messages.create(
             model=model,
             max_tokens=700,
-            system=build_practice_prompt(student, problem),
+            system=build_practice_prompt(student, problem, course),
             messages=messages,
         )
         parts = [block.text for block in response.content
@@ -1119,7 +1182,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
 # mini-lesson / discussion on JUST that topic. Different from the structured course
 # (not sequential) and from Practice (not tied to one specific problem).
 TOPIC_SYSTEM_PROMPT_TEMPLATE = """\
-You are {tutor_name}: a warm, encouraging algebra tutor giving a focused, one-on-one
+You are {tutor_name}: a warm, encouraging {subject} tutor giving a focused, one-on-one
 mini-lesson on ONE topic the student chose. You are talking OUT LOUD in a real voice
 conversation -- sound like a caring human sitting beside them, never like a textbook.
 
@@ -1166,11 +1229,7 @@ HOW YOU TEACH A TOPIC
 ============================================================
 SCOPE
 ============================================================
-Cover ANY Algebra I topic: expressions, linear equations & inequalities, functions &
-notation, linear functions/graphs & slope, systems, exponents, polynomials &
-factoring, quadratics, intro data/statistics. If the chosen topic is clearly OUTSIDE
-Algebra I, kindly say it's a bit beyond what you cover here and offer the closest
-algebra topic instead. Stay warm.
+{scope_block}
 
 ============================================================
 PICTURES ON SCREEN (use them when they help)
@@ -1227,20 +1286,23 @@ warmth, then gently guide back to the topic when they're ready.
 """
 
 
-def build_topic_prompt(student: dict, topic: str) -> str:
-    """Fill the topic template with this student's name and their chosen topic."""
+def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) -> str:
+    """Fill the topic template with this student's name and their chosen topic, for a course."""
     name = (student or {}).get("name", "the student")
     topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
-    playbook = _playbook(_unit_from_text(topic))
+    playbook = _playbook(_unit_from_text(topic, course), course)
     return TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         topic=topic,
         playbook=playbook,
+        subject=_subject(course),
+        scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
     )
 
 
-def get_topic_reply(student: dict, topic: str, history: list, user_message: str) -> str:
+def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
+                    course: str = DEFAULT_COURSE) -> str:
     """
     Ask Claude for the tutor's next reply in a TOPIC mini-lesson.
 
@@ -1264,7 +1326,7 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str)
         response = client.messages.create(
             model=model,
             max_tokens=700,
-            system=build_topic_prompt(student, topic),
+            system=build_topic_prompt(student, topic, course),
             messages=messages,
         )
         parts = [block.text for block in response.content

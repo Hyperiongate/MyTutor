@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 3, step 1) -- COURSE-AWARE PRACTICE + TOPIC. Stamp -> "2026-07-27c-ptcourse".
+#               PracticeRequest/TopicRequest gain an optional `course` (default 'algebra1'); the
+#               /api/practice + /api/topic handlers pass it to tutor.get_practice_reply /
+#               get_topic_reply, to curriculum.classify_unit (classify within the course), and to
+#               _track_topic (which now records progress under the right course via store). Nothing
+#               changes for Algebra I (the default); once the course picker sends course='geometry',
+#               those two modes teach + track Geometry. Verified: Algebra prompts byte-identical,
+#               Geometry assembles with its own scope + pedagogy. See Multi_Course_Expansion_Plan.md.
 #   2026-07-27  MULTI-COURSE (Phase 2) -- COURSE-AWARE PROGRESS DB. Stamp -> "2026-07-27b-coursedb".
 #               store.py's per-unit tables (topic_progress, unit_checks) are now keyed by
 #               (code, course, unit) with a self-healing migration that stamps all EXISTING rows
@@ -318,13 +326,14 @@ def read_placement(code: str) -> dict:
         return {}
 
 
-def _track_topic(code: str, unit, name: str, status: str) -> None:
+def _track_topic(code: str, unit, name: str, status: str, course: str = "algebra1") -> None:
     """Record real per-topic engagement (Phase 2), but only when the database is on,
-    and never let a tracking hiccup break a student's turn."""
+    and never let a tracking hiccup break a student's turn. `course` files the progress
+    under the right course (multi-course, Phase 3); defaults to Algebra I."""
     if not (store.enabled() and unit):
         return
     try:
-        store.record_topic(code, unit, name, status)
+        store.record_topic(code, unit, name, status, course=course)
     except Exception as exc:  # noqa: BLE001
         print(f"[track] record_topic failed (ignored): {exc}")
 
@@ -402,6 +411,7 @@ class PracticeRequest(BaseModel):
     problem: str = ""          # the specific problem the student is stuck on
     message: str               # what the student just said (or the problem, first turn)
     history: list = []         # prior practice turns, held by the browser (not persisted)
+    course: str = "algebra1"   # which course this practice session belongs to (multi-course)
 
 
 class TopicRequest(BaseModel):
@@ -409,6 +419,7 @@ class TopicRequest(BaseModel):
     topic: str = ""            # the topic the student chose to explore
     message: str               # what the student just said (or the topic, first turn)
     history: list = []         # prior topic turns, held by the browser (not persisted)
+    course: str = "algebra1"   # which course this topic exploration belongs to (multi-course)
 
 
 class PlacementIn(BaseModel):
@@ -612,7 +623,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-27b-coursedb"
+APP_BUILD = "2026-07-27c-ptcourse"
 
 
 @app.get("/health")
@@ -783,11 +794,11 @@ def practice(req: PracticeRequest):
         if role in ("user", "assistant") and isinstance(content, str) and content.strip():
             safe_history.append({"role": role, "content": content})
 
-    reply = tutor.get_practice_reply(student, req.problem, safe_history, message)
+    reply = tutor.get_practice_reply(student, req.problem, safe_history, message, req.course)
 
-    # Real tracking: classify the problem to a unit and count it as "practiced".
-    unit, name = curriculum.classify_unit(req.problem or message)
-    _track_topic(req.code.strip(), unit, name, "practiced")
+    # Real tracking: classify the problem to a unit WITHIN this course, count "practiced".
+    unit, name = curriculum.classify_unit(req.problem or message, req.course)
+    _track_topic(req.code.strip(), unit, name, "practiced", req.course)
 
     return {"reply": reply}
 
@@ -818,11 +829,11 @@ def topic(req: TopicRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
-    reply = tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message)
+    reply = tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course)
 
-    # Real tracking: classify the chosen topic to a unit and count it as "explored".
-    unit, name = curriculum.classify_unit(req.topic or message)
-    _track_topic(req.code.strip(), unit, name, "explored")
+    # Real tracking: classify the chosen topic to a unit WITHIN this course, count "explored".
+    unit, name = curriculum.classify_unit(req.topic or message, req.course)
+    _track_topic(req.code.strip(), unit, name, "explored", req.course)
 
     return {"reply": reply}
 
