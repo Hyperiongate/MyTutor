@@ -4,15 +4,25 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-27  MULTI-COURSE PICKER (Phase 3.4). The hub is now TWO stages. Stage 1 (no
+                ?course= in the URL) is a SUBJECT PICKER -- "What would you like to work on
+                today?" -- with a card per course (Algebra I, Geometry; more as the ladder
+                grows). Choosing a course reloads this page with &course=<id>. Stage 2 (a
+                course IS chosen) is the familiar four-option hub -- take the course / get help
+                with a problem / explore a topic / progress / find my level -- but every link
+                now CARRIES the chosen course (&course=<id>), and the labels say the course's
+                name. A "Change subject" chip goes back to the picker. Nothing was removed.
+                NOTE (interim, until Phase 3.4b): the placement redirect + Start/Continue label
+                still read the per-student `placed`/`history` from /api/session (not yet
+                per-course), so for now the "take the level exam first" step only applies to
+                Algebra I; Geometry starts straight into the lesson. Per-course placement +
+                per-course dashboard land next.
     2026-07-21  New HOME HUB ("What would you like to do today?"). After login (and
                 placement for first-timers), a placed student lands here and chooses:
                   • Continue / Start my Algebra course   -> /session
                   • Get help with a problem (Practice)   -> /practice
                   • Explore a topic                      -> /topic
-                plus quick links to the Progress dashboard and Find my level. The
-                course tile reads "Start" for a brand-new student (no history) and
-                "Continue" once there's a saved lesson. Nothing here is thrown away --
-                the course, Practice, and the Challenge all live behind this front door.
+                plus quick links to the Progress dashboard and Find my level.
   =============================================================================
 -->
 <html lang="en">
@@ -50,6 +60,7 @@
     .hello p { color: var(--muted); font-size: 16px; margin: 0; }
 
     .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
+    .subjects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 640px; }
     .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 20px;
       text-align: left; cursor: pointer; text-decoration: none; color: var(--ink);
       box-shadow: 0 12px 34px rgba(20,30,45,.08); transition: transform .12s ease, box-shadow .12s ease; display: block; }
@@ -59,18 +70,23 @@
     .tile.course .ic { background: linear-gradient(135deg, rgba(91,91,214,.16), rgba(20,184,166,.16)); }
     .tile.practice .ic { background: linear-gradient(135deg, rgba(255,122,89,.18), rgba(91,91,214,.12)); }
     .tile.topic .ic { background: linear-gradient(135deg, rgba(20,184,166,.18), rgba(91,91,214,.12)); }
+    .tile.subject .ic { background: linear-gradient(135deg, rgba(91,91,214,.18), rgba(20,184,166,.18)); }
     .tile h3 { margin: 0 0 6px; font-size: 18px; }
     .tile p { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.4; }
     .tile .go { margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--accent); }
+    .tile.soon { opacity: .55; cursor: default; pointer-events: none; }
+    .tile.soon .go { color: var(--muted); }
 
     .secondary { display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
     .chip { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line);
       border-radius: 22px; padding: 10px 18px; font-size: 14px; font-weight: 600; color: var(--ink);
       text-decoration: none; cursor: pointer; }
     .chip:hover { background: #f5f5fc; }
+    .hidden { display: none !important; }
 
     @media (max-width: 760px) {
       .tiles { grid-template-columns: 1fr; }
+      .subjects { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -84,13 +100,30 @@
   <div class="wrap">
     <div class="hello">
       <h1 id="hello">Hi there!</h1>
-      <p>What would you like to do today?</p>
+      <p id="subtitle">What would you like to work on today?</p>
     </div>
 
-    <div class="tiles">
+    <!-- STAGE 1: pick a subject (shown when no course is chosen yet) -->
+    <div class="subjects" id="pickerView">
+      <a class="tile subject" id="subjAlgebra" href="#">
+        <div class="ic">📘</div>
+        <h3>Algebra I</h3>
+        <p>Expressions, equations, functions, graphs, systems, exponents, quadratics, and more.</p>
+        <div class="go">Choose Algebra I →</div>
+      </a>
+      <a class="tile subject" id="subjGeometry" href="#">
+        <div class="ic">📐</div>
+        <h3>Geometry</h3>
+        <p>Shapes, transformations, congruence & proofs, similarity, right-triangle trig, circles, and volume.</p>
+        <div class="go">Choose Geometry →</div>
+      </a>
+    </div>
+
+    <!-- STAGE 2: what to do inside the chosen course -->
+    <div class="tiles hidden" id="hubView">
       <a class="tile course" id="courseTile" href="#">
         <div class="ic">📘</div>
-        <h3 id="courseTitle">Continue my Algebra course</h3>
+        <h3 id="courseTitle">Continue my course</h3>
         <p id="courseBlurb">Pick up your start-to-finish lessons right where you left off.</p>
         <div class="go" id="courseGo">Continue →</div>
       </a>
@@ -103,14 +136,15 @@
       <a class="tile topic" id="topicTile" href="#">
         <div class="ic">💡</div>
         <h3>Explore a topic</h3>
-        <p>Want to dig into one thing — like slope, factoring, or functions? Pick a topic and let's talk.</p>
+        <p>Want to dig into one thing? Pick a topic and let's talk it through.</p>
         <div class="go">Choose a topic →</div>
       </a>
     </div>
 
-    <div class="secondary">
+    <div class="secondary hidden" id="hubSecondary">
       <a class="chip" id="dashChip" href="#">📊 My progress</a>
       <a class="chip" id="levelChip" href="#">🎯 Find my level</a>
+      <a class="chip" id="changeChip" href="#">↔ Change subject</a>
     </div>
   </div>
 
@@ -120,37 +154,67 @@
     const CODE = (params.get("code") || "").trim();
     if (!CODE) { location.href = "/"; }
 
-    const q = "?code=" + encodeURIComponent(CODE);
-    el("courseTile").href = "/session" + q;
-    el("practiceTile").href = "/practice" + q;
-    el("topicTile").href = "/topic" + q;
-    el("dashChip").href = "/dashboard" + q;
-    el("levelChip").href = "/challenge" + q;
+    // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
+    const COURSE_TITLES = { algebra1: "Algebra I", geometry: "Geometry" };
+    let COURSE = (params.get("course") || "").trim();
 
-    // Personalize + route the COURSE tile:
-    //   - greet by name
-    //   - "Start" vs "Continue" label based on saved lesson history
-    //   - if the student has NOT been placed yet, the course tile sends them to the
-    //     placement exam FIRST (that's the only place the exam is triggered now).
-    //     If they're already placed, it goes straight into the lesson. (The /session
-    //     page also guards this, so a fast click before this resolves is still safe.)
-    (async () => {
-      try {
-        const res = await fetch("/api/session/" + encodeURIComponent(CODE));
-        if (!res.ok) { location.href = "/"; return; }
-        const data = await res.json();
-        if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
-        const hasHistory = (data.history || []).length > 0;
-        if (!data.placed) {
-          el("courseTile").href = "/challenge" + q;   // take the level exam first
-        }
-        if (!hasHistory) {
-          el("courseTitle").textContent = "Start my Algebra course";
-          el("courseBlurb").textContent = "Begin your start-to-finish Algebra I journey with Mr. Cadabra.";
-          el("courseGo").textContent = "Start →";
-        }
-      } catch (e) { /* keep the friendly defaults */ }
-    })();
+    const codeQ = "?code=" + encodeURIComponent(CODE);
+
+    if (!COURSE_TITLES[COURSE]) {
+      // -------- STAGE 1: subject picker --------
+      COURSE = "";
+      el("pickerView").classList.remove("hidden");
+      el("hubView").classList.add("hidden");
+      el("hubSecondary").classList.add("hidden");
+      el("subtitle").textContent = "What would you like to work on today?";
+      el("subjAlgebra").href = "/home" + codeQ + "&course=algebra1";
+      el("subjGeometry").href = "/home" + codeQ + "&course=geometry";
+      // Still greet by name if we can.
+      (async () => {
+        try {
+          const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+          if (res.ok) { const d = await res.json(); if (d.name) el("hello").textContent = "Hi, " + d.name + "!"; }
+        } catch (e) {}
+      })();
+    } else {
+      // -------- STAGE 2: the chosen course's hub --------
+      const title = COURSE_TITLES[COURSE];
+      el("pickerView").classList.add("hidden");
+      el("hubView").classList.remove("hidden");
+      el("hubSecondary").classList.remove("hidden");
+      el("subtitle").textContent = "What would you like to do in " + title + "?";
+      el("courseTitle").textContent = "Continue my " + title + " course";
+      el("courseBlurb").textContent = "Pick up your start-to-finish " + title + " lessons right where you left off.";
+
+      const q = codeQ + "&course=" + encodeURIComponent(COURSE);
+      el("courseTile").href = "/session" + q;
+      el("practiceTile").href = "/practice" + q;
+      el("topicTile").href = "/topic" + q;
+      el("dashChip").href = "/dashboard" + q;
+      el("levelChip").href = "/challenge" + q;
+      el("changeChip").href = "/home" + codeQ;   // back to the subject picker
+
+      // Personalize + route the COURSE tile. (Interim: placed/history are per-student, not
+      // yet per-course -- so the "take the exam first" redirect applies to Algebra I only for
+      // now; Geometry starts straight into the lesson. Per-course placement is Phase 3.4b.)
+      (async () => {
+        try {
+          const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+          if (!res.ok) { location.href = "/"; return; }
+          const data = await res.json();
+          if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
+          const hasHistory = (data.history || []).length > 0;
+          if (!hasHistory) {
+            el("courseTitle").textContent = "Start my " + title + " course";
+            el("courseBlurb").textContent = "Begin your start-to-finish " + title + " journey with Mr. Cadabra.";
+            el("courseGo").textContent = "Start →";
+          }
+          if (!data.placed && COURSE === "algebra1") {
+            el("courseTile").href = "/challenge" + q;   // take the level exam first (Algebra I)
+          }
+        } catch (e) { /* keep the friendly defaults */ }
+      })();
+    }
   </script>
 </body>
 </html>

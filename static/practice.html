@@ -407,6 +407,7 @@
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
+    const COURSE = (params.get("course") || "algebra1").trim(); // which course this practice is for (multi-course)
     if (!CODE) { window.location.href = "/"; }
     el("lessonLink").href = "/home?code=" + encodeURIComponent(CODE);
     el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
@@ -1056,7 +1057,7 @@
       setState("thinking"); statusEl.textContent = "Mr. Cadabra is thinking…";
       try {
         const res = await fetch("/api/practice", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, problem, message, history: history.slice(0, -1) }) });
+          body: JSON.stringify({ code: CODE, problem, message, history: history.slice(0, -1), course: COURSE }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         const clean = stripTags(reply);

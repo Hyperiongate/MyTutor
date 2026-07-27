@@ -593,6 +593,7 @@
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     const FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
+    const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
     if (!CODE) { window.location.href = "/"; }
 
     const feed = el("feed"), statusEl = el("status");
@@ -1500,7 +1501,7 @@
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
         const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT }) });
+          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
