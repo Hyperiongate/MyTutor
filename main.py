@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 3, step 2) -- COURSE-MODE LESSON PER COURSE. Stamp -> "2026-07-27d-geomlesson".
+#               ChatRequest gains `course` (default 'algebra1'); /api/chat passes it to
+#               tutor.get_tutor_reply (which now selects the course's lesson template), to
+#               _mastery_note (course-scoped mastery steering via store), and to the course-activity
+#               _track_topic (records "learning" under the right course). Nothing changes for Algebra I
+#               (the default); the Algebra lesson prompt is byte-identical (verified). Geometry course
+#               mode becomes reachable once the picker sends course='geometry' (Phase 3.4).
 #   2026-07-27  MULTI-COURSE (Phase 3, step 1) -- COURSE-AWARE PRACTICE + TOPIC. Stamp -> "2026-07-27c-ptcourse".
 #               PracticeRequest/TopicRequest gain an optional `course` (default 'algebra1'); the
 #               /api/practice + /api/topic handlers pass it to tutor.get_practice_reply /
@@ -338,20 +345,20 @@ def _track_topic(code: str, unit, name: str, status: str, course: str = "algebra
         print(f"[track] record_topic failed (ignored): {exc}")
 
 
-def _mastery_note(code: str, focus_unit: int = 0) -> str:
+def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> str:
     """PHASE B: a short, human-readable summary of what this student has MASTERED vs. still
-    needs, for the tutor to STEER by (spend effort on weak units + spaced review). Empty
-    string when the DB is off or anything errors -- never breaks a turn."""
+    needs IN THIS COURSE, for the tutor to STEER by (spend effort on weak units + spaced
+    review). Empty string when the DB is off or anything errors -- never breaks a turn."""
     if not store.enabled():
         return ""
     try:
-        topics = {r["unit"]: r for r in store.get_topics(code)}
-        checks = (store.get_mastery(code) or {}).get("checks", {})
+        topics = {r["unit"]: r for r in store.get_topics(code, course)}
+        checks = (store.get_mastery(code, course) or {}).get("checks", {})
     except Exception as exc:  # noqa: BLE001
         print(f"[mastery-note] failed (ignored): {exc}")
         return ""
     mastered, working, notstarted = [], [], []
-    for n, name in curriculum.UNITS:
+    for n, name in curriculum.units_for(course):
         best = int((checks.get(n) or {}).get("best_pct") or 0)
         t = topics.get(n)
         if best >= 80:
@@ -372,7 +379,7 @@ def _mastery_note(code: str, focus_unit: int = 0) -> str:
     fu = int(focus_unit or 0)
     if 1 <= fu <= 9:
         note += (f" TODAY the student chose to work on Unit {fu} "
-                 f"({curriculum.UNIT_NAME.get(fu, '')}) -- center this session there.")
+                 f"({curriculum.unit_name(course, fu)}) -- center this session there.")
     return note
 
 
@@ -404,6 +411,7 @@ class ChatRequest(BaseModel):
     code: str
     message: str
     unit: int = 0              # optional focus unit (from the dashboard "Work on it" link)
+    course: str = "algebra1"   # which course this lesson session belongs to (multi-course)
 
 
 class PracticeRequest(BaseModel):
@@ -623,7 +631,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-27c-ptcourse"
+APP_BUILD = "2026-07-27d-geomlesson"
 
 
 @app.get("/health")
@@ -716,7 +724,7 @@ def chat(req: ChatRequest):
         focus_unit = int(getattr(req, "unit", 0) or 0)
     except (TypeError, ValueError):
         focus_unit = 0
-    mnote = _mastery_note(code, focus_unit)
+    mnote = _mastery_note(code, focus_unit, req.course)
     if mnote:
         student_context["mastery_note"] = mnote
     if 1 <= focus_unit <= 9:
@@ -737,13 +745,13 @@ def chat(req: ChatRequest):
             "give a SHORT recap of where you two are and what's next, then invite them to keep "
             "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
             "them, do NOT tell them to focus, and do NOT act annoyed.)")
-        reply = tutor.get_tutor_reply(student_context, history, opener_note)
+        reply = tutor.get_tutor_reply(student_context, history, opener_note, req.course)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
         save_session(code, session)
         return {"reply": reply}
 
-    reply = tutor.get_tutor_reply(student_context, history, message)
+    reply = tutor.get_tutor_reply(student_context, history, message, req.course)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})
@@ -763,7 +771,8 @@ def chat(req: ChatRequest):
         course_unit = 2
     if 1 <= focus_unit <= 9:
         course_unit = focus_unit        # a focused session counts toward THAT unit
-    _track_topic(code, course_unit, curriculum.UNIT_NAME.get(course_unit, ""), "learning")
+    _track_topic(code, course_unit, curriculum.unit_name(req.course, course_unit),
+                 "learning", req.course)
 
     return {"reply": reply}
 
