@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE CATALOG (Phase 1). Stamp -> "2026-07-27a-catalog". curriculum.py and
+#               pedagogy.py became a two-level course CATALOG (Course -> units) with a second course,
+#               Geometry, added; both stay BACKWARD-COMPATIBLE so main.py / tutor.py are unchanged and
+#               Algebra I behaves byte-for-byte as before (verified: 20 classify inputs + all playbook
+#               states identical to the originals). This stamp bump only CONFIRMS Render redeployed the
+#               new modules -- no route or student-facing behavior change yet (the course picker is a
+#               later phase). See the project doc Multi_Course_Expansion_Plan.md.
 #   2026-07-25  STT NON-SPEECH SCRUB. Stamp -> "2026-07-25b-navtype-stt". Added _clean_transcript()
 #               and applied it to /api/transcribe: speech-to-text hallucinations on silence/noise
 #               ("[outro jingle]", "[music]", "(applause)", musical notes) are stripped, and if
@@ -597,7 +604,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-25b-navtype-stt"
+APP_BUILD = "2026-07-27a-catalog"
 
 
 @app.get("/health")

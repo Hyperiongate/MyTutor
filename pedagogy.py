@@ -2,6 +2,18 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 1 of the math-ladder expansion; see the project doc
+#               Multi_Course_Expansion_Plan.md). The per-unit teaching notes are now nested
+#               PER COURSE: COURSE_PEDAGOGY[course_id] -> {unit_names, cross_cutting, units}.
+#               Added a SECOND course, "geometry" (9 units, distilled from
+#               Geometry_Curriculum_KB.md), with its own misconceptions / how-to-teach /
+#               progression + a Geometry-specific cross-cutting error list. The UNIVERSAL
+#               METHODOLOGY (how to reach a learner) is subject-agnostic and reused unchanged
+#               across every course. BACKWARD-COMPATIBLE: teaching_playbook(unit) still works
+#               exactly as before (defaults to Algebra I), and the old module-level names
+#               UNIT_NAME / UNIT_PEDAGOGY / CROSS_CUTTING still resolve to Algebra I. A new
+#               optional 2nd arg selects the course: teaching_playbook(unit, course). No change
+#               for Algebra I -- do no harm.
 #   2026-07-24  PHASE D -- CONTENT GUARDRAILS. Added "VERIFY EVERY PROBLEM YOU MAKE UP" to
 #               METHODOLOGY (so it reaches lesson + practice + topic via the injected playbook):
 #               solve-and-check every invented problem before showing, keep it on the skill at
@@ -18,28 +30,32 @@
 #               to Render -- this module is the deployed copy). It gives the model the
 #               same expertise a strong human tutor carries, so we stop hand-scripting
 #               teaching behavior one rule at a time.
-#                 - UNIT_PEDAGOGY: for each of the 9 Algebra I units, the RELIABLE
+#                 - COURSE_PEDAGOGY[course]["units"][n]: for each unit, the RELIABLE
 #                   student MISCONCEPTIONS (teach against these) + HOW TO TEACH it
 #                   (representations/methods that work) + an easy->hard progression.
-#                   Source: Algebra_I_Curriculum_KB.md (§3-12).
 #                 - METHODOLOGY: how to REACH the learner -- developmental dials by
 #                   age, evidence-based feedback (process praise, "wise feedback",
 #                   never person/empty praise), and confidence/anxiety vs. overconfidence
 #                   signals to respond to the individual (never branch on gender).
-#                   Source: Teaching_Methodology_KB.md.
-#                 - CROSS_CUTTING: the all-year error watch-list.
-#               teaching_playbook(unit) assembles the slice the tutor needs THIS turn:
-#               the universal methodology + cross-cutting errors + the specific unit's
-#               detail (or a compact all-units index when the unit is unknown).
+#                   Source: Teaching_Methodology_KB.md. UNIVERSAL -- reused every course.
+#                 - COURSE_PEDAGOGY[course]["cross_cutting"]: that course's all-year
+#                   error watch-list.
+#               teaching_playbook(unit, course) assembles the slice the tutor needs THIS
+#               turn: the universal methodology + that course's cross-cutting errors + the
+#               specific unit's detail (or a compact all-units index when the unit is unknown).
 #
 #   WHY A MODULE (not more prompt text hand-written in tutor.py): the teaching
 #   knowledge lives in ONE place, is easy to improve, and is injected per student/turn
-#   instead of bloating every prompt with all nine units. Pure data + string assembly,
+#   instead of bloating every prompt with all the units. Pure data + string assembly,
 #   no external calls, so it is instant and free on every turn.
 # =============================================================================
 
-# Canonical unit names (kept in step with curriculum.py's UNITS).
-UNIT_NAME = {
+DEFAULT_COURSE = "algebra1"
+
+# -----------------------------------------------------------------------------
+# ALGEBRA I -- per-unit pedagogy (distilled from Algebra_I_Curriculum_KB.md). UNCHANGED.
+# -----------------------------------------------------------------------------
+_ALGEBRA1_UNIT_NAMES = {
     1: "Foundations & Expressions",
     2: "Linear Equations & Inequalities",
     3: "Functions & Notation",
@@ -51,11 +67,7 @@ UNIT_NAME = {
     9: "Data & Statistics",
 }
 
-# -----------------------------------------------------------------------------
-# PER-UNIT PEDAGOGY  (misconceptions to teach against + how to teach + progression)
-# Distilled from Algebra_I_Curriculum_KB.md. Written to be READ BY THE TUTOR.
-# -----------------------------------------------------------------------------
-UNIT_PEDAGOGY = {
+_ALGEBRA1_UNIT_PEDAGOGY = {
     1: {
         "misconceptions": (
             "reading 3x as 3 + x; combining unlike terms (2x + 3 becoming 5x); "
@@ -173,9 +185,205 @@ UNIT_PEDAGOGY = {
     },
 }
 
+_ALGEBRA1_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- Negatives: -3^2 = -9 but (-3)^2 = 9; distributing a negative flips EVERY sign.
+- Distribution: multiply the factor by EVERY term inside; 4(2x - 10) = 8x - 40.
+- Squaring a sum: (x + y)^2 = x^2 + 2xy + y^2, NOT x^2 + y^2.
+- Roots of a sum: sqrt(x + y) is NOT sqrt(x) + sqrt(y).
+- Illegal canceling: factor first; never cancel across a + or -.
+- Canceling a variable while solving can LOSE solutions (set equal to 0 and factor).
+- Inequalities: FLIP the sign when multiplying/dividing by a negative.
+- Exponent of a product: (4x)^2 = 16x^2, not 4x^2.
+- Notation: f(x) is "f of x," not "f times x." """
+
+# -----------------------------------------------------------------------------
+# GEOMETRY -- per-unit pedagogy (distilled from Geometry_Curriculum_KB.md).
+# -----------------------------------------------------------------------------
+_GEOMETRY_UNIT_NAMES = {
+    1: "Foundations & Constructions",
+    2: "Transformations & Symmetry",
+    3: "Congruence & Triangle Proofs",
+    4: "Similarity & Dilations",
+    5: "Right Triangles & Trigonometry",
+    6: "Circles",
+    7: "Coordinate Geometry",
+    8: "Area, Surface Area & Volume",
+    9: "Probability",
+}
+
+_GEOMETRY_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "assuming facts from how a figure LOOKS (it looks perpendicular or equal) "
+            "instead of from the given marks; confusing a segment, a ray, and a line; "
+            "confusing a midpoint (the point) with a bisector (the thing that cuts); "
+            "thinking a construction is 'just careful drawing' rather than an exact procedure."
+        ),
+        "how_to_teach": (
+            "Drill 'given vs. looks like' from day one -- only marked or derived facts count. "
+            "Use a real compass/straightedge (or step-by-step board constructions) so a "
+            "construction is a proof you can SEE. Tick-marks and angle-arcs to show what is "
+            "actually equal; name angles carefully (three letters, vertex in the middle)."
+        ),
+        "progression": "name and measure an angle  ->  find a supplement/complement  ->  identify vertical angles  ->  bisect a segment  ->  copy an angle  ->  construct a perpendicular",
+    },
+    2: {
+        "misconceptions": (
+            "reflecting over the x-axis vs the y-axis (which coordinate changes sign); "
+            "rotating the wrong direction (clockwise vs counterclockwise) or about the wrong "
+            "center; thinking a translation or reflection changes size or shape; sloppy "
+            "matching of pre-image to image."
+        ),
+        "how_to_teach": (
+            "Patty paper / tracing to physically SLIDE, FLIP, and TURN a figure. On the grid, "
+            "tie each motion to its coordinate rule (reflect over x-axis: (x, y) -> (x, -y)). "
+            "Fold paper to find lines of symmetry. Stress that rigid motions preserve length "
+            "and angle -- same shape and size, new position."
+        ),
+        "progression": "translate a point by a vector  ->  reflect a triangle over the y-axis  ->  rotate 90 degrees about the origin  ->  describe a motion mapping one figure to another  ->  find all symmetries of a shape",
+    },
+    3: {
+        "misconceptions": (
+            "thinking AAA or SSA proves congruence (they do NOT); mismatching corresponding "
+            "parts when using CPCTC; using the picture ITSELF as the proof; skipping the reason "
+            "for a step; confusing 'congruent' (same size and shape) with 'equal' (same number)."
+        ),
+        "how_to_teach": (
+            "Build congruence from the transformations in Unit 2 -- congruent means there is a "
+            "rigid motion that lands one figure exactly on the other. Teach a proof as a CHAIN "
+            "of justified steps: every statement needs a reason. Start with fill-in-the-blank "
+            "proofs before blank ones. Call out the non-criteria (AAA, SSA) explicitly."
+        ),
+        "progression": "mark the given info on a figure  ->  pick the right congruence criterion (SSS/SAS/ASA/AAS/HL)  ->  fill in a two-column proof  ->  write a full proof  ->  use CPCTC to justify a further equal part",
+    },
+    4: {
+        "misconceptions": (
+            "ADDING to sides instead of MULTIPLYING by the scale factor; setting up a "
+            "proportion with mismatched correspondence; assuming area scales by the same factor "
+            "as the sides (it scales by k^2, volume by k^3); confusing 'similar' with 'congruent'."
+        ),
+        "how_to_teach": (
+            "Dilate a figure on a grid from a center and read the scale factor off matching "
+            "points. Overlay similar triangles to see the equal angles and the constant ratio "
+            "of sides. Make k vs k^2 vs k^3 concrete with a scaled square and cube -- double the "
+            "side, the area quadruples."
+        ),
+        "progression": "dilate a figure by k = 2  ->  decide if two triangles are similar (AA)  ->  solve for a missing side by proportion  ->  use the side-splitter theorem  ->  compare the areas of two similar figures",
+    },
+    5: {
+        "misconceptions": (
+            "using the Pythagorean theorem on a NON-right triangle; mislabeling opposite vs "
+            "adjacent relative to the chosen angle; the calculator in the wrong mode (radians "
+            "vs DEGREES); mixing up which ratio is sine/cosine/tangent; forgetting the "
+            "hypotenuse is the longest side, opposite the right angle."
+        ),
+        "how_to_teach": (
+            "Anchor SOH-CAH-TOA to a clearly-labeled right triangle, and ALWAYS mark the angle "
+            "you are working from before naming opposite/adjacent. Derive the 45-45-90 and "
+            "30-60-90 ratios once so they are understood, not just memorized. Real "
+            "elevation/depression problems (ladder, ramp, shadow) motivate it."
+        ),
+        "progression": "find a hypotenuse with the Pythagorean theorem  ->  check a triangle with the converse  ->  a 45-45-90 side ratio  ->  set up tan to find a side  ->  use inverse trig to find an angle  ->  an angle-of-elevation word problem",
+    },
+    6: {
+        "misconceptions": (
+            "confusing a CENTRAL angle (equals its arc) with an INSCRIBED angle (equals HALF "
+            "its arc); mixing up radius and diameter (using d where r belongs); forgetting a "
+            "tangent is perpendicular to the radius at the point of tangency; confusing arc "
+            "MEASURE (degrees) with arc LENGTH (units); confusing sector area with arc length."
+        ),
+        "how_to_teach": (
+            "Draw and label a real circle. Show the inscribed-angle 'half the arc' rule by "
+            "dragging the vertex around the circle while the angle stays half its intercepted "
+            "arc. Tie arc length and sector area to FRACTIONS of the full circumference/area."
+        ),
+        "progression": "name the parts of a circle  ->  central angle from its arc  ->  inscribed angle = half the arc  ->  tangent-radius right angle  ->  arc length as a fraction of the circumference  ->  equation of a circle from center and radius",
+    },
+    7: {
+        "misconceptions": (
+            "distance-formula slips -- forgetting to SQUARE the differences, or subtracting in "
+            "an inconsistent order; taking slope as run over rise; thinking perpendicular lines "
+            "have EQUAL slopes (they are negative reciprocals); finding a midpoint by "
+            "SUBTRACTING instead of AVERAGING the coordinates."
+        ),
+        "how_to_teach": (
+            "Show that the distance formula IS the Pythagorean theorem on the grid -- draw the "
+            "right triangle under the segment. Plot every result to check the algebra against "
+            "the picture. Parallel = equal slope; perpendicular = negative reciprocal."
+        ),
+        "progression": "distance between two points  ->  midpoint of a segment  ->  slope to test parallel  ->  negative reciprocal for perpendicular  ->  a short coordinate proof  ->  equation of a circle from center and radius",
+    },
+    8: {
+        "misconceptions": (
+            "mixing up AREA and PERIMETER; using slant height where the vertical height is "
+            "needed (or vice versa); forgetting the 1/3 in pyramid/cone volume; dropping or "
+            "mismatching units (square vs cubic); using the diameter in place of the radius in "
+            "circle formulas; assuming volume scales like length (it scales by k^3)."
+        ),
+        "how_to_teach": (
+            "Decompose a complex shape into known pieces. UNFOLD a solid into its net to see "
+            "where the surface-area formula comes from. Keep units attached to every number. "
+            "Real modeling (how much paint, how much water, population density) grounds it."
+        ),
+        "progression": "area of a triangle/parallelogram  ->  area of a circle  ->  a composite-figure area  ->  volume of a prism  ->  volume of a cone (the 1/3)  ->  surface area from a net  ->  a density modeling problem",
+    },
+    9: {
+        "misconceptions": (
+            "assuming events are INDEPENDENT when they are not; ADDING probabilities of "
+            "non-mutually-exclusive events without subtracting the overlap; confusing "
+            "P(A and B) with P(A or B); reversing a conditional -- P(A|B) vs P(B|A)."
+        ),
+        "how_to_teach": (
+            "Two-way tables make conditional probability concrete: restrict to the row or "
+            "column you are 'given'. Simple simulations (cards, dice) to feel independence vs "
+            "dependence. The addition rule with the overlap subtracted out; the multiplication "
+            "rule for 'and'."
+        ),
+        "progression": "list a sample space  ->  probability of a single event  ->  P(A or B) with overlap  ->  read a conditional probability off a two-way table  ->  test whether two events are independent",
+    },
+}
+
+_GEOMETRY_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- Given vs. appearance: only marked or derived facts count -- never assume from how a figure looks.
+- Congruent vs. similar vs. equal: congruent = same size AND shape; similar = same shape, proportional; equal = same number.
+- Correspondence: match parts in the right order (CPCTC, proportions) -- the order carries meaning.
+- Non-criteria: AAA and SSA do NOT prove triangle congruence.
+- Scale factor: lengths scale by k, AREAS by k^2, VOLUMES by k^3.
+- Right-triangle tools only on right triangles: the Pythagorean theorem and SOH-CAH-TOA need a right angle.
+- Radius vs. diameter, and degrees (arc measure) vs. length (arc length) -- check which the formula wants.
+- Units: length is units, area is units squared, volume is units cubed -- keep them attached.
+- Every step needs a reason: a picture is evidence, not a proof."""
+
+# =============================================================================
+# THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
+# =============================================================================
+COURSE_PEDAGOGY = {
+    "algebra1": {
+        "unit_names": _ALGEBRA1_UNIT_NAMES,
+        "cross_cutting": _ALGEBRA1_CROSS_CUTTING,
+        "units": _ALGEBRA1_UNIT_PEDAGOGY,
+    },
+    "geometry": {
+        "unit_names": _GEOMETRY_UNIT_NAMES,
+        "cross_cutting": _GEOMETRY_CROSS_CUTTING,
+        "units": _GEOMETRY_UNIT_PEDAGOGY,
+    },
+}
+
+# -----------------------------------------------------------------------------
+# BACKWARD-COMPATIBLE module-level names (default course = Algebra I). Existing callers
+# that reference pedagogy.UNIT_NAME / UNIT_PEDAGOGY / CROSS_CUTTING keep working.
+# -----------------------------------------------------------------------------
+UNIT_NAME = _ALGEBRA1_UNIT_NAMES
+UNIT_PEDAGOGY = _ALGEBRA1_UNIT_PEDAGOGY
+CROSS_CUTTING = _ALGEBRA1_CROSS_CUTTING
+
 # -----------------------------------------------------------------------------
 # HOW TO REACH THE LEARNER  (developmental dials + feedback science)
-# Distilled from Teaching_Methodology_KB.md. Universal -- injected every turn.
+# Distilled from Teaching_Methodology_KB.md. UNIVERSAL -- subject-agnostic, injected
+# every turn for EVERY course. Unchanged by the multi-course work.
 # -----------------------------------------------------------------------------
 METHODOLOGY = """\
 HOW TO REACH THIS LEARNER (evidence-based -- this is your craft, use it every turn):
@@ -227,26 +435,22 @@ HOW TO REACH THIS LEARNER (evidence-based -- this is your craft, use it every tu
   simpler and build up, and vary the numbers each time. A made-up problem the student can't
   trust is worse than none -- this is what keeps the tutoring credible."""
 
-# The all-year error watch-list (Curriculum KB §12). Short; injected every turn.
-CROSS_CUTTING = """\
-ERROR WATCH-LIST (catch these all year, in every unit):
-- Negatives: -3^2 = -9 but (-3)^2 = 9; distributing a negative flips EVERY sign.
-- Distribution: multiply the factor by EVERY term inside; 4(2x - 10) = 8x - 40.
-- Squaring a sum: (x + y)^2 = x^2 + 2xy + y^2, NOT x^2 + y^2.
-- Roots of a sum: sqrt(x + y) is NOT sqrt(x) + sqrt(y).
-- Illegal canceling: factor first; never cancel across a + or -.
-- Canceling a variable while solving can LOSE solutions (set equal to 0 and factor).
-- Inequalities: FLIP the sign when multiplying/dividing by a negative.
-- Exponent of a product: (4x)^2 = 16x^2, not 4x^2.
-- Notation: f(x) is "f of x," not "f times x." """
+
+# -----------------------------------------------------------------------------
+# Assembly
+# -----------------------------------------------------------------------------
+def _course_block(course):
+    """Return the pedagogy block for a course; unknown/None -> default (do no harm)."""
+    return COURSE_PEDAGOGY.get(course or DEFAULT_COURSE) or COURSE_PEDAGOGY[DEFAULT_COURSE]
 
 
-def _unit_detail(unit) -> str:
-    """The full teaching block for ONE unit (or "" if the unit isn't 1-9)."""
-    p = UNIT_PEDAGOGY.get(unit)
+def _unit_detail(unit, course=DEFAULT_COURSE) -> str:
+    """The full teaching block for ONE unit of a course (or '' if the unit isn't valid)."""
+    block = _course_block(course)
+    p = block["units"].get(unit)
     if not p:
         return ""
-    name = UNIT_NAME.get(unit, "")
+    name = block["unit_names"].get(unit, "")
     return (
         f"THIS STUDENT IS ON UNIT {unit} -- {name}. Teach it with this in mind:\n"
         f"- Watch for these MISCONCEPTIONS (teach against them): {p['misconceptions']}\n"
@@ -255,31 +459,38 @@ def _unit_detail(unit) -> str:
     )
 
 
-def _compact_index() -> str:
+def _compact_index(course=DEFAULT_COURSE) -> str:
     """A one-line-per-unit misconception index, for when the unit is unknown."""
-    lines = ["QUICK MISCONCEPTION INDEX (all 9 units -- lean on the one that fits):"]
-    for n in range(1, 10):
-        p = UNIT_PEDAGOGY[n]
-        lines.append(f"- Unit {n} ({UNIT_NAME[n]}): {p['misconceptions']}")
+    block = _course_block(course)
+    names = block["unit_names"]
+    units = block["units"]
+    lines = [f"QUICK MISCONCEPTION INDEX (all {len(units)} units -- lean on the one that fits):"]
+    for n in sorted(units.keys()):
+        lines.append(f"- Unit {n} ({names.get(n, '')}): {units[n]['misconceptions']}")
     return "\n".join(lines)
 
 
-def teaching_playbook(unit=None) -> str:
+def teaching_playbook(unit=None, course=DEFAULT_COURSE) -> str:
     """Assemble the teaching guidance the tutor needs THIS turn.
 
-    unit -- the Algebra I unit number (1-9) the student is on, if known. When known we
-            include that unit's detailed block; when unknown we include a compact
-            all-units misconception index instead. The universal methodology + the
-            cross-cutting error list are ALWAYS included.
-    Returns a ready-to-inject string. Never raises (bad input -> compact index).
+    unit   -- the unit number the student is on, if known. When known we include that
+              unit's detailed block; when unknown we include a compact all-units
+              misconception index instead.
+    course -- which course's knowledge to use (defaults to Algebra I so existing
+              single-argument calls behave exactly as before).
+
+    The universal METHODOLOGY and the course's CROSS-CUTTING error list are ALWAYS
+    included. Never raises (bad input -> compact index for the resolved course).
     """
     try:
         u = int(unit) if unit is not None else None
     except (TypeError, ValueError):
         u = None
 
-    focus = _unit_detail(u) if (u in UNIT_PEDAGOGY) else _compact_index()
-    return "\n\n".join([METHODOLOGY, CROSS_CUTTING, focus]).strip()
+    block = _course_block(course)
+    cross_cutting = block["cross_cutting"]
+    focus = _unit_detail(u, course) if (u in block["units"]) else _compact_index(course)
+    return "\n\n".join([METHODOLOGY, cross_cutting, focus]).strip()
 
 
 # I did no harm and this file is not truncated.
