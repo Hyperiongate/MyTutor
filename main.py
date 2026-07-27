@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  MULTI-COURSE (Phase 3.3) -- PER-COURSE SESSION MEMORY + PLACEMENT (storage). Stamp ->
+#               "2026-07-27e-coursemem". store.py's `sessions` and `placements` tables are now keyed by
+#               (code, course) with the same self-healing migration (existing rows stamped 'algebra1'),
+#               so a student can hold a separate lesson session AND placement per course. store's
+#               session/placement functions default course to 'algebra1', so THIS file's calls are
+#               UNCHANGED and behavior is identical until the picker threads a course (3.4). Verified on
+#               SQLite: fresh, old-schema migration across all four course tables, separation, idempotent.
 #   2026-07-27  MULTI-COURSE (Phase 3, step 2) -- COURSE-MODE LESSON PER COURSE. Stamp -> "2026-07-27d-geomlesson".
 #               ChatRequest gains `course` (default 'algebra1'); /api/chat passes it to
 #               tutor.get_tutor_reply (which now selects the course's lesson template), to
@@ -631,7 +638,7 @@ def get_placement(code: str):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-27d-geomlesson"
+APP_BUILD = "2026-07-27e-coursemem"
 
 
 @app.get("/health")

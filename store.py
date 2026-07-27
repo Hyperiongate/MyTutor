@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-27  PHASE 3.3 (multi-course) -- PER-COURSE SESSION MEMORY + PLACEMENT. The `sessions`
+#               and `placements` tables gained a `course` column; their primary key is now
+#               (code, course) instead of (code), so a student can hold a separate saved lesson
+#               session AND a separate placement for Algebra I vs Geometry vs any course. Same
+#               self-healing additive migration (now generalized over all four course-scoped
+#               tables via _COURSE_TABLES) stamps existing rows 'algebra1' -- nothing lost. The
+#               session/placement functions gained an optional course=DEFAULT_COURSE arg, so
+#               main.py's existing calls behave EXACTLY as before (Algebra I) until the course
+#               picker supplies a course. Do no harm.
 #   2026-07-27  PHASE 2 (multi-course) -- COURSE-AWARE PROGRESS. The two per-unit tables
 #               (topic_progress, unit_checks) gained a `course` column and their primary key
 #               is now (code, course, unit) instead of (code, unit), so a student's progress
@@ -70,6 +79,17 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 # resolve here, so Algebra I behaves exactly as it did before the multi-course work.
 DEFAULT_COURSE = "algebra1"
 
+# Every course-scoped table and the primary key it should have after migration. The
+# migration adds a `course` column (default 'algebra1') and rebuilds each table's key to
+# this, preserving existing rows. Per-unit tables key by (code, course, unit); the
+# per-student memory/placement tables key by (code, course).
+_COURSE_TABLES = {
+    "topic_progress": ("code", "course", "unit"),
+    "unit_checks": ("code", "course", "unit"),
+    "sessions": ("code", "course"),
+    "placements": ("code", "course"),
+}
+
 
 def _redact(msg: str) -> str:
     """Strip anything that looks like a password out of an error string before we
@@ -124,7 +144,9 @@ def init():
         # Per-student conversation memory (the lesson/course session).
         _tables["sessions"] = Table(
             "sessions", _meta,
-            Column("code", String(64), primary_key=True),
+            Column("code", String(64), primary_key=True),   # composite via (code, course)
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
             Column("history", Text),        # JSON-encoded list of {role, content}
             Column("summary", Text),        # running summary (roadmap: session-memory layer)
             Column("updated_at", DateTime(timezone=True)),
@@ -132,7 +154,9 @@ def init():
         # Placement results (from Mr. Cadabra's Challenge).
         _tables["placements"] = Table(
             "placements", _meta,
-            Column("code", String(64), primary_key=True),
+            Column("code", String(64), primary_key=True),   # composite via (code, course)
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
             Column("data", Text),           # JSON-encoded placement dict
             Column("updated_at", DateTime(timezone=True)),
         )
@@ -210,12 +234,13 @@ def _migrate_course_columns():
     from sqlalchemy import inspect, text as _text
     insp = inspect(_engine)
     existing = set(insp.get_table_names())
-    for tname in ("topic_progress", "unit_checks"):
+    for tname, pk_cols in _COURSE_TABLES.items():
         if tname not in existing:
-            continue  # create_all already built it new, with the (code, course, unit) key
+            continue  # create_all already built it new, with its (code, course, ...) key
         cols = [c["name"] for c in insp.get_columns(tname)]
         if "course" in cols:
             continue  # already migrated
+        new_pk = ", ".join(pk_cols)
         dialect = _engine.dialect.name
         if dialect == "postgresql":
             with _engine.begin() as conn:
@@ -227,9 +252,8 @@ def _migrate_course_columns():
                     f"WHERE conrelid = '{tname}'::regclass AND contype = 'p'")).first()
                 if pk:
                     conn.execute(_text(f'ALTER TABLE {tname} DROP CONSTRAINT "{pk[0]}"'))
-                conn.execute(_text(
-                    f"ALTER TABLE {tname} ADD PRIMARY KEY (code, course, unit)"))
-            print(f"[store] migrated {tname}: +course column, key -> (code, course, unit).")
+                conn.execute(_text(f"ALTER TABLE {tname} ADD PRIMARY KEY ({new_pk})"))
+            print(f"[store] migrated {tname}: +course column, key -> ({new_pk}).")
         elif dialect == "sqlite":
             _sqlite_rebuild_with_course(tname)
             print(f"[store] migrated {tname} (sqlite rebuild): +course column.")
@@ -302,11 +326,12 @@ def _upsert(table_name: str, pk: dict, values: dict):
 
 
 # ---- sessions (conversation memory) ----------------------------------------
-def get_session(code: str) -> dict:
+def get_session(code: str, course: str = DEFAULT_COURSE) -> dict:
     from sqlalchemy import select
     t = _tables["sessions"]
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.history, t.c.summary).where(t.c.code == code)).first()
+        r = conn.execute(select(t.c.history, t.c.summary).where(
+            (t.c.code == code) & (t.c.course == course))).first()
     if not r:
         return {"history": []}
     out = {"history": _loads(r[0], [])}
@@ -315,26 +340,27 @@ def get_session(code: str) -> dict:
     return out
 
 
-def save_session(code: str, session: dict) -> None:
+def save_session(code: str, session: dict, course: str = DEFAULT_COURSE) -> None:
     values = {
         "history": json.dumps(session.get("history", []), ensure_ascii=False),
         "summary": session.get("summary"),
         "updated_at": _now(),
     }
-    _upsert("sessions", {"code": code}, values)
+    _upsert("sessions", {"code": code, "course": course}, values)
 
 
 # ---- placements ------------------------------------------------------------
-def read_placement(code: str) -> dict:
+def read_placement(code: str, course: str = DEFAULT_COURSE) -> dict:
     from sqlalchemy import select
     t = _tables["placements"]
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.data).where(t.c.code == code)).first()
+        r = conn.execute(select(t.c.data).where(
+            (t.c.code == code) & (t.c.course == course))).first()
     return _loads(r[0], {}) if r else {}
 
 
-def save_placement(code: str, result: dict) -> None:
-    _upsert("placements", {"code": code}, {
+def save_placement(code: str, result: dict, course: str = DEFAULT_COURSE) -> None:
+    _upsert("placements", {"code": code, "course": course}, {
         "data": json.dumps(result or {}, ensure_ascii=False),
         "updated_at": _now(),
     })
