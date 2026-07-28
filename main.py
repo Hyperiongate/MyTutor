@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  COMPREHENSIVE COURSE ASSESSMENT + COURSE-SCOPED CHECKS. Stamp -> "2026-07-28h-assessment".
+#               The quick adaptive placement became a voluntary, comprehensive Course Assessment
+#               (challenge.html: all 9 units x 5 Qs, per-unit 0..10 scoring, recommended-path /
+#               choose-your-own results). The forced first-entry redirect was removed (home.html +
+#               session.html), and a "Course assessment" link now lives in the sidebar. Backend change
+#               HERE: CheckIn gained `course`, and /api/check now files the check under the RIGHT
+#               course (curriculum.unit_name(course, unit) + store.record_check(..., course)) instead of
+#               always Algebra I -- so the assessment's per-unit scores (and the tutor's own end-of-unit
+#               checks in Geometry/Pre-Algebra/Algebra II) land on the correct per-course dashboard.
+#               Backward-compatible: course defaults to 'algebra1'. Do no harm.
 #   2026-07-28  PHASE 4 -- ALGEBRA II COURSE COMPLETE (fourth full peer). Stamp -> "2026-07-28g-algebra2".
 #               No route/logic change in this file -- `course` already flows generically through every
 #               endpoint (chat/practice/topic/placement/session/topics) to curriculum/pedagogy/tutor/
@@ -502,6 +512,7 @@ class CheckIn(BaseModel):
     unit: int                  # which of the 9 units this end-of-unit check covered
     correct: int = 0           # questions the student got right
     total: int = 1             # questions on the check
+    course: str = "algebra1"   # which course this check belongs to (so it's filed per-course)
 
 
 class MarkIn(BaseModel):
@@ -657,8 +668,9 @@ def post_check(code: str, body: CheckIn):
     if not store.enabled():
         return {"ok": False, "tracking": False}
     try:
-        name = curriculum.UNIT_NAME.get(int(body.unit), "")
-        res = store.record_check(code, int(body.unit), int(body.correct), int(body.total), name)
+        course = getattr(body, "course", None) or "algebra1"
+        name = curriculum.unit_name(course, int(body.unit))
+        res = store.record_check(code, int(body.unit), int(body.correct), int(body.total), name, course)
         return {"ok": True, "tracking": True, **res}
     except Exception as exc:  # noqa: BLE001
         print(f"[check] record_check failed: {exc}")
@@ -691,7 +703,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28g-algebra2"
+APP_BUILD = "2026-07-28h-assessment"
 
 
 @app.get("/health")

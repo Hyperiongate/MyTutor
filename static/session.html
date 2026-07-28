@@ -4,6 +4,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  VOLUNTARY ASSESSMENT + COURSE-SCOPED CHECKS. Removed the forced first-entry redirect to
+                /challenge (a brand-new student now starts the lesson at Unit 1). Added a "📋 Course
+                assessment" link to the left nav (wired to /challenge with the course), relabeled the
+                welcome-modal link, and softened the tour line that assumed a placement happened. Also
+                the [[check]] POST now sends `course` so end-of-unit checks are filed under the right
+                course (they were defaulting to Algebra I). Do no harm.
     2026-07-28  ADDED ALGEBRA II (fourth course). CURRICULUM_BY_COURSE.algebra2 (its 9 units + blurbs
                 + topics for the left-rail course map), plus algebra2 entries in COURSE_TITLES,
                 COURSE_SUBJECTS, and COURSE_OPENERS (the spoken welcome/tour line). Everything else is
@@ -567,6 +573,7 @@
         <div class="curriculum" id="curriculumList" style="display:none;"></div>
         <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
         <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+        <a class="navbtn" id="assessLink" href="#">📋 Course assessment</a>
       </nav>
 
       <div class="controls">
@@ -622,7 +629,7 @@
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">🎙️ Start talking</button>
-      <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take a quick challenge to find your level 🎯</a>
+      <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take the full course assessment to map your strengths 📋</a>
     </div>
   </div>
 
@@ -781,6 +788,7 @@
     el("dashLink").href = "/dashboard" + cq;
     el("practiceLink").href = "/practice" + cq;
     el("homeLink").href = "/home" + cq;
+    el("assessLink").href = "/challenge" + cq;
     el("welcomeChallenge").href = "/challenge" + cq;
     function renderCurriculum() {
       curriculumList.innerHTML = "";
@@ -1496,7 +1504,7 @@
       const correct = Math.max(0, parseInt(a.correct, 10) || 0);
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const passed = Math.round(100 * correct / total) >= 80;
-      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total });
+      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total, course: COURSE });
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
         + '<div class="ck-top">Quick check</div>'
@@ -1635,7 +1643,7 @@
       { id: "dashboard",
         text: "Next is your Progress dashboard. That's where you'll see how you're doing — the units you've worked on, what's still to come, plus your accuracy and streaks as they grow." },
       { id: "todays-plan",
-        text: "Down here on the left is your " + COURSE_TITLE + " course — all nine units. We'll work through them together, starting right where your level check placed you." },
+        text: "Down here on the left is your " + COURSE_TITLE + " course — all nine units. We'll work through them together. Whenever you like, you can take the Course Assessment to see your strengths and get a recommended path." },
       { id: "tutor",
         text: "And over here on the right, that's me — Mr. Cadabra. The big board in the middle is where I'll draw things out, and any time it's your turn you just tap the button under me and talk." },
     ];
@@ -1708,13 +1716,9 @@
         const placed = !!data.placed;
         const history = data.history || [];
         hasHistory = history.length > 0;
-        // Enforce the flow: a brand-new student (never placed AND no history) has to
-        // FIND THEIR LEVEL first. Login already routes this way, but this also covers
-        // someone opening /session directly or after their placement was reset.
-        if (!hasHistory && !placed) {
-          window.location.href = "/challenge" + cq;
-          return;
-        }
+        // The assessment is VOLUNTARY (2026-07-28): a brand-new student is NO LONGER redirected
+        // to it. They start the lesson at Unit 1 and can take the Course Assessment from the
+        // sidebar whenever they like.
         // Highlight the student's current unit on the course map (from placement).
         const su = data.placement && parseInt(data.placement.start_unit, 10);
         if (su >= 1 && su <= 9) { currentUnit = su; renderCourse(); }

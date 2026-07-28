@@ -4,6 +4,10 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  VOLUNTARY ASSESSMENT. Removed the forced first-entry redirect to the assessment (the
+                course tile now always opens the lesson; a first-timer starts at Unit 1). Relabeled the
+                "🎯 Find my level" chip to "📋 Course assessment" (still -> /challenge, now the
+                comprehensive version). Applies to every course. Do no harm.
     2026-07-28  ADDED ALGEBRA II to the subject picker (fourth course on the ladder). New card
                 (subjAlgebra2) after Geometry + COURSE_TITLES.algebra2 = "Algebra II" + its Stage-1
                 href. Purely additive; the other three cards and all hub logic are unchanged. The
@@ -159,7 +163,7 @@
 
     <div class="secondary hidden" id="hubSecondary">
       <a class="chip" id="dashChip" href="#">📊 My progress</a>
-      <a class="chip" id="levelChip" href="#">🎯 Find my level</a>
+      <a class="chip" id="levelChip" href="#">📋 Course assessment</a>
       <a class="chip" id="changeChip" href="#">↔ Change subject</a>
     </div>
   </div>
@@ -212,9 +216,9 @@
       el("levelChip").href = "/challenge" + q;
       el("changeChip").href = "/home" + codeQ;   // back to the subject picker
 
-      // Personalize + route the COURSE tile. (Interim: placed/history are per-student, not
-      // yet per-course -- so the "take the exam first" redirect applies to Algebra I only for
-      // now; Geometry starts straight into the lesson. Per-course placement is Phase 3.4b.)
+      // Personalize the COURSE tile. The assessment is now VOLUNTARY (2026-07-28): the course
+      // tile always goes straight into the lesson (Unit 1 for a first-timer). The comprehensive
+      // Course Assessment lives on the "📋 Course assessment" chip, taken whenever the student wants.
       (async () => {
         try {
           const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
@@ -227,9 +231,7 @@
             el("courseBlurb").textContent = "Begin your start-to-finish " + title + " journey with Mr. Cadabra.";
             el("courseGo").textContent = "Start →";
           }
-          if (!data.placed) {
-            el("courseTile").href = "/challenge" + q;   // take this course's level exam first
-          }
+          // (No forced placement redirect any more — first entry starts the lesson at Unit 1.)
         } catch (e) { /* keep the friendly defaults */ }
       })();
     }

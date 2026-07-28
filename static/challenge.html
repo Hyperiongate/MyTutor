@@ -4,6 +4,16 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  COMPREHENSIVE COURSE ASSESSMENT (replaces the quick adaptive placement). This page is
+                now voluntary (the forced first-entry redirect was removed in home.html + session.html)
+                and reached from the sidebar. The engine no longer climbs tiers / stops at the first
+                miss -- it asks ALL nine units, FIVE questions each (45 total, ~15-25 min), and scores
+                each unit 0..10 (competency bar = 70%). New results screen: a per-unit bar + rating with
+                Strong/Focus tags, then two choices -- "Create my recommended path" (foundation-first:
+                the earliest unit below 70%, in course order) or "Let me choose my own areas" (a unit
+                picker). Results are saved as one CHECK per unit (feeds the per-course dashboard) plus a
+                placement whose start_unit is the first below-competency unit. All 4 course banks were
+                expanded to 45 verified questions. Removed the old LEVELS/TIER_SKILL/adaptive state.
     2026-07-28  ADDED ALGEBRA II placement bank. New ALG2_BANK (9 climbing tiers, 2 questions each,
                 every answer solved & verified), ALG2_UNIT_NAMES, ALG2_TIER_SKILL, ALG2_LEVELS, and an
                 algebra2 entry in COURSE_DATA. Purely additive; the engine already reads ?course= and
@@ -146,7 +156,7 @@
 </head>
 <body>
   <div class="top">
-    <div class="title">🎯 Mr. Cadabra's Challenge</div>
+    <div class="title">📋 Mr. Cadabra's Course Assessment</div>
     <div class="spacer"></div>
     <a id="exitLink" href="/">Exit</a>
   </div>
@@ -155,8 +165,8 @@
     <!-- START -->
     <div class="panel" id="startPanel">
       <div class="badge">🎩</div>
-      <h1>Let's find your level!</h1>
-      <p>A few quick questions — they get trickier as you go. Just tap your answer. Ready?</p>
+      <h1>Your course assessment</h1>
+      <p>This is your full course check-up — about 45 questions across all nine units, so give it 15–25 minutes. It’s not a race and a miss costs nothing; it just shows exactly where you’re strong and where to focus. Ready?</p>
       <button class="btn" id="beginBtn" style="margin-top:12px;">Start the challenge →</button>
     </div>
 
@@ -181,22 +191,42 @@
 
     <!-- RESULT (hidden until finish) -->
     <div class="panel" id="resultPanel" style="display:none;">
-      <div class="badge" id="rBadge">✨</div>
-      <h1 id="rTitle">Nice work!</h1>
-      <p id="rSub">Here's where you are.</p>
-      <div class="level-badge">
-        <div class="lvl" id="rLvl">1</div>
-        <div class="lt"><b id="rLvlTitle">—</b><span id="rPts">0 points</span></div>
+      <div class="badge" id="rBadge">📋</div>
+      <h1 id="rTitle">Here's your course map</h1>
+      <p id="rSub">Your strengths and where to focus, unit by unit.</p>
+      <div id="rScores" class="rscores"></div>
+      <div id="rChoice" class="result-btns" style="margin-top:14px;">
+        <button class="btn" id="goPath">Create my recommended path →</button>
+        <button class="btn ghost" id="goPick">Let me choose my own areas</button>
       </div>
-      <div class="startu">Let's start you at <b id="rStartUnit">Unit 1</b>.</div>
-      <ul class="strengths" id="rStrengths"></ul>
-      <div class="result-btns">
-        <button class="btn" id="goLearn">Start learning with Mr. Cadabra →</button>
-        <button class="btn ghost" id="goDash">See my dashboard</button>
+      <div id="rPathPanel" style="display:none; width:100%; max-width:560px; margin:6px auto 0;"></div>
+      <div id="rPickPanel" style="display:none; width:100%; max-width:560px; margin:6px auto 0;"></div>
+      <div class="result-btns" style="margin-top:12px;">
+        <a class="btn ghost" id="goDash" href="#">See my dashboard</a>
       </div>
     </div>
   </div>
 
+  <style>
+    .rscores { width:100%; max-width:560px; margin:8px auto 4px; display:flex; flex-direction:column; gap:7px; }
+    .rrow { display:grid; grid-template-columns: 1fr 84px 44px 56px; align-items:center; gap:8px; }
+    .rname { font-size:13px; color:#334; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rbarwrap { height:10px; background:#eef1f6; border-radius:6px; overflow:hidden; }
+    .rbar { height:100%; border-radius:6px; }
+    .rnum { font-weight:700; font-size:13px; color:#223; text-align:right; }
+    .rtag { font-size:11px; font-weight:700; text-align:center; border-radius:999px; padding:3px 0; }
+    .rtag.ok { color:#1c7a52; background:#e5f5ee; }
+    .rtag.focus { color:#a5641a; background:#fbeed8; }
+    .rphead { font-weight:700; margin:6px 0 8px; text-align:left; }
+    .rpath { display:flex; flex-wrap:wrap; gap:6px; }
+    .pchip { background:#eef; color:#334; border-radius:8px; padding:5px 9px; font-size:13px; }
+    .rpick { display:flex; flex-direction:column; gap:6px; }
+    .ubtn { display:flex; justify-content:space-between; align-items:center; gap:8px; text-decoration:none;
+            border:1px solid #e3e7ee; border-radius:10px; padding:9px 12px; color:#223; font-size:13px; }
+    .ubtn.focus { border-color:#eab259; background:#fef8ef; }
+    .ubtn.ok { border-color:#bfe6d3; background:#f2fbf7; }
+    .ubtn span { font-weight:700; }
+  </style>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -205,56 +235,272 @@
     const COURSE = (params.get("course") || "algebra1").trim();  // which course we're placing for
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("exitLink").href = CODE ? ("/home" + cq) : "/";
-    // After placing, "Start learning" goes INTO the course (the student chose to start
-    // it; placement was the gate). Exit (bailing mid-quiz) goes back to the hub.
-    el("goLearn").onclick = () => location.href = "/session" + cq;
-    el("goDash").onclick = () => location.href = "/dashboard" + cq;
+    // (The result-screen buttons — recommended path / choose-your-own / dashboard — are wired
+    //  up in finish() once the per-unit scores exist.)
 
-    // ---- Per-course question banks: 9 tiers (climbing difficulty), 2 questions each ----
-    // Tier N roughly maps to that course's Unit N. answer = index of correct choice.
-    // Each question has two shown parts: p = plain-words instruction (small, on top)
-    // and e = the math itself (big, on its own line). c = choices, a = index of the
-    // correct one. Keeping the instruction and the equation on SEPARATE lines is what
-    // fixes the old "= 12.  x = ?" reading as the decimal "12.x".
+    // ---- Per-course COMPREHENSIVE assessment banks: 9 units x 5 questions (45 total) ----
+    // Each question: p = plain-words instruction, e = the math on its own line, c = 4 choices,
+    // a = index of the correct choice. Every answer was verified. No adaptive early-stop -- the
+    // assessment covers ALL nine units so we can rate each one 0..10.
     const ALG_BANK = {
-      1: [ {p:"Work it out", e:"7 − 10", c:["3","−3","−17","17"], a:1},
-           {p:"Work it out", e:"3 + 2 × 4", c:["20","11","14","24"], a:1} ],
-      2: [ {p:"Solve for x", e:"x + 5 = 12", c:["7","17","5","60"], a:0},
-           {p:"Solve for x", e:"2x = 14", c:["7","12","28","16"], a:0} ],
-      3: [ {p:"Solve for x", e:"2x + 3 = 11", c:["4","7","5","8"], a:0},
-           {p:"Solve for x", e:"5x − 4 = 3x + 2", c:["3","1","6","−3"], a:0} ],
-      4: [ {p:"Find f(3) when", e:"f(x) = 2x + 1", c:["7","6","5","9"], a:0},
-           {p:"Find g(4) when", e:"g(x) = x² − 1", c:["15","7","16","8"], a:0} ],
-      5: [ {p:"Find the slope", e:"y = 3x − 2", c:["3","−2","2","⅓"], a:0},
-           {p:"Find the slope of the line through", e:"(0, 1) and (2, 5)", c:["2","3","4","1"], a:0} ],
-      6: [ {p:"Where do these lines cross?", e:"y = x   and   y = 4", c:["(4, 4)","(0, 4)","(4, 0)","(2, 2)"], a:0},
-           {p:"Solve the system for x", e:"y = 2x   and   x + y = 6", c:["2","3","6","4"], a:0} ],
-      7: [ {p:"Simplify", e:"x³ · x²", c:["x⁵","x⁶","x¹","2x⁵"], a:0},
-           {p:"Work it out", e:"2⁻²", c:["¼","−4","4","½"], a:0} ],
-      8: [ {p:"Factor", e:"x² − 9", c:["(x−3)(x+3)","(x−9)(x+1)","(x−3)²","(x+9)(x−1)"], a:0},
-           {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 5x + 6","x² + 6x + 5","x² + 6","x² + 5x + 5"], a:0} ],
-      9: [ {p:"Solve for x", e:"x² = 25", c:["±5","5","25","±25"], a:0},
-           {p:"Find the solutions", e:"(x − 2)(x + 3) = 0", c:["2 and −3","−2 and 3","2 and 3","−2 and −3"], a:0} ],
+      1: [
+        {p:"Simplify", e:"3x + 2 − x + 7", c:["4x + 9","2x + 5","3x + 9","2x + 9"], a:3},
+        {p:"Evaluate 2x + 5 when", e:"x = 3", c:["11","10","13","8"], a:0},
+        {p:"Expand", e:"−2(3x − 4)", c:["−6x − 8","−6x + 8","6x − 8","−6x − 4"], a:1},
+        {p:"Combine like terms", e:"5a + 3b − 2a + b", c:["7a + 4b","3a + 2b","3a + 4b","8ab"], a:2},
+        {p:"Work it out", e:"12 − 4 ÷ 2", c:["4","8","2","10"], a:3}
+      ],
+      2: [
+        {p:"Solve for x", e:"x + 4 = 12", c:["16","3","8","48"], a:2},
+        {p:"Solve for x", e:"2x + 3 = 11", c:["7","5","8","4"], a:3},
+        {p:"Solve for x", e:"5x − 4 = 3x + 2", c:["3","1","6","−3"], a:0},
+        {p:"Solve for x", e:"3(x − 2) = 2x + 5", c:["−1","11","1","5"], a:1},
+        {p:"Solve the inequality", e:"−2x > 8", c:["x > −4","x > 4","x < −4","x < 4"], a:2}
+      ],
+      3: [
+        {p:"Find f(3) when", e:"f(x) = 2x + 1", c:["6","7","5","9"], a:1},
+        {p:"Find g(4) when", e:"g(x) = x² − 1", c:["7","16","15","8"], a:2},
+        {p:"Find f(−2) when", e:"f(x) = 3x + 4", c:["10","2","−10","−2"], a:3},
+        {p:"Is this a function?", e:"every input gives exactly one output", c:["Yes","No","Only if linear","Only if graphed"], a:0},
+        {p:"Find f(0) when", e:"f(x) = x + 5", c:["0","5","−5","1"], a:1}
+      ],
+      4: [
+        {p:"Find the slope", e:"y = 3x − 2", c:["3","−2","2","⅓"], a:0},
+        {p:"Find the y-intercept", e:"y = 3x − 2", c:["3","−2","2","0"], a:1},
+        {p:"Find the slope through", e:"(1, 2) and (3, 8)", c:["2","4","3","1"], a:2},
+        {p:"Slope of a horizontal line", e:"y = 4", c:["4","undefined","1","0"], a:3},
+        {p:"Parallel lines have", e:"slopes that are…", c:["equal","opposite","reciprocal","negative reciprocal"], a:0}
+      ],
+      5: [
+        {p:"Where do these cross?", e:"y = x  and  y = 4", c:["(0, 4)","(4, 0)","(2, 2)","(4, 4)"], a:3},
+        {p:"Solve the system for x", e:"y = 2x  and  x + y = 6", c:["2","3","6","4"], a:0},
+        {p:"Solve for x", e:"x + y = 10,  x − y = 2", c:["4","6","5","8"], a:1},
+        {p:"Two parallel lines: how many solutions?", e:"as a system", c:["one","two","none","infinite"], a:2},
+        {p:"Solve the system for y", e:"y = x + 1,  y = 3", c:["2","4","1","3"], a:3}
+      ],
+      6: [
+        {p:"Simplify", e:"x³ · x²", c:["x⁶","x¹","x⁵","2x⁵"], a:2},
+        {p:"Simplify", e:"(x³)²", c:["x⁵","x⁹","x¹","x⁶"], a:3},
+        {p:"Work it out", e:"2⁻²", c:["¼","−4","4","½"], a:0},
+        {p:"Work it out", e:"5⁰", c:["0","1","5","undefined"], a:1},
+        {p:"Evaluate", e:"3 · 2³", c:["18","48","24","12"], a:2}
+      ],
+      7: [
+        {p:"Factor", e:"x² − 9", c:["(x − 9)(x + 1)","(x − 3)(x + 3)","(x − 3)²","(x + 9)(x − 1)"], a:1},
+        {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 6x + 5","x² + 6","x² + 5x + 6","x² + 5x + 5"], a:2},
+        {p:"Factor", e:"x² + 7x + 12", c:["(x + 2)(x + 6)","(x + 1)(x + 12)","(x + 5)(x + 2)","(x + 3)(x + 4)"], a:3},
+        {p:"Factor out the GCF", e:"6x² + 9x", c:["3x(2x + 3)","3(2x² + 3x)","x(6x + 9)","3x(2x + 9)"], a:0},
+        {p:"Multiply", e:"3x(x − 2)", c:["3x² − 2","3x² − 6x","3x − 6x","3x² − 6"], a:1}
+      ],
+      8: [
+        {p:"Solve for x", e:"x² = 25", c:["±5","5","25","±25"], a:0},
+        {p:"Find the solutions", e:"(x − 2)(x + 3) = 0", c:["−2 and 3","2 and −3","2 and 3","−2 and −3"], a:1},
+        {p:"Solve", e:"x² + 5x + 6 = 0", c:["2 and 3","−1 and −6","−2 and −3","1 and 6"], a:2},
+        {p:"A parabola y = x² opens", e:"which way?", c:["down","left","right","up"], a:3},
+        {p:"The vertex of y = x² is at", e:"which point?", c:["(0, 0)","(1, 1)","(0, 1)","(1, 0)"], a:0}
+      ],
+      9: [
+        {p:"Find the mean", e:"4, 8, 6", c:["8","18","4","6"], a:3},
+        {p:"Find the median", e:"3, 7, 5", c:["5","7","3","6"], a:0},
+        {p:"Find the range", e:"2, 9, 5", c:["9","7","2","5"], a:1},
+        {p:"A correlation of 1 means the points", e:"lie on…", c:["a scatter","a falling line","a rising line","a circle"], a:2},
+        {p:"Find the mode", e:"2, 3, 3, 5", c:["2","5","4","3"], a:3}
+      ]
     };
     const GEO_BANK = {
-      1: [ {p:"Find the complement", e:"complement of 30°", c:["60°","70°","150°","30°"], a:0},
-           {p:"Find the supplement", e:"supplement of 110°", c:["70°","90°","110°","250°"], a:0} ],
-      2: [ {p:"Reflect over the x-axis", e:"the point (3, 5)", c:["(3, −5)","(−3, 5)","(−3, −5)","(5, 3)"], a:0},
-           {p:"How many lines of symmetry?", e:"a square", c:["4","2","1","8"], a:0} ],
-      3: [ {p:"Which rule proves them congruent?", e:"three pairs of equal sides", c:["SSS","AAA","SSA","none"], a:0},
-           {p:"Does this prove congruence?", e:"AAA (all three angles equal)", c:["No — only similar","Yes, always","Yes, by ASA","Only right triangles"], a:0} ],
-      4: [ {p:"Similar triangles, scale factor 3", e:"a side of 4 becomes…", c:["12","7","1.33","64"], a:0},
-           {p:"If the sides scale by 2,", e:"the area scales by…", c:["4","2","8","½"], a:0} ],
-      5: [ {p:"Find the hypotenuse", e:"legs 3 and 4", c:["5","7","12","25"], a:0},
-           {p:"Find the missing leg", e:"leg 6, hypotenuse 10", c:["8","4","16","2"], a:0} ],
-      6: [ {p:"Find the inscribed angle", e:"it intercepts an 80° arc", c:["40°","80°","160°","20°"], a:0},
-           {p:"A tangent meets the radius at", e:"an angle of…", c:["90°","45°","180°","60°"], a:0} ],
-      7: [ {p:"Find the distance", e:"(0, 0) to (3, 4)", c:["5","7","√7","25"], a:0},
-           {p:"Find the midpoint", e:"(2, 4) and (6, 8)", c:["(4, 6)","(8, 12)","(2, 2)","(4, 4)"], a:0} ],
-      8: [ {p:"Area of a circle, radius 3", e:"A = ?", c:["9π","6π","3π","9"], a:0},
-           {p:"Volume of a cube, side 4", e:"V = ?", c:["64","16","12","48"], a:0} ],
-      9: [ {p:"Probability of rolling a 4", e:"on a fair die", c:["1/6","1/4","4/6","1/2"], a:0},
-           {p:"Two coins — both heads", e:"P = ?", c:["1/4","1/2","1/3","3/4"], a:0} ],
+      1: [
+        {p:"Find the complement", e:"of 30°", c:["70°","150°","30°","60°"], a:3},
+        {p:"Find the supplement", e:"of 110°", c:["70°","90°","250°","110°"], a:0},
+        {p:"Vertical angles are always", e:"…", c:["supplementary","equal","complementary","right"], a:1},
+        {p:"A straight angle measures", e:"…", c:["90°","360°","180°","45°"], a:2},
+        {p:"A midpoint divides a segment into", e:"…", c:["three parts","a right angle","two rays","two equal parts"], a:3}
+      ],
+      2: [
+        {p:"Reflect over the x-axis", e:"(3, 5)", c:["(−3, 5)","(−3, −5)","(3, −5)","(5, 3)"], a:2},
+        {p:"How many lines of symmetry?", e:"a square", c:["2","1","8","4"], a:3},
+        {p:"Translate (1, 2) right 3", e:"→", c:["(4, 2)","(1, 5)","(4, 5)","(−2, 2)"], a:0},
+        {p:"A rigid motion preserves a figure's", e:"…", c:["size only","size and shape","shape only","neither"], a:1},
+        {p:"Rotate (1, 0) 90° counterclockwise about the origin", e:"→", c:["(0, −1)","(−1, 0)","(0, 1)","(1, 0)"], a:2}
+      ],
+      3: [
+        {p:"Which proves congruence?", e:"three pairs of equal sides", c:["AAA","SSS","SSA","none"], a:1},
+        {p:"Does AAA prove congruence?", e:"all three angles equal", c:["Yes, always","Yes, by ASA","No — only similar","Only right triangles"], a:2},
+        {p:"CPCTC is used after proving triangles", e:"…", c:["similar","right","isosceles","congruent"], a:3},
+        {p:"Congruent figures have the same", e:"…", c:["size and shape","shape only","area only","angles only"], a:0},
+        {p:"Which proves congruence?", e:"two angles + the included side", c:["SSA","ASA","AAA","none"], a:1}
+      ],
+      4: [
+        {p:"Scale factor 3: a side of 4 becomes", e:"→", c:["12","7","1.33","64"], a:0},
+        {p:"If the sides scale by 2, the area scales by", e:"→", c:["2","4","8","½"], a:1},
+        {p:"Similar figures have the same", e:"…", c:["size","area","shape","perimeter"], a:2},
+        {p:"Which proves similarity?", e:"two pairs of equal angles", c:["SSA","SSS only","none","AA"], a:3},
+        {p:"Scale factor ½: a side of 10 becomes", e:"→", c:["5","20","2","15"], a:0}
+      ],
+      5: [
+        {p:"Find the hypotenuse", e:"legs 3 and 4", c:["7","12","25","5"], a:3},
+        {p:"Find the missing leg", e:"leg 6, hypotenuse 10", c:["8","4","16","2"], a:0},
+        {p:"By SOH, sine is opposite over", e:"…", c:["adjacent","hypotenuse","opposite","1"], a:1},
+        {p:"Find the hypotenuse", e:"legs 6 and 8", c:["14","12","10","48"], a:2},
+        {p:"The longest side of a right triangle is the", e:"…", c:["leg","base","height","hypotenuse"], a:3}
+      ],
+      6: [
+        {p:"An inscribed angle on an 80° arc measures", e:"→", c:["80°","160°","40°","20°"], a:2},
+        {p:"A tangent meets the radius at", e:"→", c:["45°","180°","60°","90°"], a:3},
+        {p:"The distance across a circle through the center is the", e:"→", c:["diameter","radius","chord","arc"], a:0},
+        {p:"A central angle on a 70° arc measures", e:"→", c:["35°","70°","140°","90°"], a:1},
+        {p:"The circumference formula uses", e:"→", c:["πr²","πd²","2πr","2r"], a:2}
+      ],
+      7: [
+        {p:"Distance from (0, 0) to (3, 4)", e:"→", c:["7","5","√7","25"], a:1},
+        {p:"Midpoint of (2, 4) and (6, 8)", e:"→", c:["(8, 12)","(2, 2)","(4, 6)","(4, 4)"], a:2},
+        {p:"Perpendicular lines have slopes that are", e:"→", c:["equal","opposite","the same","negative reciprocals"], a:3},
+        {p:"Slope between (1, 1) and (3, 5)", e:"→", c:["2","3","4","1"], a:0},
+        {p:"Parallel lines have", e:"→", c:["negative reciprocal slopes","equal slopes","zero slope","undefined slope"], a:1}
+      ],
+      8: [
+        {p:"Area of a circle, radius 3", e:"→", c:["9π","6π","3π","9"], a:0},
+        {p:"Volume of a cube, side 4", e:"→", c:["16","64","12","48"], a:1},
+        {p:"Area of a rectangle 5 by 3", e:"→", c:["8","16","15","30"], a:2},
+        {p:"Volume of a box 2 × 3 × 4", e:"→", c:["9","20","14","24"], a:3},
+        {p:"Surface area is found by unfolding a solid into its", e:"→", c:["net","volume","radius","angle"], a:0}
+      ],
+      9: [
+        {p:"P(rolling a 4)", e:"on a fair die", c:["1/4","4/6","1/2","1/6"], a:3},
+        {p:"P(both heads) on two coins", e:"→", c:["1/4","1/2","1/3","3/4"], a:0},
+        {p:"P(even) on a fair die", e:"→", c:["1/3","1/2","1/6","2/3"], a:1},
+        {p:"Independent events: one does NOT affect", e:"→", c:["the sample space","the total","the other","the die"], a:2},
+        {p:"P(red) from 3 red and 2 blue", e:"→", c:["2/5","3/2","1/2","3/5"], a:3}
+      ]
+    };
+    const PREALG_BANK = {
+      1: [
+        {p:"Work it out", e:"3 + 2 × 4", c:["20","14","24","11"], a:3},
+        {p:"Work it out", e:"12 − 4 ÷ 2", c:["10","4","8","2"], a:0},
+        {p:"Work it out", e:"2 × (5 + 3²)", c:["16","28","64","19"], a:1},
+        {p:"Round to the nearest ten", e:"67", c:["60","65","70","77"], a:2},
+        {p:"Which is greatest?", e:"4, 40, 14, 41", c:["40","14","4","41"], a:3}
+      ],
+      2: [
+        {p:"Find the GCF", e:"12 and 18", c:["2","3","6","36"], a:2},
+        {p:"Which is prime?", e:"9, 15, 17, 21", c:["9","15","21","17"], a:3},
+        {p:"Find the LCM", e:"4 and 6", c:["12","24","10","2"], a:0},
+        {p:"Which is a factor of 20?", e:"factors of 20", c:["3","5","7","8"], a:1},
+        {p:"Prime factorization of", e:"12", c:["2 × 6","3 × 4","2 × 2 × 3","2 × 3"], a:2}
+      ],
+      3: [
+        {p:"Work it out", e:"−4 + 9", c:["−5","5","13","−13"], a:1},
+        {p:"Work it out", e:"−6 − (−2)", c:["−8","4","−4","8"], a:2},
+        {p:"Work it out", e:"−3 × 4", c:["12","−7","7","−12"], a:3},
+        {p:"Work it out", e:"−12 ÷ −3", c:["4","−4","−9","9"], a:0},
+        {p:"Find", e:"|−7|", c:["−7","7","0","14"], a:1}
+      ],
+      4: [
+        {p:"Add", e:"1/2 + 1/3", c:["5/6","2/5","1/6","2/6"], a:0},
+        {p:"Multiply", e:"3/4 × 2/3", c:["6/7","1/2","5/7","2/3"], a:1},
+        {p:"Simplify", e:"8/12", c:["4/8","3/4","2/3","1/2"], a:2},
+        {p:"Divide", e:"3/4 ÷ 1/2", c:["3/8","2/3","1/2","3/2"], a:3},
+        {p:"Which is larger?", e:"1/2 or 2/5", c:["1/2","2/5","equal","can't tell"], a:0}
+      ],
+      5: [
+        {p:"Which is larger?", e:"0.5 or 0.45", c:["0.45","equal","can't tell","0.5"], a:3},
+        {p:"Multiply", e:"0.6 × 0.3", c:["0.18","1.8","0.9","0.018"], a:0},
+        {p:"Add", e:"2.4 + 1.35", c:["3.9","3.75","0.375","36"], a:1},
+        {p:"Round to the nearest tenth", e:"3.678", c:["3.6","3.68","3.7","4.0"], a:2},
+        {p:"Write as a decimal", e:"3/4", c:["0.34","0.43","1.33","0.75"], a:3}
+      ],
+      6: [
+        {p:"Find the unit rate", e:"$12 for 3 pounds", c:["$3 per lb","$9 per lb","$4 per lb","$36 per lb"], a:2},
+        {p:"Solve the proportion", e:"2/3 = x/12", c:["6","4","18","8"], a:3},
+        {p:"Simplify the ratio", e:"6 : 8", c:["3 : 4","2 : 3","4 : 6","8 : 6"], a:0},
+        {p:"A car goes 120 miles in 2 hours", e:"its speed is", c:["120 mph","60 mph","240 mph","30 mph"], a:1},
+        {p:"Solve the proportion", e:"x/5 = 4/10", c:["4","10","2","20"], a:2}
+      ],
+      7: [
+        {p:"Find", e:"20% of 80", c:["20","16","40","4"], a:1},
+        {p:"Find", e:"15% of 40", c:["4","15","6","10"], a:2},
+        {p:"Write as a fraction", e:"25%", c:["1/2","1/25","4","1/4"], a:3},
+        {p:"A $50 item is 10% off. New price?", e:"$50 − 10%", c:["$45","$40","$55","$5"], a:0},
+        {p:"Write as a percent", e:"0.3", c:["3%","30%","0.3%","300%"], a:1}
+      ],
+      8: [
+        {p:"Area of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:0},
+        {p:"Perimeter of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:1},
+        {p:"Find the mean", e:"4, 8, 6", c:["8","18","6","4"], a:2},
+        {p:"Area of a triangle", e:"base 6, height 4", c:["24","10","20","12"], a:3},
+        {p:"Convert", e:"2 feet to inches", c:["24","12","20","36"], a:0}
+      ],
+      9: [
+        {p:"Evaluate 2x + 1 when", e:"x = 3", c:["6","5","9","7"], a:3},
+        {p:"Solve", e:"x + 5 = 12", c:["7","17","5","60"], a:0},
+        {p:"Combine like terms", e:"3x + 2 + x", c:["3x + 2","4x + 2","4x","5x"], a:1},
+        {p:"Solve", e:"3x = 15", c:["12","45","5","18"], a:2},
+        {p:"Write as an expression", e:"5 more than n", c:["5n","n − 5","5 − n","n + 5"], a:3}
+      ]
+    };
+    const ALG2_BANK = {
+      1: [
+        {p:"Solve for x", e:"3(x − 2) = 2x + 5", c:["−1","1","5","11"], a:3},
+        {p:"Solve the system for x", e:"y = x  and  x + y = 8", c:["4","8","2","6"], a:0},
+        {p:"Solve", e:"|x| = 7", c:["7","7 or −7","−7","0"], a:1},
+        {p:"Solve for x", e:"2x − 1 ≥ 9", c:["x ≤ 5","x ≥ 4","x ≥ 5","x ≥ 10"], a:2},
+        {p:"Solve the system for x", e:"x + y = 10,  x − y = 4", c:["3","5","6","7"], a:3}
+      ],
+      2: [
+        {p:"Solve", e:"x² + 5x + 6 = 0", c:["2 and 3","−1 and −6","−2 and −3","1 and 6"], a:2},
+        {p:"Simplify", e:"√(−9)", c:["−3","9i","−9","3i"], a:3},
+        {p:"Solve", e:"x² = 49", c:["±7","7","49","±49"], a:0},
+        {p:"Simplify", e:"(3 + 2i) + (1 − 5i)", c:["4 + 3i","4 − 3i","2 − 3i","4 − 7i"], a:1},
+        {p:"The vertex of", e:"y = (x − 3)² + 2", c:["(−3, 2)","(3, −2)","(3, 2)","(2, 3)"], a:2}
+      ],
+      3: [
+        {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 6x + 5","x² + 5x + 6","x² + 6","x² + 5x + 5"], a:1},
+        {p:"Factor", e:"x³ − 8", c:["(x − 2)³","(x − 2)(x² − 2x + 4)","(x − 2)(x² + 2x + 4)","(x + 2)(x² − 2x + 4)"], a:2},
+        {p:"Add", e:"(2x² + 3x − 1) + (x² − x + 4)", c:["3x² + 4x + 3","2x² + 2x + 3","3x² + 2x − 5","3x² + 2x + 3"], a:3},
+        {p:"A degree-3 polynomial has how many zeros (counting complex)?", e:"→", c:["3","1","2","6"], a:0},
+        {p:"If x = 2 is a zero, one factor is", e:"→", c:["(x + 2)","(x − 2)","(2x)","(x − ½)"], a:1}
+      ],
+      4: [
+        {p:"Simplify", e:"(x² − 4)/(x + 2)", c:["x − 2","x + 2","x − 4","2"], a:0},
+        {p:"Which x is not allowed?", e:"1/(x − 3)", c:["−3","3","0","1/3"], a:1},
+        {p:"Multiply", e:"(3/x)(x²/6)", c:["x²/2","3/6","x/2","2/x"], a:2},
+        {p:"Add", e:"1/x + 2/x", c:["3/2x","2/x²","3/x²","3/x"], a:3},
+        {p:"A zero in the denominator gives a", e:"→", c:["vertical asymptote","hole always","x-intercept","slope"], a:0}
+      ],
+      5: [
+        {p:"Evaluate", e:"27^(2/3)", c:["6","18","3","9"], a:3},
+        {p:"Simplify", e:"√50", c:["5√2","2√5","25√2","10√5"], a:0},
+        {p:"Write ⁴√(x³) as a power", e:"→", c:["x^(4/3)","x^(3/4)","x¹²","x^(3·4)"], a:1},
+        {p:"Solve", e:"√x = 4", c:["2","8","16","±4"], a:2},
+        {p:"Simplify", e:"√12 + √27", c:["√39","6√3","5√6","5√3"], a:3}
+      ],
+      6: [
+        {p:"Evaluate", e:"log₂ 8", c:["2","4","3","8"], a:2},
+        {p:"Solve for x", e:"2^x = 16", c:["8","2","5","4"], a:3},
+        {p:"Expand", e:"log(xy)", c:["log x + log y","log x · log y","log(x + y)","x log y"], a:0},
+        {p:"Rewrite as a power", e:"log₃ 9 = 2", c:["9² = 3","3² = 9","2³ = 9","3⁹ = 2"], a:1},
+        {p:"The range of y = 2^x is", e:"→", c:["all reals","y ≥ 0","y > 0","y < 0"], a:2}
+      ],
+      7: [
+        {p:"Find the next term", e:"3, 7, 11, 15, …", c:["20","19","18","23"], a:1},
+        {p:"Find the common ratio", e:"2, 6, 18, 54", c:["2","4","3","6"], a:2},
+        {p:"Find the 10th term of aₙ = 2n", e:"→", c:["18","22","10","20"], a:3},
+        {p:"Add", e:"1 + 2 + 3 + 4 + 5", c:["15","10","20","25"], a:0},
+        {p:"Is 3, 6, 12, 24 arithmetic or geometric?", e:"→", c:["arithmetic","geometric","neither","both"], a:1}
+      ],
+      8: [
+        {p:"Convert to radians", e:"180°", c:["π","π/2","2π","π/3"], a:0},
+        {p:"Find the value", e:"sin 30°", c:["√3/2","1/2","1","√2/2"], a:1},
+        {p:"Find the value", e:"cos 0°", c:["0","−1","1","½"], a:2},
+        {p:"The period of y = sin x is", e:"→", c:["π","π/2","1","2π"], a:3},
+        {p:"The amplitude of y = 3 sin x is", e:"→", c:["3","1","6","π"], a:0}
+      ],
+      9: [
+        {p:"In a normal distribution, within 1 SD of the mean is about", e:"→", c:["95%","50%","99.7%","68%"], a:3},
+        {p:"Find the mean", e:"4, 8, 6, 10, 2", c:["6","30","5","8"], a:0},
+        {p:"A z-score of 0 means the value is", e:"→", c:["one SD above","at the mean","the maximum","below the mean"], a:1},
+        {p:"Correlation does NOT imply", e:"→", c:["association","a pattern","causation","a trend"], a:2},
+        {p:"P(A or B) for mutually exclusive events is", e:"→", c:["P(A) · P(B)","P(A) − P(B)","P(A|B)","P(A) + P(B)"], a:3}
+      ]
     };
     const ALG_UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
       3:"Functions & Notation", 4:"Linear Functions & Graphs", 5:"Systems of Equations",
@@ -262,92 +508,29 @@
     const GEO_UNIT_NAMES = { 1:"Foundations & Constructions", 2:"Transformations & Symmetry",
       3:"Congruence & Triangle Proofs", 4:"Similarity & Dilations", 5:"Right Triangles & Trigonometry",
       6:"Circles", 7:"Coordinate Geometry", 8:"Area, Surface Area & Volume", 9:"Probability" };
-    const ALG_TIER_SKILL = { 1:"Number sense", 2:"Solving equations", 3:"Multi-step solving", 4:"Functions",
-      5:"Slope & graphs", 6:"Systems", 7:"Exponents", 8:"Factoring", 9:"Quadratics" };
-    const GEO_TIER_SKILL = { 1:"Angles & basics", 2:"Transformations", 3:"Congruence & proof", 4:"Similarity",
-      5:"Right triangles & trig", 6:"Circles", 7:"Coordinate geometry", 8:"Area & volume", 9:"Probability" };
-    const ALG_LEVELS = ["Getting Started","Equation Rookie","Equation Solver","Function Finder","Graph Explorer",
-      "Systems Thinker","Power Player","Factoring Pro","Quadratic Whiz","Algebra Ace"];
-    const GEO_LEVELS = ["Getting Started","Angle Apprentice","Transformation Traveler","Proof Pupil","Similarity Scout",
-      "Right-Triangle Ranger","Circle Sage","Coordinate Captain","Volume Virtuoso","Geometry Ace"];
-
-    const PREALG_BANK = {
-      1: [ {p:"Work it out", e:"3 + 2 × 4", c:["20","11","14","24"], a:1},
-           {p:"Work it out", e:"12 − 4 ÷ 2", c:["10","4","8","2"], a:0} ],
-      2: [ {p:"Find the GCF", e:"12 and 18", c:["6","2","3","36"], a:0},
-           {p:"Which one is prime?", e:"9, 15, 17, 21", c:["17","9","15","21"], a:0} ],
-      3: [ {p:"Work it out", e:"−4 + 9", c:["5","−5","13","−13"], a:0},
-           {p:"Work it out", e:"−6 − (−2)", c:["−4","−8","4","8"], a:0} ],
-      4: [ {p:"Add", e:"1/2 + 1/3", c:["5/6","2/5","1/6","2/6"], a:0},
-           {p:"Multiply", e:"3/4 × 2/3", c:["1/2","6/7","5/7","2/3"], a:0} ],
-      5: [ {p:"Which is larger?", e:"0.5 or 0.45", c:["0.5","0.45","they're equal","can't tell"], a:0},
-           {p:"Multiply", e:"0.6 × 0.3", c:["0.18","1.8","0.9","0.018"], a:0} ],
-      6: [ {p:"Find the unit rate", e:"$12 for 3 pounds", c:["$4 per lb","$3 per lb","$9 per lb","$36 per lb"], a:0},
-           {p:"Solve the proportion", e:"2/3 = x/12", c:["8","6","4","18"], a:0} ],
-      7: [ {p:"Find it", e:"20% of 80", c:["16","20","40","4"], a:0},
-           {p:"Find it", e:"15% of 40", c:["6","4","15","10"], a:0} ],
-      8: [ {p:"Area of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:0},
-           {p:"Find the mean (average)", e:"4, 8, 6", c:["6","8","18","4"], a:0} ],
-      9: [ {p:"Evaluate 2x + 1 when", e:"x = 3", c:["7","6","5","9"], a:0},
-           {p:"Solve", e:"x + 5 = 12", c:["7","17","5","60"], a:0} ],
-    };
     const PREALG_UNIT_NAMES = { 1:"Number Sense & Order of Operations", 2:"Factors, Multiples & Primes",
       3:"Integers & Negative Numbers", 4:"Fractions", 5:"Decimals", 6:"Ratios, Rates & Proportions",
       7:"Percents", 8:"Measurement & Geometry Basics", 9:"Variables & Expressions" };
-    const PREALG_TIER_SKILL = { 1:"Order of operations", 2:"Factors & primes", 3:"Integers", 4:"Fractions",
-      5:"Decimals", 6:"Ratios & proportions", 7:"Percents", 8:"Measurement", 9:"Variables" };
-    const PREALG_LEVELS = ["Getting Started","Number Novice","Factor Finder","Integer Insider","Fraction Fixer",
-      "Decimal Dynamo","Ratio Ranger","Percent Pro","Measurement Master","Pre-Algebra Ace"];
-
-    const ALG2_BANK = {
-      1: [ {p:"Solve for x", e:"3(x − 2) = 2x + 5", c:["11","−1","1","5"], a:0},
-           {p:"Solve the system for x", e:"y = x   and   x + y = 8", c:["8","4","2","6"], a:1} ],
-      2: [ {p:"Solve", e:"x² + 5x + 6 = 0", c:["2 and 3","−1 and −6","−2 and −3","1 and 6"], a:2},
-           {p:"Simplify", e:"√(−9)", c:["−3","−9","3i","9i"], a:2} ],
-      3: [ {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 6x + 5","x² + 5x + 6","x² + 6","x² + 5x + 5"], a:1},
-           {p:"Factor", e:"x³ − 8", c:["(x − 2)³","(x − 2)(x² + 2x + 4)","(x − 2)(x² − 2x + 4)","(x + 2)(x² − 2x + 4)"], a:1} ],
-      4: [ {p:"Simplify", e:"(x² − 4)/(x + 2)", c:["x + 2","x − 4","x − 2","2"], a:2},
-           {p:"Which x is not allowed?", e:"1/(x − 3)", c:["−3","0","3","1/3"], a:2} ],
-      5: [ {p:"Evaluate", e:"27^(2/3)", c:["6","3","18","9"], a:3},
-           {p:"Simplify", e:"√50", c:["5√2","2√5","25√2","10√5"], a:0} ],
-      6: [ {p:"Evaluate", e:"log₂ 8", c:["2","4","3","8"], a:2},
-           {p:"Solve for x", e:"2^x = 16", c:["4","8","2","5"], a:0} ],
-      7: [ {p:"Find the next term", e:"3, 7, 11, 15, …", c:["18","20","19","23"], a:2},
-           {p:"Find the common ratio", e:"2, 6, 18, 54", c:["2","4","6","3"], a:3} ],
-      8: [ {p:"Convert to radians", e:"180°", c:["π/2","2π","π","π/3"], a:2},
-           {p:"Find the value", e:"sin 30°", c:["√3/2","1","1/2","√2/2"], a:2} ],
-      9: [ {p:"In a normal distribution, how much is within 1 SD of the mean?", e:"about ___ %", c:["95%","50%","68%","99.7%"], a:2},
-           {p:"Find the mean (average)", e:"4, 8, 6, 10, 2", c:["30","5","8","6"], a:3} ],
-    };
     const ALG2_UNIT_NAMES = { 1:"Foundations & Systems", 2:"Quadratic Functions & Complex Numbers",
       3:"Polynomial Functions", 4:"Rational Expressions & Functions", 5:"Radicals & Rational Exponents",
       6:"Exponential & Logarithmic Functions", 7:"Sequences & Series", 8:"Trigonometric Functions",
       9:"Statistics & Probability" };
-    const ALG2_TIER_SKILL = { 1:"Equations & systems", 2:"Quadratics & complex", 3:"Polynomials",
-      4:"Rational functions", 5:"Radicals & exponents", 6:"Exponentials & logs", 7:"Sequences & series",
-      8:"Trigonometry", 9:"Statistics" };
-    const ALG2_LEVELS = ["Getting Started","Systems Solver","Quadratic Conqueror","Polynomial Pro","Rational Navigator",
-      "Radical Ranger","Logarithm Legend","Sequence Sage","Trig Trailblazer","Algebra II Ace"];
 
-    // Select the bank/labels for the course being placed (defaults to Algebra I).
+    // Select the bank + labels for the course being assessed (defaults to Algebra I).
     const COURSE_DATA = {
-      algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    tierSkill: ALG_TIER_SKILL,    levels: ALG_LEVELS,    subject: "algebra" },
-      geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    tierSkill: GEO_TIER_SKILL,    levels: GEO_LEVELS,    subject: "geometry" },
-      prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, tierSkill: PREALG_TIER_SKILL, levels: PREALG_LEVELS, subject: "pre-algebra" },
-      algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   tierSkill: ALG2_TIER_SKILL,   levels: ALG2_LEVELS,   subject: "Algebra II" },
+      algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },
+      geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    subject: "geometry" },
+      prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, subject: "pre-algebra" },
+      algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   subject: "Algebra II" },
     };
     const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
     const SUBJECT = CD.subject;
     const BANK = CD.bank;
-    const MAX_TIER = 9;
     const UNIT_NAMES = CD.unitNames;
-    const TIER_SKILL = CD.tierSkill;
-    const LEVELS = CD.levels;
+    const COMPETENCY = 70;   // percent needed for a unit to count as "ready to move on" (7/10)
 
     // ---- State ----
-    let tier = 1, second = false, points = 0, streak = 0, asked = 0, highestPassed = 0;
-    let locked = false;
-    const passedTiers = [];
+    let idx = 0, points = 0, answered = 0, locked = false;
 
     // ---- Orb (reused, simplified) ----
     const orb = el("orb"), octx = orb.getContext("2d");
@@ -394,32 +577,38 @@
     function browserSay(line){ if(!window.speechSynthesis) return; try { speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(line); if(maleVoice) u.voice=maleVoice; u.rate=1.02; u.pitch=0.95; speechSynthesis.speak(u);}catch(e){} }
 
-    // ---- Flow ----
+    // ---- Flow: comprehensive pass over ALL nine units (5 questions each) ----
+    const ORDER = [];
+    for (let u = 1; u <= 9; u++) { const qs = BANK[u] || []; for (let qi = 0; qi < qs.length; qi++) ORDER.push({ u, qi }); }
+    const TOTAL_Q = ORDER.length;
+    const PER_UNIT = {}; for (let u = 1; u <= 9; u++) PER_UNIT[u] = { correct: 0, total: (BANK[u] || []).length };
+
     async function begin() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenOn = !!(await vs.json()).eleven; } catch(e){}
       el("startPanel").style.display = "none";
       el("quiz").style.display = "flex";
-      say("Alright — let's find your level. Here we go!", "Alright! Let's find your level. Here we go!");
+      say("Alright — let's map out your whole course. Take your time; there's no penalty for a miss.",
+          "Alright! Let's map out your whole course. Take your time. There's no penalty for a miss.");
       setTimeout(nextQuestion, 700);
     }
     el("beginBtn").onclick = begin;
 
     function nextQuestion() {
-      if (tier > MAX_TIER) return finish();
+      if (idx >= TOTAL_Q) return finish();
       locked = false; orbState = "think";
-      const q = BANK[tier][second ? 1 : 0];
-      asked++;
-      el("prog").textContent = "Question " + asked;
+      const { u, qi } = ORDER[idx];
+      const q = BANK[u][qi];
+      el("prog").textContent = "Question " + (idx + 1) + " of " + TOTAL_Q;
       el("qprompt").textContent = q.p;
       el("qexpr").textContent = q.e;
       const box = el("choices"); box.innerHTML = "";
       q.c.forEach((choice, i) => {
         const d = document.createElement("div"); d.className = "choice"; d.textContent = choice;
-        d.onclick = () => answer(i, q, d); box.appendChild(d);
+        d.onclick = () => answer(i, q, u, d); box.appendChild(d);
       });
     }
 
-    function answer(i, q, node) {
+    function answer(i, q, u, node) {
       if (locked) return; locked = true;
       const correct = (i === q.a);
       const nodes = el("choices").children;
@@ -427,58 +616,113 @@
       node.classList.remove("dim");
       if (correct) {
         node.classList.add("correct");
-        const gain = 100 + streak * 20; points += gain; streak++;
-        highestPassed = tier; if (!passedTiers.includes(tier)) passedTiers.push(tier);
-        orbState = "happy";
-        say(pick(["Yes! 🎉","Nailed it!","Boom — correct!","Exactly right!"]), pick(["Yes!","Nailed it!","Correct!","Exactly right!"]));
-        el("pts").textContent = points; el("streak").textContent = streak;
-        second = false; tier++;
-        setTimeout(nextQuestion, 1100);
+        PER_UNIT[u].correct++; points += 100; orbState = "happy";
+        el("pts").textContent = points; el("streak").textContent = (points / 100);
       } else {
         node.classList.add("wrong");
-        // reveal correct
-        for (let k=0;k<nodes.length;k++) if (k === q.a) nodes[k].classList.add("correct");
-        streak = 0; el("streak").textContent = 0; orbState = "idle";
-        if (!second) { say("Ooh, not quite — one more at this level.", "Not quite. One more at this level.");
-          second = true; setTimeout(nextQuestion, 1300); }
-        else { say("No worries — that's a perfect place to start!", "No worries. That's a perfect place to start.");
-          setTimeout(finish, 1300); }
+        for (let k = 0; k < nodes.length; k++) if (k === q.a) nodes[k].classList.add("correct");
+        orbState = "idle";
       }
+      answered++;
+      el("prog").textContent = "Question " + Math.min(idx + 1, TOTAL_Q) + " of " + TOTAL_Q;
+      idx++;
+      setTimeout(nextQuestion, correct ? 650 : 1000);
     }
-    function pick(arr){ return arr[asked % arr.length]; }
 
     function finish() {
-      const startUnit = Math.min(highestPassed + 1, 9);
-      const lvlIdx = highestPassed;            // 0..9
-      const lvlTitle = LEVELS[lvlIdx];
       el("quiz").style.display = "none";
-      const rp = el("resultPanel"); rp.style.display = "block";
-      el("rBadge").textContent = highestPassed >= 6 ? "🏆" : (highestPassed >= 3 ? "🌟" : "🚀");
-      el("rTitle").textContent = highestPassed >= 6 ? "Impressive!" : (highestPassed >= 3 ? "Great job!" : "Nice start!");
-      el("rSub").textContent = "Here's where you are — and where we'll begin.";
-      el("rLvl").textContent = Math.max(1, lvlIdx);
-      el("rLvlTitle").textContent = lvlTitle;
-      el("rPts").textContent = points + " points";
-      el("rStartUnit").textContent = "Unit " + startUnit + ": " + UNIT_NAMES[startUnit];
-      const ul = el("rStrengths"); ul.innerHTML = "";
-      if (passedTiers.length) {
-        passedTiers.sort((a,b)=>a-b).forEach(tr => { const li=document.createElement("li");
-          li.innerHTML = '<span class="ck">✓</span>' + TIER_SKILL[tr]; ul.appendChild(li); });
-      } else {
-        const li=document.createElement("li"); li.textContent = "We'll build your foundation together — a perfect place to start."; ul.appendChild(li);
+      el("resultPanel").style.display = "block";
+      // Per-unit results (rating 0..10; competent at COMPETENCY%).
+      const results = [];
+      for (let u = 1; u <= 9; u++) {
+        const pu = PER_UNIT[u]; const tot = pu.total || 5;
+        const pct = Math.round(100 * pu.correct / tot);
+        results.push({ u, name: UNIT_NAMES[u], correct: pu.correct, total: tot,
+                       pct, rating: Math.round(pct / 10), competent: pct >= COMPETENCY });
       }
-      say("Awesome — you're a " + lvlTitle + "! We'll start you at Unit " + startUnit + ". Let's go learn some " + SUBJECT + "!",
-          "Awesome! You're a " + lvlTitle + ". We'll start you at unit " + startUnit + ". Let's go learn some " + SUBJECT + "!");
-      // Save placement so the tutor and dashboard can use it.
+      const weak = results.filter(r => !r.competent);     // foundation-first order (units already 1..9)
+      const strong = results.filter(r => r.competent);
+      const path = weak.map(r => r.u);
+      const firstUnit = path.length ? path[0] : 1;
+      const totC = results.reduce((s, r) => s + r.correct, 0);
+      const totT = results.reduce((s, r) => s + r.total, 0);
+      const overall = Math.round(100 * totC / totT);
+
+      el("rBadge").textContent = overall >= 80 ? "🏆" : (overall >= 60 ? "🌟" : "🚀");
+      el("rSub").textContent = (strong.length && weak.length)
+        ? ("Strong in " + strong.length + " area" + (strong.length > 1 ? "s" : "") + ", " + weak.length + " to shore up.")
+        : (weak.length ? "Let's build your foundation — here's where to focus." : "Strong across the board — nice work!");
+
+      const wrap = el("rScores"); wrap.innerHTML = "";
+      results.forEach(r => {
+        const row = document.createElement("div"); row.className = "rrow";
+        const nm = document.createElement("div"); nm.className = "rname"; nm.textContent = "Unit " + r.u + " · " + r.name;
+        const bw = document.createElement("div"); bw.className = "rbarwrap";
+        const bar = document.createElement("div"); bar.className = "rbar";
+        bar.style.width = Math.max(6, r.pct) + "%";
+        bar.style.background = r.competent ? "linear-gradient(90deg,#22a06b,#3ac08a)" : "linear-gradient(90deg,#e0912f,#eab259)";
+        bw.appendChild(bar);
+        const num = document.createElement("div"); num.className = "rnum"; num.textContent = r.rating + "/10";
+        const tag = document.createElement("div"); tag.className = "rtag " + (r.competent ? "ok" : "focus");
+        tag.textContent = r.competent ? "Strong" : "Focus";
+        row.appendChild(nm); row.appendChild(bw); row.appendChild(num); row.appendChild(tag);
+        wrap.appendChild(row);
+      });
+
+      // Save the assessment: one CHECK per unit (feeds the per-course dashboard) + a placement
+      // whose start_unit is the first below-competency unit (foundation-first).
+      try { results.forEach(r => postJSON("/api/check/" + encodeURIComponent(CODE),
+              { unit: r.u, correct: r.correct, total: r.total, course: COURSE })); } catch(e) {}
       try {
         fetch("/api/placement/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE), {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ level: Math.max(1, lvlIdx), level_title: lvlTitle,
-            start_unit: startUnit, start_unit_name: UNIT_NAMES[startUnit],
-            points: points, highest_tier: highestPassed, strengths: passedTiers.map(tr => TIER_SKILL[tr]) })
-        });
-      } catch (e) {}
+          body: JSON.stringify({ level: firstUnit, level_title: "Course assessment",
+            start_unit: firstUnit, start_unit_name: UNIT_NAMES[firstUnit] || "", points: points }) });
+      } catch(e) {}
+
+      say(weak.length
+          ? ("Here's your map. We can start with " + UNIT_NAMES[firstUnit] + ", or you can pick your own spot.")
+          : "You're strong across the board! Pick wherever you'd like to sharpen up.",
+          weak.length ? ("Here's your map. We can start with unit " + firstUnit + ", or pick your own.")
+                      : "You're strong across the board! Pick wherever you'd like.");
+
+      el("goPath").onclick = () => {
+        el("rPickPanel").style.display = "none";
+        const pp = el("rPathPanel"); pp.style.display = "block"; pp.innerHTML = "";
+        const h = document.createElement("div"); h.className = "rphead";
+        h.textContent = path.length ? "Your recommended path — foundation first:" : "You're competent everywhere — start anywhere you like.";
+        pp.appendChild(h);
+        if (path.length) {
+          const list = document.createElement("div"); list.className = "rpath";
+          path.forEach((u, k) => { const chip = document.createElement("span"); chip.className = "pchip";
+            chip.textContent = (k ? "→ " : "") + "Unit " + u + " (" + UNIT_NAMES[u] + ")"; list.appendChild(chip); });
+          pp.appendChild(list);
+        }
+        const go = document.createElement("a"); go.className = "btn"; go.style.marginTop = "10px";
+        go.style.display = "inline-block";
+        go.textContent = "Start with Unit " + firstUnit + " →";
+        go.href = "/session" + cq + "&unit=" + firstUnit;
+        pp.appendChild(go);
+      };
+      el("goPick").onclick = () => {
+        el("rPathPanel").style.display = "none";
+        const pk = el("rPickPanel"); pk.style.display = "block"; pk.innerHTML = "";
+        const h = document.createElement("div"); h.className = "rphead"; h.textContent = "Pick an area to work on:";
+        pk.appendChild(h);
+        const grid = document.createElement("div"); grid.className = "rpick";
+        results.forEach(r => { const a = document.createElement("a"); a.className = "ubtn " + (r.competent ? "ok" : "focus");
+          a.href = "/session" + cq + "&unit=" + r.u;
+          a.innerHTML = "<b>Unit " + r.u + "</b> " + r.name + " <span>" + r.rating + "/10</span>";
+          grid.appendChild(a); });
+        pk.appendChild(grid);
+      };
+      el("goDash").href = "/dashboard" + cq;
     }
+
+    function postJSON(url, body) {
+      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); } catch (e) {}
+    }
+
   </script>
 </body>
 </html>

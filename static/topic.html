@@ -4,6 +4,8 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  COURSE-SCOPED CHECKS. The [[check]] POST now sends `course` so an end-of-unit check is
+                filed under the right course's mastery (it was defaulting to Algebra I). Do no harm.
     2026-07-28  ADDED ALGEBRA II to UNITS_BY_COURSE (its 9 unit names for the topic grid) and a
                 course-appropriate topic-box placeholder ("e.g. how logarithms work"). Additive; the
                 page already reads ?course= and falls back to Algebra I, so nothing else changes. Do
@@ -1040,7 +1042,7 @@
       const correct = Math.max(0, parseInt(a.correct, 10) || 0);
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const passed = Math.round(100 * correct / total) >= 80;
-      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total });
+      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total, course: COURSE });
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
         + '<div class="ck-top">Quick check</div>'
