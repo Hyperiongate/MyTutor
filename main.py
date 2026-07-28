@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  PHASE 4 -- TRIG / PRE-CALC COURSE COMPLETE (fifth full peer). Stamp -> "2026-07-28i-precalc".
+#               No route/logic change here -- `course` already flows generically. The work landed in
+#               curriculum.py (COURSES["precalc"]) + pedagogy.py (COURSE_PEDAGOGY["precalc"]) + tutor.py
+#               (PRECALC lesson template + practice/topic scope + subject) + the 5 static files (home
+#               picker card, dashboard title, topic UNITS, session CURRICULUM/opener, challenge PRECALC
+#               45-question assessment bank). Source: PreCalc_Curriculum_KB.md. This stamp lets /health
+#               confirm the backend (tutor.py) deploy landed. Do no harm -- the four existing courses
+#               untouched.
 #   2026-07-28  COMPREHENSIVE COURSE ASSESSMENT + COURSE-SCOPED CHECKS. Stamp -> "2026-07-28h-assessment".
 #               The quick adaptive placement became a voluntary, comprehensive Course Assessment
 #               (challenge.html: all 9 units x 5 Qs, per-unit 0..10 scoring, recommended-path /
@@ -703,7 +711,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28h-assessment"
+APP_BUILD = "2026-07-28i-precalc"
 
 
 @app.get("/health")

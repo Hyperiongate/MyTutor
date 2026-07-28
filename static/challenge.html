@@ -4,6 +4,9 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED TRIG / PRE-CALC assessment bank. New PRECALC_BANK (9 units x 5 verified
+                questions), PRECALC_UNIT_NAMES, and a precalc entry in COURSE_DATA. Purely additive;
+                the comprehensive engine already reads ?course= and scores per unit. Do no harm.
     2026-07-28  COMPREHENSIVE COURSE ASSESSMENT (replaces the quick adaptive placement). This page is
                 now voluntary (the forced first-entry redirect was removed in home.html + session.html)
                 and reached from the sidebar. The engine no longer climbs tiers / stops at the first
@@ -502,6 +505,71 @@
         {p:"P(A or B) for mutually exclusive events is", e:"→", c:["P(A) · P(B)","P(A) − P(B)","P(A|B)","P(A) + P(B)"], a:3}
       ]
     };
+    const PRECALC_BANK = {
+      1: [
+        {p:"Find the domain", e:"√(x − 4)", c:["x ≤ 4","x > 0","all reals","x ≥ 4"], a:3},
+        {p:"Find f(g(3)) when f(x)=2x+1, g(x)=x²", e:"f(g(3))", c:["19","10","37","13"], a:0},
+        {p:"Find (f∘g)(x) when f(x)=x+1, g(x)=2x", e:"(f∘g)(x)", c:["2x + 2","2x + 1","x + 2","2(x + 1)"], a:1},
+        {p:"y = f(x − 3) shifts the graph which way?", e:"→", c:["left 3","up 3","right 3","down 3"], a:2},
+        {p:"Find the inverse of", e:"f(x) = x + 5", c:["x + 5","5 − x","5x","x − 5"], a:3}
+      ],
+      2: [
+        {p:"As x → ∞, what does this do?", e:"y = x³", c:["→ −∞","→ 0","→ +∞","→ 1"], a:2},
+        {p:"A double root (x − 2)² at x = 2 means the graph…", e:"→", c:["crosses the x-axis","is undefined","has an asymptote","touches the x-axis"], a:3},
+        {p:"Find the vertical asymptote", e:"1/(x − 3)", c:["x = 3","x = −3","y = 3","x = 0"], a:0},
+        {p:"Find the horizontal asymptote", e:"(2x)/(x + 1)", c:["y = 0","y = 2","y = 1","none"], a:1},
+        {p:"How many zeros (counting complex)?", e:"a degree-4 polynomial", c:["2","1","4","8"], a:2}
+      ],
+      3: [
+        {p:"Evaluate", e:"log₂ 32", c:["4","5","6","16"], a:1},
+        {p:"Solve for x", e:"3^x = 81", c:["3","27","4","9"], a:2},
+        {p:"Expand", e:"log(x²y)", c:["log(2x) + log y","2(log x + log y)","log x² · log y","2 log x + log y"], a:3},
+        {p:"Evaluate", e:"ln e³", c:["3","e","1","3e"], a:0},
+        {p:"Change of base:", e:"log₅ 20 =", c:["log 5 / log 20","log 20 / log 5","log(20/5)","20/5"], a:1}
+      ],
+      4: [
+        {p:"Convert to radians", e:"180°", c:["π","π/2","2π","π/3"], a:0},
+        {p:"Find the value", e:"sin(π/6)", c:["√3/2","1/2","√2/2","1"], a:1},
+        {p:"Find the period", e:"y = sin(2x)", c:["2π","π/2","π","2"], a:2},
+        {p:"Find the amplitude", e:"y = 3 cos x", c:["1","6","π","3"], a:3},
+        {p:"Find the value", e:"cos 0", c:["1","0","−1","½"], a:0}
+      ],
+      5: [
+        {p:"Simplify", e:"sin²θ + cos²θ", c:["0","2","sin 2θ","1"], a:3},
+        {p:"Solve on [0, 2π)", e:"sin x = 1", c:["π/2","0","π","3π/2"], a:0},
+        {p:"The double-angle formula: sin 2θ =", e:"→", c:["sin²θ − cos²θ","2 sin θ cos θ","2 cos θ","sin θ + cos θ"], a:1},
+        {p:"Evaluate", e:"arcsin(1/2)", c:["60°","45°","30°","90°"], a:2},
+        {p:"Simplify", e:"1 + tan²θ", c:["csc²θ","cot²θ","1","sec²θ"], a:3}
+      ],
+      6: [
+        {p:"Which law fits SAS (two sides + included angle)?", e:"→", c:["Law of Sines","Pythagorean","Law of Cosines","SOH-CAH-TOA"], a:2},
+        {p:"Which law fits AAS (two angles + a side)?", e:"→", c:["Law of Cosines","Pythagorean","the ambiguous case","Law of Sines"], a:3},
+        {p:"Area of a triangle with sides a, b and included angle C", e:"→", c:["½ab·sin C","ab·sin C","½ab","½ab·cos C"], a:0},
+        {p:"Find the magnitude", e:"vector ⟨3, 4⟩", c:["7","5","√7","12"], a:1},
+        {p:"Convert polar to rectangular:", e:"x =", c:["r sin θ","r / cos θ","r cos θ","r + cos θ"], a:2}
+      ],
+      7: [
+        {p:"Identify the conic", e:"x²/9 + y²/4 = 1", c:["hyperbola","ellipse","parabola","circle"], a:1},
+        {p:"Identify the conic", e:"x²/9 − y²/4 = 1", c:["ellipse","parabola","hyperbola","circle"], a:2},
+        {p:"Identify the conic", e:"y = x²", c:["ellipse","hyperbola","line","parabola"], a:3},
+        {p:"Find the center", e:"(x − 2)² + (y + 3)² = 16", c:["(2, −3)","(−2, 3)","(2, 3)","(−2, −3)"], a:0},
+        {p:"Eliminate the parameter: x = t, y = t²", e:"→", c:["y = √x","y = x²","y = 2x","y = x"], a:1}
+      ],
+      8: [
+        {p:"Find the next term", e:"2, 5, 8, 11, …", c:["14","13","15","12"], a:0},
+        {p:"Find the common ratio", e:"3, 6, 12, 24", c:["3","2","4","6"], a:1},
+        {p:"Sum the infinite series (a = 1, r = ½)", e:"→", c:["1","½","2","∞"], a:2},
+        {p:"Evaluate", e:"5!", c:["25","20","15","120"], a:3},
+        {p:"Coefficient of x²y in", e:"(x + y)³", c:["3","1","2","6"], a:0}
+      ],
+      9: [
+        {p:"Find the limit", e:"lim(x→2) (x + 3)", c:["2","3","6","5"], a:3},
+        {p:"Find the limit", e:"lim(x→0) x²", c:["0","1","∞","undefined"], a:0},
+        {p:"A limit describes the value a function…", e:"→", c:["equals at the point","approaches","never reaches","is undefined at"], a:1},
+        {p:"Find the limit", e:"lim(x→3) (x² − 9)/(x − 3)", c:["0","3","6","undefined"], a:2},
+        {p:"A function is continuous if you can draw it without…", e:"→", c:["a ruler","a calculator","the axes","lifting your pencil"], a:3}
+      ]
+    };
     const ALG_UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
       3:"Functions & Notation", 4:"Linear Functions & Graphs", 5:"Systems of Equations",
       6:"Exponents & Exponential Functions", 7:"Polynomials & Factoring", 8:"Quadratic Functions", 9:"Data & Statistics" };
@@ -516,12 +584,17 @@
       6:"Exponential & Logarithmic Functions", 7:"Sequences & Series", 8:"Trigonometric Functions",
       9:"Statistics & Probability" };
 
+    const PRECALC_UNIT_NAMES = { 1:"Functions & Their Graphs", 2:"Polynomial & Rational Functions",
+      3:"Exponential & Logarithmic Functions", 4:"Trigonometric Functions", 5:"Analytic Trigonometry",
+      6:"Applications of Trigonometry", 7:"Conic Sections & Parametric Equations",
+      8:"Sequences, Series & the Binomial Theorem", 9:"Introduction to Limits" };
     // Select the bank + labels for the course being assessed (defaults to Algebra I).
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },
       geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    subject: "geometry" },
       prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, subject: "pre-algebra" },
       algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   subject: "Algebra II" },
+      precalc:    { bank: PRECALC_BANK, unitNames: PRECALC_UNIT_NAMES, subject: "Trig / Pre-Calc" },
     };
     const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
     const SUBJECT = CD.subject;

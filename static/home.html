@@ -4,6 +4,9 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED TRIG / PRE-CALC to the subject picker (fifth course). New card (subjPrecalc) +
+                COURSE_TITLES.precalc + its Stage-1 href. Additive; the two-stage flow is data-driven
+                off COURSE_TITLES, so Stage 2 works for Pre-Calc automatically. Do no harm.
     2026-07-28  VOLUNTARY ASSESSMENT. Removed the forced first-entry redirect to the assessment (the
                 course tile now always opens the lesson; a first-timer starts at Unit 1). Relabeled the
                 "🎯 Find my level" chip to "📋 Course assessment" (still -> /challenge, now the
@@ -137,6 +140,12 @@
         <p>Complex numbers, quadratics, polynomials, rationals, radicals, exponentials & logs, sequences, trig, and stats.</p>
         <div class="go">Choose Algebra II →</div>
       </a>
+      <a class="tile subject" id="subjPrecalc" href="#">
+        <div class="ic">📈</div>
+        <h3>Trig / Pre-Calc</h3>
+        <p>Functions & graphs, trigonometry & the unit circle, identities, conics, sequences, and a first look at limits.</p>
+        <div class="go">Choose Trig / Pre-Calc →</div>
+      </a>
     </div>
 
     <!-- STAGE 2: what to do inside the chosen course -->
@@ -175,7 +184,7 @@
     if (!CODE) { location.href = "/"; }
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
-    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II" };
+    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" };
     let COURSE = (params.get("course") || "").trim();
 
     const codeQ = "?code=" + encodeURIComponent(CODE);
@@ -191,6 +200,7 @@
       el("subjAlgebra").href = "/home" + codeQ + "&course=algebra1";
       el("subjGeometry").href = "/home" + codeQ + "&course=geometry";
       el("subjAlgebra2").href = "/home" + codeQ + "&course=algebra2";
+      el("subjPrecalc").href = "/home" + codeQ + "&course=precalc";
       // Still greet by name if we can.
       (async () => {
         try {

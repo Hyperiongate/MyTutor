@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED TRIG / PRE-CALC (fifth course). CURRICULUM_BY_COURSE.precalc (its 9 units +
+                blurbs + topics for the left-rail map), plus precalc entries in COURSE_TITLES,
+                COURSE_SUBJECTS, and COURSE_OPENERS (the spoken welcome/tour line). Data-driven off
+                COURSE, so the lesson page serves Pre-Calc automatically. Additive. Do no harm.
     2026-07-28  VOLUNTARY ASSESSMENT + COURSE-SCOPED CHECKS. Removed the forced first-entry redirect to
                 /challenge (a brand-new student now starts the lesson at Unit 1). Added a "📋 Course
                 assessment" link to the left nav (wired to /challenge with the course), relabeled the
@@ -648,8 +652,8 @@
     // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
     // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
     // as they always were, so nothing about the Algebra experience changes.
-    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II" };
-    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II" };
+    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" };
+    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
     // The tour's one-line "what this subject is" spoken opener, per course.
@@ -658,6 +662,7 @@
       geometry: "Hi there! Welcome to geometry. I'm Mr. Cadabra. Geometry is all about shapes and space — points, lines, angles, and the figures they build — and learning why they behave the way they do. Before we dive in, let me give you a quick tour of your screen.",
       prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
       algebra2: "Hi there! Welcome to Algebra II. I'm Mr. Cadabra. Algebra II picks up right where Algebra I left off — you'll master every kind of function, meet a brand-new kind of number, and build the toolkit that gets you ready for pre-calculus. Before we dive in, let me give you a quick tour of your screen.",
+      precalc: "Hi there! Welcome to Trig and Pre-Calc. I'm Mr. Cadabra. This is the launchpad to calculus — you'll get fluent with every kind of function, master trigonometry and the unit circle, explore the elegant curves, and take your first look at limits. Before we dive in, let me give you a quick tour of your screen.",
     };
     const COURSE_OPENER = COURSE_OPENERS[COURSE] || COURSE_OPENERS.algebra1;
     // Make the first-visit welcome lead name the right subject. (Returning students
@@ -780,6 +785,26 @@
         topics: ["Radians & the unit circle", "The six trig ratios", "Graphing sine & cosine", "The Pythagorean identity"] },
       { n: 9, name: "Statistics & Probability", blurb: "Distributions, sampling, and reasoning about chance.",
         topics: ["The normal model & z-scores", "Sampling & study design", "Simulation & inference", "Conditional probability"] },
+      ],
+      precalc: [
+      { n: 1, name: "Functions & Their Graphs", blurb: "Domain, transformations, composition, and inverses — the analytic foundation.",
+        topics: ["Domain & range", "Parent functions & transformations", "Composition of functions", "Inverse functions"] },
+      { n: 2, name: "Polynomial & Rational Functions", blurb: "Deeper analysis: zeros, end behavior, and the asymptotes of rational functions.",
+        topics: ["End behavior & multiplicity", "Real & complex zeros", "Vertical, horizontal & oblique asymptotes", "Graphing rationals"] },
+      { n: 3, name: "Exponential & Logarithmic Functions", blurb: "e and the natural log, the log laws, and modeling growth.",
+        topics: ["e & the natural log", "The log laws & change of base", "Solving exponential & log equations", "Growth & decay models"] },
+      { n: 4, name: "Trigonometric Functions", blurb: "The unit circle, the six functions, and the graphs of the waves.",
+        topics: ["Radians & the unit circle", "The six trig functions", "Exact values & reference angles", "Graphing sine, cosine & tangent"] },
+      { n: 5, name: "Analytic Trigonometry", blurb: "Identities you verify, and trig equations you solve.",
+        topics: ["The fundamental identities", "Verifying identities", "Sum, difference & double-angle formulas", "Solving trig equations & inverse trig"] },
+      { n: 6, name: "Applications of Trigonometry", blurb: "Solving any triangle, plus vectors and polar coordinates.",
+        topics: ["Law of Sines & the ambiguous case", "Law of Cosines & area", "Vectors", "Polar coordinates"] },
+      { n: 7, name: "Conic Sections & Parametric Equations", blurb: "Parabolas, ellipses, hyperbolas, and curves traced by a parameter.",
+        topics: ["Parabolas", "Ellipses", "Hyperbolas", "Parametric equations"] },
+      { n: 8, name: "Sequences, Series & the Binomial Theorem", blurb: "Patterns, sums, and expanding binomials.",
+        topics: ["Arithmetic & geometric sequences", "Finite & infinite series", "Sigma notation", "The Binomial Theorem"] },
+      { n: 9, name: "Introduction to Limits", blurb: "The single idea that opens the door to calculus.",
+        topics: ["Limits from tables & graphs", "One-sided limits", "Continuity", "Average vs. instantaneous rate"] },
       ],
     };
     const CURRICULUM = CURRICULUM_BY_COURSE[COURSE] || CURRICULUM_BY_COURSE.algebra1;

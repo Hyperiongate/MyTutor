@@ -2,6 +2,10 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 5 -- TRIG / PRE-CALC (the fifth rung; source PreCalc_Curriculum_KB.md).
+#               9 units + aliases + keyword rules; added to COURSES and appended to COURSE_ORDER
+#               (... -> algebra2 -> precalc). Purely additive; the four existing courses untouched.
+#               Do no harm.
 #   2026-07-28  ADDED COURSE 4 -- ALGEBRA II (the fourth rung of the math ladder; source
 #               AlgebraII_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
 #               appended to COURSE_ORDER (prealgebra -> algebra1 -> geometry -> algebra2). Purely
@@ -241,6 +245,63 @@ _ALGEBRA2_RULES = [
 ]
 
 # =============================================================================
+# COURSE 5 -- TRIG / PRE-CALC  (9 units; source: PreCalc_Curriculum_KB.md). The rung above Algebra II:
+# deeper functions, the trig core (units 4-6), conics/parametrics, sequences/binomial, and a first
+# look at limits. Course-first.
+# =============================================================================
+_PRECALC_UNITS = [
+    (1, "Functions & Their Graphs"),
+    (2, "Polynomial & Rational Functions"),
+    (3, "Exponential & Logarithmic Functions"),
+    (4, "Trigonometric Functions"),
+    (5, "Analytic Trigonometry"),
+    (6, "Applications of Trigonometry"),
+    (7, "Conic Sections & Parametric Equations"),
+    (8, "Sequences, Series & the Binomial Theorem"),
+    (9, "Introduction to Limits"),
+]
+
+_PRECALC_ALIASES = {
+    "functions": 1, "composition": 1, "inverse function": 1, "transformations": 1,
+    "domain": 1, "range": 1,
+    "rational functions": 2, "end behavior": 2, "polynomial": 2,
+    "exponential": 3, "logarithm": 3, "logarithms": 3, "logarithmic": 3,
+    "law of sines": 6, "law of cosines": 6, "vectors": 6, "polar": 6,
+    "unit circle": 4, "radian": 4, "radians": 4, "trigonometry": 4, "amplitude": 4,
+    "identities": 5, "identity": 5, "double angle": 5, "inverse trig": 5, "arcsin": 5,
+    "conic": 7, "conics": 7, "ellipse": 7, "hyperbola": 7, "parabola": 7, "parametric": 7,
+    "sequences": 8, "series": 8, "binomial": 8, "sigma": 8,
+    "limits": 9, "limit": 9, "continuity": 9,
+}
+
+# Ordered specific -> generic. Unit 1 (functions & graphs) is the catch-all, so it goes LAST.
+# Conic rules are checked BEFORE the rational rules so "asymptotes of a hyperbola" -> Unit 7, while a
+# bare "asymptote" (rational) -> Unit 2. Unit 9 uses "tangent line" (never bare "tan") so trig
+# "tangent" still lands in Unit 4.
+_PRECALC_RULES = [
+    (9, [r"\blimit", r"continuit", r"continuous", r"approaches", r"one[- ]sided", r"removable",
+         r"instantaneous", r"secant line", r"tangent line", r"\bderivative"]),
+    (6, [r"law of sines", r"law of cosines", r"oblique triangle", r"ambiguous case", r"\bvector",
+         r"magnitude", r"\bpolar\b", r"\bbearing\b", r"resultant"]),
+    (5, [r"identit", r"\bverify\b", r"sum formula", r"difference formula", r"double[- ]angle",
+         r"half[- ]angle", r"inverse trig", r"arcsin", r"arccos", r"arctan", r"sin\s*\^?\s*2"]),
+    (4, [r"unit circle", r"\bradian", r"amplitude", r"\bperiod\b", r"phase shift", r"reference angle",
+         r"\bsine\b", r"\bcosine\b", r"\btangent\b", r"\bsin\b", r"\bcos\b", r"\btan\b",
+         r"sin\s*\(", r"cos\s*\(", r"tan\s*\(", r"\bcsc\b", r"\bsec\b", r"\bcot\b", r"sinusoid"]),
+    (7, [r"\bconic", r"ellipse", r"hyperbola", r"parabola", r"\bfoci\b", r"\bfocus\b", r"directrix",
+         r"eccentricit", r"parametric", r"eliminate the parameter", r"\bvertices\b"]),
+    (8, [r"sequence", r"\bseries\b", r"\bsigma\b", r"summation", r"binomial", r"pascal", r"factorial",
+         r"common difference", r"common ratio", r"nth term", r"combination", r"permutation", r"nCr"]),
+    (3, [r"exponential", r"logarithm", r"\blog\b", r"\bln\b", r"half-?life", r"compound", r"\bdecay\b",
+         r"change of base", r"\^\s*x", r"\be\^"]),
+    (2, [r"polynomial", r"rational function", r"end behavior", r"multiplicit", r"synthetic division",
+         r"asymptote", r"\bzeros?\b", r"\bdegree\b"]),
+    (1, [r"function", r"f\s*\(\s*x\s*\)", r"\bdomain\b", r"\brange\b", r"compos", r"∘",
+         r"\(\s*[fgh]\s*o\s*[fgh]\s*\)", r"[fgh]\s*\(\s*[fgh]\s*\(", r"inverse", r"transformation",
+         r"\bshift", r"stretch", r"one[- ]to[- ]one", r"piecewise", r"\bgraph"]),
+]
+
+# =============================================================================
 # THE CATALOG
 # =============================================================================
 COURSES = {
@@ -272,11 +333,18 @@ COURSES = {
         "aliases": _ALGEBRA2_ALIASES,
         "rules": _ALGEBRA2_RULES,
     },
+    "precalc": {
+        "title": "Trig / Pre-Calc",
+        "grade_band": "High School",
+        "units": _PRECALC_UNITS,
+        "aliases": _PRECALC_ALIASES,
+        "rules": _PRECALC_RULES,
+    },
 }
 
-# The order courses are offered in (the math ladder). Pre-Algebra leads (it comes before
-# Algebra), then Algebra I, then Geometry, then Algebra II. New courses append here.
-COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2"]
+# The order courses are offered in (the math ladder): Pre-Algebra -> Algebra I -> Geometry ->
+# Algebra II -> Trig/Pre-Calc. New courses append here.
+COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).

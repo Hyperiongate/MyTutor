@@ -2,6 +2,12 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 5 -- TRIG / PRE-CALC teaching brain (COURSE_PEDAGOGY["precalc"]): 9 units
+#               (functions & graphs, polynomial & rational, exp & log, trig functions, analytic trig,
+#               applications of trig, conics & parametric, sequences/series/binomial, intro to limits)
+#               with misconceptions / how-to-teach / progression + a precalc cross-cutting list.
+#               Source: PreCalc_Curriculum_KB.md. Universal METHODOLOGY reused as-is. Additive; the
+#               four existing courses untouched. Do no harm.
 #   2026-07-28  ADDED COURSE 4 -- ALGEBRA II teaching brain (COURSE_PEDAGOGY["algebra2"]): 9 units
 #               (foundations/systems, quadratics & complex numbers, polynomials, rationals, radicals
 #               & rational exponents, exponentials & logs, sequences & series, trigonometry,
@@ -669,6 +675,163 @@ ERROR WATCH-LIST (catch these all year, in every unit):
 - Inverses: logs undo exponentials, roots undo powers -- spotting inverse pairs unlocks Units 5, 6, and 8.
 - Function fluency: move among table, graph, equation, and words; know how a, b, h, k shift/stretch/reflect a parent graph."""
 
+# -----------------------------------------------------------------------------
+# TRIG / PRE-CALC -- per-unit pedagogy (distilled from PreCalc_Curriculum_KB.md). The rung above
+# Algebra II; students are ready for abstraction (14-16 dials), but weak Algebra II foundations
+# (factoring, logs, basic trig) resurface -- shore them up briefly, then push on. Trig is the spine.
+# -----------------------------------------------------------------------------
+_PRECALC_UNIT_NAMES = {
+    1: "Functions & Their Graphs",
+    2: "Polynomial & Rational Functions",
+    3: "Exponential & Logarithmic Functions",
+    4: "Trigonometric Functions",
+    5: "Analytic Trigonometry",
+    6: "Applications of Trigonometry",
+    7: "Conic Sections & Parametric Equations",
+    8: "Sequences, Series & the Binomial Theorem",
+    9: "Introduction to Limits",
+}
+
+_PRECALC_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "composing in the wrong order (f(g(x)) means g FIRST); assuming every function has an "
+            "inverse (it must be one-to-one); reading transformations backwards (y = f(x - 3) shifts "
+            "RIGHT 3, y = f(x) + 2 shifts UP); confusing domain with range."
+        ),
+        "how_to_teach": (
+            "One transformation lens (a, b, h, k) across the parent-function library. A chained "
+            "function machine for composition -- g's output feeds f. The horizontal line test for "
+            "invertibility; find an inverse by swapping x and y and solving, then CHECK f(f^-1(x)) = "
+            "x. Keep moving among table, graph, equation, and words."
+        ),
+        "progression": "domain of sqrt(x - 2)  ->  evaluate f(g(2))  ->  find (f o g)(x)  ->  shift/stretch a parent graph  ->  decide if a function is one-to-one  ->  find and verify an inverse",
+    },
+    2: {
+        "misconceptions": (
+            "expecting n REAL zeros (it's n over the complex numbers, with multiplicity); ignoring "
+            "multiplicity when sketching (even root touches, odd root crosses); confusing a vertical "
+            "asymptote (zero denominator) with a horizontal one (end behavior); missing a HOLE from a "
+            "common factor."
+        ),
+        "how_to_teach": (
+            "End behavior from degree parity + the leading sign; multiplicity -> touch vs cross. For "
+            "rationals: FACTOR FIRST, then domain restrictions, then vertical asymptotes/holes, then "
+            "the horizontal asymptote by comparing degrees (num<den -> y=0; equal -> ratio of leads; "
+            "num>den -> none/oblique). A sign chart to sketch."
+        ),
+        "progression": "end behavior of a quartic  ->  zeros + multiplicity, sketch  ->  vertical asymptotes & holes of a rational  ->  horizontal asymptote by degree comparison  ->  sketch it  ->  find all zeros including complex",
+    },
+    3: {
+        "misconceptions": (
+            "log(a + b) = log a + log b (the laws are for products/quotients, not sums); confusing ln "
+            "with base-10 log; forgetting a log's positive-argument domain; treating e as 'just a "
+            "button' instead of a growth constant."
+        ),
+        "how_to_teach": (
+            "A logarithm as 'what exponent gives this?' -- the inverse of the exponential -- converting "
+            "back and forth. Derive each log law from an exponent law; change of base = log/log. Model "
+            "with P e^(rt) and half-life. Check every log-equation answer against the domain. Graph an "
+            "exponential (asymptote y = 0) and its inverse log (asymptote x = 0)."
+        ),
+        "progression": "rewrite exp <-> log form  ->  expand/condense with the log laws  ->  change of base to evaluate log_5(20)  ->  solve 3^x = 40  ->  solve log_2(x) + log_2(x - 2) = 3 (check!)  ->  a continuous-growth model",
+    },
+    4: {
+        "misconceptions": (
+            "the calculator in the wrong mode (degrees vs radians); thinking sine or cosine can exceed "
+            "1; swapping amplitude (vertical) with period (period = 2*pi/b); phase-shift sign/direction; "
+            "quadrant sign errors; treating a radian as 'just a unit.'"
+        ),
+        "how_to_teach": (
+            "Extend right-triangle SOH-CAH-TOA to the unit circle so the ratios keep working past 90 "
+            "degrees; read (cos, sin) as the coordinates; walk the circle for exact values. Graph sine "
+            "by unwrapping the circle's height; amplitude = |a|, period = 2*pi/b, midline = d, phase = "
+            "-c/b. Use ASTC for signs."
+        ),
+        "progression": "convert degrees <-> radians  ->  exact values at 30/45/60 and multiples  ->  reference angle & sign in a quadrant  ->  amplitude/period/midline of y = a sin(bx + c) + d  ->  graph one period  ->  model periodic data",
+    },
+    5: {
+        "misconceptions": (
+            "treating an IDENTITY like an equation -- you VERIFY it by transforming one side, you don't "
+            "'solve' it; dropping solutions when solving a trig equation (solutions repeat every "
+            "period); sign errors in the sum/difference and double-angle formulas; forgetting the "
+            "restricted RANGE of inverse trig functions."
+        ),
+        "how_to_teach": (
+            "The three Pythagorean identities plus reciprocal/quotient. Verify an identity by "
+            "transforming ONE side to match the other. Derive double-/half-angle from sum/difference. "
+            "Solve a trig equation by isolating the function, reading ALL solutions on [0, 2pi) off the "
+            "unit circle, then adding the period. Respect inverse-trig ranges."
+        ),
+        "progression": "simplify with a Pythagorean identity  ->  verify an identity  ->  use a sum formula sin(A + B)  ->  a double-angle cos(2θ)  ->  solve 2 sin x - 1 = 0 on [0, 2pi)  ->  evaluate sin(arccos(3/5))",
+    },
+    6: {
+        "misconceptions": (
+            "using right-triangle trig on a NON-right triangle; mishandling the ambiguous (SSA) case of "
+            "the Law of Sines; choosing the wrong law (AAS/ASA/SSA -> Sines; SAS/SSS -> Cosines); vector "
+            "magnitude/direction slips; polar <-> rectangular conversion errors."
+        ),
+        "how_to_teach": (
+            "Pick the law by the given info; watch the ambiguous case. Area = 1/2 a b sin C. Vectors as "
+            "components with magnitude sqrt(x^2 + y^2) and direction, added tip-to-tail. Convert with x "
+            "= r cos(theta), y = r sin(theta); plot polar points."
+        ),
+        "progression": "solve a triangle with the Law of Sines (AAS)  ->  the ambiguous SSA case  ->  the Law of Cosines (SAS)  ->  area with 1/2 a b sin C  ->  a vector's magnitude & direction  ->  convert a point polar <-> rectangular",
+    },
+    7: {
+        "misconceptions": (
+            "mixing up ellipse (sum, +) and hyperbola (difference, -) forms; confusing a (vertices), b, "
+            "and c (foci; c^2 = a^2 +/- b^2); which axis is major; a parabola's focus vs directrix; "
+            "eliminating the parameter incorrectly."
+        ),
+        "how_to_teach": (
+            "Derive each conic from its distance definition; standard forms and how (h, k) translate "
+            "the center/vertex; identify a conic by the equation's sign pattern. For parametric, make a "
+            "t-table then eliminate t to get the rectangular relation."
+        ),
+        "progression": "identify a conic from its equation  ->  center/vertices/foci of an ellipse  ->  asymptotes of a hyperbola  ->  vertex/focus/directrix of a parabola  ->  graph parametric equations from a t-table  ->  eliminate the parameter",
+    },
+    8: {
+        "misconceptions": (
+            "confusing the common difference (add) with the common ratio (multiply); off-by-one in the "
+            "nth-term rule; sequence (the list) vs series (the sum); misreading sigma bounds; forgetting "
+            "an infinite geometric series converges only for |r| < 1; binomial-coefficient/factorial "
+            "errors."
+        ),
+        "how_to_teach": (
+            "Build rules from a small table; arithmetic = linear, geometric = exponential. Finite-sum "
+            "formulas; a/(1 - r) for the infinite geometric sum when |r| < 1. Expand sigma term-by-term. "
+            "The Binomial Theorem via Pascal's triangle and nCk; permutations vs combinations."
+        ),
+        "progression": "nth term of an arithmetic sequence  ->  sum of a finite geometric series  ->  an infinite geometric sum  ->  expand sigma notation  ->  expand (x + y)^4 with the Binomial Theorem  ->  a combinations count",
+    },
+    9: {
+        "misconceptions": (
+            "thinking the limit EQUALS the function value -- it's about APPROACH, not the point; "
+            "confusing one-sided and two-sided limits; believing a hole means no limit (a removable "
+            "discontinuity still has one); treating infinity as a number; blindly substituting at a "
+            "discontinuity."
+        ),
+        "how_to_teach": (
+            "'Where is it headed?' numerically (a table approaching from both sides) and graphically. "
+            "Direct substitution when continuous; factor/cancel for a 0/0 form. One-sided limits. "
+            "Continuity = no holes/jumps/asymptotes (draw it without lifting your pencil). The secant "
+            "slope -> the tangent slope as a limit (the derivative idea)."
+        ),
+        "progression": "estimate a limit from a table  ->  a limit from a graph (incl. one-sided)  ->  evaluate by substitution  ->  a 0/0 limit by factoring  ->  decide continuity at a point  ->  average rate of change  ->  the idea of the instantaneous rate",
+    },
+}
+
+_PRECALC_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- Know the unit circle cold; work in RADIANS by default; check the calculator's mode.
+- Identities are VERIFIED (transform one side); equations are SOLVED (give ALL solutions, add the period).
+- The function lens -- domain, transformation, inverse -- applies to every family.
+- Factor first; roots and logs do NOT distribute over + or -; check domains (logs' positive argument, even roots, no zero denominator).
+- Polynomials: multiplicity (touch vs cross) and end behavior. Rationals: compare degrees for the horizontal asymptote.
+- Conics: ellipse is a SUM (+), hyperbola is a DIFFERENCE (-); c^2 = a^2 +/- b^2.
+- A limit is about APPROACH, not the value at the point (a hole can still have a limit)."""
+
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
@@ -692,6 +855,11 @@ COURSE_PEDAGOGY = {
         "unit_names": _ALGEBRA2_UNIT_NAMES,
         "cross_cutting": _ALGEBRA2_CROSS_CUTTING,
         "units": _ALGEBRA2_UNIT_PEDAGOGY,
+    },
+    "precalc": {
+        "unit_names": _PRECALC_UNIT_NAMES,
+        "cross_cutting": _PRECALC_CROSS_CUTTING,
+        "units": _PRECALC_UNIT_PEDAGOGY,
     },
 }
 
