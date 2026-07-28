@@ -4,6 +4,11 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  MULTI-COURSE (Phase 3.4c) -- PER-COURSE DASHBOARD. The dashboard now reads ?course=
+                and fetches GET /api/topics/{code}?course=, so it shows the CHOSEN course's units and
+                mastery (not always Algebra). The title reads "…'s Progress — Geometry", and every
+                link ("Work on it", "Keep going", ← home) carries the course. Default is algebra1, so
+                the single-course view is unchanged. With this, Geometry is a full peer of Algebra.
     2026-07-24  PHASE A3 -- MASTERY DASHBOARD (real data). Rebuilt on the new mastery
                 signals from GET /api/topics/{code}: KPI row is now Units MASTERED (ring),
                 day STREAK, ACCURACY, and PROBLEMS PRACTICED (all real, from student_stats
@@ -190,7 +195,7 @@
     </div>
 
     <div id="journeyWrap" style="display:none;">
-      <div class="section-h">Your learning journey <span class="note">— your path through the 9 Algebra I units</span></div>
+      <div class="section-h">Your learning journey <span class="note" id="journeyNote">— your path through the 9 Algebra I units</span></div>
       <div class="journey"><div class="track" id="track"></div></div>
     </div>
 
@@ -202,7 +207,7 @@
       </div>
     </div>
 
-    <div class="section-h">Your 9 Algebra units</div>
+    <div class="section-h" id="unitsHead">Your 9 Algebra units</div>
     <div class="units" id="units"></div>
 
     <div class="strengths" id="strengthsWrap" style="display:none;">
@@ -222,9 +227,11 @@
     const CODE = (params.get("code") || "").trim();
     const VIEW = (params.get("view") || "").toLowerCase();
     const isTeacher = (VIEW === "teacher" || VIEW === "parent");
+    const COURSE = (params.get("course") || "algebra1").trim(); // which course's progress to show
+    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     if (!CODE) { location.href = "/"; }
     if (isTeacher) { el("homeLink").href = "/"; el("homeLink").textContent = "← Back"; }
-    else { el("homeLink").href = "/home?code=" + encodeURIComponent(CODE); }
+    else { el("homeLink").href = "/home" + cq; }
 
     // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
     const STATUS = {
@@ -247,12 +254,18 @@
     (async () => {
       let data;
       try {
-        const res = await fetch("/api/topics/" + encodeURIComponent(CODE));
+        const res = await fetch("/api/topics/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { location.href = "/"; return; }
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
 
-      if (data.name) el("title").textContent = "📊 " + data.name + "'s Progress";
+      const courseName = ({ algebra1: "Algebra I", geometry: "Geometry" })[COURSE] || "";
+      const who = data.name ? (data.name + "'s") : "My";
+      el("title").textContent = "📊 " + who + " Progress" + (courseName ? " — " + courseName : "");
+      if (courseName) {
+        const jn = el("journeyNote"); if (jn) jn.textContent = "— your path through the 9 " + courseName + " units";
+        const uh = el("unitsHead"); if (uh) uh.textContent = "Your 9 " + courseName + " units";
+      }
       if (!data.tracking) { el("offnote").style.display = "block"; }
 
       const units = data.units || [];
@@ -297,14 +310,14 @@
             <div class="weak">
               <div class="n">${u.unit}</div>
               <div class="body"><div class="nm">${esc(u.name)}</div><div class="meta">${meta}</div></div>
-              ${isTeacher ? '<span class="focustag">Focus area</span>' : `<a class="work" href="/session?code=${encodeURIComponent(CODE)}&unit=${u.unit}">Work on it →</a>`}
+              ${isTeacher ? '<span class="focustag">Focus area</span>' : `<a class="work" href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}&unit=${u.unit}">Work on it →</a>`}
             </div>`;
         }).join("");
       } else if (anyStarted && data.tracking) {
         el("strengthenWrap").style.display = "block";
         el("strengthen").className = "";
         el("strengthen").innerHTML = `<div class="allgood">Nice — you've <b>mastered every unit you've started.</b> `
-          + `Ready to open up a new one? <a href="/session?code=${encodeURIComponent(CODE)}">Keep going →</a></div>`;
+          + `Ready to open up a new one? <a href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}">Keep going →</a></div>`;
       }
 
       // ----- Learning journey (real status per unit; placed start-unit marked) -----

@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  MULTI-COURSE (Phase 3.4c) -- PER-COURSE DASHBOARD. Stamp -> "2026-07-28b-coursedash".
+#               /api/topics/{code} now takes ?course= and returns THAT course's units + mastery
+#               (store.get_topics/get_mastery(code, course) + curriculum.units_for(course) +
+#               read_placement(code, course)). dashboard.html reads the course and carries it in its
+#               links. Default algebra1, so single-course behavior is unchanged. This completes the
+#               per-course front door: Geometry is now a full peer of Algebra end to end.
 #   2026-07-28  MULTI-COURSE (Phase 3.4b) -- PER-COURSE PLACEMENT + SESSION ENDPOINTS. Stamp ->
 #               "2026-07-28a-placement". Threaded `course` through the session/placement wrappers
 #               (get_session/save_session/read_placement/save_placement + a file-key helper _ck) and
@@ -541,34 +547,34 @@ def progress_state(code: str):
 
 
 @app.get("/api/topics/{code}")
-def topics_state(code: str):
+def topics_state(code: str, course: str = "algebra1"):
     """
-    REAL, honest per-topic progress for the dashboard: all 9 Algebra I units with the
-    student's actual engagement (explored / learning / practiced) or 'not-started'.
+    REAL, honest per-topic progress for the dashboard: all of the CHOSEN COURSE's units with
+    the student's actual engagement (explored / learning / practiced) or 'not-started'.
     Only meaningful when the database is on (`tracking:true`); otherwise it reports
     tracking is off so the dashboard can say so rather than invent numbers.
     """
     student = _student_or_404(code)
     code = code.strip()
-    placement = read_placement(code)
+    placement = read_placement(code, course)
     tracking = store.enabled()
 
     recorded = {}
     mastery = {"checks": {}, "stats": {}}
     if tracking:
         try:
-            for row in store.get_topics(code):
+            for row in store.get_topics(code, course):
                 recorded[row["unit"]] = row
         except Exception as exc:  # noqa: BLE001
             print(f"[topics] get_topics failed: {exc}")
         try:
-            mastery = store.get_mastery(code)
+            mastery = store.get_mastery(code, course)
         except Exception as exc:  # noqa: BLE001
             print(f"[topics] get_mastery failed: {exc}")
 
     checks = mastery.get("checks", {})
     units = []
-    for n, name in curriculum.UNITS:
+    for n, name in curriculum.units_for(course):
         r = recorded.get(n)
         c = checks.get(n) or {}
         best = int(c.get("best_pct") or 0)
@@ -652,7 +658,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28a-placement"
+APP_BUILD = "2026-07-28b-coursedash"
 
 
 @app.get("/health")
