@@ -4,6 +4,7 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED PROBABILITY & STATISTICS to the course-name map. One-line additive change. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC to the course-name map (title reads "…'s Progress — Trig /
                 Pre-Calc" when ?course=precalc). One-line additive change. Do no harm.
     2026-07-28  ADDED ALGEBRA II to the course-name map so the dashboard title reads "…'s Progress
@@ -265,7 +266,7 @@
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
 
-      const courseName = ({ prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" })[COURSE] || "";
+      const courseName = ({ prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "Probability & Statistics" })[COURSE] || "";
       const who = data.name ? (data.name + "'s") : "My";
       el("title").textContent = "📊 " + who + " Progress" + (courseName ? " — " + courseName : "");
       if (courseName) {

@@ -4,6 +4,8 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED PROBABILITY & STATISTICS to UNITS_BY_COURSE (its 9 unit names) + a placeholder.
+                Additive; page reads ?course= and falls back. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC to UNITS_BY_COURSE (its 9 unit names for the topic grid) + a
                 course-appropriate placeholder. Additive; page reads ?course= and falls back. Do no harm.
     2026-07-28  COURSE-SCOPED CHECKS. The [[check]] POST now sends `course` so an end-of-unit check is
@@ -480,6 +482,11 @@
         "Trigonometric Functions", "Analytic Trigonometry", "Applications of Trigonometry",
         "Conic Sections & Parametric Equations", "Sequences, Series & the Binomial Theorem", "Introduction to Limits",
       ],
+      probstat: [
+        "Exploring Data", "Describing Distributions", "Scatterplots & Correlation",
+        "Collecting Data", "Probability Basics", "Conditional Probability & Independence",
+        "Random Variables & Expected Value", "The Normal Distribution", "Sampling & Inference",
+      ],
     };
     const UNITS = UNITS_BY_COURSE[COURSE] || UNITS_BY_COURSE.algebra1;
     // A course-appropriate placeholder for the "type your own topic" box.
@@ -489,6 +496,7 @@
       algebra1: "e.g. how slope works",
       algebra2: "e.g. how logarithms work",
       precalc: "e.g. how the unit circle works",
+      probstat: "e.g. how the mean and median differ",
     })[COURSE] || "e.g. how slope works";
 
     // ---------- Audio graph ----------

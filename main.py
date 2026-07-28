@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  PHASE 4 -- PROBABILITY & STATISTICS COURSE COMPLETE (sixth full peer). Stamp ->
+#               "2026-07-28m-probstat". No route/logic change here (only the stamp) -- `course` flows
+#               generically. Landed in curriculum.py (COURSES["probstat"]) + pedagogy.py
+#               (COURSE_PEDAGOGY["probstat"]) + tutor.py (PROBSTAT lesson brain built on the stats
+#               visuals + scope/subject) + the 5 static files (home picker, dashboard title, topic
+#               UNITS, session CURRICULUM/opener, challenge PROBSTAT 45-Q bank). Source:
+#               ProbStat_Curriculum_KB.md. Do no harm -- the five existing courses untouched.
 #   2026-07-28  GRAPHICS STAGE 3 -- TRIG / CONICS / NUMBER LINE / TILES / VECTORS. Stamp ->
 #               "2026-07-28l-figures". Six new figures in static/math-figures.js ([[unitcircle]],
 #               [[righttriangle]], [[conic]], [[numberline]], [[areamodel]], [[vector]]) routed by the
@@ -729,7 +736,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28l-figures"
+APP_BUILD = "2026-07-28m-probstat"
 
 
 @app.get("/health")

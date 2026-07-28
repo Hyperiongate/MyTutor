@@ -2,6 +2,9 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 6 -- PROBABILITY & STATISTICS (a full peer added before Calculus; source
+#               ProbStat_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
+#               appended to COURSE_ORDER. Purely additive; the five existing courses untouched. Do no harm.
 #   2026-07-28  ADDED COURSE 5 -- TRIG / PRE-CALC (the fifth rung; source PreCalc_Curriculum_KB.md).
 #               9 units + aliases + keyword rules; added to COURSES and appended to COURSE_ORDER
 #               (... -> algebra2 -> precalc). Purely additive; the four existing courses untouched.
@@ -302,6 +305,61 @@ _PRECALC_RULES = [
 ]
 
 # =============================================================================
+# COURSE 6 -- PROBABILITY & STATISTICS  (9 units; source: ProbStat_Curriculum_KB.md). A data-literacy
+# / intro-stats course, a full peer that pairs with Algebra II / Pre-Calc; leans on the stats visuals.
+# =============================================================================
+_PROBSTAT_UNITS = [
+    (1, "Exploring Data"),
+    (2, "Describing Distributions"),
+    (3, "Scatterplots & Correlation"),
+    (4, "Collecting Data"),
+    (5, "Probability Basics"),
+    (6, "Conditional Probability & Independence"),
+    (7, "Random Variables & Expected Value"),
+    (8, "The Normal Distribution"),
+    (9, "Sampling & Inference"),
+]
+
+_PROBSTAT_ALIASES = {
+    "categorical": 1, "quantitative": 1, "bar chart": 1, "dot plot": 1, "frequency": 1,
+    "mean": 2, "median": 2, "standard deviation": 2, "box plot": 2, "quartile": 2, "iqr": 2,
+    "five-number": 2, "spread": 2,
+    "scatterplot": 3, "scatter plot": 3, "correlation": 3, "line of best fit": 3, "regression": 3,
+    "survey": 4, "experiment": 4, "observational": 4, "sampling bias": 4, "randomization": 4,
+    "sample space": 5, "complement": 5, "addition rule": 5, "mutually exclusive": 5,
+    "conditional probability": 6, "independence": 6, "two-way table": 6, "tree diagram": 6,
+    "multiplication rule": 6,
+    "random variable": 7, "expected value": 7, "simulation": 7,
+    "normal distribution": 8, "empirical rule": 8, "z-score": 8, "bell curve": 8,
+    "confidence interval": 9, "margin of error": 9, "inference": 9, "sampling distribution": 9,
+    "parameter": 9, "statistic": 9,
+}
+
+# Ordered specific -> generic. Unit 1 (exploring data) is the catch-all, so it goes LAST. Distinctive
+# phrases win first ("normal distribution" -> 8, "probability distribution" -> 7, "sampling
+# distribution" -> 9, "sample space" -> 5) so generic terms don't misfire.
+_PROBSTAT_RULES = [
+    (9, [r"confidence interval", r"margin of error", r"sampling distribution", r"\binference\b",
+         r"\bparameter\b", r"sampling variability", r"point estimate"]),
+    (8, [r"normal distribution", r"empirical rule", r"z[- ]?score", r"bell curve",
+         r"68[- ]?95[- ]?99", r"standard normal"]),
+    (3, [r"scatter", r"correlat", r"line of best fit", r"\bregression\b", r"residual",
+         r"\bassociation\b", r"least squares"]),
+    (6, [r"conditional", r"independen", r"two[- ]way table", r"tree diagram", r"multiplication rule",
+         r"P\s*\(\s*A\s*\|"]),
+    (7, [r"random variable", r"expected value", r"probability distribution", r"simulation",
+         r"long[- ]run"]),
+    (5, [r"sample space", r"complement", r"addition rule", r"mutually exclusive", r"probab",
+         r"\bodds\b", r"\bchance\b"]),
+    (4, [r"\bsurvey", r"experiment", r"observational", r"randomiz", r"\bbias\b", r"population",
+         r"\bcensus\b", r"treatment", r"control group", r"\bsampl"]),
+    (2, [r"\bmean\b", r"\bmedian\b", r"standard deviation", r"box plot", r"quartile", r"\biqr\b",
+         r"five[- ]number", r"\bspread\b", r"variance", r"\brange\b", r"\bmode\b", r"distribution"]),
+    (1, [r"categorical", r"quantitative", r"bar chart", r"histogram", r"dot ?plot", r"frequency",
+         r"pictograph", r"\bstem\b", r"\bdata\b"]),
+]
+
+# =============================================================================
 # THE CATALOG
 # =============================================================================
 COURSES = {
@@ -340,11 +398,18 @@ COURSES = {
         "aliases": _PRECALC_ALIASES,
         "rules": _PRECALC_RULES,
     },
+    "probstat": {
+        "title": "Probability & Statistics",
+        "grade_band": "High School",
+        "units": _PROBSTAT_UNITS,
+        "aliases": _PROBSTAT_ALIASES,
+        "rules": _PROBSTAT_RULES,
+    },
 }
 
 # The order courses are offered in (the math ladder): Pre-Algebra -> Algebra I -> Geometry ->
-# Algebra II -> Trig/Pre-Calc. New courses append here.
-COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc"]
+# Algebra II -> Trig/Pre-Calc, then Probability & Statistics (a parallel data course). New courses append.
+COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc", "probstat"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).

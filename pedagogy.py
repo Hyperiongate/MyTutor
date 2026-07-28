@@ -2,6 +2,13 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 6 -- PROBABILITY & STATISTICS teaching brain (COURSE_PEDAGOGY["probstat"]):
+#               9 units (exploring data, describing distributions, scatterplots & correlation,
+#               collecting data, probability basics, conditional probability & independence, random
+#               variables & expected value, the normal distribution, sampling & inference) with
+#               misconceptions / how-to-teach / progression + a stats cross-cutting list. Source:
+#               ProbStat_Curriculum_KB.md. Universal METHODOLOGY reused as-is. Additive; the five
+#               existing courses untouched. Do no harm.
 #   2026-07-28  ADDED COURSE 5 -- TRIG / PRE-CALC teaching brain (COURSE_PEDAGOGY["precalc"]): 9 units
 #               (functions & graphs, polynomial & rational, exp & log, trig functions, analytic trig,
 #               applications of trig, conics & parametric, sequences/series/binomial, intro to limits)
@@ -832,6 +839,148 @@ ERROR WATCH-LIST (catch these all year, in every unit):
 - Conics: ellipse is a SUM (+), hyperbola is a DIFFERENCE (-); c^2 = a^2 +/- b^2.
 - A limit is about APPROACH, not the value at the point (a hole can still have a limit)."""
 
+# -----------------------------------------------------------------------------
+# PROBABILITY & STATISTICS -- per-unit pedagogy (distilled from ProbStat_Curriculum_KB.md). A
+# data-literacy course; reward REASONING about data over computation, and ALWAYS show the picture
+# (the tutor has bar/histogram/dot/box plots, scatter+fit, the normal curve, two-way tables, trees).
+# -----------------------------------------------------------------------------
+_PROBSTAT_UNIT_NAMES = {
+    1: "Exploring Data",
+    2: "Describing Distributions",
+    3: "Scatterplots & Correlation",
+    4: "Collecting Data",
+    5: "Probability Basics",
+    6: "Conditional Probability & Independence",
+    7: "Random Variables & Expected Value",
+    8: "The Normal Distribution",
+    9: "Sampling & Inference",
+}
+
+_PROBSTAT_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "confusing categorical with quantitative data; using a bar chart for numeric data (that's "
+            "a histogram's job); reading a taller bar as a higher RATE when it's a COUNT."
+        ),
+        "how_to_teach": (
+            "Sort the variable FIRST: categorical -> bar/pie chart; quantitative -> dot plot / "
+            "histogram. Describe every distribution by SHAPE, CENTER, SPREAD, and outliers. Use real "
+            "data and draw it ([[bars]], [[histogram]], [[dotplot]], [[pie]])."
+        ),
+        "progression": "classify a variable  ->  bar chart of categories  ->  dot plot / histogram of numbers  ->  describe the shape",
+    },
+    2: {
+        "misconceptions": (
+            "using the mean for skewed data (outliers pull it -- the median is resistant); confusing "
+            "range / IQR / standard deviation; thinking SD can be negative; mixing up center and spread."
+        ),
+        "how_to_teach": (
+            "Mean as the balance point, median as the middle value; use the median for skewed data. SD "
+            "as the typical distance from the mean. Build the five-number summary and show it as a "
+            "[[boxplot]]; pair it with a [[dotplot]] or [[histogram]]."
+        ),
+        "progression": "mean & median  ->  which to use for skewed data  ->  range & IQR  ->  five-number summary  ->  box plot  ->  interpret standard deviation",
+    },
+    3: {
+        "misconceptions": (
+            "correlation implies causation; r near 0 means 'no relationship' (only no LINEAR one); "
+            "confusing correlation strength with the slope; extrapolating far beyond the data."
+        ),
+        "how_to_teach": (
+            "Scatterplot first -> describe direction, form, strength; r in [-1, 1], near +/-1 = strong "
+            "linear. Fit a least-squares line to PREDICT, then use it. Hammer 'correlation is NOT "
+            "causation.' Draw it: [[scatter fit=\"true\"]]."
+        ),
+        "progression": "build a scatterplot  ->  describe direction/strength  ->  fit a line of best fit  ->  predict with it  ->  correlation vs causation",
+    },
+    4: {
+        "misconceptions": (
+            "confusing population vs sample (and parameter vs statistic); thinking a big sample fixes "
+            "bias (bias is systematic -- randomization fixes it); assuming an observational study can "
+            "prove cause."
+        ),
+        "how_to_teach": (
+            "Population vs sample; random sampling to avoid bias. An EXPERIMENT (treatment + control + "
+            "random assignment) vs an OBSERVATIONAL study -- only a randomized experiment supports a "
+            "causal claim. Ground it in real study designs."
+        ),
+        "progression": "identify population & sample  ->  spot sampling bias  ->  survey vs experiment vs observational  ->  the role of randomization  ->  what allows a causal claim",
+    },
+    5: {
+        "misconceptions": (
+            "probabilities outside [0, 1]; the gambler's fallacy ('due for' a result); adding "
+            "non-mutually-exclusive events without subtracting the overlap; assuming outcomes are "
+            "equally likely when they aren't."
+        ),
+        "how_to_teach": (
+            "P(event) = favorable / total for equally-likely outcomes; the complement P(not A) = 1 - "
+            "P(A); the addition rule P(A or B) = P(A) + P(B) - P(A and B). Draw a [[pie]] (spinner) or a "
+            "[[tree]] to make the sample space concrete."
+        ),
+        "progression": "list a sample space  ->  P of a single event  ->  complement  ->  P(A or B) mutually exclusive  ->  P(A or B) with overlap",
+    },
+    6: {
+        "misconceptions": (
+            "reversing a conditional -- P(A|B) vs P(B|A); assuming independence; multiplying without "
+            "checking it; misreading a two-way table."
+        ),
+        "how_to_teach": (
+            "Conditional probability off a [[twoway]] table -- restrict to the given row/column. The "
+            "multiplication rule P(A and B) = P(A) P(B|A); test independence with P(A|B) = P(A). Use a "
+            "[[tree]] for a sequence of events and read the joint probabilities off the branches."
+        ),
+        "progression": "conditional off a two-way table  ->  the multiplication rule  ->  test independence  ->  a two-stage tree  ->  P(A and B) via the tree",
+    },
+    7: {
+        "misconceptions": (
+            "thinking the expected value must be a POSSIBLE outcome (it's a long-run average); "
+            "forgetting to WEIGHT by probability; confusing a probability distribution with a data "
+            "distribution."
+        ),
+        "how_to_teach": (
+            "A random variable and its probability distribution (probabilities sum to 1). Expected "
+            "value E(X) = sum of x times P(x) -- the probability-weighted average, a LONG-RUN average, "
+            "not a guaranteed result. Estimate a probability by simulation. Show the distribution as "
+            "[[bars]]."
+        ),
+        "progression": "build a probability distribution  ->  check probabilities sum to 1  ->  expected value sum of x*P(x)  ->  interpret it as a long-run average  ->  a simple simulation",
+    },
+    8: {
+        "misconceptions": (
+            "assuming all data is normal; applying the empirical rule to non-normal data; z-score sign "
+            "confusion; confusing area (a proportion) with height."
+        ),
+        "how_to_teach": (
+            "The bell shape; the empirical rule 68-95-99.7. A z-score = (x - mean) / sd = 'how many "
+            "standard deviations from the mean.' Area under the curve = a proportion / probability. "
+            "Draw it: [[normal shade=\"-1..1\"]] and shade the region you're asking about."
+        ),
+        "progression": "recognize a normal shape  ->  apply 68-95-99.7  ->  compute a z-score  ->  find the proportion within k SDs  ->  compare values with z-scores",
+    },
+    9: {
+        "misconceptions": (
+            "thinking a sample statistic EQUALS the parameter; that a bigger sample adds bias (it "
+            "reduces variability); over-reading a confidence interval; ignoring the margin of error."
+        ),
+        "how_to_teach": (
+            "A statistic estimates a parameter. Different samples vary -- the sampling distribution. The "
+            "margin of error SHRINKS as n grows. A confidence interval = estimate +/- margin; interpret "
+            "it carefully. Show the spread of sample results with a [[dotplot]] or [[normal]]."
+        ),
+        "progression": "statistic vs parameter  ->  sampling variability  ->  margin of error & sample size  ->  build a confidence interval  ->  interpret it",
+    },
+}
+
+_PROBSTAT_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all through the course):
+- Categorical vs quantitative decides the DISPLAY and the SUMMARY.
+- Describe a distribution by SHAPE, CENTER, SPREAD, and outliers -- and always show the picture.
+- Correlation is NOT causation; only a randomized experiment shows cause.
+- Probabilities live in [0, 1]; use complements and subtract overlaps; independence must be CHECKED, not assumed.
+- Expected value is a LONG-RUN average, not a guaranteed outcome.
+- The empirical rule (68-95-99.7) is for NORMAL distributions only.
+- A statistic estimates a parameter WITH uncertainty (sampling variability, margin of error)."""
+
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
@@ -860,6 +1009,11 @@ COURSE_PEDAGOGY = {
         "unit_names": _PRECALC_UNIT_NAMES,
         "cross_cutting": _PRECALC_CROSS_CUTTING,
         "units": _PRECALC_UNIT_PEDAGOGY,
+    },
+    "probstat": {
+        "unit_names": _PROBSTAT_UNIT_NAMES,
+        "cross_cutting": _PROBSTAT_CROSS_CUTTING,
+        "units": _PROBSTAT_UNIT_PEDAGOGY,
     },
 }
 

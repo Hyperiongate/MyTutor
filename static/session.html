@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED PROBABILITY & STATISTICS (sixth course). CURRICULUM_BY_COURSE.probstat (9 units +
+                blurbs + topics), plus probstat entries in COURSE_TITLES, COURSE_SUBJECTS, and
+                COURSE_OPENERS. Data-driven off COURSE, so the lesson page serves it automatically.
+                Additive. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC (fifth course). CURRICULUM_BY_COURSE.precalc (its 9 units +
                 blurbs + topics for the left-rail map), plus precalc entries in COURSE_TITLES,
                 COURSE_SUBJECTS, and COURSE_OPENERS (the spoken welcome/tour line). Data-driven off
@@ -653,8 +657,8 @@
     // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
     // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
     // as they always were, so nothing about the Algebra experience changes.
-    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" };
-    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc" };
+    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "Probability & Statistics" };
+    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "statistics" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
     // The tour's one-line "what this subject is" spoken opener, per course.
@@ -664,6 +668,7 @@
       prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
       algebra2: "Hi there! Welcome to Algebra II. I'm Mr. Cadabra. Algebra II picks up right where Algebra I left off — you'll master every kind of function, meet a brand-new kind of number, and build the toolkit that gets you ready for pre-calculus. Before we dive in, let me give you a quick tour of your screen.",
       precalc: "Hi there! Welcome to Trig and Pre-Calc. I'm Mr. Cadabra. This is the launchpad to calculus — you'll get fluent with every kind of function, master trigonometry and the unit circle, explore the elegant curves, and take your first look at limits. Before we dive in, let me give you a quick tour of your screen.",
+      probstat: "Hi there! Welcome to Probability and Statistics. I'm Mr. Cadabra. This course is all about making sense of data and chance — you'll learn to picture data, summarize it, spot real patterns, and figure out how sure you can be about what it's telling you. Before we dive in, let me give you a quick tour of your screen.",
     };
     const COURSE_OPENER = COURSE_OPENERS[COURSE] || COURSE_OPENERS.algebra1;
     // Make the first-visit welcome lead name the right subject. (Returning students
@@ -806,6 +811,26 @@
         topics: ["Arithmetic & geometric sequences", "Finite & infinite series", "Sigma notation", "The Binomial Theorem"] },
       { n: 9, name: "Introduction to Limits", blurb: "The single idea that opens the door to calculus.",
         topics: ["Limits from tables & graphs", "One-sided limits", "Continuity", "Average vs. instantaneous rate"] },
+      ],
+      probstat: [
+      { n: 1, name: "Exploring Data", blurb: "Types of data and the right way to picture them.",
+        topics: ["Categorical vs quantitative", "Bar charts & pie charts", "Dot plots & histograms", "Describing shape"] },
+      { n: 2, name: "Describing Distributions", blurb: "Center and spread — and the box plot.",
+        topics: ["Mean vs median", "Range, IQR & standard deviation", "The five-number summary", "Box plots"] },
+      { n: 3, name: "Scatterplots & Correlation", blurb: "Relationships between two variables — and why correlation isn't cause.",
+        topics: ["Scatterplots", "Correlation r", "Line of best fit", "Correlation vs causation"] },
+      { n: 4, name: "Collecting Data", blurb: "Where data comes from, and what makes it trustworthy.",
+        topics: ["Population vs sample", "Sampling & bias", "Surveys, studies & experiments", "Randomization"] },
+      { n: 5, name: "Probability Basics", blurb: "The language of chance.",
+        topics: ["Sample spaces", "Simple probability", "Complements", "The addition rule"] },
+      { n: 6, name: "Conditional Probability & Independence", blurb: "Probability when you have extra information.",
+        topics: ["Two-way tables", "Conditional probability", "The multiplication rule", "Tree diagrams"] },
+      { n: 7, name: "Random Variables & Expected Value", blurb: "Distributions and the long-run average.",
+        topics: ["Random variables", "Probability distributions", "Expected value", "Simulation"] },
+      { n: 8, name: "The Normal Distribution", blurb: "The bell curve, the empirical rule, and z-scores.",
+        topics: ["The bell curve", "The 68-95-99.7 rule", "z-scores", "Finding proportions"] },
+      { n: 9, name: "Sampling & Inference", blurb: "Estimating a truth about a population from a sample.",
+        topics: ["Statistic vs parameter", "Sampling variability", "Margin of error", "Confidence intervals"] },
       ],
     };
     const CURRICULUM = CURRICULUM_BY_COURSE[COURSE] || CURRICULUM_BY_COURSE.algebra1;

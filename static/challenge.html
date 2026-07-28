@@ -4,6 +4,8 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED PROBABILITY & STATISTICS assessment bank. New PROBSTAT_BANK (9 units x 5 verified
+                questions), PROBSTAT_UNIT_NAMES, and a probstat entry in COURSE_DATA. Additive. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC assessment bank. New PRECALC_BANK (9 units x 5 verified
                 questions), PRECALC_UNIT_NAMES, and a precalc entry in COURSE_DATA. Purely additive;
                 the comprehensive engine already reads ?course= and scores per unit. Do no harm.
@@ -570,6 +572,71 @@
         {p:"A function is continuous if you can draw it without…", e:"→", c:["a ruler","a calculator","the axes","lifting your pencil"], a:3}
       ]
     };
+    const PROBSTAT_BANK = {
+      1: [
+        {p:"Which of these is a categorical variable?", e:"eye color, height, age, weight", c:["height","age","weight","eye color"], a:3},
+        {p:"Best display for ONE categorical variable?", e:"→", c:["bar chart","histogram","scatterplot","box plot"], a:0},
+        {p:"Best display for a quantitative variable?", e:"→", c:["bar chart","histogram","pie chart","two-way table"], a:1},
+        {p:"'Favorite fruit' is what kind of data?", e:"→", c:["quantitative","continuous","categorical","numerical"], a:2},
+        {p:"A dot plot has 5 dots above the value 3. This means…", e:"→", c:["the value is 5","the mean is 3","three fives","five data values equal 3"], a:3}
+      ],
+      2: [
+        {p:"Find the median", e:"2, 5, 7, 8, 10", c:["6.4","5","7","8"], a:2},
+        {p:"Find the mean", e:"2, 4, 9", c:["4","9","15","5"], a:3},
+        {p:"Which is resistant to outliers?", e:"→", c:["the median","the mean","the range","the standard deviation"], a:0},
+        {p:"Find the range", e:"4, 9, 2, 7", c:["9","7","2","5.5"], a:1},
+        {p:"The IQR measures a distribution's…", e:"→", c:["center","shape","spread","mean"], a:2}
+      ],
+      3: [
+        {p:"A correlation of r = 0.9 indicates…", e:"→", c:["no link","a strong positive link","a strong negative link","proof of cause"], a:1},
+        {p:"Correlation r values range from…", e:"→", c:["0 to 1","0 to 100","-1 to 1","-100 to 100"], a:2},
+        {p:"A correlation of -1 means the points…", e:"→", c:["are scattered","lie on a rising line","form a circle","lie on a falling line"], a:3},
+        {p:"A strong correlation does NOT prove…", e:"→", c:["causation","association","a pattern","a trend"], a:0},
+        {p:"A line of best fit is used to…", e:"→", c:["prove cause","predict","list the data","find the mode"], a:1}
+      ],
+      4: [
+        {p:"The entire group being studied is the…", e:"→", c:["population","sample","statistic","variable"], a:0},
+        {p:"Only THIS can establish cause and effect:", e:"→", c:["a survey","a randomized experiment","an observational study","a large sample"], a:1},
+        {p:"Surveying only your friends creates…", e:"→", c:["randomization","a census","bias","an experiment"], a:2},
+        {p:"Choosing a sample at random helps avoid…", e:"→", c:["data","the mean","a variable","bias"], a:3},
+        {p:"A study that only observes (no treatment applied) is…", e:"→", c:["observational","an experiment","a census","a simulation"], a:0}
+      ],
+      5: [
+        {p:"P(rolling a 3) on a fair die", e:"→", c:["1/3","3/6","1/2","1/6"], a:3},
+        {p:"If P(A) = 0.3, then P(not A) =", e:"→", c:["0.7","0.3","1.3","0.07"], a:0},
+        {p:"A probability can never be…", e:"→", c:["0","greater than 1","1","0.5"], a:1},
+        {p:"P(an even number) on a fair die", e:"→", c:["1/3","1/6","1/2","2/3"], a:2},
+        {p:"For mutually exclusive A and B, P(A or B) =", e:"→", c:["P(A) × P(B)","P(A) - P(B)","P(A|B)","P(A) + P(B)"], a:3}
+      ],
+      6: [
+        {p:"For INDEPENDENT events A and B, P(A and B) =", e:"→", c:["P(A) + P(B)","P(A) - P(B)","P(A) × P(B)","P(A|B)"], a:2},
+        {p:"P(A|B) is read as…", e:"→", c:["P(A) and B","P(A) or B","P(B) given A","P(A) given B"], a:3},
+        {p:"A two-way table shows counts for…", e:"→", c:["two categorical variables","one variable","a scatterplot","a mean"], a:0},
+        {p:"Flip two fair coins. P(both heads) =", e:"→", c:["1/2","1/4","1/3","3/4"], a:1},
+        {p:"Two events are independent if one…", e:"→", c:["equals the other","adds to the other","does not affect the other","excludes the other"], a:2}
+      ],
+      7: [
+        {p:"The expected value is best described as a…", e:"→", c:["guaranteed outcome","long-run average","maximum value","median"], a:1},
+        {p:"The probabilities in a distribution must sum to…", e:"→", c:["0","100","1","the mean"], a:2},
+        {p:"E(X) if X = 1 (prob 0.5) and X = 3 (prob 0.5)", e:"→", c:["1.5","3","4","2"], a:3},
+        {p:"The expected-value formula is…", e:"→", c:["the sum of x·P(x)","the sum of x","the sum of P(x)","x ÷ n"], a:0},
+        {p:"Repeating an experiment many times to estimate a probability is a…", e:"→", c:["census","simulation","survey","parameter"], a:1}
+      ],
+      8: [
+        {p:"In a normal distribution, about what % is within 1 SD of the mean?", e:"→", c:["68%","95%","50%","99.7%"], a:0},
+        {p:"About what % is within 2 SDs of the mean?", e:"→", c:["68%","95%","99.7%","50%"], a:1},
+        {p:"A z-score of 2 means the value is…", e:"→", c:["2 above the mean","the 2nd value","2 SDs above the mean","2% of the data"], a:2},
+        {p:"The empirical rule applies to which shape?", e:"→", c:["skewed","uniform","any shape","normal (bell)"], a:3},
+        {p:"The z-score formula is…", e:"→", c:["(x − mean) ÷ sd","x − mean","x ÷ sd","mean ÷ sd"], a:0}
+      ],
+      9: [
+        {p:"A number describing a POPULATION is a…", e:"→", c:["statistic","sample","variable","parameter"], a:3},
+        {p:"A number describing a SAMPLE is a…", e:"→", c:["statistic","parameter","population","census"], a:0},
+        {p:"As the sample size grows, the margin of error…", e:"→", c:["grows","shrinks","stays the same","becomes 1"], a:1},
+        {p:"A confidence interval is an estimate plus or minus…", e:"→", c:["the mean","the median","a margin of error","the range"], a:2},
+        {p:"Sampling variability means different samples give…", e:"→", c:["the same statistic","the exact parameter","no data","different statistics"], a:3}
+      ]
+    };
     const ALG_UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
       3:"Functions & Notation", 4:"Linear Functions & Graphs", 5:"Systems of Equations",
       6:"Exponents & Exponential Functions", 7:"Polynomials & Factoring", 8:"Quadratic Functions", 9:"Data & Statistics" };
@@ -588,6 +655,10 @@
       3:"Exponential & Logarithmic Functions", 4:"Trigonometric Functions", 5:"Analytic Trigonometry",
       6:"Applications of Trigonometry", 7:"Conic Sections & Parametric Equations",
       8:"Sequences, Series & the Binomial Theorem", 9:"Introduction to Limits" };
+    const PROBSTAT_UNIT_NAMES = { 1:"Exploring Data", 2:"Describing Distributions",
+      3:"Scatterplots & Correlation", 4:"Collecting Data", 5:"Probability Basics",
+      6:"Conditional Probability & Independence", 7:"Random Variables & Expected Value",
+      8:"The Normal Distribution", 9:"Sampling & Inference" };
     // Select the bank + labels for the course being assessed (defaults to Algebra I).
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },
@@ -595,6 +666,7 @@
       prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, subject: "pre-algebra" },
       algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   subject: "Algebra II" },
       precalc:    { bank: PRECALC_BANK, unitNames: PRECALC_UNIT_NAMES, subject: "Trig / Pre-Calc" },
+      probstat:   { bank: PROBSTAT_BANK, unitNames: PROBSTAT_UNIT_NAMES, subject: "statistics" },
     };
     const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
     const SUBJECT = CD.subject;
