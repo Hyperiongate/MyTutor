@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  GRAPHICS STAGE 1 -- REAL FUNCTION GRAPHER. Stamp -> "2026-07-28j-grapher". No route/logic
+#               change here (only the stamp). New shared static/math-figures.js exposes
+#               window.MathFigures.svg('graph', attrs): [[graph]] now plots ANY function of x
+#               (sin/cos/tan, exp, logs, higher-degree polynomials, rationals WITH asymptotes, sqrt,
+#               abs) via func=, on top of the old lines=/parabola=/points=. Wired into session/practice/
+#               topic.html (a showFig() helper + [[graph]] -> showFig; math-figures.js include). tutor.py
+#               graph docs now teach func=. Backend stamp so /health confirms the tutor.py deploy landed.
+#               Do no harm -- purely additive.
 #   2026-07-28  PHASE 4 -- TRIG / PRE-CALC COURSE COMPLETE (fifth full peer). Stamp -> "2026-07-28i-precalc".
 #               No route/logic change here -- `course` already flows generically. The work landed in
 #               curriculum.py (COURSES["precalc"]) + pedagogy.py (COURSE_PEDAGOGY["precalc"]) + tutor.py
@@ -711,7 +719,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28i-precalc"
+APP_BUILD = "2026-07-28j-grapher"
 
 
 @app.get("/health")

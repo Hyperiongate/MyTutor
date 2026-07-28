@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  GRAPHICS STAGE 1 -- taught the tutor the upgraded [[graph]]. The grapher (new shared
+#               static/math-figures.js) now plots ANY function of x via func= (sin/cos/tan, exp, logs,
+#               polynomials, rationals with asymptotes, sqrt, abs). Updated the [[graph]] docs in the
+#               Algebra I / Algebra II / Pre-Calc lesson templates and the shared practice + topic
+#               templates to document func= and to STOP saying "the grapher can't draw a sine/log"
+#               (it can now). Prompt text only. Do no harm.
 #   2026-07-28  PHASE 4 -- TRIG / PRE-CALC COURSE (tutor side). Added a full standalone
 #               PRECALC_SYSTEM_PROMPT_TEMPLATE (the 9 CA-aligned units; the function lens + unit
 #               circle through-lines; trig core in units 4-6; identities-verified-vs-equations-solved;
@@ -665,9 +671,11 @@ For a custom list, use:
 Draw a real COORDINATE GRAPH (use it for Units 4-8: lines, slope, systems, parabolas):
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
-  - attrs: lines (one or more "y=mx+b" separated by ; -- vertical "x=3" ok), parabola
-    ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"), caption. Two
-    lines auto-mark their intersection. Write equations in this y= form.
+  [[graph func="2^x" caption="exponential growth"]]
+  - attrs: func (expressions in x, separated by ; -- draws ANY curve: exponentials, polynomials,
+    square roots, e.g. func="2^x"), lines (one or more "y=mx+b" separated by ; -- vertical "x=3"
+    ok), parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range, caption. Two lines
+    auto-mark their intersection. Write equations in this y= form.
 
 Draw a FUNCTION MACHINE (use it for Unit 3 -- evaluating a function: a number goes IN,
 the rule runs on it, a number comes OUT). Use THIS, not the balance scale, whenever you
@@ -1700,11 +1708,13 @@ auto-styled bold/CAPITAL/red either way.)
 Draw a real COORDINATE GRAPH (use it constantly -- Units 2-8):
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
-  - attrs: lines (one or more "y=mx+b" separated by ; -- vertical "x=3" ok), parabola
-    ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"), caption. Two lines
-    auto-mark their intersection. Write equations in this y= form. For a curve the grapher can't
-    draw exactly (a high-degree polynomial, a log, a sine wave), plot a few key points with
-    "points=" and describe the shape, or lay the key features out on a card.
+  [[graph func="sin(x); 2^x; log(x)" range="-6.5..6.5" caption="sine, exponential, log"]]
+  - attrs: func (ONE OR MORE expressions in x, separated by ; -- the real grapher), lines
+    ("y=mx+b" separated by ;, vertical "x=3" ok), parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"),
+    optional range ("-6..6") and yrange, caption. USE func= to draw ANY curve accurately: sine/
+    cosine/tangent waves, exponentials, logs, higher-degree polynomials, rational functions WITH
+    their asymptotes, square roots, and absolute values (e.g. func="1/(x-2)", "x^3-3x", "sqrt(x)").
+    Write x-expressions plainly (sin(x), 2^x, (x^2-1)/(x-2)). Two lines auto-mark their intersection.
 
 Draw a FUNCTION MACHINE (evaluating a function: a number goes IN, the rule runs, a number comes
 OUT):
@@ -2057,10 +2067,12 @@ The worklist KEEPS every line up until you send [[clear]] (only when you start a
 Draw a real COORDINATE GRAPH (use it constantly):
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
-  - attrs: lines ("y=mx+b" separated by ; -- vertical "x=3" ok), parabola ("y=ax^2+bx+c"), points
-    ("(x,y),(x,y)"), optional range ("-10..10"), caption. For a curve the grapher can't draw exactly
-    (a sine wave, a log, a hyperbola), plot a few key points with "points=" and describe the shape,
-    or lay the key features out on a card.
+  [[graph func="2^x; log(x)" caption="an exponential and its inverse log"]]
+  - attrs: func (ONE OR MORE expressions in x, separated by ; -- the real grapher), lines
+    ("y=mx+b" separated by ;, vertical "x=3" ok), parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"),
+    optional range ("-6..6") and yrange, caption. USE func= to draw ANY curve accurately: exponentials,
+    logs, higher-degree polynomials, rational functions WITH their asymptotes, square roots (e.g.
+    func="1/(x+1)", "x^3-3x", "sqrt(x)"). Write x-expressions plainly (2^x, (x^2-1)/(x-2)).
 
 Draw a FUNCTION MACHINE (evaluating or composing a function):
   [[machine input="3" rule="2x+1" output="7" fname="f" caption="put in 3, get out 7"]]
@@ -2566,16 +2578,22 @@ and also appends to the worklist -- but prefer [[step]].)
     OPTIONAL -- omit it until the student has found it (in practice THEY drive every move).
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
-  - graph attrs: lines (one or more "y=mx+b", separated by ; -- vertical "x=3" ok),
-    parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"),
-    caption. Two lines auto-mark their intersection. Write equations in this y= form.
+  [[graph func="sin(x); 2^x; 1/(x-2)" caption="any curve of x"]]
+  - graph attrs: func (ONE OR MORE expressions in x, separated by ; -- draws ANY curve
+    accurately: sine/cosine/tangent, exponentials, logs, polynomials, rationals WITH asymptotes,
+    sqrt, abs), lines ("y=mx+b", separated by ; -- vertical "x=3" ok), parabola ("y=ax^2+bx+c"),
+    points ("(x,y),(x,y)"), optional range and yrange, caption. Two lines auto-mark their
+    intersection. Write x-expressions plainly (sin(x), 2^x, (x^2-1)/(x-2)).
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
-  - graph attrs: lines (one or more "y=mx+b", separated by ; -- vertical "x=3" ok),
-    parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range ("-10..10"),
-    caption. Two lines auto-mark their intersection. Write equations in this y= form.
+  [[graph func="sin(x); 2^x; 1/(x-2)" caption="any curve of x"]]
+  - graph attrs: func (ONE OR MORE expressions in x, separated by ; -- draws ANY curve
+    accurately: sine/cosine/tangent, exponentials, logs, polynomials, rationals WITH asymptotes,
+    sqrt, abs), lines ("y=mx+b", separated by ; -- vertical "x=3" ok), parabola ("y=ax^2+bx+c"),
+    points ("(x,y),(x,y)"), optional range and yrange, caption. Two lines auto-mark their
+    intersection. Write x-expressions plainly (sin(x), 2^x, (x^2-1)/(x-2)).
 
 Draw a FUNCTION MACHINE for evaluating a function (Unit 3) -- a number goes IN, the rule
 runs, a number comes OUT. Use this (not the balance) whenever you show what f(x) does:

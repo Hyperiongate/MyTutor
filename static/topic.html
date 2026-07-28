@@ -423,6 +423,7 @@
   </div>
 
   <script src="/static/geo-figures.js"></script>
+  <script src="/static/math-figures.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -663,6 +664,14 @@
         .replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
     }
     // ---------- Geometry figures (triangle / angle / circle) -- see /static/geo-figures.js ----------
+    // Shared math figures (grapher + stats + trig) -- see /static/math-figures.js
+    function showFig(kind, a) {
+      const stage = feedBlock();
+      const wrap = document.createElement("div"); wrap.className = "mfig pop";
+      wrap.innerHTML = (window.MathFigures ? window.MathFigures.svg(kind, a) : "");
+      stage.appendChild(wrap);
+      if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
+    }
     function showGeo(kind, a) {
       const stage = feedBlock();
       const wrap = document.createElement("div"); wrap.className = "mfig pop";
@@ -677,7 +686,7 @@
         const name = m[1].toLowerCase(), attrs = parseAttrs(m[2]);
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
-        else if (name === "graph") showGraph(attrs);
+        else if (name === "graph") showFig("graph", attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "step") showStep(attrs);
         else if (name === "column") showColumn(attrs);
