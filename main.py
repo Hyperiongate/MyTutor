@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  INTRO/EXPECTATIONS + COLUMN-MATH VISUAL. Stamp -> "2026-07-28f-introcolumn".
+#               Backend change is in tutor.py only: (1) Topic mini-lessons now open with a topic intro +
+#               a "by the end you'll be able to..." goals card; (2) all three lesson openers show a short
+#               expectations goals card after the goal banner; (3) documented the new [[column]] tag for
+#               stacked, decimal-point-aligned add/subtract. The [[column]] renderer itself is static
+#               (session/practice/topic.html). This stamp lets /health confirm the tutor.py deploy landed.
 #   2026-07-28  PHASE 4 -- PRE-ALGEBRA COURSE COMPLETE (full peer). Stamp -> "2026-07-28e-prealgebra".
 #               tutor.py gained the Pre-Algebra lesson prompt + scope/subject; challenge.html a 9-tier
 #               Pre-Algebra placement bank (course selection now handles 3 courses); topic.html +
@@ -676,7 +682,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28e-prealgebra"
+APP_BUILD = "2026-07-28f-introcolumn"
 
 
 @app.get("/health")

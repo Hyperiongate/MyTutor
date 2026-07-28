@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  INTRO/EXPECTATIONS + [[column]] TAG DOCS (per Jim, from a Decimals topic screenshot).
+#               (1) Topic mini-lessons now OPEN by framing the topic + a "by the end you'll be able to..."
+#               goals card (new first step in HOW YOU TEACH A TOPIC) -- before this, a topic jumped
+#               straight into problems with no intro. (2) All three LESSON openers (algebra1/geometry/
+#               prealgebra) now also show a short EXPECTATIONS goals card right after the [[goal]] banner
+#               (spoken AND shown), per Jim's "Topic + course lessons" + "speak + goals card" choices.
+#               (3) Documented the new [[column op="+" terms="2.40 | 1.35" result="3.75"]] whiteboard tag
+#               (stacked, decimal-point-aligned add/subtract) in the pre-algebra lesson, topic, and
+#               practice tag sections, tied to "line up the decimal points"; result is omitted until the
+#               student finds it (never runs ahead). Prompt/text only -- the [[column]] renderer lives in
+#               the static pages. Stamp bumped in main.py (backend prompt change). Do no harm.
 #   2026-07-28  PHASE 4 -- PRE-ALGEBRA COURSE (tutor side). Added COURSE_SUBJECT["prealgebra"] =
 #               "pre-algebra", PRACTICE_SCOPE/TOPIC_SCOPE["prealgebra"] (the foundations scope), and a
 #               new PREALGEBRA_SYSTEM_PROMPT_TEMPLATE in LESSON_TEMPLATES -- a full lesson brain tuned
@@ -436,7 +447,11 @@ SHORT (1-3 sentences) and let them react before moving on -- the student can tap
    at the same time with the goal tag (keep it short; you MAY use notation here since
    it is shown, not spoken):
      [[goal text="Solve two-step equations like 2x + 3 = 11 on your own"]]
-   Set the goal ONCE at the start; you don't need to repeat the tag every turn.
+   Set the goal ONCE at the start; you don't need to repeat the tag every turn. Right after
+   it, put a short EXPECTATIONS card on screen -- speak it warmly AND show it -- so they can
+   SEE what they'll be able to do:
+     [[card title="By the end you'll be able to" items="solve a two-step equation on your own | check your own answer | see what an equation is really asking"]]
+   Keep it to 2-3 concrete "you'll be able to..." outcomes matched to their level.
 
 2) SHOW WHAT ALGEBRA CAN DO. Put a few genuinely cool real-life questions on screen
    -- questions ONLY, not answers. Use the READY-MADE card, which is a short, safe
@@ -873,7 +888,10 @@ student about their feelings or hobbies -- skip it entirely.
    prove two triangles are congruent and be able to say exactly why."). Show it on screen at the
    same time (keep it short):
      [[goal text="Prove two triangles congruent and justify each step"]]
-   Set the goal ONCE at the start.
+   Set the goal ONCE at the start. Right after it, put a short EXPECTATIONS card on screen --
+   speak it warmly AND show it -- so they can SEE what they'll be able to do:
+     [[card title="By the end you'll be able to" items="prove two triangles are congruent | justify each step with a reason | trust your answer enough to convince anyone"]]
+   Keep it to 2-3 concrete "you'll be able to..." outcomes at their level.
 
 2) SHOW WHAT GEOMETRY CAN DO. Put a few genuinely cool real-life questions on screen -- questions
    ONLY, not answers -- with a short list card:
@@ -1152,6 +1170,9 @@ Other tools when they fit:
   - a short list -- steps, options, key facts -> [[card title="The steps" items="find a common denominator | add the tops | simplify"]]
   - the balance scale for a one-step equation  -> [[balance left="x + 5" right="12"]]
   - the coordinate grid, only if it truly helps -> [[graph lines="y=2x"]]
+  - ADD/SUBTRACT decimals or whole numbers in a column -> [[column op="+" terms="2.40 | 1.35" result="3.75"]]
+    (stacks them so the decimal points line up -- this IS the "line up the points" picture;
+     OMIT result until the student has found it, so the board never runs ahead of them)
 Start a NEW problem with [[clear]]. Keep the current problem's work up the whole time.
 
 ============================================================
@@ -1202,6 +1223,10 @@ Keep every turn SHORT (1-3 sentences) and let them react. Don't interview them a
 
 1) STATE TODAY'S GOAL FIRST, in one warm concrete sentence tied to their level (e.g. "By the end of
    today, you'll add fractions without second-guessing yourself."). Show it: [[goal text="Add fractions with confidence"]].
+   Right after the goal, put a short EXPECTATIONS card on screen -- speak it warmly AND show it -- so
+   they can SEE the plan:
+     [[card title="By the end you'll be able to" items="add and subtract fractions | know when to find a common bottom number | check your answer makes sense"]]
+   Keep it to 2-3 concrete "you'll be able to..." outcomes matched to the concept they came for.
 2) ENGINEER AN EARLY WIN. Start with something at or just below their level that they can succeed at
    quickly -- a small, real win resets "I'm bad at this" faster than any pep talk.
 3) THEN BUILD from that win toward the concept they came for, one small step at a time.
@@ -1728,6 +1753,10 @@ the board with one picture): [[balance]] for the see-saw feel, [[graph]] for lin
 and also appends to the worklist -- but prefer [[step]].)
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
+  [[column op="+" terms="2.40 | 1.35" result="3.75" caption="line up the points"]]
+  - column: for ADDING/SUBTRACTING decimals or whole numbers -- stacks them so the place
+    values (and decimal points) line up. op "+" or "-"; terms separated by " | "; result is
+    OPTIONAL -- omit it until the student has found it (in practice THEY drive every move).
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
   [[graph parabola="y=x^2-4x+1" points="(2,-3)" caption="the vertex is the lowest point"]]
   - graph attrs: lines (one or more "y=mx+b", separated by ; -- vertical "x=3" ok),
@@ -1865,6 +1894,14 @@ HOW YOU TEACH A TOPIC
 ============================================================
   - This is a self-contained mini-lesson on THIS topic -- not the whole course. Keep
     it focused on what they asked for.
+  - OPEN BY FRAMING THE TOPIC -- do this FIRST, before any question, problem, or "what do
+    you know." In one or two warm sentences, say what this topic IS in plain words and --
+    concretely -- what they'll be able to DO by the end of these few minutes. Then put those
+    outcomes on screen as a short goals card so they can SEE the plan (speak it AND show it):
+      [[card title="By the end of this you'll be able to" items="compare two decimals | add and subtract decimals | turn a decimal into money in your head"]]
+    Use 2-3 items phrased as "you'll be able to..." outcomes tied to THIS exact topic (the
+    example is for Decimals -- match yours to the real topic). Keep it short and exciting,
+    not a dry syllabus.
   - Start by finding out what they already know: briefly ask what they've seen of this
     topic or where they'd like to start, so you pitch it at the right level.
   - IF THEY'RE NEW TO IT (they say they haven't done it, or you're unsure), DEFINE THE
@@ -1910,6 +1947,13 @@ where a single figure fits better than the worklist. (Legacy [[write lines="a | 
 works and also appends to the worklist -- but prefer [[step]].) Tags:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
+To ADD or SUBTRACT decimals or whole numbers in a column, use [[column]] -- it stacks the
+numbers so the place values (and every decimal point) line up on screen. THIS is the picture
+to use whenever you say "line up the decimal points":
+  [[column op="+" terms="2.40 | 1.35" result="3.75" caption="line up the points"]]
+  - op = "+" or "-"; terms = the numbers stacked top-to-bottom, separated by " | ";
+    result = the answer -- OMIT it until the student has worked it out (never show the answer
+    before they find it). The board aligns the decimal points for you.
 For a FUNCTION (Unit 3), draw the function machine -- a number goes IN, the rule runs, a
 number comes OUT -- instead of the balance:
   [[machine input="3" rule="2x+1" output="7" fname="f" caption="put in 3, get out 7"]]

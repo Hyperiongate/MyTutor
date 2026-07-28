@@ -4,6 +4,14 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  COLUMN-MATH VISUAL [[column]]. New whiteboard visual for stacked, place-value /
+                decimal-point aligned addition & subtraction (pre-algebra). Fixes the bug where the
+                tutor said "line up the decimal points" but the board showed the numbers centered and
+                NOT lined up. [[column op="+" terms="2.40 | 1.35" result="3.75" caption="..."]] stacks
+                the numbers so the decimal points sit in one vertical line, draws the operator + rule
+                line, and shows the result ONLY when the tutor supplies it (never runs ahead). Added
+                .colmath CSS + splitNum/colOp/showColumn + a handleTags "column" case. Same visual in
+                session.html and topic.html. Static-only (no backend build change).
     2026-07-25  NAV BUTTONS + TYPE-UNDER-THE-BOARD. Left sidebar gained a <nav class="leftnav">
                 (My course / Explore a topic / Progress dashboard, hrefs set from CODE), and a
                 persistent .feedbar (chatInput + chatSend) now sits UNDER the whiteboard, always
@@ -246,6 +254,19 @@
       opacity:0; animation: stepin .45s ease forwards; }
     .worklist .wcap { margin-top:12px; font-size:15px; color:var(--muted); text-align:center; }
     @media (max-width:560px){ .worklist .wrow { font-size:24px; } .worklist .wcheck { font-size:19px; } }
+    /* Column arithmetic -- stacked, place-value / decimal-point aligned add & subtract (pre-algebra).
+       Integer parts share a right-aligned column and fractional parts (".NN") a left-aligned column,
+       so every decimal point lines up in one vertical line -- exactly what "line up the points" means. */
+    .colmath { display:grid; grid-template-columns:auto auto auto; column-gap:6px; justify-content:center;
+      font-variant-numeric:tabular-nums; font-weight:800; font-size:40px; color:var(--ink); line-height:1.18; margin:6px 0; }
+    .colmath .cop { text-align:center; color:var(--accent,#5b5bd6); padding-right:6px;
+      opacity:0; animation: stepin .4s ease forwards; }
+    .colmath .cip { text-align:right; opacity:0; animation: stepin .4s ease forwards; }
+    .colmath .cfp { text-align:left; opacity:0; animation: stepin .4s ease forwards; }
+    .colmath .cres { color:#0e9f6e; }
+    .colmath .crule { grid-column:1 / -1; border-top:3px solid var(--ink); height:0; margin:6px 0 4px; }
+    .colmath .ccap { grid-column:1 / -1; text-align:center; font-size:15px; font-weight:600; color:var(--muted); margin-top:10px; }
+    @media (max-width:560px){ .colmath { font-size:30px; } }
 
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
        function -- a number goes IN, the rule runs, a number comes OUT. Used for
@@ -630,6 +651,7 @@
         else if (name === "graph") showGraph(attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "step") showStep(attrs);
+        else if (name === "column") showColumn(attrs);
         else if (name === "write") showWrite(attrs);
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
@@ -900,6 +922,47 @@
       if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
       if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
       scrollFeed();
+    }
+
+    // ---- Column arithmetic (place-value aligned add/subtract) ----
+    // [[column op="+" terms="2.40 | 1.35" result="3.75" caption="line up the points"]]
+    // Stacks the numbers so every decimal point lines up, draws the operator + a rule line,
+    // and (only when the tutor supplies it) the result below. result is OPTIONAL so the board
+    // never runs ahead of the student -- omit it until they've found the answer.
+    function splitNum(t) {
+      const s = String(t == null ? "" : t).trim();
+      const dot = s.indexOf(".");
+      if (dot < 0) return { ip: s, fp: "" };
+      return { ip: s.slice(0, dot), fp: s.slice(dot) };   // fp keeps the leading "."
+    }
+    function colOp(op) {
+      const o = String(op == null ? "" : op).trim().toLowerCase();
+      if (o === "-" || o === "−" || o === "minus" || o === "subtract") return "−";
+      if (o === "x" || o === "*" || o === "×" || o === "times") return "×";
+      if (o === "/" || o === "÷" || o === "divide" || o === "divided") return "÷";
+      return "+";
+    }
+    function showColumn(a) {
+      const terms = String(a.terms || a.nums || a.lines || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
+      if (!terms.length) return;
+      const op = colOp(a.op);
+      const stage = feedBlock();
+      const box = document.createElement("div"); box.className = "colmath pop";
+      const addRow = (num, showOp, resClass) => {
+        const rc = resClass ? " cres" : "";
+        const parts = splitNum(num);
+        const cop = document.createElement("div"); cop.className = "cop" + rc; cop.textContent = showOp ? op : "";
+        const cip = document.createElement("div"); cip.className = "cip" + rc; cip.textContent = parts.ip;
+        const cfp = document.createElement("div"); cfp.className = "cfp" + rc; cfp.textContent = parts.fp;
+        box.appendChild(cop); box.appendChild(cip); box.appendChild(cfp);
+      };
+      // Operator sits on the LAST addend (like on paper). One addend => no operator shown.
+      terms.forEach((t, i) => addRow(t, terms.length > 1 && i === terms.length - 1, false));
+      const rule = document.createElement("div"); rule.className = "crule"; box.appendChild(rule);
+      const res = String(a.result || a.sum || a.answer || a.total || "").trim();
+      if (res) addRow(res, false, true);
+      if (a.caption || a.cap) { const c = document.createElement("div"); c.className = "ccap"; c.textContent = (a.caption || a.cap); box.appendChild(c); }
+      stage.appendChild(box); scrollFeed();
     }
 
     // [[write ...]] -- legacy catch-all, now APPENDS to the persistent worklist (stacks
