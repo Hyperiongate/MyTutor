@@ -4,6 +4,8 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  Added Calculus and Differential Equations to the course picker's COURSES list (it was
+                built before those two courses existed). Kept in COURSE_ORDER order. Do no harm.
     2026-07-28  NEW. THE CLASSROOM VIEW for a teacher or parent following SEVERAL students at
                 once (the existing /dashboard?view=teacher stays as the single-student view).
                 Two stages, like the student hub:
@@ -250,8 +252,8 @@
     // Kept in step with curriculum.py's catalog (COURSE_ORDER).
     const COURSES = [
       ["prealgebra", "Pre-Algebra"], ["algebra1", "Algebra I"], ["geometry", "Geometry"],
-      ["algebra2", "Algebra II"], ["precalc", "Trig / Pre-Calc"],
-      ["probstat", "Probability & Statistics"],
+      ["algebra2", "Algebra II"], ["precalc", "Trig / Pre-Calc"], ["calculus", "Calculus"],
+      ["diffeq", "Differential Equations"], ["probstat", "Probability & Statistics"],
     ];
 
     function setMsg(id, text, kind) {
