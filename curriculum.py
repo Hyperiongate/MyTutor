@@ -2,6 +2,10 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 3 -- PRE-ALGEBRA (the "everything before algebra" foundations course;
+#               source PreAlgebra_Curriculum_KB.md). 9 concept units + aliases + keyword rules;
+#               added to COURSES and placed FIRST in COURSE_ORDER (prealgebra -> algebra1 ->
+#               geometry). Purely additive; Algebra I + Geometry untouched. Do no harm.
 #   2026-07-27  MULTI-COURSE CATALOG (Phase 1 of the math-ladder expansion; see the
 #               project doc Multi_Course_Expansion_Plan.md). The flat 9-unit Algebra I
 #               list became a two-level CATALOG: COURSES[course_id] -> {title, grade_band,
@@ -129,6 +133,49 @@ _GEOMETRY_RULES = [
 ]
 
 # =============================================================================
+# COURSE 3 -- PRE-ALGEBRA  (the "everything before algebra" foundations course; menu-first;
+# source: PreAlgebra_Curriculum_KB.md). Nine concept units, age-neutral (for HS remediation).
+# =============================================================================
+_PREALGEBRA_UNITS = [
+    (1, "Number Sense & Order of Operations"),
+    (2, "Factors, Multiples & Primes"),
+    (3, "Integers & Negative Numbers"),
+    (4, "Fractions"),
+    (5, "Decimals"),
+    (6, "Ratios, Rates & Proportions"),
+    (7, "Percents"),
+    (8, "Measurement & Geometry Basics"),
+    (9, "Variables & Expressions"),
+]
+
+_PREALGEBRA_ALIASES = {
+    "order of operations": 1, "number sense": 1, "pemdas": 1,
+    "factors": 2, "multiples": 2, "primes": 2, "prime": 2, "gcf": 2, "lcm": 2,
+    "integers": 3, "negative numbers": 3, "negatives": 3,
+    "fractions": 4, "decimals": 5,
+    "ratios": 6, "rates": 6, "proportions": 6, "percents": 7, "percent": 7,
+    "measurement": 8, "geometry basics": 8, "variables": 9, "expressions": 9,
+}
+
+# Ordered specific -> generic. Unit 1 (number sense / order of ops) is the catch-all, so LAST.
+_PREALGEBRA_RULES = [
+    (7, [r"percent", r"%", r"discount", r"\btax\b", r"\btip\b", r"interest"]),
+    (6, [r"\bratio", r"\brate\b", r"proportion", r"unit rate", r"\bscale\b"]),
+    (4, [r"fraction", r"numerator", r"denominator", r"mixed number", r"improper",
+         r"common denominator", r"\b\d+\s*/\s*\d+\b"]),
+    (5, [r"decimal", r"\btenths?\b", r"hundredths?", r"\.\d", r"rounding"]),
+    (2, [r"\bfactor", r"multiple", r"\bprime\b", r"composite", r"\bgcf\b", r"\blcm\b",
+         r"divisib", r"prime factor"]),
+    (3, [r"integer", r"negative", r"number line", r"absolute value", r"\bopposite\b"]),
+    (8, [r"perimeter", r"\barea\b", r"\bvolume\b", r"\bconvert", r"\bmean\b", r"\bmedian\b",
+         r"\bangle\b", r"measurement"]),
+    (9, [r"variable", r"expression", r"\bevaluate\b", r"like terms", r"one[- ]step",
+         r"solve for", r"substitut", r"\bsolve\b", r"equation"]),
+    (1, [r"order of operations", r"\bpemdas\b", r"place value", r"\bround", r"estimat",
+         r"whole number", r"\bplus\b", r"\bminus\b", r"\btimes\b"]),
+]
+
+# =============================================================================
 # THE CATALOG
 # =============================================================================
 COURSES = {
@@ -146,10 +193,18 @@ COURSES = {
         "aliases": _GEOMETRY_ALIASES,
         "rules": _GEOMETRY_RULES,
     },
+    "prealgebra": {
+        "title": "Pre-Algebra",
+        "grade_band": "Foundations",
+        "units": _PREALGEBRA_UNITS,
+        "aliases": _PREALGEBRA_ALIASES,
+        "rules": _PREALGEBRA_RULES,
+    },
 }
 
-# The order courses are offered in (the math ladder). New courses append here.
-COURSE_ORDER = ["algebra1", "geometry"]
+# The order courses are offered in (the math ladder). Pre-Algebra leads (it comes before
+# Algebra), then Algebra I, then Geometry. New courses append here.
+COURSE_ORDER = ["prealgebra", "algebra1", "geometry"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).

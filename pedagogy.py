@@ -2,6 +2,12 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 3 -- PRE-ALGEBRA teaching brain (COURSE_PEDAGOGY["prealgebra"]): 9
+#               foundations units (number sense/order-of-ops, factors, integers, fractions,
+#               decimals, ratios, percents, measurement, variables) with misconceptions /
+#               how-to-teach / progression + a pre-algebra cross-cutting list. Source:
+#               PreAlgebra_Curriculum_KB.md. Universal METHODOLOGY reused as-is. Additive; Algebra
+#               I + Geometry untouched. Do no harm.
 #   2026-07-27  MULTI-COURSE (Phase 1 of the math-ladder expansion; see the project doc
 #               Multi_Course_Expansion_Plan.md). The per-unit teaching notes are now nested
 #               PER COURSE: COURSE_PEDAGOGY[course_id] -> {unit_names, cross_cutting, units}.
@@ -356,6 +362,140 @@ ERROR WATCH-LIST (catch these all year, in every unit):
 - Units: length is units, area is units squared, volume is units cubed -- keep them attached.
 - Every step needs a reason: a picture is evidence, not a proof."""
 
+# -----------------------------------------------------------------------------
+# PRE-ALGEBRA -- per-unit pedagogy (distilled from PreAlgebra_Curriculum_KB.md). The
+# foundations/remediation course; anxious learners are common, so lean HARD on the
+# universal METHODOLOGY (safety, a quick early win, concrete-before-abstract).
+# -----------------------------------------------------------------------------
+_PREALGEBRA_UNIT_NAMES = {
+    1: "Number Sense & Order of Operations",
+    2: "Factors, Multiples & Primes",
+    3: "Integers & Negative Numbers",
+    4: "Fractions",
+    5: "Decimals",
+    6: "Ratios, Rates & Proportions",
+    7: "Percents",
+    8: "Measurement & Geometry Basics",
+    9: "Variables & Expressions",
+}
+
+_PREALGEBRA_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "going left-to-right regardless of operation (3 + 2 x 4 read as 20 instead of 11); "
+            "ignoring parentheses; treating multiply/divide (or add/subtract) as strictly one "
+            "before the other instead of left-to-right within each pair."
+        ),
+        "how_to_teach": (
+            "PEMDAS as rules everyone AGREES on so we all get the same answer. Underline the piece "
+            "to do FIRST at each step; estimate first to sanity-check the result."
+        ),
+        "progression": "3 + 2 x 4  ->  (3 + 2) x 4  ->  12 - 4 / 2  ->  2 x (5 + 3^2)",
+    },
+    2: {
+        "misconceptions": (
+            "confusing factors (numbers that divide IN) with multiples (skip-counting UP); thinking "
+            "1 is prime; mixing up GCF (biggest shared factor) with LCM (smallest shared multiple)."
+        ),
+        "how_to_teach": (
+            "Factor pairs / factor rainbows; factor TREES for prime factorization. Connect GCF -> "
+            "simplifying fractions and LCM -> common denominators so the skill pays off right away."
+        ),
+        "progression": "factors of 12  ->  primes under 20  ->  GCF of 12 and 18  ->  LCM of 4 and 6  ->  prime-factorize 60",
+    },
+    3: {
+        "misconceptions": (
+            "thinking -3 is bigger than -1; over-applying 'two negatives make a positive' to "
+            "ADDITION; -3^2 vs (-3)^2; getting stuck subtracting a negative."
+        ),
+        "how_to_teach": (
+            "Number line + a money/temperature story (owe vs have, above vs below zero). "
+            "'Subtract = add the opposite.' Steady, low-stakes reps until the sign rules are automatic. "
+            "This is the single biggest algebra-readiness gap -- worth extra time."
+        ),
+        "progression": "order -5, 2, -1  ->  |-7|  ->  -4 + 9  ->  3 - 8  ->  -6 - (-2)  ->  -3 x 4  ->  -12 / -3",
+    },
+    4: {
+        "misconceptions": (
+            "adding denominators (1/2 + 1/3 = 2/5); thinking you need a common denominator to "
+            "MULTIPLY; flipping the wrong fraction when dividing; assuming a bigger denominator "
+            "means a bigger fraction."
+        ),
+        "how_to_teach": (
+            "Fraction-of-a-whole bars/pictures; equivalence by multiplying by a form of 1; tie common "
+            "denominators back to the LCM. 'Dividing by a fraction = how many of them fit.'"
+        ),
+        "progression": "simplify 8/12  ->  compare 1/2 and 2/5  ->  1/2 + 1/3  ->  3/4 x 2/3  ->  3/4 / (1/2)  ->  2 1/3 + 1 1/2",
+    },
+    5: {
+        "misconceptions": (
+            "'more digits = bigger' (thinking 0.45 > 0.5); not lining up the decimal point when "
+            "adding/subtracting; misplacing the point when multiplying or dividing."
+        ),
+        "how_to_teach": (
+            "Place-value columns and MONEY; line up the points for + and -; count decimal places for x; "
+            "estimate to catch point-placement slips. Connect decimals <-> fractions <-> percents."
+        ),
+        "progression": "compare 0.5 and 0.45  ->  round 3.678  ->  2.4 + 1.35  ->  0.6 x 0.3  ->  4.5 / 0.5  ->  0.75 = 3/4",
+    },
+    6: {
+        "misconceptions": (
+            "writing a ratio in the wrong order; ADDING across a proportion instead of using equal "
+            "ratios; dropping the unit in a rate."
+        ),
+        "how_to_teach": (
+            "Ratio tables and 'per one' (the unit rate); solve proportions by scaling the table or "
+            "cross-multiplying. Ground it in real contexts -- recipes, miles per hour, prices."
+        ),
+        "progression": "simplify the ratio 6:8  ->  unit rate of $12 for 3 lb  ->  solve 2/3 = x/12  ->  scale a recipe for 4 up to 10",
+    },
+    7: {
+        "misconceptions": (
+            "reading 50% as 50 instead of 0.5; forgetting to convert the percent before multiplying; "
+            "ADDING the percent instead of computing the increase; confusing percent points with "
+            "percent change."
+        ),
+        "how_to_teach": (
+            "Percent = 'out of 100'; benchmark percents (10%, 25%, 50%) for estimating; 'of means "
+            "multiply.' Real money -- a 20%-off sale, a tip, tax, simple interest."
+        ),
+        "progression": "25% = 0.25 = 1/4  ->  20% of 80  ->  15% tip on $40  ->  $50 marked up 10%  ->  30% off a $60 item",
+    },
+    8: {
+        "misconceptions": (
+            "mixing up perimeter (around) with area (inside); wrong units (square vs linear); using "
+            "the diameter where the radius belongs; taking an 'average' without adding first."
+        ),
+        "how_to_teach": (
+            "Grid squares to SEE area; keep units attached to every number; real objects (a room, a "
+            "garden). Mean as a 'fair share' -- add up, split evenly."
+        ),
+        "progression": "perimeter of a 4 by 6 rectangle  ->  its area  ->  area of a triangle  ->  area of a circle with radius 3  ->  mean of 4, 8, 6",
+    },
+    9: {
+        "misconceptions": (
+            "reading 3x as 3 + x; combining unlike terms (2x + 3 becoming 5x); 'solving' by moving a "
+            "number without doing the same to BOTH sides."
+        ),
+        "how_to_teach": (
+            "A 'mystery number' box for a variable; substitute-and-compute to evaluate; sort like terms "
+            "into piles; a one-step equation as 'undo what was done to x.' This unit hands straight off "
+            "to Algebra I -- name that bridge for them."
+        ),
+        "progression": "write '5 more than n'  ->  evaluate 2x + 1 at x = 3  ->  combine 3x + 2 + x  ->  solve x + 5 = 12  ->  solve 3x = 15",
+    },
+}
+
+_PREALGEBRA_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these across every unit):
+- Order of operations everywhere, not just Unit 1.
+- Negative signs (Unit 3) leak into fractions, decimals, and expressions -- watch them constantly.
+- "Of" means multiply (fractions, percents).
+- Keep the units attached (measurement, rates).
+- Estimate to sanity-check -- a quick estimate catches decimal-point and sign slips.
+- Convert before you compute (percent -> decimal, mixed -> improper, unlike -> like).
+- Meet an anxious learner with a quick early WIN, and separate "this is hard" from "I can't do this." """
+
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
@@ -369,6 +509,11 @@ COURSE_PEDAGOGY = {
         "unit_names": _GEOMETRY_UNIT_NAMES,
         "cross_cutting": _GEOMETRY_CROSS_CUTTING,
         "units": _GEOMETRY_UNIT_PEDAGOGY,
+    },
+    "prealgebra": {
+        "unit_names": _PREALGEBRA_UNIT_NAMES,
+        "cross_cutting": _PREALGEBRA_CROSS_CUTTING,
+        "units": _PREALGEBRA_UNIT_PEDAGOGY,
     },
 }
 
