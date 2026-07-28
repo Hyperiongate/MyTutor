@@ -433,11 +433,19 @@
         "Similarity & Dilations", "Right Triangles & Trigonometry", "Circles",
         "Coordinate Geometry", "Area, Surface Area & Volume", "Probability",
       ],
+      prealgebra: [
+        "Number Sense & Order of Operations", "Factors, Multiples & Primes", "Integers & Negative Numbers",
+        "Fractions", "Decimals", "Ratios, Rates & Proportions",
+        "Percents", "Measurement & Geometry Basics", "Variables & Expressions",
+      ],
     };
     const UNITS = UNITS_BY_COURSE[COURSE] || UNITS_BY_COURSE.algebra1;
     // A course-appropriate placeholder for the "type your own topic" box.
-    el("topicInput").placeholder = (COURSE === "geometry")
-      ? "e.g. how inscribed angles work" : "e.g. how slope works";
+    el("topicInput").placeholder = ({
+      geometry: "e.g. how inscribed angles work",
+      prealgebra: "e.g. how to add fractions",
+      algebra1: "e.g. how slope works",
+    })[COURSE] || "e.g. how slope works";
 
     // ---------- Audio graph ----------
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";

@@ -259,7 +259,7 @@
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
 
-      const courseName = ({ algebra1: "Algebra I", geometry: "Geometry" })[COURSE] || "";
+      const courseName = ({ prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry" })[COURSE] || "";
       const who = data.name ? (data.name + "'s") : "My";
       el("title").textContent = "📊 " + who + " Progress" + (courseName ? " — " + courseName : "");
       if (courseName) {

@@ -266,14 +266,47 @@
     const GEO_LEVELS = ["Getting Started","Angle Apprentice","Transformation Traveler","Proof Pupil","Similarity Scout",
       "Right-Triangle Ranger","Circle Sage","Coordinate Captain","Volume Virtuoso","Geometry Ace"];
 
-    // Select the bank/labels for the course being placed.
-    const GEO = (COURSE === "geometry");
-    const SUBJECT = GEO ? "geometry" : "algebra";
-    const BANK = GEO ? GEO_BANK : ALG_BANK;
+    const PREALG_BANK = {
+      1: [ {p:"Work it out", e:"3 + 2 × 4", c:["20","11","14","24"], a:1},
+           {p:"Work it out", e:"12 − 4 ÷ 2", c:["10","4","8","2"], a:0} ],
+      2: [ {p:"Find the GCF", e:"12 and 18", c:["6","2","3","36"], a:0},
+           {p:"Which one is prime?", e:"9, 15, 17, 21", c:["17","9","15","21"], a:0} ],
+      3: [ {p:"Work it out", e:"−4 + 9", c:["5","−5","13","−13"], a:0},
+           {p:"Work it out", e:"−6 − (−2)", c:["−4","−8","4","8"], a:0} ],
+      4: [ {p:"Add", e:"1/2 + 1/3", c:["5/6","2/5","1/6","2/6"], a:0},
+           {p:"Multiply", e:"3/4 × 2/3", c:["1/2","6/7","5/7","2/3"], a:0} ],
+      5: [ {p:"Which is larger?", e:"0.5 or 0.45", c:["0.5","0.45","they're equal","can't tell"], a:0},
+           {p:"Multiply", e:"0.6 × 0.3", c:["0.18","1.8","0.9","0.018"], a:0} ],
+      6: [ {p:"Find the unit rate", e:"$12 for 3 pounds", c:["$4 per lb","$3 per lb","$9 per lb","$36 per lb"], a:0},
+           {p:"Solve the proportion", e:"2/3 = x/12", c:["8","6","4","18"], a:0} ],
+      7: [ {p:"Find it", e:"20% of 80", c:["16","20","40","4"], a:0},
+           {p:"Find it", e:"15% of 40", c:["6","4","15","10"], a:0} ],
+      8: [ {p:"Area of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:0},
+           {p:"Find the mean (average)", e:"4, 8, 6", c:["6","8","18","4"], a:0} ],
+      9: [ {p:"Evaluate 2x + 1 when", e:"x = 3", c:["7","6","5","9"], a:0},
+           {p:"Solve", e:"x + 5 = 12", c:["7","17","5","60"], a:0} ],
+    };
+    const PREALG_UNIT_NAMES = { 1:"Number Sense & Order of Operations", 2:"Factors, Multiples & Primes",
+      3:"Integers & Negative Numbers", 4:"Fractions", 5:"Decimals", 6:"Ratios, Rates & Proportions",
+      7:"Percents", 8:"Measurement & Geometry Basics", 9:"Variables & Expressions" };
+    const PREALG_TIER_SKILL = { 1:"Order of operations", 2:"Factors & primes", 3:"Integers", 4:"Fractions",
+      5:"Decimals", 6:"Ratios & proportions", 7:"Percents", 8:"Measurement", 9:"Variables" };
+    const PREALG_LEVELS = ["Getting Started","Number Novice","Factor Finder","Integer Insider","Fraction Fixer",
+      "Decimal Dynamo","Ratio Ranger","Percent Pro","Measurement Master","Pre-Algebra Ace"];
+
+    // Select the bank/labels for the course being placed (defaults to Algebra I).
+    const COURSE_DATA = {
+      algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    tierSkill: ALG_TIER_SKILL,    levels: ALG_LEVELS,    subject: "algebra" },
+      geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    tierSkill: GEO_TIER_SKILL,    levels: GEO_LEVELS,    subject: "geometry" },
+      prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, tierSkill: PREALG_TIER_SKILL, levels: PREALG_LEVELS, subject: "pre-algebra" },
+    };
+    const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
+    const SUBJECT = CD.subject;
+    const BANK = CD.bank;
     const MAX_TIER = 9;
-    const UNIT_NAMES = GEO ? GEO_UNIT_NAMES : ALG_UNIT_NAMES;
-    const TIER_SKILL = GEO ? GEO_TIER_SKILL : ALG_TIER_SKILL;
-    const LEVELS = GEO ? GEO_LEVELS : ALG_LEVELS;
+    const UNIT_NAMES = CD.unitNames;
+    const TIER_SKILL = CD.tierSkill;
+    const LEVELS = CD.levels;
 
     // ---- State ----
     let tier = 1, second = false, points = 0, streak = 0, asked = 0, highestPassed = 0;

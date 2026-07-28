@@ -59,7 +59,7 @@
     .hello p { color: var(--muted); font-size: 16px; margin: 0; }
 
     .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
-    .subjects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 640px; }
+    .subjects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
     .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 20px;
       text-align: left; cursor: pointer; text-decoration: none; color: var(--ink);
       box-shadow: 0 12px 34px rgba(20,30,45,.08); transition: transform .12s ease, box-shadow .12s ease; display: block; }
@@ -104,6 +104,12 @@
 
     <!-- STAGE 1: pick a subject (shown when no course is chosen yet) -->
     <div class="subjects" id="pickerView">
+      <a class="tile subject" id="subjPrealgebra" href="#">
+        <div class="ic">🧮</div>
+        <h3>Pre-Algebra</h3>
+        <p>The foundations: fractions, decimals, percents, negatives, ratios — and getting ready for algebra.</p>
+        <div class="go">Choose Pre-Algebra →</div>
+      </a>
       <a class="tile subject" id="subjAlgebra" href="#">
         <div class="ic">📘</div>
         <h3>Algebra I</h3>
@@ -154,7 +160,7 @@
     if (!CODE) { location.href = "/"; }
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
-    const COURSE_TITLES = { algebra1: "Algebra I", geometry: "Geometry" };
+    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry" };
     let COURSE = (params.get("course") || "").trim();
 
     const codeQ = "?code=" + encodeURIComponent(CODE);
@@ -166,6 +172,7 @@
       el("hubView").classList.add("hidden");
       el("hubSecondary").classList.add("hidden");
       el("subtitle").textContent = "What would you like to work on today?";
+      el("subjPrealgebra").href = "/home" + codeQ + "&course=prealgebra";
       el("subjAlgebra").href = "/home" + codeQ + "&course=algebra1";
       el("subjGeometry").href = "/home" + codeQ + "&course=geometry";
       // Still greet by name if we can.
