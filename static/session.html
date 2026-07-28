@@ -1116,7 +1116,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie"].indexOf(name) >= 0) showFig(name, attrs);
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector"].indexOf(name) >= 0) showFig(name, attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
         else if (name === "step") showStep(attrs);

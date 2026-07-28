@@ -2,6 +2,10 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  GRAPHICS STAGE 3 -- taught the tutor the trig/conic/number-line/tiles/vector pictures
+#               ([[unitcircle]]/[[righttriangle]]/[[conic]]/[[numberline]]/[[areamodel]]/[[vector]],
+#               rendered by static/math-figures.js). Added to the shared practice + topic templates and
+#               the Pre-Calc lesson template (unit circle is central there). Prompt text only. Do no harm.
 #   2026-07-28  GRAPHICS STAGE 2 -- taught the tutor the statistics/probability pictures. The shared
 #               practice + topic templates now document [[bars]]/[[histogram]]/[[dotplot]]/[[boxplot]]/
 #               [[scatter]]/[[normal]]/[[twoway]]/[[tree]]/[[pie]] (rendered by static/math-figures.js).
@@ -2089,6 +2093,16 @@ key points):
   - Items separated by " | ". Keep each to one line, and keep the tag SHORT so your reply is never
     cut off in the middle of it.
 
+Draw the UNIT CIRCLE, a right triangle, a conic, or a vector when they fit the idea:
+  [[unitcircle angle="30"]]  -- the unit circle with the angle marked, its point (cos, sin), the
+    dashed cosine/sine legs, and the exact values. USE THIS constantly in the trig units (4-5).
+  [[righttriangle opp="3" adj="4" theta="θ"]]  -- a labeled right triangle for SOH-CAH-TOA.
+  [[conic type="ellipse" a="4" b="2"]]  -- an ellipse, hyperbola, or circle (type=, a=, b= or r=,
+    cx=, cy=), drawn on a grid with its center marked (Unit 7).
+  [[vector v="3,4 | 1,3" sum="true"]]  -- vectors from the origin with their magnitudes; sum="true"
+    draws the tip-to-tail resultant (Unit 6). Also [[numberline ineq="x>1" points="-3,4"]] for a
+    number line, and [[areamodel rows="x,2" cols="x,3"]] for an area model.
+
 Show TODAY'S GOAL as a banner (set it once at the start):
   [[goal text="Read any angle's sine and cosine off the unit circle"]]
 
@@ -2598,6 +2612,13 @@ and also appends to the worklist -- but prefer [[step]].)
     [[twoway rowlabels="Male,Female" collabels="Yes,No" data="10,20 | 15,5"]]  -- a two-way table with totals
     [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]]  -- a two-stage probability tree
     [[pie data="Red:3 | Blue:2 | Green:1"]]  -- a pie chart / spinner
+  MORE PICTURES (trig, conics, number line, tiles, vectors):
+    [[unitcircle angle="30"]]  -- the unit circle with the angle, its point (cos, sin), and exact values
+    [[righttriangle opp="3" adj="4" theta="θ"]]  -- a labeled right triangle (SOH-CAH-TOA)
+    [[conic type="ellipse" a="4" b="2"]]  -- an ellipse / hyperbola / circle (type=, a=, b= or r=, cx=, cy=)
+    [[numberline ineq="x>1" points="-3,4" open="2"]]  -- a number line with points + inequality shading
+    [[areamodel rows="x,2" cols="x,3"]]  -- an area model / algebra tiles for multiplying & factoring
+    [[vector v="3,4 | 1,3" sum="true"]]  -- vectors from the origin (sum="true" draws the tip-to-tail resultant)
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
@@ -2618,6 +2639,13 @@ and also appends to the worklist -- but prefer [[step]].)
     [[twoway rowlabels="Male,Female" collabels="Yes,No" data="10,20 | 15,5"]]  -- a two-way table with totals
     [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]]  -- a two-stage probability tree
     [[pie data="Red:3 | Blue:2 | Green:1"]]  -- a pie chart / spinner
+  MORE PICTURES (trig, conics, number line, tiles, vectors):
+    [[unitcircle angle="30"]]  -- the unit circle with the angle, its point (cos, sin), and exact values
+    [[righttriangle opp="3" adj="4" theta="θ"]]  -- a labeled right triangle (SOH-CAH-TOA)
+    [[conic type="ellipse" a="4" b="2"]]  -- an ellipse / hyperbola / circle (type=, a=, b= or r=, cx=, cy=)
+    [[numberline ineq="x>1" points="-3,4" open="2"]]  -- a number line with points + inequality shading
+    [[areamodel rows="x,2" cols="x,3"]]  -- an area model / algebra tiles for multiplying & factoring
+    [[vector v="3,4 | 1,3" sum="true"]]  -- vectors from the origin (sum="true" draws the tip-to-tail resultant)
 
 Draw a FUNCTION MACHINE for evaluating a function (Unit 3) -- a number goes IN, the rule
 runs, a number comes OUT. Use this (not the balance) whenever you show what f(x) does:
@@ -2804,6 +2832,10 @@ works and also appends to the worklist -- but prefer [[step]].) Tags:
     [[boxplot values="2,5,6,7,8,12"]] , [[scatter points="(1,2),(2,3),(3,5)" fit="true"]] (fit line)
     [[normal mean="0" sd="1" shade="-1..1"]] , [[twoway rowlabels="M,F" collabels="Yes,No" data="10,20 | 15,5"]]
     [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]] , [[pie data="Red:3 | Blue:2"]]
+  MORE PICTURES: [[unitcircle angle="30"]] (angle, point, exact cos/sin) , [[righttriangle opp="3" adj="4" theta="θ"]]
+    (SOH-CAH-TOA) , [[conic type="ellipse" a="4" b="2"]] (or hyperbola/circle) , [[numberline ineq="x>1" points="-3,4"]]
+    (points + inequality shading) , [[areamodel rows="x,2" cols="x,3"]] (area model / algebra tiles) ,
+    [[vector v="3,4 | 1,3" sum="true"]] (vectors; sum= draws the resultant)
 To ADD or SUBTRACT decimals or whole numbers in a column, use [[column]] -- it stacks the
 numbers so the place values (and every decimal point) line up on screen. THIS is the picture
 to use whenever you say "line up the decimal points":
