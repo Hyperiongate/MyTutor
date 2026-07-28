@@ -4,6 +4,11 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  COSMETIC: the subject picker is now 2 ROWS OF 4 (was 3-across, which left 8 courses
+                in a ragged 3/3/2). .wrap widened to 1120px for the picker while .tiles (the stage-2
+                hub) keeps its original 900px, so only the picker changes. Responsive: 4 -> 2 -> 1
+                column. Also adopted the shared "math paper" background (graph-paper grid + faint
+                drifting math symbols), declared last in the stylesheet. Do no harm.
     2026-07-28  ADDED DIFFERENTIAL EQUATIONS to the subject picker (eighth course). Additive. Do no harm.
     2026-07-28  ADDED CALCULUS to the subject picker (seventh course). Additive; data-driven. Do no harm.
     2026-07-28  ADDED PROBABILITY & STATISTICS to the subject picker (sixth course). New card
@@ -69,14 +74,15 @@
     .top a { font-size: 13px; color: var(--muted); text-decoration: none; }
 
     .wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 10px 20px 40px; width: 100%; max-width: 900px; margin: 0 auto; }
+      padding: 10px 20px 40px; width: 100%; max-width: 1120px; margin: 0 auto; }
     .hello { text-align: center; margin-bottom: 26px; }
     .hello h1 { font-size: 30px; margin: 0 0 6px; }
     .hello p { color: var(--muted); font-size: 16px; margin: 0; }
 
-    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
-    .subjects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
-    .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 20px;
+    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%;
+      max-width: 900px; margin: 0 auto; }   /* stage 2 keeps its original width */
+    .subjects { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; }  /* 2 rows of 4 */
+    .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 17px;
       text-align: left; cursor: pointer; text-decoration: none; color: var(--ink);
       box-shadow: 0 12px 34px rgba(20,30,45,.08); transition: transform .12s ease, box-shadow .12s ease; display: block; }
     .tile:hover { transform: translateY(-3px); box-shadow: 0 18px 46px rgba(20,30,45,.14); }
@@ -99,9 +105,32 @@
     .chip:hover { background: #f5f5fc; }
     .hidden { display: none !important; }
 
+    @media (max-width: 1080px) { .subjects { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 760px) {
       .tiles { grid-template-columns: 1fr; }
       .subjects { grid-template-columns: 1fr; }
+    }
+    /* --- "math paper" background (2026-07-28): soft brand washes + faint drifting math
+       symbols + fine graph-paper grid with a heavier line every 5 squares. Pure CSS, no
+       images or requests. Declared LAST so it supersedes the page's original background. --- */
+    body {
+      background-color: #fbfbff;
+      background-image:
+        radial-gradient(760px 500px at 8% -10%, rgba(91,91,214,.16), transparent 60%),
+        radial-gradient(760px 480px at 94% -6%, rgba(20,184,166,.15), transparent 55%),
+        radial-gradient(700px 520px at 55% 112%, rgba(255,122,89,.12), transparent 55%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22520%22%20height%3D%22520%22%3E%0A%3Cg%20fill%3D%22%235b5bd6%22%20fill-opacity%3D%220.085%22%20font-family%3D%22Georgia%2CCambria%2Cserif%22%3E%0A%3Ctext%20x%3D%2234%22%20y%3D%2282%22%20font-size%3D%2262%22%3E%26%23960%3B%3C/text%3E%0A%3Ctext%20x%3D%22188%22%20y%3D%22140%22%20font-size%3D%2250%22%3E%26%238721%3B%3C/text%3E%0A%3Ctext%20x%3D%22330%22%20y%3D%2272%22%20font-size%3D%2256%22%3E%26%238730%3B%3C/text%3E%0A%3Ctext%20x%3D%22452%22%20y%3D%22132%22%20font-size%3D%2248%22%3E%26%23952%3B%3C/text%3E%0A%3Ctext%20x%3D%2270%22%20y%3D%22238%22%20font-size%3D%2252%22%3E%26%238747%3B%3C/text%3E%0A%3Ctext%20x%3D%22238%22%20y%3D%22286%22%20font-size%3D%2260%22%3E%26%238734%3B%3C/text%3E%0A%3Ctext%20x%3D%22392%22%20y%3D%22242%22%20font-size%3D%2246%22%3E%26%23916%3B%3C/text%3E%0A%3Ctext%20x%3D%2240%22%20y%3D%22392%22%20font-size%3D%2246%22%3Ex%26%23178%3B%3C/text%3E%0A%3Ctext%20x%3D%22176%22%20y%3D%22438%22%20font-size%3D%2250%22%3E%26%238706%3B%3C/text%3E%0A%3Ctext%20x%3D%22318%22%20y%3D%22392%22%20font-size%3D%2244%22%3E%26%238804%3B%3C/text%3E%0A%3Ctext%20x%3D%22440%22%20y%3D%22452%22%20font-size%3D%2252%22%3E%26%238724%3B%3C/text%3E%0A%3Ctext%20x%3D%22112%22%20y%3D%22500%22%20font-size%3D%2244%22%3E%26%238776%3B%3C/text%3E%0A%3C/g%3E%3C/svg%3E"),
+        linear-gradient(rgba(91,91,214,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,91,214,.055) 1px, transparent 1px),
+        linear-gradient(rgba(91,91,214,.11) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,91,214,.11) 1px, transparent 1px);
+      background-size:
+        auto, auto, auto,
+        520px 520px,
+        26px 26px, 26px 26px,
+        130px 130px, 130px 130px;
+      background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
+      background-attachment: fixed, fixed, fixed, scroll, scroll, scroll, scroll, scroll;
     }
   </style>
 </head>
