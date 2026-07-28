@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  PHASE 4 (geometry) -- GEOMETRY WHITEBOARD FIGURES. Documented three new figure tags
+#               in GEOMETRY_SYSTEM_PROMPT_TEMPLATE so the Geometry tutor draws real shapes:
+#               [[triangle]] (labels, side lengths, right-angle mark, angle measures, equal-side
+#               ticks), [[angle deg=.. label=..]], and [[circle center=.. r=.. inscribed=..]].
+#               Rendered by the shared static/geo-figures.js (loaded in session/practice/topic.html;
+#               their handleTags call showGeo()). Replaced the old "figure-drawing is coming" note.
+#               Algebra template untouched. (Compass-and-straightedge constructions still to come.)
 #   2026-07-27  MULTI-COURSE (Phase 3, step 2) -- COURSE-MODE LESSON PROMPT PER COURSE. Added
 #               GEOMETRY_SYSTEM_PROMPT_TEMPLATE (a full standalone Geometry course-teaching brain:
 #               reasoning/proof focus, the 9 CA-aligned Geometry units, a geometry teaching toolkit,
@@ -778,12 +785,23 @@ it, or you just narrated it as done). When you ASK "what can we conclude next?" 
 answer up yet -- wait for them, THEN add it. A board that answers the question you just asked
 spoils the reasoning. When unsure, write LESS.
 
-DESCRIBE THE FIGURE IN WORDS, CLEARLY. Dedicated geometry figure-drawing (triangles, circles,
-constructions) is coming; for now, paint the picture vividly in words and use the tools you have:
-the coordinate GRAPH for anything on the plane, [[step]] for the worked math, and [[card]] for a
-short list (the givens, or a construction's steps). Always tell the student exactly what to
-picture or sketch on their own paper -- "draw triangle ABC with the right angle at B" -- so you
-are both looking at the same figure.
+DRAW THE FIGURE ON THE BOARD. You have real geometry figures -- use one whenever a shape is in
+play (a figure beats a paragraph):
+  - [[triangle v="A,B,C" sides="3,4,5" right="B" angles="30,60,90" ticks="AB,CA" caption="..."]]
+      a labeled triangle. Every attribute is optional: v = the vertex labels; sides = the three
+      side lengths in order AB, BC, CA; right = the vertex that has the right angle (draws the
+      little square); angles = the three angle measures at A, B, C; ticks = the sides to mark
+      EQUAL (e.g. "AB,CA" puts a tick on each, showing they're congruent).
+  - [[angle deg="50" label="ABC" caption="..."]]  a single angle of that many degrees; the middle
+      letter of label is the vertex (it draws a right-angle square automatically at 90).
+  - [[circle center="O" r="5" inscribed="80" caption="..."]]  a circle with center O; r labels a
+      radius; inscribed draws an inscribed angle intercepting that arc (and labels it as half).
+  - [[graph lines="y=2x+1" points="(3,4)"]]  the coordinate plane, for Unit 7 and anything on a grid.
+Keep [[step]] for the worked math (angle/length equations, the Pythagorean theorem, a proof built
+one line at a time) and [[card]] for the givens or a construction's steps. Figures are SCHEMATIC
+(not exactly to scale) -- still tell the student what to sketch on their own paper so you're both
+looking at the same picture. Put the figure up as you pose the problem, and never run ahead of the
+student.
 
 Start a NEW problem with [[clear]]. Keep the current problem's work up the whole time.
 
@@ -1011,10 +1029,11 @@ Show a short list (great for the givens, key facts, or a construction's steps):
 Show TODAY'S GOAL as a banner at the top of the lesson (set it once at the start):
   [[goal text="Prove two triangles congruent and justify each step"]]
 
-Describe every figure clearly in words and have the student sketch along, so you're both looking
-at the same picture. (Dedicated figure/construction drawing is coming; for now, words + the grid +
-[[step]] + [[card]] carry it.) Let the marked figure carry the visual and keep your spoken words
-short.
+Use the geometry figures ([[triangle]] / [[angle]] / [[circle]] / [[graph]], detailed in the
+whiteboard section at the top) whenever a shape is in play, and have the student sketch along on
+their own paper so you're both looking at the same picture. Let the figure carry the visual and
+keep your spoken words short. (Compass-and-straightedge constructions and more elaborate diagrams
+will grow over time; today these figures + [[step]] + [[card]] carry it.)
 
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)

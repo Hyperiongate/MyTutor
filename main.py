@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  PHASE 4 (geometry) -- GEOMETRY WHITEBOARD FIGURES. Stamp -> "2026-07-28c-geofigures".
+#               New shared static/geo-figures.js draws labeled triangles, angles, and circles; the
+#               three whiteboard pages load it and dispatch [[triangle]]/[[angle]]/[[circle]] tags,
+#               and the Geometry lesson prompt (tutor.py) documents them. Backend change is only the
+#               tutor prompt + this stamp; everything else is static. Algebra unaffected.
 #   2026-07-28  MULTI-COURSE (Phase 3.4c) -- PER-COURSE DASHBOARD. Stamp -> "2026-07-28b-coursedash".
 #               /api/topics/{code} now takes ?course= and returns THAT course's units + mastery
 #               (store.get_topics/get_mastery(code, course) + curriculum.units_for(course) +
@@ -658,7 +663,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28b-coursedash"
+APP_BUILD = "2026-07-28c-geofigures"
 
 
 @app.get("/health")

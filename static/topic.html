@@ -391,6 +391,7 @@
     </div>
   </div>
 
+  <script src="/static/geo-figures.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -610,6 +611,14 @@
       return String(text == null ? "" : text)
         .replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\[[\s\S]*$/, "").replace(/\s{2,}/g, " ").trim();
     }
+    // ---------- Geometry figures (triangle / angle / circle) -- see /static/geo-figures.js ----------
+    function showGeo(kind, a) {
+      const stage = feedBlock();
+      const wrap = document.createElement("div"); wrap.className = "mfig pop";
+      wrap.innerHTML = (window.GeoFigures ? window.GeoFigures.svg(kind, a) : "");
+      stage.appendChild(wrap);
+      if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
+    }
     function handleTags(text) {
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
@@ -624,6 +633,7 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "mark") postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: (parseInt(attrs.correct, 10) || 0), attempted: (parseInt(attrs.attempted, 10) || 1) });
+        else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "clear") wipeBoard();
       }
       return stripTags(text);
