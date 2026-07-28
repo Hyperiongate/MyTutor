@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED DIFFERENTIAL EQUATIONS (eighth course): CURRICULUM_BY_COURSE.diffeq +
+                COURSE_TITLES/COURSE_SUBJECTS/COURSE_OPENERS entries. Additive. Do no harm.
+    2026-07-28  ADDED CALCULUS (seventh course): CURRICULUM_BY_COURSE.calculus + COURSE_TITLES/
+                COURSE_SUBJECTS/COURSE_OPENERS entries. Data-driven. Additive. Do no harm.
     2026-07-28  ADDED PROBABILITY & STATISTICS (sixth course). CURRICULUM_BY_COURSE.probstat (9 units +
                 blurbs + topics), plus probstat entries in COURSE_TITLES, COURSE_SUBJECTS, and
                 COURSE_OPENERS. Data-driven off COURSE, so the lesson page serves it automatically.
@@ -643,6 +647,7 @@
 
   <script src="/static/geo-figures.js"></script>
   <script src="/static/math-figures.js"></script>
+  <script src="/static/tutor-face.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -657,8 +662,8 @@
     // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
     // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
     // as they always were, so nothing about the Algebra experience changes.
-    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "Probability & Statistics" };
-    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "statistics" };
+    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
+    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "calculus", diffeq: "differential equations", probstat: "statistics" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
     // The tour's one-line "what this subject is" spoken opener, per course.
@@ -668,6 +673,8 @@
       prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
       algebra2: "Hi there! Welcome to Algebra II. I'm Mr. Cadabra. Algebra II picks up right where Algebra I left off — you'll master every kind of function, meet a brand-new kind of number, and build the toolkit that gets you ready for pre-calculus. Before we dive in, let me give you a quick tour of your screen.",
       precalc: "Hi there! Welcome to Trig and Pre-Calc. I'm Mr. Cadabra. This is the launchpad to calculus — you'll get fluent with every kind of function, master trigonometry and the unit circle, explore the elegant curves, and take your first look at limits. Before we dive in, let me give you a quick tour of your screen.",
+      calculus: "Hi there! Welcome to calculus. I'm Mr. Cadabra. Calculus is really just two big ideas — how fast something is changing at a single instant, and how much adds up when it changes the whole way. Master those two and you can describe almost anything that moves. Before we dive in, let me give you a quick tour of your screen.",
+      diffeq: "Hi there! Welcome to differential equations. I'm Mr. Cadabra. This is where calculus becomes modeling — an equation about how something changes, and solving it tells you what that something actually is. It describes almost every physical law there is. Before we dive in, let me give you a quick tour of your screen.",
       probstat: "Hi there! Welcome to Probability and Statistics. I'm Mr. Cadabra. This course is all about making sense of data and chance — you'll learn to picture data, summarize it, spot real patterns, and figure out how sure you can be about what it's telling you. Before we dive in, let me give you a quick tour of your screen.",
     };
     const COURSE_OPENER = COURSE_OPENERS[COURSE] || COURSE_OPENERS.algebra1;
@@ -812,6 +819,46 @@
       { n: 9, name: "Introduction to Limits", blurb: "The single idea that opens the door to calculus.",
         topics: ["Limits from tables & graphs", "One-sided limits", "Continuity", "Average vs. instantaneous rate"] },
       ],
+      calculus: [
+      { n: 1, name: "Limits & Continuity", blurb: "Where a function is headed — the idea everything else is built on.",
+        topics: ["Limits from tables & graphs", "One-sided limits", "Limits at infinity", "Continuity"] },
+      { n: 2, name: "The Derivative: Definition & Basic Rules", blurb: "The slope of a curve at a single point.",
+        topics: ["Average vs instantaneous rate", "The difference quotient", "The power rule", "Tangent lines"] },
+      { n: 3, name: "Product, Quotient & Chain Rules", blurb: "Differentiating combinations — and compositions.",
+        topics: ["Product rule", "Quotient rule", "The chain rule", "Implicit differentiation"] },
+      { n: 4, name: "Applications of Derivatives", blurb: "Rates in the real world.",
+        topics: ["Position, velocity & acceleration", "Related rates", "Linear approximation", "Interpreting rates"] },
+      { n: 5, name: "Curve Sketching & Optimization", blurb: "What the derivatives tell you about the shape — and the best answer.",
+        topics: ["Critical points", "First & second derivative tests", "Concavity & inflection", "Optimization"] },
+      { n: 6, name: "Antiderivatives & Indefinite Integrals", blurb: "Running differentiation backwards.",
+        topics: ["The reverse power rule", "+ C and initial conditions", "Basic antiderivatives", "u-substitution"] },
+      { n: 7, name: "The Definite Integral & the Fundamental Theorem", blurb: "Area under a curve — and the theorem that ties it all together.",
+        topics: ["Riemann sums", "Signed area", "The Fundamental Theorem", "Average value"] },
+      { n: 8, name: "Applications of Integration", blurb: "Using integrals to measure real things.",
+        topics: ["Area between curves", "Volumes of revolution", "Displacement vs distance", "Accumulation"] },
+      { n: 9, name: "Introduction to Differential Equations", blurb: "Equations about rates — the door to the next course.",
+        topics: ["What a differential equation is", "Slope fields", "Separable equations", "Growth & decay models"] },
+      ],
+      diffeq: [
+      { n: 1, name: "Introduction & Classification", blurb: "What a differential equation is — and how to tell which kind you have.",
+        topics: ["Order & linearity", "Verifying a solution", "General vs particular", "Slope fields"] },
+      { n: 2, name: "First-Order Separable Equations & Models", blurb: "Split the variables, integrate both sides.",
+        topics: ["Separation of variables", "Initial conditions", "Growth & decay", "Logistic & cooling models"] },
+      { n: 3, name: "First-Order Linear Equations", blurb: "The integrating factor — and why it works.",
+        topics: ["Standard form", "The integrating factor", "Solving & initial conditions", "Mixing problems"] },
+      { n: 4, name: "Exact Equations & Substitutions", blurb: "Spotting a total differential, and changing variables.",
+        topics: ["The exactness test", "Potential functions", "Homogeneous substitution", "Bernoulli equations"] },
+      { n: 5, name: "Second-Order Linear: Homogeneous", blurb: "The characteristic equation and its three cases.",
+        topics: ["The characteristic equation", "Distinct real roots", "Repeated roots", "Complex roots"] },
+      { n: 6, name: "Second-Order Linear: Nonhomogeneous", blurb: "Complementary plus particular.",
+        topics: ["y = y_c + y_p", "Undetermined coefficients", "The overlap case", "Variation of parameters"] },
+      { n: 7, name: "Applications: Vibrations & Circuits", blurb: "Where these equations come from.",
+        topics: ["Mass-spring systems", "The damping cases", "Forced motion & resonance", "RLC circuits"] },
+      { n: 8, name: "Laplace Transforms", blurb: "Turn calculus into algebra — initial conditions included.",
+        topics: ["Transforms & inverses", "Transforming derivatives", "Partial fractions", "Step functions"] },
+      { n: 9, name: "Series Solutions & Systems", blurb: "When no formula works — and how systems behave.",
+        topics: ["Power-series solutions", "Recurrence relations", "Systems & eigenvalues", "The phase plane"] },
+      ],
       probstat: [
       { n: 1, name: "Exploring Data", blurb: "Types of data and the right way to picture them.",
         topics: ["Categorical vs quantitative", "Bar charts & pie charts", "Dot plots & histograms", "Describing shape"] },
@@ -930,45 +977,15 @@
       return 0.10 + 0.05 * Math.sin(t * 0.035);                                       // idle breathing
     }
     function drawOrb() {
-      const w = orb.width, h = orb.height, cx = w / 2, cy = h / 2;
-      octx.clearRect(0, 0, w, h);
+      const w = orb.width, h = orb.height;
       const lv = level(); smooth += (lv - smooth) * 0.22;
-      hue += 0.15 + smooth * 0.8;
-      const h1 = (hue) % 360, h2 = (hue + 55) % 360;
-      const baseR = w * 0.26, R = baseR * (1 + smooth * 0.33);
-
-      // outer aura
-      octx.save();
-      const aura = octx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 2.1);
-      aura.addColorStop(0, `hsla(${h1},90%,60%,${0.30 + smooth * 0.35})`);
-      aura.addColorStop(1, `hsla(${h1},90%,60%,0)`);
-      octx.fillStyle = aura; octx.beginPath(); octx.arc(cx, cy, R * 2.1, 0, 7); octx.fill();
-      octx.restore();
-
-      // wobbling blob body
-      octx.save();
-      octx.shadowColor = `hsla(${h2},95%,60%,0.8)`; octx.shadowBlur = 34 + smooth * 40;
-      octx.beginPath();
-      const pts = 60;
-      for (let i = 0; i <= pts; i++) {
-        const a = (i / pts) * Math.PI * 2;
-        const wob = 1 + (0.05 + smooth * 0.10) * Math.sin(a * 3 + t * 0.06)
-                      + (smooth * 0.06) * Math.sin(a * 5 - t * 0.05);
-        const rr = R * wob, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
-        if (i === 0) octx.moveTo(x, y); else octx.lineTo(x, y);
+      if (window.TutorFace) {
+        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(state) });
+      } else {                                  // fallback so the tutor is never blank
+        octx.clearRect(0, 0, w, h);
+        octx.fillStyle = "#5b5bd6";
+        octx.beginPath(); octx.arc(w / 2, h / 2, w * 0.26 * (1 + smooth * 0.25), 0, 7); octx.fill();
       }
-      octx.closePath();
-      const body = octx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R * 1.15);
-      body.addColorStop(0, `hsla(${h1},100%,88%,1)`);
-      body.addColorStop(0.45, `hsla(${h1},95%,64%,1)`);
-      body.addColorStop(1, `hsla(${h2},90%,45%,1)`);
-      octx.fillStyle = body; octx.fill();
-      octx.restore();
-
-      // inner highlight
-      octx.beginPath(); octx.arc(cx - R * 0.28, cy - R * 0.32, R * 0.32, 0, 7);
-      octx.fillStyle = "rgba(255,255,255,0.55)"; octx.fill();
-
       t += 1; requestAnimationFrame(drawOrb);
     }
     drawOrb();

@@ -4,6 +4,10 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED DIFFERENTIAL EQUATIONS assessment bank (DIFFEQ_BANK, 9 units x 5 verified
+                questions, DIFFEQ_UNIT_NAMES, COURSE_DATA entry). Additive. Do no harm.
+    2026-07-28  ADDED CALCULUS assessment bank (CALCULUS_BANK, 9 units x 5 verified questions,
+                CALCULUS_UNIT_NAMES, COURSE_DATA entry). Additive. Do no harm.
     2026-07-28  ADDED PROBABILITY & STATISTICS assessment bank. New PROBSTAT_BANK (9 units x 5 verified
                 questions), PROBSTAT_UNIT_NAMES, and a probstat entry in COURSE_DATA. Additive. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC assessment bank. New PRECALC_BANK (9 units x 5 verified
@@ -232,6 +236,7 @@
     .ubtn.ok { border-color:#bfe6d3; background:#f2fbf7; }
     .ubtn span { font-weight:700; }
   </style>
+  <script src="/static/tutor-face.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -637,6 +642,136 @@
         {p:"Sampling variability means different samples give…", e:"→", c:["the same statistic","the exact parameter","no data","different statistics"], a:3}
       ]
     };
+    const CALCULUS_BANK = {
+      1: [
+        {p:"Find the limit", e:"lim(x→3) (2x + 1)", c:["3","6","5","7"], a:3},
+        {p:"Find the limit", e:"lim(x→2) (x² − 4)/(x − 2)", c:["4","0","2","undefined"], a:0},
+        {p:"A limit describes the value a function…", e:"→", c:["equals at the point","approaches","never reaches","is undefined at"], a:1},
+        {p:"Find the limit", e:"lim(x→∞) 1/x", c:["1","∞","0","−1"], a:2},
+        {p:"A function is continuous at a point if you can draw it there without…", e:"→", c:["a calculator","a ruler","the axes","lifting your pencil"], a:3}
+      ],
+      2: [
+        {p:"Differentiate", e:"f(x) = x³", c:["x²","3x","3x²","x⁴/4"], a:2},
+        {p:"Differentiate", e:"f(x) = 5x + 2", c:["5x","2","7","5"], a:3},
+        {p:"The derivative gives the slope of the…", e:"→", c:["tangent line","secant line","x-axis","y-intercept"], a:0},
+        {p:"Differentiate", e:"f(x) = sin x", c:["−sin x","cos x","−cos x","tan x"], a:1},
+        {p:"Find f′(2) when", e:"f(x) = x²", c:["2","8","4","1"], a:2}
+      ],
+      3: [
+        {p:"Differentiate using the chain rule", e:"f(x) = (3x + 1)²", c:["2(3x + 1)","6(3x + 1)","3(3x + 1)²","6x + 2"], a:1},
+        {p:"The product rule says (fg)′ =", e:"→", c:["f′g′","f′g − fg′","f′g + fg′","fg′ − f′g"], a:2},
+        {p:"Differentiate", e:"f(x) = x² · x³", c:["6x⁵","2x·3x²","x⁶","5x⁴"], a:3},
+        {p:"Differentiate", e:"f(x) = sin(2x)", c:["2cos(2x)","cos(2x)","2sin(2x)","−2cos(2x)"], a:0},
+        {p:"Find the second derivative", e:"f(x) = x³", c:["3x²","6x","x²","6"], a:1}
+      ],
+      4: [
+        {p:"If position is s(t), then velocity is…", e:"→", c:["s′(t)","s(t)","s″(t)","the integral of s"], a:0},
+        {p:"If velocity is v(t), then acceleration is…", e:"→", c:["v(t)","v′(t)","the integral of v","s(t)"], a:1},
+        {p:"In a related-rates problem, you differentiate with respect to…", e:"→", c:["x","y","time","the constant"], a:2},
+        {p:"A car's position is s(t) = t². Its velocity at t = 3 is", e:"→", c:["9","3","2","6"], a:3},
+        {p:"f′(4) = 12 means at x = 4 the function is…", e:"→", c:["rising 12 units per unit","equal to 12","at its maximum","equal to 4"], a:0}
+      ],
+      5: [
+        {p:"A critical point occurs where f′(x) =", e:"→", c:["1","the maximum","x","0 (or is undefined)"], a:3},
+        {p:"If f′ > 0 on an interval, the function is…", e:"→", c:["increasing","decreasing","constant","concave up"], a:0},
+        {p:"If f″ > 0, the graph is…", e:"→", c:["concave down","concave up","increasing","decreasing"], a:1},
+        {p:"Find the critical point", e:"f(x) = x² − 4x", c:["x = 0","x = 4","x = 2","x = −2"], a:2},
+        {p:"At an inflection point, the graph changes its…", e:"→", c:["slope sign","value","domain","concavity"], a:3}
+      ],
+      6: [
+        {p:"Find the antiderivative", e:"∫ 2x dx", c:["2x² + C","2 + C","x² + C","x²"], a:2},
+        {p:"Find the antiderivative", e:"∫ x² dx", c:["3x³ + C","2x + C","x³ + C","x³/3 + C"], a:3},
+        {p:"Every indefinite integral needs a…", e:"→", c:["+ C","limit","derivative","fraction"], a:0},
+        {p:"Find the antiderivative", e:"∫ cos x dx", c:["−sin x + C","sin x + C","cos x + C","−cos x + C"], a:1},
+        {p:"The antiderivative of 1/x is", e:"→", c:["x⁻² + C","1 + C","ln|x| + C","x/2 + C"], a:2}
+      ],
+      7: [
+        {p:"Evaluate", e:"∫₀² 2x dx", c:["2","4","8","0"], a:1},
+        {p:"A definite integral represents the…", e:"→", c:["slope","tangent line","signed area under the curve","derivative"], a:2},
+        {p:"The Fundamental Theorem connects derivatives and…", e:"→", c:["limits","asymptotes","sequences","integrals"], a:3},
+        {p:"Evaluate", e:"∫₁³ 2 dx", c:["4","2","6","3"], a:0},
+        {p:"A definite integral evaluates to a…", e:"→", c:["family of functions","number","slope","variable"], a:1}
+      ],
+      8: [
+        {p:"To find the area between two curves you integrate…", e:"→", c:["top minus bottom","bottom minus top","top plus bottom","the derivative"], a:0},
+        {p:"Area between y = x and y = 0 from x = 0 to 2", e:"→", c:["4","2","1","0"], a:1},
+        {p:"A volume of revolution by the disk method integrates…", e:"→", c:["2π·radius","radius²","π·(radius)²","π·radius"], a:2},
+        {p:"Total distance traveled uses the integral of…", e:"→", c:["v(t)","a(t)","s(t)","|v(t)|"], a:3},
+        {p:"If r(t) is gallons per minute, the integral of r gives…", e:"→", c:["gallons","gallons per minute","minutes","a rate"], a:0}
+      ],
+      9: [
+        {p:"A differential equation is an equation involving a…", e:"→", c:["limit","matrix","polynomial only","derivative"], a:3},
+        {p:"Solve", e:"dy/dx = 2x", c:["y = x² + C","y = 2 + C","y = 2x² + C","y = x + C"], a:0},
+        {p:"A slope field shows…", e:"→", c:["the exact solution only","the slope at many points","the area","the maximum"], a:1},
+        {p:"Solving dy/dx = ky models…", e:"→", c:["linear growth","a parabola","exponential growth or decay","a circle"], a:2},
+        {p:"To pin down C in a solution you use…", e:"→", c:["the derivative","a limit","the slope field","an initial condition"], a:3}
+      ]
+    };
+    const DIFFEQ_BANK = {
+      1: [
+        {p:"What is the order of", e:"y″ + 3y′ = x", c:["1","3","0","2"], a:3},
+        {p:"The solution to a differential equation is a…", e:"→", c:["function","number","point","slope"], a:0},
+        {p:"Is this linear?", e:"y′ + xy = 5", c:["no","yes","only if x = 0","only if y = 0"], a:1},
+        {p:"A slope field shows…", e:"→", c:["the exact solution only","the area","the slope at many points","the maximum"], a:2},
+        {p:"An initial condition is used to find…", e:"→", c:["the order","the slope","the derivative","the constant C"], a:3}
+      ],
+      2: [
+        {p:"Solve", e:"dy/dx = 2x", c:["y = 2 + C","y = 2x² + C","y = x² + C","y = x + C"], a:2},
+        {p:"An equation is separable if it can be written as", e:"→", c:["y′ + Py = Q","ay″ + by′ + cy = 0","M dx + N dy = 0","f(y)dy = g(x)dx"], a:3},
+        {p:"Solve", e:"dy/dx = y", c:["y = Ce^x","y = x + C","y = e^x","y = Cx"], a:0},
+        {p:"Exponential decay is modeled by", e:"→", c:["dy/dt = k","dy/dt = −ky","dy/dt = kt","y = kt + C"], a:1},
+        {p:"Newton's law of cooling says the rate depends on the…", e:"→", c:["time only","volume","temperature difference","mass only"], a:2}
+      ],
+      3: [
+        {p:"Standard form of a first-order linear equation is", e:"→", c:["y′ = f(y)g(x)","y′ + P(x)y = Q(x)","ay″ + by′ = 0","M dx + N dy = 0"], a:1},
+        {p:"The integrating factor μ equals", e:"→", c:["∫P dx","e^P","e^(∫P dx)","P(x)"], a:2},
+        {p:"For y′ + 2y = 0, the integrating factor is", e:"→", c:["e^(−2x)","2x","e^x","e^(2x)"], a:3},
+        {p:"Before finding μ you must first put the equation in…", e:"→", c:["standard form","factored form","matrix form","polar form"], a:0},
+        {p:"After multiplying by μ, the left side becomes the derivative of", e:"→", c:["y","μy","μ","y′"], a:1}
+      ],
+      4: [
+        {p:"M dx + N dy = 0 is exact when", e:"→", c:["∂M/∂y = ∂N/∂x","M = N","∂M/∂x = ∂N/∂y","M + N = 0"], a:0},
+        {p:"Solving an exact equation means finding a…", e:"→", c:["characteristic root","potential function F(x,y)","transform","matrix"], a:1},
+        {p:"A Bernoulli equation is made linear by substituting", e:"→", c:["v = y/x","v = xy","v = y^(1−n)","v = y′"], a:2},
+        {p:"A homogeneous first-order equation is solved by substituting", e:"→", c:["v = y^(1−n)","v = x/y′","v = e^y","v = y/x"], a:3},
+        {p:"When rebuilding F by integrating M with respect to x, the 'constant' is", e:"→", c:["a function of y","a real number","zero","a function of x"], a:0}
+      ],
+      5: [
+        {p:"For y″ + 3y′ + 2y = 0, the characteristic equation is", e:"→", c:["r² + 3r = 0","2r + 3 = 0","r + 3 = 0","r² + 3r + 2 = 0"], a:3},
+        {p:"Roots r = 1 and r = 2 give the solution", e:"→", c:["C₁e^x + C₂e^(2x)","C₁e^x + C₂xe^x","C₁cos x + C₂sin x","C₁ + C₂x"], a:0},
+        {p:"A repeated root r gives", e:"→", c:["C₁e^(rx)","(C₁ + C₂x)e^(rx)","C₁e^(rx) + C₂e^(rx)","C₁cos rx"], a:1},
+        {p:"Complex roots a ± bi give", e:"→", c:["C₁e^(ax) + C₂e^(bx)","(C₁ + C₂x)e^(ax)","e^(ax)(C₁cos bx + C₂sin bx)","C₁cos ax"], a:2},
+        {p:"The Wronskian is used to test whether solutions are…", e:"→", c:["equal","exact","separable","linearly independent"], a:3}
+      ],
+      6: [
+        {p:"The general solution of a nonhomogeneous equation is", e:"→", c:["y_c only","y_p only","y_c + y_p","y_c · y_p"], a:2},
+        {p:"Initial conditions must be applied to…", e:"→", c:["y_c only","y_p only","the forcing function","the full solution y_c + y_p"], a:3},
+        {p:"If your trial y_p duplicates a term in y_c, you…", e:"→", c:["multiply it by x","discard it","divide by x","add a constant"], a:0},
+        {p:"For a forcing term of 5x + 2, a good trial y_p is", e:"→", c:["Ae^x","Ax + B","A sin x","Ax²"], a:1},
+        {p:"When undetermined coefficients won't work, use…", e:"→", c:["separation of variables","the Wronskian only","variation of parameters","an integrating factor"], a:2}
+      ],
+      7: [
+        {p:"A mass-spring system with no damping produces", e:"→", c:["exponential decay","simple harmonic motion","a straight line","no motion"], a:1},
+        {p:"Underdamped motion looks like", e:"→", c:["no oscillation","steady growth","oscillation that dies out","a constant"], a:2},
+        {p:"Resonance happens when the forcing frequency matches the…", e:"→", c:["damping constant","mass","spring length","natural frequency"], a:3},
+        {p:"An RLC circuit is modeled by the same equation as a…", e:"→", c:["mass-spring system","separable equation","matrix system","power series"], a:0},
+        {p:"The part of a forced solution that dies out is called the…", e:"→", c:["steady-state","transient","resonance","amplitude"], a:1}
+      ],
+      8: [
+        {p:"The Laplace transform turns a differential equation into a(n)…", e:"→", c:["algebraic equation","integral equation","matrix","series"], a:0},
+        {p:"The Laplace transform of 1 is", e:"→", c:["s","1/s","1","1/s²"], a:1},
+        {p:"Transforming a derivative automatically includes the…", e:"→", c:["forcing function","damping","initial conditions","eigenvalues"], a:2},
+        {p:"To undo a Laplace transform you use the…", e:"→", c:["derivative","Wronskian","characteristic equation","inverse transform"], a:3},
+        {p:"Partial fractions are used to prepare Y(s) for", e:"→", c:["inverting back to y(t)","differentiating","classifying","separating"], a:0}
+      ],
+      9: [
+        {p:"A power-series solution assumes y equals a…", e:"→", c:["single exponential","polynomial of degree 2","constant","sum of aₙxⁿ"], a:3},
+        {p:"Substituting a series gives a relation between coefficients called the…", e:"→", c:["recurrence relation","characteristic equation","Wronskian","transform"], a:0},
+        {p:"A 2×2 linear system is solved using…", e:"→", c:["partial fractions","eigenvalues and eigenvectors","separation of variables","the exactness test"], a:1},
+        {p:"A phase plane plots", e:"→", c:["y against t","the slope against t","one variable against the other","the area"], a:2},
+        {p:"A second-order equation can be rewritten as a system of how many first-order equations?", e:"→", c:["1","3","4","2"], a:3}
+      ]
+    };
     const ALG_UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
       3:"Functions & Notation", 4:"Linear Functions & Graphs", 5:"Systems of Equations",
       6:"Exponents & Exponential Functions", 7:"Polynomials & Factoring", 8:"Quadratic Functions", 9:"Data & Statistics" };
@@ -659,6 +794,16 @@
       3:"Scatterplots & Correlation", 4:"Collecting Data", 5:"Probability Basics",
       6:"Conditional Probability & Independence", 7:"Random Variables & Expected Value",
       8:"The Normal Distribution", 9:"Sampling & Inference" };
+    const CALCULUS_UNIT_NAMES = { 1:"Limits & Continuity", 2:"The Derivative: Definition & Basic Rules",
+      3:"Product, Quotient & Chain Rules", 4:"Applications of Derivatives",
+      5:"Curve Sketching & Optimization", 6:"Antiderivatives & Indefinite Integrals",
+      7:"The Definite Integral & the Fundamental Theorem", 8:"Applications of Integration",
+      9:"Introduction to Differential Equations" };
+    const DIFFEQ_UNIT_NAMES = { 1:"Introduction & Classification",
+      2:"First-Order Separable Equations & Models", 3:"First-Order Linear Equations",
+      4:"Exact Equations & Substitutions", 5:"Second-Order Linear: Homogeneous",
+      6:"Second-Order Linear: Nonhomogeneous", 7:"Applications: Vibrations & Circuits",
+      8:"Laplace Transforms", 9:"Series Solutions & Systems" };
     // Select the bank + labels for the course being assessed (defaults to Algebra I).
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },
@@ -667,6 +812,8 @@
       algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   subject: "Algebra II" },
       precalc:    { bank: PRECALC_BANK, unitNames: PRECALC_UNIT_NAMES, subject: "Trig / Pre-Calc" },
       probstat:   { bank: PROBSTAT_BANK, unitNames: PROBSTAT_UNIT_NAMES, subject: "statistics" },
+      calculus:   { bank: CALCULUS_BANK, unitNames: CALCULUS_UNIT_NAMES, subject: "calculus" },
+      diffeq:     { bank: DIFFEQ_BANK,   unitNames: DIFFEQ_UNIT_NAMES,   subject: "differential equations" },
     };
     const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
     const SUBJECT = CD.subject;
@@ -686,23 +833,15 @@
       return 0.12 + 0.05 * Math.sin(t * 0.04);
     }
     function drawOrb() {
-      const w = orb.width, h = orb.height, cx = w/2, cy = h/2;
-      octx.clearRect(0,0,w,h);
-      const lv = orbLevel(); smooth += (lv - smooth) * 0.2; hue += 0.2 + smooth * 0.8;
-      const h1 = hue % 360, h2 = (hue + 55) % 360, baseR = w * 0.26, R = baseR * (1 + smooth * 0.3);
-      const aura = octx.createRadialGradient(cx,cy,R*0.4,cx,cy,R*2.1);
-      aura.addColorStop(0, `hsla(${h1},90%,62%,${0.28+smooth*0.3})`); aura.addColorStop(1, `hsla(${h1},90%,62%,0)`);
-      octx.fillStyle = aura; octx.beginPath(); octx.arc(cx,cy,R*2.1,0,7); octx.fill();
-      octx.save(); octx.shadowColor = `hsla(${h2},95%,60%,.8)`; octx.shadowBlur = 26 + smooth*34;
-      octx.beginPath();
-      for (let i=0;i<=60;i++){ const a=(i/60)*Math.PI*2;
-        const wob = 1 + (0.05+smooth*0.09)*Math.sin(a*3+t*0.06) + (smooth*0.05)*Math.sin(a*5-t*0.05);
-        const rr=R*wob, x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr; i?octx.lineTo(x,y):octx.moveTo(x,y); }
-      octx.closePath();
-      const body = octx.createRadialGradient(cx-R*0.3,cy-R*0.35,R*0.1,cx,cy,R*1.15);
-      body.addColorStop(0,`hsla(${h1},100%,88%,1)`); body.addColorStop(0.45,`hsla(${h1},95%,64%,1)`); body.addColorStop(1,`hsla(${h2},90%,45%,1)`);
-      octx.fillStyle = body; octx.fill(); octx.restore();
-      octx.beginPath(); octx.arc(cx-R*0.28,cy-R*0.32,R*0.3,0,7); octx.fillStyle="rgba(255,255,255,.55)"; octx.fill();
+      const w = orb.width, h = orb.height;
+      const lv = orbLevel(); smooth += (lv - smooth) * 0.22;
+      if (window.TutorFace) {
+        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(orbState) });
+      } else {                                  // fallback so the tutor is never blank
+        octx.clearRect(0, 0, w, h);
+        octx.fillStyle = "#5b5bd6";
+        octx.beginPath(); octx.arc(w / 2, h / 2, w * 0.26 * (1 + smooth * 0.25), 0, 7); octx.fill();
+      }
       t += 1; requestAnimationFrame(drawOrb);
     }
     drawOrb();

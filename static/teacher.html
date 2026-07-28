@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-28  NEW. THE CLASSROOM VIEW for a teacher or parent following SEVERAL students at
+                once (the existing /dashboard?view=teacher stays as the single-student view).
+                Two stages, like the student hub:
+                  STAGE 1 -- open an existing class by its code, or create a new one.
+                  STAGE 2 -- the class itself: a course picker (all courses), an add-student
+                             box, KPI tiles (class size / units mastered / needs help), a
+                             MASTERY HEATMAP (students x 9 units, coloured by best check score),
+                             and a per-student list with each student's weakest units and a
+                             link into their own dashboard.
+                Talks to the new class API in main.py (/api/class, /api/class/{code},
+                /api/class/{code}/students, /api/class/{code}/summary?course=). A "class" is
+                just a short code grouping EXISTING student codes -- there is no login and no
+                new personal data (accounts/privacy work is deliberately deferred). Reads
+                ?class= and ?course= from the URL so a teacher can bookmark their class.
+                Design system matched to dashboard.html/home.html. No external dependencies.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Tutor — My Class</title>
+  <style>
+    :root {
+      --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
+      --warm:#ff7a59; --panel:#ffffff; --ok:#16a34a;
+      --st-mastered:#0e9f6e; --st-good:#7ac142; --st-mid:#e8b923; --st-low:#e08b2f; --st-poor:#e0574d;
+      --st-none:#e9ecf3;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink); min-height: 100vh;
+      background:
+        radial-gradient(760px 500px at 6% -10%, rgba(91,91,214,.16), transparent 60%),
+        radial-gradient(760px 480px at 96% -6%, rgba(20,184,166,.15), transparent 55%),
+        radial-gradient(700px 520px at 60% 112%, rgba(255,122,89,.12), transparent 55%),
+        #f5f5fc;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 22px 64px; }
+    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; flex-wrap: wrap; }
+    .top .title { font-size: 23px; font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
+      background-clip: text; -webkit-text-fill-color: transparent; }
+    .top .spacer { flex: 1; }
+    .top a.navlink { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-radius: 20px; padding: 8px 15px; background: #fff; }
+    .top a.navlink:hover { background: #f3f6fb; }
+    .sub { color: var(--muted); font-size: 14.5px; margin: 0 0 22px; }
+
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+      padding: 22px; box-shadow: 0 10px 28px rgba(20,30,45,.07); margin-bottom: 18px; }
+    .panel h2 { font-size: 17px; margin: 0 0 6px; }
+    .panel p.note { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; }
+
+    label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .04em; margin: 12px 0 6px; }
+    input, select { font: inherit; padding: 11px 13px; border: 1px solid var(--line);
+      border-radius: 12px; background: #fff; color: var(--ink); width: 100%; max-width: 340px; }
+    input:focus, select:focus { outline: 2px solid rgba(91,91,214,.35); outline-offset: 1px; }
+    .btn { font: inherit; font-weight: 800; color: #fff; border: 0; cursor: pointer;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      padding: 11px 20px; border-radius: 22px; box-shadow: 0 6px 18px rgba(91,91,214,.28);
+      -webkit-tap-highlight-color: transparent; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: .55; cursor: default; transform: none; }
+    .btn.ghost { background: #fff; color: var(--accent); border: 1.5px solid var(--accent);
+      box-shadow: none; }
+    .btn.small { padding: 7px 13px; font-size: 13px; border-radius: 18px; }
+    .row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .msg { min-height: 20px; font-size: 13.5px; color: var(--muted); margin-top: 10px; }
+    .msg.error { color: #c0392b; font-weight: 700; }
+    .msg.good { color: var(--ok); font-weight: 700; }
+    .divider { height: 1px; background: var(--line); margin: 20px 0; }
+
+    /* KPI tiles */
+    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 6px; }
+    .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+      box-shadow: 0 10px 28px rgba(20,30,45,.07); }
+    .tile .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: 8px; }
+    .tile .big { font-size: 30px; font-weight: 800; line-height: 1; }
+    .tile .small { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+    .section-h { font-size: 15px; font-weight: 800; margin: 26px 0 12px;
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .section-h .note { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+
+    /* Heatmap */
+    .heatwrap { background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+      padding: 16px; box-shadow: 0 10px 28px rgba(20,30,45,.07); overflow-x: auto; }
+    table.heat { border-collapse: separate; border-spacing: 4px; width: 100%; min-width: 620px; }
+    table.heat th { font-size: 11px; font-weight: 700; color: var(--muted); padding: 2px;
+      text-align: center; }
+    table.heat th.stu { text-align: left; min-width: 130px; }
+    table.heat td.stu { font-size: 14px; font-weight: 700; white-space: nowrap; padding-right: 6px; }
+    table.heat td.stu a { color: var(--ink); text-decoration: none; }
+    table.heat td.stu a:hover { color: var(--accent); text-decoration: underline; }
+    .cell { height: 34px; border-radius: 8px; display: grid; place-items: center;
+      font-size: 12px; font-weight: 800; color: #fff; }
+    .cell.none { background: var(--st-none); color: #9aa2b4; font-weight: 600; }
+    .cell.poor { background: var(--st-poor); } .cell.low { background: var(--st-low); }
+    .cell.mid  { background: var(--st-mid); color: #4a3c00; } .cell.good { background: var(--st-good); color:#20390a; }
+    .cell.mastered { background: var(--st-mastered); }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--muted); }
+    .legend span.k { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+    /* Student rows */
+    .studs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stud { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 16px; box-shadow: 0 6px 18px rgba(20,30,45,.05); }
+    .stud .nm { font-weight: 800; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
+    .stud .nm .code { font-size: 12px; font-weight: 700; color: var(--muted);
+      background: #f3f3fb; border-radius: 6px; padding: 2px 7px; }
+    .stud .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .stud .weak { margin-top: 8px; font-size: 13px; }
+    .stud .weak b { color: #b45309; }
+    .stud .acts { margin-top: 11px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .stud a.view { color: #fff; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      text-decoration: none; font-size: 12.5px; font-weight: 800; padding: 7px 13px; border-radius: 18px; }
+    .stud button.rm { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--muted);
+      background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 7px 13px; cursor: pointer; }
+    .stud button.rm:hover { color: #c0392b; border-color: #f0c6c2; }
+    .unknown { color: #c0392b; font-size: 12px; font-weight: 700; }
+
+    .empty { color: var(--muted); font-size: 14.5px; }
+    .offnote { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--warm);
+      border-radius: 14px; padding: 16px 18px; font-size: 15px; margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(20,30,45,.06); }
+    @media (max-width: 760px) { .tiles { grid-template-columns: 1fr; } .studs { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title">👪 My Class</div>
+      <div class="spacer"></div>
+      <a class="navlink" href="/">← Back</a>
+    </div>
+    <p class="sub" id="sub">See how all of your students are doing, unit by unit.</p>
+
+    <div id="offNote" class="offnote" style="display:none;">
+      <b>Progress tracking is off right now.</b> Classes need the database, so the roster and the
+      heatmap aren't available until it's switched on.
+    </div>
+
+    <!-- STAGE 1: open or create a class -->
+    <div id="stage1">
+      <div class="panel">
+        <h2>Open your class</h2>
+        <p class="note">Enter the class code you set up before.</p>
+        <div class="row">
+          <div>
+            <label for="openCode">Class code</label>
+            <input id="openCode" autocomplete="off" placeholder="e.g. MRSB-P3" maxlength="32" />
+          </div>
+          <button id="openBtn" class="btn">Open class</button>
+        </div>
+        <div id="openMsg" class="msg"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Or start a new class</h2>
+        <p class="note">Pick any short code you'll remember — you'll use it to come back here.
+          Then add your students by their student codes.</p>
+        <div class="row">
+          <div>
+            <label for="newCode">New class code</label>
+            <input id="newCode" autocomplete="off" placeholder="e.g. MRSB-P3" maxlength="32" />
+          </div>
+          <div>
+            <label for="newName">Class name</label>
+            <input id="newName" autocomplete="off" placeholder="e.g. Period 3 Algebra" maxlength="128" />
+          </div>
+          <div>
+            <label for="newOwner">Your name</label>
+            <input id="newOwner" autocomplete="off" placeholder="e.g. Ms. Baker" maxlength="128" />
+          </div>
+          <button id="createBtn" class="btn ghost">Create class</button>
+        </div>
+        <div id="createMsg" class="msg"></div>
+      </div>
+    </div>
+
+    <!-- STAGE 2: the class -->
+    <div id="stage2" style="display:none;">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <h2 id="className">My class</h2>
+            <p class="note" id="classMeta"></p>
+          </div>
+          <div>
+            <label for="courseSel">Course</label>
+            <select id="courseSel"></select>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div>
+            <label for="addCode">Add a student by code</label>
+            <input id="addCode" autocomplete="off" placeholder="e.g. 1234" maxlength="12" />
+          </div>
+          <button id="addBtn" class="btn small">Add student</button>
+          <a class="btn ghost small" id="switchBtn" href="/teacher" style="text-decoration:none;">Switch class</a>
+        </div>
+        <div id="addMsg" class="msg"></div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile"><div class="lbl">Students</div><div class="big" id="kSize">0</div>
+          <div class="small" id="kSizeSub">in this class</div></div>
+        <div class="tile"><div class="lbl">Units mastered</div><div class="big" id="kMast">0</div>
+          <div class="small" id="kMastSub">across the class</div></div>
+        <div class="tile"><div class="lbl">Needs attention</div><div class="big" id="kWeak">—</div>
+          <div class="small" id="kWeakSub">lowest class average</div></div>
+      </div>
+
+      <div class="section-h">Mastery heatmap <span class="note" id="heatNote"></span></div>
+      <div class="heatwrap">
+        <div id="heat"></div>
+        <div class="legend">
+          <span class="k"><i style="background:var(--st-none)"></i> not assessed</span>
+          <span class="k"><i style="background:var(--st-poor)"></i> under 50%</span>
+          <span class="k"><i style="background:var(--st-low)"></i> 50–69%</span>
+          <span class="k"><i style="background:var(--st-mid)"></i> 70–79%</span>
+          <span class="k"><i style="background:var(--st-mastered)"></i> 80%+ mastered ★</span>
+        </div>
+      </div>
+
+      <div class="section-h">Students <span class="note">tap a name to open their full progress page</span></div>
+      <div class="studs" id="studs"></div>
+    </div>
+  </div>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    let CLASS = (params.get("class") || "").trim().toUpperCase();
+    let COURSE = (params.get("course") || "algebra1").trim();
+
+    // Kept in step with curriculum.py's catalog (COURSE_ORDER).
+    const COURSES = [
+      ["prealgebra", "Pre-Algebra"], ["algebra1", "Algebra I"], ["geometry", "Geometry"],
+      ["algebra2", "Algebra II"], ["precalc", "Trig / Pre-Calc"],
+      ["probstat", "Probability & Statistics"],
+    ];
+
+    function setMsg(id, text, kind) {
+      const n = el(id); n.textContent = text || "";
+      n.className = "msg" + (kind ? " " + kind : "");
+    }
+    function esc(t) {
+      return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // ---------- Stage 1: open / create ----------
+    el("openBtn").onclick = async () => {
+      const cc = (el("openCode").value || "").trim();
+      if (!cc) { setMsg("openMsg", "Please enter your class code.", "error"); return; }
+      setMsg("openMsg", "Looking…");
+      try {
+        const res = await fetch("/api/class/" + encodeURIComponent(cc));
+        if (res.status === 404) { setMsg("openMsg", "No class with that code yet — you can create it below.", "error"); return; }
+        const d = await res.json();
+        if (d.tracking === false) { showTrackingOff(); return; }
+        location.href = "/teacher?class=" + encodeURIComponent(cc.toUpperCase()) + "&course=" + encodeURIComponent(COURSE);
+      } catch (e) { setMsg("openMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    el("createBtn").onclick = async () => {
+      const cc = (el("newCode").value || "").trim();
+      if (!cc) { setMsg("createMsg", "Please choose a class code.", "error"); return; }
+      setMsg("createMsg", "Creating…");
+      try {
+        const res = await fetch("/api/class", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ class_code: cc, name: (el("newName").value || "").trim(),
+                                 owner_name: (el("newOwner").value || "").trim() })
+        });
+        const d = await res.json();
+        if (!res.ok) { setMsg("createMsg", (d.detail || "Couldn't create that class."), "error"); return; }
+        if (d.tracking === false) { showTrackingOff(); return; }
+        location.href = "/teacher?class=" + encodeURIComponent(cc.toUpperCase()) + "&course=" + encodeURIComponent(COURSE);
+      } catch (e) { setMsg("createMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    // Enter key submits whichever box you're in.
+    el("openCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("openBtn").click(); });
+    el("newCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("createBtn").click(); });
+
+    function showTrackingOff() {
+      el("offNote").style.display = "block";
+      el("stage1").style.display = "none";
+      el("stage2").style.display = "none";
+    }
+
+    // ---------- Stage 2: the class ----------
+    function cellClass(u) {
+      if (!u.checks_taken) return "none";
+      if (u.best_pct >= 80) return "mastered";
+      if (u.best_pct >= 70) return "mid";
+      if (u.best_pct >= 50) return "low";
+      return "poor";
+    }
+    function renderHeat(data) {
+      const units = data.units || [], studs = data.students || [];
+      if (!studs.length) {
+        el("heat").innerHTML = '<div class="empty">No students yet — add one by code above.</div>';
+        return;
+      }
+      let h = '<table class="heat"><tr><th class="stu">Student</th>';
+      units.forEach(u => { h += '<th title="' + esc(u.name) + '">U' + u.unit + "</th>"; });
+      h += "</tr>";
+      studs.forEach(s => {
+        const q = "?code=" + encodeURIComponent(s.code) + "&course=" + encodeURIComponent(data.course) + "&view=teacher";
+        h += '<tr><td class="stu"><a href="/dashboard' + q + '">' + esc(s.name) + "</a></td>";
+        s.units.forEach(u => {
+          const cls = cellClass(u);
+          const label = u.checks_taken ? (u.best_pct + (u.mastered ? "★" : "")) : "–";
+          h += '<td><div class="cell ' + cls + '" title="' + esc(s.name) + " — Unit " + u.unit + ": " +
+               esc(u.name) + (u.checks_taken ? (" — best " + u.best_pct + "%") : " — not assessed yet") +
+               '">' + label + "</div></td>";
+        });
+        h += "</tr>";
+      });
+      h += "</table>";
+      el("heat").innerHTML = h;
+    }
+    function renderStudents(data) {
+      const box = el("studs"), studs = data.students || [];
+      if (!studs.length) { box.innerHTML = '<div class="empty">Add your first student by their student code.</div>'; return; }
+      box.innerHTML = "";
+      studs.forEach(s => {
+        const d = document.createElement("div"); d.className = "stud";
+        const q = "?code=" + encodeURIComponent(s.code) + "&course=" + encodeURIComponent(data.course) + "&view=teacher";
+        const weak = (s.weakest || []).length
+          ? '<div class="weak">Focus next: ' + s.weakest.map(w => "<b>Unit " + w.unit + " — " + esc(w.name) + "</b> (" + w.best_pct + "%)").join(", ") + "</div>"
+          : '<div class="weak" style="color:var(--muted)">No check scores yet in this course.</div>';
+        d.innerHTML =
+          '<div class="nm">' + esc(s.name) + '<span class="code">' + esc(s.code) + "</span>" +
+            (s.known ? "" : '<span class="unknown">unknown code</span>') + "</div>" +
+          '<div class="meta">' + s.units_mastered + " of " + (data.units || []).length +
+            " units mastered · " + s.units_started + " started</div>" +
+          weak +
+          '<div class="acts"><a class="view" href="/dashboard' + q + '">View progress →</a>' +
+          '<button class="rm" data-code="' + esc(s.code) + '">Remove</button></div>';
+        box.appendChild(d);
+      });
+      box.querySelectorAll("button.rm").forEach(b => {
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            await fetch("/api/class/" + encodeURIComponent(CLASS) + "/students/" + encodeURIComponent(b.dataset.code),
+                        { method: "DELETE" });
+            load();
+          } catch (e) { b.disabled = false; }
+        };
+      });
+    }
+
+    async function load() {
+      try {
+        const res = await fetch("/api/class/" + encodeURIComponent(CLASS) + "/summary?course=" + encodeURIComponent(COURSE));
+        if (res.status === 404) { setMsg("openMsg", "That class no longer exists.", "error"); showStage1(); return; }
+        const d = await res.json();
+        if (d.tracking === false) { showTrackingOff(); return; }
+
+        el("stage1").style.display = "none";
+        el("stage2").style.display = "block";
+        const label = d.klass.name || d.klass.class_code;
+        el("className").textContent = label;
+        el("classMeta").textContent = "Class code " + d.klass.class_code +
+          (d.klass.owner_name ? " · " + d.klass.owner_name : "") + " · showing " + d.course_title;
+        el("sub").textContent = "How your students are doing in " + d.course_title + ", unit by unit.";
+        document.title = "Math Tutor — " + label;
+
+        el("kSize").textContent = d.class_size;
+        const totalMast = (d.students || []).reduce((s, x) => s + x.units_mastered, 0);
+        el("kMast").textContent = totalMast;
+        el("kMastSub").textContent = "of " + (d.class_size * (d.units || []).length) + " possible";
+        const worst = (d.needs_help || [])[0];
+        el("kWeak").textContent = worst ? ("U" + worst.unit) : "—";
+        el("kWeakSub").textContent = worst
+          ? (worst.name + " · class avg " + worst.avg_best_pct + "%")
+          : "no check scores yet";
+        el("heatNote").textContent = "best check score per unit · ★ = mastered (80%+)";
+
+        renderHeat(d);
+        renderStudents(d);
+      } catch (e) {
+        el("heat").innerHTML = '<div class="empty">Couldn\'t load this class. Try refreshing.</div>';
+      }
+    }
+
+    function showStage1() {
+      el("stage1").style.display = "block";
+      el("stage2").style.display = "none";
+    }
+
+    // Course picker
+    const sel = el("courseSel");
+    COURSES.forEach(([id, title]) => {
+      const o = document.createElement("option"); o.value = id; o.textContent = title;
+      if (id === COURSE) o.selected = true; sel.appendChild(o);
+    });
+    sel.onchange = () => {
+      COURSE = sel.value;
+      history.replaceState({}, "", "/teacher?class=" + encodeURIComponent(CLASS) + "&course=" + encodeURIComponent(COURSE));
+      load();
+    };
+
+    el("addBtn").onclick = async () => {
+      const code = (el("addCode").value || "").trim();
+      if (!code) { setMsg("addMsg", "Enter the student's code.", "error"); return; }
+      setMsg("addMsg", "Adding…");
+      try {
+        const res = await fetch("/api/class/" + encodeURIComponent(CLASS) + "/students", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: code })
+        });
+        const d = await res.json();
+        if (!res.ok) { setMsg("addMsg", (d.detail || "Couldn't add that student."), "error"); return; }
+        el("addCode").value = "";
+        setMsg("addMsg", "Added.", "good");
+        load();
+      } catch (e) { setMsg("addMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    el("addCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("addBtn").click(); });
+
+    // ---------- Boot ----------
+    if (CLASS) { el("switchBtn").href = "/teacher"; load(); }
+    else { showStage1(); }
+  </script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

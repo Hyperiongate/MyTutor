@@ -4,6 +4,9 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  Added a link from the Parent/Teacher panel to the new CLASSROOM view (/teacher),
+                for following several students at once. The existing single-student entry
+                (code -> /dashboard?view=teacher) is unchanged. Do no harm.
     2026-07-24  PHASE E VISUAL POLISH. Restyled the login page onto the app's real
                 design system (bright warm gradient background, purple/teal brand
                 gradient, the app's card/shadow/rounded style, gradient primary button,
@@ -97,6 +100,9 @@
         <input id="ptcode" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
         <button id="ptgo" class="btn ghost">View progress</button>
         <div id="ptmsg" class="msg"></div>
+        <div style="margin-top:14px; font-size:13px;">
+          Following a whole class? <a href="/teacher" style="color:var(--accent); font-weight:700;">Open your class dashboard →</a>
+        </div>
       </div>
     </div>
   </div>

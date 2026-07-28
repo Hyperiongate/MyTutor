@@ -2,42 +2,6 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
-#   2026-07-28  PHASE 4 -- DIFFERENTIAL EQUATIONS COURSE COMPLETE (eighth full peer, and the top of
-#               the ladder). Stamp -> "2026-07-28q-diffeq". No route/logic change here (only the
-#               stamp) -- `course` flows generically. Landed in curriculum.py (COURSES["diffeq"]) +
-#               pedagogy.py (COURSE_PEDAGOGY["diffeq"]) + tutor.py (DIFFEQ lesson brain, CLASSIFY-
-#               FIRST + scope/subject) + the 5 static files (home picker, dashboard title, topic
-#               UNITS, session CURRICULUM/opener, challenge DIFFEQ 45-Q bank). Assumes Calculus and
-#               does not re-teach it. Source: DiffEq_Curriculum_KB.md. Do no harm.
-#   2026-07-28  PHASE 4 -- CALCULUS COURSE COMPLETE (seventh full peer). Stamp -> "2026-07-28p-calculus".
-#               No route/logic change here (only the stamp) -- `course` flows generically. Landed in
-#               curriculum.py (COURSES["calculus"]) + pedagogy.py (COURSE_PEDAGOGY["calculus"]) +
-#               tutor.py (CALCULUS lesson brain, idea-before-machinery, heavy grapher use + scope/
-#               subject) + the 5 static files (home picker, dashboard title, topic UNITS, session
-#               CURRICULUM/opener, challenge CALCULUS 45-Q bank). Source: Calculus_Curriculum_KB.md.
-#               Do no harm -- the six existing courses untouched.
-#   2026-07-28  MR. CADABRA GETS A FACE. Stamp -> "2026-07-28o-robotface". New shared
-#               static/tutor-face.js draws a small friendly ROBOT HEAD into the existing
-#               <canvas id="orb"> on session/practice/topic/challenge, driven by the SAME 0..1
-#               amplitude those pages already computed from the ElevenLabs audio analyser -- so his
-#               mouth opens in time with his real speech. Eyes blink and drift, the antenna glows
-#               with his voice, and the mood follows the page state (speaking / listening /
-#               thinking / happy / idle). No new dependency, no avatar service, no extra network
-#               call; if the script ever fails to load the pages fall back to a simple orb. This is
-#               a deliberately stylized head, NOT the realistic 3D avatar that was tried and
-#               rejected earlier. Static-only change (+ this stamp). Do no harm.
-#   2026-07-28  TEACHER / PARENT CLASSROOM VIEW. Stamp -> "2026-07-28n-classroom". New: a lightweight
-#               CLASS concept so a teacher or parent can follow SEVERAL students at once. Added
-#               ClassIn/ClassStudentIn models, the helpers _class_or_404 + _class_student_row, the
-#               endpoints POST /api/class, GET /api/class/{code}, POST+DELETE
-#               /api/class/{code}/students[...], and GET /api/class/{code}/summary?course= (the
-#               classroom payload: every student's per-unit best scores + class-wide per-unit
-#               averages and a needs-help ranking), plus the GET /teacher page route. Roster lives in
-#               store.py's new `classes`/`class_members` tables. Deliberately NOT an accounts system:
-#               no password, no new personal data -- a class code just groups student codes that
-#               ALREADY exist in students.json (unknown codes are rejected with a clear message).
-#               Every endpoint reports tracking:false when the DB is off. Existing single-student
-#               /dashboard?view=teacher is untouched. Do no harm.
 #   2026-07-28  PHASE 4 -- PROBABILITY & STATISTICS COURSE COMPLETE (sixth full peer). Stamp ->
 #               "2026-07-28m-probstat". No route/logic change here (only the stamp) -- `course` flows
 #               generically. Landed in curriculum.py (COURSES["probstat"]) + pedagogy.py
@@ -584,17 +548,6 @@ class CheckIn(BaseModel):
     course: str = "algebra1"   # which course this check belongs to (so it's filed per-course)
 
 
-# TEACHER / PARENT CLASSROOM (2026-07-28) -- see the classroom endpoints below.
-class ClassIn(BaseModel):
-    class_code: str            # short, case-insensitive key the teacher picks (e.g. "MRSB-P3")
-    name: str = ""             # friendly label, e.g. "Period 3 Algebra"
-    owner_name: str = ""       # teacher/parent display name (optional)
-
-
-class ClassStudentIn(BaseModel):
-    code: str                  # an EXISTING student code to add to the class
-
-
 class MarkIn(BaseModel):
     correct: int = 1           # was the practice problem right (1) or wrong (0)
     attempted: int = 1         # how many problems this represents (usually 1)
@@ -630,12 +583,6 @@ def session_page():
 def dashboard_page():
     """The full-screen progress dashboard."""
     return FileResponse(STATIC_DIR / "dashboard.html")
-
-
-@app.get("/teacher")
-def teacher_page():
-    """The CLASSROOM view: a teacher or parent following several students at once."""
-    return FileResponse(STATIC_DIR / "teacher.html")
 
 
 @app.get("/challenge")
@@ -737,166 +684,6 @@ def topics_state(code: str, course: str = "algebra1"):
     }
 
 
-# =============================================================================
-# TEACHER / PARENT CLASSROOM (2026-07-28)
-# -----------------------------------------------------------------------------
-# A "class" groups EXISTING student codes under a short class code, so a teacher or parent can
-# watch several students at once. This is deliberately NOT an accounts system: there is no
-# password and no new personal data -- the class code is just a convenience key, and every
-# student code added must ALREADY exist in students.json. The roster lives in the database
-# (`classes` / `class_members`); when the DB is off these endpoints report tracking:false
-# instead of failing, exactly like the rest of the tracking layer.
-# =============================================================================
-def _class_or_404(class_code: str) -> dict:
-    cls = store.get_class(class_code)
-    if not cls:
-        raise HTTPException(status_code=404, detail="That class code was not found.")
-    return cls
-
-
-def _class_student_row(code: str, course: str) -> dict:
-    """One student's snapshot for the classroom view: per-unit best scores + a small summary.
-    Mirrors what /api/topics reports, but trimmed to what a roster grid needs. Never raises --
-    a student whose data can't be read still appears in the grid (with zeros)."""
-    student = STUDENTS.get(code) or {}
-    checks, stats, recorded = {}, {}, {}
-    try:
-        m = store.get_mastery(code, course)
-        checks = m.get("checks", {}) or {}
-        stats = m.get("stats", {}) or {}
-    except Exception as exc:  # noqa: BLE001
-        print(f"[class] get_mastery failed for {code}: {exc}")
-    try:
-        for row in store.get_topics(code, course):
-            recorded[row["unit"]] = row
-    except Exception as exc:  # noqa: BLE001
-        print(f"[class] get_topics failed for {code}: {exc}")
-
-    units = []
-    for n, name in curriculum.units_for(course):
-        c = checks.get(n) or {}
-        r = recorded.get(n)
-        best = int(c.get("best_pct") or 0)
-        units.append({
-            "unit": n,
-            "name": name,
-            "best_pct": best,
-            "checks_taken": int(c.get("checks_taken") or 0),
-            "mastered": best >= 80,
-            "status": (r["status"] if r else "not-started"),
-        })
-    started = [u for u in units if u["status"] != "not-started" or u["checks_taken"]]
-    # FOUNDATION-FIRST, matching the Course Assessment's recommended path: the units to work on
-    # are listed in COURSE ORDER (earliest gap first), NOT weakest-first -- a shaky Unit 1 gets
-    # attention before a shaky Unit 9, because the later units build on it.
-    weak = [u for u in units if u["checks_taken"] and not u["mastered"]]
-    last = [r.get("last_touched") for r in recorded.values() if r.get("last_touched")]
-    return {
-        "code": code,
-        "name": student.get("name") or code,
-        "known": bool(student),           # False = the code isn't in students.json (typo?)
-        "units": units,
-        "units_mastered": len([u for u in units if u["mastered"]]),
-        "units_started": len(started),
-        "weakest": [{"unit": u["unit"], "name": u["name"], "best_pct": u["best_pct"]}
-                    for u in weak[:3]],
-        "last_active": (max(last) if last else None),
-        "stats": stats,
-    }
-
-
-@app.post("/api/class")
-def post_class(body: ClassIn):
-    """Create a class, or update its label/owner if the code already exists."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    cc = (body.class_code or "").strip()
-    if not cc:
-        raise HTTPException(status_code=400, detail="Please choose a class code.")
-    cls = store.create_class(cc, body.name or "", body.owner_name or "")
-    return {"ok": True, "tracking": True, "klass": cls}
-
-
-@app.get("/api/class/{class_code}")
-def get_class_info(class_code: str):
-    """The class label plus its roster (student codes + display names)."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    cls = _class_or_404(class_code)
-    roster = [{"code": c, "name": (STUDENTS.get(c) or {}).get("name") or c,
-               "known": bool(STUDENTS.get(c))} for c in cls.get("students", [])]
-    return {"ok": True, "tracking": True, "klass": {**cls, "roster": roster}}
-
-
-@app.post("/api/class/{class_code}/students")
-def post_class_student(class_code: str, body: ClassStudentIn):
-    """Add an EXISTING student code to the class. Unknown codes are rejected with a clear
-    message so a teacher sees their typo instead of a silently empty row."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    _class_or_404(class_code)
-    code = (body.code or "").strip()
-    if not code:
-        raise HTTPException(status_code=400, detail="Please enter a student code.")
-    if code not in STUDENTS:
-        raise HTTPException(status_code=404,
-                            detail=f"No student with the code '{code}'. Check the code and try again.")
-    store.add_student(class_code, code)
-    return {"ok": True, "tracking": True}
-
-
-@app.delete("/api/class/{class_code}/students/{student_code}")
-def delete_class_student(class_code: str, student_code: str):
-    """Remove a student from the class. The student's own progress is NOT deleted."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    _class_or_404(class_code)
-    store.remove_student(class_code, student_code)
-    return {"ok": True, "tracking": True}
-
-
-@app.get("/api/class/{class_code}/summary")
-def get_class_summary(class_code: str, course: str = "algebra1"):
-    """THE CLASSROOM VIEW: every student in the class with their per-unit mastery for ONE
-    course, plus class-wide aggregates (which units the class as a whole is weakest on)."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    cls = _class_or_404(class_code)
-    students = [_class_student_row(c, course) for c in cls.get("students", [])]
-    unit_names = curriculum.units_for(course)
-
-    # Class-wide per-unit picture: how many students have mastered each unit, and the average
-    # best score among those who have actually been checked on it.
-    per_unit = []
-    for n, name in unit_names:
-        scored = [s for s in students
-                  if next((u for u in s["units"] if u["unit"] == n), {}).get("checks_taken")]
-        mastered = [s for s in students
-                    if next((u for u in s["units"] if u["unit"] == n), {}).get("mastered")]
-        avg = None
-        if scored:
-            avg = round(sum(next(u for u in s["units"] if u["unit"] == n)["best_pct"]
-                            for s in scored) / len(scored))
-        per_unit.append({"unit": n, "name": name, "assessed": len(scored),
-                         "mastered": len(mastered), "avg_best_pct": avg})
-
-    needs_help = sorted([p for p in per_unit if p["assessed"]],
-                        key=lambda p: (p["avg_best_pct"] if p["avg_best_pct"] is not None else 999))
-    return {
-        "ok": True,
-        "tracking": True,
-        "klass": {"class_code": cls["class_code"], "name": cls.get("name", ""),
-                  "owner_name": cls.get("owner_name", "")},
-        "course": course,
-        "course_title": curriculum.course_title(course),
-        "units": [{"unit": n, "name": nm} for n, nm in unit_names],
-        "students": students,
-        "per_unit": per_unit,
-        "needs_help": needs_help[:3],
-        "class_size": len(students),
-    }
-
-
 @app.post("/api/placement/{code}")
 def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
     """Save the result of Mr. Cadabra's Challenge for this student, for THIS course."""
@@ -949,7 +736,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28q-diffeq"
+APP_BUILD = "2026-07-28m-probstat"
 
 
 @app.get("/health")

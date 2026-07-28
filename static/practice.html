@@ -426,6 +426,7 @@
 
   <script src="/static/geo-figures.js"></script>
   <script src="/static/math-figures.js"></script>
+  <script src="/static/tutor-face.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -506,37 +507,15 @@
       return 0.10 + 0.05 * Math.sin(t * 0.035);
     }
     function drawOrb() {
-      const w = orb.width, h = orb.height, cx = w / 2, cy = h / 2;
-      octx.clearRect(0, 0, w, h);
+      const w = orb.width, h = orb.height;
       const lv = level(); smooth += (lv - smooth) * 0.22;
-      hue += 0.15 + smooth * 0.8;
-      const h1 = (hue) % 360, h2 = (hue + 55) % 360;
-      const baseR = w * 0.26, R = baseR * (1 + smooth * 0.33);
-      octx.save();
-      const aura = octx.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 2.1);
-      aura.addColorStop(0, `hsla(${h1},90%,60%,${0.30 + smooth * 0.35})`);
-      aura.addColorStop(1, `hsla(${h1},90%,60%,0)`);
-      octx.fillStyle = aura; octx.beginPath(); octx.arc(cx, cy, R * 2.1, 0, 7); octx.fill();
-      octx.restore();
-      octx.save();
-      octx.shadowColor = `hsla(${h2},95%,60%,0.8)`; octx.shadowBlur = 34 + smooth * 40;
-      octx.beginPath();
-      const pts = 60;
-      for (let i = 0; i <= pts; i++) {
-        const a = (i / pts) * Math.PI * 2;
-        const wob = 1 + (0.05 + smooth * 0.10) * Math.sin(a * 3 + t * 0.06) + (smooth * 0.06) * Math.sin(a * 5 - t * 0.05);
-        const rr = R * wob, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
-        if (i === 0) octx.moveTo(x, y); else octx.lineTo(x, y);
+      if (window.TutorFace) {
+        TutorFace.draw(octx, w, h, { level: smooth, t: t, mood: TutorFace.moodFrom(state) });
+      } else {                                  // fallback so the tutor is never blank
+        octx.clearRect(0, 0, w, h);
+        octx.fillStyle = "#5b5bd6";
+        octx.beginPath(); octx.arc(w / 2, h / 2, w * 0.26 * (1 + smooth * 0.25), 0, 7); octx.fill();
       }
-      octx.closePath();
-      const body = octx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R * 1.15);
-      body.addColorStop(0, `hsla(${h1},100%,88%,1)`);
-      body.addColorStop(0.45, `hsla(${h1},95%,64%,1)`);
-      body.addColorStop(1, `hsla(${h2},90%,45%,1)`);
-      octx.fillStyle = body; octx.fill();
-      octx.restore();
-      octx.beginPath(); octx.arc(cx - R * 0.28, cy - R * 0.32, R * 0.32, 0, 7);
-      octx.fillStyle = "rgba(255,255,255,0.55)"; octx.fill();
       t += 1; requestAnimationFrame(drawOrb);
     }
     drawOrb();

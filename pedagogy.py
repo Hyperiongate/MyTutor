@@ -2,6 +2,18 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 8 -- DIFFERENTIAL EQUATIONS teaching brain (COURSE_PEDAGOGY["diffeq"]):
+#               9 units (classification, separable & models, first-order linear, exact &
+#               substitutions, 2nd-order homogeneous, 2nd-order nonhomogeneous, vibrations &
+#               circuits, Laplace transforms, series & systems) with misconceptions / how-to-teach /
+#               progression + a CLASSIFY-FIRST cross-cutting list. Source: DiffEq_Curriculum_KB.md.
+#               Additive; the seven existing courses untouched. Do no harm.
+#   2026-07-28  ADDED COURSE 7 -- CALCULUS teaching brain (COURSE_PEDAGOGY["calculus"]): 9 units
+#               (limits & continuity, the derivative, product/quotient/chain, applications of
+#               derivatives, curve sketching & optimization, antiderivatives, the definite integral &
+#               FTC, applications of integration, intro to differential equations) with misconceptions
+#               / how-to-teach / progression + a calculus cross-cutting list. Source:
+#               Calculus_Curriculum_KB.md. Additive; the six existing courses untouched. Do no harm.
 #   2026-07-28  ADDED COURSE 6 -- PROBABILITY & STATISTICS teaching brain (COURSE_PEDAGOGY["probstat"]):
 #               9 units (exploring data, describing distributions, scatterplots & correlation,
 #               collecting data, probability basics, conditional probability & independence, random
@@ -981,6 +993,330 @@ ERROR WATCH-LIST (catch these all through the course):
 - The empirical rule (68-95-99.7) is for NORMAL distributions only.
 - A statistic estimates a parameter WITH uncertainty (sampling variability, margin of error)."""
 
+# -----------------------------------------------------------------------------
+# CALCULUS -- per-unit pedagogy (distilled from Calculus_Curriculum_KB.md). The top of the algebra
+# ladder. Teach the IDEA before the machinery: every rule should arrive as a shortcut for something
+# the student has already seen conceptually.
+# -----------------------------------------------------------------------------
+_CALCULUS_UNIT_NAMES = {
+    1: "Limits & Continuity",
+    2: "The Derivative: Definition & Basic Rules",
+    3: "Product, Quotient & Chain Rules",
+    4: "Applications of Derivatives",
+    5: "Curve Sketching & Optimization",
+    6: "Antiderivatives & Indefinite Integrals",
+    7: "The Definite Integral & the Fundamental Theorem",
+    8: "Applications of Integration",
+    9: "Introduction to Differential Equations",
+}
+
+_CALCULUS_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "thinking the limit EQUALS the function value (it is about APPROACH); believing a hole "
+            "means there is no limit (a removable discontinuity still has one); treating infinity as "
+            "a number; substituting into a 0/0 form and calling it undefined."
+        ),
+        "how_to_teach": (
+            "'Where is it headed?' -- a table approaching from BOTH sides, then the graph. Direct "
+            "substitution when continuous; factor/cancel (or multiply by the conjugate) for 0/0. "
+            "Continuity = you can draw it without lifting your pencil. Limits at infinity by "
+            "comparing degrees."
+        ),
+        "progression": "limit from a table  ->  from a graph (incl. one-sided)  ->  by substitution  ->  a 0/0 limit by factoring  ->  a conjugate limit  ->  classify a discontinuity  ->  a limit at infinity",
+    },
+    2: {
+        "misconceptions": (
+            "confusing the AVERAGE rate (secant) with the INSTANTANEOUS rate (tangent); dropping the "
+            "limit in the definition; using the power rule on a variable exponent (2^x, x^x); thinking "
+            "continuity implies differentiability (a corner is continuous but not differentiable)."
+        ),
+        "how_to_teach": (
+            "Build the secant -> tangent picture until the limit is FELT, then derive the power rule "
+            "once from the definition so the shortcut is earned rather than memorized. Always "
+            "interpret: 'f'(3) = 5 means at x = 3 it is rising 5 units per unit.' Graph f and f' "
+            "together so the relationship is visible."
+        ),
+        "progression": "average rate of change  ->  the difference quotient  ->  derivative from the definition  ->  the power rule  ->  sums/differences  ->  d/dx of sin, cos, e^x, ln x  ->  the tangent line at a point",
+    },
+    3: {
+        "misconceptions": (
+            "thinking (fg)' = f'g' or (f/g)' = f'/g'; FORGETTING THE INNER DERIVATIVE in the chain "
+            "rule (the single most common calculus error); reversing the order in the quotient rule's "
+            "numerator; forgetting dy/dx when differentiating y implicitly."
+        ),
+        "how_to_teach": (
+            "Make them NAME the outer and inner function out loud before differentiating a composition "
+            "('outer is the square, inner is 3x + 1') -- that habit alone prevents the missing-inner-"
+            "derivative error. Keep one consistent order for the quotient rule. Implicit "
+            "differentiation is just the chain rule applied to y = y(x)."
+        ),
+        "progression": "product rule  ->  quotient rule  ->  chain rule on one composition  ->  a nested chain  ->  implicit differentiation  ->  the second derivative",
+    },
+    4: {
+        "misconceptions": (
+            "plugging in the changing values BEFORE differentiating in a related-rates problem; "
+            "confusing speed with velocity (sign); forgetting to differentiate with respect to TIME; "
+            "dropping units."
+        ),
+        "how_to_teach": (
+            "Related rates as a strict recipe: draw it, name the variables, write the relating "
+            "equation, differentiate WITH RESPECT TO t, and only THEN substitute the instant's values. "
+            "Motion: velocity is f', acceleration is f''; the object speeds up when v and a share a "
+            "sign. Always state the units of a rate."
+        ),
+        "progression": "position  ->  velocity  ->  acceleration  ->  interpret a rate with units  ->  a related-rates ladder/balloon problem  ->  linear approximation",
+    },
+    5: {
+        "misconceptions": (
+            "assuming every critical point is an extremum (it may be neither); thinking f'' = 0 "
+            "guarantees an inflection point (the concavity must actually CHANGE); confusing f' < 0 "
+            "with f < 0; forgetting to check ENDPOINTS on a closed interval; optimizing without "
+            "writing down the constraint."
+        ),
+        "how_to_teach": (
+            "Sign charts: one for f' (increasing/decreasing) and one for f'' (concavity), then sketch "
+            "from them. Optimization as a recipe: write the quantity to optimize, use the constraint "
+            "to reduce it to ONE variable, differentiate, test, and answer the question actually asked "
+            "-- with units."
+        ),
+        "progression": "critical points  ->  first derivative test  ->  concavity & inflection  ->  sketch from f'/f''  ->  absolute extrema on a closed interval  ->  an applied optimization (fence/box/can)",
+    },
+    6: {
+        "misconceptions": (
+            "forgetting + C; applying the reverse power rule to 1/x (it is ln|x|); pattern-matching "
+            "instead of actually substituting; forgetting to change the variable back after a "
+            "u-substitution."
+        ),
+        "how_to_teach": (
+            "Antidifferentiation is the question 'what would I have differentiated to get this?' -- "
+            "and ALWAYS verify by differentiating the answer back. u-substitution is the chain rule "
+            "run backwards: pick u to be the inner function and check that du is present up to a "
+            "constant."
+        ),
+        "progression": "reverse power rule  ->  +C and an initial condition  ->  antiderivatives of sin/cos/e^x/(1/x)  ->  a simple u-substitution  ->  a substitution needing a constant adjustment",
+    },
+    7: {
+        "misconceptions": (
+            "thinking a definite integral is always 'the area' (it is SIGNED area -- below the axis "
+            "counts negative); evaluating at only one limit, or subtracting in the wrong order; "
+            "confusing the definite integral (a NUMBER) with the indefinite (a family); adding + C to "
+            "a definite integral."
+        ),
+        "how_to_teach": (
+            "Build rectangles FIRST so the limiting process is felt, then reveal the Fundamental "
+            "Theorem as the shortcut -- that contrast is the emotional high point of the course. "
+            "Stress the units of an accumulation: if r(t) is gallons per minute, the integral is "
+            "gallons."
+        ),
+        "progression": "left/right Riemann sums  ->  trapezoid  ->  the definite integral as signed area  ->  evaluate with the FTC  ->  accumulated change in context  ->  average value",
+    },
+    8: {
+        "misconceptions": (
+            "forgetting 'top minus bottom' (or integrating in the wrong variable); missing an "
+            "intersection point that splits the region; forgetting to SQUARE the radius in a volume; "
+            "confusing displacement (the integral of v) with total distance (the integral of |v|)."
+        ),
+        "how_to_teach": (
+            "Always sketch the region and mark which curve is on top; find the intersections FIRST. "
+            "For a volume, draw the representative slice before writing the integral. Displacement vs "
+            "total distance is the classic trap -- teach it deliberately with a velocity graph that "
+            "crosses zero."
+        ),
+        "progression": "area between curves  ->  a region needing a split  ->  disk volume  ->  washer volume  ->  displacement vs total distance  ->  an accumulation word problem",
+    },
+    9: {
+        "misconceptions": (
+            "forgetting the constant, or applying the initial condition too late; treating dy/dx as an "
+            "ordinary fraction without care; expecting every differential equation to be separable; "
+            "confusing the GENERAL solution (a family) with a PARTICULAR one."
+        ),
+        "how_to_teach": (
+            "A differential equation is just 'an equation about a rate.' Verify a candidate solution "
+            "by substituting it back in. Separate the variables, integrate both sides, THEN apply the "
+            "initial condition to pin down C. A slope field makes the whole family of solutions "
+            "visible. Name the hand-off: this is where the Differential Equations course begins."
+        ),
+        "progression": "verify a solution  ->  read a slope field  ->  solve a separable equation  ->  apply an initial condition  ->  an exponential growth/decay model",
+    },
+}
+
+_CALCULUS_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- A limit is about APPROACH, not the value at the point (a hole can still have a limit).
+- The chain rule's INNER DERIVATIVE is the most-forgotten step in all of calculus -- name outer and inner first.
+- + C on every indefinite integral; a definite integral is a NUMBER (no + C).
+- INTERPRET, WITH UNITS: a derivative is a rate of something per something; an integral is an accumulated amount.
+- Sketch it: sign charts for f' and f'', and always draw the region before integrating.
+- Verify by reversing: differentiate an antiderivative back; substitute a solution into its equation.
+- Continuity does NOT imply differentiability (corners); differentiability DOES imply continuity.
+- Signed area: below the axis counts negative; displacement is not total distance."""
+
+# -----------------------------------------------------------------------------
+# DIFFERENTIAL EQUATIONS -- per-unit pedagogy (distilled from DiffEq_Curriculum_KB.md). The most
+# advanced course in the app; assumes Calculus (especially integration). The habit that decides
+# success here is CLASSIFY FIRST -- the method follows from the type.
+# -----------------------------------------------------------------------------
+_DIFFEQ_UNIT_NAMES = {
+    1: "Introduction & Classification",
+    2: "First-Order Separable Equations & Models",
+    3: "First-Order Linear Equations",
+    4: "Exact Equations & Substitutions",
+    5: "Second-Order Linear: Homogeneous",
+    6: "Second-Order Linear: Nonhomogeneous",
+    7: "Applications: Vibrations & Circuits",
+    8: "Laplace Transforms",
+    9: "Series Solutions & Systems",
+}
+
+_DIFFEQ_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "thinking the solution to a differential equation is a NUMBER (it is a function, or a "
+            "whole family of them); confusing ORDER (the highest derivative) with degree; calling an "
+            "equation linear because it looks simple (linearity is about y and its derivatives, not "
+            "about x); forgetting the general solution carries as many constants as the order."
+        ),
+        "how_to_teach": (
+            "Start from a rate the student already believes -- 'the population grows at a rate "
+            "proportional to its size' -- and write it symbolically. That IS a differential equation. "
+            "Make substituting a candidate solution back in the reflex. Slope fields show the whole "
+            "family at once; an initial condition picks one out."
+        ),
+        "progression": "classify order & linearity  ->  verify a solution  ->  general vs particular  ->  read a slope field  ->  equilibrium solutions  ->  set up a DE from a described rate",
+    },
+    2: {
+        "misconceptions": (
+            "forgetting the constant of integration, or adding it AFTER solving for y instead of at "
+            "the integration step; dividing by an expression without noting where it is zero (which "
+            "loses equilibrium solutions); treating dy/dx as a fraction carelessly; forgetting to "
+            "solve FOR y at the end."
+        ),
+        "how_to_teach": (
+            "The recipe: all the y's with dy on one side, all the x's with dx on the other, integrate "
+            "BOTH sides (constant on one side only), solve for y, and apply the initial condition "
+            "LAST. Point out the solutions you lose when you divide. Ground every model in a story "
+            "with units."
+        ),
+        "progression": "identify separable  ->  separate & integrate  ->  solve for y  ->  apply an initial condition  ->  exponential growth/decay  ->  Newton's law of cooling  ->  logistic growth",
+    },
+    3: {
+        "misconceptions": (
+            "forgetting to put the equation in STANDARD FORM first (a leading coefficient that isn't "
+            "1 breaks everything); dropping the constant in the exponent of the integrating factor; "
+            "not seeing that multiplying by mu makes the left side the exact derivative (mu*y)'; sign "
+            "errors in P(x)."
+        ),
+        "how_to_teach": (
+            "Show WHY the integrating factor works: multiplying by mu turns the left side into the "
+            "derivative of a product, so you can just integrate both sides. That one insight makes "
+            "the method memorable instead of magical. Standard form first, every single time."
+        ),
+        "progression": "standard form  ->  compute mu = e^(integral of P)  ->  multiply and recognize (mu*y)'  ->  integrate  ->  solve for y  ->  an initial condition  ->  a mixing/tank problem",
+    },
+    4: {
+        "misconceptions": (
+            "mixing up which partial derivative to take in the exactness test; forgetting that the "
+            "'constant of integration' is a FUNCTION of the other variable when reconstructing the "
+            "potential; choosing the wrong substitution for the equation type; not converting back to "
+            "the original variable at the end."
+        ),
+        "how_to_teach": (
+            "Frame exactness as 'is this the total differential of some F(x, y)?' -- the test is just "
+            "Clairaut's theorem. When rebuilding F, stress that integrating with respect to x leaves "
+            "an unknown g(y), not a constant. For substitutions, NAME the type first (the classify-"
+            "first habit paying off), then apply the standard change of variable."
+        ),
+        "progression": "test for exactness  ->  find the potential function  ->  an integrating factor to force exactness  ->  a homogeneous substitution (v = y/x)  ->  a Bernoulli substitution",
+    },
+    5: {
+        "misconceptions": (
+            "forgetting the extra factor of x in the REPEATED-root case; mishandling complex roots "
+            "(the solution is e^(ax)(C1 cos bx + C2 sin bx), not complex exponentials left as-is); "
+            "assuming two solutions are independent without checking; applying initial conditions "
+            "before writing the full general solution."
+        ),
+        "how_to_teach": (
+            "Motivate the guess y = e^(rx): substitute it and the equation collapses to a polynomial "
+            "in r -- that IS the characteristic equation, and it explains why the method works. The "
+            "three cases then follow from the discriminant, exactly like the quadratic formula they "
+            "already know. The repeated root gets an extra x because you need a SECOND independent "
+            "solution."
+        ),
+        "progression": "characteristic equation  ->  distinct real roots  ->  repeated root (the extra x)  ->  complex roots  ->  apply initial conditions  ->  check independence with the Wronskian",
+    },
+    6: {
+        "misconceptions": (
+            "applying the initial conditions to y_c ALONE instead of y_c + y_p (the most common error "
+            "in this unit by far); forgetting to multiply the trial solution by x when it duplicates "
+            "a term already in y_c; picking an incomplete trial form (only sin when both sin and cos "
+            "are needed); trying undetermined coefficients on a forcing function it cannot handle."
+        ),
+        "how_to_teach": (
+            "Teach the ARCHITECTURE first: the general solution is ALWAYS complementary + particular. "
+            "Build the trial-form table together. Let them WATCH a guess fail when it duplicates y_c, "
+            "so the 'multiply by x' rule is discovered rather than memorized. Variation of parameters "
+            "is the fallback when the forcing function isn't a nice polynomial/exponential/sinusoid."
+        ),
+        "progression": "y = y_c + y_p  ->  trial form for a polynomial forcing  ->  for an exponential  ->  for a sinusoid  ->  the overlap case (multiply by x)  ->  variation of parameters  ->  initial conditions on the FULL solution",
+    },
+    7: {
+        "misconceptions": (
+            "sign errors setting up the equation (which direction is positive?); not connecting the "
+            "three DAMPING cases to the three ROOT cases from the previous unit; thinking resonance "
+            "requires exactly zero damping; ignoring units."
+        ),
+        "how_to_teach": (
+            "Make the correspondence explicit: the three damping cases ARE the three characteristic-"
+            "root cases, seen physically -- this is where the abstract algebra pays off. Show the SAME "
+            "equation governing a spring and an RLC circuit; that is the moment the subject feels "
+            "powerful. Transient (dies out) vs steady-state (persists) makes forced motion intuitive."
+        ),
+        "progression": "set up a spring-mass equation  ->  free undamped (simple harmonic)  ->  underdamped  ->  critically/overdamped  ->  forced motion & resonance  ->  the RLC analogy",
+    },
+    8: {
+        "misconceptions": (
+            "forgetting to include the INITIAL CONDITIONS when transforming a derivative (they are "
+            "built into the formula -- that is the method's whole advantage); botching partial "
+            "fractions; mixing up t-shifts and s-shifts; forgetting to invert back to the time domain "
+            "at the end."
+        ),
+        "how_to_teach": (
+            "Sell the payoff first: Laplace turns calculus into ALGEBRA and swallows the initial "
+            "conditions automatically, so a nasty initial-value problem becomes a partial-fractions "
+            "exercise. Keep the table visible on the board. The answer is not finished until you have "
+            "inverted back to y(t)."
+        ),
+        "progression": "transform basic functions  ->  transform of a derivative (with initial conditions)  ->  solve for Y(s)  ->  partial fractions  ->  invert  ->  a step-function/piecewise forcing problem",
+    },
+    9: {
+        "misconceptions": (
+            "index errors when shifting summation indices (the classic series-solution trap); "
+            "forgetting that a system needs as many independent eigen-solutions as its dimension; "
+            "confusing eigenvalues WITH solutions; thinking the phase plane plots y against t (it "
+            "plots one variable against the other)."
+        ),
+        "how_to_teach": (
+            "For series, do the index shift SLOWLY and out loud the first time -- that is where "
+            "everyone stumbles. For systems, connect straight back to the second-order unit: turning "
+            "y'' + ay' + by = 0 into a 2x2 system and finding eigenvalues reproduces the "
+            "characteristic equation, so it is the same idea in new clothes. The phase portrait is "
+            "the qualitative payoff."
+        ),
+        "progression": "ordinary vs singular point  ->  assume a power series & find the recurrence  ->  write a system in matrix form  ->  eigenvalues & eigenvectors  ->  the general solution of a 2x2 system  ->  read a phase portrait",
+    },
+}
+
+_DIFFEQ_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- CLASSIFY FIRST -- order, linear/nonlinear, separable/exact/linear, homogeneous/nonhomogeneous. The method follows from the type.
+- A solution is a FUNCTION (a family until an initial condition pins it down); the general solution carries as many constants as the order.
+- The constant of integration appears at the INTEGRATION step -- and when rebuilding a potential function it is a FUNCTION of the other variable.
+- Apply initial conditions LAST, to the FULL general solution (y_c + y_p, never y_c alone).
+- Verify by substituting the solution back into the equation -- always available, and the fastest way to catch an error.
+- Weak INTEGRATION is the hidden blocker: if a student stalls, check whether the trouble is the DE method or the integral inside it, and shore that up briefly and without judgment.
+- Interpret the model with units and in context -- this is where calculus becomes modeling."""
+
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
@@ -1014,6 +1350,16 @@ COURSE_PEDAGOGY = {
         "unit_names": _PROBSTAT_UNIT_NAMES,
         "cross_cutting": _PROBSTAT_CROSS_CUTTING,
         "units": _PROBSTAT_UNIT_PEDAGOGY,
+    },
+    "calculus": {
+        "unit_names": _CALCULUS_UNIT_NAMES,
+        "cross_cutting": _CALCULUS_CROSS_CUTTING,
+        "units": _CALCULUS_UNIT_PEDAGOGY,
+    },
+    "diffeq": {
+        "unit_names": _DIFFEQ_UNIT_NAMES,
+        "cross_cutting": _DIFFEQ_CROSS_CUTTING,
+        "units": _DIFFEQ_UNIT_PEDAGOGY,
     },
 }
 

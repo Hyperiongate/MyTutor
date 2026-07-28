@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  TEACHER / PARENT CLASSROOM ROSTER. Two NEW tables -- `classes` (class_code, name,
+#               owner_name) and `class_members` (class_code, student_code) -- plus create_class /
+#               get_class / list_students / add_student / remove_student / delete_class. A "class"
+#               is deliberately lightweight: a short class CODE grouping student codes that ALREADY
+#               exist, so a teacher or parent can watch several students at once WITHOUT an
+#               accounts/login system (that work is deferred). No password, no new personal data.
+#               Brand-new tables, so create_all builds them -- NO migration and NO change to any
+#               existing table, function, or signature. Do no harm.
 #   2026-07-27  PHASE 3.3 (multi-course) -- PER-COURSE SESSION MEMORY + PLACEMENT. The `sessions`
 #               and `placements` tables gained a `course` column; their primary key is now
 #               (code, course) instead of (code), so a student can hold a separate saved lesson
@@ -201,6 +209,25 @@ def init():
             Column("streak_days", Integer, default=0),
             Column("last_active", String(10)),            # 'YYYY-MM-DD'
             Column("updated_at", DateTime(timezone=True)),
+        )
+        # TEACHER / PARENT CLASSROOM (2026-07-28). A "class" is deliberately lightweight: a short
+        # CLASS CODE plus a list of EXISTING student codes, so a teacher or parent can follow
+        # several students at once WITHOUT an accounts/login system. No new personal data is
+        # stored -- just an optional class label and owner display name. Brand-new tables, so
+        # create_all builds them; no migration needed.
+        _tables["classes"] = Table(
+            "classes", _meta,
+            Column("class_code", String(32), primary_key=True),   # e.g. "MRSB-P3"
+            Column("name", String(128)),          # e.g. "Period 3 Algebra"
+            Column("owner_name", String(128)),    # teacher/parent display name (optional)
+            Column("created_at", DateTime(timezone=True)),
+            Column("updated_at", DateTime(timezone=True)),
+        )
+        _tables["class_members"] = Table(
+            "class_members", _meta,
+            Column("class_code", String(32), primary_key=True),
+            Column("student_code", String(64), primary_key=True),
+            Column("added_at", DateTime(timezone=True)),
         )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
@@ -558,6 +585,112 @@ def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:
             "last_active": s["last_active"],
         },
     }
+
+
+# =============================================================================
+# TEACHER / PARENT CLASSROOM ROSTER (2026-07-28)
+# -----------------------------------------------------------------------------
+# A class is a short CLASS CODE + a list of existing student codes. This is intentionally
+# NOT an accounts system: there is no password and no new personal data -- it simply groups
+# student codes that already exist so a teacher/parent can see them together. Every function
+# is safe to call when the DB is off (callers check store.enabled() first, and these return
+# empty/False rather than raising).
+# =============================================================================
+def _norm_class(class_code: str) -> str:
+    """Class codes are case-insensitive and trimmed, so 'mrsb-p3' == 'MRSB-P3'."""
+    return (str(class_code or "").strip().upper())[:32]
+
+
+def _norm_student(student_code: str) -> str:
+    return (str(student_code or "").strip())[:64]
+
+
+def create_class(class_code: str, name: str = "", owner_name: str = "") -> dict:
+    """Create a class, or update its label/owner if the code already exists. Returns the class."""
+    cc = _norm_class(class_code)
+    if not cc:
+        return {}
+    existing = get_class(cc)
+    values = {
+        "name": (name or existing.get("name") or ""),
+        "owner_name": (owner_name or existing.get("owner_name") or ""),
+        "updated_at": _now(),
+    }
+    if not existing:
+        values["created_at"] = _now()
+    _upsert("classes", {"class_code": cc}, values)
+    return get_class(cc)
+
+
+def get_class(class_code: str) -> dict:
+    """{class_code, name, owner_name, students:[codes]} -- or {} if the class doesn't exist."""
+    from sqlalchemy import select
+    cc = _norm_class(class_code)
+    if not cc:
+        return {}
+    t = _tables["classes"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.class_code, t.c.name, t.c.owner_name)
+                         .where(t.c.class_code == cc)).first()
+    if not r:
+        return {}
+    return {"class_code": r[0], "name": r[1] or "", "owner_name": r[2] or "",
+            "students": list_students(cc)}
+
+
+def list_students(class_code: str) -> list:
+    """The student codes in a class, oldest-added first."""
+    from sqlalchemy import select
+    cc = _norm_class(class_code)
+    if not cc:
+        return []
+    t = _tables["class_members"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.student_code, t.c.added_at)
+                            .where(t.c.class_code == cc)).all()
+    # oldest-added first; ties broken by code so the roster order is always deterministic
+    rows = sorted(rows, key=lambda r: (r[1] is None, r[1], r[0]))
+    return [r[0] for r in rows]
+
+
+def add_student(class_code: str, student_code: str) -> bool:
+    """Add a student code to a class. Truly idempotent: re-adding an existing member does
+    NOTHING (it must not bump added_at, or the roster would reorder itself)."""
+    from sqlalchemy import select
+    cc, sc = _norm_class(class_code), _norm_student(student_code)
+    if not cc or not sc:
+        return False
+    t = _tables["class_members"]
+    with _engine.connect() as conn:
+        already = conn.execute(select(t.c.student_code).where(
+            (t.c.class_code == cc) & (t.c.student_code == sc))).first()
+    if already:
+        return True
+    _upsert("class_members", {"class_code": cc, "student_code": sc}, {"added_at": _now()})
+    return True
+
+
+def remove_student(class_code: str, student_code: str) -> bool:
+    """Remove a student code from a class (the student's own data is untouched)."""
+    cc, sc = _norm_class(class_code), _norm_student(student_code)
+    if not cc or not sc:
+        return False
+    t = _tables["class_members"]
+    with _engine.begin() as conn:
+        conn.execute(t.delete().where((t.c.class_code == cc) & (t.c.student_code == sc)))
+    return True
+
+
+def delete_class(class_code: str) -> bool:
+    """Delete a class and its membership rows. Student records themselves are NOT touched."""
+    cc = _norm_class(class_code)
+    if not cc:
+        return False
+    cm, cl = _tables["class_members"], _tables["classes"]
+    with _engine.begin() as conn:
+        conn.execute(cm.delete().where(cm.c.class_code == cc))
+        conn.execute(cl.delete().where(cl.c.class_code == cc))
+    return True
 
 
 def status() -> dict:

@@ -4,6 +4,8 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED DIFFERENTIAL EQUATIONS to the subject picker (eighth course). Additive. Do no harm.
+    2026-07-28  ADDED CALCULUS to the subject picker (seventh course). Additive; data-driven. Do no harm.
     2026-07-28  ADDED PROBABILITY & STATISTICS to the subject picker (sixth course). New card
                 (subjProbstat) + COURSE_TITLES.probstat + its Stage-1 href. Additive; data-driven. Do no harm.
     2026-07-28  ADDED TRIG / PRE-CALC to the subject picker (fifth course). New card (subjPrecalc) +
@@ -148,6 +150,18 @@
         <p>Functions & graphs, trigonometry & the unit circle, identities, conics, sequences, and a first look at limits.</p>
         <div class="go">Choose Trig / Pre-Calc →</div>
       </a>
+      <a class="tile subject" id="subjCalculus" href="#">
+        <div class="ic">∫</div>
+        <h3>Calculus</h3>
+        <p>Limits, derivatives and what they mean, optimization, integrals, area under a curve, and a first look at differential equations.</p>
+        <div class="go">Choose Calculus →</div>
+      </a>
+      <a class="tile subject" id="subjDiffeq" href="#">
+        <div class="ic">∂</div>
+        <h3>Differential Equations</h3>
+        <p>Equations about how things change: separable and linear equations, second-order methods, vibrations, Laplace transforms, and systems.</p>
+        <div class="go">Choose Differential Equations →</div>
+      </a>
       <a class="tile subject" id="subjProbstat" href="#">
         <div class="ic">📊</div>
         <h3>Probability & Statistics</h3>
@@ -192,7 +206,7 @@
     if (!CODE) { location.href = "/"; }
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
-    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", probstat: "Probability & Statistics" };
+    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
     let COURSE = (params.get("course") || "").trim();
 
     const codeQ = "?code=" + encodeURIComponent(CODE);
@@ -209,6 +223,8 @@
       el("subjGeometry").href = "/home" + codeQ + "&course=geometry";
       el("subjAlgebra2").href = "/home" + codeQ + "&course=algebra2";
       el("subjPrecalc").href = "/home" + codeQ + "&course=precalc";
+      el("subjCalculus").href = "/home" + codeQ + "&course=calculus";
+      el("subjDiffeq").href = "/home" + codeQ + "&course=diffeq";
       el("subjProbstat").href = "/home" + codeQ + "&course=probstat";
       // Still greet by name if we can.
       (async () => {

@@ -2,6 +2,12 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 8 -- DIFFERENTIAL EQUATIONS (the rung above Calculus; source
+#               DiffEq_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
+#               COURSE_ORDER (after calculus). Purely additive; the seven existing courses untouched.
+#   2026-07-28  ADDED COURSE 7 -- CALCULUS (the top of the algebra ladder; source
+#               Calculus_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
+#               appended to COURSE_ORDER. Purely additive; the six existing courses untouched.
 #   2026-07-28  ADDED COURSE 6 -- PROBABILITY & STATISTICS (a full peer added before Calculus; source
 #               ProbStat_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
 #               appended to COURSE_ORDER. Purely additive; the five existing courses untouched. Do no harm.
@@ -360,6 +366,121 @@ _PROBSTAT_RULES = [
 ]
 
 # =============================================================================
+# COURSE 7 -- CALCULUS  (9 units; source: Calculus_Curriculum_KB.md). Roughly AB-level single-variable
+# calculus: limits, derivatives + applications, integrals + applications, and a first look at
+# differential equations that hands off to the Differential Equations course.
+# =============================================================================
+_CALCULUS_UNITS = [
+    (1, "Limits & Continuity"),
+    (2, "The Derivative: Definition & Basic Rules"),
+    (3, "Product, Quotient & Chain Rules"),
+    (4, "Applications of Derivatives"),
+    (5, "Curve Sketching & Optimization"),
+    (6, "Antiderivatives & Indefinite Integrals"),
+    (7, "The Definite Integral & the Fundamental Theorem"),
+    (8, "Applications of Integration"),
+    (9, "Introduction to Differential Equations"),
+]
+
+# NOTE: aliases are matched by SUBSTRING and in insertion order, so the more specific phrases must
+# come FIRST -- otherwise "antiderivative" would be caught by the "derivative" alias (unit 2) and
+# "differential equation" by "derivative" too. Ordered specific -> generic, like the rules below.
+_CALCULUS_ALIASES = {
+    "differential equation": 9, "slope field": 9, "separable": 9, "exponential growth": 9,
+    "area between curves": 8, "volume of revolution": 8, "disk method": 8, "washer": 8,
+    # "indefinite integral" MUST precede "definite integral" (the latter is a substring of it).
+    "indefinite integral": 6, "antiderivative": 6, "u-substitution": 6, "substitution": 6,
+    "definite integral": 7, "riemann sum": 7, "fundamental theorem": 7, "average value": 7,
+    "optimization": 5, "critical points": 5, "concavity": 5, "inflection": 5, "curve sketching": 5,
+    "related rates": 4, "linear approximation": 4, "velocity": 4, "acceleration": 4,
+    "chain rule": 3, "product rule": 3, "quotient rule": 3, "implicit differentiation": 3,
+    "difference quotient": 2, "tangent line": 2, "power rule": 2, "derivative": 2,
+    "continuity": 1, "one-sided": 1, "limits": 1, "limit": 1,
+}
+
+# Ordered specific -> generic. Unit 1 (limits) is the catch-all, so it goes LAST. Distinctive
+# multi-word phrases are checked before bare words so "definite integral" -> 7 while a bare
+# "integral"/"antiderivative" -> 6, and "differential equation" -> 9 before "derivative" -> 2.
+_CALCULUS_RULES = [
+    (9, [r"differential equation", r"slope field", r"separable", r"\bdy/dx\s*=", r"growth model",
+         r"decay model", r"initial condition"]),
+    (8, [r"area between", r"volume of revolution", r"disk method", r"washer", r"shell method",
+         r"total distance", r"displacement", r"accumulat"]),
+    (7, [r"definite integral", r"riemann", r"fundamental theorem", r"\bftc\b", r"average value",
+         r"trapezoid", r"area under"]),
+    (6, [r"antiderivative", r"indefinite integral", r"u-?substitution", r"\+\s*c\b",
+         r"reverse power", r"integrat", r"\bintegral\b"]),
+    (5, [r"optimiz", r"critical point", r"concav", r"inflection", r"curve sketch",
+         r"first derivative test", r"second derivative test", r"absolute (max|min)", r"extrem"]),
+    (4, [r"related rate", r"linear approximation", r"\bvelocity\b", r"\bacceleration\b",
+         r"instantaneous rate", r"\bmotion\b"]),
+    (3, [r"chain rule", r"product rule", r"quotient rule", r"implicit", r"second derivative",
+         r"composition"]),
+    (2, [r"derivative", r"difference quotient", r"tangent line", r"power rule", r"\bf'", r"differentiab"]),
+    (1, [r"\blimit", r"continuit", r"continuous", r"approaches", r"one[- ]sided", r"removable",
+         r"asymptote", r"indeterminate"]),
+]
+
+# =============================================================================
+# COURSE 8 -- DIFFERENTIAL EQUATIONS  (9 units; source: DiffEq_Curriculum_KB.md). The rung above
+# Calculus and the most advanced course in the app. Prerequisite: Calculus (esp. integration);
+# Calculus Unit 9 is the on-ramp, so this course does NOT re-teach it.
+# =============================================================================
+_DIFFEQ_UNITS = [
+    (1, "Introduction & Classification"),
+    (2, "First-Order Separable Equations & Models"),
+    (3, "First-Order Linear Equations"),
+    (4, "Exact Equations & Substitutions"),
+    (5, "Second-Order Linear: Homogeneous"),
+    (6, "Second-Order Linear: Nonhomogeneous"),
+    (7, "Applications: Vibrations & Circuits"),
+    (8, "Laplace Transforms"),
+    (9, "Series Solutions & Systems"),
+]
+
+# NOTE: matched by SUBSTRING in insertion order, so specific phrases come FIRST (e.g. "second-order
+# linear" before "linear", "nonhomogeneous" before "homogeneous").
+_DIFFEQ_ALIASES = {
+    "series solution": 9, "power series": 9, "eigenvalue": 9, "phase plane": 9,
+    "system of equations": 9, "recurrence": 9,
+    "laplace": 8, "inverse transform": 8, "partial fractions": 8, "step function": 8,
+    "vibration": 7, "spring": 7, "damping": 7, "damped": 7, "resonance": 7, "circuit": 7,
+    "nonhomogeneous": 6, "undetermined coefficients": 6, "variation of parameters": 6,
+    "particular solution": 6,
+    "characteristic equation": 5, "auxiliary equation": 5, "repeated root": 5, "wronskian": 5,
+    "homogeneous": 5, "second-order": 5, "second order": 5,
+    "exact equation": 4, "bernoulli": 4, "integrating factor": 3, "substitution": 4,
+    "first-order linear": 3, "mixing problem": 3, "tank problem": 3,
+    "separable": 2, "separation of variables": 2, "logistic": 2, "newton's law of cooling": 2,
+    "exponential decay": 2, "growth model": 2,
+    "slope field": 1, "classification": 1, "initial value problem": 1, "equilibrium": 1,
+    "differential equation": 1, "order": 1,
+}
+
+# Ordered specific -> generic. Unit 1 (intro/classification) is the catch-all, so it goes LAST.
+_DIFFEQ_RULES = [
+    (9, [r"series solution", r"power series", r"eigenvalue", r"eigenvector", r"phase (plane|portrait)",
+         r"\bsystem", r"recurrence", r"matrix form", r"ordinary point", r"singular point"]),
+    (8, [r"laplace", r"inverse transform", r"partial fraction", r"step function",
+         r"heaviside", r"transform of a derivative", r"\bs-?domain"]),
+    (7, [r"vibrat", r"\bspring", r"mass[- ]spring", r"\bdamp", r"resonan", r"\bcircuit",
+         r"\brlc\b", r"natural frequency", r"steady[- ]state", r"transient", r"oscillat"]),
+    (6, [r"nonhomogeneous", r"non-homogeneous", r"undetermined coefficient",
+         r"variation of parameters", r"particular solution", r"y_?p\b", r"complementary"]),
+    (5, [r"characteristic equation", r"auxiliary equation", r"repeated root", r"wronskian",
+         r"homogeneous", r"second[- ]order", r"\bcomplex roots?\b", r"linearly independent"]),
+    (4, [r"exact equation", r"\bexactness\b", r"potential function", r"bernoulli",
+         r"\bsubstitution\b", r"reduce to", r"\bhomogeneous substitution\b"]),
+    (3, [r"integrating factor", r"first[- ]order linear", r"standard form", r"mixing problem",
+         r"tank problem", r"\bbrine\b"]),
+    (2, [r"separable", r"separation of variables", r"logistic", r"law of cooling",
+         r"exponential (growth|decay)", r"growth model", r"decay model", r"half-?life"]),
+    (1, [r"classif", r"slope field", r"direction field", r"initial[- ]value", r"equilibrium",
+         r"verify (a|the) solution", r"general solution", r"\border\b", r"\blinear\b",
+         r"differential equation", r"\bode\b"]),
+]
+
+# =============================================================================
 # THE CATALOG
 # =============================================================================
 COURSES = {
@@ -405,11 +526,26 @@ COURSES = {
         "aliases": _PROBSTAT_ALIASES,
         "rules": _PROBSTAT_RULES,
     },
+    "calculus": {
+        "title": "Calculus",
+        "grade_band": "High School",
+        "units": _CALCULUS_UNITS,
+        "aliases": _CALCULUS_ALIASES,
+        "rules": _CALCULUS_RULES,
+    },
+    "diffeq": {
+        "title": "Differential Equations",
+        "grade_band": "Advanced",
+        "units": _DIFFEQ_UNITS,
+        "aliases": _DIFFEQ_ALIASES,
+        "rules": _DIFFEQ_RULES,
+    },
 }
 
 # The order courses are offered in (the math ladder): Pre-Algebra -> Algebra I -> Geometry ->
 # Algebra II -> Trig/Pre-Calc, then Probability & Statistics (a parallel data course). New courses append.
-COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc", "probstat"]
+COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus",
+                "diffeq", "probstat"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).
