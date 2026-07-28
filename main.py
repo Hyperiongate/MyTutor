@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  MULTI-COURSE (Phase 3.4b) -- PER-COURSE PLACEMENT + SESSION ENDPOINTS. Stamp ->
+#               "2026-07-28a-placement". Threaded `course` through the session/placement wrappers
+#               (get_session/save_session/read_placement/save_placement + a file-key helper _ck) and
+#               the endpoints /api/session, /api/placement (POST + GET), plus /api/chat's session
+#               get/save and placement read. So a student's lesson session AND placement are now
+#               read/written PER COURSE end-to-end, and the hub gates first-entry placement per
+#               course (challenge.html now serves a Geometry question bank). Algebra I is the default
+#               everywhere, so single-course behavior is unchanged.
 #   2026-07-27  MULTI-COURSE (Phase 3.3) -- PER-COURSE SESSION MEMORY + PLACEMENT (storage). Stamp ->
 #               "2026-07-27e-coursemem". store.py's `sessions` and `placements` tables are now keyed by
 #               (code, course) with the same self-healing migration (existing rows stamped 'algebra1'),
@@ -308,34 +316,40 @@ def _write_all_sessions(all_sessions: dict) -> None:
     tmp.replace(SESSIONS_FILE)  # atomic swap so the file is never half-written
 
 
-def get_session(code: str) -> dict:
-    """Return this student's saved session, creating an empty one if needed."""
+def _ck(code: str, course: str = "algebra1") -> str:
+    """File-storage key (only used when the DB is off). Algebra I stays under the bare code
+    so existing JSON files keep working; other courses are namespaced as 'code::course'."""
+    return code if (course or "algebra1") == "algebra1" else f"{code}::{course}"
+
+
+def get_session(code: str, course: str = "algebra1") -> dict:
+    """Return this student's saved session for a course, creating an empty one if needed."""
     if store.enabled():
-        return store.get_session(code)
+        return store.get_session(code, course)
     all_sessions = _read_all_sessions()
-    return all_sessions.get(code, {"history": []})
+    return all_sessions.get(_ck(code, course), {"history": []})
 
 
-def save_session(code: str, session: dict) -> None:
+def save_session(code: str, session: dict, course: str = "algebra1") -> None:
     if store.enabled():
-        store.save_session(code, session)
+        store.save_session(code, session, course)
         return
     with _sessions_lock:
         all_sessions = _read_all_sessions()
-        all_sessions[code] = session
+        all_sessions[_ck(code, course)] = session
         _write_all_sessions(all_sessions)
 
 
 # ---- Placement results (from Mr. Cadabra's Challenge) ----------------------
-def read_placement(code: str) -> dict:
-    """Return this student's saved placement result, or {} if none."""
+def read_placement(code: str, course: str = "algebra1") -> dict:
+    """Return this student's saved placement result for a course, or {} if none."""
     if store.enabled():
-        return store.read_placement(code)
+        return store.read_placement(code, course)
     if not PLACEMENTS_FILE.exists():
         return {}
     try:
         with open(PLACEMENTS_FILE, "r", encoding="utf-8") as fh:
-            return json.load(fh).get(code, {})
+            return json.load(fh).get(_ck(code, course), {})
     except (json.JSONDecodeError, OSError):
         return {}
 
@@ -390,9 +404,9 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> s
     return note
 
 
-def save_placement(code: str, result: dict) -> None:
+def save_placement(code: str, result: dict, course: str = "algebra1") -> None:
     if store.enabled():
-        store.save_placement(code, result)
+        store.save_placement(code, result, course)
         return
     with _sessions_lock:
         all_p = {}
@@ -402,7 +416,7 @@ def save_placement(code: str, result: dict) -> None:
                     all_p = json.load(fh)
             except (json.JSONDecodeError, OSError):
                 all_p = {}
-        all_p[code] = result
+        all_p[_ck(code, course)] = result
         tmp = PLACEMENTS_FILE.with_suffix(".json.tmp")
         with open(tmp, "w", encoding="utf-8") as fh:
             json.dump(all_p, fh, ensure_ascii=False, indent=2)
@@ -588,10 +602,10 @@ def topics_state(code: str):
 
 
 @app.post("/api/placement/{code}")
-def post_placement(code: str, body: PlacementIn):
-    """Save the result of Mr. Cadabra's Challenge for this student."""
+def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
+    """Save the result of Mr. Cadabra's Challenge for this student, for THIS course."""
     _student_or_404(code)
-    save_placement(code.strip(), body.model_dump())
+    save_placement(code.strip(), body.model_dump(), course)
     return {"ok": True}
 
 
@@ -629,16 +643,16 @@ def post_mark(code: str, body: MarkIn):
 
 
 @app.get("/api/placement/{code}")
-def get_placement(code: str):
-    """Return this student's saved placement result (or {})."""
+def get_placement(code: str, course: str = "algebra1"):
+    """Return this student's saved placement result for a course (or {})."""
     _student_or_404(code)
-    return read_placement(code.strip())
+    return read_placement(code.strip(), course)
 
 
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-27e-coursemem"
+APP_BUILD = "2026-07-28a-placement"
 
 
 @app.get("/health")
@@ -679,17 +693,18 @@ def login(req: LoginRequest):
 
 
 @app.get("/api/session/{code}")
-def session_state(code: str):
+def session_state(code: str, course: str = "algebra1"):
     """
     Return the student's info, remembered conversation (for resume), and their
-    placement. The session page uses `placed` to enforce the flow (a never-placed
-    student with no history is sent to the Challenge first) and `history` to decide
-    between a first-time tour and a welcome-back recap.
+    placement -- ALL scoped to the given course. The hub/session page uses `placed`
+    to enforce the flow (a never-placed student with no history is sent to the
+    Challenge first) and `history` to decide between a first-time tour and a
+    welcome-back recap.
     """
     student = _student_or_404(code)
     code = code.strip()
-    session = get_session(code)
-    placement = read_placement(code)
+    session = get_session(code, course)
+    placement = read_placement(code, course)
     return {
         "name": student.get("name"),
         "tutor_name": tutor.TUTOR_NAME,
@@ -709,12 +724,12 @@ def chat(req: ChatRequest):
     if not message:
         raise HTTPException(status_code=400, detail="Please type a message first.")
 
-    session = get_session(code)
+    session = get_session(code, req.course)
     history = session.get("history", [])
 
     # Give the tutor the student's remembered progress plus the live history.
     student_context = dict(student)
-    placement = read_placement(code)
+    placement = read_placement(code, req.course)
     if placement:
         note = (" [Placement result from the Challenge: this student tested as "
                 f"'{placement.get('level_title', '')}' and should start around "
@@ -755,7 +770,7 @@ def chat(req: ChatRequest):
         reply = tutor.get_tutor_reply(student_context, history, opener_note, req.course)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
-        save_session(code, session)
+        save_session(code, session, req.course)
         return {"reply": reply}
 
     reply = tutor.get_tutor_reply(student_context, history, message, req.course)
@@ -764,7 +779,7 @@ def chat(req: ChatRequest):
     history.append({"role": "user", "content": message})
     history.append({"role": "assistant", "content": reply})
     session["history"] = history
-    save_session(code, session)
+    save_session(code, session, req.course)
 
     # Real tracking: the COURSE now teaches all 9 units starting at the student's
     # placed unit, so course activity counts as "learning" whatever unit they're on

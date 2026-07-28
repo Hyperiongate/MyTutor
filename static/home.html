@@ -12,11 +12,10 @@
                 with a problem / explore a topic / progress / find my level -- but every link
                 now CARRIES the chosen course (&course=<id>), and the labels say the course's
                 name. A "Change subject" chip goes back to the picker. Nothing was removed.
-                NOTE (interim, until Phase 3.4b): the placement redirect + Start/Continue label
-                still read the per-student `placed`/`history` from /api/session (not yet
-                per-course), so for now the "take the level exam first" step only applies to
-                Algebra I; Geometry starts straight into the lesson. Per-course placement +
-                per-course dashboard land next.
+                3.4b: the hub now reads `placed`/`history` PER COURSE (fetch /api/session?course=),
+                so the "take the level exam first" gate + Start/Continue label are correct for the
+                chosen course -- a first-time Geometry student is sent to the Geometry placement.
+                (Still pending: the "My progress" dashboard scoped to the chosen course -- 3.4c.)
     2026-07-21  New HOME HUB ("What would you like to do today?"). After login (and
                 placement for first-timers), a placed student lands here and chooses:
                   • Continue / Start my Algebra course   -> /session
@@ -199,7 +198,7 @@
       // now; Geometry starts straight into the lesson. Per-course placement is Phase 3.4b.)
       (async () => {
         try {
-          const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+          const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
           if (!res.ok) { location.href = "/"; return; }
           const data = await res.json();
           if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
@@ -209,8 +208,8 @@
             el("courseBlurb").textContent = "Begin your start-to-finish " + title + " journey with Mr. Cadabra.";
             el("courseGo").textContent = "Start →";
           }
-          if (!data.placed && COURSE === "algebra1") {
-            el("courseTile").href = "/challenge" + q;   // take the level exam first (Algebra I)
+          if (!data.placed) {
+            el("courseTile").href = "/challenge" + q;   // take this course's level exam first
           }
         } catch (e) { /* keep the friendly defaults */ }
       })();
