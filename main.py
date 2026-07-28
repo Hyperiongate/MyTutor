@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  GRAPHICS STAGE 2 -- STATISTICS & PROBABILITY VISUALS. Stamp -> "2026-07-28k-statsviz".
+#               Nine new figures in static/math-figures.js ([[bars]]/[[histogram]]/[[dotplot]]/
+#               [[boxplot]]/[[scatter]] with least-squares fit/[[normal]]/[[twoway]]/[[tree]]/[[pie]]),
+#               routed by session/practice/topic.html to showFig(). tutor.py practice/topic prompts now
+#               document them. No route/logic change here (only the stamp). Do no harm.
 #   2026-07-28  GRAPHICS STAGE 1 -- REAL FUNCTION GRAPHER. Stamp -> "2026-07-28j-grapher". No route/logic
 #               change here (only the stamp). New shared static/math-figures.js exposes
 #               window.MathFigures.svg('graph', attrs): [[graph]] now plots ANY function of x
@@ -719,7 +724,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28j-grapher"
+APP_BUILD = "2026-07-28k-statsviz"
 
 
 @app.get("/health")

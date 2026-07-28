@@ -2,6 +2,10 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  GRAPHICS STAGE 2 -- taught the tutor the statistics/probability pictures. The shared
+#               practice + topic templates now document [[bars]]/[[histogram]]/[[dotplot]]/[[boxplot]]/
+#               [[scatter]]/[[normal]]/[[twoway]]/[[tree]]/[[pie]] (rendered by static/math-figures.js).
+#               Prompt text only. (Full lesson-template integration lands with the Prob & Stat course.)
 #   2026-07-28  GRAPHICS STAGE 1 -- taught the tutor the upgraded [[graph]]. The grapher (new shared
 #               static/math-figures.js) now plots ANY function of x via func= (sin/cos/tan, exp, logs,
 #               polynomials, rationals with asymptotes, sqrt, abs). Updated the [[graph]] docs in the
@@ -2584,6 +2588,16 @@ and also appends to the worklist -- but prefer [[step]].)
     sqrt, abs), lines ("y=mx+b", separated by ; -- vertical "x=3" ok), parabola ("y=ax^2+bx+c"),
     points ("(x,y),(x,y)"), optional range and yrange, caption. Two lines auto-mark their
     intersection. Write x-expressions plainly (sin(x), 2^x, (x^2-1)/(x-2)).
+  STATISTICS & PROBABILITY PICTURES (use for data / chance topics):
+    [[bars data="Mon:5 | Tue:8 | Wed:3"]]  -- a labeled bar chart
+    [[histogram values="2,3,3,4,5,5,6,8,9" bins="4"]]  -- bins raw numbers into a histogram
+    [[dotplot values="3,4,4,5,5,5,6"]]  -- a dot plot over a number line
+    [[boxplot values="2,5,6,7,8,9,12,15"]]  -- a box-and-whisker (five-number summary; also accepts five="min,q1,med,q3,max")
+    [[scatter points="(1,2),(2,3),(3,5)" fit="true"]]  -- a scatter plot + a least-squares line of best fit
+    [[normal mean="0" sd="1" shade="-1..1"]]  -- a normal bell curve with a shaded region
+    [[twoway rowlabels="Male,Female" collabels="Yes,No" data="10,20 | 15,5"]]  -- a two-way table with totals
+    [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]]  -- a two-stage probability tree
+    [[pie data="Red:3 | Blue:2 | Green:1"]]  -- a pie chart / spinner
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
   [[graph lines="y=2x+1; y=-x+3" caption="the lines cross at (1, 2)"]]
@@ -2594,6 +2608,16 @@ and also appends to the worklist -- but prefer [[step]].)
     sqrt, abs), lines ("y=mx+b", separated by ; -- vertical "x=3" ok), parabola ("y=ax^2+bx+c"),
     points ("(x,y),(x,y)"), optional range and yrange, caption. Two lines auto-mark their
     intersection. Write x-expressions plainly (sin(x), 2^x, (x^2-1)/(x-2)).
+  STATISTICS & PROBABILITY PICTURES (use for data / chance topics):
+    [[bars data="Mon:5 | Tue:8 | Wed:3"]]  -- a labeled bar chart
+    [[histogram values="2,3,3,4,5,5,6,8,9" bins="4"]]  -- bins raw numbers into a histogram
+    [[dotplot values="3,4,4,5,5,5,6"]]  -- a dot plot over a number line
+    [[boxplot values="2,5,6,7,8,9,12,15"]]  -- a box-and-whisker (five-number summary; also accepts five="min,q1,med,q3,max")
+    [[scatter points="(1,2),(2,3),(3,5)" fit="true"]]  -- a scatter plot + a least-squares line of best fit
+    [[normal mean="0" sd="1" shade="-1..1"]]  -- a normal bell curve with a shaded region
+    [[twoway rowlabels="Male,Female" collabels="Yes,No" data="10,20 | 15,5"]]  -- a two-way table with totals
+    [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]]  -- a two-stage probability tree
+    [[pie data="Red:3 | Blue:2 | Green:1"]]  -- a pie chart / spinner
 
 Draw a FUNCTION MACHINE for evaluating a function (Unit 3) -- a number goes IN, the rule
 runs, a number comes OUT. Use this (not the balance) whenever you show what f(x) does:
@@ -2772,6 +2796,14 @@ where a single figure fits better than the worklist. (Legacy [[write lines="a | 
 works and also appends to the worklist -- but prefer [[step]].) Tags:
   [[balance left="crate + 4" right="12" state="level" caption="what's in the crate?"]]
   [[card title="Steps" items="first | second | third"]]
+  [[graph func="sin(x); 2^x; 1/(x-2)"]]  -- the grapher draws ANY curve of x accurately: sine/
+    cosine/tangent, exponentials, logs, polynomials, rationals WITH asymptotes, sqrt, abs (also
+    lines="y=2x+1", parabola="y=x^2-4x+1", points="(1,2)", range, yrange). Write x-expressions plainly.
+  STATISTICS & PROBABILITY PICTURES (for data / chance topics):
+    [[bars data="Mon:5 | Tue:8"]] , [[histogram values="2,3,3,5,8,9" bins="4"]] , [[dotplot values="3,4,4,5"]]
+    [[boxplot values="2,5,6,7,8,12"]] , [[scatter points="(1,2),(2,3),(3,5)" fit="true"]] (fit line)
+    [[normal mean="0" sd="1" shade="-1..1"]] , [[twoway rowlabels="M,F" collabels="Yes,No" data="10,20 | 15,5"]]
+    [[tree a="Rain:0.3 | Sun:0.7" b="Late:0.6,OnTime:0.4 ; Late:0.1,OnTime:0.9"]] , [[pie data="Red:3 | Blue:2"]]
 To ADD or SUBTRACT decimals or whole numbers in a column, use [[column]] -- it stacks the
 numbers so the place values (and every decimal point) line up on screen. THIS is the picture
 to use whenever you say "line up the decimal points":

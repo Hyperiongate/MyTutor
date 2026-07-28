@@ -2,6 +2,15 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-07-28  STAGE 2 -- STATISTICS & PROBABILITY SUITE. Added nine figures to
+                 window.MathFigures: [[bars]] (bar chart), [[histogram]] (bins raw values),
+                 [[dotplot]], [[boxplot]] (five-number summary; computes quartiles or takes five=),
+                 [[scatter]] (points + optional least-squares line of best fit via fit="true", or an
+                 explicit line=), [[normal]] (bell curve, mean/sd, optional shaded region), [[twoway]]
+                 (a two-way frequency table with row/col/grand totals -- returned as HTML), [[tree]]
+                 (a two-stage probability tree with joint probabilities), and [[pie]] (pie chart /
+                 spinner). All self-contained; bad input returns "". The 3 tutoring pages route these
+                 tags to showFig(); tutor.py practice/topic prompts document them.
      2026-07-28  NEW. Shared, self-contained whiteboard figures for the multi-course tutor
                  (companion to geo-figures.js). Exposes window.MathFigures.svg(kind, attrs) -> an
                  SVG string (no external CSS; all styling inline). Loaded via
@@ -213,8 +222,228 @@
     return svg + "</svg>";
   }
 
+  // ================= STATISTICS & PROBABILITY FIGURES (Stage 2) =================
+  function svgOpen(w, h, maxw) {
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + (maxw || 400) + 'px;height:auto;display:block;margin:6px auto;">';
+  }
+  function tspan(x, y, s, fill, size, weight, anchor) {
+    return '<text x="' + x + '" y="' + y + '" fill="' + (fill || "#26263a") + '" font-size="' + (size || 12) +
+      '" font-weight="' + (weight || 600) + '" text-anchor="' + (anchor || "middle") +
+      '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(s) + '</text>';
+  }
+  function parseData(str) {   // "A:5 | B:8" or "A:5, B:8" -> [{label,value}]
+    return String(str || "").split(/[|,]/).map(function (p) {
+      var i = p.indexOf(":"); if (i < 0) return null;
+      var v = parseFloat(p.slice(i + 1)); if (isNaN(v)) return null;
+      return { label: p.slice(0, i).trim(), value: v };
+    }).filter(Boolean);
+  }
+  function parseNums(str) {
+    return String(str || "").split(/[,\s]+/).map(function (s) { return parseFloat(s); }).filter(function (n) { return !isNaN(n); });
+  }
+  function quantile(sorted, q) {
+    var pos = (sorted.length - 1) * q, b = Math.floor(pos), r = pos - b;
+    return sorted[b + 1] !== undefined ? sorted[b] + r * (sorted[b + 1] - sorted[b]) : sorted[b];
+  }
+
+  // ---- [[bars]] : labeled vertical bar chart ----
+  function bars(a) {
+    var d = parseData(a.data); if (!d.length) return "";
+    var W = 400, H = 250, left = 36, right = W - 12, top = 22, base = H - 40, plotW = right - left, plotH = base - top;
+    var max = Math.max.apply(null, d.map(function (o) { return o.value; }).concat([1]));
+    var s = svgOpen(W, H, 400);
+    for (var i = 0; i <= 4; i++) { var v = max * i / 4, y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="#eef0f7"/>'; s += tspan(left - 5, y + 3, String(trimnum(v)), "#8890a0", 9, 500, "end"); }
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    var bw = plotW / d.length, bar = bw * 0.62;
+    d.forEach(function (o, i) {
+      var x = left + bw * i + (bw - bar) / 2, h = plotH * o.value / max, y = base - h, col = COLORS[i % COLORS.length];
+      s += '<rect x="' + x + '" y="' + y + '" width="' + bar + '" height="' + h + '" rx="3" fill="' + col + '"/>';
+      s += tspan(x + bar / 2, y - 5, String(trimnum(o.value)), "#26263a", 11, 700);
+      s += tspan(x + bar / 2, base + 15, o.label, "#556", 11, 600);
+    });
+    return s + "</svg>";
+  }
+
+  // ---- [[histogram]] : bins raw values into adjacent bars ----
+  function histogram(a) {
+    var vals = parseNums(a.values || a.data); if (vals.length < 2) return "";
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals); if (max === min) max = min + 1;
+    var bins = Math.max(2, Math.min(12, parseInt(a.bins, 10) || Math.ceil(Math.sqrt(vals.length))));
+    var bw = (max - min) / bins, counts = []; for (var b0 = 0; b0 < bins; b0++) counts.push(0);
+    vals.forEach(function (v) { var k = Math.min(bins - 1, Math.floor((v - min) / bw)); counts[k]++; });
+    var maxc = Math.max.apply(null, counts.concat([1]));
+    var W = 420, H = 260, left = 34, right = W - 12, top = 20, base = H - 42, plotW = right - left, plotH = base - top;
+    var s = svgOpen(W, H, 420);
+    for (var i = 0; i <= 4; i++) { var y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="#eef0f7"/>'; s += tspan(left - 5, y + 3, String(Math.round(maxc * i / 4)), "#8890a0", 9, 500, "end"); }
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    var cw = plotW / bins;
+    counts.forEach(function (c, i) { var x = left + cw * i, h = plotH * c / maxc, y = base - h; s += '<rect x="' + (x + 1) + '" y="' + y + '" width="' + (cw - 2) + '" height="' + h + '" fill="' + COLORS[0] + '" fill-opacity="0.85" stroke="#fff"/>'; if (c) s += tspan(x + cw / 2, y - 4, String(c), "#26263a", 10, 700); });
+    for (var e = 0; e <= bins; e++) { if (bins > 8 && (e % 2)) continue; var xe = left + cw * e; s += tspan(xe, base + 15, String(trimnum(min + bw * e)), "#8890a0", 9, 500); }
+    return s + "</svg>";
+  }
+
+  // ---- [[dotplot]] : stacked dots over a number line ----
+  function dotplot(a) {
+    var vals = parseNums(a.values || a.data); if (!vals.length) return "";
+    var min = Math.floor(Math.min.apply(null, vals)), max = Math.ceil(Math.max.apply(null, vals)); if (max === min) max = min + 1;
+    var W = 420, H = 200, left = 22, right = W - 22, axisY = H - 34, plotW = right - left;
+    var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
+    var s = svgOpen(W, H, 420);
+    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+    for (var t = min; t <= max; t++) { var x = mapX(t); s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>'; s += tspan(x, axisY + 17, String(t), "#8890a0", 10, 500); }
+    var counts = {};
+    vals.slice().sort(function (p, q) { return p - q; }).forEach(function (v) { var n = counts[v] || 0; counts[v] = n + 1; s += '<circle cx="' + mapX(v) + '" cy="' + (axisY - 9 - n * 12) + '" r="4.5" fill="' + COLORS[0] + '"/>'; });
+    return s + "</svg>";
+  }
+
+  // ---- [[boxplot]] : five-number summary ----
+  function boxplot(a) {
+    var five;
+    if (a.five) five = parseNums(a.five);
+    else { var v = parseNums(a.values || a.data).sort(function (p, q) { return p - q; }); if (v.length < 2) return ""; five = [v[0], quantile(v, 0.25), quantile(v, 0.5), quantile(v, 0.75), v[v.length - 1]]; }
+    if (five.length < 5) return "";
+    var lo = five[0], hi = five[4], pad = (hi - lo) * 0.12 || 1, amin = lo - pad, amax = hi + pad;
+    var W = 420, H = 160, left = 24, right = W - 24, cy = 64, plotW = right - left, axisY = H - 34;
+    var mapX = function (v) { return left + (v - amin) / (amax - amin) * plotW; };
+    var s = svgOpen(W, H, 420);
+    s += '<line x1="' + mapX(five[0]) + '" y1="' + cy + '" x2="' + mapX(five[1]) + '" y2="' + cy + '" stroke="#5b5bd6" stroke-width="2"/>';
+    s += '<line x1="' + mapX(five[3]) + '" y1="' + cy + '" x2="' + mapX(five[4]) + '" y2="' + cy + '" stroke="#5b5bd6" stroke-width="2"/>';
+    [0, 4].forEach(function (k) { s += '<line x1="' + mapX(five[k]) + '" y1="' + (cy - 12) + '" x2="' + mapX(five[k]) + '" y2="' + (cy + 12) + '" stroke="#5b5bd6" stroke-width="2"/>'; });
+    s += '<rect x="' + mapX(five[1]) + '" y="' + (cy - 20) + '" width="' + (mapX(five[3]) - mapX(five[1])) + '" height="40" fill="rgba(91,91,214,.12)" stroke="#5b5bd6" stroke-width="2"/>';
+    s += '<line x1="' + mapX(five[2]) + '" y1="' + (cy - 20) + '" x2="' + mapX(five[2]) + '" y2="' + (cy + 20) + '" stroke="#e0392b" stroke-width="2.5"/>';
+    s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#9aa7b6"/>';
+    ["", "", "", "", ""].forEach(function (_, k) { var x = mapX(five[k]); s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>'; s += tspan(x, axisY + 16, String(trimnum(five[k])), "#556", 10, 600); });
+    return s + "</svg>";
+  }
+
+  // ---- [[scatter]] : points + optional line of best fit ----
+  function scatter(a) {
+    var pts = parsePts(a.points); if (pts.length < 2) return "";
+    var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+    var xmin = Math.min.apply(null, xs), xmax = Math.max.apply(null, xs), ymin = Math.min.apply(null, ys), ymax = Math.max.apply(null, ys);
+    var pxr = (xmax - xmin) || 1, pyr = (ymax - ymin) || 1; xmin -= pxr * 0.12; xmax += pxr * 0.12; ymin -= pyr * 0.12; ymax += pyr * 0.12;
+    var W = 400, H = 340, PAD = 34, plot = W - 2 * PAD, plotH = H - 2 * PAD - 8;
+    var mapX = function (x) { return PAD + (x - xmin) / (xmax - xmin) * plot; };
+    var mapY = function (y) { return PAD + (ymax - y) / (ymax - ymin) * plotH; };
+    var s = svgOpen(W, H, 400);
+    s += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plotH + '" fill="#fbfbff" stroke="#e7e6f2"/>';
+    for (var i = 0; i <= 4; i++) {
+      var gx = PAD + plot * i / 4, gy = PAD + plotH * i / 4;
+      s += '<line x1="' + gx + '" y1="' + PAD + '" x2="' + gx + '" y2="' + (PAD + plotH) + '" stroke="#eef0f7"/>';
+      s += '<line x1="' + PAD + '" y1="' + gy + '" x2="' + (PAD + plot) + '" y2="' + gy + '" stroke="#eef0f7"/>';
+      s += tspan(gx, PAD + plotH + 14, String(trimnum(xmin + (xmax - xmin) * i / 4)), "#8890a0", 9, 500);
+      s += tspan(PAD - 6, PAD + plotH - plotH * i / 4 + 3, String(trimnum(ymin + (ymax - ymin) * i / 4)), "#8890a0", 9, 500, "end");
+    }
+    var m, b;
+    if (a.fit && /^(true|yes|1)$/i.test(String(a.fit))) {
+      var n = pts.length, sx = 0, sy = 0, sxx = 0, sxy = 0;
+      pts.forEach(function (p) { sx += p[0]; sy += p[1]; sxx += p[0] * p[0]; sxy += p[0] * p[1]; });
+      m = (n * sxy - sx * sy) / (n * sxx - sx * sx); b = (sy - m * sx) / n;
+    } else if (a.line) { var L = parseLinear(a.line); if (L && !L.vertical) { m = L.m; b = L.b; } }
+    if (m !== undefined && isFinite(m)) {
+      s += '<line x1="' + mapX(xmin) + '" y1="' + mapY(m * xmin + b) + '" x2="' + mapX(xmax) + '" y2="' + mapY(m * xmax + b) + '" stroke="#e0392b" stroke-width="2.5"/>';
+      s += tspan(PAD + plot - 4, PAD + 13, "y = " + trimnum(m) + "x + " + trimnum(b), "#c0392b", 11, 700, "end");
+    }
+    pts.forEach(function (p) { s += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4" fill="#5b5bd6" fill-opacity="0.85"/>'; });
+    return s + "</svg>";
+  }
+
+  // ---- [[normal]] : bell curve with an optional shaded region ----
+  function normal(a) {
+    var mean = parseFloat(a.mean); if (isNaN(mean)) mean = 0;
+    var sd = parseFloat(a.sd); if (isNaN(sd) || sd <= 0) sd = 1;
+    var W = 420, H = 240, left = 20, right = W - 20, base = H - 36, top = 24, plotW = right - left, plotH = base - top;
+    var xmin = mean - 4 * sd, xmax = mean + 4 * sd;
+    var f = function (x) { return Math.exp(-0.5 * Math.pow((x - mean) / sd, 2)); };
+    var mapX = function (x) { return left + (x - xmin) / (xmax - xmin) * plotW; };
+    var mapY = function (y) { return base - y * plotH * 0.92; };
+    var s = svgOpen(W, H, 420);
+    var sh = parseRange(a.shade);
+    if (a.lo != null || a.hi != null) sh = [parseFloat(a.lo != null ? a.lo : xmin), parseFloat(a.hi != null ? a.hi : xmax)];
+    if (sh && isFinite(sh[0]) && isFinite(sh[1])) {
+      var poly = [mapX(sh[0]) + "," + base], stp = (sh[1] - sh[0]) / 60 || 1;
+      for (var x = sh[0]; x <= sh[1] + 1e-9; x += stp) poly.push(mapX(x) + "," + mapY(f(x)));
+      poly.push(mapX(sh[1]) + "," + base);
+      s += '<polygon points="' + poly.join(" ") + '" fill="rgba(91,91,214,.22)"/>';
+    }
+    var cp = []; for (var x2 = xmin; x2 <= xmax + 1e-9; x2 += (xmax - xmin) / 120) cp.push(mapX(x2) + "," + mapY(f(x2)));
+    s += '<polyline points="' + cp.join(" ") + '" fill="none" stroke="#5b5bd6" stroke-width="2.5"/>';
+    s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6"/>';
+    for (var k = -3; k <= 3; k++) { var xk = mean + k * sd, xp = mapX(xk); s += '<line x1="' + xp + '" y1="' + base + '" x2="' + xp + '" y2="' + (base + 5) + '" stroke="#9aa7b6"/>'; s += tspan(xp, base + 16, String(trimnum(xk)), "#8890a0", 10, 500); }
+    s += '<line x1="' + mapX(mean) + '" y1="' + mapY(1) + '" x2="' + mapX(mean) + '" y2="' + base + '" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    return s + "</svg>";
+  }
+
+  // ---- [[twoway]] : a two-way frequency table (HTML) with totals ----
+  function twoway(a) {
+    var rows = String(a.rowlabels || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var cols = String(a.collabels || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var dataRows = String(a.data || "").split("|").map(function (r) { return r.split(",").map(function (x) { return parseFloat(x.trim()); }); });
+    if (!rows.length || !cols.length || !dataRows.length) return "";
+    var colTot = cols.map(function () { return 0; }), grand = 0;
+    var td = 'style="border:1px solid #d8d8ec;padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;"';
+    var tot = 'style="border:1px solid #d8d8ec;padding:6px 12px;text-align:center;font-family:system-ui,Arial,sans-serif;font-size:13px;background:#f3f3fb;"';
+    var html = '<table style="border-collapse:collapse;margin:8px auto;background:#fff;box-shadow:0 4px 14px rgba(20,30,45,.06);">';
+    html += '<tr><td ' + td + '></td>';
+    cols.forEach(function (c) { html += '<td ' + td + '><b>' + esc(c) + '</b></td>'; });
+    html += '<td ' + tot + '><b>Total</b></td></tr>';
+    rows.forEach(function (r, i) {
+      var rowTot = 0; html += '<tr><td ' + td + '><b>' + esc(r) + '</b></td>';
+      cols.forEach(function (c, j) { var v = (dataRows[i] && !isNaN(dataRows[i][j])) ? dataRows[i][j] : 0; rowTot += v; colTot[j] += v; html += '<td ' + td + '>' + v + '</td>'; });
+      grand += rowTot; html += '<td ' + tot + '>' + rowTot + '</td></tr>';
+    });
+    html += '<tr><td ' + tot + '><b>Total</b></td>';
+    colTot.forEach(function (v) { html += '<td ' + tot + '>' + v + '</td>'; });
+    html += '<td ' + tot + '><b>' + grand + '</b></td></tr></table>';
+    return html;
+  }
+
+  // ---- [[tree]] : a two-stage probability tree ----
+  function tree(a) {
+    var first = parseData(a.a || a.stage1); if (!first.length) return "";
+    var groups = String(a.b || a.stage2 || "").split(";").map(function (g) { return parseData(g); });
+    var W = 430, H = 40 + first.length * 92, x0 = 26, x1 = 150, x2 = 288;
+    var s = svgOpen(W, H, 430);
+    var rootY = H / 2, gap = (H - 30) / first.length;
+    s += '<circle cx="' + x0 + '" cy="' + rootY + '" r="4" fill="#26263a"/>';
+    first.forEach(function (f1, i) {
+      var y1 = 20 + gap * (i + 0.5);
+      s += '<line x1="' + x0 + '" y1="' + rootY + '" x2="' + x1 + '" y2="' + y1 + '" stroke="#5b5bd6" stroke-width="2"/>';
+      s += tspan((x0 + x1) / 2, (rootY + y1) / 2 - 6, f1.label + " (" + trimnum(f1.value) + ")", "#26263a", 11, 700);
+      s += '<circle cx="' + x1 + '" cy="' + y1 + '" r="3.5" fill="#26263a"/>';
+      var sec = (groups[i] && groups[i].length) ? groups[i] : (groups[0] || []);
+      var sgap = 42;
+      sec.forEach(function (f2, j) {
+        var y2 = y1 - ((sec.length - 1) * sgap) / 2 + j * sgap;
+        s += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#0d9488" stroke-width="2"/>';
+        s += tspan((x1 + x2) / 2, (y1 + y2) / 2 - 6, f2.label + " (" + trimnum(f2.value) + ")", "#0d9488", 11, 700);
+        s += tspan(x2 + 8, y2 + 4, f1.label + f2.label + " = " + trimnum(f1.value * f2.value), "#556", 11, 700, "start");
+      });
+    });
+    return s + "</svg>";
+  }
+
+  // ---- [[pie]] : pie chart / spinner ----
+  function pie(a) {
+    var d = parseData(a.data || a.sectors); if (!d.length) return "";
+    var total = d.reduce(function (s, o) { return s + o.value; }, 0) || 1;
+    var W = 380, H = 240, cx = 118, cy = 120, R = 92, s = svgOpen(W, H, 380), ang = -Math.PI / 2;
+    d.forEach(function (o, i) {
+      var frac = o.value / total, a2 = ang + frac * 2 * Math.PI;
+      var x1 = cx + R * Math.cos(ang), y1 = cy + R * Math.sin(ang), x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2), large = frac > 0.5 ? 1 : 0;
+      if (frac >= 0.999) s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="' + COLORS[i % COLORS.length] + '"/>';
+      else s += '<path d="M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + COLORS[i % COLORS.length] + '" stroke="#fff" stroke-width="2"/>';
+      var ly = 44 + i * 24;
+      s += '<rect x="248" y="' + (ly - 11) + '" width="13" height="13" rx="2" fill="' + COLORS[i % COLORS.length] + '"/>';
+      s += tspan(268, ly, o.label + "  " + Math.round(frac * 100) + "%", "#26263a", 12, 600, "start");
+      ang = a2;
+    });
+    return s + "</svg>";
+  }
+
   window.MathFigures = {
-    graph: graph,
+    graph: graph, bars: bars, histogram: histogram, dotplot: dotplot, boxplot: boxplot,
+    scatter: scatter, normal: normal, twoway: twoway, tree: tree, pie: pie,
     _compile: compile,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }
