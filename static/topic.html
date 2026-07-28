@@ -397,13 +397,14 @@
     const CODE = (params.get("code") || "").trim();
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this topic is for (multi-course)
     if (!CODE) { window.location.href = "/"; }
-    el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
-    el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
+    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    el("homeLink").href = "/home" + cq;
+    el("entryBack").href = "/home" + cq;
     // Cross-mode nav (so you can move between the course, practice, and dashboard
-    // without going back to the hub first).
-    el("courseLink").href = "/session?code=" + encodeURIComponent(CODE);
-    el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
-    el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
+    // without going back to the hub first) -- keep the chosen course in every link.
+    el("courseLink").href = "/session" + cq;
+    el("practiceLink").href = "/practice" + cq;
+    el("dashLink").href = "/dashboard" + cq;
 
     const feed = el("feed"), statusEl = el("status");
     const pauseBtn = el("pauseBtn");
@@ -419,12 +420,23 @@
     let state = "idle";
     function setState(s) { state = s; }
 
-    // The 9 Algebra I units (topic picker).
-    const UNITS = [
-      "Foundations & Expressions", "Linear Equations & Inequalities", "Functions & Notation",
-      "Linear Functions & Graphs", "Systems of Equations", "Exponents & Exponential Functions",
-      "Polynomials & Factoring", "Quadratic Functions", "Data & Statistics",
-    ];
+    // The topic picker's units, PER COURSE (kept in step with curriculum.py's catalog).
+    const UNITS_BY_COURSE = {
+      algebra1: [
+        "Foundations & Expressions", "Linear Equations & Inequalities", "Functions & Notation",
+        "Linear Functions & Graphs", "Systems of Equations", "Exponents & Exponential Functions",
+        "Polynomials & Factoring", "Quadratic Functions", "Data & Statistics",
+      ],
+      geometry: [
+        "Foundations & Constructions", "Transformations & Symmetry", "Congruence & Triangle Proofs",
+        "Similarity & Dilations", "Right Triangles & Trigonometry", "Circles",
+        "Coordinate Geometry", "Area, Surface Area & Volume", "Probability",
+      ],
+    };
+    const UNITS = UNITS_BY_COURSE[COURSE] || UNITS_BY_COURSE.algebra1;
+    // A course-appropriate placeholder for the "type your own topic" box.
+    el("topicInput").placeholder = (COURSE === "geometry")
+      ? "e.g. how inscribed angles work" : "e.g. how slope works";
 
     // ---------- Audio graph ----------
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";

@@ -632,7 +632,8 @@
     }
 
     // ---------- Curriculum navigator ----------
-    const CURRICULUM = [
+    const CURRICULUM_BY_COURSE = {
+      algebra1: [
       { n: 1, name: "Foundations & Expressions", blurb: "The building blocks of algebra: variables, terms, and how to rewrite expressions.",
         topics: ["Variables, terms & coefficients", "Combining like terms", "The distributive property", "The real number system"] },
       { n: 2, name: "Linear Equations & Inequalities", blurb: "Finding an unknown value by keeping both sides balanced — where you are now.",
@@ -651,12 +652,35 @@
         topics: ["Graphing parabolas", "Solving by factoring", "The quadratic formula", "Vertex & intercepts"] },
       { n: 9, name: "Data & Statistics", blurb: "Describing data and fitting lines to it.",
         topics: ["Center & spread", "Scatter plots & association", "Line of best fit", "Correlation vs. causation"] },
-    ];
+      ],
+      geometry: [
+      { n: 1, name: "Foundations & Constructions", blurb: "Points, lines, and angles — and exact compass-and-straightedge constructions.",
+        topics: ["Naming & measuring angles", "Complementary, supplementary & vertical angles", "Midpoints & bisectors", "Basic constructions"] },
+      { n: 2, name: "Transformations & Symmetry", blurb: "Sliding, flipping, and turning figures — plus symmetry.",
+        topics: ["Translations", "Reflections", "Rotations", "Line & rotational symmetry"] },
+      { n: 3, name: "Congruence & Triangle Proofs", blurb: "When two figures match exactly — and how to prove it, step by step.",
+        topics: ["Congruence from rigid motions", "SSS, SAS, ASA, AAS, HL", "Two-column proofs", "CPCTC"] },
+      { n: 4, name: "Similarity & Dilations", blurb: "Same shape, scaled size — and the proportions that come with it.",
+        topics: ["Dilations & scale factor", "AA similarity", "Similar-triangle proportions", "How area scales"] },
+      { n: 5, name: "Right Triangles & Trigonometry", blurb: "The Pythagorean theorem and the sine, cosine, and tangent ratios.",
+        topics: ["Pythagorean theorem & its converse", "Special right triangles", "Sine, cosine, tangent (SOH-CAH-TOA)", "Angles of elevation & depression"] },
+      { n: 6, name: "Circles", blurb: "Angles, arcs, chords, and tangents in a circle.",
+        topics: ["Central & inscribed angles", "Chords & tangents", "Arc length & sector area", "Equation of a circle"] },
+      { n: 7, name: "Coordinate Geometry", blurb: "Doing geometry on the coordinate plane, with algebra as the tool.",
+        topics: ["Distance & midpoint formulas", "Slope: parallel & perpendicular", "Coordinate proofs", "Equation of a circle"] },
+      { n: 8, name: "Area, Surface Area & Volume", blurb: "Measuring flat shapes and three-dimensional solids.",
+        topics: ["Area of polygons & circles", "Surface area & nets", "Volume of prisms, cylinders, cones & spheres", "Cross-sections & modeling"] },
+      { n: 9, name: "Probability", blurb: "Chance, compound events, and conditional probability.",
+        topics: ["Sample spaces & compound events", "Conditional probability", "Independence", "Two-way tables"] },
+      ],
+    };
+    const CURRICULUM = CURRICULUM_BY_COURSE[COURSE] || CURRICULUM_BY_COURSE.algebra1;
     const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
-    el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
-    el("practiceLink").href = "/practice?code=" + encodeURIComponent(CODE);
-    el("homeLink").href = "/home?code=" + encodeURIComponent(CODE);
-    el("welcomeChallenge").href = "/challenge?code=" + encodeURIComponent(CODE);
+    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    el("dashLink").href = "/dashboard" + cq;
+    el("practiceLink").href = "/practice" + cq;
+    el("homeLink").href = "/home" + cq;
+    el("welcomeChallenge").href = "/challenge" + cq;
     function renderCurriculum() {
       curriculumList.innerHTML = "";
       CURRICULUM.forEach((u, i) => {
@@ -1528,7 +1552,7 @@
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
       if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "Voice recording isn't supported here — type instead."; showComposer(); }
       try {
-        const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+        const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { window.location.href = "/"; return; }
         const data = await res.json();
         const placed = !!data.placed;
@@ -1538,7 +1562,7 @@
         // FIND THEIR LEVEL first. Login already routes this way, but this also covers
         // someone opening /session directly or after their placement was reset.
         if (!hasHistory && !placed) {
-          window.location.href = "/challenge?code=" + encodeURIComponent(CODE);
+          window.location.href = "/challenge" + cq;
           return;
         }
         // Highlight the student's current unit on the course map (from placement).

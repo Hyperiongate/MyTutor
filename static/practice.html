@@ -409,13 +409,14 @@
     const CODE = (params.get("code") || "").trim();
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this practice is for (multi-course)
     if (!CODE) { window.location.href = "/"; }
-    el("lessonLink").href = "/home?code=" + encodeURIComponent(CODE);
-    el("entryBack").href = "/home?code=" + encodeURIComponent(CODE);
+    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    el("lessonLink").href = "/home" + cq;
+    el("entryBack").href = "/home" + cq;
     // Cross-mode nav (move between the course, topic explorer, and dashboard without
-    // going back to the hub first).
-    el("courseLink").href = "/session?code=" + encodeURIComponent(CODE);
-    el("topicLink").href = "/topic?code=" + encodeURIComponent(CODE);
-    el("dashLink").href = "/dashboard?code=" + encodeURIComponent(CODE);
+    // going back to the hub first) -- keep the chosen course in every link.
+    el("courseLink").href = "/session" + cq;
+    el("topicLink").href = "/topic" + cq;
+    el("dashLink").href = "/dashboard" + cq;
 
     const feed = el("feed"), statusEl = el("status");
     const pauseBtn = el("pauseBtn");
