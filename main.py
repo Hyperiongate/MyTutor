@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  "MY COURSES" -- THE DASHBOARD NO LONGER SHOWS ONLY ONE COURSE. Stamp ->
+#               "2026-07-28r-mycourses". A student could only ever see the course they happened to
+#               enter with, which broke the app's own core case: a student in Algebra I who is also
+#               shoring up fractions in Pre-Algebra saw HALF their progress and needed four clicks to
+#               reach the rest. New GET /api/courses/{code} returns every course with REAL activity
+#               (units started/mastered/checked, avg best, last active) in ladder order, built on the
+#               new store.get_course_activity(code) which gathers it in ONE pass over topic_progress
+#               + unit_checks rather than a query per course. Courses never opened are omitted
+#               (nothing invented); when tracking is off it reports that. dashboard.html renders the
+#               strip and hides it entirely for a single-course student, so nothing changes for them.
+#               Read-only and additive -- no existing endpoint, table, or signature touched.
 #   2026-07-28  PHASE 4 -- DIFFERENTIAL EQUATIONS COURSE COMPLETE (eighth full peer, and the top of
 #               the ladder). Stamp -> "2026-07-28q-diffeq". No route/logic change here (only the
 #               stamp) -- `course` flows generically. Landed in curriculum.py (COURSES["diffeq"]) +
@@ -897,6 +908,39 @@ def get_class_summary(class_code: str, course: str = "algebra1"):
     }
 
 
+@app.get("/api/courses/{code}")
+def student_courses(code: str):
+    """EVERY course this student has actually worked in, with units mastered/started -- for the
+    dashboard's "My courses" strip. Returns courses with REAL activity only, in ladder order, so
+    a student sees their whole picture at a glance and can switch with one click. When tracking is
+    off it reports that rather than inventing anything."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False, "courses": []}
+    try:
+        activity = store.get_course_activity(code)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[courses] get_course_activity failed: {exc}")
+        activity = {}
+    courses = []
+    for cid, title in curriculum.list_courses():          # ladder order
+        a = activity.get(cid)
+        if not a:
+            continue                                      # never opened -> don't show a shell
+        courses.append({
+            "course": cid,
+            "title": title,
+            "units_total": len(curriculum.units_for(cid)),
+            "units_started": a.get("units_started", 0),
+            "units_mastered": a.get("units_mastered", 0),
+            "units_checked": a.get("units_checked", 0),
+            "avg_best_pct": a.get("avg_best_pct"),
+            "last_active": a.get("last_active"),
+        })
+    return {"ok": True, "tracking": True, "courses": courses}
+
+
 @app.post("/api/placement/{code}")
 def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
     """Save the result of Mr. Cadabra's Challenge for this student, for THIS course."""
@@ -949,7 +993,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28q-diffeq"
+APP_BUILD = "2026-07-28r-mycourses"
 
 
 @app.get("/health")

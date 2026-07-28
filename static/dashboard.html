@@ -4,6 +4,16 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED THE "MY COURSES" STRIP. The dashboard used to show ONLY the course you happened
+                to arrive with, so a student working two courses (e.g. Algebra I plus Pre-Algebra to
+                shore up fractions -- the app's core remediation case) saw half their progress and
+                needed four clicks to see the rest. A compact strip now lists EVERY course they have
+                actually worked in (from the new GET /api/courses/{code}) with units mastered + a
+                progress bar, the current one badged HERE, one click to switch, and a total across
+                all courses. Courses never opened are not shown (nothing invented). Hidden entirely
+                when only one course is in play, so a single-course student sees no change. Works in
+                the parent/teacher view too (carries &view=teacher). The 9-unit detail view below is
+                untouched. Do no harm.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -203,6 +213,24 @@
       background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
       background-attachment: fixed, fixed, fixed, scroll, scroll, scroll, scroll, scroll;
     }
+
+    /* My courses strip */
+    .mycourses { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px; margin-bottom: 6px; }
+    .mc { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+      padding: 13px 15px; text-decoration: none; color: var(--ink); display: block;
+      box-shadow: 0 6px 18px rgba(20,30,45,.05); transition: transform .12s ease, box-shadow .12s ease; }
+    .mc:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(20,30,45,.12); }
+    .mc.current { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(91,91,214,.18), 0 6px 18px rgba(20,30,45,.06); }
+    .mc .nm { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .mc .nm .here { font-size: 10px; font-weight: 800; color: var(--accent);
+      background: rgba(91,91,214,.12); border-radius: 999px; padding: 2px 7px; letter-spacing: .03em; }
+    .mc .cnt { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+    .mc .bar { height: 7px; border-radius: 5px; background: #eef0f7; margin-top: 9px; overflow: hidden; }
+    .mc .bar i { display: block; height: 100%; border-radius: 5px;
+      background: linear-gradient(90deg, var(--st-mastered), #48c99a); }
+    .mc.add { display: flex; align-items: center; justify-content: center; text-align: center;
+      color: var(--accent); font-weight: 700; font-size: 13px; border-style: dashed; box-shadow: none; }
   </style>
 </head>
 <body>
@@ -215,6 +243,13 @@
     <p class="sub">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
 
     <div id="teacherBox" class="teacherbox" style="display:none;"></div>
+
+    <!-- MY COURSES: every course this student has actually worked in (activity only). Gives the
+         whole picture at a glance and makes switching one click instead of four. -->
+    <div id="myCoursesWrap" style="display:none;">
+      <div class="section-h" id="myCoursesHead">My courses <span class="note" id="myCoursesNote"></span></div>
+      <div class="mycourses" id="myCourses"></div>
+    </div>
 
     <div id="offnote" class="offnote" style="display:none;">
       Progress tracking isn't switched on yet, so there's nothing to show. Once it's on,
@@ -449,6 +484,36 @@
           + '<a class="cta" href="/home?code=' + encodeURIComponent(CODE) + '">Let\'s go →</a>';
       }
     })();
+
+
+    // ----- MY COURSES strip: the student's whole picture, not just the course they walked in with -----
+    async function loadMyCourses() {
+      try {
+        const res = await fetch("/api/courses/" + encodeURIComponent(CODE));
+        if (!res.ok) return;
+        const d = await res.json();
+        const list = (d && d.courses) || [];
+        // Only worth showing once there's more than one course in play.
+        if (!d.tracking || list.length < 2) return;
+        const totalMastered = list.reduce((s, c) => s + c.units_mastered, 0);
+        el("myCoursesNote").textContent =
+          "— " + totalMastered + " unit" + (totalMastered === 1 ? "" : "s") +
+          " mastered across " + list.length + " courses";
+        el("myCourses").innerHTML = list.map(c => {
+          const pct = c.units_total ? Math.round(100 * c.units_mastered / c.units_total) : 0;
+          const here = (c.course === COURSE);
+          const q = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(c.course)
+                  + (isTeacher ? "&view=teacher" : "");
+          return '<a class="mc' + (here ? " current" : "") + '" href="/dashboard' + q + '">'
+            + '<div class="nm">' + esc(c.title) + (here ? '<span class="here">HERE</span>' : "") + '</div>'
+            + '<div class="cnt">' + c.units_mastered + ' of ' + c.units_total + ' units mastered</div>'
+            + '<div class="bar"><i style="width:' + pct + '%"></i></div></a>';
+        }).join("") + (isTeacher ? "" :
+          '<a class="mc add" href="/home?code=' + encodeURIComponent(CODE) + '">+ Explore another subject</a>');
+        el("myCoursesWrap").style.display = "block";
+      } catch (e) { /* strip is a bonus -- never block the dashboard */ }
+    }
+    loadMyCourses();
   </script>
 </body>
 </html>

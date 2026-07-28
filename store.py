@@ -2,6 +2,11 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED get_course_activity(code): every course a student has actually touched, with
+#               units started / mastered / checked and last-active, gathered in ONE pass over
+#               topic_progress + unit_checks instead of one query per course. Courses with no
+#               activity are simply absent (nothing invented). Feeds the dashboard's "My courses"
+#               strip. Read-only and additive -- no table or existing function changed. Do no harm.
 #   2026-07-28  TEACHER / PARENT CLASSROOM ROSTER. Two NEW tables -- `classes` (class_code, name,
 #               owner_name) and `class_members` (class_code, student_code) -- plus create_class /
 #               get_class / list_students / add_student / remove_student / delete_class. A "class"
@@ -691,6 +696,55 @@ def delete_class(class_code: str) -> bool:
         conn.execute(cm.delete().where(cm.c.class_code == cc))
         conn.execute(cl.delete().where(cl.c.class_code == cc))
     return True
+
+
+def get_course_activity(code: str) -> dict:
+    """EVERY course this student has actually touched, in ONE pass (not one query per course).
+
+    Returns {course_id: {units_started, units_mastered, units_checked, best_total, last_active}}
+    for courses with real activity only -- a course the student has never opened is simply
+    absent, so the caller never has to invent an empty shell. Used by the dashboard's
+    "My courses" strip, which needs the whole picture without firing a request per course.
+    """
+    from sqlalchemy import select
+    out = {}
+
+    # 1) engagement (explored / learning / practiced) per course, from topic_progress
+    tp = _tables["topic_progress"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(tp.c.course, tp.c.unit, tp.c.status, tp.c.last_touched)
+                            .where(tp.c.code == code)).all()
+    for course, unit, status_, last in rows:
+        c = out.setdefault(course, {"units_started": 0, "units_mastered": 0,
+                                    "units_checked": 0, "best_total": 0, "last_active": None})
+        if status_ and status_ != "not-started":
+            c["units_started"] += 1
+        if last and (c["last_active"] is None or last > c["last_active"]):
+            c["last_active"] = last
+
+    # 2) mastery per course, from unit_checks (a unit is mastered at best >= 80%)
+    uc = _tables["unit_checks"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(uc.c.course, uc.c.unit, uc.c.best_pct, uc.c.updated_at)
+                            .where(uc.c.code == code)).all()
+    for course, unit, best, updated in rows:
+        c = out.setdefault(course, {"units_started": 0, "units_mastered": 0,
+                                    "units_checked": 0, "best_total": 0, "last_active": None})
+        best = int(best or 0)
+        c["units_checked"] += 1
+        c["best_total"] += best
+        if best >= 80:
+            c["units_mastered"] += 1
+        if updated and (c["last_active"] is None or updated > c["last_active"]):
+            c["last_active"] = updated
+
+    # a unit that's been checked counts as started even if topic_progress never saw it
+    for c in out.values():
+        c["units_started"] = max(c["units_started"], c["units_checked"])
+        c["avg_best_pct"] = (round(c["best_total"] / c["units_checked"]) if c["units_checked"] else None)
+        c["last_active"] = (c["last_active"].isoformat() if c["last_active"] else None)
+        c.pop("best_total", None)
+    return out
 
 
 def status() -> dict:
