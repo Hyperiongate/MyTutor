@@ -2,6 +2,10 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 4 -- ALGEBRA II (the fourth rung of the math ladder; source
+#               AlgebraII_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
+#               appended to COURSE_ORDER (prealgebra -> algebra1 -> geometry -> algebra2). Purely
+#               additive; Pre-Algebra, Algebra I, and Geometry untouched. Do no harm.
 #   2026-07-28  ADDED COURSE 3 -- PRE-ALGEBRA (the "everything before algebra" foundations course;
 #               source PreAlgebra_Curriculum_KB.md). 9 concept units + aliases + keyword rules;
 #               added to COURSES and placed FIRST in COURSE_ORDER (prealgebra -> algebra1 ->
@@ -176,6 +180,67 @@ _PREALGEBRA_RULES = [
 ]
 
 # =============================================================================
+# COURSE 4 -- ALGEBRA II  (9 units, CA/CCSS-aligned; source: AlgebraII_Curriculum_KB.md). The rung
+# above Geometry: complex numbers, the full family of function types, sequences/series, intro trig,
+# and inferential statistics. Course-first (like Algebra I / Geometry), not menu-first.
+# =============================================================================
+_ALGEBRA2_UNITS = [
+    (1, "Foundations & Systems"),
+    (2, "Quadratic Functions & Complex Numbers"),
+    (3, "Polynomial Functions"),
+    (4, "Rational Expressions & Functions"),
+    (5, "Radicals & Rational Exponents"),
+    (6, "Exponential & Logarithmic Functions"),
+    (7, "Sequences & Series"),
+    (8, "Trigonometric Functions"),
+    (9, "Statistics & Probability"),
+]
+
+_ALGEBRA2_ALIASES = {
+    "linear systems": 1, "systems": 1, "absolute value": 1,
+    "quadratics": 2, "complex numbers": 2, "imaginary": 2, "completing the square": 2,
+    "discriminant": 2, "quadratic formula": 2,
+    "polynomials": 3, "synthetic division": 3, "remainder theorem": 3, "factor theorem": 3,
+    "end behavior": 3,
+    "rational expressions": 4, "rational functions": 4, "asymptotes": 4, "asymptote": 4,
+    "rational exponents": 5, "radicals": 5, "nth root": 5, "rationalizing": 5,
+    "exponential functions": 6, "logarithms": 6, "logarithm": 6, "logarithmic": 6,
+    "sequences": 7, "series": 7, "arithmetic sequence": 7, "geometric sequence": 7,
+    "sigma notation": 7,
+    "trigonometry": 8, "unit circle": 8, "radian": 8, "radians": 8, "amplitude": 8,
+    "statistics": 9, "probability": 9, "normal distribution": 9, "conditional probability": 9,
+}
+
+# Ordered specific -> generic. Unit 1 (foundations & systems) is the catch-all, so it goes LAST.
+# Unit 6 uses "exponential" (never bare "exponent") so "rational exponent" still lands in Unit 5.
+_ALGEBRA2_RULES = [
+    (8, [r"trigonometr", r"\btrig\b", r"unit circle", r"\bradian", r"amplitude", r"\bperiod\b",
+         r"\bsine\b", r"\bcosine\b", r"\btangent\b", r"\bsin\b", r"\bcos\b", r"\btan\b",
+         r"sin\s*\(", r"cos\s*\(", r"tan\s*\(", r"sinusoid", r"phase shift", r"reference angle"]),
+    (9, [r"probab", r"normal distribution", r"z-?score", r"standard deviation", r"empirical rule",
+         r"\bsample\b", r"sampling", r"correlation", r"conditional", r"two[- ]way table",
+         r"distribution", r"\bstatistic", r"\bmean\b", r"\bmedian\b"]),
+    (6, [r"exponential", r"logarithm", r"\blog\b", r"\bln\b", r"half-?life", r"compound interest",
+         r"\bgrowth\b", r"\bdecay\b", r"\^\s*x", r"\be\^"]),
+    (7, [r"sequence", r"\bseries\b", r"arithmetic sequence", r"geometric sequence",
+         r"common difference", r"common ratio", r"\bsigma\b", r"summation", r"nth term",
+         r"\d+(?:st|nd|rd|th)\s+term", r"recursive"]),
+    (2, [r"quadratic", r"parabola", r"complex number", r"imaginary", r"\bi\^?\s*2\b",
+         r"discriminant", r"completing the square", r"\bvertex\b", r"quadratic formula",
+         r"x\s*\^?\s*2\s*=", r"sqrt\s*\(\s*-", r"√\s*-", r"square root of (a )?negative",
+         r"negative under (the|a) radical"]),
+    (3, [r"polynomial", r"synthetic division", r"remainder theorem", r"factor theorem",
+         r"\bcubic\b", r"end behavior", r"\bdegree\b", r"multiplicit", r"\bzeros?\b",
+         r"\bfactor\b"]),
+    (4, [r"rational expression", r"rational function", r"rational equation", r"asymptote",
+         r"\bhole\b", r"complex fraction", r"extraneous"]),
+    (5, [r"radical", r"nth root", r"cube root", r"rational exponent", r"rationaliz",
+         r"\^\s*\(?\s*\d+\s*/\s*\d+", r"\bsqrt\b", r"√", r"square root", r"\broots?\b"]),
+    (1, [r"\bsystem", r"substitution", r"elimination", r"three variable", r"absolute value",
+         r"inequalit", r"solve for", r"\bsolve\b", r"equation"]),
+]
+
+# =============================================================================
 # THE CATALOG
 # =============================================================================
 COURSES = {
@@ -200,11 +265,18 @@ COURSES = {
         "aliases": _PREALGEBRA_ALIASES,
         "rules": _PREALGEBRA_RULES,
     },
+    "algebra2": {
+        "title": "Algebra II",
+        "grade_band": "High School",
+        "units": _ALGEBRA2_UNITS,
+        "aliases": _ALGEBRA2_ALIASES,
+        "rules": _ALGEBRA2_RULES,
+    },
 }
 
 # The order courses are offered in (the math ladder). Pre-Algebra leads (it comes before
-# Algebra), then Algebra I, then Geometry. New courses append here.
-COURSE_ORDER = ["prealgebra", "algebra1", "geometry"]
+# Algebra), then Algebra I, then Geometry, then Algebra II. New courses append here.
+COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).

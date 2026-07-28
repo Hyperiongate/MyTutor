@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  PHASE 4 -- ALGEBRA II COURSE COMPLETE (fourth full peer). Stamp -> "2026-07-28g-algebra2".
+#               No route/logic change in this file -- `course` already flows generically through every
+#               endpoint (chat/practice/topic/placement/session/topics) to curriculum/pedagogy/tutor/
+#               store, all of which now know "algebra2". The work landed in: curriculum.py (COURSES
+#               ["algebra2"] + rules) + pedagogy.py (COURSE_PEDAGOGY["algebra2"]) + tutor.py
+#               (ALGEBRA2 lesson template + practice/topic scope + subject) + the 5 static files
+#               (home picker card, dashboard title, topic UNITS, session CURRICULUM/opener, challenge
+#               ALG2 placement bank). This stamp lets /health confirm the backend (tutor.py) deploy
+#               landed. Source: AlgebraII_Curriculum_KB.md. Do no harm -- other courses untouched.
 #   2026-07-28  INTRO/EXPECTATIONS + COLUMN-MATH VISUAL. Stamp -> "2026-07-28f-introcolumn".
 #               Backend change is in tutor.py only: (1) Topic mini-lessons now open with a topic intro +
 #               a "by the end you'll be able to..." goals card; (2) all three lesson openers show a short
@@ -682,7 +691,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28f-introcolumn"
+APP_BUILD = "2026-07-28g-algebra2"
 
 
 @app.get("/health")

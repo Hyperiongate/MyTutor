@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED ALGEBRA II (fourth course). CURRICULUM_BY_COURSE.algebra2 (its 9 units + blurbs
+                + topics for the left-rail course map), plus algebra2 entries in COURSE_TITLES,
+                COURSE_SUBJECTS, and COURSE_OPENERS (the spoken welcome/tour line). Everything else is
+                data-driven off COURSE, so the lesson page serves Algebra II automatically. Additive;
+                the other three courses are untouched. Do no harm.
     2026-07-28  COLUMN-MATH VISUAL [[column]]. New whiteboard visual for stacked, place-value /
                 decimal-point aligned addition & subtraction (pre-algebra). Fixes the bug where the
                 tutor said "line up the decimal points" but the board showed the numbers centered and
@@ -636,8 +641,8 @@
     // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
     // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
     // as they always were, so nothing about the Algebra experience changes.
-    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry" };
-    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry" };
+    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II" };
+    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
     // The tour's one-line "what this subject is" spoken opener, per course.
@@ -645,6 +650,7 @@
       algebra1: "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen.",
       geometry: "Hi there! Welcome to geometry. I'm Mr. Cadabra. Geometry is all about shapes and space — points, lines, angles, and the figures they build — and learning why they behave the way they do. Before we dive in, let me give you a quick tour of your screen.",
       prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
+      algebra2: "Hi there! Welcome to Algebra II. I'm Mr. Cadabra. Algebra II picks up right where Algebra I left off — you'll master every kind of function, meet a brand-new kind of number, and build the toolkit that gets you ready for pre-calculus. Before we dive in, let me give you a quick tour of your screen.",
     };
     const COURSE_OPENER = COURSE_OPENERS[COURSE] || COURSE_OPENERS.algebra1;
     // Make the first-visit welcome lead name the right subject. (Returning students
@@ -747,6 +753,26 @@
         topics: ["Units & conversions", "Perimeter & area", "Basic angles", "Mean & median"] },
       { n: 9, name: "Variables & Expressions", blurb: "The bridge to algebra: letters for unknown numbers.",
         topics: ["Writing & evaluating expressions", "Combining like terms", "One-step equations", "Reading a pattern as a rule"] },
+      ],
+      algebra2: [
+      { n: 1, name: "Foundations & Systems", blurb: "Re-grounding in equations and inequalities, then solving systems of two and three variables.",
+        topics: ["Multi-step & literal equations", "Absolute-value equations & inequalities", "Systems by substitution & elimination", "Three-variable systems"] },
+      { n: 2, name: "Quadratic Functions & Complex Numbers", blurb: "Every way to solve a quadratic — and a new kind of number for the ones that don't.",
+        topics: ["Forms: standard, vertex & factored", "Completing the square", "The quadratic formula & discriminant", "Imaginary & complex numbers"] },
+      { n: 3, name: "Polynomial Functions", blurb: "Beyond quadratics: dividing, factoring, and graphing higher-degree curves.",
+        topics: ["Operations & special factoring", "Long & synthetic division", "Remainder & Factor theorems", "Zeros, end behavior & multiplicity"] },
+      { n: 4, name: "Rational Expressions & Functions", blurb: "Ratios of polynomials: simplify, solve, and watch for forbidden values.",
+        topics: ["Simplifying & operations", "Solving rational equations", "Extraneous solutions", "Asymptotes & holes"] },
+      { n: 5, name: "Radicals & Rational Exponents", blurb: "Roots and fractional powers — two ways to write the same thing.",
+        topics: ["nth roots & rational exponents", "Simplifying & rationalizing", "Solving radical equations", "Radical functions & graphs"] },
+      { n: 6, name: "Exponential & Logarithmic Functions", blurb: "Explosive growth, and the logarithm that undoes it.",
+        topics: ["Exponential growth & decay", "Logarithms as inverses", "The log laws & change of base", "Solving exponential & log equations"] },
+      { n: 7, name: "Sequences & Series", blurb: "Patterns of numbers, and the sums they add up to.",
+        topics: ["Arithmetic & geometric sequences", "Explicit & recursive rules", "Series & sigma notation", "Infinite geometric sums"] },
+      { n: 8, name: "Trigonometric Functions", blurb: "Angles, the unit circle, and the waves that come from them.",
+        topics: ["Radians & the unit circle", "The six trig ratios", "Graphing sine & cosine", "The Pythagorean identity"] },
+      { n: 9, name: "Statistics & Probability", blurb: "Distributions, sampling, and reasoning about chance.",
+        topics: ["The normal model & z-scores", "Sampling & study design", "Simulation & inference", "Conditional probability"] },
       ],
     };
     const CURRICULUM = CURRICULUM_BY_COURSE[COURSE] || CURRICULUM_BY_COURSE.algebra1;

@@ -2,6 +2,13 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  ADDED COURSE 4 -- ALGEBRA II teaching brain (COURSE_PEDAGOGY["algebra2"]): 9 units
+#               (foundations/systems, quadratics & complex numbers, polynomials, rationals, radicals
+#               & rational exponents, exponentials & logs, sequences & series, trigonometry,
+#               statistics & probability) with misconceptions / how-to-teach / progression + an
+#               Algebra II cross-cutting error list. Source: AlgebraII_Curriculum_KB.md. Universal
+#               METHODOLOGY reused as-is. Additive; Pre-Algebra, Algebra I, and Geometry untouched.
+#               Do no harm.
 #   2026-07-28  ADDED COURSE 3 -- PRE-ALGEBRA teaching brain (COURSE_PEDAGOGY["prealgebra"]): 9
 #               foundations units (number sense/order-of-ops, factors, integers, fractions,
 #               decimals, ratios, percents, measurement, variables) with misconceptions /
@@ -496,6 +503,172 @@ ERROR WATCH-LIST (catch these across every unit):
 - Convert before you compute (percent -> decimal, mixed -> improper, unlike -> like).
 - Meet an anxious learner with a quick early WIN, and separate "this is hard" from "I can't do this." """
 
+# -----------------------------------------------------------------------------
+# ALGEBRA II -- per-unit pedagogy (distilled from AlgebraII_Curriculum_KB.md). The rung above
+# Geometry; students are ready for abstraction (lean toward the 14-16 METHODOLOGY dials), but weak
+# Algebra I foundations (signs, factoring, fractions) resurface -- still engineer wins.
+# -----------------------------------------------------------------------------
+_ALGEBRA2_UNIT_NAMES = {
+    1: "Foundations & Systems",
+    2: "Quadratic Functions & Complex Numbers",
+    3: "Polynomial Functions",
+    4: "Rational Expressions & Functions",
+    5: "Radicals & Rational Exponents",
+    6: "Exponential & Logarithmic Functions",
+    7: "Sequences & Series",
+    8: "Trigonometric Functions",
+    9: "Statistics & Probability",
+}
+
+_ALGEBRA2_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "dropping the second case of |x| = 5 (giving only x = 5); forgetting to FLIP an "
+            "inequality when multiplying/dividing by a negative; in a 3-variable system, losing "
+            "track of which variable was eliminated; treating an inconsistent 'no solution' "
+            "system as a mistake."
+        ),
+        "how_to_teach": (
+            "Reuse the balance / 'do the same thing to both sides' picture from Algebra I. Graph a "
+            "2x2 system so the intersection is SEEN before pushing to elimination; solve a "
+            "3-variable system by reducing it to a 2-variable one, then to one. Absolute value = "
+            "distance from zero, so it splits into two cases."
+        ),
+        "progression": "3(x - 2) = 2x + 5  ->  -2x + 1 > 9 (flip!)  ->  |x - 3| = 7  ->  a 2x2 system by elimination  ->  a 3x3 system  ->  a mixture word-problem system",
+    },
+    2: {
+        "misconceptions": (
+            "sqrt(-9) = 3i, not 'undefined'; sqrt(16) = 4 (the +/- comes from SOLVING x^2 = 16); "
+            "sign slips in the quadratic formula (the -b and the 2a denominator); reading vertex "
+            "form backwards (y = (x - 3)^2 shifts RIGHT 3); assuming every quadratic factors."
+        ),
+        "how_to_teach": (
+            "Build the solving ladder deliberately: factoring (zero-product) -> square roots -> "
+            "completing the square -> the quadratic formula (the formula IS completing the square "
+            "done once for all). Connect the parabola's x-intercepts to real roots and a negative "
+            "discriminant to complex roots. Introduce i as 'the number whose square is -1,' then do "
+            "complex arithmetic like binomials with i^2 = -1."
+        ),
+        "progression": "vertex of y = x^2 - 4x + 1  ->  x^2 + 5x + 6 = 0 (factor)  ->  x^2 - 6x + 5 = 0 (complete the square)  ->  2x^2 + 3x - 2 = 0 (formula)  ->  simplify sqrt(-49)  ->  (3 + 2i) + (1 - 5i)  ->  (2 + i)(2 - i)",
+    },
+    3: {
+        "misconceptions": (
+            "(x + y)^2 = x^2 + y^2 (missing the 2xy); sign errors in synthetic division or setting "
+            "up the wrong divisor; thinking a degree-n polynomial has n REAL zeros (it has n over "
+            "the complex numbers, counting multiplicity); ignoring multiplicity when sketching (an "
+            "even root touches the axis, an odd root crosses)."
+        ),
+        "how_to_teach": (
+            "Keep the box/area model for multiplying AND factoring. Teach long division for the "
+            "meaning, then synthetic division as the shortcut. 'A zero is an x-intercept is a "
+            "factor' (the Factor Theorem). Read end behavior straight off degree (even/odd) and "
+            "leading coefficient (+/-); use multiplicity to predict touch-vs-cross before plotting."
+        ),
+        "progression": "(2x^2 + 3x - 1) + (x^2 - x + 4)  ->  factor x^3 - 8 (difference of cubes)  ->  divide (x^3 - 2x^2 - 5x + 6) by (x - 1)  ->  confirm a zero with the Factor Theorem  ->  find all zeros of a cubic  ->  describe end behavior and sketch",
+    },
+    4: {
+        "misconceptions": (
+            "canceling a TERM across a + (x/(x+2) is NOT 1/2); thinking you need an LCD to MULTIPLY "
+            "(only +/- need it); dropping domain restrictions after simplifying (a canceled factor "
+            "leaves a HOLE); missing extraneous solutions that make a denominator zero."
+        ),
+        "how_to_teach": (
+            "'Factor everything first' is the universal opening move -- it exposes canceling, LCDs, "
+            "and asymptotes. You may cancel a FACTOR, never a TERM. Tie a zero denominator to a "
+            "vertical asymptote or a hole, and check every solution against that forbidden set. "
+            "Graph by locating the restrictions first, then the asymptotes."
+        ),
+        "progression": "simplify (x^2 - 4)/(x^2 + 5x + 6)  ->  (3/x)(x^2/6)  ->  1/x + 1/(x + 1)  ->  solve 2/(x - 1) = 3/x (check!)  ->  asymptotes/holes of (x - 2)/(x^2 - 4)  ->  graph 1/(x - 1)",
+    },
+    5: {
+        "misconceptions": (
+            "sqrt(x + y) = sqrt(x) + sqrt(y) (roots don't distribute over +/-); confusing x^(1/2) "
+            "with x^2; forgetting that squaring both sides can introduce extraneous solutions; "
+            "sqrt(x^2) = |x| for an even root; losing the domain of an even-index radical."
+        ),
+        "how_to_teach": (
+            "Anchor a^(1/n) as 'the number whose nth power is a,' then rational exponents as 'root, "
+            "then power.' Show WHY radical-equation answers must be checked (return to the squaring "
+            "step). Connect y = sqrt(x) to y = x^2 reflected -- an inverse relationship -- to "
+            "explain the restricted domain."
+        ),
+        "progression": "write the 4th root of x^3 as a power  ->  simplify sqrt(50)  ->  27^(2/3)  ->  sqrt(12) + sqrt(27)  ->  rationalize 1/sqrt(2)  ->  solve sqrt(x + 3) = x - 3 (check!)  ->  graph y = sqrt(x - 2)",
+    },
+    6: {
+        "misconceptions": (
+            "log(a + b) = log a + log b (the laws are about products/quotients, not sums); "
+            "confusing natural log with base-10; thinking an exponential can be zero or negative "
+            "(its range is y > 0 with a horizontal asymptote); mixing up growth (base > 1) and "
+            "decay (0 < base < 1); forgetting a log's argument must be positive."
+        ),
+        "how_to_teach": (
+            "Introduce a logarithm as the question 'what exponent gives this?' -- literally the "
+            "inverse of the exponential -- and keep converting back and forth between the two "
+            "forms. Derive each log law from an exponent law. Use doubling / half-life stories so "
+            "growth vs decay is felt. Check every log-equation answer against the positive-argument "
+            "domain (extraneous solutions are common)."
+        ),
+        "progression": "rewrite 2^3 = 8 as log_2(8) = 3  ->  graph y = 2^x (asymptote y = 0)  ->  expand log(xy^2)  ->  solve 3^x = 20 (take a log)  ->  solve log_2(x) + log_2(x - 2) = 3 (check the domain)  ->  a compound-interest / half-life model",
+    },
+    7: {
+        "misconceptions": (
+            "confusing the common difference (you ADD it) with the common ratio (you MULTIPLY by "
+            "it); off-by-one in the nth-term rule (the first term is n = 1, so a_n = a_1 + "
+            "(n - 1)d); mixing up a sequence (the list) with a series (the sum); misreading the "
+            "bounds in sigma notation."
+        ),
+        "how_to_teach": (
+            "Build both formulas from a small table so the pattern is visible before the symbols. "
+            "Contrast arithmetic (repeated adding = linear) with geometric (repeated multiplying = "
+            "exponential), tying back to Unit 6. Expand a sigma expression term-by-term the first "
+            "few times so the notation stops being scary."
+        ),
+        "progression": "next terms of 3, 7, 11, ...  ->  its explicit rule  ->  the 20th term  ->  is 2, 6, 18, ... geometric, and its ratio  ->  sum of the first 10 terms  ->  write a sum in sigma notation  ->  an infinite geometric sum with |r| < 1",
+    },
+    8: {
+        "misconceptions": (
+            "the calculator in the wrong mode (degrees vs radians); thinking sine or cosine can "
+            "exceed 1; swapping amplitude (vertical stretch) with period (horizontal), and period "
+            "= 2*pi/b (not b); putting an angle in the wrong quadrant; treating radians as 'just "
+            "another unit' without the arc-length meaning."
+        ),
+        "how_to_teach": (
+            "Start from the right-triangle SOH-CAH-TOA the student met in Geometry, then EXTEND it "
+            "to the unit circle so the ratios keep working past 90 degrees. Read (cos, sin) as the "
+            "coordinates around the circle. Graph sine by unwrapping the circle's height. Derive "
+            "the Pythagorean identity sin^2 + cos^2 = 1 from x^2 + y^2 = 1 on the unit circle."
+        ),
+        "progression": "convert 90 degrees to radians (pi/2)  ->  sin and cos of 30, 45, 60 from the unit circle  ->  place 210 degrees and give its reference angle  ->  amplitude and period of y = 3sin(2x)  ->  graph it  ->  verify sin^2 + cos^2 = 1 for a known angle",
+    },
+    9: {
+        "misconceptions": (
+            "assuming every distribution is normal; treating correlation as causation; confusing a "
+            "parameter (population) with a statistic (sample); adding probabilities of "
+            "non-mutually-exclusive events without subtracting the overlap; reversing a conditional "
+            "-- P(A|B) vs P(B|A)."
+        ),
+        "how_to_teach": (
+            "Read center and spread off real data and dot/box plots before any formula. Make the "
+            "normal model concrete with the empirical rule (68-95-99.7) and a z-score as 'how many "
+            "standard deviations out.' Use quick simulations (coins, cards, a spinner) to feel "
+            "randomness and estimate probability. Two-way tables make conditional probability "
+            "visible; keep hammering correlation is not causation."
+        ),
+        "progression": "describe a data set's center and spread  ->  z-score of a value  ->  apply the 68-95-99.7 rule  ->  survey vs experiment vs observational study  ->  simulate to estimate a probability  ->  P(A or B) with overlap  ->  a conditional probability from a two-way table",
+    },
+}
+
+_ALGEBRA2_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these all year, in every unit):
+- Signs & the quadratic formula: the -b, the 2a denominator, and negatives under the radical are the top slips.
+- Distribution & special products: (x + y)^2 = x^2 + 2xy + y^2, NEVER x^2 + y^2.
+- Roots and logs do NOT split over + or -: sqrt(x + y) is not sqrt(x) + sqrt(y); log(a + b) is not log a + log b.
+- Factor first: the opening move for quadratics, polynomials, rationals, and radicals -- cancel a FACTOR, never a TERM.
+- Extraneous solutions: squaring (radicals), clearing denominators (rationals), and log domains can add answers that fail the original -- always check back.
+- Domain: even-index radicals, rational functions (no zero denominator), and logs (positive argument) all restrict the domain -- state it.
+- Inverses: logs undo exponentials, roots undo powers -- spotting inverse pairs unlocks Units 5, 6, and 8.
+- Function fluency: move among table, graph, equation, and words; know how a, b, h, k shift/stretch/reflect a parent graph."""
+
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
@@ -514,6 +687,11 @@ COURSE_PEDAGOGY = {
         "unit_names": _PREALGEBRA_UNIT_NAMES,
         "cross_cutting": _PREALGEBRA_CROSS_CUTTING,
         "units": _PREALGEBRA_UNIT_PEDAGOGY,
+    },
+    "algebra2": {
+        "unit_names": _ALGEBRA2_UNIT_NAMES,
+        "cross_cutting": _ALGEBRA2_CROSS_CUTTING,
+        "units": _ALGEBRA2_UNIT_PEDAGOGY,
     },
 }
 

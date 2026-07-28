@@ -4,6 +4,10 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED ALGEBRA II to UNITS_BY_COURSE (its 9 unit names for the topic grid) and a
+                course-appropriate topic-box placeholder ("e.g. how logarithms work"). Additive; the
+                page already reads ?course= and falls back to Algebra I, so nothing else changes. Do
+                no harm.
     2026-07-28  COLUMN-MATH VISUAL [[column]]. New whiteboard visual for stacked, place-value /
                 decimal-point aligned addition & subtraction (pre-algebra). Fixes the bug where the
                 tutor said "line up the decimal points" but the board showed the numbers centered and
@@ -461,6 +465,11 @@
         "Fractions", "Decimals", "Ratios, Rates & Proportions",
         "Percents", "Measurement & Geometry Basics", "Variables & Expressions",
       ],
+      algebra2: [
+        "Foundations & Systems", "Quadratic Functions & Complex Numbers", "Polynomial Functions",
+        "Rational Expressions & Functions", "Radicals & Rational Exponents", "Exponential & Logarithmic Functions",
+        "Sequences & Series", "Trigonometric Functions", "Statistics & Probability",
+      ],
     };
     const UNITS = UNITS_BY_COURSE[COURSE] || UNITS_BY_COURSE.algebra1;
     // A course-appropriate placeholder for the "type your own topic" box.
@@ -468,6 +477,7 @@
       geometry: "e.g. how inscribed angles work",
       prealgebra: "e.g. how to add fractions",
       algebra1: "e.g. how slope works",
+      algebra2: "e.g. how logarithms work",
     })[COURSE] || "e.g. how slope works";
 
     // ---------- Audio graph ----------

@@ -4,6 +4,11 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  ADDED ALGEBRA II placement bank. New ALG2_BANK (9 climbing tiers, 2 questions each,
+                every answer solved & verified), ALG2_UNIT_NAMES, ALG2_TIER_SKILL, ALG2_LEVELS, and an
+                algebra2 entry in COURSE_DATA. Purely additive; the engine already reads ?course= and
+                falls back to Algebra I, so a first-time Algebra II student now takes an Algebra II
+                placement, stored per course. Do no harm.
     2026-07-28  MULTI-COURSE PLACEMENT (Phase 3.4b). The Challenge is now course-aware: it reads
                 ?course= and picks that course's question bank + unit names + tier skills + level
                 titles (ALG_* unchanged; new GEO_* Geometry bank of 9 tiers). All result links and
@@ -294,11 +299,42 @@
     const PREALG_LEVELS = ["Getting Started","Number Novice","Factor Finder","Integer Insider","Fraction Fixer",
       "Decimal Dynamo","Ratio Ranger","Percent Pro","Measurement Master","Pre-Algebra Ace"];
 
+    const ALG2_BANK = {
+      1: [ {p:"Solve for x", e:"3(x − 2) = 2x + 5", c:["11","−1","1","5"], a:0},
+           {p:"Solve the system for x", e:"y = x   and   x + y = 8", c:["8","4","2","6"], a:1} ],
+      2: [ {p:"Solve", e:"x² + 5x + 6 = 0", c:["2 and 3","−1 and −6","−2 and −3","1 and 6"], a:2},
+           {p:"Simplify", e:"√(−9)", c:["−3","−9","3i","9i"], a:2} ],
+      3: [ {p:"Expand", e:"(x + 2)(x + 3)", c:["x² + 6x + 5","x² + 5x + 6","x² + 6","x² + 5x + 5"], a:1},
+           {p:"Factor", e:"x³ − 8", c:["(x − 2)³","(x − 2)(x² + 2x + 4)","(x − 2)(x² − 2x + 4)","(x + 2)(x² − 2x + 4)"], a:1} ],
+      4: [ {p:"Simplify", e:"(x² − 4)/(x + 2)", c:["x + 2","x − 4","x − 2","2"], a:2},
+           {p:"Which x is not allowed?", e:"1/(x − 3)", c:["−3","0","3","1/3"], a:2} ],
+      5: [ {p:"Evaluate", e:"27^(2/3)", c:["6","3","18","9"], a:3},
+           {p:"Simplify", e:"√50", c:["5√2","2√5","25√2","10√5"], a:0} ],
+      6: [ {p:"Evaluate", e:"log₂ 8", c:["2","4","3","8"], a:2},
+           {p:"Solve for x", e:"2^x = 16", c:["4","8","2","5"], a:0} ],
+      7: [ {p:"Find the next term", e:"3, 7, 11, 15, …", c:["18","20","19","23"], a:2},
+           {p:"Find the common ratio", e:"2, 6, 18, 54", c:["2","4","6","3"], a:3} ],
+      8: [ {p:"Convert to radians", e:"180°", c:["π/2","2π","π","π/3"], a:2},
+           {p:"Find the value", e:"sin 30°", c:["√3/2","1","1/2","√2/2"], a:2} ],
+      9: [ {p:"In a normal distribution, how much is within 1 SD of the mean?", e:"about ___ %", c:["95%","50%","68%","99.7%"], a:2},
+           {p:"Find the mean (average)", e:"4, 8, 6, 10, 2", c:["30","5","8","6"], a:3} ],
+    };
+    const ALG2_UNIT_NAMES = { 1:"Foundations & Systems", 2:"Quadratic Functions & Complex Numbers",
+      3:"Polynomial Functions", 4:"Rational Expressions & Functions", 5:"Radicals & Rational Exponents",
+      6:"Exponential & Logarithmic Functions", 7:"Sequences & Series", 8:"Trigonometric Functions",
+      9:"Statistics & Probability" };
+    const ALG2_TIER_SKILL = { 1:"Equations & systems", 2:"Quadratics & complex", 3:"Polynomials",
+      4:"Rational functions", 5:"Radicals & exponents", 6:"Exponentials & logs", 7:"Sequences & series",
+      8:"Trigonometry", 9:"Statistics" };
+    const ALG2_LEVELS = ["Getting Started","Systems Solver","Quadratic Conqueror","Polynomial Pro","Rational Navigator",
+      "Radical Ranger","Logarithm Legend","Sequence Sage","Trig Trailblazer","Algebra II Ace"];
+
     // Select the bank/labels for the course being placed (defaults to Algebra I).
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    tierSkill: ALG_TIER_SKILL,    levels: ALG_LEVELS,    subject: "algebra" },
       geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    tierSkill: GEO_TIER_SKILL,    levels: GEO_LEVELS,    subject: "geometry" },
       prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, tierSkill: PREALG_TIER_SKILL, levels: PREALG_LEVELS, subject: "pre-algebra" },
+      algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   tierSkill: ALG2_TIER_SKILL,   levels: ALG2_LEVELS,   subject: "Algebra II" },
     };
     const CD = COURSE_DATA[COURSE] || COURSE_DATA.algebra1;
     const SUBJECT = CD.subject;
