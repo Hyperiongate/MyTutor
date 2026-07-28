@@ -4,6 +4,17 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  MULTI-COURSE WELCOME + TOUR (the "leftover"). The first-visit welcome
+                pop-up and Mr. Cadabra's spoken opening tour used to say "algebra" no
+                matter which course was chosen -- so a first-time Geometry or Pre-Algebra
+                student was welcomed to "algebra." Now the wording follows ?course=:
+                (1) the welcome lead names the subject via a new <span id="welcomeSubject">
+                set from COURSE_SUBJECTS; (2) the tour's "your ___ course" line uses
+                COURSE_TITLE; (3) the spoken opener is chosen from COURSE_OPENERS (one
+                per course). Algebra I's welcome text and spoken opener are kept EXACTLY
+                as before (byte-identical), so nothing about Algebra changes. All three
+                courses have nine units, so the "nine units" wording stays accurate.
+                Static-only change (no backend / APP_BUILD impact).
     2026-07-23  WHITEBOARD "SHOW THE MATH" (corrects the earlier same-day per-turn wipe).
                 The board now PERSISTS the current picture across turns -- it does NOT
                 auto-blank on talk-only turns. It only erases when Mr. Cadabra sends
@@ -577,7 +588,7 @@
     <div class="welcome-card">
       <div class="welcome-badge">✨</div>
       <h2 id="welcomeTitle">Welcome to Math Tutor!</h2>
-      <p class="lead" id="welcomeLead">You'll be learning algebra with <b id="wTutor">your tutor</b>. Here's how it works:</p>
+      <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
         <li><span class="ic">🎙️</span><span>Tap the button below and just <b>talk</b> — no typing, no buttons to hunt for.</span></li>
         <li><span class="ic">🗣️</span><span>Your tutor <b>listens and answers out loud</b>, and draws on the board as you go.</span></li>
@@ -596,6 +607,27 @@
     const FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
     if (!CODE) { window.location.href = "/"; }
+
+    // ---- Per-course wording for the welcome pop-up + spoken tour (multi-course) ----
+    // Before this, the first-visit welcome and Mr. Cadabra's spoken opener said
+    // "algebra" no matter which course the student had chosen -- so a first-time
+    // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
+    // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
+    // as they always were, so nothing about the Algebra experience changes.
+    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry" };
+    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry" };
+    const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
+    const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
+    // The tour's one-line "what this subject is" spoken opener, per course.
+    const COURSE_OPENERS = {
+      algebra1: "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen.",
+      geometry: "Hi there! Welcome to geometry. I'm Mr. Cadabra. Geometry is all about shapes and space — points, lines, angles, and the figures they build — and learning why they behave the way they do. Before we dive in, let me give you a quick tour of your screen.",
+      prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
+    };
+    const COURSE_OPENER = COURSE_OPENERS[COURSE] || COURSE_OPENERS.algebra1;
+    // Make the first-visit welcome lead name the right subject. (Returning students
+    // get a fully reworded lead later, so this only shows for first-timers.)
+    { const _ws = el("welcomeSubject"); if (_ws) _ws.textContent = COURSE_SUBJECT; }
 
     const feed = el("feed"), statusEl = el("status");
     const pauseBtn = el("pauseBtn");
@@ -1513,7 +1545,7 @@
       { id: "dashboard",
         text: "Next is your Progress dashboard. That's where you'll see how you're doing — the units you've worked on, what's still to come, plus your accuracy and streaks as they grow." },
       { id: "todays-plan",
-        text: "Down here on the left is your Algebra I course — all nine units. We'll work through them together, starting right where your level check placed you." },
+        text: "Down here on the left is your " + COURSE_TITLE + " course — all nine units. We'll work through them together, starting right where your level check placed you." },
       { id: "tutor",
         text: "And over here on the right, that's me — Mr. Cadabra. The big board in the middle is where I'll draw things out, and any time it's your turn you just tap the button under me and talk." },
     ];
@@ -1527,9 +1559,7 @@
     }
     async function runTour() {
       setState("speaking"); statusEl.textContent = tutorName + " is talking…";
-      await sayTourLine(
-        "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen."
-      );
+      await sayTourLine(COURSE_OPENER);
       for (const step of TOUR_STEPS) {
         highlightEl(step.id);
         await sayTourLine(step.text);
