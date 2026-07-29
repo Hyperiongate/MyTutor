@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<!--
+  MyTutor — Landing + Pricing page (DRAFT for Jim's review)
+  Notes for future edits (newest first):
+  - 2026-07-29  Reconciled the Courses section with the LIVE app (COURSE_ORDER in curriculum.py): it now
+    lists all EIGHT live courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig/Pre-Calculus,
+    Calculus, Differential Equations, and Probability & Statistics. Calculus is no longer marked
+    "coming soon" (it is live), and Differential Equations (previously missing entirely) is now shown.
+    Also updated the Courses section heading and the "What ages and levels" FAQ answer to match. Left the
+    now-unused ".course.soon" CSS rule in place (harmless) for any future not-yet-live course.
+  - 2026-07-28  Self-contained: all CSS/JS inline, no external libraries, no web fonts, no localStorage.
+  - 2026-07-28  Brand: warm gradient background; purple->teal brand gradient; Mr. Cadabra "orb".
+  - 2026-07-28  PRICES ARE DRAFT PLACEHOLDERS mapped to the 3 delivery tiers (see
+    Voice_Tiers_and_Model_Decision.md). A visible "DRAFT" ribbon marks them. Do not treat as final.
+  - 2026-07-28  Testimonials are PLACEHOLDERS on purpose (no invented quotes / no fabricated metrics —
+    there is no real usage data yet). Replace with real quotes before publishing.
+  - 2026-07-28  Monthly/Annual toggle is front-end only (no backend). "Start" buttons are placeholders (#).
+  I did no harm and this file is not truncated.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyTutor — A patient AI math tutor that teaches, not just answers</title>
+<style>
+  :root{
+    --purple:#6d5ae6; --teal:#1fb6b0; --ink:#20233a; --muted:#5b6079;
+    --bg1:#fbf7ff; --bg2:#f2fbfa; --card:#ffffff; --line:#ece8f6;
+    --grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10); --shadow-lg:0 20px 50px rgba(60,40,120,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+               radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),
+               linear-gradient(180deg,var(--bg1),var(--bg2));
+    min-height:100vh;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;
+       cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  /* NAV */
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+       background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
+       box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .orb::after{content:"";position:absolute;inset:0;border-radius:50%;
+       box-shadow:inset 0 0 8px rgba(255,255,255,.7);animation:pulse 3.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
+  .nav-links{display:flex;gap:26px;align-items:center;font-weight:600;font-size:15px;color:var(--muted)}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:820px){.nav-links{display:none}}
+  /* DRAFT ribbon */
+  .draft{position:fixed;top:14px;right:-46px;transform:rotate(45deg);z-index:60;
+    background:#ff8a3d;color:#fff;font-weight:800;font-size:12px;letter-spacing:.5px;
+    padding:6px 60px;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:64px 0 40px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+        color:var(--muted);font-weight:600;font-size:13px;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+  h1{font-size:46px;line-height:1.1;letter-spacing:-.02em;margin:18px 0 14px;font-weight:850}
+  .lede{font-size:19px;color:var(--muted);max-width:34ch}
+  .hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+  .hero-note{margin-top:14px;font-size:13.5px;color:var(--muted)}
+  @media(max-width:820px){.hero{grid-template-columns:1fr;padding:40px 0}h1{font-size:36px}}
+  /* Whiteboard mock */
+  .mock{background:var(--card);border-radius:20px;box-shadow:var(--shadow-lg);border:1px solid var(--line);
+        overflow:hidden}
+  .mock-top{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .mock-top i{width:11px;height:11px;border-radius:50%;display:inline-block;background:#e7e2f3}
+  .mock-body{display:grid;grid-template-columns:1fr 1.3fr;min-height:250px}
+  .mock-tutor{padding:18px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center}
+  .orb-lg{width:74px;height:74px}
+  .bubble{background:#f6f3ff;border:1px solid var(--line);border-radius:14px;padding:10px 13px;font-size:13.5px;color:var(--ink)}
+  .board{padding:20px;background:
+     linear-gradient(0deg,transparent 23px,rgba(109,90,230,.06) 24px),
+     linear-gradient(90deg,transparent 23px,rgba(31,182,176,.05) 24px);
+     background-size:24px 24px;font-family:"Courier New",monospace;color:#2a2450}
+  .board .v{color:#d1345b;font-weight:800}
+  .board .step{opacity:0;animation:stepin .5s forwards}
+  .board .step:nth-child(1){animation-delay:.3s}
+  .board .step:nth-child(2){animation-delay:1.0s}
+  .board .step:nth-child(3){animation-delay:1.8s}
+  @keyframes stepin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* SECTIONS */
+  section{padding:56px 0}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h2{font-size:33px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:60ch}
+  .center{text-align:center;margin:0 auto}
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+  .card h3{font-size:18px;margin:12px 0 6px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .ic{width:44px;height:44px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px}
+  /* courses */
+  .courses{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:26px}
+  .course{background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:600;font-size:14.5px;box-shadow:var(--shadow)}
+  .course.soon{color:var(--muted);border-style:dashed}
+  /* steps */
+  .steps{counter-reset:s}
+  .step-card{position:relative;padding-left:8px}
+  .num{width:38px;height:38px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+  /* PRICING */
+  .toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px;margin-top:18px;box-shadow:var(--shadow)}
+  .toggle button{border:0;background:transparent;padding:9px 20px;border-radius:999px;font-weight:700;font-size:14px;cursor:pointer;color:var(--muted)}
+  .toggle button.on{background:var(--grad);color:#fff}
+  .save{font-size:12px;color:var(--teal);font-weight:700;margin-left:6px}
+  .plans{grid-template-columns:repeat(4,1fr);align-items:stretch;margin-top:30px}
+  @media(max-width:980px){.plans{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.plans{grid-template-columns:1fr}}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 22px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .plan.feat{border:2px solid transparent;background:
+      linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;box-shadow:var(--shadow-lg);position:relative}
+  .tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;white-space:nowrap}
+  .plan h3{font-size:19px;margin-bottom:2px}
+  .plan .who{color:var(--muted);font-size:13px;min-height:34px}
+  .price{font-size:38px;font-weight:850;letter-spacing:-.02em;margin:10px 0 2px}
+  .price small{font-size:15px;font-weight:600;color:var(--muted)}
+  .per{color:var(--muted);font-size:13px;min-height:18px}
+  .feat-list{list-style:none;margin:18px 0;display:flex;flex-direction:column;gap:9px;flex:1}
+  .feat-list li{font-size:14px;display:flex;gap:9px;align-items:flex-start}
+  .chk{color:var(--teal);font-weight:900}
+  .plan .btn{width:100%;text-align:center;margin-top:auto}
+  /* trust band */
+  .trust{background:var(--grad);border-radius:22px;padding:40px;color:#fff;text-align:center;box-shadow:var(--shadow-lg)}
+  .trust h2{color:#fff}
+  .trust .sub{color:rgba(255,255,255,.9);margin:0 auto}
+  .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px}
+  @media(max-width:820px){.trust-grid{grid-template-columns:1fr}}
+  .trust-grid div{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:18px}
+  .trust-grid strong{display:block;font-size:16px;margin-bottom:4px}
+  .trust-grid p{font-size:13.5px;color:rgba(255,255,255,.9)}
+  /* testimonials placeholder */
+  .quote{background:var(--card);border:1px dashed var(--purple);border-radius:16px;padding:22px;color:var(--muted);font-style:italic}
+  .ph{font-style:normal;font-size:12px;color:var(--purple);font-weight:700;letter-spacing:.04em}
+  /* FAQ */
+  details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+  summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-size:22px;color:var(--purple)}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--muted);padding:0 0 16px;font-size:14.5px}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+</style>
+</head>
+<body>
+<div class="draft">DRAFT</div>
+<nav><div class="wrap nav-in">
+  <div class="brand"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#courses">Courses</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="#pricing">See pricing</a>
+    <a class="btn btn-primary" href="#pricing">Start free</a>
+  </div>
+</div></nav>
+<!-- HERO -->
+<header class="wrap hero">
+  <div>
+    <span class="pill"><span class="dot"></span> Voice-first Socratic tutoring · powered by a top-tier Anthropic model</span>
+    <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
+    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem, draws it out on a whiteboard step by step, and never races ahead. A complete course from placement to mastery — at home, at your pace.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#pricing">Start free with text mode</a>
+      <a class="btn btn-ghost" href="#how">See how it works</a>
+    </div>
+    <p class="hero-note">No credit card to try · Parent-controlled accounts · We never sell your child's data</p>
+  </div>
+  <div class="mock" aria-hidden="true">
+    <div class="mock-top"><i></i><i></i><i></i></div>
+    <div class="mock-body">
+      <div class="mock-tutor">
+        <span class="orb orb-lg"></span>
+        <div class="bubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
+      </div>
+      <div class="board">
+        <div class="step">2<span class="v">X</span> + 1 = 11</div>
+        <div class="step">2<span class="v">X</span> = 10&nbsp;&nbsp;<span style="color:#8a86a6">(− 1)</span></div>
+        <div class="step"><span class="v">X</span> = 5&nbsp;&nbsp;<span style="color:#8a86a6">(÷ 2)</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- WHY DIFFERENT -->
+<section id="why" class="wrap">
+  <div class="center" style="max-width:70ch">
+    <span class="eyebrow">Why families choose MyTutor</span>
+    <h2>Not a homework-answer machine. A real tutor.</h2>
+    <p class="sub center">Photo-solvers and chatbots give the answer and move on. MyTutor does what a good human tutor does — asks the next question, waits, and shows the work.</p>
+  </div>
+  <div class="grid g4" style="margin-top:34px">
+    <div class="card"><div class="ic">✎</div><h3>A whiteboard that keeps pace</h3><p>The board draws each step in sync with the conversation and never jumps ahead to the answer your student is still working out.</p></div>
+    <div class="card"><div class="ic">?</div><h3>Socratic, not spoon-fed</h3><p>Mr. Cadabra guides with questions and hints, praises real effort, and catches the common misconceptions for each topic.</p></div>
+    <div class="card"><div class="ic">◎</div><h3>Placement to mastery</h3><p>A one-time check places your student at the right spot — a 9th grader can brush up on fractions without ever seeing "3rd grade."</p></div>
+    <div class="card"><div class="ic">▤</div><h3>An honest dashboard</h3><p>See real progress by unit — what's mastered, what needs work — measured by actual scored checks, not vanity numbers.</p></div>
+  </div>
+</section>
+<!-- COURSES -->
+<section id="courses" class="wrap center">
+  <span class="eyebrow">The math library</span>
+  <h2>Complete courses, from middle school through calculus and beyond</h2>
+  <p class="sub center">Every course is a full placement-to-mastery path — not a pile of random worksheets.</p>
+  <div class="courses">
+    <span class="course">Pre-Algebra</span>
+    <span class="course">Algebra I</span>
+    <span class="course">Geometry</span>
+    <span class="course">Algebra II</span>
+    <span class="course">Trig / Pre-Calculus</span>
+    <span class="course">Calculus</span>
+    <span class="course">Differential Equations</span>
+    <span class="course">Probability &amp; Statistics</span>
+  </div>
+  <p class="hero-note center" style="margin-top:20px">More subjects and grade levels on the roadmap — our goal is a complete K‑12 companion.</p>
+</section>
+<!-- HOW -->
+<section id="how" class="wrap">
+  <div class="center" style="max-width:70ch"><span class="eyebrow">How it works</span><h2>Four simple steps</h2></div>
+  <div class="grid g4 steps" style="margin-top:30px">
+    <div class="card step-card"><div class="num">1</div><h3>Place</h3><p>A short, friendly check finds exactly where your student is — no guessing, no starting from scratch.</p></div>
+    <div class="card step-card"><div class="num">2</div><h3>Learn</h3><p>Mr. Cadabra teaches each unit by talking and drawing, one step at a time, at your student's pace.</p></div>
+    <div class="card step-card"><div class="num">3</div><h3>Practice</h3><p>Guided practice problems with hints — plus short, no-hint "checks" that measure real understanding.</p></div>
+    <div class="card step-card"><div class="num">4</div><h3>Master</h3><p>Units turn gold on the dashboard as they're mastered, so you always know what's next.</p></div>
+  </div>
+</section>
+<!-- PRICING -->
+<section id="pricing" class="wrap center">
+  <span class="eyebrow">Simple, honest pricing</span>
+  <h2>Choose how your student learns</h2>
+  <p class="sub center">Same brilliant tutor and the same whiteboard on every plan. The only difference is how you talk and listen. Cancel anytime.</p>
+  <div class="toggle" role="tablist">
+    <button id="tMonthly" class="on" onclick="setCycle('m')">Monthly</button>
+    <button id="tAnnual" onclick="setCycle('a')">Annual <span class="save">save ~2 months</span></button>
+  </div>
+  <div class="grid plans">
+    <!-- FREE -->
+    <div class="plan">
+      <h3>Free</h3>
+      <p class="who">Try it, no card needed</p>
+      <div class="price">$0</div>
+      <div class="per">forever</div>
+      <ul class="feat-list">
+        <li><span class="chk">✓</span> Text mode + full whiteboard</li>
+        <li><span class="chk">✓</span> Practice &amp; single-topic help</li>
+        <li><span class="chk">✓</span> One placement check</li>
+        <li><span class="chk">✓</span> Parent-controlled account</li>
+      </ul>
+      <a class="btn btn-ghost" href="#">Start free</a>
+    </div>
+    <!-- TEXT -->
+    <div class="plan">
+      <h3>Scholar</h3>
+      <p class="who">Type your answers · reads &amp; writes on the board</p>
+      <div class="price" data-m="19" data-a="15">$19<small>/mo</small></div>
+      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
+      <ul class="feat-list">
+        <li><span class="chk">✓</span> Everything in Free</li>
+        <li><span class="chk">✓</span> All full courses, placement→mastery</li>
+        <li><span class="chk">✓</span> Progress dashboard by unit</li>
+        <li><span class="chk">✓</span> Quiet-friendly: no mic needed</li>
+        <li><span class="chk">✓</span> Simplest privacy — no voice data</li>
+      </ul>
+      <a class="btn btn-ghost" href="#">Choose Scholar</a>
+    </div>
+    <!-- BROWSER VOICE (featured) -->
+    <div class="plan feat">
+      <span class="tag">Most popular</span>
+      <h3>Scholar Voice</h3>
+      <p class="who">Talk &amp; listen using your browser's built-in voice</p>
+      <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
+      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
+      <ul class="feat-list">
+        <li><span class="chk">✓</span> Everything in Scholar</li>
+        <li><span class="chk">✓</span> Speak your answers out loud</li>
+        <li><span class="chk">✓</span> Hear the tutor talk back</li>
+        <li><span class="chk">✓</span> Great for younger learners</li>
+        <li><span class="chk">✓</span> Works best in Chrome &amp; Edge</li>
+      </ul>
+      <a class="btn btn-primary" href="#">Choose Scholar Voice</a>
+    </div>
+    <!-- PREMIUM VOICE -->
+    <div class="plan">
+      <h3>Signature</h3>
+      <p class="who">Mr. Cadabra's warm, natural studio voice</p>
+      <div class="price" data-m="39" data-a="32">$39<small>/mo</small></div>
+      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
+      <ul class="feat-list">
+        <li><span class="chk">✓</span> Everything in Scholar Voice</li>
+        <li><span class="chk">✓</span> Premium natural tutor voice</li>
+        <li><span class="chk">✓</span> The most lifelike experience</li>
+        <li><span class="chk">✓</span> Priority support</li>
+      </ul>
+      <a class="btn btn-ghost" href="#">Choose Signature</a>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:26px;text-align:left">
+    <div class="card"><h3>👪 Family plan</h3><p>Adding more than one child? Ask about multi-student family pricing — every child gets their own account and dashboard.</p></div>
+    <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster, mastery heatmap, and unit assignments. Custom pricing for schools, microschools, and co-ops.</p></div>
+    <div class="card"><h3>🎓 Free pilots</h3><p>We're partnering with a limited number of classrooms this term for feedback. If that's you, let's talk.</p></div>
+  </div>
+  <p class="hero-note center" style="margin-top:18px">Prices shown are introductory and may change. Taxes may apply.</p>
+</section>
+<!-- PRIVACY / TRUST -->
+<section id="privacy" class="wrap">
+  <div class="trust">
+    <span class="eyebrow" style="color:rgba(255,255,255,.85)">Built for families</span>
+    <h2>Your child's privacy is not the product.</h2>
+    <p class="sub center">We build for kids first. You stay in control of the account, and you decide how much (if any) voice data is ever used.</p>
+    <div class="trust-grid">
+      <div><strong>We never sell student data</strong><p>Not to advertisers, not to anyone. No targeted ads. No profiles for marketing.</p></div>
+      <div><strong>Parents hold the keys</strong><p>Parent-created accounts and consent, a clear privacy policy, and delete-my-data on request.</p></div>
+      <div><strong>You choose voice or text</strong><p>Prefer no microphone at all? Text mode collects no voice data — the simplest, most private option.</p></div>
+    </div>
+    <p class="sub center" style="margin-top:18px;font-size:13.5px">See our <a href="#" style="color:#fff;text-decoration:underline">Parents &amp; Privacy</a> page for the full details.</p>
+  </div>
+</section>
+<!-- TESTIMONIALS (placeholders) -->
+<section class="wrap center">
+  <span class="eyebrow">Loved by families</span>
+  <h2>What parents are saying</h2>
+  <div class="grid g3" style="margin-top:26px;text-align:left">
+    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — replace with a real parent testimonial once you have permission to quote them."</div>
+    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — a line about a student who finally 'got' a topic works well here."</div>
+    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — a homeschool parent on the dashboard / progress visibility."</div>
+  </div>
+  <p class="hero-note center" style="margin-top:14px">(These are intentional placeholders — no invented reviews. Add genuine quotes before publishing.)</p>
+</section>
+<!-- FAQ -->
+<section id="faq" class="wrap">
+  <div class="center" style="max-width:70ch;margin-bottom:24px"><span class="eyebrow">Questions</span><h2>Frequently asked</h2></div>
+  <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. MyTutor is built to <em>teach</em>. It uses a Socratic approach — guiding with questions and drawing each step on a whiteboard that never runs ahead of your student — wrapped around complete, placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
+  <details><summary>Do we have to use voice?</summary><p>Not at all. Text mode lets your student type answers and read the tutor's replies, with the same full whiteboard. It's a great fit for quiet spaces, shared computers, or anyone who simply prefers typing — and it collects no voice data.</p></details>
+  <details><summary>What ages and levels is it for?</summary><p>Today the math library spans eight complete courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Calculus, Differential Equations, and Probability &amp; Statistics — and placement puts each student exactly where they belong. Our roadmap keeps growing toward a complete K‑12-and-beyond companion.</p></details>
+  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account. We never sell student data or use it for advertising. You can request deletion at any time, and you choose whether any voice features are used. See the Parents &amp; Privacy page for specifics.</p></details>
+  <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes — ask about family pricing for multiple students, or the teacher dashboard for classrooms and co-ops with rosters, a mastery heatmap, and assignments.</p></details>
+</section>
+<!-- FINAL CTA -->
+<section class="wrap center">
+  <div class="card" style="padding:44px">
+    <h2>Give your student a tutor who has all the patience in the world.</h2>
+    <p class="sub center" style="margin-bottom:22px">Start free in text mode today. Add voice whenever you're ready.</p>
+    <a class="btn btn-primary" href="#pricing">Start free</a>
+  </div>
+</section>
+<footer><div class="wrap foot-in">
+  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="#pricing">Pricing</a><a href="#privacy">Parents &amp; Privacy</a><a href="#faq">FAQ</a><a href="#">Contact</a>
+  </div>
+  <div>© 2026 Hyperion Shift LLC · Made for families</div>
+</div></footer>
+<script>
+  function setCycle(c){
+    var m=document.getElementById('tMonthly'), a=document.getElementById('tAnnual');
+    m.classList.toggle('on', c==='m'); a.classList.toggle('on', c==='a');
+    document.querySelectorAll('.price[data-m]').forEach(function(el){
+      var val = c==='m' ? el.getAttribute('data-m') : el.getAttribute('data-a');
+      el.innerHTML = '$'+val+'<small>/mo</small>';
+    });
+    document.querySelectorAll('.per[data-permo]').forEach(function(el){
+      el.textContent = c==='m' ? el.getAttribute('data-permo') : el.getAttribute('data-peran');
+    });
+  }
+</script>
+</body>
+</html>
