@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-29  APP_BUILD -> "2026-07-29a-untruncate". No logic change in this file; the bump pairs
+#               with a tutor.py fix that raised the student-facing reply cap max_tokens 700 -> 1200 so
+#               long lesson openers (a [[goal]] plus a big [[card]]) stop getting truncated mid-tag.
+#               Verify /health shows this stamp after Render rebuilds; if it's stale, do Manual Deploy
+#               -> "Clear build cache & deploy latest commit". Do no harm.
 #   2026-07-28  THREE FRONT DOORS -- STUDENT / PARENT / TEACHER. Stamp -> "2026-07-28s-threedoors".
 #               The home page now has three clearly separated sign-in sections instead of one student
 #               box with a combined "parent or teacher?" link, so each person lands on exactly the
@@ -1032,7 +1037,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28s-threedoors"
+APP_BUILD = "2026-07-29a-untruncate"
 
 
 @app.get("/health")

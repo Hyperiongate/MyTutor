@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-29  ANTI-TRUNCATION. Raised the student-facing reply cap max_tokens 700 -> 1200 in all
+#               three reply builders (get_tutor_reply / get_practice_reply / get_topic_reply). The
+#               newer per-course openers stack a [[goal]] plus a long inline [[card]], which could
+#               exceed 700 tokens and get cut off mid-tag (Geometry Unit 8 opener truncated inside a
+#               [[card]]; a Pre-Calc turn cut off mid-sentence). max_tokens is only a CEILING -- the
+#               model still ends each turn on its own -- so normal short spoken turns are unchanged in
+#               length and cost; this only gives the occasional long opener room to finish cleanly.
+#               The board-tag helper stays at 220 (it emits a single short math tag). Do no harm.
 #   2026-07-28  PHASE 4 -- DIFFERENTIAL EQUATIONS COURSE (tutor side). Added a full standalone
 #               DIFFEQ_SYSTEM_PROMPT_TEMPLATE (the 9 units; CLASSIFY-FIRST as the organizing habit;
 #               an explicit note that weak INTEGRATION is the hidden blocker to shore up without
@@ -3120,7 +3128,7 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             model=model,
             # Room for a short spoken turn PLUS any control tag(s) without getting cut
             # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
-            max_tokens=700,
+            max_tokens=1200,
             system=build_system_prompt(student, course),
             messages=messages,
         )
@@ -3535,7 +3543,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
             model=model,
-            max_tokens=700,
+            max_tokens=1200,
             system=build_practice_prompt(student, problem, course),
             messages=messages,
         )
@@ -3726,7 +3734,7 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
             model=model,
-            max_tokens=700,
+            max_tokens=1200,
             system=build_topic_prompt(student, topic, course),
             messages=messages,
         )
