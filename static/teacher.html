@@ -4,6 +4,17 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  TEACHER SIGN-IN: ONE TEACHER CODE, MANY CLASSES. Arriving with ?teacher=CODE (the
+                new teacher door on the home page) now shows YOUR CLASSES first -- every class
+                under that teacher code, each with its student count -- so a teacher running four
+                periods doesn't have to remember four class codes. Creating a class while signed
+                in attaches it to the teacher code automatically, and "Switch class" comes back to
+                the class list rather than a blank form.
+                Nothing was removed: /teacher with NO teacher code still works exactly as before
+                (open a class by its code, or create one), so old bookmarks and the "Have just a
+                class code?" link keep working, and classes created before today -- which have no
+                teacher code -- still open normally.
+                A teacher code is a convenience key, NOT a password; the page says so.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -136,6 +147,20 @@
     .stud button.rm:hover { color: #c0392b; border-color: #f0c6c2; }
     .unknown { color: #c0392b; font-size: 12px; font-weight: 700; }
 
+    /* Teacher's class list (shown when signed in with a teacher code) */
+    .classlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+    a.classcard { display: block; text-decoration: none; color: inherit; background: #fff;
+      border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+      box-shadow: 0 6px 18px rgba(20,30,45,.05); transition: transform .12s ease, box-shadow .12s ease; }
+    a.classcard:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(20,30,45,.10);
+      border-color: rgba(91,91,214,.45); }
+    a.classcard .cnm { font-weight: 800; font-size: 15.5px; }
+    a.classcard .ccode { font-size: 12px; font-weight: 700; color: var(--muted);
+      background: #f3f3fb; border-radius: 6px; padding: 2px 7px; display: inline-block; margin-top: 7px; }
+    a.classcard .ccount { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .whoami { font-size: 13px; font-weight: 700; color: var(--accent); background: #f1f1fc;
+      border: 1px solid var(--line); border-radius: 20px; padding: 7px 14px; }
+
     .empty { color: var(--muted); font-size: 14.5px; }
     .offnote { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--warm);
       border-radius: 14px; padding: 16px 18px; font-size: 15px; margin-bottom: 20px;
@@ -170,6 +195,7 @@
     <div class="top">
       <div class="title">👪 My Class</div>
       <div class="spacer"></div>
+      <span class="whoami" id="whoami" style="display:none;"></span>
       <a class="navlink" href="/">← Back</a>
     </div>
     <p class="sub" id="sub">See how all of your students are doing, unit by unit.</p>
@@ -179,11 +205,18 @@
       heatmap aren't available until it's switched on.
     </div>
 
-    <!-- STAGE 1: open or create a class -->
+    <!-- STAGE 1: your classes (when signed in), or open / create a class -->
     <div id="stage1">
+      <!-- Shown only when we arrived with a teacher code -->
+      <div class="panel" id="myClassesPanel" style="display:none;">
+        <h2 id="myClassesTitle">Your classes</h2>
+        <p class="note" id="myClassesNote">Every class running under your teacher code.</p>
+        <div class="classlist" id="myClasses"></div>
+      </div>
+
       <div class="panel">
-        <h2>Open your class</h2>
-        <p class="note">Enter the class code you set up before.</p>
+        <h2 id="openTitle">Open your class</h2>
+        <p class="note" id="openNote">Enter the class code you set up before.</p>
         <div class="row">
           <div>
             <label for="openCode">Class code</label>
@@ -196,8 +229,8 @@
 
       <div class="panel">
         <h2>Or start a new class</h2>
-        <p class="note">Pick any short code you'll remember — you'll use it to come back here.
-          Then add your students by their student codes.</p>
+        <p class="note" id="createNote">Pick any short code you'll remember — you'll use it to come
+          back here. Then add your students by their student codes.</p>
         <div class="row">
           <div>
             <label for="newCode">New class code</label>
@@ -273,6 +306,23 @@
     const params = new URLSearchParams(location.search);
     let CLASS = (params.get("class") || "").trim().toUpperCase();
     let COURSE = (params.get("course") || "algebra1").trim();
+    // The signed-in teacher's personal code, if they came through the teacher door on the home
+    // page. Empty is perfectly valid -- then this page behaves exactly as it always has
+    // (open a class by its code, or create one).
+    const TEACHER = (params.get("teacher") || "").trim().toUpperCase();
+
+    // Build a /teacher URL, always carrying the teacher code forward so the class list stays
+    // one click away no matter how deep you go.
+    function teacherUrl(extra) {
+      const q = [];
+      if (TEACHER) q.push("teacher=" + encodeURIComponent(TEACHER));
+      (extra || []).forEach(p => q.push(p));
+      return "/teacher" + (q.length ? "?" + q.join("&") : "");
+    }
+    function classUrl(cc, course) {
+      return teacherUrl(["class=" + encodeURIComponent(String(cc).toUpperCase()),
+                         "course=" + encodeURIComponent(course || COURSE)]);
+    }
 
     // Kept in step with curriculum.py's catalog (COURSE_ORDER).
     const COURSES = [
@@ -299,7 +349,7 @@
         if (res.status === 404) { setMsg("openMsg", "No class with that code yet — you can create it below.", "error"); return; }
         const d = await res.json();
         if (d.tracking === false) { showTrackingOff(); return; }
-        location.href = "/teacher?class=" + encodeURIComponent(cc.toUpperCase()) + "&course=" + encodeURIComponent(COURSE);
+        location.href = classUrl(cc, COURSE);
       } catch (e) { setMsg("openMsg", "Couldn't reach the server. Try again.", "error"); }
     };
     el("createBtn").onclick = async () => {
@@ -309,18 +359,71 @@
       try {
         const res = await fetch("/api/class", {
           method: "POST", headers: { "Content-Type": "application/json" },
+          // teacher_code is sent only when we're signed in; the backend ignores an empty one and
+          // never overwrites a class that already belongs to a different teacher.
           body: JSON.stringify({ class_code: cc, name: (el("newName").value || "").trim(),
-                                 owner_name: (el("newOwner").value || "").trim() })
+                                 owner_name: (el("newOwner").value || "").trim(),
+                                 teacher_code: TEACHER })
         });
         const d = await res.json();
         if (!res.ok) { setMsg("createMsg", (d.detail || "Couldn't create that class."), "error"); return; }
         if (d.tracking === false) { showTrackingOff(); return; }
-        location.href = "/teacher?class=" + encodeURIComponent(cc.toUpperCase()) + "&course=" + encodeURIComponent(COURSE);
+        location.href = classUrl(cc, COURSE);
       } catch (e) { setMsg("createMsg", "Couldn't reach the server. Try again.", "error"); }
     };
     // Enter key submits whichever box you're in.
     el("openCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("openBtn").click(); });
     el("newCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("createBtn").click(); });
+
+    // ---------- Stage 1a: the signed-in teacher's own class list ----------
+    async function loadTeacherClasses() {
+      showStage1();
+      el("whoami").style.display = "inline-block";
+      el("whoami").textContent = "🍎 " + TEACHER;
+      el("sub").textContent = "Every class you run, in one place.";
+      document.querySelector(".top .title").textContent = "🍎 My Classes";
+      document.title = "Math Tutor — My Classes";
+      // With a class list right above it, the code box is a fallback, not the main way in.
+      el("openTitle").textContent = "Open a class by its code";
+      el("openNote").textContent =
+        "Handy for a class someone else set up, or one made before teacher sign-in existed.";
+      el("createNote").textContent =
+        "Pick any short code you'll remember. It will be attached to your teacher code (" +
+        TEACHER + "), so it shows up here next time. Then add your students by their student codes.";
+      try {
+        const res = await fetch("/api/teacher/" + encodeURIComponent(TEACHER) + "/classes");
+        const d = await res.json();
+        if (d.tracking === false) { showTrackingOff(); return; }
+        const list = (d && d.classes) || [];
+        el("myClassesPanel").style.display = "block";
+        if (!list.length) {
+          el("myClassesTitle").textContent = "No classes under this code yet";
+          el("myClassesNote").textContent =
+            "Nothing here yet — create your first class below and it will appear on this page "
+            + "every time you sign in with " + TEACHER + ".";
+          el("myClasses").innerHTML = "";
+          return;
+        }
+        el("myClassesTitle").textContent =
+          "Your classes (" + list.length + ")";
+        el("myClassesNote").textContent = "Tap a class to see how its students are doing.";
+        el("myClasses").innerHTML = list.map(c => {
+          const label = c.name || c.class_code;
+          const n = c.student_count;
+          return '<a class="classcard" href="' + esc(classUrl(c.class_code, COURSE)) + '">'
+            + '<div class="cnm">' + esc(label) + "</div>"
+            + '<div class="ccode">' + esc(c.class_code) + "</div>"
+            + '<div class="ccount">' + n + " student" + (n === 1 ? "" : "s") + "</div></a>";
+        }).join("");
+      } catch (e) {
+        // The class list is a convenience -- if it can't load, the open/create panels below
+        // still work, so never blank the page.
+        el("myClassesPanel").style.display = "block";
+        el("myClasses").innerHTML =
+          '<div class="empty">Couldn\'t load your class list right now. You can still open a '
+          + 'class by its code below.</div>';
+      }
+    }
 
     function showTrackingOff() {
       el("offNote").style.display = "block";
@@ -439,7 +542,7 @@
     });
     sel.onchange = () => {
       COURSE = sel.value;
-      history.replaceState({}, "", "/teacher?class=" + encodeURIComponent(CLASS) + "&course=" + encodeURIComponent(COURSE));
+      history.replaceState({}, "", classUrl(CLASS, COURSE));
       load();
     };
 
@@ -462,8 +565,20 @@
     el("addCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("addBtn").click(); });
 
     // ---------- Boot ----------
-    if (CLASS) { el("switchBtn").href = "/teacher"; load(); }
-    else { showStage1(); }
+    // 1) A class in the URL wins -- go straight into it.
+    // 2) Otherwise, a signed-in teacher sees their own class list.
+    // 3) Otherwise, the original open-or-create screen, unchanged.
+    if (CLASS) {
+      // "Switch class" returns to the teacher's class list when signed in, else the plain form.
+      el("switchBtn").href = teacherUrl();
+      el("switchBtn").textContent = TEACHER ? "My classes" : "Switch class";
+      if (TEACHER) { el("whoami").style.display = "inline-block"; el("whoami").textContent = "🍎 " + TEACHER; }
+      load();
+    } else if (TEACHER) {
+      loadTeacherClasses();
+    } else {
+      showStage1();
+    }
   </script>
 </body>
 </html>

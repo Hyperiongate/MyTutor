@@ -4,6 +4,16 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-28  PARENT VIEW STAYS THE PARENT VIEW. Now that parents and teachers come in through
+                separate doors on the home page, this page names the role the visitor actually
+                arrived as: the badge reads "Parent view" for ?view=parent and "Teacher view" for
+                ?view=teacher (an older bookmark with neither still reads "Parent/Teacher view").
+                The page already accepted ?view=parent as a read-only view identical to
+                view=teacher; the only gap was that the "My courses" strip rewrote every link as
+                &view=teacher, so a parent switching course was quietly relabelled a teacher --
+                the links now carry back whichever read-only view you arrived in. Presentation and
+                link-building only; no behaviour added or removed, and the view is read-only in
+                exactly the same way it was before. Do no harm.
     2026-07-28  ADDED THE "MY COURSES" STRIP. The dashboard used to show ONLY the course you happened
                 to arrive with, so a student working two courses (e.g. Algebra I plus Pre-Algebra to
                 shore up fractions -- the app's core remediation case) saw half their progress and
@@ -460,7 +470,11 @@
       if (isTeacher) {
         document.querySelector(".sub").textContent =
           "A read-only view of this student's real progress — where they're strong and where they need help.";
-        el("title").insertAdjacentHTML("beforeend", '<span class="ptbadge">Parent/Teacher view</span>');
+        // Name the role the visitor actually came in as, now that parents and teachers have
+        // separate doors. Anything else (an old ?view=teacher bookmark) keeps the original label.
+        const badge = (VIEW === "parent") ? "Parent view"
+                    : (VIEW === "teacher") ? "Teacher view" : "Parent/Teacher view";
+        el("title").insertAdjacentHTML("beforeend", '<span class="ptbadge">' + badge + '</span>');
         const weakT = units.filter(u => u.status !== "not-started" && !u.mastered);
         const weakTxt = weakT.length
           ? weakT.slice(0, 3).map(u => u.name + (u.checks_taken ? " (" + u.best_pct + "%)" : " (no check yet)")).join(", ")
@@ -502,8 +516,10 @@
         el("myCourses").innerHTML = list.map(c => {
           const pct = c.units_total ? Math.round(100 * c.units_mastered / c.units_total) : 0;
           const here = (c.course === COURSE);
+          // Keep the SAME read-only view we arrived in (parent stays parent, teacher stays
+          // teacher) so switching courses never quietly promotes a parent into the teacher view.
           const q = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(c.course)
-                  + (isTeacher ? "&view=teacher" : "");
+                  + (isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : "");
           return '<a class="mc' + (here ? " current" : "") + '" href="/dashboard' + q + '">'
             + '<div class="nm">' + esc(c.title) + (here ? '<span class="here">HERE</span>' : "") + '</div>'
             + '<div class="cnt">' + c.units_mastered + ' of ' + c.units_total + ' units mastered</div>'

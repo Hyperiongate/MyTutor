@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  THREE FRONT DOORS -- STUDENT / PARENT / TEACHER. Stamp -> "2026-07-28s-threedoors".
+#               The home page now has three clearly separated sign-in sections instead of one student
+#               box with a combined "parent or teacher?" link, so each person lands on exactly the
+#               view meant for them: a STUDENT on their own hub, a PARENT on their child's read-only
+#               progress (/dashboard?..&view=parent), a TEACHER on every class they run
+#               (/teacher?teacher=CODE). Backend change is small and additive: ClassIn gained an
+#               optional teacher_code, POST /api/class passes it through, and the NEW endpoint
+#               GET /api/teacher/{teacher_code}/classes lists that teacher's classes (with student
+#               counts) on top of store.list_classes_for_teacher(). store.py adds ONE nullable column
+#               (classes.teacher_code) via a self-healing additive migration, so classes made before
+#               today still open by class code.
+#               HONEST LIMIT, stated plainly: with no accounts yet these are DOORS, NOT LOCKS --
+#               anyone holding a code can open that door. Separating the roles makes the app clear
+#               and safe to USE; real access control is the accounts work still deferred, and a pilot
+#               school must be told so. No existing endpoint, model, table or route changed.
+#               Do no harm.
 #   2026-07-28  "MY COURSES" -- THE DASHBOARD NO LONGER SHOWS ONLY ONE COURSE. Stamp ->
 #               "2026-07-28r-mycourses". A student could only ever see the course they happened to
 #               enter with, which broke the app's own core case: a student in Algebra I who is also
@@ -600,6 +616,7 @@ class ClassIn(BaseModel):
     class_code: str            # short, case-insensitive key the teacher picks (e.g. "MRSB-P3")
     name: str = ""             # friendly label, e.g. "Period 3 Algebra"
     owner_name: str = ""       # teacher/parent display name (optional)
+    teacher_code: str = ""     # the teacher's personal sign-in code (optional; e.g. "MRSBAKER")
 
 
 class ClassStudentIn(BaseModel):
@@ -824,8 +841,30 @@ def post_class(body: ClassIn):
     cc = (body.class_code or "").strip()
     if not cc:
         raise HTTPException(status_code=400, detail="Please choose a class code.")
-    cls = store.create_class(cc, body.name or "", body.owner_name or "")
+    cls = store.create_class(cc, body.name or "", body.owner_name or "",
+                             body.teacher_code or "")
     return {"ok": True, "tracking": True, "klass": cls}
+
+
+@app.get("/api/teacher/{teacher_code}/classes")
+def get_teacher_classes(teacher_code: str):
+    """EVERY class run by this teacher code -- what a teacher sees right after signing in.
+
+    An unknown code is NOT a 404: it simply has no classes yet, and the page invites the teacher
+    to create their first one. Reports tracking:false when the database is off, like the rest of
+    the classroom API.
+
+    NOTE (deliberate, and stated in the UI): a teacher code is a convenience key, not a password.
+    Until the accounts work lands, anyone who knows a teacher's code can see that teacher's
+    classes. This is a door, not a lock.
+    """
+    if not store.enabled():
+        return {"ok": False, "tracking": False, "classes": []}
+    tc = (teacher_code or "").strip()
+    if not tc:
+        raise HTTPException(status_code=400, detail="Please enter your teacher code.")
+    classes = store.list_classes_for_teacher(tc)
+    return {"ok": True, "tracking": True, "teacher_code": tc.upper(), "classes": classes}
 
 
 @app.get("/api/class/{class_code}")
@@ -993,7 +1032,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-28r-mycourses"
+APP_BUILD = "2026-07-28s-threedoors"
 
 
 @app.get("/health")

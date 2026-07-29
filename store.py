@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-28  TEACHER SIGN-IN: a teacher now owns MANY classes. The `classes` table gained ONE
+#               nullable column, `teacher_code` (the personal code a teacher picks, e.g. MRSBAKER),
+#               added by a new self-healing additive migration (_migrate_classes_teacher_code) that
+#               no-ops once the column exists -- so the classes created before today keep working
+#               and simply have no owner code. New list_classes_for_teacher(teacher_code) returns
+#               that teacher's classes (with a student count) in creation order. create_class()
+#               gained an OPTIONAL teacher_code argument, so every existing call behaves exactly as
+#               before; it will NOT overwrite a class that already has a different owner code, so
+#               one teacher can't quietly take over another's class. Nothing else changed: no other
+#               table, no primary key, no existing signature. Do no harm.
 #   2026-07-28  ADDED get_course_activity(code): every course a student has actually touched, with
 #               units started / mastered / checked and last-active, gathered in ONE pass over
 #               topic_progress + unit_checks instead of one query per course. Courses with no
@@ -225,6 +235,10 @@ def init():
             Column("class_code", String(32), primary_key=True),   # e.g. "MRSB-P3"
             Column("name", String(128)),          # e.g. "Period 3 Algebra"
             Column("owner_name", String(128)),    # teacher/parent display name (optional)
+            # 2026-07-28: the teacher's own short code (e.g. "MRSBAKER"). Nullable on purpose --
+            # classes made before teacher sign-in existed simply have none, and still open by
+            # class code. This is a convenience key, NOT a password.
+            Column("teacher_code", String(64)),
             Column("created_at", DateTime(timezone=True)),
             Column("updated_at", DateTime(timezone=True)),
         )
@@ -238,6 +252,9 @@ def init():
         # Give the per-unit tables a `course` dimension if they predate the multi-course
         # work (additive; preserves all existing rows as 'algebra1'). No-ops once migrated.
         _migrate_course_columns()
+        # Give the `classes` table its `teacher_code` column if it predates teacher sign-in
+        # (additive + nullable; no key change). No-ops once migrated.
+        _migrate_classes_teacher_code()
         # Prove the connection works.
         from sqlalchemy import text as _text
         with _engine.connect() as conn:
@@ -295,6 +312,28 @@ def _migrate_course_columns():
                 conn.execute(_text(
                     f"ALTER TABLE {tname} ADD COLUMN course VARCHAR(32) "
                     f"NOT NULL DEFAULT '{DEFAULT_COURSE}'"))
+
+
+def _migrate_classes_teacher_code():
+    """One-time, ADDITIVE migration: give `classes` a nullable `teacher_code` column so a teacher
+    can sign in with one personal code and see every class they run.
+
+    This is far simpler than the course migration: the column is NULLABLE and the primary key is
+    untouched, so a plain ALTER TABLE works identically on PostgreSQL and SQLite -- no table
+    rebuild, no data movement. Existing classes keep every row and simply have teacher_code NULL,
+    which means they still open by class code exactly as they do today. Safe to run on EVERY
+    startup: it no-ops when the column is already there, and when create_all just built the table
+    fresh (the column is already in the definition above)."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    if "classes" not in set(insp.get_table_names()):
+        return  # create_all will build it new, already carrying teacher_code
+    cols = [c["name"] for c in insp.get_columns("classes")]
+    if "teacher_code" in cols:
+        return  # already migrated
+    with _engine.begin() as conn:
+        conn.execute(_text("ALTER TABLE classes ADD COLUMN teacher_code VARCHAR(64)"))
+    print("[store] migrated classes: +teacher_code column (nullable).")
 
 
 def _sqlite_rebuild_with_course(tname):
@@ -610,8 +649,20 @@ def _norm_student(student_code: str) -> str:
     return (str(student_code or "").strip())[:64]
 
 
-def create_class(class_code: str, name: str = "", owner_name: str = "") -> dict:
-    """Create a class, or update its label/owner if the code already exists. Returns the class."""
+def _norm_teacher(teacher_code: str) -> str:
+    """Teacher codes are case-insensitive and trimmed, so 'mrsbaker' == 'MRSBAKER'."""
+    return (str(teacher_code or "").strip().upper())[:64]
+
+
+def create_class(class_code: str, name: str = "", owner_name: str = "",
+                 teacher_code: str = "") -> dict:
+    """Create a class, or update its label/owner if the code already exists. Returns the class.
+
+    `teacher_code` is OPTIONAL and defaults to "" so every pre-existing call site is unchanged.
+    An existing class's teacher_code is NEVER overwritten: if the class already belongs to a
+    teacher code, that stays put, and only an unowned class can adopt one. That keeps a second
+    teacher who happens to guess the same class code from quietly taking the class over.
+    """
     cc = _norm_class(class_code)
     if not cc:
         return {}
@@ -619,6 +670,8 @@ def create_class(class_code: str, name: str = "", owner_name: str = "") -> dict:
     values = {
         "name": (name or existing.get("name") or ""),
         "owner_name": (owner_name or existing.get("owner_name") or ""),
+        # keep the current owner code if there is one; otherwise adopt the one supplied
+        "teacher_code": (existing.get("teacher_code") or _norm_teacher(teacher_code) or None),
         "updated_at": _now(),
     }
     if not existing:
@@ -628,19 +681,44 @@ def create_class(class_code: str, name: str = "", owner_name: str = "") -> dict:
 
 
 def get_class(class_code: str) -> dict:
-    """{class_code, name, owner_name, students:[codes]} -- or {} if the class doesn't exist."""
+    """{class_code, name, owner_name, teacher_code, students:[codes]} -- {} if it doesn't exist."""
     from sqlalchemy import select
     cc = _norm_class(class_code)
     if not cc:
         return {}
     t = _tables["classes"]
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.class_code, t.c.name, t.c.owner_name)
+        r = conn.execute(select(t.c.class_code, t.c.name, t.c.owner_name, t.c.teacher_code)
                          .where(t.c.class_code == cc)).first()
     if not r:
         return {}
     return {"class_code": r[0], "name": r[1] or "", "owner_name": r[2] or "",
-            "students": list_students(cc)}
+            "teacher_code": r[3] or "", "students": list_students(cc)}
+
+
+def list_classes_for_teacher(teacher_code: str) -> list:
+    """EVERY class run by this teacher code, oldest-created first, each with a student count.
+
+    Returns [] for an unknown code -- that is not an error, it just means this teacher hasn't
+    created a class yet, and the page invites them to make their first one. One query for the
+    classes plus one for the counts, never one query per class.
+    """
+    from sqlalchemy import select, func
+    tc = _norm_teacher(teacher_code)
+    if not tc:
+        return []
+    cl, cm = _tables["classes"], _tables["class_members"]
+    with _engine.connect() as conn:
+        rows = conn.execute(
+            select(cl.c.class_code, cl.c.name, cl.c.owner_name, cl.c.created_at)
+            .where(cl.c.teacher_code == tc)).all()
+        counts = dict(conn.execute(
+            select(cm.c.class_code, func.count(cm.c.student_code))
+            .group_by(cm.c.class_code)).all())
+    # oldest-created first; ties broken by code so the list order is always deterministic
+    rows = sorted(rows, key=lambda r: (r[3] is None, r[3], r[0]))
+    return [{"class_code": r[0], "name": r[1] or "", "owner_name": r[2] or "",
+             "student_count": int(counts.get(r[0], 0))} for r in rows]
 
 
 def list_students(class_code: str) -> list:
