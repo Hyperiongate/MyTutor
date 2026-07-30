@@ -4,6 +4,11 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
+                button (#chatSend) is now hidden by math-keyboard.js ("each tool has its own send" --
+                the 🧮 and 📈 tools plus the Enter key all still send). The #chatInput placeholder now
+                reads "Type your reply, then press Enter…" so a directly-typed reply is still
+                sendable without a visible button. No send logic changed here. Static-only. Do no harm.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -427,7 +432,7 @@
       <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your topic will appear here.</div></div>
       <div class="feedbar">
-        <input id="chatInput" placeholder="Type your reply to Mr. Cadabra…" autocomplete="off" />
+        <input id="chatInput" placeholder="Type your reply, then press Enter…" autocomplete="off" />
         <button id="chatSend">Send</button>
       </div>
     </div>

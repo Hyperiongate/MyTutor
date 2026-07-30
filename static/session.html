@@ -4,6 +4,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
+                button is now hidden by math-keyboard.js ("each tool has its own send" -- the 🧮 and
+                📈 tools plus the Enter key all still send). To keep a directly-typed answer sendable
+                without a visible button, the #input placeholder now reads "Type your answer, then
+                press Enter…". No send logic changed here (Enter -> sendTyped was already wired).
+                Static-only. Do no harm.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -624,7 +630,7 @@
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
-          <input id="input" placeholder="Type to your tutor…" autocomplete="off" />
+          <input id="input" placeholder="Type your answer, then press Enter…" autocomplete="off" />
           <button id="send">Send</button>
         </div>
         <div class="live" id="live"></div>

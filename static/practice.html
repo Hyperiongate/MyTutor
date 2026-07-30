@@ -4,6 +4,11 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
+                button (#chatSend) is now hidden by math-keyboard.js ("each tool has its own send").
+                The 🧮 opener is relabeled "Math numbers & symbols" (intake hint updated to match),
+                and the #chatInput placeholder now reads "Type your reply, then press Enter…". No
+                send logic changed here (Enter was already wired). Static-only. Do no harm.
     2026-07-30  INTAKE SCREEN CLEANUP ("what problem are you stuck on?"). Three fixes to the
                 problem-entry overlay so it matches the "warm voice out / type in" product:
                 (1) REMOVED the "🎙️ Tap and say the problem" microphone button and the "— or —"
@@ -442,7 +447,7 @@
       <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
       <div class="feedbar">
-        <input id="chatInput" placeholder="Type your reply to Mr. Cadabra…" autocomplete="off" />
+        <input id="chatInput" placeholder="Type your reply, then press Enter…" autocomplete="off" />
         <button id="chatSend">Send</button>
       </div>
     </div>
@@ -455,7 +460,7 @@
       <h2>What problem are you stuck on?</h2>
       <p class="lead">Type the problem exactly as it looks, and Mr. Cadabra will help you work through it.</p>
       <textarea id="problemInput" placeholder="e.g.  3x + 5 = 20"></textarea>
-      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math keyboard</b> just below.</div>
+      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math numbers &amp; symbols</b> just below.</div>
       <button class="entry-go" id="entryGo" disabled>Let's work on it →</button>
       <div class="entry-note" id="entryNote">You can practice any Algebra I problem.</div>
       <a class="entry-back" id="entryBack" href="#">← Back home</a>

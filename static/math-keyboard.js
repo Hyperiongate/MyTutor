@@ -1,15 +1,23 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-07-30  Answer-bar cleanup requested from the lesson screen:
+ *               (1) SINGLE SEND. The standalone "Send" button in the in-lesson answer bar was
+ *                   redundant next to the 🧮 Math and 📈 Graph tools (each tool already has its own
+ *                   send). It is now HIDDEN on the chat bars (kept in the DOM so the tool sends and
+ *                   the Enter key still funnel through it -- nothing about sending actually breaks).
+ *                   The practice INTAKE "Let's work on it" button (#entryGo) is NOT hidden.
+ *               (2) RELABEL. The 🧮 opener now reads "🧮 Math numbers & symbols" (was "🧮 Math").
+ *               (3) NO DROPDOWN. Every symbol is shown at once -- the main pad and the old "More
+ *                   symbols" advanced pad are merged into one grid; the More/Fewer toggle is gone.
+ *                   The sheet scrolls (max-height) so the full pad still fits small screens.
  *   2026-07-30  Refactor to attach to MORE THAN ONE box. The keypad-building logic is now a
  *               reusable attachKeypad(input, sendBtn, opts) function, so the SAME 🧮 keyboard now
  *               also appears on the practice "What problem are you stuck on?" INTAKE screen
  *               (#problemInput / #entryGo), not just the in-lesson answer bar. A student can now
- *               type symbols (√, x², fractions, π, etc.) while entering their problem. The in-chat
- *               behavior (session.html #input, practice/topic #chatInput) is byte-for-byte the same
- *               as before -- same keys, same bottom sheet, same Send. Each box gets its own private
- *               sheet (no shared element IDs -> no collisions). Purely additive; guarded so a
- *               missing box just means "skip that one".
+ *               type symbols (√, x², fractions, π, etc.) while entering their problem. Each box
+ *               gets its own private sheet (no shared element IDs -> no collisions). Purely
+ *               additive; guarded so a missing box just means "skip that one".
  *   2026-07-30  Fix: on the lesson page's narrow left rail the input + 🧮 + Send overflowed and the
  *               buttons were clipped off-screen. The answer bar now wraps (flex-wrap) so the buttons
  *               drop below the input when space is tight; on a wide bar they stay on one row.
@@ -18,9 +26,9 @@
  *                   while the tutor keeps speaking via ElevenLabs (unchanged);
  *               (b) reveals the type box on pages that hide it behind "Type instead"
  *                   (session.html's .composer);
- *               (c) adds a friendly, tap-to-expand MATH KEYBOARD (powers, roots, division,
- *                   scientific notation, comparisons, etc.) that inserts symbols into the
- *                   existing answer box and can Send with the page's own Send button.
+ *               (c) adds a friendly MATH KEYBOARD (powers, roots, division, scientific notation,
+ *                   comparisons, etc.) that inserts symbols into the existing answer box and can
+ *                   Send with the page's own Send button.
  *               Works on session.html (#input/#send/.composer), practice.html and
  *               topic.html (#chatInput/#chatSend/.feedbar). Self-contained: injects its own
  *               CSS, no libraries, no storage. Guarded so it never breaks a page if hooks are
@@ -50,23 +58,30 @@
     // ---- (b) make sure the type box is visible (session hides it in .composer) ----
     var comp = document.getElementById("composer");
     if (comp) comp.classList.add("show");
+    // ---- (b2) "each tool has its own send": hide the redundant standalone Send button(s) in the
+    // answer bar. We only HIDE them (keep them in the DOM) so this keypad's Send, the 📈 graph's
+    // Send, and the Enter key all still work by clicking them. The practice INTAKE's
+    // "Let's work on it" button (#entryGo) is deliberately NOT in this list. ----
+    ["send", "chatSend"].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) b.style.display = "none";
+    });
 
     // ---- (c) styles (namespaced mtk-*) -- injected once, shared by every keypad ----
     var css = document.createElement("style");
     css.textContent =
       ".mtk-open{border:none;border-radius:12px;font-weight:800;font-size:15px;padding:10px 12px;cursor:pointer;" +
-      "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff;white-space:nowrap;flex:0 0 auto}" +
+      "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff;white-space:normal;text-align:center;line-height:1.15;flex:0 0 auto}" +
       ".mtk-sheetwrap{position:fixed;left:0;right:0;bottom:0;z-index:9999;display:flex;justify-content:center;pointer-events:none}" +
       ".mtk-sheet{width:100%;max-width:560px;margin:0 10px;background:#faf8ff;border:1px solid #e9e5f5;" +
-      "border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(60,40,120,.22);padding:10px 10px 14px;" +
+      "border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(60,40,120,.22);padding:10px 10px 14px;max-height:82vh;overflow-y:auto;" +
       "transform:translateY(115%);transition:transform .26s cubic-bezier(.22,1,.36,1);pointer-events:auto}" +
       ".mtk-sheet.mtk-show{transform:translateY(0)}" +
-      ".mtk-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}" +
+      ".mtk-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;position:sticky;top:0;background:#faf8ff;padding-bottom:4px}" +
       ".mtk-prev{flex:1;background:#fff;border:1px solid #e3def3;border-radius:10px;padding:8px 11px;" +
       "font-family:'Courier New',monospace;font-size:17px;color:#2a2450;min-height:38px;overflow-x:auto;white-space:nowrap;text-align:left}" +
       ".mtk-x{border:1px solid #e3def3;background:#fff;color:#5b6079;font-weight:800;border-radius:9px;padding:8px 11px;cursor:pointer}" +
       ".mtk-grid{display:grid;gap:6px;grid-template-columns:repeat(5,1fr)}" +
-      ".mtk-adv .mtk-grid{grid-template-columns:repeat(6,1fr)}" +
       ".mtk-key{border:1px solid #e3def3;background:#fff;border-radius:11px;padding:13px 0;font-size:18px;" +
       "font-weight:600;color:#20233a;cursor:pointer;min-height:46px;display:flex;align-items:center;justify-content:center;user-select:none}" +
       ".mtk-key:active{background:#efeaff;transform:translateY(1px)}" +
@@ -74,24 +89,23 @@
       ".mtk-key.fn{background:#f3f0ff;color:var(--accent,#6d5ae6);font-weight:800;font-size:16px}" +
       ".mtk-key.util{color:#5b6079;font-weight:700;font-size:14px}" +
       ".mtk-sup{font-size:.72em;vertical-align:super}" +
-      ".mtk-more{width:100%;margin:8px 0 2px;border:1px dashed #e3def3;background:transparent;color:var(--accent,#6d5ae6);" +
-      "font-weight:700;font-size:13px;border-radius:9px;padding:8px;cursor:pointer}" +
-      ".mtk-adv{max-height:0;overflow:hidden;transition:max-height .26s ease}.mtk-adv.mtk-show{max-height:280px}" +
       ".mtk-send{width:100%;margin-top:8px;border:none;border-radius:12px;font-weight:800;font-size:16px;padding:13px;cursor:pointer;" +
       "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff}";
     document.head.appendChild(css);
 
-    // key defs: [label, code].  code: t<text> insert text | o<text> insert (styled op) | w<spec> wrap
-    var MAIN = [
+    // Every key, shown at once (no "more symbols" dropdown any more).
+    // code: t<text> insert text | o<text> insert (styled op) | w<spec> wrap with caret at "|"
+    var KEYS = [
+      // numbers + core operators (rows of 5)
       ["7", "t7"], ["8", "t8"], ["9", "t9"], ["÷", "o÷"], ["√", "w√(|)", "fn"],
       ["4", "t4"], ["5", "t5"], ["6", "t6"], ["×", "o×"], ["x²", "t^2", "fn"],
       ["1", "t1"], ["2", "t2"], ["3", "t3"], ["−", "o−"], ["xⁿ", "t^", "fn"],
-      ["0", "t0"], [".", "t."], ["/", "o/"], ["+", "o+"], ["=", "o="]
-    ];
-    var ADV = [
-      ["( )", "w(|)", "fn"], ["π", "tπ", "fn"], ["×10ⁿ", "t×10^", "fn"], ["ⁿ√", "w√(|)", "fn"], ["|x|", "t|", "fn"], ["±", "t±", "fn"],
-      ["<", "o<"], [">", "o>"], ["≤", "o≤"], ["≥", "o≥"], ["≠", "o≠"], ["θ", "tθ"],
-      ["x", "tx"], ["y", "ty"], ["°", "t°"], [",", "t,"], ["space", "aspace", "util"], ["⌫", "aback", "util"]
+      ["0", "t0"], [".", "t."], ["/", "o/"], ["+", "o+"], ["=", "o="],
+      // symbols that used to hide behind "More symbols" -- now always visible
+      ["( )", "w(|)", "fn"], ["π", "tπ", "fn"], ["×10ⁿ", "t×10^", "fn"], ["ⁿ√", "w√(|)", "fn"], ["|x|", "t|", "fn"],
+      ["±", "t±", "fn"], ["<", "o<"], [">", "o>"], ["≤", "o≤"], ["≥", "o≥"],
+      ["≠", "o≠"], ["θ", "tθ"], ["x", "tx"], ["y", "ty"], ["°", "t°"],
+      [",", "t,"], ["space", "aspace", "util"]
     ];
 
     /* -------------------------------------------------------------------------
@@ -111,17 +125,16 @@
       var openBtn = document.createElement("button");
       openBtn.type = "button";
       openBtn.className = "mtk-open";
-      openBtn.textContent = opts.openText || "🧮 Math";
+      openBtn.textContent = opts.openText || "🧮 Math numbers & symbols";
       if (sendBtn && sendBtn.parentNode === input.parentNode) {
         input.parentNode.insertBefore(openBtn, sendBtn);
       } else {
         input.parentNode.appendChild(openBtn);
       }
 
-      // Keep the input + 🧮 + Send from overflowing/clipping in a NARROW column (e.g. the lesson
+      // Keep the input + 🧮 + 📈 from overflowing/clipping in a NARROW column (e.g. the lesson
       // page's left rail): let the row WRAP so the buttons drop below the input instead of getting
       // cut off. On a wide answer bar everything still sits on one row. (Fix 2026-07-30.)
-      // Only for the in-chat answer bar -- the intake card is a vertical stack and needs no wrap.
       if (opts.barWrap) {
         try {
           var bar = input.parentNode;
@@ -143,12 +156,9 @@
       var prev = document.createElement("div"); prev.className = "mtk-prev";
       var closeBtn = document.createElement("button"); closeBtn.type = "button"; closeBtn.className = "mtk-x"; closeBtn.textContent = "Close";
       top.appendChild(prev); top.appendChild(closeBtn);
-      var mainGrid = document.createElement("div"); mainGrid.className = "mtk-grid";
-      var moreBtn = document.createElement("button"); moreBtn.type = "button"; moreBtn.className = "mtk-more"; moreBtn.textContent = "More symbols ⌄";
-      var adv = document.createElement("div"); adv.className = "mtk-adv";
-      var advGrid = document.createElement("div"); advGrid.className = "mtk-grid"; adv.appendChild(advGrid);
+      var grid = document.createElement("div"); grid.className = "mtk-grid";
       var sendKey = document.createElement("button"); sendKey.type = "button"; sendKey.className = "mtk-send"; sendKey.textContent = opts.sendLabel || "Send answer ➤";
-      sheet.appendChild(top); sheet.appendChild(mainGrid); sheet.appendChild(moreBtn); sheet.appendChild(adv); sheet.appendChild(sendKey);
+      sheet.appendChild(top); sheet.appendChild(grid); sheet.appendChild(sendKey);
       wrap.appendChild(sheet);
       document.body.appendChild(wrap);
 
@@ -183,10 +193,9 @@
           host.appendChild(b);
         });
       }
-      buildGrid(mainGrid, MAIN);
-      buildGrid(advGrid, ADV);
+      buildGrid(grid, KEYS);
 
-      // control row (delete / clear) appended under main grid
+      // control row (delete / clear) appended under the grid
       var ctl = document.createElement("div");
       ctl.className = "mtk-grid";
       ctl.style.gridTemplateColumns = "1fr 1fr";
@@ -194,27 +203,23 @@
       var del = document.createElement("button"); del.type = "button"; del.className = "mtk-key util"; del.textContent = "⌫ delete"; del.onclick = back;
       var clr = document.createElement("button"); clr.type = "button"; clr.className = "mtk-key util"; clr.textContent = "clear"; clr.onclick = function () { setVal("", 0); };
       ctl.appendChild(del); ctl.appendChild(clr);
-      mainGrid.insertAdjacentElement("afterend", ctl);
+      grid.insertAdjacentElement("afterend", ctl);
 
       function open() { caret = input.value.length; sync(); sheet.classList.add("mtk-show"); }
       function close() { sheet.classList.remove("mtk-show"); }
       openBtn.addEventListener("click", function () { sheet.classList.contains("mtk-show") ? close() : open(); });
       closeBtn.addEventListener("click", close);
-      moreBtn.addEventListener("click", function () {
-        var showing = adv.classList.toggle("mtk-show");
-        moreBtn.textContent = showing ? "Fewer symbols ⌃" : "More symbols ⌄";
-      });
       sendKey.addEventListener("click", function () {
         close();
         if (sendBtn) sendBtn.click();
       });
     }
 
-    // ---- attach to the in-lesson answer bar (unchanged behavior) ----
-    if (chatInput) attachKeypad(chatInput, chatSend, { openText: "🧮 Math", sendLabel: "Send answer ➤", barWrap: true });
+    // ---- attach to the in-lesson answer bar (Send button already hidden above; tools + Enter still send) ----
+    if (chatInput) attachKeypad(chatInput, chatSend, { openText: "🧮 Math numbers & symbols", sendLabel: "Send answer ➤", barWrap: true });
 
     // ---- attach to the practice INTAKE box ("what problem are you stuck on?") ----
-    if (entryInput) attachKeypad(entryInput, entrySend, { openText: "🧮 Math keyboard", sendLabel: "Use this problem ➤", barWrap: false });
+    if (entryInput) attachKeypad(entryInput, entrySend, { openText: "🧮 Math numbers & symbols", sendLabel: "Use this problem ➤", barWrap: false, hideSend: false });
   });
 })();
 /* I did no harm and this file is not truncated. */
