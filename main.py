@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30c-caching". COST CONTROL: (1) TTS AUDIO CACHE on /api/speak --
+#               identical text is served from an on-disk cache instead of re-calling ElevenLabs (the
+#               cached bytes are the same render, so no quality change); (2) pairs with tutor.py PROMPT
+#               CACHING on the model calls. Both are billing/latency only. Verify /health shows this stamp.
 #   2026-07-30  APP_BUILD -> "2026-07-30b-toolhelp". No logic change here; pairs with a tutor.py change
 #               so Mr. Cadabra can explain HOW to use the 🧮 math keyboard and 📈 graph paper on request.
 #   2026-07-30  APP_BUILD -> "2026-07-30a-graphtool". No logic change in this file; the bump pairs with
@@ -1047,7 +1051,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30b-toolhelp"
+APP_BUILD = "2026-07-30c-caching"
 
 
 @app.get("/health")
@@ -1270,6 +1274,22 @@ def voice_status():
     return {"eleven": bool(ELEVEN_API_KEY)}
 
 
+# -----------------------------------------------------------------------------
+# TTS AUDIO CACHE -- ElevenLabs charges per character, so we cache the generated audio keyed by the
+# EXACT text (+ voice + model). Identical text -> serve the saved render instead of paying to generate
+# it again. Most teaching speech is unique (rare hits), but fixed/repeated lines (openers, the tour,
+# stock encouragements, UI prompts) hit and cost nothing after the first time. The cached bytes are the
+# SAME ElevenLabs render replayed, so there is NO quality change. (Added 2026-07-30.)
+# -----------------------------------------------------------------------------
+import hashlib
+_TTS_CACHE_DIR = DATA_DIR / "tts_cache"
+
+
+def _tts_cache_path(text: str) -> Path:
+    key = hashlib.sha256(("|".join([str(ELEVEN_VOICE_ID), str(ELEVEN_MODEL), text])).encode("utf-8")).hexdigest()
+    return _TTS_CACHE_DIR / (key + ".mp3")
+
+
 @app.get("/api/speak")
 def speak(text: str = ""):
     """
@@ -1277,12 +1297,21 @@ def speak(text: str = ""):
     starts playing in the browser before the whole clip is generated. The browser
     plays this via <audio src="/api/speak?text=...">.
 
-    If ELEVENLABS_API_KEY is not set, returns 204 and the browser uses its built-in
+    Identical text is served from an on-disk cache (no ElevenLabs call), saving cost + latency on
+    repeated lines. If ELEVENLABS_API_KEY is not set, returns 204 and the browser uses its built-in
     voice instead. (Check /api/voice-status first to avoid an empty request.)
     """
     text = (text or "").strip()
     if not text or not ELEVEN_API_KEY:
         return Response(status_code=204)
+
+    # Cache HIT: replay the saved render, no ElevenLabs call.
+    cache_path = _tts_cache_path(text)
+    try:
+        if cache_path.exists() and cache_path.stat().st_size > 0:
+            return Response(content=cache_path.read_bytes(), media_type="audio/mpeg")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[speak] cache read error: {exc}")
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}/stream"
     headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
@@ -1294,6 +1323,8 @@ def speak(text: str = ""):
     }
 
     def audio_stream():
+        buf = bytearray()
+        complete = False
         try:
             with httpx.stream("POST", url, headers=headers, json=payload, timeout=30.0) as r:
                 if r.status_code != 200:
@@ -1301,9 +1332,21 @@ def speak(text: str = ""):
                     return
                 for chunk in r.iter_bytes():
                     if chunk:
+                        buf.extend(chunk)
                         yield chunk
+                complete = True
         except Exception as exc:  # noqa: BLE001
             print(f"[speak] stream error: {exc}")
+        # Cache WRITE: only after a fully-streamed, non-empty clip; write atomically so a partial
+        # (e.g. client disconnect / error) never leaves a truncated file behind.
+        if complete and buf:
+            try:
+                _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                tmp = cache_path.with_suffix(".part")
+                tmp.write_bytes(bytes(buf))
+                tmp.replace(cache_path)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[speak] cache write error: {exc}")
 
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
 

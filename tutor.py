@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  PROMPT CACHING (cost control). Wrapped the system prompt in a cacheable content block
+#               (_cacheable_system) on all three reply calls, so Anthropic reuses the large, stable
+#               system prompt across a student's consecutive turns instead of re-billing it each turn
+#               (~halves the brain input cost within a session). The model's OUTPUT is identical whether
+#               or not the prefix was cached -> NO quality change. Backend -> bump APP_BUILD + rebuild.
 #   2026-07-30  TOOL HOW-TO. Expanded the student-tools note (GRAPH_TOOL_NOTE) so the tutor can EXPLAIN,
 #               button-by-button, how to use the 🧮 math keyboard AND the 📈 graph paper when a student
 #               asks "how do I ...?" / "where is it?". Backend prompt change -> bump APP_BUILD + rebuild.
@@ -3041,6 +3046,14 @@ USING THEM IN A LESSON:
 """
 
 
+def _cacheable_system(text: str):
+    """Wrap a system prompt as ONE cacheable content block so Anthropic PROMPT CACHING can reuse the
+    large, mostly-stable system prompt across a student's consecutive turns instead of re-billing it
+    every turn. This is billing/latency ONLY -- the model's output is identical whether or not the
+    prefix was cached, so there is NO change in teaching quality. (Added 2026-07-30.)"""
+    return [{"type": "text", "text": text or "", "cache_control": {"type": "ephemeral"}}]
+
+
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     """Fill the right course's lesson template with this student's name + remembered progress."""
     name = (student or {}).get("name", "the student")
@@ -3231,7 +3244,7 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             # Room for a short spoken turn PLUS any control tag(s) without getting cut
             # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
             max_tokens=1200,
-            system=build_system_prompt(student, course),
+            system=_cacheable_system(build_system_prompt(student, course)),
             messages=messages,
         )
         # Concatenate any text blocks the model returned.
@@ -3646,7 +3659,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         response = client.messages.create(
             model=model,
             max_tokens=1200,
-            system=build_practice_prompt(student, problem, course),
+            system=_cacheable_system(build_practice_prompt(student, problem, course)),
             messages=messages,
         )
         parts = [block.text for block in response.content
@@ -3837,7 +3850,7 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
         response = client.messages.create(
             model=model,
             max_tokens=1200,
-            system=build_topic_prompt(student, topic, course),
+            system=_cacheable_system(build_topic_prompt(student, topic, course)),
             messages=messages,
         )
         parts = [block.text for block in response.content
