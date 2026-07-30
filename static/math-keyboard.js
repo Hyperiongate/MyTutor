@@ -1,6 +1,9 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-07-30  Fix: on the lesson page's narrow left rail the input + 🧮 + Send overflowed and the
+ *               buttons were clipped off-screen. The answer bar now wraps (flex-wrap) so the buttons
+ *               drop below the input when space is tight; on a wide bar they stay on one row.
  *   2026-07-30  NEW shared component. Powers the "warm voice out / type in" setup:
  *               (a) hides the microphone (tap-to-talk) so the student answers by TYPING,
  *                   while the tutor keeps speaking via ElevenLabs (unchanged);
@@ -77,6 +80,18 @@
     } else {
       input.parentNode.appendChild(openBtn);
     }
+    // Keep the input + 🧮 + Send from overflowing/clipping in a NARROW column (e.g. the lesson
+    // page's left rail): let the row WRAP so the buttons drop below the input instead of getting
+    // cut off. On a wide answer bar everything still sits on one row. (Fix 2026-07-30.)
+    try {
+      var bar = input.parentNode;
+      bar.style.flexWrap = "wrap";
+      if (!bar.style.rowGap) bar.style.rowGap = "6px";
+      input.style.flex = "1 1 150px";
+      input.style.minWidth = "0";
+      openBtn.style.flex = "0 0 auto";
+      if (sendBtn) sendBtn.style.flex = "0 0 auto";
+    } catch (e) {}
 
     // ---- the bottom-sheet keyboard ----
     var wrap = document.createElement("div");
