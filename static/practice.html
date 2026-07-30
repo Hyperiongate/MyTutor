@@ -4,6 +4,9 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MARKET PREP (paired with main.py 2026-07-30f-lockdown): /api/speak and
+                /api/transcribe now require the login code, so both call sites pass
+                &code=/?code=. Also renamed title to "MyTutor — Practice". Do no harm.
     2026-07-30  UI POLISH. (1) Answer boxes now read "Write your response here, then press Enter…".
                 (2) The 🧮 button is renamed "Math Keyboard" (intake hint updated to match) and
                 math-keyboard.js now shows a start-of-lesson reminder about it. (3) Left sidebar
@@ -77,7 +80,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Math Tutor — Practice</title>
+  <title>MyTutor — Practice</title>
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -634,7 +637,7 @@
         ttsAudio.addEventListener("timeupdate", onProgress);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
+        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE);
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         watchdog = setInterval(() => {
@@ -1145,7 +1148,7 @@
     async function transcribe(blob) {
       try {
         const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-        const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE), { method: "POST", body: fd });
         const data = await res.json();
         return (data.text || "").trim();
       } catch (e) { return ""; }

@@ -4,6 +4,10 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MARKET PREP (paired with main.py 2026-07-30f-lockdown): /api/speak now requires
+                the login code, so the speak call passes &code=. Naming unified: title is now
+                "MyTutor — Course Assessment" and the button says "Start the assessment" (the page
+                previously mixed Challenge/Assessment). Do no harm.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -70,7 +74,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mr. Cadabra's Challenge</title>
+  <title>MyTutor — Course Assessment</title>
   <style>
     :root { --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
       --warm:#ff7a59; --good:#16a34a; --bad:#e5484d; --panel:#ffffff; }
@@ -179,7 +183,7 @@
       <div class="badge">🎩</div>
       <h1>Your course assessment</h1>
       <p>This is your full course check-up — about 45 questions across all nine units, so give it 15–25 minutes. It’s not a race and a miss costs nothing; it just shows exactly where you’re strong and where to focus. Ready?</p>
-      <button class="btn" id="beginBtn" style="margin-top:12px;">Start the challenge →</button>
+      <button class="btn" id="beginBtn" style="margin-top:12px;">Start the assessment →</button>
     </div>
 
     <!-- QUIZ (hidden until start) -->
@@ -879,7 +883,7 @@
     function say(text, spoken) {
       el("say").textContent = text;
       const line = spoken || text;
-      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent(line);
+      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent(line) + "&code=" + encodeURIComponent(CODE);
         const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line)); }
       else browserSay(line);
     }

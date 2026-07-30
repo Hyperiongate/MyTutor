@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30f-lockdown". MARKET-PREP SECURITY PASS (Tier 1 of the
+#               Market_Readiness_Review):
+#               (1) /api/speak and /api/transcribe now REQUIRE a valid student code (they spend real
+#                   ElevenLabs money and previously took none), spoken text is capped at MAX_SPEAK_CHARS,
+#                   and both are rate limited. Pages pass &code= on their speak/transcribe calls now.
+#               (2) NEW in-process sliding-window RATE LIMITER (_rate_limit): /api/chat, /api/practice,
+#                   /api/topic capped at 40 messages / 5 min per code (far above human pace; stops
+#                   runaway scripts spending the Anthropic budget); /api/login capped at 20 attempts /
+#                   5 min per IP (the 4-digit code space can't be brute-forced quickly).
+#               (3) TTS cache now has a 300 MB cap with oldest-first eviction (_evict_tts_cache) --
+#                   it previously grew without bound.
+#               (4) REMOVED the public /avatar-lab route (internal experiment; exposed internal notes
+#                   and an unauthenticated paid-TTS call) -- static/avatar-lab.html is now a stub.
+#               (5) REMOVED GET /api/progress/{code} + `import progress`: it served FABRICATED sample
+#                   stats; verified nothing calls it (dashboard uses real /api/courses + /api/topics).
+#                   progress.py is now unused and can be deleted from the repo.
+#               (6) NEW routes /privacy and /terms serving the new static trust pages.
 #   2026-07-30  APP_BUILD -> "2026-07-30e-opener". No logic change in this file; the bump pairs with a
 #               tutor.py SESSION-opener fix (no fake "placement challenge" claim; goals card shown once).
 #               Verify /health shows this stamp after deploy.
@@ -404,16 +421,17 @@ import json
 import os
 import re
 import threading
+import time
+from collections import defaultdict, deque
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import tutor
-import progress
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
 
@@ -667,6 +685,57 @@ def _student_or_404(code: str) -> dict:
     return student
 
 
+# -----------------------------------------------------------------------------
+# COST & ABUSE GUARDS (added 2026-07-30, market-prep lockdown)
+# -----------------------------------------------------------------------------
+# Every /api/chat, /api/practice, /api/topic call spends Anthropic money, and every
+# /api/speak / /api/transcribe call spends ElevenLabs money. Before this change,
+# /api/speak and /api/transcribe required NO login code at all -- a stranger who
+# found the URL could run up the bill directly -- and nothing anywhere was rate
+# limited. Now: (a) both voice endpoints require a valid student code; (b) the
+# spoken text has a hard length cap; (c) a small in-process sliding-window rate
+# limiter throttles every paid endpoint per code (and /api/login per IP, so the
+# 4-digit code space can't be brute-forced quickly). The limits are set WELL above
+# any real student's pace, so a legitimate user never sees a 429.
+_RL_LOCK = threading.Lock()
+_RL_BUCKETS: dict = defaultdict(deque)
+MAX_SPEAK_CHARS = 5000          # tutor replies spoken aloud run ~200-2500 chars; 5000 is generous
+_TTS_CACHE_MAX_BYTES = 300 * 1024 * 1024   # cap the audio cache at ~300 MB (evicts oldest first)
+
+
+def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests") -> None:
+    """Sliding-window limiter. Raises 429 if `key` exceeds `limit` per `window_seconds`."""
+    now = time.monotonic()
+    with _RL_LOCK:
+        # Keep the bucket table itself from growing without bound.
+        if len(_RL_BUCKETS) > 10000:
+            for k in [k for k, q in _RL_BUCKETS.items() if not q]:
+                _RL_BUCKETS.pop(k, None)
+        q = _RL_BUCKETS[key]
+        while q and q[0] <= now - window_seconds:
+            q.popleft()
+        if len(q) >= limit:
+            raise HTTPException(status_code=429,
+                                detail=f"Too many {what} in a short time — please wait a minute and try again.")
+        q.append(now)
+
+
+def _client_ip(request: Request) -> str:
+    """Best-effort caller IP. On Render we sit behind a proxy, so X-Forwarded-For is the real one."""
+    fwd = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    if fwd:
+        return fwd
+    return request.client.host if request.client else "unknown"
+
+
+def _require_student(code: str) -> dict:
+    """Like _student_or_404 but returns 401 (auth), for the paid voice endpoints."""
+    student = STUDENTS.get((code or "").strip())
+    if not student:
+        raise HTTPException(status_code=401, detail="A valid login code is required.")
+    return student
+
+
 @app.get("/")
 def home():
     """The minimal code-entry screen."""
@@ -715,18 +784,26 @@ def topic_page():
     return FileResponse(STATIC_DIR / "topic.html")
 
 
-@app.get("/avatar-lab")
-def avatar_lab_page():
-    """EXPERIMENT (not wired into the live tutor): a Ready Player Me 3D avatar lab for
-    Mr. Cadabra -- design an avatar, then watch it talk (mouth driven by /api/speak)."""
-    return FileResponse(STATIC_DIR / "avatar-lab.html")
+# (Removed 2026-07-30, market-prep lockdown:)
+#   - GET /avatar-lab: an internal 3D-avatar EXPERIMENT was publicly routed; it exposed internal
+#     notes and a free-text call to the paid /api/speak endpoint. The route is gone and
+#     static/avatar-lab.html is now a small "retired" stub. progress.py's companion route:
+#   - GET /api/progress/{code}: served FABRICATED sample stats (progress.py _PROFILES). Verified
+#     no page calls it anymore (the dashboard uses the real /api/courses + /api/topics data), so
+#     the route and the `import progress` are removed. progress.py itself is now unused and can
+#     be deleted from the repo whenever convenient.
 
 
-@app.get("/api/progress/{code}")
-def progress_state(code: str):
-    """Return the student's progress data (sample data + any real placement)."""
-    student = _student_or_404(code)
-    return progress.get_progress(code.strip(), student, read_placement(code.strip()))
+@app.get("/privacy")
+def privacy_page():
+    """Parents & Privacy -- the plain-language privacy commitments (attorney review pending)."""
+    return FileResponse(STATIC_DIR / "privacy.html")
+
+
+@app.get("/terms")
+def terms_page():
+    """Terms of use, billing and refund basics (attorney review pending)."""
+    return FileResponse(STATIC_DIR / "terms.html")
 
 
 @app.get("/api/topics/{code}")
@@ -1057,7 +1134,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30e-opener"
+APP_BUILD = "2026-07-30f-lockdown"
 
 
 @app.get("/health")
@@ -1074,7 +1151,7 @@ def health():
 
 
 @app.post("/api/login")
-def login(req: LoginRequest):
+def login(req: LoginRequest, request: Request):
     """
     Validate a login code and return who the student is, PLUS the two flags the
     entry flow branches on:
@@ -1083,6 +1160,8 @@ def login(req: LoginRequest):
       - returning: do we have prior conversation for them? If so, the tutor
                    welcomes them back with a recap instead of a first-time tour.
     """
+    # Brute-force guard: codes are short, so cap guesses per IP (20 / 5 min).
+    _rate_limit("login:" + _client_ip(request), limit=20, window_seconds=300, what="login attempts")
     student = _student_or_404(req.code)
     code = req.code.strip()
     session = get_session(code)
@@ -1124,6 +1203,9 @@ def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
     student = _student_or_404(req.code)
     code = req.code.strip()
+    # Paid Anthropic call behind this -- cap the pace per code (40 turns / 5 min is
+    # far above a real student's speed; it only stops abuse/runaway scripts).
+    _rate_limit("brain:" + code, limit=40, window_seconds=300, what="messages")
 
     message = (req.message or "").strip()
     if not message:
@@ -1215,6 +1297,7 @@ def practice(req: PracticeRequest):
     one-off. We validate the code so only real students can use it.
     """
     student = _student_or_404(req.code)
+    _rate_limit("brain:" + req.code.strip(), limit=40, window_seconds=300, what="messages")
 
     message = (req.message or "").strip()
     if not message:
@@ -1262,6 +1345,7 @@ def topic(req: TopicRequest):
     storage is on.)
     """
     student = _student_or_404(req.code)
+    _rate_limit("brain:" + req.code.strip(), limit=40, window_seconds=300, what="messages")
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
@@ -1297,17 +1381,25 @@ def _tts_cache_path(text: str) -> Path:
 
 
 @app.get("/api/speak")
-def speak(text: str = ""):
+def speak(text: str = "", code: str = ""):
     """
     STREAM the tutor's words as a natural ElevenLabs voice (low latency): audio
     starts playing in the browser before the whole clip is generated. The browser
-    plays this via <audio src="/api/speak?text=...">.
+    plays this via <audio src="/api/speak?text=...&code=...">.
+
+    LOCKED DOWN (2026-07-30): requires a valid student code and caps the text length --
+    this endpoint spends real ElevenLabs money, and before this change any stranger
+    could call it with arbitrary text and run up the bill. Rate limited per code.
 
     Identical text is served from an on-disk cache (no ElevenLabs call), saving cost + latency on
     repeated lines. If ELEVENLABS_API_KEY is not set, returns 204 and the browser uses its built-in
     voice instead. (Check /api/voice-status first to avoid an empty request.)
     """
+    _require_student(code)
+    _rate_limit("speak:" + code.strip(), limit=60, window_seconds=300, what="voice requests")
     text = (text or "").strip()
+    if len(text) > MAX_SPEAK_CHARS:
+        raise HTTPException(status_code=413, detail="That text is too long to speak.")
     if not text or not ELEVEN_API_KEY:
         return Response(status_code=204)
 
@@ -1351,10 +1443,33 @@ def speak(text: str = ""):
                 tmp = cache_path.with_suffix(".part")
                 tmp.write_bytes(bytes(buf))
                 tmp.replace(cache_path)
+                _evict_tts_cache()
             except Exception as exc:  # noqa: BLE001
                 print(f"[speak] cache write error: {exc}")
 
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
+
+
+def _evict_tts_cache() -> None:
+    """Keep the TTS cache under _TTS_CACHE_MAX_BYTES by deleting the OLDEST clips first
+    (down to 80% of the cap, so eviction runs occasionally rather than every write).
+    Without this the cache grows forever -- a disk-fill risk once the disk persists."""
+    try:
+        files = [f for f in _TTS_CACHE_DIR.iterdir() if f.suffix == ".mp3"]
+        total = sum(f.stat().st_size for f in files)
+        if total <= _TTS_CACHE_MAX_BYTES:
+            return
+        files.sort(key=lambda f: f.stat().st_mtime)   # oldest first
+        target = int(_TTS_CACHE_MAX_BYTES * 0.8)
+        for f in files:
+            if total <= target:
+                break
+            size = f.stat().st_size
+            f.unlink(missing_ok=True)
+            total -= size
+        print(f"[speak] cache evicted down to {total} bytes")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[speak] cache evict error: {exc}")
 
 
 # Speech-to-text engines (Scribe/Whisper-family) HALLUCINATE non-speech captions on silence
@@ -1377,14 +1492,21 @@ def _clean_transcript(text: str) -> str:
 
 
 @app.post("/api/transcribe")
-async def transcribe(audio: UploadFile = File(...)):
+async def transcribe(audio: UploadFile = File(...), code: str = ""):
     """
     Transcribe the student's recorded audio with ElevenLabs Speech-to-Text (Scribe).
     Browser records the audio (works in every modern browser) and posts it here;
     we return {"text": "..."}. Returns empty text on any failure so the UI can ask
     the student to try again. Reuses ELEVENLABS_API_KEY. Non-speech hallucinations
     (e.g. "[outro jingle]") are scrubbed via _clean_transcript so they never reach the tutor.
+
+    LOCKED DOWN (2026-07-30): requires a valid student code (?code=) + rate limited --
+    this endpoint spends real ElevenLabs money. NOTE: the product is currently
+    "warm voice out / type in" (all mic buttons hidden), so nothing in the live UI
+    calls this; it stays locked and dormant in case voice-in returns as a paid tier.
     """
+    _require_student(code)
+    _rate_limit("stt:" + code.strip(), limit=20, window_seconds=300, what="voice uploads")
     if not ELEVEN_API_KEY:
         return {"text": "", "error": "no_key"}
     try:

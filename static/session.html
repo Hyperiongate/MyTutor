@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MARKET PREP (paired with main.py 2026-07-30f-lockdown): /api/speak and
+                /api/transcribe now require the login code, so both call sites pass
+                &code=/?code=. Also renamed "Math Tutor" -> "MyTutor" (title, topbar fallback,
+                welcome heading). Do no harm.
     2026-07-30  COURSE NAME IN TOPBAR. The topbar showed a static "Math Tutor" so a student couldn't
                 tell which course they were in. It now shows COURSE_TITLE (e.g. "Pre-Algebra",
                 "Algebra I"), data-driven off ?course=. Static-only. Do no harm.
@@ -224,7 +228,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Math Tutor — Session</title>
+  <title>MyTutor — Session</title>
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -648,7 +652,7 @@
 
     <div class="center">
       <div class="topbar">
-        <div class="title" id="courseTitle">Math Tutor</div>
+        <div class="title" id="courseTitle">MyTutor</div>
         <div class="spacer"></div>
         <a id="homeLink" href="#">☰ Menu</a>
       </div>
@@ -671,7 +675,7 @@
   <div class="welcome" id="welcome">
     <div class="welcome-card">
       <div class="welcome-badge">✨</div>
-      <h2 id="welcomeTitle">Welcome to Math Tutor!</h2>
+      <h2 id="welcomeTitle">Welcome to MyTutor!</h2>
       <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
         <li><span class="ic">🔊</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go — so <b>turn your speakers or headphones on</b>.</span></li>
@@ -1104,7 +1108,7 @@
         ttsAudio.addEventListener("timeupdate", onProgress);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
+        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE);
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         // WATCHDOG: guarantees this promise ALWAYS resolves, so the student is never
@@ -1718,7 +1722,7 @@
       setState("thinking"); statusEl.textContent = "Got it — one sec…"; live.textContent = "";
       try {
         const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-        const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE), { method: "POST", body: fd });
         const data = await res.json();
         const text = (data.text || "").trim();
         if (text) { sendToTutor(text); }

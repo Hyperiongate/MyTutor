@@ -4,6 +4,9 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MARKET PREP (paired with main.py 2026-07-30f-lockdown): /api/speak and
+                /api/transcribe now require the login code, so both call sites pass
+                &code=/?code=. Also renamed title to "MyTutor — Explore a Topic". Do no harm.
     2026-07-30  MIC CLEANUP + UI POLISH. (1) Removed the "🎙️" tap-and-say TOPIC-entry button, its CSS
                 and recording JS, and the getUserMedia() warm-up in startTopic() -- no more microphone
                 prompt (warm voice out / type in). (2) Answer boxes now read "Write your response here,
@@ -71,7 +74,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Math Tutor — Explore a Topic</title>
+  <title>MyTutor — Explore a Topic</title>
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -674,7 +677,7 @@
         ttsAudio.addEventListener("timeupdate", onProgress);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text));
+        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE);
         const p = ttsAudio.play();
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         watchdog = setInterval(() => {
@@ -1182,7 +1185,7 @@
     async function transcribe(blob) {
       try {
         const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-        const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE), { method: "POST", body: fd });
         const data = await res.json();
         return (data.text || "").trim();
       } catch (e) { return ""; }

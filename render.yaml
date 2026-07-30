@@ -1,11 +1,19 @@
 # =============================================================================
-# render.yaml  --  Math Tutor MVP  --  Hyperion Shift LLC
+# render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
-#   2026-07-21  CLAUDE_MODEL -> claude-haiku-4-5 (cheaper student-facing model; see
-#               tutor.py). NOTE: the live mytutor-2 service was built manually, so this
-#               blueprint value only applies to services created FROM this file -- the
-#               live switch is setting CLAUDE_MODEL in the Render dashboard.
+#   2026-07-30  MARKET-PREP FIXES. (1) CLAUDE_MODEL -> claude-sonnet-5: the A/B test
+#               (Sonnet_vs_Haiku_AB.md) showed Haiku loses track of the student's
+#               actual progress, so Haiku was REJECTED for the teaching brain -- but
+#               this blueprint still said claude-haiku-4-5, meaning any service
+#               created from it would deploy the rejected model. (2) Added
+#               ELEVENLABS_API_KEY (sync:false) so blueprint deploys prompt for the
+#               voice key too. (3) PRODUCTION NOTE below: the free plan's disk is
+#               EPHEMERAL -- student progress resets on redeploy/sleep unless you
+#               (a) upgrade to a paid always-on plan and (b) attach a Render
+#               Postgres and set DATABASE_URL (store.py activates automatically).
+#               Do both before taking paying customers.
+#   2026-07-21  CLAUDE_MODEL -> claude-haiku-4-5 (superseded 2026-07-30, see above).
 #   2026-07-19  Updated CLAUDE_MODEL default from the retired
 #               "claude-3-5-sonnet-latest" to the active "claude-sonnet-5".
 #   2026-07-19  Initial Render blueprint. Defines one Python web service that
@@ -14,8 +22,16 @@
 #
 # HOW TO USE:
 #   With this file in your GitHub repo, Render can create the service
-#   automatically ("Blueprint"). You still must set the ANTHROPIC_API_KEY value
-#   in the Render dashboard (it is intentionally NOT stored in code or git).
+#   automatically ("Blueprint"). You still must set the ANTHROPIC_API_KEY and
+#   ELEVENLABS_API_KEY values in the Render dashboard (intentionally NOT in git).
+#
+# PRODUCTION CHECKLIST (before real customers):
+#   1. Render dashboard -> this service -> upgrade plan from Free to a paid
+#      always-on tier (free sleeps after idle: ~30 s cold starts + wiped disk).
+#   2. Render dashboard -> New -> PostgreSQL -> copy its Internal Database URL ->
+#      add env var DATABASE_URL on this service. store.py switches to durable
+#      Postgres automatically; /health shows "db": true when it worked.
+#   3. Keep CLAUDE_MODEL=claude-sonnet-5 (Haiku failed the teaching A/B).
 #
 # NOTE: YAML uses '#' for comments, so these notes and the closing line are safe.
 # =============================================================================
@@ -23,12 +39,14 @@ services:
   - type: web
     name: math-tutor-mvp
     runtime: python
-    plan: free
+    plan: free                 # UPGRADE to a paid always-on plan before launch (see checklist)
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false            # you set this secret in the Render dashboard
+      - key: ELEVENLABS_API_KEY
+        sync: false            # you set this secret in the Render dashboard
       - key: CLAUDE_MODEL
-        value: claude-haiku-4-5
+        value: claude-sonnet-5 # the teaching brain; Haiku was tested and rejected
 # I did no harm and this file is not truncated.

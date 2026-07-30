@@ -1,6 +1,12 @@
 # =============================================================================
-# .gitignore  --  Math Tutor MVP  --  Hyperion Shift LLC
+# .gitignore  --  MyTutor  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  MARKET-PREP HARDENING. Added belt-and-braces exclusions so secrets and
+#               dev/test artifacts can never ship even if created locally later:
+#               .mtenv (local API-key file pattern used during testing -- a leak path
+#               if ever created in the repo dir), local SQLite DBs, logs, test
+#               transcripts/batteries (*.jsonl), screenshots, run-state files, and the
+#               _to_delete/ staging folder. Also renamed header to MyTutor.
 #   2026-07-19  Initial. Keeps Python cache and saved student sessions out of git
 #               so we never commit conversation data or stale caches.
 # NOTE: git treats '#' lines as comments, so these notes are safe here.
@@ -10,8 +16,22 @@ __pycache__/
 data/sessions.json
 data/placements.json
 data/*.tmp
+data/tts_cache/
 .env
+.mtenv
+*.mtenv
 node_modules/
 package-lock.json
+# --- local databases / logs / dev artifacts (never commit) ---
+*.db
+*.sqlite
+*.log
+*.jsonl
+dry*.png
+run_state.json
+*_state.json
+_to_delete/
+_fresh_*
+.venv/
 # NOTE: static/chart.umd.min.js IS committed on purpose (bundled Chart.js library).
 # I did no harm and this file is not truncated.

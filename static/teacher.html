@@ -4,6 +4,8 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MARKET PREP: renamed "Math Tutor" -> "MyTutor" (title + both dynamic
+                document.title strings). Static-only. Do no harm.
     2026-07-28  TEACHER SIGN-IN: ONE TEACHER CODE, MANY CLASSES. Arriving with ?teacher=CODE (the
                 new teacher door on the home page) now shows YOUR CLASSES first -- every class
                 under that teacher code, each with its student count -- so a teacher running four
@@ -41,7 +43,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Math Tutor — My Class</title>
+  <title>MyTutor — My Class</title>
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -382,7 +384,7 @@
       el("whoami").textContent = "🍎 " + TEACHER;
       el("sub").textContent = "Every class you run, in one place.";
       document.querySelector(".top .title").textContent = "🍎 My Classes";
-      document.title = "Math Tutor — My Classes";
+      document.title = "MyTutor — My Classes";
       // With a class list right above it, the code box is a fallback, not the main way in.
       el("openTitle").textContent = "Open a class by its code";
       el("openNote").textContent =
@@ -509,7 +511,7 @@
         el("classMeta").textContent = "Class code " + d.klass.class_code +
           (d.klass.owner_name ? " · " + d.klass.owner_name : "") + " · showing " + d.course_title;
         el("sub").textContent = "How your students are doing in " + d.course_title + ", unit by unit.";
-        document.title = "Math Tutor — " + label;
+        document.title = "MyTutor — " + label;
 
         el("kSize").textContent = d.class_size;
         const totalMast = (d.students || []).reduce((s, x) => s + x.units_mastered, 0);
