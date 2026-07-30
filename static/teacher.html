@@ -4,6 +4,9 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): every "kick back to
+                login" redirect now targets /login instead of "/" (the marketing landing page took
+                over the root URL), and the page gained the site favicon. Do no harm.
     2026-07-30  MARKET PREP: renamed "Math Tutor" -> "MyTutor" (title + both dynamic
                 document.title strings). Static-only. Do no harm.
     2026-07-28  TEACHER SIGN-IN: ONE TEACHER CODE, MANY CLASSES. Arriving with ?teacher=CODE (the
@@ -44,6 +47,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyTutor — My Class</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -198,7 +202,7 @@
       <div class="title">👪 My Class</div>
       <div class="spacer"></div>
       <span class="whoami" id="whoami" style="display:none;"></span>
-      <a class="navlink" href="/">← Back</a>
+      <a class="navlink" href="/login">← Back</a>
     </div>
     <p class="sub" id="sub">See how all of your students are doing, unit by unit.</p>
 

@@ -4,6 +4,9 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): every "kick back to
+                login" redirect now targets /login instead of "/" (the marketing landing page took
+                over the root URL), and the page gained the site favicon. Do no harm.
     2026-07-30  MARKET PREP: renamed "Math Tutor" -> "MyTutor" (title + topbar). Static-only.
                 Do no harm.
     2026-07-28  COSMETIC: the subject picker is now 2 ROWS OF 4 (was 3-across, which left 8 courses
@@ -52,6 +55,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyTutor — Home</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -234,7 +238,7 @@
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
-    if (!CODE) { location.href = "/"; }
+    if (!CODE) { location.href = "/login"; }
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
     const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
@@ -288,7 +292,7 @@
       (async () => {
         try {
           const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
-          if (!res.ok) { location.href = "/"; return; }
+          if (!res.ok) { location.href = "/login"; return; }
           const data = await res.json();
           if (data.name) el("hello").textContent = "Hi, " + data.name + "!";
           const hasHistory = (data.history || []).length > 0;

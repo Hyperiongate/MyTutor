@@ -4,6 +4,10 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): this login screen
+                now lives at /login (the marketing landing page took over "/"), gained a favicon and
+                a "Learn about MyTutor / Try a free lesson" footer link back to the marketing site.
+                Do no harm.
     2026-07-30  MARKET PREP: renamed "Math Tutor" -> "MyTutor" (title + heading) so the app
                 matches the brand the landing page sells. Static-only. Do no harm.
     2026-07-28  THREE FRONT DOORS. The page is now three clearly separated sign-in sections --
@@ -48,6 +52,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyTutor</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -219,6 +224,8 @@
       anyone holding a code can open that door. Please don't treat a code as private until real
       accounts are in place.
     </div>
+
+    <div class="foot-note">New here? <a href="/">Learn about MyTutor</a> · <a href="/demo">Try a free lesson</a></div>
   </div>
 
   <script>

@@ -4,6 +4,9 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): every "kick back to
+                login" redirect now targets /login instead of "/" (the marketing landing page took
+                over the root URL), and the page gained the site favicon. Do no harm.
     2026-07-30  ENGAGED-TIME TRACKING: included the new shared /static/time-tracker.js, which
                 posts /api/heartbeat once a minute ONLY while the tab is visible and the student
                 is actually active — so parents get honest time-on-task numbers. Additive; one
@@ -79,6 +82,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyTutor — Course Assessment</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root { --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
       --warm:#ff7a59; --good:#16a34a; --bad:#e5484d; --panel:#ffffff; }
@@ -274,7 +278,7 @@
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
-    if (!CODE) location.href = "/";
+    if (!CODE) location.href = "/login";
     const COURSE = (params.get("course") || "algebra1").trim();  // which course we're placing for
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("exitLink").href = CODE ? ("/home" + cq) : "/";

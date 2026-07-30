@@ -4,6 +4,9 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): every "kick back to
+                login" redirect now targets /login instead of "/" (the marketing landing page took
+                over the root URL), and the page gained the site favicon. Do no harm.
     2026-07-30  "TIME THIS WEEK" TILE (engaged time). New 5th KPI tile fed by GET /api/time:
                 honest minutes of real work (tab visible + student active, via time-tracker.js
                 heartbeats), computed against the student's local calendar — today + last-7-days.
@@ -67,6 +70,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyTutor — My Progress</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
       --ink:#26263a; --muted:#6b6f82; --line:#e7e6f2; --accent:#5b5bd6; --accent2:#14b8a6;
@@ -314,8 +318,8 @@
     const isTeacher = (VIEW === "teacher" || VIEW === "parent");
     const COURSE = (params.get("course") || "algebra1").trim(); // which course's progress to show
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
-    if (!CODE) { location.href = "/"; }
-    if (isTeacher) { el("homeLink").href = "/"; el("homeLink").textContent = "← Back"; }
+    if (!CODE) { location.href = "/login"; }
+    if (isTeacher) { el("homeLink").href = "/login"; el("homeLink").textContent = "← Back"; }
     else { el("homeLink").href = "/home" + cq; }
 
     // Status meta: label + icon + css class. Status is NEVER color-alone (label + icon always).
@@ -340,7 +344,7 @@
       let data;
       try {
         const res = await fetch("/api/topics/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
-        if (!res.ok) { location.href = "/"; return; }
+        if (!res.ok) { location.href = "/login"; return; }
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
 

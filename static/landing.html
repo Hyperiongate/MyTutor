@@ -2,9 +2,17 @@
 <!--
   MyTutor — Landing + Pricing page (DRAFT for Jim's review)
   Notes for future edits (newest first):
+  - 2026-07-30  PROFESSIONAL GO-LIVE PASS (mrcadabra.com purchased today; landing becomes the FRONT
+    DOOR at "/"): removed the DRAFT ribbon (+ its CSS); replaced the placeholder-testimonials section
+    with an honest "Become a founding family" section (still NO invented reviews — that rule stands);
+    nav gained "Sign in" (-> /login) and all demo CTAs now use the pretty /demo route; added SEO/social
+    meta (description, canonical https://mrcadabra.com/, Open Graph) + favicon; footer gained Sign in,
+    contact is now support@mrcadabra.com, and the copyright line names the domain. Prices still carry
+    the "introductory and may change" note pending Jim's final pricing decision.
   - 2026-07-30  MARKET PREP: wired the dead links — "Parents & Privacy" now goes to the real /privacy
-    page, the footer gained /terms, and Contact is a working mailto (jim@shift-work.com — swap for a
-    support@ alias when one exists). Course name unified to "Trig / Pre-Calc" to match the app.
+    page, the footer gained /terms, and Contact became a working mailto (Jim's personal address at the
+    time; swapped to support@mrcadabra.com the same day — see the newer note). Course name unified to
+    "Trig / Pre-Calc" to match the app.
   - 2026-07-30  PRODUCT REFRESH to the shipped experience: warm voice OUT + student TYPES in (with the
     on-screen math keyboard), NO microphone. Reworded hero, "How it works", privacy, FAQ, and final CTA
     to this model; collapsed the four voice-tier plans to ONE product (Free + full "MyTutor" plan), since
@@ -31,6 +39,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyTutor — A patient AI math tutor that teaches, not just answers</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<link rel="canonical" href="https://mrcadabra.com/" />
+<meta name="description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — Pre-Algebra through Calculus — and never just hands over the answer. No microphone needed.">
+<meta property="og:title" content="MyTutor — the math tutor who talks">
+<meta property="og:description" content="A patient, Socratic AI math tutor with a synchronized whiteboard. Eight complete courses, placement to mastery. Built for homeschool families.">
+<meta property="og:url" content="https://mrcadabra.com/">
+<meta property="og:type" content="website">
 <style>
   :root{
     --purple:#6d5ae6; --teal:#1fb6b0; --ink:#20233a; --muted:#5b6079;
@@ -72,10 +87,6 @@
   .nav-links a:hover{color:var(--purple)}
   .nav-cta{display:flex;gap:10px;align-items:center}
   @media(max-width:820px){.nav-links{display:none}}
-  /* DRAFT ribbon */
-  .draft{position:fixed;top:14px;right:-46px;transform:rotate(45deg);z-index:60;
-    background:#ff8a3d;color:#fff;font-weight:800;font-size:12px;letter-spacing:.5px;
-    padding:6px 60px;box-shadow:0 6px 16px rgba(0,0,0,.2)}
   /* HERO */
   .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:64px 0 40px}
   .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
@@ -172,7 +183,6 @@
 </style>
 </head>
 <body>
-<div class="draft">DRAFT</div>
 <nav><div class="wrap nav-in">
   <div class="brand"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></div>
   <div class="nav-links">
@@ -183,8 +193,8 @@
     <a href="#faq">FAQ</a>
   </div>
   <div class="nav-cta">
-    <a class="btn btn-ghost" href="#pricing">See pricing</a>
-    <a class="btn btn-primary" href="/static/demo.html">Try a lesson</a>
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
   </div>
 </div></nav>
 <!-- HERO -->
@@ -194,7 +204,7 @@
     <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
     <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by typing — with a built-in math keyboard, and no microphone needed. A complete course from placement to mastery, at home, at your pace.</p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="/static/demo.html">▶ Try a lesson free</a>
+      <a class="btn btn-primary" href="/demo">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
     <p class="hero-note">No credit card · No microphone required · Parent-controlled accounts · We never sell your child's data</p>
@@ -277,7 +287,7 @@
         <li><span class="chk">✓</span> Practice &amp; single-topic help</li>
         <li><span class="chk">✓</span> Parent-controlled account</li>
       </ul>
-      <a class="btn btn-ghost" href="/static/demo.html">Start free</a>
+      <a class="btn btn-ghost" href="/demo">Start free</a>
     </div>
     <!-- FULL ACCESS -->
     <div class="plan feat">
@@ -293,7 +303,7 @@
         <li><span class="chk">✓</span> Progress dashboard by unit</li>
         <li><span class="chk">✓</span> Parent-controlled account &amp; privacy</li>
       </ul>
-      <a class="btn btn-primary" href="/static/demo.html">Try a lesson free</a>
+      <a class="btn btn-primary" href="/demo">Try a lesson free</a>
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
@@ -317,16 +327,19 @@
     <p class="sub center" style="margin-top:18px;font-size:13.5px">See our <a href="/privacy" style="color:#fff;text-decoration:underline">Parents &amp; Privacy</a> page for the full details.</p>
   </div>
 </section>
-<!-- TESTIMONIALS (placeholders) -->
+<!-- FOUNDING FAMILIES (honest early-days section: no invented reviews, ever) -->
 <section class="wrap center">
-  <span class="eyebrow">Loved by families</span>
-  <h2>What parents are saying</h2>
+  <span class="eyebrow">Early access</span>
+  <h2>Become a founding family</h2>
+  <p class="sub center">MyTutor is new, and we'd rather tell you that plainly than paste fake five-star quotes here.
+  Founding families get early access, introductory pricing locked in, and a direct line to the person
+  building it — and their feedback shapes what gets built next.</p>
   <div class="grid g3" style="margin-top:26px;text-align:left">
-    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — replace with a real parent testimonial once you have permission to quote them."</div>
-    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — a line about a student who finally 'got' a topic works well here."</div>
-    <div class="quote"><span class="ph">[ REAL QUOTE TO ADD ]</span><br>"Placeholder — a homeschool parent on the dashboard / progress visibility."</div>
+    <div class="card"><div class="ic">🔑</div><h3>Founding price, locked</h3><p>Join during early access and keep your introductory rate as long as you stay subscribed.</p></div>
+    <div class="card"><div class="ic">✉️</div><h3>A real person answers</h3><p>Questions and ideas go to <a href="mailto:support@mrcadabra.com" style="color:var(--purple);font-weight:700">support@mrcadabra.com</a> and get read by the builder — not a ticket queue.</p></div>
+    <div class="card"><div class="ic">🧭</div><h3>Shape the roadmap</h3><p>Founding families vote first on what's next — new subjects, new tools, new grade levels.</p></div>
   </div>
-  <p class="hero-note center" style="margin-top:14px">(These are intentional placeholders — no invented reviews. Add genuine quotes before publishing.)</p>
+  <p class="hero-note center" style="margin-top:16px">Want in? <a href="mailto:support@mrcadabra.com?subject=Founding%20family" style="text-decoration:underline">Email us</a> or just try a lesson below.</p>
 </section>
 <!-- FAQ -->
 <section id="faq" class="wrap">
@@ -342,15 +355,15 @@
   <div class="card" style="padding:44px">
     <h2>Give your student a tutor who has all the patience in the world.</h2>
     <p class="sub center" style="margin-bottom:22px">Try a lesson free today — no card, no microphone. Then start your student's course whenever you're ready.</p>
-    <a class="btn btn-primary" href="/static/demo.html">▶ Try a lesson</a>
+    <a class="btn btn-primary" href="/demo">▶ Try a lesson</a>
   </div>
 </section>
 <footer><div class="wrap foot-in">
   <div class="brand"><span class="orb"></span> MyTutor</div>
   <div style="display:flex;gap:20px;flex-wrap:wrap">
-    <a href="#pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="#faq">FAQ</a><a href="mailto:jim@shift-work.com">Contact</a>
+    <a href="#pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="#faq">FAQ</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
   </div>
-  <div>© 2026 Hyperion Shift LLC · Made for families</div>
+  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
 </div></footer>
 <script>
   function setCycle(c){

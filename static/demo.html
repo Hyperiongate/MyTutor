@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
-  Notes (2026-07-30):
+  Notes (2026-07-30, newest first):
+  - 2026-07-30  CONVERSION: the win screen now offers "See plans & get started →" (to /#pricing on the
+    new landing front door) beside "Try it again" -- it used to dead-end. Also served at the pretty
+    /demo route now, and gained the site favicon.
   - Fully self-contained: inline CSS/JS, no libraries, no web fonts, no localStorage, no backend.
   - Shows the REAL product experience: the tutor SPEAKS each line (browser voice here, since a demo
     can't call ElevenLabs), the whiteboard draws each step, and the student answers by TYPING with the
@@ -15,6 +18,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyTutor — Try a lesson with Mr. Cadabra</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <style>
   :root{
     --purple:#6d5ae6; --teal:#1fb6b0; --ink:#20233a; --muted:#5b6079;
@@ -294,9 +298,14 @@
     var box=document.createElement('div'); box.className='endbox';
     box.innerHTML='<h2>🎉 You solved it!</h2>'+
       '<p>That\'s a quick taste of how Mr. Cadabra teaches — talking you through every step, drawing it on the board, and letting you answer at your own pace. A full course does this from placement all the way to mastery.</p>';
+    // CONVERSION CTA (2026-07-30): the demo used to dead-end at the win screen with only
+    // "try again" -- now the moment of maximum enthusiasm offers the next step.
+    var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
+    go.href='/#pricing'; go.style.textDecoration='none'; go.style.display='inline-block'; go.style.marginRight='10px';
     var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try it again';
+    again.style.background='#fff'; again.style.color='#6d5ae6'; again.style.border='1.5px solid #e5e2f2';
     again.onclick=function(){ board.innerHTML=''; i=-1; next(); };
-    box.appendChild(again); answer.appendChild(box);
+    box.appendChild(go); box.appendChild(again); answer.appendChild(box);
   }
 
   document.getElementById('startBtn').onclick=function(){ next(); };

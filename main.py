@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30h-frontdoor". THE LANDING PAGE IS NOW THE FRONT DOOR
+#               (go-live prep for mrcadabra.com): GET / serves landing.html (was the bare code-entry
+#               screen), NEW GET /login serves index.html, NEW GET /demo serves demo.html. All 11
+#               in-app "kick back to login" redirects across the static pages were retargeted from
+#               "/" to "/login" in the same change, and the landing/nav gained a Sign in link -- so
+#               a parent hitting the domain sees the marketing site, and students still land on the
+#               login form whenever a code is missing/invalid.
 #   2026-07-30  APP_BUILD -> "2026-07-30g-timetrack". ENGAGED-TIME TRACKING (parents' "how long did
 #               my kid actually work?"). NEW: POST /api/heartbeat (adds one verified minute; requires
 #               a valid code; rate limited; server-side MIN_BEAT_GAP_SECONDS stops a tampered client
@@ -753,8 +760,23 @@ def _require_student(code: str) -> dict:
 
 @app.get("/")
 def home():
-    """The minimal code-entry screen."""
+    """FRONT DOOR (changed 2026-07-30): the marketing/landing page. A parent visiting
+    mrcadabra.com now sees what MyTutor IS, with a Sign in link -- the bare code-entry
+    screen used to live here and moved to /login. Every in-app 'kick back to login'
+    redirect was retargeted from '/' to '/login' in the same change."""
+    return FileResponse(STATIC_DIR / "landing.html")
+
+
+@app.get("/login")
+def login_page():
+    """The code-entry screen (was served at '/' until 2026-07-30)."""
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/demo")
+def demo_page():
+    """The self-contained interactive demo lesson (pretty route for marketing links)."""
+    return FileResponse(STATIC_DIR / "demo.html")
 
 
 @app.get("/session")
@@ -1210,7 +1232,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30g-timetrack"
+APP_BUILD = "2026-07-30h-frontdoor"
 
 
 @app.get("/health")
