@@ -2,6 +2,8 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30b-toolhelp". No logic change here; pairs with a tutor.py change
+#               so Mr. Cadabra can explain HOW to use the 🧮 math keyboard and 📈 graph paper on request.
 #   2026-07-30  APP_BUILD -> "2026-07-30a-graphtool". No logic change in this file; the bump pairs with
 #               a tutor.py change that teaches the tutor about the new 📈 Graph tool (coordinate graph
 #               paper; plotted points arrive as text coordinates). Also new static static/graph-input.js
@@ -1045,7 +1047,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30a-graphtool"
+APP_BUILD = "2026-07-30b-toolhelp"
 
 
 @app.get("/health")

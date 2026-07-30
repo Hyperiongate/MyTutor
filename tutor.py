@@ -2,6 +2,9 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  TOOL HOW-TO. Expanded the student-tools note (GRAPH_TOOL_NOTE) so the tutor can EXPLAIN,
+#               button-by-button, how to use the 🧮 math keyboard AND the 📈 graph paper when a student
+#               asks "how do I ...?" / "where is it?". Backend prompt change -> bump APP_BUILD + rebuild.
 #   2026-07-30  GRAPH TOOL AWARENESS. Added GRAPH_TOOL_NOTE, prepended (with GROUND_RULES) to every
 #               mode's system prompt via the build_* functions. It tells the tutor the student has a
 #               📈 Graph button (coordinate graph paper), that plotted points arrive as TEXT
@@ -2997,25 +3000,42 @@ redirect always beats a lecture.
 """
 
 # -----------------------------------------------------------------------------
-# GRAPH TOOL NOTE -- tells the tutor the student can plot points on graph paper, how the plotted
-# points arrive (as TEXT coordinates, since the model can't see pixels), and how to use / check it.
-# Prepended to every mode's prompt alongside GROUND_RULES. Added 2026-07-30.
+# STUDENT TOOLS NOTE (variable kept as GRAPH_TOOL_NOTE) -- tells the tutor about BOTH on-screen tools the
+# student answers with: the 🧮 math keyboard and the 📈 graph paper. Includes the button-by-button
+# mechanics so the tutor can ANSWER "how do I use this?" / "where is it?" questions, plus how plotted
+# points arrive (as TEXT coordinates, since the model can't see pixels) and how to check them. Prepended
+# to every mode's prompt alongside GROUND_RULES.
+#   2026-07-30  Added (graph tool). Expanded same day to cover the math keyboard + how-to-use answers.
 # -----------------------------------------------------------------------------
 GRAPH_TOOL_NOTE = """\
 ============================================================
-THE GRAPH TOOL (the student can plot points on graph paper)
+THE STUDENT'S ON-SCREEN TOOLS (and how to explain using them)
 ============================================================
-The student has a 📈 Graph button that opens coordinate graph paper. They plot points, optionally draw a
-line, and send. Their message then arrives as TEXT, for example:
-  "📈 I plotted these points on the graph: (0, 3), (1, 5) -- and drew a straight line through them."
-You CANNOT see the picture -- reason only from the coordinates in that text.
-- USE IT for any graphing work (plotting points, intercepts, slope, lines, scatter data): rather than only
-  asking for coordinates in words, invite them to use it -- e.g. "tap the 📈 Graph button, plot the
-  y-intercept first, then use the slope to plot one more point, then draw the line."
-- CHECK the coordinates they send against the expected answer and respond specifically (e.g. is (1,5) on
-  y = 2x + 3? yes -> confirm; if a point is off, name which one and why, without just handing over the fix).
-- Blend it in naturally; reach for it where a picture teaches better than words, and stay with plain
-  typing or the whiteboard otherwise.
+The student types their answers (there is no microphone). Two on-screen tools sit next to the answer box,
+and YOU should be able to explain how to use either one if the student asks "how do I ...?" or "where is
+...?" -- walk them through the steps below, simply and warmly.
+
+🧮 MATH KEYBOARD -- the "🧮 Math" button next to the answer box opens a keypad. It has the digits and
++ - x ÷ = , a fraction key ( / ), and math keys: "√" (square root -- tapping it drops in √( ) with the
+cursor inside, so they just type the number under the root), "x²" (squared), and "xⁿ" (any power -- tap it
+then type the exponent, e.g. x^3). A "More symbols" button reveals ( ), π, "×10ⁿ" for scientific notation,
+|x| (absolute value), ±, the comparison signs < > ≤ ≥ ≠, θ, °, and x / y. Keys type into the answer box;
+⌫ deletes and "clear" empties it; "Send answer" submits it. They can also just type on a normal keyboard.
+
+📈 GRAPH PAPER -- the "📈 Graph" button opens coordinate graph paper. They TAP a spot on the grid to plot
+a point (tap the same point again to remove it), can tick "Draw a line through my points" to draw a
+straight line through their first two points, use "Clear" to start over, and "Send to tutor" to send it.
+What you then receive is TEXT, e.g. "📈 I plotted these points on the graph: (0, 3), (1, 5) -- and drew a
+straight line through them." You CANNOT see the picture -- reason only from those coordinates.
+
+USING THEM IN A LESSON:
+- For graphing work (plotting points, intercepts, slope, lines, scatter data), invite the graph tool --
+  e.g. "tap 📈 Graph, plot the y-intercept first, then use the slope to plot one more point, then draw the
+  line." For answers with roots, powers, or fractions, point them to the 🧮 Math keyboard.
+- CHECK what they send against the expected answer and respond specifically (e.g. is (1,5) on y = 2x + 3?
+  yes -> confirm; if a point is off, name which one and why, without just handing over the fix).
+- Blend it in naturally; reach for a tool where it teaches better than words, otherwise plain typing and
+  the whiteboard are fine.
 ============================================================
 
 """
