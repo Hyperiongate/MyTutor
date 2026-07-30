@@ -1,6 +1,11 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-07-30  (b) RENAME + START-OF-LESSON REMINDER. The 🧮 opener is renamed "🧮 Math Keyboard"
+ *               (was "Math numbers & symbols"), on both the chat bars and the intake. A one-line
+ *               reminder is now injected ABOVE the chat answer bar from the start -- "Tap 🧮 Math
+ *               Keyboard to type math symbols ..." -- so the student knows the button is there and
+ *               what it does (opt-in via opts.hintText; chat bars only, the intake keeps its own hint).
  *   2026-07-30  Answer-bar cleanup requested from the lesson screen:
  *               (1) SINGLE SEND. The standalone "Send" button in the in-lesson answer bar was
  *                   redundant next to the 🧮 Math and 📈 Graph tools (each tool already has its own
@@ -90,7 +95,9 @@
       ".mtk-key.util{color:#5b6079;font-weight:700;font-size:14px}" +
       ".mtk-sup{font-size:.72em;vertical-align:super}" +
       ".mtk-send{width:100%;margin-top:8px;border:none;border-radius:12px;font-weight:800;font-size:16px;padding:13px;cursor:pointer;" +
-      "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff}";
+      "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff}" +
+      ".mtk-hint{font-size:12.5px;line-height:1.35;color:var(--muted,#5b6079);margin:0 2px 6px;opacity:.92}" +
+      ".mtk-hint b{color:var(--accent,#6d5ae6);font-weight:800}";
     document.head.appendChild(css);
 
     // Every key, shown at once (no "more symbols" dropdown any more).
@@ -125,7 +132,7 @@
       var openBtn = document.createElement("button");
       openBtn.type = "button";
       openBtn.className = "mtk-open";
-      openBtn.textContent = opts.openText || "🧮 Math numbers & symbols";
+      openBtn.textContent = opts.openText || "🧮 Math Keyboard";
       if (sendBtn && sendBtn.parentNode === input.parentNode) {
         input.parentNode.insertBefore(openBtn, sendBtn);
       } else {
@@ -144,6 +151,21 @@
           input.style.minWidth = "0";
           openBtn.style.flex = "0 0 auto";
           if (sendBtn) sendBtn.style.flex = "0 0 auto";
+        } catch (e) {}
+      }
+
+      // One-line reminder ABOVE the answer bar, shown from the start of the lesson, telling the
+      // student the Math Keyboard is there and what it's for. (Chat bars only -- the intake screen
+      // has its own hint.) Inserted once, guarded so it never doubles up.
+      if (opts.hintText) {
+        try {
+          var _bar = input.parentNode;
+          if (_bar && _bar.parentNode && !_bar.parentNode.querySelector(".mtk-hint")) {
+            var hintEl = document.createElement("div");
+            hintEl.className = "mtk-hint";
+            hintEl.innerHTML = opts.hintText;
+            _bar.parentNode.insertBefore(hintEl, _bar);
+          }
         } catch (e) {}
       }
 
@@ -216,10 +238,11 @@
     }
 
     // ---- attach to the in-lesson answer bar (Send button already hidden above; tools + Enter still send) ----
-    if (chatInput) attachKeypad(chatInput, chatSend, { openText: "🧮 Math numbers & symbols", sendLabel: "Send answer ➤", barWrap: true });
+    if (chatInput) attachKeypad(chatInput, chatSend, { openText: "🧮 Math Keyboard", sendLabel: "Send answer ➤", barWrap: true,
+      hintText: '💡 Tap <b>🧮 Math Keyboard</b> to type math symbols &mdash; square roots, exponents (x²), fractions and more.' });
 
     // ---- attach to the practice INTAKE box ("what problem are you stuck on?") ----
-    if (entryInput) attachKeypad(entryInput, entrySend, { openText: "🧮 Math numbers & symbols", sendLabel: "Use this problem ➤", barWrap: false, hideSend: false });
+    if (entryInput) attachKeypad(entryInput, entrySend, { openText: "🧮 Math Keyboard", sendLabel: "Use this problem ➤", barWrap: false });
   });
 })();
 /* I did no harm and this file is not truncated. */

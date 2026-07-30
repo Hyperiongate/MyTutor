@@ -4,6 +4,10 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  UI POLISH. (1) Answer boxes now read "Write your response here, then press Enter…".
+                (2) The 🧮 button is renamed "Math Keyboard" (intake hint updated to match) and
+                math-keyboard.js now shows a start-of-lesson reminder about it. (3) Left sidebar
+                widened ~10% (280px -> 308px). Static-only. Do no harm.
     2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
                 button (#chatSend) is now hidden by math-keyboard.js ("each tool has its own send").
                 The 🧮 opener is relabeled "Math numbers & symbols" (intake hint updated to match),
@@ -93,7 +97,7 @@
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
 
     /* ===== 2026-07-24 TRANSCRIPT + LEFT-SIDEBAR (match the lesson page) ===== */
-    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 100vh; height: 100vh; }
+    .app { display: grid; grid-template-columns: 308px 1fr; grid-template-rows: 100vh; height: 100vh; }
     .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto;
       border-right: 1px solid var(--line); background: rgba(255,255,255,.55); }
     .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
@@ -431,7 +435,7 @@
         <div class="hint" id="hint">Let's take a look at your problem…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
-          <input id="input" placeholder="Type to Mr. Cadabra…" autocomplete="off" />
+          <input id="input" placeholder="Write your response here, then press Enter…" autocomplete="off" />
           <button id="send">Send</button>
         </div>
         <div class="live" id="live"></div>
@@ -447,7 +451,7 @@
       <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
       <div class="feedbar">
-        <input id="chatInput" placeholder="Type your reply, then press Enter…" autocomplete="off" />
+        <input id="chatInput" placeholder="Write your response here, then press Enter…" autocomplete="off" />
         <button id="chatSend">Send</button>
       </div>
     </div>
@@ -460,7 +464,7 @@
       <h2>What problem are you stuck on?</h2>
       <p class="lead">Type the problem exactly as it looks, and Mr. Cadabra will help you work through it.</p>
       <textarea id="problemInput" placeholder="e.g.  3x + 5 = 20"></textarea>
-      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math numbers &amp; symbols</b> just below.</div>
+      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math Keyboard</b> just below.</div>
       <button class="entry-go" id="entryGo" disabled>Let's work on it →</button>
       <div class="entry-note" id="entryNote">You can practice any Algebra I problem.</div>
       <a class="entry-back" id="entryBack" href="#">← Back home</a>

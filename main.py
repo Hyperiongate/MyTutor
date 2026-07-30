@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30e-opener". No logic change in this file; the bump pairs with a
+#               tutor.py SESSION-opener fix (no fake "placement challenge" claim; goals card shown once).
+#               Verify /health shows this stamp after deploy.
+#   2026-07-30  APP_BUILD -> "2026-07-30d-topicfix". No logic change in this file; the bump pairs with a
+#               tutor.py TOPIC-MODE prompt fix (goals card shows once; every turn hands the ball back so
+#               the tutor never stops on a bare statement). Verify /health shows this stamp after deploy.
 #   2026-07-30  APP_BUILD -> "2026-07-30c-caching". COST CONTROL: (1) TTS AUDIO CACHE on /api/speak --
 #               identical text is served from an on-disk cache instead of re-calling ElevenLabs (the
 #               cached bytes are the same render, so no quality change); (2) pairs with tutor.py PROMPT
@@ -1051,7 +1057,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30c-caching"
+APP_BUILD = "2026-07-30e-opener"
 
 
 @app.get("/health")

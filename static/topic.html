@@ -4,6 +4,12 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  MIC CLEANUP + UI POLISH. (1) Removed the "🎙️" tap-and-say TOPIC-entry button, its CSS
+                and recording JS, and the getUserMedia() warm-up in startTopic() -- no more microphone
+                prompt (warm voice out / type in). (2) Answer boxes now read "Write your response here,
+                then press Enter…". (3) 🧮 button renamed "Math Keyboard" via math-keyboard.js, which also
+                shows a start-of-lesson reminder about it. (4) Left sidebar widened ~10% (280px -> 308px).
+                Static-only. Do no harm.
     2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
                 button (#chatSend) is now hidden by math-keyboard.js ("each tool has its own send" --
                 the 🧮 and 📈 tools plus the Enter key all still send). The #chatInput placeholder now
@@ -84,7 +90,7 @@
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
 
     /* ===== 2026-07-24 TRANSCRIPT + LEFT-SIDEBAR (match the lesson page) ===== */
-    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 100vh; height: 100vh; }
+    .app { display: grid; grid-template-columns: 308px 1fr; grid-template-rows: 100vh; height: 100vh; }
     .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto;
       border-right: 1px solid var(--line); background: rgba(255,255,255,.55); }
     .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
@@ -357,9 +363,6 @@
     .entry-row { display: flex; gap: 8px; }
     .entry-row input { flex: 1; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; outline: none; }
     .entry-row input:focus { border-color: var(--accent); }
-    .entry-mic { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 0 14px;
-      font-size: 15px; font-weight: 700; cursor: pointer; color: var(--accent); }
-    .entry-mic.recording { background: #e0392b; color: #fff; border-color: #e0392b; animation: recpulse 1.15s ease-in-out infinite; }
     .entry-go { width: 100%; margin-top: 14px; border: none; border-radius: 26px; cursor: pointer; color: #fff;
       font-size: 16px; font-weight: 800; padding: 13px; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 10px 24px rgba(91,91,214,.4); }
     .entry-go:disabled { opacity: .5; cursor: default; }
@@ -416,7 +419,7 @@
         <div class="hint" id="hint">Let's dig into your topic…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
-          <input id="input" placeholder="Type to Mr. Cadabra…" autocomplete="off" />
+          <input id="input" placeholder="Write your response here, then press Enter…" autocomplete="off" />
           <button id="send">Send</button>
         </div>
         <div class="live" id="live"></div>
@@ -432,7 +435,7 @@
       <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your topic will appear here.</div></div>
       <div class="feedbar">
-        <input id="chatInput" placeholder="Type your reply, then press Enter…" autocomplete="off" />
+        <input id="chatInput" placeholder="Write your response here, then press Enter…" autocomplete="off" />
         <button id="chatSend">Send</button>
       </div>
     </div>
@@ -448,7 +451,6 @@
       <div class="entry-or">— or tell me your own —</div>
       <div class="entry-row">
         <input id="topicInput" placeholder="e.g. how slope works" />
-        <button class="entry-mic" id="entryMic">🎙️</button>
       </div>
       <button class="entry-go" id="entryGo" disabled>Let's explore it →</button>
       <div class="entry-note" id="entryNote"></div>
@@ -1230,7 +1232,7 @@
     if (chatInput) chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendChat(); });
 
     // ---------- Topic entry ----------
-    const entry = el("entry"), topicInput = el("topicInput"), entryGo = el("entryGo"), entryMic = el("entryMic");
+    const entry = el("entry"), topicInput = el("topicInput"), entryGo = el("entryGo");
     const unitGrid = el("unitGrid");
     UNITS.forEach((u, i) => {
       const b = document.createElement("button"); b.className = "unitbtn";
@@ -1241,28 +1243,8 @@
     topicInput.addEventListener("input", () => { entryGo.disabled = !topicInput.value.trim(); });
     topicInput.addEventListener("keydown", (e) => { if (e.key === "Enter" && topicInput.value.trim()) startTopic(topicInput.value.trim()); });
 
-    let entryStream = null, entryRec = null, entryChunks = [], entryRecording = false;
-    entryMic.addEventListener("click", async () => {
-      if (!canRecord) { el("entryNote").textContent = "Voice isn't supported here — please type a topic."; return; }
-      if (entryRecording) { try { entryRec && entryRec.state !== "inactive" && entryRec.stop(); } catch (e) {} return; }
-      try { entryStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) { el("entryNote").textContent = "I need mic access to hear the topic — allow it, or type it."; return; }
-      entryChunks = [];
-      try { entryRec = new MediaRecorder(entryStream); } catch (e) { try { entryRec = new MediaRecorder(entryStream, { mimeType: "audio/webm" }); } catch (_) { el("entryNote").textContent = "Recording isn't supported here — please type a topic."; return; } }
-      entryRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) entryChunks.push(ev.data); };
-      entryRec.onstop = async () => {
-        entryRecording = false; entryMic.classList.remove("recording"); entryMic.textContent = "🎙️";
-        try { entryStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-        const blob = new Blob(entryChunks, { type: (entryChunks[0] && entryChunks[0].type) || "audio/webm" });
-        if (!blob.size) { el("entryNote").textContent = "I didn't catch that — try again or type it."; return; }
-        el("entryNote").textContent = "Got it — one sec…";
-        const text = await transcribe(blob);
-        if (text) { topicInput.value = text; entryGo.disabled = false; el("entryNote").textContent = "Check it looks right, then press the button."; }
-        else { el("entryNote").textContent = "I couldn't quite hear that — try again or type it."; }
-      };
-      entryRec.start(); entryRecording = true; entryMic.classList.add("recording"); entryMic.textContent = "⏹";
-      setTimeout(() => { if (entryRecording) { try { entryRec.stop(); } catch (e) {} } }, 30000);
-    });
+    // NOTE 2026-07-30: This tier is "warm voice out / type in" -- the microphone (tap-and-say)
+    // topic-entry option was removed. Students type the topic (Enter or the button starts it).
     entryGo.addEventListener("click", () => { const tp = (topicInput.value || "").trim(); if (tp) startTopic(tp); });
 
     async function startTopic(tp) {
@@ -1270,8 +1252,8 @@
       el("topicText").textContent = tp; el("topicBar").classList.add("show");
       entry.classList.add("hide");
       ensureAudioGraph(); await warmUpAudio();
-      if (canRecord) { try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); } catch (e) {} }
-      else { showComposer(); }
+      // Warm voice out / type in: reveal the type box and never prompt for the microphone.
+      showComposer();
       busy = true; setPhase("busy");
       const opener = "I'd like to explore: " + tp;
       addBubble("student", opener);

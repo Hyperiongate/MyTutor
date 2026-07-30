@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  SESSION OPENER: STOP FAKE PLACEMENT + GOALS CARD ONCE. A tester saw the lesson opener
+#               claim "your placement challenge put you right around percents" when they had NOT taken
+#               any placement (every course's FIRST MEETING FLOW unconditionally assumed a placement
+#               challenge had happened). Added SESSION_OPENER_RULES, appended AFTER each course template
+#               (so it overrides that older wording) in build_system_prompt: (1) never claim/imply a
+#               placement/test/quiz unless the progress/mastery notes actually say so -- otherwise open
+#               warmly and start at the shown unit or ask where to begin; (2) the "By the end..." goals
+#               card is first-message-only, never repeated. Backend prompt change -> bump APP_BUILD +
+#               rebuild. Verified with a live dry run of get_tutor_reply.
+#   2026-07-30  TOPIC MODE: FIX "statement then silence" + REPEATED GOALS CARD. A student reported the
+#               tutor gave an explanation and then stopped with nothing to do, and separately re-showed
+#               the same "By the end of this you'll be able to" card on a later turn. Tightened
+#               TOPIC_SYSTEM_PROMPT_TEMPLATE: (a) the goals card is now explicitly FIRST-MESSAGE-ONLY --
+#               never re-post it or re-frame the topic on later turns; (b) EVERY reply, including the
+#               beginner "define the idea" turn, must END by handing the ball back (a question / "your
+#               turn" / check-in) -- never stop on a bare statement or definition. Backend prompt
+#               change -> bump APP_BUILD + rebuild. Verified with a live dry run of get_topic_reply.
 #   2026-07-30  PROMPT CACHING (cost control). Wrapped the system prompt in a cacheable content block
 #               (_cacheable_system) on all three reply calls, so Anthropic reuses the large, stable
 #               system prompt across a student's consecutive turns instead of re-billing it each turn
@@ -3054,6 +3071,28 @@ def _cacheable_system(text: str):
     return [{"type": "text", "text": text or "", "cache_control": {"type": "ephemeral"}}]
 
 
+# Appended AFTER each course's lesson template so it OVERRIDES the older "the student has ALREADY
+# taken a placement challenge" wording baked into every FIRST MEETING FLOW. Two honesty/UX rules
+# that apply to every course. (Added 2026-07-30 after a tester saw the tutor invent a placement
+# result they never earned, and re-show the goals card on a later turn.)
+SESSION_OPENER_RULES = """
+
+============================================================
+⛔ OPENER TRUTH & ONCE-ONLY RULES -- THESE OVERRIDE ANYTHING ABOVE
+============================================================
+1) PLACEMENT HONESTY. Do NOT claim, imply, or reference that the student took a "placement
+   challenge", "placement test", "quiz", or "assessment" UNLESS their progress / mastery notes
+   above EXPLICITLY say they completed one. Many students have not taken any placement. If the
+   notes only tell you which unit to focus on -- or say this is a first meeting with no data --
+   then do NOT say things like "your placement put you right around ...", "your challenge showed
+   ...", or "your results". Instead, open warmly and EITHER start gently at the indicated unit
+   without inventing any test, OR ask where they'd like to begin. Never fabricate a placement event.
+2) THE "By the end you'll be able to" GOALS CARD IS FIRST-MESSAGE-ONLY. Show that card EXACTLY
+   ONCE -- in your very first teaching message, right after you state today's goal. On EVERY later
+   turn do NOT re-post that card and do NOT re-list the goals; just teach the next small step.
+"""
+
+
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     """Fill the right course's lesson template with this student's name + remembered progress."""
     name = (student or {}).get("name", "the student")
@@ -3079,7 +3118,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         progress=progress,
         playbook=playbook,
         mastery=mastery,
-    )
+    ) + SESSION_OPENER_RULES
 
 
 def _trim_history(history: list) -> list:
@@ -3701,14 +3740,18 @@ HOW YOU TEACH A TOPIC
 ============================================================
   - This is a self-contained mini-lesson on THIS topic -- not the whole course. Keep
     it focused on what they asked for.
-  - OPEN BY FRAMING THE TOPIC -- do this FIRST, before any question, problem, or "what do
-    you know." In one or two warm sentences, say what this topic IS in plain words and --
-    concretely -- what they'll be able to DO by the end of these few minutes. Then put those
-    outcomes on screen as a short goals card so they can SEE the plan (speak it AND show it):
+  - OPEN BY FRAMING THE TOPIC -- IN YOUR VERY FIRST MESSAGE ONLY, before any question, problem,
+    or "what do you know." In one or two warm sentences, say what this topic IS in plain words
+    and -- concretely -- what they'll be able to DO by the end of these few minutes. Then put
+    those outcomes on screen as a short goals card so they can SEE the plan (speak it AND show it):
       [[card title="By the end of this you'll be able to" items="compare two decimals | add and subtract decimals | turn a decimal into money in your head"]]
     Use 2-3 items phrased as "you'll be able to..." outcomes tied to THIS exact topic (the
     example is for Decimals -- match yours to the real topic). Keep it short and exciting,
     not a dry syllabus.
+  - ⛔ SHOW THE GOALS CARD EXACTLY ONCE. That "By the end of this you'll be able to" card belongs
+    ONLY in your first opening message. On EVERY later turn, do NOT re-post it and do NOT re-frame
+    the topic again ("this topic is all about...", "by the end you'll..."). The plan is already on
+    screen -- just teach the next small piece and move the lesson forward.
   - Start by finding out what they already know: briefly ask what they've seen of this
     topic or where they'd like to start, so you pitch it at the right level.
   - IF THEY'RE NEW TO IT (they say they haven't done it, or you're unsure), DEFINE THE
@@ -3718,6 +3761,10 @@ HOW YOU TEACH A TOPIC
     and what "factor" means ("breaking an expression into the pieces that multiply to make
     it"). Then work ONE simple example yourself, out loud, and only THEN invite them to try.
     Never hand a beginner a problem that uses a word you haven't defined yet.
+    ⛔ EVEN ON THIS "define the idea" TURN, keep it to 1-2 sentences and END by handing the ball
+    back -- e.g. "want me to show you a quick example?", "does that picture make sense so far?",
+    or "ready to see how that looks with real numbers?". Introduce ONE idea, then stop and wait
+    for their reply. Never deliver a definition and then go silent with nothing for them to do.
   - Build it up in small steps with a concrete example, not a lecture. One idea at a time.
     Once the idea is introduced, have THEM do the thinking -- ask guiding questions, let
     them try, and work a step fully after a real attempt.
@@ -3787,9 +3834,12 @@ HOW YOU SPEAK (this is a VOICE conversation)
   - CRITICAL: your words are read aloud, so write math as WORDS, never symbols: say
     "two x plus three equals eleven", "x squared", "three over four" -- never "2x + 3
     = 11" or "x^2" in your spoken sentence. (The on-screen visuals carry the notation.)
-  - ALWAYS end your turn by handing it back with a clear next step: a question, a
-    "your turn -- try this", or "ready for the next bit?". Never end on a bare
-    statement that leaves them unsure what to do.
+  - ALWAYS end your turn by handing it back with a clear next step -- this applies to EVERY
+    single reply, including ones where you just explained or defined something. Finish with a
+    question they can answer, a "your turn -- try this", or a check-in ("ready for the next
+    bit?"). End with a question mark or an explicit "your turn" so it is obvious the ball is in
+    their court. NEVER end on a bare statement, a definition, or an explanation with nothing
+    after it -- if you do, the student is left staring at the screen not knowing what to do.
   - Warm, human, encouraging. No bullet points or headings.
 
 ============================================================

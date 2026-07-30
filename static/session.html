@@ -4,6 +4,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  COURSE NAME IN TOPBAR. The topbar showed a static "Math Tutor" so a student couldn't
+                tell which course they were in. It now shows COURSE_TITLE (e.g. "Pre-Algebra",
+                "Algebra I"), data-driven off ?course=. Static-only. Do no harm.
+    2026-07-30  UI POLISH. (1) Answer box now reads "Write your response here, then press Enter…".
+                (2) math-keyboard.js renames the 🧮 button "Math Keyboard" and shows a start-of-lesson
+                reminder about it. (3) LEFT sidebar widened ~10% (240px -> 264px; right rail unchanged).
+                Static-only. Do no harm.
     2026-07-30  ANSWER-BAR CLEANUP (paired with math-keyboard.js). The redundant standalone "Send"
                 button is now hidden by math-keyboard.js ("each tool has its own send" -- the 🧮 and
                 📈 tools plus the Enter key all still send). To keep a directly-typed answer sendable
@@ -234,7 +241,7 @@
         radial-gradient(700px 520px at 60% 112%, rgba(255,122,89,.12), transparent 55%),
         #f5f5fc;
     }
-    .app { display: grid; grid-template-columns: 240px 1fr 240px; grid-template-rows: 100vh; }
+    .app { display: grid; grid-template-columns: 264px 1fr 240px; grid-template-rows: 100vh; }
 
     /* Sidebars */
     .side { padding: 18px 16px; overflow-y: auto; background: rgba(255,255,255,.55);
@@ -630,7 +637,7 @@
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
-          <input id="input" placeholder="Type your answer, then press Enter…" autocomplete="off" />
+          <input id="input" placeholder="Write your response here, then press Enter…" autocomplete="off" />
           <button id="send">Send</button>
         </div>
         <div class="live" id="live"></div>
@@ -641,7 +648,7 @@
 
     <div class="center">
       <div class="topbar">
-        <div class="title">Math Tutor</div>
+        <div class="title" id="courseTitle">Math Tutor</div>
         <div class="spacer"></div>
         <a id="homeLink" href="#">☰ Menu</a>
       </div>
@@ -697,6 +704,9 @@
     const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "calculus", diffeq: "differential equations", probstat: "statistics" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
+    // Show WHICH course this is in the topbar (was a static "Math Tutor" -- students couldn't tell
+    // if they were in Pre-Algebra vs Algebra, etc.). Data-driven off ?course=. (2026-07-30)
+    (function () { try { var t = document.getElementById("courseTitle"); if (t) t.textContent = COURSE_TITLE; } catch (e) {} })();
     // The tour's one-line "what this subject is" spoken opener, per course.
     const COURSE_OPENERS = {
       algebra1: "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen.",
