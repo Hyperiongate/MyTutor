@@ -4,6 +4,20 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  INTAKE SCREEN CLEANUP ("what problem are you stuck on?"). Three fixes to the
+                problem-entry overlay so it matches the "warm voice out / type in" product:
+                (1) REMOVED the "🎙️ Tap and say the problem" microphone button and the "— or —"
+                    divider, plus all of the entry recording JS, and removed the getUserMedia()
+                    mic warm-up from startPractice() so clicking "Let's work on it" no longer
+                    pops a microphone-permission prompt. Students type the problem.
+                (2) MATH KEYBOARD ON INTAKE: added a hint line and let the shared math-keyboard.js
+                    attach its 🧮 keypad to the entry textarea (#problemInput / #entryGo), so a
+                    student can enter √, x², fractions, etc. while typing the problem. (The graph
+                    tool stays in the lesson itself, where plotting points is meaningful; the 🧮
+                    keyboard AND 📈 graph both remain in the in-lesson answer bar as before.)
+                (3) ENLARGED the entry card (max-width 520->660, bigger badge/heading/lead and a
+                    larger, more legible textarea) -- it was cramped. Presentation only.
+                Static-only change (no backend build required). Do no harm.
     2026-07-28  COSMETIC: adopted the shared "math paper" background (graph-paper grid + faint
                 drifting math symbols), declared last in the stylesheet so it supersedes the
                 page's original flat wash. Presentation only. Do no harm.
@@ -340,26 +354,26 @@
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .entry.hide { display: none; }
-    .entry-card { background: #fff; border-radius: 22px; max-width: 520px; width: 100%; padding: 28px 28px 24px;
+    .entry-card { background: #fff; border-radius: 24px; max-width: 660px; width: 100%; padding: 40px 44px 34px;
       box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
-    .entry-badge { width: 66px; height: 66px; margin: 0 auto 8px; border-radius: 50%;
+    .entry-badge { width: 82px; height: 82px; margin: 0 auto 14px; border-radius: 50%;
       background: radial-gradient(circle at 34% 30%, #ffd0a8, var(--warm) 72%);
-      box-shadow: 0 8px 22px rgba(255,122,89,.45); display: flex; align-items: center; justify-content: center; font-size: 30px; }
-    .entry-card h2 { margin: 4px 0 4px; font-size: 23px; }
-    .entry-card .lead { color: var(--muted); font-size: 15px; margin: 0 0 16px; }
-    .entry-card textarea { width: 100%; min-height: 84px; resize: vertical; font-size: 17px; padding: 12px 14px;
-      border: 1px solid var(--line); border-radius: 12px; outline: none; font-family: inherit; }
-    .entry-card textarea:focus { border-color: var(--accent); }
-    .entry-or { color: var(--muted); font-size: 13px; margin: 12px 0 6px; }
-    .entry-mic { border: 1.5px solid var(--line); background: #fff; border-radius: 24px; padding: 11px 20px;
-      font-size: 15px; font-weight: 700; cursor: pointer; color: var(--accent); }
-    .entry-mic.recording { background: #e0392b; color: #fff; border-color: #e0392b; animation: recpulse 1.15s ease-in-out infinite; }
-    .entry-go { width: 100%; margin-top: 18px; border: none; border-radius: 28px; cursor: pointer; color: #fff;
-      font-size: 17px; font-weight: 800; padding: 14px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 8px 22px rgba(255,122,89,.45); display: flex; align-items: center; justify-content: center; font-size: 38px; }
+    .entry-card h2 { margin: 6px 0 6px; font-size: 30px; }
+    .entry-card .lead { color: var(--muted); font-size: 17px; line-height: 1.5; margin: 0 0 22px; }
+    .entry-card textarea { width: 100%; min-height: 120px; resize: vertical; font-size: 22px; padding: 16px 18px;
+      border: 1.5px solid var(--line); border-radius: 14px; outline: none; font-family: inherit; }
+    .entry-card textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(109,90,230,.15); }
+    .entry-kbhint { color: var(--muted); font-size: 14px; margin: 14px 0 4px; }
+    .entry-kbhint b { color: var(--accent); font-weight: 800; }
+    /* the 🧮 Math keyboard button is injected here by math-keyboard.js; center it under the hint */
+    .entry-card .mtk-open { margin: 4px auto 0; }
+    .entry-go { width: 100%; margin-top: 20px; border: none; border-radius: 30px; cursor: pointer; color: #fff;
+      font-size: 19px; font-weight: 800; padding: 16px; background: linear-gradient(90deg, var(--accent), var(--accent2));
       box-shadow: 0 10px 24px rgba(91,91,214,.4); }
     .entry-go:disabled { opacity: .5; cursor: default; }
-    .entry-note { font-size: 12px; color: var(--muted); margin-top: 12px; }
-    .entry-back { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--muted); text-decoration: underline; }
+    .entry-note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+    .entry-back { display: inline-block; margin-top: 10px; font-size: 14px; color: var(--muted); text-decoration: underline; }
     /* --- "math paper" background (2026-07-28): soft brand washes + faint drifting math
        symbols + fine graph-paper grid with a heavier line every 5 squares. Pure CSS, no
        images or requests. Declared LAST so it supersedes the page's original background. --- */
@@ -441,8 +455,7 @@
       <h2>What problem are you stuck on?</h2>
       <p class="lead">Type the problem exactly as it looks, and Mr. Cadabra will help you work through it.</p>
       <textarea id="problemInput" placeholder="e.g.  3x + 5 = 20"></textarea>
-      <div class="entry-or">— or —</div>
-      <button class="entry-mic" id="entryMic">🎙️ Tap and say the problem</button>
+      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math keyboard</b> just below.</div>
       <button class="entry-go" id="entryGo" disabled>Let's work on it →</button>
       <div class="entry-note" id="entryNote">You can practice any Algebra I problem.</div>
       <a class="entry-back" id="entryBack" href="#">← Back home</a>
@@ -1173,33 +1186,13 @@
     if (chatInput) chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendChat(); });
 
     // ---------- Problem entry ----------
-    const entry = el("entry"), problemInput = el("problemInput"), entryGo = el("entryGo"), entryMic = el("entryMic");
+    const entry = el("entry"), problemInput = el("problemInput"), entryGo = el("entryGo");
     problemInput.addEventListener("input", () => { entryGo.disabled = !problemInput.value.trim(); });
     problemInput.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) startPractice(); });
 
-    // Say-the-problem: reuse tap-to-talk just for the entry box.
-    let entryStream = null, entryRec = null, entryChunks = [], entryRecording = false;
-    entryMic.addEventListener("click", async () => {
-      if (!canRecord) { el("entryNote").textContent = "Voice isn't supported here — please type the problem."; return; }
-      if (entryRecording) { try { entryRec && entryRec.state !== "inactive" && entryRec.stop(); } catch (e) {} return; }
-      try { entryStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) { el("entryNote").textContent = "I need mic access to hear the problem — allow it, or type it."; return; }
-      entryChunks = [];
-      try { entryRec = new MediaRecorder(entryStream); } catch (e) { try { entryRec = new MediaRecorder(entryStream, { mimeType: "audio/webm" }); } catch (_) { el("entryNote").textContent = "Recording isn't supported here — please type the problem."; return; } }
-      entryRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) entryChunks.push(ev.data); };
-      entryRec.onstop = async () => {
-        entryRecording = false; entryMic.classList.remove("recording"); entryMic.textContent = "🎙️ Tap and say the problem";
-        try { entryStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-        const blob = new Blob(entryChunks, { type: (entryChunks[0] && entryChunks[0].type) || "audio/webm" });
-        if (!blob.size) { el("entryNote").textContent = "I didn't catch that — try again or type it."; return; }
-        el("entryNote").textContent = "Got it — one sec…";
-        const text = await transcribe(blob);
-        if (text) { problemInput.value = text; entryGo.disabled = false; el("entryNote").textContent = "Check it looks right, then press the button."; }
-        else { el("entryNote").textContent = "I couldn't quite hear that — try again or type it."; }
-      };
-      entryRec.start(); entryRecording = true; entryMic.classList.add("recording"); entryMic.textContent = "⏹ Tap when you're done";
-      setTimeout(() => { if (entryRecording) { try { entryRec.stop(); } catch (e) {} } }, 30000);
-    });
+    // NOTE 2026-07-30: This tier is "warm voice out / type in" -- the microphone (tap-and-say)
+    // entry option was removed. Students type the problem (and can use the 🧮 Math keyboard that
+    // math-keyboard.js attaches to #problemInput for symbols like √, x^2, fractions, etc.).
 
     entryGo.addEventListener("click", startPractice);
 
@@ -1210,8 +1203,8 @@
       el("probText").textContent = p; el("probBar").classList.add("show");
       entry.classList.add("hide");
       ensureAudioGraph(); await warmUpAudio();
-      if (canRecord) { try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); } catch (e) {} }
-      else { showComposer(); }
+      // Warm voice out / type in: reveal the type box and never prompt for the microphone.
+      showComposer();
       busy = true; setPhase("busy");
       addBubble("student", p);
       history.push({ role: "user", content: p });
