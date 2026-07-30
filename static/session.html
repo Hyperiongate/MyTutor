@@ -661,11 +661,11 @@
       <h2 id="welcomeTitle">Welcome to Math Tutor!</h2>
       <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
-        <li><span class="ic">🎙️</span><span>Tap the button below and just <b>talk</b> — no typing, no buttons to hunt for.</span></li>
-        <li><span class="ic">🗣️</span><span>Your tutor <b>listens and answers out loud</b>, and draws on the board as you go.</span></li>
+        <li><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below — there's a math keyboard for symbols like √ and x².</span></li>
+        <li><span class="ic">🗣️</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go.</span></li>
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
-      <button class="welcome-go" id="welcomeGo">🎙️ Start talking</button>
+      <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
       <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take the full course assessment to map your strengths 📋</a>
     </div>
   </div>
@@ -1653,7 +1653,7 @@
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true);
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — tap to talk, or use a quick button.";
+        hint.textContent = "Your turn — type your answer below, or use a quick button.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
         talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false);
@@ -1747,7 +1747,7 @@
       { id: "todays-plan",
         text: "Down here on the left is your " + COURSE_TITLE + " course — all nine units. We'll work through them together. Whenever you like, you can take the Course Assessment to see your strengths and get a recommended path." },
       { id: "tutor",
-        text: "And over here on the right, that's me — Mr. Cadabra. The big board in the middle is where I'll draw things out, and any time it's your turn you just tap the button under me and talk." },
+        text: "And over here on the right, that's me — Mr. Cadabra. The big board in the middle is where I'll draw things out, and any time it's your turn, just type your answer in the box below — there's a little math keyboard for the tricky symbols." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice
@@ -1844,6 +1844,7 @@
     // Debug hook (harmless): lets us drive the orb state for testing/screenshots.
     window.__setState = setState;
   </script>
+  <script src="/static/math-keyboard.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

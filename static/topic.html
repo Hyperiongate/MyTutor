@@ -1132,7 +1132,7 @@
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true); el("newTopic").disabled = false;
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — tap to talk, or use a quick button.";
+        hint.textContent = "Your turn — type your answer below, or use a quick button.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
         talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false); el("newTopic").disabled = true;
@@ -1293,6 +1293,7 @@
 
     window.__setState = setState;
   </script>
+  <script src="/static/math-keyboard.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->
