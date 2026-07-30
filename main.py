@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30a-graphtool". No logic change in this file; the bump pairs with
+#               a tutor.py change that teaches the tutor about the new 📈 Graph tool (coordinate graph
+#               paper; plotted points arrive as text coordinates). Also new static static/graph-input.js
+#               + graph script includes on session/practice/topic. Verify /health shows this stamp.
 #   2026-07-29  APP_BUILD -> "2026-07-29b-scopeguard". No logic change in this file; the bump pairs
 #               with a tutor.py change that adds a firm GROUND_RULES scope/jailbreak block to every
 #               mode's system prompt (math-only, refuses off-topic/other-student/override attempts;
@@ -1041,7 +1045,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-29b-scopeguard"
+APP_BUILD = "2026-07-30a-graphtool"
 
 
 @app.get("/health")

@@ -276,25 +276,25 @@
 
     /* Welcome / how-to overlay */
     .welcome { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
-      padding: 20px; background:
+      padding: 24px; overflow-y: auto; background:
         radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
         radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .welcome.show { display: flex; }
-    .welcome-card { background: #fff; border-radius: 22px; max-width: 480px; width: 100%; padding: 30px 30px 26px;
-      box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
-    .welcome-card h2 { margin: 6px 0 4px; font-size: 25px; }
-    .welcome-card .lead { color: var(--muted); font-size: 15px; margin: 0 0 16px; }
+    .welcome-card { background: #fff; border-radius: 24px; max-width: 680px; width: 100%; padding: 46px 52px 40px;
+      max-height: 92vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
+    .welcome-card h2 { margin: 12px 0 6px; font-size: 34px; }
+    .welcome-card .lead { color: var(--muted); font-size: 19px; line-height: 1.5; margin: 0 0 26px; }
     .welcome-card .lead b { color: var(--ink); }
-    .welcome-card ul { list-style: none; margin: 0 0 20px; padding: 0; text-align: left; }
-    .welcome-card li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; line-height: 1.4;
-      background: #f5f5fc; border-radius: 12px; padding: 11px 13px; margin-bottom: 9px; }
-    .welcome-card li .ic { font-size: 20px; flex: 0 0 auto; }
-    .welcome-go { width: 100%; border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 17px;
-      font-weight: 800; padding: 15px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+    .welcome-card ul { list-style: none; margin: 0 0 30px; padding: 0; text-align: left; }
+    .welcome-card li { display: flex; gap: 15px; align-items: flex-start; font-size: 18.5px; line-height: 1.55;
+      background: #f5f5fc; border-radius: 15px; padding: 18px 20px; margin-bottom: 13px; }
+    .welcome-card li .ic { font-size: 28px; flex: 0 0 auto; }
+    .welcome-go { width: 100%; border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 21px;
+      font-weight: 800; padding: 19px; background: linear-gradient(90deg, var(--accent), var(--accent2));
       box-shadow: 0 10px 24px rgba(91,91,214,.4); }
-    .welcome-badge { width: 66px; height: 66px; margin: 0 auto 6px; border-radius: 50%;
+    .welcome-badge { width: 84px; height: 84px; margin: 0 auto 10px; border-radius: 50%;
       background: radial-gradient(circle at 34% 30%, #b8a8ff, var(--accent) 72%);
       box-shadow: 0 8px 22px rgba(91,91,214,.45); display: flex; align-items: center; justify-content: center;
       font-size: 30px; }
@@ -661,8 +661,8 @@
       <h2 id="welcomeTitle">Welcome to Math Tutor!</h2>
       <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
+        <li><span class="ic">🔊</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go — so <b>turn your speakers or headphones on</b>.</span></li>
         <li><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below — there's a math keyboard for symbols like √ and x².</span></li>
-        <li><span class="ic">🗣️</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go.</span></li>
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
@@ -1845,6 +1845,7 @@
     window.__setState = setState;
   </script>
   <script src="/static/math-keyboard.js"></script>
+  <script src="/static/graph-input.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

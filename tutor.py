@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  GRAPH TOOL AWARENESS. Added GRAPH_TOOL_NOTE, prepended (with GROUND_RULES) to every
+#               mode's system prompt via the build_* functions. It tells the tutor the student has a
+#               📈 Graph button (coordinate graph paper), that plotted points arrive as TEXT
+#               coordinates like "(0, 3), (1, 5)" (the model can't see pixels), and how to invite it,
+#               check the coordinates, and blend it into graphing work. Pairs with the new static
+#               static/graph-input.js component. Backend change -> bump APP_BUILD + rebuild. Do no harm.
 #   2026-07-29  SCOPE + JAILBREAK GUARDRAILS. Added a firm, injection-resistant GROUND_RULES block,
 #               prepended to EVERY mode's system prompt via build_system_prompt / build_practice_prompt
 #               / build_topic_prompt (one place -> all 8 courses). It keeps the tutor strictly on MATH
@@ -2990,6 +2996,30 @@ redirect always beats a lecture.
 
 """
 
+# -----------------------------------------------------------------------------
+# GRAPH TOOL NOTE -- tells the tutor the student can plot points on graph paper, how the plotted
+# points arrive (as TEXT coordinates, since the model can't see pixels), and how to use / check it.
+# Prepended to every mode's prompt alongside GROUND_RULES. Added 2026-07-30.
+# -----------------------------------------------------------------------------
+GRAPH_TOOL_NOTE = """\
+============================================================
+THE GRAPH TOOL (the student can plot points on graph paper)
+============================================================
+The student has a 📈 Graph button that opens coordinate graph paper. They plot points, optionally draw a
+line, and send. Their message then arrives as TEXT, for example:
+  "📈 I plotted these points on the graph: (0, 3), (1, 5) -- and drew a straight line through them."
+You CANNOT see the picture -- reason only from the coordinates in that text.
+- USE IT for any graphing work (plotting points, intercepts, slope, lines, scatter data): rather than only
+  asking for coordinates in words, invite them to use it -- e.g. "tap the 📈 Graph button, plot the
+  y-intercept first, then use the slope to plot one more point, then draw the line."
+- CHECK the coordinates they send against the expected answer and respond specifically (e.g. is (1,5) on
+  y = 2x + 3? yes -> confirm; if a point is off, name which one and why, without just handing over the fix).
+- Blend it in naturally; reach for it where a picture teaches better than words, and stay with plain
+  typing or the whiteboard otherwise.
+============================================================
+
+"""
+
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     """Fill the right course's lesson template with this student's name + remembered progress."""
@@ -3010,7 +3040,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     playbook = _playbook(unit, course)
     mastery = (student or {}).get("mastery_note") or "(No mastery data yet -- begin at their placed level.)"
     template = LESSON_TEMPLATES.get(course or DEFAULT_COURSE, SYSTEM_PROMPT_TEMPLATE)
-    return GROUND_RULES + template.format(
+    return GROUND_RULES + GRAPH_TOOL_NOTE + template.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         progress=progress,
@@ -3556,7 +3586,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
     name = (student or {}).get("name", "the student")
     problem = (problem or "").strip() or "(The student hasn't stated the problem clearly yet -- ask them what it is.)"
     playbook = _playbook(_unit_from_text(problem, course), course)
-    return GROUND_RULES + PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
+    return GROUND_RULES + GRAPH_TOOL_NOTE + PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         problem=problem,
@@ -3752,7 +3782,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
     name = (student or {}).get("name", "the student")
     topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
     playbook = _playbook(_unit_from_text(topic, course), course)
-    return GROUND_RULES + TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
+    return GROUND_RULES + GRAPH_TOOL_NOTE + TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         topic=topic,
