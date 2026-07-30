@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  ENGAGED-TIME TRACKING (parents asked "how long did my kid actually work?"). New
+#               additive table `time_daily` (code, course, day 'YYYY-MM-DD', minutes) plus
+#               record_minutes() and get_time(). One row per student/course/day; main.py's
+#               /api/heartbeat adds one minute per verified minute of ENGAGED time (tab visible
+#               + recent real activity -- leaving the app open does NOT count; the anti-idle
+#               logic lives in static/time-tracker.js and a server-side minimum gap between
+#               counted beats in main.py). `day` is the STUDENT'S local calendar day, supplied
+#               by the browser, so a kid working at 9pm Pacific doesn't get logged on tomorrow's
+#               date. Brand-new table -> create_all builds it; no migration; nothing else touched.
 #   2026-07-28  TEACHER SIGN-IN: a teacher now owns MANY classes. The `classes` table gained ONE
 #               nullable column, `teacher_code` (the personal code a teacher picks, e.g. MRSBAKER),
 #               added by a new self-healing additive migration (_migrate_classes_teacher_code) that
@@ -247,6 +256,17 @@ def init():
             Column("class_code", String(32), primary_key=True),
             Column("student_code", String(64), primary_key=True),
             Column("added_at", DateTime(timezone=True)),
+        )
+        # ENGAGED TIME (2026-07-30): minutes of real, verified work per student/course/day.
+        # `day` is the student's LOCAL calendar day ('YYYY-MM-DD'), sent by the browser.
+        _tables["time_daily"] = Table(
+            "time_daily", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
+            Column("day", String(10), primary_key=True),
+            Column("minutes", Integer, default=0),
+            Column("updated_at", DateTime(timezone=True)),
         )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
@@ -500,6 +520,36 @@ def get_topics(code: str, course: str = DEFAULT_COURSE) -> list:
          "last_touched": r[4].isoformat() if r[4] else None}
         for r in rows
     ]
+
+
+# ---- engaged time (2026-07-30) ----------------------------------------------
+def record_minutes(code: str, course: str = DEFAULT_COURSE, day: str = "",
+                   minutes_add: int = 1) -> None:
+    """Add verified engaged minutes to this student's day. `day` is the student's
+    local 'YYYY-MM-DD' (falls back to the server's date if not supplied)."""
+    from sqlalchemy import select
+    t = _tables["time_daily"]
+    day = (day or "").strip() or _today()
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.minutes).where(
+            (t.c.code == code) & (t.c.course == course) & (t.c.day == day))).first()
+    _upsert("time_daily", {"code": code, "course": course, "day": day}, {
+        "minutes": (r[0] if r and r[0] else 0) + int(minutes_add),
+        "updated_at": _now(),
+    })
+
+
+def get_time(code: str, days: int = 14) -> list:
+    """Return this student's recent engaged-time rows (newest first), across all
+    courses: [{day, course, minutes}]. main.py aggregates per day for the dashboard."""
+    from sqlalchemy import select
+    t = _tables["time_daily"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.day, t.c.course, t.c.minutes)
+                            .where(t.c.code == code)
+                            .order_by(t.c.day.desc())
+                            .limit(max(1, int(days)) * 12)).all()   # 12 courses of headroom/day
+    return [{"day": r[0], "course": r[1], "minutes": r[2] or 0} for r in rows]
 
 
 # ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------

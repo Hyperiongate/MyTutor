@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30g-timetrack". ENGAGED-TIME TRACKING (parents' "how long did
+#               my kid actually work?"). NEW: POST /api/heartbeat (adds one verified minute; requires
+#               a valid code; rate limited; server-side MIN_BEAT_GAP_SECONDS stops a tampered client
+#               inflating the clock) + GET /api/time/{code} (per-day totals with per-course split;
+#               the client computes today/this-week against the student's local calendar). Data in
+#               store.py's new time_daily table. Frontend: static/time-tracker.js beats once a minute
+#               ONLY while the tab is visible AND the student was active in the last 4 minutes -- an
+#               open-but-idle tab counts NOTHING. Dashboard gained a "Time this week" tile. This is
+#               also the data spine for the upcoming weekly parent email.
 #   2026-07-30  APP_BUILD -> "2026-07-30f-lockdown". MARKET-PREP SECURITY PASS (Tier 1 of the
 #               Market_Readiness_Review):
 #               (1) /api/speak and /api/transcribe now REQUIRE a valid student code (they spend real
@@ -639,6 +648,12 @@ class TopicRequest(BaseModel):
     course: str = "algebra1"   # which course this topic exploration belongs to (multi-course)
 
 
+class HeartbeatRequest(BaseModel):
+    code: str
+    course: str = "algebra1"   # which course the student is working in right now
+    day: str = ""              # the STUDENT'S local calendar day 'YYYY-MM-DD' (validated server-side)
+
+
 class PlacementIn(BaseModel):
     level: int = 1
     level_title: str = ""
@@ -804,6 +819,67 @@ def privacy_page():
 def terms_page():
     """Terms of use, billing and refund basics (attorney review pending)."""
     return FileResponse(STATIC_DIR / "terms.html")
+
+
+# -----------------------------------------------------------------------------
+# ENGAGED-TIME TRACKING (2026-07-30) -- "how long did my kid actually work?"
+# -----------------------------------------------------------------------------
+# static/time-tracker.js (on session/practice/topic/challenge) posts a heartbeat
+# once a minute ONLY while the tab is visible AND the student did something real
+# recently (typed/clicked) -- so leaving the app open does NOT rack up time. The
+# server adds its own guard: at most one COUNTED minute per MIN_BEAT_GAP_SECONDS
+# per student, so a tampered client can't inflate the clock either.
+MIN_BEAT_GAP_SECONDS = 50
+_LAST_BEAT: dict = {}
+_DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+@app.post("/api/heartbeat")
+def heartbeat(req: HeartbeatRequest):
+    """Record one verified minute of engaged time. Returns counted=false (never an
+    error) when the beat arrives too soon or tracking is off, so pages never break."""
+    _student_or_404(req.code)
+    code = req.code.strip()
+    _rate_limit("beat:" + code, limit=30, window_seconds=600, what="activity pings")
+    now = time.monotonic()
+    with _RL_LOCK:
+        if now - _LAST_BEAT.get(code, -10 ** 9) < MIN_BEAT_GAP_SECONDS:
+            return {"ok": True, "counted": False}
+        _LAST_BEAT[code] = now
+    day = (req.day or "").strip()
+    if not _DAY_RE.match(day):
+        day = ""   # bad/missing client date -> store.record_minutes falls back to the server's date
+    if not store.enabled():
+        return {"ok": True, "counted": False, "tracking": False}
+    try:
+        store.record_minutes(code, (req.course or "algebra1").strip(), day=day, minutes_add=1)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[time] record_minutes failed: {exc}")
+        return {"ok": True, "counted": False}
+    return {"ok": True, "counted": True}
+
+
+@app.get("/api/time/{code}")
+def time_summary(code: str, days: int = 14):
+    """Recent engaged time for the dashboard: per-day totals (newest first) with a
+    per-course split. The CLIENT computes 'today' / 'this week' against the days
+    it recorded, so the student's local calendar stays authoritative."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"tracking": False, "days": []}
+    try:
+        rows = store.get_time(code, days=max(1, min(int(days), 60)))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[time] get_time failed: {exc}")
+        return {"tracking": False, "days": []}
+    agg: dict = {}
+    for r in rows:
+        d = agg.setdefault(r["day"], {"day": r["day"], "minutes": 0, "courses": {}})
+        d["minutes"] += r["minutes"]
+        d["courses"][r["course"]] = d["courses"].get(r["course"], 0) + r["minutes"]
+    out = sorted(agg.values(), key=lambda x: x["day"], reverse=True)[:days]
+    return {"tracking": True, "days": out}
 
 
 @app.get("/api/topics/{code}")
@@ -1134,7 +1210,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30f-lockdown"
+APP_BUILD = "2026-07-30g-timetrack"
 
 
 @app.get("/health")

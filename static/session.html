@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  ENGAGED-TIME TRACKING: included the new shared /static/time-tracker.js, which
+                posts /api/heartbeat once a minute ONLY while the tab is visible and the student
+                is actually active — so parents get honest time-on-task numbers. Additive; one
+                script tag; nothing else touched. Do no harm.
     2026-07-30  MARKET PREP (paired with main.py 2026-07-30f-lockdown): /api/speak and
                 /api/transcribe now require the login code, so both call sites pass
                 &code=/?code=. Also renamed "Math Tutor" -> "MyTutor" (title, topbar fallback,
@@ -1866,6 +1870,7 @@
   </script>
   <script src="/static/math-keyboard.js"></script>
   <script src="/static/graph-input.js"></script>
+  <script src="/static/time-tracker.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

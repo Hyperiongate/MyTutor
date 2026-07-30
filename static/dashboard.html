@@ -4,6 +4,11 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  "TIME THIS WEEK" TILE (engaged time). New 5th KPI tile fed by GET /api/time:
+                honest minutes of real work (tab visible + student active, via time-tracker.js
+                heartbeats), computed against the student's local calendar — today + last-7-days.
+                Shows "—" when tracking is off; never invents time. Tiles grid now auto-fits
+                (repeat(auto-fit, minmax(170px,1fr))) so five tiles wrap cleanly. Do no harm.
     2026-07-30  MARKET PREP: renamed "Math Tutor" -> "MyTutor" (title). Static-only. Do no harm.
     2026-07-28  PARENT VIEW STAYS THE PARENT VIEW. Now that parents and teachers come in through
                 separate doors on the home page, this page names the role the visitor actually
@@ -96,7 +101,7 @@
       box-shadow: 0 8px 24px rgba(20,30,45,.06); }
 
     /* KPI tiles */
-    .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 12px; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 12px; }
     .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
       position: relative; overflow: hidden; box-shadow: 0 10px 28px rgba(20,30,45,.07); }
     .tile .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
@@ -361,11 +366,41 @@
       const acc = (stats.accuracy_pct === null || stats.accuracy_pct === undefined) ? null : stats.accuracy_pct;
       const streak = stats.streak_days || 0;
       const practiced = stats.problems_practiced || 0;
+
+      // ENGAGED TIME (2026-07-30): honest minutes of real work (tab visible + student active),
+      // recorded by time-tracker.js via /api/heartbeat. Computed against the STUDENT'S local
+      // calendar. If the fetch fails or tracking is off, the tile says so — never invents time.
+      let timeToday = null, timeWeek = null;
+      try {
+        const tr = await fetch("/api/time/" + encodeURIComponent(CODE));
+        if (tr.ok) {
+          const td = await tr.json();
+          if (td.tracking) {
+            const now = new Date();
+            const dayStr = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+            const week = new Set();
+            for (let i = 0; i < 7; i++) { const d = new Date(now); d.setDate(now.getDate() - i); week.add(dayStr(d)); }
+            timeToday = 0; timeWeek = 0;
+            (td.days || []).forEach(r => {
+              if (r.day === dayStr(now)) timeToday += (r.minutes || 0);
+              if (week.has(r.day)) timeWeek += (r.minutes || 0);
+            });
+          }
+        }
+      } catch (e) { /* tile shows "—" */ }
+      const fmtMin = (m) => {
+        if (!m) return "0 min";
+        const h = Math.floor(m / 60), mm = m % 60;
+        return h ? (h + "h" + (mm ? " " + mm + "m" : "")) : (mm + " min");
+      };
+
       const tiles = [
         { lbl: "Units mastered", big: mastered + " / " + total, ring: pct },
         { lbl: "Day streak", big: streak > 0 ? ("🔥 " + streak) : "0", small: streak === 1 ? "day in a row" : "days in a row" },
         { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"), small: acc === null ? "take a check to see" : "on checks & practice" },
         { lbl: "Problems practiced", big: String(practiced), small: "keep it climbing" },
+        { lbl: "Time this week", big: timeWeek === null ? "—" : fmtMin(timeWeek),
+          small: timeWeek === null ? "turns on with tracking" : (fmtMin(timeToday) + " today · real work only") },
       ];
       el("tiles").innerHTML = tiles.map(t => `
         <div class="tile">
