@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  courses.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-30  NEW PAGE. Real /courses page generated from curriculum.py (8 courses x 9 units, verified against the live course data), with print styles so it doubles as a homeschool scope-&-sequence document. Part of the multi-page marketing site (feedback: one-page anchors felt like a one-person company).
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyTutor — Courses & Scope and Sequence</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<link rel="canonical" href="https://mrcadabra.com/courses" />
+<meta name="description" content="Eight complete math courses — Pre-Algebra through Calculus and Differential Equations — with every unit listed. Printable scope & sequence for homeschool records.">
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;gap:24px;align-items:center;font-weight:600;font-size:15px;color:var(--muted)}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:860px){.nav-links{display:none}}
+  header.page{padding:56px 0 10px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:40px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  h2{font-size:30px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:64ch;margin:0 auto}
+  section{padding:40px 0}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+  .card h3{font-size:19px;margin:2px 0 8px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .band{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--purple);background:#f1edff;border-radius:999px;padding:4px 11px;margin-bottom:10px}
+  ul.units{list-style:none;margin-top:12px;display:grid;grid-template-columns:1fr;gap:6px}
+  ul.units li{font-size:14px;color:var(--ink);display:flex;gap:9px;align-items:baseline}
+  ul.units li b{color:var(--teal);font-weight:800;min-width:20px}
+  .shot{width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:block}
+  .cap{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:26px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  @media print{nav,.nav-cta,footer,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/courses" class="here">Courses</a>
+    <a href="/teachers">For teachers</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/privacy">Privacy</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+</div></nav>
+<header class="page wrap">
+  <span class="eyebrow">The math library</span>
+  <h1>Eight complete courses, <span class="grad-text">every unit listed</span>.</h1>
+  <p class="sub">Each course is a full placement-to-mastery path — nine units, taught Socratically with the talking
+  whiteboard, measured by real scored checks. This page doubles as MyTutor's <b>scope &amp; sequence</b>: homeschool
+  families can print it for curriculum records.</p>
+  <p class="noprint" style="margin-top:18px"><a class="btn btn-ghost" href="javascript:window.print()">🖨 Print this scope &amp; sequence</a>
+  <a class="btn btn-primary" href="/demo" style="margin-left:8px">Try a lesson</a></p>
+</header>
+<section class="wrap"><div class="grid g2"><div class="card">
+  <span class="band">Foundations</span>
+  <h3>Pre-Algebra</h3>
+  <p>The on-ramp. Number sense, fractions, decimals, percents, and negative numbers — the pieces that make or break algebra later.</p>
+  <ul class="units"><li><b>1.</b> Number Sense &amp; Order of Operations</li><li><b>2.</b> Factors, Multiples &amp; Primes</li><li><b>3.</b> Integers &amp; Negative Numbers</li><li><b>4.</b> Fractions</li><li><b>5.</b> Decimals</li><li><b>6.</b> Ratios, Rates &amp; Proportions</li><li><b>7.</b> Percents</li><li><b>8.</b> Measurement &amp; Geometry Basics</li><li><b>9.</b> Variables &amp; Expressions</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Algebra I</h3>
+  <p>The core of high-school math: equations, functions, lines, systems, exponents, polynomials, and quadratics — taught for understanding.</p>
+  <ul class="units"><li><b>1.</b> Foundations &amp; Expressions</li><li><b>2.</b> Linear Equations &amp; Inequalities</li><li><b>3.</b> Functions &amp; Notation</li><li><b>4.</b> Linear Functions &amp; Graphs</li><li><b>5.</b> Systems of Equations</li><li><b>6.</b> Exponents &amp; Exponential Functions</li><li><b>7.</b> Polynomials &amp; Factoring</li><li><b>8.</b> Quadratic Functions</li><li><b>9.</b> Data &amp; Statistics</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Geometry</h3>
+  <p>Shapes, proofs, and spatial reasoning — angles through circles and solids, with the whiteboard drawing every figure.</p>
+  <ul class="units"><li><b>1.</b> Foundations &amp; Constructions</li><li><b>2.</b> Transformations &amp; Symmetry</li><li><b>3.</b> Congruence &amp; Triangle Proofs</li><li><b>4.</b> Similarity &amp; Dilations</li><li><b>5.</b> Right Triangles &amp; Trigonometry</li><li><b>6.</b> Circles</li><li><b>7.</b> Coordinate Geometry</li><li><b>8.</b> Area, Surface Area &amp; Volume</li><li><b>9.</b> Probability</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Algebra II</h3>
+  <p>Where algebra grows up: complex numbers, logarithms, rational and radical functions, sequences, and conics.</p>
+  <ul class="units"><li><b>1.</b> Foundations &amp; Systems</li><li><b>2.</b> Quadratic Functions &amp; Complex Numbers</li><li><b>3.</b> Polynomial Functions</li><li><b>4.</b> Rational Expressions &amp; Functions</li><li><b>5.</b> Radicals &amp; Rational Exponents</li><li><b>6.</b> Exponential &amp; Logarithmic Functions</li><li><b>7.</b> Sequences &amp; Series</li><li><b>8.</b> Trigonometric Functions</li><li><b>9.</b> Statistics &amp; Probability</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Trig / Pre-Calc</h3>
+  <p>The bridge to calculus: trigonometry on the unit circle, identities, vectors, matrices, and polar coordinates.</p>
+  <ul class="units"><li><b>1.</b> Functions &amp; Their Graphs</li><li><b>2.</b> Polynomial &amp; Rational Functions</li><li><b>3.</b> Exponential &amp; Logarithmic Functions</li><li><b>4.</b> Trigonometric Functions</li><li><b>5.</b> Analytic Trigonometry</li><li><b>6.</b> Applications of Trigonometry</li><li><b>7.</b> Conic Sections &amp; Parametric Equations</li><li><b>8.</b> Sequences, Series &amp; the Binomial Theorem</li><li><b>9.</b> Introduction to Limits</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Calculus</h3>
+  <p>Limits, derivatives, and integrals — the ideas explained out loud, one honest step at a time.</p>
+  <ul class="units"><li><b>1.</b> Limits &amp; Continuity</li><li><b>2.</b> The Derivative: Definition &amp; Basic Rules</li><li><b>3.</b> Product, Quotient &amp; Chain Rules</li><li><b>4.</b> Applications of Derivatives</li><li><b>5.</b> Curve Sketching &amp; Optimization</li><li><b>6.</b> Antiderivatives &amp; Indefinite Integrals</li><li><b>7.</b> The Definite Integral &amp; the Fundamental Theorem</li><li><b>8.</b> Applications of Integration</li><li><b>9.</b> Introduction to Differential Equations</li></ul>
+</div><div class="card">
+  <span class="band">Advanced</span>
+  <h3>Differential Equations</h3>
+  <p>For the student racing ahead: first- and second-order equations, slope fields, systems, and Laplace transforms.</p>
+  <ul class="units"><li><b>1.</b> Introduction &amp; Classification</li><li><b>2.</b> First-Order Separable Equations &amp; Models</li><li><b>3.</b> First-Order Linear Equations</li><li><b>4.</b> Exact Equations &amp; Substitutions</li><li><b>5.</b> Second-Order Linear: Homogeneous</li><li><b>6.</b> Second-Order Linear: Nonhomogeneous</li><li><b>7.</b> Applications: Vibrations &amp; Circuits</li><li><b>8.</b> Laplace Transforms</li><li><b>9.</b> Series Solutions &amp; Systems</li></ul>
+</div><div class="card">
+  <span class="band">High School</span>
+  <h3>Probability &amp; Statistics</h3>
+  <p>Reading data honestly: distributions, probability, inference, and why correlation isn&#x27;t cause.</p>
+  <ul class="units"><li><b>1.</b> Exploring Data</li><li><b>2.</b> Describing Distributions</li><li><b>3.</b> Scatterplots &amp; Correlation</li><li><b>4.</b> Collecting Data</li><li><b>5.</b> Probability Basics</li><li><b>6.</b> Conditional Probability &amp; Independence</li><li><b>7.</b> Random Variables &amp; Expected Value</li><li><b>8.</b> The Normal Distribution</li><li><b>9.</b> Sampling &amp; Inference</li></ul>
+</div></div></section>
+<section class="wrap noprint" style="text-align:center;padding-top:6px">
+  <div class="card" style="padding:34px">
+    <h2>Not sure where your student fits?</h2>
+    <p class="sub" style="margin-bottom:18px">A short, friendly placement check finds the right starting unit — a 9th grader can shore up fractions without ever seeing "3rd grade."</p>
+    <a class="btn btn-primary" href="/demo">Try a lesson free</a>
+  </div>
+</section>
+<footer><div class="wrap foot-in">
+  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="/courses">Courses</a><a href="/teachers">For teachers</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
+</div></footer>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30i-website". MULTI-PAGE MARKETING SITE + WARM DEMO VOICE
+#               (Jim's feedback: one-page anchor nav felt like a one-person company; no product
+#               screenshots; demo voice was robotic).
+#               (1) NEW routes /courses, /teachers, /pricing serving real pages (courses generated
+#                   from curriculum.py; teachers page carries a real product screenshot).
+#               (2) NEW GET /api/demo-audio/{idx}: serves ONLY the demo's fixed whitelisted lines
+#                   (DEMO_VOICE_LINES -- keep identical to demo.html's VOICE_LINES) in the real
+#                   ElevenLabs voice via the shared TTS cache; per-IP rate limited; no arbitrary
+#                   text possible, and each line is paid for at most once ever. The speak pipeline
+#                   was refactored into _tts_stream_response() (shared; behavior unchanged).
+#               (3) static/shots/*.png: real product screenshots (sample data, labeled) used by the
+#                   marketing pages.
 #   2026-07-30  APP_BUILD -> "2026-07-30h-frontdoor". THE LANDING PAGE IS NOW THE FRONT DOOR
 #               (go-live prep for mrcadabra.com): GET / serves landing.html (was the bare code-entry
 #               screen), NEW GET /login serves index.html, NEW GET /demo serves demo.html. All 11
@@ -779,6 +791,24 @@ def demo_page():
     return FileResponse(STATIC_DIR / "demo.html")
 
 
+@app.get("/courses")
+def courses_page():
+    """Marketing: all eight courses with every unit listed (printable scope & sequence)."""
+    return FileResponse(STATIC_DIR / "courses.html")
+
+
+@app.get("/teachers")
+def teachers_page():
+    """Marketing: the classroom/co-op page (heatmap screenshot, features, pilot CTA)."""
+    return FileResponse(STATIC_DIR / "teachers.html")
+
+
+@app.get("/pricing")
+def pricing_page():
+    """Marketing: standalone pricing page."""
+    return FileResponse(STATIC_DIR / "pricing.html")
+
+
 @app.get("/session")
 def session_page():
     """The screen where the student talks with the tutor."""
@@ -1232,7 +1262,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30h-frontdoor"
+APP_BUILD = "2026-07-30i-website"
 
 
 @app.get("/health")
@@ -1500,7 +1530,12 @@ def speak(text: str = "", code: str = ""):
         raise HTTPException(status_code=413, detail="That text is too long to speak.")
     if not text or not ELEVEN_API_KEY:
         return Response(status_code=204)
+    return _tts_stream_response(text)
 
+
+def _tts_stream_response(text: str):
+    """Shared TTS pipeline (used by /api/speak and /api/demo-audio): serve the cached
+    render if we have it, otherwise stream from ElevenLabs while caching atomically."""
     # Cache HIT: replay the saved render, no ElevenLabs call.
     cache_path = _tts_cache_path(text)
     try:
@@ -1546,6 +1581,46 @@ def speak(text: str = "", code: str = ""):
                 print(f"[speak] cache write error: {exc}")
 
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
+
+
+# -----------------------------------------------------------------------------
+# DEMO VOICE (2026-07-30) -- the marketing demo speaks with Mr. Cadabra's REAL voice.
+# -----------------------------------------------------------------------------
+# The interactive demo (static/demo.html) is fully scripted, so its spoken lines are a
+# FIXED, finite list. This endpoint serves ONLY those whitelisted lines -- no arbitrary
+# text, so it cannot be abused to spend ElevenLabs money beyond ~14 lines that each
+# cache after their first render (then replay free, forever). No login code needed
+# (it's the public demo); per-IP rate limited. KEEP THIS LIST IDENTICAL to VOICE_LINES
+# in static/demo.html -- update both together.
+DEMO_VOICE_LINES = [
+    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
+    "First move: what should we do to BOTH sides to undo that plus three?",
+    "Exactly — subtract three from both sides, and the threes cancel on the left.",
+    "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
+    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
+    "Nice — divide both sides by two, and x is finally alone.",
+    "Careful — two x means two times x, so we undo it with division. Give it another go!",
+    "Your turn to prove it. Using the keyboard, type what x equals.",
+    "You got it — x equals four!",
+    "Close — look at the last line on the board: x = 4. Type that.",
+    "One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+    "Beautiful — two to the third, which is eight. You used the power key like a pro.",
+    "Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!",
+    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time.",
+]
+
+
+@app.get("/api/demo-audio/{idx}")
+def demo_audio(idx: int, request: Request):
+    """Serve one whitelisted demo line in the tutor's real voice (cached). 204 when the
+    ElevenLabs key isn't configured -- the demo falls back to the browser voice."""
+    _rate_limit("demoaudio:" + _client_ip(request), limit=60, window_seconds=300,
+                what="demo audio requests")
+    if idx < 0 or idx >= len(DEMO_VOICE_LINES):
+        raise HTTPException(status_code=404, detail="Unknown demo line.")
+    if not ELEVEN_API_KEY:
+        return Response(status_code=204)
+    return _tts_stream_response(DEMO_VOICE_LINES[idx])
 
 
 def _evict_tts_cache() -> None:

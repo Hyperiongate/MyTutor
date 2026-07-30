@@ -2,6 +2,11 @@
 <!--
   MyTutor — Landing + Pricing page (DRAFT for Jim's review)
   Notes for future edits (newest first):
+  - 2026-07-30  MULTI-PAGE SITE + PRODUCT GALLERY (Jim's feedback: anchor-only nav felt like a
+    one-person company; no screenshots). Nav now links to REAL pages (/courses, /teachers, /pricing);
+    NEW "See it for yourself" gallery with three real product screenshots (static/shots/ — lesson,
+    parent dashboard, math keyboard; sample data labeled); courses section links to the full
+    /courses scope-&-sequence page; classroom card + footer link /teachers.
   - 2026-07-30  PROFESSIONAL GO-LIVE PASS (mrcadabra.com purchased today; landing becomes the FRONT
     DOOR at "/"): removed the DRAFT ribbon (+ its CSS); replaced the placeholder-testimonials section
     with an honest "Become a founding family" section (still NO invented reviews — that rule stands);
@@ -187,9 +192,10 @@
   <div class="brand"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></div>
   <div class="nav-links">
     <a href="#how">How it works</a>
-    <a href="#courses">Courses</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#privacy">Privacy</a>
+    <a href="/courses">Courses</a>
+    <a href="/teachers">For teachers</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/privacy">Privacy</a>
     <a href="#faq">FAQ</a>
   </div>
   <div class="nav-cta">
@@ -254,6 +260,30 @@
     <span class="course">Probability &amp; Statistics</span>
   </div>
   <p class="hero-note center" style="margin-top:20px">More subjects and grade levels on the roadmap — our goal is a complete K‑12 companion.</p>
+  <p style="margin-top:16px"><a class="btn btn-ghost" href="/courses">See every unit in every course →</a></p>
+</section>
+<!-- PRODUCT GALLERY (real screenshots, sample data labeled) -->
+<section id="see" class="wrap">
+  <div class="center" style="max-width:70ch">
+    <span class="eyebrow">See it for yourself</span>
+    <h2>This is what MyTutor actually looks like.</h2>
+    <p class="sub center">Real screens from the product — the talking lesson, the honest parent dashboard, and the built-in math keyboard.</p>
+  </div>
+  <div class="grid g3" style="margin-top:30px">
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/lesson.png" alt="A MyTutor lesson: Mr. Cadabra asks a question while the whiteboard shows 2x+3=11 solved step by step, with tappable answers below" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The lesson</h3><p>He talks, the board draws each step, your student answers — it never runs ahead.</p>
+    </div>
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/dashboard.png" alt="The MyTutor progress dashboard: units mastered, day streak, accuracy, honest time-on-task, and a 9-unit learning journey" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The parent dashboard</h3><p>Real mastery, real accuracy, real time-on-task — idle time doesn't count. <span style="font-size:12px;color:var(--muted)">(Sample data shown.)</span></p>
+    </div>
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/keyboard.png" alt="The built-in math keyboard: a full pad of digits, operators, roots, exponents and comparison symbols for typing math answers" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The math keyboard</h3><p>√, x², fractions, inequalities — students type real math without hunting for symbols.</p>
+    </div>
+  </div>
+  <p class="hero-note center" style="margin-top:16px">Teaching a class or co-op? <a href="/teachers" style="text-decoration:underline">See the classroom heatmap →</a></p>
 </section>
 <!-- HOW -->
 <section id="how" class="wrap">
@@ -308,7 +338,7 @@
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
     <div class="card"><h3>👪 Family plan</h3><p>Adding more than one child? Ask about multi-student family pricing — every child gets their own account and dashboard.</p></div>
-    <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster, mastery heatmap, and unit assignments. Custom pricing for schools, microschools, and co-ops.</p></div>
+    <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster and mastery heatmap. Custom pricing for schools, microschools, and co-ops. <a href="/teachers" style="color:var(--purple);font-weight:700">For teachers →</a></p></div>
     <div class="card"><h3>🎓 Free pilots</h3><p>We're partnering with a limited number of classrooms this term for feedback. If that's you, let's talk.</p></div>
   </div>
   <p class="hero-note center" style="margin-top:18px">Prices shown are introductory and may change. Taxes may apply.</p>
@@ -361,7 +391,7 @@
 <footer><div class="wrap foot-in">
   <div class="brand"><span class="orb"></span> MyTutor</div>
   <div style="display:flex;gap:20px;flex-wrap:wrap">
-    <a href="#pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="#faq">FAQ</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+    <a href="/courses">Courses</a><a href="/teachers">For teachers</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
   </div>
   <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
 </div></footer>

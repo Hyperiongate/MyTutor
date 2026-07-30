@@ -2,6 +2,11 @@
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (2026-07-30, newest first):
+  - 2026-07-30  WARM VOICE. The demo no longer sounds robotic: say() now plays Mr. Cadabra's REAL
+    ElevenLabs voice from /api/demo-audio/{i} (a server-side whitelist of exactly these fixed lines,
+    cached after the first render — near-zero marginal cost), falling back to the browser voice only
+    if server audio can't load (offline preview / key missing). VOICE_LINES here and main.py's
+    DEMO_VOICE_LINES must stay IDENTICAL — update both together. Footer note reworded to match.
   - 2026-07-30  CONVERSION: the win screen now offers "See plans & get started →" (to /#pricing on the
     new landing front door) beside "Try it again" -- it used to dead-end. Also served at the pretty
     /demo route now, and gained the site favicon.
@@ -131,7 +136,7 @@
     <div class="answer" id="answer">
       <button class="cta" id="startBtn">▶ Start the lesson</button>
     </div>
-    <div class="footer" id="foot">This demo uses your device's built-in voice. The real MyTutor uses a warm, natural tutor voice.</div>
+    <div class="footer" id="foot">🔊 Turn your sound on — Mr. Cadabra talks you through it. (If his warm voice can't load here, your device's built-in voice fills in.)</div>
   </div>
 </div>
 
@@ -142,8 +147,30 @@
       replay=document.getElementById('replay');
   var voiceOn=true, lastSaid="";
 
-  function say(text){
-    lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
+  // WARM VOICE (2026-07-30): every spoken line in this demo is FIXED, so the server whitelists
+  // exactly these lines at /api/demo-audio/{i} (main.py DEMO_VOICE_LINES -- keep the two lists
+  // IDENTICAL) and serves them in Mr. Cadabra's real ElevenLabs voice from the TTS cache. Each
+  // line costs ElevenLabs once EVER, then replays free. If the server can't provide audio
+  // (offline preview / no key), we fall back to the browser's built-in voice as before.
+  var VOICE_LINES=[
+    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
+    "First move: what should we do to BOTH sides to undo that plus three?",
+    "Exactly — subtract three from both sides, and the threes cancel on the left.",
+    "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
+    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
+    "Nice — divide both sides by two, and x is finally alone.",
+    "Careful — two x means two times x, so we undo it with division. Give it another go!",
+    "Your turn to prove it. Using the keyboard, type what x equals.",
+    "You got it — x equals four!",
+    "Close — look at the last line on the board: x = 4. Type that.",
+    "One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+    "Beautiful — two to the third, which is eight. You used the power key like a pro.",
+    "Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!",
+    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time."
+  ];
+  var serverVoiceOK=true, curAudio=null;
+
+  function browserSay(text){
     if(!voiceOn||!('speechSynthesis' in window)) return;
     try{
       speechSynthesis.cancel();
@@ -153,6 +180,25 @@
       u.onend=function(){orb.classList.remove('speaking');};
       speechSynthesis.speak(u);
     }catch(e){}
+  }
+
+  function say(text){
+    lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
+    if(!voiceOn) return;
+    var i=VOICE_LINES.indexOf(text);
+    if(serverVoiceOK && i>=0){
+      try{
+        if(curAudio){ try{curAudio.pause();}catch(e){} }
+        try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+        var a=new Audio('/api/demo-audio/'+i); curAudio=a;
+        a.onplay=function(){orb.classList.add('speaking');};
+        a.onended=function(){orb.classList.remove('speaking');};
+        a.onerror=function(){ serverVoiceOK=false; orb.classList.remove('speaking'); browserSay(text); };
+        a.play().catch(function(){ serverVoiceOK=false; browserSay(text); });
+        return;
+      }catch(e){ serverVoiceOK=false; }
+    }
+    browserSay(text);
   }
   replay.onclick=function(){ say(lastSaid); };
 
