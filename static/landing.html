@@ -2,6 +2,12 @@
 <!--
   MyTutor — Landing + Pricing page (DRAFT for Jim's review)
   Notes for future edits (newest first):
+  - 2026-07-30  PRODUCT REFRESH to the shipped experience: warm voice OUT + student TYPES in (with the
+    on-screen math keyboard), NO microphone. Reworded hero, "How it works", privacy, FAQ, and final CTA
+    to this model; collapsed the four voice-tier plans to ONE product (Free + full "MyTutor" plan), since
+    the warm voice is now standard on every plan; reframed the privacy card around "no student voice
+    recorded"; added "Try a lesson" CTAs linking to /static/demo.html (the interactive demo). Prices
+    remain DRAFT placeholders.
   - 2026-07-29  Reconciled the Courses section with the LIVE app (COURSE_ORDER in curriculum.py): it now
     lists all EIGHT live courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig/Pre-Calculus,
     Calculus, Differential Equations, and Probability & Statistics. Calculus is no longer marked
@@ -175,20 +181,20 @@
   </div>
   <div class="nav-cta">
     <a class="btn btn-ghost" href="#pricing">See pricing</a>
-    <a class="btn btn-primary" href="#pricing">Start free</a>
+    <a class="btn btn-primary" href="/static/demo.html">Try a lesson</a>
   </div>
 </div></nav>
 <!-- HERO -->
 <header class="wrap hero">
   <div>
-    <span class="pill"><span class="dot"></span> Voice-first Socratic tutoring · powered by a top-tier Anthropic model</span>
+    <span class="pill"><span class="dot"></span> A talking Socratic math tutor · powered by a top-tier AI model</span>
     <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
-    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem, draws it out on a whiteboard step by step, and never races ahead. A complete course from placement to mastery — at home, at your pace.</p>
+    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by typing — with a built-in math keyboard, and no microphone needed. A complete course from placement to mastery, at home, at your pace.</p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="#pricing">Start free with text mode</a>
+      <a class="btn btn-primary" href="/static/demo.html">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
-    <p class="hero-note">No credit card to try · Parent-controlled accounts · We never sell your child's data</p>
+    <p class="hero-note">No credit card · No microphone required · Parent-controlled accounts · We never sell your child's data</p>
   </div>
   <div class="mock" aria-hidden="true">
     <div class="mock-top"><i></i><i></i><i></i></div>
@@ -241,7 +247,7 @@
   <div class="center" style="max-width:70ch"><span class="eyebrow">How it works</span><h2>Four simple steps</h2></div>
   <div class="grid g4 steps" style="margin-top:30px">
     <div class="card step-card"><div class="num">1</div><h3>Place</h3><p>A short, friendly check finds exactly where your student is — no guessing, no starting from scratch.</p></div>
-    <div class="card step-card"><div class="num">2</div><h3>Learn</h3><p>Mr. Cadabra teaches each unit by talking and drawing, one step at a time, at your student's pace.</p></div>
+    <div class="card step-card"><div class="num">2</div><h3>Learn</h3><p>Mr. Cadabra explains each step out loud in a warm voice and draws it on the board. Your student answers by typing — with a math keyboard for symbols like √ and x², no microphone.</p></div>
     <div class="card step-card"><div class="num">3</div><h3>Practice</h3><p>Guided practice problems with hints — plus short, no-hint "checks" that measure real understanding.</p></div>
     <div class="card step-card"><div class="num">4</div><h3>Master</h3><p>Units turn gold on the dashboard as they're mastered, so you always know what's next.</p></div>
   </div>
@@ -249,71 +255,42 @@
 <!-- PRICING -->
 <section id="pricing" class="wrap center">
   <span class="eyebrow">Simple, honest pricing</span>
-  <h2>Choose how your student learns</h2>
-  <p class="sub center">Same brilliant tutor and the same whiteboard on every plan. The only difference is how you talk and listen. Cancel anytime.</p>
+  <h2>Start free. Upgrade when you're ready.</h2>
+  <p class="sub center">One simple product: the warm talking tutor, the built-in math keyboard, and all eight courses. Try it free, then subscribe when you're ready. Cancel anytime.</p>
   <div class="toggle" role="tablist">
     <button id="tMonthly" class="on" onclick="setCycle('m')">Monthly</button>
     <button id="tAnnual" onclick="setCycle('a')">Annual <span class="save">save ~2 months</span></button>
   </div>
-  <div class="grid plans">
+  <div class="grid plans" style="grid-template-columns:repeat(2,1fr);max-width:680px;margin-left:auto;margin-right:auto">
     <!-- FREE -->
     <div class="plan">
       <h3>Free</h3>
-      <p class="who">Try it, no card needed</p>
+      <p class="who">Try it — no card needed</p>
       <div class="price">$0</div>
       <div class="per">forever</div>
       <ul class="feat-list">
-        <li><span class="chk">✓</span> Text mode + full whiteboard</li>
+        <li><span class="chk">✓</span> The warm talking tutor + full whiteboard</li>
+        <li><span class="chk">✓</span> One placement check + a first unit to try</li>
         <li><span class="chk">✓</span> Practice &amp; single-topic help</li>
-        <li><span class="chk">✓</span> One placement check</li>
         <li><span class="chk">✓</span> Parent-controlled account</li>
       </ul>
-      <a class="btn btn-ghost" href="#">Start free</a>
+      <a class="btn btn-ghost" href="/static/demo.html">Start free</a>
     </div>
-    <!-- TEXT -->
-    <div class="plan">
-      <h3>Scholar</h3>
-      <p class="who">Type your answers · reads &amp; writes on the board</p>
-      <div class="price" data-m="19" data-a="15">$19<small>/mo</small></div>
-      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
-      <ul class="feat-list">
-        <li><span class="chk">✓</span> Everything in Free</li>
-        <li><span class="chk">✓</span> All full courses, placement→mastery</li>
-        <li><span class="chk">✓</span> Progress dashboard by unit</li>
-        <li><span class="chk">✓</span> Quiet-friendly: no mic needed</li>
-        <li><span class="chk">✓</span> Simplest privacy — no voice data</li>
-      </ul>
-      <a class="btn btn-ghost" href="#">Choose Scholar</a>
-    </div>
-    <!-- BROWSER VOICE (featured) -->
+    <!-- FULL ACCESS -->
     <div class="plan feat">
-      <span class="tag">Most popular</span>
-      <h3>Scholar Voice</h3>
-      <p class="who">Talk &amp; listen using your browser's built-in voice</p>
+      <span class="tag">Full access</span>
+      <h3>MyTutor</h3>
+      <p class="who">The whole thing — every course, the warm voice</p>
       <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
       <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
       <ul class="feat-list">
-        <li><span class="chk">✓</span> Everything in Scholar</li>
-        <li><span class="chk">✓</span> Speak your answers out loud</li>
-        <li><span class="chk">✓</span> Hear the tutor talk back</li>
-        <li><span class="chk">✓</span> Great for younger learners</li>
-        <li><span class="chk">✓</span> Works best in Chrome &amp; Edge</li>
+        <li><span class="chk">✓</span> All 8 courses, placement → mastery</li>
+        <li><span class="chk">✓</span> Mr. Cadabra's warm, natural voice on every lesson</li>
+        <li><span class="chk">✓</span> Type answers with the built-in math keyboard — no mic</li>
+        <li><span class="chk">✓</span> Progress dashboard by unit</li>
+        <li><span class="chk">✓</span> Parent-controlled account &amp; privacy</li>
       </ul>
-      <a class="btn btn-primary" href="#">Choose Scholar Voice</a>
-    </div>
-    <!-- PREMIUM VOICE -->
-    <div class="plan">
-      <h3>Signature</h3>
-      <p class="who">Mr. Cadabra's warm, natural studio voice</p>
-      <div class="price" data-m="39" data-a="32">$39<small>/mo</small></div>
-      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
-      <ul class="feat-list">
-        <li><span class="chk">✓</span> Everything in Scholar Voice</li>
-        <li><span class="chk">✓</span> Premium natural tutor voice</li>
-        <li><span class="chk">✓</span> The most lifelike experience</li>
-        <li><span class="chk">✓</span> Priority support</li>
-      </ul>
-      <a class="btn btn-ghost" href="#">Choose Signature</a>
+      <a class="btn btn-primary" href="/static/demo.html">Try a lesson free</a>
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
@@ -328,11 +305,11 @@
   <div class="trust">
     <span class="eyebrow" style="color:rgba(255,255,255,.85)">Built for families</span>
     <h2>Your child's privacy is not the product.</h2>
-    <p class="sub center">We build for kids first. You stay in control of the account, and you decide how much (if any) voice data is ever used.</p>
+    <p class="sub center">We build for kids first. You stay in control of the account — and because your student answers by typing, there's no microphone and no student voice is ever recorded.</p>
     <div class="trust-grid">
       <div><strong>We never sell student data</strong><p>Not to advertisers, not to anyone. No targeted ads. No profiles for marketing.</p></div>
       <div><strong>Parents hold the keys</strong><p>Parent-created accounts and consent, a clear privacy policy, and delete-my-data on request.</p></div>
-      <div><strong>You choose voice or text</strong><p>Prefer no microphone at all? Text mode collects no voice data — the simplest, most private option.</p></div>
+      <div><strong>No microphone needed</strong><p>Your student answers by typing, so no student voice is recorded or sent anywhere — quiet-friendly, and one less privacy worry.</p></div>
     </div>
     <p class="sub center" style="margin-top:18px;font-size:13.5px">See our <a href="#" style="color:#fff;text-decoration:underline">Parents &amp; Privacy</a> page for the full details.</p>
   </div>
@@ -352,7 +329,7 @@
 <section id="faq" class="wrap">
   <div class="center" style="max-width:70ch;margin-bottom:24px"><span class="eyebrow">Questions</span><h2>Frequently asked</h2></div>
   <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. MyTutor is built to <em>teach</em>. It uses a Socratic approach — guiding with questions and drawing each step on a whiteboard that never runs ahead of your student — wrapped around complete, placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
-  <details><summary>Do we have to use voice?</summary><p>Not at all. Text mode lets your student type answers and read the tutor's replies, with the same full whiteboard. It's a great fit for quiet spaces, shared computers, or anyone who simply prefers typing — and it collects no voice data.</p></details>
+  <details><summary>Does my child need a microphone?</summary><p>No. Mr. Cadabra <em>talks</em> your student through each step in a warm voice, and your student answers by <em>typing</em> — with a built-in math keyboard for symbols like √ and x². There's no microphone, so no student voice is recorded: it's quiet-friendly, works on shared devices, and keeps things private.</p></details>
   <details><summary>What ages and levels is it for?</summary><p>Today the math library spans eight complete courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Calculus, Differential Equations, and Probability &amp; Statistics — and placement puts each student exactly where they belong. Our roadmap keeps growing toward a complete K‑12-and-beyond companion.</p></details>
   <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account. We never sell student data or use it for advertising. You can request deletion at any time, and you choose whether any voice features are used. See the Parents &amp; Privacy page for specifics.</p></details>
   <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes — ask about family pricing for multiple students, or the teacher dashboard for classrooms and co-ops with rosters, a mastery heatmap, and assignments.</p></details>
@@ -361,8 +338,8 @@
 <section class="wrap center">
   <div class="card" style="padding:44px">
     <h2>Give your student a tutor who has all the patience in the world.</h2>
-    <p class="sub center" style="margin-bottom:22px">Start free in text mode today. Add voice whenever you're ready.</p>
-    <a class="btn btn-primary" href="#pricing">Start free</a>
+    <p class="sub center" style="margin-bottom:22px">Try a lesson free today — no card, no microphone. Then start your student's course whenever you're ready.</p>
+    <a class="btn btn-primary" href="/static/demo.html">▶ Try a lesson</a>
   </div>
 </section>
 <footer><div class="wrap foot-in">

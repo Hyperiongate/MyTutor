@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<!--
+  MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
+  Notes (2026-07-30):
+  - Fully self-contained: inline CSS/JS, no libraries, no web fonts, no localStorage, no backend.
+  - Shows the REAL product experience: the tutor SPEAKS each line (browser voice here, since a demo
+    can't call ElevenLabs), the whiteboard draws each step, and the student answers by TYPING with the
+    on-screen MATH KEYBOARD (powers, roots, division, etc.) -- no microphone.
+  - Scripted 2-step-equation lesson so it works anywhere with zero setup. Captions always show, so it
+    works even if the browser blocks audio.
+  I did no harm and this file is not truncated.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyTutor — Try a lesson with Mr. Cadabra</title>
+<style>
+  :root{
+    --purple:#6d5ae6; --teal:#1fb6b0; --ink:#20233a; --muted:#5b6079;
+    --bg1:#fbf7ff; --bg2:#f2fbfa; --card:#fff; --line:#e9e5f5; --ok:#1fa971; --red:#d1345b;
+    --grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.12); --shadow-lg:0 20px 50px rgba(60,40,120,.20);
+    --keyline:#e3def3; --keyactive:#efeaff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);min-height:100vh;padding:18px 12px 40px;
+    background:radial-gradient(1000px 500px at 85% -10%,#efe9ff 0,transparent 60%),
+               radial-gradient(900px 460px at -10% 5%,#e4faf7 0,transparent 55%),
+               linear-gradient(180deg,var(--bg1),var(--bg2))}
+  .wrap{max-width:560px;margin:0 auto}
+  .brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
+  .brand b{font-size:20px;font-weight:850}
+  .brand .tag{color:var(--muted);font-weight:600}
+  .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px}
+  .demo-badge{display:inline-block;background:#fff3e8;color:#c2610a;border:1px solid #ffd9b3;
+    font-size:11px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:3px 9px;margin-left:4px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
+    padding:18px;margin-bottom:14px}
+
+  /* tutor */
+  .tutor{display:flex;gap:12px;align-items:flex-start}
+  .orb{width:52px;height:52px;border-radius:50%;flex:0 0 auto;position:relative;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
+    box-shadow:0 5px 16px rgba(109,90,230,.45)}
+  .orb::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(109,90,230,.35);
+    opacity:0}
+  .orb.speaking::after{animation:ring 1.1s ease-out infinite}
+  @keyframes ring{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+  .orb.speaking{animation:bob .9s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-3px)}}
+  .bubble{flex:1;background:#f6f3ff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+    font-size:15.5px;line-height:1.5;min-height:48px}
+  .replay{margin-top:8px;border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;
+    font-size:13px;border-radius:9px;padding:6px 11px;cursor:pointer}
+
+  /* whiteboard */
+  .board{margin-top:14px;padding:16px;border-radius:14px;min-height:96px;
+    background:linear-gradient(0deg,transparent 27px,rgba(109,90,230,.06) 28px),
+               linear-gradient(90deg,transparent 27px,rgba(31,182,176,.05) 28px);
+    background-size:28px 28px;font-family:"Courier New",monospace}
+  .wrow{font-size:23px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
+    animation:stepin .45s forwards}
+  .wrow .v{color:var(--red);font-weight:800}
+  .wrow.op{color:#8a86a6;font-size:16px;letter-spacing:2px}
+  .wrow.chk{color:var(--ok);font-weight:700;font-size:18px}
+  @keyframes stepin{to{opacity:1;transform:none}}
+
+  /* answer area */
+  .answer{margin-top:4px}
+  .prompt{font-size:13px;color:var(--muted);text-align:center;margin:2px 0 10px}
+  .choices{display:grid;gap:9px}
+  .choice{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:14px;font-size:16px;
+    font-weight:600;color:var(--ink);cursor:pointer;transition:transform .05s,border-color .1s}
+  .choice:hover{border-color:var(--purple)}
+  .choice:active{transform:translateY(1px)}
+  .choice.right{border-color:var(--ok);background:#effaf4;color:#127a52}
+  .choice.wrong{border-color:#f0b8c4;background:#fdeef1;color:var(--red)}
+
+  .cta{border:0;background:var(--grad);color:#fff;font-weight:800;font-size:16px;border-radius:13px;
+    padding:14px;width:100%;cursor:pointer;box-shadow:var(--shadow)}
+  .cta:active{transform:translateY(1px)}
+  .fb{text-align:center;font-weight:700;margin:6px 0;min-height:22px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
+
+  /* keypad answer */
+  .kpwrap{margin-top:4px}
+  .ansrow{display:flex;gap:9px;align-items:center;background:#fff;border:1.5px solid var(--keyline);
+    border-radius:13px;padding:8px 8px 8px 14px}
+  .ansrow input{flex:1;border:0;outline:0;font-size:19px;font-family:"Courier New",monospace;color:#2a2450;background:transparent}
+  .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
+  .kb{margin-top:10px;background:#faf8ff;border:1px solid var(--line);border-radius:16px;padding:10px}
+  .grid{display:grid;gap:6px;grid-template-columns:repeat(5,1fr)}
+  .key{border:1px solid var(--keyline);background:#fff;border-radius:11px;padding:13px 0;font-size:18px;font-weight:600;
+    color:var(--ink);cursor:pointer;min-height:48px;display:flex;align-items:center;justify-content:center}
+  .key:active{background:var(--keyactive);transform:translateY(1px)}
+  .key.op{color:var(--purple);font-weight:800}
+  .key.fn{background:#f3f0ff;color:var(--purple);font-weight:800;font-size:16px}
+  .key.util{color:var(--muted);font-weight:700;font-size:14px}
+  .sup{font-size:.72em;vertical-align:super}
+  .footer{text-align:center;color:#a7a2bd;font-size:12px;margin-top:6px}
+  .endbox{text-align:center;padding:6px 4px}
+  .endbox h2{font-size:22px;margin-bottom:6px}
+  .endbox p{color:var(--muted);font-size:14.5px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="orb" style="width:30px;height:30px"></span><b>MyTutor</b>
+    <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
+  <div class="sub">A 60-second taste — he talks, draws it out, and you answer with the math keyboard.</div>
+
+  <div class="card">
+    <div class="tutor">
+      <span class="orb" id="orb"></span>
+      <div>
+        <div class="bubble" id="bubble">Ready when you are! Press start and we'll solve one together.</div>
+        <button class="replay" id="replay" style="display:none">🔊 Replay</button>
+      </div>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="card">
+    <div class="answer" id="answer">
+      <button class="cta" id="startBtn">▶ Start the lesson</button>
+    </div>
+    <div class="footer" id="foot">This demo uses your device's built-in voice. The real MyTutor uses a warm, natural tutor voice.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var orb=document.getElementById('orb'), bubble=document.getElementById('bubble'),
+      board=document.getElementById('board'), answer=document.getElementById('answer'),
+      replay=document.getElementById('replay');
+  var voiceOn=true, lastSaid="";
+
+  function say(text){
+    lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
+    if(!voiceOn||!('speechSynthesis' in window)) return;
+    try{
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
+      u.rate=0.98; u.pitch=1.06;
+      u.onstart=function(){orb.classList.add('speaking');};
+      u.onend=function(){orb.classList.remove('speaking');};
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  replay.onclick=function(){ say(lastSaid); };
+
+  function addRow(text, cls){
+    var d=document.createElement('div'); d.className='wrow'+(cls?' '+cls:'');
+    d.innerHTML=text.replace(/x/g,'<span class="v">x</span>'); board.appendChild(d);
+    board.scrollTop=board.scrollHeight;
+  }
+  function clearAnswer(){ answer.innerHTML=''; }
+
+  // ---- the scripted lesson ----
+  var steps=[
+    {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
+     board:[["2x + 3 = 11",""]], input:{type:"continue",label:"Okay, let's go ▶"}},
+
+    {say:"First move: what should we do to BOTH sides to undo that plus three?",
+     input:{type:"choice", choices:["Subtract 3 from both sides","Add 3 to both sides","Divide both sides by 2"],
+            correct:0, right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
+            wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
+            board:[["−3       −3","op"],["2x = 8",""]]}},
+
+    {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
+     input:{type:"choice", choices:["Divide both sides by 2","Subtract 2 from both sides","Multiply both sides by 2"],
+            correct:0, right:"Nice — divide both sides by two, and x is finally alone.",
+            wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
+            board:[["÷2        ÷2","op"],["x = 4",""]]}},
+
+    {say:"Your turn to prove it. Using the keyboard, type what x equals.",
+     input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four!",
+            wrong:"Close — look at the last line on the board: x = 4. Type that."}},
+
+    {say:"One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+     input:{type:"keypad", accept:["2^3","8"], right:"Beautiful — two to the third, which is eight. You used the power key like a pro.",
+            wrong:"Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!"}},
+
+    {end:true}
+  ];
+
+  var i=-1;
+  function next(){
+    i++;
+    if(i>=steps.length) return;
+    var s=steps[i];
+    if(s.end){ showEnd(); return; }
+    if(s.board) s.board.forEach(function(r){ addRow(r[0], r[1]); });
+    if(s.say) say(s.say);
+    renderInput(s.input);
+  }
+
+  function renderInput(inp){
+    clearAnswer();
+    if(inp.type==="continue"){
+      var b=document.createElement('button'); b.className='cta'; b.textContent=inp.label;
+      b.onclick=next; answer.appendChild(b); return;
+    }
+    if(inp.type==="choice"){
+      var p=document.createElement('div'); p.className='prompt'; p.textContent='Tap your answer:'; answer.appendChild(p);
+      var wrap=document.createElement('div'); wrap.className='choices';
+      inp.choices.forEach(function(c,idx){
+        var btn=document.createElement('button'); btn.className='choice'; btn.textContent=c;
+        btn.onclick=function(){
+          if(idx===inp.correct){
+            btn.classList.add('right');
+            if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });
+            feedback(inp.right,true);
+            disableChoices(); setTimeout(next,1700);
+          } else {
+            btn.classList.add('wrong'); feedback(inp.wrong,false); say(inp.wrong);
+          }
+        };
+        wrap.appendChild(btn);
+      });
+      answer.appendChild(wrap); return;
+    }
+    if(inp.type==="keypad"){ renderKeypad(inp); }
+  }
+  function disableChoices(){ answer.querySelectorAll('.choice').forEach(function(b){b.style.pointerEvents='none';}); }
+  function feedback(text,ok){
+    var f=answer.querySelector('.fb')||document.createElement('div');
+    f.className='fb '+(ok?'ok':'no'); f.textContent=(ok?'✓ ':'')+text;
+    if(!f.parentNode) answer.appendChild(f);
+  }
+
+  // ---- math keypad ----
+  function renderKeypad(inp){
+    var row=document.createElement('div'); row.className='ansrow';
+    var input=document.createElement('input'); input.type='text'; input.setAttribute('inputmode','none');
+    input.placeholder='your answer'; input.autocomplete='off';
+    var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
+    row.appendChild(input); row.appendChild(check);
+    var kp=buildKeys(input);
+    var fb=document.createElement('div'); fb.className='fb';
+    var wrap=document.createElement('div'); wrap.className='kpwrap';
+    wrap.appendChild(row); wrap.appendChild(fb); wrap.appendChild(kp); answer.appendChild(wrap);
+    function submit(){
+      var v=input.value.replace(/\s+/g,'').toLowerCase();
+      if(inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase();}).indexOf(v)>=0){
+        fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
+        check.style.pointerEvents='none'; setTimeout(next,1900);
+      } else {
+        fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+      }
+    }
+    check.onclick=submit;
+  }
+  function buildKeys(input){
+    var caret=0;
+    function setv(v,c){ input.value=v; caret=Math.max(0,Math.min(c,v.length)); input.focus(); }
+    function ins(t){ var v=input.value; setv(v.slice(0,caret)+t+v.slice(caret), caret+t.length); }
+    function wrap(spec){ var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
+      setv(v.slice(0,caret)+t+v.slice(caret), caret+idx); }
+    function back(){ if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
+    var defs=[
+      ['7','t7'],['8','t8'],['9','t9'],['÷','o/'],['√','w√(|)','fn'],
+      ['4','t4'],['5','t5'],['6','t6'],['×','o×'],['x²','t^2','fn'],
+      ['1','t1'],['2','t2'],['3','t3'],['−','o−'],['xⁿ','t^','fn'],
+      ['0','t0'],['.','t.'],['x','tx'],['+','o+'],['=','o=']
+    ];
+    var g=document.createElement('div'); g.className='kb';
+    var grid=document.createElement('div'); grid.className='grid';
+    defs.forEach(function(d){
+      var label=d[0], code=d[1], kind=d[2]||'';
+      var b=document.createElement('button'); b.className='key'+(code[0]==='o'?' op':'')+(kind?' '+kind:'');
+      b.innerHTML=label.replace('²','<span class="sup">2</span>').replace('ⁿ','<span class="sup">n</span>');
+      b.onclick=function(){
+        if(code[0]==='t') ins(code.slice(1));
+        else if(code[0]==='o') ins(code.slice(1));
+        else if(code[0]==='w') wrap(code.slice(1));
+      };
+      grid.appendChild(b);
+    });
+    g.appendChild(grid);
+    var ctl=document.createElement('div'); ctl.className='grid'; ctl.style.gridTemplateColumns='1fr 1fr'; ctl.style.marginTop='6px';
+    var del=document.createElement('button'); del.className='key util'; del.textContent='⌫ delete'; del.onclick=back;
+    var clr=document.createElement('button'); clr.className='key util'; clr.textContent='clear'; clr.onclick=function(){setv('',0);};
+    ctl.appendChild(del); ctl.appendChild(clr); g.appendChild(ctl);
+    return g;
+  }
+
+  function showEnd(){
+    say("That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time.");
+    clearAnswer();
+    var box=document.createElement('div'); box.className='endbox';
+    box.innerHTML='<h2>🎉 You solved it!</h2>'+
+      '<p>That\'s a quick taste of how Mr. Cadabra teaches — talking you through every step, drawing it on the board, and letting you answer at your own pace. A full course does this from placement all the way to mastery.</p>';
+    var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try it again';
+    again.onclick=function(){ board.innerHTML=''; i=-1; next(); };
+    box.appendChild(again); answer.appendChild(box);
+  }
+
+  document.getElementById('startBtn').onclick=function(){ next(); };
+})();
+</script>
+</body>
+</html>
