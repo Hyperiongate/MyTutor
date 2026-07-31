@@ -4,6 +4,10 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  HELP TIPS (Jim: "?-in-a-circle anywhere someone could get confused"): included the
+                new shared /static/help-tips.js, which plants small ? buttons with popup explanations
+                next to the answer bar, 🧮 Math Keyboard, 📈 Graph, quick replies (and on the
+                dashboard: trophy case + time tile). Additive; one script tag. Do no harm.
     2026-07-30  🏆 TROPHY CASE (student reward system). New section above the KPI tiles fed by
                 GET /api/awards: course trophies, effort-award medals (with a pulsing NEW! tag for
                 awards earned in the last 48h), per-course merit-badge counts, and a "next up"
@@ -635,6 +639,7 @@
     }
     loadMyCourses();
   </script>
+  <script src="/static/help-tips.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->
