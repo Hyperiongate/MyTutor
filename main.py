@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  APP_BUILD -> "2026-07-31o-taxcode". FIX found in Jim's live sandbox test: new
+#               Stripe accounts enable "Managed Payments" by default, which REQUIRES a tax code
+#               on every product -- checkout returned "the product tax code is missing". The
+#               product is now created with PRODUCT_TAX_CODE (txcd_10000000, "General --
+#               Electronically Supplied Services"; override via STRIPE_TAX_CODE env var), and
+#               _ensure_product_tax_code() heals the product that was already created without
+#               one. An accountant can refine the classification later without a code change.
 #   2026-07-31  APP_BUILD -> "2026-07-31n-accounts". REAL PARENT ACCOUNTS + STRIPE BILLING +
 #               FREE-PLAN GATE (the payments foundation, built with Jim step by step).
 #               (1) ACCOUNTS: POST /api/parent/signup|login|logout, GET /api/parent/me,
@@ -1705,6 +1712,15 @@ _PLAN_AMOUNTS = {"monthly": 2900, "annual": 28800}     # cents
 _PRICE_ID_CACHE: dict = {}
 SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://mrcadabra.com").rstrip("/")
 
+# 2026-07-31: Stripe accounts now enable "Managed Payments" by default, which
+# REQUIRES products to carry a tax code (it's how Stripe computes sales tax for
+# you). This is Stripe's tax classification for a digital service delivered
+# online ("General - Electronically Supplied Services"). If an accountant later
+# advises a more specific education classification, change it here (or set the
+# STRIPE_TAX_CODE env var) -- existing products are updated automatically.
+PRODUCT_TAX_CODE = (os.environ.get("STRIPE_TAX_CODE", "").strip() or "txcd_10000000")
+_TAX_CODE_OK: set = set()      # product ids already verified/updated this process
+
 
 class CheckoutIn(BaseModel):
     token: str
@@ -1722,6 +1738,22 @@ def _stripe():
     return stripe
 
 
+def _ensure_product_tax_code(stripe, product_id: str) -> None:
+    """Make sure the product carries a tax code (required by Stripe's Managed
+    Payments, on by default for new accounts). Heals products created before
+    this fix existed; checked at most once per product per process."""
+    if not product_id or product_id in _TAX_CODE_OK:
+        return
+    try:
+        product = stripe.Product.retrieve(product_id)
+        if not getattr(product, "tax_code", None):
+            stripe.Product.modify(product_id, tax_code=PRODUCT_TAX_CODE)
+            print(f"[billing] set tax_code {PRODUCT_TAX_CODE} on product {product_id}")
+        _TAX_CODE_OK.add(product_id)
+    except Exception as exc:  # noqa: BLE001 -- let checkout surface the real error
+        print(f"[billing] tax-code check failed for {product_id}: {exc}")
+
+
 def _price_id(stripe, plan: str) -> str:
     """Find (or create, exactly once) the Stripe Price for a plan, by lookup key."""
     lookup = _PLAN_LOOKUP[plan]
@@ -1729,6 +1761,8 @@ def _price_id(stripe, plan: str) -> str:
         return _PRICE_ID_CACHE[lookup]
     found = stripe.Price.list(lookup_keys=[lookup], active=True, limit=1)
     if found.data:
+        # Heal a product made before the tax-code fix (Managed Payments needs it).
+        _ensure_product_tax_code(stripe, getattr(found.data[0], "product", None))
         _PRICE_ID_CACHE[lookup] = found.data[0].id
         return found.data[0].id
     # First ever run against this Stripe account: create the product + price.
@@ -1740,8 +1774,12 @@ def _price_id(stripe, plan: str) -> str:
     if not product_id:
         product_id = stripe.Product.create(
             name="MyTutor Full access",
+            tax_code=PRODUCT_TAX_CODE,     # required by Managed Payments (default-on)
             description="All 8 math courses with Mr. Cadabra — placement to mastery, "
                         "warm voice, math keyboard, honest dashboards.").id
+    else:
+        _ensure_product_tax_code(stripe, product_id)
+    _TAX_CODE_OK.add(product_id)
     price = stripe.Price.create(
         product=product_id, currency="usd", unit_amount=_PLAN_AMOUNTS[plan],
         recurring={"interval": ("month" if plan == "monthly" else "year")},
@@ -1999,7 +2037,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-31n-accounts"
+APP_BUILD = "2026-07-31o-taxcode"
 
 
 @app.get("/health")
