@@ -2,6 +2,36 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  APP_BUILD -> "2026-07-31n-accounts". REAL PARENT ACCOUNTS + STRIPE BILLING +
+#               FREE-PLAN GATE (the payments foundation, built with Jim step by step).
+#               (1) ACCOUNTS: POST /api/parent/signup|login|logout, GET /api/parent/me,
+#                   POST /api/parent/students. Email + password (PBKDF2-SHA256, 390k iters,
+#                   per-account salt, constant-time compare, timing-decoy on unknown emails;
+#                   the password itself is NEVER stored or logged). Sign-in issues a 30-day
+#                   random token (X-Parent-Token header). Children are FIRST NAMES ONLY and
+#                   get friendly codes (MAPLE42-style, collision-checked vs students.json +
+#                   accounts). Signup 5/hr/IP, login 20/5min/IP. All parent/billing endpoints
+#                   require the database (503 with a clear message otherwise -- accounts must
+#                   not live in throwaway JSON). NEW route /family serves the portal page.
+#               (2) STUDENT LOOKUP: _lookup_student() -- students.json personas first (pilot,
+#                   unchanged forever), then DB accounts with a parent_id. Every existing
+#                   endpoint (chat/dashboard/awards/heartbeat/voice) works for family students
+#                   with no other change.
+#               (3) BILLING (cards NEVER touch this server): POST /api/billing/checkout ->
+#                   Stripe-hosted Checkout (monthly $29 / annual $288 per student, quantity =
+#                   number of children; prices found-or-created in Stripe by lookup_key so no
+#                   dashboard clicking); /api/billing/portal -> Stripe's hosted manage/cancel
+#                   page; /api/billing/cover -> prorated quantity bump after adding a child.
+#                   POST /api/stripe/webhook (signature-verified via STRIPE_WEBHOOK_SECRET;
+#                   payload re-parsed as plain JSON because SDK wrapper shapes drift between
+#                   versions) is the ONLY writer of subscription state. Env: STRIPE_SECRET_KEY,
+#                   STRIPE_WEBHOOK_SECRET, optional SITE_URL. Without keys: friendly 503s and
+#                   the portal shows "payments launching soon" instead of dead buttons.
+#               (4) FREE-PLAN GATE (_student_tier/_free_gate in /api/chat, BEFORE the paid
+#                   Claude call): free = placement + FIRST mastered unit + unlimited practice/
+#                   topic help; after their first mastered unit a free student gets a warm
+#                   upgrade note, never an error. Oldest children are covered first, so adding
+#                   a child never bumps a paying one to free. Pilot codes are never gated.
 #   2026-07-30  APP_BUILD -> "2026-07-30m-parents". NEW route /parents serving the parent trust
 #               page (what the child experiences / what the parent sees / privacy promises /
 #               3-step start). "For parents" tab added to nav + footer across the marketing site.
@@ -473,11 +503,15 @@
 #   change is needed once the disk is attached.
 # =============================================================================
 
+import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import threading
 import time
+import uuid
 from collections import defaultdict, deque
 from pathlib import Path
 
@@ -728,6 +762,26 @@ class ClassStudentIn(BaseModel):
     code: str                  # an EXISTING student code to add to the class
 
 
+class ParentSignupIn(BaseModel):
+    email: str
+    password: str
+    name: str = ""             # parent's display name (optional)
+
+
+class ParentLoginIn(BaseModel):
+    email: str
+    password: str
+
+
+class ParentTokenIn(BaseModel):
+    token: str
+
+
+class ParentStudentIn(BaseModel):
+    token: str
+    name: str                  # child's FIRST name only (we ask for nothing more)
+
+
 class MarkIn(BaseModel):
     correct: int = 1           # was the practice problem right (1) or wrong (0)
     attempted: int = 1         # how many problems this represents (usually 1)
@@ -739,9 +793,35 @@ class MarkIn(BaseModel):
 app = FastAPI(title="Math Tutor MVP", version="0.1.0")
 
 
-def _student_or_404(code: str) -> dict:
+def _lookup_student(code: str):
+    """Find a student by code, wherever they live (2026-07-31).
+
+    Pilot/persona students come from students.json exactly as before. Students
+    created by a signed-up parent live in the database (accounts.parent_id set);
+    they are returned in the same shape the rest of the app expects, so every
+    endpoint (chat, dashboard, awards, heartbeat, voice) works for them unchanged.
+    Returns None when the code is unknown."""
     code = (code or "").strip()
+    if not code:
+        return None
     student = STUDENTS.get(code)
+    if student:
+        return student
+    if store.enabled():
+        acct = store.get_account(code)
+        if acct and acct.get("parent_id"):
+            return {
+                "name": acct.get("name") or "Student",
+                "grade": "",
+                "progress": "",                      # real progress lives in the DB tables
+                "family": True,                       # marks a parent-managed student
+                "parent_id": acct["parent_id"],
+            }
+    return None
+
+
+def _student_or_404(code: str) -> dict:
+    student = _lookup_student(code)
     if not student:
         raise HTTPException(status_code=404, detail="That code was not recognized.")
     return student
@@ -792,7 +872,7 @@ def _client_ip(request: Request) -> str:
 
 def _require_student(code: str) -> dict:
     """Like _student_or_404 but returns 401 (auth), for the paid voice endpoints."""
-    student = STUDENTS.get((code or "").strip())
+    student = _lookup_student(code)
     if not student:
         raise HTTPException(status_code=401, detail="A valid login code is required.")
     return student
@@ -847,6 +927,13 @@ def courses_page():
 def teachers_page():
     """Marketing: the classroom/co-op page (heatmap screenshot, features, pilot CTA)."""
     return FileResponse(STATIC_DIR / "teachers.html")
+
+
+@app.get("/family")
+def family_page():
+    """The family portal (2026-07-31): parent signup/sign-in, children + their codes,
+    plan & billing. The page's own JS talks to /api/parent/* and /api/billing/*."""
+    return FileResponse(BASE_DIR / "static" / "family.html")
 
 
 @app.get("/pricing")
@@ -1364,6 +1451,469 @@ def get_class_summary(class_code: str, course: str = "algebra1"):
     }
 
 
+# =============================================================================
+# PARENT ACCOUNTS (2026-07-31) -- real signups, the payments foundation
+# -----------------------------------------------------------------------------
+# A parent signs up with email + password, adds children (FIRST names only), and
+# each child gets a friendly login code -- the same kind of code the app has
+# always used, so nothing about the student experience changes. Passwords are
+# never stored or logged: only a salted PBKDF2-SHA256 hash (390k iterations,
+# per-account random salt, constant-time comparison). Sign-in hands out a random
+# 30-day token; every parent API call presents that token, never the password.
+# All of it REQUIRES the database -- an accounts system must not live in
+# throwaway JSON files that vanish on redeploy, so without DATABASE_URL these
+# endpoints answer 503 with a clear message instead of pretending.
+# =============================================================================
+
+_PBKDF2_ITERATIONS = 390_000
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+# Kid-friendly words for student login codes (short, unambiguous, easy to say
+# out loud). A code looks like MAPLE42. ~50 words x 90 numbers = 4500 combos,
+# and we re-roll on collision, so exhaustion is not a concern at this scale.
+_CODE_WORDS = [
+    "MAPLE", "RIVER", "TIGER", "COMET", "EAGLE", "PIANO", "ROCKET", "PANDA",
+    "OTTER", "ACORN", "BADGE", "CEDAR", "DELTA", "EMBER", "FALCON", "GECKO",
+    "HARBOR", "IGLOO", "JUNIPER", "KOALA", "LANTERN", "MARBLE", "NUTMEG",
+    "ORBIT", "PEBBLE", "QUARTZ", "ROBIN", "SIERRA", "TUNDRA", "UMBER",
+    "VIOLET", "WALNUT", "YONDER", "ZEPHYR", "ASPEN", "BREEZE", "CANYON",
+    "DUNE", "FERN", "GLACIER", "HAZEL", "INDIGO", "JASPER", "KESTREL",
+    "LAGOON", "MESA", "NEBULA", "ONYX", "PRAIRIE", "SUMMIT",
+]
+
+
+def _hash_password(password: str) -> str:
+    """Salted PBKDF2-SHA256. The stored string carries its own parameters so the
+    iteration count can be raised later without breaking old hashes."""
+    salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"),
+                             bytes.fromhex(salt), _PBKDF2_ITERATIONS)
+    return f"pbkdf2_sha256${_PBKDF2_ITERATIONS}${salt}${dk.hex()}"
+
+
+def _verify_password(password: str, stored: str) -> bool:
+    try:
+        algo, iters, salt, want = (stored or "").split("$", 3)
+        if algo != "pbkdf2_sha256":
+            return False
+        dk = hashlib.pbkdf2_hmac("sha256", (password or "").encode("utf-8"),
+                                 bytes.fromhex(salt), int(iters))
+        return hmac.compare_digest(dk.hex(), want)
+    except (ValueError, TypeError):
+        return False
+
+
+def _require_db() -> None:
+    if not store.enabled():
+        raise HTTPException(status_code=503, detail=(
+            "Family accounts need the database, which isn't connected right now. "
+            "Please try again shortly or email support@mrcadabra.com."))
+
+
+def _require_parent(token: str) -> dict:
+    """Validate a parent token and return the parent row (sans password hash)."""
+    _require_db()
+    parent_id = store.get_parent_token((token or "").strip())
+    if not parent_id:
+        raise HTTPException(status_code=401, detail="Please sign in again.")
+    parent = store.get_parent(parent_id)
+    if not parent:
+        raise HTTPException(status_code=401, detail="Please sign in again.")
+    parent.pop("password_hash", None)   # never let the hash near a response
+    return parent
+
+
+def _new_student_code() -> str:
+    """A fresh, friendly student code (e.g. MAPLE42) that collides with nothing:
+    not the pilot codes in students.json, not any existing account."""
+    for _ in range(60):
+        code = f"{secrets.choice(_CODE_WORDS)}{secrets.randbelow(90) + 10}"
+        if code in STUDENTS:
+            continue
+        if store.get_account(code):
+            continue
+        return code
+    return f"STAR{secrets.token_hex(3).upper()}"   # astronomically unlikely fallback
+
+
+def _issue_token(parent_id: str) -> str:
+    token = secrets.token_hex(32)
+    store.create_parent_token(token, parent_id, days=30)
+    return token
+
+
+def _parent_payload(parent: dict) -> dict:
+    """The parent + family picture the /family page renders. One place, so signup,
+    login, and refresh all return exactly the same shape."""
+    students = store.list_students_for_parent(parent["id"])
+    quantity = int(parent.get("sub_quantity") or 0)
+    period_end = parent.get("sub_period_end")
+    if period_end is not None and getattr(period_end, "tzinfo", None) is None:
+        import datetime as _dt2                      # SQLite returns naive datetimes
+        period_end = period_end.replace(tzinfo=_dt2.timezone.utc)
+    return {
+        "ok": True,
+        "parent": {"email": parent.get("email"), "name": parent.get("name") or ""},
+        "subscription": {
+            "status": parent.get("sub_status") or "free",
+            "plan": parent.get("sub_plan") or "",
+            "quantity": quantity,
+            "period_end": period_end.isoformat() if period_end else None,
+        },
+        "students": [{
+            "code": s["code"],
+            "name": s.get("name") or "Student",
+            "covered": (parent.get("sub_status") == "active" and i < quantity),
+        } for i, s in enumerate(students)],
+        "billing_ready": bool(os.environ.get("STRIPE_SECRET_KEY", "").strip()),
+    }
+
+
+def _student_tier(code: str, student: dict) -> str:
+    """What level of access does this student have RIGHT NOW?
+      'pilot' -- a students.json persona (full access, unchanged forever)
+      'full'  -- parent-managed, and the parent's subscription covers them
+      'free'  -- parent-managed on the Free plan (placement + first unit + practice)
+    Coverage is the parent's live sub_status + paid quantity: the OLDEST students
+    are covered first, so adding a new child never bumps a paying child to free."""
+    if not student.get("family"):
+        return "pilot"
+    try:
+        parent = store.get_parent(student.get("parent_id") or "")
+        if parent and (parent.get("sub_status") or "") == "active":
+            quantity = int(parent.get("sub_quantity") or 0)
+            kids = store.list_students_for_parent(parent["id"])
+            for i, kid in enumerate(kids):
+                if kid["code"] == code:
+                    return "full" if i < quantity else "free"
+    except Exception as exc:  # noqa: BLE001 -- a billing lookup must never crash a lesson
+        print(f"[tier] lookup failed for {code}: {exc}")
+    return "free"
+
+
+def _free_gate(code: str, student: dict, course: str):
+    """The Free plan's promise, enforced kindly: one placement + a FIRST unit to
+    try + unlimited practice & topic help. Lessons (session mode) stay open until
+    the student has MASTERED one unit anywhere; after that, continuing lessons
+    needs the Full plan. Returns None (allowed) or a warm message (blocked) --
+    and the block happens BEFORE any paid Claude call."""
+    if _student_tier(code, student) != "free":
+        return None
+    try:
+        activity = store.get_course_activity(code)
+        mastered = sum(int(v.get("units_mastered") or 0) for v in (activity or {}).values())
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tier] activity lookup failed for {code}: {exc}")
+        return None            # if we can't tell, do no harm: let the lesson through
+    if mastered < 1:
+        return None
+    first = (student.get("name") or "there").split()[0]
+    return (f"{first}, you did it — you mastered your first unit with me, and that's the whole "
+            "free preview! I'd love to keep teaching you. Ask your parent to open the Family "
+            "page at mrcadabra.com/family and upgrade your account — then we'll pick up right "
+            "here where we left off. (Your Practice and Explore-a-topic tools still work "
+            "anytime, free.)")
+
+
+@app.post("/api/parent/signup")
+def parent_signup(body: ParentSignupIn, request: Request):
+    """Create a parent account. Free plan, no card, instant."""
+    _require_db()
+    _rate_limit("psignup:" + _client_ip(request), limit=5, window_seconds=3600,
+                what="signup attempts")
+    email = (body.email or "").strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
+    if len(body.password or "") < 8:
+        raise HTTPException(status_code=400, detail="Please use a password of at least 8 characters.")
+    parent_id = uuid.uuid4().hex
+    if not store.create_parent(parent_id, email, body.name, _hash_password(body.password)):
+        raise HTTPException(status_code=409, detail=(
+            "That email already has an account — use Sign in instead."))
+    token = _issue_token(parent_id)
+    out = _parent_payload(store.get_parent(parent_id))
+    out["token"] = token
+    return out
+
+
+@app.post("/api/parent/login")
+def parent_login(body: ParentLoginIn, request: Request):
+    _require_db()
+    _rate_limit("plogin:" + _client_ip(request), limit=20, window_seconds=300,
+                what="sign-in attempts")
+    parent = store.get_parent_by_email(body.email)
+    # Verify against a real or dummy hash either way, so a wrong email and a wrong
+    # password take the same time (no probing which emails have accounts).
+    stored = parent["password_hash"] if parent else _hash_password("timing-decoy")
+    if not _verify_password(body.password, stored) or not parent:
+        raise HTTPException(status_code=401, detail="Email or password didn't match.")
+    token = _issue_token(parent["id"])
+    out = _parent_payload(parent)
+    out["token"] = token
+    return out
+
+
+@app.post("/api/parent/logout")
+def parent_logout(body: ParentTokenIn):
+    _require_db()
+    store.delete_parent_token((body.token or "").strip())
+    return {"ok": True}
+
+
+@app.get("/api/parent/me")
+def parent_me(request: Request):
+    """The signed-in parent's family picture. Token comes in the X-Parent-Token header."""
+    parent = _require_parent(request.headers.get("x-parent-token", ""))
+    return _parent_payload(parent)
+
+
+@app.post("/api/parent/students")
+def parent_add_student(body: ParentStudentIn):
+    """Add a child (first name only) and mint their login code."""
+    parent = _require_parent(body.token)
+    name = (body.name or "").strip()[:40]
+    if not name:
+        raise HTTPException(status_code=400, detail="Please enter your child's first name.")
+    existing = store.list_students_for_parent(parent["id"])
+    if len(existing) >= 8:
+        raise HTTPException(status_code=400, detail=(
+            "That's 8 students on one account — email support@mrcadabra.com and "
+            "we'll set your family up properly."))
+    code = _new_student_code()
+    store.create_student_account(code, name, parent["id"])
+    return _parent_payload(parent)
+
+
+# =============================================================================
+# BILLING -- Stripe Checkout + Customer Portal + webhook (2026-07-31)
+# -----------------------------------------------------------------------------
+# Cards never touch this server. "Subscribe" sends the parent to a Stripe-hosted
+# Checkout page; "Manage billing" sends them to Stripe's hosted portal (update
+# card, switch plan, cancel). Stripe then tells US what happened on the webhook
+# below -- and THAT (signature-verified) is the only thing that ever changes a
+# parent's subscription status in the database. Prices are found (or created,
+# once) in Stripe by lookup key, so Jim never has to click around the Stripe
+# dashboard to set up products:
+#   mytutor_monthly  $29 / student / month
+#   mytutor_annual   $288 / student / year   ($24/mo, as the pricing page says)
+# Env (set in Render): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET. Optional:
+# SITE_URL (defaults to https://mrcadabra.com).
+# =============================================================================
+
+_PLAN_LOOKUP = {"monthly": "mytutor_monthly", "annual": "mytutor_annual"}
+_PLAN_AMOUNTS = {"monthly": 2900, "annual": 28800}     # cents
+_PRICE_ID_CACHE: dict = {}
+SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://mrcadabra.com").rstrip("/")
+
+
+class CheckoutIn(BaseModel):
+    token: str
+    plan: str = "monthly"      # 'monthly' | 'annual'
+
+
+def _stripe():
+    """The configured Stripe client module, or a clear 503 when payments are off."""
+    key = os.environ.get("STRIPE_SECRET_KEY", "").strip()
+    if not key:
+        raise HTTPException(status_code=503, detail=(
+            "Payments aren't switched on yet — email support@mrcadabra.com."))
+    import stripe
+    stripe.api_key = key
+    return stripe
+
+
+def _price_id(stripe, plan: str) -> str:
+    """Find (or create, exactly once) the Stripe Price for a plan, by lookup key."""
+    lookup = _PLAN_LOOKUP[plan]
+    if lookup in _PRICE_ID_CACHE:
+        return _PRICE_ID_CACHE[lookup]
+    found = stripe.Price.list(lookup_keys=[lookup], active=True, limit=1)
+    if found.data:
+        _PRICE_ID_CACHE[lookup] = found.data[0].id
+        return found.data[0].id
+    # First ever run against this Stripe account: create the product + price.
+    product_id = None
+    for p in stripe.Product.list(active=True, limit=100).auto_paging_iter():
+        if p.name == "MyTutor Full access":
+            product_id = p.id
+            break
+    if not product_id:
+        product_id = stripe.Product.create(
+            name="MyTutor Full access",
+            description="All 8 math courses with Mr. Cadabra — placement to mastery, "
+                        "warm voice, math keyboard, honest dashboards.").id
+    price = stripe.Price.create(
+        product=product_id, currency="usd", unit_amount=_PLAN_AMOUNTS[plan],
+        recurring={"interval": ("month" if plan == "monthly" else "year")},
+        lookup_key=lookup, transfer_lookup_key=True)
+    _PRICE_ID_CACHE[lookup] = price.id
+    return price.id
+
+
+def _stripe_customer_id(stripe, parent: dict) -> str:
+    """This parent's Stripe customer, created on first need and remembered."""
+    if parent.get("stripe_customer_id"):
+        return parent["stripe_customer_id"]
+    customer = stripe.Customer.create(
+        email=parent.get("email"), name=parent.get("name") or None,
+        metadata={"parent_id": parent["id"]})
+    store.update_parent(parent["id"], stripe_customer_id=customer.id)
+    return customer.id
+
+
+@app.post("/api/billing/checkout")
+def billing_checkout(body: CheckoutIn):
+    """Start a Stripe Checkout for this parent: quantity = their number of students."""
+    parent = _require_parent(body.token)
+    plan = (body.plan or "monthly").strip().lower()
+    if plan not in _PLAN_LOOKUP:
+        raise HTTPException(status_code=400, detail="Plan must be 'monthly' or 'annual'.")
+    students = store.list_students_for_parent(parent["id"])
+    if not students:
+        raise HTTPException(status_code=400, detail=(
+            "Add your child first — the subscription covers each student you add."))
+    stripe = _stripe()
+    try:
+        session = stripe.checkout.Session.create(
+            mode="subscription",
+            customer=_stripe_customer_id(stripe, parent),
+            line_items=[{"price": _price_id(stripe, plan), "quantity": len(students)}],
+            allow_promotion_codes=True,
+            client_reference_id=parent["id"],
+            subscription_data={"metadata": {"parent_id": parent["id"]}},
+            success_url=SITE_URL + "/family?checkout=success",
+            cancel_url=SITE_URL + "/family?checkout=canceled",
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"[billing] checkout failed for {parent['id']}: {exc}")
+        raise HTTPException(status_code=502, detail=(
+            "Stripe couldn't start the checkout — please try again in a minute."))
+    return {"ok": True, "url": session.url}
+
+
+@app.post("/api/billing/portal")
+def billing_portal(body: ParentTokenIn):
+    """Send the parent to Stripe's hosted portal: update card, switch plan, cancel."""
+    parent = _require_parent(body.token)
+    if not parent.get("stripe_customer_id"):
+        raise HTTPException(status_code=400, detail="No billing set up yet — subscribe first.")
+    stripe = _stripe()
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=parent["stripe_customer_id"],
+            return_url=SITE_URL + "/family")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[billing] portal failed for {parent['id']}: {exc}")
+        raise HTTPException(status_code=502, detail=(
+            "Stripe couldn't open the billing page — please try again in a minute."))
+    return {"ok": True, "url": session.url}
+
+
+@app.post("/api/billing/cover")
+def billing_cover(body: ParentTokenIn):
+    """Parent added a child while subscribed: bump the subscription quantity to
+    cover every student (Stripe prorates the difference automatically)."""
+    parent = _require_parent(body.token)
+    if (parent.get("sub_status") or "") != "active" or not parent.get("stripe_customer_id"):
+        raise HTTPException(status_code=400, detail="No active subscription to update.")
+    students = store.list_students_for_parent(parent["id"])
+    stripe = _stripe()
+    try:
+        subs = stripe.Subscription.list(customer=parent["stripe_customer_id"],
+                                        status="active", limit=1)
+        if not subs.data:
+            raise HTTPException(status_code=400, detail="No active subscription found in Stripe.")
+        sub = subs.data[0]
+        item = sub["items"]["data"][0]
+        stripe.Subscription.modify(
+            sub.id,
+            items=[{"id": item.id, "quantity": len(students)}],
+            proration_behavior="create_prorations")
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        print(f"[billing] cover failed for {parent['id']}: {exc}")
+        raise HTTPException(status_code=502, detail=(
+            "Stripe couldn't update the plan — please try again in a minute."))
+    # The webhook will confirm, but reflect the new quantity right away too.
+    store.update_parent(parent["id"], sub_quantity=len(students))
+    return _parent_payload(store.get_parent(parent["id"]))
+
+
+def _apply_subscription(sub: dict) -> None:
+    """Fold a Stripe subscription object into the parent's row. Called ONLY from
+    the signature-verified webhook. Maps Stripe's status vocabulary to ours."""
+    customer_id = sub.get("customer") or ""
+    parent = store.get_parent_by_customer(customer_id)
+    if not parent:
+        pid = ((sub.get("metadata") or {}).get("parent_id") or "").strip()
+        parent = store.get_parent(pid) if pid else None
+        if parent and customer_id:
+            store.update_parent(parent["id"], stripe_customer_id=customer_id)
+    if not parent:
+        print(f"[billing] webhook: no parent for customer {customer_id}")
+        return
+    s = sub.get("status") or ""
+    status = ("active" if s in ("active", "trialing")
+              else "past_due" if s in ("past_due",)
+              else "canceled" if s in ("canceled", "unpaid", "incomplete_expired")
+              else parent.get("sub_status") or "free")   # 'incomplete' etc: no change
+    items = ((sub.get("items") or {}).get("data") or [{}])
+    quantity = int(items[0].get("quantity") or 0)
+    lookup = ((items[0].get("price") or {}).get("lookup_key") or "")
+    plan = ("annual" if "annual" in lookup
+            else "monthly" if "monthly" in lookup
+            else parent.get("sub_plan") or "")
+    period_end = None
+    ts = sub.get("current_period_end") or items[0].get("current_period_end")
+    if ts:
+        import datetime as _dt3
+        period_end = _dt3.datetime.fromtimestamp(int(ts), tz=_dt3.timezone.utc)
+    if status == "canceled":
+        quantity = 0
+    store.update_parent(parent["id"], sub_status=status, sub_plan=plan,
+                        sub_quantity=quantity, sub_period_end=period_end)
+    print(f"[billing] {parent['email']}: {status} x{quantity} ({plan})")
+
+
+@app.post("/api/stripe/webhook")
+async def stripe_webhook(request: Request):
+    """Stripe's messenger. Signature-verified with STRIPE_WEBHOOK_SECRET -- an
+    unsigned or tampered call changes nothing and gets a 400."""
+    _require_db()
+    secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
+    if not secret:
+        raise HTTPException(status_code=503, detail="Webhook not configured.")
+    import stripe
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+    try:
+        stripe.Webhook.construct_event(payload, sig, secret)   # signature check
+    except Exception:  # bad signature or malformed payload
+        raise HTTPException(status_code=400, detail="Invalid signature.")
+    # Signature verified -- now read the payload as PLAIN dicts (the Stripe SDK's
+    # wrapper objects change shape between versions; raw JSON does not).
+    try:
+        event = json.loads(payload)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        raise HTTPException(status_code=400, detail="Invalid payload.")
+    etype = event.get("type") or ""
+    obj = (event.get("data") or {}).get("object") or {}
+    if etype == "checkout.session.completed":
+        # Remember which Stripe customer this parent became; the subscription
+        # events (below) carry the actual status/quantity.
+        pid = (obj.get("client_reference_id") or "").strip()
+        cust = obj.get("customer") or ""
+        if pid and cust:
+            parent = store.get_parent(pid)
+            if parent and not parent.get("stripe_customer_id"):
+                store.update_parent(pid, stripe_customer_id=cust)
+    elif etype in ("customer.subscription.created", "customer.subscription.updated",
+                   "customer.subscription.deleted"):
+        _apply_subscription(obj)
+    return {"received": True}
+
+
 @app.get("/api/courses/{code}")
 def student_courses(code: str):
     """EVERY course this student has actually worked in, with units mastered/started -- for the
@@ -1449,7 +1999,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30m-parents"
+APP_BUILD = "2026-07-31n-accounts"
 
 
 @app.get("/health")
@@ -1525,6 +2075,12 @@ def chat(req: ChatRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please type a message first.")
+
+    # FREE PLAN GATE (2026-07-31): a free student who has mastered their first unit
+    # gets a warm upgrade note instead of a lesson -- checked BEFORE the paid call.
+    gate = _free_gate(code, student, req.course)
+    if gate:
+        return {"reply": gate, "upgrade_required": True}
 
     session = get_session(code, req.course)
     history = session.get("history", [])

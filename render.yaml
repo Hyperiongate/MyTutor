@@ -2,6 +2,10 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  PAYMENTS: added STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET (sync:false,
+#               set in the dashboard like the other secrets) and SITE_URL for the
+#               Stripe Checkout return links. Test keys (sk_test_/whsec_) first; swap
+#               to live keys only when Jim decides to take real money.
 #   2026-07-30  MARKET-PREP FIXES. (1) CLAUDE_MODEL -> claude-sonnet-5: the A/B test
 #               (Sonnet_vs_Haiku_AB.md) showed Haiku loses track of the student's
 #               actual progress, so Haiku was REJECTED for the teaching brain -- but
@@ -49,4 +53,10 @@ services:
         sync: false            # you set this secret in the Render dashboard
       - key: CLAUDE_MODEL
         value: claude-sonnet-5 # the teaching brain; Haiku was tested and rejected
+      - key: STRIPE_SECRET_KEY
+        sync: false            # Stripe -> Developers -> API keys (use sk_test_... until launch)
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false            # Stripe -> Developers -> Webhooks -> your endpoint's signing secret
+      - key: SITE_URL
+        value: https://mrcadabra.com   # where Stripe sends parents back after checkout
 # I did no harm and this file is not truncated.

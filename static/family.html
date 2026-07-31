@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  family.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-31  NEW PAGE: the FAMILY PORTAL (real parent accounts + billing). One page,
+                two states:
+                  SIGNED OUT -> Create account / Sign in (email + password; the password
+                    goes over HTTPS to /api/parent/signup|login and is stored ONLY as a
+                    salted PBKDF2 hash server-side; here we keep just the 30-day token).
+                  SIGNED IN  -> the family: each child with their login code (click to
+                    copy) + progress link, an add-a-child form (FIRST names only), and
+                    the plan card (Free -> subscribe monthly/annual via Stripe Checkout;
+                    Active -> renewal date + Manage billing via Stripe's hosted portal;
+                    a child added beyond the paid count shows an honest "not covered
+                    yet" note with a Cover-them button that prorates through Stripe).
+                Card numbers NEVER touch this page or this server -- every money screen
+                is hosted by Stripe. If Stripe env keys aren't set yet, the page says
+                "payments launching soon" instead of showing dead buttons.
+                Token lives in localStorage ('mt_parent_token'); ?checkout=success shows
+                a welcome banner and refreshes /api/parent/me for up to ~20s while the
+                Stripe webhook lands. Design system matches the marketing pages.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Your family — MyTutor</title>
+<meta name="description" content="Manage your MyTutor family: your children's login codes, their progress, and your plan." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  .btn[disabled]{opacity:.55;cursor:wait;transform:none}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;gap:clamp(8px,1vw,12px);align-items:center;font-weight:600;font-size:14px;color:var(--muted);flex-wrap:nowrap}
+  .nav-links a{white-space:nowrap}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  .nav-cta .btn{white-space:nowrap}
+  @media(max-width:1200px){.brand-sub{display:none}}
+  @media(max-width:1040px){.nav-in{height:auto;flex-wrap:wrap;padding:10px 0;row-gap:4px}
+    .nav-links{order:3;width:100%;flex-wrap:wrap;gap:6px 16px;font-size:14px;padding-bottom:2px}}
+  header.page{padding:46px 0 6px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:38px;letter-spacing:-.02em;margin:10px 0 8px;font-weight:850}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:17px;max-width:62ch;margin:0 auto}
+  section{padding:26px 0 44px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:860px){.g2{grid-template-columns:1fr}}
+  label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+  input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;background:#fff}
+  input:focus{outline:none;border-color:var(--purple)}
+  .msg{margin-top:12px;font-size:14.5px;font-weight:600;display:none;padding:10px 14px;border-radius:12px}
+  .msg.err{display:block;background:#fdf0ee;color:#b3402e;border:1px solid #f5cfc8}
+  .msg.ok{display:block;background:#eefaf5;color:#177a52;border:1px solid #c8ecdb}
+  .banner{display:none;margin:18px auto 0;max-width:760px;padding:14px 20px;border-radius:14px;font-weight:700;text-align:center}
+  .banner.ok{display:block;background:#eefaf5;color:#177a52;border:1px solid #c8ecdb}
+  .banner.warn{display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5}
+  .tabs{display:flex;gap:8px;margin-bottom:6px}
+  .tabs button{flex:1;padding:11px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;color:var(--muted)}
+  .tabs button.on{border-color:var(--purple);color:var(--purple);background:#f6f3ff}
+  .kid{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;background:#fff}
+  .kid .nm{font-weight:800;font-size:17px;min-width:110px}
+  .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:20px;letter-spacing:2px;
+    background:#f6f3ff;border:1.5px dashed var(--purple);border-radius:10px;padding:6px 14px;cursor:pointer}
+  .code:hover{background:#efe9ff}
+  .tag{font-size:12px;font-weight:800;border-radius:999px;padding:4px 12px}
+  .tag.full{background:#eefaf5;color:#177a52}
+  .tag.free{background:#f4f4f8;color:#5b6079}
+  .kid .links{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+  .kid .links a{font-weight:700;color:var(--purple);font-size:14px}
+  .plan-line{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:6px 0 14px}
+  .plan-line b{font-size:26px}
+  .cap{font-size:13px;color:var(--muted)}
+  .rowbtns{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .signout{background:none;border:none;color:var(--muted);font-weight:700;cursor:pointer;font-size:14px;text-decoration:underline}
+  footer{border-top:1px solid var(--line);padding:30px 0;margin-top:16px;color:var(--muted);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/homeschool">Homeschool</a>
+    <a href="/courses">Courses</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/pricing">Pricing</a>
+    <a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Student sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+</div></nav>
+
+<header class="page wrap">
+  <span class="eyebrow">Your family</span>
+  <h1>One account. <span class="grad-text">Every kid covered.</span></h1>
+  <p class="sub" id="subline">Create your free parent account, add your children, and each one gets their
+  own login code, tutor, and dashboard.</p>
+  <div class="banner" id="banner"></div>
+</header>
+
+<!-- ============ SIGNED OUT ============ -->
+<section class="wrap" id="authView" style="display:none">
+  <div class="card" style="max-width:520px;margin:0 auto">
+    <div class="tabs">
+      <button id="tabUp" class="on" type="button">Create account</button>
+      <button id="tabIn" type="button">Sign in</button>
+    </div>
+    <form id="authForm">
+      <div id="nameRow">
+        <label for="fname">Your name <span style="color:var(--muted);font-weight:600">(optional)</span></label>
+        <input id="fname" autocomplete="name" maxlength="60" />
+      </div>
+      <label for="femail">Email</label>
+      <input id="femail" type="email" autocomplete="email" required maxlength="120" />
+      <label for="fpass">Password <span id="passHint" style="color:var(--muted);font-weight:600">(at least 8 characters)</span></label>
+      <input id="fpass" type="password" autocomplete="new-password" required minlength="8" maxlength="128" />
+      <div class="msg" id="authMsg"></div>
+      <button class="btn btn-primary" id="authGo" style="width:100%;margin-top:16px" type="submit">Create my free account</button>
+      <p class="cap" style="margin-top:12px">Free plan, no card needed. You'll add your children (first
+      names only) on the next screen. By continuing you agree to the
+      <a href="/terms" style="color:var(--purple);font-weight:700">terms</a> and
+      <a href="/privacy" style="color:var(--purple);font-weight:700">privacy promise</a>.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ SIGNED IN ============ -->
+<section class="wrap" id="famView" style="display:none">
+  <div class="grid g2" style="align-items:start">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <h2 style="font-size:24px;font-weight:820">👧👦 Your students</h2>
+        <button class="signout" id="signout" type="button">Sign out</button>
+      </div>
+      <p class="cap" id="whoami" style="margin:2px 0 16px"></p>
+      <div id="kids"></div>
+      <form id="addForm" style="border-top:1px solid var(--line);padding-top:14px;margin-top:6px">
+        <label for="kidName">Add a child — first name only</label>
+        <div style="display:flex;gap:10px">
+          <input id="kidName" maxlength="40" autocomplete="off" placeholder="e.g. Ana" style="flex:1" />
+          <button class="btn btn-primary" id="addGo" type="submit">Add</button>
+        </div>
+        <div class="msg" id="addMsg"></div>
+        <p class="cap" style="margin-top:10px">Each child gets their own login code — they sign in with
+        it at mrcadabra.com (Sign in), take the placement, and Mr. Cadabra meets them at their level.</p>
+      </form>
+    </div>
+
+    <div class="card" id="planCard">
+      <h2 style="font-size:24px;font-weight:820">💳 Your plan</h2>
+      <div id="planBody"></div>
+      <div class="msg" id="planMsg"></div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  Questions? <a href="mailto:support@mrcadabra.com" style="color:var(--purple);font-weight:700">support@mrcadabra.com</a>
+  &nbsp;·&nbsp; © 2026 Hyperion Shift LLC · mrcadabra.com
+</div></footer>
+
+<script>
+(function () {
+  "use strict";
+  var TOKEN_KEY = "mt_parent_token";
+  var state = { me: null, mode: "signup", busy: false };
+
+  function $(id) { return document.getElementById(id); }
+  function token() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+  function setToken(t) { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+  function msg(id, text, kind) {
+    var el = $(id); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || "";
+  }
+  function banner(text, kind) {
+    var el = $("banner"); el.className = "banner" + (text ? " " + (kind || "ok") : ""); el.textContent = text || "";
+  }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    if (token()) opts.headers["X-Parent-Token"] = token();
+    var r = await fetch(path, opts);
+    var data = null;
+    try { data = await r.json(); } catch (e) { data = {}; }
+    if (!r.ok) {
+      var detail = (data && data.detail) ? String(data.detail) : "Something went wrong — please try again.";
+      var err = new Error(detail); err.status = r.status; throw err;
+    }
+    return data;
+  }
+
+  // ---------- render ----------
+  function show(view) {
+    $("authView").style.display = (view === "auth") ? "" : "none";
+    $("famView").style.display = (view === "fam") ? "" : "none";
+    $("subline").textContent = (view === "fam")
+      ? "Your children's codes and progress, and your plan — all in one place."
+      : "Create your free parent account, add your children, and each one gets their own login code, tutor, and dashboard.";
+  }
+
+  function renderKids(me) {
+    var box = $("kids");
+    if (!me.students.length) {
+      box.innerHTML = '<p class="cap" style="margin:6px 0 16px">No students yet — add your first child below. It takes ten seconds.</p>';
+      return;
+    }
+    box.innerHTML = me.students.map(function (k) {
+      var tag = k.covered ? '<span class="tag full">✓ Full access</span>' : '<span class="tag free">Free plan</span>';
+      return '<div class="kid">' +
+        '<span class="nm">' + esc(k.name) + '</span>' +
+        '<span class="code" title="Click to copy" data-code="' + esc(k.code) + '">' + esc(k.code) + '</span>' + tag +
+        '<span class="links">' +
+          '<a href="/dashboard?code=' + encodeURIComponent(k.code) + '&view=parent">Progress →</a>' +
+        '</span></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".code"), function (el) {
+      el.addEventListener("click", function () {
+        var c = el.getAttribute("data-code");
+        function done() { var old = el.textContent; el.textContent = "Copied!"; setTimeout(function () { el.textContent = c; }, 900); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c).then(done, done);
+        else done();
+      });
+    });
+  }
+
+  function planDate(iso) {
+    if (!iso) return "";
+    try { return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
+    catch (e) { return iso.slice(0, 10); }
+  }
+
+  function renderPlan(me) {
+    var s = me.subscription, n = me.students.length, body = $("planBody"), html = "";
+    var kidWord = function (x) { return x === 1 ? "1 student" : x + " students"; };
+    if (s.status === "active") {
+      var planName = s.plan === "annual" ? "$24/mo per student, billed annually" : "$29/mo per student";
+      html += '<div class="plan-line"><b>Full access</b><span class="tag full">Active</span></div>' +
+        '<p>' + kidWord(s.quantity) + ' covered · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
+      if (n > s.quantity) {
+        html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
+          'You’ve added more children than your plan covers — the newest ' + (n - s.quantity === 1 ? "child is" : "children are") +
+          ' on the Free plan.</div>' +
+          '<div class="rowbtns"><button class="btn btn-primary" id="coverBtn" type="button">Cover ' +
+          (n - s.quantity === 1 ? "them" : "all " + n) + ' — prorated fairly</button></div>';
+      }
+      html += '<div class="rowbtns"><button class="btn btn-ghost" id="portalBtn" type="button">Manage billing (card, plan, cancel)</button></div>' +
+        '<p class="cap" style="margin-top:12px">Billing screens are hosted by Stripe — your card never touches our servers.</p>';
+    } else if (s.status === "past_due") {
+      html += '<div class="plan-line"><b>Full access</b><span class="tag" style="background:#fff7ea;color:#8a5a12">Payment issue</span></div>' +
+        '<p>Your last payment didn’t go through, so full access is paused. Updating your card takes a minute.</p>' +
+        '<div class="rowbtns"><button class="btn btn-primary" id="portalBtn" type="button">Fix payment method</button></div>';
+    } else {
+      var canceled = (s.status === "canceled");
+      html += '<div class="plan-line"><b>Free plan</b>' + (canceled ? '<span class="tag free">Subscription ended</span>' : '') + '</div>' +
+        '<p>' + (canceled ? 'Welcome back any time — resubscribe below and your ' + (n === 1 ? "child picks" : "kids pick") + ' up right where they left off.'
+                          : 'Each child gets the placement, a first unit with Mr. Cadabra, and unlimited Practice & topic help — free.') + '</p>' +
+        '<p style="margin-top:10px"><b>Full access</b> unlocks every course, placement to mastery:</p>';
+      if (me.billing_ready) {
+        var q = Math.max(1, n);
+        html += '<div class="rowbtns">' +
+          '<button class="btn btn-primary" id="buyMonthly" type="button">$29/mo × ' + kidWord(q) + '</button>' +
+          '<button class="btn btn-ghost" id="buyAnnual" type="button">$24/mo billed annually</button></div>' +
+          '<p class="cap" style="margin-top:12px">Checkout is hosted by Stripe — cards, Apple Pay, Google Pay. Cancel anytime.' +
+          (n === 0 ? " Add your child first — the plan covers each student you add." : "") + '</p>';
+      } else {
+        html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
+          'Online payment is launching very soon. Want full access today? Email ' +
+          '<a href="mailto:support@mrcadabra.com" style="font-weight:800">support@mrcadabra.com</a> and we’ll set you up personally.</div>';
+      }
+    }
+    body.innerHTML = html;
+    var portal = $("portalBtn"), cover = $("coverBtn"), bm = $("buyMonthly"), ba = $("buyAnnual");
+    if (portal) portal.addEventListener("click", goPortal);
+    if (cover) cover.addEventListener("click", doCover);
+    if (bm) bm.addEventListener("click", function () { goCheckout("monthly", bm); });
+    if (ba) ba.addEventListener("click", function () { goCheckout("annual", ba); });
+  }
+
+  function render() {
+    var me = state.me;
+    if (!me) { show("auth"); return; }
+    show("fam");
+    $("whoami").textContent = "Signed in as " + me.parent.email;
+    renderKids(me);
+    renderPlan(me);
+  }
+
+  // ---------- actions ----------
+  async function refresh() {
+    if (!token()) { state.me = null; render(); return; }
+    try { state.me = await api("/api/parent/me"); }
+    catch (e) { if (e.status === 401) { setToken(""); state.me = null; } }
+    render();
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    $("tabUp").className = mode === "signup" ? "on" : "";
+    $("tabIn").className = mode === "signin" ? "on" : "";
+    $("nameRow").style.display = mode === "signup" ? "" : "none";
+    $("passHint").style.display = mode === "signup" ? "" : "none";
+    $("fpass").setAttribute("autocomplete", mode === "signup" ? "new-password" : "current-password");
+    $("authGo").textContent = mode === "signup" ? "Create my free account" : "Sign in";
+    msg("authMsg", "");
+  }
+
+  $("tabUp").addEventListener("click", function () { setMode("signup"); });
+  $("tabIn").addEventListener("click", function () { setMode("signin"); });
+
+  $("authForm").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    if (state.busy) return;
+    state.busy = true; $("authGo").disabled = true; msg("authMsg", "");
+    try {
+      var path = state.mode === "signup" ? "/api/parent/signup" : "/api/parent/login";
+      var payload = { email: $("femail").value.trim(), password: $("fpass").value };
+      if (state.mode === "signup") payload.name = $("fname").value.trim();
+      var out = await api(path, { method: "POST", body: JSON.stringify(payload) });
+      setToken(out.token); state.me = out; $("fpass").value = "";
+      render();
+    } catch (e) {
+      msg("authMsg", e.message, "err");
+      if (e.status === 409) setMode("signin");
+    }
+    state.busy = false; $("authGo").disabled = false;
+  });
+
+  $("signout").addEventListener("click", async function () {
+    try { await api("/api/parent/logout", { method: "POST", body: JSON.stringify({ token: token() }) }); } catch (e) {}
+    setToken(""); state.me = null; render();
+  });
+
+  $("addForm").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    if (state.busy) return;
+    var name = $("kidName").value.trim();
+    if (!name) { msg("addMsg", "Please enter your child's first name."); return; }
+    state.busy = true; $("addGo").disabled = true; msg("addMsg", "");
+    try {
+      state.me = await api("/api/parent/students", { method: "POST", body: JSON.stringify({ token: token(), name: name }) });
+      $("kidName").value = "";
+      render();
+      msg("addMsg", name + " is in! Click their code to copy it — that's how they sign in.", "ok");
+    } catch (e) { msg("addMsg", e.message, "err"); }
+    state.busy = false; $("addGo").disabled = false;
+  });
+
+  async function goCheckout(plan, btn) {
+    if (state.busy) return; state.busy = true; if (btn) btn.disabled = true; msg("planMsg", "");
+    try {
+      var out = await api("/api/billing/checkout", { method: "POST", body: JSON.stringify({ token: token(), plan: plan }) });
+      window.location.href = out.url;   // off to Stripe's hosted, secure checkout
+      return;
+    } catch (e) { msg("planMsg", e.message, "err"); }
+    state.busy = false; if (btn) btn.disabled = false;
+  }
+
+  async function goPortal() {
+    if (state.busy) return; state.busy = true; msg("planMsg", "");
+    try {
+      var out = await api("/api/billing/portal", { method: "POST", body: JSON.stringify({ token: token() }) });
+      window.location.href = out.url;
+      return;
+    } catch (e) { msg("planMsg", e.message, "err"); }
+    state.busy = false;
+  }
+
+  async function doCover() {
+    if (state.busy) return; state.busy = true; msg("planMsg", "");
+    try {
+      state.me = await api("/api/billing/cover", { method: "POST", body: JSON.stringify({ token: token() }) });
+      render();
+      msg("planMsg", "Done — every child is covered. Stripe prorates the difference on your next invoice.", "ok");
+    } catch (e) { msg("planMsg", e.message, "err"); }
+    state.busy = false;
+  }
+
+  // ---------- boot ----------
+  var params = new URLSearchParams(window.location.search);
+  if (params.get("checkout") === "success") {
+    banner("🎉 Payment received — welcome to the family! Unlocking full access…", "ok");
+    // The Stripe webhook usually lands within seconds; poll briefly until it does.
+    var tries = 0;
+    var poll = setInterval(async function () {
+      tries += 1;
+      await refresh();
+      var s = state.me && state.me.subscription && state.me.subscription.status;
+      if (s === "active" || tries >= 10) {
+        clearInterval(poll);
+        if (s === "active") banner("🎉 You're all set — every covered student now has full access!", "ok");
+        else banner("Payment received! Access can take a minute to switch on — refresh shortly, or email support@mrcadabra.com if it doesn't.", "warn");
+        window.history.replaceState({}, "", "/family");
+      }
+    }, 2000);
+  } else if (params.get("checkout") === "canceled") {
+    banner("No charge was made. Whenever you're ready, the subscribe buttons are below.", "warn");
+    window.history.replaceState({}, "", "/family");
+  }
+  refresh();
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

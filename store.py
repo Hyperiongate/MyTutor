@@ -2,6 +2,18 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  REAL PARENT ACCOUNTS (the signup/payments foundation). Two NEW tables --
+#               `parents` (id, email UNIQUE, name, password_hash, stripe_customer_id,
+#               sub_status/plan/quantity/period_end, created_at) and `parent_tokens`
+#               (token, parent_id, expires_at) -- plus one ADDITIVE nullable column on
+#               `accounts`: parent_id (same safe ALTER pattern as classes.teacher_code;
+#               _migrate_accounts_parent_id no-ops once present). Pilot students keep
+#               parent_id NULL and behave exactly as before. New functions: create_parent /
+#               get_parent / get_parent_by_email / get_parent_by_customer / update_parent /
+#               create_parent_token / get_parent_token / delete_parent_token /
+#               create_student_account / get_account / list_students_for_parent.
+#               PASSWORDS ARE NEVER STORED -- only a PBKDF2 hash built in main.py. All
+#               additive; no existing table, key, function, or signature changed.
 #   2026-07-30  AWARDS TABLE (student reward system). New additive table `awards` (code, award_id,
 #               earned_at -- one row per earn, kept forever) + get_awards()/record_awards().
 #               Mastery badges/course trophies are recomputed live from unit_checks, but EFFORT
@@ -178,6 +190,36 @@ def init():
             Column("email", String(256)),
             Column("subscription_status", String(64), default="pilot"),
             Column("created_at", DateTime(timezone=True)),
+            # 2026-07-31: which parent account owns this student (nullable -- pilot
+            # students from students.json have no parent and keep working untouched).
+            Column("parent_id", String(64)),
+        )
+        # REAL PARENT ACCOUNTS (2026-07-31): one row per signed-up parent. The password
+        # is NEVER stored -- password_hash is a salted PBKDF2 digest built in main.py.
+        # Stripe billing state lives here too, updated only by the verified webhook:
+        #   sub_status: 'free' | 'active' | 'past_due' | 'canceled'
+        #   sub_plan:   'monthly' | 'annual' | ''      sub_quantity: students paid for
+        _tables["parents"] = Table(
+            "parents", _meta,
+            Column("id", String(64), primary_key=True),          # uuid hex
+            Column("email", String(256), unique=True, index=True),
+            Column("name", String(256)),
+            Column("password_hash", String(512)),
+            Column("stripe_customer_id", String(64), index=True),
+            Column("sub_status", String(32), default="free"),
+            Column("sub_plan", String(16), default=""),
+            Column("sub_quantity", Integer, default=0),
+            Column("sub_period_end", DateTime(timezone=True)),
+            Column("created_at", DateTime(timezone=True)),
+        )
+        # Parent sign-in tokens (random 64-hex strings handed out at login, checked on
+        # every parent API call, removed at logout / on expiry). NOT the password.
+        _tables["parent_tokens"] = Table(
+            "parent_tokens", _meta,
+            Column("token", String(128), primary_key=True),
+            Column("parent_id", String(64), index=True),
+            Column("expires_at", DateTime(timezone=True)),
+            Column("created_at", DateTime(timezone=True)),
         )
         # Per-student conversation memory (the lesson/course session).
         _tables["sessions"] = Table(
@@ -291,6 +333,9 @@ def init():
         # Give the `classes` table its `teacher_code` column if it predates teacher sign-in
         # (additive + nullable; no key change). No-ops once migrated.
         _migrate_classes_teacher_code()
+        # Give `accounts` its `parent_id` column if it predates real parent accounts
+        # (additive + nullable; no key change). No-ops once migrated.
+        _migrate_accounts_parent_id()
         # Prove the connection works.
         from sqlalchemy import text as _text
         with _engine.connect() as conn:
@@ -370,6 +415,24 @@ def _migrate_classes_teacher_code():
     with _engine.begin() as conn:
         conn.execute(_text("ALTER TABLE classes ADD COLUMN teacher_code VARCHAR(64)"))
     print("[store] migrated classes: +teacher_code column (nullable).")
+
+
+def _migrate_accounts_parent_id():
+    """One-time, ADDITIVE migration: give `accounts` a nullable `parent_id` column so a
+    signed-up parent can own student codes. Same safe pattern as classes.teacher_code:
+    the column is NULLABLE and the primary key is untouched, so a plain ALTER TABLE works
+    identically on PostgreSQL and SQLite. Pilot students simply have parent_id NULL and
+    keep working exactly as before. No-ops when the column already exists."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    if "accounts" not in set(insp.get_table_names()):
+        return  # create_all will build it new, already carrying parent_id
+    cols = [c["name"] for c in insp.get_columns("accounts")]
+    if "parent_id" in cols:
+        return  # already migrated
+    with _engine.begin() as conn:
+        conn.execute(_text("ALTER TABLE accounts ADD COLUMN parent_id VARCHAR(64)"))
+    print("[store] migrated accounts: +parent_id column (nullable).")
 
 
 def _sqlite_rebuild_with_course(tname):
@@ -910,6 +973,156 @@ def get_course_activity(code: str) -> dict:
         c["last_active"] = (c["last_active"].isoformat() if c["last_active"] else None)
         c.pop("best_total", None)
     return out
+
+
+# ---- real parent accounts (2026-07-31: the signup/payments foundation) ------
+# All of these REQUIRE the database (enabled() True). main.py checks that and
+# answers parent/billing endpoints with a clear "database required" message when
+# it's off -- an accounts-and-payments system must never live in throwaway files.
+
+def _row_to_dict(row, cols):
+    return {c: row[i] for i, c in enumerate(cols)} if row else None
+
+
+_PARENT_COLS = ["id", "email", "name", "password_hash", "stripe_customer_id",
+                "sub_status", "sub_plan", "sub_quantity", "sub_period_end", "created_at"]
+
+
+def create_parent(parent_id: str, email: str, name: str, password_hash: str) -> bool:
+    """Insert a new parent. Returns False (and inserts nothing) if the email is taken.
+    The unique index on email is the real guarantee under concurrency; the pre-check
+    just gives a friendlier code path."""
+    from sqlalchemy import insert, select
+    email = (email or "").strip().lower()
+    t = _tables["parents"]
+    try:
+        with _engine.begin() as conn:
+            exists = conn.execute(select(t.c.id).where(t.c.email == email)).first()
+            if exists:
+                return False
+            conn.execute(insert(t).values(
+                id=parent_id, email=email, name=(name or "").strip(),
+                password_hash=password_hash, stripe_customer_id="",
+                sub_status="free", sub_plan="", sub_quantity=0,
+                sub_period_end=None, created_at=_now()))
+        return True
+    except Exception:  # unique-index race: someone signed up the same email first
+        return False
+
+
+def get_parent_by_email(email: str):
+    from sqlalchemy import select
+    t = _tables["parents"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _PARENT_COLS])
+                         .where(t.c.email == (email or "").strip().lower())).first()
+    return _row_to_dict(r, _PARENT_COLS)
+
+
+def get_parent(parent_id: str):
+    from sqlalchemy import select
+    t = _tables["parents"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _PARENT_COLS])
+                         .where(t.c.id == parent_id)).first()
+    return _row_to_dict(r, _PARENT_COLS)
+
+
+def get_parent_by_customer(stripe_customer_id: str):
+    from sqlalchemy import select
+    if not stripe_customer_id:
+        return None
+    t = _tables["parents"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _PARENT_COLS])
+                         .where(t.c.stripe_customer_id == stripe_customer_id)).first()
+    return _row_to_dict(r, _PARENT_COLS)
+
+
+_PARENT_UPDATABLE = {"name", "password_hash", "stripe_customer_id",
+                     "sub_status", "sub_plan", "sub_quantity", "sub_period_end"}
+
+
+def update_parent(parent_id: str, **fields) -> None:
+    """Update a whitelisted subset of parent fields (billing state, name, password hash).
+    Unknown fields are ignored on purpose so a typo can't corrupt a row."""
+    from sqlalchemy import update
+    values = {k: v for k, v in fields.items() if k in _PARENT_UPDATABLE}
+    if not values:
+        return
+    t = _tables["parents"]
+    with _engine.begin() as conn:
+        conn.execute(update(t).where(t.c.id == parent_id).values(**values))
+
+
+def create_parent_token(token: str, parent_id: str, days: int = 30) -> None:
+    from sqlalchemy import insert
+    t = _tables["parent_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            token=token, parent_id=parent_id,
+            expires_at=_now() + _dt.timedelta(days=days), created_at=_now()))
+
+
+def get_parent_token(token: str):
+    """Return the parent_id for a live token, or None. Expired tokens are deleted
+    on sight so the table stays small."""
+    from sqlalchemy import select, delete
+    if not token:
+        return None
+    t = _tables["parent_tokens"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.parent_id, t.c.expires_at)
+                         .where(t.c.token == token)).first()
+    if not r:
+        return None
+    exp = r[1]
+    if exp is not None and exp.tzinfo is None:      # SQLite returns naive datetimes
+        exp = exp.replace(tzinfo=_dt.timezone.utc)
+    if exp is not None and exp < _now():
+        with _engine.begin() as conn:
+            conn.execute(delete(t).where(t.c.token == token))
+        return None
+    return r[0]
+
+
+def delete_parent_token(token: str) -> None:
+    from sqlalchemy import delete
+    t = _tables["parent_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.token == token))
+
+
+def create_student_account(code: str, name: str, parent_id: str) -> None:
+    """A student created BY a signed-up parent. subscription_status 'family' marks it
+    as parent-managed (entitlement comes from the parent's sub_status, checked live)."""
+    _upsert("accounts", {"code": code}, {
+        "name": (name or "").strip(), "email": "",
+        "subscription_status": "family", "parent_id": parent_id, "created_at": _now(),
+    })
+
+
+_ACCOUNT_COLS = ["code", "name", "email", "subscription_status", "created_at", "parent_id"]
+
+
+def get_account(code: str):
+    from sqlalchemy import select
+    t = _tables["accounts"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _ACCOUNT_COLS])
+                         .where(t.c.code == (code or "").strip())).first()
+    return _row_to_dict(r, _ACCOUNT_COLS)
+
+
+def list_students_for_parent(parent_id: str) -> list:
+    """This parent's students, oldest first (creation order)."""
+    from sqlalchemy import select
+    t = _tables["accounts"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(*[t.c[c] for c in _ACCOUNT_COLS])
+                            .where(t.c.parent_id == parent_id)
+                            .order_by(t.c.created_at)).fetchall()
+    return [_row_to_dict(r, _ACCOUNT_COLS) for r in rows]
 
 
 def status() -> dict:

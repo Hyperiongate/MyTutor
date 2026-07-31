@@ -1,6 +1,9 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  Added stripe (pinned 15.4.0, the version the payment system was
+#               dry-run tested against) for the parent accounts + billing build:
+#               Stripe Checkout, the customer portal, and the signed webhook.
 #   2026-07-21  Pinned Python to 3.12 via a `.python-version` file in the repo root.
 #               Render now defaults new services to Python 3.14, and psycopg2-binary
 #               2.9.9 has no working build for 3.14 (ImportError: undefined symbol
@@ -32,4 +35,5 @@ httpx==0.28.1
 python-multipart==0.0.9
 SQLAlchemy==2.0.34
 psycopg2-binary==2.9.9
+stripe==15.4.0
 # I did no harm and this file is not truncated.
