@@ -4,6 +4,11 @@
   teachers.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-07-31  NAV FIX (Jim: "header looks cramped"): nothing in the top bar wraps mid-item any
+    more. Nav labels shortened (Students/Parents/Teachers -- pages keep full titles); fluid link
+    spacing; "with Mr. Cadabra" subtitle is 14px and hides below 1200px; below 1040px the links
+    flow onto a clean second row instead of disappearing (mobile finally has a nav). Applied
+    identically to all 7 marketing pages. Verified headless at 9 widths x 7 pages.
     2026-07-30  WEEKLY CLASS-DIGEST PREVIEW (Jim's review): new section previewing the weekly
                 teacher email -- ONE email summarizing EACH student (minutes, mastery, who needs help,
                 plus a class note). Labeled "Coming with launch" (feature not built yet; keep the
@@ -38,15 +43,20 @@
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
   .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
-  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
-  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
   .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
     background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
-  .nav-links{display:flex;gap:24px;align-items:center;font-weight:600;font-size:15px;color:var(--muted)}
+  .nav-links{display:flex;gap:clamp(8px,1vw,12px);align-items:center;font-weight:600;font-size:14px;color:var(--muted);flex-wrap:nowrap}
+  .nav-links a{white-space:nowrap}
   .nav-links a:hover{color:var(--purple)}
   .nav-links a.here{color:var(--purple)}
-  .nav-cta{display:flex;gap:10px;align-items:center}
-  @media(max-width:860px){.nav-links{display:none}}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  .nav-cta .btn{white-space:nowrap}
+  @media(max-width:1200px){.brand-sub{display:none}}
+  @media(max-width:1040px){.nav-in{height:auto;flex-wrap:wrap;padding:10px 0;row-gap:4px}
+    .nav-links{order:3;width:100%;flex-wrap:wrap;gap:6px 16px;font-size:14px;padding-bottom:2px}}
   header.page{padding:56px 0 10px;text-align:center}
   .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
   h1{font-size:40px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
@@ -73,14 +83,14 @@
 </head>
 <body>
 <nav><div class="wrap nav-in">
-  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
   <div class="nav-links">
     <a href="/#how">How it works</a>
     <a href="/homeschool">Homeschool</a>
     <a href="/courses">Courses</a>
-    <a href="/students">For students</a>
-    <a href="/parents">For parents</a>
-    <a href="/teachers" class="here">For teachers</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers" class="here">Teachers</a>
     <a href="/pricing">Pricing</a>
     <a href="mailto:support@mrcadabra.com">Contact</a>
     <a href="/privacy">Privacy</a>
