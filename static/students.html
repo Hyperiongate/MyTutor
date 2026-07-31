@@ -4,6 +4,11 @@
   students.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  DASHBOARD SECTION FULL-WIDTH (Jim's review): the "your progress" section now spans
+                the whole page and uses the new shots/dashboard-full.png — a taller capture that
+                INCLUDES the 🏆 trophy case (medals with NEW! tags, merit-badge count, next-award
+                nudge) above the tiles, journey, and mastery breakdown. Copy updated to point at
+                the trophy case first.
     2026-07-30  NEW PAGE (Jim: a tab for students + the reward system). Student-facing how-to:
                 the lesson flow (sound on, board draws, type + Enter, hint buttons), the math
                 keyboard (with the CORRECT exponent order: base, then x^n, then power) and graph
@@ -145,19 +150,17 @@
 </section>
 
 <section class="wrap">
-  <div class="grid g2" style="align-items:center">
-    <div>
-      <span class="eyebrow">Your progress</span>
-      <h2>Watch your journey fill in.</h2>
-      <p style="color:var(--muted);font-size:16px;margin-top:8px">Your dashboard shows your nine-unit path through each course —
-      units turn <b>gold with a star</b> when you master them. Keep your 🔥 streak alive by showing up, watch your accuracy climb,
-      and check "Strengthen next" when you want the fastest win.</p>
-    </div>
-    <div>
-      <img class="shot" src="/static/shots/dashboard.png" alt="The student dashboard: a nine-unit journey with gold mastered units, streak, accuracy and time tiles" />
-      <p class="cap">Your dashboard. <i>(Sample data.)</i></p>
-    </div>
+  <div style="text-align:center;max-width:74ch;margin:0 auto">
+    <span class="eyebrow">Your progress</span>
+    <h2>This is YOUR dashboard — trophy case and all.</h2>
+    <p class="sub" style="margin-top:8px">Everything you earn lives at the top: your 🏆 trophy case with every medal
+    (new ones get a NEW! tag), your merit-badge count, and the next award you're closest to. Below it, your nine-unit
+    journey — units turn <b>gold with a star</b> when you master them — plus your 🔥 streak, your accuracy, and
+    "Strengthen next" when you want the fastest win.</p>
   </div>
+  <img class="shot" src="/static/shots/dashboard-full.png" style="margin-top:24px"
+       alt="The full student dashboard: the trophy case with earned medals and NEW! tags, merit badge count, next-award nudge, stat tiles, strengthen-next suggestions, the nine-unit learning journey with gold mastered units, and the mastery breakdown bar" />
+  <p class="cap">The whole picture — trophies, badges, journey, and honest stats. <i>(Sample data.)</i></p>
 </section>
 
 <section class="wrap" style="text-align:center">
