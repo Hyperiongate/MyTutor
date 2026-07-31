@@ -7,6 +7,9 @@
     identically to all 7 marketing pages. Verified headless at 9 widths x 7 pages.
   MyTutor — Landing + Pricing page (DRAFT for Jim's review)
   Notes for future edits (newest first):
+  - 2026-07-31  HEADER v2 (Jim: still cramped -> "maybe two rows"): the top bar is now a
+    spacious TWO-ROW design -- brand + buttons on row one, centered generously-spaced links
+    on row two -- and gained two new links: /mission and /community. Same fix on all pages.
   - 2026-07-30  HOMESCHOOL FRONT AND CENTER (Jim: "this should scream homeschooling"): nav + footer
     gained the Homeschool tab (-> /homeschool, the new dedicated page), and the hero pill now leads
     with "Built for homeschool families".
@@ -88,7 +91,7 @@
   /* NAV */
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
       background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
-  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
   .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
   .brand-sub{font-size:14px}
   .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
@@ -97,14 +100,12 @@
   .orb::after{content:"";position:absolute;inset:0;border-radius:50%;
        box-shadow:inset 0 0 8px rgba(255,255,255,.7);animation:pulse 3.2s ease-in-out infinite}
   @keyframes pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
-  .nav-links{display:flex;gap:clamp(8px,1vw,12px);align-items:center;font-weight:600;font-size:14px;color:var(--muted);flex-wrap:nowrap}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
   .nav-links a{white-space:nowrap}
   .nav-links a:hover{color:var(--purple)}
   .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
   .nav-cta .btn{white-space:nowrap}
-  @media(max-width:1200px){.brand-sub{display:none}}
-  @media(max-width:1040px){.nav-in{height:auto;flex-wrap:wrap;padding:10px 0;row-gap:4px}
-    .nav-links{order:3;width:100%;flex-wrap:wrap;gap:6px 16px;font-size:14px;padding-bottom:2px}}
+  @media(max-width:620px){.brand-sub{display:none}.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
   /* HERO */
   .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:64px 0 40px}
   .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
@@ -201,22 +202,26 @@
 </style>
 </head>
 <body>
-<nav><div class="wrap nav-in">
+<nav><div class="wrap">
+  <div class="nav-top">
   <div class="brand"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
   <div class="nav-links">
     <a href="#how">How it works</a>
+    <a href="/mission">Our mission</a>
     <a href="/homeschool">Homeschool</a>
     <a href="/courses">Courses</a>
     <a href="/students">Students</a>
     <a href="/parents">Parents</a>
     <a href="/teachers">Teachers</a>
+    <a href="/community">Community</a>
     <a href="/pricing">Pricing</a>
     <a href="mailto:support@mrcadabra.com">Contact</a>
     <a href="#faq">FAQ</a>
-  </div>
-  <div class="nav-cta">
-    <a class="btn btn-ghost" href="/login">Sign in</a>
-    <a class="btn btn-primary" href="/demo">Try a lesson</a>
   </div>
 </div></nav>
 <!-- HERO -->
@@ -407,7 +412,7 @@
 <footer><div class="wrap foot-in">
   <div class="brand"><span class="orb"></span> MyTutor</div>
   <div style="display:flex;gap:20px;flex-wrap:wrap">
-    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/mission">Our mission</a><a href="/community">Community</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
   </div>
   <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
 </div></footer>
@@ -426,3 +431,4 @@
 </script>
 </body>
 </html>
+<!-- I did no harm and this file is not truncated. -->

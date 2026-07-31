@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  community.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-31  NEW PAGE: the COMMUNITY FORUM (Jim: "a forum where people share what they
+                like, what could be improved, resources for helping students, and courses
+                they'd like to see"). Four sections matching exactly that. Everyone can
+                READ; posting needs a signed-in parent (the same mt_parent_token the
+                Family page stores -- one login covers both pages). Authors display as
+                the parent's first name only. Signed-out visitors see the conversation
+                plus a friendly "sign in on your Family page to join in" note instead of
+                dead forms. Moderator mode: visiting /community?mod=<FORUM_MOD_KEY> shows
+                hide buttons wired to /api/forum/moderate (soft delete). Same two-row
+                header + design system as the rest of the site.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Community — MyTutor</title>
+<meta name="description" content="The MyTutor family community: share what's working, ideas, resources for parents, and the courses you'd like to see next." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  .btn[disabled]{opacity:.55;cursor:wait;transform:none}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
+  .nav-links a{white-space:nowrap}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  .nav-cta .btn{white-space:nowrap}
+  @media(max-width:620px){.brand-sub{display:none}.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
+  header.page{padding:50px 0 8px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:40px;letter-spacing:-.02em;margin:10px 0 8px;font-weight:850}
+  .sub{color:var(--muted);font-size:17px;max-width:64ch;margin:0 auto}
+  section{padding:22px 0 50px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+  .secs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0 24px}
+  .secs button{padding:11px 18px;border:1.5px solid var(--line);background:#fff;border-radius:999px;font-weight:800;font-size:14.5px;cursor:pointer;color:var(--muted)}
+  .secs button.on{border-color:var(--purple);color:var(--purple);background:#f6f3ff}
+  .prompt{color:var(--muted);text-align:center;font-size:15px;max-width:66ch;margin:0 auto 20px}
+  .post{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px 20px;margin-bottom:12px}
+  .post .ph{display:flex;justify-content:space-between;gap:12px;align-items:baseline;cursor:pointer;flex-wrap:wrap}
+  .post .pt{font-weight:800;font-size:16.5px}
+  .post .pm{color:var(--muted);font-size:13px;white-space:nowrap}
+  .post .pb{color:var(--ink);font-size:15px;margin-top:8px;white-space:pre-wrap;display:none}
+  .post.open .pb{display:block}
+  .replies{display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+  .post.open .replies{display:block}
+  .reply{background:#f8f7fc;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:14.5px}
+  .reply .rm{color:var(--muted);font-size:12.5px;font-weight:700}
+  .rbox{display:flex;gap:10px;margin-top:10px}
+  .rbox input{flex:1;padding:10px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14.5px}
+  .rbox input:focus{outline:none;border-color:var(--purple)}
+  label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+  input.f,textarea.f{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:15.5px;background:#fff;font-family:inherit}
+  input.f:focus,textarea.f:focus{outline:none;border-color:var(--purple)}
+  textarea.f{min-height:110px;resize:vertical}
+  .msg{margin-top:12px;font-size:14.5px;font-weight:600;display:none;padding:10px 14px;border-radius:12px}
+  .msg.err{display:block;background:#fdf0ee;color:#b3402e;border:1px solid #f5cfc8}
+  .msg.ok{display:block;background:#eefaf5;color:#177a52;border:1px solid #c8ecdb}
+  .signin-note{background:#f6f3ff;border:1.5px dashed var(--purple);border-radius:14px;padding:16px 20px;text-align:center;font-weight:600;color:var(--muted)}
+  .modbtn{background:none;border:1px solid #f5cfc8;color:#b3402e;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;padding:3px 10px;margin-left:8px}
+  .empty{color:var(--muted);text-align:center;padding:26px 0;font-size:15px}
+  .cap{font-size:13px;color:var(--muted)}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:10px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="nav-top">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/mission">Our mission</a>
+    <a href="/homeschool">Homeschool</a>
+    <a href="/courses">Courses</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/community" class="here">Community</a>
+    <a href="/pricing">Pricing</a>
+    <a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+</div></nav>
+
+<header class="page wrap">
+  <span class="eyebrow">Community</span>
+  <h1>Families helping <span class="grad-text">families.</span></h1>
+  <p class="sub">Share what's working, what could be better, the resources you swear by, and the
+  courses you want next. Everyone can read; parents with a family account can post.</p>
+</header>
+
+<section class="wrap">
+  <div class="secs" id="secs"></div>
+  <p class="prompt" id="prompt"></p>
+
+  <div id="signinNote" class="signin-note" style="display:none;margin-bottom:20px">
+    Want to join the conversation? <a href="/family" style="color:var(--purple);font-weight:800">Sign in
+    (or create a free account) on your Family page →</a> — then come back here to post.
+  </div>
+
+  <div class="card" id="composer" style="display:none;margin-bottom:22px">
+    <b id="composerTitle">Start a conversation</b>
+    <label for="npTitle">Title</label>
+    <input class="f" id="npTitle" maxlength="140" placeholder="A short, clear headline" />
+    <label for="npBody">Your post <span style="color:var(--muted);font-weight:600">(optional details)</span></label>
+    <textarea class="f" id="npBody" maxlength="4000" placeholder="Say more, if you like…"></textarea>
+    <div class="msg" id="npMsg"></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="npGo" type="button">Post</button>
+      <span class="cap">Posting as <b id="npAs"></b> · Be kind — this is a family room, and posts are moderated.</span>
+    </div>
+  </div>
+
+  <div id="posts"></div>
+</section>
+
+<footer><div class="wrap foot-in">
+  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/mission">Our mission</a><a href="/community">Community</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
+</div></footer>
+
+<script>
+(function () {
+  "use strict";
+  var SECTIONS = [
+    { id: "working",  label: "💚 What's working",  prompt: "What do you (or your student) like about MyTutor? A win, a habit that stuck, a moment it clicked — share it so other families can borrow it." },
+    { id: "ideas",    label: "🛠️ Ideas to improve", prompt: "What could be better? Rough edges, missing features, things that confused your student — we read every one of these." },
+    { id: "resources", label: "📚 Resources for parents", prompt: "Books, routines, games, videos, habits — what else has helped your student learn math? Help another parent shortcut the search." },
+    { id: "courses",  label: "🎓 Courses you'd like", prompt: "Beyond the eight math courses — what would you like MyTutor to teach next? Inside math or beyond it, tell us what your family needs." }
+  ];
+  var state = { section: "working", posts: [], busy: false };
+  var params = new URLSearchParams(window.location.search);
+  var MOD_KEY = (params.get("mod") || "").trim();
+  function token() { try { return localStorage.getItem("mt_parent_token") || ""; } catch (e) { return ""; } }
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+  function when(iso) {
+    if (!iso) return "";
+    try {
+      var d = new Date(iso), days = Math.floor((Date.now() - d.getTime()) / 86400000);
+      if (days <= 0) return "today";
+      if (days === 1) return "yesterday";
+      if (days < 30) return days + " days ago";
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    } catch (e) { return ""; }
+  }
+  function msg(id, text, kind) {
+    var el = $(id); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || "";
+  }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    var r = await fetch(path, opts);
+    var data = {};
+    try { data = await r.json(); } catch (e) {}
+    if (!r.ok) { var err = new Error((data && data.detail) || "Something went wrong — please try again."); err.status = r.status; throw err; }
+    return data;
+  }
+
+  // ---------- render ----------
+  function renderSections() {
+    $("secs").innerHTML = SECTIONS.map(function (s) {
+      return '<button type="button" data-s="' + s.id + '"' + (s.id === state.section ? ' class="on"' : '') + '>' + s.label + "</button>";
+    }).join("");
+    Array.prototype.forEach.call($("secs").querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { state.section = b.getAttribute("data-s"); load(); });
+    });
+    var sec = SECTIONS.filter(function (s) { return s.id === state.section; })[0];
+    $("prompt").textContent = sec ? sec.prompt : "";
+  }
+
+  function modButton(kind, id) {
+    return MOD_KEY ? '<button class="modbtn" data-kind="' + kind + '" data-id="' + esc(id) + '">hide</button>' : "";
+  }
+
+  function renderPosts() {
+    var box = $("posts");
+    if (!state.posts.length) {
+      box.innerHTML = '<div class="card empty">No posts here yet — be the first! 🌱</div>';
+      return;
+    }
+    box.innerHTML = state.posts.map(function (p) {
+      return '<div class="post" data-id="' + esc(p.id) + '">' +
+        '<div class="ph"><span class="pt">' + esc(p.title) + '</span>' +
+        '<span class="pm">' + esc(p.author_name) + " · " + when(p.created_at) +
+        " · 💬 " + (p.reply_count || 0) + modButton("post", p.id) + "</span></div>" +
+        (p.body ? '<div class="pb">' + esc(p.body) + "</div>" : '<div class="pb"></div>') +
+        '<div class="replies" data-loaded="0"><div class="rlist"></div>' +
+        (token()
+          ? '<div class="rbox"><input maxlength="4000" placeholder="Write a reply…" /><button class="btn btn-ghost" type="button">Reply</button></div>'
+          : '<p class="cap" style="margin-top:8px"><a href="/family" style="color:var(--purple);font-weight:700">Sign in on your Family page</a> to reply.</p>') +
+        "</div></div>";
+    }).join("");
+
+    Array.prototype.forEach.call(box.querySelectorAll(".post"), function (el) {
+      var id = el.getAttribute("data-id");
+      el.querySelector(".ph").addEventListener("click", function (ev) {
+        if (ev.target.classList.contains("modbtn")) return;
+        el.classList.toggle("open");
+        var rep = el.querySelector(".replies");
+        if (el.classList.contains("open") && rep.getAttribute("data-loaded") === "0") loadReplies(id, el);
+      });
+      var rbtn = el.querySelector(".rbox button");
+      if (rbtn) rbtn.addEventListener("click", function () { sendReply(id, el); });
+      var rin = el.querySelector(".rbox input");
+      if (rin) rin.addEventListener("keydown", function (ev) { if (ev.key === "Enter") sendReply(id, el); });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".modbtn"), function (b) {
+      b.addEventListener("click", function () { moderate(b.getAttribute("data-kind"), b.getAttribute("data-id")); });
+    });
+  }
+
+  function renderReplies(el, replies) {
+    el.querySelector(".rlist").innerHTML = (replies || []).map(function (r) {
+      return '<div class="reply"><span class="rm">' + esc(r.author_name) + " · " + when(r.created_at) +
+        modButton("reply", r.id) + "</span><br>" + esc(r.body) + "</div>";
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll(".rlist .modbtn"), function (b) {
+      b.addEventListener("click", function () { moderate(b.getAttribute("data-kind"), b.getAttribute("data-id")); });
+    });
+  }
+
+  // ---------- data ----------
+  async function load() {
+    renderSections();
+    try {
+      var out = await api("/api/forum/" + state.section);
+      state.posts = out.posts || [];
+    } catch (e) {
+      state.posts = [];
+      $("posts").innerHTML = '<div class="card empty">' + esc(e.message) + "</div>";
+      return;
+    }
+    renderPosts();
+  }
+
+  async function loadReplies(id, el) {
+    try {
+      var out = await api("/api/forum/post/" + encodeURIComponent(id));
+      el.querySelector(".replies").setAttribute("data-loaded", "1");
+      renderReplies(el, out.post.replies);
+    } catch (e) {}
+  }
+
+  async function sendReply(id, el) {
+    var input = el.querySelector(".rbox input");
+    var text = (input.value || "").trim();
+    if (!text || state.busy) return;
+    state.busy = true;
+    try {
+      var out = await api("/api/forum/reply", { method: "POST",
+        body: JSON.stringify({ token: token(), post_id: id, body: text }) });
+      input.value = "";
+      renderReplies(el, out.post.replies);
+      var pm = el.querySelector(".pm");   // keep the reply count honest without a reload
+      pm.innerHTML = pm.innerHTML.replace(/💬 \d+/, "💬 " + out.post.replies.length);
+    } catch (e) { alert2(e.message); }
+    state.busy = false;
+  }
+
+  function alert2(text) {   // a small inline notice instead of a blocking dialog
+    var n = document.createElement("div");
+    n.className = "msg err"; n.style.display = "block"; n.textContent = text;
+    $("posts").prepend(n); setTimeout(function () { n.remove(); }, 5000);
+  }
+
+  async function moderate(kind, id) {
+    try {
+      await api("/api/forum/moderate", { method: "POST",
+        body: JSON.stringify({ key: MOD_KEY, kind: kind, item_id: id }) });
+      load();
+    } catch (e) { alert2(e.message); }
+  }
+
+  // ---------- composer ----------
+  async function setupComposer() {
+    if (!token()) { $("signinNote").style.display = ""; return; }
+    try {
+      var me = await api("/api/parent/me", { headers: { "X-Parent-Token": token() } });
+      var first = ((me.parent && me.parent.name) || "").split(" ")[0];
+      $("npAs").textContent = first || "A MyTutor parent";
+      $("composer").style.display = "";
+    } catch (e) { $("signinNote").style.display = ""; }   // stale token -> read-only view
+  }
+
+  $("npGo").addEventListener("click", async function () {
+    if (state.busy) return;
+    var title = ($("npTitle").value || "").trim();
+    if (title.length < 4) { msg("npMsg", "Please give your post a short title."); return; }
+    state.busy = true; $("npGo").disabled = true; msg("npMsg", "");
+    try {
+      var out = await api("/api/forum/post", { method: "POST",
+        body: JSON.stringify({ token: token(), section: state.section,
+                               title: title, body: ($("npBody").value || "").trim() }) });
+      $("npTitle").value = ""; $("npBody").value = "";
+      state.posts = out.posts || [];
+      renderPosts();
+      msg("npMsg", "Posted — thank you for sharing!", "ok");
+    } catch (e) { msg("npMsg", e.message, "err"); }
+    state.busy = false; $("npGo").disabled = false;
+  });
+
+  // ---------- boot ----------
+  renderSections();
+  load();
+  setupComposer();
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

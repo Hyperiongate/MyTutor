@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  COMMUNITY FORUM (parents post, everyone reads). Two NEW tables --
+#               `forum_posts` (id, section, title, body, parent_id, author_name,
+#               reply_count, created_at, deleted) and `forum_replies` (id, post_id,
+#               parent_id, author_name, body, created_at, deleted) -- plus
+#               create_forum_post / list_forum_posts / get_forum_post /
+#               create_forum_reply / delete_forum_item. Soft deletes only (deleted=1
+#               hides, nothing is destroyed), so moderation is reversible by hand.
+#               Brand-new tables -> create_all builds them; nothing else touched.
 #   2026-07-31  REAL PARENT ACCOUNTS (the signup/payments foundation). Two NEW tables --
 #               `parents` (id, email UNIQUE, name, password_hash, stripe_customer_id,
 #               sub_status/plan/quantity/period_end, created_at) and `parent_tokens`
@@ -325,6 +333,30 @@ def init():
             Column("code", String(64), primary_key=True),
             Column("award_id", String(48), primary_key=True),
             Column("earned_at", DateTime(timezone=True)),
+        )
+        # COMMUNITY FORUM (2026-07-31): parents post, everyone reads. Soft deletes
+        # only -- moderation flips deleted=1, nothing is ever destroyed.
+        _tables["forum_posts"] = Table(
+            "forum_posts", _meta,
+            Column("id", String(64), primary_key=True),       # uuid hex
+            Column("section", String(24), index=True),        # working|ideas|resources|courses
+            Column("title", String(160)),
+            Column("body", Text),
+            Column("parent_id", String(64)),                  # the AUTHOR (a parents.id)
+            Column("author_name", String(80)),                # display name, chosen server-side
+            Column("reply_count", Integer, default=0),
+            Column("created_at", DateTime(timezone=True)),
+            Column("deleted", Integer, default=0),
+        )
+        _tables["forum_replies"] = Table(
+            "forum_replies", _meta,
+            Column("id", String(64), primary_key=True),
+            Column("post_id", String(64), index=True),
+            Column("parent_id", String(64)),
+            Column("author_name", String(80)),
+            Column("body", Text),
+            Column("created_at", DateTime(timezone=True)),
+            Column("deleted", Integer, default=0),
         )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
@@ -1123,6 +1155,95 @@ def list_students_for_parent(parent_id: str) -> list:
                             .where(t.c.parent_id == parent_id)
                             .order_by(t.c.created_at)).fetchall()
     return [_row_to_dict(r, _ACCOUNT_COLS) for r in rows]
+
+
+# ---- community forum (2026-07-31: parents post, everyone reads) -------------
+
+FORUM_SECTIONS = ("working", "ideas", "resources", "courses")
+
+
+def create_forum_post(post_id: str, section: str, title: str, body: str,
+                      parent_id: str, author_name: str) -> None:
+    from sqlalchemy import insert
+    t = _tables["forum_posts"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            id=post_id, section=section, title=title, body=body,
+            parent_id=parent_id, author_name=author_name,
+            reply_count=0, created_at=_now(), deleted=0))
+
+
+_POST_COLS = ["id", "section", "title", "body", "author_name", "reply_count", "created_at"]
+
+
+def list_forum_posts(section: str, limit: int = 100) -> list:
+    """Newest first, hidden posts excluded. Body included (posts are short)."""
+    from sqlalchemy import select
+    t = _tables["forum_posts"]
+    with _engine.connect() as conn:
+        rows = conn.execute(
+            select(*[t.c[c] for c in _POST_COLS])
+            .where((t.c.section == section) & (t.c.deleted == 0))
+            .order_by(t.c.created_at.desc()).limit(limit)).fetchall()
+    out = []
+    for r in rows:
+        d = {c: r[i] for i, c in enumerate(_POST_COLS)}
+        d["created_at"] = d["created_at"].isoformat() if d["created_at"] else None
+        out.append(d)
+    return out
+
+
+def get_forum_post(post_id: str):
+    """One post + its visible replies (oldest first), or None."""
+    from sqlalchemy import select
+    t = _tables["forum_posts"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _POST_COLS])
+                         .where((t.c.id == post_id) & (t.c.deleted == 0))).first()
+    if not r:
+        return None
+    post = {c: r[i] for i, c in enumerate(_POST_COLS)}
+    post["created_at"] = post["created_at"].isoformat() if post["created_at"] else None
+    tr = _tables["forum_replies"]
+    cols = ["id", "author_name", "body", "created_at"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(*[tr.c[c] for c in cols])
+                            .where((tr.c.post_id == post_id) & (tr.c.deleted == 0))
+                            .order_by(tr.c.created_at)).fetchall()
+    post["replies"] = []
+    for r in rows:
+        d = {c: r[i] for i, c in enumerate(cols)}
+        d["created_at"] = d["created_at"].isoformat() if d["created_at"] else None
+        post["replies"].append(d)
+    return post
+
+
+def create_forum_reply(reply_id: str, post_id: str, body: str,
+                       parent_id: str, author_name: str) -> bool:
+    """Add a reply and bump the post's reply_count. False if the post is gone/hidden."""
+    from sqlalchemy import insert, select, update
+    tp = _tables["forum_posts"]
+    tr = _tables["forum_replies"]
+    with _engine.begin() as conn:
+        exists = conn.execute(select(tp.c.id).where(
+            (tp.c.id == post_id) & (tp.c.deleted == 0))).first()
+        if not exists:
+            return False
+        conn.execute(insert(tr).values(
+            id=reply_id, post_id=post_id, parent_id=parent_id,
+            author_name=author_name, body=body, created_at=_now(), deleted=0))
+        conn.execute(update(tp).where(tp.c.id == post_id)
+                     .values(reply_count=tp.c.reply_count + 1))
+    return True
+
+
+def delete_forum_item(kind: str, item_id: str) -> bool:
+    """Moderator soft-delete ('post' or 'reply'). Hides, never destroys."""
+    from sqlalchemy import update
+    t = _tables["forum_posts"] if kind == "post" else _tables["forum_replies"]
+    with _engine.begin() as conn:
+        res = conn.execute(update(t).where(t.c.id == item_id).values(deleted=1))
+    return bool(res.rowcount)
 
 
 def status() -> dict:

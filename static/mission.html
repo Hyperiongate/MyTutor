@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  mission.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-31  NEW PAGE (Jim: "a page that says this is our mission -- making math fun,
+                accessible, complete, and using a good method"). Four pillars (Fun /
+                Accessible / Complete / Taught right) drawn from the project's real vision
+                docs and the app's real behavior -- every claim on this page is something
+                the product actually does (Socratic method, foundation-first paths, honest
+                dashboards, effort rewards, first-names-only privacy). No invented numbers,
+                no testimonials. Uses the shared two-row header (HEADER v2) and design
+                system. Static page; the /mission route is in main.py.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Our mission — MyTutor</title>
+<meta name="description" content="MyTutor's mission: make math fun, accessible, and complete for every student — taught the way a great teacher teaches." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
+  .nav-links a{white-space:nowrap}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  .nav-cta .btn{white-space:nowrap}
+  @media(max-width:620px){.brand-sub{display:none}.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
+  header.page{padding:56px 0 14px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:42px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  h2{font-size:28px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:64ch;margin:0 auto}
+  section{padding:34px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:860px){.g2{grid-template-columns:1fr}}
+  .mission-quote{max-width:820px;margin:0 auto;text-align:center;background:var(--card);border:2px solid transparent;
+    background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;border-radius:22px;padding:36px 34px;box-shadow:var(--shadow-lg)}
+  .mission-quote p{font-size:22px;font-weight:700;line-height:1.55}
+  .pillar h2{display:flex;align-items:center;gap:10px}
+  .pillar p{color:var(--muted);font-size:15.5px;margin-top:8px}
+  .pillar ul{margin:12px 0 0 20px;color:var(--muted);font-size:15px}
+  .pillar li{margin-bottom:8px}
+  .pillar li b{color:var(--ink)}
+  .promise{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+  .promise .pi{font-size:22px;line-height:1.2}
+  .promise p{color:var(--muted);font-size:15px}
+  .promise b{color:var(--ink)}
+  .cta-band{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:40px 24px;box-shadow:var(--shadow)}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="nav-top">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/mission" class="here">Our mission</a>
+    <a href="/homeschool">Homeschool</a>
+    <a href="/courses">Courses</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/community">Community</a>
+    <a href="/pricing">Pricing</a>
+    <a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+</div></nav>
+
+<header class="page wrap">
+  <span class="eyebrow">Our mission</span>
+  <h1>Math that finally <span class="grad-text">makes sense.</span></h1>
+  <p class="sub">Why we built MyTutor, and the promises we hold ourselves to.</p>
+</header>
+
+<section class="wrap">
+  <div class="mission-quote">
+    <p>Our mission is to make math <span class="grad-text">fun, accessible, and complete</span> for every
+    student — taught the way a great teacher teaches: patiently, one honest step at a time,
+    until it truly sticks.</p>
+  </div>
+</section>
+
+<section class="wrap"><div class="grid g2">
+  <div class="card pillar">
+    <h2>🎈 Fun</h2>
+    <p>Nobody learns math while dreading it. So Mr. Cadabra talks like a favorite teacher, not a
+    textbook — warm, encouraging, and genuinely patient.</p>
+    <ul>
+      <li><b>Mistakes are welcome here.</b> A wrong answer gets curiosity, never shame — that's where
+      the teaching happens.</li>
+      <li><b>Effort gets celebrated.</b> Merit badges, course trophies, streak medals, and a trophy
+      case on every student's dashboard — earned by real work, kept forever.</li>
+      <li><b>A voice, not a wall of text.</b> Lessons are spoken aloud while the math appears on a
+      whiteboard, step by step, like a real lesson.</li>
+    </ul>
+  </div>
+  <div class="card pillar">
+    <h2>🚪 Accessible</h2>
+    <p>Every student deserves a tutor who meets them exactly where they are — whatever their level,
+    schedule, or budget.</p>
+    <ul>
+      <li><b>Starts at their level.</b> The placement finds where each student actually stands, and
+      lessons begin there — remediation to advanced, no judgment either way.</li>
+      <li><b>Works the way kids work.</b> Type your answers, use the math keyboard and graph paper —
+      no microphone required, nothing to install.</li>
+      <li><b>A real free plan.</b> The placement, a first unit, and unlimited practice help cost
+      nothing, so every family can see if it fits before paying a cent.</li>
+    </ul>
+  </div>
+  <div class="card pillar">
+    <h2>📚 Complete</h2>
+    <p>MyTutor isn't a homework shortcut — it's a full mathematics education, start to finish.</p>
+    <ul>
+      <li><b>Eight full courses.</b> Pre-Algebra through Algebra I &amp; II, Geometry, Trig/Pre-Calc,
+      Calculus, Differential Equations, and Probability &amp; Statistics — nine units each.</li>
+      <li><b>Placement to mastery.</b> Every unit ends with a real check; a unit counts as mastered
+      only when the student proves it.</li>
+      <li><b>The whole picture.</b> Dashboards show exactly what's mastered, what's in progress, and
+      honest time-on-task — for the student, and for you.</li>
+    </ul>
+  </div>
+  <div class="card pillar">
+    <h2>🧭 Taught right</h2>
+    <p>Method matters more than anything. MyTutor teaches the way the best teachers do.</p>
+    <ul>
+      <li><b>Socratic, always.</b> Mr. Cadabra never just hands over the answer — he asks the next
+      question, so the student does the thinking and owns the win.</li>
+      <li><b>Foundations first.</b> When a student has gaps, we fix the earliest one first — because a
+      shaky Unit&nbsp;1 quietly undermines everything built on top of it.</li>
+      <li><b>One honest step at a time.</b> The lesson never runs ahead of the student; each step
+      waits until they've got the one before it.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section class="wrap"><div class="card" style="max-width:820px;margin:0 auto">
+  <h2 style="text-align:center">Our promises to your family</h2>
+  <div style="margin-top:18px">
+    <div class="promise"><span class="pi">📏</span><p><b>Honest numbers, always.</b> Progress, mastery, and
+    time-on-task come from real work the student actually did. We never inflate a dashboard — if the
+    data isn't real, it isn't shown.</p></div>
+    <div class="promise"><span class="pi">🔒</span><p><b>Children's privacy first.</b> Students are known by a
+    first name and a login code — that's all we ask for. Billing is handled by Stripe, so card details
+    never touch our servers.</p></div>
+    <div class="promise"><span class="pi">💬</span><p><b>A real person answers.</b> Questions, concerns, ideas —
+    <a href="mailto:support@mrcadabra.com" style="color:var(--purple);font-weight:700">support@mrcadabra.com</a>
+    reaches a human who cares how your student is doing.</p></div>
+    <div class="promise"><span class="pi">🤝</span><p><b>We'd rather refund than disappoint.</b> Cancel anytime;
+    if it's not working out, tell us within the refund window and we refund the charge.</p></div>
+  </div>
+</div></section>
+
+<section class="wrap"><div class="cta-band">
+  <h2>See the mission in action</h2>
+  <p class="sub" style="margin-bottom:22px">Five minutes with Mr. Cadabra says more than any page about it.</p>
+  <a class="btn btn-primary" href="/demo" style="margin-right:10px">Try a free lesson</a>
+  <a class="btn btn-ghost" href="/family">Create your free account</a>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/mission">Our mission</a><a href="/community">Community</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
+</div></footer>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

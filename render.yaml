@@ -2,6 +2,9 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  FORUM_MOD_KEY added (sync:false): Jim's moderation password for the
+#               community forum -- any long random string; open /community?mod=<key>
+#               to see hide buttons on every post/reply.
 #   2026-07-31  PAYMENTS: added STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET (sync:false,
 #               set in the dashboard like the other secrets) and SITE_URL for the
 #               Stripe Checkout return links. Test keys (sk_test_/whsec_) first; swap
@@ -59,4 +62,6 @@ services:
         sync: false            # Stripe -> Developers -> Webhooks -> your endpoint's signing secret
       - key: SITE_URL
         value: https://mrcadabra.com   # where Stripe sends parents back after checkout
+      - key: FORUM_MOD_KEY
+        sync: false            # any long random string YOU invent; /community?mod=<it> shows hide buttons
 # I did no harm and this file is not truncated.

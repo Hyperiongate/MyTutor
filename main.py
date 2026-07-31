@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  APP_BUILD -> "2026-07-31p-community". MISSION PAGE + COMMUNITY FORUM + HEADER v2.
+#               (1) NEW route /mission (static mission.html: fun / accessible / complete / taught
+#                   right -- every claim on it is something the product really does).
+#               (2) NEW route /community + forum API: GET /api/forum/{section} and
+#                   /api/forum/post/{id} are PUBLIC reads; POST /api/forum/post|reply require a
+#                   signed-in parent token (parents post, students never; author = parent's first
+#                   name or "A MyTutor parent"; title<=140, body<=4000; rate-limited 6/10min per
+#                   parent + 12/10min per IP). POST /api/forum/moderate (FORUM_MOD_KEY env,
+#                   constant-time compare) soft-deletes a post/reply -- hides, never destroys.
+#                   Four sections: working / ideas / resources / courses.
+#               (3) HEADER v2 on every marketing page + /family: spacious two-row bar (brand +
+#                   buttons up top, centered links below) after Jim found the one-row fix still
+#                   cramped; nav + footers gained "Our mission" and "Community" links.
 #   2026-07-31  APP_BUILD -> "2026-07-31o-taxcode". FIX found in Jim's live sandbox test: new
 #               Stripe accounts enable "Managed Payments" by default, which REQUIRES a tax code
 #               on every product -- checkout returned "the product tax code is missing". The
@@ -941,6 +954,18 @@ def family_page():
     """The family portal (2026-07-31): parent signup/sign-in, children + their codes,
     plan & billing. The page's own JS talks to /api/parent/* and /api/billing/*."""
     return FileResponse(BASE_DIR / "static" / "family.html")
+
+
+@app.get("/mission")
+def mission_page():
+    """Our mission (2026-07-31): fun, accessible, complete, taught right."""
+    return FileResponse(BASE_DIR / "static" / "mission.html")
+
+
+@app.get("/community")
+def community_page():
+    """The community forum (2026-07-31): parents post, everyone reads."""
+    return FileResponse(BASE_DIR / "static" / "community.html")
 
 
 @app.get("/pricing")
@@ -1952,6 +1977,115 @@ async def stripe_webhook(request: Request):
     return {"received": True}
 
 
+# =============================================================================
+# COMMUNITY FORUM (2026-07-31) -- parents post, everyone reads
+# -----------------------------------------------------------------------------
+# Four sections: what's working / ideas for improvement / resources for parents /
+# course requests. Reading is public. WRITING requires a signed-in parent (the
+# accounts built today) -- students never post, and no email or child data ever
+# appears: authors show as the parent's first name only, or "A MyTutor parent".
+# Moderation: FORUM_MOD_KEY env var + POST /api/forum/moderate soft-deletes
+# (hides, never destroys). Writes are rate-limited per parent AND per IP.
+# =============================================================================
+
+FORUM_SECTION_TITLES = {
+    "working": "What's working for your family",
+    "ideas": "Ideas for improvement",
+    "resources": "Resources for parents",
+    "courses": "Courses you'd like to see",
+}
+
+
+class ForumPostIn(BaseModel):
+    token: str
+    section: str
+    title: str
+    body: str = ""
+
+
+class ForumReplyIn(BaseModel):
+    token: str
+    post_id: str
+    body: str
+
+
+class ForumModIn(BaseModel):
+    key: str
+    kind: str                  # 'post' | 'reply'
+    item_id: str
+
+
+def _forum_author(parent: dict) -> str:
+    first = (parent.get("name") or "").strip().split(" ")[0]
+    return first if first else "A MyTutor parent"
+
+
+@app.get("/api/forum/{section}")
+def forum_list(section: str):
+    """Public: the posts in one section, newest first."""
+    _require_db()
+    if section not in store.FORUM_SECTIONS:
+        raise HTTPException(status_code=404, detail="No such section.")
+    return {"ok": True, "section": section,
+            "title": FORUM_SECTION_TITLES[section],
+            "posts": store.list_forum_posts(section)}
+
+
+@app.get("/api/forum/post/{post_id}")
+def forum_post_detail(post_id: str):
+    """Public: one post with its replies."""
+    _require_db()
+    post = store.get_forum_post((post_id or "").strip())
+    if not post:
+        raise HTTPException(status_code=404, detail="That post isn't here anymore.")
+    return {"ok": True, "post": post}
+
+
+@app.post("/api/forum/post")
+def forum_create_post(body: ForumPostIn, request: Request):
+    parent = _require_parent(body.token)
+    _rate_limit("forum:" + parent["id"], limit=6, window_seconds=600, what="posts")
+    _rate_limit("forumip:" + _client_ip(request), limit=12, window_seconds=600, what="posts")
+    section = (body.section or "").strip().lower()
+    if section not in store.FORUM_SECTIONS:
+        raise HTTPException(status_code=400, detail="Please pick a section.")
+    title = (body.title or "").strip()[:140]
+    text = (body.body or "").strip()[:4000]
+    if len(title) < 4:
+        raise HTTPException(status_code=400, detail="Please give your post a short title.")
+    store.create_forum_post(uuid.uuid4().hex, section, title, text,
+                            parent["id"], _forum_author(parent))
+    return {"ok": True, "posts": store.list_forum_posts(section)}
+
+
+@app.post("/api/forum/reply")
+def forum_create_reply(body: ForumReplyIn, request: Request):
+    parent = _require_parent(body.token)
+    _rate_limit("forum:" + parent["id"], limit=6, window_seconds=600, what="posts")
+    _rate_limit("forumip:" + _client_ip(request), limit=12, window_seconds=600, what="posts")
+    text = (body.body or "").strip()[:4000]
+    if len(text) < 2:
+        raise HTTPException(status_code=400, detail="Please write a reply first.")
+    if not store.create_forum_reply(uuid.uuid4().hex, (body.post_id or "").strip(),
+                                    text, parent["id"], _forum_author(parent)):
+        raise HTTPException(status_code=404, detail="That post isn't here anymore.")
+    return {"ok": True, "post": store.get_forum_post((body.post_id or "").strip())}
+
+
+@app.post("/api/forum/moderate")
+def forum_moderate(body: ForumModIn):
+    """Jim's moderation: soft-delete a post or reply. Needs FORUM_MOD_KEY (env)."""
+    _require_db()
+    mod_key = os.environ.get("FORUM_MOD_KEY", "").strip()
+    if not mod_key or not hmac.compare_digest((body.key or "").strip(), mod_key):
+        raise HTTPException(status_code=401, detail="Not authorized.")
+    if body.kind not in ("post", "reply"):
+        raise HTTPException(status_code=400, detail="kind must be 'post' or 'reply'.")
+    if not store.delete_forum_item(body.kind, (body.item_id or "").strip()):
+        raise HTTPException(status_code=404, detail="Nothing with that id.")
+    return {"ok": True}
+
+
 @app.get("/api/courses/{code}")
 def student_courses(code: str):
     """EVERY course this student has actually worked in, with units mastered/started -- for the
@@ -2037,7 +2171,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-31o-taxcode"
+APP_BUILD = "2026-07-31p-community"
 
 
 @app.get("/health")

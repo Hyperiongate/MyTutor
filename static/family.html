@@ -4,6 +4,9 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-07-31  HEADER v2 (Jim: still cramped -> "maybe two rows"): the top bar is now a
+    spacious TWO-ROW design -- brand + buttons on row one, centered generously-spaced links
+    on row two -- and gained two new links: /mission and /community. Same fix on all pages.
     2026-07-31  NEW PAGE: the FAMILY PORTAL (real parent accounts + billing). One page,
                 two states:
                   SIGNED OUT -> Create account / Sign in (email + password; the password
@@ -47,19 +50,17 @@
   .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
   .btn[disabled]{opacity:.55;cursor:wait;transform:none}
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
-  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
   .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
   .brand-sub{font-size:14px}
   .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
     background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
-  .nav-links{display:flex;gap:clamp(8px,1vw,12px);align-items:center;font-weight:600;font-size:14px;color:var(--muted);flex-wrap:nowrap}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
   .nav-links a{white-space:nowrap}
   .nav-links a:hover{color:var(--purple)}
   .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
   .nav-cta .btn{white-space:nowrap}
-  @media(max-width:1200px){.brand-sub{display:none}}
-  @media(max-width:1040px){.nav-in{height:auto;flex-wrap:wrap;padding:10px 0;row-gap:4px}
-    .nav-links{order:3;width:100%;flex-wrap:wrap;gap:6px 16px;font-size:14px;padding-bottom:2px}}
+  @media(max-width:620px){.brand-sub{display:none}.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
   header.page{padding:46px 0 6px;text-align:center}
   .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
   h1{font-size:38px;letter-spacing:-.02em;margin:10px 0 8px;font-weight:850}
@@ -101,21 +102,25 @@
 </style>
 </head>
 <body>
-<nav><div class="wrap nav-in">
+<nav><div class="wrap">
+  <div class="nav-top">
   <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Student sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
   <div class="nav-links">
     <a href="/#how">How it works</a>
+    <a href="/mission">Our mission</a>
     <a href="/homeschool">Homeschool</a>
     <a href="/courses">Courses</a>
     <a href="/students">Students</a>
     <a href="/parents">Parents</a>
     <a href="/teachers">Teachers</a>
+    <a href="/community">Community</a>
     <a href="/pricing">Pricing</a>
     <a href="mailto:support@mrcadabra.com">Contact</a>
-  </div>
-  <div class="nav-cta">
-    <a class="btn btn-ghost" href="/login">Student sign in</a>
-    <a class="btn btn-primary" href="/demo">Try a lesson</a>
   </div>
 </div></nav>
 
