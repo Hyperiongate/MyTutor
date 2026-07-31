@@ -4,6 +4,8 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  Answer-bar placeholder now plainly reads "Type your answer here… (press Enter to
+                send)" to match the lesson screen. Do no harm.
     2026-07-30  HELP TIPS (Jim: "?-in-a-circle anywhere someone could get confused"): included the
                 new shared /static/help-tips.js, which plants small ? buttons with popup explanations
                 next to the answer bar, 🧮 Math Keyboard, 📈 Graph, quick replies (and on the
@@ -450,7 +452,7 @@
         <div class="hint" id="hint">Let's take a look at your problem…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
-          <input id="input" placeholder="Write your response here, then press Enter…" autocomplete="off" />
+          <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
           <button id="send">Send</button>
         </div>
         <div class="live" id="live"></div>
@@ -466,7 +468,7 @@
       <div class="probbar" id="probBar"><span class="pi">📝</span><span class="pl">Your problem</span><b id="probText"></b></div>
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your work will appear here.</div></div>
       <div class="feedbar">
-        <input id="chatInput" placeholder="Write your response here, then press Enter…" autocomplete="off" />
+        <input id="chatInput" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
         <button id="chatSend">Send</button>
       </div>
     </div>

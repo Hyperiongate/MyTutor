@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  ANSWER BAR UNDER THE WHITEBOARD (Jim's review): the type-your-answer box moved
+                from the narrow left rail to a FULL-WIDTH labeled bar ("✏️ Your answer · Type your
+                answer here…") directly beneath the whiteboard. Same #composer/#input/#send ids, so
+                showComposer/sendTyped and the shared components (math keyboard, graph, help tips)
+                attach unchanged; new .center .composer styles. Do no harm.
     2026-07-30  HELP TIPS (Jim: "?-in-a-circle anywhere someone could get confused"): included the
                 new shared /static/help-tips.js, which plants small ? buttons with popup explanations
                 next to the answer bar, 🧮 Math Keyboard, 📈 Graph, quick replies (and on the
@@ -526,6 +531,17 @@
       50% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px rgba(91,91,214,.28); } }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
+    /* ANSWER BAR beneath the whiteboard (2026-07-30): full width of the board column,
+       plainly labeled, prominent. Overrides the old narrow left-rail composer look. */
+    .center .composer { max-width: none; margin: 0 24px 18px; align-items: center;
+      background: var(--panel); border: 1.5px solid var(--line); border-radius: 16px;
+      padding: 10px 12px; box-shadow: 0 10px 28px rgba(20,30,45,.08); }
+    .center .composer.show { display: flex; flex-wrap: wrap; row-gap: 6px; }
+    .center .composer .ablabel { font-weight: 800; font-size: 14px; color: var(--accent);
+      white-space: nowrap; flex: 0 0 auto; }
+    .center .composer input { flex: 1 1 220px; min-width: 0; font-size: 16px;
+      padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; }
+    @media (max-width: 900px) { .center .composer { margin: 0 12px 14px; } }
     .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
       border-radius: 11px; outline: none; }
     .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
@@ -652,10 +668,6 @@
         </div>
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
-        <div class="composer" id="composer">
-          <input id="input" placeholder="Write your response here, then press Enter…" autocomplete="off" />
-          <button id="send">Send</button>
-        </div>
         <div class="live" id="live"></div>
       </div>
 
@@ -672,6 +684,15 @@
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
 
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
+
+      <!-- ANSWER BAR (moved 2026-07-30 from the left rail): full width, directly beneath the
+           whiteboard, plainly labeled. Same #composer/#input/#send ids, so every existing hook
+           (showComposer, sendTyped, math-keyboard.js, graph-input.js, help-tips.js) just works. -->
+      <div class="composer" id="composer">
+        <span class="ablabel">✏️ Your answer</span>
+        <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
+        <button id="send">Send</button>
+      </div>
     </div>
   </div>
 
