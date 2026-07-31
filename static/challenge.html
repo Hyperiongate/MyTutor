@@ -4,6 +4,10 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
+                /static/app-nav.js -- labeled pill links (🏠 Home · 🎓 My lesson · 📊 Progress ·
+                🔄 Switch course · ✉️ Contact) injected into the top bar, context-aware per page,
+                hiding the old obscure link when replaced. Additive; one script tag. Do no harm.
     2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): every "kick back to
                 login" redirect now targets /login instead of "/" (the marketing landing page took
                 over the root URL), and the page gained the site favicon. Do no harm.
@@ -1046,6 +1050,7 @@
 
   </script>
   <script src="/static/time-tracker.js"></script>
+  <script src="/static/app-nav.js"></script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->
