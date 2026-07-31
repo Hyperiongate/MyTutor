@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  homeschool.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-07-30  NEW PAGE (Jim: "this should scream homeschooling"). Dedicated /homeschool page:
+                parent-view screenshot (read-only progress + "where to help next"), the student's
+                own dashboard, the honest engaged-time story (real work only -- instructional-hours
+                logs), the weekly email report (clearly labeled "coming with launch" -- it is NOT
+                built yet; do not remove that label until it ships), and the records/requirements
+                section (printable scope & sequence, hours log, mastery evidence) with a
+                states-differ disclaimer (no legal claims about meeting any specific state's
+                requirements). Nav "Homeschool" tab added across the marketing site.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyTutor — Homeschool Math: teaching, records &amp; honest hours</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<link rel="canonical" href="https://mrcadabra.com/homeschool" />
+<meta name="description" content="Homeschool math with a talking tutor: a read-only parent view, honest time-on-task for instructional-hour logs, printable scope & sequence for every course, and weekly progress reports.">
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;gap:24px;align-items:center;font-weight:600;font-size:15px;color:var(--muted)}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:860px){.nav-links{display:none}}
+  header.page{padding:56px 0 10px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:40px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  h2{font-size:30px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:64ch;margin:0 auto}
+  section{padding:40px 0}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+  .card h3{font-size:19px;margin:2px 0 8px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .band{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--purple);background:#f1edff;border-radius:999px;padding:4px 11px;margin-bottom:10px}
+  ul.units{list-style:none;margin-top:12px;display:grid;grid-template-columns:1fr;gap:6px}
+  ul.units li{font-size:14px;color:var(--ink);display:flex;gap:9px;align-items:baseline}
+  ul.units li b{color:var(--teal);font-weight:800;min-width:20px}
+  .shot{width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:block}
+  .cap{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:26px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  @media print{nav,.nav-cta,footer,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/homeschool" class="here">Homeschool</a>
+    <a href="/courses">Courses</a>
+    <a href="/teachers">For teachers</a>
+    <a href="/pricing">Pricing</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+</div></nav>
+<header class="page wrap">
+  <span class="eyebrow">Built for homeschool families</span>
+  <h1>The math teacher in your homeschool — <span class="grad-text">patient, honest, and always on call</span>.</h1>
+  <p class="sub">Mr. Cadabra teaches every lesson out loud, one Socratic step at a time — and MyTutor quietly keeps
+  the records a homeschool family actually needs: real progress, real time-on-task, and a printable plan for
+  every course.</p>
+  <p style="margin-top:18px"><a class="btn btn-primary" href="/demo">Try a lesson free</a>
+  <a class="btn btn-ghost" href="/courses" style="margin-left:8px">See all 8 courses</a></p>
+</header>
+
+<section class="wrap">
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <span class="eyebrow">Your window in</span>
+      <h2>Watch your student's progress — without hovering.</h2>
+      <p style="color:var(--muted);font-size:16px;margin-top:8px">Your parent code opens a <b>read-only view</b> of your child's
+      real progress: what's mastered, what's slipping, and — most useful of all — <b>"where to help next."</b>
+      No made-up numbers, no participation trophies: every score comes from an actual check your student took.</p>
+      <p style="color:var(--muted);font-size:16px;margin-top:10px">Teaching more than one child? Each gets their own code,
+      their own dashboard, and their own pace.</p>
+    </div>
+    <div>
+      <img class="shot" src="/static/shots/parent.png" alt="The MyTutor parent view: a read-only dashboard summarizing how Maya is doing, where to help next, and honest weekly time" />
+      <p class="cap">The parent view. <i>(Shown with sample data.)</i></p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <img class="shot" src="/static/shots/dashboard.png" alt="The student's own progress dashboard: a nine-unit learning journey with mastered units marked by gold stars, plus streak and accuracy tiles" />
+      <p class="cap">The student's own dashboard — the same honest data, made motivating. <i>(Sample data.)</i></p>
+    </div>
+    <div>
+      <span class="eyebrow">Ownership</span>
+      <h2>Students track their own journey.</h2>
+      <p style="color:var(--muted);font-size:16px;margin-top:8px">Your student sees the same truth you do: a nine-unit path
+      through each course, units turning <b>gold as they're mastered</b>, a day streak to keep alive, and "strengthen next"
+      suggestions that make the next step obvious. Progress they can <i>see</i> is progress they chase.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <span class="eyebrow" style="display:block;text-align:center">Honest hours</span>
+  <h2 style="text-align:center">We track time the way a homeschool log needs it — <span class="grad-text">real work only</span>.</h2>
+  <p class="sub" style="text-align:center;margin-top:8px">MyTutor counts a minute only when the lesson tab is actually open
+  <b>and</b> your student is actually doing something. Walk away, switch tabs, leave it running — the clock stops.
+  So "3h 59m this week" means three hours and fifty-nine minutes of <i>math</i>, a number you can put in an
+  instructional-hours log with a straight face.</p>
+  <img class="shot" src="/static/shots/timetile.png" style="margin-top:22px" alt="Dashboard tiles: units mastered, day streak, accuracy, problems practiced, and time this week — 3h 59m, real work only" />
+  <p class="cap">Every dashboard shows it: today, this week, per course. <i>(Sample data.)</i></p>
+</section>
+
+<section class="wrap">
+  <div class="card" style="padding:30px">
+    <div class="grid g2" style="align-items:center">
+      <div>
+        <span class="eyebrow">Coming with launch</span>
+        <h2>📬 A weekly report in your inbox.</h2>
+        <p style="color:var(--muted);font-size:16px;margin-top:8px">Every Friday: minutes of real work, units advanced,
+        checks passed, and one suggestion for the week ahead — the week's homeschool record, written for you.
+        Included with every plan at launch.</p>
+      </div>
+      <div class="card" style="background:#faf9ff">
+        <p style="font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:700">Preview</p>
+        <p style="font-size:15px;margin-top:8px"><b>Maya's week with MyTutor</b></p>
+        <ul class="units" style="margin-top:10px">
+          <li><b>⏱</b> 3h 59m of real work across 5 days</li>
+          <li><b>★</b> Mastered: Fractions (check score 84%)</li>
+          <li><b>↗</b> Working on: Decimals — best check 72%</li>
+          <li><b>💡</b> This week: ten minutes of percent practice would go a long way</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <span class="eyebrow" style="display:block;text-align:center">Records &amp; requirements</span>
+  <h2 style="text-align:center">Homeschool paperwork, handled.</h2>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>🖨 A printable plan</h3><p>Every course page doubles as a <b>scope &amp; sequence</b> — all nine units,
+      printable for portfolios and curriculum filings. <a href="/courses" style="color:var(--purple);font-weight:700">See the courses →</a></p></div>
+    <div class="card"><h3>⏱ An hours log you can trust</h3><p>Engaged-time tracking gives you honest instructional minutes per
+      day and per course — many states ask homeschoolers to keep exactly this.</p></div>
+    <div class="card"><h3>★ Mastery evidence</h3><p>Scored unit checks, accuracy, and assessment results — a running record of
+      demonstrated skill, not just attendance.</p></div>
+  </div>
+  <p class="cap" style="margin-top:16px">Homeschool rules differ by state — MyTutor gives you the records and the plan;
+  you stay in charge of your state's specifics.</p>
+</section>
+
+<section class="wrap"><div class="grid g3">
+  <div class="card"><h3>🎯 Meets them where they are</h3><p>Placement starts each student at the right unit — an older student
+    can rebuild fractions without ever seeing a grade level on screen.</p></div>
+  <div class="card"><h3>🔇 No microphone, ever</h3><p>Mr. Cadabra talks; your student types (with a built-in math keyboard).
+    No student voice is recorded — quiet-friendly and one less privacy worry.</p></div>
+  <div class="card"><h3>📚 Works with your curriculum</h3><p>Use it as the math spine or alongside what you already love —
+    practice mode coaches your student through <i>any</i> problem they bring.</p></div>
+</div></section>
+
+<section class="wrap" style="text-align:center">
+  <div class="card" style="padding:36px">
+    <h2>Homeschool families are who this was built for.</h2>
+    <p class="sub" style="margin-bottom:20px">Try a full lesson free — no card, no microphone. Founding families lock in
+    introductory pricing and get a direct line to the builder.</p>
+    <a class="btn btn-primary" href="/demo">Try a lesson free</a>
+    <a class="btn btn-ghost" href="/pricing" style="margin-left:8px">See pricing</a>
+  </div>
+</section>
+<footer><div class="wrap foot-in">
+  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/teachers">For teachers</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
+</div></footer>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

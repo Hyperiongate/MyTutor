@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30k-homeschool". NEW route /homeschool serving the dedicated
+#               homeschool marketing page (Jim: "this should scream homeschooling"): parent-view +
+#               student-dashboard screenshots, honest engaged-time story, weekly email report
+#               (labeled "coming with launch" -- not built yet), records/requirements section.
+#               Homeschool tab added to nav + footer across the marketing site; landing hero pill
+#               now leads with "Built for homeschool families". New shots: parent.png, timetile.png.
 #   2026-07-30  APP_BUILD -> "2026-07-30j-demofix". DEMO SCRIPT FIXES (Jim's playtest): the demo's
 #               board no longer reveals "x = 4" before asking the student to type it (the student
 #               now computes 8÷2 and the board confirms AFTER, with a check line), and the power-key
@@ -797,6 +803,12 @@ def demo_page():
     return FileResponse(STATIC_DIR / "demo.html")
 
 
+@app.get("/homeschool")
+def homeschool_page():
+    """Marketing: the dedicated homeschool page (parent view, honest hours, records)."""
+    return FileResponse(STATIC_DIR / "homeschool.html")
+
+
 @app.get("/courses")
 def courses_page():
     """Marketing: all eight courses with every unit listed (printable scope & sequence)."""
@@ -1268,7 +1280,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30j-demofix"
+APP_BUILD = "2026-07-30k-homeschool"
 
 
 @app.get("/health")
