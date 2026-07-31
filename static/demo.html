@@ -2,6 +2,13 @@
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (2026-07-30, newest first):
+  - 2026-07-30  SCRIPT FIXES from Jim's playtest: (1) the board used to REVEAL "x = 4" and then ask
+    the student to type it -- pointless, and it violated the never-run-ahead promise. Now the divide
+    step shows only the ÷2 operation; the student computes 8÷2 and types the answer, and ONLY THEN
+    the board confirms "x = 4" plus the check line (keypad steps can now draw board rows on success).
+    (2) The power-key instructions were backwards (following them produced "^23"): now spoken and
+    wrong-answer text both say "type 2, then the xⁿ key, then 3." VOICE_LINES updated to match
+    (and main.py's DEMO_VOICE_LINES updated identically -- the lists must stay in sync).
   - 2026-07-30  WARM VOICE. The demo no longer sounds robotic: say() now plays Mr. Cadabra's REAL
     ElevenLabs voice from /api/demo-audio/{i} (a server-side whitelist of exactly these fixed lines,
     cached after the first render — near-zero marginal cost), falling back to the browser voice only
@@ -158,14 +165,14 @@
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
     "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
     "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
-    "Nice — divide both sides by two, and x is finally alone.",
+    "Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
     "Careful — two x means two times x, so we undo it with division. Give it another go!",
-    "Your turn to prove it. Using the keyboard, type what x equals.",
-    "You got it — x equals four!",
-    "Close — look at the last line on the board: x = 4. Type that.",
-    "One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+    "So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
+    "You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
+    "Close — eight divided by two. What number is that? Type it in.",
+    "One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
     "Beautiful — two to the third, which is eight. You used the power key like a pro.",
-    "Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!",
+    "Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!",
     "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time."
   ];
   var serverVoiceOK=true, curAudio=null;
@@ -222,17 +229,18 @@
 
     {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
      input:{type:"choice", choices:["Divide both sides by 2","Subtract 2 from both sides","Multiply both sides by 2"],
-            correct:0, right:"Nice — divide both sides by two, and x is finally alone.",
+            correct:0, right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
-            board:[["÷2        ÷2","op"],["x = 4",""]]}},
+            board:[["÷2        ÷2","op"]]}},
 
-    {say:"Your turn to prove it. Using the keyboard, type what x equals.",
-     input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four!",
-            wrong:"Close — look at the last line on the board: x = 4. Type that."}},
+    {say:"So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
+     input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
+            wrong:"Close — eight divided by two. What number is that? Type it in.",
+            board:[["x = 4",""],["check:  2·4 + 3 = 11  ✓","op"]]}},
 
-    {say:"One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+    {say:"One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
      input:{type:"keypad", accept:["2^3","8"], right:"Beautiful — two to the third, which is eight. You used the power key like a pro.",
-            wrong:"Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!"}},
+            wrong:"Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!"}},
 
     {end:true}
   ];
@@ -296,6 +304,7 @@
     function submit(){
       var v=input.value.replace(/\s+/g,'').toLowerCase();
       if(inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase();}).indexOf(v)>=0){
+        if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });   // the board confirms AFTER the student answers — never before
         fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
       } else {

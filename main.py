@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30j-demofix". DEMO SCRIPT FIXES (Jim's playtest): the demo's
+#               board no longer reveals "x = 4" before asking the student to type it (the student
+#               now computes 8÷2 and the board confirms AFTER, with a check line), and the power-key
+#               instructions now give the correct order (2, then xⁿ, then 3 -- the old wording
+#               produced "^23"). DEMO_VOICE_LINES updated to the six new/changed lines; MUST stay
+#               identical to demo.html's VOICE_LINES.
 #   2026-07-30  APP_BUILD -> "2026-07-30i-website". MULTI-PAGE MARKETING SITE + WARM DEMO VOICE
 #               (Jim's feedback: one-page anchor nav felt like a one-person company; no product
 #               screenshots; demo voice was robotic).
@@ -1262,7 +1268,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30i-website"
+APP_BUILD = "2026-07-30j-demofix"
 
 
 @app.get("/health")
@@ -1598,14 +1604,14 @@ DEMO_VOICE_LINES = [
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
     "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
     "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
-    "Nice — divide both sides by two, and x is finally alone.",
+    "Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
     "Careful — two x means two times x, so we undo it with division. Give it another go!",
-    "Your turn to prove it. Using the keyboard, type what x equals.",
-    "You got it — x equals four!",
-    "Close — look at the last line on the board: x = 4. Type that.",
-    "One quick challenge to show off the keyboard. Tap the x-to-the-n key and type two to the third power.",
+    "So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
+    "You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
+    "Close — eight divided by two. What number is that? Type it in.",
+    "One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
     "Beautiful — two to the third, which is eight. You used the power key like a pro.",
-    "Tap the xⁿ key, then 2 then 3 — you want 2^3. Try it!",
+    "Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!",
     "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time.",
 ]
 
