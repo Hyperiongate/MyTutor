@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  AWARDS TABLE (student reward system). New additive table `awards` (code, award_id,
+#               earned_at -- one row per earn, kept forever) + get_awards()/record_awards().
+#               Mastery badges/course trophies are recomputed live from unit_checks, but EFFORT
+#               awards (streak medals, minute milestones, practice counts) must persist once
+#               earned -- a 7-day-streak medal doesn't vanish when the streak breaks. earned_at
+#               powers the dashboard's "NEW!" celebration. create_all builds it; no migration.
 #   2026-07-30  ENGAGED-TIME TRACKING (parents asked "how long did my kid actually work?"). New
 #               additive table `time_daily` (code, course, day 'YYYY-MM-DD', minutes) plus
 #               record_minutes() and get_time(). One row per student/course/day; main.py's
@@ -267,6 +273,16 @@ def init():
             Column("day", String(10), primary_key=True),
             Column("minutes", Integer, default=0),
             Column("updated_at", DateTime(timezone=True)),
+        )
+        # AWARDS (2026-07-30): the student's earned trophies/awards, ONE ROW PER EARN, kept
+        # forever. Badges/trophies are recomputed from mastery data, but effort awards
+        # (streaks, minutes, practice milestones) must PERSIST once earned -- a 7-day-streak
+        # medal doesn't vanish when the streak breaks. earned_at powers the "NEW!" celebration.
+        _tables["awards"] = Table(
+            "awards", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("award_id", String(48), primary_key=True),
+            Column("earned_at", DateTime(timezone=True)),
         )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
@@ -550,6 +566,27 @@ def get_time(code: str, days: int = 14) -> list:
                             .order_by(t.c.day.desc())
                             .limit(max(1, int(days)) * 12)).all()   # 12 courses of headroom/day
     return [{"day": r[0], "course": r[1], "minutes": r[2] or 0} for r in rows]
+
+
+# ---- awards (2026-07-30) -----------------------------------------------------
+def get_awards(code: str) -> dict:
+    """This student's earned awards: {award_id: earned_at_iso}."""
+    from sqlalchemy import select
+    t = _tables["awards"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.award_id, t.c.earned_at)
+                            .where(t.c.code == code)).all()
+    return {r[0]: (r[1].isoformat() if r[1] else None) for r in rows}
+
+
+def record_awards(code: str, award_ids: list) -> None:
+    """Persist newly-earned awards (idempotent; existing rows keep their original earned_at)."""
+    existing = get_awards(code)
+    now = _now()
+    for aid in award_ids:
+        if aid in existing:
+            continue
+        _upsert("awards", {"code": code, "award_id": aid}, {"earned_at": now})
 
 
 # ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30l-rewards". STUDENT REWARD SYSTEM + FOR-STUDENTS PAGE.
+#               (1) NEW GET /api/awards/{code}: merit badges (one per mastered unit, per course),
+#                   course trophies (all 9 units mastered), and effort awards (AWARD_DEFS: streaks,
+#                   engaged-minute milestones, practice volume, Brave Start, Perfect Check, Bounce
+#                   Back, Explorer, Pathfinder) -- all computed from data the app already records
+#                   honestly. Effort awards PERSIST once earned (new store.awards table), with a
+#                   48h "NEW!" window and a "next up" nudge. Design rule: every award names what
+#                   the student DID -- process praise, never person praise.
+#               (2) TUTOR AWARENESS: /api/chat appends a note when an award was earned in the last
+#                   48h so Mr. Cadabra congratulates the effort once, then keeps teaching.
+#               (3) Dashboard gained the 🏆 TROPHY CASE (dashboard.html); NEW route /students
+#                   serves the student how-to page (lesson flow, tools, the earnable-awards list --
+#                   keep its list in sync with AWARD_DEFS).
 #   2026-07-30  APP_BUILD -> "2026-07-30k-homeschool". NEW route /homeschool serving the dedicated
 #               homeschool marketing page (Jim: "this should scream homeschooling"): parent-view +
 #               student-dashboard screenshots, honest engaged-time story, weekly email report
@@ -809,6 +822,12 @@ def homeschool_page():
     return FileResponse(STATIC_DIR / "homeschool.html")
 
 
+@app.get("/students")
+def students_page():
+    """Marketing/help: the student how-to page (lesson flow, tools, earnable awards)."""
+    return FileResponse(STATIC_DIR / "students.html")
+
+
 @app.get("/courses")
 def courses_page():
     """Marketing: all eight courses with every unit listed (printable scope & sequence)."""
@@ -889,6 +908,147 @@ def privacy_page():
 def terms_page():
     """Terms of use, billing and refund basics (attorney review pending)."""
     return FileResponse(STATIC_DIR / "terms.html")
+
+
+# =============================================================================
+# STUDENT REWARDS (2026-07-30) -- merit badges, course trophies, effort awards
+# -----------------------------------------------------------------------------
+# Three kinds of recognition, ALL computed from data the app already records
+# honestly (nothing invented, nothing participation-trophy about it):
+#   - MERIT BADGES: one per unit mastered (check >= 80%), collected per course.
+#   - COURSE TROPHIES: all nine units of a course mastered.
+#   - EFFORT AWARDS: streaks, engaged minutes, practice volume, courage
+#     (first check), growth (Bounce Back: mastered a unit after failing a
+#     check on it), range (Explorer/Pathfinder). Awards PERSIST once earned
+#     (store.awards) -- a streak medal survives the streak breaking.
+# Design rule (matches the tutor's pedagogy): every award names something the
+# student DID -- worked, persisted, came back -- never "you're smart."
+AWARD_DEFS = {
+    # id: (icon, name, description, family, threshold-or-None)
+    "streak3":    ("🔥", "Spark",         "Worked 3 days in a row", "streak", 3),
+    "streak7":    ("🔥", "Blaze",         "Worked 7 days in a row", "streak", 7),
+    "streak30":   ("🔥", "Unstoppable",   "Worked 30 days in a row", "streak", 30),
+    "min100":     ("⏱", "Century Club",   "100 minutes of real work", "minutes", 100),
+    "min500":     ("⏱", "500 Club",       "500 minutes of real work", "minutes", 500),
+    "min1000":    ("⏱", "Scholar",        "1,000 minutes of real work", "minutes", 1000),
+    "prac10":     ("✏️", "First Ten",     "Practiced 10 problems", "practice", 10),
+    "prac50":     ("✏️", "Workhorse",     "Practiced 50 problems", "practice", 50),
+    "prac100":    ("✏️", "Centurion",     "Practiced 100 problems", "practice", 100),
+    "firstcheck": ("🎯", "Brave Start",   "Took your first check", "one", None),
+    "perfect":    ("💯", "Perfect Check", "Scored 100% on a check", "one", None),
+    "bounceback": ("💪", "Bounce Back",   "Mastered a unit after a tough first check", "one", None),
+    "explorer":   ("🧭", "Explorer",      "Worked in two different courses", "one", None),
+    "pathfinder": ("🗺️", "Pathfinder",   "Completed a course assessment", "one", None),
+}
+
+
+@app.get("/api/awards/{code}")
+def awards_state(code: str):
+    """The student's trophy case: course trophies, per-course merit-badge counts, and
+    effort awards (persisted once earned). Honest {tracking:false} when the DB is off."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"tracking": False, "trophies": [], "badges": {}, "awards": []}
+
+    trophies, badges = [], {}
+    any_check = perfect = bounce = False
+    try:
+        activity = store.get_course_activity(code)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[awards] activity failed: {exc}")
+        activity = {}
+    stats = {}
+    for course_id in activity:
+        try:
+            mastery = store.get_mastery(code, course_id)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[awards] mastery({course_id}) failed: {exc}")
+            continue
+        stats = mastery.get("stats") or stats
+        checks = mastery.get("checks", {})
+        unit_names = dict(curriculum.units_for(course_id))
+        mastered_units = []
+        for unit, cinfo in checks.items():
+            taken = int(cinfo.get("checks_taken") or 0)
+            best = int(cinfo.get("best_pct") or 0)
+            if taken:
+                any_check = True
+            if best >= 100:
+                perfect = True
+            if taken >= 2 and best >= 80:
+                bounce = True
+            if best >= 80:
+                mastered_units.append({"unit": unit, "name": unit_names.get(unit, f"Unit {unit}")})
+        mastered_units.sort(key=lambda u: u["unit"])
+        total_units = len(unit_names) or 9
+        badges[course_id] = {"course_title": curriculum.course_title(course_id),
+                             "earned": mastered_units, "total": total_units}
+        if len(mastered_units) >= total_units:
+            trophies.append({"course": course_id, "title": curriculum.course_title(course_id)})
+
+    total_minutes = 0
+    try:
+        total_minutes = sum(r["minutes"] for r in store.get_time(code, days=400))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[awards] time failed: {exc}")
+    streak = int((stats or {}).get("streak_days") or 0)
+    practiced = int((stats or {}).get("problems_practiced") or 0)
+    placed = any(bool(read_placement(code, cid)) for cid in curriculum.COURSE_ORDER)
+
+    computed = set()
+    for aid, (_ic, _nm, _ds, family, threshold) in AWARD_DEFS.items():
+        got = ((family == "streak" and streak >= threshold) or
+               (family == "minutes" and total_minutes >= threshold) or
+               (family == "practice" and practiced >= threshold) or
+               (family == "one" and {"firstcheck": any_check, "perfect": perfect,
+                                     "bounceback": bounce, "explorer": len(activity) >= 2,
+                                     "pathfinder": placed}[aid]))
+        if got:
+            computed.add(aid)
+    try:
+        store.record_awards(code, sorted(computed))
+        earned = store.get_awards(code)          # union: persisted awards never un-earn
+    except Exception as exc:  # noqa: BLE001
+        print(f"[awards] persist failed: {exc}")
+        earned = {a: None for a in computed}
+
+    from datetime import datetime, timezone, timedelta
+    fresh_cut = datetime.now(timezone.utc) - timedelta(hours=48)
+    out = []
+    for aid, when in earned.items():
+        if aid not in AWARD_DEFS:
+            continue
+        ic, nm, ds, _f, _t = AWARD_DEFS[aid]
+        is_new = False
+        try:
+            if when:
+                dt = datetime.fromisoformat(when)
+                if dt.tzinfo is None:            # SQLite returns naive datetimes; treat as UTC
+                    dt = dt.replace(tzinfo=timezone.utc)
+                is_new = dt >= fresh_cut
+        except (ValueError, TypeError):
+            pass
+        out.append({"id": aid, "icon": ic, "name": nm, "desc": ds,
+                    "earned_at": when, "new": is_new})
+    order = list(AWARD_DEFS.keys())
+    out.sort(key=lambda a: order.index(a["id"]))
+
+    # "Next up" nudges for the tiered families -- the dashboard shows ONE.
+    next_up = []
+    for family, value, unit_label in (("streak", streak, "day streak"),
+                                      ("minutes", total_minutes, "real minutes"),
+                                      ("practice", practiced, "problems practiced")):
+        tiers = sorted((t, aid) for aid, (_i, _n, _d, f, t) in AWARD_DEFS.items() if f == family)
+        for t, aid in tiers:
+            if aid not in earned:
+                _i, n, _d, _f, _t = AWARD_DEFS[aid]
+                next_up.append({"award": n, "icon": _i, "have": value, "need": t, "what": unit_label})
+                break
+    next_up.sort(key=lambda x: (x["need"] - x["have"]) / max(x["need"], 1))
+
+    return {"tracking": True, "trophies": trophies, "badges": badges,
+            "awards": out, "next_up": next_up[:1]}
 
 
 # -----------------------------------------------------------------------------
@@ -1280,7 +1440,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30k-homeschool"
+APP_BUILD = "2026-07-30l-rewards"
 
 
 @app.get("/health")
@@ -1384,6 +1544,30 @@ def chat(req: ChatRequest):
         student_context["mastery_note"] = mnote
     if 1 <= focus_unit <= 9:
         student_context["focus_unit"] = focus_unit
+
+    # REWARDS AWARENESS (2026-07-30): if the student earned an award in the last 48h, tell the
+    # tutor so he can congratulate them ONCE, by name, for what they DID. Wrapped: never breaks a turn.
+    try:
+        if store.enabled():
+            from datetime import datetime, timezone, timedelta
+            cut = datetime.now(timezone.utc) - timedelta(hours=48)
+            fresh = []
+            for aid, when in store.get_awards(code).items():
+                if aid not in AWARD_DEFS or not when:
+                    continue
+                dt = datetime.fromisoformat(when)
+                if dt.tzinfo is None:            # SQLite returns naive datetimes; treat as UTC
+                    dt = dt.replace(tzinfo=timezone.utc)
+                if dt >= cut:
+                    _i, nm, ds, _f, _t = AWARD_DEFS[aid]
+                    fresh.append(f"{nm} ({ds})")
+            if fresh:
+                student_context["mastery_note"] = (str(student_context.get("mastery_note", "")) +
+                    "\n[AWARDS: this student JUST earned: " + "; ".join(fresh[:3]) +
+                    ". If it fits naturally, congratulate them briefly ONCE for the effort it took "
+                    "-- then keep teaching. Don't repeat the congratulations every turn.]")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[awards] tutor note failed: {exc}")
 
     # OPENER: the app auto-sends "__open__" when the student opens the lesson (they did NOT
     # type anything). The OLD app sent a literal "Hi!" that got stored as a student turn, so
