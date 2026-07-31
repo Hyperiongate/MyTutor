@@ -4,6 +4,12 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-07-31  BETA PASSES: the student door now understands beta passes (TRY-XXXX). The
+                login helper returns the server payload, so beta sign-ins redirect with the
+                NORMALIZED code (typing try-maple42 still lands on TRY-MAPLE42's progress)
+                and the server's own kind messages (window ended / pass used up) show
+                verbatim instead of a generic 'not recognized'. Student/parent flows for
+                normal codes are byte-for-byte unchanged in behavior.
     2026-07-31  Parent door gained one line: a link to the NEW /family page (real parent
                 accounts + billing). The code-based parent view stays exactly as it was.
     2026-07-30  FRONT-DOOR SWAP (paired with main.py 2026-07-30h-frontdoor): this login screen
@@ -251,12 +257,19 @@
     }
 
     // Shared: confirm a STUDENT code exists before we send anyone to a student page.
+    // Returns the login payload on success, or null on failure (with the server's
+    // own message -- e.g. a beta pass that's used up -- kept in lastLoginError).
+    let lastLoginError = "";
     async function verifyStudent(code) {
       const res = await fetch("/api/login", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code })
       });
-      return res.ok;
+      let data = null;
+      try { data = await res.json(); } catch (e) {}
+      if (res.ok) return data || {};
+      lastLoginError = (data && data.detail) ? String(data.detail) : "";
+      return null;
     }
 
     // ---------------- STUDENT ----------------
@@ -266,12 +279,19 @@
       el("go").disabled = true;
       setMsg("msg", "Checking…", false);
       try {
-        if (!(await verifyStudent(code))) {
-          setMsg("msg", "That code was not recognized. Please try again.", true);
+        const data = await verifyStudent(code);
+        if (!data) {
+          setMsg("msg", lastLoginError || "That code was not recognized. Please try again.", true);
           el("go").disabled = false; return;
         }
-        setMsg("msg", "Welcome!", false);
-        window.location.href = "/home?code=" + encodeURIComponent(code);
+        // Beta passes come back with a normalized code + how many sign-ins remain.
+        const dest = data.code || code;
+        if (data.beta && data.beta_uses_left != null) {
+          setMsg("msg", "Welcome, beta tester! " + data.beta_uses_left + " of your sign-ins will remain after this one ends.", false);
+        } else {
+          setMsg("msg", "Welcome!", false);
+        }
+        window.location.href = "/home?code=" + encodeURIComponent(dest);
       } catch (err) {
         setMsg("msg", "Something went wrong. Please try again.", true);
         el("go").disabled = false;
@@ -290,7 +310,7 @@
       setMsg("pmsg", "Checking…", false);
       try {
         if (!(await verifyStudent(code))) {
-          setMsg("pmsg", "That code wasn't recognized. Check it with your child.", true);
+          setMsg("pmsg", lastLoginError || "That code wasn't recognized. Check it with your child.", true);
           el("pgo").disabled = false; return;
         }
         window.location.href = "/dashboard?code=" + encodeURIComponent(code) + "&view=parent";

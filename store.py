@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  BETA PASSES (Jim's beta-tester program). NEW table `beta_codes` (code,
+#               label, uses_allowed default 5, uses_used, window_hours default 2,
+#               window_expires_at, created_at, revoked) + create_beta_code /
+#               get_beta_code / beta_login / beta_window_active / list_beta_codes /
+#               revoke_beta_code. Semantics: each sign-in CONSUMES one use and opens a
+#               window (default 2h); sign-ins DURING an open window ride free; after
+#               uses_allowed windows the pass is done. Progress is keyed by the pass
+#               code like any student, so a tester continues where they left off.
+#               Brand-new table -> create_all builds it; nothing else touched.
 #   2026-07-31  COMMUNITY FORUM (parents post, everyone reads). Two NEW tables --
 #               `forum_posts` (id, section, title, body, parent_id, author_name,
 #               reply_count, created_at, deleted) and `forum_replies` (id, post_id,
@@ -333,6 +342,19 @@ def init():
             Column("code", String(64), primary_key=True),
             Column("award_id", String(48), primary_key=True),
             Column("earned_at", DateTime(timezone=True)),
+        )
+        # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
+        # of `uses_allowed` and opens a `window_hours` window of full access.
+        _tables["beta_codes"] = Table(
+            "beta_codes", _meta,
+            Column("code", String(24), primary_key=True),     # e.g. TRY-MAPLE42
+            Column("label", String(120)),                     # who Jim made it for
+            Column("uses_allowed", Integer, default=5),
+            Column("uses_used", Integer, default=0),
+            Column("window_hours", Integer, default=2),
+            Column("window_expires_at", DateTime(timezone=True)),
+            Column("created_at", DateTime(timezone=True)),
+            Column("revoked", Integer, default=0),
         )
         # COMMUNITY FORUM (2026-07-31): parents post, everyone reads. Soft deletes
         # only -- moderation flips deleted=1, nothing is ever destroyed.
@@ -1155,6 +1177,107 @@ def list_students_for_parent(parent_id: str) -> list:
                             .where(t.c.parent_id == parent_id)
                             .order_by(t.c.created_at)).fetchall()
     return [_row_to_dict(r, _ACCOUNT_COLS) for r in rows]
+
+
+# ---- beta passes (2026-07-31: Jim's beta-tester program) --------------------
+
+_BETA_COLS = ["code", "label", "uses_allowed", "uses_used", "window_hours",
+              "window_expires_at", "created_at", "revoked"]
+
+
+def _aware(dt):
+    """SQLite returns naive datetimes; treat them as UTC."""
+    if dt is not None and dt.tzinfo is None:
+        return dt.replace(tzinfo=_dt.timezone.utc)
+    return dt
+
+
+def create_beta_code(code: str, label: str = "", uses: int = 5, hours: int = 2) -> None:
+    from sqlalchemy import insert
+    t = _tables["beta_codes"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            code=code, label=(label or "").strip()[:120],
+            uses_allowed=max(1, min(int(uses), 50)),
+            uses_used=0, window_hours=max(1, min(int(hours), 24)),
+            window_expires_at=None, created_at=_now(), revoked=0))
+
+
+def get_beta_code(code: str):
+    from sqlalchemy import select
+    t = _tables["beta_codes"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _BETA_COLS])
+                         .where(t.c.code == (code or "").strip().upper())).first()
+    if not r:
+        return None
+    d = {c: r[i] for i, c in enumerate(_BETA_COLS)}
+    d["window_expires_at"] = _aware(d["window_expires_at"])
+    return d
+
+
+def beta_window_active(bc: dict) -> bool:
+    exp = bc.get("window_expires_at")
+    return bool(exp and exp > _now())
+
+
+def beta_login(code: str):
+    """One tester sign-in. Returns a status dict:
+      {'ok': True, 'uses_left': n, 'window_expires_at': dt, 'consumed': bool}
+      or {'ok': False, 'reason': 'unknown'|'revoked'|'exhausted'}
+    A sign-in during an open window rides free; otherwise it consumes one use and
+    opens a fresh window."""
+    from sqlalchemy import update
+    bc = get_beta_code(code)
+    if not bc:
+        return {"ok": False, "reason": "unknown"}
+    if bc["revoked"]:
+        return {"ok": False, "reason": "revoked"}
+    if beta_window_active(bc):
+        return {"ok": True, "consumed": False,
+                "uses_left": bc["uses_allowed"] - bc["uses_used"],
+                "window_expires_at": bc["window_expires_at"]}
+    if bc["uses_used"] >= bc["uses_allowed"]:
+        return {"ok": False, "reason": "exhausted"}
+    new_exp = _now() + _dt.timedelta(hours=int(bc["window_hours"] or 2))
+    t = _tables["beta_codes"]
+    with _engine.begin() as conn:
+        # Guarded update: only consume if the counters still match what we read,
+        # so two simultaneous sign-ins can't burn two uses for one window.
+        res = conn.execute(update(t).where(
+            (t.c.code == bc["code"]) & (t.c.uses_used == bc["uses_used"]) &
+            (t.c.revoked == 0)).values(
+            uses_used=bc["uses_used"] + 1, window_expires_at=new_exp))
+    if not res.rowcount:                      # lost a race: re-read and report honestly
+        return beta_login(code)
+    return {"ok": True, "consumed": True,
+            "uses_left": bc["uses_allowed"] - bc["uses_used"] - 1,
+            "window_expires_at": new_exp}
+
+
+def list_beta_codes(limit: int = 200) -> list:
+    from sqlalchemy import select
+    t = _tables["beta_codes"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(*[t.c[c] for c in _BETA_COLS])
+                            .order_by(t.c.created_at.desc()).limit(limit)).fetchall()
+    out = []
+    for r in rows:
+        d = {c: r[i] for i, c in enumerate(_BETA_COLS)}
+        for k in ("window_expires_at", "created_at"):
+            d[k] = _aware(d[k])
+            d[k] = d[k].isoformat() if d[k] else None
+        out.append(d)
+    return out
+
+
+def revoke_beta_code(code: str) -> bool:
+    from sqlalchemy import update
+    t = _tables["beta_codes"]
+    with _engine.begin() as conn:
+        res = conn.execute(update(t).where(t.c.code == (code or "").strip().upper())
+                           .values(revoked=1, window_expires_at=None))
+    return bool(res.rowcount)
 
 
 # ---- community forum (2026-07-31: parents post, everyone reads) -------------

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-31  APP_BUILD -> "2026-07-31q-beta". BETA-TESTER PROGRAM (Jim: "five free logins
+#               for approved beta testers... works five times... only stays open an hour or
+#               two"). NEW route /beta (public pitch + mailto application; ?admin=<key> shows
+#               Jim's pass generator). A beta pass (TRY-XXXX, store.beta_codes) grants FULL
+#               access: each /api/login consumes one of its uses (default 5) and opens a timed
+#               window (default 2h); sign-ins during an open window ride free (race-guarded);
+#               progress is keyed to the pass so testers continue across days. _lookup_student
+#               honors a pass only while its window is open; _student_or_404 explains expiry
+#               kindly ("sign in again -- N of 5 left" / "pass used up, thanks!") instead of a
+#               bare 404, and /api/login returns beta flags so the login page can greet
+#               testers with their remaining count. Admin: /api/beta/create|list|revoke,
+#               keyed on FORUM_MOD_KEY (constant-time compare). Marketing pages gained a slim
+#               gradient BETA RIBBON under the header -> /beta.
 #   2026-07-31  APP_BUILD -> "2026-07-31p-community". MISSION PAGE + COMMUNITY FORUM + HEADER v2.
 #               (1) NEW route /mission (static mission.html: fun / accessible / complete / taught
 #                   right -- every claim on it is something the product really does).
@@ -837,13 +850,39 @@ def _lookup_student(code: str):
                 "family": True,                       # marks a parent-managed student
                 "parent_id": acct["parent_id"],
             }
+        # BETA PASS (2026-07-31): valid ONLY while a sign-in window is open. Full
+        # access during the window (it's a trial of the real product); when the
+        # window lapses, _student_or_404 explains kindly instead of a bare 404.
+        bc = store.get_beta_code(code)
+        if bc and not bc.get("revoked") and store.beta_window_active(bc):
+            return {"name": bc.get("label") or "Beta tester", "grade": "",
+                    "progress": "", "beta": True}
     return None
+
+
+def _beta_404_detail(code: str):
+    """A kind, specific message when a KNOWN beta pass can't be used right now."""
+    if not store.enabled():
+        return None
+    bc = store.get_beta_code(code)
+    if not bc:
+        return None
+    if bc.get("revoked"):
+        return "This beta pass has been closed. Email support@mrcadabra.com if that seems wrong."
+    left = int(bc["uses_allowed"]) - int(bc["uses_used"])
+    if left <= 0:
+        return ("This beta pass has been used up — thank you for test-driving MyTutor! "
+                "We'd love your feedback at support@mrcadabra.com.")
+    return (f"Your beta session window has ended. Sign in again with this pass to keep "
+            f"going — {left} of {bc['uses_allowed']} sign-ins left.")
 
 
 def _student_or_404(code: str) -> dict:
     student = _lookup_student(code)
     if not student:
-        raise HTTPException(status_code=404, detail="That code was not recognized.")
+        beta_note = _beta_404_detail((code or "").strip())
+        raise HTTPException(status_code=404,
+                            detail=beta_note or "That code was not recognized.")
     return student
 
 
@@ -954,6 +993,12 @@ def family_page():
     """The family portal (2026-07-31): parent signup/sign-in, children + their codes,
     plan & billing. The page's own JS talks to /api/parent/* and /api/billing/*."""
     return FileResponse(BASE_DIR / "static" / "family.html")
+
+
+@app.get("/beta")
+def beta_page():
+    """Beta-tester program (2026-07-31): public pitch + Jim's ?admin= generator."""
+    return FileResponse(BASE_DIR / "static" / "beta.html")
 
 
 @app.get("/mission")
@@ -1717,6 +1762,65 @@ def parent_add_student(body: ParentStudentIn):
 
 
 # =============================================================================
+# BETA PASS ADMIN (2026-07-31) -- Jim's generator
+# -----------------------------------------------------------------------------
+# Keyed on FORUM_MOD_KEY (Jim's one admin key). The /beta page shows a generator
+# panel when opened as /beta?admin=<key>; these endpoints back it.
+# =============================================================================
+
+class BetaCreateIn(BaseModel):
+    key: str
+    label: str = ""            # who this pass is for (shows only to Jim)
+    uses: int = 5
+    hours: int = 2
+
+
+class BetaRevokeIn(BaseModel):
+    key: str
+    code: str
+
+
+def _require_admin(key: str) -> None:
+    admin = os.environ.get("FORUM_MOD_KEY", "").strip()
+    if not admin or not hmac.compare_digest((key or "").strip(), admin):
+        raise HTTPException(status_code=401, detail="Not authorized.")
+
+
+def _new_beta_code() -> str:
+    for _ in range(60):
+        code = f"TRY-{secrets.choice(_CODE_WORDS)}{secrets.randbelow(90) + 10}"
+        if code in STUDENTS or store.get_account(code) or store.get_beta_code(code):
+            continue
+        return code
+    return f"TRY-{secrets.token_hex(3).upper()}"
+
+
+@app.post("/api/beta/create")
+def beta_create(body: BetaCreateIn):
+    _require_db()
+    _require_admin(body.key)
+    code = _new_beta_code()
+    store.create_beta_code(code, body.label, body.uses, body.hours)
+    return {"ok": True, "code": code, "codes": store.list_beta_codes()}
+
+
+@app.get("/api/beta/list")
+def beta_list(key: str = ""):
+    _require_db()
+    _require_admin(key)
+    return {"ok": True, "codes": store.list_beta_codes()}
+
+
+@app.post("/api/beta/revoke")
+def beta_revoke(body: BetaRevokeIn):
+    _require_db()
+    _require_admin(body.key)
+    if not store.revoke_beta_code(body.code):
+        raise HTTPException(status_code=404, detail="No pass with that code.")
+    return {"ok": True, "codes": store.list_beta_codes()}
+
+
+# =============================================================================
 # BILLING -- Stripe Checkout + Customer Portal + webhook (2026-07-31)
 # -----------------------------------------------------------------------------
 # Cards never touch this server. "Subscribe" sends the parent to a Stripe-hosted
@@ -2171,7 +2275,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-31p-community"
+APP_BUILD = "2026-07-31q-beta"
 
 
 @app.get("/health")
@@ -2199,8 +2303,33 @@ def login(req: LoginRequest, request: Request):
     """
     # Brute-force guard: codes are short, so cap guesses per IP (20 / 5 min).
     _rate_limit("login:" + _client_ip(request), limit=20, window_seconds=300, what="login attempts")
-    student = _student_or_404(req.code)
     code = req.code.strip()
+
+    # BETA PASS sign-in (2026-07-31): consumes one of its uses and opens a timed
+    # window (unless a window is already open, which rides free). The response
+    # carries the pass status so the login page can say "3 of 5 sign-ins left".
+    if store.enabled() and store.get_beta_code(code):
+        status = store.beta_login(code)
+        if not status.get("ok"):
+            raise HTTPException(status_code=403, detail=_beta_404_detail(code) or
+                                "This beta pass can't be used right now.")
+        bcode = store.get_beta_code(code)["code"]        # normalized (uppercase)
+        session = get_session(bcode)
+        placement = read_placement(bcode)
+        return {
+            "ok": True,
+            "code": bcode,
+            "name": store.get_beta_code(code).get("label") or "Beta tester",
+            "returning": bool(session.get("history")),
+            "placed": bool(placement),
+            "tutor_name": tutor.TUTOR_NAME,
+            "beta": True,
+            "beta_uses_left": status.get("uses_left"),
+            "beta_window_ends": (status["window_expires_at"].isoformat()
+                                  if status.get("window_expires_at") else None),
+        }
+
+    student = _student_or_404(req.code)
     session = get_session(code)
     placement = read_placement(code)
     return {
