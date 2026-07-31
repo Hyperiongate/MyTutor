@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-07-30  APP_BUILD -> "2026-07-30m-parents". NEW route /parents serving the parent trust
+#               page (what the child experiences / what the parent sees / privacy promises /
+#               3-step start). "For parents" tab added to nav + footer across the marketing site.
 #   2026-07-30  APP_BUILD -> "2026-07-30l-rewards". STUDENT REWARD SYSTEM + FOR-STUDENTS PAGE.
 #               (1) NEW GET /api/awards/{code}: merit badges (one per mastered unit, per course),
 #                   course trophies (all 9 units mastered), and effort awards (AWARD_DEFS: streaks,
@@ -828,6 +831,12 @@ def students_page():
     return FileResponse(STATIC_DIR / "students.html")
 
 
+@app.get("/parents")
+def parents_page():
+    """Marketing: the parent trust page (child experience, parent view, privacy promises)."""
+    return FileResponse(STATIC_DIR / "parents.html")
+
+
 @app.get("/courses")
 def courses_page():
     """Marketing: all eight courses with every unit listed (printable scope & sequence)."""
@@ -1440,7 +1449,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-30l-rewards"
+APP_BUILD = "2026-07-30m-parents"
 
 
 @app.get("/health")

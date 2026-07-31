@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <!--
   =============================================================================
-  students.html  --  MyTutor  --  Hyperion Shift LLC
+  parents.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-    2026-07-30  NEW PAGE (Jim: a tab for students + the reward system). Student-facing how-to:
-                the lesson flow (sound on, board draws, type + Enter, hint buttons), the math
-                keyboard (with the CORRECT exponent order: base, then x^n, then power) and graph
-                paper, the full earnable-awards list (must match AWARD_DEFS in main.py -- update
-                together), badges/trophies explanation, and the dashboard tour. Doubles as the
-                student quick-start guide from the market-readiness punch list.
+    2026-07-30  NEW PAGE (Jim: a tab just for parents). The trust page for the paying adult,
+                distinct from /homeschool (records/hours/scope-&-sequence angle): what the child
+                experiences (Socratic, math-only, guardrailed, board never runs ahead), what the
+                parent sees (read-only parent view + honest time + weekly email flagged "at
+                launch" -- keep that flag until it ships), privacy promises (no mic / never sold /
+                parent holds keys), and a 3-step getting-started. Nav "For parents" tab added
+                across the marketing site.
   =============================================================================
 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyTutor — For Students: how it works &amp; what you can earn</title>
+<title>MyTutor — For Parents: what your child experiences, what you see</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-<link rel="canonical" href="https://mrcadabra.com/students" />
-<meta name="description" content="How MyTutor works for students: the talking lessons, the math keyboard and graph paper, and every merit badge, medal and trophy you can earn.">
+<link rel="canonical" href="https://mrcadabra.com/parents" />
+<meta name="description" content="For parents: a math tutor that teaches instead of answering, a read-only parent dashboard with honest time-on-task, and privacy promises we can keep — no microphone, no ads, never sold.">
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
     --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
@@ -78,8 +79,8 @@
     <a href="/#how">How it works</a>
     <a href="/homeschool">Homeschool</a>
     <a href="/courses">Courses</a>
-    <a href="/students" class="here">For students</a>
-    <a href="/parents">For parents</a>
+    <a href="/students">For students</a>
+    <a href="/parents" class="here">For parents</a>
     <a href="/teachers">For teachers</a>
     <a href="/pricing">Pricing</a>
   </div>
@@ -89,28 +90,27 @@
   </div>
 </div></nav>
 <header class="page wrap">
-  <span class="eyebrow">For students</span>
-  <h1>New here? <span class="grad-text">This is your map.</span></h1>
-  <p class="sub">Mr. Cadabra talks, the board draws, and you type. Here's how everything works —
-  and everything you can earn.</p>
-  <p style="margin-top:18px"><a class="btn btn-primary" href="/demo">Try a practice lesson</a>
-  <a class="btn btn-ghost" href="/login" style="margin-left:8px">I have a code — sign in</a></p>
+  <span class="eyebrow">For parents</span>
+  <h1><span class="grad-text">You stay in charge.</span></h1>
+  <p class="sub">What your child experiences, what you get to see, and how your family's data is treated —
+  the three things a parent actually wants to know before handing a kid a math app.</p>
 </header>
 
 <section class="wrap">
   <div class="grid g2" style="align-items:center">
     <div>
-      <span class="eyebrow">The lesson</span>
-      <h2>He talks. The board draws. You type.</h2>
-      <p style="color:var(--muted);font-size:16px;margin-top:8px"><b>Turn your sound on</b> — Mr. Cadabra explains every step
-      out loud while the whiteboard draws it. When it's your turn, type your answer in the box and press <b>Enter</b>.
-      Stuck? Use the <b>Yes / No / I'm confused</b> buttons, or ask for a <b>💡 Hint</b> — he gives nudges, never just the answer.</p>
-      <p style="color:var(--muted);font-size:16px;margin-top:10px">And here's the secret: <b>wrong answers are useful.</b>
-      Mr. Cadabra never makes you feel bad about one — he gets curious about it. That's how the learning happens.</p>
+      <span class="eyebrow">What your child experiences</span>
+      <h2>A tutor that teaches — and won't be talked out of it.</h2>
+      <p style="color:var(--muted);font-size:16px;margin-top:8px">Mr. Cadabra explains each step out loud in a warm voice,
+      draws it on a whiteboard, and asks the next question instead of handing over the answer — the way a good human
+      tutor works. He <b>never does the homework for them</b>: the board waits for your child's answer at every step.</p>
+      <p style="color:var(--muted);font-size:16px;margin-top:10px">And he stays on task: MyTutor is <b>math only</b>.
+      He won't chat about games or gossip, won't discuss other students, and politely refuses every attempt to pull
+      him off topic — including the creative ones kids try.</p>
     </div>
     <div>
-      <img class="shot" src="/static/shots/lesson.png" alt="A MyTutor lesson mid-solve: the whiteboard shows each step of 2x+3=11 while Mr. Cadabra asks the next question" />
-      <p class="cap">The board never runs ahead of you — it waits for YOUR answer.</p>
+      <img class="shot" src="/static/shots/lesson.png" alt="A MyTutor lesson: the whiteboard shows each step of a two-step equation while Mr. Cadabra asks the next question" />
+      <p class="cap">The board never runs ahead of the student.</p>
     </div>
   </div>
 </section>
@@ -118,54 +118,56 @@
 <section class="wrap">
   <div class="grid g2" style="align-items:center">
     <div>
-      <img class="shot" src="/static/shots/keyboard.png" alt="The built-in math keyboard with digits, operators, square root, exponents and comparison symbols" />
-      <p class="cap">Tap 🧮 Math Keyboard whenever you need a symbol.</p>
+      <img class="shot" src="/static/shots/parent.png" alt="The MyTutor parent view: how Maya is doing, where to help next, and honest time this week" />
+      <p class="cap">The parent view — read-only, always current. <i>(Sample data.)</i></p>
     </div>
     <div>
-      <span class="eyebrow">Your tools</span>
-      <h2>Real math symbols, no hunting.</h2>
-      <p style="color:var(--muted);font-size:16px;margin-top:8px">Need √, x², a fraction, or ≥? Tap <b>🧮 Math Keyboard</b>
-      next to the answer box. For exponents: type the base first, then the <b>xⁿ</b> key, then the power — so 2, xⁿ, 3 makes 2³.
-      There's <b>📈 graph paper</b> too: tap points onto the grid and send them straight to Mr. Cadabra.</p>
-      <p style="color:var(--muted);font-size:16px;margin-top:10px">Not sure how something works? <b>Just ask him.</b>
-      "How do I use the graph paper?" is a completely normal question — he knows every button.</p>
+      <span class="eyebrow">What you see</span>
+      <h2>Your own window, without hovering.</h2>
+      <p style="color:var(--muted);font-size:16px;margin-top:8px">Your parent code opens a read-only dashboard:
+      <b>how your child is doing, where to help next</b>, real accuracy from real scored checks, and honest
+      time-on-task — a minute counts only when your child is actually working, so "42 minutes today" means 42
+      minutes of math, not 42 minutes of an open tab.</p>
+      <p style="color:var(--muted);font-size:16px;margin-top:10px">📬 A <b>weekly progress email</b> — minutes, mastery,
+      and one suggestion for the week — is included with every plan at launch.</p>
     </div>
   </div>
 </section>
 
 <section class="wrap">
-  <span class="eyebrow" style="display:block;text-align:center">Earn it</span>
-  <h2 style="text-align:center">Merit badges, trophies, and medals — all real.</h2>
-  <p class="sub" style="text-align:center;margin-top:8px">Master a unit (score 80%+ on its check) and you earn its
-  <b>merit badge</b> — nine collectible badges per course. Master all nine and the whole <b>course trophy</b> goes in
-  your trophy case at the top of your dashboard. And these medals reward the work itself:</p>
-  <div class="grid g3" style="margin-top:26px"><div class="card"><h3>🔥 Spark / Blaze / Unstoppable</h3><p>Work 3, 7, or 30 days in a row</p></div><div class="card"><h3>⏱ Century Club / 500 Club / Scholar</h3><p>100, 500, or 1,000 minutes of real work — idle time never counts</p></div><div class="card"><h3>✏️ First Ten / Workhorse / Centurion</h3><p>Practice 10, 50, or 100 problems</p></div><div class="card"><h3>🎯 Brave Start</h3><p>Take your very first check</p></div><div class="card"><h3>💯 Perfect Check</h3><p>Score 100% on any check</p></div><div class="card"><h3>💪 Bounce Back</h3><p>Master a unit after a tough first check — the strongest one there is</p></div><div class="card"><h3>🧭 Explorer</h3><p>Work in two different courses</p></div><div class="card"><h3>🗺️ Pathfinder</h3><p>Complete a course assessment</p></div></div>
-  <p class="cap" style="margin-top:14px">Nothing here is a participation trophy — every one of these has to be earned.
-  That's what makes them worth showing off.</p>
+  <span class="eyebrow" style="display:block;text-align:center">Your family's data</span>
+  <h2 style="text-align:center">Privacy promises we can keep.</h2>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>🔇 No microphone, ever</h3><p>The tutor talks; your child types. No student voice is recorded
+      or sent anywhere — there's no microphone feature to worry about.</p></div>
+    <div class="card"><h3>🚫 Never sold, no ads</h3><p>We never sell student data and show no ads. We don't ask children
+      for email, phone, photos, or location — a first name (any name you like) and a code is all it takes.</p></div>
+    <div class="card"><h3>🔑 You hold the keys</h3><p>You get the codes, you see the dashboard, and you can have your
+      child's data deleted any time with one email. Formal parent accounts with consent are rolling out with launch.</p></div>
+  </div>
+  <p class="cap" style="margin-top:16px">The full plain-language policy is at <a href="/privacy" style="color:var(--purple);font-weight:700">Parents &amp; Privacy</a> — written to be read, not scrolled past.</p>
 </section>
 
 <section class="wrap">
-  <div class="grid g2" style="align-items:center">
-    <div>
-      <span class="eyebrow">Your progress</span>
-      <h2>Watch your journey fill in.</h2>
-      <p style="color:var(--muted);font-size:16px;margin-top:8px">Your dashboard shows your nine-unit path through each course —
-      units turn <b>gold with a star</b> when you master them. Keep your 🔥 streak alive by showing up, watch your accuracy climb,
-      and check "Strengthen next" when you want the fastest win.</p>
-    </div>
-    <div>
-      <img class="shot" src="/static/shots/dashboard.png" alt="The student dashboard: a nine-unit journey with gold mastered units, streak, accuracy and time tiles" />
-      <p class="cap">Your dashboard. <i>(Sample data.)</i></p>
-    </div>
+  <span class="eyebrow" style="display:block;text-align:center">Getting started</span>
+  <h2 style="text-align:center">Three steps, five minutes.</h2>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>1 · Try it yourself</h3><p>Take the two-minute <a href="/demo" style="color:var(--purple);font-weight:700">sample lesson</a> —
+      you'll know immediately whether this clicks for your child.</p></div>
+    <div class="card"><h3>2 · Get your codes</h3><p>One code for your child, one read-only code for you. Each child in the
+      family gets their own code, dashboard, and pace.</p></div>
+    <div class="card"><h3>3 · Watch it fill in</h3><p>A short placement check finds the right starting point; then units turn
+      gold, badges land in the trophy case, and your parent view keeps you in the loop.</p></div>
   </div>
 </section>
 
 <section class="wrap" style="text-align:center">
   <div class="card" style="padding:36px">
-    <h2>Ready?</h2>
-    <p class="sub" style="margin-bottom:20px">Try the practice lesson — or sign in with your code and go earn that first badge.</p>
-    <a class="btn btn-primary" href="/demo">Try a lesson</a>
-    <a class="btn btn-ghost" href="/login" style="margin-left:8px">Sign in</a>
+    <h2>Questions? A real person answers.</h2>
+    <p class="sub" style="margin-bottom:20px">Email <a href="mailto:support@mrcadabra.com" style="color:var(--purple);font-weight:700">support@mrcadabra.com</a>
+    and the person who builds MyTutor reads it. Homeschooling? There's a whole page for you.</p>
+    <a class="btn btn-primary" href="/demo">Try a lesson free</a>
+    <a class="btn btn-ghost" href="/homeschool" style="margin-left:8px">The homeschool page</a>
   </div>
 </section>
 <footer><div class="wrap foot-in">
