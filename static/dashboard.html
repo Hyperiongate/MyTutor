@@ -4,6 +4,12 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  TROPHY TOOLTIPS (Jim: "a description upon hover for things in the trophy case").
+                Every trophy/medal tile now shows a rich hover card: what KIND of award it is
+                (Course trophy / Effort medal), the full how-you-earn-it description, and the
+                date it was earned (effort medals persist their earned_at). Works on hover AND
+                keyboard focus (tiles are tabbable), and on touch a tap toggles it. One shared
+                floating card, data attached per tile after render — additive, no layout change.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
                 /static/app-nav.js -- labeled pill links (🏠 Home · 🎓 My lesson · 📊 Progress ·
                 🔄 Switch course · ✉️ Contact) injected into the top bar, context-aware per page,
@@ -136,6 +142,18 @@
     .trobadges b { color: var(--ink); }
     .tronext { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
     .troempty { font-size: 14px; color: var(--muted); }
+    /* TROPHY TOOLTIP (2026-08-01): one shared floating card, filled per tile on hover/focus/tap */
+    .tro { cursor: help; }
+    .tro:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+    #trotip { position: fixed; z-index: 90; max-width: 270px; background: #26263a; color: #fff;
+      border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.5;
+      box-shadow: 0 14px 34px rgba(20,30,45,.35); pointer-events: none; display: none; }
+    #trotip .tk { display: inline-block; font-size: 10.5px; font-weight: 900; letter-spacing: .05em;
+      text-transform: uppercase; background: rgba(255,255,255,.16); border-radius: 999px;
+      padding: 2px 9px; margin-bottom: 6px; }
+    #trotip .tn { font-weight: 800; font-size: 14px; display: block; margin-bottom: 3px; }
+    #trotip .td { color: #d7d5e6; display: block; }
+    #trotip .tw { color: #b9e6c9; display: block; margin-top: 6px; font-weight: 700; font-size: 12px; }
 
     /* KPI tiles */
     .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 12px; }
@@ -381,6 +399,45 @@
     }
     const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+    // TROPHY TOOLTIPS (2026-08-01): one shared floating card. Hover or keyboard-focus a
+    // tile to see the full story (kind, how it's earned, date earned); on touch, tap toggles.
+    function wireTroTips(box, tipData) {
+      let tip = document.getElementById("trotip");
+      if (!tip) { tip = document.createElement("div"); tip.id = "trotip"; document.body.appendChild(tip); }
+      const tiles = box.querySelectorAll(".tro");
+      function whenText(iso) {
+        if (!iso) return "";
+        try {
+          return "Earned " + new Date(iso).toLocaleDateString(undefined,
+            { year: "numeric", month: "long", day: "numeric" });
+        } catch (e) { return ""; }
+      }
+      function show(i, elTile) {
+        const d = tipData[i];
+        if (!d) return;
+        const w = whenText(d.when);
+        tip.innerHTML = `<span class="tk">${esc(d.kind)}</span><span class="tn">${esc(d.name)}</span>` +
+          `<span class="td">${esc(d.desc)}</span>` + (w ? `<span class="tw">🗓 ${esc(w)}</span>` : "");
+        tip.style.display = "block";
+        const r = elTile.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+        let x = Math.min(Math.max(8, r.left), window.innerWidth - tw - 8);
+        let y = r.top - th - 10;                       // prefer above the tile...
+        if (y < 8) y = r.bottom + 10;                  // ...flip below near the top edge
+        tip.style.left = x + "px"; tip.style.top = y + "px";
+      }
+      function hide() { tip.style.display = "none"; }
+      tiles.forEach((t, i) => {
+        t.addEventListener("mouseenter", () => show(i, t));
+        t.addEventListener("mouseleave", hide);
+        t.addEventListener("focus", () => show(i, t));
+        t.addEventListener("blur", hide);
+        t.addEventListener("click", () => {           // touch screens: tap toggles
+          (tip.style.display === "block") ? hide() : show(i, t);
+        });
+      });
+      window.addEventListener("scroll", hide, { passive: true });
+    }
+
     (async () => {
       let data;
       try {
@@ -463,10 +520,18 @@
           if (aw.tracking) {
             const wrap = el("trophyWrap"), box = el("trophyCase");
             wrap.style.display = "block";
-            const trophies = (aw.trophies || []).map(t =>
-              `<div class="tro"><span class="ic">🏆</span><span><span class="nm">${esc(t.title)}</span><br><span class="ds">Course completed — all 9 units mastered</span></span></div>`);
-            const medals = (aw.awards || []).map(a =>
-              `<div class="tro award${a.new ? " newly" : ""}">${a.new ? '<span class="newtag">NEW!</span>' : ""}<span class="ic">${a.icon}</span><span><span class="nm">${esc(a.name)}</span><br><span class="ds">${esc(a.desc)}</span></span></div>`);
+            // Each tile also carries a rich hover-card (kind / full story / earned date) --
+            // built as data here, attached to the tiles after render (see wireTroTips).
+            const tipData = [];
+            const trophies = (aw.trophies || []).map(t => {
+              tipData.push({ kind: "Course trophy", name: t.title,
+                desc: "The big one: every unit of " + t.title + " mastered — all 9, each proven with a real scored check. This trophy is earned, never given.", when: null });
+              return `<div class="tro" tabindex="0"><span class="ic">🏆</span><span><span class="nm">${esc(t.title)}</span><br><span class="ds">Course completed — all 9 units mastered</span></span></div>`;
+            });
+            const medals = (aw.awards || []).map(a => {
+              tipData.push({ kind: "Effort medal", name: a.name, desc: a.desc + ". Once earned, it's yours forever — medals never expire, even if a streak breaks later.", when: a.earned_at });
+              return `<div class="tro award${a.new ? " newly" : ""}" tabindex="0">${a.new ? '<span class="newtag">NEW!</span>' : ""}<span class="ic">${a.icon}</span><span><span class="nm">${esc(a.name)}</span><br><span class="ds">${esc(a.desc)}</span></span></div>`;
+            });
             const badgeBits = Object.values(aw.badges || {})
               .filter(b => (b.earned || []).length)
               .map(b => `<b>${(b.earned || []).length} of ${b.total}</b> ${esc(b.course_title)} badges`);
@@ -480,6 +545,7 @@
             const nu = (aw.next_up || [])[0];
             if (nu) h += `<div class="tronext">Next up: ${nu.icon} <b>${esc(nu.award)}</b> — ${nu.have} of ${nu.need} ${esc(nu.what)}</div>`;
             box.innerHTML = h;
+            wireTroTips(box, tipData);
             const newCount = (aw.awards || []).filter(a => a.new).length;
             el("trophyNote").textContent = newCount ? ("— " + newCount + " new!") : "";
           }
