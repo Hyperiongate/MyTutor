@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01f-terms180". KEY TERMS + STRAIGHT LINES (Jim's beta
+#               run, round 2): GROUND_RULES tells the tutor to wrap first-use key terms in
+#               **asterisks**; session/practice/topic render them bold red (.kterm). The
+#               [[angle]] figure now allows deg=180 (the 175 cap was silently bending the
+#               straight lines supplementary-angle lessons describe).
 #   2026-08-01  APP_BUILD -> "2026-08-01e-voicefit" (Jim's beta-route test). (1) FIRST-WORD
 #               CLIPPING: every TTS clip is now served with ~280ms of leading MP3 silence
 #               (matching ElevenLabs' format) so slow audio outputs swallow silence, not the
@@ -2341,7 +2346,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01e-voicefit"
+APP_BUILD = "2026-08-01f-terms180"
 
 
 @app.get("/health")

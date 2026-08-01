@@ -4,6 +4,9 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  KEY TERMS BOLD+RED (Jim): **term** from the tutor renders as a red bold
+                .kterm span (first-use vocabulary emphasis); asterisks never show raw and
+                the voice never reads them (forSpeech already strips them).
     2026-08-01  TOUR: new stop for the QUICK BUTTONS (Jim: "the tour should point out the Yes,
                 No and I'm confused shortcuts") -- glows #quickRow and frames 'I'm confused'
                 as a power move. Six stops total now.
@@ -449,6 +452,7 @@
     /* Variable styling: every algebra variable shows BOLD, CAPITAL, and RED --
        here in the visuals AND in the chat bubbles (styleVars() does the wrapping). */
     .mvar { color:#e0392b; font-weight:800; }
+    .kterm { font-weight: 800; color: #d1345b; }
 
     /* "Write on the whiteboard" -- the catch-all for showing the current equation/
        expression big and clear (via [[write]]). */
@@ -1485,6 +1489,21 @@
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function styleVars(raw) {
+      // KEY TERMS (2026-08-01, Jim): the tutor wraps a new/important term in **double asterisks**
+      // on first use; render it bold + red. Everything between markers skips variable-styling.
+      const src = String(raw == null ? "" : raw);
+      const parts = src.split(/\*\*([^*\n]{2,60}?)\*\*/g);
+      if (parts.length > 1) {
+        let html = "";
+        for (let i = 0; i < parts.length; i++) {
+          html += (i % 2 === 1) ? '<span class="kterm">' + escapeHTML(parts[i]) + "</span>"
+                                : styleVarsCore(parts[i]);
+        }
+        return html;
+      }
+      return styleVarsCore(src);
+    }
+    function styleVarsCore(raw) {
       const text = String(raw == null ? "" : raw).replace(/\*+/g, "");   // drop markdown * so *word* never shows raw
       let out = "", last = 0, m; const re = /[A-Za-z]+/g;
       while ((m = re.exec(text)) !== null) {

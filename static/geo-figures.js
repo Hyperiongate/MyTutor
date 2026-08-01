@@ -13,6 +13,8 @@
                  whiteboard. Figures are SCHEMATIC (not to scale) with clear labels -- standard for
                  teaching. Adds no dependency; pure string building.
    ============================================================================= */
+// 2026-08-01  [[angle]] deg cap 175 -> 180 (a straight line; the old cap bent them) and wide
+//             angles recentre so both rays fit the frame.
 // 2026-08-01  [[angle]] gained split="60" / split="60,30": an interior ray from the vertex
 //             splitting the angle, with the pieces labeled (second defaults to "?") -- so
 //             complementary/supplementary lessons can SHOW the split they talk about.
@@ -117,9 +119,11 @@
   // ---- [[angle]] : a single labeled angle with a degree measure ----
   function angle(a) {
     var W = 300, H = 212;
-    var deg = Math.max(5, Math.min(175, num(a.deg != null ? a.deg : a.measure, 45)));
+    // 2026-08-01: cap raised 175 -> 180. The old cap silently BENT straight lines (the tutor
+    // asked for 180 and got 175). Wide angles recentre the vertex so both rays stay visible.
+    var deg = Math.max(5, Math.min(180, num(a.deg != null ? a.deg : a.measure, 45)));
     var label = String(a.label || "").trim();
-    var V = [80, 172], Ln = 132, rad = deg * Math.PI / 180;
+    var V = [deg > 150 ? 150 : 80, 172], Ln = 132, rad = deg * Math.PI / 180;
     var r1 = [V[0] + Ln, V[1]];
     var r2 = [V[0] + Ln * Math.cos(rad), V[1] - Ln * Math.sin(rad)];
     var s = open(W, H);
@@ -133,7 +137,8 @@
     } else {
       s += '<path d="M ' + a1[0] + " " + a1[1] + " A " + ar + " " + ar + " 0 0 0 " + a2[0] + " " + a2[1] +
         '" fill="none" stroke="' + TEAL + '" stroke-width="2"/>';
-      var half = rad / 2, lr = ar + 17;
+      // with a split, push the TOTAL label further out so it doesn't collide with the pieces
+      var half = rad / 2, lr = ar + (String(a.split || "").trim() ? 44 : 17);
       s += txt(V[0] + lr * Math.cos(half), V[1] - lr * Math.sin(half), deg + "°", TEAL, 14, 700);
     }
     // 2026-08-01 (Jim's beta run: the tutor SAID "a ray splits it into two smaller angles"

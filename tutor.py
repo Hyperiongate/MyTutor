@@ -2,6 +2,10 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  KEY TERMS BOLD+RED (Jim): GROUND_RULES rule 1b -- first use of a new/important
+#               term is wrapped **like this**; the pages render it bold red (kterm). Also
+#               [[angle]] doc: deg now goes to 180 (a straight line) -- the renderer's old
+#               175-degree cap was silently BENDING straight lines (Jim's 175-vs-180 catch).
 #   2026-08-01  PICTURE-MATCHES-WORDS (Jim's beta run: 'let's build a picture' then the figure
 #               lacked the splitting ray it described). Geometry template: [[angle]] documents
 #               the new split=".." attribute (geo-figures.js draws the interior ray + labeled
@@ -937,9 +941,11 @@ play (a figure beats a paragraph):
       EQUAL (e.g. "AB,CA" puts a tick on each, showing they're congruent).
   - [[angle deg="50" label="ABC" caption="..."]]  a single angle of that many degrees; the middle
       letter of label is the vertex (it draws a right-angle square automatically at 90).
-      OPTIONAL split="60" draws a ray from the vertex SPLITTING the angle into a 60° piece and
-      the remainder (labeled "?"); split="60,30" labels both pieces. Use it whenever you SAY an
-      angle is split, cut, or divided -- so the picture shows the ray you're talking about.
+      deg goes up to 180 -- deg="180" IS a straight line, exactly what supplementary-angle
+      questions need. OPTIONAL split="60" draws a ray from the vertex SPLITTING the angle into a
+      60° piece and the remainder (labeled "?"); split="60,30" labels both pieces. So "a straight
+      line split into 110° and what?" = [[angle deg="180" label="ABC" split="110"]]. Use split
+      whenever you SAY an angle is split, cut, or divided -- the picture must show that ray.
   - [[circle center="O" r="5" inscribed="80" caption="..."]]  a circle with center O; r labels a
       radius; inscribed draws an inscribed angle intercepting that arc (and labels it as half).
   - [[graph lines="y=2x+1" points="(3,4)"]]  the coordinate plane, for Unit 7 and anything on a grid.
@@ -3030,6 +3036,11 @@ and warmly steer back to math.
    topic they're curious about (arithmetic through calculus and beyond). Real-world word problems are
    welcome (batting averages, money, distances, sports statistics) as long as the actual task is the
    MATH in them.
+1b. KEY-TERM HIGHLIGHTING. The FIRST time you introduce a NEW or IMPORTANT math term
+   (complementary, supplementary, hypotenuse, coefficient, variable, congruent...), wrap exactly
+   that word or short phrase in double asterisks: **supplementary**. The app renders it bold and
+   red so it stands out. First introduction only -- never bold whole sentences, never re-mark a
+   term after its debut, and never bold ordinary words.
 2. DON'T WANDER. If asked about anything that is NOT math -- sports scores, news, jokes, video games,
    other school subjects, writing an essay, personal chit-chat, opinions on non-math topics -- do NOT
    do it. Give ONE short, kind sentence ("that's outside what I can help with here") and turn it back

@@ -4,6 +4,9 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  KEY TERMS BOLD+RED (Jim): **term** from the tutor renders as a red bold
+                .kterm span (first-use vocabulary emphasis); asterisks never show raw and
+                the voice never reads them (forSpeech already strips them).
     2026-08-01  NO MICROPHONE, EVER: canRecord hard-false (master switch), so the dormant
                 tap-to-talk code can never request mic permission. Matches session.html.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
@@ -150,6 +153,7 @@
       color: var(--ink); border-bottom-left-radius: 5px; }
     .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
     .feed .bubble.student .mvar { color: #ffe08a; }
+    .kterm { font-weight: 800; color: #d1345b; }
     .feed .bubble.system { align-self: center; background: transparent; border: none; color: var(--muted);
       font-size: 13px; padding: 2px; }
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
@@ -880,6 +884,21 @@
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     function styleVars(raw) {
+      // KEY TERMS (2026-08-01, Jim): the tutor wraps a new/important term in **double asterisks**
+      // on first use; render it bold + red. Everything between markers skips variable-styling.
+      const src = String(raw == null ? "" : raw);
+      const parts = src.split(/\*\*([^*\n]{2,60}?)\*\*/g);
+      if (parts.length > 1) {
+        let html = "";
+        for (let i = 0; i < parts.length; i++) {
+          html += (i % 2 === 1) ? '<span class="kterm">' + escapeHTML(parts[i]) + "</span>"
+                                : styleVarsCore(parts[i]);
+        }
+        return html;
+      }
+      return styleVarsCore(src);
+    }
+    function styleVarsCore(raw) {
       const text = String(raw == null ? "" : raw).replace(/\*+/g, "");   // drop markdown * so *word* never shows raw
       let out = "", last = 0, m; const re = /[A-Za-z]+/g;
       while ((m = re.exec(text)) !== null) {
