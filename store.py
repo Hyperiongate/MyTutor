@@ -564,6 +564,19 @@ def get_session(code: str, course: str = DEFAULT_COURSE) -> dict:
     return out
 
 
+def has_any_history(code: str) -> bool:
+    """Has this student EVER had a lesson conversation, in ANY course? (2026-08-01:
+    powers 'one screen tour per student, not one per course'.)"""
+    from sqlalchemy import select
+    t = _tables["sessions"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.history).where(t.c.code == code)).fetchall()
+    for (h,) in rows:
+        if _loads(h, []):
+            return True
+    return False
+
+
 def save_session(code: str, session: dict, course: str = DEFAULT_COURSE) -> None:
     values = {
         "history": json.dumps(session.get("history", []), ensure_ascii=False),

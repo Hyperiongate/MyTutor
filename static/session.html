@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  ONE TOUR PER STUDENT (Jim: switching to a new course gave him the whole tour
+                again). /api/session now returns `toured` (has this student had a lesson in
+                ANY course); the tour runs only when BOTH this course is fresh AND the student
+                has never had a lesson anywhere. A new course just gets Mr. Cadabra's welcome.
     2026-08-01  TOUR FIXED (Jim: "he talks about the curriculum twice... 'this is me' and I
                 have no idea where to look"). The 'this is me' stop pointed at #tutorPanel,
                 an element REMOVED in an earlier redesign — highlight silently no-oped. The
@@ -1813,13 +1817,17 @@
     // ---------- Welcome overlay -> begin the session ----------
     const welcome = el("welcome");
     let hasHistory = false;
+    let touredAnywhere = false;   // 2026-08-01: the screen tour runs ONCE PER STUDENT (server flag)
     async function begin() {
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
       await warmUpAudio();   // prime the audio pipeline so his first word isn't clipped
       showComposer();   // 2026-08-01: NO microphone, ever — he talks, you type (see canRecord)
-      if (!hasHistory) { busy = true; setPhase("busy"); runTour(); }     // first lesson: Mr. Cadabra welcomes + tours, then teaches
-      else { busy = true; setPhase("busy"); kickoff(); }                 // returning: welcome back + recap, then continue
+      // The tour only runs for a student's very FIRST lesson ever. A student who
+      // switches into a new course skips it — Mr. Cadabra just welcomes them into
+      // the new subject and starts teaching.
+      if (!hasHistory && !touredAnywhere) { busy = true; setPhase("busy"); runTour(); }
+      else { busy = true; setPhase("busy"); kickoff(); }
     }
     el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
@@ -1905,7 +1913,7 @@
     // ---------- Load ----------
     async function loadSession() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
-      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "He talks — you type. Use the answer box below (the 🧮 Math Keyboard has every symbol)."; showComposer(); }
+      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "He talks — you type. Your answer box is at the BOTTOM of the screen, next to the 🧮 Math Keyboard."; showComposer(); }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { window.location.href = "/login"; return; }
@@ -1913,6 +1921,7 @@
         const placed = !!data.placed;
         const history = data.history || [];
         hasHistory = history.length > 0;
+        touredAnywhere = !!data.toured;
         // The assessment is VOLUNTARY (2026-07-28): a brand-new student is NO LONGER redirected
         // to it. They start the lesson at Unit 1 and can take the Course Assessment from the
         // sidebar whenever they like.

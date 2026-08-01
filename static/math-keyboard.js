@@ -1,6 +1,10 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-01  NOT-A-CALCULATOR (Jim). The keyboard sheet opens with a one-line caption --
+ *               'This isn't a calculator... it TYPES into your answer' -- and the reminder
+ *               above the answer bar now says the TWO WAYS to answer (type directly, or use
+ *               the Math Keyboard for symbols). Same keys, same behavior everywhere.
  *   2026-07-30  (b) RENAME + START-OF-LESSON REMINDER. The 🧮 opener is renamed "🧮 Math Keyboard"
  *               (was "Math numbers & symbols"), on both the chat bars and the intake. A one-line
  *               reminder is now injected ABOVE the chat answer bar from the start -- "Tap 🧮 Math
@@ -97,6 +101,9 @@
       ".mtk-send{width:100%;margin-top:8px;border:none;border-radius:12px;font-weight:800;font-size:16px;padding:13px;cursor:pointer;" +
       "background:linear-gradient(135deg,var(--accent,#6d5ae6),var(--accent2,#1fb6b0));color:#fff}" +
       ".mtk-hint{font-size:12.5px;line-height:1.35;color:var(--muted,#5b6079);margin:0 2px 6px;opacity:.92}" +
+      ".mtk-caption{font-size:12px;line-height:1.45;color:var(--muted,#5b6079);background:#f6f3ff;" +
+      "border:1px dashed var(--accent,#6d5ae6);border-radius:10px;padding:7px 11px;margin:8px 0 8px}" +
+      ".mtk-caption b{color:var(--accent,#6d5ae6)}" +
       ".mtk-hint b{color:var(--accent,#6d5ae6);font-weight:800}";
     document.head.appendChild(css);
 
@@ -178,9 +185,15 @@
       var prev = document.createElement("div"); prev.className = "mtk-prev";
       var closeBtn = document.createElement("button"); closeBtn.type = "button"; closeBtn.className = "mtk-x"; closeBtn.textContent = "Close";
       top.appendChild(prev); top.appendChild(closeBtn);
+      // 2026-08-01 (Jim: "it looks like a calculator -- it needs an explanation"):
+      // one plain sentence at the top of the sheet saying what this IS and ISN'T.
+      var caption = document.createElement("div");
+      caption.className = "mtk-caption";
+      caption.innerHTML = "<b>This isn\u2019t a calculator</b> \u2014 it doesn\u2019t compute anything. " +
+        "It TYPES into your answer: numbers, plus the math symbols (\u221a, x\u00b2, fractions) you can\u2019t find on a regular keyboard.";
       var grid = document.createElement("div"); grid.className = "mtk-grid";
       var sendKey = document.createElement("button"); sendKey.type = "button"; sendKey.className = "mtk-send"; sendKey.textContent = opts.sendLabel || "Send answer ➤";
-      sheet.appendChild(top); sheet.appendChild(grid); sheet.appendChild(sendKey);
+      sheet.appendChild(top); sheet.appendChild(caption); sheet.appendChild(grid); sheet.appendChild(sendKey);
       wrap.appendChild(sheet);
       document.body.appendChild(wrap);
 
@@ -239,7 +252,7 @@
 
     // ---- attach to the in-lesson answer bar (Send button already hidden above; tools + Enter still send) ----
     if (chatInput) attachKeypad(chatInput, chatSend, { openText: "🧮 Math Keyboard", sendLabel: "Send answer ➤", barWrap: true,
-      hintText: '💡 Tap <b>🧮 Math Keyboard</b> to type math symbols &mdash; square roots, exponents (x²), fractions and more.' });
+      hintText: '✏️ <b>Two ways to answer:</b> type right here in the answer box &mdash; or tap <b>🧮 Math Keyboard</b> for the math symbols you may need (square roots, exponents, fractions).' });
 
     // ---- attach to the practice INTAKE box ("what problem are you stuck on?") ----
     if (entryInput) attachKeypad(entryInput, entrySend, { openText: "🧮 Math Keyboard", sendLabel: "Use this problem ➤", barWrap: false });

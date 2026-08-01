@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01c-onetour". (1) ONE SCREEN TOUR PER STUDENT: /api/
+#               session returns `toured` = store.has_any_history(code) (any course; JSON
+#               fallback scans the sessions file) -- switching courses no longer replays the
+#               tour. (2) Math Keyboard sheet gained a 'this isn't a calculator -- it TYPES
+#               into your answer' caption + the answer-bar reminder now names the TWO ways
+#               to answer (static/math-keyboard.js). (3) Lesson sidebar hint now truthfully
+#               says the answer box is at the BOTTOM of the screen.
 #   2026-08-01  APP_BUILD -> "2026-08-01b-demofix". DEMO MADE REPRESENTATIVE (Jim's playtest:
 #               the demo showed multiple-choice taps, but the real product has NO multiple
 #               choice anywhere -- students type with the math keyboard). DEMO_VOICE_LINES
@@ -2316,7 +2323,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01b-demofix"
+APP_BUILD = "2026-08-01c-onetour"
 
 
 @app.get("/health")
@@ -2402,7 +2409,24 @@ def session_state(code: str, course: str = "algebra1"):
         "history": session.get("history", []),
         "placement": placement,
         "placed": bool(placement),
+        # 2026-08-01: has this student had a lesson in ANY course? The screen tour
+        # runs ONCE PER STUDENT -- switching courses skips straight to the lesson.
+        "toured": _has_any_history(code),
     }
+
+
+def _has_any_history(code: str) -> bool:
+    """True if the student has lesson history in ANY course (DB or JSON files)."""
+    try:
+        if store.enabled():
+            return store.has_any_history(code)
+        allx = _read_all_sessions()
+        for key, sess in allx.items():
+            if (key == code or key.startswith(code + "|")) and (sess or {}).get("history"):
+                return True
+    except Exception as exc:  # noqa: BLE001 -- worst case: they see the tour again
+        print(f"[tour] has_any_history failed for {code}: {exc}")
+    return False
 
 
 @app.post("/api/chat")
