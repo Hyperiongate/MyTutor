@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
-  Notes (2026-07-30, newest first):
+  Notes (newest first):
+  - 2026-08-01  REPRESENTATIVE DEMO (Jim's playtest: "there's no multiple choice anywhere in the
+    real product" + the pointless "Okay, let's go" click). Both concept questions are now answered
+    by TYPING with the math keyboard ("−3", "÷2" — flexible matching also accepts typed words like
+    "subtract 3" from a physical keyboard), exactly like a real lesson. The intro now flows straight
+    into the first question (one spoken line, no dead click). Enter submits. VOICE_LINES updated to
+    match (and main.py's DEMO_VOICE_LINES updated identically -- the lists must stay IN SYNC).
   - 2026-07-30  SCRIPT FIXES from Jim's playtest: (1) the board used to REVEAL "x = 4" and then ask
     the student to type it -- pointless, and it violated the never-run-ahead promise. Now the divide
     step shows only the ÷2 operation; the student computes 8÷2 and types the answer, and ONLY THEN
@@ -160,11 +166,10 @@
   // line costs ElevenLabs once EVER, then replays free. If the server can't provide audio
   // (offline preview / no key), we fall back to the browser's built-in voice as before.
   var VOICE_LINES=[
-    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
-    "First move: what should we do to BOTH sides to undo that plus three?",
+    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
-    "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
-    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
+    "Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
+    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
     "Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
     "Careful — two x means two times x, so we undo it with division. Give it another go!",
     "So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
@@ -217,19 +222,24 @@
   function clearAnswer(){ answer.innerHTML=''; }
 
   // ---- the scripted lesson ----
+  // 2026-08-01 (Jim's playtest): NO multiple choice — the real product doesn't have any, so the
+  // demo doesn't either. Every question is answered by TYPING with the math keyboard, exactly
+  // like a real lesson ("−3", "÷2", "4", "2^3"). The redundant "Okay, let's go" click is gone:
+  // the intro flows straight into the first question. `match` = flexible answer patterns, so
+  // "−3", "-3", or a typed "subtract 3" (physical keyboard) all count.
   var steps=[
-    {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
-     board:[["2x + 3 = 11",""]], input:{type:"continue",label:"Okay, let's go ▶"}},
-
-    {say:"First move: what should we do to BOTH sides to undo that plus three?",
-     input:{type:"choice", choices:["Subtract 3 from both sides","Add 3 to both sides","Divide both sides by 2"],
-            correct:0, right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
-            wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
+    {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
+     board:[["2x + 3 = 11",""]],
+     input:{type:"keypad", hint:"your move (an operation)",
+            match:[/^[-−]3$/, /subtract\s*(3|three)/, /minus\s*(3|three)/, /take\s*(away)?\s*(3|three)/],
+            right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
+            wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
             board:[["−3       −3","op"],["2x = 8",""]]}},
 
-    {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
-     input:{type:"choice", choices:["Divide both sides by 2","Subtract 2 from both sides","Multiply both sides by 2"],
-            correct:0, right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
+    {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
+     input:{type:"keypad", hint:"your move (an operation)",
+            match:[/^[÷\/]\s*2$/, /divide[^2]*(2|two)/, /(over|by)\s*(2|two)$/, /half/],
+            right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
             board:[["÷2        ÷2","op"]]}},
 
@@ -258,32 +268,8 @@
 
   function renderInput(inp){
     clearAnswer();
-    if(inp.type==="continue"){
-      var b=document.createElement('button'); b.className='cta'; b.textContent=inp.label;
-      b.onclick=next; answer.appendChild(b); return;
-    }
-    if(inp.type==="choice"){
-      var p=document.createElement('div'); p.className='prompt'; p.textContent='Tap your answer:'; answer.appendChild(p);
-      var wrap=document.createElement('div'); wrap.className='choices';
-      inp.choices.forEach(function(c,idx){
-        var btn=document.createElement('button'); btn.className='choice'; btn.textContent=c;
-        btn.onclick=function(){
-          if(idx===inp.correct){
-            btn.classList.add('right');
-            if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });
-            feedback(inp.right,true);
-            disableChoices(); setTimeout(next,1700);
-          } else {
-            btn.classList.add('wrong'); feedback(inp.wrong,false); say(inp.wrong);
-          }
-        };
-        wrap.appendChild(btn);
-      });
-      answer.appendChild(wrap); return;
-    }
     if(inp.type==="keypad"){ renderKeypad(inp); }
   }
-  function disableChoices(){ answer.querySelectorAll('.choice').forEach(function(b){b.style.pointerEvents='none';}); }
   function feedback(text,ok){
     var f=answer.querySelector('.fb')||document.createElement('div');
     f.className='fb '+(ok?'ok':'no'); f.textContent=(ok?'✓ ':'')+text;
@@ -294,7 +280,7 @@
   function renderKeypad(inp){
     var row=document.createElement('div'); row.className='ansrow';
     var input=document.createElement('input'); input.type='text'; input.setAttribute('inputmode','none');
-    input.placeholder='your answer'; input.autocomplete='off';
+    input.placeholder=inp.hint||'your answer'; input.autocomplete='off';
     var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
     row.appendChild(input); row.appendChild(check);
     var kp=buildKeys(input);
@@ -303,7 +289,11 @@
     wrap.appendChild(row); wrap.appendChild(fb); wrap.appendChild(kp); answer.appendChild(wrap);
     function submit(){
       var v=input.value.replace(/\s+/g,'').toLowerCase();
-      if(inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase();}).indexOf(v)>=0){
+      if(!v) return;                                   // nothing typed yet: no scolding
+      var ok=false;
+      if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase();}).indexOf(v)>=0; }
+      if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
+      if(ok){
         if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });   // the board confirms AFTER the student answers — never before
         fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
@@ -312,6 +302,7 @@
       }
     }
     check.onclick=submit;
+    input.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submit(); });
   }
   function buildKeys(input){
     var caret=0;

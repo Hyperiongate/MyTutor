@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01b-demofix". DEMO MADE REPRESENTATIVE (Jim's playtest:
+#               the demo showed multiple-choice taps, but the real product has NO multiple
+#               choice anywhere -- students type with the math keyboard). DEMO_VOICE_LINES
+#               updated in lockstep with demo.html's VOICE_LINES: intro + first question are
+#               now ONE line (the redundant "Okay, let's go" click is gone) and both concept
+#               questions say "type your move". List shrank 14 -> 13 entries; audio for new
+#               lines is generated+cached on first play, same as before.
 #   2026-08-01  APP_BUILD -> "2026-08-01a-betastamp" (Jim: the live site looked like it takes
 #               payment, but Stripe is in test mode -- "we are not taking payment at this
 #               time"). NEW _payments_open(): payments count as OPEN only when the Stripe key
@@ -2309,7 +2316,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01a-betastamp"
+APP_BUILD = "2026-08-01b-demofix"
 
 
 @app.get("/health")
@@ -2695,11 +2702,10 @@ def _tts_stream_response(text: str):
 # (it's the public demo); per-IP rate limited. KEEP THIS LIST IDENTICAL to VOICE_LINES
 # in static/demo.html -- update both together.
 DEMO_VOICE_LINES = [
-    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself.",
-    "First move: what should we do to BOTH sides to undo that plus three?",
+    "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
-    "Not quite — the plus three is being added, so we do the opposite: subtract. Try again!",
-    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two?",
+    "Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
+    "Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
     "Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
     "Careful — two x means two times x, so we undo it with division. Give it another go!",
     "So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
