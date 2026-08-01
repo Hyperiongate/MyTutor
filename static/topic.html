@@ -4,6 +4,8 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  NO MICROPHONE, EVER: canRecord hard-false (master switch), so the dormant
+                tap-to-talk code can never request mic permission. Matches session.html.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
                 /static/app-nav.js -- labeled pill links (🏠 Home · 🎓 My lesson · 📊 Progress ·
                 🔄 Switch course · ✉️ Contact) injected into the top bar, context-aware per page,
@@ -1145,7 +1147,8 @@
     if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
 
     // ---------- Tap-to-talk ----------
-    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    // 2026-08-01: MASTER SWITCH OFF — "no microphone, ever" (see session.html note).
+    const canRecord = false;
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     const quickRow = el("quickRow");

@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  NO MICROPHONE, EVER (Jim's live check: Chrome asked for the mic on the new
+                domain). begin() used to PRE-REQUEST getUserMedia so tap-to-talk would 'just
+                work' — removed; canRecord is now hard-false (master switch), so the browser
+                can never ask, matching the promise on the parents/mission/privacy pages.
+                Recording code kept dormant below the switch. Type-in flow untouched.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
                 /static/app-nav.js -- labeled pill links (🏠 Home · 🎓 My lesson · 📊 Progress ·
                 🔄 Switch course · ✉️ Contact) injected into the top bar, context-aware per page,
@@ -1695,7 +1700,12 @@
     // The mic is ONLY on while the student is recording (they tapped the glowing
     // button). Recorded audio is posted to /api/transcribe (ElevenLabs Scribe),
     // which is reliable in every modern browser -- unlike the built-in recognizer.
-    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    // 2026-08-01: MASTER SWITCH OFF. The product promise (parents page, mission, privacy) is
+    // "no microphone, ever" — the tutor talks, the student TYPES. With this false, the talk
+    // button never shows, startRecording() can never run, and the browser never asks for
+    // mic permission. The recording code below is kept dormant in case a future opt-in
+    // voice-input tier ever revives it deliberately.
+    const canRecord = false;
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
@@ -1781,10 +1791,7 @@
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
       await warmUpAudio();   // prime the audio pipeline so his first word isn't clipped
-      if (canRecord) {   // prompt for the mic up front so tap-to-talk just works
-        try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); }
-        catch (e) { hint.textContent = "Mic access is needed to talk — allow it in your browser, or use 'Type instead'."; }
-      } else { showComposer(); }
+      showComposer();   // 2026-08-01: NO microphone, ever — he talks, you type (see canRecord)
       if (!hasHistory) { busy = true; setPhase("busy"); runTour(); }     // first lesson: Mr. Cadabra welcomes + tours, then teaches
       else { busy = true; setPhase("busy"); kickoff(); }                 // returning: welcome back + recap, then continue
     }
@@ -1867,7 +1874,7 @@
     // ---------- Load ----------
     async function loadSession() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
-      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "Voice recording isn't supported here — type instead."; showComposer(); }
+      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "He talks — you type. Use the answer box below (the 🧮 Math Keyboard has every symbol)."; showComposer(); }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { window.location.href = "/login"; return; }
