@@ -2,6 +2,11 @@
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-01  GENEROUS ANSWER MATCHING (Jim typed "−3 from each side" and the demo said Not
+    quite — a correct answer rejected). Both concept questions now accept any reasonable
+    phrasing: "−3", "−3 from each side", "subtract 3 from both sides", "take away 3",
+    "÷2", "/2 on both sides", "divide each side by 2", "half"... The matchers run on the
+    space-stripped lowercase input; wrong operations (+3, ×2) still get the warm correction.
   - 2026-08-01  REPRESENTATIVE DEMO (Jim's playtest: "there's no multiple choice anywhere in the
     real product" + the pointless "Okay, let's go" click). Both concept questions are now answered
     by TYPING with the math keyboard ("−3", "÷2" — flexible matching also accepts typed words like
@@ -231,14 +236,16 @@
     {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
      board:[["2x + 3 = 11",""]],
      input:{type:"keypad", hint:"your move (an operation)",
-            match:[/^[-−]3$/, /subtract\s*(3|three)/, /minus\s*(3|three)/, /take\s*(away)?\s*(3|three)/],
+            match:[/[-−]3/, /subtract.{0,14}(3|three)/, /minus.{0,10}(3|three)/, /take.{0,10}(3|three)/,
+                   /remove.{0,10}(3|three)/, /(3|three)(from|off)(each|both|the)?side/],
             right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
             wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
             board:[["−3       −3","op"],["2x = 8",""]]}},
 
     {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
      input:{type:"keypad", hint:"your move (an operation)",
-            match:[/^[÷\/]\s*2$/, /divide[^2]*(2|two)/, /(over|by)\s*(2|two)$/, /half/],
+            match:[/[÷\/]2/, /divide.{0,20}(2|two)/, /over(2|two)/, /^by(2|two)$/, /half/,
+                   /(2|two)(oneach|onboth|eachside|bothsides)/],
             right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
             board:[["÷2        ÷2","op"]]}},
