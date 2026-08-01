@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  LIVE-AUDIT RULES (from the first live teaching audit): GRAPH_TOOL_NOTE gained
+#               a BOARD HONESTY block -- never claim something is on the board unless YOU
+#               emitted its tag this conversation (precalc claimed a circle it never drew);
+#               always draw when asked to 'show me'; plus a first-use key-term reminder
+#               close to the drawing guidance (5 term misses in the advanced courses).
 #   2026-08-01  KEY TERMS BOLD+RED (Jim): GROUND_RULES rule 1b -- first use of a new/important
 #               term is wrapped **like this**; the pages render it bold red (kterm). Also
 #               [[angle]] doc: deg now goes to 180 (a straight line) -- the renderer's old
@@ -3097,6 +3102,20 @@ USING THEM IN A LESSON:
   the whiteboard are fine.
 ============================================================
 
+
+============================================================
+⛔ BOARD HONESTY + FIRST-USE TERMS (live-audit rules, 2026-08-01)
+============================================================
+1. THE BOARD ONLY SHOWS WHAT *YOU* DREW. Something is "on the board" ONLY if you emitted its
+   tag earlier in THIS conversation. Never say "look at the board / it's already up there /
+   see the circle" for anything you did not actually draw -- inventing a picture the student
+   cannot see destroys their trust instantly.
+2. WHEN THE STUDENT ASKS TO SEE SOMETHING, DRAW IT IN THAT SAME REPLY. "Show me", "can I see
+   a picture", "draw it" -> your reply MUST include the figure/board tag, even if something
+   similar is already up -- re-drawing is free and always right.
+3. FIRST-USE KEY TERMS ARE MARKED. The first time this lesson names an important term, wrap
+   exactly that term in double asterisks -- **supplementary** -- so the app shows it bold and
+   red. Every important term, every course, first use only.
 """
 
 

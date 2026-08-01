@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01g-keyterms". DETERMINISTIC first-use key-term bolding
+#               (_bold_first_terms + KEY_TERMS, ~60 curated terms): the live audit showed the
+#               prompt rule alone misses passing first mentions, so the server now guarantees
+#               it on every chat/practice/topic reply -- skipping [[tags]], prior-turn terms,
+#               and anything already bolded. Board-honesty rules added to GRAPH_TOOL_NOTE.
 #   2026-08-01  APP_BUILD -> "2026-08-01f-terms180". KEY TERMS + STRAIGHT LINES (Jim's beta
 #               run, round 2): GROUND_RULES tells the tutor to wrap first-use key terms in
 #               **asterisks**; session/practice/topic render them bold red (.kterm). The
@@ -2346,7 +2351,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01f-terms180"
+APP_BUILD = "2026-08-01g-keyterms"
 
 
 @app.get("/health")
@@ -2548,6 +2553,69 @@ def assessment(code: str, request: Request, course: str = "algebra1",
     return {"ok": True, "text": text, "audience": audience, "cached": False}
 
 
+
+# =============================================================================
+# FIRST-USE KEY-TERM BOLDING -- deterministic (2026-08-01, from the live audit)
+# -----------------------------------------------------------------------------
+# The prompt asks the tutor to **bold** a term's first use, and it does so when
+# formally DEFINING a term -- but the live audit showed it misses passing first
+# mentions ("that's the derivative..."). Style rules deserve a guarantee, not a
+# hope (same philosophy as the old board guarantee): the server wraps the first
+# occurrence of a curated key term in ** ** itself, skipping [[tags]], skipping
+# terms the tutor already used in an earlier turn, and never double-wrapping.
+# The pages render **term** bold red; the voice never reads the asterisks.
+# =============================================================================
+
+KEY_TERMS = [
+    "differential equation", "standard deviation", "line of best fit", "unit circle",
+    "pythagorean theorem", "absolute value", "order of operations", "scientific notation",
+    "distributive property", "greatest common factor", "least common multiple",
+    "rational function", "integrating factor", "complementary", "supplementary",
+    "perpendicular", "transversal", "hypotenuse", "congruent", "isosceles", "equilateral",
+    "scalene", "circumference", "diameter", "bisect", "polynomial", "coefficient",
+    "reciprocal", "numerator", "denominator", "inequality", "proportion", "y-intercept",
+    "quadratic", "parabola", "vertex", "exponent", "logarithm", "asymptote", "amplitude",
+    "radian", "sine", "cosine", "secant line", "tangent line", "derivative",
+    "antiderivative", "integral", "chain rule", "product rule", "quotient rule",
+    "separable", "permutation", "combination", "factorial", "probability", "median",
+    "quartile", "variance", "histogram", "scatter plot", "box plot", "variable",
+]
+_TAG_SPLIT_RE = re.compile(r"(\[\[[^\]]*\]\])")
+
+
+def _bold_first_terms(reply: str, history) -> str:
+    """Wrap the FIRST use of each key term in **bold** (rendered red by the app).
+    Skips [[tags]], terms already used in an earlier tutor turn, and anything the
+    model already bolded. Wrapped so a failure can never break a lesson."""
+    try:
+        if not reply:
+            return reply
+        # Tag text ([[card ...]] etc.) is NOT spoken prose -- a term that has only
+        # ever appeared inside a tag hasn't been "introduced" yet, and terms inside
+        # tags are never wrapped. Strip tags before both checks.
+        _strip = lambda t: _TAG_SPLIT_RE.sub(" ", str(t))
+        prior = " ".join(_strip(m.get("content", "")) for m in (history or [])
+                         if m.get("role") == "assistant").lower()
+        parts = _TAG_SPLIT_RE.split(reply)
+        low = _strip(reply).lower()
+        for term in sorted(KEY_TERMS, key=len, reverse=True):
+            tl = term.lower()
+            if tl not in low or tl in prior or ("**" + tl) in low:
+                continue
+            pat = re.compile(r"(?<![*\w])(" + re.escape(term) + r"s?)(?![\w*])", re.IGNORECASE)
+            for i, seg in enumerate(parts):
+                if seg.startswith("[["):
+                    continue
+                mt = pat.search(seg)
+                if mt:
+                    parts[i] = seg[:mt.start()] + "**" + mt.group(1) + "**" + seg[mt.end():]
+                    break
+        return "".join(parts)
+    except Exception as exc:  # noqa: BLE001 -- styling must never break a turn
+        print(f"[terms] bolding skipped: {exc}")
+        return reply
+
+
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
@@ -2646,13 +2714,13 @@ def chat(req: ChatRequest):
                 "give a SHORT recap of where you two are and what's next, then invite them to keep "
                 "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
                 "them, do NOT tell them to focus, and do NOT act annoyed.)")
-        reply = tutor.get_tutor_reply(student_context, history, opener_note, req.course)
+        reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course), history)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
         save_session(code, session, req.course)
         return {"reply": reply}
 
-    reply = tutor.get_tutor_reply(student_context, history, message, req.course)
+    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course), history)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})
@@ -2705,7 +2773,7 @@ def practice(req: PracticeRequest):
         if role in ("user", "assistant") and isinstance(content, str) and content.strip():
             safe_history.append({"role": role, "content": content})
 
-    reply = tutor.get_practice_reply(student, req.problem, safe_history, message, req.course)
+    reply = _bold_first_terms(tutor.get_practice_reply(student, req.problem, safe_history, message, req.course), req.history)
 
     # Real tracking: classify the problem to a unit WITHIN this course, count "practiced".
     unit, name = curriculum.classify_unit(req.problem or message, req.course)
@@ -2741,7 +2809,7 @@ def topic(req: TopicRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
-    reply = tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course)
+    reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course), req.history)
 
     # Real tracking: classify the chosen topic to a unit WITHIN this course, count "explored".
     unit, name = curriculum.classify_unit(req.topic or message, req.course)
