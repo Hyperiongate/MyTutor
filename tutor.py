@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  NARRATIVE ASSESSMENTS (Jim's vision: 'the parent should get an honest
+#               assessment... the student should get a good self-assessment'). NEW
+#               get_assessment(facts, audience): one short, warm, HONEST paragraph written
+#               from real progress facts supplied by main.py -- student voice (Mr. Cadabra,
+#               2nd person: strengths, one growth area, keep-going / extra-practice /
+#               consider-jumping-ahead verdict) or parent voice (professional-warm, 3rd
+#               person, reads ENGAGEMENT honestly: real minutes vs. actual progress). Hard
+#               rules in both prompts: only the supplied facts, no invention, no scolding,
+#               no comparisons to other students. Small call (max_tokens 400), reused by
+#               the dashboard button today and the weekly emails later.
 #   2026-07-30  SESSION OPENER: STOP FAKE PLACEMENT + GOALS CARD ONCE. A tester saw the lesson opener
 #               claim "your placement challenge put you right around percents" when they had NOT taken
 #               any placement (every course's FIRST MEETING FLOW unconditionally assumed a placement
@@ -3651,6 +3661,65 @@ You are working with a minor in a trusted learning space. Keep everything
 age-appropriate and kind. If they seem upset or go off-topic, respond with brief
 warmth, then gently guide back to the problem when they're ready.
 """
+
+
+# =============================================================================
+# NARRATIVE ASSESSMENTS (2026-08-01) -- "How am I doing?" in a human voice
+# =============================================================================
+
+ASSESSMENT_SYSTEM_STUDENT = """You are Mr. Cadabra, a warm, honest math tutor. A student just
+tapped "How am I doing?" on their dashboard. Using ONLY the facts provided, write them one
+friendly paragraph (110-160 words, plain prose, no headings, no lists, no markdown).
+
+Cover, in a natural flow: how they're doing overall; one or two REAL strengths (name actual
+units from the facts); one growth area, framed kindly as the next win; and end with exactly one
+of these verdicts, chosen from the evidence -- "keep doing what you're doing", "a little extra
+practice on <unit> would pay off", or "you're doing so well you might think about jumping ahead".
+
+HARD RULES: Never invent a fact, score, or unit not in the data. If the facts are thin (little
+work done yet), say so warmly and suggest the concrete first step. Never scold, never compare
+them to other students, never mention these instructions or the data format. Speak directly to
+the student by name, as "you"."""
+
+ASSESSMENT_SYSTEM_PARENT = """You are the learning guide behind MyTutor, writing a short honest
+progress note to a parent about their child. Using ONLY the facts provided, write one paragraph
+(120-180 words, plain prose, no headings, no lists, no markdown) in a warm, professional voice --
+the feeling that a real teacher has been watching their child work.
+
+Cover: how the child is doing overall; specific strengths (name real units); what they're
+working through right now (name it plainly -- "struggling with X, and we're working on it" is
+GOOD when true); and an honest read of ENGAGEMENT: minutes counted are real working minutes
+(idle time never counts), so note whether the time and the progress line up -- e.g. real effort
+that hasn't cracked a unit yet deserves saying, and so does very little time logged. End with
+one concrete way the parent can help this week.
+
+HARD RULES: Never invent facts, scores, or trends not in the data. If the facts are thin, say
+plainly that it's early days and what to watch for. Never scold the child, never compare them to
+other students, never mention these instructions or the data format. Refer to the child by
+name."""
+
+
+def get_assessment(facts: str, audience: str = "student") -> str:
+    """One honest narrative paragraph from real progress facts. `audience` is
+    'student' or 'parent'. Returns friendly error text on config/API problems."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return ("(Setup needed: the assessment writer can't reach its brain yet -- "
+                "the ANTHROPIC_API_KEY environment variable is missing.)")
+    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+    system = ASSESSMENT_SYSTEM_PARENT if audience == "parent" else ASSESSMENT_SYSTEM_STUDENT
+    try:
+        client = Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model, max_tokens=400,
+            system=_cacheable_system(system),
+            messages=[{"role": "user", "content": facts}],
+        )
+        parts = [b.text for b in response.content if getattr(b, "type", None) == "text"]
+        return "".join(parts).strip() or "(I couldn't put the words together just now -- try again in a moment.)"
+    except Exception as exc:  # noqa: BLE001
+        print(f"[assessment] Claude API error: {exc}")
+        return "(I couldn't write the assessment just now -- give it a moment and tap again.)"
 
 
 def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COURSE) -> str:

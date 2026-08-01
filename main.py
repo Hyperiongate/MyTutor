@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01d-howami". NARRATIVE ASSESSMENTS (Jim's long-term
+#               vision: tailored, human, honest). GET /api/assessment/{code}?course&audience:
+#               gathers ONLY real recorded facts (_assessment_facts: placement, per-unit
+#               mastery with real check scores, practice, accuracy, streak, engaged minutes
+#               over 14 days, awards, other-course activity) and has tutor.get_assessment()
+#               write ONE warm honest paragraph -- student voice or parent voice. 30-min
+#               in-memory cache per (code, course, audience) + 8/hr/code rate limit keeps
+#               cost tiny. Dashboard gained the "How am I doing?" button (parent view asks
+#               "How are they doing, really?"). The same engine will write the weekly
+#               emails when those ship.
 #   2026-08-01  APP_BUILD -> "2026-08-01c-onetour". (1) ONE SCREEN TOUR PER STUDENT: /api/
 #               session returns `toured` = store.has_any_history(code) (any course; JSON
 #               fallback scans the sessions file) -- switching courses no longer replays the
@@ -2323,7 +2333,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01c-onetour"
+APP_BUILD = "2026-08-01d-howami"
 
 
 @app.get("/health")
@@ -2427,6 +2437,102 @@ def _has_any_history(code: str) -> bool:
     except Exception as exc:  # noqa: BLE001 -- worst case: they see the tour again
         print(f"[tour] has_any_history failed for {code}: {exc}")
     return False
+
+
+# =============================================================================
+# NARRATIVE ASSESSMENT (2026-08-01) -- "How am I doing?" / the parent's honest read
+# -----------------------------------------------------------------------------
+# Gathers ONLY real recorded facts (units, checks, accuracy, streak, engaged
+# minutes, awards, placement) and asks the tutor brain for one warm, honest
+# paragraph. Cached in memory for 30 minutes per (student, course, audience) so
+# repeat taps are free; rate-limited on top. The same engine will write the
+# weekly parent/teacher emails when those ship.
+# =============================================================================
+
+_ASSESS_CACHE: dict = {}
+_ASSESS_TTL_SECONDS = 1800
+
+
+def _assessment_facts(code: str, student: dict, course: str) -> str:
+    """Everything true we know about this student, as compact plain text."""
+    title = curriculum.course_title(course)
+    lines = [f"Student first name: {student.get('name') or 'Student'}",
+             f"Course: {title}"]
+    placement = read_placement(code, course)
+    if placement:
+        lines.append(f"Placement: tested as '{placement.get('level_title','')}' -- "
+                     f"recommended start at unit {placement.get('start_unit')} "
+                     f"({placement.get('start_unit_name','')})")
+    else:
+        lines.append("Placement: has not taken the course assessment yet")
+    if store.enabled():
+        m = store.get_mastery(code, course)
+        checks = m.get("checks", {})
+        # units_for() yields (unit_number, name) pairs; tolerate bare names too.
+        unit_names = {}
+        for i, u in enumerate(curriculum.units_for(course)):
+            if isinstance(u, (list, tuple)) and len(u) >= 2:
+                unit_names[int(u[0])] = str(u[1])
+            else:
+                unit_names[i + 1] = str(u)
+        mastered, working, unchecked = [], [], []
+        for u, name in unit_names.items():
+            c = checks.get(u)
+            if c and int(c.get("best_pct") or 0) >= 80:
+                mastered.append(f"{name} (best check {c['best_pct']}%)")
+            elif c and int(c.get("checks_taken") or 0) > 0:
+                working.append(f"{name} (best check so far {c['best_pct']}%, "
+                               f"{c['checks_taken']} attempt(s))")
+        lines.append("Units MASTERED (proved on a scored check): " +
+                     ("; ".join(mastered) if mastered else "none yet"))
+        lines.append("Units checked but not yet mastered: " +
+                     ("; ".join(working) if working else "none"))
+        st = m.get("stats", {})
+        lines.append(f"Practice: {st.get('problems_practiced') or 0} problems practiced overall; "
+                     f"accuracy across checks+practice: "
+                     f"{str(st.get('accuracy_pct')) + '%' if st.get('accuracy_pct') is not None else 'no data yet'}; "
+                     f"current day streak: {st.get('streak_days') or 0}; "
+                     f"last active: {st.get('last_active') or 'no activity recorded'}")
+        time_rows = store.get_time(code, days=14)
+        total_min = sum(r["minutes"] for r in time_rows)
+        days_active = sum(1 for r in time_rows if r["minutes"] > 0)
+        lines.append(f"Engaged time, last 14 days: {total_min} real working minutes across "
+                     f"{days_active} active day(s) (idle time is never counted)")
+        earned = store.get_awards(code)
+        names = [AWARD_DEFS[a][1] for a in earned if a in AWARD_DEFS]
+        lines.append("Effort awards earned: " + (", ".join(names) if names else "none yet"))
+        activity = store.get_course_activity(code)
+        others = [curriculum.course_title(c) for c in activity if c != course]
+        if others:
+            lines.append("Also has activity in: " + ", ".join(others))
+    else:
+        lines.append("(Progress tracking is offline right now -- only basic info available.)")
+    return "\n".join(lines)
+
+
+@app.get("/api/assessment/{code}")
+def assessment(code: str, request: Request, course: str = "algebra1",
+               audience: str = "student"):
+    """A warm, honest narrative assessment -- student voice or parent voice."""
+    student = _student_or_404(code)
+    code = code.strip()
+    audience = "parent" if audience == "parent" else "student"
+    if course not in curriculum.COURSES:
+        course = "algebra1"
+    key = (code, course, audience)
+    now = time.monotonic()
+    hit = _ASSESS_CACHE.get(key)
+    if hit and now - hit[0] < _ASSESS_TTL_SECONDS:
+        return {"ok": True, "text": hit[1], "audience": audience, "cached": True}
+    # Paid call: modest per-student cap on top of the cache.
+    _rate_limit("assess:" + code, limit=8, window_seconds=3600, what="assessment requests")
+    facts = _assessment_facts(code, student, course)
+    text = tutor.get_assessment(facts, audience)
+    if not text.startswith("("):                      # don't cache error placeholders
+        if len(_ASSESS_CACHE) > 2000:
+            _ASSESS_CACHE.clear()
+        _ASSESS_CACHE[key] = (now, text)
+    return {"ok": True, "text": text, "audience": audience, "cached": False}
 
 
 @app.post("/api/chat")

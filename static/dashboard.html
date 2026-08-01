@@ -4,6 +4,13 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  "HOW AM I DOING?" (Jim: honest narrative assessments). New button under the
+                page title -> GET /api/assessment: one warm paragraph written by the tutor
+                brain from REAL recorded facts (units, checks, accuracy, streak, engaged
+                minutes, awards). Student voice normally; on ?view=parent/teacher the button
+                reads "How are they doing, really?" and asks in the parent voice. Also:
+                "Strengthen next" is now explicitly labeled as THE PLAN built from their
+                checks and practice so far.
     2026-08-01  TROPHY TOOLTIPS (Jim: "a description upon hover for things in the trophy case").
                 Every trophy/medal tile now shows a rich hover card: what KIND of award it is
                 (Course trophy / Effort medal), the full how-you-earn-it description, and the
@@ -122,6 +129,18 @@
     .offnote { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--warm);
       border-radius: 14px; padding: 16px 18px; color: var(--ink); font-size: 15px; margin-bottom: 22px;
       box-shadow: 0 8px 24px rgba(20,30,45,.06); }
+
+    /* HOW AM I DOING? (2026-08-01) */
+    .howwrap { margin: 2px 0 16px; }
+    .howbtn { border: 1.5px solid var(--line); background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #fff; font-weight: 800; font-size: 14.5px; border-radius: 999px; padding: 10px 20px;
+      cursor: pointer; box-shadow: 0 8px 22px rgba(91,91,214,.25); }
+    .howbtn:active { transform: translateY(1px); }
+    .howbtn[disabled] { opacity: .6; cursor: wait; }
+    .howcard { margin-top: 12px; background: #f6f3ff; border: 1.5px dashed var(--accent);
+      border-radius: 16px; padding: 16px 20px; font-size: 15px; line-height: 1.65; }
+    .howcard .who { font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+    .howcard .fine { margin-top: 10px; font-size: 12px; color: var(--muted); }
 
     /* TROPHY CASE (2026-07-30) */
     .trophycase { background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
@@ -313,6 +332,14 @@
     </div>
     <p class="sub">Your real progress — it fills in as you learn, and shows exactly where to grow next.</p>
 
+    <!-- HOW AM I DOING? (2026-08-01, Jim's vision): one warm, honest paragraph written by the
+         tutor brain from REAL recorded facts. Student voice for students; on the parent/teacher
+         view the same button asks in the parent voice instead. -->
+    <div class="howwrap">
+      <button id="howBtn" class="howbtn" type="button">💬 How am I doing?</button>
+      <div id="howCard" class="howcard" style="display:none;"></div>
+    </div>
+
     <div id="teacherBox" class="teacherbox" style="display:none;"></div>
 
     <!-- MY COURSES: every course this student has actually worked in (activity only). Gives the
@@ -338,7 +365,7 @@
     <div class="tiles" id="tiles"></div>
 
     <div id="strengthenWrap" style="display:none;">
-      <div class="section-h">Strengthen next <span class="note">— the fastest wins to level up</span></div>
+      <div class="section-h">Strengthen next <span class="note">— your plan, built from your checks and practice so far: these are the fastest wins to level up</span></div>
       <div id="strengthen"></div>
     </div>
 
@@ -374,6 +401,33 @@
     const params = new URLSearchParams(location.search);
     const CODE = (params.get("code") || "").trim();
     const VIEW = (params.get("view") || "").toLowerCase();
+    // HOW AM I DOING? (2026-08-01)
+    (function () {
+      const btn = document.getElementById("howBtn"), card = document.getElementById("howCard");
+      if (!btn) return;
+      const parentish = (VIEW === "parent" || VIEW === "teacher");
+      if (parentish) btn.textContent = "💬 How are they doing, really?";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        card.style.display = "block";
+        card.innerHTML = '<div class="who">✍️ One moment…</div>Looking over the real progress and putting it into words.';
+        try {
+          const aud = parentish ? "parent" : "student";
+          const res = await fetch("/api/assessment/" + encodeURIComponent(params.get("code") || "") +
+                                  "?course=" + encodeURIComponent(params.get("course") || "algebra1") +
+                                  "&audience=" + aud);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Couldn't fetch the assessment.");
+          const who = parentish ? "An honest read on their progress" : "Mr. Cadabra's honest read";
+          const escd = String(data.text).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+          card.innerHTML = '<div class="who">' + who + '</div>' + escd +
+            '<div class="fine">Written from real recorded progress — nothing invented. Refreshes as new work happens (about every half hour).</div>';
+        } catch (e) {
+          card.innerHTML = '<div class="who">Hmm.</div>' + String(e.message).replace(/</g, "&lt;");
+        }
+        btn.disabled = false;
+      });
+    })();
     const isTeacher = (VIEW === "teacher" || VIEW === "parent");
     const COURSE = (params.get("course") || "algebra1").trim(); // which course's progress to show
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
