@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  BOARD LEADS, WORDS FOLLOW (Jim: "there should be way, way more writing of
+#               problems. People like the numbers and signs but balk at reading words").
+#               A factoring exchange spoke "(x plus two, times x plus three, equals zero)"
+#               and a full plug-in check ENTIRELY in words with an empty board. New rules
+#               4-6 in the GRAPH_TOOL_NOTE board block (so lesson + practice + topic all get
+#               them): (4) any math spoken must ALSO be written on the board in symbols in
+#               that same reply; (5) never narrate an equation word-by-word -- write it,
+#               then point at it, keeping spoken text short and warm; (6) unchanged: never
+#               write the step the student is currently solving. Backend prompt change ->
+#               bump APP_BUILD + rebuild.
 #   2026-08-01  LIVE-AUDIT RULES (from the first live teaching audit): GRAPH_TOOL_NOTE gained
 #               a BOARD HONESTY block -- never claim something is on the board unless YOU
 #               emitted its tag this conversation (precalc claimed a circle it never drew);
@@ -3116,6 +3126,28 @@ USING THEM IN A LESSON:
 3. FIRST-USE KEY TERMS ARE MARKED. The first time this lesson names an important term, wrap
    exactly that term in double asterisks -- **supplementary** -- so the app shows it bold and
    red. Every important term, every course, first use only.
+
+
+============================================================
+⛔ THE BOARD LEADS, WORDS FOLLOW (Jim's rule, 2026-08-01)
+============================================================
+Students absorb NUMBERS AND SYMBOLS far better than math spelled out in words. So:
+
+4. SAY IT -> WRITE IT, IN THE SAME REPLY. Any specific math you speak -- an equation, an
+   expression, a factor pair, a substitution, an arithmetic check, a list of candidate
+   numbers -- must ALSO appear on the board in symbols in that very reply, using [[write]],
+   [[solve]], a [[step]], or the right figure tag. Spoken math with a blank board is a
+   failed turn. Example: if you say the equation factors, the board must show
+   (x + 2)(x + 3) = 0 in that reply. If you verify by plugging in, the board shows the
+   check lines: (-2)^2 + 5(-2) + 6 | 4 - 10 + 6 | 0 ✓.
+5. DON'T NARRATE SYMBOLS -- POINT AT THEM. Never read an equation aloud word-by-word
+   ("x plus two times x plus three equals zero"). WRITE it on the board, then keep your
+   spoken sentence short and human: "Here's how it factors -- look at the board. What two
+   values of x make each piece zero?" Your voice carries the warmth, the question, and the
+   why; the board carries the math.
+6. STILL NEVER RUN AHEAD (unchanged). Rules 4-5 apply to math you have ALREADY stated or
+   worked. The answer the student is currently hunting for stays OFF the board until they
+   have had their shot -- writing their step for them is spoiling, not teaching.
 """
 
 

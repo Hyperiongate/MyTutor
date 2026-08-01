@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01h-boardleads". BOARD LEADS, WORDS FOLLOW (Jim): the
+#               tutor was speaking equations and arithmetic checks entirely in words while
+#               the whiteboard sat empty. tutor.py's GRAPH_TOOL_NOTE gained rules 4-6: all
+#               spoken math must be written on the board in symbols in the same reply, and
+#               spoken text points at the board instead of narrating symbols. Prompt-only
+#               change; this bump exists so /health proves the new prompt is deployed.
 #   2026-08-01  APP_BUILD -> "2026-08-01g-keyterms". DETERMINISTIC first-use key-term bolding
 #               (_bold_first_terms + KEY_TERMS, ~60 curated terms): the live audit showed the
 #               prompt rule alone misses passing first mentions, so the server now guarantees
@@ -2351,7 +2357,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01g-keyterms"
+APP_BUILD = "2026-08-01h-boardleads"
 
 
 @app.get("/health")
