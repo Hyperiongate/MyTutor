@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  TOUR: new stop for the QUICK BUTTONS (Jim: "the tour should point out the Yes,
+                No and I'm confused shortcuts") -- glows #quickRow and frames 'I'm confused'
+                as a power move. Six stops total now.
+    2026-08-01  POST-TOUR HANDOFF: the tour now ends with __tour_done__ (not __open__), so
+                Mr. Cadabra doesn't re-introduce himself right after the tour introduced him.
     2026-08-01  TOUR: the Practice+Assessment stop now glows BOTH buttons (Jim: "it NEVER
                 highlighted Practice a problem"). highlightEl accepts one id or a list;
                 the look-here tag pins over the group's midpoint.
@@ -1211,6 +1216,7 @@
       // 2026-08-01 (Jim: "it NEVER highlighted Practice a problem"): this stop
       // talks about BOTH helpers, so it now glows BOTH buttons.
       "assess":       ["practiceLink", "assessLink"],
+      "quick":        "quickRow",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
@@ -1856,6 +1862,8 @@
         text: "Right below it, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "assess",
         text: "Two more helpers on the left: Practice a problem, for when you want to bring me one specific problem — and the Course Assessment, which finds your strengths and builds you a recommended path whenever you're ready." },
+      { id: "quick",
+        text: "See those quick buttons glowing — Yes, No, and I'm confused? When I ask a yes-or-no question, you can just tap. And tapping 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way." },
       { id: "tutor",
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
@@ -1878,7 +1886,7 @@
       }
       clearHighlight();
       await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
-      await runTutor("__open__");   // hand off to the lesson (cool-questions card + big idea)
+      await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
 
     async function kickoff() {   // returning-student opener (no tour)

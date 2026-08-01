@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  PICTURE-MATCHES-WORDS (Jim's beta run: 'let's build a picture' then the figure
+#               lacked the splitting ray it described). Geometry template: [[angle]] documents
+#               the new split=".." attribute (geo-figures.js draws the interior ray + labeled
+#               pieces) and a hard rule that every element spoken must appear in the figure.
+#   2026-08-01  OPENER CLARITY (Jim: "is it not clear what he is talking about" -- the first
+#               message asked 'which of those sounds most interesting?' BEFORE the cards had
+#               been named). SESSION_OPENER_RULES rule 3: when asking the student to pick
+#               from a card, say where the list is, speak 1-2 choices aloud, and offer a
+#               'you pick' escape hatch. No vague 'those'.
 #   2026-08-01  NARRATIVE ASSESSMENTS (Jim's vision: 'the parent should get an honest
 #               assessment... the student should get a good self-assessment'). NEW
 #               get_assessment(facts, audience): one short, warm, HONEST paragraph written
@@ -928,9 +937,16 @@ play (a figure beats a paragraph):
       EQUAL (e.g. "AB,CA" puts a tick on each, showing they're congruent).
   - [[angle deg="50" label="ABC" caption="..."]]  a single angle of that many degrees; the middle
       letter of label is the vertex (it draws a right-angle square automatically at 90).
+      OPTIONAL split="60" draws a ray from the vertex SPLITTING the angle into a 60° piece and
+      the remainder (labeled "?"); split="60,30" labels both pieces. Use it whenever you SAY an
+      angle is split, cut, or divided -- so the picture shows the ray you're talking about.
   - [[circle center="O" r="5" inscribed="80" caption="..."]]  a circle with center O; r labels a
       radius; inscribed draws an inscribed angle intercepting that arc (and labels it as half).
   - [[graph lines="y=2x+1" points="(3,4)"]]  the coordinate plane, for Unit 7 and anything on a grid.
+⛔ YOUR PICTURE MUST MATCH YOUR WORDS. Never say "let's picture it" and then draw less than you
+described: every element you mention out loud (a splitting ray, a marked side, an equal tick)
+must actually appear in the figure tag you emit. If no figure can show it, change your words to
+describe only what IS drawn -- the student trusts the board.
 Keep [[step]] for the worked math (angle/length equations, the Pythagorean theorem, a proof built
 one line at a time) and [[card]] for the givens or a construction's steps. Figures are SCHEMATIC
 (not exactly to scale) -- still tell the student what to sketch on their own paper so you're both
@@ -3100,6 +3116,12 @@ SESSION_OPENER_RULES = """
 2) THE "By the end you'll be able to" GOALS CARD IS FIRST-MESSAGE-ONLY. Show that card EXACTLY
    ONCE -- in your very first teaching message, right after you state today's goal. On EVERY later
    turn do NOT re-post that card and do NOT re-list the goals; just teach the next small step.
+3) WHEN YOU ASK THE STUDENT TO PICK FROM A CARD, BE CONCRETE. A card ([[card]]) renders on the
+   board BELOW your spoken words, so never end with a vague "which of those sounds interesting?"
+   -- the student doesn't know what "those" means yet. Instead: name where the list is and speak
+   one or two of the choices aloud, e.g. "Take a look at the questions on the board below -- like
+   how tall a building is from its shadow, or why a triangle never wobbles. Type the one that
+   grabs you, or just say 'you pick'." Always give the "or just say you-pick" escape hatch.
 """
 
 

@@ -13,6 +13,10 @@
                  whiteboard. Figures are SCHEMATIC (not to scale) with clear labels -- standard for
                  teaching. Adds no dependency; pure string building.
    ============================================================================= */
+// 2026-08-01  [[angle]] gained split="60" / split="60,30": an interior ray from the vertex
+//             splitting the angle, with the pieces labeled (second defaults to "?") -- so
+//             complementary/supplementary lessons can SHOW the split they talk about.
+
 (function () {
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
@@ -131,6 +135,25 @@
         '" fill="none" stroke="' + TEAL + '" stroke-width="2"/>';
       var half = rad / 2, lr = ar + 17;
       s += txt(V[0] + lr * Math.cos(half), V[1] - lr * Math.sin(half), deg + "°", TEAL, 14, 700);
+    }
+    // 2026-08-01 (Jim's beta run: the tutor SAID "a ray splits it into two smaller angles"
+    // but the figure showed no ray): OPTIONAL split="60" draws an interior ray from the
+    // vertex, splitting the angle into a labeled piece and the remainder (labeled "?");
+    // split="60,30" labels both pieces.
+    var RED = "#d1345b";
+    var sp = String(a.split || "").trim();
+    if (sp) {
+      var parts = sp.split(",").map(function (x) { return x.trim(); });
+      var d1 = num(parts[0], NaN);
+      if (!isNaN(d1) && d1 > 0 && d1 < deg) {
+        var rs = d1 * Math.PI / 180;
+        var r3 = [V[0] + Ln * 0.94 * Math.cos(rs), V[1] - Ln * 0.94 * Math.sin(rs)];
+        s += line(V, r3, RED, 2.2);
+        var lr2 = ar + 22, l1 = rs / 2, l2 = rs + (rad - rs) / 2;
+        s += txt(V[0] + lr2 * Math.cos(l1) + 6, V[1] - lr2 * Math.sin(l1), d1 + "°", RED, 13, 700);
+        var lbl2 = (parts[1] && parts[1] !== "?") ? (parts[1] + "°") : "?";
+        s += txt(V[0] + lr2 * Math.cos(l2) + 2, V[1] - lr2 * Math.sin(l2) - 2, lbl2, RED, 13, 700);
+      }
     }
     if (label) {
       var ch = label.split("");
