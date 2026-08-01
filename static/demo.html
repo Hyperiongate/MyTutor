@@ -2,6 +2,12 @@
 <!--
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-01  BOARD ALIGNMENT + KEYBOARD REWORK + TUTORIAL (Jim's playtest). (1) Operation
+    rows (−3 −3, ÷2 ÷2) now line up in true columns under EACH SIDE of the equation above
+    (.wrow is white-space:pre and op rows share the math rows' font size). (2) The keypad no
+    longer looks like a calculator: pill keys in three labeled groups — Numbers, Operations,
+    Math tools — with a header. (3) NEW '❓ How does it work?' button opens a 6-step keyboard
+    tutorial (powers order, √ wrapping, delete/clear, Check/Enter).
   - 2026-08-01  GENEROUS ANSWER MATCHING (Jim typed "−3 from each side" and the demo said Not
     quite — a correct answer rejected). Both concept questions now accept any reasonable
     phrasing: "−3", "−3 from each side", "subtract 3 from both sides", "take away 3",
@@ -89,9 +95,9 @@
                linear-gradient(90deg,transparent 27px,rgba(31,182,176,.05) 28px);
     background-size:28px 28px;font-family:"Courier New",monospace}
   .wrow{font-size:23px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
-    animation:stepin .45s forwards}
+    animation:stepin .45s forwards;white-space:pre}  /* pre: spaces align columns exactly */
   .wrow .v{color:var(--red);font-weight:800}
-  .wrow.op{color:#8a86a6;font-size:16px;letter-spacing:2px}
+  .wrow.op{color:#8a86a6}  /* SAME size/spacing as math rows so columns line up under each side */
   .wrow.chk{color:var(--ok);font-weight:700;font-size:18px}
   @keyframes stepin{to{opacity:1;transform:none}}
 
@@ -118,15 +124,33 @@
     border-radius:13px;padding:8px 8px 8px 14px}
   .ansrow input{flex:1;border:0;outline:0;font-size:19px;font-family:"Courier New",monospace;color:#2a2450;background:transparent}
   .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
-  .kb{margin-top:10px;background:#faf8ff;border:1px solid var(--line);border-radius:16px;padding:10px}
-  .grid{display:grid;gap:6px;grid-template-columns:repeat(5,1fr)}
-  .key{border:1px solid var(--keyline);background:#fff;border-radius:11px;padding:13px 0;font-size:18px;font-weight:600;
-    color:var(--ink);cursor:pointer;min-height:48px;display:flex;align-items:center;justify-content:center}
+  .kb{margin-top:10px;background:#faf8ff;border:1px solid var(--line);border-radius:16px;padding:12px}
+  .kbhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .kbtitle{font-size:12.5px;font-weight:800;color:var(--purple);letter-spacing:.04em}
+  .kbhelp{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;font-size:12px;
+    border-radius:999px;padding:5px 12px;cursor:pointer}
+  .kgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+  .kgroup:last-child{margin-bottom:0}
+  .klabel{flex:0 0 100%;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#a7a2bd;margin-bottom:1px}
+  .key{border:1px solid var(--keyline);background:#fff;border-radius:999px;padding:0 14px;font-size:17px;font-weight:700;
+    color:var(--ink);cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
   .key:active{background:var(--keyactive);transform:translateY(1px)}
-  .key.op{color:var(--purple);font-weight:800}
-  .key.fn{background:#f3f0ff;color:var(--purple);font-weight:800;font-size:16px}
-  .key.util{color:var(--muted);font-weight:700;font-size:14px}
+  .key.op{background:#effaf8;border-color:#cdeeea;color:#0f8b85;font-weight:800}
+  .key.fn{background:#f3f0ff;border-color:#ddd5f8;color:var(--purple);font-weight:800;font-size:16px}
+  .key.util{color:var(--muted);font-weight:700;font-size:13px;border-radius:12px}
   .sup{font-size:.72em;vertical-align:super}
+  /* keyboard tutorial modal */
+  .kbmodal{position:fixed;inset:0;background:rgba(32,35,58,.45);display:none;align-items:center;
+    justify-content:center;z-index:60;padding:18px}
+  .kbmodal.show{display:flex}
+  .kbcard{background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);max-width:430px;width:100%;
+    padding:22px 24px;max-height:86vh;overflow:auto}
+  .kbcard h3{font-size:19px;margin-bottom:10px}
+  .kbcard ol{margin:0 0 14px 20px;font-size:14.5px;line-height:1.6;color:var(--ink)}
+  .kbcard li{margin-bottom:8px}
+  .kbcard li b{color:var(--purple)}
+  .kbcard .kex{font-family:"Courier New",monospace;background:#f6f3ff;border-radius:6px;padding:1px 7px;font-weight:700}
   .footer{text-align:center;color:#a7a2bd;font-size:12px;margin-top:6px}
   .endbox{text-align:center;padding:6px 4px}
   .endbox h2{font-size:22px;margin-bottom:6px}
@@ -240,7 +264,7 @@
                    /remove.{0,10}(3|three)/, /(3|three)(from|off)(each|both|the)?side/],
             right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
             wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
-            board:[["−3       −3","op"],["2x = 8",""]]}},
+            board:[["    −3   −3","op"],["2x = 8",""]]}},
 
     {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
      input:{type:"keypad", hint:"your move (an operation)",
@@ -248,7 +272,7 @@
                    /(2|two)(oneach|onboth|eachside|bothsides)/],
             right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
-            board:[["÷2        ÷2","op"]]}},
+            board:[["÷2  ÷2","op"]]}},
 
     {say:"So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
      input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
@@ -318,31 +342,65 @@
     function wrap(spec){ var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
       setv(v.slice(0,caret)+t+v.slice(caret), caret+idx); }
     function back(){ if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
-    var defs=[
-      ['7','t7'],['8','t8'],['9','t9'],['÷','o/'],['√','w√(|)','fn'],
-      ['4','t4'],['5','t5'],['6','t6'],['×','o×'],['x²','t^2','fn'],
-      ['1','t1'],['2','t2'],['3','t3'],['−','o−'],['xⁿ','t^','fn'],
-      ['0','t0'],['.','t.'],['x','tx'],['+','o+'],['=','o=']
+    // 2026-08-01 (Jim: "looks too much like a calculator"): the keys now read as a MATH
+    // TOOLKIT -- pill keys in three labeled groups (numbers / operations / math tools)
+    // with a header and a "How does it work?" tutorial button. Same insert logic.
+    var GROUPS=[
+      {label:'Numbers', keys:[['1','t1'],['2','t2'],['3','t3'],['4','t4'],['5','t5'],
+                              ['6','t6'],['7','t7'],['8','t8'],['9','t9'],['0','t0'],['.','t.']]},
+      {label:'Operations', keys:[['+','o+'],['−','o−'],['×','o×'],['÷','o/'],['=','o=']]},
+      {label:'Math tools', keys:[['x','tx','fn'],['x²','t^2','fn'],['xⁿ','t^','fn'],['√','w√(|)','fn'],
+                                 ['⌫ delete','util'],['clear','clear']]}
     ];
     var g=document.createElement('div'); g.className='kb';
-    var grid=document.createElement('div'); grid.className='grid';
-    defs.forEach(function(d){
-      var label=d[0], code=d[1], kind=d[2]||'';
-      var b=document.createElement('button'); b.className='key'+(code[0]==='o'?' op':'')+(kind?' '+kind:'');
-      b.innerHTML=label.replace('²','<span class="sup">2</span>').replace('ⁿ','<span class="sup">n</span>');
-      b.onclick=function(){
-        if(code[0]==='t') ins(code.slice(1));
-        else if(code[0]==='o') ins(code.slice(1));
-        else if(code[0]==='w') wrap(code.slice(1));
-      };
-      grid.appendChild(b);
+    var head=document.createElement('div'); head.className='kbhead';
+    head.innerHTML='<span class="kbtitle">🧮 MATH KEYBOARD</span>';
+    var help=document.createElement('button'); help.className='kbhelp'; help.type='button';
+    help.textContent='❓ How does it work?';
+    help.onclick=function(){ document.getElementById('kbModal').classList.add('show'); };
+    head.appendChild(help); g.appendChild(head);
+    GROUPS.forEach(function(grp){
+      var row=document.createElement('div'); row.className='kgroup';
+      var lb=document.createElement('div'); lb.className='klabel'; lb.textContent=grp.label; row.appendChild(lb);
+      grp.keys.forEach(function(d){
+        var label=d[0], code=d[1], kind=d[2]||'';
+        var b=document.createElement('button'); b.type='button';
+        if(code==='util'){ b.className='key util'; b.textContent=label; b.onclick=back; }
+        else if(code==='clear'){ b.className='key util'; b.textContent=label; b.onclick=function(){setv('',0);}; }
+        else{
+          b.className='key'+(code[0]==='o'?' op':'')+(kind?' '+kind:'');
+          b.innerHTML=label.replace('²','<span class="sup">2</span>').replace('ⁿ','<span class="sup">n</span>');
+          b.onclick=function(){
+            if(code[0]==='t') ins(code.slice(1));
+            else if(code[0]==='o') ins(code.slice(1));
+            else if(code[0]==='w') wrap(code.slice(1));
+          };
+        }
+        row.appendChild(b);
+      });
+      g.appendChild(row);
     });
-    g.appendChild(grid);
-    var ctl=document.createElement('div'); ctl.className='grid'; ctl.style.gridTemplateColumns='1fr 1fr'; ctl.style.marginTop='6px';
-    var del=document.createElement('button'); del.className='key util'; del.textContent='⌫ delete'; del.onclick=back;
-    var clr=document.createElement('button'); clr.className='key util'; clr.textContent='clear'; clr.onclick=function(){setv('',0);};
-    ctl.appendChild(del); ctl.appendChild(clr); g.appendChild(ctl);
+    ensureKbModal();
     return g;
+  }
+
+  function ensureKbModal(){
+    if(document.getElementById('kbModal')) return;
+    var m=document.createElement('div'); m.id='kbModal'; m.className='kbmodal';
+    m.innerHTML='<div class="kbcard">'+
+      '<h3>🧮 How the Math Keyboard works</h3>'+
+      '<ol>'+
+      '<li><b>Tap keys</b> to build your answer — it appears in the answer box above.</li>'+
+      '<li><b>Powers:</b> to type 2³, tap <span class="kex">2</span>, then <span class="kex">xⁿ</span>, then <span class="kex">3</span> — the order matters!</li>'+
+      '<li><b>Square roots:</b> tap <span class="kex">√</span> and it opens the root for you — then type what goes inside.</li>'+
+      '<li><b>x</b> is the mystery number we\'re solving for. <span class="kex">+ − × ÷ =</span> work just like on paper.</li>'+
+      '<li><b>Fix a mistake:</b> <span class="kex">⌫ delete</span> erases one character; <span class="kex">clear</span> starts the box over.</li>'+
+      '<li><b>Done?</b> Press <span class="kex">Check ✓</span> — or just hit Enter.</li>'+
+      '</ol>'+
+      '<button class="cta" id="kbModalClose" type="button">Got it — back to the problem</button></div>';
+    m.addEventListener('click',function(ev){ if(ev.target===m) m.classList.remove('show'); });
+    document.body.appendChild(m);
+    document.getElementById('kbModalClose').onclick=function(){ m.classList.remove('show'); };
   }
 
   function showEnd(){
