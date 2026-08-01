@@ -4,6 +4,9 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  TOUR: the Practice+Assessment stop now glows BOTH buttons (Jim: "it NEVER
+                highlighted Practice a problem"). highlightEl accepts one id or a list;
+                the look-here tag pins over the group's midpoint.
     2026-08-01  ONE TOUR PER STUDENT (Jim: switching to a new course gave him the whole tour
                 again). /api/session now returns `toured` (has this student had a lesson in
                 ANY course); the tour runs only when BOTH this course is fresh AND the student
@@ -1205,7 +1208,9 @@
     const TOUR_TARGETS = {
       "curriculum":   "curriculumBtn",
       "dashboard":    "dashLink",
-      "assess":       "assessLink",
+      // 2026-08-01 (Jim: "it NEVER highlighted Practice a problem"): this stop
+      // talks about BOTH helpers, so it now glows BOTH buttons.
+      "assess":       ["practiceLink", "assessLink"],
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
@@ -1222,22 +1227,26 @@
       if (key === "none" || key === "clear" || key === "off") return;
       const targetId = TOUR_TARGETS[key];
       if (!targetId) return;
-      const node = el(targetId);
-      if (!node) return;
+      // A stop may spotlight ONE element or SEVERAL (e.g. Practice + Course Assessment).
+      const ids = Array.isArray(targetId) ? targetId : [targetId];
+      const nodes = ids.map(el).filter(Boolean);
+      if (!nodes.length) return;
       // If we're spotlighting the curriculum, open it so there's something to see.
       if (key === "curriculum" && curriculumList.style.display === "none") {
         curriculumList.style.display = "block"; curriculumBtn.classList.add("open");
       }
-      node.classList.add("tourglow");
-      try { node.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
-      // pin the bouncing "look here" tag to the element (after the scroll settles)
+      nodes.forEach(n => n.classList.add("tourglow"));
+      try { nodes[0].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+      // pin the bouncing "look here" tag over the GROUP (after the scroll settles)
       setTimeout(() => {
-        if (!node.classList.contains("tourglow")) return;   // step already moved on
+        if (!nodes[0].classList.contains("tourglow")) return;   // step already moved on
         let tag = document.getElementById("tourTag");
         if (!tag) { tag = document.createElement("div"); tag.id = "tourTag"; tag.textContent = "👀 look here"; document.body.appendChild(tag); }
-        const r = node.getBoundingClientRect();
-        tag.style.left = Math.max(8, Math.min(window.innerWidth - 130, r.left + r.width / 2 - 55)) + "px";
-        tag.style.top = (r.top > 60 ? r.top - 44 : r.bottom + 12) + "px";
+        const rects = nodes.map(n => n.getBoundingClientRect());
+        const left = Math.min(...rects.map(r => r.left)), right = Math.max(...rects.map(r => r.right));
+        const top = Math.min(...rects.map(r => r.top)), bottom = Math.max(...rects.map(r => r.bottom));
+        tag.style.left = Math.max(8, Math.min(window.innerWidth - 130, (left + right) / 2 - 55)) + "px";
+        tag.style.top = (top > 60 ? top - 44 : bottom + 12) + "px";
         tag.style.display = "block";
       }, 520);
     }
