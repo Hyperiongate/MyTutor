@@ -4,6 +4,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-01  TOUR FIXED (Jim: "he talks about the curriculum twice... 'this is me' and I
+                have no idea where to look"). The 'this is me' stop pointed at #tutorPanel,
+                an element REMOVED in an earlier redesign — highlight silently no-oped. The
+                tutor head has that id again; the tour is now five DISTINCT stops (curriculum,
+                dashboard, practice+assessment, Mr. Cadabra, the ANSWER BOX + Math Keyboard —
+                no more nine-units repeat), each with the pulsing glow PLUS a bouncing
+                '\U0001F440 look here' tag pinned to the exact element while he talks about it.
     2026-08-01  NO MICROPHONE, EVER (Jim's live check: Chrome asked for the mic on the new
                 domain). begin() used to PRE-REQUEST getUserMedia so tap-to-talk would 'just
                 work' — removed; canRecord is now hard-false (master switch), so the browser
@@ -536,6 +543,11 @@
     /* Tour highlight (Mr. Cadabra walking through the page) */
     .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
       animation: tourpulse 1.3s ease-in-out infinite; position: relative; z-index: 5; }
+    #tourTag { position: fixed; z-index: 70; display: none; pointer-events: none;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff;
+      font-weight: 800; font-size: 13px; border-radius: 999px; padding: 6px 14px;
+      box-shadow: 0 8px 22px rgba(91,91,214,.4); animation: tagbounce .9s ease-in-out infinite; }
+    @keyframes tagbounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
     @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(91,91,214,.14); }
       50% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px rgba(91,91,214,.28); } }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
@@ -650,7 +662,7 @@
 <body>
   <div class="app">
     <aside class="side left">
-      <div class="tutor-head">
+      <div class="tutor-head" id="tutorPanel">
         <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
         <div class="tutor-meta">
           <div class="tutor-name" id="tutorName">Tutor</div>
@@ -1189,12 +1201,16 @@
     const TOUR_TARGETS = {
       "curriculum":   "curriculumBtn",
       "dashboard":    "dashLink",
+      "assess":       "assessLink",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
+      "answer":       "composer",
     };
     function clearHighlight() {
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
+      const tag = document.getElementById("tourTag");
+      if (tag) tag.style.display = "none";
     }
     function highlightEl(id) {
       clearHighlight();
@@ -1210,6 +1226,16 @@
       }
       node.classList.add("tourglow");
       try { node.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+      // pin the bouncing "look here" tag to the element (after the scroll settles)
+      setTimeout(() => {
+        if (!node.classList.contains("tourglow")) return;   // step already moved on
+        let tag = document.getElementById("tourTag");
+        if (!tag) { tag = document.createElement("div"); tag.id = "tourTag"; tag.textContent = "👀 look here"; document.body.appendChild(tag); }
+        const r = node.getBoundingClientRect();
+        tag.style.left = Math.max(8, Math.min(window.innerWidth - 130, r.left + r.width / 2 - 55)) + "px";
+        tag.style.top = (r.top > 60 ? r.top - 44 : r.bottom + 12) + "px";
+        tag.style.display = "block";
+      }, 520);
     }
 
     // Strip all control tags so the spoken/shown TEXT never leaks raw markup.
@@ -1803,15 +1829,20 @@
     // of algebra, then walks the screen HIMSELF -- speaking each line in his voice
     // while the matching spot lights up -- and moves on automatically. No "ready
     // for next?" prompts. When the walk is done he hands off to the real lesson.
+    // 2026-08-01 (Jim's playtest): five DISTINCT stops (the old tour described the
+    // curriculum twice), and every stop visibly points somewhere -- a pulsing glow
+    // plus a bouncing "look here" tag on the exact element being described.
     const TOUR_STEPS = [
       { id: "curriculum",
-        text: "First, over here on the left is your Curriculum. It's everything we'll learn together, laid out in nine units — and you can click any one of the nine to see exactly which topics are covered in that section." },
+        text: "See the glowing spot? Over on the left is your Curriculum — everything we'll learn in " + COURSE_TITLE + ", laid out in nine units. Click any unit to see exactly what's inside it." },
       { id: "dashboard",
-        text: "Next is your Progress dashboard. That's where you'll see how you're doing — the units you've worked on, what's still to come, plus your accuracy and streaks as they grow." },
-      { id: "todays-plan",
-        text: "Down here on the left is your " + COURSE_TITLE + " course — all nine units. We'll work through them together. Whenever you like, you can take the Course Assessment to see your strengths and get a recommended path." },
+        text: "Right below it, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
+      { id: "assess",
+        text: "Two more helpers on the left: Practice a problem, for when you want to bring me one specific problem — and the Course Assessment, which finds your strengths and builds you a recommended path whenever you're ready." },
       { id: "tutor",
-        text: "And this is me — Mr. Cadabra. The big board is where I'll draw things out, and any time it's your turn, just type your answer in the box below — there's a little math keyboard for the tricky symbols." },
+        text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
+      { id: "answer",
+        text: "Last one, and it's the important one: when it's your turn, type your answer right down here. The Math Keyboard button next to it has every tricky symbol — square roots, exponents, fractions, all of it." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice
