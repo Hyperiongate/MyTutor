@@ -4,6 +4,9 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-01  BETA STAMP (Jim: "we are not taking payment at this time"): the plan card's
+    no-payments notice now says exactly that, in beta language, and points at /beta. The
+    server decides billing_ready automatically (live Stripe key = open; test/no key = beta).
   - 2026-07-31  HEADER v2 (Jim: still cramped -> "maybe two rows"): the top bar is now a
     spacious TWO-ROW design -- brand + buttons on row one, centered generously-spaced links
     on row two -- and gained two new links: /mission and /community. Same fix on all pages.
@@ -299,8 +302,9 @@
           (n === 0 ? " Add your child first — the plan covers each student you add." : "") + '</p>';
       } else {
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
-          'Online payment is launching very soon. Want full access today? Email ' +
-          '<a href="mailto:support@mrcadabra.com" style="font-weight:800">support@mrcadabra.com</a> and we’ll set you up personally.</div>';
+          '🧪 <b>We’re in beta and not taking payments yet.</b> Prices shown are what launch will look like. ' +
+          'Want full access now, free? <a href="/beta" style="font-weight:800;text-decoration:underline">Become a beta tester</a> ' +
+          'or email <a href="mailto:support@mrcadabra.com" style="font-weight:800">support@mrcadabra.com</a>.</div>';
       }
     }
     body.innerHTML = html;

@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-01  APP_BUILD -> "2026-08-01a-betastamp" (Jim: the live site looked like it takes
+#               payment, but Stripe is in test mode -- "we are not taking payment at this
+#               time"). NEW _payments_open(): payments count as OPEN only when the Stripe key
+#               is a LIVE key (sk_live_...); test/no key = beta mode automatically, no sticker
+#               to forget. billing_ready in /api/parent/me now reflects it (the /family page
+#               swaps subscribe buttons for an honest beta notice), and checkout/portal/cover
+#               all refuse politely with a beta message. Env override PAYMENTS_OPEN=open|closed
+#               for deliberate demos. Pricing page gained a visible amber beta stamp.
 #   2026-07-31  APP_BUILD -> "2026-07-31q-beta". BETA-TESTER PROGRAM (Jim: "five free logins
 #               for approved beta testers... works five times... only stays open an hour or
 #               two"). NEW route /beta (public pitch + mailto application; ?admin=<key> shows
@@ -1642,7 +1650,7 @@ def _parent_payload(parent: dict) -> dict:
             "name": s.get("name") or "Student",
             "covered": (parent.get("sub_status") == "active" and i < quantity),
         } for i, s in enumerate(students)],
-        "billing_ready": bool(os.environ.get("STRIPE_SECRET_KEY", "").strip()),
+        "billing_ready": _payments_open(),
     }
 
 
@@ -1856,6 +1864,29 @@ class CheckoutIn(BaseModel):
     plan: str = "monthly"      # 'monthly' | 'annual'
 
 
+def _payments_open() -> bool:
+    """Are we ACCEPTING payments? (2026-08-01, Jim: 'we're in beta — not taking
+    payment at this time.') Self-managing: payments open automatically when the
+    configured Stripe key is a LIVE key (sk_live_...). With a test key or no key,
+    the site shows an honest beta notice instead of subscribe buttons, and the
+    billing endpoints refuse politely. Env override PAYMENTS_OPEN=open|closed
+    forces either state (e.g. 'open' to demo the test-mode checkout on purpose)."""
+    override = os.environ.get("PAYMENTS_OPEN", "").strip().lower()
+    if override in ("1", "true", "yes", "open"):
+        return True
+    if override in ("0", "false", "no", "closed"):
+        return False
+    return os.environ.get("STRIPE_SECRET_KEY", "").strip().startswith("sk_live_")
+
+
+def _require_payments_open() -> None:
+    if not _payments_open():
+        raise HTTPException(status_code=503, detail=(
+            "We're in our beta period and not taking payments yet. Full access is "
+            "currently by beta pass — see mrcadabra.com/beta — or email "
+            "support@mrcadabra.com."))
+
+
 def _stripe():
     """The configured Stripe client module, or a clear 503 when payments are off."""
     key = os.environ.get("STRIPE_SECRET_KEY", "").strip()
@@ -1931,6 +1962,7 @@ def _stripe_customer_id(stripe, parent: dict) -> str:
 @app.post("/api/billing/checkout")
 def billing_checkout(body: CheckoutIn):
     """Start a Stripe Checkout for this parent: quantity = their number of students."""
+    _require_payments_open()
     parent = _require_parent(body.token)
     plan = (body.plan or "monthly").strip().lower()
     if plan not in _PLAN_LOOKUP:
@@ -1961,6 +1993,7 @@ def billing_checkout(body: CheckoutIn):
 @app.post("/api/billing/portal")
 def billing_portal(body: ParentTokenIn):
     """Send the parent to Stripe's hosted portal: update card, switch plan, cancel."""
+    _require_payments_open()
     parent = _require_parent(body.token)
     if not parent.get("stripe_customer_id"):
         raise HTTPException(status_code=400, detail="No billing set up yet — subscribe first.")
@@ -1980,6 +2013,7 @@ def billing_portal(body: ParentTokenIn):
 def billing_cover(body: ParentTokenIn):
     """Parent added a child while subscribed: bump the subscription quantity to
     cover every student (Stripe prorates the difference automatically)."""
+    _require_payments_open()
     parent = _require_parent(body.token)
     if (parent.get("sub_status") or "") != "active" or not parent.get("stripe_customer_id"):
         raise HTTPException(status_code=400, detail="No active subscription to update.")
@@ -2275,7 +2309,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-07-31q-beta"
+APP_BUILD = "2026-08-01a-betastamp"
 
 
 @app.get("/health")
