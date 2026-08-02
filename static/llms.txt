@@ -1,0 +1,46 @@
+# MyTutor
+
+> MyTutor (mrcadabra.com) is a warm, talking AI math tutor for homeschool families,
+> students, and classrooms. The tutor, "Mr. Cadabra," teaches Socratically: he speaks
+> each step aloud in a natural voice, draws the work on a synchronized whiteboard that
+> never runs ahead of the student, and asks guiding questions instead of handing over
+> answers. Students reply by typing (a built-in math keyboard covers symbols like
+> square roots and exponents, plus tap-to-plot graph paper) - there is no microphone,
+> so no student voice is ever recorded. Made by Hyperion Shift LLC.
+
+Key facts:
+- Eight complete courses, each with nine units: Pre-Algebra, Algebra I, Geometry,
+  Algebra II, Trig / Pre-Calc, Calculus, Differential Equations, and Probability &
+  Statistics.
+- A voluntary placement assessment starts each student exactly where they belong;
+  mastery is proven with scored unit checks (80%+), never assumed.
+- Parents get a read-only dashboard with honest time-on-task (idle minutes count as
+  zero), real mastery status, and a plain-language "How are they doing, really?"
+  narrative assessment.
+- Rewards system: merit badges per mastered unit, course trophies, and effort medals
+  for streaks, practice, and comebacks.
+- Teachers and co-ops get a roster view and a per-class mastery heatmap.
+- Pricing: a free plan (placement, first mastered unit, unlimited practice help), then
+  one full-access plan at $29/month per student or $24/month billed annually
+  (introductory pricing). Currently in beta and not yet taking payments.
+- Privacy: parents create and control accounts; only first names are stored for
+  students; student data is never sold or used for advertising.
+
+## Pages
+
+- [Home](https://mrcadabra.com/): what MyTutor is, how a lesson works, FAQ
+- [Courses](https://mrcadabra.com/courses): all eight courses with printable scope & sequence
+- [Homeschool](https://mrcadabra.com/homeschool): the homeschool experience - teaching, records, honest hours
+- [Parents](https://mrcadabra.com/parents): what your child experiences and what you can see
+- [Students](https://mrcadabra.com/students): how lessons, tools, and rewards work
+- [Teachers](https://mrcadabra.com/teachers): class roster and mastery heatmap for classrooms and co-ops
+- [Pricing](https://mrcadabra.com/pricing): free plan and full-access plan
+- [Try a lesson](https://mrcadabra.com/demo): a no-sign-in sample lesson
+- [Mission](https://mrcadabra.com/mission): fun, accessible, complete, taught right
+- [Beta program](https://mrcadabra.com/beta): free tester passes in exchange for honest feedback
+- [Community](https://mrcadabra.com/community): the parent forum
+- [Privacy](https://mrcadabra.com/privacy) and [Terms](https://mrcadabra.com/terms)
+
+Contact: support@mrcadabra.com
+
+# I did no harm and this file is not truncated.

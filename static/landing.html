@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-02  DISCOVERY PASS (AI search + Google): og-extras+twitter, json-ld added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   - 2026-07-31  NAV FIX (Jim: "header looks cramped"): nothing in the top bar wraps mid-item any
     more. Nav labels shortened (Students/Parents/Teachers -- pages keep full titles); fluid link
     spacing; "with Mr. Cadabra" subtitle is 14px and hides below 1200px; below 1040px the links
@@ -68,6 +69,12 @@
 <meta property="og:description" content="A patient, Socratic AI math tutor with a synchronized whiteboard. Eight complete courses, placement to mastery. Built for homeschool families.">
 <meta property="og:url" content="https://mrcadabra.com/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="MyTutor">
+<meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MyTutor — A patient AI math tutor that teaches, not just answers">
+<meta name="twitter:description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — Pre-Algebra through Calculus — and never just hands over the answer. No microphone needed.">
+<meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <style>
   :root{
     --purple:#6d5ae6; --teal:#1fb6b0; --ink:#20233a; --muted:#5b6079;
@@ -210,6 +217,110 @@
   .beta-ribbon u{text-underline-offset:3px}
   .beta-ribbon a:hover u{text-decoration-thickness:2px}
 </style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://mrcadabra.com/#org",
+   "name": "MyTutor",
+   "legalName": "Hyperion Shift LLC",
+   "url": "https://mrcadabra.com/",
+   "logo": "https://mrcadabra.com/static/favicon.svg",
+   "email": "support@mrcadabra.com"
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://mrcadabra.com/#site",
+   "url": "https://mrcadabra.com/",
+   "name": "MyTutor",
+   "publisher": {
+    "@id": "https://mrcadabra.com/#org"
+   }
+  },
+  {
+   "@type": "SoftwareApplication",
+   "name": "MyTutor",
+   "operatingSystem": "Web",
+   "applicationCategory": "EducationalApplication",
+   "url": "https://mrcadabra.com/",
+   "description": "A warm, talking AI math tutor. Mr. Cadabra teaches step by step on a synchronized whiteboard — eight complete courses from Pre-Algebra through Calculus, Differential Equations, and Probability & Statistics — and never just hands over the answer. Students type their answers; no microphone.",
+   "publisher": {
+    "@id": "https://mrcadabra.com/#org"
+   },
+   "offers": [
+    {
+     "@type": "Offer",
+     "name": "Free plan",
+     "price": "0",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing"
+    },
+    {
+     "@type": "Offer",
+     "name": "Full access, monthly (introductory)",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing"
+    },
+    {
+     "@type": "Offer",
+     "name": "Full access, annual — per month (introductory)",
+     "price": "24.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "Is this just ChatGPT that solves the homework?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. MyTutor is built to teach. It uses a Socratic approach — guiding with questions and drawing each step on a whiteboard that never runs ahead of your student — wrapped around complete, placement-to-mastery courses. The goal is understanding, not a copied answer."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does my child need a microphone?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. Mr. Cadabra talks your student through each step in a warm voice, and your student answers by typing — with a built-in math keyboard for symbols like √ and x². There's no microphone, so no student voice is recorded: it's quiet-friendly, works on shared devices, and keeps things private."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What ages and levels is it for?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Today the math library spans eight complete courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Calculus, Differential Equations, and Probability & Statistics — and placement puts each student exactly where they belong."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do you handle my child's data?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Parents create and control the account. We never sell student data or use it for advertising. You can request deletion at any time. See the Parents & Privacy page for specifics."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can I use this for more than one child, or a co-op?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes — ask about family pricing for multiple students, or the teacher dashboard for classrooms and co-ops with rosters, a mastery heatmap, and assignments."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
 </head>
 <body>
 <nav><div class="wrap">

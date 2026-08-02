@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-02  DISCOVERY PASS (AI search + Google): og+twitter, json-ld added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   =============================================================================
   courses.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -25,6 +26,16 @@
 <title>MyTutor — Courses & Scope and Sequence</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/courses" />
+<meta property="og:title" content="MyTutor — Courses & Scope and Sequence">
+<meta property="og:description" content="Eight complete math courses — Pre-Algebra through Calculus and Differential Equations — with every unit listed. Printable scope & sequence for homeschool records.">
+<meta property="og:url" content="https://mrcadabra.com/courses">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MyTutor">
+<meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MyTutor — Courses & Scope and Sequence">
+<meta name="twitter:description" content="Eight complete math courses — Pre-Algebra through Calculus and Differential Equations — with every unit listed. Printable scope & sequence for homeschool records.">
+<meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="description" content="Eight complete math courses — Pre-Algebra through Calculus and Differential Equations — with every unit listed. Printable scope & sequence for homeschool records.">
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
@@ -83,6 +94,224 @@
   .beta-ribbon u{text-underline-offset:3px}
   .beta-ribbon a:hover u{text-decoration-thickness:2px}
 </style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "ItemList",
+ "name": "MyTutor math courses",
+ "url": "https://mrcadabra.com/courses",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "item": {
+    "@type": "Course",
+    "name": "Pre-Algebra",
+    "description": "Number sense, negatives, fractions, decimals, ratios, percents, and first variables — the foundation for all algebra.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "item": {
+    "@type": "Course",
+    "name": "Algebra I",
+    "description": "Expressions, linear equations and inequalities, functions, slope and graphs, systems, exponents, polynomials, factoring, and quadratics.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 3,
+   "item": {
+    "@type": "Course",
+    "name": "Geometry",
+    "description": "Constructions, transformations, congruence and proofs, similarity, right triangles and trigonometry, circles, coordinate geometry, and measurement.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 4,
+   "item": {
+    "@type": "Course",
+    "name": "Algebra II",
+    "description": "Deeper functions: quadratics, polynomials, radicals, exponentials and logarithms, rational functions, sequences, and statistics.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 5,
+   "item": {
+    "@type": "Course",
+    "name": "Trig / Pre-Calc",
+    "description": "Trigonometry, the unit circle, identities, vectors, conics, and the function analysis that prepares students for calculus.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 6,
+   "item": {
+    "@type": "Course",
+    "name": "Calculus",
+    "description": "Limits, derivatives, integrals, and their applications, taught step by step to real understanding.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 7,
+   "item": {
+    "@type": "Course",
+    "name": "Differential Equations",
+    "description": "First- and second-order equations, modeling, Laplace transforms, and systems — a complete first course.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  },
+  {
+   "@type": "ListItem",
+   "position": 8,
+   "item": {
+    "@type": "Course",
+    "name": "Probability & Statistics",
+    "description": "Data displays, probability rules, random variables, distributions, and inference, with an emphasis on honest reasoning.",
+    "provider": {
+     "@type": "Organization",
+     "name": "MyTutor",
+     "url": "https://mrcadabra.com/"
+    },
+    "offers": {
+     "@type": "Offer",
+     "price": "29.00",
+     "priceCurrency": "USD",
+     "url": "https://mrcadabra.com/pricing",
+     "category": "Subscription"
+    },
+    "hasCourseInstance": {
+     "@type": "CourseInstance",
+     "courseMode": "Online",
+     "courseWorkload": "PT5H"
+    }
+   }
+  }
+ ]
+}
+</script>
 </head>
 <body>
 <nav><div class="wrap">

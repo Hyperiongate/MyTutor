@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-02  APP_BUILD -> "2026-08-02a-discovery". AI SEARCH + GOOGLE DISCOVERY (Jim):
+#               new routes /robots.txt (welcomes Google + AI crawlers, hides app pages),
+#               /sitemap.xml (all 13 public pages), /llms.txt (plain-text product summary
+#               for AI assistants) -- files live in static/. Companion change: every public
+#               page gained canonical + Open Graph/Twitter tags and schema.org JSON-LD
+#               (org/product/FAQ on landing, course list on /courses, offers on /pricing).
 #   2026-08-01  APP_BUILD -> "2026-08-01h-boardleads". BOARD LEADS, WORDS FOLLOW (Jim): the
 #               tutor was speaking equations and arithmetic checks entirely in words while
 #               the whiteboard sat empty. tutor.py's GRAPH_TOOL_NOTE gained rules 4-6: all
@@ -1137,6 +1143,27 @@ def privacy_page():
 def terms_page():
     """Terms of use, billing and refund basics (attorney review pending)."""
     return FileResponse(STATIC_DIR / "terms.html")
+
+
+# ---- DISCOVERY FILES (2026-08-02: AI search + Google) -----------------------
+# Three tiny files that make the site findable. robots.txt welcomes Google AND the
+# AI assistants' crawlers (GPTBot/ClaudeBot/PerplexityBot -- they power ChatGPT/
+# Claude/Perplexity recommendations) while hiding the sign-in-only app pages.
+# sitemap.xml lists every public page for Google Search Console / Bing Webmaster.
+# llms.txt is a plain-text product summary the AI crawlers read directly.
+@app.get("/robots.txt")
+def robots_txt():
+    return FileResponse(STATIC_DIR / "robots.txt", media_type="text/plain")
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    return FileResponse(STATIC_DIR / "sitemap.xml", media_type="application/xml")
+
+
+@app.get("/llms.txt")
+def llms_txt():
+    return FileResponse(STATIC_DIR / "llms.txt", media_type="text/plain")
 
 
 # =============================================================================
@@ -2357,7 +2384,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-01h-boardleads"
+APP_BUILD = "2026-08-02a-discovery"
 
 
 @app.get("/health")

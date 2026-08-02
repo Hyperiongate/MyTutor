@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-02  DISCOVERY PASS (AI search + Google): og+twitter, json-ld added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   =============================================================================
   pricing.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -32,6 +33,16 @@
 <title>MyTutor — Pricing</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/pricing" />
+<meta property="og:title" content="MyTutor — Pricing">
+<meta property="og:description" content="MyTutor pricing: try it free, then one simple full-access plan per student. Family and classroom options. Cancel anytime.">
+<meta property="og:url" content="https://mrcadabra.com/pricing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MyTutor">
+<meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MyTutor — Pricing">
+<meta name="twitter:description" content="MyTutor pricing: try it free, then one simple full-access plan per student. Family and classroom options. Cancel anytime.">
+<meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="description" content="MyTutor pricing: try it free, then one simple full-access plan per student. Family and classroom options. Cancel anytime.">
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
@@ -90,6 +101,35 @@
   .beta-ribbon u{text-underline-offset:3px}
   .beta-ribbon a:hover u{text-decoration-thickness:2px}
 </style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Product",
+ "name": "MyTutor full access",
+ "url": "https://mrcadabra.com/pricing",
+ "description": "Full access to the talking AI math tutor: all eight courses, placement, lessons, practice, mastery checks, rewards, and the parent dashboard. A free plan (placement, first mastered unit, unlimited practice help) is included for every family.",
+ "brand": {
+  "@type": "Brand",
+  "name": "MyTutor"
+ },
+ "offers": [
+  {
+   "@type": "Offer",
+   "name": "Monthly, per student (introductory)",
+   "price": "29.00",
+   "priceCurrency": "USD",
+   "url": "https://mrcadabra.com/pricing"
+  },
+  {
+   "@type": "Offer",
+   "name": "Annual, per student — per month (introductory)",
+   "price": "24.00",
+   "priceCurrency": "USD",
+   "url": "https://mrcadabra.com/pricing"
+  }
+ ]
+}
+</script>
 </head>
 <body>
 <nav><div class="wrap">

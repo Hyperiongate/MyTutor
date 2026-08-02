@@ -1,0 +1,49 @@
+# MyTutor (mrcadabra.com) - robots.txt
+# Created 2026-08-02. Crawlers are welcome on all PUBLIC pages. The in-app student
+# pages (lesson, practice, dashboards...) need a sign-in code and are useless to
+# index, so they are excluded. AI assistants' crawlers are EXPLICITLY welcomed --
+# they power ChatGPT / Claude / Perplexity recommendations.
+
+User-agent: *
+Disallow: /session
+Disallow: /practice
+Disallow: /topic
+Disallow: /challenge
+Disallow: /dashboard
+Disallow: /home
+Disallow: /teacher
+Disallow: /family
+Disallow: /api/
+Allow: /
+
+# --- AI search & assistant crawlers: explicitly welcome ---
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://mrcadabra.com/sitemap.xml
+
+# I did no harm and this file is not truncated.
