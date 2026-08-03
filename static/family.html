@@ -4,6 +4,12 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  FAMILY PLAN — ONE PLAN COVERS UP TO 2 CHILDREN. The plan card now reads the
+    server's per-child "covered" flag (never recomputes coverage from the seat count, so the
+    display can't drift from real access), the subscribe totals bill by PAIRS of children
+    (one plan = up to two kids; a third child adds another plan, prorated), and all copy says
+    "per plan / covers up to 2 children" instead of "per student". No harm to sign-in, add-a-
+    child, Stripe checkout/portal, or the cover-them flow.
   - 2026-08-01  BETA STAMP (Jim: "we are not taking payment at this time"): the plan card's
     no-payments notice now says exactly that, in beta language, and points at /beta. The
     server decides billing_ready automatically (live Stripe key = open; test/no key = beta).
@@ -269,17 +275,23 @@
 
   function renderPlan(me) {
     var s = me.subscription, n = me.students.length, body = $("planBody"), html = "";
-    var kidWord = function (x) { return x === 1 ? "1 student" : x + " students"; };
+    var childWord = function (x) { return x === 1 ? "1 child" : x + " children"; };
+    var seatsFor = function (x) { return Math.max(0, Math.ceil(Math.max(0, x) / 2)); };
+    // Covered children come straight from the server's per-child "covered" flag
+    // (one plan covers up to two children), so this display can never drift from
+    // the real access a child has.
+    var coveredCount = me.students.filter(function (k) { return k.covered; }).length;
     if (s.status === "active") {
-      var planName = s.plan === "annual" ? "$24/mo per student, billed annually" : "$29/mo per student";
+      var planName = s.plan === "annual" ? "$24/mo per plan, billed annually" : "$29/mo per plan";
       html += '<div class="plan-line"><b>Full access</b><span class="tag full">Active</span></div>' +
-        '<p>' + kidWord(s.quantity) + ' covered · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
-      if (n > s.quantity) {
+        '<p>' + childWord(coveredCount) + ' covered · one plan covers up to 2 children · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
+      if (n > coveredCount) {
+        var extra = n - coveredCount;
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
-          'You’ve added more children than your plan covers — the newest ' + (n - s.quantity === 1 ? "child is" : "children are") +
+          'You’ve added more children than your plan covers — the newest ' + (extra === 1 ? "child is" : "children are") +
           ' on the Free plan.</div>' +
           '<div class="rowbtns"><button class="btn btn-primary" id="coverBtn" type="button">Cover ' +
-          (n - s.quantity === 1 ? "them" : "all " + n) + ' — prorated fairly</button></div>';
+          (extra === 1 ? "them" : "all " + n) + ' — prorated fairly</button></div>';
       }
       html += '<div class="rowbtns"><button class="btn btn-ghost" id="portalBtn" type="button">Manage billing (card, plan, cancel)</button></div>' +
         '<p class="cap" style="margin-top:12px">Billing screens are hosted by Stripe — your card never touches our servers.</p>';
@@ -295,11 +307,14 @@
         '<p style="margin-top:10px"><b>Full access</b> unlocks every course, placement to mastery:</p>';
       if (me.billing_ready) {
         var q = Math.max(1, n);
+        var seats = Math.max(1, seatsFor(q));
         html += '<div class="rowbtns">' +
-          '<button class="btn btn-primary" id="buyMonthly" type="button">$29/mo × ' + kidWord(q) + '</button>' +
-          '<button class="btn btn-ghost" id="buyAnnual" type="button">$24/mo billed annually</button></div>' +
-          '<p class="cap" style="margin-top:12px">Checkout is hosted by Stripe — cards, Apple Pay, Google Pay. Cancel anytime.' +
-          (n === 0 ? " Add your child first — the plan covers each student you add." : "") + '</p>';
+          '<button class="btn btn-primary" id="buyMonthly" type="button">Subscribe — $' + (seats * 29) + '/mo</button>' +
+          '<button class="btn btn-ghost" id="buyAnnual" type="button">$' + (seats * 24) + '/mo billed annually</button></div>' +
+          '<p class="cap" style="margin-top:12px">One plan covers up to 2 children' +
+          (seats > 1 ? ' — ' + seats + ' plans cover your ' + childWord(q) : '') + '. ' +
+          'Checkout is hosted by Stripe — cards, Apple Pay, Google Pay. Cancel anytime.' +
+          (n === 0 ? " Add your child first — one plan covers up to two children." : "") + '</p>';
       } else {
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
           '🧪 <b>We’re in beta and not taking payments yet.</b> Prices shown are what launch will look like. ' +

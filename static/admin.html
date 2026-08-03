@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  admin.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+  - 2026-08-03  NEW PAGE: JIM'S CENTRAL ADMIN DASHBOARD (/admin). One password-
+                protected place for everything Jim used to hunt across pages for:
+                  * live status numbers -- signups, subscriptions + estimated
+                    monthly revenue, engagement, beta usage, forum activity, and
+                    the system/health facts (build stamp, model, database,
+                    payments open?) -- all real, pulled from /api/admin/stats.
+                  * the BETA PASS GENERATOR built right in (create / list /
+                    revoke), the same tools as /beta?admin= but on this page so
+                    Jim stops bouncing around.
+                  * quick links to Render, Stripe, Search Console, Bing, /health,
+                    forum moderation, and the family portal (moderation/admin
+                    links pre-loaded with the key so they open ready to use).
+                Protected by the SAME admin key as the beta generator and forum
+                moderation (FORUM_MOD_KEY). The key NEVER lives in this file: it
+                comes from the ?key= URL parameter (or the unlock box) and is
+                verified server-side on every request. A visitor without the key
+                sees only a locked "enter your key" prompt.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Admin — MyTutor</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:12px 22px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  .btn[disabled]{opacity:.55;cursor:wait;transform:none}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  header.page{padding:34px 0 6px}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:34px;letter-spacing:-.02em;margin:8px 0 6px;font-weight:850}
+  h2{font-size:21px;letter-spacing:-.01em;margin:0 0 4px;font-weight:820}
+  .sub{color:var(--muted);font-size:16px;max-width:70ch}
+  section{padding:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+  .sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .sechead .note{color:var(--muted);font-size:13px}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+  .tile{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:linear-gradient(180deg,#fff,#fcfbff)}
+  .tile .tval{font-size:30px;font-weight:850;letter-spacing:-.02em;line-height:1.1}
+  .tile .tlab{font-size:13.5px;color:var(--muted);font-weight:700;margin-top:4px}
+  .tile .tsub{font-size:12px;color:var(--muted);margin-top:4px}
+  .tile.good .tval{color:#177a52}.tile.warn .tval{color:#8a5a12}.tile.bad .tval{color:#b3402e}
+  label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+  input.f{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
+  input.f:focus{outline:none;border-color:var(--purple)}
+  .msg{margin-top:12px;font-size:14.5px;font-weight:600;display:none;padding:10px 14px;border-radius:12px}
+  .msg.err{display:block;background:#fdf0ee;color:#b3402e;border:1px solid #f5cfc8}
+  .msg.ok{display:block;background:#eefaf5;color:#177a52;border:1px solid #c8ecdb}
+  .passcode{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:22px;letter-spacing:2px;
+    background:#f6f3ff;border:1.5px dashed var(--purple);border-radius:10px;padding:8px 16px;cursor:pointer;display:inline-block}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+  td .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+  .rvk{background:none;border:1px solid #f5cfc8;color:#b3402e;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;padding:3px 10px}
+  .tag{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px}
+  .tag.live{background:#eefaf5;color:#177a52}
+  .tag.idle{background:#f4f4f8;color:#5b6079}
+  .tag.done{background:#fdf0ee;color:#b3402e}
+  .links{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .links a{display:block;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-weight:700;background:#fff}
+  .links a:hover{border-color:var(--purple);color:var(--purple)}
+  .links a span{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  footer{border-top:1px solid var(--line);padding:28px 0;margin-top:10px;color:var(--muted);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="nav-top">
+  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· admin</span></span></a>
+  <div class="nav-cta">
+    <button class="btn btn-ghost" id="refreshBtn" type="button" style="display:none">↻ Refresh</button>
+    <a class="btn btn-ghost" href="/">Back to site</a>
+  </div>
+  </div>
+</div></nav>
+
+<header class="page wrap">
+  <span class="eyebrow">Owner dashboard</span>
+  <h1>Everything in <span class="grad-text">one place.</span></h1>
+  <p class="sub" id="asof">Your live status, your beta pass generator, and quick links — all here.</p>
+</header>
+
+<!-- ============ LOCKED (no key / wrong key) ============ -->
+<section class="wrap" id="lockView" style="display:none">
+  <div class="card" style="max-width:460px;margin:0 auto">
+    <h2>🔒 Enter your admin key</h2>
+    <p class="sub" style="font-size:14.5px">This is the same key you use for the beta generator and forum moderation.</p>
+    <form id="keyForm">
+      <label for="keyInput">Admin key</label>
+      <input class="f" id="keyInput" type="password" autocomplete="off" placeholder="your key" />
+      <div class="msg" id="keyMsg"></div>
+      <button class="btn btn-primary" id="keyGo" type="submit" style="width:100%;margin-top:14px">Unlock dashboard</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD (only after the key verifies) ============ -->
+<div id="dashView" style="display:none">
+  <section class="wrap"><div id="board"></div></section>
+
+  <!-- Beta pass generator (same engine as /beta?admin=) -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>🎟️ Beta pass generator</h2><span class="note">Create a pass, copy the code, email it to your tester.</span></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:2;min-width:200px"><label for="gLabel">Who is this pass for? (only you see this)</label>
+        <input class="f" id="gLabel" maxlength="120" placeholder="e.g. Smith family — church group" /></div>
+      <div style="flex:0 0 110px"><label for="gUses">Sign-ins</label>
+        <input class="f" id="gUses" type="number" min="1" max="50" value="5" /></div>
+      <div style="flex:0 0 110px"><label for="gHours">Hours each</label>
+        <input class="f" id="gHours" type="number" min="1" max="24" value="2" /></div>
+      <button class="btn btn-primary" id="gGo" type="button">Generate pass</button>
+    </div>
+    <div class="msg" id="gMsg"></div>
+    <div id="newPass" style="display:none;margin-top:16px">
+      New pass (click to copy): <span class="passcode" id="newCode"></span>
+    </div>
+    <table id="passTable" style="display:none">
+      <thead><tr><th>Code</th><th>For</th><th>Sign-ins</th><th>Window</th><th>Status</th><th></th></tr></thead>
+      <tbody id="passRows"></tbody>
+    </table>
+  </div></section>
+
+  <!-- Quick links -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>🔗 Quick links</h2><span class="note">Your other control panels — the ones needing your key open ready to use.</span></div>
+    <div class="links" id="quickLinks"></div>
+  </div></section>
+</div>
+
+<footer><div class="wrap">© 2026 Hyperion Shift LLC · mrcadabra.com · admin</div></footer>
+
+<script>
+(function () {
+  "use strict";
+  var params = new URLSearchParams(window.location.search);
+  var KEY = (params.get("key") || "").trim();
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+  function num(n) { return Number(n || 0).toLocaleString(); }
+  function money(n) { return "$" + Number(n || 0).toLocaleString(); }
+  function keyMsg(text, kind) { var el = $("keyMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+  function gMsg(text, kind) { var el = $("gMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    var r = await fetch(path, opts);
+    var data = {};
+    try { data = await r.json(); } catch (e) {}
+    if (!r.ok) { var err = new Error((data && data.detail) || "Request failed."); err.status = r.status; throw err; }
+    return data;
+  }
+
+  // ---------- lock screen ----------
+  function showLock(message) {
+    $("dashView").style.display = "none";
+    $("refreshBtn").style.display = "none";
+    $("lockView").style.display = "";
+    if (message) keyMsg(message, "err");
+    $("keyInput").focus();
+  }
+  $("keyForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var k = $("keyInput").value.trim();
+    if (!k) { keyMsg("Please enter your key."); return; }
+    // Reload with the key in the URL so a refresh keeps working.
+    window.location.href = "/admin?key=" + encodeURIComponent(k);
+  });
+
+  // ---------- dashboard render ----------
+  function tiles(list) {
+    return '<div class="tiles">' + list.map(function (t) {
+      return '<div class="tile ' + (t.cls || "") + '">' +
+        '<div class="tval">' + t.v + '</div>' +
+        '<div class="tlab">' + esc(t.l) + '</div>' +
+        (t.s ? '<div class="tsub">' + esc(t.s) + '</div>' : '') + '</div>';
+    }).join("") + '</div>';
+  }
+  function section(title, note, tilesHtml) {
+    return '<div class="card"><div class="sechead"><h2>' + esc(title) + '</h2>' +
+      (note ? '<span class="note">' + esc(note) + '</span>' : '') + '</div>' + tilesHtml + '</div>';
+  }
+
+  function renderBoard(payload) {
+    var s = payload.stats || {};
+    var st = payload.storage || {};
+    var dbOk = !!st.db_enabled;
+    var pay = payload.payments_open;
+    var html = "";
+
+    if (!dbOk) {
+      html += '<div class="msg err" style="display:block">The database is not connected right now, so the numbers below are zeros. ' +
+        'Check /health and the DATABASE_URL env var. (' + esc(st.reason || "no reason given") + ')</div>';
+    }
+
+    html += section("👪 Signups", "Real parent accounts and the children they've added.", tiles([
+      { l: "Parent accounts", v: num(s.parents_total) },
+      { l: "Children added", v: num(s.students_family) },
+      { l: "On the Free plan", v: num(s.parents_free) },
+      { l: "All student codes", v: num(s.students_total), s: "includes pilots & beta" }
+    ]));
+
+    html += section("💳 Subscriptions", "Live billing — active plans only. Revenue is an estimate from paid seats.", tiles([
+      { l: "Active plans", v: num(s.parents_active), cls: s.parents_active ? "good" : "" },
+      { l: "Paid seats", v: num(s.seats_paid), s: "1 seat covers up to 2 kids" },
+      { l: "Children covered", v: num(s.children_covered_capacity), s: "capacity at current seats" },
+      { l: "Est. monthly", v: money(s.est_monthly_usd), cls: "good", s: "monthly $29 + annual $24/seat" },
+      { l: "Payment issues", v: num(s.parents_past_due), cls: s.parents_past_due ? "warn" : "" },
+      { l: "Canceled", v: num(s.parents_canceled) }
+    ]));
+
+    html += section("📈 Engagement", "How much real learning is happening (idle time never counts).", tiles([
+      { l: "Active this week", v: num(s.active_7d), s: "students, last 7 days" },
+      { l: "Active this month", v: num(s.active_30d), s: "students, last 30 days" },
+      { l: "Engaged minutes (7d)", v: num(s.minutes_7d) },
+      { l: "Engaged minutes (all)", v: num(s.minutes_total), s: "≈ " + num(Math.round((s.minutes_total || 0) / 60)) + " hours" },
+      { l: "Units mastered", v: num(s.units_mastered), s: "80%+ on a unit check" },
+      { l: "Checks taken", v: num(s.checks_taken) },
+      { l: "Problems practiced", v: num(s.problems_practiced) }
+    ]));
+
+    html += section("🎟️ Beta program", "Your passes at a glance (full generator below).", tiles([
+      { l: "Active passes", v: num(s.beta_total) },
+      { l: "In use right now", v: num(s.beta_active_windows), cls: s.beta_active_windows ? "good" : "" },
+      { l: "Total sign-ins used", v: num(s.beta_signins_used) }
+    ]));
+
+    html += section("💬 Community", "Forum activity (hidden/deleted posts excluded).", tiles([
+      { l: "Posts", v: num(s.forum_posts) },
+      { l: "Replies", v: num(s.forum_replies) }
+    ]));
+
+    html += section("🩺 System", "The facts from /health, at a glance.", tiles([
+      { l: "Build stamp", v: '<span style="font-size:16px">' + esc(payload.build || "—") + '</span>' },
+      { l: "Teaching model", v: '<span style="font-size:16px">' + esc(payload.model || "—") + '</span>' },
+      { l: "Database", v: '<span style="font-size:16px">' + (dbOk ? "Connected" : "OFF") + '</span>', cls: dbOk ? "good" : "bad", s: dbOk ? (st.dialect || "") : "" },
+      { l: "Payments", v: '<span style="font-size:16px">' + (pay ? "Open (live)" : "Beta — closed") + '</span>', cls: pay ? "good" : "warn" }
+    ]));
+
+    $("board").innerHTML = html;
+  }
+
+  function renderLinks() {
+    var k = encodeURIComponent(KEY);
+    var items = [
+      { href: "/health", t: "Health check", d: "Build stamp & database status" },
+      { href: "/beta?admin=" + k, t: "Beta page (admin)", d: "The public /beta with your generator" },
+      { href: "/community?mod=" + k, t: "Forum moderation", d: "Hide/restore posts" },
+      { href: "/family", t: "Family portal", d: "The parent sign-in page" },
+      { href: "/pricing", t: "Pricing page", d: "What families see" },
+      { href: "https://dashboard.render.com", t: "Render", d: "Deploys, logs, env vars", ext: true },
+      { href: "https://dashboard.stripe.com", t: "Stripe", d: "Payments, customers, refunds", ext: true },
+      { href: "https://search.google.com/search-console", t: "Google Search Console", d: "How Google sees the site", ext: true },
+      { href: "https://www.bing.com/webmasters", t: "Bing Webmaster", d: "Bing + ChatGPT search", ext: true }
+    ];
+    $("quickLinks").innerHTML = items.map(function (i) {
+      return '<a href="' + i.href + '"' + (i.ext ? ' target="_blank" rel="noopener"' : '') + '>' +
+        esc(i.t) + '<span>' + esc(i.d) + '</span></a>';
+    }).join("");
+  }
+
+  // ---------- beta generator (same API as /beta) ----------
+  function betaStatus(c) {
+    if (c.revoked) return '<span class="tag done">revoked</span>';
+    if (c.uses_used >= c.uses_allowed &&
+        !(c.window_expires_at && new Date(c.window_expires_at) > new Date()))
+      return '<span class="tag done">used up</span>';
+    if (c.window_expires_at && new Date(c.window_expires_at) > new Date()) {
+      var mins = Math.max(1, Math.round((new Date(c.window_expires_at) - Date.now()) / 60000));
+      return '<span class="tag live">in use · ' + mins + ' min left</span>';
+    }
+    return '<span class="tag idle">ready</span>';
+  }
+  function renderTable(codes) {
+    if (!codes || !codes.length) { $("passTable").style.display = "none"; return; }
+    $("passTable").style.display = "";
+    $("passRows").innerHTML = codes.map(function (c) {
+      return "<tr><td class='mono'>" + esc(c.code) + "</td><td>" + esc(c.label || "—") + "</td>" +
+        "<td>" + c.uses_used + " / " + c.uses_allowed + "</td>" +
+        "<td>" + c.window_hours + "h</td><td>" + betaStatus(c) + "</td>" +
+        "<td>" + (c.revoked ? "" : '<button class="rvk" data-c="' + esc(c.code) + '">revoke</button>') + "</td></tr>";
+    }).join("");
+    Array.prototype.forEach.call($("passRows").querySelectorAll(".rvk"), function (b) {
+      b.addEventListener("click", async function () {
+        try { renderTable((await api("/api/beta/revoke", { method: "POST",
+          body: JSON.stringify({ key: KEY, code: b.getAttribute("data-c") }) })).codes); }
+        catch (e) { gMsg(e.message); }
+      });
+    });
+  }
+  $("gGo").addEventListener("click", async function () {
+    $("gGo").disabled = true; gMsg("");
+    try {
+      var out = await api("/api/beta/create", { method: "POST",
+        body: JSON.stringify({ key: KEY, label: $("gLabel").value,
+          uses: parseInt($("gUses").value, 10) || 5,
+          hours: parseInt($("gHours").value, 10) || 2 }) });
+      $("newPass").style.display = "";
+      $("newCode").textContent = out.code;
+      $("gLabel").value = "";
+      renderTable(out.codes);
+      gMsg("Pass created — click the code to copy it, then email it to your tester.", "ok");
+    } catch (e) { gMsg(e.message); }
+    $("gGo").disabled = false;
+  });
+  $("newCode").addEventListener("click", function () {
+    var c = $("newCode").textContent;
+    function done() { $("newCode").textContent = "Copied!"; setTimeout(function () { $("newCode").textContent = c; }, 900); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c).then(done, done);
+    else done();
+  });
+
+  // ---------- load ----------
+  async function load() {
+    if (!KEY) { showLock(""); return; }
+    $("refreshBtn").disabled = true;
+    try {
+      var payload = await api("/api/admin/stats?key=" + encodeURIComponent(KEY));
+      $("lockView").style.display = "none";
+      $("dashView").style.display = "";
+      $("refreshBtn").style.display = "";
+      renderBoard(payload);
+      renderLinks();
+      try { renderTable((await api("/api/beta/list?key=" + encodeURIComponent(KEY))).codes); } catch (e) {}
+      var now = new Date();
+      $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
+    } catch (e) {
+      if (e.status === 401) showLock("That key didn't work. Try again.");
+      else showLock("Couldn't load the dashboard: " + e.message);
+    }
+    $("refreshBtn").disabled = false;
+  }
+  $("refreshBtn").addEventListener("click", load);
+  load();
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

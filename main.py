@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03a-adminfamily". TWO features for Jim:
+#               (1) FAMILY PLAN -- one paid plan now covers UP TO TWO children. New
+#               KIDS_PER_SEAT=2 constant + _seats_for()/_covered_count() helpers; coverage in
+#               _student_tier + _parent_payload now uses seats*2 (oldest kids covered first);
+#               billing_checkout/billing_cover buy ceil(kids/2) seats so a 2nd child is free
+#               and a 3rd child adds a plan (Stripe prorates). Pricing/family copy reworded to
+#               "covers up to 2 children" (static/pricing.html, static/family.html). No harm to
+#               Stripe checkout/portal/webhook, the free gate, or add-a-child.
+#               (2) ADMIN DASHBOARD -- new /admin page (static/admin.html) + GET /api/admin/stats,
+#               protected by the existing FORUM_MOD_KEY. One place for live signup/subscription/
+#               engagement/beta/forum/health numbers (store.admin_stats(), aggregate counts only --
+#               no names/emails/codes), the beta pass generator built in, and quick links.
 #   2026-08-02  APP_BUILD -> "2026-08-02a-discovery". AI SEARCH + GOOGLE DISCOVERY (Jim):
 #               new routes /robots.txt (welcomes Google + AI crawlers, hides app pages),
 #               /sitemap.xml (all 13 public pages), /llms.txt (plain-text product summary
@@ -1063,6 +1075,15 @@ def beta_page():
     return FileResponse(BASE_DIR / "static" / "beta.html")
 
 
+@app.get("/admin")
+def admin_page():
+    """Jim's central admin dashboard (2026-08-03). A visitor without the key sees
+    only a locked 'enter your key' prompt; the real numbers, the beta generator,
+    and the quick links appear only after /api/admin/stats verifies the key
+    server-side. The admin key never lives in this file."""
+    return FileResponse(BASE_DIR / "static" / "admin.html")
+
+
 @app.get("/mission")
 def mission_page():
     """Our mission (2026-07-31): fun, accessible, complete, taught right."""
@@ -1702,6 +1723,26 @@ def _issue_token(parent_id: str) -> str:
     return token
 
 
+# FAMILY PLAN (2026-08-03): one paid "seat" covers up to this many children, so a
+# parent adding a SECOND child pays nothing more; the THIRD child needs a second
+# seat, and so on in pairs. Change this one number to change the family policy.
+# Oldest children are always covered first (see _student_tier), so buying fewer
+# seats never bumps a currently-covered child to Free.
+KIDS_PER_SEAT = 2
+
+
+def _seats_for(n_children: int) -> int:
+    """How many paid Stripe seats cover this many children (in pairs, rounded up).
+    0 children -> 0 seats, 1 or 2 -> 1 seat, 3 or 4 -> 2 seats, and so on."""
+    n = max(0, int(n_children or 0))
+    return (n + KIDS_PER_SEAT - 1) // KIDS_PER_SEAT
+
+
+def _covered_count(seats: int) -> int:
+    """How many children `seats` paid seats cover (the inverse of _seats_for)."""
+    return max(0, int(seats or 0)) * KIDS_PER_SEAT
+
+
 def _parent_payload(parent: dict) -> dict:
     """The parent + family picture the /family page renders. One place, so signup,
     login, and refresh all return exactly the same shape."""
@@ -1723,7 +1764,8 @@ def _parent_payload(parent: dict) -> dict:
         "students": [{
             "code": s["code"],
             "name": s.get("name") or "Student",
-            "covered": (parent.get("sub_status") == "active" and i < quantity),
+            "covered": (parent.get("sub_status") == "active"
+                        and i < _covered_count(quantity)),
         } for i, s in enumerate(students)],
         "billing_ready": _payments_open(),
     }
@@ -1745,7 +1787,7 @@ def _student_tier(code: str, student: dict) -> str:
             kids = store.list_students_for_parent(parent["id"])
             for i, kid in enumerate(kids):
                 if kid["code"] == code:
-                    return "full" if i < quantity else "free"
+                    return "full" if i < _covered_count(quantity) else "free"
     except Exception as exc:  # noqa: BLE001 -- a billing lookup must never crash a lesson
         print(f"[tier] lookup failed for {code}: {exc}")
     return "free"
@@ -1904,6 +1946,28 @@ def beta_revoke(body: BetaRevokeIn):
 
 
 # =============================================================================
+# ADMIN DASHBOARD (2026-08-03) -- Jim's one-stop status + tools page at /admin.
+# Keyed on the SAME FORUM_MOD_KEY as the beta generator and forum moderation.
+# Returns only aggregate COUNTS/TOTALS (store.admin_stats()) plus the same facts
+# /health shows -- never a child's name, a parent's email, or a login code.
+# =============================================================================
+
+@app.get("/api/admin/stats")
+def admin_stats_api(key: str = ""):
+    """The numbers behind /admin. Admin-key protected (constant-time compare)."""
+    _require_db()
+    _require_admin(key)
+    return {
+        "ok": True,
+        "build": APP_BUILD,
+        "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
+        "payments_open": _payments_open(),
+        "storage": store.status(),
+        "stats": store.admin_stats(),
+    }
+
+
+# =============================================================================
 # BILLING -- Stripe Checkout + Customer Portal + webhook (2026-07-31)
 # -----------------------------------------------------------------------------
 # Cards never touch this server. "Subscribe" sends the parent to a Stripe-hosted
@@ -2051,7 +2115,8 @@ def billing_checkout(body: CheckoutIn):
         session = stripe.checkout.Session.create(
             mode="subscription",
             customer=_stripe_customer_id(stripe, parent),
-            line_items=[{"price": _price_id(stripe, plan), "quantity": len(students)}],
+            line_items=[{"price": _price_id(stripe, plan),
+                         "quantity": _seats_for(len(students))}],
             allow_promotion_codes=True,
             client_reference_id=parent["id"],
             subscription_data={"metadata": {"parent_id": parent["id"]}},
@@ -2103,7 +2168,7 @@ def billing_cover(body: ParentTokenIn):
         item = sub["items"]["data"][0]
         stripe.Subscription.modify(
             sub.id,
-            items=[{"id": item.id, "quantity": len(students)}],
+            items=[{"id": item.id, "quantity": _seats_for(len(students))}],
             proration_behavior="create_prorations")
     except HTTPException:
         raise
@@ -2111,8 +2176,8 @@ def billing_cover(body: ParentTokenIn):
         print(f"[billing] cover failed for {parent['id']}: {exc}")
         raise HTTPException(status_code=502, detail=(
             "Stripe couldn't update the plan — please try again in a minute."))
-    # The webhook will confirm, but reflect the new quantity right away too.
-    store.update_parent(parent["id"], sub_quantity=len(students))
+    # The webhook will confirm, but reflect the new seat count right away too.
+    store.update_parent(parent["id"], sub_quantity=_seats_for(len(students)))
     return _parent_payload(store.get_parent(parent["id"]))
 
 
@@ -2384,7 +2449,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-02a-discovery"
+APP_BUILD = "2026-08-03a-adminfamily"
 
 
 @app.get("/health")

@@ -2,6 +2,13 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  ADMIN DASHBOARD AGGREGATES. New read-only function admin_stats() for Jim's
+#               /admin page: privacy-safe COUNTS/TOTALS only (parent counts by sub_status,
+#               paid seats + estimated monthly revenue, family students, active-7d/30d,
+#               engaged minutes total/7d, units mastered at PASS_PCT, checks taken, problems
+#               practiced, forum posts/replies, beta pass totals). Read-only -- no schema
+#               change, no new table, nothing else touched; returns all-zeros if the DB is off
+#               and swallows any query error (the dashboard must never 500).
 #   2026-07-31  BETA PASSES (Jim's beta-tester program). NEW table `beta_codes` (code,
 #               label, uses_allowed default 5, uses_used, window_hours default 2,
 #               window_expires_at, created_at, revoked) + create_beta_code /
@@ -1391,6 +1398,102 @@ def status() -> dict:
         "configured": bool(DATABASE_URL),
         "reason": (None if _ENABLED else _INIT_ERROR),
     }
+
+
+# ---- admin dashboard aggregates (2026-08-03: Jim's central /admin page) ------
+def admin_stats() -> dict:
+    """Privacy-safe aggregate numbers for Jim's /admin dashboard. Returns only
+    COUNTS and TOTALS -- never a name, email, or login code -- read straight from
+    the live tables, so nothing here is invented. If the database is off, every
+    number is 0 and db_enabled is False. Any query error is swallowed (the
+    dashboard must never 500) and reported in an 'error' key.
+
+    seats = paid Stripe seats; one seat covers up to 2 children (see KIDS_PER_SEAT
+    in main.py), so children_covered_capacity = seats * 2."""
+    out = {
+        "db_enabled": _ENABLED,
+        "parents_total": 0, "parents_active": 0, "parents_past_due": 0,
+        "parents_canceled": 0, "parents_free": 0,
+        "seats_paid": 0, "seats_monthly": 0, "seats_annual": 0,
+        "children_covered_capacity": 0, "est_monthly_usd": 0,
+        "students_total": 0, "students_family": 0,
+        "active_7d": 0, "active_30d": 0,
+        "minutes_total": 0, "minutes_7d": 0,
+        "units_mastered": 0, "checks_taken": 0, "problems_practiced": 0,
+        "forum_posts": 0, "forum_replies": 0,
+        "beta_total": 0, "beta_active_windows": 0, "beta_signins_used": 0,
+    }
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func
+    try:
+        P = _tables["parents"]; A = _tables["accounts"]; SS = _tables["student_stats"]
+        TD = _tables["time_daily"]; UC = _tables["unit_checks"]
+        FP = _tables["forum_posts"]; FR = _tables["forum_replies"]; BC = _tables["beta_codes"]
+        today = _now().date()
+        cutoff7 = (today - _dt.timedelta(days=7)).isoformat()
+        cutoff30 = (today - _dt.timedelta(days=30)).isoformat()
+        now = _now()
+        with _engine.connect() as conn:
+            def scalar(q):
+                v = conn.execute(q).scalar()
+                return int(v) if v is not None else 0
+            out["parents_total"] = scalar(select(func.count()).select_from(P))
+            for st, n in conn.execute(
+                    select(P.c.sub_status, func.count()).group_by(P.c.sub_status)).fetchall():
+                key = "parents_" + (st or "free")
+                if key in out:
+                    out[key] = int(n or 0)
+                else:                       # unknown/blank status folds into "free"
+                    out["parents_free"] += int(n or 0)
+            # Paid seats + estimated monthly revenue -- ACTIVE subscriptions only.
+            for plan, seats in conn.execute(
+                    select(P.c.sub_plan, func.coalesce(func.sum(P.c.sub_quantity), 0))
+                    .where(P.c.sub_status == "active").group_by(P.c.sub_plan)).fetchall():
+                seats = int(seats or 0)
+                if (plan or "") == "annual":
+                    out["seats_annual"] += seats
+                else:
+                    out["seats_monthly"] += seats
+            out["seats_paid"] = out["seats_monthly"] + out["seats_annual"]
+            out["children_covered_capacity"] = out["seats_paid"] * 2
+            out["est_monthly_usd"] = out["seats_monthly"] * 29 + out["seats_annual"] * 24
+            # Students (family students = accounts tied to a real parent account).
+            out["students_total"] = scalar(select(func.count()).select_from(A))
+            out["students_family"] = scalar(
+                select(func.count()).select_from(A)
+                .where((A.c.parent_id.isnot(None)) & (A.c.parent_id != "")))
+            # Engagement.
+            out["active_7d"] = scalar(
+                select(func.count()).select_from(SS).where(SS.c.last_active >= cutoff7))
+            out["active_30d"] = scalar(
+                select(func.count()).select_from(SS).where(SS.c.last_active >= cutoff30))
+            out["minutes_total"] = scalar(select(func.coalesce(func.sum(TD.c.minutes), 0)))
+            out["minutes_7d"] = scalar(
+                select(func.coalesce(func.sum(TD.c.minutes), 0)).where(TD.c.day >= cutoff7))
+            out["units_mastered"] = scalar(
+                select(func.count()).select_from(UC).where(UC.c.best_pct >= PASS_PCT))
+            out["checks_taken"] = scalar(select(func.coalesce(func.sum(SS.c.checks_taken), 0)))
+            out["problems_practiced"] = scalar(
+                select(func.coalesce(func.sum(SS.c.problems_practiced), 0)))
+            # Community forum (soft-deleted rows excluded).
+            out["forum_posts"] = scalar(
+                select(func.count()).select_from(FP).where(FP.c.deleted == 0))
+            out["forum_replies"] = scalar(
+                select(func.count()).select_from(FR).where(FR.c.deleted == 0))
+            # Beta passes.
+            out["beta_total"] = scalar(
+                select(func.count()).select_from(BC).where(BC.c.revoked == 0))
+            out["beta_signins_used"] = scalar(
+                select(func.coalesce(func.sum(BC.c.uses_used), 0)))
+            out["beta_active_windows"] = scalar(
+                select(func.count()).select_from(BC).where(
+                    (BC.c.revoked == 0) & (BC.c.window_expires_at.isnot(None)) &
+                    (BC.c.window_expires_at > now)))
+    except Exception as exc:  # noqa: BLE001 -- the dashboard must never 500 on a stat
+        print(f"[store] admin_stats failed: {_redact(exc)}")
+        out["error"] = type(exc).__name__
+    return out
 
 
 # I did no harm and this file is not truncated.
