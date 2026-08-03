@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03c-tapanswers". TAP-TO-ANSWER for the elementary courses
+#               (Jim: little kids can't type -- give them multiple-choice answers to click). New
+#               [[choices]] whiteboard tag rendered by session/practice/topic.html as big tappable
+#               answer buttons (+ an automatic "I'm not sure" button); tutor.py's elementary brain
+#               and the entry/basic practice/topic scopes now emit it for every question with a
+#               specific expected answer. Typing stays as a backup. No changes in this file beyond
+#               the stamp -- the tag flows through the existing /api/chat reply path untouched.
 #   2026-08-03  APP_BUILD -> "2026-08-03b-elemcourses". ELEMENTARY RESTRUCTURE (Jim): TWO new
 #               courses BELOW Pre-Algebra -- ENTRY-LEVEL MATH (grades 1-3) and BASIC MATH (grades
 #               4-6) -- each a full peer (9 units, 45-Q assessment, lesson/practice/topic). All the
@@ -2459,7 +2466,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03b-elemcourses"
+APP_BUILD = "2026-08-03c-tapanswers"
 
 
 @app.get("/health")

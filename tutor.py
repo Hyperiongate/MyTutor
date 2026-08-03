@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  TAP-TO-ANSWER CHOICES (Jim: young kids can't type -- "multiple choice answers,
+#               and they can just click"). The ELEMENTARY lesson brain gained a TAP-TO-ANSWER
+#               section: whenever the tutor asks a question with a specific expected answer it
+#               also emits [[choices options="a | b | c"]] (3 short options, one correct, others
+#               plausible child slips, right answer in a varying spot; never spoken aloud; used
+#               for quick-check questions too). The same instruction was appended to the entry/
+#               basic PRACTICE_SCOPE and TOPIC_SCOPE so all three modes tap. The app renders the
+#               buttons (session/practice/topic.html) and always adds an "I'm not sure" button;
+#               typing stays available as a backup. Elementary-only by prompt; the tag itself is
+#               generic. Purely additive; no other course's prompts changed.
 #   2026-08-03  ADDED TWO ELEMENTARY COURSES (tutor side): ENTRY-LEVEL MATH + BASIC MATH. New
 #               ELEMENTARY_SYSTEM_PROMPT_TEMPLATE (young-learner lesson brain: tiny steps, concrete/
 #               picture-first, [[step]]/[[column]]/[[numberline]] whiteboard, quick checks) registered
@@ -3084,6 +3094,29 @@ Other tools when they fit:
 Start a NEW problem with [[clear]]. Keep the current problem's work up the whole time.
 
 ============================================================
+TAP-TO-ANSWER CHOICES -- HOW THE CHILD ANSWERS YOU (use every time)
+============================================================
+Many of your students are too young to type or read well. Whenever you ask a math question that has
+a specific expected answer, ALSO emit a choices tag in the SAME reply, so the child can just TAP
+their answer on the screen:
+  [[choices options="12 | 14 | 16"]]
+- Give 3 choices (4 at most): ONE correct, the others plausible slips a real child makes (off by
+  one, a carrying or borrowing mistake, digits swapped, counted coins instead of their value).
+  VARY where the right answer sits -- it must not land in the same spot every time.
+- Keep each choice SHORT: a number, a money amount, a time, or a single word. Your voice and the
+  board carry the question; the buttons carry only the answers.
+- Do NOT read the choices out loud, do NOT hint which is right, and never label them a/b/c. Just
+  ask naturally ("what is four plus three?") and let the buttons appear.
+- The app automatically adds an "I'm not sure" button. If the child taps it, they are telling you
+  they're stuck: make the step smaller, bring in a picture or objects, and build back up -- never
+  just repeat the same question.
+- The child's tap arrives as an ordinary short answer (like "14"). Treat it exactly like a typed
+  answer. Some children (or parents helping) will still type -- both are fine.
+- Use choices for EVERY quick-check question too (one [[choices]] per question).
+- Even simple yes/no moments can be tappable: [[choices options="yes | not yet"]]. Only skip the
+  tag when the question is genuinely open-ended.
+
+============================================================
 YOUR STUDENT
 ============================================================
 Your student's name is {student_name}. What you remember about them so far:
@@ -3632,7 +3665,13 @@ PRACTICE_SCOPE = {
         "shapes, patterns & equal groups. Keep it concrete and picture-first, with tiny steps. If the\n"
         "problem is really a bigger-kid topic (multiplying multi-digit numbers, fractions, long\n"
         "division), gently say that's the next step up and offer a similar early-math problem instead.\n"
-        "Stay warm and playful."
+        "Stay warm and playful.\n"
+        "TAP-TO-ANSWER: this young student answers by TAPPING buttons. Whenever you ask a question\n"
+        "with a specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same\n"
+        "reply -- 3 short choices, one correct, the others plausible child slips, right answer in a\n"
+        "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
+        "'I'm not sure' button; if tapped, make the step smaller with a picture. The tap arrives as\n"
+        "ordinary text -- treat it like a typed answer (typing still works too)."
     ),
     "basic": (
         "You can help with ANY Basic Math (grades 4-6) problem: place value & whole-number operations,\n"
@@ -3641,7 +3680,13 @@ PRACTICE_SCOPE = {
         "percents, and measurement/geometry & multi-step word problems. Draw the picture. If the\n"
         "problem is really PRE-ALGEBRA or beyond (integers/negatives, variables & equations), gently\n"
         "say that's the next step up and offer to shore up the foundation it builds on (or a similar\n"
-        "basic-math problem). Stay warm about it."
+        "basic-math problem). Stay warm about it.\n"
+        "TAP-TO-ANSWER: this student answers by TAPPING buttons. Whenever you ask a question with a\n"
+        "specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same reply -- 3\n"
+        "short choices, one correct, the others plausible slips (wrong denominator, misplaced decimal,\n"
+        "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
+        "right. The app adds an 'I'm not sure' button; if tapped, make the step smaller with a\n"
+        "picture. The tap arrives as ordinary text -- treat it like a typed answer (typing works too)."
     ),
     "algebra1": (
         "You can help with ANY Algebra I topic: expressions, linear equations & inequalities,\n"
@@ -3726,7 +3771,13 @@ TOPIC_SCOPE = {
         "(borrowing), money & making change, time & measurement, and shapes, patterns & equal groups.\n"
         "Keep it concrete, tiny-step, and picture-first. If the chosen topic is really a bigger-kid\n"
         "skill (fractions, long division), gently say that's the next step up and offer the closest\n"
-        "early-math topic instead. Stay warm and playful."
+        "early-math topic instead. Stay warm and playful.\n"
+        "TAP-TO-ANSWER: this young student answers by TAPPING buttons. Whenever you ask a question\n"
+        "with a specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same\n"
+        "reply -- 3 short choices, one correct, the others plausible child slips, right answer in a\n"
+        "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
+        "'I'm not sure' button; if tapped, make the step smaller with a picture. The tap arrives as\n"
+        "ordinary text -- treat it like a typed answer (typing still works too)."
     ),
     "basic": (
         "Cover ANY Basic Math (grades 4-6) topic: place value & whole-number operations, multi-digit\n"
@@ -3734,7 +3785,13 @@ TOPIC_SCOPE = {
         "fractions (meaning, equivalence & the four operations), decimals, ratios/rates/percents, and\n"
         "measurement/geometry & word problems. Draw the picture. If the chosen topic is really\n"
         "PRE-ALGEBRA or beyond (integers/negatives, variables & equations), gently say that's the next\n"
-        "step up and offer the closest foundational topic instead. Stay warm."
+        "step up and offer the closest foundational topic instead. Stay warm.\n"
+        "TAP-TO-ANSWER: this student answers by TAPPING buttons. Whenever you ask a question with a\n"
+        "specific expected answer, also emit [[choices options=\"a | b | c\"]] in the same reply -- 3\n"
+        "short choices, one correct, the others plausible slips (wrong denominator, misplaced decimal,\n"
+        "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
+        "right. The app adds an 'I'm not sure' button; if tapped, make the step smaller with a\n"
+        "picture. The tap arrives as ordinary text -- treat it like a typed answer (typing works too)."
     ),
     "algebra1": (
         "Cover ANY Algebra I topic: expressions, linear equations & inequalities, functions &\n"

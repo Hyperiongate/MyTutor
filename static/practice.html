@@ -4,6 +4,12 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  TAP-TO-ANSWER CHOICES (elementary courses): new [[choices options="a | b | c"]]
+    tag renders big tappable answer buttons above the answer bar, plus an automatic
+    "🤔 I'm not sure" button, so young children who can't type or read well can answer by
+    tapping. A tap sends the answer exactly like typing it; buttons disable on tap and clear
+    at the start of every tutor turn. Typing stays available as a backup. CSS is injected by
+    the choices code itself (mtChoicesCSS), so no page styles were touched. Additive only.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-08-01  KEY TERMS BOLD+RED (Jim): **term** from the tutor renders as a red bold
                 .kterm span (first-use vocabulary emphasis); asterisks never show raw and
@@ -706,7 +712,50 @@
       stage.appendChild(wrap);
       if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
     }
+    // ---------- TAP-TO-ANSWER CHOICES (2026-08-03, for the elementary courses) ----------
+    // The tutor offers answer buttons with [[choices options="12 | 14 | 16"]]. A tap sends
+    // that answer exactly like typing it, so young children who can't type (or read well)
+    // can still answer. A friendly "I'm not sure" button is ALWAYS added so a stuck child
+    // can say so without writing a word. The typed answer bar stays available as a backup.
+    // Choices clear at the start of every tutor turn (stale buttons never linger).
+    let choicesRow = null;
+    function ensureChoicesCSS() {
+      if (document.getElementById("mtChoicesCSS")) return;
+      const st = document.createElement("style"); st.id = "mtChoicesCSS";
+      st.textContent =
+        ".choicerow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 4px}" +
+        ".choicebtn{font-size:20px;font-weight:800;padding:14px 24px;min-width:64px;min-height:52px;border-radius:16px;" +
+        "border:2.5px solid #c9beff;background:#fff;color:#20233a;cursor:pointer;box-shadow:0 4px 12px rgba(60,40,120,.10);" +
+        "transition:transform .1s ease;font-family:inherit}" +
+        ".choicebtn:hover{transform:translateY(-2px);border-color:#6d5ae6;color:#6d5ae6}" +
+        ".choicebtn:disabled{opacity:.45;cursor:default;transform:none}" +
+        ".choicebtn.notsure{font-size:15px;border-style:dashed;color:#5b6079}";
+      document.head.appendChild(st);
+    }
+    function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; } }
+    function showChoices(a) {
+      const opts = String(a.options || "").split("|").map(s => s.trim()).filter(Boolean).slice(0, 6);
+      if (!opts.length) return;
+      ensureChoicesCSS(); clearChoices();
+      const row = document.createElement("div"); row.className = "choicerow"; choicesRow = row;
+      function choiceBtn(label, message, extra) {
+        const b = document.createElement("button"); b.type = "button";
+        b.className = "choicebtn" + (extra ? " " + extra : ""); b.textContent = label;
+        b.addEventListener("click", () => {
+          if (busy) return;
+          Array.prototype.forEach.call(row.querySelectorAll("button"), (x) => { x.disabled = true; });
+          ensureAudioGraph(); clearChoices(); sendToTutor(message);
+        });
+        row.appendChild(b);
+      }
+      for (const o of opts) choiceBtn(o, o);
+      choiceBtn("🤔 I'm not sure", "I'm not sure", "notsure");
+      composer.parentNode.insertBefore(row, composer);
+      try { row.scrollIntoView({ block: "nearest" }); } catch (e) {}
+    }
+
     function handleTags(text) {
+      clearChoices();                            // stale answer buttons never survive a new turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
@@ -723,6 +772,7 @@
         else if (name === "check") showCheck(attrs);
         else if (name === "mark") postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: (parseInt(attrs.correct, 10) || 0), attempted: (parseInt(attrs.attempted, 10) || 1) });
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
+        else if (name === "choices") showChoices(attrs);
         else if (name === "clear") wipeBoard();
       }
       return stripTags(text);
