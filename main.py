@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03i-demolevels". TEN-LEVEL DEMO (Jim): /demo now opens with
+#               a level picker (all ten courses, Entry-Level Math -> Differential Equations); each
+#               level runs a short scripted sample -- the elementary two answer by TAPPING (like
+#               the real elementary classroom), the rest keep the math keyboard. DEMO_VOICE_LINES
+#               regenerated FROM THE SAME SOURCE as demo.html's VOICE_LINES (build-verified
+#               identical); the original 13 lines are unchanged so their cached audio is reused,
+#               and each new line costs ElevenLabs once ever.
 #   2026-08-03  APP_BUILD -> "2026-08-03h-boardprimary". BOARD IS THE LESSON (Jim: "words are the
 #               backup; overutilize the whiteboard, not underutilize -- at ALL levels"). tutor.py's
 #               shared GRAPH_TOOL_NOTE (prepended to EVERY course x lesson/practice/topic) gained
@@ -2517,7 +2524,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03h-boardprimary"
+APP_BUILD = "2026-08-03i-demolevels"
 
 
 @app.get("/health")
@@ -3146,6 +3153,61 @@ DEMO_VOICE_LINES = [
     "Beautiful — two to the third, which is eight. You used the power key like a pro.",
     "Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!",
     "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time.",
+    "Hi! I'm Mr. Cadabra. Let's count together! Look — I put some stars on the board. Count them with your finger… how many stars do you see? Tap your answer.",
+    "Yes! Five stars — you counted every single one.",
+    "Almost! Point at each star and count them one at a time — then tap your answer.",
+    "Now watch the magic — here comes one more star! How many stars are there now? Tap your answer.",
+    "Six! Five stars plus one more makes six. You just did adding!",
+    "Count the new star too — five stars, then one more. Tap your answer!",
+    "Fractions — the friendly way. The board shows one half plus one fourth. Here's the trick: one half is the same as two fourths. So two fourths plus one more fourth makes how many fourths? Tap your answer.",
+    "Three fourths! Once the bottom numbers match, you just add the tops.",
+    "Look at the board — two fourths plus one more fourth. Count the fourths and tap again!",
+    "Decimals now. Which is bigger — zero point five, or zero point four five? Careful — more digits does not mean bigger! Tap your answer.",
+    "Right! Zero point five is five tenths, and zero point four five is only four and a half tenths. You didn't fall for the trap!",
+    "Line them up: zero point five zero versus zero point four five. Which has more tenths? Tap again!",
+    "Negative numbers — the number one key to algebra. The board shows negative three plus five. Start three below zero and climb up five… where do you land? Type it in.",
+    "Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.",
+    "Start at three below zero and climb up five steps, one at a time. Where do you land? Type it!",
+    "One more: negative four times negative two. Remember the rule — when the two signs match, the answer is positive. Type it in.",
+    "Eight! A negative times a negative flips positive. That one rule unlocks half of algebra.",
+    "Both signs are negative — a matching pair — so the answer is POSITIVE four times two. Type it!",
+    "Every triangle's angles add up to one hundred eighty degrees — always. This one has a ninety and a thirty-five. How big is the mystery angle? Type it in.",
+    "Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.",
+    "Add the two angles you know first — ninety plus thirty-five — then subtract from one eighty. Type it!",
+    "Now the most famous theorem in math. A right triangle has legs three and four — the board shows Pythagoras at work. What's the long side? Type it in.",
+    "Five! The three-four-five triangle — builders have trusted it for four thousand years.",
+    "c squared is twenty-five — so c is the number that times itself makes twenty-five. Type it!",
+    "Exponentials — where algebra gets powerful. The board asks: two to what power makes thirty-two? Count the doublings. Type the power.",
+    "Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.",
+    "Keep doubling: two, four, eight… count how many steps it takes to reach thirty-two. Type that count!",
+    "Now a quadratic, factored and ready: x minus five, times x plus two, equals zero. For the whole thing to be zero, one piece must be zero. What x makes the FIRST piece zero? Type it.",
+    "Five! And x equals negative two kills the other piece. Two solutions, no sweat — that's the zero-product property.",
+    "Look at the first piece: x minus five. What x makes it exactly zero? Type it!",
+    "Welcome to the unit circle — the heart of trigonometry. Half a spin around the circle is pi radians. How many degrees is that? Type it in.",
+    "One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.",
+    "A FULL circle is three hundred sixty degrees, and pi radians is exactly half of it. Type the degrees!",
+    "Now the launchpad to calculus: sine of ninety degrees — the very top of the circle. What's its value? Type it in.",
+    "One! At the top of the circle you're at full height. Trig is just reading heights and shadows off a circle.",
+    "At ninety degrees you're at the very TOP of the unit circle — as high as it gets. That height is… type it!",
+    "Statistics time. Three quiz scores on the board: three, five, and ten. The mean is the fair-share average — add them up, split them evenly. What's the mean? Type it in.",
+    "Six! Eighteen points split evenly three ways. The mean shares everything out fairly.",
+    "Add all three first — three plus five plus ten — then divide by how many scores there are. Type it!",
+    "Now the median — the MIDDLE value once they're in order. Same three scores. What's the median? Type it in.",
+    "Five! Mean six, median five — two different stories from the same data. That gap is where statistics gets interesting.",
+    "Line them up smallest to biggest and take the one sitting in the middle. Type it!",
+    "Calculus asks one big question: how fast is something changing? For x cubed, the power rule answers it — bring the three down front, drop the power by one. What's the new power? Type it in.",
+    "Two! So the derivative is three x squared — you just took your very first derivative.",
+    "The rule says drop the power by ONE. Three minus one is… type it!",
+    "Let's use it. The slope of x cubed at x equals two is three times two squared. Work that out — type the slope.",
+    "Twelve! At x equals two the curve is climbing twelve units per step. That's calculus — exact speed at an exact instant.",
+    "Two squared is four, times three is… type it!",
+    "Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.",
+    "Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.",
+    "Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!",
+    "One more to classify: y prime equals three y. What order is this one? Type the number.",
+    "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.",
+    "Just one tick mark on the y — that's the FIRST derivative. Type the order!",
+    "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!",
 ]
 
 

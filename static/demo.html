@@ -3,6 +3,15 @@
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-03  TEN-LEVEL DEMO (Jim: "one from each level, they pick"). The demo opens with a
+    LEVEL PICKER -- all ten courses, Entry-Level Math through Differential Equations -- and each
+    level runs a short scripted sample in that course's style. The two elementary levels answer
+    by TAPPING choice buttons (matching the real tap-to-answer elementary classroom, so the old
+    "no multiple choice in the product" note no longer applies to them); everything else keeps
+    the math keyboard. The original Algebra I script is byte-identical (its audio is long-cached).
+    VOICE_LINES grew to cover all scripts and is GENERATED FROM THE SAME SOURCE as main.py's
+    DEMO_VOICE_LINES (verified identical in the build) -- each new line costs ElevenLabs once
+    ever, then replays from cache. Win screen gained "Try another level".
   - 2026-08-01  BOARD ALIGNMENT + KEYBOARD REWORK + TUTORIAL (Jim's playtest). (1) Operation
     rows (−3 −3, ÷2 ÷2) now line up in true columns under EACH SIDE of the equation above
     (.wrow is white-space:pre and op rows share the math rows' font size). (2) The keypad no
@@ -167,6 +176,15 @@
   .endbox{text-align:center;padding:6px 4px}
   .endbox h2{font-size:22px;margin-bottom:6px}
   .endbox p{color:var(--muted);font-size:14.5px;margin-bottom:14px}
+  .wrow.big{font-size:32px;letter-spacing:6px}
+  .levels{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  @media(max-width:430px){.levels{grid-template-columns:1fr}}
+  .lvl{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:12px 13px;text-align:left;
+    cursor:pointer;transition:transform .05s,border-color .1s}
+  .lvl:hover{border-color:var(--purple)}
+  .lvl:active{transform:translateY(1px)}
+  .lvl b{display:block;font-size:14.5px;color:var(--ink)}
+  .lvl span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 </style>
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
@@ -175,13 +193,13 @@
 <div class="wrap">
   <div class="brand"><span class="orb" style="width:30px;height:30px"></span><b>Mr. Cadabra's Classroom</b>
     <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
-  <div class="sub">A 60-second taste — he talks, draws it out, and you answer with the math keyboard.</div>
+  <div class="sub">A 60-second taste at any level — he talks, draws it on the board, and you answer.</div>
 
   <div class="card">
     <div class="tutor">
       <span class="orb" id="orb"></span>
       <div>
-        <div class="bubble" id="bubble">Ready when you are! Press start and we'll solve one together.</div>
+        <div class="bubble" id="bubble">Pick any level — I'll teach you a real sample, from counting stars to differential equations.</div>
         <button class="replay" id="replay" style="display:none">🔊 Replay</button>
       </div>
     </div>
@@ -189,9 +207,7 @@
   </div>
 
   <div class="card">
-    <div class="answer" id="answer">
-      <button class="cta" id="startBtn">▶ Start the lesson</button>
-    </div>
+    <div class="answer" id="answer"></div>
     <div class="footer" id="foot">🔊 Turn your sound on — Mr. Cadabra talks you through it. (If his warm voice can't load here, your device's built-in voice fills in.)</div>
   </div>
 </div>
@@ -203,11 +219,10 @@
       replay=document.getElementById('replay');
   var voiceOn=true, lastSaid="";
 
-  // WARM VOICE (2026-07-30): every spoken line in this demo is FIXED, so the server whitelists
-  // exactly these lines at /api/demo-audio/{i} (main.py DEMO_VOICE_LINES -- keep the two lists
-  // IDENTICAL) and serves them in Mr. Cadabra's real ElevenLabs voice from the TTS cache. Each
-  // line costs ElevenLabs once EVER, then replays free. If the server can't provide audio
-  // (offline preview / no key), we fall back to the browser's built-in voice as before.
+  // WARM VOICE: every spoken line in this demo is FIXED, so the server whitelists exactly
+  // these lines at /api/demo-audio/{i} (main.py DEMO_VOICE_LINES -- the two lists are
+  // GENERATED FROM ONE SOURCE and verified identical). Each line costs ElevenLabs once
+  // EVER, then replays free. Browser voice is the fallback.
   var VOICE_LINES=[
     "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
@@ -221,7 +236,62 @@
     "One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
     "Beautiful — two to the third, which is eight. You used the power key like a pro.",
     "Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!",
-    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time."
+    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time.",
+    "Hi! I'm Mr. Cadabra. Let's count together! Look — I put some stars on the board. Count them with your finger… how many stars do you see? Tap your answer.",
+    "Yes! Five stars — you counted every single one.",
+    "Almost! Point at each star and count them one at a time — then tap your answer.",
+    "Now watch the magic — here comes one more star! How many stars are there now? Tap your answer.",
+    "Six! Five stars plus one more makes six. You just did adding!",
+    "Count the new star too — five stars, then one more. Tap your answer!",
+    "Fractions — the friendly way. The board shows one half plus one fourth. Here's the trick: one half is the same as two fourths. So two fourths plus one more fourth makes how many fourths? Tap your answer.",
+    "Three fourths! Once the bottom numbers match, you just add the tops.",
+    "Look at the board — two fourths plus one more fourth. Count the fourths and tap again!",
+    "Decimals now. Which is bigger — zero point five, or zero point four five? Careful — more digits does not mean bigger! Tap your answer.",
+    "Right! Zero point five is five tenths, and zero point four five is only four and a half tenths. You didn't fall for the trap!",
+    "Line them up: zero point five zero versus zero point four five. Which has more tenths? Tap again!",
+    "Negative numbers — the number one key to algebra. The board shows negative three plus five. Start three below zero and climb up five… where do you land? Type it in.",
+    "Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.",
+    "Start at three below zero and climb up five steps, one at a time. Where do you land? Type it!",
+    "One more: negative four times negative two. Remember the rule — when the two signs match, the answer is positive. Type it in.",
+    "Eight! A negative times a negative flips positive. That one rule unlocks half of algebra.",
+    "Both signs are negative — a matching pair — so the answer is POSITIVE four times two. Type it!",
+    "Every triangle's angles add up to one hundred eighty degrees — always. This one has a ninety and a thirty-five. How big is the mystery angle? Type it in.",
+    "Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.",
+    "Add the two angles you know first — ninety plus thirty-five — then subtract from one eighty. Type it!",
+    "Now the most famous theorem in math. A right triangle has legs three and four — the board shows Pythagoras at work. What's the long side? Type it in.",
+    "Five! The three-four-five triangle — builders have trusted it for four thousand years.",
+    "c squared is twenty-five — so c is the number that times itself makes twenty-five. Type it!",
+    "Exponentials — where algebra gets powerful. The board asks: two to what power makes thirty-two? Count the doublings. Type the power.",
+    "Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.",
+    "Keep doubling: two, four, eight… count how many steps it takes to reach thirty-two. Type that count!",
+    "Now a quadratic, factored and ready: x minus five, times x plus two, equals zero. For the whole thing to be zero, one piece must be zero. What x makes the FIRST piece zero? Type it.",
+    "Five! And x equals negative two kills the other piece. Two solutions, no sweat — that's the zero-product property.",
+    "Look at the first piece: x minus five. What x makes it exactly zero? Type it!",
+    "Welcome to the unit circle — the heart of trigonometry. Half a spin around the circle is pi radians. How many degrees is that? Type it in.",
+    "One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.",
+    "A FULL circle is three hundred sixty degrees, and pi radians is exactly half of it. Type the degrees!",
+    "Now the launchpad to calculus: sine of ninety degrees — the very top of the circle. What's its value? Type it in.",
+    "One! At the top of the circle you're at full height. Trig is just reading heights and shadows off a circle.",
+    "At ninety degrees you're at the very TOP of the unit circle — as high as it gets. That height is… type it!",
+    "Statistics time. Three quiz scores on the board: three, five, and ten. The mean is the fair-share average — add them up, split them evenly. What's the mean? Type it in.",
+    "Six! Eighteen points split evenly three ways. The mean shares everything out fairly.",
+    "Add all three first — three plus five plus ten — then divide by how many scores there are. Type it!",
+    "Now the median — the MIDDLE value once they're in order. Same three scores. What's the median? Type it in.",
+    "Five! Mean six, median five — two different stories from the same data. That gap is where statistics gets interesting.",
+    "Line them up smallest to biggest and take the one sitting in the middle. Type it!",
+    "Calculus asks one big question: how fast is something changing? For x cubed, the power rule answers it — bring the three down front, drop the power by one. What's the new power? Type it in.",
+    "Two! So the derivative is three x squared — you just took your very first derivative.",
+    "The rule says drop the power by ONE. Three minus one is… type it!",
+    "Let's use it. The slope of x cubed at x equals two is three times two squared. Work that out — type the slope.",
+    "Twelve! At x equals two the curve is climbing twelve units per step. That's calculus — exact speed at an exact instant.",
+    "Two squared is four, times three is… type it!",
+    "Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.",
+    "Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.",
+    "Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!",
+    "One more to classify: y prime equals three y. What order is this one? Type the number.",
+    "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.",
+    "Just one tick mark on the y — that's the FIRST derivative. Type the order!",
+    "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!"
   ];
   var serverVoiceOK=true, curAudio=null;
 
@@ -259,18 +329,21 @@
 
   function addRow(text, cls){
     var d=document.createElement('div'); d.className='wrow'+(cls?' '+cls:'');
-    d.innerHTML=text.replace(/x/g,'<span class="v">x</span>'); board.appendChild(d);
+    // highlight the variable x -- but never inside words or emoji rows
+    d.innerHTML=(cls==='big')?text:text.replace(/x/g,'<span class="v">x</span>');
+    board.appendChild(d);
     board.scrollTop=board.scrollHeight;
   }
   function clearAnswer(){ answer.innerHTML=''; }
 
-  // ---- the scripted lesson ----
-  // 2026-08-01 (Jim's playtest): NO multiple choice — the real product doesn't have any, so the
-  // demo doesn't either. Every question is answered by TYPING with the math keyboard, exactly
-  // like a real lesson ("−3", "÷2", "4", "2^3"). The redundant "Okay, let's go" click is gone:
-  // the intro flows straight into the first question. `match` = flexible answer patterns, so
-  // "−3", "-3", or a typed "subtract 3" (physical keyboard) all count.
-  var steps=[
+  // ============================================================
+  // TEN SAMPLE LESSONS (2026-08-03, Jim: "one from each level").
+  // algebra1 keeps the original hand-written script verbatim (its
+  // audio is long-cached); the other nine are data-generated. The
+  // elementary two answer by TAPPING -- exactly like the real
+  // elementary classroom (tap-to-answer shipped 2026-08-03).
+  // ============================================================
+  var ALG1_STEPS=[
     {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
      board:[["2x + 3 = 11",""]],
      input:{type:"keypad", hint:"your move (an operation)",
@@ -279,7 +352,6 @@
             right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
             wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
             board:[["    −3   −3","op"],["2x = 8",""]]}},
-
     {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
      input:{type:"keypad", hint:"your move (an operation)",
             match:[/[÷\/]2/, /divide.{0,20}(2|two)/, /over(2|two)/, /^by(2|two)$/, /half/,
@@ -287,23 +359,36 @@
             right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
             board:[["÷2  ÷2","op"]]}},
-
     {say:"So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
      input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
             wrong:"Close — eight divided by two. What number is that? Type it in.",
             board:[["x = 4",""],["check:  2·4 + 3 = 11  ✓","op"]]}},
-
     {say:"One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
      input:{type:"keypad", accept:["2^3","8"], right:"Beautiful — two to the third, which is eight. You used the power key like a pro.",
             wrong:"Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!"}},
-
     {end:true}
   ];
 
-  var i=-1;
+  var DEMOS={
+    entry: {title: "Entry-Level Math", steps: [{"say": "Hi! I'm Mr. Cadabra. Let's count together! Look — I put some stars on the board. Count them with your finger… how many stars do you see? Tap your answer.", "board": [["⭐⭐⭐⭐⭐", "big"]], "input": {"type": "choices", "options": ["4", "5", "6"], "correct": "5", "right": "Yes! Five stars — you counted every single one.", "wrong": "Almost! Point at each star and count them one at a time — then tap your answer.", "board": []}}, {"say": "Now watch the magic — here comes one more star! How many stars are there now? Tap your answer.", "board": [["⭐⭐⭐⭐⭐  +  ⭐", "big"]], "input": {"type": "choices", "options": ["5", "6", "7"], "correct": "6", "right": "Six! Five stars plus one more makes six. You just did adding!", "wrong": "Count the new star too — five stars, then one more. Tap your answer!", "board": []}}, {"end": true}]},
+    basic: {title: "Basic Math", steps: [{"say": "Fractions — the friendly way. The board shows one half plus one fourth. Here's the trick: one half is the same as two fourths. So two fourths plus one more fourth makes how many fourths? Tap your answer.", "board": [["1/2 + 1/4", ""], ["1/2 = 2/4", "op"]], "input": {"type": "choices", "options": ["3/4", "2/6", "1/4"], "correct": "3/4", "right": "Three fourths! Once the bottom numbers match, you just add the tops.", "wrong": "Look at the board — two fourths plus one more fourth. Count the fourths and tap again!", "board": [["2/4 + 1/4 = 3/4", ""]]}}, {"say": "Decimals now. Which is bigger — zero point five, or zero point four five? Careful — more digits does not mean bigger! Tap your answer.", "board": [["0.5  vs  0.45", ""]], "input": {"type": "choices", "options": ["0.5", "0.45", "they're equal"], "correct": "0.5", "right": "Right! Zero point five is five tenths, and zero point four five is only four and a half tenths. You didn't fall for the trap!", "wrong": "Line them up: zero point five zero versus zero point four five. Which has more tenths? Tap again!", "board": [["0.50 > 0.45", ""]]}}, {"end": true}]},
+    prealgebra: {title: "Pre-Algebra", steps: [{"say": "Negative numbers — the number one key to algebra. The board shows negative three plus five. Start three below zero and climb up five… where do you land? Type it in.", "board": [["−3 + 5 = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2", "+2"], "right": "Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.", "wrong": "Start at three below zero and climb up five steps, one at a time. Where do you land? Type it!", "board": [["−3 + 5 = 2", ""]]}}, {"say": "One more: negative four times negative two. Remember the rule — when the two signs match, the answer is positive. Type it in.", "board": [["−4 × −2 = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["8", "+8"], "right": "Eight! A negative times a negative flips positive. That one rule unlocks half of algebra.", "wrong": "Both signs are negative — a matching pair — so the answer is POSITIVE four times two. Type it!", "board": [["−4 × −2 = 8", ""]]}}, {"end": true}]},
+    geometry: {title: "Geometry", steps: [{"say": "Every triangle's angles add up to one hundred eighty degrees — always. This one has a ninety and a thirty-five. How big is the mystery angle? Type it in.", "board": [["90° + 35° + ? = 180°", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["55", "55°"], "right": "Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.", "wrong": "Add the two angles you know first — ninety plus thirty-five — then subtract from one eighty. Type it!", "board": [["? = 180° − 125° = 55°", ""]]}}, {"say": "Now the most famous theorem in math. A right triangle has legs three and four — the board shows Pythagoras at work. What's the long side? Type it in.", "board": [["3² + 4² = c²", ""], ["9 + 16 = 25", "op"]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! The three-four-five triangle — builders have trusted it for four thousand years.", "wrong": "c squared is twenty-five — so c is the number that times itself makes twenty-five. Type it!", "board": [["c = √25 = 5", ""]]}}, {"end": true}]},
+    algebra2: {title: "Algebra II", steps: [{"say": "Exponentials — where algebra gets powerful. The board asks: two to what power makes thirty-two? Count the doublings. Type the power.", "board": [["2^? = 32", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.", "wrong": "Keep doubling: two, four, eight… count how many steps it takes to reach thirty-two. Type that count!", "board": [["2^5 = 32  ✓", ""]]}}, {"say": "Now a quadratic, factored and ready: x minus five, times x plus two, equals zero. For the whole thing to be zero, one piece must be zero. What x makes the FIRST piece zero? Type it.", "board": [["(x − 5)(x + 2) = 0", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5", "x=5"], "right": "Five! And x equals negative two kills the other piece. Two solutions, no sweat — that's the zero-product property.", "wrong": "Look at the first piece: x minus five. What x makes it exactly zero? Type it!", "board": [["x = 5   (and x = −2)", ""]]}}, {"end": true}]},
+    precalc: {title: "Trig / Pre-Calc", steps: [{"say": "Welcome to the unit circle — the heart of trigonometry. Half a spin around the circle is pi radians. How many degrees is that? Type it in.", "board": [["π radians = ?°", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["180", "180°"], "right": "One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.", "wrong": "A FULL circle is three hundred sixty degrees, and pi radians is exactly half of it. Type the degrees!", "board": [["π = 180°", ""]]}}, {"say": "Now the launchpad to calculus: sine of ninety degrees — the very top of the circle. What's its value? Type it in.", "board": [["sin(90°) = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["1", "1.0"], "right": "One! At the top of the circle you're at full height. Trig is just reading heights and shadows off a circle.", "wrong": "At ninety degrees you're at the very TOP of the unit circle — as high as it gets. That height is… type it!", "board": [["sin(90°) = 1", ""]]}}, {"end": true}]},
+    probstat: {title: "Probability & Statistics", steps: [{"say": "Statistics time. Three quiz scores on the board: three, five, and ten. The mean is the fair-share average — add them up, split them evenly. What's the mean? Type it in.", "board": [["scores:  3,  5,  10", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["6"], "right": "Six! Eighteen points split evenly three ways. The mean shares everything out fairly.", "wrong": "Add all three first — three plus five plus ten — then divide by how many scores there are. Type it!", "board": [["(3 + 5 + 10) ÷ 3 = 6", ""]]}}, {"say": "Now the median — the MIDDLE value once they're in order. Same three scores. What's the median? Type it in.", "board": [["3,  5,  10   → middle?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! Mean six, median five — two different stories from the same data. That gap is where statistics gets interesting.", "wrong": "Line them up smallest to biggest and take the one sitting in the middle. Type it!", "board": [["median = 5", ""]]}}, {"end": true}]},
+    calculus: {title: "Calculus", steps: [{"say": "Calculus asks one big question: how fast is something changing? For x cubed, the power rule answers it — bring the three down front, drop the power by one. What's the new power? Type it in.", "board": [["f(x) = x³", ""], ["f′(x) = 3x^?", "op"]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2"], "right": "Two! So the derivative is three x squared — you just took your very first derivative.", "wrong": "The rule says drop the power by ONE. Three minus one is… type it!", "board": [["f′(x) = 3x²", ""]]}}, {"say": "Let's use it. The slope of x cubed at x equals two is three times two squared. Work that out — type the slope.", "board": [["f′(2) = 3 · 2² = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["12"], "right": "Twelve! At x equals two the curve is climbing twelve units per step. That's calculus — exact speed at an exact instant.", "wrong": "Two squared is four, times three is… type it!", "board": [["f′(2) = 12", ""]]}}, {"end": true}]},
+    diffeq: {title: "Differential Equations", steps: [{"say": "Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.", "board": [["y″ + y = 0", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2", "2nd", "second"], "right": "Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.", "wrong": "Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!", "board": [["order: 2   (y″)", "op"]]}}, {"say": "One more to classify: y prime equals three y. What order is this one? Type the number.", "board": [["y′ = 3y", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["1", "1st", "first"], "right": "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.", "wrong": "Just one tick mark on the y — that's the FIRST derivative. Type the order!", "board": [["order: 1   (y′)", "op"]]}}, {"end": true}]},
+    algebra1: {title: "Algebra I", steps: ALG1_STEPS,
+      endSay: "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time."}
+  };
+  var GENERIC_END="And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!";
+  var LEVELS=[["entry", "Entry-Level Math", "grades 1–3 · count the stars"], ["basic", "Basic Math", "grades 4–6 · fractions & decimals"], ["prealgebra", "Pre-Algebra", "negative numbers"], ["algebra1", "Algebra I", "solve a two-step equation"], ["geometry", "Geometry", "triangle angles & Pythagoras"], ["algebra2", "Algebra II", "exponents & a quadratic"], ["precalc", "Trig / Pre-Calc", "the unit circle"], ["probstat", "Probability & Statistics", "mean & median"], ["calculus", "Calculus", "your first derivative"], ["diffeq", "Differential Equations", "classify it like a pro"]];
+
+  var steps=null, cur=null, i=-1;
   function next(){
     i++;
-    if(i>=steps.length) return;
+    if(!steps||i>=steps.length) return;
     var s=steps[i];
     if(s.end){ showEnd(); return; }
     if(s.board) s.board.forEach(function(r){ addRow(r[0], r[1]); });
@@ -313,15 +398,49 @@
 
   function renderInput(inp){
     clearAnswer();
+    if(!inp) return;
     if(inp.type==="keypad"){ renderKeypad(inp); }
+    else if(inp.type==="choices"){ renderChoices(inp); }
   }
+
+  // ---- TAP-TO-ANSWER (the real elementary classroom answers this way) ----
+  function renderChoices(inp){
+    var wrap=document.createElement('div'); wrap.className='kpwrap';
+    var fb=document.createElement('div'); fb.className='fb';
+    var grid=document.createElement('div'); grid.className='choices';
+    var done=false;
+    inp.options.forEach(function(opt){
+      var b=document.createElement('button'); b.className='choice'; b.type='button'; b.textContent=opt;
+      b.onclick=function(){
+        if(done) return;
+        if(opt===inp.correct){
+          done=true; b.classList.add('right');
+          if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });
+          fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
+          setTimeout(next,1900);
+        } else {
+          b.classList.add('wrong');
+          fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+          setTimeout(function(){ b.classList.remove('wrong'); },900);
+        }
+      };
+      grid.appendChild(b);
+    });
+    var ns=document.createElement('button'); ns.className='choice'; ns.type='button';
+    ns.textContent="🤔 I'm not sure";
+    ns.onclick=function(){ if(done) return; fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong); };
+    grid.appendChild(ns);
+    var hint=document.createElement('div'); hint.className='prompt'; hint.textContent='Tap your answer — just like the real elementary lessons.';
+    wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb); answer.appendChild(wrap);
+  }
+
   function feedback(text,ok){
     var f=answer.querySelector('.fb')||document.createElement('div');
     f.className='fb '+(ok?'ok':'no'); f.textContent=(ok?'✓ ':'')+text;
     if(!f.parentNode) answer.appendChild(f);
   }
 
-  // ---- math keypad ----
+  // ---- math keypad (unchanged engine) ----
   function renderKeypad(inp){
     var row=document.createElement('div'); row.className='ansrow';
     var input=document.createElement('input'); input.type='text'; input.setAttribute('inputmode','none');
@@ -333,10 +452,10 @@
     var wrap=document.createElement('div'); wrap.className='kpwrap';
     wrap.appendChild(row); wrap.appendChild(fb); wrap.appendChild(kp); answer.appendChild(wrap);
     function submit(){
-      var v=input.value.replace(/\s+/g,'').toLowerCase();
+      var v=input.value.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');
       if(!v) return;                                   // nothing typed yet: no scolding
       var ok=false;
-      if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase();}).indexOf(v)>=0; }
+      if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');}).indexOf(v)>=0; }
       if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
       if(ok){
         if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });   // the board confirms AFTER the student answers — never before
@@ -356,9 +475,6 @@
     function wrap(spec){ var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
       setv(v.slice(0,caret)+t+v.slice(caret), caret+idx); }
     function back(){ if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
-    // 2026-08-01 (Jim: "looks too much like a calculator"): the keys now read as a MATH
-    // TOOLKIT -- pill keys in three labeled groups (numbers / operations / math tools)
-    // with a header and a "How does it work?" tutorial button. Same insert logic.
     var GROUPS=[
       {label:'Numbers', keys:[['1','t1'],['2','t2'],['3','t3'],['4','t4'],['5','t5'],
                               ['6','t6'],['7','t7'],['8','t8'],['9','t9'],['0','t0'],['.','t.']]},
@@ -418,22 +534,44 @@
   }
 
   function showEnd(){
-    say("That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time.");
+    say(cur && cur.endSay ? cur.endSay : GENERIC_END);
     clearAnswer();
     var box=document.createElement('div'); box.className='endbox';
-    box.innerHTML='<h2>🎉 You solved it!</h2>'+
+    box.innerHTML='<h2>🎉 You did it!</h2>'+
       '<p>That\'s a quick taste of how Mr. Cadabra teaches — talking you through every step, drawing it on the board, and letting you answer at your own pace. A full course does this from placement all the way to mastery.</p>';
-    // CONVERSION CTA (2026-07-30): the demo used to dead-end at the win screen with only
-    // "try again" -- now the moment of maximum enthusiasm offers the next step.
     var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
-    go.href='/#pricing'; go.style.textDecoration='none'; go.style.display='inline-block'; go.style.marginRight='10px';
-    var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try it again';
+    go.href='/#pricing'; go.style.textDecoration='none'; go.style.display='inline-block'; go.style.marginRight='10px'; go.style.marginBottom='10px';
+    var pick=document.createElement('button'); pick.className='cta'; pick.textContent='↩ Try another level';
+    pick.style.background='#fff'; pick.style.color='#6d5ae6'; pick.style.border='1.5px solid #e5e2f2'; pick.style.marginBottom='10px';
+    pick.onclick=function(){ showPicker(); };
+    var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try this one again';
     again.style.background='#fff'; again.style.color='#6d5ae6'; again.style.border='1.5px solid #e5e2f2';
     again.onclick=function(){ board.innerHTML=''; i=-1; next(); };
-    box.appendChild(go); box.appendChild(again); answer.appendChild(box);
+    box.appendChild(go); box.appendChild(pick); box.appendChild(again); answer.appendChild(box);
   }
 
-  document.getElementById('startBtn').onclick=function(){ next(); };
+  // ---- LEVEL PICKER (2026-08-03, Jim: "one from each of our different levels") ----
+  function startScript(id){
+    cur=DEMOS[id]; steps=cur.steps; i=-1;
+    board.innerHTML='';
+    next();
+  }
+  function showPicker(){
+    board.innerHTML=''; clearAnswer();
+    bubble.textContent="Pick any level — I'll teach you a real sample, from counting stars to differential equations.";
+    replay.style.display='none';
+    var grid=document.createElement('div'); grid.className='levels';
+    LEVELS.forEach(function(L){
+      var id=L[0], title=L[1], blurb=L[2];
+      var b=document.createElement('button'); b.className='lvl'; b.type='button';
+      b.innerHTML='<b>'+title+'</b><span>'+blurb+'</span>';
+      b.onclick=function(){ startScript(id); };
+      grid.appendChild(b);
+    });
+    answer.appendChild(grid);
+  }
+
+  showPicker();
 })();
 </script>
 </body>
