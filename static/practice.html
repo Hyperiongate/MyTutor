@@ -4,6 +4,11 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  SCROLL FIX (Jim: "I have to scroll to see what he's saying"): the tap-to-answer
+    buttons shrink the transcript from below, so a ResizeObserver now re-pins the transcript to
+    the bottom on any size change, showChoices() re-pins the transcript instead of scrolling the
+    page, and clearChoices() re-pins after removal.
+  - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  BUSY GLOW (Jim: "use the tour's fuzzy border around Mr. Cadabra when he's
     talking or thinking, so I can SEE he's doing something"): new .orbwrap.busyglow class
     (same accent ring + tourpulse animation as the session-page tour, keyframes added here)
@@ -114,7 +119,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyTutor — Practice</title>
+  <title>Mr. Cadabra's Classroom — Practice</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
@@ -752,7 +757,7 @@
         ".choicebtn.notsure{font-size:15px;border-style:dashed;color:#5b6079}";
       document.head.appendChild(st);
     }
-    function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; } }
+    function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; scrollFeed(); } }
     function showChoices(a) {
       const opts = String(a.options || "").split("|").map(s => s.trim()).filter(Boolean).slice(0, 6);
       if (!opts.length) return;
@@ -771,7 +776,9 @@
       for (const o of opts) choiceBtn(o, o);
       choiceBtn("🤔 I'm not sure", "I'm not sure", "notsure");
       composer.parentNode.insertBefore(row, composer);
-      try { row.scrollIntoView({ block: "nearest" }); } catch (e) {}
+      // Re-pin the transcript (NOT the page): the buttons take vertical space below it,
+      // so without this the tutor's newest words could slip out of view.
+      scrollFeed();
     }
 
     function handleTags(text) {
@@ -1153,6 +1160,9 @@
     feed.addEventListener("scroll", () => { stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48; });
     function scrollFeed() { requestAnimationFrame(() => { if (stickBottom) feed.scrollTop = feed.scrollHeight; }); }
     new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });
+    // 2026-08-03 (Jim: "I have to scroll to see what he's saying"): the tap-to-answer buttons
+    // shrink the transcript from below; re-pin on ANY size change of the transcript itself.
+    if (window.ResizeObserver) new ResizeObserver(() => scrollFeed()).observe(feed);
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);

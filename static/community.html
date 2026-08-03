@@ -5,6 +5,7 @@
   community.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  NAV: added the shared /static/site-nav.js include -> a "College level math" dropdown (Calculus, Differential Equations) in the top nav. Pure add-on.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
   - 2026-07-31  BETA RIBBON: slim gradient banner under the header -> /beta (Jim's beta-tester
@@ -25,19 +26,19 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Community — MyTutor</title>
+<title>Community — Mr. Cadabra's Classroom</title>
 <link rel="canonical" href="https://mrcadabra.com/community" />
-<meta property="og:title" content="Community — MyTutor">
-<meta property="og:description" content="The MyTutor family community: share what's working, ideas, resources for parents, and the courses you'd like to see next.">
+<meta property="og:title" content="Community — Mr. Cadabra's Classroom">
+<meta property="og:description" content="The Mr. Cadabra's Classroom family community: share what's working, ideas, resources for parents, and the courses you'd like to see next.">
 <meta property="og:url" content="https://mrcadabra.com/community">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="MyTutor">
+<meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Community — MyTutor">
-<meta name="twitter:description" content="The MyTutor family community: share what's working, ideas, resources for parents, and the courses you'd like to see next.">
+<meta name="twitter:title" content="Community — Mr. Cadabra's Classroom">
+<meta name="twitter:description" content="The Mr. Cadabra's Classroom family community: share what's working, ideas, resources for parents, and the courses you'd like to see next.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
-<meta name="description" content="The MyTutor family community: share what's working, ideas, resources for parents, and the courses you'd like to see next." />
+<meta name="description" content="The Mr. Cadabra's Classroom family community: share what's working, ideas, resources for parents, and the courses you'd like to see next." />
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
@@ -118,7 +119,7 @@
 <body>
 <nav><div class="wrap">
   <div class="nav-top">
-  <a class="brand" href="/"><span class="orb"></span> <span>MyTutor <span class="brand-sub" style="color:var(--muted);font-weight:600">· with Mr. Cadabra</span></span></a>
+  <a class="brand" href="/"><span class="orb"></span> <span>Mr. Cadabra's Classroom</span></a>
   <div class="nav-cta">
     <a class="btn btn-ghost" href="/login">Sign in</a>
     <a class="btn btn-primary" href="/demo">Try a lesson</a>
@@ -172,21 +173,21 @@
 </section>
 
 <footer><div class="wrap foot-in">
-  <div class="brand"><span class="orb"></span> MyTutor</div>
+  <div class="brand"><span class="orb"></span> Mr. Cadabra's Classroom</div>
   <div style="display:flex;gap:20px;flex-wrap:wrap">
     <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/mission">Our mission</a><a href="/community">Community</a><a href="/beta">Beta program</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
   </div>
-  <div>© 2026 Hyperion Shift LLC · mrcadabra.com · Made for families</div>
+  <div>© 2026 Mr. Cadabra's Classroom · mrcadabra.com · Made for families</div>
 </div></footer>
 
 <script>
 (function () {
   "use strict";
   var SECTIONS = [
-    { id: "working",  label: "💚 What's working",  prompt: "What do you (or your student) like about MyTutor? A win, a habit that stuck, a moment it clicked — share it so other families can borrow it." },
+    { id: "working",  label: "💚 What's working",  prompt: "What do you (or your student) like about Mr. Cadabra's Classroom? A win, a habit that stuck, a moment it clicked — share it so other families can borrow it." },
     { id: "ideas",    label: "🛠️ Ideas to improve", prompt: "What could be better? Rough edges, missing features, things that confused your student — we read every one of these." },
     { id: "resources", label: "📚 Resources for parents", prompt: "Books, routines, games, videos, habits — what else has helped your student learn math? Help another parent shortcut the search." },
-    { id: "courses",  label: "🎓 Courses you'd like", prompt: "Beyond the eight math courses — what would you like MyTutor to teach next? Inside math or beyond it, tell us what your family needs." }
+    { id: "courses",  label: "🎓 Courses you'd like", prompt: "Beyond the eight math courses — what would you like Mr. Cadabra's Classroom to teach next? Inside math or beyond it, tell us what your family needs." }
   ];
   var state = { section: "working", posts: [], busy: false };
   var params = new URLSearchParams(window.location.search);
@@ -340,7 +341,7 @@
     try {
       var me = await api("/api/parent/me", { headers: { "X-Parent-Token": token() } });
       var first = ((me.parent && me.parent.name) || "").split(" ")[0];
-      $("npAs").textContent = first || "A MyTutor parent";
+      $("npAs").textContent = first || "A Mr. Cadabra's Classroom parent";
       $("composer").style.display = "";
     } catch (e) { $("signinNote").style.display = ""; }   // stale token -> read-only view
   }

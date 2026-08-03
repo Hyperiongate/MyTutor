@@ -4,6 +4,15 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  ELEMENTARY WELCOME + TOUR + SCROLL FIX (Jim): (1) new IS_ELEM flag (entry/basic)
+    -- the welcome overlay's answer bullet, the tour's final "answer" stop, and the answer-bar
+    hint now describe TAP-TO-ANSWER buttons ("just tap your answer"; "I'm not sure" helps) and
+    never mention keyboards or typing for the two youngest courses; other courses unchanged.
+    (2) SCROLL FIX ("I have to scroll to see what he's saying"): the choice buttons shrink the
+    transcript from below, so a ResizeObserver now re-pins the transcript to the bottom on any
+    size change, showChoices() re-pins the transcript instead of scrolling the page, and
+    clearChoices() re-pins after removal.
+  - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  BUSY GLOW (Jim: "use the tour's fuzzy border around Mr. Cadabra when he's
     talking or thinking, so I can SEE he's doing something"): new .orbwrap.busyglow class
     reuses the tour ring (same accent color + tourpulse animation, circular) and setState()
@@ -287,7 +296,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyTutor — Session</title>
+  <title>Mr. Cadabra's Classroom — Session</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <style>
     :root {
@@ -733,7 +742,7 @@
 
     <div class="center">
       <div class="topbar">
-        <div class="title" id="courseTitle">MyTutor</div>
+        <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
         <div class="spacer"></div>
         <a id="homeLink" href="#">☰ Menu</a>
       </div>
@@ -765,11 +774,11 @@
   <div class="welcome" id="welcome">
     <div class="welcome-card">
       <div class="welcome-badge">✨</div>
-      <h2 id="welcomeTitle">Welcome to MyTutor!</h2>
+      <h2 id="welcomeTitle">Welcome to Mr. Cadabra's Classroom!</h2>
       <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
         <li><span class="ic">🔊</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go — so <b>turn your speakers or headphones on</b>.</span></li>
-        <li><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below — there's a math keyboard for symbols like √ and x².</span></li>
+        <li id="welcomeAnswerTip"><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below — there's a math keyboard for symbols like √ and x².</span></li>
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
@@ -786,6 +795,9 @@
     const CODE = (params.get("code") || "").trim();
     const FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
+    // ELEMENTARY (2026-08-03): the two youngest courses answer by TAPPING choice buttons, so
+    // their welcome, tour, and hint talk about tapping -- never about keyboards or typing.
+    const IS_ELEM = (COURSE === "entry" || COURSE === "basic");
     if (!CODE) { window.location.href = "/login"; }
 
     // ---- Per-course wording for the welcome pop-up + spoken tour (multi-course) ----
@@ -1374,7 +1386,7 @@
         ".choicebtn.notsure{font-size:15px;border-style:dashed;color:#5b6079}";
       document.head.appendChild(st);
     }
-    function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; } }
+    function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; scrollFeed(); } }
     function showChoices(a) {
       const opts = String(a.options || "").split("|").map(s => s.trim()).filter(Boolean).slice(0, 6);
       if (!opts.length) return;
@@ -1393,7 +1405,9 @@
       for (const o of opts) choiceBtn(o, o);
       choiceBtn("🤔 I'm not sure", "I'm not sure", "notsure");
       composer.parentNode.insertBefore(row, composer);
-      try { row.scrollIntoView({ block: "nearest" }); } catch (e) {}
+      // Re-pin the transcript (NOT the page): the buttons take vertical space below it,
+      // so without this the tutor's newest words could slip out of view.
+      scrollFeed();
     }
 
     function handleTags(text) {
@@ -1823,6 +1837,10 @@
     // Belt-and-suspenders: re-pin after ANY later size change (a diagram finishing layout, a
     // long line wrapping, the step-in animation) so the bottom is always in view.
     new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });
+    // 2026-08-03 (Jim: "I have to scroll to see what he's saying"): the tap-to-answer buttons
+    // take vertical space BELOW the transcript, which shrinks it -- a MutationObserver can't
+    // see that, so re-pin on ANY size change of the transcript itself.
+    if (window.ResizeObserver) new ResizeObserver(() => scrollFeed()).observe(feed);
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
@@ -1999,7 +2017,9 @@
       { id: "tutor",
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
-        text: "Last one, and it's the important one: when it's your turn, type your answer right down here. The Math Keyboard button next to it has every tricky symbol — square roots, exponents, fractions, all of it." },
+        text: IS_ELEM
+          ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
+          : "Last one, and it's the important one: when it's your turn, type your answer right down here. The Math Keyboard button next to it has every tricky symbol — square roots, exponents, fractions, all of it." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice
@@ -2062,7 +2082,18 @@
     // ---------- Load ----------
     async function loadSession() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
-      if (!canRecord) { talkBtn.style.display = "none"; hint.textContent = "He talks — you type. Your answer box is at the BOTTOM of the screen, next to the 🧮 Math Keyboard."; showComposer(); }
+      if (!canRecord) {
+        talkBtn.style.display = "none";
+        hint.textContent = IS_ELEM
+          ? "He talks — you tap! When he asks a question, answer buttons appear at the BOTTOM of the screen. Just tap your answer."
+          : "He talks — you type. Your answer box is at the BOTTOM of the screen, next to the 🧮 Math Keyboard.";
+        showComposer();
+      }
+      // ELEMENTARY welcome overlay: talk about tapping choices, never about keyboards.
+      if (IS_ELEM) {
+        const tip = el("welcomeAnswerTip");
+        if (tip) tip.innerHTML = '<span class="ic">👆</span><span>When it\'s your turn, <b>answer buttons pop up at the bottom</b> — just tap the answer you think is right. Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>';
+      }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { window.location.href = "/login"; return; }

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03d-cadabra". REBRAND (Jim): the product is now
+#               "Mr. Cadabra's Classroom" everywhere a user can see -- all static pages (titles,
+#               meta/OG, nav brands, body copy, footers), the beta-pass message, the demo line,
+#               the forum fallback author (now just "A parent"), and the Stripe product display
+#               name ("Mr. Cadabra's Classroom — Full access"; the finder matches the old
+#               "MyTutor Full access" name too and renames it, so no duplicate product is created;
+#               the internal price lookup_keys mytutor_monthly/annual are UNCHANGED on purpose --
+#               they are invisible IDs and changing them would orphan existing prices).
+#               "Hyperion Shift LLC" remains ONLY on /privacy and /terms (legal entity must be
+#               named there) and as the invisible legalName in the landing page's structured data.
+#               Same deploy: elementary welcome/tour now describe TAP-TO-ANSWER buttons instead of
+#               the keyboard (session.html), and the chat pages re-pin the transcript when the
+#               choice buttons appear so the tutor's words never slip out of view.
 #   2026-08-03  APP_BUILD -> "2026-08-03c-tapanswers". TAP-TO-ANSWER for the elementary courses
 #               (Jim: little kids can't type -- give them multiple-choice answers to click). New
 #               [[choices]] whiteboard tag rendered by session/practice/topic.html as big tappable
@@ -962,7 +975,7 @@ def _beta_404_detail(code: str):
         return "This beta pass has been closed. Email support@mrcadabra.com if that seems wrong."
     left = int(bc["uses_allowed"]) - int(bc["uses_used"])
     if left <= 0:
-        return ("This beta pass has been used up — thank you for test-driving MyTutor! "
+        return ("This beta pass has been used up — thank you for test-driving Mr. Cadabra's Classroom! "
                 "We'd love your feedback at support@mrcadabra.com.")
     return (f"Your beta session window has ended. Sign in again with this pass to keep "
             f"going — {left} of {bc['uses_allowed']} sign-ins left.")
@@ -2083,13 +2096,20 @@ def _price_id(stripe, plan: str) -> str:
         return found.data[0].id
     # First ever run against this Stripe account: create the product + price.
     product_id = None
+    # 2026-08-03 REBRAND: match the old "MyTutor" product too, so an account that already
+    # has it reuses (and renames) it instead of creating a duplicate.
     for p in stripe.Product.list(active=True, limit=100).auto_paging_iter():
-        if p.name == "MyTutor Full access":
+        if p.name in ("Mr. Cadabra's Classroom — Full access", "MyTutor Full access"):
             product_id = p.id
+            if p.name != "Mr. Cadabra's Classroom — Full access":
+                try:
+                    stripe.Product.modify(product_id, name="Mr. Cadabra's Classroom — Full access")
+                except Exception as exc:  # noqa: BLE001 -- a rename must never block checkout
+                    print(f"[billing] product rename skipped: {exc}")
             break
     if not product_id:
         product_id = stripe.Product.create(
-            name="MyTutor Full access",
+            name="Mr. Cadabra's Classroom — Full access",
             tax_code=PRODUCT_TAX_CODE,     # required by Managed Payments (default-on)
             description="All 8 math courses with Mr. Cadabra — placement to mastery, "
                         "warm voice, math keyboard, honest dashboards.").id
@@ -2312,7 +2332,7 @@ class ForumModIn(BaseModel):
 
 def _forum_author(parent: dict) -> str:
     first = (parent.get("name") or "").strip().split(" ")[0]
-    return first if first else "A MyTutor parent"
+    return first if first else "A parent"
 
 
 @app.get("/api/forum/{section}")
@@ -2466,7 +2486,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03c-tapanswers"
+APP_BUILD = "2026-08-03d-cadabra"
 
 
 @app.get("/health")
@@ -3064,7 +3084,7 @@ DEMO_VOICE_LINES = [
     "One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
     "Beautiful — two to the third, which is eight. You used the power key like a pro.",
     "Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!",
-    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how MyTutor teaches: one friendly step at a time.",
+    "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time.",
 ]
 
 
