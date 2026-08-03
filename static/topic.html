@@ -4,6 +4,11 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  BUSY GLOW (Jim: "use the tour's fuzzy border around Mr. Cadabra when he's
+    talking or thinking, so I can SEE he's doing something"): new .orbwrap.busyglow class
+    (same accent ring + tourpulse animation as the session-page tour, keyframes added here)
+    and setState() now toggles it on for "thinking"/"speaking", off otherwise. Purely visual
+    and additive.
   - 2026-08-03  TAP-TO-ANSWER CHOICES (elementary courses): new [[choices options="a | b | c"]]
     tag renders big tappable answer buttons above the answer bar, plus an automatic
     "🤔 I'm not sure" button, so young children who can't type or read well can answer by
@@ -195,6 +200,14 @@
     .tutor-id { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
     .orbwrap { width: 96px; height: 96px; flex: 0 0 auto; }
     .orbwrap canvas { width: 100%; height: 100%; display: block; }
+    /* BUSY GLOW (2026-08-03, Jim): the SAME pulsing ring the session-page tour uses, wrapped
+       around Mr. Cadabra whenever he is thinking or talking -- so a quiet "thinking" moment
+       is visibly him working, not the app sitting dead. Toggled by setState(). */
+    .orbwrap.busyglow { border-radius: 50%;
+      box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
+      animation: tourpulse 1.3s ease-in-out infinite; }
+    @keyframes tourpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(91,91,214,.14); }
+      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px rgba(91,91,214,.28); } }
     .tutor-name { font-weight: 800; font-size: 18px; }
     .status { font-size: 13px; color: var(--accent); min-height: 18px; margin-top: 2px; font-weight: 600; }
     .convo { flex: 1; align-self: stretch; max-height: 150px; overflow-y: auto; display: flex;
@@ -524,7 +537,14 @@
     let phase = "idle";
     let elevenEnabled = false;
     let state = "idle";
-    function setState(s) { state = s; }
+    function setState(s) {
+      state = s;
+      // BUSY GLOW (2026-08-03): wrap Mr. Cadabra in the tour's pulsing ring while he is
+      // thinking or talking, so the student SEES he's working even when it's quiet.
+      const orbEl = document.getElementById("orb");
+      const ow = orbEl ? orbEl.parentElement : null;
+      if (ow) ow.classList.toggle("busyglow", s === "thinking" || s === "speaking");
+    }
 
     // The topic picker's units, PER COURSE (kept in step with curriculum.py's catalog).
     const UNITS_BY_COURSE = {
