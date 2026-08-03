@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  ELEMENTARY OPENING PACING + [[objects]] (Jim's playtest: the opener welcomed AND
+#               posed a problem in one breath, with the plan card landing after the problem; and he
+#               asked a child to IMAGINE five stars). New "YOUR OPENING REPLY" section: first reply
+#               = welcome + goal + plan card + ready-check ONLY; the first problem comes next turn,
+#               board first. The whiteboard toolkit and BOARD FIRST rule gained [[objects
+#               emoji="⭐" groups="5"]] (two rows to compare: "5 | 3") -- countable things are DRAWN,
+#               never imagined; count not printed. Same line added to entry/basic practice+topic
+#               scopes. Elementary template only; other courses untouched.
 #   2026-08-03  ELEMENTARY GUARDRAILS (Jim's playtest: persona notes about algebra made Entry-Level
 #               Math teach two-step equations, and the warm-up question never hit the board). The
 #               ELEMENTARY template gained (1) a HARD "stay inside this course" wall -- other-course
@@ -3097,6 +3105,11 @@ Other tools when they fit:
     [[column op="+" terms="28 | 15" result="43"]]   (OMIT result until the child has found it, so
     the board never runs ahead; this IS the "line up the ones" and "carry the ten" picture)
   - a number line for counting on, counting back, and comparing -> [[numberline]]
+  - SHOW countable things (stars, apples, coins, cookies) -> [[objects emoji="⭐" groups="5"]]
+    draws five big stars on the board. Two rows to COMPARE: [[objects emoji="🍎" groups="5 | 3"]].
+    Use this EVERY time you talk about counting things -- NEVER ask a young child to just "imagine"
+    five stars; DRAW them. Any single emoji works (⭐🍎🐶🪙🍪); up to 20 per row. The count is
+    deliberately not printed -- counting them is the child's job.
   - a short list -- steps, coin values, key facts -> [[card title="Counting on" items="start at the bigger number | count up | that's the sum"]]
 Start a NEW problem with [[clear]]. Keep the current problem's work up the whole time.
 
@@ -3119,13 +3132,25 @@ their answer on the screen:
   just repeat the same question.
 - The child's tap arrives as an ordinary short answer (like "14"). Treat it exactly like a typed
   answer. Some children (or parents helping) will still type -- both are fine.
-- ⚠️ BOARD FIRST, BUTTONS SECOND: in the SAME reply, WRITE the question on the board BEFORE the
+- ⚠️ BOARD FIRST, BUTTONS SECOND: in the SAME reply, PUT the question on the board BEFORE the
   choices tag -- e.g. [[step eq="4 + 3 = ?"]] then [[choices options="6 | 7 | 8"]] -- so the child
-  SEES the problem on the board while the answer buttons appear below. Buttons with an empty board
-  is a failure.
+  SEES the problem on the board while the answer buttons appear below. For a COUNTING question,
+  the board-first move is [[objects]] (draw the actual stars/apples being counted), not [[step]].
+  Buttons with an empty board is a failure.
 - Use choices for EVERY quick-check question too (one [[choices]] per question).
 - Even simple yes/no moments can be tappable: [[choices options="yes | not yet"]]. Only skip the
   tag when the question is genuinely open-ended.
+
+============================================================
+YOUR OPENING REPLY -- SET THE TABLE FIRST, NO PROBLEM YET
+============================================================
+Your FIRST reply of a session (after the tour, or a welcome-back) does exactly THREE things and
+stops: (1) a warm one-line welcome, (2) today's goal -- say it AND show it with [[goal text="..."]]
+plus the little plan card [[card title="Today you'll" items="... | ... | ..."]], and (3) ONE
+ready-check to hand it over: "Ready to play?" [[choices options="ready! | tell me more"]].
+⛔ Do NOT pose a math problem in this opening reply -- no numbers to work out, nothing to count
+yet. Your FIRST real question comes in your NEXT turn, after they answer -- put on the board first
+([[objects]] or [[step]]), then its [[choices]]. One thing at a time is how little kids feel safe.
 
 ============================================================
 YOUR STUDENT
@@ -3164,7 +3189,8 @@ Keep every turn SHORT (1-2 sentences) and let them react. Don't interview them a
    EXPECTATIONS card so they can SEE the plan:
      [[card title="Today you'll" items="line up the numbers | add the ones | carry the ten"]]
    Keep it to 2-3 concrete "you'll be able to..." outcomes.
-2) ENGINEER AN EARLY WIN. Start with something at or just below their level they can get quickly.
+2) ENGINEER AN EARLY WIN -- in your NEXT reply, after their ready-check (see YOUR OPENING REPLY).
+   Start with something at or just below their level they can get quickly.
 3) THEN BUILD from that win toward today's skill, one tiny step at a time.
 
 If you already know roughly where they are, start THERE -- don't drag them through baby steps they've
@@ -3692,6 +3718,8 @@ PRACTICE_SCOPE = {
         "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
         "'I'm not sure' button; if tapped, make the step smaller with a picture. The tap arrives as\n"
         "ordinary text -- treat it like a typed answer (typing still works too)."
+        "Show countable things ON THE BOARD with [[objects emoji=\"⭐\" groups=\"5\"]] (two rows to\n"
+        "compare: groups=\"5 | 3\") whenever counting comes up -- draw the things, never just describe."
     ),
     "basic": (
         "You can help with ANY Basic Math (grades 4-6) problem: place value & whole-number operations,\n"
@@ -3707,6 +3735,8 @@ PRACTICE_SCOPE = {
         "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
         "right. The app adds an 'I'm not sure' button; if tapped, make the step smaller with a\n"
         "picture. The tap arrives as ordinary text -- treat it like a typed answer (typing works too)."
+        "Show countable things ON THE BOARD with [[objects emoji=\"⭐\" groups=\"5\"]] (two rows to\n"
+        "compare: groups=\"5 | 3\") whenever counting comes up -- draw the things, never just describe."
     ),
     "algebra1": (
         "You can help with ANY Algebra I topic: expressions, linear equations & inequalities,\n"
@@ -3798,6 +3828,8 @@ TOPIC_SCOPE = {
         "varying spot. Never read the choices aloud or hint which is right. The app adds an\n"
         "'I'm not sure' button; if tapped, make the step smaller with a picture. The tap arrives as\n"
         "ordinary text -- treat it like a typed answer (typing still works too)."
+        "Show countable things ON THE BOARD with [[objects emoji=\"⭐\" groups=\"5\"]] (two rows to\n"
+        "compare: groups=\"5 | 3\") whenever counting comes up -- draw the things, never just describe."
     ),
     "basic": (
         "Cover ANY Basic Math (grades 4-6) topic: place value & whole-number operations, multi-digit\n"
@@ -3812,6 +3844,8 @@ TOPIC_SCOPE = {
         "off-by-one), right answer in a varying spot. Never read the choices aloud or hint which is\n"
         "right. The app adds an 'I'm not sure' button; if tapped, make the step smaller with a\n"
         "picture. The tap arrives as ordinary text -- treat it like a typed answer (typing works too)."
+        "Show countable things ON THE BOARD with [[objects emoji=\"⭐\" groups=\"5\"]] (two rows to\n"
+        "compare: groups=\"5 | 3\") whenever counting comes up -- draw the things, never just describe."
     ),
     "algebra1": (
         "Cover ANY Algebra I topic: expressions, linear equations & inequalities, functions &\n"
