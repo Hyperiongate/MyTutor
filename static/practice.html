@@ -4,6 +4,12 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  ELEM MODE FOR THE ANSWER BAR (Jim: tour says "just tap" but the bar said "type
+    your answer" with Math Keyboard/Graph buttons). For entry/basic a body.elem-mode class now
+    hides the 🧮/📈 buttons, the "Two ways to answer" line, and their "?" bubbles (CSS, so
+    late-injected buttons are caught too); the input placeholder becomes "Tap an answer button
+    — or type here"; and a tap-friendly one-liner sits above the bar. Typing stays as a quiet
+    backup. Other courses unchanged.
   - 2026-08-03  SCROLL FIX (Jim: "I have to scroll to see what he's saying"): the tap-to-answer
     buttons shrink the transcript from below, so a ResizeObserver now re-pins the transcript to
     the bottom on any size change, showChoices() re-pins the transcript instead of scrolling the
@@ -533,6 +539,8 @@
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this practice is for (multi-course)
+    const IS_ELEM = (COURSE === "entry" || COURSE === "basic");   // tap-to-answer courses
+
     if (!CODE) { window.location.href = "/login"; }
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("lessonLink").href = "/home" + cq;
@@ -548,6 +556,30 @@
     let paused = false, curWork = null;
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
+    // ---------- ELEMENTARY MODE (2026-08-03, Jim: the answer bar said "type your answer" and
+    // showed the Math Keyboard/Graph right after the tour said "just tap") ----------
+    // For the two tap-to-answer courses, hide ALL the typing gear -- the 🧮 Math Keyboard and
+    // 📈 Graph buttons, the "Two ways to answer" reminder, and their "?" help bubbles -- and
+    // replace them with one tap-friendly line. The plain text box stays as a quiet backup.
+    // Done with a body class + CSS so it also catches buttons that other scripts inject later.
+    if (IS_ELEM) {
+      document.body.classList.add("elem-mode");
+      const est = document.createElement("style");
+      est.textContent =
+        ".elem-mode .mtk-open, .elem-mode .gpi-open, .elem-mode .mtk-hint," +
+        ".elem-mode .mtk-open + .hlp-q, .elem-mode .gpi-open + .hlp-q," +
+        ".elem-mode #composer .hlp-q { display: none !important; }" +
+        ".elem-hint{font-size:14px;font-weight:600;color:#5b6079;margin:0 24px 6px;padding:0 4px}" +
+        ".elem-hint b{color:#20233a}";
+      document.head.appendChild(est);
+      if (input) input.placeholder = "Tap an answer button — or type here";
+      const eh = document.createElement("div");
+      eh.className = "elem-hint";
+      eh.innerHTML = "👆 <b>How to answer:</b> when Mr. Cadabra asks a question, tap one of the answer buttons that pop up!";
+      composer.parentNode.insertBefore(eh, composer);
+    }
+
+
 
     let problem = "";
     let history = [];              // client-held practice conversation [{role,content}]

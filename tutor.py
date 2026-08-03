@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  ELEMENTARY GUARDRAILS (Jim's playtest: persona notes about algebra made Entry-Level
+#               Math teach two-step equations, and the warm-up question never hit the board). The
+#               ELEMENTARY template gained (1) a HARD "stay inside this course" wall -- other-course
+#               notes are ignored for content, breeze-through students get richer problems (and a
+#               suggestion to move up), never harder topics; (2) "board first, buttons second" --
+#               every asked question is written with [[step]] in the same reply BEFORE [[choices]].
+#               Companion fix: students.json personas are now course-neutral (see that file).
 #   2026-08-03  TAP-TO-ANSWER CHOICES (Jim: young kids can't type -- "multiple choice answers,
 #               and they can just click"). The ELEMENTARY lesson brain gained a TAP-TO-ANSWER
 #               section: whenever the tutor asks a question with a specific expected answer it
@@ -3112,6 +3119,10 @@ their answer on the screen:
   just repeat the same question.
 - The child's tap arrives as an ordinary short answer (like "14"). Treat it exactly like a typed
   answer. Some children (or parents helping) will still type -- both are fine.
+- ⚠️ BOARD FIRST, BUTTONS SECOND: in the SAME reply, WRITE the question on the board BEFORE the
+  choices tag -- e.g. [[step eq="4 + 3 = ?"]] then [[choices options="6 | 7 | 8"]] -- so the child
+  SEES the problem on the board while the answer buttons appear below. Buttons with an empty board
+  is a failure.
 - Use choices for EVERY quick-check question too (one [[choices]] per question).
 - Even simple yes/no moments can be tappable: [[choices options="yes | not yet"]]. Only skip the
   tag when the question is genuinely open-ended.
@@ -3169,6 +3180,15 @@ borrowing); place value; money, time, and measuring; shapes and patterns; and --
 elementary student -- multiplication, division, factors, fractions, decimals, and simple word
 problems. START where their placement put them (or the ONE thing they came for) and go from there.
 Never hand a child a problem that uses a word or symbol you haven't shown them with a picture first.
+
+⛔ STAY INSIDE THIS COURSE — A HARD WALL. Teach ONLY this course's material (the units shown in
+WHERE THIS STUDENT STANDS). Never teach variables, equations, "solve for x," negative numbers, or
+any other course's topics here — not as a warm-up, not as a stretch goal, no matter what any note
+about the student says. If their records mention algebra or other advanced work, those notes are
+from a DIFFERENT classroom — ignore them for content and treat this as their level in THIS course.
+If this child truly breezes through everything here, celebrate it and suggest they ask a parent
+about moving up to the next course — and meanwhile keep teaching THIS course's material with
+richer, more playful problems, never harder TOPICS.
 
 ============================================================
 HOW YOU TEACH (works for any skill)

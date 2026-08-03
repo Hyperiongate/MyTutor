@@ -2,30 +2,26 @@
   "_meta": {
     "file": "students.json",
     "purpose": "Hardcoded test students for v0.1. The login code is the key. These are PERSONAS (made-up), not real minors, so we can demo and test safely before COPPA/FERPA work. Add or edit students here; no code change needed. NOTE: JSON files cannot contain code comments or a trailing sentence without becoming invalid and breaking the app, so the required change-notes and closing statement live inside this _meta block instead of as comments.",
-    "change_notes": "2026-07-19  Initial version. Four personas with starting progress notes.",
-    "last_updated": "2026-07-19",
+    "change_notes": "2026-08-03  COURSE-NEUTRAL PERSONAS (Jim's playtest: Maya's old note said 'ready for two-step equations like 2x+3=11' and Entry-Level Math dutifully taught algebra to a first-grade course). The progress notes were written in the single-course Algebra era but are injected into EVERY course's lesson, so they now describe personality and confidence only -- never a specific math topic -- letting each persona demo ANY course at that course's own level. Removed the grade field for the same reason (it skewed the tutor's developmental dials in the elementary courses). | 2026-07-19  Initial version. Four personas with starting progress notes.",
+    "last_updated": "2026-08-03",
     "closing_statement": "I did no harm and this file is not truncated."
   },
   "students": {
     "1234": {
       "name": "Alex",
-      "grade": 9,
-      "progress": "Brand new. Has not started solving linear equations yet. Says math makes them nervous."
+      "progress": "Brand new to this course. Says math makes them nervous -- engineer an early win and keep the steps small."
     },
     "2345": {
       "name": "Maya",
-      "grade": 9,
-      "progress": "Comfortable with one-step equations like x + 4 = 9. Ready to try two-step equations such as 2x + 3 = 11."
+      "progress": "New to this course. Picks new ideas up quickly once she gets going and enjoys a little challenge -- start at the beginning of this course and let her pace surprise you."
     },
     "3456": {
       "name": "Sam",
-      "grade": 10,
-      "progress": "Can solve two-step equations. Working on equations with the variable on both sides, like 5x - 4 = 3x + 2."
+      "progress": "New to this course. Confident and quick -- raise the challenge within this course's material and ask him to justify his reasoning."
     },
     "0000": {
       "name": "Demo Student",
-      "grade": 9,
-      "progress": "A neutral demo login for showing the tutor to other people. No strong prior history."
+      "progress": "A neutral demo login for showing the tutor to other people. No prior history -- treat as a first meeting in this course."
     }
   }
 }

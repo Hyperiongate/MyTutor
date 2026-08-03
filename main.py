@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03f-elemguard". ELEMENTARY GUARDRAILS + ANSWER-BAR ELEM MODE.
+#               No logic change in this file: tutor.py gained the "stay inside this course" wall and
+#               the board-first-buttons-second rule (playtest: persona notes about algebra made
+#               Entry-Level Math teach equations); students.json personas are now COURSE-NEUTRAL so
+#               any persona can demo any course; session/practice/topic.html hide the typing gear
+#               (Math Keyboard/Graph/"Two ways to answer" + their ? bubbles) for entry/basic and show
+#               a tap-friendly hint + placeholder instead. Stamp bump so /health proves the deploy.
 #   2026-08-03  APP_BUILD -> "2026-08-03e-elemtour". TOUR PER CLASSROOM TYPE (Jim's playtest: an
 #               already-toured demo code got NO welcome/tour in Entry-Level Math and went straight
 #               into a problem). The `toured` flag from /api/session is now computed per classroom
@@ -2495,7 +2502,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03e-elemtour"
+APP_BUILD = "2026-08-03f-elemguard"
 
 
 @app.get("/health")
