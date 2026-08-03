@@ -4,6 +4,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  iPAD/TABLET PASS: (1) the full-height layout now also sets 100dvh (kept 100vh
+    for older browsers) so the composer can't hide behind Safari's collapsing toolbar on
+    tablets; (2) the Yes / No / I'm confused quick buttons grew to a 44px-minimum tap height
+    (Apple's touch-target floor). Audio was already tablet-safe here (warmUpAudio runs inside
+    the Let's-go tap); challenge.html and demo.html got that fix today.
   - 2026-08-03  BOARD-PRIMARY: [[objects]] gained add="n" -- draws the first row as
     "⭐⭐⭐⭐⭐ + ⭐" so addition is SEEN, not imagined. Pairs with the new shared "board is the
     lesson, words are the backup" doctrine in tutor.py (all courses, all modes).
@@ -334,6 +339,7 @@
         #f5f5fc;
     }
     .app { display: grid; grid-template-columns: 264px 1fr 240px; grid-template-rows: 100vh; }
+    .app { grid-template-rows: 100dvh; }   /* tablets: real visible height (Safari toolbar) */
 
     /* Sidebars */
     .side { padding: 18px 16px; overflow-y: auto; background: rgba(255,255,255,.55);
@@ -406,6 +412,7 @@
 
     /* Center */
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+    .center { height: 100dvh; }   /* tablets: see .app note */
     .topbar { display: flex; align-items: center; padding: 12px 20px; }
     .topbar .title { font-weight: 800; font-size: 16px; letter-spacing: .01em;
       background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
@@ -594,7 +601,7 @@
       70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
     .quickrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .quick { border: 1.5px solid var(--line); background: #fff; border-radius: 22px; padding: 9px 16px;
+    .quick { min-height: 44px; /* Apple touch-target floor */ border: 1.5px solid var(--line); background: #fff; border-radius: 22px; padding: 9px 16px;
       font-size: 14px; font-weight: 700; cursor: pointer; color: var(--ink); }
     .quick:not(:disabled):hover { background: #f5f5fc; }
     .quick:disabled { opacity: .4; cursor: default; }
@@ -625,7 +632,7 @@
     .center .composer input { flex: 1 1 220px; min-width: 0; font-size: 16px;
       padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; }
     @media (max-width: 900px) { .center .composer { margin: 0 12px 14px; } }
-    .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
+    .composer input { flex: 1; font-size: 16px; /* 16px: iPads zoom-on-focus below 16 */ padding: 10px 12px; border: 1px solid var(--line);
       border-radius: 11px; outline: none; }
     .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
       border: none; border-radius: 11px; cursor: pointer; }
@@ -644,7 +651,7 @@
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: auto; }
       .side { display: none; }
-      .center { height: 100vh; }
+      .center { height: 100vh; height: 100dvh; }
     }
 
     /* ===== 2026-07-24 TRANSCRIPT RELAYOUT (overrides the layout rules above) =====

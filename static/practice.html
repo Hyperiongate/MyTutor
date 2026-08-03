@@ -4,6 +4,10 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  iPAD/TABLET PASS: (1) the type-box font went 15px -> 16px -- iPads auto-zoom
+    the whole page when a smaller input is tapped, and it stays zoomed; 16px stops that.
+    (2) The full-height layout now also sets 100dvh (kept 100vh for older browsers) so the
+    composer can't hide behind Safari's collapsing toolbar on tablets.
   - 2026-08-03  BOARD-PRIMARY: [[objects]] gained add="n" -- draws the first row as
     "⭐⭐⭐⭐⭐ + ⭐" so addition is SEEN, not imagined. Pairs with the new shared "board is the
     lesson, words are the backup" doctrine in tutor.py (all courses, all modes).
@@ -153,9 +157,11 @@
         #f5f5fc;
     }
     .center { display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+    .center { height: 100dvh; }   /* tablets: real visible height (Safari toolbar) */
 
     /* ===== 2026-07-24 TRANSCRIPT + LEFT-SIDEBAR (match the lesson page) ===== */
     .app { display: grid; grid-template-columns: 308px 1fr; grid-template-rows: 100vh; height: 100vh; }
+    .app { grid-template-rows: 100dvh; height: 100dvh; }   /* tablets: see .center note */
     .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto;
       border-right: 1px solid var(--line); background: rgba(255,255,255,.55); }
     .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
@@ -417,7 +423,7 @@
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
-    .composer input { flex: 1; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line);
+    .composer input { flex: 1; font-size: 16px; /* 16px: iPads zoom-on-focus below 16 */ padding: 10px 12px; border: 1px solid var(--line);
       border-radius: 11px; outline: none; }
     .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
       border: none; border-radius: 11px; cursor: pointer; }

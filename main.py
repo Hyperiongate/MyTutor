@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03k-ipad". iPAD/TABLET READINESS PASS -- all changes are in
+#               the static pages (no backend code changed; this bump exists so the deploy can be
+#               verified at /health). challenge.html + demo.html: audio was silent on iPads (audio
+#               must first play INSIDE a tap; challenge awaited a fetch first, demo made a new
+#               Audio element per line) -- both now unlock one shared element inside the first tap.
+#               practice/topic/session: type-box 16px (stops iPad zoom-on-focus), 100dvh layout
+#               (composer can't hide behind Safari's toolbar), 44px quick buttons.
 #   2026-08-03  APP_BUILD -> "2026-08-03j-mathverify". THE MATH VERIFIER (Jim's pick): every
 #               tutor reply is now re-checked by a real math engine (SymPy) before the student
 #               sees it. The work lives in tutor.py (_create_verified + prompt rules 10-12) and
@@ -2530,7 +2537,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03j-mathverify"
+APP_BUILD = "2026-08-03k-ipad"
 
 
 @app.get("/health")

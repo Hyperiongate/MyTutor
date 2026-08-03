@@ -3,6 +3,11 @@
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-03  iPAD/TABLET AUDIO FIX: the demo created a brand-new Audio element for every
+    spoken line, and iPads block any element whose first play didn't start inside a tap -- so
+    on an iPad the voice died after (at best) the first line. Now ONE shared element is
+    unlocked by a silent clip inside the level-pick tap and REUSED for every line (same fix
+    the classroom pages use), and the browser-voice fallback is primed in that same tap.
   - 2026-08-03  TEN-LEVEL DEMO (Jim: "one from each level, they pick"). The demo opens with a
     LEVEL PICKER -- all ten courses, Entry-Level Math through Differential Equations -- and each
     level runs a short scripted sample in that course's style. The two elementary levels answer
@@ -293,7 +298,22 @@
     "Just one tick mark on the y — that's the FIRST derivative. Type the order!",
     "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!"
   ];
-  var serverVoiceOK=true, curAudio=null;
+  var serverVoiceOK=true;
+  // iPAD/TABLET UNLOCK (2026-08-03): iPads/tablets refuse to start audio unless the FIRST play happens inside a real tap.
+  // One SHARED element, unlocked once inside the level-pick tap by playing a tiny silent WAV;
+  // after that, changing .src and calling .play() from timers/fetch callbacks is allowed.
+  // (The old code made a NEW Audio per line -- each new element starts locked, so iPads went
+  // silent. Reuse is the fix, same as session/practice/topic.)
+  var SILENT_WAV="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";  // 50ms of true silence
+  var demoAudio=new Audio(), demoWarmed=false;
+  function warmDemoAudio(){
+    if(demoWarmed) return; demoWarmed=true;
+    try{
+      demoAudio.src=SILENT_WAV;
+      var p=demoAudio.play(); if(p&&p.catch) p.catch(function(){});
+    }catch(e){}
+    try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); } }catch(e){}
+  }
 
   function browserSay(text){
     if(!voiceOn||!('speechSynthesis' in window)) return;
@@ -313,19 +333,19 @@
     var i=VOICE_LINES.indexOf(text);
     if(serverVoiceOK && i>=0){
       try{
-        if(curAudio){ try{curAudio.pause();}catch(e){} }
+        try{ demoAudio.pause(); }catch(e){}
         try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
-        var a=new Audio('/api/demo-audio/'+i); curAudio=a;
-        a.onplay=function(){orb.classList.add('speaking');};
-        a.onended=function(){orb.classList.remove('speaking');};
-        a.onerror=function(){ serverVoiceOK=false; orb.classList.remove('speaking'); browserSay(text); };
-        a.play().catch(function(){ serverVoiceOK=false; browserSay(text); });
+        demoAudio.onplay=function(){orb.classList.add('speaking');};
+        demoAudio.onended=function(){orb.classList.remove('speaking');};
+        demoAudio.onerror=function(){ serverVoiceOK=false; orb.classList.remove('speaking'); browserSay(text); };
+        demoAudio.src='/api/demo-audio/'+i;
+        var p2=demoAudio.play(); if(p2&&p2.catch) p2.catch(function(){ serverVoiceOK=false; browserSay(text); });
         return;
       }catch(e){ serverVoiceOK=false; }
     }
     browserSay(text);
   }
-  replay.onclick=function(){ say(lastSaid); };
+  replay.onclick=function(){ warmDemoAudio(); say(lastSaid); };
 
   function addRow(text, cls){
     var d=document.createElement('div'); d.className='wrow'+(cls?' '+cls:'');
@@ -552,6 +572,7 @@
 
   // ---- LEVEL PICKER (2026-08-03, Jim: "one from each of our different levels") ----
   function startScript(id){
+    warmDemoAudio();   // iPad: unlock inside the level-pick tap
     cur=DEMOS[id]; steps=cur.steps; i=-1;
     board.innerHTML='';
     next();
