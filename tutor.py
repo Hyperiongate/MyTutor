@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  THE MATH VERIFIER (Jim's pick for the next build): every reply the tutor
+#               generates is now refereed by a real math engine (SymPy) BEFORE the student
+#               sees it. GRAPH_TOOL_NOTE gained rules 10-12 ("THE SILENT ANSWER KEY"): any
+#               reply stating a new problem or a computed result also appends a hidden
+#               [[verify expr="..." answer="..."]] tag holding the claim in SymPy syntax.
+#               New module mathcheck.py parses the tag and actually DOES the math
+#               (equations incl. systems and multiple roots, computations, simplifications,
+#               inequalities, derivatives/integrals). A provably wrong claim triggers a
+#               SILENT regeneration (up to 3 attempts) with SymPy's computed correction fed
+#               back; the student only ever sees a verified reply. Undecidable tags FAIL
+#               OPEN (pass through) so a checker gap can never stall a lesson. Tags are
+#               stripped server-side -- the frontend needed no changes at all. Applies to
+#               all 10 courses x lesson/practice/topic (the three get_*_reply functions now
+#               share _create_verified below). sympy was added to requirements.txt.
 #   2026-08-03  BOARD IS THE LESSON, WORDS ARE THE BACKUP (Jim). GRAPH_TOOL_NOTE -- the shared
 #               block prepended to EVERY course's lesson/practice/topic prompt -- gained rules 7-9:
 #               (7) never ask the student to IMAGINE what the toolkit can draw (with [[objects]]
@@ -472,6 +486,14 @@ try:
 except Exception as _exc:  # noqa: BLE001
     curriculum = None
     print(f"[tutor] curriculum classifier unavailable: {_exc}")
+# The MATH VERIFIER (2026-08-03): mathcheck.py re-does the tutor's math with SymPy before
+# a reply ships (see _create_verified below). Imported defensively like the modules above:
+# if it is missing the tutor still answers -- replies just aren't verified that deploy.
+try:
+    import mathcheck
+except Exception as _exc:  # noqa: BLE001
+    mathcheck = None
+    print(f"[tutor] mathcheck unavailable -- replies will NOT be math-verified: {_exc}")
 
 # The default course. Until the course picker (Phase 3 UI) supplies a course, everything
 # resolves to Algebra I, so single-course behavior is exactly as before.
@@ -3477,6 +3499,35 @@ in doubt, draw MORE -- this board cannot be overused, only underused.
    a table, a pattern, or a comparison the student cannot currently SEE on the board, add
    the drawing. This applies at EVERY level -- a calculus student deserves the drawn curve
    as much as a first grader deserves the drawn stars.
+
+
+============================================================
+🔒 THE SILENT ANSWER KEY (rules 10-12, 2026-08-03) -- NEVER SHOWN TO THE STUDENT
+============================================================
+A math engine double-checks your work before each reply reaches the student.
+
+10. TAG EVERY CHECKABLE CLAIM. Whenever your reply states a NEW problem you already know
+    the answer to, or states a computed result (a sum, a solution, a simplification, a
+    derivative, a factorization...), append -- at the VERY END of the reply -- one hidden
+    tag per claim:
+      [[verify expr="2*x + 1 = 11" answer="x = 5"]]           (an equation + its solution)
+      [[verify expr="47 + 38" answer="85"]]                    (a computation)
+      [[verify expr="(x+2)*(x+3)" answer="x**2 + 5*x + 6"]]    (a simplification/identity)
+      [[verify expr="2*x + 3 < 11" answer="x < 4"]]            (an inequality + its solution)
+      [[verify expr="diff(x**3, x)" answer="3*x**2"]]          (calculus; integrate(...) too)
+11. WRITE THE TAG IN PYTHON/SYMPY SYNTAX. * for times, / for fractions, ** for powers,
+    sqrt(), pi, single-letter variables, plain digits (no units or words inside the tag).
+    Give EXACT values (1/3, sqrt(2), pi/6), not rounded decimals. Two roots:
+    answer="x = 2 or x = 3" (list only roots that truly work). Systems:
+    expr="x + y = 5; x - y = 1" answer="x = 3, y = 2". Do NOT tag conceptual or open-ended
+    questions, estimates, or anything without one definite answer -- the tag is YOUR answer
+    key. (Yes: even though the student hasn't answered yet, the tag carries the answer --
+    it is stripped before the student ever sees the reply, so it spoils nothing.)
+12. THE TAG IS INVISIBLE. The app removes it before the student sees or hears anything --
+    never mention it, never read it aloud, never point at it. If a (SYSTEM: ...) note says
+    a check failed, your previous draft was NEVER shown to the student: silently write a
+    fresh reply with the correct math -- same warm flow, same board tags -- and never
+    mention the correction.
 """
 
 
@@ -3674,6 +3725,71 @@ def ensure_board(reply: str, user_message: str = "", history=None) -> str:
     return reply
 
 
+# =============================================================================
+# THE MATH VERIFIER HOOK (2026-08-03) -- shared by lesson, practice, and topic.
+# -----------------------------------------------------------------------------
+# mathcheck.py is the referee (SymPy actually re-does the math in the tutor's
+# hidden [[verify]] tags -- see GRAPH_TOOL_NOTE rules 10-12). This helper is the
+# loop around the model call:
+#   generate -> verify -> (if a claim is provably wrong) tell the model exactly
+#   what SymPy computed and SILENTLY regenerate -> strip the tags -> return.
+# The student only ever sees the final, verified text. Fail-open on anything
+# undecidable: an imperfect checker must never stall a child's lesson.
+# Cost note: a retry is one extra model call and happens only when a real error
+# was caught -- rare by design, and exactly the turn worth paying twice for.
+# =============================================================================
+MATHCHECK_MAX_ATTEMPTS = 3   # 1 normal attempt + up to 2 corrected retries
+
+_MATHCHECK_NUDGE = (
+    "(SYSTEM: A math engine checked your previous draft and found an error: {detail}. "
+    "The student NEVER saw that draft. Write your reply again from scratch with the "
+    "correct math -- same warm teaching flow, same board tags, corrected numbers and "
+    "corrected [[verify]] tag(s). Do not mention this note, the mistake, or any checking.)")
+
+
+def _create_verified(client, model, system_blocks, messages, log_prefix):
+    """One model call, refereed. Returns the verified reply with [[verify]] tags
+    stripped, or "" if the model returned nothing (caller shows its fallback)."""
+    msgs = list(messages)
+    reply = ""
+    for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
+        response = client.messages.create(
+            model=model,
+            # Room for a short spoken turn PLUS any control tag(s) without getting cut
+            # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
+            max_tokens=1200,
+            system=system_blocks,
+            messages=msgs,
+        )
+        parts = [block.text for block in response.content
+                 if getattr(block, "type", None) == "text"]
+        reply = "".join(parts).strip()
+        if not reply:
+            return ""
+        if mathcheck is None:
+            # Verifier missing on this deploy (defensive import failed): skip the
+            # check, but STILL strip any [[verify]] tags so they never leak out.
+            return re.sub(r"\[\[\s*verify\b[^\]]*\]\]", "", reply).strip()
+        try:
+            verdict, detail = mathcheck.verify_reply(reply)
+        except Exception as exc:  # noqa: BLE001 -- referee crash = fail open
+            print(f"[mathcheck]{log_prefix} checker crashed (fail open): {exc}")
+            verdict, detail = "unverifiable", str(exc)
+        if verdict != "wrong":
+            if verdict == "unverifiable":
+                print(f"[mathcheck]{log_prefix} unverifiable (passed through): {detail}")
+            return mathcheck.strip_verify_tags(reply)
+        print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
+        if attempt < MATHCHECK_MAX_ATTEMPTS:
+            msgs = msgs + [{"role": "assistant", "content": reply},
+                           {"role": "user", "content": _MATHCHECK_NUDGE.format(detail=detail)}]
+    # Three drafts in a row judged wrong, WITH the correction in hand, almost always
+    # means the CHECKER mis-read an unusual claim -- so pass the last draft through
+    # (fail open) rather than brick the lesson, and log loudly for the developer.
+    print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
+    return mathcheck.strip_verify_tags(reply)
+
+
 def get_tutor_reply(student: dict, history: list, user_message: str,
                     course: str = DEFAULT_COURSE) -> str:
     """
@@ -3701,18 +3817,13 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
 
     try:
         client = Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=model,
-            # Room for a short spoken turn PLUS any control tag(s) without getting cut
-            # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
-            max_tokens=1200,
-            system=_cacheable_system(build_system_prompt(student, course)),
-            messages=messages,
-        )
-        # Concatenate any text blocks the model returned.
-        parts = [block.text for block in response.content
-                 if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here --
+        # see _create_verified above. Same model, same prompt, same max_tokens.
+        reply = _create_verified(
+            client, model,
+            _cacheable_system(build_system_prompt(student, course)),
+            messages, " [lesson]",
+        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
@@ -4244,15 +4355,12 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
 
     try:
         client = Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=model,
-            max_tokens=1200,
-            system=_cacheable_system(build_practice_prompt(student, problem, course)),
-            messages=messages,
-        )
-        parts = [block.text for block in response.content
-                 if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        # MATH VERIFIER (2026-08-03): generated AND refereed -- see _create_verified.
+        reply = _create_verified(
+            client, model,
+            _cacheable_system(build_practice_prompt(student, problem, course)),
+            messages, " [practice]",
+        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[practice] Claude API error: {exc}")
@@ -4446,15 +4554,12 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
 
     try:
         client = Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=model,
-            max_tokens=1200,
-            system=_cacheable_system(build_topic_prompt(student, topic, course)),
-            messages=messages,
-        )
-        parts = [block.text for block in response.content
-                 if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip() or "(Sorry, I lost my train of thought. Could you say that again?)"
+        # MATH VERIFIER (2026-08-03): generated AND refereed -- see _create_verified.
+        reply = _create_verified(
+            client, model,
+            _cacheable_system(build_topic_prompt(student, topic, course)),
+            messages, " [topic]",
+        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[topic] Claude API error: {exc}")

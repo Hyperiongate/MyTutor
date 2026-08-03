@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03j-mathverify". THE MATH VERIFIER (Jim's pick): every
+#               tutor reply is now re-checked by a real math engine (SymPy) before the student
+#               sees it. The work lives in tutor.py (_create_verified + prompt rules 10-12) and
+#               the NEW mathcheck.py; sympy was added to requirements.txt. main.py itself needed
+#               NO code changes (the three /api/chat|practice|topic endpoints already call
+#               tutor.get_*_reply, which now verify internally) -- this is the build bump only.
 #   2026-08-03  APP_BUILD -> "2026-08-03i-demolevels". TEN-LEVEL DEMO (Jim): /demo now opens with
 #               a level picker (all ten courses, Entry-Level Math -> Differential Equations); each
 #               level runs a short scripted sample -- the elementary two answer by TAPPING (like
@@ -2524,7 +2530,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03i-demolevels"
+APP_BUILD = "2026-08-03j-mathverify"
 
 
 @app.get("/health")

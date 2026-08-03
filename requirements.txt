@@ -1,6 +1,10 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  Added sympy (pinned 1.14.0, the version the math verifier was dry-run
+#               tested against) for mathcheck.py: the engine that re-does the tutor's
+#               math before any reply reaches a student. Pure-Python (pulls only mpmath),
+#               so it cannot upset the existing pins.
 #   2026-07-31  Added stripe (pinned 15.4.0, the version the payment system was
 #               dry-run tested against) for the parent accounts + billing build:
 #               Stripe Checkout, the customer portal, and the signed webhook.
@@ -36,4 +40,5 @@ python-multipart==0.0.9
 SQLAlchemy==2.0.34
 psycopg2-binary==2.9.9
 stripe==15.4.0
+sympy==1.14.0
 # I did no harm and this file is not truncated.
