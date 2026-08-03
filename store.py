@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  has_any_history() gained an optional `courses` filter (iterable of course ids)
+#               so main.py can compute the screen-tour flag per CLASSROOM TYPE (elementary
+#               tap-courses vs typing courses). Default None keeps the original any-course
+#               behavior; read-only; nothing else touched.
 #   2026-08-03  ADMIN DASHBOARD AGGREGATES. New read-only function admin_stats() for Jim's
 #               /admin page: privacy-safe COUNTS/TOTALS only (parent counts by sub_status,
 #               paid seats + estimated monthly revenue, family students, active-7d/30d,
@@ -571,13 +575,20 @@ def get_session(code: str, course: str = DEFAULT_COURSE) -> dict:
     return out
 
 
-def has_any_history(code: str) -> bool:
-    """Has this student EVER had a lesson conversation, in ANY course? (2026-08-01:
-    powers 'one screen tour per student, not one per course'.)"""
+def has_any_history(code: str, courses=None) -> bool:
+    """Has this student EVER had a lesson conversation? (2026-08-01: powers 'one screen
+    tour per student, not one per course'.) 2026-08-03: optional `courses` -- an iterable of
+    course ids -- limits the check to those courses. This lets the ELEMENTARY classroom
+    (entry/basic, tap-to-answer) run its own first-time tour for a student who has only
+    ever toured a typing course, and vice versa. courses=None keeps the original
+    any-course behavior."""
     from sqlalchemy import select
     t = _tables["sessions"]
+    q = select(t.c.history).where(t.c.code == code)
+    if courses:
+        q = q.where(t.c.course.in_(list(courses)))
     with _engine.connect() as conn:
-        rows = conn.execute(select(t.c.history).where(t.c.code == code)).fetchall()
+        rows = conn.execute(q).fetchall()
     for (h,) in rows:
         if _loads(h, []):
             return True

@@ -4,6 +4,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  TOUR PER CLASSROOM TYPE + &tour=1 (Jim: a toured demo code skipped the intro in
+    Entry-Level Math). The tour decision now uses the server's classroom-type-aware `toured`
+    flag (elementary tap-courses count separately from typing courses), and a new &tour=1 URL
+    parameter force-replays the welcome tour for demos/testing regardless of history.
   - 2026-08-03  ELEMENTARY WELCOME + TOUR + SCROLL FIX (Jim): (1) new IS_ELEM flag (entry/basic)
     -- the welcome overlay's answer bullet, the tour's final "answer" stop, and the answer-bar
     hint now describe TAP-TO-ANSWER buttons ("just tap your answer"; "I'm not sure" helps) and
@@ -1982,16 +1986,22 @@
     // ---------- Welcome overlay -> begin the session ----------
     const welcome = el("welcome");
     let hasHistory = false;
-    let touredAnywhere = false;   // 2026-08-01: the screen tour runs ONCE PER STUDENT (server flag)
+    let touredAnywhere = false;   // 2026-08-01: once per student; 2026-08-03: per CLASSROOM TYPE
+                                  // (server-computed: elementary tap-courses count separately)
+    // Demo/testing switch (2026-08-03, Jim): add &tour=1 to the lesson URL to replay the
+    // welcome tour regardless of history — handy for demos and for checking tour changes.
+    const FORCE_TOUR = params.get("tour") === "1";
     async function begin() {
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
       await warmUpAudio();   // prime the audio pipeline so his first word isn't clipped
       showComposer();   // 2026-08-01: NO microphone, ever — he talks, you type (see canRecord)
-      // The tour only runs for a student's very FIRST lesson ever. A student who
-      // switches into a new course skips it — Mr. Cadabra just welcomes them into
-      // the new subject and starts teaching.
-      if (!hasHistory && !touredAnywhere) { busy = true; setPhase("busy"); runTour(); }
+      // The tour runs for a student's first lesson IN THIS CLASSROOM TYPE (the server's
+      // `toured` flag counts the elementary tap-to-answer courses separately from the
+      // typing courses, so a veteran typist still gets the tap intro and vice versa).
+      // A student continuing within the same classroom type skips it — Mr. Cadabra just
+      // welcomes them into the new subject and starts teaching.
+      if (FORCE_TOUR || (!hasHistory && !touredAnywhere)) { busy = true; setPhase("busy"); runTour(); }
       else { busy = true; setPhase("busy"); kickoff(); }
     }
     el("welcomeGo").addEventListener("click", begin);

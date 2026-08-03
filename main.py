@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03e-elemtour". TOUR PER CLASSROOM TYPE (Jim's playtest: an
+#               already-toured demo code got NO welcome/tour in Entry-Level Math and went straight
+#               into a problem). The `toured` flag from /api/session is now computed per classroom
+#               GROUP: the elementary tap-to-answer courses (entry/basic) count separately from the
+#               typing courses, via _tour_group() + a `courses` filter on _has_any_history (DB and
+#               JSON paths). So a student's FIRST elementary lesson always gets the full intro --
+#               Mr. Cadabra's welcome, the "what math is" opener, the screen tour with the
+#               tap-to-answer stop -- even if they toured a typing course before, and vice versa.
+#               session.html also gained &tour=1 to force-replay the tour for demos/testing.
 #   2026-08-03  APP_BUILD -> "2026-08-03d-cadabra". REBRAND (Jim): the product is now
 #               "Mr. Cadabra's Classroom" everywhere a user can see -- all static pages (titles,
 #               meta/OG, nav brands, body copy, footers), the beta-pass message, the demo line,
@@ -2486,7 +2495,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03d-cadabra"
+APP_BUILD = "2026-08-03e-elemtour"
 
 
 @app.get("/health")
@@ -2572,21 +2581,42 @@ def session_state(code: str, course: str = "algebra1"):
         "history": session.get("history", []),
         "placement": placement,
         "placed": bool(placement),
-        # 2026-08-01: has this student had a lesson in ANY course? The screen tour
-        # runs ONCE PER STUDENT -- switching courses skips straight to the lesson.
-        "toured": _has_any_history(code),
+        # 2026-08-01: the screen tour runs ONCE PER STUDENT... 2026-08-03 refinement (Jim's
+        # playtest: an already-toured demo code got NO intro in Entry-Level Math): the tour is
+        # now once per student PER CLASSROOM TYPE. The elementary classroom (entry/basic,
+        # tap-to-answer) is a genuinely different experience from the typing classroom, so
+        # history in one group no longer suppresses the other group's first-time tour.
+        "toured": _has_any_history(code, _tour_group(course)),
     }
 
 
-def _has_any_history(code: str) -> bool:
-    """True if the student has lesson history in ANY course (DB or JSON files)."""
+# The two classroom types for tour purposes: elementary (tap-to-answer) vs typing.
+_ELEM_COURSES = ("entry", "basic")
+
+
+def _tour_group(course: str):
+    """The set of courses whose history counts as 'has seen this classroom's tour'."""
+    if course in _ELEM_COURSES:
+        return _ELEM_COURSES
+    return tuple(c for c in curriculum.COURSE_ORDER if c not in _ELEM_COURSES)
+
+
+def _has_any_history(code: str, courses=None) -> bool:
+    """True if the student has lesson history (DB or JSON files). `courses` optionally
+    limits the check to those course ids (see _tour_group); None = any course."""
     try:
         if store.enabled():
-            return store.has_any_history(code)
+            return store.has_any_history(code, courses)
         allx = _read_all_sessions()
         for key, sess in allx.items():
-            if (key == code or key.startswith(code + "|")) and (sess or {}).get("history"):
-                return True
+            if not ((key == code or key.startswith(code + "|")) and (sess or {}).get("history")):
+                continue
+            if courses:
+                # JSON keys are "CODE" (the default course) or "CODE|course".
+                kcourse = key.split("|", 1)[1] if "|" in key else curriculum.DEFAULT_COURSE
+                if kcourse not in courses:
+                    continue
+            return True
     except Exception as exc:  # noqa: BLE001 -- worst case: they see the tour again
         print(f"[tour] has_any_history failed for {code}: {exc}")
     return False
