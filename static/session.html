@@ -777,8 +777,8 @@
     // Geometry or Pre-Algebra student was welcomed to "algebra." These maps make
     // that wording follow the chosen course. Algebra I's strings are kept EXACTLY
     // as they always were, so nothing about the Algebra experience changes.
-    const COURSE_TITLES   = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
-    const COURSE_SUBJECTS = { prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "calculus", diffeq: "differential equations", probstat: "statistics" };
+    const COURSE_TITLES   = { entry: "Entry-Level Math", basic: "Basic Math", prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
+    const COURSE_SUBJECTS = { entry: "early math", basic: "basic math", prealgebra: "pre-algebra", algebra1: "algebra", geometry: "geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "calculus", diffeq: "differential equations", probstat: "statistics" };
     const COURSE_TITLE    = COURSE_TITLES[COURSE]   || COURSE_TITLES.algebra1;
     const COURSE_SUBJECT  = COURSE_SUBJECTS[COURSE] || COURSE_SUBJECTS.algebra1;
     // Show WHICH course this is in the topbar (was a static "Math Tutor" -- students couldn't tell
@@ -786,6 +786,8 @@
     (function () { try { var t = document.getElementById("courseTitle"); if (t) t.textContent = COURSE_TITLE; } catch (e) {} })();
     // The tour's one-line "what this subject is" spoken opener, per course.
     const COURSE_OPENERS = {
+      entry: "Hi there! I'm Mr. Cadabra, and I am so happy you're here. We're going to have fun with math — counting, adding, taking away, coins, telling time, and shapes — one little step at a time, and I'll help you the whole way. Before we start, let me show you around your screen real quick.",
+      basic: "Hi there! Welcome, I'm Mr. Cadabra. In Basic Math we'll get really strong at the things that matter — multiplying and dividing bigger numbers, fractions, decimals, and solving word problems — and I'll draw everything out so it makes sense. Before we dive in, let me give you a quick tour of your screen.",
       algebra1: "Hi there! Welcome to algebra. I'm Mr. Cadabra. Algebra is really just how we find a number we don't know yet — we call that mystery number a variable, usually a letter like x. Before we dive in, let me give you a quick tour of your screen.",
       geometry: "Hi there! Welcome to geometry. I'm Mr. Cadabra. Geometry is all about shapes and space — points, lines, angles, and the figures they build — and learning why they behave the way they do. Before we dive in, let me give you a quick tour of your screen.",
       prealgebra: "Hi there! Welcome to pre-algebra. I'm Mr. Cadabra. Pre-algebra is where the pieces of math you already know — fractions, decimals, percents, and negative numbers — come together to get you ready for algebra. Before we dive in, let me give you a quick tour of your screen.",
@@ -837,6 +839,46 @@
 
     // ---------- Curriculum navigator ----------
     const CURRICULUM_BY_COURSE = {
+      entry: [
+      { n: 1, name: "Counting & Number Sense", blurb: "Counting, comparing, and getting a feel for how big numbers are.",
+        topics: ["Counting to 100", "One more & one less", "Comparing numbers", "Skip-counting by 2s, 5s, 10s"] },
+      { n: 2, name: "Addition to 20", blurb: "Putting groups together — and counting on from the bigger number.",
+        topics: ["Adding with objects", "Counting on", "Make-a-ten", "Addition facts to 20"] },
+      { n: 3, name: "Subtraction to 20", blurb: "Taking away, counting back, and finding the missing part.",
+        topics: ["Taking away", "Counting back", "Missing addends", "Fact families"] },
+      { n: 4, name: "Place Value to 1,000", blurb: "Tens and ones (and hundreds) — what each digit really means.",
+        topics: ["Tens & ones", "Reading & writing numbers", "Expanded form", "Comparing & rounding"] },
+      { n: 5, name: "Two- & Three-Digit Addition", blurb: "Stacking numbers and carrying a ten when a column fills up.",
+        topics: ["Lining up place values", "Adding the ones first", "Carrying (regrouping)", "Estimating to check"] },
+      { n: 6, name: "Two- & Three-Digit Subtraction", blurb: "Stacking, and borrowing a ten when the top digit is too small.",
+        topics: ["Lining up place values", "Subtracting the ones first", "Borrowing (regrouping)", "Checking by adding back"] },
+      { n: 7, name: "Money — Coins, Bills & Making Change", blurb: "Coin values, counting money, and making change.",
+        topics: ["Coin & bill values", "Counting mixed coins", "Dollars & cents", "Making change"] },
+      { n: 8, name: "Time, Calendar & Measurement", blurb: "Telling time, the calendar, and measuring length.",
+        topics: ["Hour & half past", "Minutes by 5s", "Days, weeks & months", "Measuring length"] },
+      { n: 9, name: "Shapes, Patterns & Groups", blurb: "Naming shapes, extending patterns, and equal groups.",
+        topics: ["2-D shapes & their parts", "Repeating patterns", "Equal groups", "Arrays (intro to multiplication)"] },
+      ],
+      basic: [
+      { n: 1, name: "Place Value & Whole-Number Operations", blurb: "Big numbers, rounding, estimating, and the standard algorithms.",
+        topics: ["Place value to millions", "Rounding & estimating", "Multi-digit addition", "Multi-digit subtraction"] },
+      { n: 2, name: "Multiplication", blurb: "Facts, the area model, and multiplying multi-digit numbers.",
+        topics: ["Multiplication facts", "The area model", "Multi-digit multiplication", "Estimating products"] },
+      { n: 3, name: "Division", blurb: "Sharing equally, long division, and making sense of remainders.",
+        topics: ["Division as sharing", "Fact families", "Long division", "Interpreting remainders"] },
+      { n: 4, name: "Factors, Multiples, GCF & LCM", blurb: "The number-theory tools behind fractions.",
+        topics: ["Factors vs. multiples", "Prime & composite", "GCF", "LCM & prime factorization"] },
+      { n: 5, name: "Fractions — Meaning & Equivalence", blurb: "What a fraction is, and when two of them are equal.",
+        topics: ["Fractions on a number line", "Equivalent fractions", "Simplifying", "Comparing fractions"] },
+      { n: 6, name: "Fraction Operations", blurb: "Adding, subtracting, multiplying, and dividing fractions.",
+        topics: ["Common denominators", "Adding & subtracting", "Multiplying", "Dividing & mixed numbers"] },
+      { n: 7, name: "Decimals", blurb: "Decimal place value and the four operations — think money.",
+        topics: ["Comparing & rounding", "Adding & subtracting", "Multiplying & dividing", "Decimals & fractions"] },
+      { n: 8, name: "Ratios, Rates & Percents", blurb: "Comparing quantities, and percent as 'out of 100'.",
+        topics: ["Ratios & unit rates", "Percent, decimal & fraction", "Percent of a number", "Real-money problems"] },
+      { n: 9, name: "Measurement, Geometry & Word Problems", blurb: "Perimeter, area, volume, units, and multi-step problems.",
+        topics: ["Perimeter & area", "Volume", "Unit conversion", "Multi-step word problems"] },
+      ],
       algebra1: [
       { n: 1, name: "Foundations & Expressions", blurb: "The building blocks of algebra: variables, terms, and how to rewrite expressions.",
         topics: ["Variables, terms & coefficients", "Combining like terms", "The distributive property", "The real number system"] },

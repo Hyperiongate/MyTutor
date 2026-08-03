@@ -822,6 +822,146 @@
     const GEO_UNIT_NAMES = { 1:"Foundations & Constructions", 2:"Transformations & Symmetry",
       3:"Congruence & Triangle Proofs", 4:"Similarity & Dilations", 5:"Right Triangles & Trigonometry",
       6:"Circles", 7:"Coordinate Geometry", 8:"Area, Surface Area & Volume", 9:"Probability" };
+    // ENTRY-LEVEL MATH (grades 1-3) -- 9 units x 5 questions. Added 2026-08-03.
+    const ENTRY_BANK = {
+      1: [
+        {p:"Count the stars", e:"★ ★ ★ ★", c:["3","4","5","6"], a:1},
+        {p:"Which is greater?", e:"7 or 4", c:["4","7","equal","can't tell"], a:1},
+        {p:"What is one more than", e:"8", c:["7","9","10","18"], a:1},
+        {p:"Skip-count by 5s — what's next?", e:"5, 10, 15, __", c:["16","20","25","18"], a:1},
+        {p:"Which number is smallest?", e:"6, 2, 9, 4", c:["6","2","9","4"], a:1}
+      ],
+      2: [
+        {p:"Add", e:"3 + 4", c:["6","7","8","12"], a:1},
+        {p:"Add", e:"8 + 5", c:["12","13","14","3"], a:1},
+        {p:"Add", e:"6 + 6", c:["10","11","12","13"], a:2},
+        {p:"Which is the same as 4 + 3?", e:"4 + 3", c:["3 + 4","4 + 4","3 + 3","7 + 1"], a:0},
+        {p:"Add", e:"9 + 7", c:["15","16","17","2"], a:1}
+      ],
+      3: [
+        {p:"Subtract", e:"7 − 3", c:["3","4","5","10"], a:1},
+        {p:"Subtract", e:"10 − 6", c:["3","4","5","16"], a:1},
+        {p:"Subtract", e:"15 − 8", c:["6","7","8","23"], a:1},
+        {p:"What is missing?", e:"4 + __ = 10", c:["5","6","7","14"], a:1},
+        {p:"Subtract", e:"9 − 9", c:["0","1","9","18"], a:0}
+      ],
+      4: [
+        {p:"How many tens in", e:"43", c:["3","4","7","43"], a:1},
+        {p:"Which is bigger?", e:"63 or 36", c:["36","63","equal","can't tell"], a:1},
+        {p:"Write in expanded form", e:"57", c:["5 + 7","50 + 7","57 + 0","500 + 7"], a:1},
+        {p:"What number is this?", e:"3 hundreds 0 tens 5 ones", c:["35","305","350","3005"], a:1},
+        {p:"Round to the nearest ten", e:"48", c:["40","45","50","58"], a:2}
+      ],
+      5: [
+        {p:"Add", e:"24 + 13", c:["36","37","38","11"], a:1},
+        {p:"Add", e:"28 + 15", c:["43","33","44","13"], a:0},
+        {p:"Add", e:"47 + 36", c:["73","82","83","84"], a:2},
+        {p:"Add", e:"156 + 27", c:["173","182","183","283"], a:2},
+        {p:"When the ones make 10 or more, you…", e:"9 + 7 in the ones place", c:["write 16 there","carry a ten","borrow a ten","start over"], a:1}
+      ],
+      6: [
+        {p:"Subtract", e:"38 − 12", c:["24","25","26","50"], a:2},
+        {p:"Subtract", e:"52 − 27", c:["25","35","24","31"], a:0},
+        {p:"Subtract", e:"70 − 46", c:["24","34","26","36"], a:0},
+        {p:"Subtract", e:"204 − 58", c:["146","156","154","256"], a:0},
+        {p:"When the top digit is too small, you…", e:"2 − 7 in the ones place", c:["carry","borrow a ten","write 0","flip it"], a:1}
+      ],
+      7: [
+        {p:"How much is a dime worth?", e:"one dime", c:["1 cent","5 cents","10 cents","25 cents"], a:2},
+        {p:"Count the money", e:"3 dimes + 2 pennies", c:["23 cents","32 cents","5 cents","50 cents"], a:1},
+        {p:"Count the money", e:"1 quarter + 2 dimes", c:["35 cents","45 cents","27 cents","50 cents"], a:1},
+        {p:"Is 60¢ enough for a 55¢ toy?", e:"60¢ vs 55¢", c:["yes","no","exactly","can't tell"], a:0},
+        {p:"Change from $1 for a 70¢ snack", e:"$1.00 − 70¢", c:["20¢","30¢","70¢","40¢"], a:1}
+      ],
+      8: [
+        {p:"What time is it?", e:"hour hand on 3, minute hand on 12", c:["12:03","3 o'clock","3:12","6 o'clock"], a:1},
+        {p:"What is half past 6?", e:"half past 6", c:["6:30","6:06","12:30","7:30"], a:0},
+        {p:"How many days are in a week?", e:"one week", c:["5","6","7","30"], a:2},
+        {p:"Minute hand on the 3 — how many minutes?", e:"minute hand on 3", c:["3","15","30","45"], a:1},
+        {p:"Which is longer?", e:"a shoe or a car", c:["a shoe","a car","the same","can't tell"], a:1}
+      ],
+      9: [
+        {p:"How many sides does a triangle have?", e:"a triangle", c:["2","3","4","5"], a:1},
+        {p:"How many corners does a rectangle have?", e:"a rectangle", c:["3","4","5","6"], a:1},
+        {p:"What comes next?", e:"A, A, B, A, A, B, __", c:["A","B","C","AA"], a:0},
+        {p:"How many is 3 groups of 2?", e:"3 groups of 2", c:["5","6","8","32"], a:1},
+        {p:"An array of 2 rows of 4 — how many?", e:"2 rows of 4", c:["6","7","8","24"], a:2}
+      ]
+    };
+    const ENTRY_UNIT_NAMES = { 1:"Counting & Number Sense", 2:"Addition to 20", 3:"Subtraction to 20",
+      4:"Place Value to 1,000", 5:"Two- & Three-Digit Addition", 6:"Two- & Three-Digit Subtraction",
+      7:"Money — Coins, Bills & Making Change", 8:"Time, Calendar & Measurement", 9:"Shapes, Patterns & Groups" };
+
+    // BASIC MATH (grades 4-6) -- 9 units x 5 questions. Added 2026-08-03.
+    const BASIC_BANK = {
+      1: [
+        {p:"Value of the 4 in", e:"42,506", c:["4","400","4,000","40,000"], a:3},
+        {p:"Round to the nearest hundred", e:"4,285", c:["4,200","4,290","4,300","4,000"], a:2},
+        {p:"Estimate", e:"612 + 389", c:["about 900","about 1,000","about 1,100","about 700"], a:1},
+        {p:"Add", e:"38,214 + 9,057", c:["47,271","47,261","46,271","47,371"], a:0},
+        {p:"Subtract", e:"5,003 − 1,846", c:["3,157","3,257","3,147","4,157"], a:0}
+      ],
+      2: [
+        {p:"Multiply", e:"6 × 7", c:["36","42","48","13"], a:1},
+        {p:"Multiply", e:"23 × 4", c:["82","92","96","27"], a:1},
+        {p:"Multiply", e:"46 × 7", c:["322","312","332","287"], a:0},
+        {p:"Multiply", e:"34 × 25", c:["750","850","840","950"], a:1},
+        {p:"Estimate", e:"208 × 6", c:["about 1,200","about 600","about 1,800","about 120"], a:0}
+      ],
+      3: [
+        {p:"Divide", e:"56 ÷ 8", c:["6","7","8","9"], a:1},
+        {p:"Divide", e:"84 ÷ 4", c:["21","20","22","24"], a:0},
+        {p:"Divide", e:"96 ÷ 6", c:["16","15","17","14"], a:0},
+        {p:"Divide (with remainder)", e:"135 ÷ 4", c:["33 r 3","33 r 1","34 r 1","33 r 2"], a:0},
+        {p:"12 cookies shared by 3 kids — each gets", e:"12 ÷ 3", c:["3","4","5","9"], a:1}
+      ],
+      4: [
+        {p:"Which is a factor of 24?", e:"factors of 24", c:["5","7","8","9"], a:2},
+        {p:"Which is a multiple of 6?", e:"multiples of 6", c:["16","20","24","28"], a:2},
+        {p:"Which is prime?", e:"9, 15, 17, 21", c:["9","15","17","21"], a:2},
+        {p:"Find the GCF", e:"12 and 18", c:["2","3","6","36"], a:2},
+        {p:"Find the LCM", e:"4 and 6", c:["12","24","10","2"], a:0}
+      ],
+      5: [
+        {p:"Which fraction equals 1/2?", e:"1/2", c:["3/6","2/5","1/3","3/4"], a:0},
+        {p:"Simplify", e:"8/12", c:["4/8","3/4","2/3","1/2"], a:2},
+        {p:"Which is larger?", e:"2/3 or 3/5", c:["2/3","3/5","equal","can't tell"], a:0},
+        {p:"Which is larger?", e:"1/2 or 2/5", c:["1/2","2/5","equal","can't tell"], a:0},
+        {p:"What fraction is shaded?", e:"3 of 4 equal parts", c:["1/4","2/4","3/4","4/3"], a:2}
+      ],
+      6: [
+        {p:"Add", e:"1/2 + 1/3", c:["5/6","2/5","1/6","2/6"], a:0},
+        {p:"Subtract", e:"5/6 − 1/3", c:["1/2","4/3","1/3","2/3"], a:0},
+        {p:"Multiply", e:"3/4 × 2/3", c:["6/7","1/2","5/7","2/3"], a:1},
+        {p:"Divide", e:"3/4 ÷ 1/2", c:["3/8","2/3","1/2","3/2"], a:3},
+        {p:"Add", e:"2 1/3 + 1 1/2", c:["3 5/6","3 1/6","4 5/6","3 2/5"], a:0}
+      ],
+      7: [
+        {p:"Which is larger?", e:"0.5 or 0.45", c:["0.45","0.5","equal","can't tell"], a:1},
+        {p:"Round to the nearest tenth", e:"3.678", c:["3.6","3.68","3.7","4.0"], a:2},
+        {p:"Add", e:"2.4 + 1.35", c:["3.9","3.75","0.375","36"], a:1},
+        {p:"Multiply", e:"0.6 × 0.3", c:["0.18","1.8","0.9","0.018"], a:0},
+        {p:"Write as a decimal", e:"3/4", c:["0.34","0.43","1.33","0.75"], a:3}
+      ],
+      8: [
+        {p:"Simplify the ratio", e:"6 : 8", c:["3 : 4","2 : 3","4 : 6","8 : 6"], a:0},
+        {p:"Find the unit rate", e:"$12 for 3 pounds", c:["$3 per lb","$4 per lb","$9 per lb","$36 per lb"], a:1},
+        {p:"Write as a fraction", e:"25%", c:["1/2","1/25","4","1/4"], a:3},
+        {p:"Find", e:"20% of 80", c:["20","16","40","4"], a:1},
+        {p:"A 15% tip on $40 is", e:"15% of $40", c:["$4","$6","$8","$15"], a:1}
+      ],
+      9: [
+        {p:"Perimeter of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:1},
+        {p:"Area of a rectangle", e:"4 by 6", c:["24","20","10","12"], a:0},
+        {p:"Volume of a box", e:"2 × 3 × 4", c:["9","24","18","20"], a:1},
+        {p:"Convert", e:"3 feet to inches", c:["24","30","36","13"], a:2},
+        {p:"A pack of 6 costs $18. A pack of 4 costs?", e:"same unit price", c:["$12","$10","$14","$8"], a:0}
+      ]
+    };
+    const BASIC_UNIT_NAMES = { 1:"Place Value & Whole-Number Operations", 2:"Multiplication", 3:"Division",
+      4:"Factors, Multiples, GCF & LCM", 5:"Fractions — Meaning & Equivalence", 6:"Fraction Operations",
+      7:"Decimals", 8:"Ratios, Rates & Percents", 9:"Measurement, Geometry & Word Problems" };
+
     const PREALG_UNIT_NAMES = { 1:"Number Sense & Order of Operations", 2:"Factors, Multiples & Primes",
       3:"Integers & Negative Numbers", 4:"Fractions", 5:"Decimals", 6:"Ratios, Rates & Proportions",
       7:"Percents", 8:"Measurement & Geometry Basics", 9:"Variables & Expressions" };
@@ -852,6 +992,8 @@
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },
       geometry:   { bank: GEO_BANK,    unitNames: GEO_UNIT_NAMES,    subject: "geometry" },
+      entry:      { bank: ENTRY_BANK,   unitNames: ENTRY_UNIT_NAMES,   subject: "early math" },
+      basic:      { bank: BASIC_BANK,   unitNames: BASIC_UNIT_NAMES,   subject: "basic math" },
       prealgebra: { bank: PREALG_BANK, unitNames: PREALG_UNIT_NAMES, subject: "pre-algebra" },
       algebra2:   { bank: ALG2_BANK,   unitNames: ALG2_UNIT_NAMES,   subject: "Algebra II" },
       precalc:    { bank: PRECALC_BANK, unitNames: PRECALC_UNIT_NAMES, subject: "Trig / Pre-Calc" },

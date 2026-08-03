@@ -162,6 +162,18 @@
 
     <!-- STAGE 1: pick a subject (shown when no course is chosen yet) -->
     <div class="subjects" id="pickerView">
+      <a class="tile subject" id="subjEntry" href="#">
+        <div class="ic">🔢</div>
+        <h3>Entry-Level Math</h3>
+        <p>For our youngest learners: counting, adding & subtracting, place value, money, telling time, and shapes.</p>
+        <div class="go">Choose Entry-Level Math →</div>
+      </a>
+      <a class="tile subject" id="subjBasic" href="#">
+        <div class="ic">➕</div>
+        <h3>Basic Math</h3>
+        <p>Multiplication & division, fractions and decimals, percents, and word problems — the grade 4–6 foundations.</p>
+        <div class="go">Choose Basic Math →</div>
+      </a>
       <a class="tile subject" id="subjPrealgebra" href="#">
         <div class="ic">🧮</div>
         <h3>Pre-Algebra</h3>
@@ -248,7 +260,7 @@
     if (!CODE) { location.href = "/login"; }
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
-    const COURSE_TITLES = { prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
+    const COURSE_TITLES = { entry: "Entry-Level Math", basic: "Basic Math", prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
     let COURSE = (params.get("course") || "").trim();
 
     const codeQ = "?code=" + encodeURIComponent(CODE);
@@ -260,6 +272,8 @@
       el("hubView").classList.add("hidden");
       el("hubSecondary").classList.add("hidden");
       el("subtitle").textContent = "What would you like to work on today?";
+      el("subjEntry").href = "/home" + codeQ + "&course=entry";
+      el("subjBasic").href = "/home" + codeQ + "&course=basic";
       el("subjPrealgebra").href = "/home" + codeQ + "&course=prealgebra";
       el("subjAlgebra").href = "/home" + codeQ + "&course=algebra1";
       el("subjGeometry").href = "/home" + codeQ + "&course=geometry";

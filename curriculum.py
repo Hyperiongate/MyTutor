@@ -2,6 +2,12 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  ADDED TWO ELEMENTARY COURSES BELOW PRE-ALGEBRA (Jim's restructure): ENTRY-LEVEL
+#               MATH (grades 1-3) and BASIC MATH (grades 4-6). Each is a full peer: 9 units +
+#               aliases + ordered keyword rules, registered in COURSES with grade_band
+#               "Elementary", and PREPENDED to COURSE_ORDER so the ladder now reads
+#               entry -> basic -> prealgebra -> ... Sources: EntryMath_Curriculum_KB.md,
+#               BasicMath_Curriculum_KB.md. Purely additive; the eight existing courses untouched.
 #   2026-07-28  ADDED COURSE 8 -- DIFFERENTIAL EQUATIONS (the rung above Calculus; source
 #               DiffEq_Curriculum_KB.md). 9 units + aliases + keyword rules; added to COURSES and
 #               COURSE_ORDER (after calculus). Purely additive; the seven existing courses untouched.
@@ -483,7 +489,148 @@ _DIFFEQ_RULES = [
 # =============================================================================
 # THE CATALOG
 # =============================================================================
+# =============================================================================
+# COURSE 9 -- ENTRY-LEVEL MATH  (grades 1-3; the first rung of the ladder, below Basic Math and
+# Pre-Algebra). Concrete, picture-first arithmetic: counting, adding/subtracting to 20, place
+# value, carrying/borrowing, money, time, and shapes. Source: EntryMath_Curriculum_KB.md.
+# =============================================================================
+_ENTRY_UNITS = [
+    (1, "Counting & Number Sense"),
+    (2, "Addition to 20"),
+    (3, "Subtraction to 20"),
+    (4, "Place Value to 1,000"),
+    (5, "Two- & Three-Digit Addition"),
+    (6, "Two- & Three-Digit Subtraction"),
+    (7, "Money — Coins, Bills & Making Change"),
+    (8, "Time, Calendar & Measurement"),
+    (9, "Shapes, Patterns & Groups"),
+]
+
+# Aliases are matched by SUBSTRING in insertion order (first match wins), so the more SPECIFIC
+# and compound phrases come FIRST -- e.g. "counting money" before "counting", and "carrying"
+# (Unit 5) before "add" (Unit 2) -- so a phrase lands in the right unit.
+_ENTRY_ALIASES = {
+    # Unit 7 (money) -- before "counting", so "counting money" -> money.
+    "counting money": 7, "making change": 7, "coins": 7, "cents": 7, "dollars": 7, "money": 7,
+    # Unit 8 (time & measurement)
+    "telling time": 8, "clock": 8, "calendar": 8, "measurement": 8, "length": 8, "time": 8,
+    # Unit 9 (shapes, patterns, groups)
+    "shapes": 9, "patterns": 9, "arrays": 9, "equal groups": 9, "multiplication": 9,
+    # Unit 5 (carrying) -- before the plain add/plus aliases, so "carrying in addition" -> Unit 5.
+    "carrying": 5, "regrouping": 5, "column addition": 5, "two-digit addition": 5,
+    # Unit 6 (borrowing)
+    "borrowing": 6, "column subtraction": 6, "two-digit subtraction": 6,
+    # Unit 4 (place value)
+    "place value": 4, "tens and ones": 4, "expanded form": 4, "hundreds": 4,
+    # Unit 2 (addition to 20)
+    "addition": 2, "adding": 2, "sums": 2, "plus": 2, "add": 2,
+    # Unit 3 (subtraction to 20)
+    "subtraction": 3, "subtract": 3, "take away": 3, "difference": 3, "minus": 3,
+    # Unit 1 (counting / number sense) -- most generic, LAST.
+    "counting": 1, "number sense": 1, "compare numbers": 1, "greater than": 1,
+    "less than": 1, "skip counting": 1, "count": 1,
+}
+
+# Ordered specific -> generic. Unit 1 (counting / number sense) is the catch-all, so it goes LAST.
+_ENTRY_RULES = [
+    (7, [r"\bmoney\b", r"\bcoins?\b", r"\bcents?\b", r"\bdollars?\b", r"\bnickel", r"\bdime",
+         r"\bquarter", r"\bpenn(y|ies)", r"making change", r"how much.*cost"]),
+    (8, [r"\btime\b", r"\bclock\b", r"o'?clock", r"\bhour", r"\bminute", r"calendar", r"\bmonth",
+         r"\bweek\b", r"measur", r"\blength\b", r"\binch", r"\bruler", r"how long"]),
+    (9, [r"\bshape", r"\bpattern", r"\barray", r"equal group", r"\bmultipl", r"\btriangle",
+         r"\bsquare\b", r"\brectangle", r"\bcircle\b", r"skip count"]),
+    (5, [r"carry", r"regroup", r"two[- ]digit add", r"three[- ]digit add", r"column add",
+         r"adding.*(ten|hundred)", r"stack.*add"]),
+    (6, [r"borrow", r"two[- ]digit subtract", r"three[- ]digit subtract", r"column subtract"]),
+    (4, [r"place value", r"tens and ones", r"\bhundreds?\b", r"expanded form", r"\bround"]),
+    (2, [r"\badd", r"\bplus\b", r"\bsum", r"altogether", r"in all"]),
+    (3, [r"subtract", r"take away", r"\bminus\b", r"how many.*left", r"\bdifference\b", r"fewer"]),
+    (1, [r"count", r"number sense", r"compare", r"greater", r"less than", r"\bbigger\b",
+         r"\bsmaller\b", r"skip count", r"more than", r"order the numbers"]),
+]
+
+# =============================================================================
+# COURSE 10 -- BASIC MATH  (grades 4-6; the rung between Entry-Level Math and Pre-Algebra).
+# Multi-digit operations, factors, fractions, decimals, an intro to ratios/percents, and
+# multi-step word problems. Source: BasicMath_Curriculum_KB.md.
+# =============================================================================
+_BASIC_UNITS = [
+    (1, "Place Value & Whole-Number Operations"),
+    (2, "Multiplication"),
+    (3, "Division"),
+    (4, "Factors, Multiples, GCF & LCM"),
+    (5, "Fractions — Meaning & Equivalence"),
+    (6, "Fraction Operations"),
+    (7, "Decimals"),
+    (8, "Ratios, Rates & Percents"),
+    (9, "Measurement, Geometry & Word Problems"),
+]
+
+# Matched by SUBSTRING in insertion order (first match wins), so compound/specific phrases go
+# FIRST: the fraction-OPERATION phrases (Unit 6) before bare "fractions" (Unit 5), and the
+# fraction phrases before the plain "add/subtract/multiply/divide" that belong to Units 2-3.
+_BASIC_ALIASES = {
+    # Unit 6 (fraction operations) -- before "fractions" and before plain multiply/divide.
+    "adding fractions": 6, "add fractions": 6, "subtracting fractions": 6,
+    "multiplying fractions": 6, "dividing fractions": 6, "fraction operations": 6,
+    "mixed numbers": 6,
+    # Unit 5 (fraction meaning & equivalence)
+    "equivalent fractions": 5, "simplifying fractions": 5, "comparing fractions": 5,
+    "fractions": 5,
+    # Unit 8 (ratios, rates, percents)
+    "unit rate": 8, "ratios": 8, "rates": 8, "percents": 8, "percent": 8,
+    # Unit 7 (decimals)
+    "decimals": 7, "decimal": 7,
+    # Unit 4 (factors, multiples, GCF, LCM) -- before multiplication so "multiples" isn't taken.
+    "prime factorization": 4, "factors": 4, "multiples": 4, "primes": 4, "prime": 4,
+    "gcf": 4, "lcm": 4,
+    # Unit 3 (division)
+    "long division": 3, "division": 3, "dividing": 3, "remainders": 3, "remainder": 3,
+    # Unit 2 (multiplication)
+    "multiplication": 2, "times tables": 2, "multiplying": 2, "area model": 2,
+    # Unit 9 (measurement, geometry, word problems)
+    "word problems": 9, "perimeter": 9, "area": 9, "volume": 9, "measurement": 9,
+    # Unit 1 (place value & whole-number ops) -- most generic, LAST.
+    "place value": 1, "rounding": 1, "estimation": 1, "whole numbers": 1,
+}
+
+# Ordered specific -> generic. Unit 4 (factors/multiples) goes BEFORE Unit 2 so "multiples" is
+# never swallowed by "multipl..."; Unit 6 (fraction ops) before Unit 5 (bare "fraction").
+# Unit 1 (place value / whole-number ops) is the catch-all, so it goes LAST.
+_BASIC_RULES = [
+    (6, [r"add.*fraction", r"subtract.*fraction", r"multipl.*fraction", r"divid.*fraction",
+         r"mixed number", r"improper", r"common denominator", r"fraction operation"]),
+    (5, [r"equivalent fraction", r"simplif.*fraction", r"compar.*fraction", r"\bfraction",
+         r"numerator", r"denominator"]),
+    (8, [r"\bratio", r"\brate\b", r"unit rate", r"percent", r"%", r"discount", r"\btip\b"]),
+    (7, [r"decimal", r"\btenths?\b", r"hundredths?", r"\.\d"]),
+    (4, [r"\bfactor", r"multiple", r"\bprime", r"composite", r"\bgcf\b", r"\blcm\b",
+         r"prime factor", r"divisib"]),
+    (3, [r"long division", r"remainder", r"quotient", r"\bdivide\b", r"\bdividing\b",
+         r"\bdivision\b", r"share.*equal"]),
+    (2, [r"multiply", r"multiplication", r"multiplying", r"times table", r"\bproduct\b",
+         r"area model"]),
+    (9, [r"perimeter", r"\barea\b", r"\bvolume\b", r"word problem", r"\bangle", r"\bconvert",
+         r"measur", r"\bunits?\b"]),
+    (1, [r"place value", r"\bround", r"estimat", r"whole number", r"\bplus\b", r"\bminus\b",
+         r"\badd\b", r"\bsubtract\b", r"compare", r"number line"]),
+]
+
 COURSES = {
+    "entry": {
+        "title": "Entry-Level Math",
+        "grade_band": "Elementary",
+        "units": _ENTRY_UNITS,
+        "aliases": _ENTRY_ALIASES,
+        "rules": _ENTRY_RULES,
+    },
+    "basic": {
+        "title": "Basic Math",
+        "grade_band": "Elementary",
+        "units": _BASIC_UNITS,
+        "aliases": _BASIC_ALIASES,
+        "rules": _BASIC_RULES,
+    },
     "algebra1": {
         "title": "Algebra I",
         "grade_band": "High School",
@@ -542,10 +689,12 @@ COURSES = {
     },
 }
 
-# The order courses are offered in (the math ladder): Pre-Algebra -> Algebra I -> Geometry ->
-# Algebra II -> Trig/Pre-Calc, then Probability & Statistics (a parallel data course). New courses append.
-COURSE_ORDER = ["prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus",
-                "diffeq", "probstat"]
+# The order courses are offered in (the math ladder): Entry-Level -> Basic -> Pre-Algebra ->
+# Algebra I -> Geometry -> Algebra II -> Trig/Pre-Calc -> Calculus -> Differential Equations,
+# then Probability & Statistics (a parallel data course). Entry-Level and Basic (2026-08-03)
+# are the new elementary rungs BELOW Pre-Algebra.
+COURSE_ORDER = ["entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc",
+                "calculus", "diffeq", "probstat"]
 
 # -----------------------------------------------------------------------------
 # BACKWARD-COMPATIBLE MODULE-LEVEL EXPORTS (default course = Algebra I).

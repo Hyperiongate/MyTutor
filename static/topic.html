@@ -522,6 +522,16 @@
 
     // The topic picker's units, PER COURSE (kept in step with curriculum.py's catalog).
     const UNITS_BY_COURSE = {
+      entry: [
+        "Counting & Number Sense", "Addition to 20", "Subtraction to 20",
+        "Place Value to 1,000", "Two- & Three-Digit Addition", "Two- & Three-Digit Subtraction",
+        "Money — Coins, Bills & Making Change", "Time, Calendar & Measurement", "Shapes, Patterns & Groups",
+      ],
+      basic: [
+        "Place Value & Whole-Number Operations", "Multiplication", "Division",
+        "Factors, Multiples, GCF & LCM", "Fractions — Meaning & Equivalence", "Fraction Operations",
+        "Decimals", "Ratios, Rates & Percents", "Measurement, Geometry & Word Problems",
+      ],
       algebra1: [
         "Foundations & Expressions", "Linear Equations & Inequalities", "Functions & Notation",
         "Linear Functions & Graphs", "Systems of Equations", "Exponents & Exponential Functions",
@@ -566,6 +576,8 @@
     const UNITS = UNITS_BY_COURSE[COURSE] || UNITS_BY_COURSE.algebra1;
     // A course-appropriate placeholder for the "type your own topic" box.
     el("topicInput").placeholder = ({
+      entry: "e.g. adding with carrying",
+      basic: "e.g. how to add fractions",
       geometry: "e.g. how inscribed angles work",
       prealgebra: "e.g. how to add fractions",
       algebra1: "e.g. how slope works",

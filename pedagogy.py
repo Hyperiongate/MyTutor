@@ -2,6 +2,12 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  ADDED TWO ELEMENTARY TEACHING BRAINS (Jim's restructure): COURSE_PEDAGOGY["entry"]
+#               (Entry-Level Math, grades 1-3) and ["basic"] (Basic Math, grades 4-6). Each has
+#               unit_names, 9 units of {misconceptions, how_to_teach, progression}, and a
+#               cross_cutting error watch-list -- same shape as the other courses. Also added a
+#               "roughly 6-8 (early concrete)" developmental dial to the universal METHODOLOGY
+#               block so the youngest learners are met right. Purely additive; nothing else changed.
 #   2026-07-28  ADDED COURSE 8 -- DIFFERENTIAL EQUATIONS teaching brain (COURSE_PEDAGOGY["diffeq"]):
 #               9 units (classification, separable & models, first-order linear, exact &
 #               substitutions, 2nd-order homogeneous, 2nd-order nonhomogeneous, vibrations &
@@ -1320,7 +1326,294 @@ ERROR WATCH-LIST (catch these all year, in every unit):
 # =============================================================================
 # THE PER-COURSE CATALOG OF TEACHING KNOWLEDGE
 # =============================================================================
+# =============================================================================
+# ENTRY-LEVEL MATH (grades 1-3) teaching brain. Concrete, picture-first arithmetic. Source:
+# EntryMath_Curriculum_KB.md. Added 2026-08-03 with the elementary restructure.
+# =============================================================================
+_ENTRY_UNIT_NAMES = {
+    1: "Counting & Number Sense",
+    2: "Addition to 20",
+    3: "Subtraction to 20",
+    4: "Place Value to 1,000",
+    5: "Two- & Three-Digit Addition",
+    6: "Two- & Three-Digit Subtraction",
+    7: "Money — Coins, Bills & Making Change",
+    8: "Time, Calendar & Measurement",
+    9: "Shapes, Patterns & Groups",
+}
+
+_ENTRY_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "losing track when counting past ten; thinking the last number said is just a label, "
+            "not 'how many' (cardinality); reading 23 as 'two, three'; believing a longer row of "
+            "objects is 'more' even when the counts are equal."
+        ),
+        "how_to_teach": (
+            "Count REAL objects, touching one per number (one-to-one); the last count tells HOW MANY. "
+            "Compare two groups by matching or counting. Use a number line for 'one more / one less'; "
+            "skip-count by 2s, 5s, 10s as a rhythm."
+        ),
+        "progression": "count to 10  ->  count to 30  ->  which is more, 7 or 4  ->  one more than 8  ->  skip-count by 5s to 30",
+    },
+    2: {
+        "misconceptions": (
+            "recounting the first number instead of counting ON (3 + 4 recounting 1,2,3 then 4,5,6,7); "
+            "starting over every time; not seeing 3 + 4 and 4 + 3 as the same amount."
+        ),
+        "how_to_teach": (
+            "Start with objects, then 'count on' from the BIGGER number. Ten-frames and fingers; "
+            "number-line hops; the make-a-ten idea (8 + 5 = 8 + 2 + 3). Link add and subtract as a "
+            "fact family."
+        ),
+        "progression": "2 + 3 with counters  ->  count on 5 + 2  ->  make ten: 8 + 5  ->  3 + 4 vs 4 + 3  ->  7 + 6",
+    },
+    3: {
+        "misconceptions": (
+            "thinking subtraction can be flipped like addition (7 - 3 = 3 - 7); counting the wrong "
+            "direction; not seeing 'take away' and 'how many more to get there' as the same idea."
+        ),
+        "how_to_teach": (
+            "Act it out by removing objects; 'count back' on the number line; subtraction as the "
+            "missing addend (7 - 3 asks 3 + ? = 7), tied to the addition fact family."
+        ),
+        "progression": "5 take away 2 with objects  ->  count back 9 - 3  ->  missing addend 4 + ? = 10  ->  10 - 7  ->  15 - 8",
+    },
+    4: {
+        "misconceptions": (
+            "reading 43 as 'four, three'; thinking the 4 in 43 means four, not forty; teen-number "
+            "trouble; not seeing that ten ones bundle into one ten."
+        ),
+        "how_to_teach": (
+            "Bundle ten ones into a ten (sticks / base-ten blocks); a place-value chart "
+            "(hundreds | tens | ones); expanded form (43 = 40 + 3); build and read numbers to 1,000."
+        ),
+        "progression": "show 24 as 2 tens 4 ones  ->  expanded form of 57  ->  which is bigger, 63 or 36  ->  3 hundreds 0 tens 5 ones  ->  round 48 to the nearest ten",
+    },
+    5: {
+        "misconceptions": (
+            "not lining up place values; writing a whole two-digit column sum in one column "
+            "(9 + 7 = 16 crammed under the ones); forgetting to carry the ten."
+        ),
+        "how_to_teach": (
+            "Stack so ones sit under ones; add the ones first; when a column makes ten or more, CARRY "
+            "the ten to the next column. Use the [[column]] tool and base-ten blocks; estimate first."
+        ),
+        "progression": "24 + 13 (no carry)  ->  28 + 15 (carry)  ->  47 + 36  ->  156 + 27  ->  estimate then add 198 + 47",
+    },
+    6: {
+        "misconceptions": (
+            "subtracting the smaller digit from the larger in each column no matter which is on top "
+            "(52 - 27 giving 35); forgetting to reduce the digit you borrowed from; borrowing when you "
+            "don't need to."
+        ),
+        "how_to_teach": (
+            "Stack and line up; subtract the ones first; if the top digit is too small, BORROW a ten "
+            "from the next column (open one ten into ten ones). Base-ten blocks make the trade visible; "
+            "check by adding back."
+        ),
+        "progression": "38 - 12 (no borrow)  ->  52 - 27 (borrow)  ->  70 - 46  ->  204 - 58  ->  check 63 - 28 by adding back",
+    },
+    7: {
+        "misconceptions": (
+            "counting coins by how MANY there are instead of by VALUE (three coins = 3 cents); a dime "
+            "is smaller than a nickel so 'worth less'; trouble crossing cents to dollars; guessing at "
+            "change."
+        ),
+        "how_to_teach": (
+            "Name each coin's value; count a mixed pile starting from the BIGGEST; skip-count (dimes by "
+            "10, nickels by 5). Dollars-and-cents with a point, like a price tag. Make change by "
+            "counting UP from the price to what was paid."
+        ),
+        "progression": "value of a dime  ->  count 3 dimes + 2 pennies  ->  a quarter + 2 dimes  ->  is 60 cents enough for a 55-cent item  ->  change from $1 for a 70-cent item",
+    },
+    8: {
+        "misconceptions": (
+            "reading only one hand of the clock; thinking the minute hand on the 3 means '3 minutes'; "
+            "muddling the order of days/months; measuring without lining up the ruler's zero."
+        ),
+        "how_to_teach": (
+            "Two hands, two jobs: the hour hand points to the hour, the minute hand counts by 5s "
+            "around. Do o'clock and half past first. A calendar for days/weeks/months. Measure length "
+            "by lining up zero and counting units."
+        ),
+        "progression": "read 3 o'clock  ->  read half past 6  ->  read 4:15  ->  how many days in a week  ->  measure a pencil to the nearest inch",
+    },
+    9: {
+        "misconceptions": (
+            "naming a shape only in one orientation (a turned square called a 'diamond'); confusing "
+            "sides with corners; missing the repeating 'core' of a pattern; not seeing equal groups as "
+            "the start of multiplication."
+        ),
+        "how_to_teach": (
+            "Name and count sides and corners of 2-D shapes; sort and build them. Find and extend the "
+            "repeating core of a pattern. Equal groups and arrays are the first picture of "
+            "multiplication (3 groups of 4)."
+        ),
+        "progression": "triangle vs rectangle  ->  count the sides of a pentagon  ->  extend A A B A A B ...  ->  3 groups of 2 is how many  ->  a 2-by-4 array is how many",
+    },
+}
+
+_ENTRY_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these across every unit):
+- One-to-one counting -- touch one object per number, and the LAST count is "how many."
+- Line up place values in any stacked add/subtract: ones under ones.
+- Carry a ten when a column reaches ten (Unit 5); borrow a ten when the top digit is too small (Unit 6).
+- Coins are counted by VALUE, not by how many coins there are.
+- Read a number by its places (43 is forty-three -- four TENS and three ones), never digit by digit.
+- Keep every reply tiny, concrete, and picture-first -- these are our youngest learners.
+- Engineer a real, specific win early and often; keep the numbers small until the idea is solid. """
+
+# =============================================================================
+# BASIC MATH (grades 4-6) teaching brain. Multi-digit operations, fractions, decimals, an intro
+# to ratios/percents, and word problems. Source: BasicMath_Curriculum_KB.md. Added 2026-08-03.
+# =============================================================================
+_BASIC_UNIT_NAMES = {
+    1: "Place Value & Whole-Number Operations",
+    2: "Multiplication",
+    3: "Division",
+    4: "Factors, Multiples, GCF & LCM",
+    5: "Fractions — Meaning & Equivalence",
+    6: "Fraction Operations",
+    7: "Decimals",
+    8: "Ratios, Rates & Percents",
+    9: "Measurement, Geometry & Word Problems",
+}
+
+_BASIC_UNIT_PEDAGOGY = {
+    1: {
+        "misconceptions": (
+            "misreading large numbers and their periods (thousands, millions); rounding to the wrong "
+            "place; dropping a place when adding/subtracting multi-digit; thinking an estimate is "
+            "'wrong' because it isn't exact."
+        ),
+        "how_to_teach": (
+            "Place-value chart with periods; read in groups of three. Round by looking at the NEXT "
+            "digit (5 or more rounds up). Estimate to check reasonableness; line up places for the "
+            "standard algorithms."
+        ),
+        "progression": "read 42,506  ->  round 4,285 to the nearest hundred  ->  estimate 612 + 389  ->  38,214 + 9,057  ->  5,003 - 1,846",
+    },
+    2: {
+        "misconceptions": (
+            "shaky basic facts slowing everything down; forgetting the place-holding zero on the "
+            "second partial product; adding when the algorithm calls for multiplying; believing "
+            "multiplication always makes things 'a lot bigger.'"
+        ),
+        "how_to_teach": (
+            "Arrays and the AREA MODEL to SEE partial products; the distributive idea "
+            "(23 x 4 = 20x4 + 3x4); the standard algorithm with the place-holding zero. Estimate first."
+        ),
+        "progression": "6 x 7 fact  ->  area model 23 x 4  ->  46 x 7  ->  34 x 25  ->  estimate then do 208 x 6",
+    },
+    3: {
+        "misconceptions": (
+            "thinking division can be flipped (12 / 3 vs 3 / 12); confusing a remainder with a "
+            "decimal; dropping digits in long division; not knowing where the first quotient digit "
+            "goes."
+        ),
+        "how_to_teach": (
+            "Division as equal SHARING and as 'how many groups'; connect it to the multiplication "
+            "fact family. Long division as divide-multiply-subtract-bring down; interpret the remainder "
+            "in context; estimate the quotient first."
+        ),
+        "progression": "share 12 into 3 groups  ->  fact 56 / 8  ->  84 / 4  ->  long division 96 / 6  ->  135 / 4 with a remainder",
+    },
+    4: {
+        "misconceptions": (
+            "confusing factors (numbers that divide IN) with multiples (skip-counting UP); thinking 1 "
+            "is prime; mixing up GCF (biggest shared factor) with LCM (smallest shared multiple)."
+        ),
+        "how_to_teach": (
+            "Factor pairs and factor rainbows; factor TREES for prime factorization; list-and-circle "
+            "for GCF/LCM. Connect GCF -> simplifying fractions and LCM -> common denominators so it "
+            "pays off in the very next unit."
+        ),
+        "progression": "factors of 24  ->  first five multiples of 6  ->  is 21 prime  ->  GCF of 12 and 18  ->  LCM of 4 and 6",
+    },
+    5: {
+        "misconceptions": (
+            "thinking a bigger denominator means a bigger fraction; not seeing a fraction as a real "
+            "amount / a point on the number line; assuming equivalent fractions must be different "
+            "because they look different."
+        ),
+        "how_to_teach": (
+            "Fraction bars and the number line to SEE size; equivalence by multiplying or dividing by "
+            "a form of 1; simplify with the GCF; compare using a common denominator or a benchmark "
+            "like one half."
+        ),
+        "progression": "shade 3/4  ->  place 2/3 on a number line  ->  is 1/2 = 3/6  ->  simplify 8/12  ->  compare 2/3 and 3/5",
+    },
+    6: {
+        "misconceptions": (
+            "adding the denominators (1/2 + 1/3 = 2/5); thinking you need a common denominator to "
+            "MULTIPLY; flipping the wrong fraction when dividing; forgetting to simplify the answer."
+        ),
+        "how_to_teach": (
+            "Add/subtract needs a common bottom (bars show WHY); multiply tops and bottoms straight "
+            "across; divide by multiplying by the reciprocal ('how many fit'); mixed <-> improper. "
+            "Always simplify and estimate."
+        ),
+        "progression": "1/2 + 1/3  ->  5/6 - 1/3  ->  3/4 x 2/3  ->  3/4 / (1/2)  ->  2 1/3 + 1 1/2",
+    },
+    7: {
+        "misconceptions": (
+            "'more digits = bigger' (thinking 0.45 > 0.5); not lining up the point for + and -; "
+            "misplacing the point in x and /; treating decimals and fractions as unrelated."
+        ),
+        "how_to_teach": (
+            "Place-value columns and MONEY; line up the points for + and -; count decimal places for x; "
+            "estimate to catch point slips. Connect decimals <-> fractions <-> percents."
+        ),
+        "progression": "compare 0.5 and 0.45  ->  round 3.678 to tenths  ->  2.4 + 1.35  ->  0.6 x 0.3  ->  4.5 / 0.5",
+    },
+    8: {
+        "misconceptions": (
+            "writing a ratio in the wrong order; ADDING across a proportion instead of using equal "
+            "ratios; dropping the unit in a rate; reading 50% as 50 rather than one half."
+        ),
+        "how_to_teach": (
+            "Ratio tables and 'per one' (the unit rate); percent as 'out of 100' with benchmark "
+            "percents (10%, 25%, 50%); 'of means multiply.' Ground it in prices, recipes, miles per "
+            "hour."
+        ),
+        "progression": "simplify 6 : 8  ->  unit rate of $12 for 3 lb  ->  25% = 1/4  ->  20% of 80  ->  15% tip on $40",
+    },
+    9: {
+        "misconceptions": (
+            "mixing up perimeter (around) with area (inside); wrong units (square vs linear); picking "
+            "the wrong operation in a word problem; forgetting to convert units before computing."
+        ),
+        "how_to_teach": (
+            "Grid squares to SEE area; keep units attached; convert BEFORE you compute. A word-problem "
+            "routine: understand -> plan (which operation?) -> solve -> check it makes sense. Draw the "
+            "situation."
+        ),
+        "progression": "perimeter of a 4 by 6 rectangle  ->  its area  ->  volume of a 2x3x4 box  ->  convert 3 ft to inches  ->  a two-step word problem",
+    },
+}
+
+_BASIC_CROSS_CUTTING = """\
+ERROR WATCH-LIST (catch these across every unit):
+- Line up place values (and the decimal point) in every stacked operation.
+- Solid multiplication/division facts unlock fractions, decimals, and long division -- shore them up when they are the real blocker.
+- "Of" means multiply (fractions, percents).
+- Keep units attached and CONVERT before you compute (measurement, rates).
+- Estimate first to sanity-check -- it catches misplaced decimal points and dropped digits.
+- Simplify fractions, and interpret a remainder in the context of the problem.
+- Word problems: understand it, choose the operation, solve, then check the answer is reasonable. """
+
 COURSE_PEDAGOGY = {
+    "entry": {
+        "unit_names": _ENTRY_UNIT_NAMES,
+        "cross_cutting": _ENTRY_CROSS_CUTTING,
+        "units": _ENTRY_UNIT_PEDAGOGY,
+    },
+    "basic": {
+        "unit_names": _BASIC_UNIT_NAMES,
+        "cross_cutting": _BASIC_CROSS_CUTTING,
+        "units": _BASIC_UNIT_PEDAGOGY,
+    },
     "algebra1": {
         "unit_names": _ALGEBRA1_UNIT_NAMES,
         "cross_cutting": _ALGEBRA1_CROSS_CUTTING,
@@ -1391,6 +1684,11 @@ HOW TO REACH THIS LEARNER (evidence-based -- this is your craft, use it every tu
 - GAUGE their developmental stage from how they talk, their placement level, and their
   vocabulary (if you truly can't tell, ask their grade or age once, warmly), then set
   your dials:
+    * Roughly 6-8 (early concrete -- our youngest, Entry-Level Math): everything is objects,
+      fingers, pictures, and short story problems -- counters, ten-frames, coins, a clock face.
+      One tiny idea per turn, tiny numbers, and a quick win almost every turn. Read numbers as
+      words ("forty-three"), keep sentences very short and playful, and never introduce a symbol
+      or term before the idea is felt with real things. Lots of gentle "you try one."
     * Roughly 9-11 (concrete thinkers): lead with objects, pictures, and story;
       introduce the letter x only AFTER the idea is felt concretely; very small steps
       and frequent wins; warm, specific encouragement lands well here.

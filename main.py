@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03b-elemcourses". ELEMENTARY RESTRUCTURE (Jim): TWO new
+#               courses BELOW Pre-Algebra -- ENTRY-LEVEL MATH (grades 1-3) and BASIC MATH (grades
+#               4-6) -- each a full peer (9 units, 45-Q assessment, lesson/practice/topic). All the
+#               work is in curriculum.py, pedagogy.py, tutor.py and the front-end course maps
+#               (challenge/topic/session/home/dashboard/teacher + /courses catalog); main.py itself
+#               only bumps the stamp, because course selection is data-driven off curriculum.COURSES
+#               (which now includes "entry"/"basic"), so every /session /practice /topic /challenge
+#               /dashboard route already accepts them via ?course=. ALSO: a shared static/site-nav.js
+#               adds a "College level math" dropdown (Calculus, Differential Equations) to the
+#               marketing top nav. No route changes; nothing removed.
 #   2026-08-03  APP_BUILD -> "2026-08-03a-adminfamily". TWO features for Jim:
 #               (1) FAMILY PLAN -- one paid plan now covers UP TO TWO children. New
 #               KIDS_PER_SEAT=2 constant + _seats_for()/_covered_count() helpers; coverage in
@@ -2449,7 +2459,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03a-adminfamily"
+APP_BUILD = "2026-08-03b-elemcourses"
 
 
 @app.get("/health")
