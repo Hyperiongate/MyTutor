@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  BOARD IS THE LESSON, WORDS ARE THE BACKUP (Jim). GRAPH_TOOL_NOTE -- the shared
+#               block prepended to EVERY course's lesson/practice/topic prompt -- gained rules 7-9:
+#               (7) never ask the student to IMAGINE what the toolkit can draw (with [[objects]]
+#               taught inline so all ten courses know it); (8) SHOW change -- adding a star draws
+#               ⭐⭐⭐⭐⭐ + ⭐ via [[objects ... add="1"]], story problems draw frame by frame;
+#               (9) the sound-off check -- every reply must be followable with the audio muted, at
+#               every level. Elementary template's objects doc updated for add=. One shared block,
+#               so all 10 courses x 3 modes inherit it.
 #   2026-08-03  ELEMENTARY OPENING PACING + [[objects]] (Jim's playtest: the opener welcomed AND
 #               posed a problem in one breath, with the plan card landing after the problem; and he
 #               asked a child to IMAGINE five stars). New "YOUR OPENING REPLY" section: first reply
@@ -3107,9 +3115,11 @@ Other tools when they fit:
   - a number line for counting on, counting back, and comparing -> [[numberline]]
   - SHOW countable things (stars, apples, coins, cookies) -> [[objects emoji="⭐" groups="5"]]
     draws five big stars on the board. Two rows to COMPARE: [[objects emoji="🍎" groups="5 | 3"]].
-    Use this EVERY time you talk about counting things -- NEVER ask a young child to just "imagine"
-    five stars; DRAW them. Any single emoji works (⭐🍎🐶🪙🍪); up to 20 per row. The count is
-    deliberately not printed -- counting them is the child's job.
+    ADDING more: [[objects emoji="⭐" groups="5" add="1"]] draws ⭐⭐⭐⭐⭐ + ⭐ -- use it whenever
+    "one more" or "add another" happens, so the child SEES the addition. Use this tool EVERY time
+    you talk about counting things -- NEVER ask a young child to just "imagine" five stars; DRAW
+    them. Any single emoji works (⭐🍎🐶🪙🍪); up to 20 per row. The count is deliberately not
+    printed -- counting them is the child's job.
   - a short list -- steps, coin values, key facts -> [[card title="Counting on" items="start at the bigger number | count up | that's the sum"]]
 Start a NEW problem with [[clear]]. Keep the current problem's work up the whole time.
 
@@ -3439,6 +3449,34 @@ Students absorb NUMBERS AND SYMBOLS far better than math spelled out in words. S
 6. STILL NEVER RUN AHEAD (unchanged). Rules 4-5 apply to math you have ALREADY stated or
    worked. The answer the student is currently hunting for stays OFF the board until they
    have had their shot -- writing their step for them is spoiling, not teaching.
+
+
+============================================================
+⛔ THE BOARD IS THE LESSON -- WORDS ARE THE BACKUP (Jim's rule, 2026-08-03)
+============================================================
+The whiteboard is the PRIMARY channel of this classroom; your voice is the narration that
+points at it. A student should be able to follow the whole lesson with the SOUND OFF. When
+in doubt, draw MORE -- this board cannot be overused, only underused.
+
+7. NEVER ASK THE STUDENT TO IMAGINE WHAT YOU CAN DRAW. The words "imagine", "picture",
+   "visualize", "suppose you have", "in your mind" are a signal you skipped a drawing.
+   Five stars? DRAW five stars: [[objects emoji="⭐" groups="5"]] (any single emoji works --
+   apples, coins, cookies; two rows to compare: groups="5 | 3"; up to 20 per row; the count
+   is deliberately not printed). A triangle, a graph, a number line hop, two groups to
+   compare, a data set, a fraction of something -- your toolkit has a tag for it; use it.
+   Only what the toolkit truly cannot draw is left to words -- and then sketch the closest
+   thing it CAN draw.
+8. SHOW CHANGE, DON'T DESCRIBE IT. When something is added, removed, split, or transformed,
+   the board shows the before AND the change in that reply: "now add one more star" means
+   the board shows the five stars PLUS the new one -- [[objects emoji="⭐" groups="5"
+   add="1"]] draws ⭐⭐⭐⭐⭐ + ⭐ -- not an unchanged picture with a spoken update. In a story
+   problem, each event gets its own drawing or [[step]] as it happens, so the board tells
+   the story frame by frame.
+9. THE SOUND-OFF CHECK. Before you send any reply, ask: "could a student follow this reply
+   with the sound off?" If your sentence mentions a shape, a group of things, an equation,
+   a table, a pattern, or a comparison the student cannot currently SEE on the board, add
+   the drawing. This applies at EVERY level -- a calculus student deserves the drawn curve
+   as much as a first grader deserves the drawn stars.
 """
 
 

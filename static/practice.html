@@ -4,6 +4,9 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  BOARD-PRIMARY: [[objects]] gained add="n" -- draws the first row as
+    "⭐⭐⭐⭐⭐ + ⭐" so addition is SEEN, not imagined. Pairs with the new shared "board is the
+    lesson, words are the backup" doctrine in tutor.py (all courses, all modes).
   - 2026-08-03  FIRST-WORDS + OBJECTS (Jim's playtest): (1) the FIRST spoken clip of a session now
     requests /api/speak with lead=3 (~1.1s of leading silence instead of ~280ms) -- audio outputs
     close during the quiet thinking wait and eat the head of the first clip; now they eat silence.
@@ -839,13 +842,16 @@
       if (!groups.length) return;
       ensureObjectsCSS();
       const emoji = (a.emoji || "⭐").trim() || "⭐";
+      const addN = Math.min(Math.max(parseInt(a.add, 10) || 0, 0), 10);
       const stage = feedBlock();
       const box = document.createElement("div"); box.className = "objwrap pop";
-      for (const g of groups) {
+      groups.forEach((g, gi) => {
         const row = document.createElement("div"); row.className = "objline";
-        row.textContent = emoji.repeat(Math.min(g, 20));
+        row.textContent = emoji.repeat(Math.min(g, 20))
+          // add="1" on the FIRST row draws "⭐⭐⭐⭐⭐ + ⭐" so the child SEES the addition happen.
+          + (gi === 0 && addN ? "  +  " + emoji.repeat(addN) : "");
         box.appendChild(row);
-      }
+      });
       if (a.caption) { const c = document.createElement("div"); c.className = "objcap"; c.textContent = a.caption; box.appendChild(c); }
       stage.appendChild(box);
     }

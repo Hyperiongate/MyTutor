@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03h-boardprimary". BOARD IS THE LESSON (Jim: "words are the
+#               backup; overutilize the whiteboard, not underutilize -- at ALL levels"). tutor.py's
+#               shared GRAPH_TOOL_NOTE (prepended to EVERY course x lesson/practice/topic) gained
+#               rules 7-9: never ask a student to imagine what the toolkit can draw; show CHANGE
+#               (before + the change) instead of describing it; and the sound-off check -- every
+#               reply must be followable with the audio muted. [[objects]] gained add="n"
+#               (⭐⭐⭐⭐⭐ + ⭐) on session/practice/topic. No route changes.
 #   2026-08-03  APP_BUILD -> "2026-08-03g-firstwords". THREE playtest fixes (Jim): (1) FIRST-WORDS
 #               CLIP: /api/speak gained `lead` (0-4 extra ~280ms silence blocks); pages send lead=3
 #               on the FIRST clip of a session, because audio outputs (esp. Bluetooth) close during
@@ -2510,7 +2517,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03g-firstwords"
+APP_BUILD = "2026-08-03h-boardprimary"
 
 
 @app.get("/health")
