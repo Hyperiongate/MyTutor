@@ -4,6 +4,7 @@
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-07-31  BETA PASSES: the student door now understands beta passes (TRY-XXXX). The
                 login helper returns the server payload, so beta sign-ins redirect with the
                 NORMALIZED code (typing try-maple42 still lands on TRY-MAPLE42's progress)
@@ -168,6 +169,8 @@
       background-attachment: fixed, fixed, fixed, scroll, scroll, scroll, scroll, scroll;
     }
   </style>
+  <!-- Privacy-friendly analytics by Plausible (shared include) -->
+  <script src="/static/analytics.js"></script>
 </head>
 <body>
   <div class="wrap">

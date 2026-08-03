@@ -4,6 +4,7 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
   - 2026-08-03  NEW PAGE: JIM'S CENTRAL ADMIN DASHBOARD (/admin). One password-
                 protected place for everything Jim used to hunt across pages for:
                   * live status numbers -- signups, subscriptions + estimated
@@ -92,6 +93,8 @@
   .links a span{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
   footer{border-top:1px solid var(--line);padding:28px 0;margin-top:10px;color:var(--muted);font-size:14px;text-align:center}
 </style>
+  <!-- Privacy-friendly analytics by Plausible (shared include) -->
+  <script src="/static/analytics.js"></script>
 </head>
 <body>
 <nav><div class="wrap">
