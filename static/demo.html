@@ -3,6 +3,10 @@
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-04  OFFICIAL LOGO (from Jim's brand deck): the purple orb brand dot is now the real
+    Mr. Cadabra mark — a navy grid of squares with one golden starred tile (/static/
+    brand-mark.svg, clean vector; favicon updated too). Brand spots only; the robot face
+    still represents Mr. Cadabra himself where he speaks.
   - 2026-08-04  FUNNEL EVENTS: fires "Demo Level Picked" {level} when a level is tapped and
     "Demo Completed" {level} at the end screen (via the shared mtTrack helper in analytics.js;
     cookieless, no personal data). Measurement plan #2.
@@ -215,7 +219,7 @@
 <body>
 <script src="/static/tutor-face.js"></script>
 <div class="wrap">
-  <div class="brand"><span class="orb" style="width:30px;height:30px"><canvas id="brandFace" width="60" height="60"></canvas></span><b>Mr. Cadabra's Classroom</b>
+  <div class="brand"><img class="mark" src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"><b>Mr. Cadabra's Classroom</b>
     <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
   <div class="sub">A 60-second taste at any level — he talks, draws it on the board, and you answer.</div>
 
@@ -239,12 +243,12 @@
 <script>
 (function(){
   // ---- MR. CADABRA'S FACE (2026-08-04): same robot as the classroom pages ----
-  var orbFace=document.getElementById('orbFace'), brandFace=document.getElementById('brandFace');
+  var orbFace=document.getElementById('orbFace');
   var faceT=0, faceHappyUntil=0;
   if(!window.TutorFace){          // script failed to load: show the old sphere, never a blank
     try{ document.querySelectorAll('.orb').forEach(function(el){ el.classList.add('orb-sphere'); }); }catch(e){}
   } else {
-    try{ TutorFace.draw(brandFace.getContext('2d'),60,60,{level:0,t:20,mood:'idle'}); }catch(e){}
+    // (2026-08-04: header brand is now the official logo image; the robot stays as the speaker.)
     (function faceLoop(){
       try{
         var sp=document.getElementById('orb').classList.contains('speaking');

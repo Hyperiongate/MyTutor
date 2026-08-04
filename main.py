@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04u-brand". OFFICIAL LOGO (static-only; bump for deploy
+#               verification). Jim delivered the brand deck ("Teachers_Video_Deck Rev 2 by SE"):
+#               its gradient endpoints are #6C5AE5->#1FB5B0 -- within one shade of the site's
+#               existing --purple/--teal, so NO recolor was needed (the deck was built FROM the
+#               site palette). Incorporated the genuinely new piece: the logo -- a navy grid of
+#               rounded squares with one golden starred tile -- rebuilt as a clean vector
+#               (static/brand-mark.svg; colors #15357C/#FFC511 sampled from the deck's pixels),
+#               swapped in for the purple orb dot in every nav/footer brand spot (14 pages) and
+#               as the favicon. The robot face still represents Mr. Cadabra HIMSELF wherever he
+#               speaks (demo speaker, hero mock, classrooms) -- logo = company, robot = him.
 #   2026-08-04  APP_BUILD -> "2026-08-04t-mailfunnel". TWO ITEMS (Jim): (1) EMAIL DIAGNOSTICS --
 #               his reset email never arrived. Likeliest cause: the account email is
 #               jim+test@shift-work.com and forgot-password (by anti-probing design) silently
@@ -2789,7 +2799,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04t-mailfunnel"
+APP_BUILD = "2026-08-04u-brand"
 
 
 @app.get("/health")

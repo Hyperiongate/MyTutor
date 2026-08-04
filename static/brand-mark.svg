@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 72" role="img" aria-label="Mr. Cadabra's Classroom logo">
-<!-- favicon.svg — Mr. Cadabra's Classroom — Hyperion Shift LLC
+<!-- brand-mark.svg — Mr. Cadabra's Classroom — Hyperion Shift LLC
   CHANGE NOTES (keep newest at top):
     2026-08-04  NEW. The official logo Jim delivered in the brand deck ("Teachers_Video_Deck
                 Rev 2 by SE.pptx"), rebuilt as a clean transparent VECTOR (the deck copies are
                 rasters with baked-in backgrounds/glow). A 4x3 grid of rounded navy squares
                 (#15357C) with one golden tile (#FFC511) holding a white star — a classroom
                 where one student is starred. Colors sampled from the deck's own pixels.
-                This file: the FAVICON (replaces the old purple orb). Same art as brand-mark.svg.
+                Used as the brand mark in every nav/footer; favicon.svg carries the same art.
   NOTE: XML comments cannot contain double hyphens, hence the em-dashes here.
 -->
   <rect x="0" y="0" width="20" height="20" rx="4.5" fill="#15357C"/>
