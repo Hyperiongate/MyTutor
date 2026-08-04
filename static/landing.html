@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-04  PRICING SECTION TRUTH PASS (Jim's screenshot): this section had gone stale while
+    pricing.html moved on. (1) "All 8 courses" / "all eight courses" -> TEN (Entry-Level Math
+    through Differential Equations shipped 2026-08-03). (2) The FREE card's "Start free" button
+    pointed at /demo (the scripted taste) instead of /family (the REAL free account signup it
+    advertises) -- now matches pricing.html. (3) The $29 card + Family card now state the real
+    family plan: one plan covers up to 2 children, a 2nd child free (was "ask about multi-student
+    pricing", which predates the family-plan build). Toggle data-permo/peran updated to match.
   - 2026-08-03  SCREENSHOT REFRESH: shots/lesson.png was re-captured from the CURRENT demo (the old
     image still said "MyTutor" -- a rebrand leak -- and showed a retired layout). Alt text updated
     to match (math keyboard, not tap buttons). Image swap + one alt line; nothing else touched.
@@ -476,7 +483,7 @@
 <section id="pricing" class="wrap center">
   <span class="eyebrow">Simple, honest pricing</span>
   <h2>Start free. Upgrade when you're ready.</h2>
-  <p class="sub center">One simple product: the warm talking tutor, the built-in math keyboard, and all eight courses. Try it free, then subscribe when you're ready. Cancel anytime.</p>
+  <p class="sub center">One simple product: the warm talking tutor, the built-in math keyboard, and all ten courses — Entry-Level Math (grade 1) through Differential Equations. Try it free, then subscribe when you're ready. Cancel anytime.</p>
   <div class="toggle" role="tablist">
     <button id="tMonthly" class="on" onclick="setCycle('m')">Monthly</button>
     <button id="tAnnual" onclick="setCycle('a')">Annual <span class="save">save ~2 months</span></button>
@@ -494,7 +501,7 @@
         <li><span class="chk">✓</span> Practice &amp; single-topic help</li>
         <li><span class="chk">✓</span> Parent-controlled account</li>
       </ul>
-      <a class="btn btn-ghost" href="/demo">Start free</a>
+      <a class="btn btn-ghost" href="/family">Start free — create your account</a>
     </div>
     <!-- FULL ACCESS -->
     <div class="plan feat">
@@ -502,9 +509,10 @@
       <h3>Mr. Cadabra's Classroom</h3>
       <p class="who">The whole thing — every course, the warm voice</p>
       <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
-      <div class="per" data-permo="per student, billed monthly" data-peran="per student, billed annually">per student, billed monthly</div>
+      <div class="per" data-permo="covers up to 2 children · billed monthly" data-peran="covers up to 2 children · billed annually">covers up to 2 children · billed monthly</div>
       <ul class="feat-list">
-        <li><span class="chk">✓</span> All 8 courses, placement → mastery</li>
+        <li><span class="chk">✓</span> One plan covers up to 2 children — a 2nd child is free</li>
+        <li><span class="chk">✓</span> All 10 courses, placement → mastery</li>
         <li><span class="chk">✓</span> Mr. Cadabra's warm, natural voice on every lesson</li>
         <li><span class="chk">✓</span> Type answers with the built-in math keyboard — no mic</li>
         <li><span class="chk">✓</span> Progress dashboard by unit</li>
@@ -514,7 +522,7 @@
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
-    <div class="card"><h3>👪 Family plan</h3><p>Adding more than one child? Ask about multi-student family pricing — every child gets their own account and dashboard.</p></div>
+    <div class="card"><h3>👪 Family plan</h3><p>One plan covers up to two children — the second child is free. Each child gets their own login code, tutor, and dashboard. <a href="/family" style="color:var(--purple);font-weight:700">Open your Family page →</a></p></div>
     <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster and mastery heatmap. Custom pricing for schools, microschools, and co-ops. <a href="/teachers" style="color:var(--purple);font-weight:700">For teachers →</a></p></div>
     <div class="card"><h3>🎓 Free pilots</h3><p>We're partnering with a limited number of classrooms this term for feedback. If that's you, let's talk.</p></div>
   </div>

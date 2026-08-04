@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04n-tencourses". PRICING TRUTH PASS (static-only; bump for
+#               deploy verification). Jim's screenshot caught the landing pricing section stale:
+#               "All 8 courses" (there are TEN since 2026-08-03), the old "ask about multi-student
+#               pricing" family card (the real plan: one seat covers 2 kids, 2nd free), and the
+#               Free card's "Start free" button sending people to /demo instead of the real free
+#               signup at /family. Fixed on landing + the stray "eight"s on pricing (incl.
+#               JSON-LD), homeschool, beta, community.
 #   2026-08-04  APP_BUILD -> "2026-08-04m-costlog". MEASUREMENT #1 (Jim: "let's get started on
 #               the measurement"). Every paid event is now RECORDED (counts only, never text):
 #               tutor turns log their real token consumption + verifier verdict (tutor.py does
@@ -2589,7 +2596,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04m-costlog"
+APP_BUILD = "2026-08-04n-tencourses"
 
 
 @app.get("/health")
