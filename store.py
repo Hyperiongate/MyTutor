@@ -2,6 +2,17 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  WEEKLY PARENT EMAIL (the one promised-but-unbuilt feature -- Jim: build it now).
+#               NEW table `parent_digests` (parent_id pk, last_sent_at, optout, optout_token,
+#               created_at): one row per parent tracking when their weekly report last went out
+#               and whether they've unsubscribed. The optout_token is a random URL token used
+#               ONLY for one-click unsubscribe links -- it grants no account access. New
+#               functions: list_parents(), ensure_digest_state() (creates the row + token),
+#               mark_digest_sent(), set_digest_optout(), parent_id_for_digest_token(), and
+#               week_activity(code, days) -- the WINDOWED view of a student's week (minutes +
+#               active days + per-course split from time_daily; checks taken from unit_checks;
+#               units touched from topic_progress; awards earned from awards) that powers the
+#               email's honest numbers. All additive: new table + new functions only.
 #   2026-08-04  MASTERY BAR RAISED (Jim): PASS_PCT 80 -> 90. A unit now counts as MASTERED at a
 #               90%+ best check score, everywhere (store computes it; main.py + the pages now read
 #               store.PASS_PCT instead of hardcoding 80, so the NEXT change is one line). Note:
@@ -279,6 +290,17 @@ def init():
             Column("parent_id", String(64), index=True),
             Column("expires_at", DateTime(timezone=True)),
             Column("used", Integer, default=0),
+            Column("created_at", DateTime(timezone=True)),
+        )
+        # WEEKLY PARENT EMAIL (2026-08-04): one row per parent -- when their weekly
+        # report last went out, whether they opted out, and the random unsubscribe
+        # token their email links carry (grants NOTHING but the unsubscribe action).
+        _tables["parent_digests"] = Table(
+            "parent_digests", _meta,
+            Column("parent_id", String(64), primary_key=True),
+            Column("last_sent_at", DateTime(timezone=True)),
+            Column("optout", Integer, default=0),
+            Column("optout_token", String(64), unique=True, index=True),
             Column("created_at", DateTime(timezone=True)),
         )
         # Per-student conversation memory (the lesson/course session).
@@ -1269,6 +1291,118 @@ def delete_parent_token(token: str) -> None:
     t = _tables["parent_tokens"]
     with _engine.begin() as conn:
         conn.execute(delete(t).where(t.c.token == token))
+
+
+# ---- weekly parent email (2026-08-04) ---------------------------------------
+_DIGEST_COLS = ["parent_id", "last_sent_at", "optout", "optout_token", "created_at"]
+
+
+def list_parents() -> list:
+    """Every parent account: [{id, email, name}]. Powers the weekly-email pass."""
+    from sqlalchemy import select
+    t = _tables["parents"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.id, t.c.email, t.c.name)
+                            .order_by(t.c.created_at)).all()
+    return [{"id": r[0], "email": r[1], "name": r[2]} for r in rows]
+
+
+def ensure_digest_state(parent_id: str) -> dict:
+    """This parent's digest row, creating it (with a fresh unsubscribe token) on
+    first touch. Returns {parent_id, last_sent_at, optout, optout_token}."""
+    import secrets as _secrets
+    from sqlalchemy import select
+    t = _tables["parent_digests"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _DIGEST_COLS])
+                         .where(t.c.parent_id == parent_id)).first()
+    if r:
+        return _row_to_dict(r, _DIGEST_COLS)
+    row = {"parent_id": parent_id, "last_sent_at": None, "optout": 0,
+           "optout_token": _secrets.token_urlsafe(24), "created_at": _now()}
+    _upsert("parent_digests", {"parent_id": parent_id}, {
+        "last_sent_at": None, "optout": 0,
+        "optout_token": row["optout_token"], "created_at": row["created_at"]})
+    return row
+
+
+def mark_digest_sent(parent_id: str) -> None:
+    ensure_digest_state(parent_id)
+    _upsert("parent_digests", {"parent_id": parent_id}, {"last_sent_at": _now()})
+
+
+def set_digest_optout(parent_id: str, optout: bool) -> None:
+    ensure_digest_state(parent_id)
+    _upsert("parent_digests", {"parent_id": parent_id}, {"optout": 1 if optout else 0})
+
+
+def parent_id_for_digest_token(token: str):
+    """The parent this unsubscribe token belongs to, or None. The token grants
+    ONLY the unsubscribe/resubscribe action -- it is not a login."""
+    from sqlalchemy import select
+    token = (token or "").strip()
+    if not token:
+        return None
+    t = _tables["parent_digests"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.parent_id)
+                         .where(t.c.optout_token == token)).first()
+    return r[0] if r else None
+
+
+def week_activity(code: str, days: int = 7) -> dict:
+    """The WINDOWED view of this student's last `days` calendar days -- the honest
+    numbers the weekly parent email reports. Returns:
+      {minutes_total, days_active, minutes_by_course: {course: min},
+       checks: [{course, unit, best_pct, last_pct}],        # checks updated in window
+       touched: [{course, unit, unit_name, status}],        # units worked in window
+       award_ids: [...]}                                    # awards earned in window
+    """
+    from sqlalchemy import select
+    cut = _now() - _dt.timedelta(days=days)
+    day_cut = (_now() - _dt.timedelta(days=max(0, days - 1))).date().isoformat()
+    out = {"minutes_total": 0, "days_active": 0, "minutes_by_course": {},
+           "checks": [], "touched": [], "award_ids": []}
+
+    td = _tables["time_daily"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(td.c.day, td.c.course, td.c.minutes)
+                            .where((td.c.code == code) & (td.c.day >= day_cut))).all()
+    days_seen = set()
+    for day, course, minutes in rows:
+        m = int(minutes or 0)
+        if m > 0:
+            days_seen.add(day)
+        out["minutes_total"] += m
+        out["minutes_by_course"][course] = out["minutes_by_course"].get(course, 0) + m
+    out["days_active"] = len(days_seen)
+
+    uc = _tables["unit_checks"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(uc.c.course, uc.c.unit, uc.c.best_pct, uc.c.last_pct,
+                                   uc.c.updated_at).where(uc.c.code == code)).all()
+    for course, unit, best, last, upd in rows:
+        if upd is not None and _aware(upd) >= cut:
+            out["checks"].append({"course": course, "unit": int(unit),
+                                  "best_pct": int(best or 0), "last_pct": int(last or 0)})
+
+    tp = _tables["topic_progress"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(tp.c.course, tp.c.unit, tp.c.unit_name, tp.c.status,
+                                   tp.c.last_touched).where(tp.c.code == code)).all()
+    for course, unit, uname, status_, last in rows:
+        if last is not None and _aware(last) >= cut:
+            out["touched"].append({"course": course, "unit": int(unit),
+                                   "unit_name": uname or "", "status": status_ or ""})
+
+    aw = _tables["awards"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(aw.c.award_id, aw.c.earned_at)
+                            .where(aw.c.code == code)).all()
+    for aid, earned in rows:
+        if earned is not None and _aware(earned) >= cut:
+            out["award_ids"].append(aid)
+    return out
 
 
 def create_student_account(code: str, name: str, parent_id: str) -> None:

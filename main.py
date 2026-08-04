@@ -2,6 +2,29 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04x-weeklymail". THE WEEKLY PARENT EMAIL -- the one
+#               feature the site promised ("A weekly report in your inbox... every Friday")
+#               that was still unbuilt. Assembled from parts that already existed: the SMTP
+#               pipe (_send_email, proven by password resets), the windowed week numbers
+#               (NEW store.week_activity), and the SAME parent-voice writing engine as the
+#               dashboard's "How are they doing, really?" (tutor.get_assessment, audience
+#               "parent" -- exactly what the landing page promised: "the same analytical
+#               summary"). HOW IT WORKS: a daemon thread wakes every 30 minutes; in the
+#               Friday send window (20:00-23:59 UTC = Friday afternoon/evening US) it sends
+#               each due parent (has children, not opted out, nothing sent in the last 3
+#               days) one plain-text email: per child, the week's real minutes/days, checks
+#               taken (with the honest 90% mastery bar), new awards, streak -- plus the AI
+#               summary for the child's most-worked course (skipped gracefully if the AI
+#               errors; the numbers still go out). Zero-activity children get a gentle
+#               nudge line, never guilt. CAN-SPAM hygiene: every email carries a one-click
+#               unsubscribe link (random token, grants ONLY unsubscribe -- new GET
+#               /api/parent/weekly-email/unsubscribe, with resubscribe), a reason line, and
+#               the support address. Admin: GET /api/admin/digest-test?key=&email= builds a
+#               real parent's digest and returns it as JSON WITHOUT sending (add &to= to
+#               send one copy for eyeballing). Env: WEEKLY_EMAIL=off disables the scheduler;
+#               sends require SMTP_* set (already live). PAGES: parents/homeschool/landing
+#               weekly-email copy un-futured ("coming with launch" -> it exists now), and the
+#               preview mock's "Mastered ... 84%" corrected to 92% (below the new 90% bar).
 #   2026-08-04  APP_BUILD -> "2026-08-04w-mastery90". THREE OF JIM'S CHANGES: (1) MASTERY = 90%
 #               now, everywhere -- store.PASS_PCT is the single source (all six hardcoded ">= 80"
 #               mastery checks here now read store.PASS_PCT); tutor prompts, dashboard/teacher/
@@ -2163,6 +2186,284 @@ def admin_email_test(key: str = "", to: str = ""):
             "error": err or None, "config": cfg}
 
 
+# -----------------------------------------------------------------------------
+# WEEKLY PARENT EMAIL (2026-08-04) -- the promised Friday report, assembled from
+# existing parts: _send_email (the proven SMTP pipe), store.week_activity (the
+# honest windowed numbers), and tutor.get_assessment in parent voice (the same
+# engine as the dashboard's "How are they doing, really?").
+# -----------------------------------------------------------------------------
+_DIGEST_WINDOW_DAYS = 7
+_DIGEST_UTC_WEEKDAY = 4          # Friday (site promise: "Every Friday")
+_DIGEST_UTC_HOUR_FROM = 20       # 20:00-23:59 UTC = Friday afternoon/evening US
+
+
+def _app_base() -> str:
+    return os.environ.get("APP_BASE_URL", "https://mrcadabra.com").rstrip("/")
+
+
+def _fmt_minutes(m: int) -> str:
+    m = int(m or 0)
+    if m < 60:
+        return f"{m}m"
+    return f"{m // 60}h {m % 60:02d}m"
+
+
+def _unit_display_name(course: str, unit: int) -> str:
+    for i, u in enumerate(curriculum.units_for(course)):
+        if isinstance(u, (list, tuple)) and len(u) >= 2:
+            if int(u[0]) == int(unit):
+                return str(u[1])
+        elif i + 1 == int(unit):
+            return str(u)
+    return f"Unit {unit}"
+
+
+def _weekly_child_section(student: dict, week: dict) -> str:
+    """One child's block of the digest: honest week numbers, template-built
+    (deterministic, free). The AI paragraph is added separately by the caller."""
+    name = (student.get("name") or "Your student").strip() or "Your student"
+    lines = [f"------  {name.upper()}  ------"]
+    if week["minutes_total"] <= 0 and not week["checks"] and not week["touched"]:
+        lines.append(f"No tutoring sessions this week. {name}'s login code works any "
+                     "time -- even ten minutes of practice moves the needle, and "
+                     "Mr. Cadabra picks up exactly where they left off.")
+        return "\n".join(lines)
+    lines.append(f"This week: {_fmt_minutes(week['minutes_total'])} of real work across "
+                 f"{week['days_active']} day(s). Idle time never counts.")
+    if len(week["minutes_by_course"]) > 1:
+        parts = [f"{curriculum.course_title(c)} {_fmt_minutes(m)}"
+                 for c, m in sorted(week["minutes_by_course"].items(),
+                                    key=lambda kv: -kv[1]) if m > 0]
+        if parts:
+            lines.append("By course: " + "; ".join(parts) + ".")
+    if week["checks"]:
+        parts = []
+        for c in week["checks"]:
+            uname = _unit_display_name(c["course"], c["unit"])
+            if c["best_pct"] >= store.PASS_PCT:
+                parts.append(f"{uname} -- {c['best_pct']}% (MASTERED, 90%+ bar)")
+            else:
+                parts.append(f"{uname} -- best so far {c['best_pct']}% (mastery is 90%+)")
+        lines.append("Unit checks this week: " + "; ".join(parts) + ".")
+    touched_named = [t["unit_name"] for t in week["touched"] if t.get("unit_name")]
+    if touched_named:
+        seen, uniq = set(), []
+        for n in touched_named:
+            if n not in seen:
+                seen.add(n)
+                uniq.append(n)
+        lines.append("Worked on: " + ", ".join(uniq[:6]) +
+                     ("..." if len(uniq) > 6 else "") + ".")
+    if week["award_ids"]:
+        names = [f"{AWARD_DEFS[a][0]} {AWARD_DEFS[a][1]}"
+                 for a in week["award_ids"] if a in AWARD_DEFS]
+        if names:
+            lines.append("New awards earned: " + ", ".join(names) + ".")
+    return "\n".join(lines)
+
+
+def _weekly_ai_summary(code: str, student: dict, week: dict) -> str:
+    """The parent-voice analytical paragraph for this child's most-worked course
+    this week. Returns "" on any problem -- the numbers-only email still goes out."""
+    active = {c: m for c, m in week["minutes_by_course"].items() if m > 0}
+    if not active:
+        return ""
+    course = max(active, key=active.get)
+    if course not in curriculum.COURSES:
+        return ""
+    try:
+        facts = _assessment_facts(code, student, course)
+        facts += (f"\nTHIS SPECIFIC WEEK (the report period): "
+                  f"{week['minutes_total']} real working minutes across "
+                  f"{week['days_active']} active day(s); "
+                  f"{len(week['checks'])} unit check(s) taken; "
+                  f"{len(week['award_ids'])} new award(s) earned.")
+        text = tutor.get_assessment(facts, "parent", code=code, course=course)
+        if not text or text.startswith("("):
+            return ""
+        return text.strip()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[digest] AI summary failed for {code}: {exc}")
+        return ""
+
+
+def _build_weekly_digest(parent: dict):
+    """(subject, body) for this parent's weekly email, or (None, None) when there
+    is nothing to send (no children). Never raises."""
+    children = store.list_students_for_parent(parent["id"])
+    if not children:
+        return None, None
+    state = store.ensure_digest_state(parent["id"])
+    names = [(c.get("name") or "").strip() or "your student" for c in children]
+    if len(names) == 1:
+        subject = f"{names[0]}'s week with Mr. Cadabra's Classroom"
+    elif len(names) == 2:
+        subject = f"{names[0]} & {names[1]}'s week with Mr. Cadabra's Classroom"
+    else:
+        subject = "Your family's week with Mr. Cadabra's Classroom"
+    pname = (parent.get("name") or "").strip()
+    blocks = [f"Hi{(' ' + pname) if pname else ''},",
+              "Here's the honest weekly report -- real numbers from real work, "
+              "never padded."]
+    for child in children:
+        week = store.week_activity(child["code"], days=_DIGEST_WINDOW_DAYS)
+        blocks.append(_weekly_child_section(child, week))
+        ai = _weekly_ai_summary(child["code"], child, week)
+        if ai:
+            blocks.append(ai)
+    base = _app_base()
+    blocks.append(f"Full dashboard any time: {base}/family")
+    blocks.append("Questions? Just reply to this email, or write "
+                  "support@mrcadabra.com -- a person reads it.")
+    blocks.append("--\nYou're receiving this weekly report because you have a "
+                  "Mr. Cadabra's Classroom parent account.\n"
+                  f"Unsubscribe (one click): {base}/api/parent/weekly-email/"
+                  f"unsubscribe?token={state['optout_token']}\n"
+                  "Mr. Cadabra's Classroom · Hyperion Shift LLC")
+    return subject, "\n\n".join(blocks)
+
+
+@app.get("/api/parent/weekly-email/unsubscribe")
+def weekly_email_unsubscribe(request: Request, token: str = "", resub: str = ""):
+    """One-click unsubscribe from the weekly report (the token grants ONLY this).
+    ?resub=1 flips it back on -- the confirmation page offers exactly that."""
+    _require_db()
+    _rate_limit("unsub:" + _client_ip(request), limit=30, window_seconds=3600,
+                what="unsubscribe requests")
+    pid = store.parent_id_for_digest_token(token)
+    page_top = ("<!doctype html><html><head><meta charset='utf-8'>"
+                "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                "<title>Weekly email — Mr. Cadabra's Classroom</title>"
+                "<style>body{font-family:system-ui,sans-serif;background:#f7f6ff;"
+                "margin:0;display:grid;place-items:center;min-height:100vh}"
+                ".card{background:#fff;border:1px solid #e5e2f5;border-radius:14px;"
+                "padding:34px 38px;max-width:460px;box-shadow:0 8px 30px rgba(60,50,140,.08)}"
+                "h1{font-size:21px;color:#3d3480;margin:0 0 10px}p{color:#555;line-height:1.5}"
+                "a{color:#5b5bd6}</style></head><body><div class='card'>")
+    page_end = "</div></body></html>"
+    if not pid:
+        return Response(page_top + "<h1>That link isn't valid</h1>"
+                        "<p>It may be from an old email. Nothing was changed. If you "
+                        "want to stop the weekly report, use the link in your most "
+                        "recent email, or write support@mrcadabra.com.</p>" + page_end,
+                        media_type="text/html")
+    if (resub or "").strip() == "1":
+        store.set_digest_optout(pid, False)
+        return Response(page_top + "<h1>Welcome back 👋</h1>"
+                        "<p>The weekly report is switched on again. The next one "
+                        "arrives Friday.</p>" + page_end, media_type="text/html")
+    store.set_digest_optout(pid, True)
+    return Response(page_top + "<h1>You're unsubscribed</h1>"
+                    "<p>No more weekly report emails. Your account and your "
+                    "children's tutoring are completely unaffected, and the same "
+                    "numbers are always on your parent dashboard.</p>"
+                    f"<p>Changed your mind? <a href='/api/parent/weekly-email/"
+                    f"unsubscribe?token={token}&resub=1'>Turn it back on</a>.</p>"
+                    + page_end, media_type="text/html")
+
+
+@app.get("/api/admin/digest-test")
+def admin_digest_test(key: str = "", email: str = "", to: str = ""):
+    """Jim's weekly-email diagnostic (admin-key protected): builds a REAL parent's
+    digest and returns it as JSON WITHOUT sending. Add &to=an@address to also send
+    exactly one copy there for eyeballing. Never marks the parent as sent."""
+    _require_admin(key)
+    _require_db()
+    email = (email or "").strip().lower()
+    if not email:
+        return {"ok": False, "error": "Add &email=<parent email> to pick the parent."}
+    parent = store.get_parent_by_email(email)
+    if not parent:
+        return {"ok": False, "error": "No parent account with that email."}
+    subject, body = _build_weekly_digest(parent)
+    if not subject:
+        return {"ok": False, "error": "That parent has no children yet -- nothing to send."}
+    sent_to, err = None, None
+    to = (to or "").strip()
+    if to:
+        if not _EMAIL_RE.match(to):
+            err = "That &to= address doesn't look like an email."
+        else:
+            err = _send_email(to, subject, body) or None
+            sent_to = to if not err else None
+    return {"ok": err is None, "subject": subject, "body": body,
+            "sent_to": sent_to, "error": err}
+
+
+def _weekly_digest_pass(force: bool = False) -> dict:
+    """One send pass: every parent who is due gets this week's email. Returns
+    counts for the log. `force` ignores the Friday window (admin/testing only --
+    the 3-day resend guard still applies)."""
+    from datetime import datetime, timezone
+    out = {"checked": 0, "sent": 0, "skipped": 0, "failed": 0}
+    if not (store.enabled() and _smtp_configured()):
+        return out
+    now = datetime.now(timezone.utc)
+    if not force and not (now.weekday() == _DIGEST_UTC_WEEKDAY
+                          and now.hour >= _DIGEST_UTC_HOUR_FROM):
+        return out
+    for parent in store.list_parents():
+        out["checked"] += 1
+        try:
+            state = store.ensure_digest_state(parent["id"])
+            if int(state.get("optout") or 0):
+                out["skipped"] += 1
+                continue
+            last = state.get("last_sent_at")
+            if last is not None:
+                if hasattr(last, "tzinfo") and last.tzinfo is None:
+                    last = last.replace(tzinfo=timezone.utc)
+                if (now - last).total_seconds() < 3 * 86400:
+                    out["skipped"] += 1
+                    continue
+            subject, body = _build_weekly_digest(parent)
+            if not subject:
+                out["skipped"] += 1
+                continue
+            err = _send_email(parent["email"], subject, body)
+            if err:
+                out["failed"] += 1
+                print(f"[digest] send FAILED for parent {parent['id']}: {err}")
+            else:
+                store.mark_digest_sent(parent["id"])
+                out["sent"] += 1
+        except Exception as exc:  # noqa: BLE001
+            out["failed"] += 1
+            print(f"[digest] pass error for parent {parent.get('id')}: {exc}")
+    if out["sent"] or out["failed"]:
+        print(f"[digest] pass done: {out}")
+    return out
+
+
+def _digest_loop():
+    """Daemon thread: wake every 30 minutes; inside the Friday window, send to
+    everyone due. Restart-safe (last_sent_at lives in the database) and duplicate-
+    safe (the 3-day guard means one send per parent per window)."""
+    while True:
+        time.sleep(1800)          # sleep FIRST: never race the module import at boot
+        try:
+            _weekly_digest_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[digest] loop error: {exc}")
+
+
+_digest_thread_started = False
+
+
+def _start_digest_thread() -> None:
+    global _digest_thread_started
+    if _digest_thread_started:
+        return
+    if os.environ.get("WEEKLY_EMAIL", "on").strip().lower() in ("off", "0", "false", "no"):
+        print("[digest] WEEKLY_EMAIL=off -- weekly parent email scheduler disabled")
+        return
+    _digest_thread_started = True
+    threading.Thread(target=_digest_loop, daemon=True, name="weekly-digest").start()
+
+
+_start_digest_thread()
+
+
 @app.post("/api/parent/reset")
 def parent_reset(body: ParentResetIn, request: Request):
     """Redeem a reset link: set the new password and sign the parent out everywhere."""
@@ -2816,7 +3117,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04w-mastery90"
+APP_BUILD = "2026-08-04x-weeklymail"
 
 
 @app.get("/health")
