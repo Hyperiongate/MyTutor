@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04v-teachervideo". FIRST PAGE VIDEO (static-only; bump for
+#               deploy verification). Jim's teachers video ("Rev A 8.3.26", 69s, 3MB, brand-
+#               correct, built from the current screenshots) embedded on /teachers under the
+#               hero: poster frame, controls, preload=metadata, playsinline, no autoplay;
+#               fires a "Teacher Video Played" Plausible event once on first play. Files:
+#               static/videos/teachers.mp4 + teachers-poster.jpg (new static/videos/ folder).
 #   2026-08-04  APP_BUILD -> "2026-08-04u-brand". OFFICIAL LOGO (static-only; bump for deploy
 #               verification). Jim delivered the brand deck ("Teachers_Video_Deck Rev 2 by SE"):
 #               its gradient endpoints are #6C5AE5->#1FB5B0 -- within one shade of the site's
@@ -2799,7 +2805,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04u-brand"
+APP_BUILD = "2026-08-04v-teachervideo"
 
 
 @app.get("/health")

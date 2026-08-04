@@ -5,6 +5,12 @@
   teachers.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  TEACHERS VIDEO (Jim's first page video, "Rev A 8.3.26"): new section right
+    under the hero — a 69-second brand-correct video (built from the CURRENT screenshots),
+    served from /static/videos/teachers.mp4 (3MB, H.264+AAC) with a poster frame, controls,
+    preload=metadata (no bandwidth until pressed), playsinline for phones. Fires a
+    "Teacher Video Played" Plausible event ONCE on first play (funnel: does the video
+    convert?). No autoplay — browsers would mute it anyway, and teachers deserve consent.
   - 2026-08-04  OFFICIAL LOGO (from Jim's brand deck): the purple orb brand dot is now the real
     Mr. Cadabra mark — a navy grid of squares with one golden starred tile (/static/
     brand-mark.svg, clean vector; favicon updated too). Brand spots only; the robot face
@@ -140,6 +146,23 @@
   <p class="sub">Every student gets the same patient one-on-one tutor — and you get the classroom view:
   who's mastered what, who needs help, and where the whole class is stuck.</p>
 </header>
+<section class="wrap" style="max-width:900px;margin-left:auto;margin-right:auto">
+  <video id="tvid" controls preload="metadata" playsinline poster="/static/videos/teachers-poster.jpg"
+         style="width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:block;background:#000">
+    <source src="/static/videos/teachers.mp4" type="video/mp4">
+    Your browser can't play this video — <a href="/static/videos/teachers.mp4">download it instead</a>.
+  </video>
+  <p class="cap" style="text-align:center;margin-top:10px">69 seconds: what your classroom looks like in Mr. Cadabra's Classroom.</p>
+  <script>
+    (function () {
+      var v = document.getElementById("tvid"), fired = false;
+      if (v) v.addEventListener("play", function () {
+        if (!fired && window.mtTrack) { fired = true; mtTrack("Teacher Video Played"); }
+      });
+    })();
+  </script>
+</section>
+
 <section class="wrap">
   <img class="shot" src="/static/shots/teacher.png" alt="Mr. Cadabra's Classroom teacher dashboard: a class mastery heatmap showing five students' best check scores across nine Pre-Algebra units" />
   <p class="cap">The class mastery heatmap — best check score per unit, gold star at 80%+. <i>(Shown with sample data.)</i></p>
