@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04o-familyclarity". FAMILY PAGE CLARITY (static-only; bump
+#               for deploy verification). Jim, seeing /family as a new parent: "HARBOR60 -- what
+#               IS that? I think it's a password but I don't know for sure." The code chip is now
+#               labeled LOGIN CODE - TAP TO COPY; add-a-child says a NICKNAME is fine (real name
+#               not needed -- data minimization); the empty state walks the 3 steps in order.
 #   2026-08-04  APP_BUILD -> "2026-08-04n-tencourses". PRICING TRUTH PASS (static-only; bump for
 #               deploy verification). Jim's screenshot caught the landing pricing section stale:
 #               "All 8 courses" (there are TEN since 2026-08-03), the old "ask about multi-student
@@ -2596,7 +2601,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04n-tencourses"
+APP_BUILD = "2026-08-04o-familyclarity"
 
 
 @app.get("/health")

@@ -4,6 +4,14 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  CLARITY PASS (Jim, seeing it as a new parent would: "HARBOR60 -- what IS that?
+    I think it's a password but I don't know for sure"): (1) the child's code chip now carries a
+    visible label -- "LOGIN CODE -- tap to copy" -- and the row explains it's how the child signs
+    in; it is NOT a password. (2) "Add a child -- first name only" -> "first name or nickname",
+    with help text saying it does NOT need to be a real name -- whatever the child likes to be
+    called works, and Mr. Cadabra will use it (also our COPPA data-minimization posture: we
+    ASK for less). (3) Empty state walks a brand-new parent through the 3 steps in order, so
+    "do I add a child first?" answers itself.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  NAV: added the shared /static/site-nav.js include -> a "College level math" dropdown (Calculus, Differential Equations) in the top nav. Pure add-on.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
@@ -99,6 +107,9 @@
   .kid .nm{font-weight:800;font-size:17px;min-width:110px}
   .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:20px;letter-spacing:2px;
     background:#f6f3ff;border:1.5px dashed var(--purple);border-radius:10px;padding:6px 14px;cursor:pointer}
+  /* 2026-08-04: the bare code chip read as a mystery ("is that a password?") -- label it. */
+  .codewrap{display:inline-flex;flex-direction:column;align-items:center;gap:3px}
+  .codelbl{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
   .code:hover{background:#efe9ff}
   .tag{font-size:12px;font-weight:800;border-radius:999px;padding:4px 12px}
   .tag.full{background:#eefaf5;color:#177a52}
@@ -185,14 +196,17 @@
       <p class="cap" id="whoami" style="margin:2px 0 16px"></p>
       <div id="kids"></div>
       <form id="addForm" style="border-top:1px solid var(--line);padding-top:14px;margin-top:6px">
-        <label for="kidName">Add a child — first name only</label>
+        <label for="kidName">Add a child — first name or nickname</label>
         <div style="display:flex;gap:10px">
           <input id="kidName" maxlength="40" autocomplete="off" placeholder="e.g. Ana" style="flex:1" />
           <button class="btn btn-primary" id="addGo" type="submit">Add</button>
         </div>
         <div class="msg" id="addMsg"></div>
-        <p class="cap" style="margin-top:10px">Each child gets their own login code — they sign in with
-        it at mrcadabra.com (Sign in), take the placement, and Mr. Cadabra meets them at their level.</p>
+        <p class="cap" style="margin-top:10px">It doesn't need to be their real name — a nickname or
+        anything your child likes to be called works great, and Mr. Cadabra will use it. No last
+        names, ever. Each child gets their own <b>login code</b> (not a password — it's the only
+        thing they sign in with, at mrcadabra.com → Student sign in), takes the placement, and
+        Mr. Cadabra meets them at their level.</p>
       </form>
     </div>
 
@@ -252,14 +266,19 @@
   function renderKids(me) {
     var box = $("kids");
     if (!me.students.length) {
-      box.innerHTML = '<p class="cap" style="margin:6px 0 16px">No students yet — add your first child below. It takes ten seconds.</p>';
+      box.innerHTML = '<div style="border:1px dashed var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px">' +
+        '<p style="font-weight:800;margin:0 0 8px">Three steps and your child is learning:</p>' +
+        '<p class="cap" style="margin:0">1. Add your child below (a nickname is fine).&nbsp;&nbsp;' +
+        '2. They get a <b>login code</b> — that code is the only thing they sign in with.&nbsp;&nbsp;' +
+        '3. They go to mrcadabra.com, tap <b>Student sign in</b>, and type the code. Done — placement first, then lessons.</p></div>';
       return;
     }
     box.innerHTML = me.students.map(function (k) {
       var tag = k.covered ? '<span class="tag full">✓ Full access</span>' : '<span class="tag free">Free plan</span>';
       return '<div class="kid">' +
         '<span class="nm">' + esc(k.name) + '</span>' +
-        '<span class="code" title="Click to copy" data-code="' + esc(k.code) + '">' + esc(k.code) + '</span>' + tag +
+        '<span class="codewrap"><span class="codelbl">login code · tap to copy</span>' +
+        '<span class="code" title="Click to copy" data-code="' + esc(k.code) + '">' + esc(k.code) + '</span></span>' + tag +
         '<span class="links">' +
           '<a href="/dashboard?code=' + encodeURIComponent(k.code) + '&view=parent">Progress →</a>' +
         '</span></div>';
@@ -401,7 +420,7 @@
       state.me = await api("/api/parent/students", { method: "POST", body: JSON.stringify({ token: token(), name: name }) });
       $("kidName").value = "";
       render();
-      msg("addMsg", name + " is in! Click their code to copy it — that's how they sign in.", "ok");
+      msg("addMsg", name + " is in! The dashed box above is their login code — tap it to copy. They sign in with that code (no password) at mrcadabra.com → Student sign in.", "ok");
     } catch (e) { msg("addMsg", e.message, "err"); }
     state.busy = false; $("addGo").disabled = false;
   });
