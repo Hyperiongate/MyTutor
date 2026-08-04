@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  records.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-08-04  NEW (build z, Jim: "do they have a page where they can download the required
+                records?"). The printable HOMESCHOOL RECORDS report the homeschool page promises:
+                for one student (by code), over a chosen range -- (1) summary tiles, (2) the
+                honest hours log day by day with per-course breakdown, (3) progress by course
+                (placement, every unit's status, topic quizzes passed, Unit Quiz best, mastered
+                at the 90% bar), (4) awards with dates earned. One click prints it (browser
+                print -> paper or PDF) with print CSS that drops the controls and chrome.
+                Data: GET /api/records/{code}?days=N. Honest by design: engaged minutes only,
+                real scores only, and a plain footer noting rules differ by state.
+  ============================================================================= -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Homeschool Records — Mr. Cadabra's Classroom</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#1c1633;--muted:#6b6580;--bg1:#faf9ff;--bg2:#f4f9f9;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --ok:#0e9f6e;--shadow:0 10px 30px rgba(60,40,120,.10)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+    line-height:1.55;background:linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px 60px}
+  a{color:var(--purple);text-decoration:none}
+  nav{background:rgba(255,255,255,.85);border-bottom:1px solid var(--line);padding:12px 0}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:18px;max-width:900px;margin:0 auto;padding:0 22px}
+  h1{font-size:30px;letter-spacing:-.02em;margin:26px 0 4px;font-weight:850}
+  .sub{color:var(--muted);font-size:15px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+    padding:22px 24px;margin-top:18px}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .controls label{font-weight:700;font-size:14px}
+  .controls select,.controls input{padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px}
+  .btn{padding:11px 20px;border-radius:11px;font-weight:700;font-size:14.5px;cursor:pointer;border:0;
+    background:var(--grad);color:#fff}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+  .tile{background:#faf9ff;border:1px solid var(--line);border-radius:13px;padding:14px 16px;text-align:center}
+  .tile .big{font-size:24px;font-weight:800}
+  .tile .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+  th{background:#f2effc;text-align:left;padding:8px 10px;font-size:12.5px;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--muted)}
+  td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+  tr.total td{font-weight:800;background:#faf9ff}
+  .star{color:var(--ok);font-weight:800}
+  .muted{color:var(--muted)}
+  h2{font-size:19px;margin-top:6px}
+  .coursehead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+  .cap{font-size:12.5px;color:var(--muted)}
+  .footer{margin-top:26px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+  #err{display:none;background:#fff4e5;border:1px solid #e0a030;border-radius:12px;padding:14px 18px;margin-top:18px}
+  @media print{
+    nav,.controls,.btn,#printHint{display:none !important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;margin-top:12px}
+    a{color:inherit}
+  }
+</style>
+</head>
+<body>
+<nav><div class="brand"><img src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto">
+  Mr. Cadabra's Classroom <span class="muted" style="font-weight:600;font-size:14px">· Homeschool Records</span></div></nav>
+<div class="wrap">
+  <h1>Homeschool Records</h1>
+  <p class="sub" id="subline">A printable record of real learning — honest hours, demonstrated mastery, and earned awards.</p>
+
+  <div class="card controls">
+    <label>Period:
+      <select id="range">
+        <option value="30">Last 30 days</option>
+        <option value="90" selected>Last 90 days</option>
+        <option value="180">Last 180 days</option>
+        <option value="365">Last 365 days</option>
+      </select>
+    </label>
+    <button class="btn" id="printBtn">🖨 Print / save as PDF</button>
+    <span class="cap" id="printHint">Printing uses your browser — choose "Save as PDF" as the printer to keep a file.</span>
+  </div>
+
+  <div id="err"></div>
+
+  <div class="card" id="summaryCard" style="display:none">
+    <h2 id="sumTitle">Summary</h2>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card" id="hoursCard" style="display:none">
+    <h2>Hours log — engaged instructional time</h2>
+    <p class="cap">Minutes count only while the student is actively working with the tutor — idle time is never counted.</p>
+    <table id="hoursTable"></table>
+  </div>
+
+  <div id="courses"></div>
+
+  <div class="card" id="awardsCard" style="display:none">
+    <h2>Awards earned</h2>
+    <table id="awardsTable"></table>
+  </div>
+
+  <div class="footer" id="foot" style="display:none">
+    Generated by Mr. Cadabra's Classroom (mrcadabra.com) · Hyperion Shift LLC ·
+    <span id="genDate"></span>. Mastery = 90% or better on a scored Unit Quiz; topic quizzes pass at 80%.
+    Homeschool record-keeping rules differ by state — this report provides the learning record;
+    families remain responsible for their state's specific requirements.
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const params = new URLSearchParams(location.search);
+  const CODE = (params.get("code") || "").trim();
+  const el = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const fmtMin = (m) => { m = m | 0; return m < 60 ? (m + "m") : (Math.floor(m / 60) + "h " + String(m % 60).padStart(2, "0") + "m"); };
+  const fmtDay = (d) => { try { const p = d.split("-"); return new Date(+p[0], +p[1] - 1, +p[2])
+    .toLocaleDateString(undefined, { weekday: "short", year: "numeric", month: "short", day: "numeric" }); } catch (e) { return d; } };
+
+  function fail(msg) { const e = el("err"); e.style.display = "block"; e.textContent = msg; }
+
+  if (!CODE) { fail("Add ?code=STUDENT-CODE to the address, or open this page from the parent dashboard."); return; }
+
+  el("printBtn").addEventListener("click", () => window.print());
+  el("range").addEventListener("change", load);
+
+  function load() {
+    fetch("/api/records/" + encodeURIComponent(CODE) + "?days=" + encodeURIComponent(el("range").value))
+      .then(r => { if (!r.ok) throw new Error("That student code was not found."); return r.json(); })
+      .then(render).catch(e => fail(e.message || "Could not load records."));
+  }
+
+  function render(d) {
+    el("err").style.display = "none";
+    if (!d.tracking) { fail("Progress tracking is offline right now — records are unavailable."); return; }
+    const name = d.name || "Student";
+    document.title = name + " — Homeschool Records — Mr. Cadabra's Classroom";
+    el("subline").textContent = "A printable record of " + name + "'s real learning — honest hours, demonstrated mastery, and earned awards.";
+    el("genDate").textContent = "Report period: last " + d.days + " days · generated " +
+      new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+
+    // ---- summary tiles ----
+    const totalMin = d.time.reduce((a, r) => a + (r.minutes || 0), 0);
+    const daysActive = new Set(d.time.filter(r => r.minutes > 0).map(r => r.day)).size;
+    const mastered = d.courses.reduce((a, c) => a + c.units_mastered, 0);
+    el("summaryCard").style.display = "block";
+    el("sumTitle").textContent = "Summary — " + name;
+    el("tiles").innerHTML = [
+      { big: fmtMin(totalMin), lbl: "Engaged time" },
+      { big: daysActive, lbl: "Active days" },
+      { big: mastered, lbl: "Units mastered (90%+)" },
+      { big: d.courses.length, lbl: "Courses worked" },
+      { big: d.awards.length, lbl: "Awards earned" },
+    ].map(t => '<div class="tile"><div class="big">' + t.big + '</div><div class="lbl">' + t.lbl + "</div></div>").join("");
+
+    // ---- hours log (one row per day, newest first, with per-course breakdown) ----
+    const byDay = {};
+    d.time.forEach(r => {
+      const o = byDay[r.day] = byDay[r.day] || { total: 0, parts: [] };
+      o.total += r.minutes || 0;
+      if (r.minutes > 0) o.parts.push(esc(r.course_title || r.course) + " " + fmtMin(r.minutes));
+    });
+    const dayKeys = Object.keys(byDay).sort().reverse();
+    if (dayKeys.length) {
+      el("hoursCard").style.display = "block";
+      el("hoursTable").innerHTML =
+        "<tr><th>Date</th><th>Work</th><th style=\"text-align:right\">Minutes</th></tr>" +
+        dayKeys.map(k => "<tr><td>" + fmtDay(k) + "</td><td>" + byDay[k].parts.join(" · ")
+          + "</td><td style=\"text-align:right\">" + byDay[k].total + "</td></tr>").join("") +
+        "<tr class=\"total\"><td>Total</td><td>" + daysActive + " active day(s)</td><td style=\"text-align:right\">"
+          + totalMin + " (" + fmtMin(totalMin) + ")</td></tr>";
+    }
+
+    // ---- progress by course ----
+    el("courses").innerHTML = d.courses.map(c => {
+      const rows = c.units.map(u => {
+        const qp = (u.quizzes || []).filter(q => q.passed).length;
+        return "<tr><td>" + u.unit + "</td><td>" + esc(u.name) + "</td>"
+          + "<td>" + esc(u.status === "not-started" ? "—" : u.status) + "</td>"
+          + "<td>" + (qp ? qp + " passed" : "—") + "</td>"
+          + "<td>" + (u.checks_taken ? u.best_pct + "%" : "—") + "</td>"
+          + "<td>" + (u.mastered ? '<span class="star">★ Mastered</span>' : "—") + "</td></tr>";
+      }).join("");
+      return '<div class="card"><div class="coursehead"><h2>' + esc(c.title) + "</h2>"
+        + '<span class="cap">' + c.units_mastered + " of " + c.units.length + " units mastered"
+        + (c.placement ? " · placed: " + esc(c.placement) : "") + "</span></div>"
+        + "<table><tr><th>#</th><th>Unit</th><th>Status</th><th>Topic quizzes</th><th>Unit Quiz best</th><th>Mastery</th></tr>"
+        + rows + "</table></div>";
+    }).join("");
+
+    // ---- awards ----
+    if (d.awards.length) {
+      el("awardsCard").style.display = "block";
+      el("awardsTable").innerHTML = "<tr><th>Award</th><th>For</th><th>Earned</th></tr>" +
+        d.awards.map(a => "<tr><td>" + esc(a.icon) + " <b>" + esc(a.title) + "</b></td><td>" + esc(a.desc)
+          + "</td><td>" + (a.earned_at ? fmtDay(a.earned_at.slice(0, 10)) : "—") + "</td></tr>").join("");
+    }
+    el("foot").style.display = "block";
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-04  QUIZ NAMING (build z): 'Units mastered' tile caption says 'Unit Quiz' (checks
+    renamed quizzes product-wide). 'Math checks' tile is the VERIFIER counter -- unchanged.
   =============================================================================
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -267,7 +269,7 @@
       { l: "Active this month", v: num(s.active_30d), s: "students, last 30 days" },
       { l: "Engaged minutes (7d)", v: num(s.minutes_7d) },
       { l: "Engaged minutes (all)", v: num(s.minutes_total), s: "≈ " + num(Math.round((s.minutes_total || 0) / 60)) + " hours" },
-      { l: "Units mastered", v: num(s.units_mastered), s: "90%+ on a unit check" },
+      { l: "Units mastered", v: num(s.units_mastered), s: "90%+ on a Unit Quiz" },
       { l: "Checks taken", v: num(s.checks_taken) },
       { l: "Problems practiced", v: num(s.problems_practiced) }
     ]));

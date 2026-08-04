@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04z-records". HOMESCHOOL RECORDS PAGE (Jim: the
+#               homeschool page promises records -- "do they have a page where they can
+#               download the required records?"). Now they do: /records?code=X is a printable
+#               report (browser print -> paper or PDF): summary tiles, the honest hours log
+#               day-by-day with per-course breakdown over a chosen range (30/90/180/365 days),
+#               progress by course (placement, unit statuses, topic quizzes passed, Unit Quiz
+#               best, mastered at 90%), and awards with dates. Data: NEW GET
+#               /api/records/{code}?days=N (store.get_time_between + the same per-course unit
+#               logic as /api/topics). Linked from the dashboard's parent/teacher box and the
+#               homeschool page's records section. Honest by design: engaged minutes only,
+#               real scores only, and the report itself notes that state rules differ.
+#   2026-08-04  APP_BUILD -> "2026-08-04y-quizzes". QUIZZES (Jim): (1) TOPIC QUIZZES -- each
+#               unit's topics are now a ladder with a short quiz (3-4 Qs) as the rung between
+#               topics; PASSING (80%+, store.QUIZ_PASS_PCT) is how the student earns the next
+#               topic. The tutor runs them conversationally and emits a new hidden tag
+#               [[quiz unit topic name correct total]]; the pages show a "Quiz" result card and
+#               POST the score to the new /api/quiz/{code} (-> store.record_topic_quiz).
+#               Gating persists across sessions because _mastery_note now tells the tutor which
+#               topic quizzes are passed per unit ("resume at the first unpassed topic; don't
+#               re-quiz passed ones"). (2) The end-of-unit check is now called the "UNIT QUIZ"
+#               everywhere students and parents see it (tag/API unchanged: [[check]] ->
+#               /api/check). Mastery still = 90% (store.PASS_PCT). (3) /api/topics now returns
+#               each unit's quiz rows ({name, best_pct, passed}) + quizzes_passed so the
+#               dashboard (student AND the parent/teacher read-only views) shows quiz results.
+#               (4) STRAY-80 FIXES from the build-w sweep: the in-lesson result card said "Unit
+#               mastered!" at 80% on session/practice/topic pages, and teacher.html's heatmap
+#               starred at 80 -- all four now use the honest 90. Also fixed practice.html's
+#               check POST which omitted `course` (practice checks mis-filed under Algebra I).
 #   2026-08-04  APP_BUILD -> "2026-08-04x-weeklymail". THE WEEKLY PARENT EMAIL -- the one
 #               feature the site promised ("A weekly report in your inbox... every Friday")
 #               that was still unbuilt. Assembled from parts that already existed: the SMTP
@@ -990,6 +1018,29 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> s
     if notstarted:
         parts.append("Not started: units " + ", ".join(notstarted) + ".")
     note = " ".join(parts) if parts else "Just getting started -- no mastery data yet."
+    # TOPIC QUIZZES (2026-08-04): tell the tutor exactly which mid-unit quizzes are already
+    # passed, so gating survives across sessions -- resume each unit's ladder at the first
+    # unpassed topic and never re-quiz a passed one.
+    try:
+        qrows = store.get_topic_quizzes(code, course)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[mastery-note] get_topic_quizzes failed (ignored): {exc}")
+        qrows = []
+    if qrows:
+        by_unit = {}
+        for q in qrows:
+            by_unit.setdefault(q["unit"], []).append(q)
+        qparts = []
+        for n in sorted(by_unit):
+            items = []
+            for q in by_unit[n]:
+                if q["best_pct"] >= store.QUIZ_PASS_PCT:
+                    items.append(f"'{q['topic_name']}' PASSED ({q['best_pct']}%)")
+                else:
+                    items.append(f"'{q['topic_name']}' NOT passed yet (best {q['best_pct']}%)")
+            qparts.append(f"Unit {n}: " + "; ".join(items))
+        note += (" TOPIC QUIZZES so far -- " + " | ".join(qparts) +
+                 ". Resume each unit at its first unpassed topic; do not re-quiz passed topics.")
     fu = int(focus_unit or 0)
     if 1 <= fu <= 9:
         note += (f" TODAY the student chose to work on Unit {fu} "
@@ -1063,6 +1114,16 @@ class CheckIn(BaseModel):
     correct: int = 0           # questions the student got right
     total: int = 1             # questions on the check
     course: str = "algebra1"   # which course this check belongs to (so it's filed per-course)
+
+
+class QuizIn(BaseModel):
+    """A mid-unit TOPIC QUIZ result (2026-08-04). Passing (80%+) unlocks the next topic."""
+    unit: int                  # which of the 9 units the topic belongs to
+    topic: int = 0             # the topic's position in the unit's topic list (1-based; 0 = unknown)
+    name: str = ""             # the topic's name as the tutor stated it
+    correct: int = 0
+    total: int = 1
+    course: str = "algebra1"
 
 
 # TEACHER / PARENT CLASSROOM (2026-07-28) -- see the classroom endpoints below.
@@ -1255,6 +1316,12 @@ def homeschool_page():
     return FileResponse(STATIC_DIR / "homeschool.html")
 
 
+@app.get("/records")
+def records_page():
+    """The printable homeschool records report (2026-08-04): hours log, mastery, awards."""
+    return FileResponse(STATIC_DIR / "records.html")
+
+
 @app.get("/students")
 def students_page():
     """Marketing/help: the student how-to page (lesson flow, tools, earnable awards)."""
@@ -1428,9 +1495,9 @@ AWARD_DEFS = {
     "prac10":     ("✏️", "First Ten",     "Practiced 10 problems", "practice", 10),
     "prac50":     ("✏️", "Workhorse",     "Practiced 50 problems", "practice", 50),
     "prac100":    ("✏️", "Centurion",     "Practiced 100 problems", "practice", 100),
-    "firstcheck": ("🎯", "Brave Start",   "Took your first check", "one", None),
-    "perfect":    ("💯", "Perfect Check", "Scored 100% on a check", "one", None),
-    "bounceback": ("💪", "Bounce Back",   "Mastered a unit after a tough first check", "one", None),
+    "firstcheck": ("🎯", "Brave Start",   "Took your first quiz", "one", None),
+    "perfect":    ("💯", "Perfect Quiz",  "Scored 100% on a quiz", "one", None),
+    "bounceback": ("💪", "Bounce Back",   "Mastered a unit after a tough first Unit Quiz", "one", None),
     "explorer":   ("🧭", "Explorer",      "Worked in two different courses", "one", None),
     "pathfinder": ("🗺️", "Pathfinder",   "Completed a course assessment", "one", None),
 }
@@ -1632,21 +1699,34 @@ def topics_state(code: str, course: str = "algebra1"):
         except Exception as exc:  # noqa: BLE001
             print(f"[topics] get_mastery failed: {exc}")
 
+    quiz_rows = {}
+    if tracking:
+        try:
+            for q in store.get_topic_quizzes(code, course):
+                quiz_rows.setdefault(q["unit"], []).append({
+                    "name": q["topic_name"], "best_pct": q["best_pct"],
+                    "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+        except Exception as exc:  # noqa: BLE001
+            print(f"[topics] get_topic_quizzes failed: {exc}")
+
     checks = mastery.get("checks", {})
     units = []
     for n, name in curriculum.units_for(course):
         r = recorded.get(n)
         c = checks.get(n) or {}
         best = int(c.get("best_pct") or 0)
+        uq = quiz_rows.get(n, [])
         units.append({
             "unit": n,
             "name": name,
             "status": (r["status"] if r else "not-started"),
             "touches": (r["touches"] if r else 0),
             "last_touched": (r.get("last_touched") if r else None),
-            "best_pct": best,                       # best end-of-unit check score (0 if none)
+            "best_pct": best,                       # best UNIT QUIZ score (0 if none)
             "checks_taken": int(c.get("checks_taken") or 0),
             "mastered": best >= store.PASS_PCT,
+            "quizzes": uq,                          # topic-quiz rows: {name, best_pct, passed}
+            "quizzes_passed": len([q for q in uq if q["passed"]]),
         })
 
     started = [u for u in units if u["status"] != "not-started"]
@@ -3091,6 +3171,96 @@ def post_check(code: str, body: CheckIn):
         return {"ok": False, "tracking": True}
 
 
+@app.get("/api/records/{code}")
+def records_report(code: str, days: int = 90):
+    """Everything the printable homeschool records report needs (2026-08-04), in one
+    call: the full-range hours log, per-course unit progress (statuses, topic quizzes,
+    Unit Quiz best, mastered at 90%), placement titles, and dated awards. Read-only;
+    honest {tracking:false} when the DB is off."""
+    student = _student_or_404(code)
+    code = code.strip()
+    days = max(7, min(730, int(days or 90)))
+    if not store.enabled():
+        return {"tracking": False, "name": student.get("name"), "days": days,
+                "time": [], "courses": [], "awards": []}
+    from datetime import datetime, timezone, timedelta
+    today = datetime.now(timezone.utc).date()
+    day_from = (today - timedelta(days=days - 1)).isoformat()
+
+    time_rows = store.get_time_between(code, day_from, today.isoformat())
+    for r in time_rows:
+        r["course_title"] = curriculum.course_title(r["course"]) if r["course"] in curriculum.COURSES else r["course"]
+
+    courses = []
+    try:
+        activity = store.get_course_activity(code)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[records] get_course_activity failed: {exc}")
+        activity = {}
+    for cid in activity:
+        if cid not in curriculum.COURSES:
+            continue
+        try:
+            recorded = {r["unit"]: r for r in store.get_topics(code, cid)}
+            checks = (store.get_mastery(code, cid) or {}).get("checks", {})
+            quiz_rows = {}
+            for q in store.get_topic_quizzes(code, cid):
+                quiz_rows.setdefault(q["unit"], []).append({
+                    "name": q["topic_name"], "best_pct": q["best_pct"],
+                    "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+        except Exception as exc:  # noqa: BLE001
+            print(f"[records] course {cid} read failed: {exc}")
+            continue
+        units = []
+        for n, name in curriculum.units_for(cid):
+            r = recorded.get(n)
+            c = checks.get(n) or {}
+            best = int(c.get("best_pct") or 0)
+            units.append({"unit": n, "name": name,
+                          "status": (r["status"] if r else "not-started"),
+                          "best_pct": best, "checks_taken": int(c.get("checks_taken") or 0),
+                          "mastered": best >= store.PASS_PCT,
+                          "quizzes": quiz_rows.get(n, [])})
+        placement = read_placement(code, cid) or {}
+        courses.append({"course": cid, "title": curriculum.course_title(cid),
+                        "placement": placement.get("level_title") or "",
+                        "units": units,
+                        "units_mastered": len([u for u in units if u["mastered"]])})
+    courses.sort(key=lambda c: -c["units_mastered"])
+
+    awards = []
+    try:
+        for aid, earned in store.get_awards(code).items():
+            if aid in AWARD_DEFS:
+                d = AWARD_DEFS[aid]
+                awards.append({"icon": d[0], "title": d[1], "desc": d[2], "earned_at": earned})
+        awards.sort(key=lambda a: a["earned_at"] or "")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[records] awards read failed: {exc}")
+
+    return {"tracking": True, "name": student.get("name"), "days": days,
+            "time": time_rows, "courses": courses, "awards": awards}
+
+
+@app.post("/api/quiz/{code}")
+def post_quiz(code: str, body: QuizIn):
+    """Record a mid-unit TOPIC QUIZ score (2026-08-04). Same contract style as
+    /api/check: no-op (tracking:false) when the DB is off; never raises."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False}
+    try:
+        course = body.course if body.course in curriculum.COURSES else "algebra1"
+        res = store.record_topic_quiz(code, int(body.unit), (body.name or "").strip(),
+                                      int(body.correct), int(body.total), course,
+                                      topic_idx=int(body.topic or 0))
+        return {"ok": True, "tracking": True, **res}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[quiz] record_topic_quiz failed: {exc}")
+        return {"ok": False, "tracking": True}
+
+
 @app.post("/api/mark/{code}")
 def post_mark(code: str, body: MarkIn):
     """PHASE A: count a practice problem the tutor marked right/wrong (problems practiced +
@@ -3117,7 +3287,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04x-weeklymail"
+APP_BUILD = "2026-08-04z-records"
 
 
 @app.get("/health")

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    2026-08-04  HONEST 90 (build y): the heatmap's 'mastered' class still starred at 80%+ --
+                missed in the build-w sweep; now 90 to match store.PASS_PCT and the legend.
   =============================================================================
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -451,7 +453,7 @@
     // ---------- Stage 2: the class ----------
     function cellClass(u) {
       if (!u.checks_taken) return "none";
-      if (u.best_pct >= 80) return "mastered";
+      if (u.best_pct >= 90) return "mastered";   // 2026-08-04: the 90% bar (missed in the build-w sweep)
       if (u.best_pct >= 70) return "mid";
       if (u.best_pct >= 50) return "low";
       return "poor";

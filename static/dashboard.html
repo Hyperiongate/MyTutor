@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-08-04  RECORDS LINK (build z): the parent/teacher box now links to the NEW printable
+                homeschool records report at /records?code=... (hours log, mastery, awards).
+    2026-08-04  QUIZZES (build y): unit cards now show topic-quiz progress ('N topic quizzes
+                passed', from /api/topics' new per-unit `quizzes` rows) and the end-of-unit
+                check is called the 'Unit Quiz' everywhere (weak-list, parent box, Graduate
+                tip). Parents see it too -- this page IS the read-only parent view.
   =============================================================================
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -417,7 +423,7 @@
 
     <div class="foot" id="foot">
       This dashboard shows your <b>real</b> activity — nothing here is made up. It starts empty
-      and grows every time you take a lesson, practice a problem, or take a quick check.
+      and grows every time you take a lesson, practice a problem, or pass a quiz.
     </div>
   </div>
 
@@ -578,7 +584,7 @@
       const tiles = [
         { lbl: "Units mastered", big: mastered + " / " + total, ring: pct },
         { lbl: "Day streak", big: streak > 0 ? ("🔥 " + streak) : "0", small: streak === 1 ? "day in a row" : "days in a row" },
-        { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"), small: acc === null ? "take a check to see" : "on checks & practice" },
+        { lbl: "Accuracy", big: acc === null ? "—" : (acc + "%"), small: acc === null ? "take a quiz to see" : "on quizzes & practice" },
         { lbl: "Problems practiced", big: String(practiced), small: "keep it climbing" },
         { lbl: "Time this week", big: timeWeek === null ? "—" : fmtMin(timeWeek),
           small: timeWeek === null ? "turns on with tracking" : (fmtMin(timeToday) + " today · real work only") },
@@ -604,7 +610,7 @@
             const tipData = [];
             const trophies = (aw.trophies || []).map(t => {
               tipData.push({ kind: "Graduate", name: "Graduate — " + t.title,
-                desc: "The big one: every unit of " + t.title + " mastered at 90%+ — all 9, each proven with a real scored check. This honor is earned, never given.", when: null });
+                desc: "The big one: every unit of " + t.title + " mastered at 90%+ — all 9, each proven with a real scored Unit Quiz. This honor is earned, never given.", when: null });
               return `<div class="tro" tabindex="0"><span class="ic">🎓</span><span><span class="nm">Graduate — ${esc(t.title)}</span><br><span class="ds">Finished the whole course — all 9 units mastered</span></span></div>`;
             });
             const medals = (aw.awards || []).map(a => {
@@ -640,8 +646,8 @@
         el("strengthen").className = "weaks";
         el("strengthen").innerHTML = weak.slice(0, 4).map(u => {
           const meta = u.checks_taken
-            ? ("Best check: " + u.best_pct + "% · let's get it to 90%")
-            : "Not checked yet — a quick check shows where you stand";
+            ? ("Unit Quiz best: " + u.best_pct + "% · let's get it to 90%")
+            : "No Unit Quiz yet — pass the topic quizzes, then take it";
           return `
             <div class="weak">
               <div class="n">${u.unit}</div>
@@ -703,7 +709,9 @@
         let meta = "&nbsp;";
         if (touched) {
           const bits = [];
-          if (u.checks_taken) bits.push("best check " + u.best_pct + "%");
+          const qp = (u.quizzes || []).filter(q => q.passed).length;
+          if (qp) bits.push(qp + (qp === 1 ? " topic quiz" : " topic quizzes") + " passed");
+          if (u.checks_taken) bits.push("Unit Quiz best " + u.best_pct + "%");
           bits.push(u.touches + (u.touches === 1 ? " visit" : " visits"));
           if (u.last_touched) bits.push(fmtDate(u.last_touched));
           meta = bits.join(" · ");
@@ -734,7 +742,7 @@
         el("title").insertAdjacentHTML("beforeend", '<span class="ptbadge">' + badge + '</span>');
         const weakT = units.filter(u => u.status !== "not-started" && !u.mastered);
         const weakTxt = weakT.length
-          ? weakT.slice(0, 3).map(u => u.name + (u.checks_taken ? " (" + u.best_pct + "%)" : " (no check yet)")).join(", ")
+          ? weakT.slice(0, 3).map(u => u.name + (u.checks_taken ? " (" + u.best_pct + "%)" : " (no Unit Quiz yet)")).join(", ")
           : "nothing outstanding — they've mastered everything they've started";
         const str2 = placement.strengths || [];
         const box = el("teacherBox");
@@ -745,13 +753,15 @@
           + (acc === null ? "" : " · <b>" + acc + "%</b> accuracy")
           + " · <b>" + (stats.problems_practiced || 0) + "</b> problems practiced.</div>"
           + "<div style=\"margin-top:6px\"><b>Where to help next:</b> " + esc(weakTxt) + ".</div>"
-          + (str2.length ? "<div style=\"margin-top:6px\"><b>Strengths:</b> " + str2.map(esc).join(", ") + ".</div>" : "");
+          + (str2.length ? "<div style=\"margin-top:6px\"><b>Strengths:</b> " + str2.map(esc).join(", ") + ".</div>" : "")
+          + "<div style=\"margin-top:8px\">🖨 <a href=\"/records?code=" + encodeURIComponent(CODE)
+          + "\" style=\"font-weight:700\">Print homeschool records</a> — hours log, mastery evidence, and awards, ready for portfolios and filings.</div>";
       }
 
       // ----- Friendly nudge if nothing yet (student view only) -----
       if (!isTeacher && !anyStarted && data.tracking) {
         el("foot").innerHTML = "You haven't worked on anything yet — that's the perfect place to start! "
-          + "Head back and take a lesson, practice a problem, or take a quick check. "
+          + "Head back and take a lesson, practice a problem, or try a quiz. "
           + '<a class="cta" href="/home?code=' + encodeURIComponent(CODE) + '">Let\'s go →</a>';
       }
     })();

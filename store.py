@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  RECORDS PAGE (build z): new get_time_between(code, day_from, day_to) -- the
+#               full-range hours log for the printable homeschool records report (get_time()
+#               only serves the dashboard's recent window). Read-only; additive.
+#   2026-08-04  TOPIC QUIZZES (Jim: quizzes as checkpoints WITHIN a unit -- pass one to move to
+#               the next topic -- plus the end-of-unit check renamed the 'Unit Quiz' in the UI).
+#               NEW table `topic_quizzes` (code+course+unit+topic_key pk): one row per topic the
+#               student has been quizzed on, keyed by a normalized topic-name slug so the same
+#               topic never double-files even if the tutor words it slightly differently.
+#               NEW: QUIZ_PASS_PCT = 80 (the mid-unit bar; the Unit Quiz keeps PASS_PCT = 90),
+#               record_topic_quiz() (upserts best/last/attempts), get_topic_quizzes(). Additive.
 #   2026-08-04  WEEKLY PARENT EMAIL (the one promised-but-unbuilt feature -- Jim: build it now).
 #               NEW table `parent_digests` (parent_id pk, last_sent_at, optout, optout_token,
 #               created_at): one row per parent tracking when their weekly report last went out
@@ -386,6 +396,23 @@ def init():
             Column("class_code", String(32), primary_key=True),
             Column("student_code", String(64), primary_key=True),
             Column("added_at", DateTime(timezone=True)),
+        )
+        # TOPIC QUIZZES (2026-08-04): mid-unit checkpoint quizzes. One row per student/
+        # course/unit/topic; topic_key is a normalized slug of the topic name (stable
+        # even if the tutor words the name slightly differently between sessions).
+        _tables["topic_quizzes"] = Table(
+            "topic_quizzes", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
+            Column("unit", Integer, primary_key=True),
+            Column("topic_key", String(64), primary_key=True),
+            Column("topic_name", String(128)),
+            Column("topic_idx", Integer, default=0),
+            Column("quizzes_taken", Integer, default=0),
+            Column("best_pct", Integer, default=0),
+            Column("last_pct", Integer, default=0),
+            Column("updated_at", DateTime(timezone=True)),
         )
         # ENGAGED TIME (2026-07-30): minutes of real, verified work per student/course/day.
         # `day` is the student's LOCAL calendar day ('YYYY-MM-DD'), sent by the browser.
@@ -790,6 +817,19 @@ def get_time(code: str, days: int = 14) -> list:
     return [{"day": r[0], "course": r[1], "minutes": r[2] or 0} for r in rows]
 
 
+def get_time_between(code: str, day_from: str, day_to: str) -> list:
+    """Engaged-time rows for an arbitrary day range (records report): [{day, course,
+    minutes}], oldest first. Day strings are ISO 'YYYY-MM-DD' so string compare works."""
+    from sqlalchemy import select
+    t = _tables["time_daily"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.day, t.c.course, t.c.minutes)
+                            .where((t.c.code == code) &
+                                   (t.c.day >= day_from) & (t.c.day <= day_to))
+                            .order_by(t.c.day)).all()
+    return [{"day": r[0], "course": r[1], "minutes": r[2] or 0} for r in rows]
+
+
 # ---- awards (2026-07-30) -----------------------------------------------------
 def get_awards(code: str) -> dict:
     """This student's earned awards: {award_id: earned_at_iso}."""
@@ -814,6 +854,9 @@ def record_awards(code: str, award_ids: list) -> None:
 # ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------
 # A unit is "mastered" when the student passes a check (best score >= PASS_PCT, i.e. 90%).
 PASS_PCT = 90
+# A mid-unit TOPIC QUIZ is "passed" at QUIZ_PASS_PCT (80%) -- deliberately below the 90%
+# mastery bar, so topic checkpoints keep students moving while the Unit Quiz stays special.
+QUIZ_PASS_PCT = 80
 
 
 def _today() -> str:
@@ -901,6 +944,49 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
     _touch_streak(s)
     _save_stats(code, s)
     return {"pct": pct, "best_pct": best_pct, "mastered": pct >= PASS_PCT}
+
+
+def _topic_key(name: str) -> str:
+    """Normalized slug of a topic name -- stable across small wording differences."""
+    import re as _re
+    return _re.sub(r"[^a-z0-9]+", "", (name or "").lower())[:60] or "topic"
+
+
+def record_topic_quiz(code: str, unit: int, topic_name: str, correct: int, total: int,
+                      course: str = DEFAULT_COURSE, topic_idx: int = 0) -> dict:
+    """Record one mid-unit TOPIC QUIZ result. Upserts by normalized topic name; keeps
+    best/last percent and an attempt count. Returns {pct, passed, best_pct}."""
+    from sqlalchemy import select
+    correct = max(0, int(correct)); total = max(1, int(total))
+    pct = round(100 * correct / total)
+    key = _topic_key(topic_name)
+    t = _tables["topic_quizzes"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.quizzes_taken, t.c.best_pct).where(
+            (t.c.code == code) & (t.c.course == course) &
+            (t.c.unit == int(unit)) & (t.c.topic_key == key))).first()
+    taken = (int(r[0]) if r and r[0] else 0) + 1
+    best = max(pct, int(r[1]) if r and r[1] else 0)
+    _upsert("topic_quizzes",
+            {"code": code, "course": course, "unit": int(unit), "topic_key": key},
+            {"topic_name": (topic_name or "").strip()[:128], "topic_idx": int(topic_idx or 0),
+             "quizzes_taken": taken, "best_pct": best, "last_pct": pct, "updated_at": _now()})
+    return {"pct": pct, "passed": pct >= QUIZ_PASS_PCT, "best_pct": best}
+
+
+def get_topic_quizzes(code: str, course: str = DEFAULT_COURSE) -> list:
+    """This student's topic-quiz rows for a course, unit order then topic order:
+    [{unit, topic_name, topic_idx, quizzes_taken, best_pct, last_pct}]."""
+    from sqlalchemy import select
+    t = _tables["topic_quizzes"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.unit, t.c.topic_name, t.c.topic_idx,
+                                   t.c.quizzes_taken, t.c.best_pct, t.c.last_pct)
+                            .where((t.c.code == code) & (t.c.course == course))
+                            .order_by(t.c.unit, t.c.topic_idx)).all()
+    return [{"unit": int(r[0]), "topic_name": r[1] or "", "topic_idx": int(r[2] or 0),
+             "quizzes_taken": int(r[3] or 0), "best_pct": int(r[4] or 0),
+             "last_pct": int(r[5] or 0)} for r in rows]
 
 
 def record_practice(code: str, correct: int, attempted: int = 1) -> None:
