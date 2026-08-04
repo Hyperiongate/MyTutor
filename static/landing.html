@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-04  FAQ OVERHAUL (Jim's review): fixed three stale answers -- the ChatGPT question now
+    names the engine (Anthropic's Claude, currently Claude Sonnet 5) and what's built around it;
+    the microphone answer now says elementary students TAP (typing isn't the only way anymore);
+    ages/levels lists all TEN courses (grade 1 -> Differential Equations). Added four new
+    questions parents actually ask: how do we know the math is right (the SymPy verifier -- now a
+    marketing fact), will it chat about non-math (the guardrails), what does it cost (free plan +
+    family plan), what devices. Also fixed the co-op answer (real family-plan terms; removed
+    'assignments', which isn't built -- honest metrics). Visible <details> AND the JSON-LD
+    FAQPage schema updated together from one source list.
   - 2026-08-04  PRICING SECTION TRUTH PASS (Jim's screenshot): this section had gone stale while
     pricing.html moved on. (1) "All 8 courses" / "all eight courses" -> TEN (Entry-Level Math
     through Differential Equations shipped 2026-08-03). (2) The FREE card's "Start free" button
@@ -302,7 +311,15 @@
      "name": "Is this just ChatGPT that solves the homework?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "No. Mr. Cadabra's Classroom is built to teach. It uses a Socratic approach — guiding with questions and drawing each step on a whiteboard that never runs ahead of your student — wrapped around complete, placement-to-mastery courses. The goal is understanding, not a copied answer."
+      "text": "No. Mr. Cadabra's Classroom is built to teach, not to hand over answers. It runs on Anthropic's Claude — a high-end reasoning model (currently Claude Sonnet 5) — but the difference is everything built around it: a Socratic approach that guides with questions, a whiteboard that draws each step and never runs ahead of your student, and complete placement-to-mastery courses. The goal is understanding, not a copied answer."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do I know the math is actually right?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Every problem and answer Mr. Cadabra states is double-checked by a separate math engine — real symbolic math software, not another AI — before your student ever sees it. If a check fails, the reply is silently corrected first. Progress numbers work the same way: dashboards only ever show real, scored work."
      }
     },
     {
@@ -310,7 +327,7 @@
      "name": "Does my child need a microphone?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "No. Mr. Cadabra talks your student through each step in a warm voice, and your student answers by typing — with a built-in math keyboard for symbols like √ and x². There's no microphone, so no student voice is recorded: it's quiet-friendly, works on shared devices, and keeps things private."
+      "text": "No — there is no microphone, ever, so no student voice is recorded. Mr. Cadabra talks your student through each step in a warm voice, and your student answers by tapping answer buttons in the elementary courses (grades 1–6) or by typing — with a built-in math keyboard for symbols like √ and x². Quiet-friendly, shared-device-friendly, private."
      }
     },
     {
@@ -318,7 +335,15 @@
      "name": "What ages and levels is it for?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Today the math library spans eight complete courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Calculus, Differential Equations, and Probability & Statistics — and placement puts each student exactly where they belong."
+      "text": "Ten complete courses, from a first-grader's first numbers to college math: Entry-Level Math (grades 1–3), Basic Math (grades 4–6), Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Probability & Statistics, Calculus, and Differential Equations. A placement check puts each student exactly where they belong, and they can move between courses anytime."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Will it chat about things besides math?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for children should behave."
      }
     },
     {
@@ -326,7 +351,23 @@
      "name": "How do you handle my child's data?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Parents create and control the account. We never sell student data or use it for advertising. You can request deletion at any time. See the Parents & Privacy page for specifics."
+      "text": "Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising, there's no microphone so no voice is ever recorded, and you can request deletion at any time. See the Parents & Privacy page for specifics."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does it cost?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two children ($24/month billed annually). Cancel anytime. See the Pricing page for details."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What devices does it work on?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a child's login is just their code. Turn the sound on: his voice is half the charm."
      }
     },
     {
@@ -334,7 +375,7 @@
      "name": "Can I use this for more than one child, or a co-op?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Yes — ask about family pricing for multiple students, or the teacher dashboard for classrooms and co-ops with rosters, a mastery heatmap, and assignments."
+      "text": "Yes. One family plan covers up to two children — the second child is free — and each child gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term."
      }
     }
    ]
@@ -559,11 +600,15 @@
 <!-- FAQ -->
 <section id="faq" class="wrap">
   <div class="center" style="max-width:70ch;margin-bottom:24px"><span class="eyebrow">Questions</span><h2>Frequently asked</h2></div>
-  <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. Mr. Cadabra's Classroom is built to <em>teach</em>. It uses a Socratic approach — guiding with questions and drawing each step on a whiteboard that never runs ahead of your student — wrapped around complete, placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
-  <details><summary>Does my child need a microphone?</summary><p>No. Mr. Cadabra <em>talks</em> your student through each step in a warm voice, and your student answers by <em>typing</em> — with a built-in math keyboard for symbols like √ and x². There's no microphone, so no student voice is recorded: it's quiet-friendly, works on shared devices, and keeps things private.</p></details>
-  <details><summary>What ages and levels is it for?</summary><p>Today the math library spans eight complete courses — Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Calculus, Differential Equations, and Probability &amp; Statistics — and placement puts each student exactly where they belong. Our roadmap keeps growing toward a complete K‑12-and-beyond companion.</p></details>
-  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account. We never sell student data or use it for advertising. You can request deletion at any time, and you choose whether any voice features are used. See the Parents &amp; Privacy page for specifics.</p></details>
-  <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes — ask about family pricing for multiple students, or the teacher dashboard for classrooms and co-ops with rosters, a mastery heatmap, and assignments.</p></details>
+  <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. Mr. Cadabra's Classroom is built to <em>teach</em>, not to hand over answers. It runs on Anthropic's Claude — a high-end reasoning model (currently Claude Sonnet 5) — but the difference is everything built around it: a Socratic approach that guides with questions, a whiteboard that draws each step and never runs ahead of your student, and complete placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
+  <details><summary>How do I know the math is actually right?</summary><p>Every problem and answer Mr. Cadabra states is double-checked by a separate math engine — real symbolic math software, not another AI — before your student ever sees it. If a check fails, the reply is silently corrected first. Progress numbers work the same way: dashboards only ever show real, scored work.</p></details>
+  <details><summary>Does my child need a microphone?</summary><p>No — there is no microphone, ever, so no student voice is recorded. Mr. Cadabra <em>talks</em> your student through each step in a warm voice, and your student answers by <em>tapping</em> answer buttons in the elementary courses (grades 1–6) or by <em>typing</em> — with a built-in math keyboard for symbols like √ and x². Quiet-friendly, shared-device-friendly, private.</p></details>
+  <details><summary>What ages and levels is it for?</summary><p>Ten complete courses, from a first-grader's first numbers to college math: Entry-Level Math (grades 1–3), Basic Math (grades 4–6), Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Probability &amp; Statistics, Calculus, and Differential Equations. A placement check puts each student exactly where they belong, and they can move between courses anytime.</p></details>
+  <details><summary>Will it chat about things besides math?</summary><p>No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for children should behave.</p></details>
+  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising, there's no microphone so no voice is ever recorded, and you can request deletion at any time. See the Parents &amp; Privacy page for specifics.</p></details>
+  <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two children ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
+  <details><summary>What devices does it work on?</summary><p>Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a child's login is just their code. Turn the sound on: his voice is half the charm.</p></details>
+  <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes. One family plan covers up to two children — the second child is free — and each child gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
 </section>
 <!-- FINAL CTA -->
 <section class="wrap center">

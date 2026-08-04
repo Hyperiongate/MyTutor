@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04r-faq". FAQ OVERHAUL on the landing page (static-only;
+#               bump for deploy verification). Jim's review caught three stale answers (no
+#               Anthropic/Claude mention, "answers by typing" ignoring elementary tap-to-answer,
+#               eight courses instead of ten); rewrote those and added four new questions (math
+#               verified by a real engine, math-only guardrails, cost incl. family plan, devices).
+#               Both the visible FAQ and the JSON-LD FAQPage schema regenerated from one list.
 #   2026-08-04  APP_BUILD -> "2026-08-04q-pwreset". PASSWORD RESET + SIGN-IN FIXES (Jim tried
 #               to create an account with an email that already had one and the form silently
 #               flipped tabs). Backend half: (1) _send_email() -- the app's FIRST outbound
@@ -2733,7 +2739,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04q-pwreset"
+APP_BUILD = "2026-08-04r-faq"
 
 
 @app.get("/health")
