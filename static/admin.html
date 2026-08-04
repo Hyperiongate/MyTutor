@@ -12,6 +12,11 @@
                     monthly revenue, engagement, beta usage, forum activity, and
                     the system/health facts (build stamp, model, database,
                     payments open?) -- all real, pulled from /api/admin/stats.
+  - 2026-08-04  COST & VERIFIER SECTION (Measurement plan #1): new tiles fed by usage7/usage30
+    in the same /api/admin/stats payload -- tutor turns + retries, token totals, voice
+    characters (with the %% served free from the audio cache), the math-verifier catch
+    numbers, and estimated dollars/cost-per-student that appear ONLY once the price env
+    vars are set in Render (never invented).
                   * the BETA PASS GENERATOR built right in (create / list /
                     revoke), the same tools as /beta?admin= but on this page so
                     Jim stops bouncing around.
@@ -172,6 +177,13 @@
   function $(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
   function num(n) { return Number(n || 0).toLocaleString(); }
+  function big(n) {   // compact token counts: 1234 -> "1.2k", 3400000 -> "3.4M"
+    n = Number(n || 0);
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+    return String(n);
+  }
+  function usd(n) { return n === null || n === undefined ? "—" : "$" + Number(n).toFixed(2); }
   function money(n) { return "$" + Number(n || 0).toLocaleString(); }
   function keyMsg(text, kind) { var el = $("keyMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
   function gMsg(text, kind) { var el = $("gMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
@@ -252,6 +264,31 @@
       { l: "Units mastered", v: num(s.units_mastered), s: "80%+ on a unit check" },
       { l: "Checks taken", v: num(s.checks_taken) },
       { l: "Problems practiced", v: num(s.problems_practiced) }
+    ]));
+
+    // ---- COST & VERIFIER (2026-08-04, Measurement plan #1) ----
+    // Raw counts are always real (from the usage log). DOLLARS appear only when the
+    // price env vars are set in Render -- we never invent a cost.
+    var u7 = payload.usage7 || {}, u30 = payload.usage30 || {};
+    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + (u7.verify_unverifiable || 0);
+    var caught7 = (u7.verify_fixed || 0) + (u7.verify_unresolved || 0);
+    var ttsTotal7 = (u7.tts_chars_generated || 0) + (u7.tts_chars_cached || 0);
+    var ttsFreePct = ttsTotal7 ? Math.round(100 * (u7.tts_chars_cached || 0) / ttsTotal7) : 0;
+    var perStudent = (u7.total_usd !== null && u7.total_usd !== undefined && u7.brain_students)
+      ? "$" + (u7.total_usd / u7.brain_students).toFixed(2) : "—";
+    html += section("💵 Cost & verifier", "Last 7 days (30-day figures underneath). Dollars appear once the price env vars are set — see the tile notes.", tiles([
+      { l: "Tutor turns", v: num(u7.brain_calls), s: "30d: " + num(u30.brain_calls) + " · " + num(u7.retries) + " verifier retries" },
+      { l: "Tokens in / out", v: big(u7.input_tokens) + " / " + big(u7.output_tokens),
+        s: "cached-in: " + big(u7.cache_read_tokens) + " · 30d: " + big(u30.input_tokens) + " / " + big(u30.output_tokens) },
+      { l: "Est. brain cost", v: usd(u7.brain_usd), cls: u7.brain_usd !== null && u7.brain_usd !== undefined ? "good" : "",
+        s: u7.brain_usd === null || u7.brain_usd === undefined ? "set ANTHROPIC_IN/OUT_USD_PER_MTOK" : "30d: " + usd(u30.brain_usd) },
+      { l: "Voice characters", v: big(u7.tts_chars_generated), s: ttsFreePct + "% served free from cache · 30d: " + big(u30.tts_chars_generated) },
+      { l: "Est. voice cost", v: usd(u7.tts_usd), cls: u7.tts_usd !== null && u7.tts_usd !== undefined ? "good" : "",
+        s: u7.tts_usd === null || u7.tts_usd === undefined ? "set ELEVEN_USD_PER_1K_CHARS" : "30d: " + usd(u30.tts_usd) },
+      { l: "Cost / student (7d)", v: perStudent, s: num(u7.brain_students) + " students used the brain" },
+      { l: "Math checks", v: num(checked7), s: "turns with a checkable claim (7d)" },
+      { l: "Errors caught & fixed", v: num(caught7), cls: caught7 ? "warn" : "good",
+        s: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "% verified right first try" : "no checked turns yet" }
     ]));
 
     html += section("🎟️ Beta program", "Your passes at a glance (full generator below).", tiles([

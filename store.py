@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  USAGE LOG (Measurement plan #1 -- Jim: gather cost/usage/quality data so we can
+#               make pricing, model, and grant decisions). NEW table `usage_log`: one privacy-safe
+#               row per paid event -- kind 'brain' (a tutor turn: token counts straight from the
+#               Anthropic response, attempt count, and the math-verifier verdict) or kind 'tts'
+#               (an ElevenLabs request: character count + whether the audio cache served it free).
+#               No conversation text is EVER stored here -- counts only. New log_usage() (fire-and-
+#               forget; swallows every error -- logging must never break a lesson) and
+#               usage_stats(days) (aggregates for /admin: tokens, retries, verifier breakdown,
+#               distinct students, TTS generated-vs-cached). Additive: new table only.
 #   2026-08-03  has_any_history() gained an optional `courses` filter (iterable of course ids)
 #               so main.py can compute the screen-tour flag per CLASSROOM TYPE (elementary
 #               tap-courses vs typing courses). Default None keeps the original any-course
@@ -390,6 +399,26 @@ def init():
             Column("body", Text),
             Column("created_at", DateTime(timezone=True)),
             Column("deleted", Integer, default=0),
+        )
+        # USAGE LOG (2026-08-04): one row per paid event (a brain turn or a TTS request).
+        # COUNTS ONLY -- never any conversation text. See log_usage()/usage_stats() below.
+        _tables["usage_log"] = Table(
+            "usage_log", _meta,
+            Column("id", String(64), primary_key=True),
+            Column("kind", String(16), index=True),      # 'brain' | 'tts'
+            Column("code", String(64), index=True),      # student code ('' if none, e.g. demo)
+            Column("course", String(32)),
+            Column("mode", String(24)),                  # lesson|practice|topic|assessment|speak|demo
+            Column("model", String(64)),                 # brain: Claude model id; tts: ElevenLabs model
+            Column("input_tokens", Integer, default=0),
+            Column("output_tokens", Integer, default=0),
+            Column("cache_read_tokens", Integer, default=0),
+            Column("cache_write_tokens", Integer, default=0),
+            Column("tts_chars", Integer, default=0),
+            Column("tts_cache_hit", Integer, default=0), # 1 = served from disk cache ($0)
+            Column("attempts", Integer, default=1),      # model calls this turn (verifier retries)
+            Column("verify_status", String(16), default=""),  # ok|fixed|unresolved|unverifiable|none
+            Column("created_at", DateTime(timezone=True), index=True),
         )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
@@ -1412,6 +1441,94 @@ def status() -> dict:
 
 
 # ---- admin dashboard aggregates (2026-08-03: Jim's central /admin page) ------
+def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model: str = "",
+              input_tokens: int = 0, output_tokens: int = 0, cache_read_tokens: int = 0,
+              cache_write_tokens: int = 0, tts_chars: int = 0, tts_cache_hit: bool = False,
+              attempts: int = 1, verify_status: str = "") -> None:
+    """Record one paid event (a tutor brain turn or a TTS request). COUNTS ONLY -- no
+    conversation text ever. Fire-and-forget: every error is swallowed and printed,
+    because usage logging must NEVER break or slow a lesson. No-op when the DB is off
+    (the numbers can't be recovered later, but teaching always comes first)."""
+    if not _ENABLED:
+        return
+    try:
+        import uuid as _uuid
+        t = _tables["usage_log"]
+        with _engine.begin() as conn:
+            conn.execute(t.insert().values(
+                id=_uuid.uuid4().hex, kind=str(kind)[:16], code=str(code or "")[:64],
+                course=str(course or "")[:32], mode=str(mode or "")[:24],
+                model=str(model or "")[:64],
+                input_tokens=int(input_tokens or 0), output_tokens=int(output_tokens or 0),
+                cache_read_tokens=int(cache_read_tokens or 0),
+                cache_write_tokens=int(cache_write_tokens or 0),
+                tts_chars=int(tts_chars or 0), tts_cache_hit=1 if tts_cache_hit else 0,
+                attempts=int(attempts or 1), verify_status=str(verify_status or "")[:16],
+                created_at=_now()))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] log_usage failed (non-fatal): {_redact(str(exc))}")
+
+
+def usage_stats(days: int = 7) -> dict:
+    """Aggregate the usage log for /admin: token totals, verifier breakdown, retry count,
+    distinct students served, and TTS characters generated vs served free from cache.
+    All-zeros when the DB is off; any query error is swallowed (never 500s)."""
+    out = {"days": days,
+           "brain_calls": 0, "input_tokens": 0, "output_tokens": 0,
+           "cache_read_tokens": 0, "cache_write_tokens": 0,
+           "retries": 0, "brain_students": 0,
+           "verify_ok": 0, "verify_fixed": 0, "verify_unresolved": 0,
+           "verify_unverifiable": 0, "verify_none": 0,
+           "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0}
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func
+    try:
+        U = _tables["usage_log"]
+        cutoff = _now() - _dt.timedelta(days=int(days))
+        recent = U.c.created_at >= cutoff
+        brain = (U.c.kind == "brain") & recent
+        tts = (U.c.kind == "tts") & recent
+        with _engine.connect() as conn:
+            row = conn.execute(select(
+                func.count(),
+                func.coalesce(func.sum(U.c.input_tokens), 0),
+                func.coalesce(func.sum(U.c.output_tokens), 0),
+                func.coalesce(func.sum(U.c.cache_read_tokens), 0),
+                func.coalesce(func.sum(U.c.cache_write_tokens), 0),
+                func.coalesce(func.sum(U.c.attempts), 0),
+            ).where(brain)).fetchone()
+            out["brain_calls"] = int(row[0] or 0)
+            out["input_tokens"] = int(row[1] or 0)
+            out["output_tokens"] = int(row[2] or 0)
+            out["cache_read_tokens"] = int(row[3] or 0)
+            out["cache_write_tokens"] = int(row[4] or 0)
+            out["retries"] = max(0, int(row[5] or 0) - out["brain_calls"])
+            out["brain_students"] = int(conn.execute(
+                select(func.count(func.distinct(U.c.code)))
+                .where(brain & (U.c.code != ""))).scalar() or 0)
+            for vs, n in conn.execute(
+                    select(U.c.verify_status, func.count()).where(brain)
+                    .group_by(U.c.verify_status)).fetchall():
+                key = "verify_" + (vs or "none")
+                if key in out:
+                    out[key] += int(n or 0)
+                else:
+                    out["verify_none"] += int(n or 0)
+            out["tts_requests"] = int(conn.execute(
+                select(func.count()).where(tts)).scalar() or 0)
+            out["tts_chars_generated"] = int(conn.execute(
+                select(func.coalesce(func.sum(U.c.tts_chars), 0))
+                .where(tts & (U.c.tts_cache_hit == 0))).scalar() or 0)
+            out["tts_chars_cached"] = int(conn.execute(
+                select(func.coalesce(func.sum(U.c.tts_chars), 0))
+                .where(tts & (U.c.tts_cache_hit == 1))).scalar() or 0)
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = _redact(str(exc))
+        print(f"[store] usage_stats failed: {out['error']}")
+    return out
+
+
 def admin_stats() -> dict:
     """Privacy-safe aggregate numbers for Jim's /admin dashboard. Returns only
     COUNTS and TOTALS -- never a name, email, or login code -- read straight from

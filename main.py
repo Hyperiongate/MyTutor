@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04m-costlog". MEASUREMENT #1 (Jim: "let's get started on
+#               the measurement"). Every paid event is now RECORDED (counts only, never text):
+#               tutor turns log their real token consumption + verifier verdict (tutor.py does
+#               the logging; the four call sites here now pass the student code through), and
+#               _tts_stream_response() logs every voice request's character count + whether the
+#               audio cache served it free (speak + demo). /api/admin/stats now also returns
+#               usage7/usage30 aggregates with estimated DOLLARS -- computed ONLY when the price
+#               env vars are set (ANTHROPIC_IN_USD_PER_MTOK, ANTHROPIC_OUT_USD_PER_MTOK,
+#               ELEVEN_USD_PER_1K_CHARS in Render); with no prices set it reports raw counts and
+#               null dollars -- honest metrics, nothing invented. /admin renders the new section.
 #   2026-08-03  APP_BUILD -> "2026-08-03l-shots". PRODUCT-SCREENSHOT REFRESH + two dashboard CSS
 #               fixes (all static; bump is for deploy verification). Jim spotted the teachers-page
 #               heatmap image cut off at the bottom; an audit of ALL six product screenshots found:
@@ -2042,6 +2052,37 @@ def beta_revoke(body: BetaRevokeIn):
 # /health shows -- never a child's name, a parent's email, or a login code.
 # =============================================================================
 
+def _usage_with_dollars(days: int) -> dict:
+    """store.usage_stats(days) plus estimated DOLLARS -- computed ONLY from prices Jim
+    sets in Render env vars (nothing invented; dollars stay null until prices exist):
+      ANTHROPIC_IN_USD_PER_MTOK   price per MILLION input tokens
+      ANTHROPIC_OUT_USD_PER_MTOK  price per MILLION output tokens
+      ELEVEN_USD_PER_1K_CHARS     price per 1,000 ElevenLabs characters
+    Cache math per Anthropic's published multipliers: cached reads bill at 10% of the
+    input price; cache writes at 125%."""
+    u = store.usage_stats(days)
+    def _price(name):
+        try:
+            v = os.environ.get(name, "").strip()
+            return float(v) if v else None
+        except ValueError:
+            return None
+    pin, pout = _price("ANTHROPIC_IN_USD_PER_MTOK"), _price("ANTHROPIC_OUT_USD_PER_MTOK")
+    ptts = _price("ELEVEN_USD_PER_1K_CHARS")
+    brain_usd = tts_usd = None
+    if pin is not None and pout is not None:
+        brain_usd = round((u["input_tokens"] * pin
+                           + u["cache_read_tokens"] * pin * 0.10
+                           + u["cache_write_tokens"] * pin * 1.25
+                           + u["output_tokens"] * pout) / 1_000_000, 2)
+    if ptts is not None:
+        tts_usd = round(u["tts_chars_generated"] / 1000 * ptts, 2)
+    u["brain_usd"] = brain_usd
+    u["tts_usd"] = tts_usd
+    u["total_usd"] = round(brain_usd + tts_usd, 2) if (brain_usd is not None and tts_usd is not None) else None
+    return u
+
+
 @app.get("/api/admin/stats")
 def admin_stats_api(key: str = ""):
     """The numbers behind /admin. Admin-key protected (constant-time compare)."""
@@ -2054,6 +2095,8 @@ def admin_stats_api(key: str = ""):
         "payments_open": _payments_open(),
         "storage": store.status(),
         "stats": store.admin_stats(),
+        "usage7": _usage_with_dollars(7),
+        "usage30": _usage_with_dollars(30),
     }
 
 
@@ -2546,7 +2589,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03l-shots"
+APP_BUILD = "2026-08-04m-costlog"
 
 
 @app.get("/health")
@@ -2761,7 +2804,7 @@ def assessment(code: str, request: Request, course: str = "algebra1",
     # Paid call: modest per-student cap on top of the cache.
     _rate_limit("assess:" + code, limit=8, window_seconds=3600, what="assessment requests")
     facts = _assessment_facts(code, student, course)
-    text = tutor.get_assessment(facts, audience)
+    text = tutor.get_assessment(facts, audience, code=code, course=course)
     if not text.startswith("("):                      # don't cache error placeholders
         if len(_ASSESS_CACHE) > 2000:
             _ASSESS_CACHE.clear()
@@ -2930,13 +2973,13 @@ def chat(req: ChatRequest):
                 "give a SHORT recap of where you two are and what's next, then invite them to keep "
                 "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
                 "them, do NOT tell them to focus, and do NOT act annoyed.)")
-        reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course), history)
+        reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
         save_session(code, session, req.course)
         return {"reply": reply}
 
-    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course), history)
+    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course, code=code), history)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})
@@ -2989,7 +3032,7 @@ def practice(req: PracticeRequest):
         if role in ("user", "assistant") and isinstance(content, str) and content.strip():
             safe_history.append({"role": role, "content": content})
 
-    reply = _bold_first_terms(tutor.get_practice_reply(student, req.problem, safe_history, message, req.course), req.history)
+    reply = _bold_first_terms(tutor.get_practice_reply(student, req.problem, safe_history, message, req.course, code=req.code.strip()), req.history)
 
     # Real tracking: classify the problem to a unit WITHIN this course, count "practiced".
     unit, name = curriculum.classify_unit(req.problem or message, req.course)
@@ -3025,7 +3068,7 @@ def topic(req: TopicRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
-    reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course), req.history)
+    reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course, code=req.code.strip()), req.history)
 
     # Real tracking: classify the chosen topic to a unit WITHIN this course, count "explored".
     unit, name = curriculum.classify_unit(req.topic or message, req.course)
@@ -3084,7 +3127,7 @@ def speak(text: str = "", code: str = "", lead: int = 0):
         raise HTTPException(status_code=413, detail="That text is too long to speak.")
     if not text or not ELEVEN_API_KEY:
         return Response(status_code=204)
-    return _tts_stream_response(text, lead)
+    return _tts_stream_response(text, lead, code=code.strip(), mode="speak")
 
 
 # 2026-08-01 (Jim's beta run: "he sometimes drops the first word"): audio output paths
@@ -3097,16 +3140,27 @@ _TTS_LEAD_SILENCE = _b64.b64decode(
     "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAMAAAVOAAnJycnJycnJzs7Ozs7Ozs7Tk5OTk5OTk5iYmJiYmJiYmJ2dnZ2dnZ2domJiYmJiYmJnZ2dnZ2dnZ2dsbGxsbGxsbHExMTExMTExNjY2NjY2NjY2Ozs7Ozs7Ozs//////////8AAAAATGF2YzYwLjMxAAAAAAAAAAAAAAAAJAOEAAAAAAAAFTh99LqRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uQxAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=")
 
 
-def _tts_stream_response(text: str, lead: int = 0):
+def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "speak"):
     """Shared TTS pipeline (used by /api/speak and /api/demo-audio): serve the cached
     render if we have it, otherwise stream from ElevenLabs while caching atomically.
     `lead` = extra leading-silence blocks (0-4) beyond the standard one -- the first clip
-    of a session gets more so a sleeping audio output eats silence, not words."""
+    of a session gets more so a sleeping audio output eats silence, not words.
+    `code`/`mode` (2026-08-04): attribute this request in the usage log -- character
+    count + cache hit/miss only, never the text itself."""
     lead_silence = _TTS_LEAD_SILENCE * (1 + max(0, min(int(lead or 0), 4)))
     # Cache HIT: replay the saved render, no ElevenLabs call.
     cache_path = _tts_cache_path(text)
+    cache_hit = False
     try:
-        if cache_path.exists() and cache_path.stat().st_size > 0:
+        cache_hit = cache_path.exists() and cache_path.stat().st_size > 0
+    except Exception as exc:  # noqa: BLE001
+        print(f"[speak] cache stat error: {exc}")
+    # USAGE LOG (2026-08-04): a miss is about to spend ElevenLabs characters; a hit is free.
+    # Fire-and-forget -- log_usage swallows its own errors and no-ops when the DB is off.
+    store.log_usage(kind="tts", code=code, mode=mode, model=str(ELEVEN_MODEL or ""),
+                    tts_chars=len(text), tts_cache_hit=cache_hit)
+    try:
+        if cache_hit:
             return Response(content=lead_silence + cache_path.read_bytes(),
                             media_type="audio/mpeg")
     except Exception as exc:  # noqa: BLE001
@@ -3243,7 +3297,7 @@ def demo_audio(idx: int, request: Request):
         raise HTTPException(status_code=404, detail="Unknown demo line.")
     if not ELEVEN_API_KEY:
         return Response(status_code=204)
-    return _tts_stream_response(DEMO_VOICE_LINES[idx])
+    return _tts_stream_response(DEMO_VOICE_LINES[idx], mode="demo")
 
 
 def _evict_tts_cache() -> None:

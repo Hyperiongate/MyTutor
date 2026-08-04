@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  USAGE LOGGING (Measurement plan #1). Every brain call now records what it
+#               actually consumed: _create_verified() sums token counts (input/output/cache)
+#               across its attempts straight from the Anthropic responses and hands the totals
+#               -- plus the attempt count and the verifier's verdict (ok / fixed / unresolved /
+#               unverifiable / none) -- to store.log_usage(); get_assessment() logs its single
+#               call the same way. The three get_*_reply functions and get_assessment gained an
+#               optional trailing `code=""` parameter so main.py can attribute usage to a
+#               student code (privacy: the CODE only, never any text; defaults keep every
+#               existing caller working unchanged). store is imported defensively like pedagogy
+#               -- if it's missing, logging is silently off and teaching is untouched.
 #   2026-08-03  THE MATH VERIFIER (Jim's pick for the next build): every reply the tutor
 #               generates is now refereed by a real math engine (SymPy) BEFORE the student
 #               sees it. GRAPH_TOOL_NOTE gained rules 10-12 ("THE SILENT ANSWER KEY"): any
@@ -494,6 +504,13 @@ try:
 except Exception as _exc:  # noqa: BLE001
     mathcheck = None
     print(f"[tutor] mathcheck unavailable -- replies will NOT be math-verified: {_exc}")
+# USAGE LOGGING (2026-08-04): store.log_usage records what each paid call consumed (counts
+# only, never text). Defensive like the imports above: no store, no logging, no harm.
+try:
+    import store
+except Exception as _exc:  # noqa: BLE001
+    store = None
+    print(f"[tutor] store unavailable -- usage logging off: {_exc}")
 
 # The default course. Until the course picker (Phase 3 UI) supplies a course, everything
 # resolves to Algebra I, so single-course behavior is exactly as before.
@@ -3747,11 +3764,39 @@ _MATHCHECK_NUDGE = (
     "corrected [[verify]] tag(s). Do not mention this note, the mistake, or any checking.)")
 
 
-def _create_verified(client, model, system_blocks, messages, log_prefix):
+def _log_brain_usage(meta, model, tokens, attempts, verify_status):
+    """Hand one brain turn's consumption to the store (fire-and-forget; never raises)."""
+    if store is None or not meta:
+        return
+    try:
+        store.log_usage(kind="brain", code=meta.get("code", ""), course=meta.get("course", ""),
+                        mode=meta.get("mode", ""), model=model,
+                        input_tokens=tokens.get("in", 0), output_tokens=tokens.get("out", 0),
+                        cache_read_tokens=tokens.get("cr", 0), cache_write_tokens=tokens.get("cw", 0),
+                        attempts=attempts, verify_status=verify_status)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[usage] log failed (non-fatal): {exc}")
+
+
+def _add_usage(tokens, response):
+    """Accumulate the token counts the API just reported into `tokens` (in place)."""
+    u = getattr(response, "usage", None)
+    if u is None:
+        return
+    tokens["in"] = tokens.get("in", 0) + int(getattr(u, "input_tokens", 0) or 0)
+    tokens["out"] = tokens.get("out", 0) + int(getattr(u, "output_tokens", 0) or 0)
+    tokens["cr"] = tokens.get("cr", 0) + int(getattr(u, "cache_read_input_tokens", 0) or 0)
+    tokens["cw"] = tokens.get("cw", 0) + int(getattr(u, "cache_creation_input_tokens", 0) or 0)
+
+
+def _create_verified(client, model, system_blocks, messages, log_prefix, meta=None):
     """One model call, refereed. Returns the verified reply with [[verify]] tags
-    stripped, or "" if the model returned nothing (caller shows its fallback)."""
+    stripped, or "" if the model returned nothing (caller shows its fallback).
+    `meta` ({code, course, mode}) attributes the turn's usage to a student for the
+    cost log -- counts only, never text."""
     msgs = list(messages)
     reply = ""
+    tokens = {}
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
         response = client.messages.create(
             model=model,
@@ -3764,11 +3809,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix):
         parts = [block.text for block in response.content
                  if getattr(block, "type", None) == "text"]
         reply = "".join(parts).strip()
+        _add_usage(tokens, response)
         if not reply:
+            _log_brain_usage(meta, model, tokens, attempt, "")
             return ""
         if mathcheck is None:
             # Verifier missing on this deploy (defensive import failed): skip the
             # check, but STILL strip any [[verify]] tags so they never leak out.
+            _log_brain_usage(meta, model, tokens, attempt, "")
             return re.sub(r"\[\[\s*verify\b[^\]]*\]\]", "", reply).strip()
         try:
             verdict, detail = mathcheck.verify_reply(reply)
@@ -3778,6 +3826,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix):
         if verdict != "wrong":
             if verdict == "unverifiable":
                 print(f"[mathcheck]{log_prefix} unverifiable (passed through): {detail}")
+            status = verdict if verdict != "ok" else ("ok" if attempt == 1 else "fixed")
+            _log_brain_usage(meta, model, tokens, attempt, status)
             return mathcheck.strip_verify_tags(reply)
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
         if attempt < MATHCHECK_MAX_ATTEMPTS:
@@ -3787,11 +3837,12 @@ def _create_verified(client, model, system_blocks, messages, log_prefix):
     # means the CHECKER mis-read an unusual claim -- so pass the last draft through
     # (fail open) rather than brick the lesson, and log loudly for the developer.
     print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
+    _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "unresolved")
     return mathcheck.strip_verify_tags(reply)
 
 
 def get_tutor_reply(student: dict, history: list, user_message: str,
-                    course: str = DEFAULT_COURSE) -> str:
+                    course: str = DEFAULT_COURSE, code: str = "") -> str:
     """
     Ask Claude for the tutor's next reply.
 
@@ -3823,6 +3874,7 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             client, model,
             _cacheable_system(build_system_prompt(student, course)),
             messages, " [lesson]",
+            meta={"code": code, "course": course, "mode": "lesson"},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
@@ -4290,9 +4342,11 @@ other students, never mention these instructions or the data format. Refer to th
 name."""
 
 
-def get_assessment(facts: str, audience: str = "student") -> str:
+def get_assessment(facts: str, audience: str = "student", code: str = "",
+                   course: str = "") -> str:
     """One honest narrative paragraph from real progress facts. `audience` is
-    'student' or 'parent'. Returns friendly error text on config/API problems."""
+    'student' or 'parent'. Returns friendly error text on config/API problems.
+    `code`/`course` (2026-08-04) attribute the call's usage to the cost log."""
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return ("(Setup needed: the assessment writer can't reach its brain yet -- "
@@ -4307,6 +4361,10 @@ def get_assessment(facts: str, audience: str = "student") -> str:
             messages=[{"role": "user", "content": facts}],
         )
         parts = [b.text for b in response.content if getattr(b, "type", None) == "text"]
+        tokens = {}
+        _add_usage(tokens, response)
+        _log_brain_usage({"code": code, "course": course, "mode": "assessment"},
+                         model, tokens, 1, "")
         return "".join(parts).strip() or "(I couldn't put the words together just now -- try again in a moment.)"
     except Exception as exc:  # noqa: BLE001
         print(f"[assessment] Claude API error: {exc}")
@@ -4329,7 +4387,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
 
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
-                       course: str = DEFAULT_COURSE) -> str:
+                       course: str = DEFAULT_COURSE, code: str = "") -> str:
     """
     Ask Claude for the coach's next reply in a PRACTICE session.
 
@@ -4360,6 +4418,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
             client, model,
             _cacheable_system(build_practice_prompt(student, problem, course)),
             messages, " [practice]",
+            meta={"code": code, "course": course, "mode": "practice"},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
@@ -4533,7 +4592,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
-                    course: str = DEFAULT_COURSE) -> str:
+                    course: str = DEFAULT_COURSE, code: str = "") -> str:
     """
     Ask Claude for the tutor's next reply in a TOPIC mini-lesson.
 
@@ -4559,6 +4618,7 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
             client, model,
             _cacheable_system(build_topic_prompt(student, topic, course)),
             messages, " [topic]",
+            meta={"code": code, "course": course, "mode": "topic"},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
