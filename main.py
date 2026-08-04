@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04q-pwreset". PASSWORD RESET + SIGN-IN FIXES (Jim tried
+#               to create an account with an email that already had one and the form silently
+#               flipped tabs). Backend half: (1) _send_email() -- the app's FIRST outbound
+#               email, via the existing Titan mailbox over SMTP; needs env vars in Render:
+#               SMTP_HOST=smtp.titan.email, SMTP_PORT=465, SMTP_USER=support@mrcadabra.com,
+#               SMTP_PASS=<the mailbox password> (optional SMTP_FROM; APP_BASE_URL defaults to
+#               https://mrcadabra.com). Until they are set, forgot-password answers honestly
+#               that email isn't wired up and points at support@. This same pipe will later
+#               carry the weekly parent email. (2) POST /api/parent/forgot -- ALWAYS answers
+#               "sent" whether or not the email has an account (no probing which emails exist);
+#               rate-limited per IP and per address; emails a 45-minute single-use link built
+#               from a token whose HASH alone is stored. (3) POST /api/parent/reset -- redeems
+#               the token, sets the new PBKDF2 hash, and signs the parent out of every device.
+#               Frontend half in family.html (409 message no longer swallowed, eyeball,
+#               forgot/reset forms).
 #   2026-08-04  APP_BUILD -> "2026-08-04p-demoface". DEMO POLISH x3 (Jim; static-only, bump for
 #               deploy verification): (1) the demo now shows Mr. Cadabra's ROBOT FACE (same
 #               tutor-face.js as every classroom page) instead of a plain sphere -- mouth moves
@@ -1003,6 +1018,15 @@ class ParentTokenIn(BaseModel):
     token: str
 
 
+class ParentForgotIn(BaseModel):
+    email: str
+
+
+class ParentResetIn(BaseModel):
+    token: str
+    password: str
+
+
 class ParentStudentIn(BaseModel):
     token: str
     name: str                  # child's FIRST name only (we ask for nothing more)
@@ -1974,6 +1998,107 @@ def parent_login(body: ParentLoginIn, request: Request):
     return out
 
 
+# -----------------------------------------------------------------------------
+# OUTBOUND EMAIL (2026-08-04) -- the app's first sender: password-reset links.
+# Uses the EXISTING Titan mailbox over SMTP (no new service, no new cost); the
+# same pipe will later carry the weekly parent email. Configure in Render:
+#   SMTP_HOST=smtp.titan.email  SMTP_PORT=465
+#   SMTP_USER=support@mrcadabra.com  SMTP_PASS=<mailbox password>
+#   (optional SMTP_FROM, defaults to SMTP_USER; APP_BASE_URL, defaults below)
+# -----------------------------------------------------------------------------
+def _smtp_configured() -> bool:
+    return bool(os.environ.get("SMTP_HOST") and os.environ.get("SMTP_USER")
+                and os.environ.get("SMTP_PASS"))
+
+
+def _send_email(to_addr: str, subject: str, body: str) -> bool:
+    """Send one plain-text email. Returns True on success; never raises (a mail
+    hiccup must never 500 an API call). Secrets come from env only."""
+    if not _smtp_configured():
+        return False
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.utils import formataddr
+    host = os.environ["SMTP_HOST"]
+    port = int(os.environ.get("SMTP_PORT", "465") or 465)
+    user = os.environ["SMTP_USER"]
+    from_addr = os.environ.get("SMTP_FROM", user)
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = formataddr(("Mr. Cadabra's Classroom", from_addr))
+    msg["To"] = to_addr
+    try:
+        if port == 465:
+            with smtplib.SMTP_SSL(host, port, timeout=20) as srv:
+                srv.login(user, os.environ["SMTP_PASS"])
+                srv.sendmail(from_addr, [to_addr], msg.as_string())
+        else:
+            with smtplib.SMTP(host, port, timeout=20) as srv:
+                srv.starttls()
+                srv.login(user, os.environ["SMTP_PASS"])
+                srv.sendmail(from_addr, [to_addr], msg.as_string())
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[email] send failed: {exc}")
+        return False
+
+
+@app.post("/api/parent/forgot")
+def parent_forgot(body: ParentForgotIn, request: Request):
+    """Email a password-reset link. SAME answer whether or not the address has an
+    account -- nobody gets to probe which emails are signed up. The token is
+    single-use, expires in 45 minutes, and only its SHA-256 hash is stored."""
+    _require_db()
+    _rate_limit("pforgot:" + _client_ip(request), limit=5, window_seconds=3600,
+                what="reset requests")
+    email = (body.email or "").strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
+    _rate_limit("pforgot-email:" + email, limit=3, window_seconds=3600,
+                what="reset requests")
+    if not _smtp_configured():
+        # Honest, not leaky: this reveals server config, never account existence.
+        return {"ok": True, "sent": False,
+                "note": ("Email isn't switched on here yet — write to support@mrcadabra.com "
+                         "and we'll reset it for you.")}
+    parent = store.get_parent_by_email(email)
+    if parent:
+        raw = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        store.create_parent_reset(token_hash, parent["id"], minutes=45)
+        base = os.environ.get("APP_BASE_URL", "https://mrcadabra.com").rstrip("/")
+        link = f"{base}/family?reset={raw}"
+        _send_email(email, "Reset your Mr. Cadabra's Classroom password",
+            "Hi" + ((" " + parent.get("name")) if parent.get("name") else "") + ",\n\n"
+            "Someone asked to reset the password for this Mr. Cadabra's Classroom parent "
+            "account. If that was you, open this link and choose a new password:\n\n"
+            f"{link}\n\n"
+            "The link works once and expires in 45 minutes.\n\n"
+            "If you didn't ask for this, you can safely ignore this email — your password "
+            "is unchanged and your children's learning is unaffected.\n\n"
+            "— Mr. Cadabra's Classroom\nsupport@mrcadabra.com")
+    return {"ok": True, "sent": True}
+
+
+@app.post("/api/parent/reset")
+def parent_reset(body: ParentResetIn, request: Request):
+    """Redeem a reset link: set the new password and sign the parent out everywhere."""
+    _require_db()
+    _rate_limit("preset:" + _client_ip(request), limit=10, window_seconds=3600,
+                what="reset attempts")
+    if len(body.password or "") < 8:
+        raise HTTPException(status_code=400, detail="Please use a password of at least 8 characters.")
+    token_hash = hashlib.sha256((body.token or "").encode("utf-8")).hexdigest()
+    parent_id = store.consume_parent_reset(token_hash)
+    if not parent_id:
+        raise HTTPException(status_code=400, detail=(
+            "That reset link isn't valid anymore — it may have expired (they last 45 minutes) "
+            "or already been used. Request a fresh one from the Sign in page."))
+    store.update_parent(parent_id, password_hash=_hash_password(body.password))
+    store.delete_parent_tokens_for(parent_id)      # whoever had the old password is out
+    return {"ok": True}
+
+
 @app.post("/api/parent/logout")
 def parent_logout(body: ParentTokenIn):
     _require_db()
@@ -2608,7 +2733,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04p-demoface"
+APP_BUILD = "2026-08-04q-pwreset"
 
 
 @app.get("/health")

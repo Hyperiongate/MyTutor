@@ -2,6 +2,13 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  PASSWORD RESET (Jim: parents need 'I forgot my password'). NEW table
+#               `parent_resets` (token_hash pk, parent_id, expires_at, used, created_at) --
+#               we store ONLY a SHA-256 hash of the emailed token, never the token itself,
+#               so even a database leak can't be replayed into a reset. New functions:
+#               create_parent_reset() (45-min expiry), consume_parent_reset() (single-use,
+#               expiry-checked, sweeps expired rows), delete_parent_tokens_for() (a reset
+#               signs the parent out EVERYWHERE -- whoever knew the old password is out).
 #   2026-08-04  USAGE LOG (Measurement plan #1 -- Jim: gather cost/usage/quality data so we can
 #               make pricing, model, and grant decisions). NEW table `usage_log`: one privacy-safe
 #               row per paid event -- kind 'brain' (a tutor turn: token counts straight from the
@@ -256,6 +263,16 @@ def init():
             Column("token", String(128), primary_key=True),
             Column("parent_id", String(64), index=True),
             Column("expires_at", DateTime(timezone=True)),
+            Column("created_at", DateTime(timezone=True)),
+        )
+        # PASSWORD RESETS (2026-08-04): single-use, short-lived. token_hash is SHA-256 of
+        # the emailed token -- the raw token exists only in the parent's inbox.
+        _tables["parent_resets"] = Table(
+            "parent_resets", _meta,
+            Column("token_hash", String(128), primary_key=True),
+            Column("parent_id", String(64), index=True),
+            Column("expires_at", DateTime(timezone=True)),
+            Column("used", Integer, default=0),
             Column("created_at", DateTime(timezone=True)),
         )
         # Per-student conversation memory (the lesson/course session).
@@ -1198,6 +1215,47 @@ def get_parent_token(token: str):
             conn.execute(delete(t).where(t.c.token == token))
         return None
     return r[0]
+
+
+def create_parent_reset(token_hash: str, parent_id: str, minutes: int = 45) -> None:
+    """Store a password-reset token HASH (never the token). Short-lived, single-use."""
+    from sqlalchemy import insert
+    t = _tables["parent_resets"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            token_hash=token_hash, parent_id=parent_id, used=0,
+            expires_at=_now() + _dt.timedelta(minutes=minutes), created_at=_now()))
+
+
+def consume_parent_reset(token_hash: str):
+    """Redeem a reset token hash: returns the parent_id if it's real, unused, and
+    unexpired -- and marks it used in the same transaction (single-use). Expired
+    rows are swept on sight so the table stays small. Returns None otherwise."""
+    from sqlalchemy import select, update, delete
+    if not token_hash:
+        return None
+    t = _tables["parent_resets"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.expires_at < _now()))     # sweep expired
+        r = conn.execute(select(t.c.parent_id, t.c.expires_at, t.c.used)
+                         .where(t.c.token_hash == token_hash)).first()
+        if not r or int(r[2] or 0):
+            return None
+        exp = r[1]
+        if exp is not None and exp.tzinfo is None:                 # SQLite: naive UTC
+            exp = exp.replace(tzinfo=_dt.timezone.utc)
+        if exp is not None and exp < _now():
+            return None
+        conn.execute(update(t).where(t.c.token_hash == token_hash).values(used=1))
+        return r[0]
+
+
+def delete_parent_tokens_for(parent_id: str) -> None:
+    """Sign this parent out of EVERY device (used after a password reset)."""
+    from sqlalchemy import delete
+    t = _tables["parent_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.parent_id == parent_id))
 
 
 def delete_parent_token(token: str) -> None:

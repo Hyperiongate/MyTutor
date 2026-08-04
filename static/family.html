@@ -4,6 +4,15 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  SIGN-IN FIXES (Jim tried to create an account with an email that already had one
+    and the form silently flipped to Sign in with NO explanation -- the tab switch was WIPING the
+    error message): (1) 409 now switches tabs FIRST, then shows "There's already an account for
+    <email> -- sign in below" (order matters: setMode clears authMsg). (2) EYEBALL: a show/hide
+    toggle on every password field. (3) "Forgot your password?" link -> emails a 45-minute
+    single-use reset link (backend: /api/parent/forgot + /api/parent/reset); arriving on
+    /family?reset=TOKEN shows a choose-a-new-password card, then hands off to Sign in. When the
+    server's email isn't configured yet, the forgot flow says so honestly and points at
+    support@mrcadabra.com.
   - 2026-08-04  CLARITY PASS (Jim, seeing it as a new parent would: "HARBOR60 -- what IS that?
     I think it's a password but I don't know for sure"): (1) the child's code chip now carries a
     visible label -- "LOGIN CODE -- tap to copy" -- and the row explains it's how the child signs
@@ -100,6 +109,12 @@
   .banner{display:none;margin:18px auto 0;max-width:760px;padding:14px 20px;border-radius:14px;font-weight:700;text-align:center}
   .banner.ok{display:block;background:#eefaf5;color:#177a52;border:1px solid #c8ecdb}
   .banner.warn{display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5}
+  .pwwrap{position:relative}
+  .pwwrap input{width:100%;padding-right:46px}
+  .pweye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;
+    cursor:pointer;font-size:18px;opacity:.55;padding:6px}
+  .pweye:hover{opacity:1}
+  .pweye.on{opacity:1;filter:drop-shadow(0 0 3px rgba(109,90,230,.8))}
   .tabs{display:flex;gap:8px;margin-bottom:6px}
   .tabs button{flex:1;padding:11px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;color:var(--muted)}
   .tabs button.on{border-color:var(--purple);color:var(--purple);background:#f6f3ff}
@@ -174,13 +189,44 @@
       <label for="femail">Email</label>
       <input id="femail" type="email" autocomplete="email" required maxlength="120" />
       <label for="fpass">Password <span id="passHint" style="color:var(--muted);font-weight:600">(at least 8 characters)</span></label>
-      <input id="fpass" type="password" autocomplete="new-password" required minlength="8" maxlength="128" />
+      <div class="pwwrap">
+        <input id="fpass" type="password" autocomplete="new-password" required minlength="8" maxlength="128" />
+        <button type="button" class="pweye" data-for="fpass" aria-label="Show or hide password" title="Show / hide">👁</button>
+      </div>
+      <p style="margin:8px 0 0;display:none" id="forgotRow"><a href="#" id="forgotLink"
+        style="color:var(--purple);font-weight:700;font-size:14px">Forgot your password?</a></p>
       <div class="msg" id="authMsg"></div>
       <button class="btn btn-primary" id="authGo" style="width:100%;margin-top:16px" type="submit">Create my free account</button>
       <p class="cap" style="margin-top:12px">Free plan, no card needed. You'll add your children (first
       names only) on the next screen. By continuing you agree to the
       <a href="/terms" style="color:var(--purple);font-weight:700">terms</a> and
       <a href="/privacy" style="color:var(--purple);font-weight:700">privacy promise</a>.</p>
+    </form>
+
+    <!-- FORGOT PASSWORD (2026-08-04): shown instead of the form fields above -->
+    <form id="forgotForm" style="display:none">
+      <p style="font-weight:800;margin:4px 0 10px">Reset your password</p>
+      <label for="forgotEmail">Email</label>
+      <input id="forgotEmail" type="email" autocomplete="email" required maxlength="120" />
+      <div class="msg" id="forgotMsg"></div>
+      <button class="btn btn-primary" id="forgotGo" style="width:100%;margin-top:16px" type="submit">Email me a reset link</button>
+      <p class="cap" style="margin-top:12px">We'll email a link that lets you choose a new password.
+      It works once and expires in 45 minutes.
+      <a href="#" id="forgotBack" style="color:var(--purple);font-weight:700">← Back to sign in</a></p>
+    </form>
+  </div>
+
+  <!-- CHOOSE A NEW PASSWORD (2026-08-04): shown when arriving on /family?reset=TOKEN -->
+  <div class="card" id="resetCard" style="max-width:520px;margin:0 auto;display:none">
+    <form id="resetForm">
+      <p style="font-weight:800;margin:4px 0 10px">Choose a new password</p>
+      <label for="resetPass">New password <span style="color:var(--muted);font-weight:600">(at least 8 characters)</span></label>
+      <div class="pwwrap">
+        <input id="resetPass" type="password" autocomplete="new-password" required minlength="8" maxlength="128" />
+        <button type="button" class="pweye" data-for="resetPass" aria-label="Show or hide password" title="Show / hide">👁</button>
+      </div>
+      <div class="msg" id="resetMsg"></div>
+      <button class="btn btn-primary" id="resetGo" style="width:100%;margin-top:16px" type="submit">Set my new password</button>
     </form>
   </div>
 </section>
@@ -381,11 +427,61 @@
     $("passHint").style.display = mode === "signup" ? "" : "none";
     $("fpass").setAttribute("autocomplete", mode === "signup" ? "new-password" : "current-password");
     $("authGo").textContent = mode === "signup" ? "Create my free account" : "Sign in";
+    $("forgotRow").style.display = mode === "signin" ? "" : "none";
     msg("authMsg", "");
   }
 
   $("tabUp").addEventListener("click", function () { setMode("signup"); });
   $("tabIn").addEventListener("click", function () { setMode("signin"); });
+
+  // ---- eyeball: show/hide any password field it sits next to (2026-08-04) ----
+  Array.prototype.forEach.call(document.querySelectorAll(".pweye"), function (b) {
+    b.addEventListener("click", function () {
+      var inp = $(b.getAttribute("data-for"));
+      var show = inp.type === "password";
+      inp.type = show ? "text" : "password";
+      b.classList.toggle("on", show);
+      inp.focus();
+    });
+  });
+
+  // ---- forgot password (2026-08-04) ----
+  function showForgot(on) {
+    $("authForm").style.display = on ? "none" : "";
+    $("forgotForm").style.display = on ? "" : "none";
+    if (on) { $("forgotEmail").value = $("femail").value.trim(); msg("forgotMsg", ""); }
+  }
+  $("forgotLink").addEventListener("click", function (ev) { ev.preventDefault(); showForgot(true); });
+  $("forgotBack").addEventListener("click", function (ev) { ev.preventDefault(); showForgot(false); });
+  $("forgotForm").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    if (state.busy) return;
+    state.busy = true; $("forgotGo").disabled = true; msg("forgotMsg", "");
+    try {
+      var out = await api("/api/parent/forgot", { method: "POST",
+        body: JSON.stringify({ email: $("forgotEmail").value.trim() }) });
+      if (out.sent === false) msg("forgotMsg", out.note || "Email isn't set up yet — write to support@mrcadabra.com.", "err");
+      else msg("forgotMsg", "Done — check your email. The link works once and expires in 45 minutes. (No email? Check spam, and make sure it's the address you signed up with.)", "ok");
+    } catch (e) { msg("forgotMsg", e.message, "err"); }
+    state.busy = false; $("forgotGo").disabled = false;
+  });
+
+  // ---- arriving from a reset link: /family?reset=TOKEN (2026-08-04) ----
+  $("resetForm").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    if (state.busy) return;
+    state.busy = true; $("resetGo").disabled = true; msg("resetMsg", "");
+    try {
+      await api("/api/parent/reset", { method: "POST",
+        body: JSON.stringify({ token: params.get("reset") || "", password: $("resetPass").value }) });
+      history.replaceState({}, "", "/family");              // the used token leaves the URL
+      $("resetCard").style.display = "none";
+      document.querySelector("#authView .card").style.display = "";
+      setMode("signin");
+      msg("authMsg", "Password updated! Sign in with your new password.", "ok");
+    } catch (e) { msg("resetMsg", e.message, "err"); }
+    state.busy = false; $("resetGo").disabled = false;
+  });
 
   $("authForm").addEventListener("submit", async function (ev) {
     ev.preventDefault();
@@ -399,8 +495,15 @@
       setToken(out.token); state.me = out; $("fpass").value = "";
       render();
     } catch (e) {
-      msg("authMsg", e.message, "err");
-      if (e.status === 409) setMode("signin");
+      if (e.status === 409) {
+        // setMode wipes authMsg, so switch tabs FIRST, then explain what happened.
+        setMode("signin");
+        msg("authMsg", "There's already an account for " + $("femail").value.trim() +
+            " — sign in below. Forgot the password? Use the link under the box.", "err");
+        $("fpass").value = ""; $("fpass").focus();
+      } else {
+        msg("authMsg", e.message, "err");
+      }
     }
     state.busy = false; $("authGo").disabled = false;
   });
@@ -457,6 +560,15 @@
 
   // ---------- boot ----------
   var params = new URLSearchParams(window.location.search);
+  // A reset link shows ONLY the choose-a-new-password card until it's redeemed.
+  if (params.get("reset")) {
+    var _showReset = function () {
+      document.querySelector("#authView .card").style.display = "none";
+      $("resetCard").style.display = "";
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", _showReset);
+    else _showReset();
+  }
   if (params.get("checkout") === "success") {
     banner("🎉 Payment received — welcome to the family! Unlocking full access…", "ok");
     // The Stripe webhook usually lands within seconds; poll briefly until it does.
