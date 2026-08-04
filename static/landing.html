@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-04  HERO ROBOT + TAP WORDING (Jim: 'the picture on the landing page has the old
+    mr cadabra'): the hero whiteboard mock's purple sphere is now Mr. Cadabra's actual ROBOT
+    FACE, drawn by the same tutor-face.js the classroom and demo use (gently animated; if the
+    script fails to load the sphere quietly returns). The hero paragraph's 'answers by typing'
+    also now includes elementary tap-to-answer, matching the corrected FAQ. Nav/footer keep the
+    small abstract orb as the LOGO mark for now -- making the robot the site-wide logo (favicon,
+    social images) is a brand decision for Jim.
   - 2026-08-04  FAQ OVERHAUL (Jim's review): fixed three stale answers -- the ChatGPT question now
     names the engine (Anthropic's Claude, currently Claude Sonnet 5) and what's built around it;
     the microphone answer now says elementary students TAP (typing isn't the only way anymore);
@@ -140,6 +147,14 @@
   .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
        background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
        box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  /* 2026-08-04: the hero mock shows the REAL Mr. Cadabra (robot face on a canvas). The sphere
+     background/pulse are turned off there unless the face script fails (JS re-adds them). */
+  #heroOrb{background:none;box-shadow:none}
+  #heroOrb::after{display:none}
+  #heroOrb canvas{width:100%;height:100%;display:block}
+  #heroOrb.orb-fallback{background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
+       box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  #heroOrb.orb-fallback canvas{display:none}
   .orb::after{content:"";position:absolute;inset:0;border-radius:50%;
        box-shadow:inset 0 0 8px rgba(255,255,255,.7);animation:pulse 3.2s ease-in-out infinite}
   @keyframes pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
@@ -387,6 +402,8 @@
   <script src="/static/analytics.js"></script>
   <!-- College-level-math dropdown (shared) -->
   <script src="/static/site-nav.js" defer></script>
+  <!-- Mr. Cadabra's robot face for the hero mock (2026-08-04) -->
+  <script src="/static/tutor-face.js" defer></script>
 </head>
 <body>
 <nav><div class="wrap">
@@ -417,7 +434,7 @@
   <div>
     <span class="pill"><span class="dot"></span> Built for homeschool families · a talking Socratic math tutor</span>
     <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
-    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by typing — with a built-in math keyboard, and no microphone needed. It's like having your own personal tutor: one who plans the course around your student, encourages every step, and reports back to you in plain English.</p>
+    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by tapping answer buttons in the elementary grades, or by typing with the built-in math keyboard — no microphone needed, ever. It's like having your own personal tutor: one who plans the course around your student, encourages every step, and reports back to you in plain English.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="/demo">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
@@ -428,7 +445,7 @@
     <div class="mock-top"><i></i><i></i><i></i></div>
     <div class="mock-body">
       <div class="mock-tutor">
-        <span class="orb orb-lg"></span>
+        <span class="orb orb-lg" id="heroOrb"><canvas id="heroFace" width="176" height="176"></canvas></span>
         <div class="bubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
       </div>
       <div class="board">
@@ -626,6 +643,22 @@
   <div>© 2026 Mr. Cadabra's Classroom · mrcadabra.com · Made for families</div>
 </div></footer>
 <script>
+  // HERO FACE (2026-08-04): draw the real Mr. Cadabra in the hero mock — gently animated idle.
+  (function(){
+    function boot(){
+      var c = document.getElementById('heroFace');
+      if (!c) return;
+      if (!window.TutorFace){ document.getElementById('heroOrb').classList.add('orb-fallback'); return; }
+      var t = 0, ctx = c.getContext('2d');
+      (function loop(){
+        try { TutorFace.draw(ctx, 176, 176, { level: 0.10 + 0.05 * Math.sin(t * 0.035), t: t, mood: 'idle' }); } catch(e) {}
+        t++; requestAnimationFrame(loop);
+      })();
+    }
+    if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', boot);
+    else boot();
+  })();
+
   function setCycle(c){
     var m=document.getElementById('tMonthly'), a=document.getElementById('tAnnual');
     m.classList.toggle('on', c==='m'); a.classList.toggle('on', c==='a');

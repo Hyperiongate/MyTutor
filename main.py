@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04s-heroface". LANDING HERO ROBOT (static-only; bump for
+#               deploy verification). The hero whiteboard mock still showed the old purple sphere
+#               as Mr. Cadabra; it now draws his real robot face (shared tutor-face.js, gently
+#               animated, sphere fallback if the script fails). Hero paragraph also now mentions
+#               elementary tap-to-answer alongside typing.
 #   2026-08-04  APP_BUILD -> "2026-08-04r-faq". FAQ OVERHAUL on the landing page (static-only;
 #               bump for deploy verification). Jim's review caught three stale answers (no
 #               Anthropic/Claude mention, "answers by typing" ignoring elementary tap-to-answer,
@@ -2739,7 +2744,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04r-faq"
+APP_BUILD = "2026-08-04s-heroface"
 
 
 @app.get("/health")
