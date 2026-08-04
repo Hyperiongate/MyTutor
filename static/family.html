@@ -4,6 +4,10 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  FUNNEL EVENTS: fires "Parent Signup" on a successful account creation,
+    "Checkout Started" {plan} when a subscribe button is clicked, and "Subscribed" when the
+    checkout-success banner confirms an active plan (mtTrack helper; cookieless, no personal
+    data -- names + plan only, never an email). Measurement plan #2.
   - 2026-08-04  SIGN-IN FIXES (Jim tried to create an account with an email that already had one
     and the form silently flipped to Sign in with NO explanation -- the tab switch was WIPING the
     error message): (1) 409 now switches tabs FIRST, then shows "There's already an account for
@@ -492,6 +496,7 @@
       var payload = { email: $("femail").value.trim(), password: $("fpass").value };
       if (state.mode === "signup") payload.name = $("fname").value.trim();
       var out = await api(path, { method: "POST", body: JSON.stringify(payload) });
+      if (state.mode === "signup" && window.mtTrack) mtTrack("Parent Signup");
       setToken(out.token); state.me = out; $("fpass").value = "";
       render();
     } catch (e) {
@@ -529,6 +534,7 @@
   });
 
   async function goCheckout(plan, btn) {
+    if (window.mtTrack) mtTrack("Checkout Started", { plan: plan });
     if (state.busy) return; state.busy = true; if (btn) btn.disabled = true; msg("planMsg", "");
     try {
       var out = await api("/api/billing/checkout", { method: "POST", body: JSON.stringify({ token: token(), plan: plan }) });
@@ -570,6 +576,7 @@
     else _showReset();
   }
   if (params.get("checkout") === "success") {
+    if (window.mtTrack) mtTrack("Subscribed");
     banner("🎉 Payment received — welcome to the family! Unlocking full access…", "ok");
     // The Stripe webhook usually lands within seconds; poll briefly until it does.
     var tries = 0;

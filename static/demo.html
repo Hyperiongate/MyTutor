@@ -3,6 +3,9 @@
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-04  FUNNEL EVENTS: fires "Demo Level Picked" {level} when a level is tapped and
+    "Demo Completed" {level} at the end screen (via the shared mtTrack helper in analytics.js;
+    cookieless, no personal data). Measurement plan #2.
   - 2026-08-04  THREE POLISH ITEMS (Jim): (1) ROBOT FACE — the demo showed a plain purple sphere
     where every real classroom page shows Mr. Cadabra's robot face (tutor-face.js). Both orbs
     (header brand + the speaker next to the bubble) are now canvases drawn by the SAME TutorFace,
@@ -599,6 +602,7 @@
   }
 
   function showEnd(){
+    if(window.mtTrack) mtTrack('Demo Completed', {level:curId||'unknown'});
     say(cur && cur.endSay ? cur.endSay : GENERIC_END);
     clearAnswer();
     var box=document.createElement('div'); box.className='endbox';
@@ -616,8 +620,11 @@
   }
 
   // ---- LEVEL PICKER (2026-08-03, Jim: "one from each of our different levels") ----
+  var curId='';
   function startScript(id){
     warmDemoAudio();   // iPad: unlock inside the level-pick tap
+    curId=id;
+    if(window.mtTrack) mtTrack('Demo Level Picked', {level:id});
     cur=DEMOS[id]; steps=cur.steps; i=-1;
     board.innerHTML='';
     next();

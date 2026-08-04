@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04t-mailfunnel". TWO ITEMS (Jim): (1) EMAIL DIAGNOSTICS --
+#               his reset email never arrived. Likeliest cause: the account email is
+#               jim+test@shift-work.com and forgot-password (by anti-probing design) silently
+#               sends nothing for addresses without accounts. To make the pipe debuggable either
+#               way: _send_email() now RETURNS the exact failure text instead of just false; a
+#               new admin-only GET /api/admin/email-test?key=&to= sends a real test email and
+#               reports the precise SMTP error (config shown WITHOUT the password); the forgot
+#               endpoint now logs no-account / send-failure outcomes to the server log (never to
+#               the caller). (2) PLAUSIBLE FUNNEL GOALS (Measurement plan #2) -- frontend fires
+#               five named events (Demo Level Picked / Demo Completed / Parent Signup / Checkout
+#               Started / Subscribed) via a tiny mtTrack helper in analytics.js; demo.html +
+#               family.html instrumented. Cookieless, no personal data, COPPA-clean. Jim adds
+#               the five goals in the Plausible dashboard to see funnel conversion.
 #   2026-08-04  APP_BUILD -> "2026-08-04s-heroface". LANDING HERO ROBOT (static-only; bump for
 #               deploy verification). The hero whiteboard mock still showed the old purple sphere
 #               as Mr. Cadabra; it now draws his real robot face (shared tutor-face.js, gently
@@ -2022,11 +2035,12 @@ def _smtp_configured() -> bool:
                 and os.environ.get("SMTP_PASS"))
 
 
-def _send_email(to_addr: str, subject: str, body: str) -> bool:
-    """Send one plain-text email. Returns True on success; never raises (a mail
-    hiccup must never 500 an API call). Secrets come from env only."""
+def _send_email(to_addr: str, subject: str, body: str) -> str:
+    """Send one plain-text email. Returns "" on success or the exact failure text
+    on error; never raises (a mail hiccup must never 500 an API call). Secrets
+    come from env only, and the failure text NEVER includes them."""
     if not _smtp_configured():
-        return False
+        return "SMTP env vars not set (need SMTP_HOST, SMTP_USER, SMTP_PASS)"
     import smtplib
     from email.mime.text import MIMEText
     from email.utils import formataddr
@@ -2048,10 +2062,11 @@ def _send_email(to_addr: str, subject: str, body: str) -> bool:
                 srv.starttls()
                 srv.login(user, os.environ["SMTP_PASS"])
                 srv.sendmail(from_addr, [to_addr], msg.as_string())
-        return True
+        return ""
     except Exception as exc:  # noqa: BLE001
-        print(f"[email] send failed: {exc}")
-        return False
+        err = f"{type(exc).__name__}: {exc}"
+        print(f"[email] send failed: {err}")
+        return err
 
 
 @app.post("/api/parent/forgot")
@@ -2073,13 +2088,17 @@ def parent_forgot(body: ParentForgotIn, request: Request):
                 "note": ("Email isn't switched on here yet — write to support@mrcadabra.com "
                          "and we'll reset it for you.")}
     parent = store.get_parent_by_email(email)
+    if not parent:
+        # Same 200 response as the success path (no probing which emails have
+        # accounts) -- but the server log tells Jim why nothing arrived.
+        print("[email] forgot: no parent account matches that address -- no email sent")
     if parent:
         raw = secrets.token_urlsafe(32)
         token_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()
         store.create_parent_reset(token_hash, parent["id"], minutes=45)
         base = os.environ.get("APP_BASE_URL", "https://mrcadabra.com").rstrip("/")
         link = f"{base}/family?reset={raw}"
-        _send_email(email, "Reset your Mr. Cadabra's Classroom password",
+        send_err = _send_email(email, "Reset your Mr. Cadabra's Classroom password",
             "Hi" + ((" " + parent.get("name")) if parent.get("name") else "") + ",\n\n"
             "Someone asked to reset the password for this Mr. Cadabra's Classroom parent "
             "account. If that was you, open this link and choose a new password:\n\n"
@@ -2088,7 +2107,33 @@ def parent_forgot(body: ParentForgotIn, request: Request):
             "If you didn't ask for this, you can safely ignore this email — your password "
             "is unchanged and your children's learning is unaffected.\n\n"
             "— Mr. Cadabra's Classroom\nsupport@mrcadabra.com")
+        if send_err:
+            print(f"[email] forgot: send FAILED for a real account: {send_err}")
     return {"ok": True, "sent": True}
+
+
+@app.get("/api/admin/email-test")
+def admin_email_test(key: str = "", to: str = ""):
+    """Jim's email-pipe diagnostic (admin-key protected): sends ONE real test email
+    and returns exactly what happened -- the precise SMTP failure text on error,
+    and the active config WITHOUT the password. This is how we debug 'the email
+    never arrived' without guessing."""
+    _require_admin(key)
+    cfg = {"SMTP_HOST": os.environ.get("SMTP_HOST", "(not set)"),
+           "SMTP_PORT": os.environ.get("SMTP_PORT", "(not set -> 465)"),
+           "SMTP_USER": os.environ.get("SMTP_USER", "(not set)"),
+           "SMTP_FROM": os.environ.get("SMTP_FROM", "(defaults to SMTP_USER)"),
+           "SMTP_PASS": "(set)" if os.environ.get("SMTP_PASS") else "(NOT SET)"}
+    to = (to or "").strip()
+    if not to or not _EMAIL_RE.match(to):
+        return {"ok": False, "config": cfg,
+                "error": "Add &to=your@email.address to send a test message."}
+    err = _send_email(to, "Mr. Cadabra's Classroom — email pipe test",
+                      "This is a test of the app's outbound email. If you're reading it, "
+                      "the pipe works: password resets and (later) weekly parent emails "
+                      "will deliver.\n\n— Mr. Cadabra's Classroom")
+    return {"ok": not err, "sent_to": to if not err else None,
+            "error": err or None, "config": cfg}
 
 
 @app.post("/api/parent/reset")
@@ -2744,7 +2789,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04s-heroface"
+APP_BUILD = "2026-08-04t-mailfunnel"
 
 
 @app.get("/health")
