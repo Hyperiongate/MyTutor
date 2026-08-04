@@ -4,6 +4,14 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-03  TITLE WRAP FIX: the app-nav pills share the top bar, and at desktop widths they
+                squeezed the page title into breaking mid-word ("...Pre-/Algebra"). The title now
+                stays on one line and the pills wrap below it instead (>=761px only; phones keep
+                the old behavior so long course names can't overflow).
+    2026-08-03  RING/LABEL OVERLAP FIX: the KPI donut (the 33% ring) is absolutely positioned in
+                the tile's top-right corner and was covering the end of the "UNITS MASTERED" label
+                at common widths -- visible in every product screenshot as "UNITS MASTERE...". Tiles
+                that contain a ring now pad the label away from it (pure CSS, one rule).
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-08-01  "HOW AM I DOING?" (Jim: honest narrative assessments). New button under the
@@ -118,7 +126,12 @@
         #f5f5fc;
     }
     .wrap { max-width: 1000px; margin: 0 auto; padding: 24px 22px 64px; }
-    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; flex-wrap: wrap; }
+    /* 2026-08-03: with four nav pills sharing this bar, the TITLE was the thing that gave way --
+       every desktop user saw "Maya's Progress — Pre-/Algebra" broken mid-word. Keep the title
+       whole and let the pills wrap to the next line instead. (Phones keep the old wrapping so a
+       long course name can never overflow a narrow screen.) */
+    @media (min-width: 761px) { .top .title { white-space: nowrap; } }
     .top .title { font-size: 23px; font-weight: 800;
       background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text;
       background-clip: text; -webkit-text-fill-color: transparent; }
@@ -185,6 +198,11 @@
     .tile .small { color: var(--muted); font-size: 13px; margin-top: 6px; }
     .ring { --p: 0; width: 58px; height: 58px; border-radius: 50%; position: absolute; top: 16px; right: 16px;
       background: conic-gradient(var(--st-mastered) calc(var(--p) * 3.6deg), #e7e6f2 0); display: grid; place-items: center; }
+    /* 2026-08-03: the ring floats over the tile's top-right corner, and at common widths it sat ON
+       TOP of the "UNITS MASTERED" label (every product screenshot shows "UNITS MASTERE…"). Give the
+       label clearance in any tile that has a ring. (:has is ignored by very old browsers — they
+       just keep the old overlap, nothing breaks.) */
+    .tile:has(.ring) .lbl { padding-right: 62px; }
     .ring::before { content: ""; width: 42px; height: 42px; border-radius: 50%; background: var(--panel); position: absolute; }
     .ring span { position: relative; font-size: 12px; font-weight: 800; color: var(--ink); }
 

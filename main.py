@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-03  APP_BUILD -> "2026-08-03l-shots". PRODUCT-SCREENSHOT REFRESH + two dashboard CSS
+#               fixes (all static; bump is for deploy verification). Jim spotted the teachers-page
+#               heatmap image cut off at the bottom; an audit of ALL six product screenshots found:
+#               lesson.png still said "MyTutor" (it is the og:image for every page AND on the
+#               landing/students pages), and dashboard/dashboard-full/parent.png were each clipped
+#               mid-content. All five re-captured from the live pages (teacher.png was fixed
+#               earlier today). dashboard.html also gained two real fixes the shots exposed: the
+#               KPI ring no longer covers the "UNITS MASTERED" label, and the page title no longer
+#               breaks mid-word next to the nav pills. landing.html alt text updated to match.
 #   2026-08-03  APP_BUILD -> "2026-08-03k-ipad". iPAD/TABLET READINESS PASS -- all changes are in
 #               the static pages (no backend code changed; this bump exists so the deploy can be
 #               verified at /health). challenge.html + demo.html: audio was silent on iPads (audio
@@ -2537,7 +2546,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-03k-ipad"
+APP_BUILD = "2026-08-03l-shots"
 
 
 @app.get("/health")
