@@ -3,6 +3,15 @@
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
+  - 2026-08-04  THREE POLISH ITEMS (Jim): (1) ROBOT FACE — the demo showed a plain purple sphere
+    where every real classroom page shows Mr. Cadabra's robot face (tutor-face.js). Both orbs
+    (header brand + the speaker next to the bubble) are now canvases drawn by the SAME TutorFace,
+    with mouth moving while he speaks, a happy face on right answers, and a teal glow + ring pulse
+    while speaking (the old sphere gradient remains as an automatic fallback if tutor-face.js
+    fails to load). (2) The math keyboard now says what it is NOT: a small line under the title —
+    it types symbols, it isn't a calculator. (3) WRONG-ANSWER FLOW: after a wrong check, the next
+    key tapped REPLACES the old answer automatically (calculator-style); backspace still edits the
+    old answer one character at a time, so a one-digit slip doesn't force a full retype.
   - 2026-08-03  iPAD/TABLET AUDIO FIX: the demo created a brand-new Audio element for every
     spoken line, and iPads block any element whose first play didn't start inside a tap -- so
     on an iPad the voice died after (at best) the first line. Now ONE shared element is
@@ -101,9 +110,14 @@
 
   /* tutor */
   .tutor{display:flex;gap:12px;align-items:flex-start}
-  .orb{width:52px;height:52px;border-radius:50%;flex:0 0 auto;position:relative;
-    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
+  .orb{width:52px;height:52px;border-radius:50%;flex:0 0 auto;position:relative}
+  .orb canvas{width:100%;height:100%;display:block}
+  /* fallback sphere: applied by JS only if tutor-face.js failed to load */
+  .orb.orb-sphere{background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
     box-shadow:0 5px 16px rgba(109,90,230,.45)}
+  .orb.orb-sphere canvas{display:none}
+  /* 2026-08-04: he highlights himself while talking — teal glow to match his antenna/eyes */
+  .orb.speaking{box-shadow:0 0 18px 5px rgba(47,227,200,.40);border-radius:50%}
   .orb::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(109,90,230,.35);
     opacity:0}
   .orb.speaking::after{animation:ring 1.1s ease-out infinite}
@@ -152,6 +166,7 @@
   .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
   .kb{margin-top:10px;background:#faf8ff;border:1px solid var(--line);border-radius:16px;padding:12px}
   .kbhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .kbnote{font-size:11.5px;color:var(--muted);margin:-4px 0 10px}
   .kbtitle{font-size:12.5px;font-weight:800;color:var(--purple);letter-spacing:.04em}
   .kbhelp{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;font-size:12px;
     border-radius:999px;padding:5px 12px;cursor:pointer}
@@ -195,14 +210,15 @@
   <script src="/static/analytics.js"></script>
 </head>
 <body>
+<script src="/static/tutor-face.js"></script>
 <div class="wrap">
-  <div class="brand"><span class="orb" style="width:30px;height:30px"></span><b>Mr. Cadabra's Classroom</b>
+  <div class="brand"><span class="orb" style="width:30px;height:30px"><canvas id="brandFace" width="60" height="60"></canvas></span><b>Mr. Cadabra's Classroom</b>
     <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
   <div class="sub">A 60-second taste at any level — he talks, draws it on the board, and you answer.</div>
 
   <div class="card">
     <div class="tutor">
-      <span class="orb" id="orb"></span>
+      <span class="orb" id="orb"><canvas id="orbFace" width="104" height="104"></canvas></span>
       <div>
         <div class="bubble" id="bubble">Pick any level — I'll teach you a real sample, from counting stars to differential equations.</div>
         <button class="replay" id="replay" style="display:none">🔊 Replay</button>
@@ -219,6 +235,24 @@
 
 <script>
 (function(){
+  // ---- MR. CADABRA'S FACE (2026-08-04): same robot as the classroom pages ----
+  var orbFace=document.getElementById('orbFace'), brandFace=document.getElementById('brandFace');
+  var faceT=0, faceHappyUntil=0;
+  if(!window.TutorFace){          // script failed to load: show the old sphere, never a blank
+    try{ document.querySelectorAll('.orb').forEach(function(el){ el.classList.add('orb-sphere'); }); }catch(e){}
+  } else {
+    try{ TutorFace.draw(brandFace.getContext('2d'),60,60,{level:0,t:20,mood:'idle'}); }catch(e){}
+    (function faceLoop(){
+      try{
+        var sp=document.getElementById('orb').classList.contains('speaking');
+        var mood=Date.now()<faceHappyUntil?'happy':(sp?'speaking':'idle');
+        var level=sp?0.45+0.30*Math.abs(Math.sin(faceT*0.05)):0.10+0.05*Math.sin(faceT*0.035);
+        TutorFace.draw(orbFace.getContext('2d'),104,104,{level:level,t:faceT,mood:mood});
+      }catch(e){}
+      faceT++; requestAnimationFrame(faceLoop);
+    })();
+  }
+
   var orb=document.getElementById('orb'), bubble=document.getElementById('bubble'),
       board=document.getElementById('board'), answer=document.getElementById('answer'),
       replay=document.getElementById('replay');
@@ -436,7 +470,7 @@
         if(opt===inp.correct){
           done=true; b.classList.add('right');
           if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });
-          fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
+          fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
           setTimeout(next,1900);
         } else {
           b.classList.add('wrong');
@@ -479,10 +513,12 @@
       if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
       if(ok){
         if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });   // the board confirms AFTER the student answers — never before
-        fb.className='fb ok'; fb.textContent='✓ '+inp.right; say(inp.right);
+        fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
       } else {
         fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+        input.dataset.stale='1';                 // next keypad tap replaces this answer
+        try{ input.select(); }catch(e){}         // hardware keyboards replace it natively
       }
     }
     check.onclick=submit;
@@ -491,10 +527,17 @@
   function buildKeys(input){
     var caret=0;
     function setv(v,c){ input.value=v; caret=Math.max(0,Math.min(c,v.length)); input.focus(); }
-    function ins(t){ var v=input.value; setv(v.slice(0,caret)+t+v.slice(caret), caret+t.length); }
-    function wrap(spec){ var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
+    // WRONG-ANSWER FLOW (2026-08-04, Jim): after a wrong check the old answer is STALE —
+    // the next key tapped replaces it (calculator-style), so there's no fiddly clearing.
+    // Backspace instead EDITS the stale answer (one-digit slips don't force a full retype).
+    function freshen(){ if(input.dataset.stale){ delete input.dataset.stale; setv('',0); } }
+    function ins(t){ freshen(); var v=input.value; setv(v.slice(0,caret)+t+v.slice(caret), caret+t.length); }
+    function wrap(spec){ freshen(); var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
       setv(v.slice(0,caret)+t+v.slice(caret), caret+idx); }
-    function back(){ if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
+    function back(){ delete input.dataset.stale;
+      if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
+    // hardware keyboards: the wrong-handler selects the text, so typing replaces it natively
+    input.addEventListener('input', function(){ delete input.dataset.stale; caret=input.selectionStart||input.value.length; });
     var GROUPS=[
       {label:'Numbers', keys:[['1','t1'],['2','t2'],['3','t3'],['4','t4'],['5','t5'],
                               ['6','t6'],['7','t7'],['8','t8'],['9','t9'],['0','t0'],['.','t.']]},
@@ -505,10 +548,12 @@
     var g=document.createElement('div'); g.className='kb';
     var head=document.createElement('div'); head.className='kbhead';
     head.innerHTML='<span class="kbtitle">🧮 MATH KEYBOARD</span>';
+    var note=document.createElement('div'); note.className='kbnote';
+    note.textContent="It types math symbols — it's not a calculator. The figuring-out part is all you!";
     var help=document.createElement('button'); help.className='kbhelp'; help.type='button';
     help.textContent='❓ How does it work?';
     help.onclick=function(){ document.getElementById('kbModal').classList.add('show'); };
-    head.appendChild(help); g.appendChild(head);
+    head.appendChild(help); g.appendChild(head); g.appendChild(note);
     GROUPS.forEach(function(grp){
       var row=document.createElement('div'); row.className='kgroup';
       var lb=document.createElement('div'); lb.className='klabel'; lb.textContent=grp.label; row.appendChild(lb);

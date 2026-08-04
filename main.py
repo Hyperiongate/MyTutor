@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04p-demoface". DEMO POLISH x3 (Jim; static-only, bump for
+#               deploy verification): (1) the demo now shows Mr. Cadabra's ROBOT FACE (same
+#               tutor-face.js as every classroom page) instead of a plain sphere -- mouth moves
+#               while speaking, teal glow highlights him, happy face on right answers, sphere
+#               kept as fallback; (2) the demo math keyboard states it is NOT a calculator;
+#               (3) after a wrong check, the next key tapped REPLACES the stale answer
+#               (backspace still edits it one character at a time).
 #   2026-08-04  APP_BUILD -> "2026-08-04o-familyclarity". FAMILY PAGE CLARITY (static-only; bump
 #               for deploy verification). Jim, seeing /family as a new parent: "HARBOR60 -- what
 #               IS that? I think it's a password but I don't know for sure." The code chip is now
@@ -2601,7 +2608,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04o-familyclarity"
+APP_BUILD = "2026-08-04p-demoface"
 
 
 @app.get("/health")
