@@ -2,6 +2,9 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  MASTERY = 90% (Jim): every check-result prompt line that told the tutor "80% or
+#               better means MASTERED" now says 90%, matching store.PASS_PCT. Nine phrase edits
+#               across the course templates; nothing else touched.
 #   2026-08-04  USAGE LOGGING (Measurement plan #1). Every brain call now records what it
 #               actually consumed: _create_verified() sums token counts (input/output/cache)
 #               across its attempts straight from the Anthropic responses and hands the totals
@@ -276,7 +279,7 @@
 #   2026-07-24  PHASE A2 -- QUICK CHECKS. Lesson prompt now teaches Mr. Cadabra to OFFER a
 #               short, no-pressure end-of-unit check (4-5 Qs, no hints during it), tally it, and
 #               emit [[check unit correct total]] -- which the frontend records (mastery) and
-#               shows as a friendly result card. Encouraging at any score; 80%+ = mastered.
+#               shows as a friendly result card. Encouraging at any score; 90%+ = mastered.
 #               Also [[mark correct="1|0"]] to silently count finished practice problems (added
 #               to lesson + practice prompts). Front-end handlers in session/practice/topic.html.
 #   2026-07-24  DEFINE-BEFORE-DRILL (Topic mode). When a student is NEW to a topic, the tutor
@@ -942,7 +945,7 @@ check to see how it's clicking? No pressure -- it just shows us what to work on 
         [[check unit="2" correct="4" total="5"]]
     (unit = the Algebra I unit number 1-9; correct = how many they got right; total = how many
     you asked.)
-  - Be encouraging no matter the score. 80% or better means they MASTERED the unit -- celebrate
+  - Be encouraging no matter the score. 90% or better means they MASTERED the unit -- celebrate
     it warmly. Below that, stay positive: name what they DID get, point to the one or two things
     to shore up, and offer to work those next. A check is NEVER a punishment.
 
@@ -1318,7 +1321,7 @@ how it's clicking? No pressure -- it just shows us what to work on next."
         [[check unit="3" correct="4" total="5"]]
     (unit = the Geometry unit number 1-9; correct = how many they got right; total = how many you
     asked.)
-  - Be encouraging no matter the score. 80% or better means they MASTERED the unit -- celebrate it
+  - Be encouraging no matter the score. 90% or better means they MASTERED the unit -- celebrate it
     warmly. Below that, stay positive: name what they DID get, point to the one or two things to
     shore up, and offer to work those next. A check is NEVER a punishment.
 
@@ -1576,7 +1579,7 @@ just shows us what to work on next."
     you do NOT speak the numbers):
         [[check unit="4" correct="4" total="5"]]
     (unit = the Pre-Algebra unit number 1-9; correct = how many right; total = how many asked.)
-  - Be encouraging at ANY score. 80% or better means mastered -- celebrate it. Below that, name what they
+  - Be encouraging at ANY score. 90% or better means mastered -- celebrate it. Below that, name what they
     DID get, point to the one or two things to shore up, and offer to work those next. A check is NEVER a
     punishment -- especially here.
 
@@ -1981,7 +1984,7 @@ how it's clicking? No pressure -- it just shows us what to work on next."
         [[check unit="2" correct="4" total="5"]]
     (unit = the Algebra II unit number 1-9; correct = how many they got right; total = how many
     you asked.)
-  - Be encouraging no matter the score. 80% or better means they MASTERED the unit -- celebrate
+  - Be encouraging no matter the score. 90% or better means they MASTERED the unit -- celebrate
     it warmly. Below that, stay positive: name what they DID get, point to the one or two things
     to shore up, and offer to work those next. A check is NEVER a punishment.
 
@@ -2338,7 +2341,7 @@ clicking? No pressure -- it just shows us what to work on next."
     automatically -- you do NOT speak the numbers):
         [[check unit="4" correct="4" total="5"]]
     (unit = the Trig / Pre-Calc unit number 1-9; correct = how many right; total = how many asked.)
-  - Be encouraging no matter the score. 80% or better means they MASTERED the unit -- celebrate it.
+  - Be encouraging no matter the score. 90% or better means they MASTERED the unit -- celebrate it.
     Below that, stay positive: name what they DID get, point to the one or two things to shore up,
     and offer to work those next. A check is NEVER a punishment.
 
@@ -2592,7 +2595,7 @@ When a student has worked through a unit and seems ready, OFFER a short, low-pre
   - When finished, emit the hidden result tag (the student sees a friendly result card automatically):
         [[check unit="2" correct="4" total="5"]]
     (unit = the Probability & Statistics unit number 1-9.)
-  - Be encouraging no matter the score. 80% or better means they MASTERED the unit -- celebrate it.
+  - Be encouraging no matter the score. 90% or better means they MASTERED the unit -- celebrate it.
     Below that, name what they DID get and offer to work the one or two weak spots next.
 
 Silently, when the student COMPLETES a problem you may record it with a hidden tag (shows nothing):
@@ -2832,7 +2835,7 @@ quick five-question check to see how it's clicking? No pressure."
   - Keep a private tally, then emit the hidden result tag (they see a friendly card automatically):
         [[check unit="3" correct="4" total="5"]]
     (unit = the Calculus unit number 1-9.)
-  - Be encouraging at any score. 80%+ means MASTERED -- celebrate it. Below that, name what they DID
+  - Be encouraging at any score. 90%+ means MASTERED -- celebrate it. Below that, name what they DID
     get and offer to work the one or two weak spots next.
 
 Silently, when they COMPLETE a problem, you may record it (nothing shows on screen):
@@ -3068,7 +3071,7 @@ When they seem ready, OFFER a short low-pressure "quick check" -- 4 or 5 questio
   - Keep a private tally, then emit the hidden result tag:
         [[check unit="5" correct="4" total="5"]]
     (unit = the Differential Equations unit number 1-9.)
-  - Be encouraging at any score. 80%+ means MASTERED -- celebrate it. Below that, name what they DID
+  - Be encouraging at any score. 90%+ means MASTERED -- celebrate it. Below that, name what they DID
     get and offer to work the one or two weak spots next.
 
 Silently, when they COMPLETE a problem (nothing shows on screen):
@@ -3325,7 +3328,7 @@ just shows us what to play with next."
     you do NOT speak the numbers):
         [[check unit="2" correct="4" total="5"]]
     (unit = the course unit number 1-9; correct = how many right; total = how many asked.)
-  - Be encouraging at ANY score. 80% or better means mastered -- celebrate it. Below that, name what
+  - Be encouraging at ANY score. 90% or better means mastered -- celebrate it. Below that, name what
     they DID get, point to the one thing to practice, and offer to play with it next. A check is
     NEVER a punishment.
 

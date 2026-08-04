@@ -4,6 +4,8 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  MASTERY = 90% (Jim): every visible "80%" mastery caption on this page is now
+    90%, matching the raised store.PASS_PCT bar.
   - 2026-08-04  OFFICIAL LOGO (from Jim's brand deck): the purple orb brand dot is now the real
     Mr. Cadabra mark — a navy grid of squares with one golden starred tile (/static/
     brand-mark.svg, clean vector; favicon updated too). Brand spots only; the robot face
@@ -265,7 +267,7 @@
       { l: "Active this month", v: num(s.active_30d), s: "students, last 30 days" },
       { l: "Engaged minutes (7d)", v: num(s.minutes_7d) },
       { l: "Engaged minutes (all)", v: num(s.minutes_total), s: "≈ " + num(Math.round((s.minutes_total || 0) / 60)) + " hours" },
-      { l: "Units mastered", v: num(s.units_mastered), s: "80%+ on a unit check" },
+      { l: "Units mastered", v: num(s.units_mastered), s: "90%+ on a unit check" },
       { l: "Checks taken", v: num(s.checks_taken) },
       { l: "Problems practiced", v: num(s.problems_practiced) }
     ]));

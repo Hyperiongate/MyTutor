@@ -4,6 +4,8 @@
   teacher.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-04  MASTERY = 90% (Jim): every visible "80%" mastery caption on this page is now
+    90%, matching the raised store.PASS_PCT bar.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
@@ -306,7 +308,7 @@
           <span class="k"><i style="background:var(--st-poor)"></i> under 50%</span>
           <span class="k"><i style="background:var(--st-low)"></i> 50–69%</span>
           <span class="k"><i style="background:var(--st-mid)"></i> 70–79%</span>
-          <span class="k"><i style="background:var(--st-mastered)"></i> 80%+ mastered ★</span>
+          <span class="k"><i style="background:var(--st-mastered)"></i> 90%+ mastered ★</span>
         </div>
       </div>
 
@@ -535,7 +537,7 @@
         el("kWeakSub").textContent = worst
           ? (worst.name + " · class avg " + worst.avg_best_pct + "%")
           : "no check scores yet";
-        el("heatNote").textContent = "best check score per unit · ★ = mastered (80%+)";
+        el("heatNote").textContent = "best check score per unit · ★ = mastered (90%+)";
 
         renderHeat(d);
         renderStudents(d);

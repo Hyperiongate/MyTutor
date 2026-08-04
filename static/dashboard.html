@@ -4,6 +4,9 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-04  MASTERY = 90% + GRADUATE (Jim): "let's get it to 80%" -> 90%; and completing a
+                whole course now shows as a 🎓 "Graduate — <Course>" trophy (was the generic 🏆
+                "Course completed" tile). Computed live from the awards API; wording only here.
     2026-08-03  TITLE WRAP FIX: the app-nav pills share the top bar, and at desktop widths they
                 squeezed the page title into breaking mid-word ("...Pre-/Algebra"). The title now
                 stays on one line and the pills wrap below it instead (>=761px only; phones keep
@@ -600,9 +603,9 @@
             // built as data here, attached to the tiles after render (see wireTroTips).
             const tipData = [];
             const trophies = (aw.trophies || []).map(t => {
-              tipData.push({ kind: "Course trophy", name: t.title,
-                desc: "The big one: every unit of " + t.title + " mastered — all 9, each proven with a real scored check. This trophy is earned, never given.", when: null });
-              return `<div class="tro" tabindex="0"><span class="ic">🏆</span><span><span class="nm">${esc(t.title)}</span><br><span class="ds">Course completed — all 9 units mastered</span></span></div>`;
+              tipData.push({ kind: "Graduate", name: "Graduate — " + t.title,
+                desc: "The big one: every unit of " + t.title + " mastered at 90%+ — all 9, each proven with a real scored check. This honor is earned, never given.", when: null });
+              return `<div class="tro" tabindex="0"><span class="ic">🎓</span><span><span class="nm">Graduate — ${esc(t.title)}</span><br><span class="ds">Finished the whole course — all 9 units mastered</span></span></div>`;
             });
             const medals = (aw.awards || []).map(a => {
               tipData.push({ kind: "Effort medal", name: a.name, desc: a.desc + ". Once earned, it's yours forever — medals never expire, even if a streak breaks later.", when: a.earned_at });
@@ -637,7 +640,7 @@
         el("strengthen").className = "weaks";
         el("strengthen").innerHTML = weak.slice(0, 4).map(u => {
           const meta = u.checks_taken
-            ? ("Best check: " + u.best_pct + "% · let's get it to 80%")
+            ? ("Best check: " + u.best_pct + "% · let's get it to 90%")
             : "Not checked yet — a quick check shows where you stand";
           return `
             <div class="weak">

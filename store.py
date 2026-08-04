@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  MASTERY BAR RAISED (Jim): PASS_PCT 80 -> 90. A unit now counts as MASTERED at a
+#               90%+ best check score, everywhere (store computes it; main.py + the pages now read
+#               store.PASS_PCT instead of hardcoding 80, so the NEXT change is one line). Note:
+#               previously-stored 'mastered' topic_progress statuses from 80-89% checks keep their
+#               stored label until the student checks again, but every LIVE computation (dashboards,
+#               heatmaps, badges, trophies, admin counts) uses the new bar immediately.
 #   2026-08-04  PASSWORD RESET (Jim: parents need 'I forgot my password'). NEW table
 #               `parent_resets` (token_hash pk, parent_id, expires_at, used, created_at) --
 #               we store ONLY a SHA-256 hash of the emailed token, never the token itself,
@@ -784,8 +790,8 @@ def record_awards(code: str, award_ids: list) -> None:
 
 
 # ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------
-# A unit is "mastered" when the student passes a check (best score >= PASS_PCT).
-PASS_PCT = 80
+# A unit is "mastered" when the student passes a check (best score >= PASS_PCT, i.e. 90%).
+PASS_PCT = 90
 
 
 def _today() -> str:
@@ -1081,7 +1087,7 @@ def get_course_activity(code: str) -> dict:
         if last and (c["last_active"] is None or last > c["last_active"]):
             c["last_active"] = last
 
-    # 2) mastery per course, from unit_checks (a unit is mastered at best >= 80%)
+    # 2) mastery per course, from unit_checks (a unit is mastered at best >= PASS_PCT)
     uc = _tables["unit_checks"]
     with _engine.connect() as conn:
         rows = conn.execute(select(uc.c.course, uc.c.unit, uc.c.best_pct, uc.c.updated_at)
@@ -1092,7 +1098,7 @@ def get_course_activity(code: str) -> dict:
         best = int(best or 0)
         c["units_checked"] += 1
         c["best_total"] += best
-        if best >= 80:
+        if best >= PASS_PCT:
             c["units_mastered"] += 1
         if updated and (c["last_active"] is None or updated > c["last_active"]):
             c["last_active"] = updated

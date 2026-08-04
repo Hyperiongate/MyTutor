@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04w-mastery90". THREE OF JIM'S CHANGES: (1) MASTERY = 90%
+#               now, everywhere -- store.PASS_PCT is the single source (all six hardcoded ">= 80"
+#               mastery checks here now read store.PASS_PCT); tutor prompts, dashboard/teacher/
+#               admin/students/teachers page texts updated; all screenshots re-shot since the old
+#               captions ("80%+") were baked into the pixels. (2) NEW "GRADUATE" honor: finishing
+#               a WHOLE course now renders as a 🎓 "Graduate — <Course>" trophy (was the generic
+#               🏆 "Course completed" tile) -- computed live from all-9-units-mastered, so it
+#               upgrades/downgrades honestly with the new bar. (3) lesson.png re-shot: it still
+#               showed the old purple-sphere Mr. Cadabra in the header and speaker spots; the new
+#               shot has the official logo header + robot speaker (it is also the og:image
+#               everywhere, incl. the parents/teachers pages Jim saw it on).
 #   2026-08-04  APP_BUILD -> "2026-08-04v-teachervideo". FIRST PAGE VIDEO (static-only; bump for
 #               deploy verification). Jim's teachers video ("Rev A 8.3.26", 69s, 3MB, brand-
 #               correct, built from the current screenshots) embedded on /teachers under the
@@ -941,7 +952,7 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> s
     for n, name in curriculum.units_for(course):
         best = int((checks.get(n) or {}).get("best_pct") or 0)
         t = topics.get(n)
-        if best >= 80:
+        if best >= store.PASS_PCT:
             mastered.append(f"Unit {n} ({name})")
         elif t and t.get("status") not in (None, "not-started"):
             tag = ("best " + str(best) + "%") if best else "no check yet"
@@ -1375,7 +1386,7 @@ def llms_txt():
 # -----------------------------------------------------------------------------
 # Three kinds of recognition, ALL computed from data the app already records
 # honestly (nothing invented, nothing participation-trophy about it):
-#   - MERIT BADGES: one per unit mastered (check >= 80%), collected per course.
+#   - MERIT BADGES: one per unit mastered (check >= store.PASS_PCT, i.e. 90%), collected per course.
 #   - COURSE TROPHIES: all nine units of a course mastered.
 #   - EFFORT AWARDS: streaks, engaged minutes, practice volume, courage
 #     (first check), growth (Bounce Back: mastered a unit after failing a
@@ -1436,9 +1447,9 @@ def awards_state(code: str):
                 any_check = True
             if best >= 100:
                 perfect = True
-            if taken >= 2 and best >= 80:
+            if taken >= 2 and best >= store.PASS_PCT:
                 bounce = True
-            if best >= 80:
+            if best >= store.PASS_PCT:
                 mastered_units.append({"unit": unit, "name": unit_names.get(unit, f"Unit {unit}")})
         mastered_units.sort(key=lambda u: u["unit"])
         total_units = len(unit_names) or 9
@@ -1612,7 +1623,7 @@ def topics_state(code: str, course: str = "algebra1"):
             "last_touched": (r.get("last_touched") if r else None),
             "best_pct": best,                       # best end-of-unit check score (0 if none)
             "checks_taken": int(c.get("checks_taken") or 0),
-            "mastered": best >= 80,
+            "mastered": best >= store.PASS_PCT,
         })
 
     started = [u for u in units if u["status"] != "not-started"]
@@ -1678,7 +1689,7 @@ def _class_student_row(code: str, course: str) -> dict:
             "name": name,
             "best_pct": best,
             "checks_taken": int(c.get("checks_taken") or 0),
-            "mastered": best >= 80,
+            "mastered": best >= store.PASS_PCT,
             "status": (r["status"] if r else "not-started"),
         })
     started = [u for u in units if u["status"] != "not-started" or u["checks_taken"]]
@@ -2805,7 +2816,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04v-teachervideo"
+APP_BUILD = "2026-08-04w-mastery90"
 
 
 @app.get("/health")
@@ -2971,7 +2982,7 @@ def _assessment_facts(code: str, student: dict, course: str) -> str:
         mastered, working, unchecked = [], [], []
         for u, name in unit_names.items():
             c = checks.get(u)
-            if c and int(c.get("best_pct") or 0) >= 80:
+            if c and int(c.get("best_pct") or 0) >= store.PASS_PCT:
                 mastered.append(f"{name} (best check {c['best_pct']}%)")
             elif c and int(c.get("checks_taken") or 0) > 0:
                 working.append(f"{name} (best check so far {c['best_pct']}%, "
