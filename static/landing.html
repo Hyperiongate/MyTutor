@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  LIVE HERO LESSON (build ah, from the outside design review Jim ran: "the site
+    tells more than it shows — no wow moment near the top"). The hero whiteboard mock now TEACHES
+    ON A LOOP: Mr. Cadabra's bubble asks, a student reply pill answers, the board draws each step
+    (2X+1=11 → X=5 → the check ✓), and the robot face talks/smiles in sync — a ~14s scripted
+    mini-lesson that clears and restarts. Pure code, no video, no new requests. Honest: it's the
+    same two-step equation the real demo teaches. Safety nets: with JavaScript off the original
+    static three-step board still renders; prefers-reduced-motion users get that static board
+    too (no loop); if tutor-face.js fails the sphere fallback stands. Nothing else on the page
+    changed.
   - 2026-08-05  NAV REORDER (build ae, Jim): top-nav order is now How it works · Our mission ·
     Features (NEW page at /features) · Courses · Homeschool · Students · Parents · Teachers ·
     Community · Pricing · Contact · FAQ — the four demographics we sell to sit together,
@@ -204,6 +213,16 @@
   .board .step:nth-child(2){animation-delay:1.0s}
   .board .step:nth-child(3){animation-delay:1.8s}
   @keyframes stepin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* LIVE HERO LESSON (2026-08-05): steps the script adds animate individually, and the
+     student's typed answer shows as a reply pill under the tutor bubble. */
+  .board .step.live{animation:stepin .45s forwards}
+  .reply{align-self:flex-end;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;
+    border-radius:14px 14px 3px 14px;padding:8px 13px;font-size:13px;font-weight:700;
+    opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease;max-width:92%}
+  .reply.show{opacity:1;transform:none}
+  .reply .cur{display:inline-block;width:2px;background:#fff;height:12px;margin-left:2px;
+    animation:blink 1s steps(1) infinite;vertical-align:-1px}
+  @keyframes blink{50%{opacity:0}}
   /* SECTIONS */
   section{padding:56px 0}
   .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
@@ -458,9 +477,10 @@
     <div class="mock-body">
       <div class="mock-tutor">
         <span class="orb orb-lg" id="heroOrb"><canvas id="heroFace" width="176" height="176"></canvas></span>
-        <div class="bubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
+        <div class="bubble" id="heroBubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
+        <div class="reply" id="heroReply" aria-hidden="true"></div>
       </div>
-      <div class="board">
+      <div class="board" id="heroBoard">
         <div class="step">2<span class="v">X</span> + 1 = 11</div>
         <div class="step">2<span class="v">X</span> = 10&nbsp;&nbsp;<span style="color:#8a86a6">(− 1)</span></div>
         <div class="step"><span class="v">X</span> = 5&nbsp;&nbsp;<span style="color:#8a86a6">(÷ 2)</span></div>
@@ -655,20 +675,87 @@
   <div>© 2026 Mr. Cadabra's Classroom · mrcadabra.com · Made for families</div>
 </div></footer>
 <script>
-  // HERO FACE (2026-08-04): draw the real Mr. Cadabra in the hero mock — gently animated idle.
+  // HERO FACE (2026-08-04) + LIVE HERO LESSON (2026-08-05): the mock now teaches on a loop.
+  // The face talks while the bubble "speaks", smiles on the win, and the board draws each
+  // step — the same two-step equation the real demo teaches. Honest and self-contained:
+  // no video, no requests. Reduced-motion users (and no-JS visitors) keep the static board.
   (function(){
+    var mood = 'idle', talkUntil = 0;      // the lesson script below drives these
     function boot(){
       var c = document.getElementById('heroFace');
       if (!c) return;
       if (!window.TutorFace){ document.getElementById('heroOrb').classList.add('orb-fallback'); return; }
       var t = 0, ctx = c.getContext('2d');
       (function loop(){
-        try { TutorFace.draw(ctx, 176, 176, { level: 0.10 + 0.05 * Math.sin(t * 0.035), t: t, mood: 'idle' }); } catch(e) {}
+        var speaking = Date.now() < talkUntil;
+        var m = (mood === 'happy') ? 'happy' : (speaking ? 'speaking' : 'idle');
+        var level = speaking ? 0.45 + 0.30 * Math.abs(Math.sin(t * 0.05))
+                             : 0.10 + 0.05 * Math.sin(t * 0.035);
+        try { TutorFace.draw(ctx, 176, 176, { level: level, t: t, mood: m }); } catch(e) {}
         t++; requestAnimationFrame(loop);
       })();
     }
     if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', boot);
     else boot();
+
+    // ---- the scripted mini-lesson loop ----
+    function lesson(){
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var bubble = document.getElementById('heroBubble'),
+          reply  = document.getElementById('heroReply'),
+          board  = document.getElementById('heroBoard');
+      if (!bubble || !reply || !board) return;
+      var X = '<span class="v">X</span>';
+      var dim = function(s){ return '&nbsp;&nbsp;<span style="color:#8a86a6">' + s + '</span>'; };
+      // say / student-reply / board-line beats. Durations are readable, not rushed.
+      var SEQ = [
+        { say: '"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"',
+          board: '2' + X + ' + 1 = 11', ms: 2600 },
+        { reply: 'subtract 1', ms: 1500 },
+        { say: '"Exactly — subtract one from both sides."',
+          board: '2' + X + ' = 10' + dim('(− 1)'), happy: true, ms: 2300 },
+        { reply: 'divide by 2', ms: 1500 },
+        { say: '"Nice — so what is <span style=\'color:#d1345b;font-weight:800\'>X</span>?"',
+          board: X + ' = 5' + dim('(÷ 2)'), ms: 2300 },
+        { reply: 'X = 5!', ms: 1500 },
+        { say: '"You got it — and look, it checks out!"',
+          board: 'check: 2·5 + 1 = 11 ✓', happy: true, ms: 3400 },
+      ];
+      var i = -1;
+      function beat(){
+        i++;
+        if (i >= SEQ.length){                       // hold, then clear and loop
+          i = -1; mood = 'idle';
+          setTimeout(function(){
+            board.innerHTML = ''; reply.className = 'reply'; beat();
+          }, 900);
+          return;
+        }
+        var s = SEQ[i];
+        if (s.say){
+          bubble.innerHTML = s.say;
+          talkUntil = Date.now() + Math.min(s.ms - 300, 2200);
+          mood = 'idle';
+          if (s.happy){ mood = 'happy'; setTimeout(function(){ if (mood === 'happy') mood = 'idle'; }, 1800); }
+        }
+        if (s.board){
+          var d = document.createElement('div');
+          d.className = 'step live'; d.innerHTML = s.board;
+          board.appendChild(d);
+        }
+        if (s.reply){
+          reply.innerHTML = s.reply + '<span class="cur"></span>';
+          reply.className = 'reply show';
+        } else if (s.say){
+          reply.className = 'reply';                // hide the old answer while he talks
+        }
+        setTimeout(beat, s.ms);
+      }
+      // let the original static board play its entrance once, then take over
+      setTimeout(function(){ board.innerHTML = ''; beat(); }, 3200);
+    }
+    if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', lesson);
+    else lesson();
   })();
 
   function setCycle(c){

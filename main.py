@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ah-herolive". LIVE HERO LESSON (outside design review:
+#               "the site tells more than it shows"). static/landing.html only: the hero
+#               whiteboard mock now teaches a ~14s scripted mini-lesson on a loop — bubble asks,
+#               student reply pill answers, board draws each step, robot face talks/smiles in
+#               sync. No video, no new requests; static board preserved for no-JS and
+#               prefers-reduced-motion. No server change; build bumped for deploy verification.
 #   2026-08-05  APP_BUILD -> "2026-08-05ag-featuresaccordion". FEATURES PAGE: ACCORDION REDESIGN
 #               (Jim: "more visible without scrolling so far -- make everything a drop-down and
 #               fit it at the top of the page"). static/features.html only: all 30 features are
@@ -3520,7 +3526,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ag-featuresaccordion"
+APP_BUILD = "2026-08-05ah-herolive"
 
 
 @app.get("/health")
