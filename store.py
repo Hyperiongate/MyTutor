@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  OPS ERROR LOG (pre-launch readiness: "you should learn about a broken API key
+#               from an alert, not from a parent"). NEW table `error_log` (id autoincrement,
+#               created_at, where 160, what Text): one row per unhandled server error, written
+#               by main.py's new global exception handler. New functions: record_error(where,
+#               what) -- best-effort insert that NEVER raises (an error logger that errors would
+#               be poetic but useless) and sweeps rows older than 30 days on each write;
+#               recent_errors(hours, limit) -- newest first, isoformat timestamps, for /admin;
+#               errors_count(hours). Purely additive; no existing function changed.
 #   2026-08-05  ADMIN FULL RESET (Jim: a "Start Fresh" tool so he can re-run the brand-new-parent
 #               signup with his OWN email). NEW delete_parent_cascade(parent_id): removes ONE
 #               parent and everything tied to it -- their student accounts and every per-student
@@ -457,6 +465,16 @@ def init():
             Column("window_expires_at", DateTime(timezone=True)),
             Column("created_at", DateTime(timezone=True)),
             Column("revoked", Integer, default=0),
+        )
+        # OPS ERROR LOG (2026-08-05): one row per unhandled server error, written by
+        # main.py's global exception handler. Powers /admin's error tile and Jim's
+        # alert emails. Swept to the last 30 days on each write.
+        _tables["error_log"] = Table(
+            "error_log", _meta,
+            Column("id", Integer, primary_key=True, autoincrement=True),
+            Column("created_at", DateTime(timezone=True), index=True),
+            Column("where", String(160)),     # e.g. "POST /api/session/1234"
+            Column("what", Text),             # exception type + message (no secrets)
         )
         # COMMUNITY FORUM (2026-07-31): parents post, everyone reads. Soft deletes
         # only -- moderation flips deleted=1, nothing is ever destroyed.
@@ -1691,6 +1709,71 @@ def revoke_beta_code(code: str) -> bool:
         res = conn.execute(update(t).where(t.c.code == (code or "").strip().upper())
                            .values(revoked=1, window_expires_at=None))
     return bool(res.rowcount)
+
+
+# ---- ops error log (2026-08-05) ---------------------------------------------
+
+def record_error(where: str, what: str) -> None:
+    """Log one unhandled server error. Best-effort by design: this function must
+    NEVER raise (an error logger that errors is useless) and stays silent when
+    the DB is off (the print() in main.py still reaches the Render logs). Sweeps
+    rows older than 30 days on each write so the table can't grow forever."""
+    if not _ENABLED:
+        return
+    from sqlalchemy import insert, delete
+    try:
+        t = _tables["error_log"]
+        with _engine.begin() as conn:
+            conn.execute(delete(t).where(
+                t.c.created_at < _now() - _dt.timedelta(days=30)))
+            conn.execute(insert(t).values(
+                created_at=_now(),
+                where=(where or "")[:160],
+                what=(what or "")[:4000]))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[error-log] could not record error: {exc}")
+
+
+def recent_errors(hours: int = 24, limit: int = 50) -> list:
+    """Newest-first unhandled errors in the window, for the /admin panel.
+    [{when, where, what}] with isoformat timestamps. Empty list on any problem."""
+    if not _ENABLED:
+        return []
+    from sqlalchemy import select
+    try:
+        t = _tables["error_log"]
+        cutoff = _now() - _dt.timedelta(hours=int(hours))
+        with _engine.connect() as conn:
+            rows = conn.execute(
+                select(t.c.created_at, t.c.where, t.c.what)
+                .where(t.c.created_at >= cutoff)
+                .order_by(t.c.created_at.desc()).limit(int(limit))).fetchall()
+        out = []
+        for r in rows:
+            when = _aware(r[0])
+            out.append({"when": when.isoformat() if when else None,
+                        "where": r[1] or "", "what": r[2] or ""})
+        return out
+    except Exception as exc:  # noqa: BLE001
+        print(f"[error-log] list failed: {exc}")
+        return []
+
+
+def errors_count(hours: int = 24) -> int:
+    """How many unhandled errors in the window. 0 on any problem."""
+    if not _ENABLED:
+        return 0
+    from sqlalchemy import select, func
+    try:
+        t = _tables["error_log"]
+        cutoff = _now() - _dt.timedelta(hours=int(hours))
+        with _engine.connect() as conn:
+            n = conn.execute(select(func.count()).select_from(t)
+                             .where(t.c.created_at >= cutoff)).scalar()
+        return int(n or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[error-log] count failed: {exc}")
+        return 0
 
 
 # ---- community forum (2026-07-31: parents post, everyone reads) -------------

@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  OPS ALERTING (build ac): the System section gained an "Errors (24h)" tile fed by
+    the new server-side error log, and — only when there ARE errors — a "Recent errors" card
+    listing the newest 20 (time, route, message). Green zero means genuinely zero: the server
+    now records every unhandled error (and emails Jim, throttled — see main.py change note).
   - 2026-08-05  START FRESH (build ab): new gated "Start fresh — reset a test account" card. Jim
     types a parent email, confirms with a second click, and it calls POST /api/admin/parent-reset
     to fully delete that ONE parent account (children + data) so he can re-run signup as a brand-
@@ -329,12 +333,33 @@
       { l: "Replies", v: num(s.forum_replies) }
     ]));
 
+    var errN = Number(payload.errors24 || 0);
     html += section("🩺 System", "The facts from /health, at a glance.", tiles([
       { l: "Build stamp", v: '<span style="font-size:16px">' + esc(payload.build || "—") + '</span>' },
       { l: "Teaching model", v: '<span style="font-size:16px">' + esc(payload.model || "—") + '</span>' },
       { l: "Database", v: '<span style="font-size:16px">' + (dbOk ? "Connected" : "OFF") + '</span>', cls: dbOk ? "good" : "bad", s: dbOk ? (st.dialect || "") : "" },
-      { l: "Payments", v: '<span style="font-size:16px">' + (pay ? "Open (live)" : "Beta — closed") + '</span>', cls: pay ? "good" : "warn" }
+      { l: "Payments", v: '<span style="font-size:16px">' + (pay ? "Open (live)" : "Beta — closed") + '</span>', cls: pay ? "good" : "warn" },
+      // OPS (2026-08-05): unhandled server errors, last 24h. Green zero is real —
+      // the server logs every crash (and emails you, throttled).
+      { l: "Errors (24h)", v: num(errN), cls: errN ? "bad" : "good",
+        s: errN ? "details below — you were emailed" : "no unhandled errors" }
     ]));
+
+    // Recent-errors card: only exists when there ARE errors (a clean board stays clean).
+    var errs = payload.errors_recent || [];
+    if (errs.length) {
+      var rows = errs.map(function (e) {
+        var when = "—";
+        try { when = new Date(e.when).toLocaleString(); } catch (ex) {}
+        return "<tr><td style='white-space:nowrap'>" + esc(when) + "</td>" +
+          "<td class='mono'>" + esc(e.where || "") + "</td>" +
+          "<td>" + esc((e.what || "").slice(0, 300)) + "</td></tr>";
+      }).join("");
+      html += '<div class="card"><div class="sechead"><h2>🚨 Recent errors (24h)</h2>' +
+        '<span class="note">Newest first, up to 20. Kept 30 days server-side.</span></div>' +
+        '<table><thead><tr><th>When</th><th>Where</th><th>What</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></div>';
+    }
 
     $("board").innerHTML = html;
   }

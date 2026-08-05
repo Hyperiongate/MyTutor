@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ac-opsalerts". OPS ALERTING (pre-launch readiness review:
+#               "you should learn about a broken API key from an alert, not from a parent" --
+#               the one Tier-2 audit item never built). THREE pieces, all additive:
+#               (1) GLOBAL ERROR HANDLER: any unhandled exception on any route now (a) prints to
+#               the Render log as before, (b) is recorded to the new store.error_log table, and
+#               (c) EMAILS JIM -- throttled to at most one email per error-kind per hour so a
+#               crash loop can't flood the inbox. The caller gets a warm JSON 500 instead of a
+#               bare stack trace. HTTPExceptions (normal 4xx "please sign in" answers) are NOT
+#               errors and don't trip any of this.
+#               (2) COST WATCHDOG: the existing 30-min scheduler loop now also checks estimated
+#               spend over the trailing 24h (same math as /admin's cost panel) and emails Jim
+#               when it crosses COST_ALERT_USD (env, dollars; unset = watchdog off). Throttled
+#               to one alert per ~20h. Never guesses: silent unless the price env vars are set.
+#               (3) /api/admin/stats now returns errors24 (count) + errors_recent (newest 20),
+#               and /admin shows an Errors tile + a recent-errors table when there are any.
+#               New env (all optional): ALERT_EMAIL (where alerts go; defaults to SMTP_USER),
+#               COST_ALERT_USD (daily-spend alarm threshold), ALERT_THROTTLE_MIN (default 60).
+#               Alert emails ride the existing WORKING smtp pipe (_send_email) on a background
+#               thread -- an alert can never slow or crash a student's lesson.
 #   2026-08-05  APP_BUILD -> "2026-08-05ab-freshreset". ADMIN "START FRESH" (Jim: a button to fully
 #               reset ONE parent account by email so he can walk the brand-new-parent signup with
 #               his own address, without the site recognizing him). NEW admin-only endpoint
@@ -2219,6 +2238,106 @@ def _send_email(to_addr: str, subject: str, body: str) -> str:
         return err
 
 
+# =============================================================================
+# OPS ALERTING (2026-08-05) -- Jim finds out from an email, not from a parent.
+# -----------------------------------------------------------------------------
+# _ops_alert() emails Jim about an operational problem, at most once per `kind`
+# per throttle window (default 60 min -- a crash loop makes ONE email an hour,
+# not a thousand). Sends on a background thread so an alert can never slow a
+# student's lesson. The global exception handler below feeds it; so does the
+# cost watchdog in the scheduler loop. Env (all optional):
+#   ALERT_EMAIL        where alerts go (defaults to SMTP_USER, Jim's inbox)
+#   ALERT_THROTTLE_MIN minutes between repeat alerts of the same kind (60)
+#   COST_ALERT_USD     trailing-24h est. spend that triggers the cost alarm
+# =============================================================================
+
+_ALERT_LAST: dict = {}          # kind -> unix time of last email sent
+_ALERT_LOCK = threading.Lock()
+
+
+def _ops_alert(kind: str, subject: str, body: str,
+               throttle_minutes: int | None = None) -> None:
+    """Fire-and-forget ops email. Never raises; throttled per `kind`."""
+    try:
+        mins = (throttle_minutes if throttle_minutes is not None
+                else int(os.environ.get("ALERT_THROTTLE_MIN", "60") or 60))
+        to_addr = (os.environ.get("ALERT_EMAIL", "").strip()
+                   or os.environ.get("SMTP_USER", "").strip())
+        if not to_addr or not _smtp_configured():
+            print(f"[ops] alert (email not configured) {kind}: {subject}")
+            return
+        now = time.time()
+        with _ALERT_LOCK:
+            if len(_ALERT_LAST) > 500:          # bounded memory, always
+                _ALERT_LAST.clear()
+            if now - _ALERT_LAST.get(kind, 0) < mins * 60:
+                return                          # throttled -- already emailed recently
+            _ALERT_LAST[kind] = now
+
+        def _go():
+            err = _send_email(to_addr, "[Mr. Cadabra ops] " + subject,
+                body + "\n\n--\nAutomatic ops alert from mrcadabra.com (build "
+                + APP_BUILD + "). Repeats of this alert kind are muted for "
+                + str(mins) + " minutes.\nAdmin panel: https://mrcadabra.com/admin")
+            if err:
+                print(f"[ops] alert email failed ({kind}): {err}")
+        threading.Thread(target=_go, daemon=True, name="ops-alert").start()
+    except Exception as exc:  # noqa: BLE001 -- the alarm must never be the fire
+        print(f"[ops] alert error: {exc}")
+
+
+@app.exception_handler(Exception)
+async def _unhandled_error(request: Request, exc: Exception):
+    """Any unhandled crash on any route: log it, record it, email Jim (throttled),
+    and answer the caller warmly instead of with a bare stack trace. Normal
+    HTTPExceptions (sign-in prompts, validation answers) never come through here."""
+    where = f"{request.method} {request.url.path}"
+    what = f"{type(exc).__name__}: {exc}"
+    print(f"[error] UNHANDLED {where}: {what}")
+    try:
+        store.record_error(where, what)
+    except Exception:  # noqa: BLE001
+        pass
+    _ops_alert("err:" + type(exc).__name__ + ":" + request.url.path,
+               f"Server error on {where}",
+               f"An unhandled error just occurred.\n\nWhere: {where}\n"
+               f"What:  {what}\n\nRecent errors are listed on /admin.")
+    return JSONResponse(status_code=500, content={"detail": (
+        "Something went wrong on our side — it's been logged and reported. "
+        "Please try again in a moment.")})
+
+
+def _ops_watch_pass() -> None:
+    """Cost watchdog, called by the scheduler loop every 30 minutes. Silent unless
+    Jim set COST_ALERT_USD in Render AND the price env vars exist (we never guess
+    at dollars). Throttled to roughly one alert per 20 hours."""
+    try:
+        thr = os.environ.get("COST_ALERT_USD", "").strip()
+        if not thr:
+            return
+        limit = float(thr)
+        if limit <= 0:
+            return
+        u = _usage_with_dollars(1)             # trailing 24h, same math as /admin
+        brain, tts = u.get("brain_usd"), u.get("tts_usd")
+        if brain is None and tts is None:
+            return                              # price env vars not set -- no invented dollars
+        total = (brain or 0) + (tts or 0)
+        if total >= limit:
+            _ops_alert("cost24",
+                f"spend in the last 24h is about ${total:.2f} (alarm set at ${limit:.2f})",
+                "Estimated spend over the trailing 24 hours crossed your alarm threshold.\n\n"
+                f"  Brain (Claude):     ${(brain or 0):.2f}\n"
+                f"  Voice (ElevenLabs): ${(tts or 0):.2f}\n"
+                f"  Total:              ${total:.2f}   (threshold ${limit:.2f})\n\n"
+                "The full cost panel is on /admin. If this is expected growth — "
+                "congratulations; raise COST_ALERT_USD in Render. If it isn't, check "
+                "/admin for a runaway student or an abuse pattern.",
+                throttle_minutes=1200)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[ops] cost watch error: {exc}")
+
+
 @app.post("/api/parent/forgot")
 def parent_forgot(body: ParentForgotIn, request: Request):
     """Email a password-reset link. SAME answer whether or not the address has an
@@ -2538,13 +2657,20 @@ def _weekly_digest_pass(force: bool = False) -> dict:
 def _digest_loop():
     """Daemon thread: wake every 30 minutes; inside the Friday window, send to
     everyone due. Restart-safe (last_sent_at lives in the database) and duplicate-
-    safe (the 3-day guard means one send per parent per window)."""
+    safe (the 3-day guard means one send per parent per window).
+    2026-08-05: the same heartbeat now also runs the ops cost watchdog
+    (_ops_watch_pass) -- each pass is fenced in its own try so one failing can
+    never stop the other."""
     while True:
         time.sleep(1800)          # sleep FIRST: never race the module import at boot
         try:
             _weekly_digest_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[digest] loop error: {exc}")
+        try:
+            _ops_watch_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[ops] watch loop error: {exc}")
 
 
 _digest_thread_started = False
@@ -2725,6 +2851,9 @@ def admin_stats_api(key: str = ""):
         "stats": store.admin_stats(),
         "usage7": _usage_with_dollars(7),
         "usage30": _usage_with_dollars(30),
+        # OPS (2026-08-05): unhandled-error visibility for the System section.
+        "errors24": store.errors_count(24),
+        "errors_recent": store.recent_errors(24, 20),
     }
 
 
@@ -3350,7 +3479,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ab-freshreset"
+APP_BUILD = "2026-08-05ac-opsalerts"
 
 
 @app.get("/health")
