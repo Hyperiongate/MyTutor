@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  ADMIN FULL RESET (Jim: a "Start Fresh" tool so he can re-run the brand-new-parent
+#               signup with his OWN email). NEW delete_parent_cascade(parent_id): removes ONE
+#               parent and everything tied to it -- their student accounts and every per-student
+#               row (sessions, placements, topic/unit progress, topic quizzes, stats, engaged
+#               time, awards, class memberships), plus that parent's sign-in tokens, reset links,
+#               and weekly-digest row -- in a SINGLE atomic transaction (all-or-nothing). Scoped
+#               to exactly one parent_id; it never reaches another account. Community forum posts
+#               are intentionally LEFT (soft-delete-only by design; the author name is stored on
+#               the row, so they still read fine). Returns {ok, deleted:{table: rows}, student_
+#               codes:[...]}. Purely additive -- no existing function changed.
 #   2026-08-04  RECORDS PAGE (build z): new get_time_between(code, day_from, day_to) -- the
 #               full-range hours log for the printable homeschool records report (get_time()
 #               only serves the dashboard's recent window). Read-only; additive.
@@ -1377,6 +1387,65 @@ def delete_parent_token(token: str) -> None:
     t = _tables["parent_tokens"]
     with _engine.begin() as conn:
         conn.execute(delete(t).where(t.c.token == token))
+
+
+# ---- ADMIN: full account reset (2026-08-05) ---------------------------------
+# Delete ONE parent account and EVERYTHING that belongs to it, atomically. Backs
+# the admin-only "Start Fresh" tool so Jim can re-run the brand-new-parent signup
+# with his own email. Scoped to a single parent_id -- it never reaches another
+# account. Forum posts (community content) are deliberately NOT destroyed here:
+# they are soft-delete-only by design and carry their author name on the row, so
+# they still read fine after a reset.
+_STUDENT_CODE_TABLES = [
+    ("accounts", "code"), ("sessions", "code"), ("placements", "code"),
+    ("topic_progress", "code"), ("unit_checks", "code"), ("student_stats", "code"),
+    ("topic_quizzes", "code"), ("time_daily", "code"), ("awards", "code"),
+    ("class_members", "student_code"),
+]
+_PARENT_KEYED_TABLES = [
+    ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),
+    ("parent_digests", "parent_id"),
+]
+
+
+def delete_parent_cascade(parent_id: str) -> dict:
+    """Remove a parent, their student accounts, and every per-student and
+    per-parent row tied to them. Returns {ok, deleted:{table: rows_deleted},
+    student_codes:[...]}. All-or-nothing: one transaction, so a failure midway
+    rolls the whole thing back and nothing is left half-deleted."""
+    from sqlalchemy import delete, select
+    pid = (parent_id or "").strip()
+    if not pid:
+        return {"ok": False, "reason": "no parent_id", "deleted": {}, "student_codes": []}
+    acc = _tables["accounts"]
+    deleted: dict = {}
+    with _engine.begin() as conn:
+        # This parent's students (read inside the txn for a consistent snapshot).
+        codes = [r[0] for r in conn.execute(
+            select(acc.c.code).where(acc.c.parent_id == pid)).fetchall()]
+        # 1) every per-student row, for each of this parent's students
+        if codes:
+            for tname, col in _STUDENT_CODE_TABLES:
+                t = _tables.get(tname)
+                if t is None:
+                    continue
+                res = conn.execute(delete(t).where(t.c[col].in_(codes)))
+                deleted[tname] = deleted.get(tname, 0) + int(res.rowcount or 0)
+        # 2) belt-and-suspenders: any account still tagged to this parent
+        res = conn.execute(delete(acc).where(acc.c.parent_id == pid))
+        deleted["accounts"] = deleted.get("accounts", 0) + int(res.rowcount or 0)
+        # 3) parent-keyed rows: sign-in tokens, reset links, weekly-digest state
+        for tname, col in _PARENT_KEYED_TABLES:
+            t = _tables.get(tname)
+            if t is None:
+                continue
+            res = conn.execute(delete(t).where(t.c[col] == pid))
+            deleted[tname] = deleted.get(tname, 0) + int(res.rowcount or 0)
+        # 4) finally the parent row itself
+        p = _tables["parents"]
+        res = conn.execute(delete(p).where(p.c.id == pid))
+        deleted["parents"] = deleted.get("parents", 0) + int(res.rowcount or 0)
+    return {"ok": True, "deleted": deleted, "student_codes": codes}
 
 
 # ---- weekly parent email (2026-08-04) ---------------------------------------

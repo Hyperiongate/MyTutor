@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  START FRESH (build ab): new gated "Start fresh — reset a test account" card. Jim
+    types a parent email, confirms with a second click, and it calls POST /api/admin/parent-reset
+    to fully delete that ONE parent account (children + data) so he can re-run signup as a brand-
+    new parent; on success it also clears THIS browser's mt_parent_token so /family opens as a
+    stranger. Admin-key gated like everything else on this page. Additive; nothing else changed.
   - 2026-08-04  QUIZ NAMING (build z): 'Units mastered' tile caption says 'Unit Quiz' (checks
     renamed quizzes product-wide). 'Math checks' tile is the VERIFIER counter -- unchanged.
   =============================================================================
@@ -165,6 +170,20 @@
       <thead><tr><th>Code</th><th>For</th><th>Sign-ins</th><th>Window</th><th>Status</th><th></th></tr></thead>
       <tbody id="passRows"></tbody>
     </table>
+  </div></section>
+
+  <!-- Start fresh — full reset of ONE test parent account (2026-08-05) -->
+  <section class="wrap"><div class="card" style="border-color:#f3ddb5;background:linear-gradient(180deg,#fffdf8,#fff)">
+    <div class="sechead"><h2>🧹 Start fresh — reset a test account</h2>
+      <span class="note">Deletes ONE parent account by email — its children &amp; data too — so you can sign up again as a brand-new parent. Your admin key and every other account are untouched.</span></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:2;min-width:240px"><label for="frEmail">Parent email to reset</label>
+        <input class="f" id="frEmail" type="email" autocomplete="off" placeholder="e.g. jim@shift-work.com" /></div>
+      <button class="btn btn-ghost" id="frGo" type="button" style="border-color:#e0a24b;color:#8a5a12">Delete account &amp; start fresh</button>
+    </div>
+    <div class="msg" id="frMsg"></div>
+    <p class="note" style="margin-top:12px">Nothing happens on the first click — you'll be asked to confirm. After a reset, open the
+      <a href="/family" style="color:var(--purple);font-weight:700">Family portal</a> and create the account fresh.</p>
   </div></section>
 
   <!-- Quick links -->
@@ -388,6 +407,45 @@
     function done() { $("newCode").textContent = "Copied!"; setTimeout(function () { $("newCode").textContent = c; }, 900); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c).then(done, done);
     else done();
+  });
+
+  // ---------- start fresh: full reset of ONE test parent account ----------
+  // Two-click confirm (no blocking browser dialogs). On success we also clear
+  // THIS browser's saved parent token, so /family immediately opens signed-out.
+  var frArmed = false;
+  function frMsg(text, kind) { var el = $("frMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+  function frDisarm() {
+    frArmed = false;
+    var b = $("frGo");
+    b.textContent = "Delete account & start fresh";
+    b.style.background = ""; b.style.color = "#8a5a12"; b.style.borderColor = "#e0a24b";
+  }
+  $("frEmail").addEventListener("input", function () { if (frArmed) { frDisarm(); frMsg(""); } });
+  $("frGo").addEventListener("click", async function () {
+    var email = ($("frEmail").value || "").trim();
+    if (!email) { frMsg("Type the parent email you want to reset."); return; }
+    if (!frArmed) {                       // first click: arm + explain, delete nothing
+      frArmed = true;
+      var b = $("frGo");
+      b.textContent = "Click again to permanently delete " + email;
+      b.style.background = "#fdf0ee"; b.style.color = "#b3402e"; b.style.borderColor = "#f5cfc8";
+      frMsg("This permanently deletes the account for " + email + " and its children. Click the red button once more to confirm — or change the email to cancel.", "err");
+      return;
+    }
+    $("frGo").disabled = true; frMsg("");
+    try {
+      var out = await api("/api/admin/parent-reset", { method: "POST",
+        body: JSON.stringify({ key: KEY, email: email }) });
+      try { localStorage.removeItem("mt_parent_token"); } catch (e) {}   // sign this browser out too
+      var kids = out.children_removed || 0;
+      frMsg("Done — " + out.email + " is a clean slate (" + kids + " child" + (kids === 1 ? "" : "ren") +
+        " removed), and this browser has been signed out. Open the Family portal and create the account fresh.", "ok");
+      $("frEmail").value = "";
+    } catch (e) {
+      frMsg(e.message);
+    }
+    frDisarm();
+    $("frGo").disabled = false;
   });
 
   // ---------- load ----------

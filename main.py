@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ab-freshreset". ADMIN "START FRESH" (Jim: a button to fully
+#               reset ONE parent account by email so he can walk the brand-new-parent signup with
+#               his own address, without the site recognizing him). NEW admin-only endpoint
+#               POST /api/admin/parent-reset {key, email}: same FORUM_MOD_KEY gate as every other
+#               admin tool; looks up the parent by that exact email and, via new
+#               store.delete_parent_cascade(), atomically deletes THAT one parent + their children
+#               + all per-student/per-parent rows. Touches no other account; never touches the
+#               admin key or any env var. 404s (harmlessly) if no account exists for the email.
+#               The /admin page gained a gated "Start fresh" card (two-click confirm) that calls
+#               this and then clears THIS browser's mt_parent_token so /family opens as a stranger.
+#               No existing route/behavior changed -- purely additive.
 #   2026-08-04  APP_BUILD -> "2026-08-04aa-demohelp". DEMO ESCALATING HELP (Jim deliberately
 #               failed a demo problem repeatedly and only ever got the same "try again" hint —
 #               the scripted demo was failing the exact test skeptical parents run: does the
@@ -2718,6 +2729,49 @@ def admin_stats_api(key: str = ""):
 
 
 # =============================================================================
+# ADMIN "START FRESH" (2026-08-05) -- full reset of ONE parent account by email.
+# -----------------------------------------------------------------------------
+# Jim's testing tool: delete his own parent account so he can re-run the brand-
+# new-parent signup with the same email and see the site exactly as a first-time
+# visitor would. Admin-key gated (same FORUM_MOD_KEY as every other admin tool),
+# scoped to the ONE email passed in. It deletes that parent + their children +
+# all their data (store.delete_parent_cascade, atomic); it never touches another
+# account, the admin key, or any Render env var.
+# =============================================================================
+
+class ParentResetAdminIn(BaseModel):
+    key: str
+    email: str
+
+
+@app.post("/api/admin/parent-reset")
+def admin_parent_reset(body: ParentResetAdminIn):
+    """Fully delete ONE parent account (and its children + data) by email, so the
+    email is free to sign up from scratch. Admin-key protected. Returns a summary
+    of what was removed. 404 (harmless) if no account exists for that email."""
+    _require_db()
+    _require_admin(body.key)
+    email = (body.email or "").strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
+    parent = store.get_parent_by_email(email)
+    if not parent:
+        raise HTTPException(status_code=404, detail=(
+            f"No account found for {email}, so there's nothing to reset — that email "
+            "is already free to sign up fresh."))
+    result = store.delete_parent_cascade(parent["id"])
+    if not result.get("ok"):
+        raise HTTPException(status_code=500, detail=(
+            "Couldn't complete the reset — nothing was deleted. Please try again."))
+    return {
+        "ok": True,
+        "email": email,
+        "children_removed": len(result.get("student_codes") or []),
+        "deleted": result.get("deleted") or {},
+    }
+
+
+# =============================================================================
 # BILLING -- Stripe Checkout + Customer Portal + webhook (2026-07-31)
 # -----------------------------------------------------------------------------
 # Cards never touch this server. "Subscribe" sends the parent to a Stripe-hosted
@@ -3296,7 +3350,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04aa-demohelp"
+APP_BUILD = "2026-08-05ab-freshreset"
 
 
 @app.get("/health")
