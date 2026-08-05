@@ -4,30 +4,25 @@
   features.html  --  Mr. Cadabra's Classroom  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-05  ACCORDION REDESIGN (build ag, Jim: "more visible without scrolling so far —
+    make everything a drop-down; click 'A tutor who actually talks' and the explanation drops
+    down; fit it all at the top of the page"). Every feature is now a compact click-to-expand
+    row (native <details>/<summary> — zero JS, keyboard/screen-reader friendly). The six
+    sections sit in TWO BALANCED COLUMNS (left: The Teaching 9 + Starting Point 3 + Community
+    & Trust 3; right: Proof 9 + For Parents 3 + For Teachers 3 — 15 rows each side), single
+    column under 860px. Hero tightened. All 30 titles + descriptions are UNCHANGED from build
+    af — only the presentation changed. CTA + footer unchanged.
   - 2026-08-05  SIX MORE CARDS (build af, Jim: "a few more important ones"). The Teaching grew
     6 -> 9: Bring him any problem (Practice mode) · Explore any topic (Topic mode) · A tutor who
     remembers you (server-side session memory). Proof grew 6 -> 9: "How am I doing?" is one
     click away (Jim's ask: instant overall feedback, any time) · Progress that sticks (persists
     across sessions/devices) · Streaks build the habit. Two cards strengthened per Jim: the
     Course Assessment card now says it builds a PLAN tailored to the entry assessment, and the
-    weekly-email card now names TIME SPENT alongside the kind of progress made. Sections stay
-    multiples of three (9/3/9/3/3/3). Everything listed remains real-today; nothing aspirational.
+    weekly-email card now names TIME SPENT alongside the kind of progress made.
   - 2026-08-05  LIVE (Jim approved rev 2): DRAFT ribbon removed; served at GET /features;
-    nav uses the NEW site-wide order (How it works · Our mission · FEATURES · Courses ·
-    Homeschool · Students · Parents · Teachers · Community · Pricing · Contact — the four
-    demographic pages sit together, Courses moved ahead of them, Features after Our mission)
-    with this page marked "here". Brand mark stays inlined (self-contained; same art as
-    /static/brand-mark.svg).
-  - 2026-08-05  NEW PAGE (Jim: "I want an HTML page that lays out ALL of the features that
-    make our product unique — one single page. I want to see what it looks like first").
-    Rev 2 (Jim's review): every section holds a multiple of THREE cards — dropped the
-    "Payments handled by Stripe" card from For Parents (billing trust copy still lives on
-    /pricing and /family where the buying happens) — and the grid holds 3-across down to
-    narrow windows (2-across only under 700px, 1 under 480px).
-    Every feature listed is REAL and live in the product today (nothing aspirational) --
-    grouped into six sections: The Teaching, Your Starting Point & Plan, Proof (not
-    promises), For Parents, For Teachers & Co-ops, and Community & Trust. Design system
-    matches the marketing pages (family/pricing/landing).
+    nav uses the site-wide order with this page marked "here". Brand mark inlined.
+  - 2026-08-05  NEW PAGE (Jim: "one single page with ALL the features that make us unique").
+    Six sections, everything real-today, design system matches the marketing pages.
   =============================================================================
 -->
 <html lang="en">
@@ -57,37 +52,39 @@
   .brand svg{height:26px;width:auto;flex:0 0 auto}
   .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
   .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
   .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
   @media(max-width:620px){.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
-  .nav-links a.here{color:var(--purple)}
-  header.page{padding:56px 0 8px;text-align:center}
-  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
-  h1{font-size:42px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  header.page{padding:30px 0 6px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:12.5px}
+  h1{font-size:34px;letter-spacing:-.02em;margin:8px 0 6px;font-weight:850}
   .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{color:var(--muted);font-size:18px;max-width:64ch;margin:0 auto}
-  section{padding:30px 0 6px}
-  .sec-head{text-align:center;margin:26px 0 22px}
-  .sec-head h2{font-size:28px;font-weight:820;letter-spacing:-.01em}
-  .sec-head p{color:var(--muted);font-size:16px;max-width:60ch;margin:6px auto 0}
-  /* 3-across is the design (every section is a multiple of 3 cards) — hold it down to
-     narrow windows; 2-across only under 700px, single column under 480px. */
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-  @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:480px){.grid{grid-template-columns:1fr}}
-  .feat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 24px 22px;box-shadow:var(--shadow);
-    transition:transform .12s ease,box-shadow .12s ease}
-  .feat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
-  .feat .ic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:25px;
-    background:linear-gradient(135deg,rgba(109,90,230,.14),rgba(31,182,176,.14));margin-bottom:14px}
-  .feat h3{font-size:17.5px;font-weight:800;margin-bottom:6px}
-  .feat p{font-size:14.5px;color:var(--muted);line-height:1.55}
-  .feat p b{color:var(--ink)}
-  .cta{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:44px 30px;text-align:center;
-    box-shadow:var(--shadow);margin:44px 0 10px}
-  .cta h2{font-size:30px;font-weight:850;margin-bottom:8px}
-  .cta p{color:var(--muted);font-size:16.5px;margin-bottom:22px}
+  .sub{color:var(--muted);font-size:16px;max-width:66ch;margin:0 auto}
+  .hint{color:var(--purple);font-weight:700;font-size:13.5px;margin-top:8px}
+  /* -------- two balanced columns of compact accordion sections -------- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;padding:22px 0 6px}
+  @media(max-width:860px){.cols{grid-template-columns:1fr}}
+  .seccard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px 10px;box-shadow:var(--shadow);margin-bottom:18px}
+  .seccard>h2{font-size:18.5px;font-weight:820;letter-spacing:-.01em;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .seccard>p.blurb{font-size:13px;color:var(--muted);margin:6px 0 2px;line-height:1.45}
+  details.feat{border-bottom:1px solid var(--line)}
+  details.feat:last-child{border-bottom:0}
+  details.feat summary{display:flex;align-items:center;gap:10px;padding:9px 2px;cursor:pointer;
+    font-weight:700;font-size:14.5px;list-style:none;user-select:none}
+  details.feat summary::-webkit-details-marker{display:none}
+  details.feat summary .ic{font-size:17px;flex:0 0 24px;text-align:center}
+  details.feat summary .chev{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .15s ease}
+  details.feat[open] summary .chev{transform:rotate(90deg);color:var(--purple)}
+  details.feat summary:hover{color:var(--purple)}
+  details.feat[open] summary{color:var(--purple)}
+  details.feat p{padding:0 8px 12px 34px;font-size:13.5px;color:var(--muted);line-height:1.55}
+  details.feat p b{color:var(--ink)}
+  .cta{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px 30px;text-align:center;
+    box-shadow:var(--shadow);margin:10px 0 10px}
+  .cta h2{font-size:26px;font-weight:850;margin-bottom:6px}
+  .cta p{color:var(--muted);font-size:15.5px;margin-bottom:18px}
   .cta .row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-  footer{border-top:1px solid var(--line);padding:30px 0;margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
+  footer{border-top:1px solid var(--line);padding:28px 0;margin-top:26px;color:var(--muted);font-size:14px;text-align:center}
   footer a{color:var(--purple);font-weight:700}
 </style>
 </head>
@@ -123,115 +120,107 @@
   <p class="sub">Not a video library. Not a worksheet machine. A patient, one-on-one teacher
   who talks, draws, checks his own math, proves mastery, and keeps parents in the loop —
   every feature below is live in the classroom today.</p>
+  <p class="hint">👇 Click any feature to see what it means.</p>
 </header>
 
-<!-- ============ 1. THE TEACHING ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>🧑‍🏫 The teaching</h2>
-    <p>The heart of it: a real lesson with a real teacher — who happens to be tireless, endlessly patient, and available whenever your child is.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">🗣️</div><h3>A tutor who actually talks</h3>
-      <p>Mr. Cadabra teaches <b>out loud, in a warm human voice</b> — your child listens like they would in class, then answers by typing or tapping. <b>No microphone, ever</b>: nothing records your child.</p></div>
-    <div class="feat"><div class="ic">🖍️</div><h3>A live whiteboard</h3>
-      <p>He <b>draws every step as he explains it</b> — equations, number lines, shapes, graphs — and the board never runs ahead of the student. See it, hear it, work it.</p></div>
-    <div class="feat"><div class="ic">🤝</div><h3>Socratic, one-on-one</h3>
-      <p>He doesn't lecture and he doesn't hand over answers. He asks the <b>next right question</b>, lets your child do the thinking, and steps in exactly when they need him.</p></div>
-    <div class="feat"><div class="ic">🪜</div><h3>Help that never dead-ends</h3>
-      <p>Miss once — a hint. Miss again — <b>a different explanation with the steps worked on the board</b>. Still stuck? He shows the way warmly and moves forward. Struggle is normal here; being abandoned isn't.</p></div>
-    <div class="feat"><div class="ic">🎯</div><h3>Lessons tailored in real time</h3>
-      <p>Pacing, examples, and encouragement adapt to the student in front of him — including <b>per-topic playbooks for the classic misconceptions</b> kids actually have.</p></div>
-    <div class="feat"><div class="ic">👆</div><h3>Built for every age</h3>
-      <p>The youngest students <b>tap big answer buttons</b> — no typing needed. Older students get a full <b>math keyboard</b> (√, x², fractions) and <b>graph paper</b> the tutor can teach them to use.</p></div>
-    <div class="feat"><div class="ic">🎒</div><h3>Bring him any problem</h3>
-      <p>Stuck on tonight's homework? <b>Practice mode</b> takes the exact problem from school and works it out together, step by step — without just doing it for them.</p></div>
-    <div class="feat"><div class="ic">💡</div><h3>Explore any topic</h3>
-      <p>Curious about one thing? Pick <b>any topic from any unit</b> and talk it through — no schedule, no pressure, just a patient teacher and a whiteboard.</p></div>
-    <div class="feat"><div class="ic">🧠</div><h3>A tutor who remembers you</h3>
-      <p>Mr. Cadabra <b>picks up right where you left off</b> — what clicked, what was tricky, what's mastered — every session, automatically. No re-explaining, no starting over.</p></div>
-  </div>
-</section>
+<div class="wrap cols">
 
-<!-- ============ 2. STARTING POINT & PLAN ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>📋 Your starting point &amp; your plan</h2>
-    <p>Ten complete courses on one ladder — and an assessment that finds exactly where your child belongs on it.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">🧭</div><h3>An entry assessment → a personal plan</h3>
-      <p>A friendly placement that <b>maps strengths and weaknesses</b> across the whole course, then <b>builds a plan tailored to your child</b> — the right starting unit, the right focus. No one sits through what they already know, or drowns in what they don't.</p></div>
-    <div class="feat"><div class="ic">🗺️</div><h3>A curriculum you can see</h3>
-      <p>Every course is laid out <b>unit by unit, topic by topic</b>, right in the classroom. Students always know where they are and what's next — no mystery meat.</p></div>
-    <div class="feat"><div class="ic">🚀</div><h3>Ten courses, grades 1 to college</h3>
-      <p>Entry-Level Math through Basic Math, Pre-Algebra, Algebra I &amp; II, Geometry, Trig/Pre-Calc, Probability &amp; Statistics, Calculus, and <b>Differential Equations</b> — one tutor, the whole journey.</p></div>
-  </div>
-</section>
+  <!-- ================= LEFT COLUMN ================= -->
+  <div>
+    <div class="seccard">
+      <h2>🧑‍🏫 The teaching</h2>
+      <p class="blurb">A real lesson with a real teacher — tireless, endlessly patient, available whenever your child is.</p>
+      <details class="feat"><summary><span class="ic">🗣️</span>A tutor who actually talks<span class="chev">▶</span></summary>
+        <p>Mr. Cadabra teaches <b>out loud, in a warm human voice</b> — your child listens like they would in class, then answers by typing or tapping. <b>No microphone, ever</b>: nothing records your child.</p></details>
+      <details class="feat"><summary><span class="ic">🖍️</span>A live whiteboard<span class="chev">▶</span></summary>
+        <p>He <b>draws every step as he explains it</b> — equations, number lines, shapes, graphs — and the board never runs ahead of the student. See it, hear it, work it.</p></details>
+      <details class="feat"><summary><span class="ic">🤝</span>Socratic, one-on-one<span class="chev">▶</span></summary>
+        <p>He doesn't lecture and he doesn't hand over answers. He asks the <b>next right question</b>, lets your child do the thinking, and steps in exactly when they need him.</p></details>
+      <details class="feat"><summary><span class="ic">🪜</span>Help that never dead-ends<span class="chev">▶</span></summary>
+        <p>Miss once — a hint. Miss again — <b>a different explanation with the steps worked on the board</b>. Still stuck? He shows the way warmly and moves forward. Struggle is normal here; being abandoned isn't.</p></details>
+      <details class="feat"><summary><span class="ic">🎯</span>Lessons tailored in real time<span class="chev">▶</span></summary>
+        <p>Pacing, examples, and encouragement adapt to the student in front of him — including <b>per-topic playbooks for the classic misconceptions</b> kids actually have.</p></details>
+      <details class="feat"><summary><span class="ic">👆</span>Built for every age<span class="chev">▶</span></summary>
+        <p>The youngest students <b>tap big answer buttons</b> — no typing needed. Older students get a full <b>math keyboard</b> (√, x², fractions) and <b>graph paper</b> the tutor can teach them to use.</p></details>
+      <details class="feat"><summary><span class="ic">🎒</span>Bring him any problem<span class="chev">▶</span></summary>
+        <p>Stuck on tonight's homework? <b>Practice mode</b> takes the exact problem from school and works it out together, step by step — without just doing it for them.</p></details>
+      <details class="feat"><summary><span class="ic">💡</span>Explore any topic<span class="chev">▶</span></summary>
+        <p>Curious about one thing? Pick <b>any topic from any unit</b> and talk it through — no schedule, no pressure, just a patient teacher and a whiteboard.</p></details>
+      <details class="feat"><summary><span class="ic">🧠</span>A tutor who remembers you<span class="chev">▶</span></summary>
+        <p>Mr. Cadabra <b>picks up right where you left off</b> — what clicked, what was tricky, what's mastered — every session, automatically. No re-explaining, no starting over.</p></details>
+    </div>
 
-<!-- ============ 3. PROOF, NOT PROMISES ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>✅ Proof, not promises</h2>
-    <p>Anyone can say "your child is doing great." We built the machinery to prove it — and to catch our own mistakes.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">🧮</div><h3>Every answer math-checked</h3>
-      <p>A symbolic <b>math engine independently verifies the math in the tutor's replies</b> — not "we're careful," but <b>checked, every time</b>.</p></div>
-    <div class="feat"><div class="ic">⚡</div><h3>Immediate, specific feedback</h3>
-      <p>Right or wrong, your child hears <b>exactly what was right and what to fix, in the moment</b> — the kind of feedback that builds real confidence instead of empty praise.</p></div>
-    <div class="feat"><div class="ic">📝</div><h3>Two-tier quizzes</h3>
-      <p><b>Topic quizzes (80% to advance)</b> checkpoint progress inside every unit, and the <b>Unit Quiz demands 90% for mastery</b>. Progress here is earned, and it sticks between sessions.</p></div>
-    <div class="feat"><div class="ic">📊</div><h3>A dashboard that never lies</h3>
-      <p>Units mastered, accuracy, streaks, engaged time — <b>nothing is ever invented or inflated</b>. If a number is on the screen, it happened. Empty means empty.</p></div>
-    <div class="feat"><div class="ic">🏆</div><h3>Awards that mean something</h3>
-      <p>Trophies for mastery, medals for effort and streaks — <b>earned awards never vanish</b> — and the 🎓 <b>Graduate honor</b> when a whole course is truly finished.</p></div>
-    <div class="feat"><div class="ic">⏱️</div><h3>Honest time tracking</h3>
-      <p>The clock counts <b>engaged, working minutes only</b> — idle time never pads the numbers. What you see is real learning time.</p></div>
-    <div class="feat"><div class="ic">📈</div><h3>"How am I doing?" — one click</h3>
-      <p>At any moment, a student can <b>tap one button and see their whole picture</b> — units mastered, accuracy, streaks, awards. Nobody here ever wonders where they stand.</p></div>
-    <div class="feat"><div class="ic">🔁</div><h3>Progress that sticks</h3>
-      <p>Mastery, quiz results, and awards are <b>saved automatically and follow the student</b> — sign in with the same code on any device and everything is right where they left it.</p></div>
-    <div class="feat"><div class="ic">🔥</div><h3>Streaks build the habit</h3>
-      <p>Day streaks and effort milestones <b>reward showing up</b>, not just being right — and once a streak medal is earned, it never expires. Momentum you can see.</p></div>
-  </div>
-</section>
+    <div class="seccard">
+      <h2>📋 Your starting point &amp; your plan</h2>
+      <p class="blurb">Ten complete courses on one ladder — and an assessment that finds exactly where your child belongs on it.</p>
+      <details class="feat"><summary><span class="ic">🧭</span>An entry assessment → a personal plan<span class="chev">▶</span></summary>
+        <p>A friendly placement that <b>maps strengths and weaknesses</b> across the whole course, then <b>builds a plan tailored to your child</b> — the right starting unit, the right focus. No one sits through what they already know, or drowns in what they don't.</p></details>
+      <details class="feat"><summary><span class="ic">🗺️</span>A curriculum you can see<span class="chev">▶</span></summary>
+        <p>Every course is laid out <b>unit by unit, topic by topic</b>, right in the classroom. Students always know where they are and what's next — no mystery meat.</p></details>
+      <details class="feat"><summary><span class="ic">🚀</span>Ten courses, grades 1 to college<span class="chev">▶</span></summary>
+        <p>Entry-Level Math through Basic Math, Pre-Algebra, Algebra I &amp; II, Geometry, Trig/Pre-Calc, Probability &amp; Statistics, Calculus, and <b>Differential Equations</b> — one tutor, the whole journey.</p></details>
+    </div>
 
-<!-- ============ 4. FOR PARENTS ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>👨‍👩‍👧 For parents</h2>
-    <p>You stay in the loop without hovering — and the paperwork takes care of itself.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">📬</div><h3>A weekly email that speaks parent</h3>
-      <p>Every Friday: what your child worked on, <b>how much real time they put in</b>, where they shone, and where they struggled — <b>written in plain language, not data dumps</b>. One-click unsubscribe, always.</p></div>
-    <div class="feat"><div class="ic">🖨️</div><h3>Printable homeschool records</h3>
-      <p><b>Download and print</b> a clean report — hours log, mastery evidence, quiz scores, awards — ready for <b>state homeschool filing</b> or your own records.</p></div>
-    <div class="feat"><div class="ic">🏠</div><h3>One family account</h3>
-      <p>Add each child with just a first name or nickname; each gets their own login code, tutor, and dashboard. <b>One plan covers up to two children.</b> You see everything, read-only.</p></div>
+    <div class="seccard">
+      <h2>🛡️ Community &amp; trust</h2>
+      <p class="blurb">Built from day one for other people's children — the highest bar there is.</p>
+      <details class="feat"><summary><span class="ic">🔒</span>Privacy by design<span class="chev">▶</span></summary>
+        <p><b>No microphone, ever.</b> First names or nicknames only — we ask for <b>less</b> data, not more. Analytics are cookieless. Your child is a student here, not a product.</p></details>
+      <details class="feat"><summary><span class="ic">💬</span>A parent community<span class="chev">▶</span></summary>
+        <p>A moderated forum where families share what's working, trade ideas and resources, and shape which courses come next.</p></details>
+      <details class="feat"><summary><span class="ic">🧪</span>Try everything first<span class="chev">▶</span></summary>
+        <p>A <b>full interactive demo lesson</b> — voice, whiteboard, real teaching — with no account and no card. Meet Mr. Cadabra before you tell him your name.</p></details>
+    </div>
   </div>
-</section>
 
-<!-- ============ 5. FOR TEACHERS & CO-OPS ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>🏫 For teachers &amp; co-ops</h2>
-    <p>Follow a whole class without new logins, new software, or new headaches.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">🧑‍🏫</div><h3>Classrooms in one code</h3>
-      <p>Gather your students under a simple class code — <b>no accounts to build, no passwords to reset</b> — and watch the whole group at once.</p></div>
-    <div class="feat"><div class="ic">🌡️</div><h3>The class heatmap</h3>
-      <p>One glance shows <b>every student against every unit</b> — who's strong, who's stuck, and exactly where to spend your attention tomorrow.</p></div>
-    <div class="feat"><div class="ic">🔍</div><h3>Read-only student views</h3>
-      <p>Open any student's honest dashboard — the same real numbers their parents see. <b>Look, don't touch:</b> teachers and parents can never alter a student's work.</p></div>
-  </div>
-</section>
+  <!-- ================= RIGHT COLUMN ================= -->
+  <div>
+    <div class="seccard">
+      <h2>✅ Proof, not promises</h2>
+      <p class="blurb">Anyone can say "your child is doing great." We built the machinery to prove it — and to catch our own mistakes.</p>
+      <details class="feat"><summary><span class="ic">🧮</span>Every answer math-checked<span class="chev">▶</span></summary>
+        <p>A symbolic <b>math engine independently verifies the math in the tutor's replies</b> — not "we're careful," but <b>checked, every time</b>.</p></details>
+      <details class="feat"><summary><span class="ic">⚡</span>Immediate, specific feedback<span class="chev">▶</span></summary>
+        <p>Right or wrong, your child hears <b>exactly what was right and what to fix, in the moment</b> — the kind of feedback that builds real confidence instead of empty praise.</p></details>
+      <details class="feat"><summary><span class="ic">📝</span>Two-tier quizzes<span class="chev">▶</span></summary>
+        <p><b>Topic quizzes (80% to advance)</b> checkpoint progress inside every unit, and the <b>Unit Quiz demands 90% for mastery</b>. Progress here is earned, and it sticks between sessions.</p></details>
+      <details class="feat"><summary><span class="ic">📊</span>A dashboard that never lies<span class="chev">▶</span></summary>
+        <p>Units mastered, accuracy, streaks, engaged time — <b>nothing is ever invented or inflated</b>. If a number is on the screen, it happened. Empty means empty.</p></details>
+      <details class="feat"><summary><span class="ic">🏆</span>Awards that mean something<span class="chev">▶</span></summary>
+        <p>Trophies for mastery, medals for effort and streaks — <b>earned awards never vanish</b> — and the 🎓 <b>Graduate honor</b> when a whole course is truly finished.</p></details>
+      <details class="feat"><summary><span class="ic">⏱️</span>Honest time tracking<span class="chev">▶</span></summary>
+        <p>The clock counts <b>engaged, working minutes only</b> — idle time never pads the numbers. What you see is real learning time.</p></details>
+      <details class="feat"><summary><span class="ic">📈</span>"How am I doing?" — one click<span class="chev">▶</span></summary>
+        <p>At any moment, a student can <b>tap one button and see their whole picture</b> — units mastered, accuracy, streaks, awards. Nobody here ever wonders where they stand.</p></details>
+      <details class="feat"><summary><span class="ic">🔁</span>Progress that sticks<span class="chev">▶</span></summary>
+        <p>Mastery, quiz results, and awards are <b>saved automatically and follow the student</b> — sign in with the same code on any device and everything is right where they left it.</p></details>
+      <details class="feat"><summary><span class="ic">🔥</span>Streaks build the habit<span class="chev">▶</span></summary>
+        <p>Day streaks and effort milestones <b>reward showing up</b>, not just being right — and once a streak medal is earned, it never expires. Momentum you can see.</p></details>
+    </div>
 
-<!-- ============ 6. COMMUNITY & TRUST ============ -->
-<section class="wrap">
-  <div class="sec-head"><h2>🛡️ Community &amp; trust</h2>
-    <p>Built from day one for other people's children — which is the highest bar there is.</p></div>
-  <div class="grid">
-    <div class="feat"><div class="ic">🔒</div><h3>Privacy by design</h3>
-      <p><b>No microphone, ever.</b> First names or nicknames only — we ask for <b>less</b> data, not more. Analytics are cookieless. Your child is a student here, not a product.</p></div>
-    <div class="feat"><div class="ic">💬</div><h3>A parent community</h3>
-      <p>A moderated forum where families share what's working, trade ideas and resources, and shape which courses come next.</p></div>
-    <div class="feat"><div class="ic">🧪</div><h3>Try everything first</h3>
-      <p>A <b>full interactive demo lesson</b> — voice, whiteboard, real teaching — with no account and no card. Meet Mr. Cadabra before you tell him your name.</p></div>
+    <div class="seccard">
+      <h2>👨‍👩‍👧 For parents</h2>
+      <p class="blurb">You stay in the loop without hovering — and the paperwork takes care of itself.</p>
+      <details class="feat"><summary><span class="ic">📬</span>A weekly email that speaks parent<span class="chev">▶</span></summary>
+        <p>Every Friday: what your child worked on, <b>how much real time they put in</b>, where they shone, and where they struggled — <b>written in plain language, not data dumps</b>. One-click unsubscribe, always.</p></details>
+      <details class="feat"><summary><span class="ic">🖨️</span>Printable homeschool records<span class="chev">▶</span></summary>
+        <p><b>Download and print</b> a clean report — hours log, mastery evidence, quiz scores, awards — ready for <b>state homeschool filing</b> or your own records.</p></details>
+      <details class="feat"><summary><span class="ic">🏠</span>One family account<span class="chev">▶</span></summary>
+        <p>Add each child with just a first name or nickname; each gets their own login code, tutor, and dashboard. <b>One plan covers up to two children.</b> You see everything, read-only.</p></details>
+    </div>
+
+    <div class="seccard">
+      <h2>🏫 For teachers &amp; co-ops</h2>
+      <p class="blurb">Follow a whole class without new logins, new software, or new headaches.</p>
+      <details class="feat"><summary><span class="ic">🧑‍🏫</span>Classrooms in one code<span class="chev">▶</span></summary>
+        <p>Gather your students under a simple class code — <b>no accounts to build, no passwords to reset</b> — and watch the whole group at once.</p></details>
+      <details class="feat"><summary><span class="ic">🌡️</span>The class heatmap<span class="chev">▶</span></summary>
+        <p>One glance shows <b>every student against every unit</b> — who's strong, who's stuck, and exactly where to spend your attention tomorrow.</p></details>
+      <details class="feat"><summary><span class="ic">🔍</span>Read-only student views<span class="chev">▶</span></summary>
+        <p>Open any student's honest dashboard — the same real numbers their parents see. <b>Look, don't touch:</b> teachers and parents can never alter a student's work.</p></details>
+    </div>
   </div>
-</section>
+</div>
 
 <!-- ============ CTA ============ -->
 <section class="wrap">
