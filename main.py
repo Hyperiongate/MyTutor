@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05af-featuresplus". FEATURES PAGE: SIX MORE CARDS (Jim).
+#               static/features.html only -- The Teaching 6->9 (Practice mode / Explore a topic /
+#               a tutor who remembers you), Proof 6->9 ("How am I doing?" one click / progress
+#               persists across devices / streaks build the habit), and two cards strengthened
+#               (assessment card now promises the tailored PLAN; weekly-email card names TIME
+#               SPENT). Sections stay multiples of three. No route or server change; build
+#               bumped for deploy verification.
 #   2026-08-05  APP_BUILD -> "2026-08-05ae-featurespage". FEATURES PAGE LIVE (Jim approved the
 #               draft): new static/features.html (six sections x three cards, everything real,
 #               DRAFT ribbon removed) served at NEW route GET /features. NAV REORDER on every
@@ -3505,7 +3512,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ae-featurespage"
+APP_BUILD = "2026-08-05af-featuresplus"
 
 
 @app.get("/health")
