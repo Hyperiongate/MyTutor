@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    2026-08-04  ESCALATING HELP ON REPEATED MISSES (build aa, Jim tested deliberately failing:
+                'it failed to find alternative ways to help me other than try again'). The demo
+                is scripted (no AI), so it now scripts what the real tutor does: miss 1 = the
+                step's hint (unchanged) · miss 2 = 'let's look at it a different way' + the
+                WORKED SOLUTION revealed on the board (was only shown after a right answer) ·
+                miss 3 = Mr. Cadabra shows the answer warmly (fills it in / highlights the
+                right choice), says the real classroom keeps trying new ways until it clicks,
+                and moves on — never a dead end. 'I'm not sure' taps count as misses so unsure
+                kids get shown too. THREE new fixed lines APPENDED to VOICE_LINES (and
+                identically to main.py's DEMO_VOICE_LINES — appended, so existing audio cache
+                indices stay valid; the lists must stay IN SYNC).
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Notes (newest first):
@@ -337,7 +348,10 @@
     "One more to classify: y prime equals three y. What order is this one? Type the number.",
     "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.",
     "Just one tick mark on the y — that's the FIRST derivative. Type the order!",
-    "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!"
+    "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!",
+    "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
+    "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
+    "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"
   ];
   var serverVoiceOK=true;
   // iPAD/TABLET UNLOCK (2026-08-03): iPads/tablets refuse to start audio unless the FIRST play happens inside a real tap.
@@ -469,19 +483,36 @@
     var wrap=document.createElement('div'); wrap.className='kpwrap';
     var fb=document.createElement('div'); fb.className='fb';
     var grid=document.createElement('div'); grid.className='choices';
-    var done=false;
+    var done=false, misses=0, boardShown=false;
+    // ESCALATING HELP (2026-08-04): scripted version of what the real tutor does.
+    // Miss 1: the hint. Miss 2: new angle + worked board. Miss 3: show, teach, move on.
+    function miss(){
+      misses++;
+      if(misses===1){
+        fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+      } else if(misses===2){
+        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        fb.className='fb no'; fb.textContent="Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!"; say("Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!");
+      } else {
+        done=true;
+        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        grid.querySelectorAll('.choice').forEach(function(cb){ if(cb.textContent===inp.correct) cb.classList.add('right'); });
+        fb.className='fb ok'; fb.textContent='✓ '+"No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"; faceHappyUntil=Date.now()+1800; say("No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!");
+        setTimeout(next,3400);
+      }
+    }
     inp.options.forEach(function(opt){
       var b=document.createElement('button'); b.className='choice'; b.type='button'; b.textContent=opt;
       b.onclick=function(){
         if(done) return;
         if(opt===inp.correct){
           done=true; b.classList.add('right');
-          if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });
+          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
           fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
           setTimeout(next,1900);
         } else {
           b.classList.add('wrong');
-          fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+          miss();
           setTimeout(function(){ b.classList.remove('wrong'); },900);
         }
       };
@@ -489,7 +520,7 @@
     });
     var ns=document.createElement('button'); ns.className='choice'; ns.type='button';
     ns.textContent="🤔 I'm not sure";
-    ns.onclick=function(){ if(done) return; fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong); };
+    ns.onclick=function(){ if(done) return; miss(); };   // unsure twice -> get SHOWN, kindly
     grid.appendChild(ns);
     var hint=document.createElement('div'); hint.className='prompt'; hint.textContent='Tap your answer — just like the real elementary lessons.';
     wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb); answer.appendChild(wrap);
@@ -509,6 +540,7 @@
     var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
     row.appendChild(input); row.appendChild(check);
     var kp=buildKeys(input);
+    var misses=0, boardShown=false;
     var fb=document.createElement('div'); fb.className='fb';
     var wrap=document.createElement('div'); wrap.className='kpwrap';
     wrap.appendChild(row); wrap.appendChild(fb); wrap.appendChild(kp); answer.appendChild(wrap);
@@ -519,11 +551,24 @@
       if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');}).indexOf(v)>=0; }
       if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
       if(ok){
-        if(inp.board) inp.board.forEach(function(r){ addRow(r[0],r[1]); });   // the board confirms AFTER the student answers — never before
+        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }   // the board confirms AFTER the student answers — never before
         fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
       } else {
-        fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+        // ESCALATING HELP (2026-08-04): hint -> new angle + worked board -> show and move on.
+        misses++;
+        if(misses===1){
+          fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+        } else if(misses===2){
+          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+          fb.className='fb no'; fb.textContent="Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!"; say("Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!");
+        } else {
+          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+          if(inp.accept && inp.accept.length){ input.value=inp.accept[0]; }
+          fb.className='fb ok'; fb.textContent='✓ '+"No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"; faceHappyUntil=Date.now()+1800; say("No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!");
+          check.style.pointerEvents='none'; setTimeout(next,3400);
+          return;
+        }
         input.dataset.stale='1';                 // next keypad tap replaces this answer
         try{ input.select(); }catch(e){}         // hardware keyboards replace it natively
       }

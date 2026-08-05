@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-04  APP_BUILD -> "2026-08-04aa-demohelp". DEMO ESCALATING HELP (Jim deliberately
+#               failed a demo problem repeatedly and only ever got the same "try again" hint —
+#               the scripted demo was failing the exact test skeptical parents run: does the
+#               tutor ADAPT?). demo.html now escalates: miss 1 = the hint · miss 2 = "let's
+#               look at it a different way" + the worked solution revealed on the board ·
+#               miss 3 = show the answer warmly, note the real classroom keeps trying new
+#               ways until it clicks, and move on. THREE new fixed lines APPENDED to
+#               DEMO_VOICE_LINES (kept IDENTICAL to demo.html's VOICE_LINES; appended so
+#               existing demo-audio cache indices stay valid).
 #   2026-08-04  APP_BUILD -> "2026-08-04z-records". HOMESCHOOL RECORDS PAGE (Jim: the
 #               homeschool page promises records -- "do they have a page where they can
 #               download the required records?"). Now they do: /records?code=X is a printable
@@ -3287,7 +3296,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-04z-records"
+APP_BUILD = "2026-08-04aa-demohelp"
 
 
 @app.get("/health")
@@ -3982,6 +3991,9 @@ DEMO_VOICE_LINES = [
     "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.",
     "Just one tick mark on the y — that's the FIRST derivative. Type the order!",
     "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!",
+    "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
+    "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
+    "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
 ]
 
 
