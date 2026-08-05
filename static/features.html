@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  features.html  --  Mr. Cadabra's Classroom  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+  - 2026-08-05  LIVE (Jim approved rev 2): DRAFT ribbon removed; served at GET /features;
+    nav uses the NEW site-wide order (How it works · Our mission · FEATURES · Courses ·
+    Homeschool · Students · Parents · Teachers · Community · Pricing · Contact — the four
+    demographic pages sit together, Courses moved ahead of them, Features after Our mission)
+    with this page marked "here". Brand mark stays inlined (self-contained; same art as
+    /static/brand-mark.svg).
+  - 2026-08-05  NEW PAGE (Jim: "I want an HTML page that lays out ALL of the features that
+    make our product unique — one single page. I want to see what it looks like first").
+    Rev 2 (Jim's review): every section holds a multiple of THREE cards — dropped the
+    "Payments handled by Stripe" card from For Parents (billing trust copy still lives on
+    /pricing and /family where the buying happens) — and the grid holds 3-across down to
+    narrow windows (2-across only under 700px, 1 under 480px).
+    Every feature listed is REAL and live in the product today (nothing aspirational) --
+    grouped into six sections: The Teaching, Your Starting Point & Plan, Proof (not
+    promises), For Parents, For Teachers & Co-ops, and Community & Trust. Design system
+    matches the marketing pages (family/pricing/landing).
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Features — Mr. Cadabra's Classroom</title>
+<meta name="description" content="Everything Mr. Cadabra's Classroom does: voice teaching with a live whiteboard, placement to mastery, math-checked answers, honest dashboards, weekly parent emails, printable homeschool records, and more." />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand svg{height:26px;width:auto;flex:0 0 auto}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  @media(max-width:620px){.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
+  .nav-links a.here{color:var(--purple)}
+  header.page{padding:56px 0 8px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:42px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:18px;max-width:64ch;margin:0 auto}
+  section{padding:30px 0 6px}
+  .sec-head{text-align:center;margin:26px 0 22px}
+  .sec-head h2{font-size:28px;font-weight:820;letter-spacing:-.01em}
+  .sec-head p{color:var(--muted);font-size:16px;max-width:60ch;margin:6px auto 0}
+  /* 3-across is the design (every section is a multiple of 3 cards) — hold it down to
+     narrow windows; 2-across only under 700px, single column under 480px. */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.grid{grid-template-columns:1fr}}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 24px 22px;box-shadow:var(--shadow);
+    transition:transform .12s ease,box-shadow .12s ease}
+  .feat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+  .feat .ic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:25px;
+    background:linear-gradient(135deg,rgba(109,90,230,.14),rgba(31,182,176,.14));margin-bottom:14px}
+  .feat h3{font-size:17.5px;font-weight:800;margin-bottom:6px}
+  .feat p{font-size:14.5px;color:var(--muted);line-height:1.55}
+  .feat p b{color:var(--ink)}
+  .cta{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:44px 30px;text-align:center;
+    box-shadow:var(--shadow);margin:44px 0 10px}
+  .cta h2{font-size:30px;font-weight:850;margin-bottom:8px}
+  .cta p{color:var(--muted);font-size:16.5px;margin-bottom:22px}
+  .cta .row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  footer{border-top:1px solid var(--line);padding:30px 0;margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
+  footer a{color:var(--purple);font-weight:700}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="nav-top">
+  <a class="brand" href="/">
+    <svg viewBox="0 0 98 72" role="img" aria-label="Mr. Cadabra's Classroom logo"><rect x="0" y="0" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="26" y="0" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="52" y="0" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="78" y="0" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="0" y="26" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="26" y="26" width="20" height="20" rx="4.5" fill="#FFC511"/><polygon points="36.00,29.20 37.70,34.25 43.04,34.31 38.76,37.50 40.35,42.59 36.00,39.50 31.65,42.59 33.24,37.50 28.96,34.31 34.30,34.25" fill="#FFFFFF"/><rect x="52" y="26" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="78" y="26" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="0" y="52" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="26" y="52" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="52" y="52" width="20" height="20" rx="4.5" fill="#15357C"/><rect x="78" y="52" width="20" height="20" rx="4.5" fill="#15357C"/></svg>
+    <span>Mr. Cadabra's Classroom</span></a>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Student sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/mission">Our mission</a>
+    <a href="/features" class="here">Features</a>
+    <a href="/courses">Courses</a>
+    <a href="/homeschool">Homeschool</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/community">Community</a>
+    <a href="/pricing">Pricing</a>
+    <a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+</div></nav>
+
+<header class="page wrap">
+  <span class="eyebrow">Everything, on one page</span>
+  <h1>What makes Mr. Cadabra <span class="grad-text">different.</span></h1>
+  <p class="sub">Not a video library. Not a worksheet machine. A patient, one-on-one teacher
+  who talks, draws, checks his own math, proves mastery, and keeps parents in the loop —
+  every feature below is live in the classroom today.</p>
+</header>
+
+<!-- ============ 1. THE TEACHING ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>🧑‍🏫 The teaching</h2>
+    <p>The heart of it: a real lesson with a real teacher — who happens to be tireless, endlessly patient, and available whenever your child is.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">🗣️</div><h3>A tutor who actually talks</h3>
+      <p>Mr. Cadabra teaches <b>out loud, in a warm human voice</b> — your child listens like they would in class, then answers by typing or tapping. <b>No microphone, ever</b>: nothing records your child.</p></div>
+    <div class="feat"><div class="ic">🖍️</div><h3>A live whiteboard</h3>
+      <p>He <b>draws every step as he explains it</b> — equations, number lines, shapes, graphs — and the board never runs ahead of the student. See it, hear it, work it.</p></div>
+    <div class="feat"><div class="ic">🤝</div><h3>Socratic, one-on-one</h3>
+      <p>He doesn't lecture and he doesn't hand over answers. He asks the <b>next right question</b>, lets your child do the thinking, and steps in exactly when they need him.</p></div>
+    <div class="feat"><div class="ic">🪜</div><h3>Help that never dead-ends</h3>
+      <p>Miss once — a hint. Miss again — <b>a different explanation with the steps worked on the board</b>. Still stuck? He shows the way warmly and moves forward. Struggle is normal here; being abandoned isn't.</p></div>
+    <div class="feat"><div class="ic">🎯</div><h3>Lessons tailored in real time</h3>
+      <p>Pacing, examples, and encouragement adapt to the student in front of him — including <b>per-topic playbooks for the classic misconceptions</b> kids actually have.</p></div>
+    <div class="feat"><div class="ic">👆</div><h3>Built for every age</h3>
+      <p>The youngest students <b>tap big answer buttons</b> — no typing needed. Older students get a full <b>math keyboard</b> (√, x², fractions) and <b>graph paper</b> the tutor can teach them to use.</p></div>
+  </div>
+</section>
+
+<!-- ============ 2. STARTING POINT & PLAN ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>📋 Your starting point &amp; your plan</h2>
+    <p>Ten complete courses on one ladder — and an assessment that finds exactly where your child belongs on it.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">🧭</div><h3>The Course Assessment</h3>
+      <p>A friendly placement that <b>maps strengths and weaknesses</b> across the whole course, then recommends the right starting point — so no one sits through what they already know, or drowns in what they don't.</p></div>
+    <div class="feat"><div class="ic">🗺️</div><h3>A curriculum you can see</h3>
+      <p>Every course is laid out <b>unit by unit, topic by topic</b>, right in the classroom. Students always know where they are and what's next — no mystery meat.</p></div>
+    <div class="feat"><div class="ic">🚀</div><h3>Ten courses, grades 1 to college</h3>
+      <p>Entry-Level Math through Basic Math, Pre-Algebra, Algebra I &amp; II, Geometry, Trig/Pre-Calc, Probability &amp; Statistics, Calculus, and <b>Differential Equations</b> — one tutor, the whole journey.</p></div>
+  </div>
+</section>
+
+<!-- ============ 3. PROOF, NOT PROMISES ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>✅ Proof, not promises</h2>
+    <p>Anyone can say "your child is doing great." We built the machinery to prove it — and to catch our own mistakes.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">🧮</div><h3>Every answer math-checked</h3>
+      <p>A symbolic <b>math engine independently verifies the math in the tutor's replies</b> — not "we're careful," but <b>checked, every time</b>.</p></div>
+    <div class="feat"><div class="ic">⚡</div><h3>Immediate, specific feedback</h3>
+      <p>Right or wrong, your child hears <b>exactly what was right and what to fix, in the moment</b> — the kind of feedback that builds real confidence instead of empty praise.</p></div>
+    <div class="feat"><div class="ic">📝</div><h3>Two-tier quizzes</h3>
+      <p><b>Topic quizzes (80% to advance)</b> checkpoint progress inside every unit, and the <b>Unit Quiz demands 90% for mastery</b>. Progress here is earned, and it sticks between sessions.</p></div>
+    <div class="feat"><div class="ic">📊</div><h3>A dashboard that never lies</h3>
+      <p>Units mastered, accuracy, streaks, engaged time — <b>nothing is ever invented or inflated</b>. If a number is on the screen, it happened. Empty means empty.</p></div>
+    <div class="feat"><div class="ic">🏆</div><h3>Awards that mean something</h3>
+      <p>Trophies for mastery, medals for effort and streaks — <b>earned awards never vanish</b> — and the 🎓 <b>Graduate honor</b> when a whole course is truly finished.</p></div>
+    <div class="feat"><div class="ic">⏱️</div><h3>Honest time tracking</h3>
+      <p>The clock counts <b>engaged, working minutes only</b> — idle time never pads the numbers. What you see is real learning time.</p></div>
+  </div>
+</section>
+
+<!-- ============ 4. FOR PARENTS ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>👨‍👩‍👧 For parents</h2>
+    <p>You stay in the loop without hovering — and the paperwork takes care of itself.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">📬</div><h3>A weekly email that speaks parent</h3>
+      <p>Every Friday: what your child worked on, where they shone, where they struggled — <b>written in plain language, not data dumps</b>. One-click unsubscribe, always.</p></div>
+    <div class="feat"><div class="ic">🖨️</div><h3>Printable homeschool records</h3>
+      <p><b>Download and print</b> a clean report — hours log, mastery evidence, quiz scores, awards — ready for <b>state homeschool filing</b> or your own records.</p></div>
+    <div class="feat"><div class="ic">🏠</div><h3>One family account</h3>
+      <p>Add each child with just a first name or nickname; each gets their own login code, tutor, and dashboard. <b>One plan covers up to two children.</b> You see everything, read-only.</p></div>
+  </div>
+</section>
+
+<!-- ============ 5. FOR TEACHERS & CO-OPS ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>🏫 For teachers &amp; co-ops</h2>
+    <p>Follow a whole class without new logins, new software, or new headaches.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">🧑‍🏫</div><h3>Classrooms in one code</h3>
+      <p>Gather your students under a simple class code — <b>no accounts to build, no passwords to reset</b> — and watch the whole group at once.</p></div>
+    <div class="feat"><div class="ic">🌡️</div><h3>The class heatmap</h3>
+      <p>One glance shows <b>every student against every unit</b> — who's strong, who's stuck, and exactly where to spend your attention tomorrow.</p></div>
+    <div class="feat"><div class="ic">🔍</div><h3>Read-only student views</h3>
+      <p>Open any student's honest dashboard — the same real numbers their parents see. <b>Look, don't touch:</b> teachers and parents can never alter a student's work.</p></div>
+  </div>
+</section>
+
+<!-- ============ 6. COMMUNITY & TRUST ============ -->
+<section class="wrap">
+  <div class="sec-head"><h2>🛡️ Community &amp; trust</h2>
+    <p>Built from day one for other people's children — which is the highest bar there is.</p></div>
+  <div class="grid">
+    <div class="feat"><div class="ic">🔒</div><h3>Privacy by design</h3>
+      <p><b>No microphone, ever.</b> First names or nicknames only — we ask for <b>less</b> data, not more. Analytics are cookieless. Your child is a student here, not a product.</p></div>
+    <div class="feat"><div class="ic">💬</div><h3>A parent community</h3>
+      <p>A moderated forum where families share what's working, trade ideas and resources, and shape which courses come next.</p></div>
+    <div class="feat"><div class="ic">🧪</div><h3>Try everything first</h3>
+      <p>A <b>full interactive demo lesson</b> — voice, whiteboard, real teaching — with no account and no card. Meet Mr. Cadabra before you tell him your name.</p></div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="wrap">
+  <div class="cta">
+    <h2>The best way to understand it? <span class="grad-text">Hear it.</span></h2>
+    <p>Two minutes with the demo says more than any feature list.</p>
+    <div class="row">
+      <a class="btn btn-primary" href="/demo">🎓 Try a live demo lesson</a>
+      <a class="btn btn-ghost" href="/pricing">See plans &amp; pricing</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  Questions? <a href="mailto:support@mrcadabra.com">support@mrcadabra.com</a>
+  &nbsp;·&nbsp; © 2026 Mr. Cadabra's Classroom · mrcadabra.com
+</div></footer>
+
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

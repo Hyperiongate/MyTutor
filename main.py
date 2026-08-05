@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ae-featurespage". FEATURES PAGE LIVE (Jim approved the
+#               draft): new static/features.html (six sections x three cards, everything real,
+#               DRAFT ribbon removed) served at NEW route GET /features. NAV REORDER on every
+#               marketing page (Jim: "homeschool, students, parents, teachers are the four
+#               demographics we sell to -- get Courses out from between them, and put Features
+#               right after Our mission"): the top-nav link order is now How it works · Our
+#               mission · Features · Courses · Homeschool · Students · Parents · Teachers ·
+#               Community · Pricing · Contact (page extras like Privacy/FAQ keep their spots at
+#               the end; the college-math dropdown still follows Courses -- site-nav.js finds it
+#               by href, not position). Routes otherwise unchanged.
+#   2026-08-05  APP_BUILD -> "2026-08-05ad-assessinvite". ASSESSMENT INVITATION (Jim: when a
+#               student joins a course for the FIRST time, welcome + tour as before, then warmly
+#               ENCOURAGE the Course Assessment -- "find your strengths, see where to focus, and
+#               I'll build a plan just for you" -- never forced; the 2026-07-28 removal of the
+#               forced redirect stands). Static-only change in session.html: a spoken invitation
+#               + choice card (take the assessment / start at Unit 1) shown right after the tour
+#               for brand-new students, and before the opener for toured students entering a new
+#               course; only when the course has no history AND no placement. Declining continues
+#               the exact old flow. No server route changed; build bumped for deploy verification.
 #   2026-08-05  APP_BUILD -> "2026-08-05ac-opsalerts". OPS ALERTING (pre-launch readiness review:
 #               "you should learn about a broken API key from an alert, not from a parent" --
 #               the one Tier-2 audit item never built). THREE pieces, all additive:
@@ -1377,6 +1396,13 @@ def parents_page():
 def courses_page():
     """Marketing: all eight courses with every unit listed (printable scope & sequence)."""
     return FileResponse(STATIC_DIR / "courses.html")
+
+
+@app.get("/features")
+def features_page():
+    """Marketing (2026-08-05): every product feature on one page, grouped in six
+    sections of three cards. Everything listed is live in the product today."""
+    return FileResponse(STATIC_DIR / "features.html")
 
 
 @app.get("/teachers")
@@ -3479,7 +3505,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ac-opsalerts"
+APP_BUILD = "2026-08-05ae-featurespage"
 
 
 @app.get("/health")

@@ -13,6 +13,16 @@
     tablets; (2) the Yes / No / I'm confused quick buttons grew to a 44px-minimum tap height
     (Apple's touch-target floor). Audio was already tablet-safe here (warmUpAudio runs inside
     the Let's-go tap); challenge.html and demo.html got that fix today.
+  - 2026-08-05  ASSESSMENT INVITATION (Jim: when someone joins a course for the FIRST time,
+    welcome + tour as before -- and then warmly ENCOURAGE the Course Assessment so we can see
+    strengths/weaknesses and build their plan; never force it, that redirect was removed
+    2026-07-28 on purpose). Two moments, both only when the course has no history AND no
+    placement yet: (1) a brand-new student -- the tour now ends with Mr. Cadabra speaking an
+    invitation and a choice card (take the assessment / start at Unit 1); (2) a returning
+    student ENTERING A NEW COURSE (tour skipped) -- same invitation before the opener. The
+    choice card reuses the welcome-overlay design; "skip" continues exactly the old flow
+    (__tour_done__ / __open__), so a student who declines loses nothing. `placed` was promoted
+    from a loadSession local to page state (isPlaced) to make the decision. Additive only.
   - 2026-08-03  BOARD-PRIMARY: [[objects]] gained add="n" -- draws the first row as
     "⭐⭐⭐⭐⭐ + ⭐" so addition is SEEN, not imagined. Pairs with the new shared "board is the
     lesson, words are the backup" doctrine in tutor.py (all courses, all modes).
@@ -813,6 +823,26 @@
       </ul>
       <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
       <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take the full course assessment to map your strengths 📋</a>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT INVITATION (2026-08-05): shown once, right after the tour (or before the
+       opener when a toured student enters a NEW course), only when this course has no
+       history and no placement yet. Reuses the welcome-overlay design. Never forced:
+       "start at Unit 1" continues the exact pre-existing flow. -->
+  <div class="welcome" id="assessInvite">
+    <div class="welcome-card">
+      <div class="welcome-badge">📋</div>
+      <h2>Want me to find your perfect starting spot?</h2>
+      <p class="lead" id="aiLead">Before we dive in, I can give you my <b>Course Assessment</b> — it shows me
+      what you already rock at and where we should focus, and then I build a
+      <b>plan that's just for you</b>. Totally optional — we can also just start at the beginning!</p>
+      <button class="welcome-go" id="aiYes">📋 Yes — find my strengths &amp; build my plan</button>
+      <button id="aiSkip" style="width:100%; margin-top:12px; border:2px solid var(--line); background:#fff;
+        border-radius:30px; cursor:pointer; color:var(--ink); font-size:17px; font-weight:700; padding:15px;">
+        ▶️ Not right now — start me at Unit 1</button>
+      <p style="margin:14px 0 0; font-size:13px; color:var(--muted)">You can take the assessment any time
+      later — it's always waiting in the left sidebar.</p>
     </div>
   </div>
 
@@ -2093,6 +2123,7 @@
     let hasHistory = false;
     let touredAnywhere = false;   // 2026-08-01: once per student; 2026-08-03: per CLASSROOM TYPE
                                   // (server-computed: elementary tap-courses count separately)
+    let isPlaced = false;         // 2026-08-05: placement state drives the assessment invitation
     // Demo/testing switch (2026-08-03, Jim): add &tour=1 to the lesson URL to replay the
     // welcome tour regardless of history — handy for demos and for checking tour changes.
     const FORCE_TOUR = params.get("tour") === "1";
@@ -2107,6 +2138,9 @@
       // A student continuing within the same classroom type skips it — Mr. Cadabra just
       // welcomes them into the new subject and starts teaching.
       if (FORCE_TOUR || (!hasHistory && !touredAnywhere)) { busy = true; setPhase("busy"); runTour(); }
+      // 2026-08-05: a toured student ENTERING A NEW COURSE (no history, no placement here)
+      // skips the tour but still gets the assessment invitation before the opener.
+      else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(kickoff); }
       else { busy = true; setPhase("busy"); kickoff(); }
     }
     el("welcomeGo").addEventListener("click", begin);
@@ -2152,6 +2186,14 @@
         await sayTourLine(step.text);
       }
       clearHighlight();
+      // 2026-08-05: a first-timer with no placement gets the assessment invitation
+      // right here, at the moment of maximum orientation. Choosing "skip" continues
+      // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.
+      if (!isPlaced) {
+        await sayTourLine("Okay — that's the grand tour!");
+        offerAssessment(() => runTutor("__tour_done__"));
+        return;
+      }
       await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
       await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
@@ -2159,6 +2201,29 @@
     async function kickoff() {   // returning-student opener (no tour)
       statusEl.textContent = tutorName + " is starting…";
       await runTutor("__open__");
+    }
+
+    // ---------- Assessment invitation (2026-08-05) ----------
+    // Mr. Cadabra speaks the invitation in his own voice while the choice card shows.
+    // "Yes" goes to the Course Assessment for THIS course; "skip" runs `next` — the
+    // exact continuation the flow would have taken anyway. Shown only at course entry
+    // when there's no history and no placement (see begin() and runTour()).
+    function offerAssessment(next) {
+      const inv = el("assessInvite");
+      const spoken = "One more thing! Before we dive in, I'd love to find out what you already know. " +
+        "My course assessment shows me your strengths and exactly where we should focus — and then I " +
+        "build a learning plan that's just for you. Want to give it a try? Or we can simply start at " +
+        "unit one — your choice!";
+      addBubble("tutor", spoken); lastTutorText = spoken;
+      inv.classList.add("show");
+      el("aiYes").onclick = () => {
+        inv.classList.remove("show");
+        window.location.href = "/challenge?code=" + encodeURIComponent(CODE) +
+          "&course=" + encodeURIComponent(COURSE);
+      };
+      el("aiSkip").onclick = () => { inv.classList.remove("show"); next(); };
+      setState("speaking"); statusEl.textContent = tutorName + " is talking…";
+      speak(spoken);
     }
 
     // ---------- Talk to the tutor ----------
@@ -2213,7 +2278,7 @@
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
         if (!res.ok) { window.location.href = "/login"; return; }
         const data = await res.json();
-        const placed = !!data.placed;
+        isPlaced = !!data.placed;      // 2026-08-05: page state (drives the assessment invitation)
         const history = data.history || [];
         hasHistory = history.length > 0;
         touredAnywhere = !!data.toured;
