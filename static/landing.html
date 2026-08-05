@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  HERO LESSON RIGOR (build ai, Jim: "in the regular classes we show subtract one
+    from ONE side and subtract one from the OTHER side — the hero skips that step. Line up the
+    equal signs and explain in more detail"). The hero board now teaches exactly like the real
+    classroom: the operation row appears under BOTH sides (   − 1  − 1), THEN the result line,
+    same for ÷ 2 — with every equals sign column-aligned (monospace + white-space:pre). The
+    spoken bubbles gained the both-sides language ("take one from the left side, and one from
+    the right — same move on both sides"). Loop is now ~19s. Static no-JS board updated to the
+    same aligned format.
   - 2026-08-05  LIVE HERO LESSON (build ah, from the outside design review Jim ran: "the site
     tells more than it shows — no wow moment near the top"). The hero whiteboard mock now TEACHES
     ON A LOOP: Mr. Cadabra's bubble asks, a student reply pill answers, the board draws each step
@@ -215,6 +223,8 @@
   @keyframes stepin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   /* LIVE HERO LESSON (2026-08-05): steps the script adds animate individually, and the
      student's typed answer shows as a reply pill under the tutor bubble. */
+  .board .step{white-space:pre}   /* build ai: true column alignment — equals signs line up */
+  .board .step.op{color:#8a86a6}  /* the "same move on both sides" rows, dimmed like the classroom */
   .board .step.live{animation:stepin .45s forwards}
   .reply{align-self:flex-end;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;
     border-radius:14px 14px 3px 14px;padding:8px 13px;font-size:13px;font-weight:700;
@@ -480,11 +490,7 @@
         <div class="bubble" id="heroBubble">"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"</div>
         <div class="reply" id="heroReply" aria-hidden="true"></div>
       </div>
-      <div class="board" id="heroBoard">
-        <div class="step">2<span class="v">X</span> + 1 = 11</div>
-        <div class="step">2<span class="v">X</span> = 10&nbsp;&nbsp;<span style="color:#8a86a6">(− 1)</span></div>
-        <div class="step"><span class="v">X</span> = 5&nbsp;&nbsp;<span style="color:#8a86a6">(÷ 2)</span></div>
-      </div>
+      <div class="board" id="heroBoard"><div class="step">2<span class="v">X</span> + 1 = 11</div><div class="step op">   − 1  − 1</div><div class="step">2<span class="v">X</span>     = 10</div></div>
     </div>
   </div>
 </header>
@@ -706,20 +712,24 @@
           board  = document.getElementById('heroBoard');
       if (!bubble || !reply || !board) return;
       var X = '<span class="v">X</span>';
-      var dim = function(s){ return '&nbsp;&nbsp;<span style="color:#8a86a6">' + s + '</span>'; };
-      // say / student-reply / board-line beats. Durations are readable, not rushed.
+      // say / student-reply / board-line beats. Board strings are MONOSPACE-ALIGNED
+      // (white-space:pre): the equals signs sit in one column, and each operation
+      // appears under BOTH sides on its own row — exactly like the real classroom.
       var SEQ = [
         { say: '"Okay — what do we do to <b>both sides</b> to get <span style="color:#d1345b;font-weight:800">X</span> by itself?"',
           board: '2' + X + ' + 1 = 11', ms: 2600 },
         { reply: 'subtract 1', ms: 1500 },
-        { say: '"Exactly — subtract one from both sides."',
-          board: '2' + X + ' = 10' + dim('(− 1)'), happy: true, ms: 2300 },
+        { say: '"Exactly — take one from the <b>left</b> side, and one from the <b>right</b>. Same move on both sides."',
+          board: '   − 1  − 1', op: true, happy: true, ms: 2600 },
+        { say: '"The plus one cancels — two <span style=\'color:#d1345b;font-weight:800\'>X</span> equals ten."',
+          board: '2' + X + '     = 10', ms: 2300 },
         { reply: 'divide by 2', ms: 1500 },
-        { say: '"Nice — so what is <span style=\'color:#d1345b;font-weight:800\'>X</span>?"',
-          board: X + ' = 5' + dim('(÷ 2)'), ms: 2300 },
+        { say: '"Right — divide <b>both</b> sides by two, so the sides stay equal."',
+          board: '÷ 2     ÷ 2', op: true, ms: 2400 },
+        { say: '"So — ten divided by two. What is <span style=\'color:#d1345b;font-weight:800\'>X</span>?"', ms: 2000 },
         { reply: 'X = 5!', ms: 1500 },
         { say: '"You got it — and look, it checks out!"',
-          board: 'check: 2·5 + 1 = 11 ✓', happy: true, ms: 3400 },
+          board: ' ' + X + '     = 5', board2: 'check: 2·5 + 1 = 11 ✓', happy: true, ms: 3600 },
       ];
       var i = -1;
       function beat(){
@@ -740,8 +750,13 @@
         }
         if (s.board){
           var d = document.createElement('div');
-          d.className = 'step live'; d.innerHTML = s.board;
+          d.className = 'step live' + (s.op ? ' op' : ''); d.innerHTML = s.board;
           board.appendChild(d);
+        }
+        if (s.board2){
+          var d2 = document.createElement('div');
+          d2.className = 'step live'; d2.innerHTML = s.board2;
+          board.appendChild(d2);
         }
         if (s.reply){
           reply.innerHTML = s.reply + '<span class="cur"></span>';

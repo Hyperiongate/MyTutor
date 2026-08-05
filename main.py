@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ai-heroalign". HERO LESSON RIGOR (Jim: the hero skipped
+#               the both-sides step the real classroom shows). static/landing.html only: the
+#               hero board now writes the operation row under BOTH sides (   − 1  − 1) before
+#               the result line, equals signs column-aligned (white-space:pre), bubbles use the
+#               both-sides teaching language. Static no-JS board updated to match. No server
+#               change; build bumped for deploy verification.
 #   2026-08-05  APP_BUILD -> "2026-08-05ah-herolive". LIVE HERO LESSON (outside design review:
 #               "the site tells more than it shows"). static/landing.html only: the hero
 #               whiteboard mock now teaches a ~14s scripted mini-lesson on a loop — bubble asks,
@@ -3526,7 +3532,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ah-herolive"
+APP_BUILD = "2026-08-05ai-heroalign"
 
 
 @app.get("/health")
