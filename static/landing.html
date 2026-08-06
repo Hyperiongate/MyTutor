@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  PULSE + ALL TEN COURSES (build ak, Jim): (1) the "🔊 Hear him teach" button now
+    PULSES — a radiating purple ring + border shift (CSS only; stops once clicked; disabled
+    entirely under prefers-reduced-motion). "This is a real important point — it needs to catch
+    my eye." (2) STALE EIGHT-COURSE ERA COPY FIXED: the courses section said "from middle school
+    through calculus" and listed only 8 chips — Entry-Level Math and Basic Math (added 08-03)
+    were missing. Heading now "from first grade through calculus and beyond", all TEN chips
+    listed. Same fix applied to the meta/og/twitter descriptions and the JSON-LD blurb, which
+    still said "Pre-Algebra through Calculus" / "Eight complete courses".
   - 2026-08-05  HEAR HIM + BREATHING ROOM (build aj, Jim green-lit both remaining review items):
     (1) "🔊 Hear him teach" button on the hero whiteboard's title bar — plays one fixed line of
     Mr. Cadabra's REAL voice on click via the existing /api/demo-audio whitelist (new appended
@@ -139,16 +147,16 @@
 <title>Mr. Cadabra's Classroom — A patient AI math tutor that teaches, not just answers</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/" />
-<meta name="description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — Pre-Algebra through Calculus — and never just hands over the answer. No microphone needed.">
+<meta name="description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. No microphone needed.">
 <meta property="og:title" content="Mr. Cadabra's Classroom — the math tutor who talks">
-<meta property="og:description" content="A patient, Socratic AI math tutor with a synchronized whiteboard. Eight complete courses, placement to mastery. Built for homeschool families.">
+<meta property="og:description" content="A patient, Socratic AI math tutor with a synchronized whiteboard. Ten complete courses, first grade through college level, placement to mastery. Built for homeschool families.">
 <meta property="og:url" content="https://mrcadabra.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mr. Cadabra's Classroom — A patient AI math tutor that teaches, not just answers">
-<meta name="twitter:description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — Pre-Algebra through Calculus — and never just hands over the answer. No microphone needed.">
+<meta name="twitter:description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. No microphone needed.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <style>
   :root{
@@ -212,12 +220,18 @@
   .lede + .lede{margin-top:12px}   /* build aj: the lede breathes as two short paragraphs */
   .hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
   .hero-note{margin-top:14px;font-size:13.5px;color:var(--muted)}
-  /* "🔊 Hear him teach" (build aj): plays one cached line of his real voice on click */
-  .hearbtn{margin-left:auto;border:1.5px solid var(--line);background:#fff;border-radius:999px;
+  /* "🔊 Hear him teach" (build aj): plays one cached line of his real voice on click.
+     Build ak (Jim: "it needs to catch my eye"): a radiating pulse until it's clicked. */
+  .hearbtn{margin-left:auto;border:1.5px solid var(--purple);background:#fff;border-radius:999px;
     padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer;color:var(--purple);
-    transition:border-color .12s ease}
-  .hearbtn:hover{border-color:var(--purple)}
+    transition:border-color .12s ease;animation:hearpulse 1.8s ease-in-out infinite}
+  .hearbtn:hover{border-color:var(--teal)}
   .hearbtn[disabled]{opacity:.6;cursor:wait}
+  @keyframes hearpulse{
+    0%{box-shadow:0 0 0 0 rgba(109,90,230,.50)}
+    70%{box-shadow:0 0 0 10px rgba(109,90,230,0)}
+    100%{box-shadow:0 0 0 0 rgba(109,90,230,0)}}
+  @media (prefers-reduced-motion: reduce){.hearbtn{animation:none}}
   @media(max-width:820px){.hero{grid-template-columns:1fr;padding:40px 0}h1{font-size:36px}}
   /* Whiteboard mock */
   .mock{background:var(--card);border-radius:20px;box-shadow:var(--shadow-lg);border:1px solid var(--line);
@@ -347,7 +361,7 @@
    "operatingSystem": "Web",
    "applicationCategory": "EducationalApplication",
    "url": "https://mrcadabra.com/",
-   "description": "A warm, talking AI math tutor. Mr. Cadabra teaches step by step on a synchronized whiteboard — eight complete courses from Pre-Algebra through Calculus, Differential Equations, and Probability & Statistics — and never just hands over the answer. Students type their answers; no microphone.",
+   "description": "A warm, talking AI math tutor. Mr. Cadabra teaches step by step on a synchronized whiteboard — ten complete courses from Entry-Level Math (grade 1) through Calculus, Differential Equations, and Probability & Statistics — and never just hands over the answer. Students type their answers; no microphone.",
    "publisher": {
     "@id": "https://mrcadabra.com/#org"
    },
@@ -571,9 +585,11 @@
 <!-- COURSES -->
 <section id="courses" class="wrap center">
   <span class="eyebrow">The math library</span>
-  <h2>Complete courses, from middle school through calculus and beyond</h2>
+  <h2>Complete courses, from first grade through calculus and beyond</h2>
   <p class="sub center">Every course is a full placement-to-mastery path — not a pile of random worksheets.</p>
   <div class="courses">
+    <span class="course">Entry-Level Math</span>
+    <span class="course">Basic Math</span>
     <span class="course">Pre-Algebra</span>
     <span class="course">Algebra I</span>
     <span class="course">Geometry</span>
@@ -803,6 +819,7 @@
       if (!hb) return;
       var clip = null;
       hb.addEventListener('click', function(){
+        hb.style.animation = 'none';        // build ak: the pulse has done its job — stop it
         if (clip){ try { clip.pause(); clip.currentTime = 0; } catch(e){} clip = null;
           hb.textContent = '🔊 Hear him teach'; return; }
         hb.disabled = true; hb.textContent = '🔊 …';

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05ak-tencourses-pulse". LANDING (Jim): (1) the "Hear him
+#               teach" button now PULSES (radiating ring, CSS-only, stops on click, off under
+#               prefers-reduced-motion) -- "it needs to catch my eye". (2) The courses section
+#               was still living in the eight-course era: heading said "middle school through
+#               calculus" and Entry-Level Math + Basic Math were missing from the chips. Now
+#               "first grade through calculus and beyond" with all TEN courses -- and the same
+#               fix in the meta/og/twitter descriptions and JSON-LD blurb. landing.html only.
 #   2026-08-05  APP_BUILD -> "2026-08-05aj-hearhim-breathe". TWO LANDING ITEMS (Jim green-lit the
 #               remaining design-review quick wins):
 #               (1) "🔊 HEAR HIM TEACH" -- a button on the hero whiteboard plays ONE fixed line
@@ -3546,7 +3553,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05aj-hearhim-breathe"
+APP_BUILD = "2026-08-05ak-tencourses-pulse"
 
 
 @app.get("/health")
