@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-06  APP_BUILD -> "2026-08-06al-navhome". NAV: "How it works" -> "Home" on all 12
+#               marketing pages (Jim: the old first nav item scrolled cold visitors straight
+#               past the new hero to the four-steps section; it now opens the TOP of the
+#               landing page; marked "here" on the landing page itself). The hero's "See how
+#               it works" button still scrolls to #how. Static-only; build bumped for deploy
+#               verification.
 #   2026-08-05  APP_BUILD -> "2026-08-05ak-tencourses-pulse". LANDING (Jim): (1) the "Hear him
 #               teach" button now PULSES (radiating ring, CSS-only, stops on click, off under
 #               prefers-reduced-motion) -- "it needs to catch my eye". (2) The courses section
@@ -3553,7 +3559,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ak-tencourses-pulse"
+APP_BUILD = "2026-08-06al-navhome"
 
 
 @app.get("/health")
