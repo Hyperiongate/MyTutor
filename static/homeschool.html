@@ -13,6 +13,11 @@
   homeschool.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-06  HOMESCHOOL VIDEO (build am, Jim): new 77-second page video under the hero
+    (/static/videos/homeschool.mp4 + homeschool-poster.jpg), controls + poster, fires a
+    "Homeschool Video Played" Plausible event once on first play — same pattern as the
+    teachers page. Brand-checked frame-by-frame: official logo, current dashboard, no stale
+    "80%+" claim. Additive.
   - 2026-08-06  NAV: "How it works" -> "Home" (build al, Jim: the old link scrolled cold
     visitors straight past the hero to the four-steps section; the first nav item should
     open the TOP of the landing page). The hero's "See how it works" button still scrolls
@@ -163,6 +168,27 @@
   <p style="margin-top:18px"><a class="btn btn-primary" href="/demo">Try a lesson free</a>
   <a class="btn btn-ghost" href="/courses" style="margin-left:8px">See all 10 courses</a></p>
 </header>
+
+<!-- HOMESCHOOL VIDEO (2026-08-06, Jim's page video "homeschool_video_8.6.26"): 77s, brand-
+     correct (official logo + current dashboard, no stale claims), served from
+     /static/videos/homeschool.mp4 with a poster frame + controls; fires a "Homeschool Video
+     Played" Plausible event ONCE on first play, mirroring the teachers-page video. -->
+<section class="wrap" style="max-width:900px;margin-left:auto;margin-right:auto">
+  <video id="hvid" controls preload="metadata" playsinline poster="/static/videos/homeschool-poster.jpg"
+         style="width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:block;background:#000">
+    <source src="/static/videos/homeschool.mp4" type="video/mp4">
+    Your browser can't play this video — <a href="/static/videos/homeschool.mp4">download it instead</a>.
+  </video>
+  <p style="text-align:center;margin-top:10px;color:var(--muted);font-size:14px">77 seconds: what Mr. Cadabra's Classroom looks like for a homeschool family.</p>
+  <script>
+    (function () {
+      var v = document.getElementById("hvid"), fired = false;
+      if (v) v.addEventListener("play", function () {
+        if (!fired && window.mtTrack) { fired = true; mtTrack("Homeschool Video Played"); }
+      });
+    })();
+  </script>
+</section>
 
 <section class="wrap">
   <div class="grid g2" style="align-items:center">

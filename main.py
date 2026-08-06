@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-06  APP_BUILD -> "2026-08-06am-homeschoolvideo". Jim's new 77-second homeschool page
+#               video embedded under the hero on /homeschool (static/videos/homeschool.mp4 +
+#               homeschool-poster.jpg; controls + poster; "Homeschool Video Played" Plausible
+#               event on first play — mirrors the teachers video). Frame-checked brand-correct.
+#               Static assets + one page; build bumped for deploy verification.
 #   2026-08-06  APP_BUILD -> "2026-08-06al-navhome". NAV: "How it works" -> "Home" on all 12
 #               marketing pages (Jim: the old first nav item scrolled cold visitors straight
 #               past the new hero to the four-steps section; it now opens the TOP of the
@@ -3559,7 +3564,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-06al-navhome"
+APP_BUILD = "2026-08-06am-homeschoolvideo"
 
 
 @app.get("/health")
