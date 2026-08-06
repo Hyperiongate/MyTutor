@@ -8,6 +8,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-06  QUIET ASSESSMENT INVITATION (Jim: the "find your perfect starting spot" card and
+    Mr. Cadabra's spoken invitation were happening AT THE SAME TIME -- he was talking and writing
+    on the whiteboard behind the card). Fixed the order of things: the card now appears ALONE and
+    SILENT -- offerAssessment() no longer adds a chat bubble or speaks; the card's own words carry
+    the invitation. The #assessInvite backdrop is now fully OPAQUE (solid, same palette), so the
+    classroom/whiteboard is completely hidden until the student chooses. "Yes" still goes to the
+    Course Assessment; "Not right now" dismisses the card and ONLY THEN does Mr. Cadabra start
+    talking (the exact same __tour_done__/__open__ continuation as before). Both entry paths are
+    covered (brand-new student after the tour, and a toured student entering a new course).
+    No functionality removed -- only the timing and the backdrop changed.
   - 2026-08-03  iPAD/TABLET PASS: (1) the full-height layout now also sets 100dvh (kept 100vh
     for older browsers) so the composer can't hide behind Safari's collapsing toolbar on
     tablets; (2) the Yes / No / I'm confused quick buttons grew to a 44px-minimum tap height
@@ -407,6 +417,13 @@
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .welcome.show { display: flex; }
+    /* 2026-08-06: the assessment invitation hides the classroom COMPLETELY (opaque backdrop,
+       same palette as the welcome) -- the whiteboard must not be visible behind this choice. */
+    #assessInvite { background:
+        radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
+        radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
+        radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
+        rgb(22,22,40); }
     .welcome-card { background: #fff; border-radius: 24px; max-width: 680px; width: 100%; padding: 46px 52px 40px;
       max-height: 92vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
     .welcome-card h2 { margin: 12px 0 6px; font-size: 34px; }
@@ -826,10 +843,12 @@
     </div>
   </div>
 
-  <!-- ASSESSMENT INVITATION (2026-08-05): shown once, right after the tour (or before the
-       opener when a toured student enters a NEW course), only when this course has no
-       history and no placement yet. Reuses the welcome-overlay design. Never forced:
-       "start at Unit 1" continues the exact pre-existing flow. -->
+  <!-- ASSESSMENT INVITATION (2026-08-05, quieted 2026-08-06): shown once, right after the
+       tour (or before the opener when a toured student enters a NEW course), only when this
+       course has no history and no placement yet. Reuses the welcome-overlay design but with
+       a fully OPAQUE backdrop (see #assessInvite CSS) -- the whiteboard is hidden and Mr.
+       Cadabra is SILENT while this card is up; he only starts talking after the choice.
+       Never forced: "start at Unit 1" continues the exact pre-existing flow. -->
   <div class="welcome" id="assessInvite">
     <div class="welcome-card">
       <div class="welcome-badge">📋</div>
@@ -2203,18 +2222,17 @@
       await runTutor("__open__");
     }
 
-    // ---------- Assessment invitation (2026-08-05) ----------
-    // Mr. Cadabra speaks the invitation in his own voice while the choice card shows.
-    // "Yes" goes to the Course Assessment for THIS course; "skip" runs `next` — the
-    // exact continuation the flow would have taken anyway. Shown only at course entry
+    // ---------- Assessment invitation (2026-08-05, quieted 2026-08-06) ----------
+    // The choice card appears ALONE and SILENT over an opaque backdrop — Mr. Cadabra
+    // does NOT speak or write on the whiteboard while it's up (Jim: the two were
+    // overlapping; the card's own words carry the invitation now). "Yes" goes to the
+    // Course Assessment for THIS course; "Not right now" dismisses the card and ONLY
+    // THEN runs `next` — the exact continuation the flow would have taken anyway, so
+    // the tutor starts talking only after the choice. Shown only at course entry
     // when there's no history and no placement (see begin() and runTour()).
     function offerAssessment(next) {
       const inv = el("assessInvite");
-      const spoken = "One more thing! Before we dive in, I'd love to find out what you already know. " +
-        "My course assessment shows me your strengths and exactly where we should focus — and then I " +
-        "build a learning plan that's just for you. Want to give it a try? Or we can simply start at " +
-        "unit one — your choice!";
-      addBubble("tutor", spoken); lastTutorText = spoken;
+      setState("idle"); statusEl.textContent = "";   // nothing is happening behind the card
       inv.classList.add("show");
       el("aiYes").onclick = () => {
         inv.classList.remove("show");
@@ -2222,8 +2240,6 @@
           "&course=" + encodeURIComponent(COURSE);
       };
       el("aiSkip").onclick = () => { inv.classList.remove("show"); next(); };
-      setState("speaking"); statusEl.textContent = tutorName + " is talking…";
-      speak(spoken);
     }
 
     // ---------- Talk to the tutor ----------
