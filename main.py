@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-05  APP_BUILD -> "2026-08-05aj-hearhim-breathe". TWO LANDING ITEMS (Jim green-lit the
+#               remaining design-review quick wins):
+#               (1) "🔊 HEAR HIM TEACH" -- a button on the hero whiteboard plays ONE fixed line
+#               of Mr. Cadabra's real voice on click (browsers allow audio after a click). The
+#               line is APPENDED to DEMO_VOICE_LINES (index 71; identical append in demo.html's
+#               VOICE_LINES -- the lists stay in sync, append-only) and served by the existing
+#               /api/demo-audio/{i} whitelist + cache; the robot's mouth animates while it
+#               plays. Fallbacks: no ElevenLabs key (204) or any error -> the button becomes an
+#               honest "Hear him in the demo →" link. No new endpoint; no server change beyond
+#               the appended line.
+#               (2) BREATHING-ROOM PASS (landing.html): hero lede split into two short
+#               paragraphs (same words); the product-screenshots section (#see) moved UP to
+#               sit right after "Why families choose" (show, then tell); section padding,
+#               heading margins, and line-heights opened up. Copy unchanged throughout.
 #   2026-08-05  APP_BUILD -> "2026-08-05ai-heroalign". HERO LESSON RIGOR (Jim: the hero skipped
 #               the both-sides step the real classroom shows). static/landing.html only: the
 #               hero board now writes the operation row under BOTH sides (   − 1  − 1) before
@@ -3532,7 +3546,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-05ai-heroalign"
+APP_BUILD = "2026-08-05aj-hearhim-breathe"
 
 
 @app.get("/health")
@@ -4230,6 +4244,10 @@ DEMO_VOICE_LINES = [
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
     "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
+    # 2026-08-05 (build aj): the landing hero's "Hear him teach" button plays this line.
+    # APPENDED (never reorder -- cached audio indices must stay valid; keep identical to
+    # demo.html's VOICE_LINES).
+    "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level.",
 ]
 
 

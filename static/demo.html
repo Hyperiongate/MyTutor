@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  APPENDED one line to VOICE_LINES (build aj): the landing page's new "🔊 Hear him
+    teach" button plays it via the same /api/demo-audio/{i} whitelist (index 71). APPEND-ONLY
+    as always — the list MUST stay identical to main.py's DEMO_VOICE_LINES; nothing else in
+    this file changed.
     2026-08-04  ESCALATING HELP ON REPEATED MISSES (build aa, Jim tested deliberately failing:
                 'it failed to find alternative ways to help me other than try again'). The demo
                 is scripted (no AI), so it now scripts what the real tutor does: miss 1 = the
@@ -351,7 +355,8 @@
     "And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!",
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
-    "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"
+    "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
+    "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level."
   ];
   var serverVoiceOK=true;
   // iPAD/TABLET UNLOCK (2026-08-03): iPads/tablets refuse to start audio unless the FIRST play happens inside a real tap.

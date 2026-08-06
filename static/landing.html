@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-05  HEAR HIM + BREATHING ROOM (build aj, Jim green-lit both remaining review items):
+    (1) "🔊 Hear him teach" button on the hero whiteboard's title bar — plays one fixed line of
+    Mr. Cadabra's REAL voice on click via the existing /api/demo-audio whitelist (new appended
+    line, index 71; cache-served after first play). The robot's mouth animates while it plays.
+    Fallback: 204/no key/any error -> the button becomes an honest "Hear him in the demo →"
+    link. Mock is no longer aria-hidden (it now holds a real control).
+    (2) BREATHING-ROOM PASS: hero lede split into two short paragraphs (same words, zero copy
+    changes); the #see product-screenshots section MOVED UP to right after #why (show, then
+    tell — the review's "product visuals too late"); section padding 56->76, h2 margins and
+    line-heights opened, card copy line-height 1.6. Nothing removed, no copy edited.
   - 2026-08-05  HERO LESSON RIGOR (build ai, Jim: "in the regular classes we show subtract one
     from ONE side and subtract one from the OTHER side — the hero skips that step. Line up the
     equal signs and explain in more detail"). The hero board now teaches exactly like the real
@@ -198,9 +208,16 @@
         color:var(--muted);font-weight:600;font-size:13px;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
   h1{font-size:46px;line-height:1.1;letter-spacing:-.02em;margin:18px 0 14px;font-weight:850}
-  .lede{font-size:19px;color:var(--muted);max-width:34ch}
+  .lede{font-size:19px;color:var(--muted);max-width:34ch;line-height:1.7}
+  .lede + .lede{margin-top:12px}   /* build aj: the lede breathes as two short paragraphs */
   .hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
   .hero-note{margin-top:14px;font-size:13.5px;color:var(--muted)}
+  /* "🔊 Hear him teach" (build aj): plays one cached line of his real voice on click */
+  .hearbtn{margin-left:auto;border:1.5px solid var(--line);background:#fff;border-radius:999px;
+    padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer;color:var(--purple);
+    transition:border-color .12s ease}
+  .hearbtn:hover{border-color:var(--purple)}
+  .hearbtn[disabled]{opacity:.6;cursor:wait}
   @media(max-width:820px){.hero{grid-template-columns:1fr;padding:40px 0}h1{font-size:36px}}
   /* Whiteboard mock */
   .mock{background:var(--card);border-radius:20px;box-shadow:var(--shadow-lg);border:1px solid var(--line);
@@ -233,19 +250,19 @@
   .reply .cur{display:inline-block;width:2px;background:#fff;height:12px;margin-left:2px;
     animation:blink 1s steps(1) infinite;vertical-align:-1px}
   @keyframes blink{50%{opacity:0}}
-  /* SECTIONS */
-  section{padding:56px 0}
+  /* SECTIONS (build aj: opened up — more air between and inside sections) */
+  section{padding:76px 0}
   .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
-  h2{font-size:33px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
-  .sub{color:var(--muted);font-size:17px;max-width:60ch}
+  h2{font-size:33px;letter-spacing:-.02em;margin:10px 0 14px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:60ch;line-height:1.75}
   .center{text-align:center;margin:0 auto}
   .grid{display:grid;gap:20px}
   .g3{grid-template-columns:repeat(3,1fr)}
   .g4{grid-template-columns:repeat(4,1fr)}
   @media(max-width:820px){.g3,.g4{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
-  .card h3{font-size:18px;margin:12px 0 6px}
-  .card p{color:var(--muted);font-size:14.5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)}
+  .card h3{font-size:18px;margin:12px 0 8px}
+  .card p{color:var(--muted);font-size:14.5px;line-height:1.6}
   .ic{width:44px;height:44px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px}
   /* courses */
   .courses{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:26px}
@@ -475,15 +492,17 @@
   <div>
     <span class="pill"><span class="dot"></span> Built for homeschool families · a talking Socratic math tutor</span>
     <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
-    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by tapping answer buttons in the elementary grades, or by typing with the built-in math keyboard — no microphone needed, ever. It's like having your own personal tutor: one who plans the course around your student, encourages every step, and reports back to you in plain English.</p>
+    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by tapping answer buttons in the elementary grades, or by typing with the built-in math keyboard — no microphone needed, ever.</p>
+    <p class="lede">It's like having your own personal tutor: one who plans the course around your student, encourages every step, and reports back to you in plain English.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="/demo">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
     <p class="hero-note">No credit card · No microphone required · Parent-controlled accounts · We never sell your child's data</p>
   </div>
-  <div class="mock" aria-hidden="true">
-    <div class="mock-top"><i></i><i></i><i></i></div>
+  <div class="mock">
+    <div class="mock-top"><i></i><i></i><i></i>
+      <button class="hearbtn" id="hearBtn" type="button" aria-label="Play a sample of Mr. Cadabra's real teaching voice">🔊 Hear him teach</button></div>
     <div class="mock-body">
       <div class="mock-tutor">
         <span class="orb orb-lg" id="heroOrb"><canvas id="heroFace" width="176" height="176"></canvas></span>
@@ -507,6 +526,31 @@
     <div class="card"><div class="ic">◎</div><h3>Placement to mastery</h3><p>A one-time check places your student at the right spot — a 9th grader can brush up on fractions without ever seeing "3rd grade."</p></div>
     <div class="card"><div class="ic">▤</div><h3>An honest dashboard</h3><p>See real progress by unit — what's mastered, what needs work — measured by actual scored checks, not vanity numbers.</p></div>
   </div>
+</section>
+<!-- PRODUCT GALLERY (real screenshots, sample data labeled).
+     Build aj: MOVED UP from below #courses to directly after #why — the outside design review's
+     "product visuals come too late"; claim first, then immediately the proof. -->
+<section id="see" class="wrap">
+  <div class="center" style="max-width:70ch">
+    <span class="eyebrow">See it for yourself</span>
+    <h2>This is what Mr. Cadabra's Classroom actually looks like.</h2>
+    <p class="sub center">Real screens from the product — the talking lesson, the honest parent dashboard, and the built-in math keyboard.</p>
+  </div>
+  <div class="grid g3" style="margin-top:30px">
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/lesson.png" alt="A Mr. Cadabra's Classroom lesson: Mr. Cadabra asks a question while the whiteboard shows 2x+3=11 solved step by step, with the math keyboard below for typing the next move" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The lesson</h3><p>He talks, the board draws each step, your student answers — it never runs ahead.</p>
+    </div>
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/dashboard.png" alt="The Mr. Cadabra's Classroom progress dashboard: units mastered, day streak, accuracy, honest time-on-task, and a 9-unit learning journey" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The parent dashboard</h3><p>Real mastery, real accuracy, real time-on-task — idle time doesn't count. <span style="font-size:12px;color:var(--muted)">(Sample data shown.)</span></p>
+    </div>
+    <div class="card" style="padding:14px">
+      <img src="/static/shots/keyboard.png" alt="The built-in math keyboard: a full pad of digits, operators, roots, exponents and comparison symbols for typing math answers" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The math keyboard</h3><p>√, x², fractions, inequalities — students type real math without hunting for symbols.</p>
+    </div>
+  </div>
+  <p class="hero-note center" style="margin-top:16px">Teaching a class or co-op? <a href="/teachers" style="text-decoration:underline">See the classroom heatmap →</a></p>
 </section>
 <!-- PERSONAL TUTOR / FEEDBACK LOOP (added 2026-08-02, Jim: the page didn't stress how this
      differs from other AI tools -- the personal-tutor plan, the constant feedback, and the
@@ -541,29 +585,6 @@
   </div>
   <p class="hero-note center" style="margin-top:20px">More subjects and grade levels on the roadmap — our goal is a complete K‑12 companion.</p>
   <p style="margin-top:16px"><a class="btn btn-ghost" href="/courses">See every unit in every course →</a></p>
-</section>
-<!-- PRODUCT GALLERY (real screenshots, sample data labeled) -->
-<section id="see" class="wrap">
-  <div class="center" style="max-width:70ch">
-    <span class="eyebrow">See it for yourself</span>
-    <h2>This is what Mr. Cadabra's Classroom actually looks like.</h2>
-    <p class="sub center">Real screens from the product — the talking lesson, the honest parent dashboard, and the built-in math keyboard.</p>
-  </div>
-  <div class="grid g3" style="margin-top:30px">
-    <div class="card" style="padding:14px">
-      <img src="/static/shots/lesson.png" alt="A Mr. Cadabra's Classroom lesson: Mr. Cadabra asks a question while the whiteboard shows 2x+3=11 solved step by step, with the math keyboard below for typing the next move" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
-      <h3 style="margin-top:12px">The lesson</h3><p>He talks, the board draws each step, your student answers — it never runs ahead.</p>
-    </div>
-    <div class="card" style="padding:14px">
-      <img src="/static/shots/dashboard.png" alt="The Mr. Cadabra's Classroom progress dashboard: units mastered, day streak, accuracy, honest time-on-task, and a 9-unit learning journey" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
-      <h3 style="margin-top:12px">The parent dashboard</h3><p>Real mastery, real accuracy, real time-on-task — idle time doesn't count. <span style="font-size:12px;color:var(--muted)">(Sample data shown.)</span></p>
-    </div>
-    <div class="card" style="padding:14px">
-      <img src="/static/shots/keyboard.png" alt="The built-in math keyboard: a full pad of digits, operators, roots, exponents and comparison symbols for typing math answers" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
-      <h3 style="margin-top:12px">The math keyboard</h3><p>√, x², fractions, inequalities — students type real math without hunting for symbols.</p>
-    </div>
-  </div>
-  <p class="hero-note center" style="margin-top:16px">Teaching a class or co-op? <a href="/teachers" style="text-decoration:underline">See the classroom heatmap →</a></p>
 </section>
 <!-- HOW -->
 <section id="how" class="wrap">
@@ -771,6 +792,38 @@
     }
     if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', lesson);
     else lesson();
+
+    // ---- "🔊 Hear him teach" (build aj): one cached line of his REAL voice, on click ----
+    // Served by the existing /api/demo-audio whitelist (index 71 = the appended hero line).
+    // The face's mouth animates while it plays (talkUntil is shared with the loop above).
+    // Any failure — no ElevenLabs key (204), network, autoplay refusal — degrades to an
+    // honest link into the demo, where his voice lives anyway.
+    function wireHear(){
+      var hb = document.getElementById('hearBtn');
+      if (!hb) return;
+      var clip = null;
+      hb.addEventListener('click', function(){
+        if (clip){ try { clip.pause(); clip.currentTime = 0; } catch(e){} clip = null;
+          hb.textContent = '🔊 Hear him teach'; return; }
+        hb.disabled = true; hb.textContent = '🔊 …';
+        fetch('/api/demo-audio/71').then(function(r){
+          if (!r.ok || r.status === 204) throw new Error('no-voice');
+          return r.blob();
+        }).then(function(b){
+          clip = new Audio(URL.createObjectURL(b));
+          clip.ontimeupdate = function(){ talkUntil = Date.now() + 400; };
+          clip.onended = function(){ clip = null; hb.disabled = false; hb.textContent = '🔊 Hear him teach'; };
+          var p = clip.play();
+          return (p && p.then) ? p : null;
+        }).then(function(){
+          hb.disabled = false; hb.textContent = '⏸ He’s teaching…';
+        }).catch(function(){
+          hb.outerHTML = '<a class="hearbtn" href="/demo" style="text-decoration:none">🔊 Hear him in the demo →</a>';
+        });
+      });
+    }
+    if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', wireHear);
+    else wireHear();
   })();
 
   function setCycle(c){
