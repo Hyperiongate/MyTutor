@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-07  VOICE-FIRST CLASSROOM (build ao, Jim): student voice input is restored, so
+    every "no microphone, ever" claim on this page is REPLACED with the true new story:
+    your student TALKS with Mr. Cadabra — a real spoken back-and-forth. Privacy line that
+    goes with it everywhere: their voice is transcribed to text and the audio is deleted
+    immediately — never stored, never kept. Elementary students still tap answer buttons;
+    typing is always available. Math-keyboard mentions removed (the keypad is retired).
+    Touched: meta/og/twitter descriptions, JSON-LD blurb + both FAQ answers, hero lede +
+    hero-note, "How it works" step 2, the plan checklist, the trust section (headline card
+    swapped to the transcribe-and-delete promise), the visible FAQ, and the final CTA.
   - 2026-08-06  NAV: "How it works" -> "Home" (build al, Jim: the old link scrolled cold
     visitors straight past the hero to the four-steps section; the first nav item should
     open the TOP of the landing page). The hero's "See how it works" button still scrolls
@@ -151,7 +160,7 @@
 <title>Mr. Cadabra's Classroom — A patient AI math tutor that teaches, not just answers</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/" />
-<meta name="description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. No microphone needed.">
+<meta name="description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. Students talk with him — a real back-and-forth conversation.">
 <meta property="og:title" content="Mr. Cadabra's Classroom — the math tutor who talks">
 <meta property="og:description" content="A patient, Socratic AI math tutor with a synchronized whiteboard. Ten complete courses, first grade through college level, placement to mastery. Built for homeschool families.">
 <meta property="og:url" content="https://mrcadabra.com/">
@@ -160,7 +169,7 @@
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mr. Cadabra's Classroom — A patient AI math tutor that teaches, not just answers">
-<meta name="twitter:description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. No microphone needed.">
+<meta name="twitter:description" content="Meet Mr. Cadabra: a warm, talking AI math tutor for homeschool families. He teaches step by step on a whiteboard — ten complete courses, first grade through Calculus and Differential Equations — and never just hands over the answer. Students talk with him — a real back-and-forth conversation.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <style>
   :root{
@@ -365,7 +374,7 @@
    "operatingSystem": "Web",
    "applicationCategory": "EducationalApplication",
    "url": "https://mrcadabra.com/",
-   "description": "A warm, talking AI math tutor. Mr. Cadabra teaches step by step on a synchronized whiteboard — ten complete courses from Entry-Level Math (grade 1) through Calculus, Differential Equations, and Probability & Statistics — and never just hands over the answer. Students type their answers; no microphone.",
+   "description": "A warm, talking AI math tutor. Mr. Cadabra teaches step by step on a synchronized whiteboard — ten complete courses from Entry-Level Math (grade 1) through Calculus, Differential Equations, and Probability & Statistics — and never just hands over the answer. Students talk with him — a real spoken back-and-forth (their voice is transcribed and the audio deleted immediately, never stored); typing works too.",
    "publisher": {
     "@id": "https://mrcadabra.com/#org"
    },
@@ -417,7 +426,7 @@
      "name": "Does my child need a microphone?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "No — there is no microphone, ever, so no student voice is recorded. Mr. Cadabra talks your student through each step in a warm voice, and your student answers by tapping answer buttons in the elementary courses (grades 1–6) or by typing — with a built-in math keyboard for symbols like √ and x². Quiet-friendly, shared-device-friendly, private."
+      "text": "A microphone makes it best — your student simply talks with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is deleted immediately — we never store or keep recordings of your child's voice. No mic, or need it quiet? They can type instead any time, and elementary students (grades 1–6) answer by tapping big answer buttons."
      }
     },
     {
@@ -441,7 +450,7 @@
      "name": "How do you handle my child's data?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising, there's no microphone so no voice is ever recorded, and you can request deletion at any time. See the Parents & Privacy page for specifics."
+      "text": "Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising; when your child talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents & Privacy page for specifics."
      }
     },
     {
@@ -510,13 +519,13 @@
   <div>
     <span class="pill"><span class="dot"></span> Built for homeschool families · a talking Socratic math tutor</span>
     <h1>A patient math tutor that <span class="grad-text">teaches</span> — instead of just handing over the answer.</h1>
-    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student answers by tapping answer buttons in the elementary grades, or by typing with the built-in math keyboard — no microphone needed, ever.</p>
+    <p class="lede">Meet Mr. Cadabra: he talks your student through each problem in a warm voice, draws it out on a whiteboard step by step, and never races ahead. Your student just talks with him — a real back-and-forth conversation, out loud. (Elementary students tap answer buttons, and anyone can type instead.)</p>
     <p class="lede">It's like having your own personal tutor: one who plans the course around your student, encourages every step, and reports back to you in plain English.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="/demo">▶ Try a lesson free</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
-    <p class="hero-note">No credit card · No microphone required · Parent-controlled accounts · We never sell your child's data</p>
+    <p class="hero-note">No credit card · Voice audio never stored · Parent-controlled accounts · We never sell your child's data</p>
   </div>
   <div class="mock">
     <div class="mock-top"><i></i><i></i><i></i>
@@ -552,11 +561,11 @@
   <div class="center" style="max-width:70ch">
     <span class="eyebrow">See it for yourself</span>
     <h2>This is what Mr. Cadabra's Classroom actually looks like.</h2>
-    <p class="sub center">Real screens from the product — the talking lesson, the honest parent dashboard, and the built-in math keyboard.</p>
+    <p class="sub center">Real screens from the product — the talking lesson, the honest dashboard, and the plain-English parent view.</p>
   </div>
   <div class="grid g3" style="margin-top:30px">
     <div class="card" style="padding:14px">
-      <img src="/static/shots/lesson.png" alt="A Mr. Cadabra's Classroom lesson: Mr. Cadabra asks a question while the whiteboard shows 2x+3=11 solved step by step, with the math keyboard below for typing the next move" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <img src="/static/shots/lesson.png" alt="A Mr. Cadabra's Classroom lesson: Mr. Cadabra asks a question while the whiteboard shows 2x+3=11 solved step by step, waiting for the student's answer" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
       <h3 style="margin-top:12px">The lesson</h3><p>He talks, the board draws each step, your student answers — it never runs ahead.</p>
     </div>
     <div class="card" style="padding:14px">
@@ -564,8 +573,8 @@
       <h3 style="margin-top:12px">The parent dashboard</h3><p>Real mastery, real accuracy, real time-on-task — idle time doesn't count. <span style="font-size:12px;color:var(--muted)">(Sample data shown.)</span></p>
     </div>
     <div class="card" style="padding:14px">
-      <img src="/static/shots/keyboard.png" alt="The built-in math keyboard: a full pad of digits, operators, roots, exponents and comparison symbols for typing math answers" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
-      <h3 style="margin-top:12px">The math keyboard</h3><p>√, x², fractions, inequalities — students type real math without hunting for symbols.</p>
+      <img src="/static/shots/parent.png" alt="The parent view: a plain-English narrative of how the student is really doing, with honest progress numbers" style="width:100%;border-radius:10px;border:1px solid var(--line);display:block" />
+      <h3 style="margin-top:12px">The parent view</h3><p>A plain-English answer to "how are they doing, really?" — honest numbers, no vanity stats.</p>
     </div>
   </div>
   <p class="hero-note center" style="margin-top:16px">Teaching a class or co-op? <a href="/teachers" style="text-decoration:underline">See the classroom heatmap →</a></p>
@@ -611,7 +620,7 @@
   <div class="center" style="max-width:70ch"><span class="eyebrow">How it works</span><h2>Four simple steps</h2></div>
   <div class="grid g4 steps" style="margin-top:30px">
     <div class="card step-card"><div class="num">1</div><h3>Place</h3><p>A short, friendly check finds exactly where your student is — no guessing, no starting from scratch.</p></div>
-    <div class="card step-card"><div class="num">2</div><h3>Learn</h3><p>Mr. Cadabra explains each step out loud in a warm voice and draws it on the board. Your student answers by typing — with a math keyboard for symbols like √ and x², no microphone.</p></div>
+    <div class="card step-card"><div class="num">2</div><h3>Learn</h3><p>Mr. Cadabra explains each step out loud in a warm voice and draws it on the board. Your student answers by talking with him — a real conversation — or by typing, whichever they like.</p></div>
     <div class="card step-card"><div class="num">3</div><h3>Practice</h3><p>Guided practice problems with hints — plus short, no-hint "checks" that measure real understanding.</p></div>
     <div class="card step-card"><div class="num">4</div><h3>Master</h3><p>Units turn gold on the dashboard as they're mastered, so you always know what's next.</p></div>
   </div>
@@ -620,7 +629,7 @@
 <section id="pricing" class="wrap center">
   <span class="eyebrow">Simple, honest pricing</span>
   <h2>Start free. Upgrade when you're ready.</h2>
-  <p class="sub center">One simple product: the warm talking tutor, the built-in math keyboard, and all ten courses — Entry-Level Math (grade 1) through Differential Equations. Try it free, then subscribe when you're ready. Cancel anytime.</p>
+  <p class="sub center">One simple product: the warm talking tutor your student talks back to, and all ten courses — Entry-Level Math (grade 1) through Differential Equations. Try it free, then subscribe when you're ready. Cancel anytime.</p>
   <div class="toggle" role="tablist">
     <button id="tMonthly" class="on" onclick="setCycle('m')">Monthly</button>
     <button id="tAnnual" onclick="setCycle('a')">Annual <span class="save">save ~2 months</span></button>
@@ -651,7 +660,7 @@
         <li><span class="chk">✓</span> One plan covers up to 2 children — a 2nd child is free</li>
         <li><span class="chk">✓</span> All 10 courses, placement → mastery</li>
         <li><span class="chk">✓</span> Mr. Cadabra's warm, natural voice on every lesson</li>
-        <li><span class="chk">✓</span> Type answers with the built-in math keyboard — no mic</li>
+        <li><span class="chk">✓</span> Talk your answers out loud — or type them, your choice</li>
         <li><span class="chk">✓</span> Progress dashboard by unit</li>
         <li><span class="chk">✓</span> Parent-controlled account &amp; privacy</li>
       </ul>
@@ -670,11 +679,11 @@
   <div class="trust">
     <span class="eyebrow" style="color:rgba(255,255,255,.85)">Built for families</span>
     <h2>Built kid-safe from day one.</h2>
-    <p class="sub center">You hold the account, your student just holds a login code — and because Mr. Cadabra talks while your student types, there's no microphone at all. Simple, quiet, and easy to trust.</p>
+    <p class="sub center">You hold the account, your student just holds a login code — and when they talk with Mr. Cadabra, their voice is transcribed and the audio deleted on the spot. Nothing is stored, nothing is kept. Simple and easy to trust.</p>
     <div class="trust-grid">
       <div><strong>We never sell student data</strong><p>Not to advertisers, not to anyone. No targeted ads. No profiles for marketing.</p></div>
       <div><strong>Parents hold the keys</strong><p>Parent-created accounts and consent, a clear privacy policy, and delete-my-data on request.</p></div>
-      <div><strong>No microphone at all</strong><p>He talks, your student types. Works great in a quiet house, a busy kitchen, or the library.</p></div>
+      <div><strong>Voice audio never stored</strong><p>They talk, he answers. Speech becomes text and the audio is deleted immediately — no recordings, ever. Prefer quiet? Typing always works.</p></div>
     </div>
     <p class="sub center" style="margin-top:18px;font-size:13.5px">See our <a href="/privacy" style="color:#fff;text-decoration:underline">Parents &amp; Privacy</a> page for the full details.</p>
   </div>
@@ -698,10 +707,10 @@
   <div class="center" style="max-width:70ch;margin-bottom:24px"><span class="eyebrow">Questions</span><h2>Frequently asked</h2></div>
   <details open><summary>Is this just ChatGPT that solves the homework?</summary><p>No. Mr. Cadabra's Classroom is built to <em>teach</em>, not to hand over answers. It runs on Anthropic's Claude — a high-end reasoning model (currently Claude Sonnet 5) — but the difference is everything built around it: a Socratic approach that guides with questions, a whiteboard that draws each step and never runs ahead of your student, and complete placement-to-mastery courses. The goal is understanding, not a copied answer.</p></details>
   <details><summary>How do I know the math is actually right?</summary><p>Every problem and answer Mr. Cadabra states is double-checked by a separate math engine — real symbolic math software, not another AI — before your student ever sees it. If a check fails, the reply is silently corrected first. Progress numbers work the same way: dashboards only ever show real, scored work.</p></details>
-  <details><summary>Does my child need a microphone?</summary><p>No — there is no microphone, ever, so no student voice is recorded. Mr. Cadabra <em>talks</em> your student through each step in a warm voice, and your student answers by <em>tapping</em> answer buttons in the elementary courses (grades 1–6) or by <em>typing</em> — with a built-in math keyboard for symbols like √ and x². Quiet-friendly, shared-device-friendly, private.</p></details>
+  <details><summary>Does my child need a microphone?</summary><p>A microphone makes it best — your student simply <em>talks</em> with Mr. Cadabra, back and forth, like a real tutoring session. Their speech is turned into text and the audio is <em>deleted immediately</em> — we never store or keep recordings of your child's voice. No mic, or need it quiet? They can <em>type</em> instead any time, and elementary students (grades 1–6) answer by <em>tapping</em> big answer buttons.</p></details>
   <details><summary>What ages and levels is it for?</summary><p>Ten complete courses, from a first-grader's first numbers to college math: Entry-Level Math (grades 1–3), Basic Math (grades 4–6), Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Probability &amp; Statistics, Calculus, and Differential Equations. A placement check puts each student exactly where they belong, and they can move between courses anytime.</p></details>
   <details><summary>Will it chat about things besides math?</summary><p>No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for children should behave.</p></details>
-  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising, there's no microphone so no voice is ever recorded, and you can request deletion at any time. See the Parents &amp; Privacy page for specifics.</p></details>
+  <details><summary>How do you handle my child's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a child needs. We never sell student data or use it for advertising; when your child talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents &amp; Privacy page for specifics.</p></details>
   <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two children ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
   <details><summary>What devices does it work on?</summary><p>Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a child's login is just their code. Turn the sound on: his voice is half the charm.</p></details>
   <details><summary>Can I use this for more than one child, or a co-op?</summary><p>Yes. One family plan covers up to two children — the second child is free — and each child gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
@@ -710,7 +719,7 @@
 <section class="wrap center">
   <div class="card" style="padding:44px">
     <h2>Give your student a tutor who has all the patience in the world.</h2>
-    <p class="sub center" style="margin-bottom:22px">Try a lesson free today — no card, no microphone. Then start your student's course whenever you're ready.</p>
+    <p class="sub center" style="margin-bottom:22px">Try a lesson free today — no card required. Then start your student's course whenever you're ready.</p>
     <a class="btn btn-primary" href="/demo">▶ Try a lesson</a>
   </div>
 </section>

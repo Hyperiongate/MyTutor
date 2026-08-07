@@ -8,6 +8,20 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
+    Three changes on top of yesterday's voice restore:
+    (1) MIC-HIDING BUG FIXED: math-keyboard.js still carried its 2026-07-30 "type-in tier"
+        lines that force-hid #talkBtn/#typeToggle and force-showed the composer at
+        DOMContentLoaded -- silently overriding the 2026-08-06 restore, so the mic button
+        never actually appeared. Those lines are gone (see math-keyboard.js); this page now
+        fully owns mic/composer visibility. Voice truly shows now.
+    (2) REMOVED the ⏸ Pause button and the Yes / No / I'm confused quick-reply row (HTML,
+        CSS, setPaused/setQuick logic, their tour stop, and the `paused` turn-guards). The
+        student just SAYS yes / no / "I'm confused" -- that's the point of the conversation.
+    (3) REMOVED the 🧮 Math Keyboard (retired in math-keyboard.js; the file remains for the
+        Enter ⏎ button + answer-bar layout). Typing stays as the fallback ("Type instead");
+        the 📈 graph tool and the elementary tap-to-answer buttons are unchanged. Tour and
+        welcome-tip copy updated to say "tap the mic and talk".
   - 2026-08-06  VOICE INPUT RESTORED (build an, Jim: "recreate it so the student speaks"). The
     tap-to-talk flow was never deleted — it was dormant behind one master switch (canRecord was
     hard-false since 2026-08-01's "no microphone" stance). Reactivated: canRecord is now a real
@@ -477,9 +491,6 @@
     @media (max-width:560px){ .boardsay { font-size:17px; } }
     .youecho { font-size:12px; color:var(--muted); text-align:center; margin:2px 0 6px; }
     .youecho:empty { display:none; }
-    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
-      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
-    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
     /* Eraser sweep when the whiteboard is cleared for a new turn */
     .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: 20px; }
     .wipe::before { content: ""; position: absolute; inset: 0; background: var(--panel);
@@ -625,14 +636,6 @@
     @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
       70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
-    .quickrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .quick { min-height: 44px; /* Apple touch-target floor */ border: 1.5px solid var(--line); background: #fff; border-radius: 22px; padding: 9px 16px;
-      font-size: 14px; font-weight: 700; cursor: pointer; color: var(--ink); }
-    .quick:not(:disabled):hover { background: #f5f5fc; }
-    .quick:disabled { opacity: .4; cursor: default; }
-    .quick.yes { color: var(--ok); border-color: #bfe6cd; }
-    .quick.no { color: #c0392b; border-color: #f3c6c6; }
-    .quick.conf { color: var(--accent); border-color: #ccccf2; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     /* Tour highlight (Mr. Cadabra walking through the page) */
     .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
@@ -683,7 +686,7 @@
        No right sidebar. The CENTER is ONE scrollable transcript that shows the tutor's
        chat, the student's chat, and the worked math -- all retained, scroll up/down.
        Mr. Cadabra's avatar, the Curriculum/Practice/Dashboard nav, and ALL controls
-       (Pause, Tap-to-talk, Yes/No/confused) live on the LEFT. */
+       (Tap-to-talk, Type instead) live on the LEFT. */
     .app { grid-template-columns: 280px 1fr; }
     .side.left { display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; overflow-y: auto; }
     .side.left .tutor-head { display: flex; align-items: center; gap: 12px; padding: 2px 2px 12px;
@@ -694,7 +697,6 @@
     .side.left .controls { margin-top: auto; display: flex; flex-direction: column; align-items: stretch;
       gap: 9px; padding-top: 12px; border-top: 1px solid var(--line); }
     .side.left .talkbtn { width: 100%; justify-content: center; padding: 13px 16px; font-size: 16px; }
-    .side.left .quickrow { justify-content: center; }
     .side.left .composer { max-width: 100%; }
     .side.left .live { max-width: 100%; font-size: 15px; }
 
@@ -777,12 +779,6 @@
 
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
-        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
-        <div class="quickrow" id="quickRow">
-          <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
-          <button class="quick no" data-say="No" disabled>✗ No</button>
-          <button class="quick conf" data-say="I'm confused" disabled>🤔 I'm confused</button>
-        </div>
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="live" id="live"></div>
@@ -829,7 +825,7 @@
       <p class="lead" id="welcomeLead">You'll be learning <span id="welcomeSubject">algebra</span> with <b id="wTutor">your tutor</b>. Here's how it works:</p>
       <ul>
         <li><span class="ic">🔊</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go — so <b>turn your speakers or headphones on</b>.</span></li>
-        <li id="welcomeAnswerTip"><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below — there's a math keyboard for symbols like √ and x².</span></li>
+        <li id="welcomeAnswerTip"><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below and press Enter ⏎.</span></li>
         <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
@@ -903,8 +899,7 @@
     { const _ws = el("welcomeSubject"); if (_ws) _ws.textContent = COURSE_SUBJECT; }
 
     const feed = el("feed"), statusEl = el("status");
-    const pauseBtn = el("pauseBtn");
-    let paused = false, curWork = null;   // curWork = the current turn's worklist block
+    let curWork = null;   // curWork = the current turn's worklist block
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
@@ -1365,7 +1360,6 @@
         //   3) audio reaches the end but "ended" is missed -> detect near-end + paused
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
-          if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
           const idle = Date.now() - lastProgress;
           if (!started) {
             if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); }
@@ -1396,11 +1390,13 @@
       // 2026-08-01 (Jim: "it NEVER highlighted Practice a problem"): this stop
       // talks about BOTH helpers, so it now glows BOTH buttons.
       "assess":       ["practiceLink", "assessLink"],
-      "quick":        "quickRow",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
-      "answer":       "composer",
+      // 2026-08-07 (voice-first): the answer stop describes the MIC now, so glow the talk
+      // button — and the composer too, which covers the typing/elementary fallback where
+      // the talk button is hidden and the type box is the visible answer spot.
+      "answer":       ["talkBtn", "composer"],
     };
     function clearHighlight() {
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
@@ -2021,26 +2017,6 @@
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
     }
 
-    // ---------- Pause / resume ----------
-    // Pause stops Mr. Cadabra mid-sentence and HOLDS the session (no new turn starts);
-    // Resume continues the sentence and hands the turn back as normal.
-    function setPaused(on) {
-      paused = on;
-      if (on) {
-        try { ttsAudio.pause(); } catch (e) {}
-        pauseBtn.classList.add("on"); pauseBtn.textContent = "▶ Resume";
-        statusEl.textContent = "Paused"; setState("idle");
-      } else {
-        pauseBtn.classList.remove("on"); pauseBtn.textContent = "⏸ Pause";
-        try {
-          if (ttsAudio.src && ttsAudio.paused && !ttsAudio.ended && ttsAudio.currentTime > 0) {
-            ttsAudio.play(); setState("speaking");
-          }
-        } catch (e) {}
-      }
-    }
-    if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
-
     // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
     // The mic is ONLY on while the student is recording (they tapped the glowing
     // button). Recorded audio is posted to /api/transcribe (ElevenLabs Scribe),
@@ -2056,35 +2032,32 @@
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
-    const quickRow = el("quickRow");
-    function setQuick(on) { quickRow.querySelectorAll(".quick").forEach(b => b.disabled = !on); }
-    quickRow.querySelectorAll(".quick").forEach(b =>
-      b.addEventListener("click", () => { if (phase === "ready") sendToTutor(b.dataset.say); }));
-
     function setPhase(p) {
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {
-        talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true);
+        talkBtn.disabled = false; talkBtn.classList.add("ready");
         talkLabel.textContent = "Tap to talk";
         hint.textContent = canRecord
           ? "Your turn — tap 🎙️ to talk, or use “Type instead” to type your answer."
-          : "Your turn — type your answer below, or use a quick button.";
+          : (IS_ELEM
+              ? "Your turn — tap one of the answer buttons!"
+              : "Your turn — type your answer below and press Enter ⏎.");
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
-        talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false);
+        talkBtn.disabled = false; talkBtn.classList.add("recording");
         talkLabel.textContent = "Tap when you're done";
         hint.textContent = "Recording — say your answer, then tap when you're finished.";
         statusEl.textContent = "🎤 Recording…"; setState("listening"); live.textContent = "Recording…";
       } else { // busy / idle -> everything dark and unavailable
-        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; setQuick(false);
+        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = "";
       }
     }
 
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
 
     async function startRecording() {
-      if (phase !== "ready" || !canRecord || paused) return;
+      if (phase !== "ready" || !canRecord) return;
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) {
@@ -2178,14 +2151,12 @@
         text: "Right below it, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "assess",
         text: "Two more helpers on the left: Practice a problem, for when you want to bring me one specific problem — and the Course Assessment, which finds your strengths and builds you a recommended path whenever you're ready." },
-      { id: "quick",
-        text: "See those quick buttons glowing — Yes, No, and I'm confused? When I ask a yes-or-no question, you can just tap. And tapping 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way." },
       { id: "tutor",
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
         text: IS_ELEM
           ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
-          : "Last one, and it's the important one: when it's your turn, type your answer right down here. The Math Keyboard button next to it has every tricky symbol — square roots, exponents, fractions, all of it." },
+          : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap 'Type instead' and type your answer." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice
@@ -2245,7 +2216,7 @@
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy || paused) return;
+      if (busy) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
       await runTutor(message);
@@ -2283,7 +2254,7 @@
         talkBtn.style.display = "none";
         hint.textContent = IS_ELEM
           ? "He talks — you tap! When he asks a question, answer buttons appear at the BOTTOM of the screen. Just tap your answer."
-          : "He talks — you type. Your answer box is at the BOTTOM of the screen, next to the 🧮 Math Keyboard.";
+          : "He talks — you type. Your answer box is at the BOTTOM of the screen. Press Enter ⏎ to send.";
         showComposer();
       }
       // ELEMENTARY welcome overlay: talk about tapping choices, never about keyboards.
@@ -2293,7 +2264,7 @@
       } else if (canRecord) {
         // 2026-08-06: voice is on — tell the student they can talk (or type).
         const tip = el("welcomeAnswerTip");
-        if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — or tap <b>“Type instead”</b> to type with the math keyboard. Turn your sound on so you can hear Mr. Cadabra.</span>';
+        if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — Mr. Cadabra and you will talk back and forth. Rather not talk? Tap <b>“Type instead”</b> to type your answer. Turn your sound on so you can hear him.</span>';
       }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));

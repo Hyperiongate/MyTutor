@@ -1,6 +1,12 @@
 /* =============================================================================
  * help-tips.js  --  MyTutor  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-07  VOICE-FIRST CLASSROOM (Jim): tips updated to match the restored voice input
+ *               and the retired controls. REMOVED the 🧮 Math Keyboard tip (.mtk-open no
+ *               longer exists) and the quick-replies tip (the Yes/No/I'm confused row is
+ *               gone -- students SAY it now). ADDED a tip on the 🎙️ Tap-to-talk button.
+ *               REWORDED the answer-bar tip: talk first, typing as the fallback. The 📈
+ *               graph, trophy, and time-tile tips are unchanged.
  *   2026-07-30  NEW shared component (Jim: "scatter little ?-in-a-circle helpers anywhere
  *               someone could get confused"). Plants a small ? button next to known
  *               confusion points and shows a friendly popup bubble on click:
@@ -80,18 +86,15 @@
 
     // ---- the tips (title + body are innerHTML; keep them short and warm) ----
     var TIPS = [
-      { sel: ".mtk-open",
-        title: "The Math Keyboard",
-        body: "Tap it for math symbols: √, x², fractions, ≥ and more. Exponents go in order — type <b>2</b>, tap <b>xⁿ</b>, then <b>3</b> to make 2³. The √ key wraps your cursor inside √(&nbsp;). Not sure about a button? Just ask Mr. Cadabra." },
+      { sel: "#talkBtn", visibleOnly: true,   // pages hide the mic when recording isn't supported
+        title: "Talk with Mr. Cadabra",
+        body: "When it's your turn, <b>tap the mic and say your answer out loud</b> — then tap again when you're done. Stuck? Just say <b>\"I'm confused\"</b> or ask for a hint — that tells him to slow down and try a different way. Rather not talk? You can always type instead." },
       { sel: ".gpi-open",
         title: "Graph paper",
         body: "Opens a coordinate grid. <b>Tap</b> to plot a point (tap again to remove it), draw a line through your points if you want one, then <b>Send to tutor</b> — Mr. Cadabra reads your points and checks them with you." },
       { sel: "#chatInput, #input", after: "bar",
         title: "How do I answer?",
-        body: "Type your answer and press <b>Enter</b>. Stuck? Tap <b>🤔 I'm confused</b> or <b>💡 Hint</b> — Mr. Cadabra never minds, and a hint is a nudge, never the whole answer. You can also just ask him how anything on this screen works." },
-      { sel: "#quickRow, .quickrow",
-        title: "Quick replies",
-        body: "Tap these instead of typing. <b>\"I'm confused\" is a great answer</b> — it tells Mr. Cadabra to slow down and try a different way. That's exactly what he's for." },
+        body: "Type your answer and press <b>Enter ⏎</b> — or tap the 🎙️ mic and just say it. Stuck? Tell him <b>\"I'm confused\"</b> or ask for a hint — Mr. Cadabra never minds, and a hint is a nudge, never the whole answer. You can also just ask him how anything on this screen works." },
       { sel: "#trophyWrap .section-h", inside: true,
         title: "Badges, medals & checks",
         body: "A <b>check</b> is a short scored quiz — no hints — you take when you feel ready. Score 80%+ and the unit turns gold and you earn its <b>merit badge</b>. Medals reward the work itself: streaks, real minutes, comebacks. Everything here is earned." },
@@ -112,6 +115,9 @@
           return;
         }
         document.querySelectorAll(tip.sel).forEach(function (el) {
+          // visibleOnly (2026-08-07): don't plant a "?" next to a hidden target (e.g. the mic
+          // button on a browser that can't record) -- a floating orphan ? just confuses.
+          if (tip.visibleOnly && el.offsetParent === null) return;
           if (tip.after === "bar") {          // the answer bar: put the ? at the end of the row
             var bar = el.parentNode;
             if (bar && !bar.dataset.hlpDone) { bar.dataset.hlpDone = "1"; attach(bar, { title: tip.title, body: tip.body, inside: true }); }

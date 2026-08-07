@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-07  VOICE-FIRST CLASSROOM (build ao, Jim): voice input restored, math keyboard +
+    quick buttons retired. This page re-written to match: hero sub + lesson section now say
+    you TALK with Mr. Cadabra (type if you'd rather); the Yes/No/I'm confused + Hint buttons
+    line is gone (you just SAY it); the "Your tools" section is now about talking + the 📈
+    graph paper, and the retired math-keyboard screenshot (shots/keyboard.png) is no longer
+    shown -- ⚠️ a fresh screenshot of the mic button / graph paper would be a nice follow-up
+    (Jim). Meta/og/twitter descriptions updated.
   - 2026-08-04  QUIZ NAMING (build z): award cards say 'quiz' now (Perfect Quiz, first quiz,
     Unit Quiz) -- checks were renamed quizzes product-wide in builds y/z.
   - 2026-08-02  DISCOVERY PASS (AI search + Google): og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
@@ -55,16 +62,16 @@
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/students" />
 <meta property="og:title" content="Mr. Cadabra's Classroom — For Students: how it works &amp; what you can earn">
-<meta property="og:description" content="How Mr. Cadabra's Classroom works for students: the talking lessons, the math keyboard and graph paper, and every merit badge, medal and trophy you can earn.">
+<meta property="og:description" content="How Mr. Cadabra's Classroom works for students: real back-and-forth talking lessons, tap-to-plot graph paper, and every merit badge, medal and trophy you can earn.">
 <meta property="og:url" content="https://mrcadabra.com/students">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mr. Cadabra's Classroom — For Students: how it works &amp; what you can earn">
-<meta name="twitter:description" content="How Mr. Cadabra's Classroom works for students: the talking lessons, the math keyboard and graph paper, and every merit badge, medal and trophy you can earn.">
+<meta name="twitter:description" content="How Mr. Cadabra's Classroom works for students: real back-and-forth talking lessons, tap-to-plot graph paper, and every merit badge, medal and trophy you can earn.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
-<meta name="description" content="How Mr. Cadabra's Classroom works for students: the talking lessons, the math keyboard and graph paper, and every merit badge, medal and trophy you can earn.">
+<meta name="description" content="How Mr. Cadabra's Classroom works for students: real back-and-forth talking lessons, tap-to-plot graph paper, and every merit badge, medal and trophy you can earn.">
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
     --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
@@ -154,7 +161,7 @@
 <header class="page wrap">
   <span class="eyebrow">For students</span>
   <h1>New here? <span class="grad-text">This is your map.</span></h1>
-  <p class="sub">Mr. Cadabra talks, the board draws, and you type. Here's how everything works —
+  <p class="sub">Mr. Cadabra talks, the board draws, and you talk right back. Here's how everything works —
   and everything you can earn.</p>
   <p style="margin-top:18px"><a class="btn btn-primary" href="/demo">Try a practice lesson</a>
   <a class="btn btn-ghost" href="/login" style="margin-left:8px">I have a code — sign in</a></p>
@@ -164,10 +171,11 @@
   <div class="grid g2" style="align-items:center">
     <div>
       <span class="eyebrow">The lesson</span>
-      <h2>He talks. The board draws. You type.</h2>
+      <h2>He talks. The board draws. You talk back.</h2>
       <p style="color:var(--muted);font-size:16px;margin-top:8px"><b>Turn your sound on</b> — Mr. Cadabra explains every step
-      out loud while the whiteboard draws it. When it's your turn, type your answer in the box and press <b>Enter</b>.
-      Stuck? Use the <b>Yes / No / I'm confused</b> buttons, or ask for a <b>💡 Hint</b> — he gives nudges, never just the answer.</p>
+      out loud while the whiteboard draws it. When it's your turn, <b>tap the 🎙️ mic and say your answer out loud</b> — a real
+      conversation, back and forth. (Rather not talk? Type your answer and press <b>Enter ⏎</b> instead.)
+      Stuck? Just tell him <b>"I'm confused"</b> or ask for a hint — he gives nudges, never just the answer.</p>
       <p style="color:var(--muted);font-size:16px;margin-top:10px">And here's the secret: <b>wrong answers are useful.</b>
       Mr. Cadabra never makes you feel bad about one — he gets curious about it. That's how the learning happens.</p>
     </div>
@@ -181,15 +189,15 @@
 <section class="wrap">
   <div class="grid g2" style="align-items:center">
     <div>
-      <img class="shot" src="/static/shots/keyboard.png" alt="The built-in math keyboard with digits, operators, square root, exponents and comparison symbols" />
-      <p class="cap">Tap 🧮 Math Keyboard whenever you need a symbol.</p>
+      <img class="shot" src="/static/shots/lesson.png" alt="A lesson mid-conversation: the whiteboard shows the worked steps while Mr. Cadabra waits for the student's spoken answer" />
+      <p class="cap">Say it, type it, or plot it — he's listening either way.</p>
     </div>
     <div>
       <span class="eyebrow">Your tools</span>
-      <h2>Real math symbols, no hunting.</h2>
-      <p style="color:var(--muted);font-size:16px;margin-top:8px">Need √, x², a fraction, or ≥? Tap <b>🧮 Math Keyboard</b>
-      next to the answer box. For exponents: type the base first, then the <b>xⁿ</b> key, then the power — so 2, xⁿ, 3 makes 2³.
-      There's <b>📈 graph paper</b> too: tap points onto the grid and send them straight to Mr. Cadabra.</p>
+      <h2>Talk it, type it, or plot it.</h2>
+      <p style="color:var(--muted);font-size:16px;margin-top:8px"><b>Talking is the main way</b> — say "x equals four" or
+      "two thirds" and he understands. Answers easier to write than say? <b>Type them</b> — x^2 and 3/4 work fine.
+      And there's <b>📈 graph paper</b>: tap points onto the grid and send them straight to Mr. Cadabra.</p>
       <p style="color:var(--muted);font-size:16px;margin-top:10px">Not sure how something works? <b>Just ask him.</b>
       "How do I use the graph paper?" is a completely normal question — he knows every button.</p>
     </div>

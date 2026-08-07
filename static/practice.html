@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!--
+    2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
+                (1) VOICE INPUT RESTORED here (session.html got it 2026-08-06): canRecord is
+                    a real capability check again (ON for typing courses on browsers with
+                    getUserMedia + MediaRecorder; OFF for elementary tap-to-answer + browsers
+                    that can't record). Tap 🎙️ -> speak -> audio posts to /api/transcribe
+                    (ElevenLabs Scribe; transcribed then discarded -- text only survives).
+                (2) REMOVED the ⏸ Pause button and the Yes / No / I'm stuck / 💡 Hint quick
+                    replies (HTML, CSS, setPaused/setQuick, `paused` guards) -- the student
+                    just SAYS it now. The ✏️ New problem button STAYS (it's navigation).
+                (3) 🧮 Math Keyboard retired (see math-keyboard.js): gone from the answer
+                    bars AND the problem intake. Typing stays as the fallback everywhere;
+                    the 📈 graph tool is unchanged.
     2026-08-04  QUIZZES (build y): NEW [[quiz unit topic name correct total]] tag -> a 'Quiz'
                 result card (pass = 80%+, unlocks the next topic) POSTed to /api/quiz. The
                 [[check]] card is retitled 'Unit Quiz' and its 'mastered' bar fixed 80 -> 90
@@ -419,11 +431,6 @@
       font-size: 14px; font-weight: 700; cursor: pointer; color: var(--ink); }
     .quick:not(:disabled):hover { background: #f5f5fc; }
     .quick:disabled { opacity: .4; cursor: default; }
-    .quick.yes { color: var(--ok); border-color: #bfe6cd; }
-    .quick.no { color: #c0392b; border-color: #f3c6c6; }
-    .quick.conf { color: var(--accent); border-color: #ccccf2; }
-    .quick.hintbtn { color: #c98a00; border-color: #f2dca0; }
-    .quick.hintbtn:not(:disabled):hover { background: #fdf6e3; }
     .quick.newp { color: var(--warm); border-color: #ffd2c4; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
@@ -454,7 +461,6 @@
     .entry-kbhint { color: var(--muted); font-size: 14px; margin: 14px 0 4px; }
     .entry-kbhint b { color: var(--accent); font-weight: 800; }
     /* the 🧮 Math keyboard button is injected here by math-keyboard.js; center it under the hint */
-    .entry-card .mtk-open { margin: 4px auto 0; }
     .entry-go { width: 100%; margin-top: 20px; border: none; border-radius: 30px; cursor: pointer; color: #fff;
       font-size: 19px; font-weight: 800; padding: 16px; background: linear-gradient(90deg, var(--accent), var(--accent2));
       box-shadow: 0 10px 24px rgba(91,91,214,.4); }
@@ -504,12 +510,7 @@
       </nav>
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
-        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="quickrow" id="quickRow">
-          <button class="quick yes" data-say="Yes" disabled>✓ Yes</button>
-          <button class="quick no" data-say="No" disabled>✗ No</button>
-          <button class="quick conf" data-say="I'm stuck" disabled>🤔 I'm stuck</button>
-          <button class="quick hintbtn" data-say="Can I have a hint?" disabled>💡 Hint</button>
           <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
         </div>
         <div class="hint" id="hint">Let's take a look at your problem…</div>
@@ -544,7 +545,7 @@
       <h2>What problem are you stuck on?</h2>
       <p class="lead">Type the problem exactly as it looks, and Mr. Cadabra will help you work through it.</p>
       <textarea id="problemInput" placeholder="e.g.  3x + 5 = 20"></textarea>
-      <div class="entry-kbhint">Need a symbol like √ , x² or a fraction? Tap <b>🧮 Math Keyboard</b> just below.</div>
+      <div class="entry-kbhint">Plain typing works great — write it like <b>x^2</b> for x², <b>3/4</b> for a fraction, or <b>sqrt(9)</b> for a root.</div>
       <button class="entry-go" id="entryGo" disabled>Let's work on it →</button>
       <div class="entry-note" id="entryNote">You can practice any Algebra I problem.</div>
       <a class="entry-back" id="entryBack" href="#">← Back home</a>
@@ -572,8 +573,7 @@
     el("dashLink").href = "/dashboard" + cq;
 
     const feed = el("feed"), statusEl = el("status");
-    const pauseBtn = el("pauseBtn");
-    let paused = false, curWork = null;
+    let curWork = null;
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
     // ---------- ELEMENTARY MODE (2026-08-03, Jim: the answer bar said "type your answer" and
@@ -753,7 +753,6 @@
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
-          if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
           const idle = Date.now() - lastProgress;
           if (!started) { if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); } return; }
           const a = ttsAudio;
@@ -1298,63 +1297,50 @@
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
     }
 
-    // ---------- Pause / resume ----------
-    function setPaused(on) {
-      paused = on;
-      if (on) {
-        try { ttsAudio.pause(); } catch (e) {}
-        pauseBtn.classList.add("on"); pauseBtn.textContent = "▶ Resume";
-        statusEl.textContent = "Paused"; setState("idle");
-      } else {
-        pauseBtn.classList.remove("on"); pauseBtn.textContent = "⏸ Pause";
-        try {
-          if (ttsAudio.src && ttsAudio.paused && !ttsAudio.ended && ttsAudio.currentTime > 0) {
-            ttsAudio.play(); setState("speaking");
-          }
-        } catch (e) {}
-      }
-    }
-    if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
-
     // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
-    // 2026-08-01: MASTER SWITCH OFF — "no microphone, ever" (see session.html note).
-    const canRecord = false;
+    // 2026-08-07: VOICE INPUT RESTORED (Jim) -- canRecord is a real capability check again:
+    // ON for the typing courses on browsers that can record; OFF for elementary tap-to-answer
+    // courses (IS_ELEM) and browsers without getUserMedia/MediaRecorder (they type). The
+    // browser only asks for mic permission when the student actually taps 🎙️ to record.
+    const canRecord = !IS_ELEM
+      && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+      && (typeof MediaRecorder !== "undefined");
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
-    const quickRow = el("quickRow");
-    function setQuick(on) { quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf,.quick.hintbtn").forEach(b => b.disabled = !on); }
-    quickRow.querySelectorAll(".quick.yes,.quick.no,.quick.conf,.quick.hintbtn").forEach(b =>
-      b.addEventListener("click", () => { if (phase === "ready") sendToTutor(b.dataset.say); }));
     el("newProblem").addEventListener("click", () => { if (!busy) resetToEntry(); });
 
     function setPhase(p) {
       phase = p;
       talkBtn.classList.remove("ready", "recording");
       if (p === "ready") {
-        talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true); el("newProblem").disabled = false;
+        talkBtn.disabled = false; talkBtn.classList.add("ready"); el("newProblem").disabled = false;
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — type your answer below, or use a quick button.";
+        hint.textContent = canRecord
+          ? "Your turn — tap 🎙️ and say your answer, or type it below."
+          : (IS_ELEM
+              ? "Your turn — tap one of the answer buttons!"
+              : "Your turn — type your answer below and press Enter ⏎.");
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
-        talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false); el("newProblem").disabled = true;
+        talkBtn.disabled = false; talkBtn.classList.add("recording"); el("newProblem").disabled = true;
         talkLabel.textContent = "Tap when you're done";
         hint.textContent = "Recording — say your answer, then tap when you're finished.";
         statusEl.textContent = "🎤 Recording…"; setState("listening"); live.textContent = "Recording…";
       } else {
-        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; setQuick(false); el("newProblem").disabled = true;
+        talkBtn.disabled = true; talkLabel.textContent = "…"; live.textContent = ""; el("newProblem").disabled = true;
       }
     }
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
 
     async function startRecording() {
-      if (phase !== "ready" || !canRecord || paused) return;
+      if (phase !== "ready" || !canRecord) return;
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) { hint.textContent = "I need microphone access to hear you. Allow the mic, then tap again — or use 'Type instead'."; return; }
+      catch (e) { hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or just type your answer below."; return; }
       chunks = []; sendOnStop = true;
       try { mediaRecorder = new MediaRecorder(mediaStream); }
       catch (e) { try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" }); }
-        catch (_) { hint.textContent = "Recording isn't supported here — use 'Type instead'."; releaseMic(); return; } }
+        catch (_) { hint.textContent = "Recording isn't supported here — just type your answer below."; releaseMic(); return; } }
       mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
       mediaRecorder.onstop = onRecordingStop;
       mediaRecorder.start();
@@ -1391,7 +1377,7 @@
 
     // ---------- Talk to the coach ----------
     async function sendToTutor(message) {
-      if (busy || paused) return;
+      if (busy) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
       history.push({ role: "user", content: message });
@@ -1433,9 +1419,9 @@
     problemInput.addEventListener("input", () => { entryGo.disabled = !problemInput.value.trim(); });
     problemInput.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) startPractice(); });
 
-    // NOTE 2026-07-30: This tier is "warm voice out / type in" -- the microphone (tap-and-say)
-    // entry option was removed. Students type the problem (and can use the 🧮 Math keyboard that
-    // math-keyboard.js attaches to #problemInput for symbols like √, x^2, fractions, etc.).
+    // NOTE 2026-08-07: students TYPE the problem into the intake box (it usually comes off a
+    // worksheet, so typing it in is the reliable path); the spoken back-and-forth begins once
+    // the problem is in. The 🧮 Math Keyboard is retired -- plain typed math (x^2, 3/4) is fine.
 
     entryGo.addEventListener("click", startPractice);
 
@@ -1446,8 +1432,9 @@
       el("probText").textContent = p; el("probBar").classList.add("show");
       entry.classList.add("hide");
       ensureAudioGraph(); await warmUpAudio();
-      // Warm voice out / type in: reveal the type box and never prompt for the microphone.
-      showComposer();
+      // 2026-08-07: voice restored -- only auto-open the left-rail type box when this browser
+      // can't record (the persistent type bar under the board is always there as a fallback).
+      if (!canRecord) showComposer();
       busy = true; setPhase("busy");
       addBubble("student", p);
       history.push({ role: "user", content: p });

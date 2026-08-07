@@ -2,6 +2,32 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ao-voice-everywhere". VOICE-FIRST CLASSROOM (Jim: "back
+#               to the conversational back-and-forth between the teacher and the student
+#               everywhere"). Mostly a STATIC build (server changes: this note, the build id,
+#               a /api/transcribe docstring update, and the Stripe product description):
+#               (1) practice.html + topic.html: voice input restored (canRecord is a real
+#                   capability check again, matching session.html's 2026-08-06 restore).
+#               (2) MIC-HIDING BUG FIXED: math-keyboard.js still force-hid #talkBtn at
+#                   DOMContentLoaded (its 2026-07-30 "type-in tier" lines), silently undoing
+#                   the 2026-08-06 restore on session.html -- the mic button never actually
+#                   appeared. Those lines are removed.
+#               (3) 🧮 Math Keyboard RETIRED app-wide (math-keyboard.js now only provides the
+#                   Enter ⏎ button + answer-bar layout; keeps its filename so includes don't
+#                   404). ⏸ Pause and the Yes/No/I'm confused/Hint quick buttons REMOVED on
+#                   all three teaching pages -- the student just SAYS it. KEPT: typing
+#                   fallback everywhere, elementary tap-to-answer, 📈 graph tool, Enter ⏎.
+#               (4) tutor.py: GRAPH_TOOL_NOTE rewritten (student talks now; transcription
+#                   read charitably; no math-keyboard mentions). help-tips.js tips updated.
+#               (5) "No microphone, ever" marketing/privacy claims SWEPT site-wide (landing,
+#                   features, homeschool, parents, teachers, pricing, mission, privacy,
+#                   llms.txt, README): new story = student talks with the tutor; voice is
+#                   transcribed to text and the audio is deleted immediately, never stored.
+#                   Stripe product description updated (also fixed stale "8 courses" -> ten).
+#               NOTE: demo.html + DEMO_VOICE_LINES deliberately UNTOUCHED (the scripted demo
+#               still types on its scripted keypad; the voice-line list is append-only).
+#               ⚖️ Attorney follow-up: confirm transcribe-and-delete meets the COPPA audio
+#               exemption; add voice-in (ElevenLabs Scribe) to the privacy policy + DPA set.
 #   2026-08-06  APP_BUILD -> "2026-08-06an-voicein". VOICE INPUT RESTORED (Jim). The tap-to-talk
 #               flow (dormant since 2026-08-01's "no microphone" master switch) is back on:
 #               session.html's canRecord is a real capability check again (ON for typing courses
@@ -3109,8 +3135,8 @@ def _price_id(stripe, plan: str) -> str:
         product_id = stripe.Product.create(
             name="Mr. Cadabra's Classroom — Full access",
             tax_code=PRODUCT_TAX_CODE,     # required by Managed Payments (default-on)
-            description="All 8 math courses with Mr. Cadabra — placement to mastery, "
-                        "warm voice, math keyboard, honest dashboards.").id
+            description="All ten math courses with Mr. Cadabra — placement to mastery, "
+                        "real spoken conversation, honest dashboards.").id
     else:
         _ensure_product_tax_code(stripe, product_id)
     _TAX_CODE_OK.add(product_id)
@@ -3574,7 +3600,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-06an-voicein"
+APP_BUILD = "2026-08-07ao-voice-everywhere"
 
 
 @app.get("/health")
@@ -4343,9 +4369,12 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
     (e.g. "[outro jingle]") are scrubbed via _clean_transcript so they never reach the tutor.
 
     LOCKED DOWN (2026-07-30): requires a valid student code (?code=) + rate limited --
-    this endpoint spends real ElevenLabs money. 2026-08-06: voice input is LIVE again
-    (session.html canRecord restored) -- the tap-to-talk button posts here for the typing
-    courses on capable browsers; elementary tap-to-answer courses don't use it.
+    this endpoint spends real ElevenLabs money. 2026-08-07: voice input is LIVE on ALL
+    THREE teaching pages (session + practice + topic; session got it 2026-08-06) -- the
+    tap-to-talk button posts here for the typing courses on capable browsers; elementary
+    tap-to-answer courses don't use it. TRANSCRIBE-AND-DELETE: the audio lives only in
+    memory in this request, goes to ElevenLabs for transcription, and is discarded when
+    the request ends -- never written to disk, never stored, only the text survives.
     """
     _require_student(code)
     _rate_limit("stt:" + code.strip(), limit=20, window_seconds=300, what="voice uploads")

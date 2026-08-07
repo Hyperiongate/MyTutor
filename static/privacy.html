@@ -5,6 +5,16 @@
   privacy.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  VOICE INPUT RESTORED (build ao, Jim). This page previously leaned on the
+    mic-free design ("your child's microphone is never used"). Now the truth is: the student
+    TALKS with the tutor; speech is sent to ElevenLabs for transcription, the text comes
+    back, and the audio is deleted immediately -- never stored by us, never kept. Updated:
+    the short version, "What we collect", the Voice section (rewritten around
+    transcribe-and-delete), and the processors list (ElevenLabs now does voice IN and OUT).
+    "Last updated" date bumped to August 7, 2026. ⚖️ STILL DRAFT -- the pending attorney
+    review must now ALSO confirm the COPPA audio exemption (audio as a replacement for
+    written words, deleted immediately after transcription) and the ElevenLabs DPA covers
+    speech-to-text.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-07-30  BRAND GO-LIVE PREP: contact swapped to support@mrcadabra.com (the Titan
@@ -62,29 +72,37 @@
       Questions in the meantime? Email <a href="mailto:support@mrcadabra.com">support@mrcadabra.com</a>.</div>
 
     <h1>Parents &amp; Privacy</h1>
-    <p class="sub">Plain language, because you're trusting us with your kid. Last updated July 30, 2026.</p>
+    <p class="sub">Plain language, because you're trusting us with your kid. Last updated August 7, 2026.</p>
 
     <h2>The short version</h2>
     <p>Mr. Cadabra's Classroom is a math tutor, not a data business. We collect the minimum needed to teach and to
     show you honest progress. We never sell student data, we show no ads, we use no third-party
-    ad trackers, and your child's microphone is never used — the tutor talks, your child types.</p>
+    ad trackers — and when your child talks with the tutor, their voice is transcribed to text and
+    the audio is deleted immediately. We never store recordings of your child's voice.</p>
 
     <h2>What we collect</h2>
     <p>A first name for the student (you choose it — it doesn't have to be their real name), a login
-    code, and learning activity: the typed conversation with the tutor, practice work, assessment
+    code, and learning activity: the conversation with the tutor (whether your child spoke it or typed
+    it, it is kept as text), practice work, assessment
     results, and progress (units worked, mastery checks, streaks). That's what powers the tutoring
     and the parent dashboard. We don't ask children for email addresses, phone numbers, photos,
     location, or anything else.</p>
 
-    <h2>Voice: the tutor speaks, your child doesn't have to</h2>
-    <p>Mr. Cadabra's voice is generated speech. The product does not record your child's voice —
-    there is no microphone feature in the student experience. Students answer by typing, with an
-    on-screen math keyboard and graph paper.</p>
+    <h2>Voice: how talking with the tutor works</h2>
+    <p>Mr. Cadabra's voice is generated speech. Your child can talk back: they tap the microphone
+    button, say their answer, and the recording is sent to our speech-to-text provider (ElevenLabs)
+    to be turned into text. The audio is used <b>only</b> for that transcription and is deleted
+    immediately afterward — we do not store voice recordings, we never use them for anything else,
+    and only the text of what was said is kept (as part of the conversation history above). The
+    microphone is only active while your child is actually holding a recording — never in the
+    background — and talking is always optional: students can type instead at any time, and the
+    elementary courses answer by tapping buttons.</p>
 
     <h2>Who processes data on our behalf</h2>
     <p>Three service providers make Mr. Cadabra's Classroom work, and each receives only what its job requires:
     <b>Anthropic</b> (the AI that generates the tutoring — it receives the typed conversation),
-    <b>ElevenLabs</b> (turns the tutor's <i>own</i> reply text into speech), and
+    <b>ElevenLabs</b> (turns the tutor's <i>own</i> reply text into speech, and transcribes your
+    child's spoken answers to text — the audio is deleted right after transcription), and
     <b>Render</b> (hosts the app and its database). We do not send student data to anyone else,
     and we never sell or rent it — to anyone, ever.</p>
 

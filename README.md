@@ -13,8 +13,10 @@
 **MyTutor** is a voice-first AI math tutor for the K-12 homeschool market. Students learn
 with **Mr. Cadabra** — a warm, Socratic tutor who *speaks* his teaching aloud (natural
 ElevenLabs voice) while a synchronized whiteboard draws each step, never running ahead of
-the student. Students answer by **typing** (with a built-in 🧮 Math Keyboard for symbols
-and 📈 graph paper for plotting) — no microphone, by design.
+the student. Students answer by **talking with him** — a real spoken back-and-forth
+(speech is transcribed via ElevenLabs Scribe and the audio deleted immediately; only the
+text survives) — or by typing, with 📈 graph paper for plotting; elementary courses answer
+by tapping. *(Voice input restored 2026-08-07; the 🧮 Math Keyboard was retired the same day.)*
 
 **Status: pre-market development.** The teaching engine is complete; accounts, billing,
 and the privacy/consent stack are in progress (see `claude/Market_Readiness_Review.md`

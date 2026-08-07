@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
+#               GRAPH_TOOL_NOTE (the STUDENT'S TOOLS block prepended to every mode's prompt)
+#               rewritten to match the restored voice input and the retired controls:
+#               - The student now TALKS: they tap 🎙️, speak, and their words arrive as text
+#                 (ElevenLabs Scribe transcription; audio deleted after transcription). They
+#                 can also type. Elementary courses still tap answer buttons. The old first
+#                 line said "The student types their answers (there is no microphone)" --
+#                 that was making the tutor talk about typing to a student who is speaking.
+#               - The 🧮 MATH KEYBOARD paragraph is REMOVED (the keypad is retired app-wide);
+#                 the tutor now knows spoken math ("x squared plus three") and plain typed
+#                 math (x^2 + 3/4) are both fine and should never mention a math keyboard.
+#               - Transcription-slip guidance added: spoken math arrives through a
+#                 transcriber, so near-miss words ("sign" for sine, "eggs" for x) should be
+#                 read charitably and confirmed, never mocked or marked wrong outright.
+#               - The 📈 GRAPH PAPER paragraph and rules 13-15 etc. are UNCHANGED.
+#               Prompt-block text only; no function, template, or rule outside the tools
+#               block was touched.
 #   2026-08-06  PRECISION + NO-ASSUMPTIONS + COMPLETE-QUESTIONS (Jim's live audit: ~50% of
 #               checked lesson problems failed -- wrong verbal claims ("the line keeps
 #               climbing forever in both directions" for y=2x+1), notation assumed known
@@ -3639,27 +3656,36 @@ redirect always beats a lecture.
 """
 
 # -----------------------------------------------------------------------------
-# STUDENT TOOLS NOTE (variable kept as GRAPH_TOOL_NOTE) -- tells the tutor about BOTH on-screen tools the
-# student answers with: the 🧮 math keyboard and the 📈 graph paper. Includes the button-by-button
-# mechanics so the tutor can ANSWER "how do I use this?" / "where is it?" questions, plus how plotted
-# points arrive (as TEXT coordinates, since the model can't see pixels) and how to check them. Prepended
-# to every mode's prompt alongside GROUND_RULES.
-#   2026-07-30  Added (graph tool). Expanded same day to cover the math keyboard + how-to-use answers.
+# HOW-THE-STUDENT-ANSWERS NOTE (variable kept as GRAPH_TOOL_NOTE so every prepend site still works) --
+# tells the tutor how answers arrive: VOICE (tap 🎙️, speech transcribed to text, audio deleted after;
+# read transcription near-misses charitably), TYPING (answer box + Enter ⏎), elementary TAP buttons,
+# and the 📈 graph paper (plotted points arrive as TEXT coordinates, since the model can't see pixels).
+# Prepended to every mode's prompt alongside GROUND_RULES.
+#   2026-08-07  Rewritten for the voice-first classroom; 🧮 math keyboard paragraph removed (retired).
+#   2026-07-30  Added (graph tool). Expanded same day to cover the then-current math keyboard.
 # -----------------------------------------------------------------------------
 GRAPH_TOOL_NOTE = """\
 ============================================================
-THE STUDENT'S ON-SCREEN TOOLS (and how to explain using them)
+HOW THE STUDENT ANSWERS YOU (voice, typing, and the graph tool)
 ============================================================
-The student types their answers (there is no microphone). Two on-screen tools sit next to the answer box,
-and YOU should be able to explain how to use either one if the student asks "how do I ...?" or "where is
-...?" -- walk them through the steps below, simply and warmly.
+This is a spoken CONVERSATION: the student taps a 🎙️ microphone button, says their answer out
+loud, and their words reach you as text (their speech is transcribed; the audio is deleted right
+after -- you never hear it, you only read it). They can also TYPE into the answer box and press
+"Enter ⏎" instead -- both arrive to you the same way, and both are equally good answers. In the
+elementary courses (entry/basic) the student answers by TAPPING answer buttons. Never tell a
+student to use a tool their course doesn't have, and never mention a "math keyboard" -- there
+isn't one any more.
 
-🧮 MATH KEYBOARD -- the "🧮 Math" button next to the answer box opens a keypad. It has the digits and
-+ - x ÷ = , a fraction key ( / ), and math keys: "√" (square root -- tapping it drops in √( ) with the
-cursor inside, so they just type the number under the root), "x²" (squared), and "xⁿ" (any power -- tap it
-then type the exponent, e.g. x^3). A "More symbols" button reveals ( ), π, "×10ⁿ" for scientific notation,
-|x| (absolute value), ±, the comparison signs < > ≤ ≥ ≠, θ, °, and x / y. Keys type into the answer box;
-⌫ deletes and "clear" empties it; "Send answer" submits it. They can also just type on a normal keyboard.
+BECAUSE THEIR SPEECH IS TRANSCRIBED, READ IT CHARITABLY. Transcription sometimes slips on math
+words: "sign" for sine, "eggs" or "ex" for x, "to" for two, "route" for root, run-together
+numbers. If an answer is a near-miss that SOUNDS like the right thing, treat it as the right
+thing and confirm it naturally ("Right -- sine of thirty degrees..."). If you genuinely can't
+tell what they meant, ask them warmly to say it again or type it -- never mark a student wrong
+for a transcription slip.
+
+SPOKEN MATH IS FINE. "x squared plus three" and a typed x^2 + 3 are the same answer. For answers
+where symbols matter and speech gets clumsy (long expressions, exact notation), invite them to
+type it: "you can type that one in the answer box if it's easier."
 
 📈 GRAPH PAPER -- the "📈 Graph" button opens coordinate graph paper. They TAP a spot on the grid to plot
 a point (tap the same point again to remove it), can tick "Draw a line through my points" to draw a
@@ -3667,14 +3693,14 @@ straight line through their first two points, use "Clear" to start over, and "Se
 What you then receive is TEXT, e.g. "📈 I plotted these points on the graph: (0, 3), (1, 5) -- and drew a
 straight line through them." You CANNOT see the picture -- reason only from those coordinates.
 
-USING THEM IN A LESSON:
+USING THESE IN A LESSON:
 - For graphing work (plotting points, intercepts, slope, lines, scatter data), invite the graph tool --
   e.g. "tap 📈 Graph, plot the y-intercept first, then use the slope to plot one more point, then draw the
-  line." For answers with roots, powers, or fractions, point them to the 🧮 Math keyboard.
+  line."
 - CHECK what they send against the expected answer and respond specifically (e.g. is (1,5) on y = 2x + 3?
   yes -> confirm; if a point is off, name which one and why, without just handing over the fix).
-- Blend it in naturally; reach for a tool where it teaches better than words, otherwise plain typing and
-  the whiteboard are fine.
+- Blend it in naturally; reach for the graph tool where it teaches better than words, otherwise the spoken
+  back-and-forth and the whiteboard are fine.
 ============================================================
 
 
