@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-07  BETA DELETE (build bb, Jim): the pass table gained a "delete" button
+    (two-click confirm) next to revoke -> POST /api/beta/delete removes the pass AND
+    every scrap of student data recorded under that code. Revoke still only disables.
+    Revoked rows show delete too, so the list can be cleaned.
   - 2026-08-05  OPS ALERTING (build ac): the System section gained an "Errors (24h)" tile fed by
     the new server-side error log, and — only when there ARE errors — a "Recent errors" card
     listing the newest 20 (time, route, message). Green zero means genuinely zero: the server
@@ -402,12 +406,22 @@
       return "<tr><td class='mono'>" + esc(c.code) + "</td><td>" + esc(c.label || "—") + "</td>" +
         "<td>" + c.uses_used + " / " + c.uses_allowed + "</td>" +
         "<td>" + c.window_hours + "h</td><td>" + betaStatus(c) + "</td>" +
-        "<td>" + (c.revoked ? "" : '<button class="rvk" data-c="' + esc(c.code) + '">revoke</button>') + "</td></tr>";
+        "<td>" + (c.revoked ? "" : '<button class="rvk" data-c="' + esc(c.code) + '">revoke</button>') +
+        ' <button class="rvk del" data-c="' + esc(c.code) + '">delete</button>' + "</td></tr>";
     }).join("");
     Array.prototype.forEach.call($("passRows").querySelectorAll(".rvk"), function (b) {
+      var isDel = b.classList.contains("del");
       b.addEventListener("click", async function () {
-        try { renderTable((await api("/api/beta/revoke", { method: "POST",
-          body: JSON.stringify({ key: KEY, code: b.getAttribute("data-c") }) })).codes); }
+        // DELETE (2026-08-07 build bb): two-click confirm — first click arms the button,
+        // second click within 4s really deletes the pass AND all its recorded data.
+        if (isDel && b.getAttribute("data-armed") !== "1") {
+          b.setAttribute("data-armed", "1"); b.textContent = "really delete?";
+          setTimeout(function () { b.removeAttribute("data-armed"); b.textContent = "delete"; }, 4000);
+          return;
+        }
+        try { renderTable((await api(isDel ? "/api/beta/delete" : "/api/beta/revoke", { method: "POST",
+          body: JSON.stringify({ key: KEY, code: b.getAttribute("data-c") }) })).codes);
+          if (isDel) gMsg("Pass deleted — the code and every bit of its test data are gone.", "ok"); }
         catch (e) { gMsg(e.message); }
       });
     });

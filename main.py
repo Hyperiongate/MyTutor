@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bb-beta-delete". DELETE A BETA ACCOUNT (Jim: "I see
+#               how to delete a parent's account by email, but I can't delete a beta
+#               account" -- true: revoke only DISABLED the code and left every scrap of its
+#               student data). NEW POST /api/beta/delete (admin key): removes the pass row
+#               AND all data under that code via store.delete_beta_cascade (one
+#               transaction). admin.html + beta.html pass tables gained a "delete" button
+#               (two-click confirm) next to revoke; revoked rows can now be deleted too, so
+#               the list can finally be cleaned. BONUS FIX: final_exams joined the student
+#               wipe list, so parent resets also remove exam rows (table was born today).
 #   2026-08-07  APP_BUILD -> "2026-08-07ba-start-at-one". UNPLACED STUDENTS START AT UNIT 1
 #               (Jim's dashboard catch, confirming a parked question: a brand-new unplaced
 #               Demo student was steered to Unit 2 "Addition to 20" with Unit 1 "Counting &
@@ -3075,6 +3084,20 @@ def beta_revoke(body: BetaRevokeIn):
     return {"ok": True, "codes": store.list_beta_codes()}
 
 
+@app.post("/api/beta/delete")
+def beta_delete(body: BetaRevokeIn):
+    """2026-08-07 (build bb, Jim): fully DELETE a beta pass -- the pass row AND every
+    scrap of student data recorded under that code (sessions, progress, quizzes, stats,
+    time, awards, final exams, account). Revoke only disables the code and leaves the
+    data; this is the true 'this tester never happened' button. Admin-key protected."""
+    _require_db()
+    _require_admin(body.key)
+    res = store.delete_beta_cascade(body.code)
+    if not res.get("existed"):
+        raise HTTPException(status_code=404, detail="No pass with that code.")
+    return {"ok": True, "deleted": res.get("deleted") or {}, "codes": store.list_beta_codes()}
+
+
 # =============================================================================
 # ADMIN DASHBOARD (2026-08-03) -- Jim's one-stop status + tools page at /admin.
 # Keyed on the SAME FORUM_MOD_KEY as the beta generator and forum moderation.
@@ -3884,7 +3907,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ba-start-at-one"
+APP_BUILD = "2026-08-07bb-beta-delete"
 
 
 @app.get("/health")

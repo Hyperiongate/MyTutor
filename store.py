@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  BETA DELETE (build bb, Jim: revoke wasn't enough). NEW delete_beta_cascade()
+#               -- removes the beta_codes row AND every per-student row under that code, one
+#               transaction. ALSO: final_exams joined _STUDENT_CODE_TABLES, so parent resets
+#               and beta deletes wipe exam rows too (the table was added earlier today).
 #   2026-08-07  LOOK-IT-UP LIBRARY (Jim: the searchable reference database). NEW table
 #               `library_articles` (topic_key+band pk): title, body (safe-HTML), source
 #               ('generated' -- curated seeds live in library.py, not here), hits counter,
@@ -1549,6 +1553,9 @@ _STUDENT_CODE_TABLES = [
     ("topic_progress", "code"), ("unit_checks", "code"), ("student_stats", "code"),
     ("topic_quizzes", "code"), ("time_daily", "code"), ("awards", "code"),
     ("class_members", "student_code"),
+    # 2026-08-07 (build bb): the Final Exam table joined the family today -- a reset
+    # that leaves exam rows behind isn't a reset. Every cascade uses this list.
+    ("final_exams", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),
@@ -1842,6 +1849,32 @@ def revoke_beta_code(code: str) -> bool:
 
 
 # ---- ops error log (2026-08-05) ---------------------------------------------
+
+def delete_beta_cascade(code: str) -> dict:
+    """2026-08-07 (build bb, Jim: "I can't delete a beta account"). Fully DELETE one
+    beta pass: the beta_codes row AND every per-student row recorded under that code
+    (sessions, placements, progress, quizzes, stats, time, awards, final exams, the
+    account row). Revoke merely disables the code; this removes it and its data so a
+    tester leaves no trace. All-or-nothing: one transaction. Returns
+    {ok, existed, deleted:{table: rows}}."""
+    from sqlalchemy import delete
+    c = (code or "").strip().upper()
+    if not c:
+        return {"ok": False, "existed": False, "deleted": {}}
+    deleted: dict = {}
+    with _engine.begin() as conn:
+        bt = _tables["beta_codes"]
+        res = conn.execute(delete(bt).where(bt.c.code == c))
+        existed = bool(res.rowcount)
+        deleted["beta_codes"] = int(res.rowcount or 0)
+        for tname, col in _STUDENT_CODE_TABLES:
+            t = _tables.get(tname)
+            if t is None:
+                continue
+            r = conn.execute(delete(t).where(t.c[col] == c))
+            deleted[tname] = int(r.rowcount or 0)
+    return {"ok": True, "existed": existed, "deleted": deleted}
+
 
 def record_error(where: str, what: str) -> None:
     """Log one unhandled server error. Best-effort by design: this function must
