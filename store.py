@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  FINAL EXAM (Jim: a real course final, gated on mastering all nine units).
+#               NEW table `final_exams` (code+course pk): exams_taken, best_pct, last_pct,
+#               correct, attempted, passed_at (set ONCE, the first time the score reaches
+#               PASS_PCT=90 -- that date goes on the Course Diploma), updated_at. New
+#               functions: record_final_exam() (upserts best/last/attempts; stamps passed_at
+#               on first pass), get_final_exam() (read one), both safe-when-disabled like
+#               everything else here. Brand-new table -> create_all builds it; no migration;
+#               nothing else touched. Additive only.
 #   2026-08-05  OPS ERROR LOG (pre-launch readiness: "you should learn about a broken API key
 #               from an alert, not from a parent"). NEW table `error_log` (id autoincrement,
 #               created_at, where 160, what Text): one row per unhandled server error, written
@@ -430,6 +438,22 @@ def init():
             Column("quizzes_taken", Integer, default=0),
             Column("best_pct", Integer, default=0),
             Column("last_pct", Integer, default=0),
+            Column("updated_at", DateTime(timezone=True)),
+        )
+        # FINAL EXAM (2026-08-07): one row per student per course. passed_at is stamped
+        # exactly once -- the first time a score reaches PASS_PCT -- and is the date
+        # printed on the Course Diploma.
+        _tables["final_exams"] = Table(
+            "final_exams", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
+            Column("exams_taken", Integer, default=0),
+            Column("best_pct", Integer, default=0),
+            Column("last_pct", Integer, default=0),
+            Column("correct", Integer, default=0),
+            Column("attempted", Integer, default=0),
+            Column("passed_at", DateTime(timezone=True)),
             Column("updated_at", DateTime(timezone=True)),
         )
         # ENGAGED TIME (2026-07-30): minutes of real, verified work per student/course/day.
@@ -1015,6 +1039,47 @@ def get_topic_quizzes(code: str, course: str = DEFAULT_COURSE) -> list:
     return [{"unit": int(r[0]), "topic_name": r[1] or "", "topic_idx": int(r[2] or 0),
              "quizzes_taken": int(r[3] or 0), "best_pct": int(r[4] or 0),
              "last_pct": int(r[5] or 0)} for r in rows]
+
+
+def record_final_exam(code: str, correct: int, total: int,
+                      course: str = DEFAULT_COURSE) -> dict:
+    """Record one FINAL EXAM result (2026-08-07). Upserts best/last/attempts; stamps
+    passed_at exactly ONCE, the first time the score reaches PASS_PCT (that date goes
+    on the Course Diploma). Returns {pct, passed, best_pct, passed_at}."""
+    from sqlalchemy import select
+    correct = max(0, int(correct)); total = max(1, int(total))
+    pct = round(100 * correct / total)
+    t = _tables["final_exams"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.exams_taken, t.c.best_pct, t.c.passed_at).where(
+            (t.c.code == code) & (t.c.course == course))).first()
+    taken = (int(r[0]) if r and r[0] else 0) + 1
+    best = max(pct, int(r[1]) if r and r[1] else 0)
+    passed_at = r[2] if r else None
+    values = {"exams_taken": taken, "best_pct": best, "last_pct": pct,
+              "correct": correct, "attempted": total, "updated_at": _now()}
+    if pct >= PASS_PCT and not passed_at:
+        passed_at = _now()
+        values["passed_at"] = passed_at
+    _upsert("final_exams", {"code": code, "course": course}, values)
+    return {"pct": pct, "passed": pct >= PASS_PCT, "best_pct": best,
+            "passed_at": passed_at.isoformat() if passed_at else None}
+
+
+def get_final_exam(code: str, course: str = DEFAULT_COURSE) -> dict:
+    """This student's final-exam row for a course, or {} if they haven't taken it."""
+    from sqlalchemy import select
+    t = _tables["final_exams"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.exams_taken, t.c.best_pct, t.c.last_pct,
+                                t.c.passed_at).where(
+            (t.c.code == code) & (t.c.course == course))).first()
+    if not r:
+        return {}
+    return {"exams_taken": int(r[0] or 0), "best_pct": int(r[1] or 0),
+            "last_pct": int(r[2] or 0),
+            "passed": int(r[1] or 0) >= PASS_PCT,
+            "passed_at": r[3].isoformat() if r[3] else None}
 
 
 def record_practice(code: str, correct: int, attempted: int = 1) -> None:

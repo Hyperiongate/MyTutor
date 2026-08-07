@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07aq-progress-finals". PROGRESS BARS + FINAL EXAM (Jim:
+#               a nervous student should always SEE where they are; and a real course final).
+#               (1) PROGRESS BARS (lesson page): three thin bars under the goal banner --
+#                   TODAY (the opener's 2-3 goals; the tutor lights segments with the new
+#                   [[today]]/[[todaydone]] tags as the student demonstrates each), UNIT (the
+#                   unit's topic ladder from the new [[unitplan]] tag, with a 📝 quiz marker
+#                   per topic + the 🏁 Unit Quiz at the end; passed quizzes light from the
+#                   existing [[quiz]] tags + server history), COURSE (nine unit segments, gold
+#                   when mastered, ending at the 🎓 Final Exam). /api/session now returns a
+#                   `progress` object (mastered units, unit-quiz bests, topic quizzes, final
+#                   state) so the bars are honest on load, not just live.
+#               (2) FINAL EXAM, HARD-GATED (Jim's rule: prep AND exam only for students who
+#                   mastered ALL 9 units at 90%). New: _final_exam_state() +
+#                   FINAL_GATE_MESSAGE; ChatRequest.final ("prep"|"exam") re-verified
+#                   SERVER-SIDE every turn (ineligible -> gate message, no paid call);
+#                   tutor.py appends the prep/exam prompt note only after that check.
+#                   POST /api/final/{code} records the [[finalexam]] score (gate-checked
+#                   again; store.record_final_exam stamps passed_at once at >= 90%).
+#                   GET /diploma?code&course -- printable Course Diploma, served only after
+#                   a passed final. Prep = optional overview; exam = 18 questions, no hints.
+#               New store table final_exams (see store.py). Nothing existing removed.
 #   2026-08-07  APP_BUILD -> "2026-08-07ap-opening-order". OPENING SEQUENCE FIXED ORDER (Jim's
 #               live check on Pre-Algebra: greeting, warm-up question, and THEN the goals card
 #               and numbers -- backwards). tutor.py's SESSION_OPENER_RULES gained rule 0: every
@@ -1237,6 +1258,15 @@ class ChatRequest(BaseModel):
     message: str
     unit: int = 0              # optional focus unit (from the dashboard "Work on it" link)
     course: str = "algebra1"   # which course this lesson session belongs to (multi-course)
+    # 2026-08-07 FINAL EXAM: "" (normal lesson) | "prep" | "exam". The server RE-VERIFIES
+    # eligibility (all 9 units mastered) on every turn -- the client is never trusted.
+    final: str = ""
+
+
+class FinalIn(BaseModel):
+    correct: int
+    total: int
+    course: str = "algebra1"
 
 
 class PracticeRequest(BaseModel):
@@ -3473,6 +3503,139 @@ def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
     return {"ok": True}
 
 
+# =============================================================================
+# FINAL EXAM (2026-08-07, Jim) -- a real course final, HARD-GATED on mastery
+# -----------------------------------------------------------------------------
+# The rule, in Jim's words: "to take the final exam, they have to have mastered
+# everything else in the course ahead of time" -- and the optional 'Prepare for the
+# Final Exam' overview is gated exactly the same way. The gate is enforced HERE, on
+# the server, on every chat turn and every score post; the page's button state is
+# only a courtesy. Mastered = best Unit Quiz >= store.PASS_PCT (90) on all 9 units.
+# =============================================================================
+FINAL_GATE_MESSAGE = (
+    "The Final Exam preparation and the Final Exam are only available to students who "
+    "have mastered all the previous units of the course. You've mastered {n} of 9 so far "
+    "-- every unit you master gets you one step closer. Keep going; I'll be right here "
+    "when you're ready!")
+
+
+def _final_exam_state(code: str, course: str) -> dict:
+    """The student's final-exam picture for a course: which units are mastered, whether
+    the exam is unlocked, and any recorded exam result. Honest when the DB is off."""
+    mastered = []
+    if store.enabled():
+        try:
+            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            mastered = sorted(int(u) for u, c in checks.items()
+                              if int((c or {}).get("best_pct") or 0) >= store.PASS_PCT)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[final] mastery read failed: {exc}")
+    exam = {}
+    if store.enabled():
+        try:
+            exam = store.get_final_exam(code, course) or {}
+        except Exception as exc:  # noqa: BLE001
+            print(f"[final] exam read failed: {exc}")
+    return {
+        "mastered_units": mastered,
+        "mastered_count": len(mastered),
+        "required": 9,
+        "eligible": len(mastered) >= 9,
+        "exam": exam,
+    }
+
+
+@app.post("/api/final/{code}")
+def post_final(code: str, body: FinalIn):
+    """Record a FINAL EXAM score ([[finalexam]] tag). Server-side gate: the score only
+    records for an eligible student. Same contract style as /api/check."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False}
+    try:
+        course = body.course if body.course in curriculum.COURSES else "algebra1"
+        state = _final_exam_state(code, course)
+        if not state["eligible"]:
+            return {"ok": False, "tracking": True, "locked": True,
+                    "detail": FINAL_GATE_MESSAGE.format(n=state["mastered_count"])}
+        res = store.record_final_exam(code, int(body.correct), int(body.total), course)
+        return {"ok": True, "tracking": True, **res}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[final] record_final_exam failed: {exc}")
+        return {"ok": False, "tracking": True}
+
+
+@app.get("/diploma")
+def diploma(code: str = "", course: str = "algebra1"):
+    """The printable COURSE DIPLOMA (2026-08-07). Served ONLY when this student has
+    passed the course's Final Exam; otherwise a warm not-yet page. Print-ready:
+    landscape-friendly, self-contained, no scripts needed beyond the print button."""
+    from fastapi.responses import HTMLResponse
+    student = _student_or_404(code)
+    code = code.strip()
+    course = course if course in curriculum.COURSES else "algebra1"
+    title = curriculum.course_title(course)
+    exam = store.get_final_exam(code, course) if store.enabled() else {}
+    name = (student.get("name") or "This student").strip()
+    if not exam or not exam.get("passed"):
+        body = ("<div class='card'><h1>Not quite yet!</h1>"
+                "<p>The Course Diploma is earned by passing the Final Exam (90% or better) "
+                "after mastering all nine units. Keep going — it'll be worth it.</p>"
+                "<p><a href='/session?code=" + code + "&course=" + course + "'>← Back to my lesson</a></p></div>")
+        return HTMLResponse("<html><head><title>Course Diploma</title><style>"
+                            "body{font-family:Georgia,serif;background:#f6f5fb;display:flex;align-items:center;"
+                            "justify-content:center;min-height:100vh;margin:0}.card{background:#fff;padding:40px;"
+                            "border-radius:16px;max-width:520px;text-align:center;border:1px solid #ddd}"
+                            "</style></head><body>" + body + "</body></html>")
+    when = (exam.get("passed_at") or "")[:10]
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Course Diploma — {name}</title><style>
+  body {{ font-family: Georgia, 'Times New Roman', serif; background: #f6f5fb; margin: 0;
+         display: flex; align-items: center; justify-content: center; min-height: 100vh; }}
+  .diploma {{ background: #fffdf7; width: 920px; max-width: 94vw; padding: 60px 70px; text-align: center;
+             border: 3px double #b7a14f; outline: 10px solid #fffdf7; box-shadow: 0 24px 70px rgba(40,30,80,.25);
+             position: relative; }}
+  .crest {{ font-size: 54px; }}
+  h1 {{ font-size: 44px; letter-spacing: .06em; margin: 10px 0 4px; color: #2a2450; }}
+  .sub {{ text-transform: uppercase; letter-spacing: .3em; font-size: 13px; color: #8a7a35; }}
+  .name {{ font-size: 40px; margin: 26px 0 6px; color: #1c1a33; font-style: italic; }}
+  .line {{ width: 420px; max-width: 80%; border-bottom: 1.5px solid #b7a14f; margin: 0 auto 18px; }}
+  p {{ font-size: 17px; color: #3a3752; line-height: 1.6; margin: 8px auto; max-width: 60ch; }}
+  .course {{ font-size: 26px; font-weight: bold; color: #2a2450; }}
+  .date {{ margin-top: 26px; font-size: 15px; color: #5b5673; }}
+  .sig {{ margin-top: 34px; display: flex; justify-content: space-around; }}
+  .sig div {{ font-size: 14px; color: #5b5673; }}
+  .sig .ln {{ width: 220px; border-bottom: 1px solid #8a86a3; margin-bottom: 6px; height: 26px;
+             font-family: 'Brush Script MT', cursive; font-size: 24px; color: #2a2450; }}
+  .printbtn {{ position: fixed; top: 16px; right: 16px; font-family: system-ui, sans-serif;
+              padding: 10px 18px; font-size: 15px; border-radius: 10px; border: none; cursor: pointer;
+              background: #5b5bd6; color: #fff; font-weight: 700; }}
+  @media print {{ .printbtn {{ display: none; }} body {{ background: #fff; }}
+                 .diploma {{ box-shadow: none; }} }}
+</style></head><body>
+  <button class="printbtn" onclick="window.print()">🖨 Print</button>
+  <div class="diploma">
+    <div class="crest">🎓</div>
+    <div class="sub">Mr. Cadabra's Classroom</div>
+    <h1>Certificate of Completion</h1>
+    <p>This certifies that</p>
+    <div class="name">{name}</div>
+    <div class="line"></div>
+    <p>has mastered all nine units of</p>
+    <div class="course">{title}</div>
+    <p>and passed the comprehensive Final Examination with a score of
+       <b>{exam.get('best_pct')}%</b>, demonstrating true command of the material.</p>
+    <div class="date">Final Exam passed on {when}</div>
+    <div class="sig">
+      <div><div class="ln">Mr. Cadabra</div>Mr. Cadabra, Tutor</div>
+      <div><div class="ln"></div>Parent / Teacher</div>
+    </div>
+  </div>
+</body></html>"""
+    return HTMLResponse(html)
+
+
 @app.post("/api/check/{code}")
 def post_check(code: str, body: CheckIn):
     """PHASE A: record an end-of-unit CHECK score for this student (feeds mastery). No-op
@@ -3607,7 +3770,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ap-opening-order"
+APP_BUILD = "2026-08-07aq-progress-finals"
 
 
 @app.get("/health")
@@ -3687,12 +3850,38 @@ def session_state(code: str, course: str = "algebra1"):
     code = code.strip()
     session = get_session(code, course)
     placement = read_placement(code, course)
+    # PROGRESS PICTURE (2026-08-07): everything the lesson page's new bars + final-exam
+    # button need, in the call the page already makes. Wrapped: a data hiccup never
+    # blocks the lesson from loading.
+    progress = {"mastered_units": [], "unit_quiz_best": {}, "topic_quizzes": {},
+                "final": {"eligible": False, "mastered_count": 0, "required": 9, "exam": {}}}
+    if store.enabled():
+        try:
+            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            for u, c in checks.items():
+                best = int((c or {}).get("best_pct") or 0)
+                progress["unit_quiz_best"][int(u)] = best
+                if best >= store.PASS_PCT:
+                    progress["mastered_units"].append(int(u))
+            progress["mastered_units"].sort()
+            for q in store.get_topic_quizzes(code, course):
+                progress["topic_quizzes"].setdefault(q["unit"], []).append(
+                    {"idx": q["topic_idx"], "name": q["topic_name"],
+                     "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+            fstate = _final_exam_state(code, course)
+            progress["final"] = {"eligible": fstate["eligible"],
+                                 "mastered_count": fstate["mastered_count"],
+                                 "required": fstate["required"],
+                                 "exam": fstate["exam"]}
+        except Exception as exc:  # noqa: BLE001
+            print(f"[session] progress read failed: {exc}")
     return {
         "name": student.get("name"),
         "tutor_name": tutor.TUTOR_NAME,
         "history": session.get("history", []),
         "placement": placement,
         "placed": bool(placement),
+        "progress": progress,
         # 2026-08-01: the screen tour runs ONCE PER STUDENT... 2026-08-03 refinement (Jim's
         # playtest: an already-toured demo code got NO intro in Entry-Level Math): the tour is
         # now once per student PER CLASSROOM TYPE. The elementary classroom (entry/basic,
@@ -3912,11 +4101,25 @@ def chat(req: ChatRequest):
     if gate:
         return {"reply": gate, "upgrade_required": True}
 
+    # FINAL EXAM MODES (2026-08-07): "prep" or "exam" -- HARD SERVER GATE, re-checked on
+    # EVERY turn. An ineligible request gets the gate message with no paid model call;
+    # the page's button state is only a courtesy, never the enforcement.
+    final_mode = (req.final or "").strip().lower()
+    if final_mode not in ("prep", "exam"):
+        final_mode = ""
+    if final_mode:
+        fstate = _final_exam_state(code, req.course)
+        if not fstate["eligible"]:
+            return {"reply": FINAL_GATE_MESSAGE.format(n=fstate["mastered_count"]),
+                    "final_locked": True}
+
     session = get_session(code, req.course)
     history = session.get("history", [])
 
     # Give the tutor the student's remembered progress plus the live history.
     student_context = dict(student)
+    if final_mode:
+        student_context["final_mode"] = final_mode   # tutor.py appends the matching note
     placement = read_placement(code, req.course)
     if placement:
         note = (" [Placement result from the Challenge: this student tested as "

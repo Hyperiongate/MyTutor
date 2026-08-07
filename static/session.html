@@ -8,6 +8,21 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  PROGRESS BARS + FINAL EXAM (build aq, Jim: "a nervous student should always
+    see where they are" + a real gated course final).
+    (1) THREE THIN BARS under the goal banner (.pbars): TODAY (segments = the opener's goals,
+        via new [[today items]] + [[todaydone n]] tags), UNIT (topic ladder via new
+        [[unitplan]] tag, a 📝 marker per topic quiz — lit when passed (server history +
+        live [[quiz]] passes) — and 🏁/🏆 Unit Quiz cap; text names the NEXT quiz), COURSE
+        (nine segments, gold when mastered (live [[check]] passes update it too), 🎓 Final
+        Exam cap — click it for the exam door). Fed by /api/session's new `progress` object.
+    (2) FINAL EXAM: new "🎓 Final Exam" sidebar link + overlay (#finalOverlay). Not eligible
+        → Jim's gate message + X-of-9 progress. Eligible → optional "Prepare" + "Take the
+        Final Exam" buttons → same page with &final=prep|exam (FINAL_MODE): tour/assessment
+        skipped, a .finalflag banner shows, and every /api/chat post carries `final` (the
+        SERVER re-verifies the gate each turn — this page is just the door). New
+        [[finalexam correct total]] tag → result card (+ diploma link at 90%+) + POST
+        /api/final. Passing shows "View my Course Diploma" (/diploma, printable).
   - 2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
     Three changes on top of yesterday's voice restore:
     (1) MIC-HIDING BUG FIXED: math-keyboard.js still carried its 2026-07-30 "type-in tier"
@@ -676,6 +691,42 @@
       letter-spacing: .05em; flex: 0 0 auto; }
     .goalbar b { color: var(--ink); }
 
+    /* ===== PROGRESS BARS (2026-08-07, Jim: "a nervous student should always SEE where
+       they are") — three thin stacked bars under the goal banner: TODAY / UNIT / COURSE. */
+    .pbars { display: none; flex-direction: column; gap: 5px; margin: 6px 24px 4px; }
+    .pbars.show { display: flex; }
+    .pbar { display: none; align-items: center; gap: 8px; font-size: 11.5px; }
+    .pbar.show { display: flex; }
+    .pbar .pbl { flex: 0 0 52px; text-align: right; color: var(--muted); font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+    .pbar .pbtrack { flex: 1; display: flex; align-items: center; gap: 3px; min-width: 0; }
+    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: #e8e6f4;
+      border: 1px solid #dcd9ee; min-width: 8px; }
+    .pbar .pbseg.done { background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-color: transparent; }
+    .pbar .pbseg.gold { background: linear-gradient(90deg, #f2c14e, #e8a71c); border-color: transparent; }
+    .pbar .pbmark { flex: 0 0 auto; font-size: 11px; line-height: 1; opacity: .75; }
+    .pbar .pbmark.done { opacity: 1; }
+    .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
+    .pbar .pbcap.locked { filter: grayscale(1); opacity: .55; }
+    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: var(--muted); font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 900px) { .pbar .pbt { display: none; } .pbar .pbl { flex-basis: 44px; } }
+
+    /* FINAL EXAM mode banner + result card (2026-08-07) */
+    .finalflag { display: flex; align-items: center; gap: 8px; margin: 4px 24px 0; padding: 8px 14px;
+      border-radius: 12px; font-size: 13.5px; font-weight: 700; background: #fdf4d7;
+      border: 1px solid #ecd48a; color: #7a5c00; }
+    .finalcard { border-radius: 18px; padding: 22px 20px; text-align: center; margin: 4px auto;
+      max-width: 480px; border: 2px solid #ecd48a; background: linear-gradient(180deg, #fffdf4, #fdf4d7); }
+    .finalcard.pass { border-color: #b7a14f; }
+    .finalcard .fc-top { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a7a35; }
+    .finalcard .fc-score { font-size: 40px; font-weight: 900; color: var(--ink); margin: 6px 0; }
+    .finalcard .fc-badge { font-size: 15.5px; font-weight: 700; color: #7a5c00; }
+    .finalcard a.fc-diploma { display: inline-block; margin-top: 12px; padding: 11px 20px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 800;
+      text-decoration: none; }
+
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: auto; }
       .side { display: none; }
@@ -775,6 +826,7 @@
         <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
         <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
         <a class="navbtn" id="assessLink" href="#">📋 Course assessment</a>
+        <a class="navbtn" id="finalLink" href="#">🎓 Final Exam</a>
       </nav>
 
       <div class="controls">
@@ -795,6 +847,16 @@
       </div>
 
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
+
+      <!-- PROGRESS BARS (2026-08-07): TODAY fills as the tutor checks off today's goals
+           ([[today]]/[[todaydone]]); UNIT shows the topic ladder with quiz markers and the
+           Unit Quiz flag ([[unitplan]] + passed [[quiz]]s); COURSE shows the nine units,
+           gold when mastered, ending at the 🎓 Final Exam. -->
+      <div class="pbars" id="pbars">
+        <div class="pbar" id="todayBar"><span class="pbl">Today</span><div class="pbtrack" id="todayTrack"></div><span class="pbt" id="todayText"></span></div>
+        <div class="pbar" id="unitBar"><span class="pbl" id="unitBarLabel">Unit</span><div class="pbtrack" id="unitTrack"></div><span class="pbt" id="unitText"></span></div>
+        <div class="pbar" id="courseBar"><span class="pbl">Course</span><div class="pbtrack" id="courseTrack"></div><span class="pbt" id="courseText"></span></div>
+      </div>
 
       <div class="feed" id="feed"><div class="stage-hint" id="stageHint">Your lesson will appear here.</div></div>
 
@@ -853,6 +915,20 @@
     </div>
   </div>
 
+  <!-- FINAL EXAM overlay (2026-08-07): content is filled by openFinalOverlay() from the
+       server's progress data. The REAL gate is server-side; this is just the door. -->
+  <div class="welcome" id="finalOverlay">
+    <div class="welcome-card">
+      <div class="welcome-badge">🎓</div>
+      <h2 id="foTitle">The Final Exam</h2>
+      <p class="lead" id="foLead"></p>
+      <div id="foButtons"></div>
+      <button id="foClose" style="width:100%; margin-top:12px; border:2px solid var(--line); background:#fff;
+        border-radius:30px; cursor:pointer; color:var(--ink); font-size:16px; font-weight:700; padding:13px;">
+        ← Back to my lesson</button>
+    </div>
+  </div>
+
   <script src="/static/geo-figures.js"></script>
   <script src="/static/math-figures.js"></script>
   <script src="/static/tutor-face.js"></script>
@@ -862,6 +938,10 @@
     const CODE = (params.get("code") || "").trim();
     const FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
+    // 2026-08-07 FINAL EXAM: "" | "prep" | "exam" — sent with every chat turn; the SERVER
+    // re-verifies eligibility (all 9 units mastered) each time. This flag is a courtesy.
+    const FINAL_MODE = (params.get("final") === "prep" || params.get("final") === "exam")
+      ? params.get("final") : "";
     // ELEMENTARY (2026-08-03): the two youngest courses answer by TAPPING choice buttons, so
     // their welcome, tour, and hint talk about tapping -- never about keyboards or typing.
     const IS_ELEM = (COURSE === "entry" || COURSE === "basic");
@@ -1554,6 +1634,10 @@
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
+        else if (name === "today") showToday(attrs);
+        else if (name === "todaydone") markTodayDone(attrs);
+        else if (name === "unitplan") showUnitPlan(attrs);
+        else if (name === "finalexam") showFinalExam(attrs);
         else if (name === "mark") postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: (parseInt(attrs.correct, 10) || 0), attempted: (parseInt(attrs.attempted, 10) || 1) });
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
@@ -1572,6 +1656,194 @@
     }
     // Today's goal banner (the tutor sets it once at the start via [[goal text="..."]]).
     function showGoal(text) { el("goalText").textContent = String(text || "").trim(); el("goalBar").classList.add("show"); }
+
+    // ===== PROGRESS BARS (2026-08-07, Jim: the student should always SEE where they are) =====
+    // TODAY: segments = the opener's goals ([[today items]]); the tutor lights them with
+    // [[todaydone n]]. UNIT: the topic ladder ([[unitplan]]) with a 📝 marker per topic quiz
+    // and the 🏁 Unit Quiz cap; passed quizzes light live from [[quiz]] tags + server history.
+    // COURSE: nine units, gold when mastered, ending at the 🎓 Final Exam cap.
+    let TODAY_ITEMS = [], TODAY_DONE = [];
+    let UNIT_PLAN = { unit: 0, topics: [] };
+    let SRV_PROGRESS = null;                       // /api/session's `progress` object
+    const LIVE_TOPIC_PASSES = {};                  // unit -> count of topic quizzes passed live
+    const LIVE_MASTERED = new Set();               // units mastered live this session
+    function splitItems(s) { return String(s || "").split("|").map(x => x.trim()).filter(Boolean).slice(0, 8); }
+    function seg(cls, tip) { const d = document.createElement("div"); d.className = "pbseg" + (cls ? " " + cls : ""); if (tip) d.title = tip; return d; }
+    function mark(txt, done, tip) { const s = document.createElement("span"); s.className = "pbmark" + (done ? " done" : ""); s.textContent = txt; if (tip) s.title = tip; return s; }
+    function showBars() { el("pbars").classList.add("show"); }
+
+    function showToday(a) {
+      const items = splitItems(a.items);
+      if (!items.length) return;
+      // Re-emitting resets only if the items changed (a new day’s plan); done marks survive re-renders.
+      if (items.join("|") !== TODAY_ITEMS.join("|")) { TODAY_ITEMS = items; TODAY_DONE = items.map(() => false); }
+      renderTodayBar();
+    }
+    function markTodayDone(a) {
+      const n = parseInt(a.n, 10) || 0;
+      if (n >= 1 && n <= TODAY_DONE.length) { TODAY_DONE[n - 1] = true; renderTodayBar(); }
+    }
+    function renderTodayBar() {
+      if (!TODAY_ITEMS.length) return;
+      const t = el("todayTrack"); t.innerHTML = "";
+      TODAY_ITEMS.forEach((item, i) => t.appendChild(seg(TODAY_DONE[i] ? "done" : "", item)));
+      const done = TODAY_DONE.filter(Boolean).length;
+      el("todayText").textContent = done >= TODAY_ITEMS.length
+        ? "🎉 All of today's goals — done!"
+        : done + " of " + TODAY_ITEMS.length + " goals done";
+      showBars(); el("todayBar").classList.add("show");
+    }
+
+    function showUnitPlan(a) {
+      const unit = parseInt(a.unit, 10) || 0;
+      const topics = splitItems(a.topics);
+      if (!unit || !topics.length) return;
+      UNIT_PLAN = { unit, topics };
+      renderUnitBar();
+    }
+    function srvTopicPasses(unit) {
+      const rows = (SRV_PROGRESS && SRV_PROGRESS.topic_quizzes && SRV_PROGRESS.topic_quizzes[unit]) || [];
+      return rows.filter(r => r.passed).length;
+    }
+    function unitMastered(unit) {
+      if (LIVE_MASTERED.has(unit)) return true;
+      return !!(SRV_PROGRESS && (SRV_PROGRESS.mastered_units || []).indexOf(unit) >= 0);
+    }
+    function renderUnitBar() {
+      if (!UNIT_PLAN.unit) return;
+      const unit = UNIT_PLAN.unit, topics = UNIT_PLAN.topics;
+      // Topic quizzes are gated in order, so the PASSED COUNT tells us which rungs are lit.
+      const passed = Math.min(topics.length, srvTopicPasses(unit) + (LIVE_TOPIC_PASSES[unit] || 0));
+      const t = el("unitTrack"); t.innerHTML = "";
+      topics.forEach((topic, i) => {
+        t.appendChild(seg(i < passed ? "done" : "", topic));
+        t.appendChild(mark("📝", i < passed, "Quiz: " + topic + (i < passed ? " — passed!" : "")));
+      });
+      const mastered = unitMastered(unit);
+      const cap = document.createElement("span");
+      cap.className = "pbcap" + (mastered ? "" : ""); cap.textContent = mastered ? "🏆" : "🏁";
+      cap.title = mastered ? "Unit Quiz — mastered!" : "The Unit Quiz — the final step of this unit";
+      t.appendChild(cap);
+      el("unitBarLabel").textContent = "Unit " + unit;
+      el("unitText").textContent = mastered
+        ? "★ Unit mastered!"
+        : (passed >= topics.length
+            ? "All topic quizzes passed — the Unit Quiz is next!"
+            : (topics.length - passed) + " topic" + (topics.length - passed === 1 ? "" : "s")
+              + " to go — next quiz: " + topics[passed]);
+      showBars(); el("unitBar").classList.add("show");
+    }
+
+    function renderCourseBar() {
+      const t = el("courseTrack"); if (!t) return;
+      t.innerHTML = "";
+      let masteredCount = 0;
+      for (let u = 1; u <= 9; u++) {
+        const done = unitMastered(u);
+        if (done) masteredCount++;
+        const cu = (CURRICULUM || []).find(x => x.n === u);
+        t.appendChild(seg(done ? "gold" : "", "Unit " + u + (cu ? ": " + cu.name : "") + (done ? " — mastered" : "")));
+      }
+      const unlocked = masteredCount >= 9;
+      const cap = document.createElement("span");
+      cap.className = "pbcap" + (unlocked ? "" : " locked"); cap.textContent = "🎓";
+      cap.title = unlocked ? "The Final Exam is unlocked!" : "The Final Exam — unlocks when all nine units are gold";
+      cap.style.cursor = "pointer";
+      cap.addEventListener("click", openFinalOverlay);
+      t.appendChild(cap);
+      const fin = (SRV_PROGRESS && SRV_PROGRESS.final) || {};
+      el("courseText").textContent = (fin.exam && fin.exam.passed)
+        ? "🎓 Final Exam passed — course complete!"
+        : (unlocked ? "🎓 All nine units mastered — the Final Exam is unlocked!"
+                    : masteredCount + " of 9 units mastered — " + (9 - masteredCount) + " to the Final Exam");
+      showBars(); el("courseBar").classList.add("show");
+    }
+
+    // ===== FINAL EXAM (2026-08-07) — the door, the result card, and the diploma link.
+    // The REAL gate is on the server (chat turns AND score posts are re-verified there).
+    function finalState() { return (SRV_PROGRESS && SRV_PROGRESS.final) || { eligible: false, mastered_count: 0, required: 9, exam: {} }; }
+    function openFinalOverlay() {
+      const st = finalState();
+      const lead = el("foLead"), btns = el("foButtons");
+      btns.innerHTML = "";
+      if (!st.eligible) {
+        el("foTitle").textContent = "The Final Exam";
+        lead.innerHTML = "The <b>Final Exam preparation</b> and the <b>Final Exam</b> are only available to "
+          + "students who have <b>mastered all the previous units</b> of the course.<br><br>"
+          + "You've mastered <b>" + (st.mastered_count || 0) + " of 9</b> units so far — every unit you "
+          + "master gets you one step closer. Keep going!";
+      } else {
+        const passed = st.exam && st.exam.passed;
+        el("foTitle").textContent = passed ? "🎉 You passed the Final Exam!" : "The Final Exam is unlocked!";
+        lead.innerHTML = passed
+          ? "You passed on <b>" + String(st.exam.passed_at || "").slice(0, 10) + "</b> with a best score of <b>"
+            + st.exam.best_pct + "%</b>. Your Course Diploma is ready — and you can always take a fresh exam to beat your score."
+          : "All nine units mastered — amazing work! The exam is <b>18 questions across the whole course, no hints, "
+            + "90% or better to pass</b> and earn your Course Diploma.<br><br>Want a warm-up first? The optional "
+            + "<b>preparation session</b> walks through what's on it and reviews your weakest spots. It's not required.";
+        if (passed) {
+          const d = document.createElement("a");
+          d.href = "/diploma?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+          d.className = "welcome-go"; d.style.display = "block"; d.style.textDecoration = "none"; d.style.textAlign = "center";
+          d.textContent = "🎓 View my Course Diploma";
+          btns.appendChild(d);
+        }
+        const prep = document.createElement("button");
+        prep.className = "welcome-go"; prep.style.marginTop = "10px";
+        prep.textContent = "📖 Prepare for the Final Exam (optional)";
+        prep.addEventListener("click", () => { window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE) + "&final=prep"; });
+        btns.appendChild(prep);
+        const take = document.createElement("button");
+        take.className = "welcome-go"; take.style.marginTop = "10px";
+        take.textContent = passed ? "🎓 Take a fresh Final Exam" : "🎓 Take the Final Exam";
+        take.addEventListener("click", () => { window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE) + "&final=exam"; });
+        btns.appendChild(take);
+      }
+      el("finalOverlay").classList.add("show");
+    }
+    el("finalLink").addEventListener("click", (e) => { e.preventDefault(); openFinalOverlay(); });
+    // Final-mode banner: a quiet, always-visible reminder of which special session this is.
+    if (FINAL_MODE) {
+      const flag = document.createElement("div");
+      flag.className = "finalflag";
+      flag.innerHTML = (FINAL_MODE === "exam")
+        ? "🎓 <b>Final Exam in progress</b> — no hints during the exam, and you can stop any time (an unfinished exam isn't scored)."
+        : "📖 <b>Final Exam preparation</b> — an optional overview and warm-up. The real exam is one click away whenever you're ready.";
+      const gb = el("goalBar");
+      gb.parentNode.insertBefore(flag, gb);
+    }
+    el("foClose").addEventListener("click", () => {
+      el("finalOverlay").classList.remove("show");
+      // Leaving a final-mode page via the overlay returns to the normal lesson.
+      if (FINAL_MODE) window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    });
+
+    async function showFinalExam(a) {
+      const correct = Math.max(0, parseInt(a.correct, 10) || 0);
+      const total = Math.max(1, parseInt(a.total, 10) || 1);
+      const pct = Math.round(100 * correct / total);
+      const passed = pct >= 90;
+      const host = feedBlock();
+      host.innerHTML = '<div class="finalcard ' + (passed ? "pass" : "") + '">'
+        + '<div class="fc-top">🎓 Final Exam — ' + COURSE_TITLE + '</div>'
+        + '<div class="fc-score">' + correct + ' / ' + total + ' <span style="font-size:20px">(' + pct + '%)</span></div>'
+        + '<div class="fc-badge">' + (passed
+            ? "★ PASSED — you've completed the whole course!"
+            : "Not this time — and that's okay. Let's shore up the shaky spots and take a fresh one.") + '</div>'
+        + (passed ? '<a class="fc-diploma" href="/diploma?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) + '">🎓 View my Course Diploma</a>' : '')
+        + '</div>';
+      scrollFeed();
+      try {
+        const res = await postJSON("/api/final/" + encodeURIComponent(CODE), { correct, total, course: COURSE });
+        // Refresh the local final state so the overlay + course bar tell the truth immediately.
+        if (SRV_PROGRESS && SRV_PROGRESS.final) {
+          SRV_PROGRESS.final.exam = { passed: passed || (SRV_PROGRESS.final.exam || {}).passed,
+                                      best_pct: Math.max(pct, (SRV_PROGRESS.final.exam || {}).best_pct || 0),
+                                      passed_at: (SRV_PROGRESS.final.exam || {}).passed_at || (passed ? new Date().toISOString() : null) };
+          renderCourseBar();
+        }
+      } catch (e) {}
+    }
     // Ready-made cards the tutor can show with a SHORT tag like [[card id="cool-questions"]].
     // Keeping the long content here (instead of inline in the tutor's reply) means the
     // tag can never be truncated mid-stream, so the card always renders on the board.
@@ -1997,6 +2269,11 @@
       const safe = tname.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       if (unit >= 1 && unit <= 9) postJSON("/api/quiz/" + encodeURIComponent(CODE),
         { unit, topic: parseInt(a.topic, 10) || 0, name: tname, correct, total, course: COURSE });
+      // 2026-08-07: light the unit bar's next rung the moment a topic quiz is passed.
+      if (passed && unit >= 1 && unit <= 9) {
+        LIVE_TOPIC_PASSES[unit] = (LIVE_TOPIC_PASSES[unit] || 0) + 1;
+        renderUnitBar();
+      }
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
         + '<div class="ck-top">Quiz' + (safe ? " — " + safe : "") + '</div>'
@@ -2010,6 +2287,17 @@
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const passed = Math.round(100 * correct / total) >= 90;   // MASTERY BAR (2026-08-04): 90, matching store.PASS_PCT
       if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total, course: COURSE });
+      // 2026-08-07: a mastered unit goes gold on the course bar (and 🏆 on the unit bar) live.
+      if (passed && unit >= 1 && unit <= 9) {
+        LIVE_MASTERED.add(unit);
+        if (SRV_PROGRESS && SRV_PROGRESS.final) {
+          const all = new Set(SRV_PROGRESS.mastered_units || []);
+          LIVE_MASTERED.forEach(u => all.add(u));
+          SRV_PROGRESS.final.mastered_count = all.size;
+          SRV_PROGRESS.final.eligible = SRV_PROGRESS.final.eligible || all.size >= 9;
+        }
+        renderUnitBar(); renderCourseBar();
+      }
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
         + '<div class="ck-top">Unit Quiz</div>'
@@ -2122,6 +2410,9 @@
       // 2026-08-06: voice restored. Typing courses on capable browsers keep the 🎙️ button
       // primary (with "Type instead" available); everyone else opens the type box.
       if (!canRecord) showComposer();
+      // 2026-08-07 FINAL EXAM MODES: prep/exam sessions skip the tour and the assessment
+      // invitation entirely — the student clicked a very specific door; open it.
+      if (FINAL_MODE) { busy = true; setPhase("busy"); kickoff(); return; }
       // The tour runs for a student's first lesson IN THIS CLASSROOM TYPE (the server's
       // `toured` flag counts the elementary tap-to-answer courses separately from the
       // typing courses, so a veteran typist still gets the tap intro and vice versa).
@@ -2225,7 +2516,7 @@
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
       try {
         const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE }) });
+          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE, final: FINAL_MODE }) });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
@@ -2274,6 +2565,11 @@
         const history = data.history || [];
         hasHistory = history.length > 0;
         touredAnywhere = !!data.toured;
+        // 2026-08-07: the server's honest progress picture feeds the new bars + the
+        // Final Exam door. The course bar renders immediately; unit/today bars appear
+        // when the tutor emits their tags.
+        SRV_PROGRESS = data.progress || null;
+        if (SRV_PROGRESS) renderCourseBar();
         // The assessment is VOLUNTARY (2026-07-28): a brand-new student is NO LONGER redirected
         // to it. They start the lesson at Unit 1 and can take the Course Assessment from the
         // sidebar whenever they like.

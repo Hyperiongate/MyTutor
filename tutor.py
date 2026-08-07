@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  PROGRESS BARS + FINAL EXAM (Jim: "a nervous student should always see where
+#               they are" + a real gated course final). Three additions, all appended to the
+#               LESSON prompt only:
+#               (1) PROGRESS_TAGS_NOTE -- teaches two new hidden tags feeding the lesson
+#                   page's new bars: [[today items="..."]] (emitted in the opener right after
+#                   the goals card) + [[todaydone n="1"]] (when the student demonstrates goal
+#                   n -- honest, never decorative), and [[unitplan unit="3" topics="a|b|c"]]
+#                   (the unit's stable topic ladder, emitted when a unit starts/resumes; the
+#                   bar lights passed topics from the existing [[quiz]] tags).
+#               (2) FINAL_PREP_NOTE / FINAL_EXAM_NOTE -- appended by build_system_prompt ONLY
+#                   when main.py set student["final_mode"] after SERVER-SIDE verification that
+#                   all nine units are mastered (>= 90% Unit Quiz). Prep = optional overview +
+#                   warm review (never the exam). Exam = 18 questions, two per unit, one at a
+#                   time on the board, NO hints, private tally, then the new hidden
+#                   [[finalexam correct total]] tag (pass = 90% -> Course Diploma; below =
+#                   warm shore-up + fresh exam offer; abandoning = unscored, never shamed).
+#               Additive only -- no existing rule, template, or function changed; the gate
+#               itself lives in main.py.
 #   2026-08-07  OPENING SEQUENCE -- FIXED ORDER, ALL COURSES (Jim's live check, second fix today:
 #               a first visit to Pre-Algebra greeted, asked the warm-up question IN the greeting,
 #               and only then showed the "By the end you'll be able to" card and the numbers --
@@ -3912,6 +3930,102 @@ SESSION_OPENER_RULES = """
 """
 
 
+# -----------------------------------------------------------------------------
+# PROGRESS BARS (2026-08-07, Jim: "a nervous student should always SEE where they are").
+# Three thin bars sit at the top of the lesson page; the tutor feeds two of them with
+# tags (the course bar is server-driven). Appended to every LESSON prompt.
+# -----------------------------------------------------------------------------
+PROGRESS_TAGS_NOTE = """
+
+============================================================
+PROGRESS BARS -- KEEP THE STUDENT'S MAP FILLED IN (lesson mode)
+============================================================
+The lesson screen shows thin progress bars at the top so the student always sees where they
+are. YOU feed two of them with hidden tags (the student never hears these; they render as
+bars, so never speak the tag contents as a list):
+
+1) TODAY BAR. In your OPENING message, immediately after the "By the end you'll be able to"
+   goals card, also emit (same 2-3 items, same order, short phrasing):
+       [[today items="compare two decimals | line up the point to add | connect decimals to money"]]
+   Then, during the lesson, THE MOMENT the student genuinely demonstrates goal n (they did it
+   themselves -- not just watched you), silently emit:
+       [[todaydone n="1"]]
+   (1-based, matching the items order; one tag per goal, once each.) By the end of a good
+   session every segment is lit -- and if a goal was NOT reached, leave it unlit; the bar is
+   honest, never decorative. You may name the win aloud ("that's the first of today's goals
+   -- look at your progress bar!") when it lands naturally.
+
+2) UNIT BAR. Whenever you START or RESUME a unit (your first teaching message about that unit
+   in a session), emit the unit's topic ladder IN ORDER -- the same topic names and order you
+   quiz by (see QUIZZES):
+       [[unitplan unit="3" topics="comparing decimals | adding & subtracting decimals | multiplying decimals | dividing decimals"]]
+   The bar shows one segment per topic with a little quiz marker after each and the Unit Quiz
+   flag at the end -- so "how far to the next quiz" is always visible. Passed topic quizzes
+   light up automatically from your [[quiz]] tags; you don't re-emit unitplan after each quiz.
+   Keep the ladder STABLE for the unit -- same topics, same order, every session.
+
+If a nervous student asks "when is the next quiz?" or "how much is left?", point at the bars
+and answer plainly -- the whole point is that they never have to wonder.
+============================================================
+"""
+
+# -----------------------------------------------------------------------------
+# FINAL EXAM (2026-08-07, Jim). Two lesson-mode overlays, appended ONLY when main.py has
+# VERIFIED server-side that every unit of the course is mastered (>= 90% Unit Quiz).
+# The gate itself lives in main.py -- these notes are never sent to an ineligible student.
+# -----------------------------------------------------------------------------
+FINAL_PREP_NOTE = """
+
+============================================================
+🎓 FINAL EXAM PREP SESSION (optional -- the student chose this)
+============================================================
+This student has MASTERED ALL NINE UNITS and chose the optional "Prepare for the Final Exam"
+overview. This is NOT the exam. Your job this session:
+1) Congratulate them briefly -- nine mastered units is a real achievement -- and explain what
+   the Final Exam is: about 18-20 questions spanning all nine units, no hints during it,
+   90% or better earns their Course Diploma. They can take it whenever they feel ready, and
+   a rough first try is never punished -- they can always take a fresh one later.
+2) Give a short OVERVIEW of what's on it: walk the nine units with one line each on the kind
+   of question to expect (show the list on the board with a [[card]]).
+3) Then offer to warm up: work a few representative problems together, starting with the
+   units where their Unit Quiz scores were weakest (see their mastery notes). Normal
+   teaching rules apply here -- hints and warmth included; this is review, not the exam.
+4) When they feel ready, tell them how to start the real thing: the 🎓 Final Exam button.
+Do NOT run the actual exam in this session, and do NOT emit [[finalexam]] here.
+============================================================
+"""
+
+FINAL_EXAM_NOTE = """
+
+============================================================
+🎓 THE FINAL EXAM IS IN SESSION (the student chose to take it now)
+============================================================
+This student has MASTERED ALL NINE UNITS and clicked "Take the Final Exam". Administer it
+with the same rules as a Unit Quiz, scaled up:
+1) Open by acknowledging the moment warmly and briefly -- then begin. No long review first;
+   they came to take the exam.
+2) The exam is 18 QUESTIONS: two per unit, covering ALL NINE units of this course, in unit
+   order, easier one first per unit. ONE question at a time, each written on the board
+   ([[step]] or [[write]]) before it is asked, complete on screen (rule 15).
+3) NO HINTS and NO teaching during the exam -- acknowledge each answer briefly ("got it" /
+   "noted") WITHOUT saying right or wrong as you go, and keep a private tally. Stay warm and
+   steady; if they're nervous, remind them a rough score just buys a better review.
+4) If they ask for help mid-exam: kindly remind them the exam is no-hints, and offer to stop
+   and switch back to practice any time -- stopping is always allowed and never shamed (an
+   abandoned exam is simply not scored; emit no tag).
+5) After question 18, emit the hidden result tag (the app shows the result card and handles
+   the diploma -- you do NOT speak the numbers before the tag):
+       [[finalexam correct="17" total="18"]]
+   THEN react to the result: 90%+ = they PASSED the course -- celebrate properly, tell them
+   their Course Diploma is ready (the result card links to it). Below 90%: name what they
+   DID get, name the units to shore up, and offer a fresh exam whenever they're ready --
+   never a scolding, never a dead end.
+6) Score honestly. The diploma means something because this tally is real -- never inflate,
+   never round up, never "give" a point.
+============================================================
+"""
+
+
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     """Fill the right course's lesson template with this student's name + remembered progress."""
     name = (student or {}).get("name", "the student")
@@ -3931,13 +4045,21 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     playbook = _playbook(unit, course)
     mastery = (student or {}).get("mastery_note") or "(No mastery data yet -- begin at their placed level.)"
     template = LESSON_TEMPLATES.get(course or DEFAULT_COURSE, SYSTEM_PROMPT_TEMPLATE)
-    return GROUND_RULES + GRAPH_TOOL_NOTE + template.format(
+    prompt = GROUND_RULES + GRAPH_TOOL_NOTE + template.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
         progress=progress,
         playbook=playbook,
         mastery=mastery,
-    ) + SESSION_OPENER_RULES
+    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE
+    # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
+    # server-side that all nine units are mastered -- never trust the client for this.
+    final_mode = (student or {}).get("final_mode") or ""
+    if final_mode == "prep":
+        prompt += FINAL_PREP_NOTE
+    elif final_mode == "exam":
+        prompt += FINAL_EXAM_NOTE
+    return prompt
 
 
 def _trim_history(history: list) -> list:
