@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ap-opening-order". OPENING SEQUENCE FIXED ORDER (Jim's
+#               live check on Pre-Algebra: greeting, warm-up question, and THEN the goals card
+#               and numbers -- backwards). tutor.py's SESSION_OPENER_RULES gained rule 0: every
+#               course's first message is greeting (course welcome on a first visit) -> today's
+#               topic -> today's goal + goals card -> "Ready to get started?" and STOP; the
+#               first problem comes next turn, board-first. The 08-03 version of this fix was
+#               elementary-only -- now universal. tutor.py only; build bumped for deploy verify.
 #   2026-08-07  APP_BUILD -> "2026-08-07ao-voice-everywhere". VOICE-FIRST CLASSROOM (Jim: "back
 #               to the conversational back-and-forth between the teacher and the student
 #               everywhere"). Mostly a STATIC build (server changes: this note, the build id,
@@ -3600,7 +3607,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ao-voice-everywhere"
+APP_BUILD = "2026-08-07ap-opening-order"
 
 
 @app.get("/health")

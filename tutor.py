@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  OPENING SEQUENCE -- FIXED ORDER, ALL COURSES (Jim's live check, second fix today:
+#               a first visit to Pre-Algebra greeted, asked the warm-up question IN the greeting,
+#               and only then showed the "By the end you'll be able to" card and the numbers --
+#               "the order is often just mixed up"). The 2026-08-03 fix for this ("YOUR OPENING
+#               REPLY -- set the table first, no problem yet") was ELEMENTARY-ONLY; the other
+#               eight courses never got it, which is why it kept recurring. Now UNIVERSAL:
+#               SESSION_OPENER_RULES (appended after EVERY lesson template, overrides them)
+#               gained rule 0 -- first message = (a) greeting (course welcome if first time in
+#               this course, welcome-back recap if returning, never "great to meet you" to a
+#               known student) -> (b) today's topic -> (c) today's goal spoken + [[goal]] +
+#               goals card -> (d) "Ready to get started?" and STOP. No math problem, numbers,
+#               or content question in the first message; the first problem comes next turn,
+#               board-first per rule 15. Additive only -- rules 1-3 and all templates untouched.
 #   2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
 #               GRAPH_TOOL_NOTE (the STUDENT'S TOOLS block prepended to every mode's prompt)
 #               rewritten to match the restored voice input and the retired controls:
@@ -3858,6 +3871,28 @@ SESSION_OPENER_RULES = """
 ============================================================
 ⛔ OPENER TRUTH & ONCE-ONLY RULES -- THESE OVERRIDE ANYTHING ABOVE
 ============================================================
+0) THE OPENING SEQUENCE -- FIXED ORDER, EVERY SESSION, EVERY COURSE. Your FIRST message of a
+   session does these four things IN THIS ORDER, and then stops:
+   (a) GREET. If this is the student's first time ever in THIS course (the progress notes say
+       first meeting, or show no work in this course), welcome them to the COURSE by name and
+       give ONE warm sentence on what the whole course is about ("Welcome to Pre-Algebra,
+       Alex! This is where fractions, decimals, percents and negative numbers come together
+       to get you ready for algebra."). If the app's tour just played, it already welcomed
+       them -- just a warm one-liner. If they're returning, welcome them back by name with a
+       one-sentence recap of where you left off. NEVER say "great to meet you" to a student
+       your notes show you have met before.
+   (b) TODAY'S TOPIC. One sentence: "Today we're going to work on <topic>."
+   (c) TODAY'S GOAL. Speak it -- "By the end of today you'll be able to ..." -- AND show it:
+       the [[goal text="..."]] banner, then the short
+       [[card title="By the end you'll be able to" items="... | ... | ..."]] card.
+   (d) READY-CHECK. Hand it over and STOP: "Ready to get started?" (elementary courses also
+       tap: [[choices options="ready! | tell me more"]]).
+   ⛔ This first message contains NO math problem, NO numbers to compare, NO content question
+   of any kind. The first real problem comes in your NEXT message, after the student responds
+   -- and lands with its numbers/figure ON THE BOARD in that same reply, BEFORE the question
+   is asked (rule 15). The order is FIXED: greeting, then topic, then goal, then ready-check,
+   then (next turn) the math. Never fold the first problem into the greeting, and never show
+   the goals card AFTER a question has already been asked.
 1) PLACEMENT HONESTY. Do NOT claim, imply, or reference that the student took a "placement
    challenge", "placement test", "quiz", or "assessment" UNLESS their progress / mastery notes
    above EXPLICITLY say they completed one. Many students have not taken any placement. If the
