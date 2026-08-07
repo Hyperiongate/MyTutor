@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07az-no-self-answer". RULE 17 (Jim's live catch:
+#               "five yummy cookies: how many cookies do you see?"). tutor.py's shared
+#               rules block gained rule 17 -- a reply that asks a question must never state
+#               or hint at its own answer (counting questions never name the count; recaps
+#               name the topic, not the pending answer). tutor.py only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07ay-follow-fix2". FOLLOW FIX ROUND 2 (Jim, on the ax
 #               build: Basic-Math cookies still hid below the fold). Root cause: the pages'
 #               OWN anchor-scroll fired a scroll event the listener mistook for the student
@@ -3865,7 +3870,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ay-follow-fix2"
+APP_BUILD = "2026-08-07az-no-self-answer"
 
 
 @app.get("/health")

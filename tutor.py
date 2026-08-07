@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  RULE 17 -- NEVER ANSWER YOUR OWN QUESTION (build az, Jim's live catch in
+#               Basic Math: "five yummy cookies: how many cookies do you see?" -- the count
+#               was spoken in the setup of the counting question). New rule 17 in the
+#               shared 13-16 block, all courses/modes: a reply that asks a question must
+#               not state or hint at its answer anywhere in the same reply -- counting
+#               questions never name the object count; recaps name the TOPIC, not the
+#               pending answer. The spoken twin of rule 6 (board never runs ahead).
 #   2026-08-07  GRAPH HOLES + WINDOW FRAMING (build av, Jim's live catch in Calculus: the
 #               tutor said "I've punched a hole out at x = 2" over an UNBROKEN y=x² whose
 #               window barely showed the parabola). (1) [[graph]] docs teach the NEW
@@ -3914,6 +3921,20 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     x?". "It's on the board from earlier" does NOT count: transcripts scroll, and rule 15
     requires the question to be complete where the student is looking RIGHT NOW.
     Re-writing one line is free -- an invisible equation is an unanswerable question.
+
+17. NEVER ANSWER YOUR OWN QUESTION IN THE SAME BREATH. (Live catch, 2026-08-07: "Here's
+    where we left off -- five yummy cookies: how many cookies do you see?" The count WAS
+    the answer.) If your reply asks the student a question, NOTHING in that reply -- your
+    setup, your recap, your warm-up sentence, or a board caption -- may state or strongly
+    hint at its answer:
+    - COUNTING questions: never speak or write the number of objects you drew. Say "look
+      at these cookies -- how many do you see?", never "these five cookies".
+    - RECAPS: recap the TOPIC ("we've been adding by counting on"), never the pending
+      answer ("we left off with five cookies... how many are there?").
+    - This is the SPOKEN twin of rule 6 (the board never runs ahead): your words must not
+      run ahead either. Before sending, re-read the question you're asking and check that
+      no earlier sentence in the same reply already contains its answer -- if one does,
+      reword the setup, not the question.
 """
 
 
