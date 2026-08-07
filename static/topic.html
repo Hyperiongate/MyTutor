@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    2026-08-07  FOLLOW THE TURN (build ax): new bubbles re-engage following; tutor turns
+                taller than the window anchor to the START of the turn instead of pinning
+                the bubble off the top. Same patch on all three teaching pages.
     2026-08-07  PAUSE IS BACK + LIBRARY CHIPS (build aw, Jim): ⏸ Pause button restored
                 (pauses the voice, holds the turn; Resume continues). library.js opens with
                 context chips + "Something else…".
@@ -1323,7 +1326,22 @@
     function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
     let stickBottom = true;
     feed.addEventListener("scroll", () => { stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48; });
-    function scrollFeed() { requestAnimationFrame(() => { if (stickBottom) feed.scrollTop = feed.scrollHeight; }); }
+    // 2026-08-07 (build ax, Jim: "the whiteboard disappears below and I have to scroll
+    // constantly"): FOLLOW THE TURN, not just the bottom. Every new tutor turn re-engages
+    // following (even if the student had scrolled up to read history), and if the turn is
+    // TALLER than the window we show its START (his words + the board under them) instead
+    // of pinning to the bottom, which used to shove the bubble off the top of the screen.
+    let lastTurnEl = null;   // the bubble that starts the current tutor turn (null = pin bottom)
+    function scrollFeed() {
+      requestAnimationFrame(() => {
+        if (!stickBottom) return;
+        if (lastTurnEl && lastTurnEl.isConnected) {
+          const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+          if (feed.scrollHeight - turnTop > feed.clientHeight) { feed.scrollTop = Math.max(0, turnTop - 6); return; }
+        }
+        feed.scrollTop = feed.scrollHeight;
+      });
+    }
     new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });
     // 2026-08-03 (Jim: "I have to scroll to see what he's saying"): the tap-to-answer buttons
     // shrink the transcript from below; re-pin on ANY size change of the transcript itself.
@@ -1331,6 +1349,10 @@
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
+      // 2026-08-07 (build ax): a new bubble re-engages following. A TUTOR bubble anchors
+      // the view to the start of his turn; a student/system bubble pins to the bottom.
+      lastTurnEl = (role === "tutor") ? div : null;
+      stickBottom = true;
       feed.appendChild(div); scrollFeed(); return div;
     }
     function feedBlock() {

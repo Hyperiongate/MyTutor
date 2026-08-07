@@ -8,6 +8,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  FOLLOW THE TURN (build ax, Jim: "the whiteboard disappears below and I have
+    to scroll constantly" — first lesson, Entry-Level Math). The transcript no longer just
+    pins to the bottom: every new bubble RE-ENGAGES following (a scrolled-up student is
+    brought back when the tutor speaks), tutor turns taller than the window anchor to the
+    START of the turn (his words + the board under them stay in view) instead of shoving
+    the bubble off the top, and shorter turns still pin to the bottom as before. Same
+    patch on practice + topic.
   - 2026-08-07  PAUSE IS BACK + LIBRARY CHIPS (build aw, Jim). (1) The ⏸ Pause button is
     RESTORED (reverses this morning's removal): pauses Mr. Cadabra mid-sentence, holds the
     turn (mic + sends disabled while paused), Resume continues. Same restore on practice +
@@ -2289,8 +2296,21 @@
     feed.addEventListener("scroll", () => {
       stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
     });
+    // 2026-08-07 (build ax, Jim: "the whiteboard disappears below and I have to scroll
+    // constantly"): FOLLOW THE TURN, not just the bottom. Every new tutor turn re-engages
+    // following (even if the student had scrolled up to read history), and if the turn is
+    // TALLER than the window we show its START (his words + the board under them) instead
+    // of pinning to the bottom, which used to shove the bubble off the top of the screen.
+    let lastTurnEl = null;   // the bubble that starts the current tutor turn (null = pin bottom)
     function scrollFeed() {
-      requestAnimationFrame(() => { if (stickBottom) feed.scrollTop = feed.scrollHeight; });
+      requestAnimationFrame(() => {
+        if (!stickBottom) return;
+        if (lastTurnEl && lastTurnEl.isConnected) {
+          const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+          if (feed.scrollHeight - turnTop > feed.clientHeight) { feed.scrollTop = Math.max(0, turnTop - 6); return; }
+        }
+        feed.scrollTop = feed.scrollHeight;
+      });
     }
     // Belt-and-suspenders: re-pin after ANY later size change (a diagram finishing layout, a
     // long line wrapping, the step-in animation) so the bottom is always in view.
@@ -2302,6 +2322,10 @@
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
+      // 2026-08-07 (build ax): a new bubble re-engages following. A TUTOR bubble anchors
+      // the view to the start of his turn; a student/system bubble pins to the bottom.
+      lastTurnEl = (role === "tutor") ? div : null;
+      stickBottom = true;
       feed.appendChild(div); scrollFeed(); return div;
     }
     // A FRESH math block appended to the feed -- used by the FIGURES (balance/graph/machine/

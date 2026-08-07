@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ax-follow-turn". TRANSCRIPT FOLLOWS THE TURN (Jim,
+#               first Entry-Level lesson: "the whiteboard disappears below and I have to
+#               scroll constantly"). All three teaching pages: every new bubble re-engages
+#               auto-follow; a tutor turn TALLER than the window anchors the view to the
+#               START of the turn (words + board in view) instead of pinning to the bottom
+#               (which shoved the bubble off the top); short turns still pin to the bottom.
+#               Static only; build bumped for deploy verification.
 #   2026-08-07  APP_BUILD -> "2026-08-07aw-pause-chips". PAUSE RESTORED + LIBRARY CHIPS
 #               (Jim). (1) The ⏸ Pause button is BACK on all three teaching pages
 #               (reverses this morning's removal -- with the tutor talking so much, the
@@ -3851,7 +3858,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07aw-pause-chips"
+APP_BUILD = "2026-08-07ax-follow-turn"
 
 
 @app.get("/health")
