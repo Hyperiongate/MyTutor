@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07be-code-entry". CODE BOX FITS EVERY PASS (Jim pasted
+#               a pass verbatim -> "not recognized"; separately his TRY-MESA44 test turned
+#               out to be MY sandbox test pass, never on live). index.html's #code/#pcode
+#               inputs had maxlength=12 -- but 5 of the 50 beta words make 13-char passes
+#               (TRY-JUNIPER42 et al), so a verbatim PASTE silently lost the final digit ->
+#               "not recognized" ~10%% of the time. maxlength now 20; inputmode=numeric
+#               dropped (beta passes have letters; phones showed a digits-only keyboard).
+#               Ships together with bd's forgiving login normalizations.
+#   2026-08-07  APP_BUILD -> "2026-08-07bd-forgiving-codes". FORGIVING BETA-CODE LOGIN (Jim:
+#               generated a pass, typed it in, "not recognized" -- the lookup demanded the
+#               exact TRY-XXXX form). /api/login now retries honest normalizations of the
+#               typed code (squash spaces, uppercase, add the TRY- prefix, fix a missing
+#               dash) and signs in with the first that IS a real pass. "tiger42",
+#               "TRY TIGER42", "try-tiger42" all work now. Pilot and parent-student codes
+#               are looked up exactly as typed, unchanged. main.py only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07bc-student-reset". WIPE A PILOT/DEMO STUDENT + BETA-
 #               DELETE SAFETY (Jim: "I'll be able to wipe 0000, right?" -- he couldn't:
 #               0000 is a pilot persona, not a beta pass and not parent-owned, so neither
@@ -3945,7 +3960,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bc-student-reset"
+APP_BUILD = "2026-08-07be-code-entry"
 
 
 @app.get("/health")
@@ -3974,6 +3989,21 @@ def login(req: LoginRequest, request: Request):
     # Brute-force guard: codes are short, so cap guesses per IP (20 / 5 min).
     _rate_limit("login:" + _client_ip(request), limit=20, window_seconds=300, what="login attempts")
     code = req.code.strip()
+
+    # FORGIVING BETA-CODE ENTRY (2026-08-07 build bd, Jim: generated a pass, typed it in,
+    # "not recognized"). Passes look like TRY-TIGER42; real people type "tiger42",
+    # "TRY TIGER42", or "try-tiger 42". If the code as typed isn't a known pass, retry a
+    # few honest normalizations (squash spaces, add the TRY- prefix, fix a missing dash)
+    # and use the first that IS one. Pilot 4-digit codes and parent-student codes are
+    # looked up with the code exactly as typed, same as always.
+    if store.enabled():
+        compact = re.sub(r"\s+", "", code).upper()
+        for candidate in (code, compact,
+                          "TRY-" + compact if not compact.startswith("TRY") else compact,
+                          "TRY-" + compact[3:].lstrip("-") if compact.startswith("TRY") else compact):
+            if candidate and store.get_beta_code(candidate):
+                code = candidate
+                break
 
     # BETA PASS sign-in (2026-07-31): consumes one of its uses and opens a timed
     # window (unless a window is already open, which rides free). The response

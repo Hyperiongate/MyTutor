@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-07  CODE BOX FITS EVERY PASS (build be, Jim: pasted a pass verbatim, "not
+    recognized"). The code inputs had maxlength="12", but 5 of the 50 beta code words
+    make 13-character passes (TRY-JUNIPER42...) — the paste silently lost the last
+    digit. maxlength now 20 on #code and #pcode; dropped inputmode="numeric" (beta
+    passes have letters — phones were showing a digits-only keyboard). Server-side
+    companion: main.py build bd forgives prefix/dash/space slips in typed codes.
   =============================================================================
   index.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -194,7 +200,7 @@
         <p class="who">Take a lesson, practice a problem you're stuck on, or check what you've
           mastered. You'll see your own work only.</p>
         <label for="code">Your student code</label>
-        <input id="code" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+        <input id="code" autocomplete="off" placeholder="••••" maxlength="20" />
         <button id="go" class="btn">Start learning →</button>
         <div id="msg" class="msg"></div>
       </div>
@@ -206,7 +212,7 @@
         <p class="who">Follow one child. You'll see their progress, what they've mastered, and
           where to help next — read-only, so nothing you do can change their work.</p>
         <label for="pcode">Your child's student code</label>
-        <input id="pcode" inputmode="numeric" autocomplete="off" placeholder="••••" maxlength="12" />
+        <input id="pcode" autocomplete="off" placeholder="••••" maxlength="20" />
         <button id="pgo" class="btn teal">See my child's progress →</button>
         <div id="pmsg" class="msg"></div>
         <div class="foot-note">Have a family account (or want one)?
