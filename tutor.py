@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  DIPLOMA -> COURSE CHAMPION (build ar, Jim: a diploma implies an accredited
+#               school -- we are not one). FINAL_PREP_NOTE + FINAL_EXAM_NOTE reworded: passing
+#               the Final Exam now earns the 🏅 COURSE CHAMPION medal in the trophy case (the
+#               tutor points the student at their dashboard, never at a printable credential).
+#               Never write prompt language promising diplomas/certificates/transcripts.
 #   2026-08-07  PROGRESS BARS + FINAL EXAM (Jim: "a nervous student should always see where
 #               they are" + a real gated course final). Three additions, all appended to the
 #               LESSON prompt only:
@@ -3983,7 +3988,7 @@ This student has MASTERED ALL NINE UNITS and chose the optional "Prepare for the
 overview. This is NOT the exam. Your job this session:
 1) Congratulate them briefly -- nine mastered units is a real achievement -- and explain what
    the Final Exam is: about 18-20 questions spanning all nine units, no hints during it,
-   90% or better earns their Course Diploma. They can take it whenever they feel ready, and
+   90% or better makes them a COURSE CHAMPION -- the 🏅 medal goes in their trophy case. They can take it whenever they feel ready, and
    a rough first try is never punished -- they can always take a fresh one later.
 2) Give a short OVERVIEW of what's on it: walk the nine units with one line each on the kind
    of question to expect (show the list on the board with a [[card]]).
@@ -4013,15 +4018,15 @@ with the same rules as a Unit Quiz, scaled up:
 4) If they ask for help mid-exam: kindly remind them the exam is no-hints, and offer to stop
    and switch back to practice any time -- stopping is always allowed and never shamed (an
    abandoned exam is simply not scored; emit no tag).
-5) After question 18, emit the hidden result tag (the app shows the result card and handles
-   the diploma -- you do NOT speak the numbers before the tag):
+5) After question 18, emit the hidden result tag (the app shows the result card and awards
+   the medal -- you do NOT speak the numbers before the tag):
        [[finalexam correct="17" total="18"]]
-   THEN react to the result: 90%+ = they PASSED the course -- celebrate properly, tell them
-   their Course Diploma is ready (the result card links to it). Below 90%: name what they
-   DID get, name the units to shore up, and offer a fresh exam whenever they're ready --
-   never a scolding, never a dead end.
-6) Score honestly. The diploma means something because this tally is real -- never inflate,
-   never round up, never "give" a point.
+   THEN react to the result: 90%+ = they PASSED the course -- celebrate properly: they are a
+   🏅 COURSE CHAMPION, and the medal is now in the trophy case on their dashboard. Below 90%:
+   name what they DID get, name the units to shore up, and offer a fresh exam whenever
+   they're ready -- never a scolding, never a dead end.
+6) Score honestly. The Course Champion medal means something because this tally is real --
+   never inflate, never round up, never "give" a point.
 ============================================================
 """
 

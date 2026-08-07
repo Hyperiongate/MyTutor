@@ -21,8 +21,11 @@
         Final Exam" buttons → same page with &final=prep|exam (FINAL_MODE): tour/assessment
         skipped, a .finalflag banner shows, and every /api/chat post carries `final` (the
         SERVER re-verifies the gate each turn — this page is just the door). New
-        [[finalexam correct total]] tag → result card (+ diploma link at 90%+) + POST
-        /api/final. Passing shows "View my Course Diploma" (/diploma, printable).
+        [[finalexam correct total]] tag → result card + POST /api/final. (Same day, build
+        ar: the printable diploma was REMOVED — it implied an accredited school, which we
+        are not (Jim). Passing now awards the 🏅 Course Champion medal in the trophy case;
+        the result card + overlay link to the dashboard instead. Never reintroduce
+        credential-style documents without counsel.)
   - 2026-08-07  VOICE-FIRST CLASSROOM (Jim: "back to the conversational back-and-forth").
     Three changes on top of yesterday's voice restore:
     (1) MIC-HIDING BUG FIXED: math-keyboard.js still carried its 2026-07-30 "type-in tier"
@@ -723,7 +726,7 @@
     .finalcard .fc-top { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a7a35; }
     .finalcard .fc-score { font-size: 40px; font-weight: 900; color: var(--ink); margin: 6px 0; }
     .finalcard .fc-badge { font-size: 15.5px; font-weight: 700; color: #7a5c00; }
-    .finalcard a.fc-diploma { display: inline-block; margin-top: 12px; padding: 11px 20px; border-radius: 12px;
+    .finalcard a.fc-link { display: inline-block; margin-top: 12px; padding: 11px 20px; border-radius: 12px;
       background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 800;
       text-decoration: none; }
 
@@ -1759,7 +1762,7 @@
       showBars(); el("courseBar").classList.add("show");
     }
 
-    // ===== FINAL EXAM (2026-08-07) — the door, the result card, and the diploma link.
+    // ===== FINAL EXAM (2026-08-07) — the door, the result card, and the champion medal.
     // The REAL gate is on the server (chat turns AND score posts are re-verified there).
     function finalState() { return (SRV_PROGRESS && SRV_PROGRESS.final) || { eligible: false, mastered_count: 0, required: 9, exam: {} }; }
     function openFinalOverlay() {
@@ -1777,15 +1780,15 @@
         el("foTitle").textContent = passed ? "🎉 You passed the Final Exam!" : "The Final Exam is unlocked!";
         lead.innerHTML = passed
           ? "You passed on <b>" + String(st.exam.passed_at || "").slice(0, 10) + "</b> with a best score of <b>"
-            + st.exam.best_pct + "%</b>. Your Course Diploma is ready — and you can always take a fresh exam to beat your score."
+            + st.exam.best_pct + "%</b> — the 🏅 <b>Course Champion</b> medal is in your trophy case. You can always take a fresh exam to beat your score."
           : "All nine units mastered — amazing work! The exam is <b>18 questions across the whole course, no hints, "
-            + "90% or better to pass</b> and earn your Course Diploma.<br><br>Want a warm-up first? The optional "
+            + "90% or better to pass</b> and earn the 🏅 <b>Course Champion</b> medal for your trophy case.<br><br>Want a warm-up first? The optional "
             + "<b>preparation session</b> walks through what's on it and reviews your weakest spots. It's not required.";
         if (passed) {
           const d = document.createElement("a");
-          d.href = "/diploma?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+          d.href = "/dashboard" + "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
           d.className = "welcome-go"; d.style.display = "block"; d.style.textDecoration = "none"; d.style.textAlign = "center";
-          d.textContent = "🎓 View my Course Diploma";
+          d.textContent = "🏅 See it in my trophy case";
           btns.appendChild(d);
         }
         const prep = document.createElement("button");
@@ -1830,7 +1833,8 @@
         + '<div class="fc-badge">' + (passed
             ? "★ PASSED — you've completed the whole course!"
             : "Not this time — and that's okay. Let's shore up the shaky spots and take a fresh one.") + '</div>'
-        + (passed ? '<a class="fc-diploma" href="/diploma?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) + '">🎓 View my Course Diploma</a>' : '')
+        + (passed ? '<div style="margin-top:10px;font-size:14.5px;font-weight:700;color:#7a5c00">🏅 The <b>Course Champion</b> medal just landed in your trophy case!</div>'
+                    + '<a class="fc-link" href="/dashboard?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) + '">🏆 See my trophy case</a>' : '')
         + '</div>';
       scrollFeed();
       try {

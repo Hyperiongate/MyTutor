@@ -5,7 +5,9 @@
 #   2026-08-07  FINAL EXAM (Jim: a real course final, gated on mastering all nine units).
 #               NEW table `final_exams` (code+course pk): exams_taken, best_pct, last_pct,
 #               correct, attempted, passed_at (set ONCE, the first time the score reaches
-#               PASS_PCT=90 -- that date goes on the Course Diploma), updated_at. New
+#               PASS_PCT=90 -- the date the course was conquered; 2026-08-07 later the same
+#               day: the diploma was REMOVED (accreditation optics) and the date now simply
+#               backs the 🏅 Course Champion award), updated_at. New
 #               functions: record_final_exam() (upserts best/last/attempts; stamps passed_at
 #               on first pass), get_final_exam() (read one), both safe-when-disabled like
 #               everything else here. Brand-new table -> create_all builds it; no migration;
@@ -441,8 +443,8 @@ def init():
             Column("updated_at", DateTime(timezone=True)),
         )
         # FINAL EXAM (2026-08-07): one row per student per course. passed_at is stamped
-        # exactly once -- the first time a score reaches PASS_PCT -- and is the date
-        # printed on the Course Diploma.
+        # exactly once -- the first time a score reaches PASS_PCT -- the date the
+        # course was conquered (backs the 🏅 Course Champion award).
         _tables["final_exams"] = Table(
             "final_exams", _meta,
             Column("code", String(64), primary_key=True),
@@ -1044,8 +1046,8 @@ def get_topic_quizzes(code: str, course: str = DEFAULT_COURSE) -> list:
 def record_final_exam(code: str, correct: int, total: int,
                       course: str = DEFAULT_COURSE) -> dict:
     """Record one FINAL EXAM result (2026-08-07). Upserts best/last/attempts; stamps
-    passed_at exactly ONCE, the first time the score reaches PASS_PCT (that date goes
-    on the Course Diploma). Returns {pct, passed, best_pct, passed_at}."""
+    passed_at exactly ONCE, the first time the score reaches PASS_PCT (the date that
+    backs the 🏅 Course Champion award). Returns {pct, passed, best_pct, passed_at}."""
     from sqlalchemy import select
     correct = max(0, int(correct)); total = max(1, int(total))
     pct = round(100 * correct / total)

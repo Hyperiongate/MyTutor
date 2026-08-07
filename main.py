@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ar-champion". COURSE CHAMPION MEDAL, DIPLOMA REMOVED
+#               (Jim: "a diploma implies a California-recognized school, and we are not one").
+#               (1) REMOVED the GET /diploma route (the printable Certificate of Completion)
+#                   and every diploma link/mention in session.html + tutor.py's final-exam
+#                   prompts. Never reintroduce credential-style documents (diploma /
+#                   certificate / transcript) without counsel -- they read as accreditation.
+#                   (The honest homeschool RECORDS report is unaffected -- it's a log, not a
+#                   credential.)
+#               (2) ADDED the reward in its place: AWARD_DEFS "champion" (🏅 Course Champion,
+#                   "Passed a course Final Exam") -- computed in awards_state from
+#                   store.get_final_exam(course).passed per active course, persists like
+#                   every award, appears in the dashboard trophy case + the NEW! celebration
+#                   + the tutor's 48-hour congratulation note automatically (all generic
+#                   AWARD_DEFS plumbing). students.html award catalog updated to match.
+#               store.final_exams and its passed_at stamp are unchanged (now simply the date
+#               the course was conquered). Exam flow, gate, and bars unchanged.
 #   2026-08-07  APP_BUILD -> "2026-08-07aq-progress-finals". PROGRESS BARS + FINAL EXAM (Jim:
 #               a nervous student should always SEE where they are; and a real course final).
 #               (1) PROGRESS BARS (lesson page): three thin bars under the goal banner --
@@ -1697,6 +1713,9 @@ AWARD_DEFS = {
     "bounceback": ("💪", "Bounce Back",   "Mastered a unit after a tough first Unit Quiz", "one", None),
     "explorer":   ("🧭", "Explorer",      "Worked in two different courses", "one", None),
     "pathfinder": ("🗺️", "Pathfinder",   "Completed a course assessment", "one", None),
+    # 2026-08-07 (Jim): the Final Exam's reward lives in the trophy case (the diploma was
+    # removed the same day -- it read like an accredited-school credential, which we are not).
+    "champion":   ("🏅", "Course Champion", "Passed a course Final Exam", "one", None),
 }
 
 
@@ -1710,7 +1729,7 @@ def awards_state(code: str):
         return {"tracking": False, "trophies": [], "badges": {}, "awards": []}
 
     trophies, badges = [], {}
-    any_check = perfect = bounce = False
+    any_check = perfect = bounce = champion = False
     try:
         activity = store.get_course_activity(code)
     except Exception as exc:  # noqa: BLE001
@@ -1744,6 +1763,12 @@ def awards_state(code: str):
                              "earned": mastered_units, "total": total_units}
         if len(mastered_units) >= total_units:
             trophies.append({"course": course_id, "title": curriculum.course_title(course_id)})
+        # 2026-08-07: Course Champion -- passed this course's Final Exam.
+        try:
+            if (store.get_final_exam(code, course_id) or {}).get("passed"):
+                champion = True
+        except Exception as exc:  # noqa: BLE001
+            print(f"[awards] final({course_id}) failed: {exc}")
 
     total_minutes = 0
     try:
@@ -1761,7 +1786,7 @@ def awards_state(code: str):
                (family == "practice" and practiced >= threshold) or
                (family == "one" and {"firstcheck": any_check, "perfect": perfect,
                                      "bounceback": bounce, "explorer": len(activity) >= 2,
-                                     "pathfinder": placed}[aid]))
+                                     "pathfinder": placed, "champion": champion}[aid]))
         if got:
             computed.add(aid)
     try:
@@ -3566,76 +3591,6 @@ def post_final(code: str, body: FinalIn):
         return {"ok": False, "tracking": True}
 
 
-@app.get("/diploma")
-def diploma(code: str = "", course: str = "algebra1"):
-    """The printable COURSE DIPLOMA (2026-08-07). Served ONLY when this student has
-    passed the course's Final Exam; otherwise a warm not-yet page. Print-ready:
-    landscape-friendly, self-contained, no scripts needed beyond the print button."""
-    from fastapi.responses import HTMLResponse
-    student = _student_or_404(code)
-    code = code.strip()
-    course = course if course in curriculum.COURSES else "algebra1"
-    title = curriculum.course_title(course)
-    exam = store.get_final_exam(code, course) if store.enabled() else {}
-    name = (student.get("name") or "This student").strip()
-    if not exam or not exam.get("passed"):
-        body = ("<div class='card'><h1>Not quite yet!</h1>"
-                "<p>The Course Diploma is earned by passing the Final Exam (90% or better) "
-                "after mastering all nine units. Keep going — it'll be worth it.</p>"
-                "<p><a href='/session?code=" + code + "&course=" + course + "'>← Back to my lesson</a></p></div>")
-        return HTMLResponse("<html><head><title>Course Diploma</title><style>"
-                            "body{font-family:Georgia,serif;background:#f6f5fb;display:flex;align-items:center;"
-                            "justify-content:center;min-height:100vh;margin:0}.card{background:#fff;padding:40px;"
-                            "border-radius:16px;max-width:520px;text-align:center;border:1px solid #ddd}"
-                            "</style></head><body>" + body + "</body></html>")
-    when = (exam.get("passed_at") or "")[:10]
-    html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Course Diploma — {name}</title><style>
-  body {{ font-family: Georgia, 'Times New Roman', serif; background: #f6f5fb; margin: 0;
-         display: flex; align-items: center; justify-content: center; min-height: 100vh; }}
-  .diploma {{ background: #fffdf7; width: 920px; max-width: 94vw; padding: 60px 70px; text-align: center;
-             border: 3px double #b7a14f; outline: 10px solid #fffdf7; box-shadow: 0 24px 70px rgba(40,30,80,.25);
-             position: relative; }}
-  .crest {{ font-size: 54px; }}
-  h1 {{ font-size: 44px; letter-spacing: .06em; margin: 10px 0 4px; color: #2a2450; }}
-  .sub {{ text-transform: uppercase; letter-spacing: .3em; font-size: 13px; color: #8a7a35; }}
-  .name {{ font-size: 40px; margin: 26px 0 6px; color: #1c1a33; font-style: italic; }}
-  .line {{ width: 420px; max-width: 80%; border-bottom: 1.5px solid #b7a14f; margin: 0 auto 18px; }}
-  p {{ font-size: 17px; color: #3a3752; line-height: 1.6; margin: 8px auto; max-width: 60ch; }}
-  .course {{ font-size: 26px; font-weight: bold; color: #2a2450; }}
-  .date {{ margin-top: 26px; font-size: 15px; color: #5b5673; }}
-  .sig {{ margin-top: 34px; display: flex; justify-content: space-around; }}
-  .sig div {{ font-size: 14px; color: #5b5673; }}
-  .sig .ln {{ width: 220px; border-bottom: 1px solid #8a86a3; margin-bottom: 6px; height: 26px;
-             font-family: 'Brush Script MT', cursive; font-size: 24px; color: #2a2450; }}
-  .printbtn {{ position: fixed; top: 16px; right: 16px; font-family: system-ui, sans-serif;
-              padding: 10px 18px; font-size: 15px; border-radius: 10px; border: none; cursor: pointer;
-              background: #5b5bd6; color: #fff; font-weight: 700; }}
-  @media print {{ .printbtn {{ display: none; }} body {{ background: #fff; }}
-                 .diploma {{ box-shadow: none; }} }}
-</style></head><body>
-  <button class="printbtn" onclick="window.print()">🖨 Print</button>
-  <div class="diploma">
-    <div class="crest">🎓</div>
-    <div class="sub">Mr. Cadabra's Classroom</div>
-    <h1>Certificate of Completion</h1>
-    <p>This certifies that</p>
-    <div class="name">{name}</div>
-    <div class="line"></div>
-    <p>has mastered all nine units of</p>
-    <div class="course">{title}</div>
-    <p>and passed the comprehensive Final Examination with a score of
-       <b>{exam.get('best_pct')}%</b>, demonstrating true command of the material.</p>
-    <div class="date">Final Exam passed on {when}</div>
-    <div class="sig">
-      <div><div class="ln">Mr. Cadabra</div>Mr. Cadabra, Tutor</div>
-      <div><div class="ln"></div>Parent / Teacher</div>
-    </div>
-  </div>
-</body></html>"""
-    return HTMLResponse(html)
-
-
 @app.post("/api/check/{code}")
 def post_check(code: str, body: CheckIn):
     """PHASE A: record an end-of-unit CHECK score for this student (feeds mastery). No-op
@@ -3770,7 +3725,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07aq-progress-finals"
+APP_BUILD = "2026-08-07ar-champion"
 
 
 @app.get("/health")
