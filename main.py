@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ba-start-at-one". UNPLACED STUDENTS START AT UNIT 1
+#               (Jim's dashboard catch, confirming a parked question: a brand-new unplaced
+#               Demo student was steered to Unit 2 "Addition to 20" with Unit 1 "Counting &
+#               Number Sense" never touched). Root cause: chat()'s tracking fallback was a
+#               flat "default Unit 2 if unplaced" -- the first turn logged "learning Unit
+#               2", the mastery note then told the tutor to FOCUS there, snowball. Now:
+#               unplaced activity counts toward the student's FIRST UNMASTERED unit (fresh
+#               student = Unit 1); placed students unchanged; focus_unit still overrides.
+#               tutor.py rule 1 companion line: no placement + no mastery data = the course
+#               path starts at UNIT 1, never assume a fresh student skips ahead.
+#               NOTE (same conversation): most of the other dashboard oddities Jim saw were
+#               NOT bugs -- the shared demo/test code is a persistent student that remembers
+#               every prior test run (AI batteries included). Use admin Start Fresh before
+#               serious walk-throughs.
 #   2026-08-07  APP_BUILD -> "2026-08-07az-no-self-answer". RULE 17 (Jim's live catch:
 #               "five yummy cookies: how many cookies do you see?"). tutor.py's shared
 #               rules block gained rule 17 -- a reply that asks a question must never state
@@ -3870,7 +3884,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07az-no-self-answer"
+APP_BUILD = "2026-08-07ba-start-at-one"
 
 
 @app.get("/health")
@@ -4333,15 +4347,28 @@ def chat(req: ChatRequest):
     save_session(code, session, req.course)
 
     # Real tracking: the COURSE now teaches all 9 units starting at the student's
-    # placed unit, so course activity counts as "learning" whatever unit they're on
-    # (from placement; default Unit 2 if unplaced/unknown).
-    course_unit = 2
+    # placed unit, so course activity counts as "learning" whatever unit they're on.
+    # UNPLACED (2026-08-07 build ba, Jim's dashboard catch): count activity toward the
+    # FIRST UNMASTERED unit -- a brand-new student's is Unit 1. The old flat default of 2
+    # made fresh elementary students SKIP Unit 1 entirely: the first turn logged "learning
+    # Unit 2", the mastery note then steered the tutor there, and Counting & Number Sense
+    # was never taught.
+    course_unit = 1
     try:
         su = int((placement or {}).get("start_unit") or 0)
         if 1 <= su <= 9:
             course_unit = su
+        elif store.enabled():
+            checks = (store.get_mastery(code, req.course) or {}).get("checks", {})
+            for u in range(1, 10):
+                if int((checks.get(u) or {}).get("best_pct") or 0) < store.PASS_PCT:
+                    course_unit = u
+                    break
     except (TypeError, ValueError):
-        course_unit = 2
+        course_unit = 1
+    except Exception as exc:  # noqa: BLE001 -- a tracking miss must never break the turn
+        print(f"[track] unplaced-unit lookup failed: {exc}")
+        course_unit = 1
     if 1 <= focus_unit <= 9:
         course_unit = focus_unit        # a focused session counts toward THAT unit
     _track_topic(code, course_unit, curriculum.unit_name(req.course, course_unit),

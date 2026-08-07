@@ -3984,6 +3984,9 @@ SESSION_OPENER_RULES = """
    then do NOT say things like "your placement put you right around ...", "your challenge showed
    ...", or "your results". Instead, open warmly and EITHER start gently at the indicated unit
    without inventing any test, OR ask where they'd like to begin. Never fabricate a placement event.
+   AND (2026-08-07): if there is NO placement and NO mastery data, the course path starts at
+   UNIT 1 -- the first unit of this course, from its very first topic. Never assume a fresh
+   student can skip ahead; Unit 1 exists because it is where learning this subject begins.
 2) THE "By the end you'll be able to" GOALS CARD IS FIRST-MESSAGE-ONLY. Show that card EXACTLY
    ONCE -- in your very first teaching message, right after you state today's goal. On EVERY later
    turn do NOT re-post that card and do NOT re-list the goals; just teach the next small step.
