@@ -8,20 +8,17 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
-  - 2026-08-06  ENTER BUTTON (Jim): the answer bar's send button is visible again and reads
-    "Enter ⏎", immediately right of the answer box (math-keyboard.js used to hide it and the
-    🧮/📈 tools used to insert before it -- both shared scripts changed same date so the
-    order is [answer box] [Enter ⏎] [tools]). Same #send id, every hook unchanged.
-  - 2026-08-06  QUIET ASSESSMENT INVITATION (Jim: the "find your perfect starting spot" card and
-    Mr. Cadabra's spoken invitation were happening AT THE SAME TIME -- he was talking and writing
-    on the whiteboard behind the card). Fixed the order of things: the card now appears ALONE and
-    SILENT -- offerAssessment() no longer adds a chat bubble or speaks; the card's own words carry
-    the invitation. The #assessInvite backdrop is now fully OPAQUE (solid, same palette), so the
-    classroom/whiteboard is completely hidden until the student chooses. "Yes" still goes to the
-    Course Assessment; "Not right now" dismisses the card and ONLY THEN does Mr. Cadabra start
-    talking (the exact same __tour_done__/__open__ continuation as before). Both entry paths are
-    covered (brand-new student after the tour, and a toured student entering a new course).
-    No functionality removed -- only the timing and the backdrop changed.
+  - 2026-08-06  VOICE INPUT RESTORED (build an, Jim: "recreate it so the student speaks"). The
+    tap-to-talk flow was never deleted — it was dormant behind one master switch (canRecord was
+    hard-false since 2026-08-01's "no microphone" stance). Reactivated: canRecord is now a real
+    CAPABILITY check — true for the typing courses on browsers that support getUserMedia +
+    MediaRecorder, false for elementary tap-to-answer courses and browsers that can't record.
+    A student taps 🎙️, speaks, taps when done; the audio posts to /api/transcribe (ElevenLabs
+    Scribe — already live, unchanged, with its non-speech hallucination scrubber). "Type
+    instead" remains available at all times, and unsupported browsers fall back to typing
+    automatically. begin() no longer force-opens the composer when voice is on; the welcome tip
+    and the ready-state hint now mention talking. NOTE (Jim's follow-up): the "no microphone,
+    ever" promise across the marketing + privacy pages must be reworked to match — separate task.
   - 2026-08-03  iPAD/TABLET PASS: (1) the full-height layout now also sets 100dvh (kept 100vh
     for older browsers) so the composer can't hide behind Safari's collapsing toolbar on
     tablets; (2) the Yes / No / I'm confused quick buttons grew to a 44px-minimum tap height
@@ -421,13 +418,6 @@
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .welcome.show { display: flex; }
-    /* 2026-08-06: the assessment invitation hides the classroom COMPLETELY (opaque backdrop,
-       same palette as the welcome) -- the whiteboard must not be visible behind this choice. */
-    #assessInvite { background:
-        radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
-        radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
-        radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
-        rgb(22,22,40); }
     .welcome-card { background: #fff; border-radius: 24px; max-width: 680px; width: 100%; padding: 46px 52px 40px;
       max-height: 92vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
     .welcome-card h2 { margin: 12px 0 6px; font-size: 34px; }
@@ -818,7 +808,7 @@
       <div class="composer" id="composer">
         <span class="ablabel">✏️ Your answer</span>
         <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
-        <button id="send" title="Send your answer">Enter ⏎</button>
+        <button id="send">Send</button>
       </div>
     </div>
   </div>
@@ -847,12 +837,10 @@
     </div>
   </div>
 
-  <!-- ASSESSMENT INVITATION (2026-08-05, quieted 2026-08-06): shown once, right after the
-       tour (or before the opener when a toured student enters a NEW course), only when this
-       course has no history and no placement yet. Reuses the welcome-overlay design but with
-       a fully OPAQUE backdrop (see #assessInvite CSS) -- the whiteboard is hidden and Mr.
-       Cadabra is SILENT while this card is up; he only starts talking after the choice.
-       Never forced: "start at Unit 1" continues the exact pre-existing flow. -->
+  <!-- ASSESSMENT INVITATION (2026-08-05): shown once, right after the tour (or before the
+       opener when a toured student enters a NEW course), only when this course has no
+       history and no placement yet. Reuses the welcome-overlay design. Never forced:
+       "start at Unit 1" continues the exact pre-existing flow. -->
   <div class="welcome" id="assessInvite">
     <div class="welcome-card">
       <div class="welcome-badge">📋</div>
@@ -2057,12 +2045,14 @@
     // The mic is ONLY on while the student is recording (they tapped the glowing
     // button). Recorded audio is posted to /api/transcribe (ElevenLabs Scribe),
     // which is reliable in every modern browser -- unlike the built-in recognizer.
-    // 2026-08-01: MASTER SWITCH OFF. The product promise (parents page, mission, privacy) is
-    // "no microphone, ever" — the tutor talks, the student TYPES. With this false, the talk
-    // button never shows, startRecording() can never run, and the browser never asks for
-    // mic permission. The recording code below is kept dormant in case a future opt-in
-    // voice-input tier ever revives it deliberately.
-    const canRecord = false;
+    // 2026-08-06: VOICE INPUT RESTORED (Jim). canRecord is a real CAPABILITY check again:
+    // ON for the typing courses on browsers that can record; OFF for elementary tap-to-answer
+    // courses (IS_ELEM) and browsers without getUserMedia/MediaRecorder (they fall back to
+    // typing). The tap-to-talk code below drives it; "Type instead" is always available. The
+    // browser only asks for mic permission when the student actually taps 🎙️ to record.
+    const canRecord = !IS_ELEM
+      && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+      && (typeof MediaRecorder !== "undefined");
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
@@ -2077,7 +2067,9 @@
       if (p === "ready") {
         talkBtn.disabled = false; talkBtn.classList.add("ready"); setQuick(true);
         talkLabel.textContent = "Tap to talk";
-        hint.textContent = "Your turn — type your answer below, or use a quick button.";
+        hint.textContent = canRecord
+          ? "Your turn — tap 🎙️ to talk, or use “Type instead” to type your answer."
+          : "Your turn — type your answer below, or use a quick button.";
         statusEl.textContent = "Your turn!"; setState("idle"); live.textContent = "";
       } else if (p === "recording") {
         talkBtn.disabled = false; talkBtn.classList.add("recording"); setQuick(false);
@@ -2154,7 +2146,9 @@
       welcome.classList.remove("show");
       ensureAudioGraph(); started = true;
       await warmUpAudio();   // prime the audio pipeline so his first word isn't clipped
-      showComposer();   // 2026-08-01: NO microphone, ever — he talks, you type (see canRecord)
+      // 2026-08-06: voice restored. Typing courses on capable browsers keep the 🎙️ button
+      // primary (with "Type instead" available); everyone else opens the type box.
+      if (!canRecord) showComposer();
       // The tour runs for a student's first lesson IN THIS CLASSROOM TYPE (the server's
       // `toured` flag counts the elementary tap-to-answer courses separately from the
       // typing courses, so a veteran typist still gets the tap intro and vice versa).
@@ -2226,17 +2220,18 @@
       await runTutor("__open__");
     }
 
-    // ---------- Assessment invitation (2026-08-05, quieted 2026-08-06) ----------
-    // The choice card appears ALONE and SILENT over an opaque backdrop — Mr. Cadabra
-    // does NOT speak or write on the whiteboard while it's up (Jim: the two were
-    // overlapping; the card's own words carry the invitation now). "Yes" goes to the
-    // Course Assessment for THIS course; "Not right now" dismisses the card and ONLY
-    // THEN runs `next` — the exact continuation the flow would have taken anyway, so
-    // the tutor starts talking only after the choice. Shown only at course entry
+    // ---------- Assessment invitation (2026-08-05) ----------
+    // Mr. Cadabra speaks the invitation in his own voice while the choice card shows.
+    // "Yes" goes to the Course Assessment for THIS course; "skip" runs `next` — the
+    // exact continuation the flow would have taken anyway. Shown only at course entry
     // when there's no history and no placement (see begin() and runTour()).
     function offerAssessment(next) {
       const inv = el("assessInvite");
-      setState("idle"); statusEl.textContent = "";   // nothing is happening behind the card
+      const spoken = "One more thing! Before we dive in, I'd love to find out what you already know. " +
+        "My course assessment shows me your strengths and exactly where we should focus — and then I " +
+        "build a learning plan that's just for you. Want to give it a try? Or we can simply start at " +
+        "unit one — your choice!";
+      addBubble("tutor", spoken); lastTutorText = spoken;
       inv.classList.add("show");
       el("aiYes").onclick = () => {
         inv.classList.remove("show");
@@ -2244,6 +2239,8 @@
           "&course=" + encodeURIComponent(COURSE);
       };
       el("aiSkip").onclick = () => { inv.classList.remove("show"); next(); };
+      setState("speaking"); statusEl.textContent = tutorName + " is talking…";
+      speak(spoken);
     }
 
     // ---------- Talk to the tutor ----------
@@ -2293,6 +2290,10 @@
       if (IS_ELEM) {
         const tip = el("welcomeAnswerTip");
         if (tip) tip.innerHTML = '<span class="ic">👆</span><span>When it\'s your turn, <b>answer buttons pop up at the bottom</b> — just tap the answer you think is right. Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>';
+      } else if (canRecord) {
+        // 2026-08-06: voice is on — tell the student they can talk (or type).
+        const tip = el("welcomeAnswerTip");
+        if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — or tap <b>“Type instead”</b> to type with the math keyboard. Turn your sound on so you can hear Mr. Cadabra.</span>';
       }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));

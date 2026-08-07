@@ -2,10 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
-#   2026-08-06  APP_BUILD -> "2026-08-06an-precision-teaching". Backend carrier for tutor.py's
-#               new universal teaching rules 13-15 (literal-truth prose, define-every-notation,
-#               complete-on-screen questions -- Jim's live-audit fixes; see tutor.py change
-#               note). main.py itself only bumps the stamp so /health verifies the deploy.
+#   2026-08-06  APP_BUILD -> "2026-08-06an-voicein". VOICE INPUT RESTORED (Jim). The tap-to-talk
+#               flow (dormant since 2026-08-01's "no microphone" master switch) is back on:
+#               session.html's canRecord is a real capability check again (ON for typing courses
+#               on browsers that can record; OFF for elementary tap-to-answer + unsupported
+#               browsers, which type). The student taps 🎙️ → speaks → the audio posts to the
+#               EXISTING /api/transcribe (ElevenLabs Scribe; unchanged, still code-gated + rate-
+#               limited + hallucination-scrubbed). "Type instead" stays available everywhere.
+#               No server code change beyond a docstring accuracy fix. FOLLOW-UP (Jim): the
+#               "no microphone, ever" claims across marketing + privacy pages must be reworked
+#               to match — separate task, flagged in the handoff.
 #   2026-08-06  APP_BUILD -> "2026-08-06am-homeschoolvideo". Jim's new 77-second homeschool page
 #               video embedded under the hero on /homeschool (static/videos/homeschool.mp4 +
 #               homeschool-poster.jpg; controls + poster; "Homeschool Video Played" Plausible
@@ -3568,7 +3574,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-06an-precision-teaching"
+APP_BUILD = "2026-08-06an-voicein"
 
 
 @app.get("/health")
@@ -4337,9 +4343,9 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
     (e.g. "[outro jingle]") are scrubbed via _clean_transcript so they never reach the tutor.
 
     LOCKED DOWN (2026-07-30): requires a valid student code (?code=) + rate limited --
-    this endpoint spends real ElevenLabs money. NOTE: the product is currently
-    "warm voice out / type in" (all mic buttons hidden), so nothing in the live UI
-    calls this; it stays locked and dormant in case voice-in returns as a paid tier.
+    this endpoint spends real ElevenLabs money. 2026-08-06: voice input is LIVE again
+    (session.html canRecord restored) -- the tap-to-talk button posts here for the typing
+    courses on capable browsers; elementary tap-to-answer courses don't use it.
     """
     _require_student(code)
     _rate_limit("stt:" + code.strip(), limit=20, window_seconds=300, what="voice uploads")
