@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-07  STUDENT WIPE (build bc, Jim: "wipe 0000 so I can use it as new"): the Start
+    Fresh card gained a second row — wipe ONE student code (pilot/demo personas) with the
+    same two-click confirm -> POST /api/admin/student-reset. The code keeps working,
+    starting from zero. (Beta passes: use delete in the pass table above.)
   - 2026-08-07  BETA DELETE (build bb, Jim): the pass table gained a "delete" button
     (two-click confirm) next to revoke -> POST /api/beta/delete removes the pass AND
     every scrap of student data recorded under that code. Revoke still only disables.
@@ -190,8 +194,17 @@
       <button class="btn btn-ghost" id="frGo" type="button" style="border-color:#e0a24b;color:#8a5a12">Delete account &amp; start fresh</button>
     </div>
     <div class="msg" id="frMsg"></div>
+    <!-- 2026-08-07 (build bc, Jim): wipe ONE student code (pilot personas like 0000, demo
+         codes) so it can be reused as brand new. The code keeps working after the wipe. -->
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-top:16px;padding-top:14px;border-top:1px dashed #eadfc8">
+      <div style="flex:2;min-width:240px"><label for="srCode">…or a student code to wipe (pilot/demo, e.g. 0000)</label>
+        <input class="f" id="srCode" type="text" autocomplete="off" placeholder="e.g. 0000" /></div>
+      <button class="btn btn-ghost" id="srGo" type="button" style="border-color:#e0a24b;color:#8a5a12">Wipe this student's data</button>
+    </div>
+    <div class="msg" id="srMsg"></div>
     <p class="note" style="margin-top:12px">Nothing happens on the first click — you'll be asked to confirm. After a reset, open the
-      <a href="/family" style="color:var(--purple);font-weight:700">Family portal</a> and create the account fresh.</p>
+      <a href="/family" style="color:var(--purple);font-weight:700">Family portal</a> and create the account fresh.
+      A wiped student code keeps working — it just starts from zero.</p>
   </div></section>
 
   <!-- Quick links -->
@@ -453,6 +466,40 @@
   // THIS browser's saved parent token, so /family immediately opens signed-out.
   var frArmed = false;
   function frMsg(text, kind) { var el = $("frMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+  // ---- wipe ONE student code (2026-08-07 build bc) — same two-click confirm pattern ----
+  var srArmed = false;
+  function srMsg(text, kind) { var el = $("srMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
+  function srDisarm() {
+    srArmed = false;
+    var b = $("srGo");
+    b.textContent = "Wipe this student's data";
+    b.style.background = ""; b.style.color = "#8a5a12"; b.style.borderColor = "#e0a24b";
+  }
+  $("srCode").addEventListener("input", function () { if (srArmed) { srDisarm(); srMsg(""); } });
+  $("srGo").addEventListener("click", async function () {
+    var code = ($("srCode").value || "").trim();
+    if (!code) { srMsg("Type the student code you want to wipe."); return; }
+    if (!srArmed) {                       // first click: arm + explain, wipe nothing
+      srArmed = true;
+      var b = $("srGo");
+      b.textContent = "Click again to wipe " + code;
+      b.style.background = "#fdf0ee"; b.style.color = "#b3402e"; b.style.borderColor = "#f5cfc8";
+      srMsg("This permanently erases ALL progress, quizzes, time, awards and exam results for student code " +
+        code + " — the code itself keeps working, starting from zero. Click once more to confirm — or change the code to cancel.", "err");
+      return;
+    }
+    $("srGo").disabled = true; srMsg("");
+    try {
+      var out = await api("/api/admin/student-reset", { method: "POST",
+        body: JSON.stringify({ key: KEY, code: code }) });
+      srMsg("Done — " + out.code + " is a clean slate (" + (out.rows_removed || 0) +
+        " records removed). Sign in with it and it starts brand new.", "ok");
+      $("srCode").value = "";
+    } catch (e) {
+      srMsg(e.message);
+    }
+    $("srGo").disabled = false; srDisarm();
+  });
   function frDisarm() {
     frArmed = false;
     var b = $("frGo");

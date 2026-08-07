@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bc-student-reset". WIPE A PILOT/DEMO STUDENT + BETA-
+#               DELETE SAFETY (Jim: "I'll be able to wipe 0000, right?" -- he couldn't:
+#               0000 is a pilot persona, not a beta pass and not parent-owned, so neither
+#               delete path reached it). (1) NEW POST /api/admin/student-reset (admin key,
+#               student code): wipes every per-student row for that ONE code via
+#               store.reset_student_data; the code keeps working as brand new (account row
+#               re-created on login). 404 for unknown codes so typos never silently
+#               "succeed". admin.html's Start Fresh card gained a second row for it (same
+#               two-click confirm). (2) SAFETY FIX caught in review: /api/beta/delete's
+#               cascade now verifies the pass EXISTS before wiping -- previously a
+#               mistyped or pilot code would have its student data erased and THEN get a
+#               "no pass with that code" error. Nobody hit it; now nobody can.
 #   2026-08-07  APP_BUILD -> "2026-08-07bb-beta-delete". DELETE A BETA ACCOUNT (Jim: "I see
 #               how to delete a parent's account by email, but I can't delete a beta
 #               account" -- true: revoke only DISABLED the code and left every scrap of its
@@ -3172,6 +3184,32 @@ class ParentResetAdminIn(BaseModel):
     email: str
 
 
+class StudentResetAdminIn(BaseModel):
+    key: str
+    code: str
+
+
+@app.post("/api/admin/student-reset")
+def admin_student_reset(body: StudentResetAdminIn):
+    """2026-08-07 (build bc, Jim): wipe ONE student code's data -- pilot personas
+    (0000/1234/...), demo codes, any student -- so the code can be used as brand new.
+    The code keeps working (pilot codes live in students.json; the account row is
+    re-created on next login). Admin-key protected; 404 for a code that isn't a known
+    student, so a typo can never silently 'succeed'."""
+    _require_db()
+    _require_admin(body.key)
+    code = (body.code or "").strip()
+    if not _lookup_student(code):
+        raise HTTPException(status_code=404, detail=(
+            "That code isn't a known student, so nothing was wiped. (Beta passes are "
+            "deleted from the pass table instead.)"))
+    res = store.reset_student_data(code)
+    if not res.get("ok"):
+        raise HTTPException(status_code=500, detail="Couldn't complete the wipe — nothing was deleted.")
+    removed = sum(int(v or 0) for v in (res.get("deleted") or {}).values())
+    return {"ok": True, "code": code, "rows_removed": removed, "deleted": res.get("deleted") or {}}
+
+
 @app.post("/api/admin/parent-reset")
 def admin_parent_reset(body: ParentResetAdminIn):
     """Fully delete ONE parent account (and its children + data) by email, so the
@@ -3907,7 +3945,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bb-beta-delete"
+APP_BUILD = "2026-08-07bc-student-reset"
 
 
 @app.get("/health")

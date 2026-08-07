@@ -2,6 +2,11 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  STUDENT RESET + BETA-DELETE SAFETY (build bc). (1) delete_beta_cascade now
+#               verifies the pass EXISTS before wiping anything (a mistyped/pilot code used
+#               to get its data erased, then a "no pass" error). (2) NEW reset_student_data
+#               (code) -- wipes every per-student row for ONE code (pilot personas like
+#               0000, demo codes) so it can be reused as brand new; the code keeps working.
 #   2026-08-07  BETA DELETE (build bb, Jim: revoke wasn't enough). NEW delete_beta_cascade()
 #               -- removes the beta_codes row AND every per-student row under that code, one
 #               transaction. ALSO: final_exams joined _STUDENT_CODE_TABLES, so parent resets
@@ -1867,6 +1872,12 @@ def delete_beta_cascade(code: str) -> dict:
         res = conn.execute(delete(bt).where(bt.c.code == c))
         existed = bool(res.rowcount)
         deleted["beta_codes"] = int(res.rowcount or 0)
+        # SAFETY (2026-08-07 build bc, caught in review before anyone hit it): if the code
+        # was NOT a beta pass, STOP -- wipe nothing. Without this, deleting a mistyped code
+        # (or a pilot code like 0000) would erase that student's data and then report
+        # "no pass with that code". Pilot codes have their own reset: reset_student_data().
+        if not existed:
+            return {"ok": True, "existed": False, "deleted": {}}
         for tname, col in _STUDENT_CODE_TABLES:
             t = _tables.get(tname)
             if t is None:
@@ -1874,6 +1885,28 @@ def delete_beta_cascade(code: str) -> dict:
             r = conn.execute(delete(t).where(t.c[col] == c))
             deleted[tname] = int(r.rowcount or 0)
     return {"ok": True, "existed": existed, "deleted": deleted}
+
+
+def reset_student_data(code: str) -> dict:
+    """2026-08-07 (build bc, Jim: "I'll be able to wipe 0000, right?"). Wipe EVERY
+    per-student row for ONE code -- pilot personas (0000/1234/...), demo codes, any
+    student -- so the code can be used as brand new. The code itself keeps working:
+    pilot codes live in students.json and the account row is re-created on next login.
+    Does NOT touch beta_codes (delete_beta_cascade owns beta passes) and does NOT
+    touch any other student. One transaction. Returns {ok, deleted:{table: rows}}."""
+    from sqlalchemy import delete
+    c = (code or "").strip()
+    if not c:
+        return {"ok": False, "deleted": {}}
+    deleted: dict = {}
+    with _engine.begin() as conn:
+        for tname, col in _STUDENT_CODE_TABLES:
+            t = _tables.get(tname)
+            if t is None:
+                continue
+            r = conn.execute(delete(t).where(t.c[col] == c))
+            deleted[tname] = int(r.rowcount or 0)
+    return {"ok": True, "deleted": deleted}
 
 
 def record_error(where: str, what: str) -> None:
