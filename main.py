@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bf-nav-order". SIDEBAR ORDER + ONE-STOP TOUR (Jim):
+#               lesson nav now reads Curriculum → Course assessment → Progress dashboard →
+#               Practice a problem → Explore a topic (NEW — the lesson page never had the
+#               topic link) → Final Exam → 📖 Look it up. The welcome tour covers each item
+#               individually in that exact order (practice + assessment are no longer
+#               explained in one breath). session.html only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07be-code-entry". CODE BOX FITS EVERY PASS (Jim pasted
 #               a pass verbatim -> "not recognized"; separately his TRY-MESA44 test turned
 #               out to be MY sandbox test pass, never on live). index.html's #code/#pcode
@@ -3960,7 +3966,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07be-code-entry"
+APP_BUILD = "2026-08-07bf-nav-order"
 
 
 @app.get("/health")

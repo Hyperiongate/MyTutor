@@ -8,6 +8,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  NAV ORDER + ONE-STOP-PER-ITEM TOUR (build bf, Jim's exact sequence):
+    Curriculum → Course assessment → Progress dashboard → Practice a problem → Explore a
+    topic (NEW on the lesson page — #topicLink → /topic) → Final Exam → 📖 Look it up
+    (library.js appends last). The tour now covers each item INDIVIDUALLY in that order
+    (the old "two more helpers" stop lumped practice + assessment together); glow map
+    split to one glow per stop; new Final Exam stop frames it as the mountaintop.
   - 2026-08-07  FOLLOW FIX, ROUND 2 (build ay, Jim's Basic-Math cookies: board work still
     slid below the fold ON the ax build). Root cause: our OWN anchor-scroll fires a scroll
     event, which the listener read as "the student scrolled away" and disabled following —
@@ -876,12 +882,17 @@
         </div>
       </div>
 
+      <!-- NAV ORDER (2026-08-07 build bf, Jim's exact sequence): Curriculum → Course
+           assessment → Progress dashboard → Practice a problem → Explore a topic (NEW —
+           the lesson page never had it) → Final Exam → 📖 Look it up (library.js appends
+           it last). The tour walks these one at a time in this same order. -->
       <nav class="leftnav">
         <button class="navbtn" id="curriculumBtn">📚 Curriculum <span class="chev">▸</span></button>
         <div class="curriculum" id="curriculumList" style="display:none;"></div>
-        <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
-        <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
         <a class="navbtn" id="assessLink" href="#">📋 Course assessment</a>
+        <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+        <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
+        <a class="navbtn" id="topicLink" href="#">💡 Explore a topic</a>
         <a class="navbtn" id="finalLink" href="#">🎓 Final Exam</a>
       </nav>
 
@@ -1310,6 +1321,7 @@
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("dashLink").href = "/dashboard" + cq;
     el("practiceLink").href = "/practice" + cq;
+    el("topicLink").href = "/topic" + cq;   // 2026-08-07 build bf: Explore a topic, from the lesson too
     el("homeLink").href = "/home" + cq;
     el("assessLink").href = "/challenge" + cq;
     el("welcomeChallenge").href = "/challenge" + cq;
@@ -1539,8 +1551,12 @@
       "dashboard":    "dashLink",
       // 2026-08-01 (Jim: "it NEVER highlighted Practice a problem"): this stop
       // talks about BOTH helpers, so it now glows BOTH buttons.
-      "assess":       ["practiceLink", "assessLink"],
-      // 2026-08-07 (build au): the tour now introduces the 📖 Look it up button
+      // 2026-08-07 (build bf): one glow per stop, matching the one-item-per-stop tour.
+      "assess":       "assessLink",
+      "practice":     "practiceLink",
+      "topic":        "topicLink",
+      "final":        "finalLink",
+      // 2026-08-07 (build au): the tour introduces the 📖 Look it up button
       // (injected by library.js at DOMContentLoaded — it exists by tour time).
       "library":      "libraryLink",
       "todays-plan":  "planPanel",
@@ -2556,13 +2572,21 @@
     // 2026-08-01 (Jim's playtest): five DISTINCT stops (the old tour described the
     // curriculum twice), and every stop visibly points somewhere -- a pulsing glow
     // plus a bouncing "look here" tag on the exact element being described.
+    // 2026-08-07 (build bf, Jim): ONE stop per sidebar item, in the sidebar's exact order —
+    // no more doubling up ("two more helpers..." covered practice + assessment in one breath).
     const TOUR_STEPS = [
       { id: "curriculum",
         text: "See the glowing spot? Over on the left is your Curriculum — everything we'll learn in " + COURSE_TITLE + ", laid out in nine units. Click any unit to see exactly what's inside it." },
-      { id: "dashboard",
-        text: "Right below it, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "assess",
-        text: "Two more helpers on the left: Practice a problem, for when you want to bring me one specific problem — and the Course Assessment, which finds your strengths and builds you a recommended path whenever you're ready." },
+        text: "Right below it, the Course Assessment. Whenever you're ready, it finds your strengths and builds a recommended path that's just for you. It's totally optional — and it's always waiting right there." },
+      { id: "dashboard",
+        text: "Next, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
+      { id: "practice",
+        text: "Then Practice a problem — for when you're stuck on one specific problem, from homework or anywhere. Bring it to me there and we'll work through it together." },
+      { id: "topic",
+        text: "Right under it, Explore a topic. Curious about just one thing — fractions, slope, anything? Open it, name your topic, and we'll dig into exactly that." },
+      { id: "final",
+        text: "And the Final Exam — that's the top of the mountain. It unlocks once you've mastered all nine units, and passing it makes you a Course Champion. Something to look forward to!" },
       { id: "library",
         text: "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here." },
       { id: "tutor",
