@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bi-tour-smallfixes". THREE TOUR TOUCHES (Jim):
+#               (1) the curriculum list the tour opens closes again when the tour moves on
+#               (it pushed Mr. Cadabra below the fold); (2) the bars tour stop previews the
+#               today/unit bars with labeled placeholders (only the course bar exists
+#               before the first lesson turn); (3) the three bars sit on a dark card so
+#               they stop washing out on the light page. session.html only; bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07bh-original-restated". RULE 16 SHARPENED (Jim's
 #               second live catch: the check question wrote the substituted line but spoke
 #               of "the original equation on the board" that had scrolled away). The rule
@@ -3980,7 +3986,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bh-original-restated"
+APP_BUILD = "2026-08-07bi-tour-smallfixes"
 
 
 @app.get("/health")

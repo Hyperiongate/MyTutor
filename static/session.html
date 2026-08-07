@@ -8,6 +8,12 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  TOUR SMALL FIXES (build bi, Jim). (1) The curriculum list the tour opens now
+    CLOSES again when the tour moves on (left open it pushed Mr. Cadabra below the fold).
+    (2) The bars tour stop now PREVIEWS the today/unit bars (clearly-labeled placeholders,
+    removed when the stop ends) — before the first lesson turn only the course bar was
+    real, so the stop described bars nobody could see. (3) The three bars sit on a DARK
+    card now (labels/segments/text recolored) — they washed out on the light page.
   - 2026-08-07  TOUR POLISH, FINAL ROUND (build bg, Jim). (1) The 🎙️ emoji on the talk
     button rendered as a gray "dead fly" glyph on Windows — replaced with a real drawn SVG
     microphone (identical everywhere) on all three teaching pages. (2) "Type instead" was
@@ -772,23 +778,27 @@
 
     /* ===== PROGRESS BARS (2026-08-07, Jim: "a nervous student should always SEE where
        they are") — three thin stacked bars under the goal banner: TODAY / UNIT / COURSE. */
-    .pbars { display: none; flex-direction: column; gap: 5px; margin: 6px 24px 4px; }
+    /* 2026-08-07 (build bi, Jim: the bars washed out on the light page): a dark card
+       behind all three bars so they pop; labels/text lightened to match. */
+    .pbars { display: none; flex-direction: column; gap: 6px; margin: 6px 24px 4px;
+      background: linear-gradient(90deg, #262347, #33305c); border-radius: 12px;
+      padding: 8px 14px; box-shadow: 0 4px 14px rgba(30,25,70,.25); }
     .pbars.show { display: flex; }
     .pbar { display: none; align-items: center; gap: 8px; font-size: 11.5px; }
     .pbar.show { display: flex; }
-    .pbar .pbl { flex: 0 0 52px; text-align: right; color: var(--muted); font-weight: 800;
+    .pbar .pbl { flex: 0 0 52px; text-align: right; color: rgba(255,255,255,.75); font-weight: 800;
       text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
     .pbar .pbtrack { flex: 1; display: flex; align-items: center; gap: 3px; min-width: 0; }
-    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: #e8e6f4;
-      border: 1px solid #dcd9ee; min-width: 8px; }
+    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.14); min-width: 8px; }
     .pbar .pbseg.done { background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-color: transparent; }
     .pbar .pbseg.gold { background: linear-gradient(90deg, #f2c14e, #e8a71c); border-color: transparent; }
-    .pbar .pbmark { flex: 0 0 auto; font-size: 11px; line-height: 1; opacity: .75; }
+    .pbar .pbmark { flex: 0 0 auto; font-size: 11px; line-height: 1; opacity: .85; }
     .pbar .pbmark.done { opacity: 1; }
     .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
     .pbar .pbcap.locked { filter: grayscale(1); opacity: .55; }
-    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: var(--muted); font-weight: 600;
+    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: rgba(255,255,255,.85); font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     @media (max-width: 900px) { .pbar .pbt { display: none; } .pbar .pbl { flex-basis: 44px; } }
 
@@ -1586,10 +1596,19 @@
       // the talk button is hidden and the type box is the visible answer spot.
       "answer":       ["talkBtn", "composer"],
     };
+    // 2026-08-07 (build bi, Jim): if the TOUR opened the curriculum list, close it again
+    // when the tour moves on — left open, it pushed Mr. Cadabra below the fold and the
+    // student couldn't see him glowing for the rest of the walk.
+    let tourOpenedCurriculum = false;
     function clearHighlight() {
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
       const tag = document.getElementById("tourTag");
       if (tag) tag.style.display = "none";
+      if (tourOpenedCurriculum) {
+        tourOpenedCurriculum = false;
+        curriculumList.style.display = "none"; curriculumBtn.classList.remove("open");
+      }
+      clearBarsPreview();
     }
     function highlightEl(id) {
       clearHighlight();
@@ -1604,7 +1623,12 @@
       // If we're spotlighting the curriculum, open it so there's something to see.
       if (key === "curriculum" && curriculumList.style.display === "none") {
         curriculumList.style.display = "block"; curriculumBtn.classList.add("open");
+        tourOpenedCurriculum = true;   // build bi: so the NEXT stop closes it again
       }
+      // 2026-08-07 (build bi, Jim): the bars stop describes THREE bars, but before the
+      // first lesson turn only the COURSE bar exists — preview the other two (clearly
+      // labeled) so the student sees what's being described; cleared when the stop ends.
+      if (key === "bars") showBarsPreview();
       nodes.forEach(n => n.classList.add("tourglow"));
       try { nodes[0].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
       // pin the bouncing "look here" tag over the GROUP (after the scroll settles)
@@ -1865,6 +1889,41 @@
         : (unlocked ? "🎓 All nine units mastered — the Final Exam is unlocked!"
                     : masteredCount + " of 9 units mastered — " + (9 - masteredCount) + " to the Final Exam");
       showBars(); el("courseBar").classList.add("show");
+    }
+
+    // ===== TOUR PREVIEW of the today/unit bars (2026-08-07 build bi) =====
+    // Before the first teaching turn only the course bar is real. During the tour's bars
+    // stop we show placeholder rows — clearly marked — so the student can see all three
+    // maps being described. Removed the moment the tour moves on; the real bars take
+    // over when Mr. Cadabra emits [[today]] / [[unitplan]].
+    let barsPreviewOn = false;
+    function showBarsPreview() {
+      barsPreviewOn = false;
+      [["todayBar", "todayTrack", "todayText", 3, "your goals for today will fill in here"],
+       ["unitBar", "unitTrack", "unitText", 4, "one piece per topic — 📝 marks each quiz"]]
+        .forEach(([barId, trackId, textId, n, label]) => {
+          const bar = el(barId);
+          if (bar.classList.contains("show")) return;      // real bar already there
+          const t = el(trackId); t.innerHTML = "";
+          for (let i = 0; i < n; i++) t.appendChild(seg("", "coming up!"));
+          if (barId === "unitBar") {
+            t.querySelectorAll(".pbseg").forEach(sg => t.insertBefore(mark("📝", false, "a topic quiz"), sg.nextSibling));
+            const cap = document.createElement("span"); cap.className = "pbcap"; cap.textContent = "🏁";
+            cap.title = "the Unit Quiz"; t.appendChild(cap);
+          }
+          el(textId).textContent = label;
+          bar.classList.add("show"); bar.dataset.preview = "1";
+          showBars();
+        });
+      barsPreviewOn = true;
+    }
+    function clearBarsPreview() {
+      if (!barsPreviewOn) return;
+      barsPreviewOn = false;
+      ["todayBar", "unitBar"].forEach(id => {
+        const bar = el(id);
+        if (bar.dataset.preview === "1") { delete bar.dataset.preview; bar.classList.remove("show"); }
+      });
     }
 
     // ===== FINAL EXAM (2026-08-07) — the door, the result card, and the champion medal.
