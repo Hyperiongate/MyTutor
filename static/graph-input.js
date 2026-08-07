@@ -1,6 +1,10 @@
 /* =============================================================================
  * graph-input.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-06  ENTER-BUTTON ORDER (with math-keyboard.js same date): the 📈 button now
+ *               inserts AFTER the page's send button instead of before it, so the restored
+ *               "Enter ⏎" button sits immediately to the right of the answer box:
+ *               [answer box] [Enter ⏎] [tools]. Behavior otherwise unchanged.
  *   2026-07-30  NEW shared component. Adds a "📈 Graph" button next to the answer box (and the 🧮 Math
  *               button) on session/practice/topic. It opens coordinate graph paper: tap grid points to
  *               plot (tap again to remove), optionally draw a straight line through the first two points,
@@ -50,7 +54,8 @@
     openBtn.type = "button";
     openBtn.className = "gpi-open";
     openBtn.textContent = "📈 Graph";
-    if (sendBtn && sendBtn.parentNode === input.parentNode) input.parentNode.insertBefore(openBtn, sendBtn);
+    // 2026-08-06: insert AFTER the send button so "Enter ⏎" stays glued to the answer box.
+    if (sendBtn && sendBtn.parentNode === input.parentNode) input.parentNode.insertBefore(openBtn, sendBtn.nextSibling);
     else input.parentNode.appendChild(openBtn);
     try { input.parentNode.style.flexWrap = "wrap"; openBtn.style.flex = "0 0 auto"; } catch (e) {}
 

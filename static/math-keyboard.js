@@ -1,6 +1,15 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-06  THE ENTER BUTTON IS BACK (Jim: "put an ENTER button to the right of the
+ *               answer space"). Reverses the 2026-07-30 "single send" hiding: the page's
+ *               standalone send button (#send / #chatSend) is now VISIBLE again, relabeled
+ *               "Enter ⏎", and sits IMMEDIATELY to the right of the answer box -- on chat
+ *               bars the 🧮 opener now inserts AFTER it (attachKeypad opts.barWrap path)
+ *               instead of before, and graph-input.js does the same, so the order is:
+ *               [answer box] [Enter ⏎] [tools]. The Enter key, the keypad's own Send, and
+ *               the graph's Send still work -- they all click this same button. The
+ *               practice INTAKE ("Let's work on it", #entryGo) is untouched.
  *   2026-08-01  NOT-A-CALCULATOR (Jim). The keyboard sheet opens with a one-line caption --
  *               'This isn't a calculator... it TYPES into your answer' -- and the reminder
  *               above the answer bar now says the TWO WAYS to answer (type directly, or use
@@ -67,13 +76,14 @@
     // ---- (b) make sure the type box is visible (session hides it in .composer) ----
     var comp = document.getElementById("composer");
     if (comp) comp.classList.add("show");
-    // ---- (b2) "each tool has its own send": hide the redundant standalone Send button(s) in the
-    // answer bar. We only HIDE them (keep them in the DOM) so this keypad's Send, the 📈 graph's
-    // Send, and the Enter key all still work by clicking them. The practice INTAKE's
-    // "Let's work on it" button (#entryGo) is deliberately NOT in this list. ----
+    // ---- (b2) THE ENTER BUTTON (2026-08-06, Jim): the standalone send button is VISIBLE
+    // again, relabeled "Enter ⏎", right of the answer box. (Reverses the 2026-07-30 hiding --
+    // students look for a real button next to the box.) The Enter key, the keypad's Send,
+    // and the 📈 graph's Send all still work: they click this same button. The practice
+    // INTAKE's "Let's work on it" button (#entryGo) is deliberately NOT in this list. ----
     ["send", "chatSend"].forEach(function (id) {
       var b = document.getElementById(id);
-      if (b) b.style.display = "none";
+      if (b) { b.style.display = ""; b.textContent = "Enter ⏎"; b.title = "Send your answer"; }
     });
 
     // ---- (c) styles (namespaced mtk-*) -- injected once, shared by every keypad ----
@@ -141,7 +151,11 @@
       openBtn.className = "mtk-open";
       openBtn.textContent = opts.openText || "🧮 Math Keyboard";
       if (sendBtn && sendBtn.parentNode === input.parentNode) {
-        input.parentNode.insertBefore(openBtn, sendBtn);
+        // Chat bars (barWrap): 🧮 goes AFTER the Enter button so Enter stays glued to the
+        // answer box (2026-08-06) -- [box] [Enter ⏎] [🧮] ... The intake keeps 🧮 BEFORE
+        // its "Let's work on it" button, which should stay last.
+        if (opts.barWrap) input.parentNode.insertBefore(openBtn, sendBtn.nextSibling);
+        else input.parentNode.insertBefore(openBtn, sendBtn);
       } else {
         input.parentNode.appendChild(openBtn);
       }

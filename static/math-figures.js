@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-06  AXIS LABELS ALWAYS (Jim: "the axis should always be labeled X and Y" -- the
+                 old labels were 11px light gray and easy to miss). New shared AXIS_LBL style
+                 (15px bold italic, dark, white halo so it reads over grid lines) applied to
+                 the main [[graph]] grapher, the shared axesGrid helper ([[conic]] and
+                 [[vector]] now get letter labels for the first time), and [[scatter]].
+                 Grapher/axesGrid labels are CLAMPED into the frame so they stay visible even
+                 when the axis line itself is off-screen. Purely visual; nothing else touched.
      2026-07-28  STAGE 3 -- TRIG / CONICS / NUMBER LINE / TILES / VECTORS. Added six figures:
                  [[unitcircle]] (angle, its point (cos,sin), dashed legs, exact values + radian),
                  [[righttriangle]] (SOH-CAH-TOA labeled right triangle), [[conic]] (ellipse / hyperbola
@@ -41,6 +48,10 @@
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
   var COLORS = ["#5b5bd6", "#0d9488", "#e0392b", "#d97706", "#7c3aed", "#2563eb"];
+  // Shared attribute string for the x / y AXIS LETTER LABELS (2026-08-06, Jim: every
+  // coordinate figure must clearly label its axes). Bold italic, dark, white halo.
+  var AXIS_LBL = 'font-size="15" font-weight="800" font-style="italic" fill="#26263a" ' +
+    'stroke="#ffffff" stroke-width="3" paint-order="stroke" font-family="Georgia,Times,serif"';
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -177,8 +188,13 @@
       svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (zy ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (zy ? 1.5 : 1) + '"/>';
       if (!zy) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="#8890a0" text-anchor="end">' + trimnum(gy) + '</text>';
     }
-    svg += '<text x="' + (S - PAD + 2) + '" y="' + (mapY(0) + 3) + '" font-size="11" fill="#6b6f82">x</text>';
-    svg += '<text x="' + (mapX(0) + 4) + '" y="' + (PAD - 4) + '" font-size="11" fill="#6b6f82">y</text>';
+    // AXIS LABELS (2026-08-06, Jim: the axes must ALWAYS be clearly labeled x and y):
+    // big, bold, dark, on a white halo so they read over the grid -- and CLAMPED into the
+    // frame so they stay visible even when an axis line itself is off-screen.
+    var axLblY = Math.max(PAD + 13, Math.min(S - PAD - 4, mapY(0) + 4));
+    var ayLblX = Math.max(PAD + 6, Math.min(S - PAD - 12, mapX(0) + 6));
+    svg += '<text x="' + (S - PAD + 2) + '" y="' + axLblY + '" ' + AXIS_LBL + '>x</text>';
+    svg += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
 
     svg += '<g clip-path="url(#gclip)">';
     // vertical lines
@@ -342,6 +358,9 @@
       s += tspan(gx, PAD + plotH + 14, String(trimnum(xmin + (xmax - xmin) * i / 4)), "#8890a0", 9, 500);
       s += tspan(PAD - 6, PAD + plotH - plotH * i / 4 + 3, String(trimnum(ymin + (ymax - ymin) * i / 4)), "#8890a0", 9, 500, "end");
     }
+    // x / y axis letter labels (2026-08-06, Jim: axes always clearly labeled).
+    s += '<text x="' + (W - 6) + '" y="' + (PAD + plotH + 14) + '" text-anchor="end" ' + AXIS_LBL + '>x</text>';
+    s += '<text x="' + (PAD - 6) + '" y="' + (PAD - 8) + '" text-anchor="end" ' + AXIS_LBL + '>y</text>';
     var m, b;
     if (a.fit && /^(true|yes|1)$/i.test(String(a.fit))) {
       var n = pts.length, sx = 0, sy = 0, sxx = 0, sxy = 0;
@@ -465,6 +484,11 @@
     var s = '<rect x="' + PAD + '" y="' + PAD + '" width="' + plotW + '" height="' + plotH + '" fill="#fbfbff" stroke="#e7e6f2"/>';
     for (var x = Math.ceil(xmin); x <= xmax; x++) { var px = mapX(x), z = x === 0; s += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (H - PAD) + '" stroke="' + (z ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (z ? 1.4 : 1) + '"/>'; }
     for (var y = Math.ceil(ymin); y <= ymax; y++) { var py = mapY(y), z2 = y === 0; s += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (W - PAD) + '" y2="' + py + '" stroke="' + (z2 ? "#9aa7b6" : "#eef0f7") + '" stroke-width="' + (z2 ? 1.4 : 1) + '"/>'; }
+    // x / y axis letter labels (2026-08-06) -- clamped into the frame like the main grapher's.
+    var axLblY = Math.max(PAD + 13, Math.min(H - PAD - 4, mapY(0) + 4));
+    var ayLblX = Math.max(PAD + 6, Math.min(W - PAD - 12, mapX(0) + 6));
+    s += '<text x="' + (W - PAD + 2) + '" y="' + axLblY + '" ' + AXIS_LBL + '>x</text>';
+    s += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
     return { svg: s, mapX: mapX, mapY: mapY };
   }
 

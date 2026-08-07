@@ -8,6 +8,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-06  ENTER BUTTON (Jim): the answer bar's send button is visible again and reads
+    "Enter ⏎", immediately right of the answer box (math-keyboard.js used to hide it and the
+    🧮/📈 tools used to insert before it -- both shared scripts changed same date so the
+    order is [answer box] [Enter ⏎] [tools]). Same #send id, every hook unchanged.
   - 2026-08-06  QUIET ASSESSMENT INVITATION (Jim: the "find your perfect starting spot" card and
     Mr. Cadabra's spoken invitation were happening AT THE SAME TIME -- he was talking and writing
     on the whiteboard behind the card). Fixed the order of things: the card now appears ALONE and
@@ -814,7 +818,7 @@
       <div class="composer" id="composer">
         <span class="ablabel">✏️ Your answer</span>
         <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
-        <button id="send">Send</button>
+        <button id="send" title="Send your answer">Enter ⏎</button>
       </div>
     </div>
   </div>
