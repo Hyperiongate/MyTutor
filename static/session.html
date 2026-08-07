@@ -8,6 +8,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  RESUME CHOICE + LIBRARY TOUR STOP (build au, Jim: exploring a mid-course
+    topic hijacked "Continue my lesson"). (1) Welcome-back overlay gains a second button —
+    "🧭 Take me to my course path — Unit N" (N = first unmastered unit from SRV_PROGRESS;
+    Unit 1 fresh, Unit 9 if all mastered). It sets FOCUS_UNIT (now `let`) and sends the
+    NEW "__open_fresh__" sentinel; main.py tells the opener NOT to recap/resume the
+    side-trip. "▶️ Continue where I left off" keeps the old behavior. (2) The tour gained
+    a "library" stop glowing #libraryLink (📖 Look it up), so new students learn the
+    reference library exists.
   - 2026-08-07  QUIET ASSESSMENT INVITATION, RESTORED + HARDENED (build at, Jim's live catch;
     the 08-06 version of this fix was lost when the runaway chat rebuilt this file from a
     stale copy). offerAssessment(): NO spoken line, NO chat bubble, NO status — the card
@@ -958,7 +966,9 @@
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
     const CODE = (params.get("code") || "").trim();
-    const FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
+    // 2026-08-07 (build au): `let`, not const — the welcome overlay's "start at my next
+    // unmastered unit" choice retargets it before the opener is sent.
+    let FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
     // 2026-08-07 FINAL EXAM: "" | "prep" | "exam" — sent with every chat turn; the SERVER
     // re-verifies eligibility (all 9 units mastered) each time. This flag is a courtesy.
@@ -1492,6 +1502,9 @@
       // 2026-08-01 (Jim: "it NEVER highlighted Practice a problem"): this stop
       // talks about BOTH helpers, so it now glows BOTH buttons.
       "assess":       ["practiceLink", "assessLink"],
+      // 2026-08-07 (build au): the tour now introduces the 📖 Look it up button
+      // (injected by library.js at DOMContentLoaded — it exists by tour time).
+      "library":      "libraryLink",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
@@ -2465,6 +2478,8 @@
         text: "Right below it, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "assess",
         text: "Two more helpers on the left: Practice a problem, for when you want to bring me one specific problem — and the Course Assessment, which finds your strengths and builds you a recommended path whenever you're ready." },
+      { id: "library",
+        text: "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here." },
       { id: "tutor",
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
@@ -2608,8 +2623,37 @@
           // fresh spoken recap, so the chat starts clean and only shows THIS session.
           el("welcomeTitle").textContent = "Welcome back!";
           el("welcomeLead").innerHTML = "Let's pick up where you left off with <b>" + tutorName + "</b>.";
-          el("welcomeGo").innerHTML = "▶️ Continue my lesson";
+          el("welcomeGo").innerHTML = "▶️ Continue where I left off";
           addBubble("system", "Welcome back — let's pick up where you left off.");
+          // 2026-08-07 (build au, Jim: exploring a mid-course topic hijacked "continue" —
+          // "I don't have a way to get back to the beginning where I want to be"). A second
+          // choice: start at the FIRST UNMASTERED UNIT of the course path instead of
+          // resuming whatever was last touched. Computed from the server's honest mastery
+          // data; the opener gets a dedicated sentinel so the tutor doesn't recap the
+          // side-trip. Inserted once, right under the Continue button.
+          if (!el("welcomeRestart")) {
+            const mastered = (SRV_PROGRESS && SRV_PROGRESS.mastered_units) || [];
+            let firstUnit = 1;
+            while (firstUnit <= 9 && mastered.indexOf(firstUnit) >= 0) firstUnit++;
+            if (firstUnit > 9) firstUnit = 9;   // everything mastered — land on the last unit
+            const rb = document.createElement("button");
+            rb.id = "welcomeRestart";
+            rb.style.cssText = "width:100%; margin-top:12px; border:2px solid var(--line); background:#fff;" +
+              "border-radius:30px; cursor:pointer; color:var(--ink); font-size:17px; font-weight:700; padding:15px;";
+            rb.innerHTML = "🧭 Take me to my course path — Unit " + firstUnit +
+              (mastered.length ? " (my next unmastered unit)" : " (the beginning)");
+            rb.addEventListener("click", async () => {
+              FOCUS_UNIT = firstUnit;           // steers the whole session to that unit
+              welcome.classList.remove("show");
+              ensureAudioGraph(); started = true;
+              await warmUpAudio();
+              if (!canRecord) showComposer();
+              busy = true; setPhase("busy");
+              statusEl.textContent = tutorName + " is starting…";
+              await runTutor("__open_fresh__");  // "start my path" opener — no side-trip recap
+            });
+            el("welcomeGo").insertAdjacentElement("afterend", rb);
+          }
         }
       } catch (e) { window.location.href = "/login"; }
     }

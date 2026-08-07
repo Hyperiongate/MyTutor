@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07au-course-path". RESUME CHOICE + LIBRARY IN THE TOUR
+#               (Jim's live catch: he explored a MID-COURSE geometry topic, came back, and
+#               "Continue my lesson" resumed the side-trip -- "I don't have a way to get
+#               back to the beginning where I want to be").
+#               (1) The welcome-back overlay now offers TWO buttons: "▶️ Continue where I
+#                   left off" (unchanged) and NEW "🧭 Take me to my course path — Unit N",
+#                   where N = the first unmastered unit from the server's mastery data
+#                   (falls back to Unit 1 for a fresh course, Unit 9 if all mastered). The
+#                   choice sets the focus unit and sends the NEW "__open_fresh__" sentinel:
+#                   the opener is told NOT to recap/resume the side work -- welcome briefly,
+#                   then the full opening sequence for that unit.
+#               (2) The introductory tour gained a stop for the 📖 Look it up button
+#                   (library.js injects it before the tour runs), so new students learn the
+#                   reference library exists. session.html only + this note; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07at-quiet-invite". TWO LIVE CATCHES (Jim's screenshot):
 #               (1) QUIET ASSESSMENT INVITATION, PROPERLY THIS TIME. The 08-06 "card shows
 #                   alone, silent, opaque" design lived only in session.html and was LOST
@@ -3820,7 +3834,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07at-quiet-invite"
+APP_BUILD = "2026-08-07au-course-path"
 
 
 @app.get("/health")
@@ -4222,13 +4236,19 @@ def chat(req: ChatRequest):
     # after a few logins the tutor saw "Hi Hi Hi..." and turned snappish. Fix: never store a
     # fake student greeting, strip any leftover junk ones, generate a warm recap, and save
     # ONLY the tutor's reply so the conversation stays coherent.
-    if message in ("__open__", "__tour_done__", "__open_declined__", "__tour_done_declined__"):
+    if message in ("__open__", "__tour_done__", "__open_declined__", "__tour_done_declined__",
+                   "__open_fresh__"):
         after_tour = message.startswith("__tour_done")
         # 2026-08-07 (build at): "_declined" = the student JUST answered the on-screen
         # assessment-invitation card with "Not right now" -- the tutor must respect it.
         assess_declined = message.endswith("_declined__")
+        # 2026-08-07 (build au): "__open_fresh__" = the welcome overlay's "take me to my
+        # course path" choice. The student does NOT want to resume the recent side-trip
+        # (an explored topic / practice problem); they want their next unmastered unit,
+        # which the page sent as the focus unit.
+        fresh_start = (message == "__open_fresh__")
         junk = ("hi", "hi!", "hi.", "hello", "hey", "__open__", "__tour_done__",
-                "__open_declined__", "__tour_done_declined__")
+                "__open_declined__", "__tour_done_declined__", "__open_fresh__")
         history = [m for m in history if not (
             m.get("role") == "user" and str(m.get("content", "")).strip().lower() in junk)]
         if after_tour:
@@ -4254,6 +4274,14 @@ def chat(req: ChatRequest):
                 "the student chose 'Not right now -- start me at Unit 1.' That question is ASKED "
                 "AND ANSWERED. Do NOT mention, offer, or hint at the assessment or placement "
                 "again this session -- welcome them warmly and start teaching at Unit 1.)")
+        if fresh_start:
+            opener_note += (
+                " (ALSO: the student clicked 'Take me to my course path' -- they explicitly do "
+                "NOT want to pick up the recent side work your notes may mention (an explored "
+                "topic or practice problem from another part of the course). Do NOT recap or "
+                "resume it. Welcome them back briefly, then run the full opening sequence for "
+                "their FOCUS unit (today's topic, the goal + goals card, ready-check) and teach "
+                "that unit from where their mastery actually stands.)")
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
