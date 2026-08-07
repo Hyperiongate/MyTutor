@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  LOOK-IT-UP LIBRARY (Jim: the searchable reference database). NEW table
+#               `library_articles` (topic_key+band pk): title, body (safe-HTML), source
+#               ('generated' -- curated seeds live in library.py, not here), hits counter,
+#               created_at. New functions: get_library_article(key, band),
+#               save_library_article(), list_library_titles(band) (for fuzzy matching),
+#               bump_library_hits(). Articles are written ONCE by the model on a missed
+#               search and served from here forever after. Brand-new table -> create_all
+#               builds it; no migration; nothing else touched. Additive only.
 #   2026-08-07  FINAL EXAM (Jim: a real course final, gated on mastering all nine units).
 #               NEW table `final_exams` (code+course pk): exams_taken, best_pct, last_pct,
 #               correct, attempted, passed_at (set ONCE, the first time the score reaches
@@ -441,6 +449,18 @@ def init():
             Column("best_pct", Integer, default=0),
             Column("last_pct", Integer, default=0),
             Column("updated_at", DateTime(timezone=True)),
+        )
+        # LOOK-IT-UP LIBRARY (2026-08-07): generated reference articles, written once and
+        # served forever. Keyed by normalized topic slug + reading-level band.
+        _tables["library_articles"] = Table(
+            "library_articles", _meta,
+            Column("topic_key", String(96), primary_key=True),
+            Column("band", String(16), primary_key=True),
+            Column("title", String(160)),
+            Column("body", Text),
+            Column("source", String(16), default="generated"),
+            Column("hits", Integer, default=0),
+            Column("created_at", DateTime(timezone=True)),
         )
         # FINAL EXAM (2026-08-07): one row per student per course. passed_at is stamped
         # exactly once -- the first time a score reaches PASS_PCT -- the date the
@@ -1041,6 +1061,49 @@ def get_topic_quizzes(code: str, course: str = DEFAULT_COURSE) -> list:
     return [{"unit": int(r[0]), "topic_name": r[1] or "", "topic_idx": int(r[2] or 0),
              "quizzes_taken": int(r[3] or 0), "best_pct": int(r[4] or 0),
              "last_pct": int(r[5] or 0)} for r in rows]
+
+
+def get_library_article(topic_key: str, band: str) -> dict:
+    """One saved Look-it-up article, or {}. (Curated seeds live in library.py.)"""
+    from sqlalchemy import select
+    t = _tables["library_articles"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.title, t.c.body, t.c.source).where(
+            (t.c.topic_key == topic_key) & (t.c.band == band))).first()
+    if not r:
+        return {}
+    return {"topic_key": topic_key, "band": band, "title": r[0] or "",
+            "body": r[1] or "", "source": r[2] or "generated"}
+
+
+def save_library_article(topic_key: str, band: str, title: str, body: str) -> None:
+    """Persist a generated article (write once, serve forever)."""
+    _upsert("library_articles", {"topic_key": topic_key[:96], "band": band[:16]},
+            {"title": (title or "")[:160], "body": body or "", "source": "generated",
+             "hits": 1, "created_at": _now()})
+
+
+def list_library_titles(band: str) -> list:
+    """[{key,title}] of every saved article in a band -- feeds fuzzy matching."""
+    from sqlalchemy import select
+    t = _tables["library_articles"]
+    with _engine.connect() as conn:
+        rows = conn.execute(select(t.c.topic_key, t.c.title)
+                            .where(t.c.band == band)).all()
+    return [{"key": r[0], "title": r[1] or ""} for r in rows]
+
+
+def bump_library_hits(topic_key: str, band: str) -> None:
+    """Count a read (tells Jim which articles students actually use)."""
+    try:
+        from sqlalchemy import update
+        t = _tables["library_articles"]
+        with _engine.begin() as conn:
+            conn.execute(update(t).where(
+                (t.c.topic_key == topic_key) & (t.c.band == band))
+                .values(hits=(t.c.hits + 1)))
+    except Exception as exc:  # noqa: BLE001 -- a metrics miss must never block a read
+        print(f"[store] library hit bump failed: {exc}")
 
 
 def record_final_exam(code: str, correct: int, total: int,

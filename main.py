@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07as-lookitup". THE LOOK-IT-UP LIBRARY (Jim: "a
+#               searchable database covering all the topics of all the courses" -- a stuck
+#               student types e.g. "binomial theorem" or "adding dollars and cents" and a
+#               readable bubble opens; the tutor's voice and the chat are never involved).
+#               NEW module library.py: 15 curated seed articles (aliases + fuzzy matching,
+#               4 reading-level bands from the course id) + a GENERATE-ONCE fallback (one
+#               strict-prompted model call for an unmatched topic, scrubbed to a safe HTML
+#               subset, saved forever to the NEW store table `library_articles` -- the
+#               library fills itself with what students actually ask; off-topic searches
+#               refuse cleanly). NEW endpoint GET /api/library?q&course&code (students
+#               only; 30 lookups / 6 generations per 5 min). NEW static/library.js: the
+#               shared 📖 Look it up button (left nav) + search overlay + article bubble,
+#               included on session + practice + topic. DB off -> seeds still work,
+#               generated articles serve but don't persist.
 #   2026-08-07  APP_BUILD -> "2026-08-07ar-champion". COURSE CHAMPION MEDAL, DIPLOMA REMOVED
 #               (Jim: "a diploma implies a California-recognized school, and we are not one").
 #               (1) REMOVED the GET /diploma route (the printable Certificate of Completion)
@@ -1064,6 +1078,7 @@ from pydantic import BaseModel
 import tutor
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
+import library  # 2026-08-07: the "Look it up" reference library (seeds + generate-once)
 
 # Bring up the database backend if DATABASE_URL is configured. If it isn't (or the
 # DB can't be reached), store.enabled() stays False and we use the JSON-file storage
@@ -3529,6 +3544,72 @@ def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
 
 
 # =============================================================================
+# LOOK-IT-UP LIBRARY (2026-08-07, Jim) -- the searchable reference database
+# -----------------------------------------------------------------------------
+# A stuck student clicks 📖 Look it up, types a topic ("binomial theorem", "adding
+# dollars and cents"), and gets a READABLE article in a bubble -- the tutor's voice
+# and the chat turn are never involved. Resolution order (see library.py):
+#   curated seed -> saved article (exact key) -> fuzzy match across both -> the
+#   GENERATE-ONCE fallback (one model call, saved forever, ~2 cents).
+# Reading level follows the course's band, so the same search reads gently in
+# Basic Math and tersely in Algebra II.
+# =============================================================================
+@app.get("/api/library")
+def library_lookup(q: str = "", course: str = "algebra1", code: str = ""):
+    """Serve one reference article for a student's search. Students only; the
+    generation path is rate-limited separately (it spends model money)."""
+    _student_or_404(code)
+    code = code.strip()
+    q = (q or "").strip()[:160]
+    if len(q) < 2:
+        raise HTTPException(status_code=400, detail="Type a topic to look up first.")
+    _rate_limit("lib:" + code, limit=30, window_seconds=300, what="lookups")
+    band = library.band_for(course if course in curriculum.COURSES else "algebra1")
+    key = library.norm_key(q)
+
+    # 1) Curated seed, exact alias.
+    seed = library.find_seed(q, band)
+    if seed:
+        return {"title": seed["title"], "body": library.scrub_html(seed["body"]),
+                "source": "library"}
+    # 2) Saved article, exact key.
+    if store.enabled():
+        hit = store.get_library_article(key, band)
+        if hit:
+            store.bump_library_hits(key, band)
+            return {"title": hit["title"], "body": hit["body"], "source": "library"}
+    # 3) Fuzzy match across seeds (this band's neighborhood) + saved titles.
+    candidates = [s for s in library.SEEDS if library.find_seed(s["title"], band)]
+    if store.enabled():
+        try:
+            candidates = candidates + store.list_library_titles(band)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[library] title list failed: {exc}")
+    pick = library.fuzzy_pick(q, candidates)
+    if pick:
+        if "body" in pick:      # a seed
+            return {"title": pick["title"], "body": library.scrub_html(pick["body"]),
+                    "source": "library"}
+        hit = store.get_library_article(pick["key"], band) if store.enabled() else {}
+        if hit:
+            store.bump_library_hits(pick["key"], band)
+            return {"title": hit["title"], "body": hit["body"], "source": "library"}
+    # 4) Generate once, save forever. Tighter limit -- this path costs money.
+    _rate_limit("libgen:" + code, limit=6, window_seconds=300, what="new lookups")
+    art = library.generate_article(q, band)
+    if not art:
+        return {"title": "", "body": "", "source": "none",
+                "detail": "I couldn't find that in the library — try different words, "
+                          "or ask Mr. Cadabra about it in the lesson."}
+    if store.enabled():
+        try:
+            store.save_library_article(key, band, art["title"], art["body"])
+        except Exception as exc:  # noqa: BLE001
+            print(f"[library] save failed: {exc}")
+    return {"title": art["title"], "body": art["body"], "source": "new"}
+
+
+# =============================================================================
 # FINAL EXAM (2026-08-07, Jim) -- a real course final, HARD-GATED on mastery
 # -----------------------------------------------------------------------------
 # The rule, in Jim's words: "to take the final exam, they have to have mastered
@@ -3725,7 +3806,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ar-champion"
+APP_BUILD = "2026-08-07as-lookitup"
 
 
 @app.get("/health")
