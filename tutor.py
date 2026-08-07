@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  RULE 16 SHARPENED (build bh, Jim's second live catch on it: the reply wrote
+#               the SUBSTITUTED check line but still said "plug five back into the original
+#               equation on the board" while 5x-3=2x+12 had scrolled away). Rule 16 now
+#               explicitly requires re-writing THE ORIGINAL EQUATION ITSELF, labeled, above
+#               the check line -- and bans speaking "the original equation" unless this
+#               reply shows it. Additive sharpening only.
 #   2026-08-07  RULE 17 -- NEVER ANSWER YOUR OWN QUESTION (build az, Jim's live catch in
 #               Basic Math: "five yummy cookies: how many cookies do you see?" -- the count
 #               was spoken in the setup of the counting question). New rule 17 in the
@@ -3921,6 +3927,14 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     x?". "It's on the board from earlier" does NOT count: transcripts scroll, and rule 15
     requires the question to be complete where the student is looking RIGHT NOW.
     Re-writing one line is free -- an invisible equation is an unanswerable question.
+    AND THE ORIGINAL ITSELF, NOT JUST THE SUBSTITUTION (second live catch, 2026-08-07:
+    the reply showed the substituted line "5(5) - 3 | 2(5) + 12" but SAID "plug five back
+    into the original equation on the board" -- and 5x - 3 = 2x + 12 had scrolled away
+    turns ago). If your words mention "the original equation/problem", that original must
+    be re-written in THIS reply too, labeled, above the check line:
+        [[write text="Original: 5x - 3 = 2x + 12"]]
+        [[write text="Check x = 5:  5(5) - 3  |  2(5) + 12"]]
+    Never speak the phrase "the original equation" unless this reply shows it.
 
 17. NEVER ANSWER YOUR OWN QUESTION IN THE SAME BREATH. (Live catch, 2026-08-07: "Here's
     where we left off -- five yummy cookies: how many cookies do you see?" The count WAS

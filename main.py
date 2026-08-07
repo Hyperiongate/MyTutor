@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bh-original-restated". RULE 16 SHARPENED (Jim's
+#               second live catch: the check question wrote the substituted line but spoke
+#               of "the original equation on the board" that had scrolled away). The rule
+#               now requires re-writing the ORIGINAL equation itself, labeled, above the
+#               check line, and bans the phrase "the original equation" unless this reply
+#               shows it. tutor.py only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07bg-tour-polish". TOUR POLISH, FINAL ROUND (Jim):
 #               (1) the talk button's emoji mic rendered as a gray "dead fly" on Windows --
 #               replaced with a drawn SVG microphone on all three teaching pages;
@@ -3974,7 +3980,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bg-tour-polish"
+APP_BUILD = "2026-08-07bh-original-restated"
 
 
 @app.get("/health")
