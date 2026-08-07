@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    2026-08-07  FOLLOW FIX, ROUND 2 (build ay): programmatic scrolls no longer release
+                following (autoScroll flag); only a real student scroll does. Same patch on
+                all three teaching pages.
     2026-08-07  FOLLOW THE TURN (build ax): new bubbles re-engage following; tutor turns
                 taller than the window anchor to the START of the turn instead of pinning
                 the bubble off the top. Same patch on all three teaching pages.
@@ -1325,7 +1328,17 @@
     // ---------- The transcript feed (tutor chat + student chat + worked math) ----------
     function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
     let stickBottom = true;
-    feed.addEventListener("scroll", () => { stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48; });
+    // 2026-08-07 (build ay, Jim's Basic-Math cookies: the follow fix latched OFF by
+    // accident). Our OWN programmatic scrolls fire scroll events too -- the old listener
+    // read an anchored (non-bottom) position as "the student scrolled away" and disabled
+    // following, so when the tap-to-answer row shrank the transcript a beat later, the
+    // re-anchor was skipped and the board work slid below the fold. autoScroll marks our
+    // scrolls so only a REAL student scroll releases following.
+    let autoScroll = false;
+    feed.addEventListener("scroll", () => {
+      if (autoScroll) { autoScroll = false; return; }
+      stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
+    });
     // 2026-08-07 (build ax, Jim: "the whiteboard disappears below and I have to scroll
     // constantly"): FOLLOW THE TURN, not just the bottom. Every new tutor turn re-engages
     // following (even if the student had scrolled up to read history), and if the turn is
@@ -1335,11 +1348,12 @@
     function scrollFeed() {
       requestAnimationFrame(() => {
         if (!stickBottom) return;
+        let target = feed.scrollHeight;
         if (lastTurnEl && lastTurnEl.isConnected) {
           const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
-          if (feed.scrollHeight - turnTop > feed.clientHeight) { feed.scrollTop = Math.max(0, turnTop - 6); return; }
+          if (feed.scrollHeight - turnTop > feed.clientHeight) target = Math.max(0, turnTop - 6);
         }
-        feed.scrollTop = feed.scrollHeight;
+        if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
       });
     }
     new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });

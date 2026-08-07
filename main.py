@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07ay-follow-fix2". FOLLOW FIX ROUND 2 (Jim, on the ax
+#               build: Basic-Math cookies still hid below the fold). Root cause: the pages'
+#               OWN anchor-scroll fired a scroll event the listener mistook for the student
+#               scrolling away -> following disabled -> when the tap-to-answer row shrank
+#               the transcript, the re-anchor was skipped. New autoScroll flag: only a REAL
+#               student scroll releases following. Verified against the exact event
+#               sequence in a node simulation. Static only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07ax-follow-turn". TRANSCRIPT FOLLOWS THE TURN (Jim,
 #               first Entry-Level lesson: "the whiteboard disappears below and I have to
 #               scroll constantly"). All three teaching pages: every new bubble re-engages
@@ -3858,7 +3865,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07ax-follow-turn"
+APP_BUILD = "2026-08-07ay-follow-fix2"
 
 
 @app.get("/health")

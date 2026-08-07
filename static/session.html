@@ -8,6 +8,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  FOLLOW FIX, ROUND 2 (build ay, Jim's Basic-Math cookies: board work still
+    slid below the fold ON the ax build). Root cause: our OWN anchor-scroll fires a scroll
+    event, which the listener read as "the student scrolled away" and disabled following —
+    so when the tap-to-answer row shrank the transcript a beat later, the re-anchor was
+    skipped. New autoScroll flag marks programmatic scrolls; only a REAL student scroll
+    releases following. Reproduced + verified against the exact sequence in a node sim.
+    Same patch on practice + topic.
   - 2026-08-07  FOLLOW THE TURN (build ax, Jim: "the whiteboard disappears below and I have
     to scroll constantly" — first lesson, Entry-Level Math). The transcript no longer just
     pins to the bottom: every new bubble RE-ENGAGES following (a scrolled-up student is
@@ -2293,7 +2300,15 @@
     // they return to the bottom). requestAnimationFrame lets the new content lay out FIRST, so
     // we measure the true height (fixes the "new line hides below the fold" scrolling).
     let stickBottom = true;
+    // 2026-08-07 (build ay, Jim's Basic-Math cookies: the follow fix latched OFF by
+    // accident). Our OWN programmatic scrolls fire scroll events too -- the old listener
+    // read an anchored (non-bottom) position as "the student scrolled away" and disabled
+    // following, so when the tap-to-answer row shrank the transcript a beat later, the
+    // re-anchor was skipped and the board work slid below the fold. autoScroll marks our
+    // scrolls so only a REAL student scroll releases following.
+    let autoScroll = false;
     feed.addEventListener("scroll", () => {
+      if (autoScroll) { autoScroll = false; return; }
       stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
     });
     // 2026-08-07 (build ax, Jim: "the whiteboard disappears below and I have to scroll
@@ -2305,11 +2320,12 @@
     function scrollFeed() {
       requestAnimationFrame(() => {
         if (!stickBottom) return;
+        let target = feed.scrollHeight;
         if (lastTurnEl && lastTurnEl.isConnected) {
           const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
-          if (feed.scrollHeight - turnTop > feed.clientHeight) { feed.scrollTop = Math.max(0, turnTop - 6); return; }
+          if (feed.scrollHeight - turnTop > feed.clientHeight) target = Math.max(0, turnTop - 6);
         }
-        feed.scrollTop = feed.scrollHeight;
+        if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
       });
     }
     // Belt-and-suspenders: re-pin after ANY later size change (a diagram finishing layout, a
