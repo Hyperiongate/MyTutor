@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bg-tour-polish". TOUR POLISH, FINAL ROUND (Jim):
+#               (1) the talk button's emoji mic rendered as a gray "dead fly" on Windows --
+#               replaced with a drawn SVG microphone on all three teaching pages;
+#               (2) "Type instead" link -> a full-size "Type my answer" button (as big as
+#               mic/pause), all student-facing strings updated; (3) NEW tour stop explains
+#               the three progress bars (today's goals / unit topics + quiz markers + Unit
+#               Quiz flag / nine units marching to the Final Exam), glowing #pbars.
+#               Static only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07bf-nav-order". SIDEBAR ORDER + ONE-STOP TOUR (Jim):
 #               lesson nav now reads Curriculum → Course assessment → Progress dashboard →
 #               Practice a problem → Explore a topic (NEW — the lesson page never had the
@@ -3966,7 +3974,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bf-nav-order"
+APP_BUILD = "2026-08-07bg-tour-polish"
 
 
 @app.get("/health")

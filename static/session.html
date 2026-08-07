@@ -8,6 +8,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  TOUR POLISH, FINAL ROUND (build bg, Jim). (1) The 🎙️ emoji on the talk
+    button rendered as a gray "dead fly" glyph on Windows — replaced with a real drawn SVG
+    microphone (identical everywhere) on all three teaching pages. (2) "Type instead" was
+    a small underlined link — now a REAL "Type my answer" button (.typebtn) as big as the
+    mic/pause buttons; every student-facing string updated to the new name. (3) NEW tour
+    stop for the three progress bars (glows #pbars): today's goals fill the top bar, the
+    unit bar's quiz markers show how far the next quiz is, the course bar marches gold to
+    the Final Exam.
   - 2026-08-07  NAV ORDER + ONE-STOP-PER-ITEM TOUR (build bf, Jim's exact sequence):
     Curriculum → Course assessment → Progress dashboard → Practice a problem → Explore a
     topic (NEW on the lesson page — #topicLink → /topic) → Final Exam → 📖 Look it up
@@ -698,6 +706,9 @@
     .controls { padding: 8px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
     .live { min-height: 24px; font-size: 17px; font-weight: 600; color: var(--ink); text-align: center;
       max-width: 620px; line-height: 1.3; }
+    /* 2026-08-07 (build bg, Jim: the emoji mic looked like "a dead fly"): a real drawn
+       microphone icon, identical on every computer, scales with the button. */
+    .talkbtn .micico { width: 20px; height: 20px; fill: currentColor; flex: 0 0 auto; }
     .talkbtn { border: none; border-radius: 30px; font-size: 17px; font-weight: 800; padding: 15px 30px;
       display: inline-flex; align-items: center; gap: 9px; color: #fff; background: #c3ccd8; cursor: default;
       transition: background .2s ease, box-shadow .2s ease, transform .08s ease; }
@@ -713,6 +724,12 @@
     .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
       background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
     .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
+    /* 2026-08-07 (build bg, Jim): "Type my answer" is a REAL button now, as big as the
+       mic/pause buttons — not a small underlined link a student could miss. */
+    .typebtn { margin-top: 8px; width: 100%; padding: 13px 16px; border-radius: 30px;
+      border: 2px solid var(--line); background: #fff; color: var(--ink); font-weight: 800;
+      font-size: 16px; cursor: pointer; }
+    .typebtn:hover { border-color: var(--accent); background: #f6f5ff; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     /* Tour highlight (Mr. Cadabra walking through the page) */
     .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
@@ -897,10 +914,10 @@
       </nav>
 
       <div class="controls">
-        <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <button class="talkbtn" id="talkBtn" disabled><svg class="micico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/><path d="M18.5 11.5a6.5 6.5 0 0 1-13 0H3.6a8.4 8.4 0 0 0 7.4 8.33V23h2v-3.17a8.4 8.4 0 0 0 7.4-8.33h-1.9z"/></svg> <span id="talkLabel">…</span></button>
         <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
-        <button class="link" id="typeToggle">Type instead</button>
+        <button class="typebtn" id="typeToggle">Type my answer</button>
         <div class="live" id="live"></div>
       </div>
 
@@ -1559,6 +1576,8 @@
       // 2026-08-07 (build au): the tour introduces the 📖 Look it up button
       // (injected by library.js at DOMContentLoaded — it exists by tour time).
       "library":      "libraryLink",
+      // 2026-08-07 (build bg): the progress bars get their own tour stop.
+      "bars":         "pbars",
       "todays-plan":  "planPanel",
       "plan":         "planPanel",
       "tutor":        "tutorPanel",
@@ -2464,7 +2483,7 @@
         talkBtn.disabled = false; talkBtn.classList.add("ready");
         talkLabel.textContent = "Tap to talk";
         hint.textContent = canRecord
-          ? "Your turn — tap 🎙️ to talk, or use “Type instead” to type your answer."
+          ? "Your turn — tap the microphone to talk, or tap “Type my answer” below."
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");
@@ -2486,14 +2505,14 @@
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) {
-        hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or use 'Type instead'.";
+        hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or tap “Type my answer”.";
         return;
       }
       chunks = []; sendOnStop = true;
       try { mediaRecorder = new MediaRecorder(mediaStream); }
       catch (e) {
         try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" }); }
-        catch (_) { hint.textContent = "Recording isn't supported here — use 'Type instead'."; releaseMic(); return; }
+        catch (_) { hint.textContent = "Recording isn't supported here — tap “Type my answer”."; releaseMic(); return; }
       }
       mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
       mediaRecorder.onstop = onRecordingStop;
@@ -2589,12 +2608,14 @@
         text: "And the Final Exam — that's the top of the mountain. It unlocks once you've mastered all nine units, and passing it makes you a Course Champion. Something to look forward to!" },
       { id: "library",
         text: "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here." },
+      { id: "bars",
+        text: "Now look at those thin bars up top — they're your maps, and they never lie. The top one is TODAY: it fills in as you nail each of today's goals. The middle one is your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. The bottom one is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam." },
       { id: "tutor",
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
         text: IS_ELEM
           ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
-          : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap 'Type instead' and type your answer." },
+          : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
     // Minimum time to dwell on a line so the tour stays readable even if the voice
@@ -2677,7 +2698,7 @@
       finally { busy = false; statusEl.textContent = ""; setPhase("ready"); }
     }
 
-    // ---------- Text fallback (no speech recognition, or 'Type instead') ----------
+    // ---------- Text fallback (no speech recognition, or the 'Type my answer' button) ----------
     function showComposer() { composer.classList.add("show"); typeToggle.style.display = "none"; if (input) input.focus(); }
     typeToggle.addEventListener("click", showComposer);
     function sendTyped() { const m = (input.value || "").trim(); if (!m || busy) return; input.value = ""; ensureAudioGraph(); sendToTutor(m); }
@@ -2701,7 +2722,7 @@
       } else if (canRecord) {
         // 2026-08-06: voice is on — tell the student they can talk (or type).
         const tip = el("welcomeAnswerTip");
-        if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — Mr. Cadabra and you will talk back and forth. Rather not talk? Tap <b>“Type instead”</b> to type your answer. Turn your sound on so you can hear him.</span>';
+        if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — Mr. Cadabra and you will talk back and forth. Rather not talk? Tap the big <b>“Type my answer”</b> button. Turn your sound on so you can hear him.</span>';
       }
       try {
         const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
