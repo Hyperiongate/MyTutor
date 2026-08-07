@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07at-quiet-invite". TWO LIVE CATCHES (Jim's screenshot):
+#               (1) QUIET ASSESSMENT INVITATION, PROPERLY THIS TIME. The 08-06 "card shows
+#                   alone, silent, opaque" design lived only in session.html and was LOST
+#                   when the runaway 08-06 chat rebuilt that file from a stale copy.
+#                   Restored + hardened: offerAssessment() no longer speaks/bubbles/status;
+#                   #assessInvite backdrop is OPAQUE; and NEW decline sentinels
+#                   ("__open_declined__" / "__tour_done_declined__") tell the opener the
+#                   card was answered "not right now" -- the tutor is instructed the
+#                   question is ASKED AND ANSWERED and must not re-offer it (the old bug:
+#                   student clicked no, the spoken welcome asked again).
+#               (2) RULE 16 (tutor.py): a substitution/"check it" question must re-write
+#                   its full equation on the board in the SAME reply -- Jim's screenshot
+#                   showed "plug 4 back into two x plus five equals thirteen" spoken with
+#                   only "x = 4" on the board.
 #   2026-08-07  APP_BUILD -> "2026-08-07as-lookitup". THE LOOK-IT-UP LIBRARY (Jim: "a
 #               searchable database covering all the topics of all the courses" -- a stuck
 #               student types e.g. "binomial theorem" or "adding dollars and cents" and a
@@ -3806,7 +3820,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07as-lookitup"
+APP_BUILD = "2026-08-07at-quiet-invite"
 
 
 @app.get("/health")
@@ -4208,9 +4222,13 @@ def chat(req: ChatRequest):
     # after a few logins the tutor saw "Hi Hi Hi..." and turned snappish. Fix: never store a
     # fake student greeting, strip any leftover junk ones, generate a warm recap, and save
     # ONLY the tutor's reply so the conversation stays coherent.
-    if message in ("__open__", "__tour_done__"):
-        after_tour = (message == "__tour_done__")
-        junk = ("hi", "hi!", "hi.", "hello", "hey", "__open__", "__tour_done__")
+    if message in ("__open__", "__tour_done__", "__open_declined__", "__tour_done_declined__"):
+        after_tour = message.startswith("__tour_done")
+        # 2026-08-07 (build at): "_declined" = the student JUST answered the on-screen
+        # assessment-invitation card with "Not right now" -- the tutor must respect it.
+        assess_declined = message.endswith("_declined__")
+        junk = ("hi", "hi!", "hi.", "hello", "hey", "__open__", "__tour_done__",
+                "__open_declined__", "__tour_done_declined__")
         history = [m for m in history if not (
             m.get("role") == "user" and str(m.get("content", "")).strip().lower() in junk)]
         if after_tour:
@@ -4230,6 +4248,12 @@ def chat(req: ChatRequest):
                 "give a SHORT recap of where you two are and what's next, then invite them to keep "
                 "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
                 "them, do NOT tell them to focus, and do NOT act annoyed.)")
+        if assess_declined:
+            opener_note += (
+                " (ALSO: the app just showed the Course Assessment invitation card ON SCREEN and "
+                "the student chose 'Not right now -- start me at Unit 1.' That question is ASKED "
+                "AND ANSWERED. Do NOT mention, offer, or hint at the assessment or placement "
+                "again this session -- welcome them warmly and start teaching at Unit 1.)")
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history

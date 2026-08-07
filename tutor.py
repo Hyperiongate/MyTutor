@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  RULE 16 -- CHECK QUESTIONS RE-WRITE THE EQUATION (build at, Jim's live catch:
+#               "plug 4 back into two x plus five equals thirteen" was asked with the board
+#               showing only "x = 4" -- the equation lived in speech only / scrolled away).
+#               New rule 16 in the shared 13-15 block, all courses, all modes: any
+#               substitution / verify / "check it" question must [[write]] the full equation
+#               in the SAME reply -- "on the board from earlier" does not count. Additive.
 #   2026-08-07  DIPLOMA -> COURSE CHAMPION (build ar, Jim: a diploma implies an accredited
 #               school -- we are not one). FINAL_PREP_NOTE + FINAL_EXAM_NOTE reworded: passing
 #               the Final Exam now earns the 🏅 COURSE CHAMPION medal in the trophy case (the
@@ -3874,6 +3880,17 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     (c) It stands on its own: a student re-reading only this reply and the board could
         still tell exactly what is being asked -- no unstated assumptions, no "the usual",
         no pronoun whose referent lives three turns back.
+
+16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY. (Live
+    catch, 2026-08-07: the tutor asked "plug 4 back into two x plus five equals thirteen"
+    while the board showed only "x = 4" -- the equation existed ONLY in the spoken words,
+    or in a board line scrolled far above.) Whenever you ask the student to substitute a
+    value, verify an answer, or "check it": WRITE the full equation with a [[write]] or
+    [[step]] in the SAME reply the question is asked -- e.g. the board shows
+    2x + 5 = 13 and x = 4 before you ask "what do you get when you substitute 4 in for
+    x?". "It's on the board from earlier" does NOT count: transcripts scroll, and rule 15
+    requires the question to be complete where the student is looking RIGHT NOW.
+    Re-writing one line is free -- an invisible equation is an unanswerable question.
 """
 
 

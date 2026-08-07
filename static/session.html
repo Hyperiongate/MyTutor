@@ -8,6 +8,15 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  QUIET ASSESSMENT INVITATION, RESTORED + HARDENED (build at, Jim's live catch;
+    the 08-06 version of this fix was lost when the runaway chat rebuilt this file from a
+    stale copy). offerAssessment(): NO spoken line, NO chat bubble, NO status — the card
+    stands ALONE on an OPAQUE backdrop (#assessInvite CSS), nothing shows or plays behind
+    it. NEW: declining sends "__open_declined__" (or "__tour_done_declined__" after the
+    tour) so the server tells the tutor the assessment question is asked-and-answered —
+    he welcomes the student and starts at Unit 1 without re-offering it. kickoff(msg)
+    gained an optional sentinel parameter. Companion server change in main.py; companion
+    board rule 16 in tutor.py (check questions re-write their equation).
   - 2026-08-07  LOOK IT UP (build as, Jim): included the NEW shared /static/library.js —
     a "📖 Look it up" button in the left nav opens a search overlay + readable article
     bubble (the reference library; see library.py). The lesson conversation and voice are
@@ -454,6 +463,12 @@
         radial-gradient(700px 500px at 55% 110%, rgba(255,122,89,.28), transparent 55%),
         rgba(22,22,40,.72); }
     .welcome.show { display: flex; }
+    /* 2026-08-07 (build at, Jim): the assessment invitation stands ALONE on an OPAQUE
+       backdrop -- nothing of the classroom shows or plays behind it until it's answered. */
+    #assessInvite { background:
+        radial-gradient(700px 460px at 15% 0%, rgba(91,91,214,.35), transparent 60%),
+        radial-gradient(700px 460px at 90% 10%, rgba(20,184,166,.30), transparent 55%),
+        #191631; }
     .welcome-card { background: #fff; border-radius: 24px; max-width: 680px; width: 100%; padding: 46px 52px 40px;
       max-height: 92vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,.4); text-align: center; }
     .welcome-card h2 { margin: 12px 0 6px; font-size: 34px; }
@@ -2429,7 +2444,7 @@
       if (FORCE_TOUR || (!hasHistory && !touredAnywhere)) { busy = true; setPhase("busy"); runTour(); }
       // 2026-08-05: a toured student ENTERING A NEW COURSE (no history, no placement here)
       // skips the tour but still gets the assessment invitation before the opener.
-      else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(kickoff); }
+      else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(() => kickoff("__open_declined__")); }
       else { busy = true; setPhase("busy"); kickoff(); }
     }
     el("welcomeGo").addEventListener("click", begin);
@@ -2478,16 +2493,16 @@
       // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.
       if (!isPlaced) {
         await sayTourLine("Okay — that's the grand tour!");
-        offerAssessment(() => runTutor("__tour_done__"));
+        offerAssessment(() => runTutor("__tour_done_declined__"));
         return;
       }
       await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
       await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
 
-    async function kickoff() {   // returning-student opener (no tour)
+    async function kickoff(msg) {   // returning-student opener (no tour)
       statusEl.textContent = tutorName + " is starting…";
-      await runTutor("__open__");
+      await runTutor(msg || "__open__");   // "__open_declined__" = they just declined the assessment card
     }
 
     // ---------- Assessment invitation (2026-08-05) ----------
@@ -2495,13 +2510,14 @@
     // "Yes" goes to the Course Assessment for THIS course; "skip" runs `next` — the
     // exact continuation the flow would have taken anyway. Shown only at course entry
     // when there's no history and no placement (see begin() and runTour()).
+    // 2026-08-07 (build at, Jim -- RESTORING the 08-06 design the runaway rebuild lost):
+    // the invitation is SILENT and ALONE. No spoken line, no chat bubble, no status text,
+    // and the backdrop is OPAQUE (see #assessInvite CSS) so the whiteboard can't show or
+    // "overtalk" behind it. The student answers the card FIRST; Mr. Cadabra's voice starts
+    // only AFTER the choice -- and a decline is passed to the server so he never re-offers
+    // the assessment in his welcome (the old bug: card declined, opener asked again).
     function offerAssessment(next) {
       const inv = el("assessInvite");
-      const spoken = "One more thing! Before we dive in, I'd love to find out what you already know. " +
-        "My course assessment shows me your strengths and exactly where we should focus — and then I " +
-        "build a learning plan that's just for you. Want to give it a try? Or we can simply start at " +
-        "unit one — your choice!";
-      addBubble("tutor", spoken); lastTutorText = spoken;
       inv.classList.add("show");
       el("aiYes").onclick = () => {
         inv.classList.remove("show");
@@ -2509,8 +2525,6 @@
           "&course=" + encodeURIComponent(COURSE);
       };
       el("aiSkip").onclick = () => { inv.classList.remove("show"); next(); };
-      setState("speaking"); statusEl.textContent = tutorName + " is talking…";
-      speak(spoken);
     }
 
     // ---------- Talk to the tutor ----------
