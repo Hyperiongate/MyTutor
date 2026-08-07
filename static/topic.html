@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-08-07  PAUSE IS BACK + LIBRARY CHIPS (build aw, Jim): ⏸ Pause button restored
+                (pauses the voice, holds the turn; Resume continues). library.js opens with
+                context chips + "Something else…".
+    2026-08-07  SAY "SQUARED", NOT "TWO" (build av): forSpeech() converts ² ³ π θ ± ≥ ≤ ≠ °
+                to spoken words before TTS (the voice read "x²" as "x two"). Same patch on
+                all three teaching pages.
     2026-08-07  LOOK IT UP (build as, Jim): included the NEW shared /static/library.js —
                 a "📖 Look it up" button in the left nav opens a search overlay + readable
                 article bubble (the reference library). One script tag; purely additive.
@@ -421,6 +427,9 @@
     .quick:not(:disabled):hover { background: #f5f5fc; }
     .quick:disabled { opacity: .4; cursor: default; }
     .quick.newp { color: var(--accent2); border-color: #b9e8e0; }
+    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
+      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
+    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }
@@ -499,6 +508,7 @@
       </nav>
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="quickrow" id="quickRow">
           <button class="quick newp" id="newTopic" disabled>💡 New topic</button>
         </div>
@@ -565,7 +575,8 @@
     el("dashLink").href = "/dashboard" + cq;
 
     const feed = el("feed"), statusEl = el("status");
-    let curWork = null;
+    const pauseBtn = el("pauseBtn");
+    let paused = false, curWork = null;
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
     // ---------- ELEMENTARY MODE (2026-08-03, Jim: the answer bar said "type your answer" and
@@ -764,6 +775,15 @@
         .replace(/\s*[×*]\s*/g, " times ")
         .replace(/\s*[÷]\s*/g, " divided by ")
         .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")
+        .replace(/²/g, " squared ")
+        .replace(/³/g, " cubed ")
+        .replace(/π/g, " pi ")
+        .replace(/θ/g, " theta ")
+        .replace(/±/g, " plus or minus ")
+        .replace(/≥/g, " is greater than or equal to ")
+        .replace(/≤/g, " is less than or equal to ")
+        .replace(/≠/g, " is not equal to ")
+        .replace(/°/g, " degrees ")
         .replace(/\^/g, " to the power ")
         .replace(/√/g, " square root of ")
         .replace(/\s{2,}/g, " ").trim();
@@ -810,6 +830,7 @@
         if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
+          if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
           const idle = Date.now() - lastProgress;
           if (!started) { if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); } return; }
           const a = ttsAudio;
@@ -1354,6 +1375,27 @@
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
     }
 
+    // ---------- Pause / resume (RESTORED 2026-08-07 build aw, Jim: "when Mr. Cadabra's
+    // talking, I can tell him to pause" -- reverses this morning's removal) ----------
+    // Pause stops Mr. Cadabra mid-sentence and HOLDS the session (no new turn starts);
+    // Resume continues the sentence and hands the turn back as normal.
+    function setPaused(on) {
+      paused = on;
+      if (on) {
+        try { ttsAudio.pause(); } catch (e) {}
+        pauseBtn.classList.add("on"); pauseBtn.textContent = "\u25b6 Resume";
+        statusEl.textContent = "Paused"; setState("idle");
+      } else {
+        pauseBtn.classList.remove("on"); pauseBtn.textContent = "\u23f8 Pause";
+        try {
+          if (ttsAudio.src && ttsAudio.paused && !ttsAudio.ended && ttsAudio.currentTime > 0) {
+            ttsAudio.play(); setState("speaking");
+          }
+        } catch (e) {}
+      }
+    }
+    if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
+
     // ---------- Tap-to-talk ----------
     // 2026-08-07: VOICE INPUT RESTORED (Jim) -- canRecord is a real capability check again:
     // ON for the typing courses on browsers that can record; OFF for elementary tap-to-answer
@@ -1389,7 +1431,7 @@
     }
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
     async function startRecording() {
-      if (phase !== "ready" || !canRecord) return;
+      if (phase !== "ready" || !canRecord || paused) return;
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) { hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or just type your answer below."; return; }
@@ -1431,7 +1473,7 @@
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy) return;
+      if (busy || paused) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
       history.push({ role: "user", content: message });

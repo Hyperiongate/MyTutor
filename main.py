@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07aw-pause-chips". PAUSE RESTORED + LIBRARY CHIPS
+#               (Jim). (1) The ⏸ Pause button is BACK on all three teaching pages
+#               (reverses this morning's removal -- with the tutor talking so much, the
+#               student needs a way to stop him mid-sentence): pauses the voice, holds the
+#               turn (mic + sends disabled while paused), Resume continues the sentence.
+#               (2) 📖 Look it up now opens with CONTEXT CHIPS -- choices drawn from what's
+#               being taught right now (the tutor's bolded key terms newest-first, the unit
+#               bar's topic ladder, today's goal, the practice problem / explored topic) --
+#               plus "✏️ Something else…" which reveals the type-your-own box. Students who
+#               don't know what to call a thing can just tap it. Static only; build bumped.
+#   2026-08-07  APP_BUILD -> "2026-08-07av-graph-holes". GRAPH HOLES + "SQUARED" (Jim's live
+#               catches in Calculus): (1) [[graph]] gained hole="a" (math-figures.js draws
+#               an open red-ringed circle on the first curve; tutor.py docs + BOARD HONESTY
+#               rule extended: a spoken hole/asymptote/feature must be DRAWN, and the window
+#               framed so it's visible with room on both sides). (2) forSpeech() on all
+#               three teaching pages converts ² ³ π θ ± ≥ ≤ ≠ ° to spoken words -- the voice
+#               was reading "x²" as "x two". Static + prompt only; build bumped.
 #   2026-08-07  APP_BUILD -> "2026-08-07au-course-path". RESUME CHOICE + LIBRARY IN THE TOUR
 #               (Jim's live catch: he explored a MID-COURSE geometry topic, came back, and
 #               "Continue my lesson" resumed the side-trip -- "I don't have a way to get
@@ -3834,7 +3851,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07au-course-path"
+APP_BUILD = "2026-08-07aw-pause-chips"
 
 
 @app.get("/health")

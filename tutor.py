@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  GRAPH HOLES + WINDOW FRAMING (build av, Jim's live catch in Calculus: the
+#               tutor said "I've punched a hole out at x = 2" over an UNBROKEN y=x² whose
+#               window barely showed the parabola). (1) [[graph]] docs teach the NEW
+#               hole="a" attr (math-figures.js draws an open circle on the first curve) --
+#               a spoken hole MUST carry the attr. (2) BOARD HONESTY rule 1 extended:
+#               features WITHIN a figure (holes/asymptotes/intersections) must be drawn,
+#               never narrated invisibly. (3) Window-framing guidance: range must put the
+#               discussed point comfortably inside the picture with room on both sides.
+#               Companion: math-figures.js hole rendering; forSpeech on all three pages now
+#               says "squared" for ² (the voice read "x²" as "x two").
 #   2026-08-07  RULE 16 -- CHECK QUESTIONS RE-WRITE THE EQUATION (build at, Jim's live catch:
 #               "plug 4 back into two x plus five equals thirteen" was asked with the board
 #               showing only "x = 4" -- the equation lived in speech only / scrolled away).
@@ -963,6 +973,15 @@ Draw a real COORDINATE GRAPH (use it for Units 4-8: lines, slope, systems, parab
     square roots, e.g. func="2^x"), lines (one or more "y=mx+b" separated by ; -- vertical "x=3"
     ok), parabola ("y=ax^2+bx+c"), points ("(x,y),(x,y)"), optional range, caption. Two lines
     auto-mark their intersection. Write equations in this y= form.
+  - hole="a" (2026-08-07): draws an OPEN CIRCLE on the first curve at x = a -- the removed
+    point for limits / removable discontinuities. If you SAY "I've punched a hole out at
+    x = 2", the tag MUST carry hole="2" -- a hole that exists only in your words is a board
+    lie (see BOARD HONESTY). Multiple holes: hole="2; 5".
+  - FRAME THE WINDOW ON WHAT YOU'RE DISCUSSING: set range so the point/feature under
+    discussion sits comfortably INSIDE the picture with room on BOTH sides -- for "x
+    approaches 2 from either side" use something like range="-1,5" (never a window where
+    the approach point hugs an edge or the curve's shape is unrecognizable). If the
+    feature matters, the student must be able to SEE it.
 
 Draw a FUNCTION MACHINE (use it for Unit 3 -- evaluating a function: a number goes IN,
 the rule runs on it, a number comes OUT). Use THIS, not the balance scale, whenever you
@@ -3752,7 +3771,11 @@ USING THESE IN A LESSON:
 1. THE BOARD ONLY SHOWS WHAT *YOU* DREW. Something is "on the board" ONLY if you emitted its
    tag earlier in THIS conversation. Never say "look at the board / it's already up there /
    see the circle" for anything you did not actually draw -- inventing a picture the student
-   cannot see destroys their trust instantly.
+   cannot see destroys their trust instantly. This includes FEATURES WITHIN a figure
+   (2026-08-07, live catch: "I've punched a hole out at x = 2" over an unbroken curve): a
+   hole, asymptote, intersection, or marked point you SPEAK of must actually be DRAWN --
+   the grapher supports hole="a" for exactly this -- and the window must be framed so the
+   feature is clearly visible. Never narrate an invisible feature.
 2. WHEN THE STUDENT ASKS TO SEE SOMETHING, DRAW IT IN THAT SAME REPLY. "Show me", "can I see
    a picture", "draw it" -> your reply MUST include the figure/board tag, even if something
    similar is already up -- re-drawing is free and always right.

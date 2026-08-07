@@ -2,6 +2,12 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-07  GRAPH HOLES (build av, Jim's live catch: "I've punched a hole out at x = 2"
+                 spoken over an UNBROKEN curve). [[graph]] gained hole="a" (or "a; b"):
+                 draws an OPEN circle (background fill + red ring + tiny "hole" label) on
+                 the first sampled curve at each listed x -- the standard picture for
+                 removable discontinuities in limits. Skipped safely when the x is outside
+                 the window or the curve is undefined there. Purely additive.
      2026-08-06  AXIS LABELS ALWAYS (Jim: "the axis should always be labeled X and Y" -- the
                  old labels were 11px light gray and easy to miss). New shared AXIS_LBL style
                  (15px bold italic, dark, white halo so it reads over grid lines) applied to
@@ -232,6 +238,21 @@
       if (p[0] < xmin || p[0] > xmax || p[1] < ymin || p[1] > ymax) return;
       svg += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4.5" fill="#5b5bd6"/>';
       svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="10.5" fill="#26263a">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
+    });
+    // HOLES (2026-08-07, Jim's live catch: the tutor SAID "I've punched a hole out at
+    // x = 2" over an unbroken curve). hole="2" (or hole="2; 5") draws an OPEN circle on
+    // the FIRST sampled curve at each x -- background fill over the stroke visually
+    // removes the point, the red ring marks it. Drawn last so it sits on top.
+    String(a.hole || a.holes || "").split(/[;|,]/).forEach(function (s) {
+      s = s.trim(); if (!s) return;
+      var hx = parseFloat(s); if (!isFinite(hx)) return;
+      var c0 = null;
+      for (var kk = 0; kk < curves.length; kk++) { if (curves[kk].fn) { c0 = curves[kk]; break; } }
+      if (!c0) return;
+      var hy; try { hy = c0.fn(hx); } catch (e) { return; }
+      if (!isFinite(hy) || hx < xmin || hx > xmax || hy < ymin || hy > ymax) return;
+      svg += '<circle cx="' + mapX(hx) + '" cy="' + mapY(hy) + '" r="5.5" fill="#fbfbff" stroke="#e0392b" stroke-width="2.5"/>';
+      svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="10.5" font-weight="700" fill="#c0392b">hole</text>';
     });
     svg += "</g>";
 

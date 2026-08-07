@@ -8,6 +8,15 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  PAUSE IS BACK + LIBRARY CHIPS (build aw, Jim). (1) The ⏸ Pause button is
+    RESTORED (reverses this morning's removal): pauses Mr. Cadabra mid-sentence, holds the
+    turn (mic + sends disabled while paused), Resume continues. Same restore on practice +
+    topic. (2) library.js now opens with CONTEXT CHIPS (current key terms / unit topics /
+    today's goal) + "Something else…" for free typing.
+  - 2026-08-07  SAY "SQUARED", NOT "TWO" (build av, Jim's live catch: the voice read "X²"
+    as "x two"). forSpeech() now converts ² ³ π θ ± ≥ ≤ ≠ ° to spoken words before TTS.
+    Same patch on practice.html + topic.html. Companion: [[graph]] hole="a" support
+    (math-figures.js) + board-honesty/window-framing prompt rules (tutor.py).
   - 2026-08-07  RESUME CHOICE + LIBRARY TOUR STOP (build au, Jim: exploring a mid-course
     topic hijacked "Continue my lesson"). (1) Welcome-back overlay gains a second button —
     "🧭 Take me to my course path — Unit N" (N = first unmastered unit from SRV_PROGRESS;
@@ -681,6 +690,9 @@
     @keyframes recpulse { 0% { box-shadow: 0 0 0 0 rgba(224,57,43,.5); }
       70% { box-shadow: 0 0 0 18px rgba(224,57,43,0); } 100% { box-shadow: 0 0 0 0 rgba(224,57,43,0); } }
     .hint { font-size: 13px; color: var(--muted); }
+    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
+      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
+    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     /* Tour highlight (Mr. Cadabra walking through the page) */
     .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
@@ -861,6 +873,7 @@
 
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled>🎙️ <span id="talkLabel">…</span></button>
+        <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="hint" id="hint">Mr. Cadabra will start in a moment…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="live" id="live"></div>
@@ -1011,7 +1024,8 @@
     { const _ws = el("welcomeSubject"); if (_ws) _ws.textContent = COURSE_SUBJECT; }
 
     const feed = el("feed"), statusEl = el("status");
-    let curWork = null;   // curWork = the current turn's worklist block
+    const pauseBtn = el("pauseBtn");
+    let paused = false, curWork = null;   // curWork = the current turn's worklist block
     const tutorNameEl = el("tutorName"), studentNameEl = el("studentName");
     const talkBtn = el("talkBtn"), talkLabel = el("talkLabel"), live = el("live"), hint = el("hint");
     const typeToggle = el("typeToggle"), composer = el("composer"), input = el("input"), sendBtn = el("send");
@@ -1414,6 +1428,15 @@
         .replace(/\s*[×*]\s*/g, " times ")
         .replace(/\s*[÷]\s*/g, " divided by ")
         .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")
+        .replace(/²/g, " squared ")
+        .replace(/³/g, " cubed ")
+        .replace(/π/g, " pi ")
+        .replace(/θ/g, " theta ")
+        .replace(/±/g, " plus or minus ")
+        .replace(/≥/g, " is greater than or equal to ")
+        .replace(/≤/g, " is less than or equal to ")
+        .replace(/≠/g, " is not equal to ")
+        .replace(/°/g, " degrees ")
         .replace(/\^/g, " to the power ")
         .replace(/√/g, " square root of ")
         .replace(/\s{2,}/g, " ")
@@ -1472,6 +1495,7 @@
         //   3) audio reaches the end but "ended" is missed -> detect near-end + paused
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
+          if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
           const idle = Date.now() - lastProgress;
           if (!started) {
             if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); }
@@ -2341,6 +2365,27 @@
         + '<div class="ck-badge">' + (passed ? "★ Unit mastered!" : "Nice progress — let's shore up a couple spots") + '</div></div>';
     }
 
+    // ---------- Pause / resume (RESTORED 2026-08-07 build aw, Jim: "when Mr. Cadabra's
+    // talking, I can tell him to pause" -- reverses this morning's removal) ----------
+    // Pause stops Mr. Cadabra mid-sentence and HOLDS the session (no new turn starts);
+    // Resume continues the sentence and hands the turn back as normal.
+    function setPaused(on) {
+      paused = on;
+      if (on) {
+        try { ttsAudio.pause(); } catch (e) {}
+        pauseBtn.classList.add("on"); pauseBtn.textContent = "\u25b6 Resume";
+        statusEl.textContent = "Paused"; setState("idle");
+      } else {
+        pauseBtn.classList.remove("on"); pauseBtn.textContent = "\u23f8 Pause";
+        try {
+          if (ttsAudio.src && ttsAudio.paused && !ttsAudio.ended && ttsAudio.currentTime > 0) {
+            ttsAudio.play(); setState("speaking");
+          }
+        } catch (e) {}
+      }
+    }
+    if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
+
     // ---------- Tap-to-talk: record audio, transcribe on the SERVER ----------
     // The mic is ONLY on while the student is recording (they tapped the glowing
     // button). Recorded audio is posted to /api/transcribe (ElevenLabs Scribe),
@@ -2381,7 +2426,7 @@
     function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
 
     async function startRecording() {
-      if (phase !== "ready" || !canRecord) return;
+      if (phase !== "ready" || !canRecord || paused) return;
       ensureAudioGraph();
       try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (e) {
@@ -2544,7 +2589,7 @@
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy) return;
+      if (busy || paused) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
       await runTutor(message);

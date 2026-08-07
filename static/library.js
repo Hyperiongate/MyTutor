@@ -1,6 +1,15 @@
 /* =============================================================================
  * library.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-07  CONTEXT CHOICES FIRST (build aw, Jim: "students often don't know exactly
+ *               what they're looking up"). Opening the overlay now shows CHIP CHOICES drawn
+ *               from what's being taught RIGHT NOW on this page -- the red key terms Mr.
+ *               Cadabra has bolded (.kterm, newest first), the unit bar's topic ladder,
+ *               today's goal, and the practice problem / explored topic -- plus a
+ *               "✏️ Something else…" chip that reveals the type-your-own search box. Tap a
+ *               chip and the article opens straight away. No page changes needed: the
+ *               chips read state the pages already render. If the page has no context yet,
+ *               the type-in box shows directly, as before.
  *   2026-08-07  NEW shared component -- the 📖 LOOK IT UP reference library (Jim: a
  *               searchable database of every course's topics; the student reads a
  *               bubble -- the tutor's voice and the chat conversation are NEVER
@@ -53,6 +62,12 @@
       ".lib-bar input:focus{border-color:#6d5ae6;box-shadow:0 0 0 3px rgba(109,90,230,.15)}" +
       ".lib-bar button{font-size:15px;font-weight:800;padding:11px 18px;border:none;border-radius:12px;cursor:pointer;" +
       "background:linear-gradient(135deg,#6d5ae6,#1fb6b0);color:#fff;flex:0 0 auto}" +
+      ".lib-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}" +
+      ".lib-chip{border:1.5px solid #d8d3ec;background:#fff;border-radius:20px;padding:10px 16px;font-size:14.5px;" +
+      "font-weight:700;color:#2a2450;cursor:pointer}" +
+      ".lib-chip:hover{border-color:#6d5ae6;background:#f6f3ff}" +
+      ".lib-chip.alt{color:#5b6079;border-style:dashed}" +
+      ".lib-bar.hidden{display:none}" +
       ".lib-hint{font-size:12.5px;color:#7a7694;margin:2px 2px 0}" +
       ".lib-art{display:none;margin-top:14px;border-top:1.5px solid #eee9dc;padding-top:14px}" +
       ".lib-art.show{display:block}" +
@@ -76,6 +91,7 @@
       '<div class="lib-card">' +
       '  <div class="lib-top"><span class="lib-ic">📖</span><h2>Look it up</h2>' +
       '    <button type="button" class="lib-x" id="libClose">✕ Close</button></div>' +
+      '  <div class="lib-chips" id="libChips"></div>' +
       '  <div class="lib-bar">' +
       '    <input id="libQ" placeholder="What do you want to read about? e.g. the binomial theorem, adding money…" maxlength="160" autocomplete="off" />' +
       '    <button type="button" id="libGo">Look it up</button>' +
@@ -89,7 +105,53 @@
     var q = document.getElementById("libQ"), art = document.getElementById("libArt"),
         status = document.getElementById("libStatus");
 
-    function open() { ov.classList.add("show"); setTimeout(function () { q.focus(); }, 60); }
+    // What is this page teaching RIGHT NOW? Chips are drawn from state the page already
+    // renders: the tutor's bolded key terms (newest first), the unit bar's topic ladder,
+    // today's goal, and the practice problem / explored topic. Deduped, capped at 6.
+    function currentTopics() {
+      var out = [], seen = {};
+      function push(t) {
+        t = String(t || "").replace(/\s+/g, " ").trim().replace(/[.,;:!?]+$/, "");
+        if (t.length < 3 || t.length > 60) return;
+        var k = t.toLowerCase();
+        if (seen[k] || out.length >= 6) return;
+        seen[k] = 1; out.push(t);
+      }
+      var kt = Array.prototype.slice.call(document.querySelectorAll(".kterm"));
+      kt.reverse().forEach(function (e) { push(e.textContent); });          // newest terms first
+      document.querySelectorAll("#unitTrack .pbseg").forEach(function (e) { push(e.title); });
+      var g = document.getElementById("goalText"); if (g) push(g.textContent);
+      var pb = document.getElementById("probText"); if (pb) push(pb.textContent);
+      var tb = document.getElementById("topicText"); if (tb) push(tb.textContent);
+      return out;
+    }
+    var chips = document.getElementById("libChips");
+    var bar = ov.querySelector(".lib-bar");
+    function open() {
+      ov.classList.add("show");
+      art.classList.remove("show"); art.innerHTML = "";
+      status.classList.remove("show");
+      chips.innerHTML = "";
+      var topics = currentTopics();
+      if (topics.length) {
+        bar.classList.add("hidden");                       // type-in waits behind "Something else…"
+        topics.forEach(function (t) {
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "lib-chip"; b.textContent = t;
+          b.addEventListener("click", function () { q.value = t; lookup(); });
+          chips.appendChild(b);
+        });
+        var other = document.createElement("button");
+        other.type = "button"; other.className = "lib-chip alt"; other.textContent = "✏️ Something else…";
+        other.addEventListener("click", function () {
+          bar.classList.remove("hidden"); q.value = ""; q.focus();
+        });
+        chips.appendChild(other);
+      } else {
+        bar.classList.remove("hidden");                    // no context yet — type-in as before
+        setTimeout(function () { q.focus(); }, 60);
+      }
+    }
     function close() { ov.classList.remove("show"); }
     document.getElementById("libClose").addEventListener("click", close);
     ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
