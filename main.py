@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bq-check-student-answer". tutor.py only: new
+#               rule 18 in the shared precision block -- compute the student's numeric
+#               answer before accepting it (wrong answer = coaching, never adopted),
+#               and spoken numbers must match the board's numbers in the same reply
+#               (Jim's screenshot: "fifteen" accepted for 7+8+1 while the board wrote 16).
 #   2026-08-08  APP_BUILD -> "2026-08-08bp-money-speech". "$1.85" was voiced "one dot
 #               eight five". forSpeech() on all three teaching pages now reads money as
 #               dollars-and-cents and plain decimals as "point" spoken digit by digit;
@@ -4032,7 +4037,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bp-money-speech"
+APP_BUILD = "2026-08-08bq-check-student-answer"
 
 
 @app.get("/health")

@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  RULE 18 -- CHECK THE STUDENT'S ANSWER (build bq, Jim's screenshot,
+#               carrying dimes: asked "seven plus eight plus one?", student said
+#               "fifteen" (wrong -- it's 16), and the tutor ACCEPTED it aloud ("write
+#               the five and carry a dollar") while its own board correctly wrote
+#               dimes: 7 + 8 + 1 = 16 -- spoken lesson and board contradicted each
+#               other, and the wrong digit was taught. New rule 18 in the SHARED rules
+#               block (all courses, verified by 10-course scan): (a) compute the
+#               student's numeric answer YOURSELF before accepting/building on it --
+#               a wrong answer is a coaching moment, never adopted; (b) spoken numbers
+#               must MATCH the board's numbers in the same reply. Related: the parked
+#               "prose referee" decision (mathcheck only checks tagged computations,
+#               not prose) -- rule 18 is the prompt-side fix; a mechanical prose check
+#               remains open in Teaching_Precision_Review_2026-08-06.
 #   2026-08-08  MONEY IS SPOKEN AS MONEY + ALL-COURSE RULE COVERAGE (build bp, Jim:
 #               "$1.85" was voiced "one dot eight five -- no dollar, no cents").
 #               (1) New bullet in EVERY "HOW YOU SPEAK" block (each course template has
@@ -4051,6 +4064,23 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
       run ahead either. Before sending, re-read the question you're asking and check that
       no earlier sentence in the same reply already contains its answer -- if one does,
       reword the setup, not the question.
+
+18. CHECK THE STUDENT'S ANSWER BEFORE YOU BUILD ON IT -- AND YOUR WORDS MUST MATCH YOUR
+    BOARD. (Live catch, 2026-08-08, carrying dimes: the tutor asked "what's seven plus
+    eight plus one?" -- the student said "fifteen" -- and the tutor warmly ran with it:
+    "Fifteen dimes -- we write the five and carry a dollar," while its OWN board line
+    correctly showed dimes: 7 + 8 + 1 = 16. The spoken lesson taught the wrong digit
+    from the student's wrong answer while the board showed the right one.)
+    (a) Before you accept, repeat, praise, or build on ANY numeric answer the student
+        gives, COMPUTE it yourself first. If their number is wrong, that is a coaching
+        moment: warmly walk the recount ("close! let's count it together -- seven plus
+        eight is fifteen, plus the one we carried..."). NEVER adopt their number into
+        the lesson. An accepted wrong answer teaches the mistake with your authority
+        behind it.
+    (b) Every number you SPEAK must MATCH the numbers your board shows in the same
+        reply. If the board writes 16, your words say sixteen. A reply that says one
+        number and writes another is a failed turn no matter which of the two is right
+        -- the student cannot tell which teacher to believe.
 """
 
 
