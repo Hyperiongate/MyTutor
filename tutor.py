@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  TODAY-BAR NET + FINAL-STEP LINE (build bo, Jim's Pre-Algebra screenshots).
+#               (1) TODAY bar never rendered: the opener skipped [[today items]]. Fixes:
+#               rule 0(c) now explicitly requires the [[today]] tag right after the goals
+#               card, AND new ensure_today_tag() -- a DETERMINISTIC net (never guesses,
+#               unlike the retired ensure_board): if a lesson reply announces goals (card
+#               or [[goal]] banner) with no [[today]] in the reply or session history, it
+#               appends [[today]] with the model's own goal items verbatim. Lesson only.
+#               (2) Column-addition finale skipped its board line ("dollars: 2 + 1 = 3"
+#               never written; board jumped to 2.30 + 1.45 = 3.75): rule 4 sharpened --
+#               every answered sub-step gets its own line BEFORE any combined line.
 #   2026-08-08  NO MORE TRUNCATED TURNS (build bn, Jim's live freeze: a first Basic-Math
 #               teaching turn collapsed to the single word "Let" with an empty board --
 #               the tag-heavy reply hit the 1200-token max_tokens ceiling MID-TAG and
@@ -3835,6 +3845,13 @@ Students absorb NUMBERS AND SYMBOLS far better than math spelled out in words. S
    failed turn. Example: if you say the equation factors, the board must show
    (x + 2)(x + 3) = 0 in that reply. If you verify by plugging in, the board shows the
    check lines: (-2)^2 + 5(-2) + 6 | 4 - 10 + 6 | 0 ✓.
+   AND EVERY ANSWERED SUB-STEP GETS ITS OWN LINE BEFORE ANY COMBINED LINE (live catch,
+   2026-08-08: adding 2.30 + 1.45 column by column, the board showed "pennies: 0 + 5 = 5"
+   and "dimes: 3 + 4 = 7" -- but when the student answered the DOLLARS column, the board
+   jumped straight to "2.30 + 1.45 = 3.75"; the "dollars: 2 + 1 = 3" line was never
+   written). When the student answers a step, WRITE that step's own line first ([[step]]),
+   THEN the combined/final line. The last step of a pattern gets its line like every
+   other step -- breaking the pattern on the finale is exactly when it confuses most.
 5. DON'T NARRATE SYMBOLS -- POINT AT THEM. Never read an equation aloud word-by-word
    ("x plus two times x plus three equals zero"). WRITE it on the board, then keep your
    spoken sentence short and human: "Here's how it factors -- look at the board. What two
@@ -4016,7 +4033,10 @@ SESSION_OPENER_RULES = """
    (b) TODAY'S TOPIC. One sentence: "Today we're going to work on <topic>."
    (c) TODAY'S GOAL. Speak it -- "By the end of today you'll be able to ..." -- AND show it:
        the [[goal text="..."]] banner, then the short
-       [[card title="By the end you'll be able to" items="... | ... | ..."]] card.
+       [[card title="By the end you'll be able to" items="... | ... | ..."]] card,
+       then IMMEDIATELY the hidden [[today items="..."]] tag with the SAME items in the
+       SAME order (2026-08-08: this tag is what fills the TODAY progress bar -- skipping
+       it leaves the top bar empty for the whole lesson; see PROGRESS BARS below).
    (d) READY-CHECK. Hand it over and STOP: "Ready to get started?" (elementary courses also
        tap: [[choices options="ready! | tell me more"]]).
    ⛔ This first message contains NO math problem, NO numbers to compare, NO content question
@@ -4309,6 +4329,39 @@ def ensure_board(reply: str, user_message: str = "", history=None) -> str:
     return reply
 
 
+# -----------------------------------------------------------------------------
+# TODAY-BAR SAFETY NET (2026-08-08, build bo, Jim's screenshot: a Pre-Algebra
+# session showed the UNIT and COURSE bars but NO TODAY bar for the whole lesson --
+# the opener emitted [[goal]] and the goals card but skipped the [[today items]]
+# tag the PROGRESS BARS note asks for, so the top bar never rendered).
+# Unlike the retired ensure_board net above, this one NEVER GUESSES: it copies the
+# goal items the model itself just wrote (the "By the end you'll be able to" card,
+# falling back to the [[goal]] banner text) into the [[today]] tag verbatim --
+# exactly the tag the prompt told the model to emit. It fires only when this reply
+# announces goals, has no [[today]] of its own, AND no [[today]] was ever emitted
+# earlier in the session (so it can never reset a live bar mid-lesson).
+# Lesson mode only (the today bar exists only on the lesson page).
+# -----------------------------------------------------------------------------
+_GOALS_CARD_RE = re.compile(r'\[\[\s*card\s+title="By the end[^"]*"\s+items="([^"\]]+)"', re.I)
+_GOAL_BANNER_RE = re.compile(r'\[\[\s*goal\s+text="([^"\]]+)"', re.I)
+
+
+def ensure_today_tag(reply: str, history=None) -> str:
+    if re.search(r"\[\[\s*today\b", reply, re.I):
+        return reply                                   # model did its job
+    for msg in (history or []):
+        if msg.get("role") == "assistant" and "[[today" in str(msg.get("content", "")):
+            return reply                               # today bar already live -- never reset it
+    m = _GOALS_CARD_RE.search(reply)
+    items = m.group(1).strip() if m else ""
+    if not items:
+        g = _GOAL_BANNER_RE.search(reply)
+        items = g.group(1).strip() if g else ""
+    if not items:
+        return reply                                   # no goals announced this turn -- nothing to mirror
+    return reply.rstrip() + ' [[today items="' + items + '"]]'
+
+
 # =============================================================================
 # THE MATH VERIFIER HOOK (2026-08-03) -- shared by lesson, practice, and topic.
 # -----------------------------------------------------------------------------
@@ -4467,7 +4520,8 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             messages, " [lesson]",
             meta={"code": code, "course": course, "mode": "lesson"},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
-        return ensure_board(reply, user_message, history)
+        # build bo: deterministic TODAY-bar net (lesson mode only) -- see ensure_today_tag.
+        return ensure_today_tag(ensure_board(reply, user_message, history), history)
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.

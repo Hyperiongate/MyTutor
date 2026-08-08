@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bo-todaybar-stepline". tutor.py only (stamp bump):
+#               (1) TODAY-bar safety net -- ensure_today_tag() mirrors the opener's own
+#               goal items into [[today]] when the model skips the tag (deterministic,
+#               lesson-only, never resets a live bar); rule 0(c) requires the tag.
+#               (2) Rule 4 sharpened: every answered sub-step gets its own board line
+#               before any combined line (the "dollars: 2 + 1 = 3" jump-to-answer catch).
 #   2026-08-08  APP_BUILD -> "2026-08-08bn-no-truncated-turns". Jim's live freeze (Basic
 #               Math first teaching turn showed only "Let", empty board, lesson stalled):
 #               the reply hit tutor.py's 1200-token ceiling mid-tag and nothing checked
@@ -4022,7 +4028,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bn-no-truncated-turns"
+APP_BUILD = "2026-08-08bo-todaybar-stepline"
 
 
 @app.get("/health")
