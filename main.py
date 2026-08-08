@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08br-resumebars-pendingline". (1) session.html
+#               renders the UNIT bar at page load (curriculum + placement + quiz
+#               history) -- no longer waits for [[unitplan]]; a resumed session had
+#               shown only the course bar. (2) tutor.py: [[today]] required in the
+#               first message of EVERY session (resumes included); rule 15 gains the
+#               pending-"?"-line device ([[step eq="dollars: 2 + 1 + 1 = ?"]]) so an
+#               asked step is ALWAYS on the board without running ahead.
 #   2026-08-08  APP_BUILD -> "2026-08-08bq-check-student-answer". tutor.py only: new
 #               rule 18 in the shared precision block -- compute the student's numeric
 #               answer before accepting it (wrong answer = coaching, never adopted),
@@ -4037,7 +4044,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bq-check-student-answer"
+APP_BUILD = "2026-08-08br-resumebars-pendingline"
 
 
 @app.get("/health")

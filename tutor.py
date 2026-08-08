@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  RESUME BARS + THE "?" LINE (build br, Jim's resumed-session screenshot).
+#               (1) PROGRESS_TAGS_NOTE: [[today items]] is now required in the FIRST
+#               message of EVERY session -- resumed sessions included (a welcome-back
+#               opener dove straight into the problem and the today bar stayed empty).
+#               Companion: session.html now renders the UNIT bar at page load from
+#               curriculum + placement + server quiz history (like the course bar), so
+#               it no longer depends on the model's [[unitplan]] tag at all.
+#               (2) Rule 15 gains the concrete device for asked steps: write the step
+#               as a PENDING "?" line -- [[step eq="dollars: 2 + 1 + 1 = ?"]] -- in the
+#               same reply as the question; next reply replaces "?" with the confirmed
+#               number. (Second miss of the same kind in one lesson: the dollars-column
+#               question was spoken with no board line.)
 #   2026-08-08  RULE 18 -- CHECK THE STUDENT'S ANSWER (build bq, Jim's screenshot,
 #               carrying dimes: asked "seven plus eight plus one?", student said
 #               "fifteen" (wrong -- it's 16), and the tutor ACCEPTED it aloud ("write
@@ -4031,6 +4043,16 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     This never conflicts with "don't run ahead" (rule 6): the QUESTION always goes up;
     only its answer and worked steps stay off the board until the student has had
     their shot.
+    HOW TO WRITE IT WITHOUT SPOILING -- THE "?" LINE (second live catch, 2026-08-08:
+    "now the dollars column: two plus one plus one -- what's that?" was asked with NO
+    board line, again, in the same column-addition lesson). Write the step you are
+    asking about as a PENDING line with a question mark for the unknown:
+        [[step eq="dollars: 2 + 1 + 1 = ?"]]
+    The "?" is the device that satisfies BOTH rules at once: the question is complete
+    on the board (this rule) and the answer has not run ahead (rule 6). In ANY
+    column-by-column or step-by-step pattern, EVERY step you ask about gets its
+    pending "?" line in the same reply as the question -- then your NEXT reply
+    replaces "?" with the confirmed number. No spoken-only steps, ever.
 
 16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY. (Live
     catch, 2026-08-07: the tutor asked "plug 4 back into two x plus five equals thirteen"
@@ -4165,6 +4187,12 @@ bars, so never speak the tag contents as a list):
 1) TODAY BAR. In your OPENING message, immediately after the "By the end you'll be able to"
    goals card, also emit (same 2-3 items, same order, short phrasing):
        [[today items="compare two decimals | line up the point to add | connect decimals to money"]]
+   THIS INCLUDES RESUMED SESSIONS (2026-08-08, Jim's screenshot: a welcome-back opener
+   dove straight back into a carrying problem and emitted no [[today]] -- the student's
+   top bar stayed empty the whole session). EVERY session's FIRST message emits
+   [[today items]] with that session's short plan -- resumed sessions too, e.g.
+   [[today items="finish our carrying problem | try one on your own | comparing decimals quiz"]].
+   No session starts without today's map on the wall.
    Then, during the lesson, THE MOMENT the student genuinely demonstrates goal n (they did it
    themselves -- not just watched you), silently emit:
        [[todaydone n="1"]]

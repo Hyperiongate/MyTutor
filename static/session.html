@@ -8,6 +8,13 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-08  UNIT BAR RENDERS AT LOAD (build br, Jim: a resumed session showed only
+    the course bar). The unit bar's ladder is already known at page load (curriculum
+    topics + placement/focus unit + server quiz history), so loadSession now renders it
+    immediately, exactly like the course bar — no dependency on the tutor's [[unitplan]]
+    tag (which still replaces it via the same render path when emitted). The TODAY bar
+    stays model-fed; tutor.py (same build) now requires [[today]] in the first message
+    of EVERY session, resumed ones included.
   - 2026-08-08  MONEY SPEECH (build bp, Jim: "$1.85" was spoken "one dot eight five").
     forSpeech() now reads money as money ($1.85 -> "1 dollar and 85 cents", $0.85 ->
     "85 cents", $2 -> "2 dollars") and plain decimals with "point" spoken digit by
@@ -2926,8 +2933,8 @@
         hasHistory = history.length > 0;
         touredAnywhere = !!data.toured;
         // 2026-08-07: the server's honest progress picture feeds the new bars + the
-        // Final Exam door. The course bar renders immediately; unit/today bars appear
-        // when the tutor emits their tags.
+        // Final Exam door. The course bar renders immediately; the today bar appears
+        // when the tutor emits its tag.
         SRV_PROGRESS = data.progress || null;
         if (SRV_PROGRESS) renderCourseBar();
         // The assessment is VOLUNTARY (2026-07-28): a brand-new student is NO LONGER redirected
@@ -2936,6 +2943,19 @@
         // Highlight the student's current unit on the course map (from placement).
         const su = data.placement && parseInt(data.placement.start_unit, 10);
         if (su >= 1 && su <= 9) { currentUnit = su; renderCourse(); }
+        // 2026-08-08 (build br, Jim: a resumed session showed ONLY the course bar): the
+        // UNIT bar no longer waits for the tutor's [[unitplan]] tag — its ladder is
+        // already known here (curriculum topics + placement/focus unit + the server's
+        // quiz history), so it renders at load exactly like the course bar. A later
+        // [[unitplan]] from Mr. Cadabra simply replaces it (same render path).
+        if (SRV_PROGRESS && !UNIT_PLAN.unit) {
+          const startUnit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
+          const cu = (CURRICULUM || []).find(x => x.n === startUnit);
+          if (cu && cu.topics && cu.topics.length) {
+            UNIT_PLAN = { unit: startUnit, topics: cu.topics.slice() };
+            renderUnitBar();
+          }
+        }
         tutorName = data.tutor_name || "Tutor"; tutorNameEl.textContent = tutorName;
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";
