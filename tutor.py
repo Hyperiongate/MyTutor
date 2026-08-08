@@ -2,6 +2,21 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  MONEY IS SPOKEN AS MONEY + ALL-COURSE RULE COVERAGE (build bp, Jim:
+#               "$1.85" was voiced "one dot eight five -- no dollar, no cents").
+#               (1) New bullet in EVERY "HOW YOU SPEAK" block (each course template has
+#               its own -- 11 total): prices are spoken "one dollar and eighty-five
+#               cents", plain decimals "three point seven five"; the board keeps the
+#               symbols. Client twin in forSpeech() on all three teaching pages.
+#               (2) COVERAGE AUDIT: the bk MULTIPLICATION SIGN bullet had landed in a
+#               course-specific whiteboard block and reached only 3 of 10 courses --
+#               MOVED into the shared "BOARD LEADS" section (rule 4 area). Verified:
+#               ×-rule, money rule, and all recent rule sharpenings now present in the
+#               built prompts of ALL TEN courses. LESSON LEARNED for future edits:
+#               "HOW YOU SPEAK" and the whiteboard tag docs are PER-COURSE (11 copies);
+#               shared blocks are GRAPH_TOOL_NOTE (rules 1-17), SESSION_OPENER_RULES,
+#               and PROGRESS_TAGS_NOTE -- put universal rules THERE, then verify with a
+#               10-course build_system_prompt scan.
 #   2026-08-08  TODAY-BAR NET + FINAL-STEP LINE (build bo, Jim's Pre-Algebra screenshots).
 #               (1) TODAY bar never rendered: the opener skipped [[today items]]. Fixes:
 #               rule 0(c) now explicitly requires the [[today]] tag right after the goals
@@ -990,11 +1005,6 @@ The worklist KEEPS every line up until you send [[clear]] (only when you start a
 problem). Rule of thumb: if you say a number sentence, add a [[step]] for it. (An older tag,
 [[write lines="a | b"]], still works and now also appends to the worklist -- but prefer
 [[step]]; variables are auto-styled bold/CAPITAL/red either way.)
-  - MULTIPLICATION SIGN (2026-08-07): on the board, write multiplication as × (or a
-    raised dot ·) -- NEVER the letter x. The board styles every lone letter as a red
-    VARIABLE, so "3 + 2 x 4" would show a variable where you meant "times".
-    "3 + 2 × 4" ✓    "5 × 3" ✓    "3 + 2 x 4" ✗
-    (A coefficient like 2x is different -- that x really IS the variable.)
 
 Draw / update the balance:
   [[balance left="3 + 1" right="4" state="level" caption="three monkeys plus one equals four"]]
@@ -1074,6 +1084,10 @@ HOW YOU SPEAK (this is a VOICE conversation)
     squared", "three over four" -- NEVER write "2x + 3 = 11", "f(x)", "x^2", or use
     parentheses/×/÷ in your spoken sentence. (The on-screen visuals show the real
     notation; your spoken line must be plain spoken English.)
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board still shows $1.85 / 3.75 in
+    symbols -- this rule is only about your spoken sentence.)
   - ALWAYS END YOUR TURN BY HANDING IT BACK CLEARLY. This is critical -- the student
     is waiting and needs to know exactly what to do. Never end on a bare statement
     that leaves them with nothing to do or say. Every reply must finish with ONE of:
@@ -1468,6 +1482,10 @@ will grow over time; today these figures + [[step]] + [[card]] carry it.)
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud by a voice, so speak math as WORDS, never as symbols or
     notation. Say "angle A plus angle B equals ninety", "a squared plus b squared equals c
@@ -1749,6 +1767,10 @@ Keep your spoken words short and let the board carry the work.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud, so speak math as WORDS, never as symbols. Say "one half plus
     one third", "twenty percent of eighty", "negative four plus nine" -- never write "1/2 + 1/3" or
@@ -2169,6 +2191,10 @@ and keep your spoken words short.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud by a voice, so write math as WORDS, never as symbols or
     notation. Say "x squared minus six x plus five equals zero", "the square root of negative
@@ -2552,6 +2578,10 @@ keep your spoken words short.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud by a voice, so write math as WORDS, never as symbols or
     notation. Say "sine of thirty degrees is one half", "the limit as x approaches two", "log base
@@ -2829,6 +2859,10 @@ SHORT so your reply is never cut off mid-tag.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud, so speak in plain English, not notation. Say "the median is
     seven", "about sixty-eight percent", "the correlation is point eight" -- the on-screen pictures
@@ -3093,6 +3127,10 @@ introduce or work an idea, and keep your spoken words short.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud, so speak math as WORDS, never notation. Say "the derivative
     of x cubed is three x squared", "the limit as x approaches two", "the integral from zero to
@@ -3357,6 +3395,10 @@ Keep every tag SHORT so your reply is never cut off mid-tag.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues out loud.
   - CRITICAL: your words are read aloud, so speak math as WORDS, never notation. Say "d y d x equals
     two x y", "the integrating factor is e to the integral of P", "the characteristic equation is r
@@ -3635,6 +3677,10 @@ script.
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-2 SHORT sentences. No monologues.
   - CRITICAL: your words are read aloud, so speak math as WORDS, never as symbols. Say "four plus
     three," "one half," "twenty-five cents" -- never write "4 + 3" or "1/2" in your spoken sentence.
@@ -3852,6 +3898,11 @@ Students absorb NUMBERS AND SYMBOLS far better than math spelled out in words. S
    written). When the student answers a step, WRITE that step's own line first ([[step]]),
    THEN the combined/final line. The last step of a pattern gets its line like every
    other step -- breaking the pattern on the finale is exactly when it confuses most.
+   MULTIPLICATION SIGN (2026-08-07): on the board, write multiplication as × (or a
+   raised dot ·) -- NEVER the letter x. The board styles every lone letter as a red
+   VARIABLE, so "3 + 2 x 4" would show a variable where you meant "times".
+   "3 + 2 × 4" ✓    "5 × 3" ✓    "3 + 2 x 4" ✗
+   (A coefficient like 2x is different -- that x really IS the variable.)
 5. DON'T NARRATE SYMBOLS -- POINT AT THEM. Never read an equation aloud word-by-word
    ("x plus two times x plus three equals zero"). WRITE it on the board, then keep your
    spoken sentence short and human: "Here's how it factors -- look at the board. What two
@@ -4924,6 +4975,10 @@ runs, a number comes OUT. Use this (not the balance) whenever you show what f(x)
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues.
   - CRITICAL: your words are read aloud, so write math as WORDS, never symbols: say
     "two x plus three equals eleven", "x squared", "three over four" -- never "2x + 3
@@ -5191,6 +5246,10 @@ number comes OUT -- instead of the balance:
 ============================================================
 HOW YOU SPEAK (this is a VOICE conversation)
 ============================================================
+  - MONEY IS SPOKEN AS MONEY (2026-08-08): a price is "one dollar and eighty-five
+    cents", never "$1.85" and never "one point eight five". A plain decimal with no
+    dollar sign is "three point seven five". (The board keeps the symbols -- this
+    rule is only about your spoken sentence.)
   - Keep almost every reply to 1-3 short sentences. No monologues.
   - CRITICAL: your words are read aloud, so write math as WORDS, never symbols: say
     "two x plus three equals eleven", "x squared", "three over four" -- never "2x + 3

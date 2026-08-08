@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    2026-08-08  MONEY SPEECH (build bp): forSpeech() reads money as money ($1.85 ->
+                "1 dollar and 85 cents") and plain decimals with "point" digit by digit
+                (3.75 -> "3 point 7 5") -- never "dot". All three teaching pages.
     2026-08-08  FIRST WORDS + THINKING FLAG (build bl): every TTS clip requests lead=1
                 (~560ms leading silence; first keeps lead=3) and a suspended audio
                 context is resumed BEFORE the clip starts, so his first words stop
@@ -825,9 +828,23 @@
       maleVoice = en[0] || voices[0];
     }
     if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+    // 2026-08-08 (build bp, Jim: "$1.85" was spoken as "one dot eight five — no dollar,
+    // no cents"): money is read as money, plain decimals as "point", never "dot".
+    function moneyWords(_, d, c) {
+      const dollars = parseInt(d, 10);
+      const cents = c === undefined ? null : parseInt(c, 10);
+      const parts = [];
+      if (dollars > 0 || cents === null || cents === 0)
+        parts.push(dollars + (dollars === 1 ? " dollar" : " dollars"));
+      if (cents !== null && cents > 0)
+        parts.push(cents + (cents === 1 ? " cent" : " cents"));
+      return parts.join(" and ");
+    }
     function forSpeech(text) {
       return String(text)
         .replace(/\*+/g, " ")
+        .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
+        .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")
         .replace(/[()]/g, " ")
         .replace(/\s*=\s*/g, " equals ")

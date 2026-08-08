@@ -8,6 +8,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-08  MONEY SPEECH (build bp, Jim: "$1.85" was spoken "one dot eight five").
+    forSpeech() now reads money as money ($1.85 -> "1 dollar and 85 cents", $0.85 ->
+    "85 cents", $2 -> "2 dollars") and plain decimals with "point" spoken digit by
+    digit (3.75 -> "3 point 7 5") — never "dot". Same patch on practice + topic;
+    tutor.py also tells the model to SPEAK prices as dollars-and-cents.
   - 2026-08-08  BARS: JIM'S PALETTE (build bm). Light-GREEN card, WHITE unfilled
     segments, BLACK labels/text — replaces bj's dark-gray card. Fills stay accent
     purple / gold. Companion in tutor.py (same build): rule 15 sharpened — the
@@ -1547,9 +1552,25 @@
 
     // Turn written math into words the voice can say cleanly (the visuals carry
     // the actual notation). Prevents "x parenthesis parenthesis", "times x", etc.
+    // 2026-08-08 (build bp, Jim: "$1.85" was spoken as "one dot eight five — no dollar,
+    // no cents"): money is read as money, plain decimals as "point", never "dot".
+    //   $1.85 -> "1 dollar and 85 cents"   $3.75 -> "3 dollars and 75 cents"
+    //   $0.85 -> "85 cents"   $2 -> "2 dollars"   3.75 (no $) -> "3 point 7 5"
+    function moneyWords(_, d, c) {
+      const dollars = parseInt(d, 10);
+      const cents = c === undefined ? null : parseInt(c, 10);
+      const parts = [];
+      if (dollars > 0 || cents === null || cents === 0)
+        parts.push(dollars + (dollars === 1 ? " dollar" : " dollars"));
+      if (cents !== null && cents > 0)
+        parts.push(cents + (cents === 1 ? " cent" : " cents"));
+      return parts.join(" and ");
+    }
     function forSpeech(text) {
       return String(text)
         .replace(/\*+/g, " ")                                       // strip markdown *
+        .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)         // $1.85 -> 1 dollar and 85 cents
+        .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))  // 3.75 -> 3 point 7 5
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")  // f(x) -> f of x
         .replace(/[()]/g, " ")                                      // drop stray parentheses
         .replace(/\s*=\s*/g, " equals ")

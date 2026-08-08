@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bp-money-speech". "$1.85" was voiced "one dot
+#               eight five". forSpeech() on all three teaching pages now reads money as
+#               dollars-and-cents and plain decimals as "point" spoken digit by digit;
+#               tutor.py HOW YOU SPEAK gains the matching rule. Stamp bump only here.
 #   2026-08-08  APP_BUILD -> "2026-08-08bo-todaybar-stepline". tutor.py only (stamp bump):
 #               (1) TODAY-bar safety net -- ensure_today_tag() mirrors the opener's own
 #               goal items into [[today]] when the model skips the tag (deterministic,
@@ -4028,7 +4032,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bo-todaybar-stepline"
+APP_BUILD = "2026-08-08bp-money-speech"
 
 
 @app.get("/health")
