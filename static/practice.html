@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-08-08  FIRST WORDS + THINKING FLAG (build bl): every TTS clip requests lead=1
+                (~560ms leading silence; first keeps lead=3) and a suspended audio
+                context is resumed BEFORE the clip starts, so his first words stop
+                getting clipped. A red pulsing "Mr. Cadabra is thinking…" badge shows
+                mid-whiteboard while he thinks and vanishes when his voice starts.
+                Same patch on all three teaching pages.
     2026-08-07  × IS NOT A VARIABLE (build bk): styleVarsCore renders a lone x written
                 BETWEEN two numbers ("3 + 2 x 4", "5 x 3") as a true × sign instead of a
                 red variable; coefficients (2x) and real variables (3 + x) untouched.
@@ -216,6 +222,19 @@
       border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
       padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
     .feed .stage-hint { margin: auto; }
+    /* THINKING FLAG (2026-08-08, build bl, Jim): "is thinking" only lived in the tiny
+       corner status line — easy to miss. A red pulsing badge now appears in the MIDDLE
+       of the whiteboard while he thinks, and disappears the moment he starts talking. */
+    .thinkflag { display: none; position: fixed; z-index: 60; transform: translate(-50%, -50%);
+      align-items: center; gap: 10px; pointer-events: none; white-space: nowrap;
+      background: #fff; border: 2px solid #e0392b; color: #c22112; border-radius: 999px;
+      padding: 10px 22px; font-weight: 800; font-size: 15px;
+      box-shadow: 0 10px 30px rgba(224,57,43,.22); }
+    .thinkflag.show { display: flex; }
+    .thinkflag .tdot { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%;
+      background: #e0392b; animation: thinkpulse 1s ease-in-out infinite; }
+    @keyframes thinkpulse { 0%, 100% { transform: scale(.7); opacity: .5; }
+      50% { transform: scale(1.2); opacity: 1; } }
     .feed sup { font-size: 0.62em; }
     .feed .checkcard { text-align:center; padding:16px 24px; border-radius:16px; min-width:230px; }
     .feed .checkcard.pass { background:#e9f9f0; border:1px solid #b6e6cd; }
@@ -643,7 +662,35 @@
       const orbEl = document.getElementById("orb");
       const ow = orbEl ? orbEl.parentElement : null;
       if (ow) ow.classList.toggle("busyglow", s === "thinking" || s === "speaking");
+      // THINKING FLAG (2026-08-08, build bl, Jim): a red pulsing badge in the middle of
+      // the whiteboard while he thinks; ANY other state (speaking/listening/idle) hides
+      // it — so it vanishes the instant his voice actually starts (the "playing" event).
+      const tf = thinkFlagEl();
+      if (s === "thinking") {
+        tf.querySelector(".ttxt").textContent = "Mr. Cadabra is thinking…";
+        tf.classList.add("show"); placeThinkFlag();
+      } else tf.classList.remove("show");
     }
+    // Created once, appended to <body>; centered over the whiteboard (#feed) at show
+    // time and re-centered on resize. Fixed positioning, so feed scrolling never moves it.
+    function thinkFlagEl() {
+      let f = document.getElementById("thinkFlag");
+      if (!f) {
+        f = document.createElement("div"); f.id = "thinkFlag"; f.className = "thinkflag";
+        f.innerHTML = '<span class="tdot"></span><span class="ttxt"></span>';
+        document.body.appendChild(f);
+      }
+      return f;
+    }
+    function placeThinkFlag() {
+      const f = document.getElementById("thinkFlag");
+      if (!f || !f.classList.contains("show")) return;
+      const feed = document.getElementById("feed");
+      const r = feed ? feed.getBoundingClientRect() : null;
+      f.style.left = (r ? r.left + r.width / 2 : window.innerWidth / 2) + "px";
+      f.style.top = (r ? r.top + r.height * 0.45 : window.innerHeight * 0.45) + "px";
+    }
+    window.addEventListener("resize", placeThinkFlag);
 
     // ---------- Audio graph (streaming voice + analyser) ----------
     let firstSpeakLead = true;   // first clip of a session gets extra leading silence (see /api/speak lead=)
@@ -786,9 +833,24 @@
         ttsAudio.addEventListener("timeupdate", onProgress);
         ttsAudio.addEventListener("ended", onEnded);
         ttsAudio.addEventListener("error", onError);
-        ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + (firstSpeakLead ? "&lead=3" : ""); firstSpeakLead = false;
-        const p = ttsAudio.play();
-        if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
+        // 2026-08-08 (build bl, Jim: "he doesn't start out loud until about the third
+        // word"): two head-of-clip protections. (1) EVERY clip now carries lead=1
+        // (~560ms of leading silence; the first clip keeps lead=3) so a sleeping
+        // output device wakes on silence, not on his words. (2) If the Web-Audio
+        // context is suspended (idle tab / autoplay policy), his words would play
+        // into a muted graph — RESUME it first, then start the clip; a 300ms
+        // timeout guarantees a stuck resume can never hold up the turn.
+        const startClip = () => {
+          if (doneCalled) return;
+          ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + "&lead=" + (firstSpeakLead ? 3 : 1); firstSpeakLead = false;
+          const p = ttsAudio.play();
+          if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
+        };
+        if (audioCtx && audioCtx.state === "suspended") {
+          let kicked = false; const kick = () => { if (!kicked) { kicked = true; startClip(); } };
+          try { audioCtx.resume().then(kick, kick); } catch (e) { kick(); }
+          setTimeout(kick, 300);
+        } else startClip();
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
           if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
@@ -1462,7 +1524,7 @@
       setState("thinking"); statusEl.textContent = "Got it — one sec…"; live.textContent = "";
       const text = await transcribe(blob);
       if (text) { sendToTutor(text); }
-      else { setPhase("ready"); hint.textContent = "I didn't quite catch that — tap and try again."; }
+      else { setPhase("ready"); setState("idle"); hint.textContent = "I didn't quite catch that — tap and try again."; }
     }
     async function transcribe(blob) {
       try {
@@ -1499,7 +1561,12 @@
         statusEl.textContent = "Mr. Cadabra is talking…";
         await speak(clean);
       } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
-      finally { busy = false; statusEl.textContent = ""; setPhase("ready"); }
+      finally {
+        busy = false; statusEl.textContent = ""; setPhase("ready");
+        // build bl: if the voice never started (server error, or a voiceless fallback
+        // that resolves without a state change), don't leave the thinking flag up.
+        if (state === "thinking") setState("idle");
+      }
     }
 
     // ---------- Text fallback ----------

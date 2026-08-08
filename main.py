@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bl-firstwords-thinkflag". Static-only build (all
+#               changes in session/practice/topic; bump so /health confirms the deploy).
+#               (1) FIRST WORDS CLIPPED (Jim, ongoing): every TTS clip now requests
+#               lead=1 (~560ms leading silence via the existing /api/speak lead param;
+#               the first clip keeps lead=3) AND a suspended Web-Audio context is
+#               resumed before playback starts. (2) THINKING FLAG: a red pulsing
+#               "Mr. Cadabra is thinking…" badge mid-whiteboard while he thinks; hidden
+#               the moment his voice starts.
 #   2026-08-07  APP_BUILD -> "2026-08-07bk-times-sign". Jim's screenshot: "3 + 2 X 4"
 #               showed the multiplication x styled as a red variable. Fixed both ways:
 #               (1) tutor.py board rules now say WRITE × (or ·) for multiplication,
@@ -4000,7 +4008,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bk-times-sign"
+APP_BUILD = "2026-08-08bl-firstwords-thinkflag"
 
 
 @app.get("/health")
