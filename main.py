@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-07  APP_BUILD -> "2026-08-07bk-times-sign". Jim's screenshot: "3 + 2 X 4"
+#               showed the multiplication x styled as a red variable. Fixed both ways:
+#               (1) tutor.py board rules now say WRITE × (or ·) for multiplication,
+#               never the letter x; (2) styleVarsCore on session/practice/topic renders a
+#               lone x between two numbers as a true × sign, unstyled (coefficients like
+#               2x and real variables like "3 + x" untouched). No backend logic changes.
+#   2026-08-07  APP_BUILD -> "2026-08-07bj-bars-alltour-contrast". Static-only build (all
+#               changes in static/session.html; this bump exists so /health confirms the
+#               deploy): (1) the today/unit preview bars now show for the WHOLE welcome
+#               tour, from the first word (bi showed them only during the "bars" stop --
+#               Jim: "they should all show up right at the beginning"); previews are
+#               replaced by the real bars when [[today]]/[[unitplan]] render. (2) Bars
+#               contrast rework (Jim: "dark gray, not super dark; the spaces in between
+#               should be light"): dark-gray card, light unfilled segments, colored fills.
 #   2026-08-07  APP_BUILD -> "2026-08-07bi-tour-smallfixes". THREE TOUR TOUCHES (Jim):
 #               (1) the curriculum list the tour opens closes again when the tour moves on
 #               (it pushed Mr. Cadabra below the fold); (2) the bars tour stop previews the
@@ -3986,7 +4000,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-07bi-tour-smallfixes"
+APP_BUILD = "2026-08-07bk-times-sign"
 
 
 @app.get("/health")

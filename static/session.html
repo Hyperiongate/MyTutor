@@ -8,6 +8,25 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-07  × IS NOT A VARIABLE (build bk, Jim's screenshot: "3 + 2 X 4" showed the
+    times sign styled as a red variable X). styleVarsCore now renders a lone x written
+    BETWEEN two numbers ("3 + 2 x 4", "5 x 3", "(3+1) x (2+5)") as a true × sign,
+    unstyled — both immediate neighbors must be spaces and the nearest non-space chars
+    number-ish, so "2x + 3" (coefficient) and "3 + x" (real variable) are untouched.
+    Same patch on practice + topic; tutor.py now also tells the model to WRITE × on the
+    board, never the letter x, so the client rule is a safety net, not the plan.
+  - 2026-08-07  BARS: WHOLE-TOUR PREVIEW + CONTRAST (build bj, Jim's live replay of bi).
+    (1) "Only the course is showing up during the introduction" — the bi preview appeared
+    ONLY during the single ~30-second "bars" tour stop and was wiped at every other stop
+    (clearHighlight cleared it). Now showBarsPreview() runs at TOUR START, the preview is
+    NOT cleared between stops, and all three bars stay visible for the whole walk-through.
+    The labeled placeholders are REPLACED (never just hidden) when the real [[today]] /
+    [[unitplan]] tags render — real renders delete the preview flag, so nothing can ever
+    hide a real bar. clearBarsPreview() removed (nothing needs it anymore).
+    (2) "There needs to be contrast — dark gray, not super dark, and the spaces in between
+    light": the bi card was near-black with translucent segments (everything read dark).
+    Now: DARK-GRAY card, LIGHT unfilled segments (#e9e9f2), colored fills (accent/gold)
+    unchanged — three clearly different tones.
   - 2026-08-07  TOUR SMALL FIXES (build bi, Jim). (1) The curriculum list the tour opens now
     CLOSES again when the tour moves on (left open it pushed Mr. Cadabra below the fold).
     (2) The bars tour stop now PREVIEWS the today/unit bars (clearly-labeled placeholders,
@@ -778,19 +797,22 @@
 
     /* ===== PROGRESS BARS (2026-08-07, Jim: "a nervous student should always SEE where
        they are") — three thin stacked bars under the goal banner: TODAY / UNIT / COURSE. */
-    /* 2026-08-07 (build bi, Jim: the bars washed out on the light page): a dark card
-       behind all three bars so they pop; labels/text lightened to match. */
+    /* 2026-08-07 (build bj, Jim: "there needs to be contrast — dark gray, not super dark,
+       and the spaces in between should be light"): the bi card was near-black with
+       translucent segments, so everything read as one dark smear. Now three clearly
+       different tones — a DARK-GRAY card, LIGHT unfilled segments, and colored fills
+       (accent purple / gold) that pop against both. */
     .pbars { display: none; flex-direction: column; gap: 6px; margin: 6px 24px 4px;
-      background: linear-gradient(90deg, #262347, #33305c); border-radius: 12px;
-      padding: 8px 14px; box-shadow: 0 4px 14px rgba(30,25,70,.25); }
+      background: linear-gradient(90deg, #3f3e4b, #4b4a59); border-radius: 12px;
+      padding: 8px 14px; box-shadow: 0 4px 14px rgba(30,25,70,.22); }
     .pbars.show { display: flex; }
     .pbar { display: none; align-items: center; gap: 8px; font-size: 11.5px; }
     .pbar.show { display: flex; }
-    .pbar .pbl { flex: 0 0 52px; text-align: right; color: rgba(255,255,255,.75); font-weight: 800;
+    .pbar .pbl { flex: 0 0 52px; text-align: right; color: rgba(255,255,255,.85); font-weight: 800;
       text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
     .pbar .pbtrack { flex: 1; display: flex; align-items: center; gap: 3px; min-width: 0; }
-    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: rgba(255,255,255,.22);
-      border: 1px solid rgba(255,255,255,.14); min-width: 8px; }
+    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: #e9e9f2;
+      border: 1px solid rgba(255,255,255,.4); min-width: 8px; }
     .pbar .pbseg.done { background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-color: transparent; }
     .pbar .pbseg.gold { background: linear-gradient(90deg, #f2c14e, #e8a71c); border-color: transparent; }
@@ -798,7 +820,7 @@
     .pbar .pbmark.done { opacity: 1; }
     .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
     .pbar .pbcap.locked { filter: grayscale(1); opacity: .55; }
-    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: rgba(255,255,255,.85); font-weight: 600;
+    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: rgba(255,255,255,.92); font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     @media (max-width: 900px) { .pbar .pbt { display: none; } .pbar .pbl { flex-basis: 44px; } }
 
@@ -1608,7 +1630,9 @@
         tourOpenedCurriculum = false;
         curriculumList.style.display = "none"; curriculumBtn.classList.remove("open");
       }
-      clearBarsPreview();
+      // 2026-08-07 (build bj): the bars preview is NO LONGER cleared here — it stays up
+      // for the whole tour and is REPLACED by the real bars when the lesson fills them
+      // (see showBarsPreview). Clearing it per-stop was why Jim saw only the course bar.
     }
     function highlightEl(id) {
       clearHighlight();
@@ -1625,9 +1649,9 @@
         curriculumList.style.display = "block"; curriculumBtn.classList.add("open");
         tourOpenedCurriculum = true;   // build bi: so the NEXT stop closes it again
       }
-      // 2026-08-07 (build bi, Jim): the bars stop describes THREE bars, but before the
-      // first lesson turn only the COURSE bar exists — preview the other two (clearly
-      // labeled) so the student sees what's being described; cleared when the stop ends.
+      // 2026-08-07 (build bj): the previews are already up for the whole tour (runTour
+      // shows them at the start); this call is a harmless no-op then, but still matters
+      // for a model-driven [[highlight id="bars"]] outside the scripted tour.
       if (key === "bars") showBarsPreview();
       nodes.forEach(n => n.classList.add("tourglow"));
       try { nodes[0].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
@@ -1823,7 +1847,9 @@
       el("todayText").textContent = done >= TODAY_ITEMS.length
         ? "🎉 All of today's goals — done!"
         : done + " of " + TODAY_ITEMS.length + " goals done";
-      showBars(); el("todayBar").classList.add("show");
+      // build bj: this render REPLACES any tour-preview placeholder — drop the flag.
+      const bar = el("todayBar"); delete bar.dataset.preview;
+      showBars(); bar.classList.add("show");
     }
 
     function showUnitPlan(a) {
@@ -1863,7 +1889,9 @@
             ? "All topic quizzes passed — the Unit Quiz is next!"
             : (topics.length - passed) + " topic" + (topics.length - passed === 1 ? "" : "s")
               + " to go — next quiz: " + topics[passed]);
-      showBars(); el("unitBar").classList.add("show");
+      // build bj: this render REPLACES any tour-preview placeholder — drop the flag.
+      const bar = el("unitBar"); delete bar.dataset.preview;
+      showBars(); bar.classList.add("show");
     }
 
     function renderCourseBar() {
@@ -1891,19 +1919,21 @@
       showBars(); el("courseBar").classList.add("show");
     }
 
-    // ===== TOUR PREVIEW of the today/unit bars (2026-08-07 build bi) =====
-    // Before the first teaching turn only the course bar is real. During the tour's bars
-    // stop we show placeholder rows — clearly marked — so the student can see all three
-    // maps being described. Removed the moment the tour moves on; the real bars take
-    // over when Mr. Cadabra emits [[today]] / [[unitplan]].
-    let barsPreviewOn = false;
+    // ===== TOUR PREVIEW of the today/unit bars (build bi; whole-tour since build bj) =====
+    // Before the first teaching turn only the course bar is real. For the WHOLE welcome
+    // tour the today/unit rows show clearly-labeled placeholder segments next to it, so
+    // the student sees all three maps from the first word (bi showed them only during
+    // the single "bars" stop — Jim: "I think they should all show up right at the
+    // beginning"). The placeholders are never merely hidden: they are REPLACED when
+    // Mr. Cadabra's real [[today]] / [[unitplan]] tags render (those renders rebuild the
+    // track and delete the preview flag), so a real bar can never be wiped by mistake.
+    // Calling this again while a preview (or real bar) is up is a safe no-op per row.
     function showBarsPreview() {
-      barsPreviewOn = false;
       [["todayBar", "todayTrack", "todayText", 3, "your goals for today will fill in here"],
        ["unitBar", "unitTrack", "unitText", 4, "one piece per topic — 📝 marks each quiz"]]
         .forEach(([barId, trackId, textId, n, label]) => {
           const bar = el(barId);
-          if (bar.classList.contains("show")) return;      // real bar already there
+          if (bar.classList.contains("show")) return;      // real or preview bar already there
           const t = el(trackId); t.innerHTML = "";
           for (let i = 0; i < n; i++) t.appendChild(seg("", "coming up!"));
           if (barId === "unitBar") {
@@ -1915,15 +1945,6 @@
           bar.classList.add("show"); bar.dataset.preview = "1";
           showBars();
         });
-      barsPreviewOn = true;
-    }
-    function clearBarsPreview() {
-      if (!barsPreviewOn) return;
-      barsPreviewOn = false;
-      ["todayBar", "unitBar"].forEach(id => {
-        const bar = el(id);
-        if (bar.dataset.preview === "1") { delete bar.dataset.preview; bar.classList.remove("show"); }
-      });
     }
 
     // ===== FINAL EXAM (2026-08-07) — the door, the result card, and the champion medal.
@@ -2202,6 +2223,18 @@
       while ((m = re.exec(text)) !== null) {
         out += escapeHTML(text.slice(last, m.index));
         const run = m[0], after = text[m.index + run.length] || "", before = m.index > 0 ? text[m.index - 1] : "";
+        // 2026-08-07 (build bk, Jim's screenshot "3 + 2 X 4"): a lone x written BETWEEN two
+        // numbers is a TIMES SIGN, not a variable — "3 + 2 x 4", "5 x 3", "(3+1) x (2+5)".
+        // Both immediate neighbors must be spaces AND the nearest non-space characters
+        // number-ish, so "2x + 3" (coefficient) and "3 + x" (a real variable) are untouched.
+        // Render the true × sign, unstyled. (tutor.py now also tells the model to write ×.)
+        if ((run === "x" || run === "X") && /\s/.test(before) && /\s/.test(after)) {
+          const prevNS = text.slice(0, m.index).trimEnd().slice(-1);
+          const nextNS = text.slice(m.index + 1).trimStart().charAt(0);
+          if (/[0-9)]/.test(prevNS) && /[0-9(.]/.test(nextNS)) {
+            out += "×"; last = m.index + run.length; continue;
+          }
+        }
         if (run.length === 1 && after !== "(" && before !== "'" && before !== "’" && !VAR_SKIP[run.toLowerCase()]) {
           out += '<span class="mvar">' + run.toUpperCase() + '</span>';
         } else { out += escapeHTML(run); }
@@ -2686,6 +2719,10 @@
     }
     async function runTour() {
       setState("speaking"); statusEl.textContent = tutorName + " is talking…";
+      // 2026-08-07 (build bj, Jim): all THREE bars are on screen from the tour's first
+      // word — the course bar is real, today/unit are labeled previews the lesson will
+      // fill in. (bi showed the previews only during the "bars" stop.)
+      showBarsPreview();
       await sayTourLine(COURSE_OPENER);
       for (const step of TOUR_STEPS) {
         highlightEl(step.id);

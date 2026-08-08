@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    2026-08-07  × IS NOT A VARIABLE (build bk): styleVarsCore renders a lone x written
+                BETWEEN two numbers ("3 + 2 x 4", "5 x 3") as a true × sign instead of a
+                red variable; coefficients (2x) and real variables (3 + x) untouched.
+                Same patch on all three teaching pages.
     2026-08-07  FOLLOW FIX, ROUND 2 (build ay): programmatic scrolls no longer release
                 following (autoScroll flag); only a real student scroll does. Same patch on
                 all three teaching pages.
@@ -1106,6 +1110,18 @@
       while ((m = re.exec(text)) !== null) {
         out += escapeHTML(text.slice(last, m.index));
         const run = m[0], after = text[m.index + run.length] || "", before = m.index > 0 ? text[m.index - 1] : "";
+        // 2026-08-07 (build bk, Jim's screenshot "3 + 2 X 4"): a lone x written BETWEEN two
+        // numbers is a TIMES SIGN, not a variable — "3 + 2 x 4", "5 x 3", "(3+1) x (2+5)".
+        // Both immediate neighbors must be spaces AND the nearest non-space characters
+        // number-ish, so "2x + 3" (coefficient) and "3 + x" (a real variable) are untouched.
+        // Render the true × sign, unstyled. (tutor.py now also tells the model to write ×.)
+        if ((run === "x" || run === "X") && /\s/.test(before) && /\s/.test(after)) {
+          const prevNS = text.slice(0, m.index).trimEnd().slice(-1);
+          const nextNS = text.slice(m.index + 1).trimStart().charAt(0);
+          if (/[0-9)]/.test(prevNS) && /[0-9(.]/.test(nextNS)) {
+            out += "×"; last = m.index + run.length; continue;
+          }
+        }
         if (run.length === 1 && after !== "(" && before !== "'" && before !== "’" && !VAR_SKIP[run.toLowerCase()]) {
           out += '<span class="mvar">' + run.toUpperCase() + '</span>';
         } else { out += escapeHTML(run); }

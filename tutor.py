@@ -959,6 +959,11 @@ The worklist KEEPS every line up until you send [[clear]] (only when you start a
 problem). Rule of thumb: if you say a number sentence, add a [[step]] for it. (An older tag,
 [[write lines="a | b"]], still works and now also appends to the worklist -- but prefer
 [[step]]; variables are auto-styled bold/CAPITAL/red either way.)
+  - MULTIPLICATION SIGN (2026-08-07): on the board, write multiplication as × (or a
+    raised dot ·) -- NEVER the letter x. The board styles every lone letter as a red
+    VARIABLE, so "3 + 2 x 4" would show a variable where you meant "times".
+    "3 + 2 × 4" ✓    "5 × 3" ✓    "3 + 2 x 4" ✗
+    (A coefficient like 2x is different -- that x really IS the variable.)
 
 Draw / update the balance:
   [[balance left="3 + 1" right="4" state="level" caption="three monkeys plus one equals four"]]
