@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bm-yourturn-greenbars". (1) Rule 15 sharpened in
+#               tutor.py (live catch: "your turn -- what's ten minus two times three?"
+#               was asked with the new problem existing only in the spoken words): the
+#               problem handed to the student must be WRITTEN on the board ([[step]]/
+#               [[write]]) in the same reply it is asked; only its ANSWER stays off.
+#               (2) session.html bars in Jim's palette: light-green card, white unfilled
+#               segments, black text (replaces bj's dark-gray card).
 #   2026-08-08  APP_BUILD -> "2026-08-08bl-firstwords-thinkflag". Static-only build (all
 #               changes in session/practice/topic; bump so /health confirms the deploy).
 #               (1) FIRST WORDS CLIPPED (Jim, ongoing): every TTS clip now requests
@@ -4008,7 +4015,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bl-firstwords-thinkflag"
+APP_BUILD = "2026-08-08bm-yourturn-greenbars"
 
 
 @app.get("/health")

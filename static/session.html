@@ -8,6 +8,11 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-08  BARS: JIM'S PALETTE (build bm). Light-GREEN card, WHITE unfilled
+    segments, BLACK labels/text — replaces bj's dark-gray card. Fills stay accent
+    purple / gold. Companion in tutor.py (same build): rule 15 sharpened — the
+    "your turn" problem must be WRITTEN on the board in the same reply it's asked
+    (live catch: "what's ten minus two times three?" was voice-only).
   - 2026-08-08  FIRST WORDS + THINKING FLAG (build bl, Jim; same patch on all three
     teaching pages). (1) "He doesn't start out loud until about the third word" — two
     head-of-clip protections in speak(): every clip now requests lead=1 (~560ms leading
@@ -806,22 +811,20 @@
 
     /* ===== PROGRESS BARS (2026-08-07, Jim: "a nervous student should always SEE where
        they are") — three thin stacked bars under the goal banner: TODAY / UNIT / COURSE. */
-    /* 2026-08-07 (build bj, Jim: "there needs to be contrast — dark gray, not super dark,
-       and the spaces in between should be light"): the bi card was near-black with
-       translucent segments, so everything read as one dark smear. Now three clearly
-       different tones — a DARK-GRAY card, LIGHT unfilled segments, and colored fills
-       (accent purple / gold) that pop against both. */
+    /* 2026-08-08 (build bm, Jim's palette): LIGHT-GREEN card, WHITE unfilled segments
+       ("where the accomplishment goes"), BLACK text. The colored fills (accent purple /
+       gold) pop against the white tracks. (bj's dark-gray card read too heavy.) */
     .pbars { display: none; flex-direction: column; gap: 6px; margin: 6px 24px 4px;
-      background: linear-gradient(90deg, #3f3e4b, #4b4a59); border-radius: 12px;
-      padding: 8px 14px; box-shadow: 0 4px 14px rgba(30,25,70,.22); }
+      background: linear-gradient(90deg, #def4e4, #cdeeda); border-radius: 12px;
+      padding: 8px 14px; border: 1px solid #b4e0c4; box-shadow: 0 4px 14px rgba(30,70,45,.10); }
     .pbars.show { display: flex; }
     .pbar { display: none; align-items: center; gap: 8px; font-size: 11.5px; }
     .pbar.show { display: flex; }
-    .pbar .pbl { flex: 0 0 52px; text-align: right; color: rgba(255,255,255,.85); font-weight: 800;
+    .pbar .pbl { flex: 0 0 52px; text-align: right; color: #17202b; font-weight: 800;
       text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
     .pbar .pbtrack { flex: 1; display: flex; align-items: center; gap: 3px; min-width: 0; }
-    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: #e9e9f2;
-      border: 1px solid rgba(255,255,255,.4); min-width: 8px; }
+    .pbar .pbseg { flex: 1; height: 9px; border-radius: 5px; background: #ffffff;
+      border: 1px solid #b9d9c6; min-width: 8px; }
     .pbar .pbseg.done { background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-color: transparent; }
     .pbar .pbseg.gold { background: linear-gradient(90deg, #f2c14e, #e8a71c); border-color: transparent; }
@@ -829,7 +832,7 @@
     .pbar .pbmark.done { opacity: 1; }
     .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
     .pbar .pbcap.locked { filter: grayscale(1); opacity: .55; }
-    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: rgba(255,255,255,.92); font-weight: 600;
+    .pbar .pbt { flex: 0 0 auto; max-width: 34%; color: #17202b; font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     @media (max-width: 900px) { .pbar .pbt { display: none; } .pbar .pbl { flex-basis: 44px; } }
 

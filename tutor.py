@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  RULE 15 SHARPENED -- "YOUR TURN" GOES ON THE BOARD (build bm, Jim's live
+#               catch in Pre-Algebra: the tutor worked 3 + 2 × 4 on the board, then asked
+#               "your turn -- what's ten minus two times three?" with the NEW problem
+#               existing only in the spoken words). Rule 15 now says explicitly: the
+#               problem handed to the student is written in symbols ([[step]]/[[write]])
+#               in the SAME reply it is asked; only its answer/worked steps stay off the
+#               board (never conflicts with rule 6). Additive sharpening only.
+#   2026-08-07  MULTIPLICATION SIGN RULE (build bk, Jim's screenshot: "3 + 2 X 4" showed
+#               a red variable X). New bullet in the whiteboard section: write
+#               multiplication as × (or ·), NEVER the letter x -- the board styles every
+#               lone letter as a variable. Client-side safety net shipped in the same
+#               build (styleVarsCore on all three teaching pages).
 #   2026-08-07  RULE 16 SHARPENED (build bh, Jim's second live catch on it: the reply wrote
 #               the SUBSTITUTED check line but still said "plug five back into the original
 #               equation on the board" while 5x-3=2x+12 had scrolled away). Rule 16 now
@@ -3921,6 +3933,14 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     (c) It stands on its own: a student re-reading only this reply and the board could
         still tell exactly what is being asked -- no unstated assumptions, no "the usual",
         no pronoun whose referent lives three turns back.
+    THE "YOUR TURN" PROBLEM ITSELF GOES ON THE BOARD (live catch, 2026-08-08: the tutor
+    worked 3 + 2 × 4 on the board, then asked "your turn -- what's ten minus two times
+    three?" -- and the NEW problem existed only in the spoken words). The problem you
+    hand the student IS something the question refers to, so (a) applies to it: write it
+    in symbols ([[step]] or [[write]], e.g. 10 - 2 × 3) in the SAME reply you ask it.
+    This never conflicts with "don't run ahead" (rule 6): the QUESTION always goes up;
+    only its answer and worked steps stay off the board until the student has had
+    their shot.
 
 16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY. (Live
     catch, 2026-08-07: the tutor asked "plug 4 back into two x plus five equals thirteen"
