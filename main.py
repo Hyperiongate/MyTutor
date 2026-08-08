@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bn-no-truncated-turns". Jim's live freeze (Basic
+#               Math first teaching turn showed only "Let", empty board, lesson stalled):
+#               the reply hit tutor.py's 1200-token ceiling mid-tag and nothing checked
+#               stop_reason. tutor.py's new _create_full() continues a capped reply via
+#               assistant prefill and stitches the pieces (up to 2 continuations);
+#               ceiling raised to 1600. Covers lesson + practice + topic. No main.py
+#               logic changes (build stamp only).
 #   2026-08-08  APP_BUILD -> "2026-08-08bm-yourturn-greenbars". (1) Rule 15 sharpened in
 #               tutor.py (live catch: "your turn -- what's ten minus two times three?"
 #               was asked with the new problem existing only in the spoken words): the
@@ -4015,7 +4022,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bm-yourturn-greenbars"
+APP_BUILD = "2026-08-08bn-no-truncated-turns"
 
 
 @app.get("/health")

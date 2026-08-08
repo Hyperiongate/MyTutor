@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  NO MORE TRUNCATED TURNS (build bn, Jim's live freeze: a first Basic-Math
+#               teaching turn collapsed to the single word "Let" with an empty board --
+#               the tag-heavy reply hit the 1200-token max_tokens ceiling MID-TAG and
+#               nothing checked stop_reason; the client stripped the dangling tag and
+#               the lesson stalled). New _create_full(): every logical turn now checks
+#               stop_reason == "max_tokens" and CONTINUES via assistant prefill, stitching
+#               the pieces (up to 2 continuations); ceiling raised 1200 -> 1600. All three
+#               teaching modes (lesson/practice/topic) flow through it via
+#               _create_verified, so one fix covers them all.
 #   2026-08-08  RULE 15 SHARPENED -- "YOUR TURN" GOES ON THE BOARD (build bm, Jim's live
 #               catch in Pre-Algebra: the tutor worked 3 + 2 × 4 on the board, then asked
 #               "your turn -- what's ten minus two times three?" with the NEW problem
@@ -4347,6 +4356,41 @@ def _add_usage(tokens, response):
     tokens["cw"] = tokens.get("cw", 0) + int(getattr(u, "cache_creation_input_tokens", 0) or 0)
 
 
+def _create_full(client, model, system_blocks, msgs, tokens, log_prefix=""):
+    """One LOGICAL model turn that can never be silently truncated. 2026-08-08 (Jim's
+    live freeze in Basic Math): the first teaching turn -- tag-heavy ([[today]],
+    [[unitplan]], goals, objects) -- hit the old 1200-token ceiling mid-tag; the client
+    stripped the dangling tag and the student saw the single word "Let" with an empty
+    board and no answer buttons. Nothing anywhere checked stop_reason.
+    Now: if the response stops at the max_tokens ceiling (stop_reason == "max_tokens"),
+    the partial reply is fed back as an ASSISTANT PREFILL and the model continues
+    exactly where it stopped; the pieces are stitched together. Up to 2 continuations
+    (~4800 tokens total -- far beyond any real teaching turn), then we return whatever
+    we have rather than loop forever."""
+    reply = ""
+    for hop in range(3):
+        convo = msgs if not reply else msgs + [{"role": "assistant", "content": reply.rstrip()}]
+        response = client.messages.create(
+            model=model,
+            # A CEILING, not a target -- normal turns end well under it. Raised
+            # 1200 -> 1600 alongside the continuation safety net above.
+            max_tokens=1600,
+            system=system_blocks,
+            messages=convo,
+        )
+        part = "".join(block.text for block in response.content
+                       if getattr(block, "type", None) == "text")
+        _add_usage(tokens, response)
+        reply = (reply.rstrip() + part) if reply else part
+        if getattr(response, "stop_reason", "") != "max_tokens":
+            break
+        if hop < 2:
+            print(f"[tutor]{log_prefix} reply hit max_tokens -- continuing (hop {hop + 1}/2)")
+        else:
+            print(f"[tutor]{log_prefix} reply STILL at max_tokens after 2 continuations -- returning stitched partial")
+    return reply.strip()
+
+
 def _create_verified(client, model, system_blocks, messages, log_prefix, meta=None):
     """One model call, refereed. Returns the verified reply with [[verify]] tags
     stripped, or "" if the model returned nothing (caller shows its fallback).
@@ -4356,18 +4400,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     reply = ""
     tokens = {}
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
-        response = client.messages.create(
-            model=model,
-            # Room for a short spoken turn PLUS any control tag(s) without getting cut
-            # off mid-tag. (A truncated tag used to leak raw markup into the voice.)
-            max_tokens=1200,
-            system=system_blocks,
-            messages=msgs,
-        )
-        parts = [block.text for block in response.content
-                 if getattr(block, "type", None) == "text"]
-        reply = "".join(parts).strip()
-        _add_usage(tokens, response)
+        reply = _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
         if not reply:
             _log_brain_usage(meta, model, tokens, attempt, "")
             return ""
