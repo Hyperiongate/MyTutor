@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-08  APP_BUILD -> "2026-08-08bs-worked-example-first". tutor.py only: new
+#               shared rule 19 -- every NEW topic opens with a complete worked example
+#               (tutor works every step + answer on the board, narrating why), THEN the
+#               student tries a similar one ("?"-line), with the example left up until
+#               their first success. "I do, then you do" (Jim's rule).
 #   2026-08-08  APP_BUILD -> "2026-08-08br-resumebars-pendingline". (1) session.html
 #               renders the UNIT bar at page load (curriculum + placement + quiz
 #               history) -- no longer waits for [[unitplan]]; a resumed session had
@@ -4044,7 +4049,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08br-resumebars-pendingline"
+APP_BUILD = "2026-08-08bs-worked-example-first"
 
 
 @app.get("/health")
