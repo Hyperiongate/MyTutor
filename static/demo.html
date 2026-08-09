@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-09  VISIBLE FIGURES · NO MIC · REAL DASHBOARDS (build bz, Jim).
+    (1) The figures were nearly invisible: the SVGs had a viewBox but no WIDTH, and in
+    the whiteboard's centred flex column that collapses to a smudge. .fig now takes a
+    real width (max 660px) with a 150px min-height and a bigger caption.
+    (2) The demo no longer uses the microphone ("let's just drop the speaking part for
+    the demo") — a sales page must not hang on a permission prompt. Every lesson line is
+    re-worded for typing (appended 154-173), the mic UI is gone, and the demo STT
+    endpoint was removed server-side. normSpoken() still runs on typed input, so
+    "two" / "negative two" / "fifty five" are all understood.
+    (3) The three dashboards now MIRROR THE REAL SCREENS. They previously invented a
+    mastery grid, per-student coaching reasons, a class honest-read and trend charts that
+    the product does not have. Student = the real dashboard tiles + where-you-are + quiz
+    results + strengthen next + trophy case + courses. Teacher = the real class manager
+    (class code, units mastered/started, needs attention, open a student read-only).
+    Parent = the same dashboard in parent view. Tours rewritten (appended 174-187).
+    ⛔ If the real dashboards change, change these too — the demo must never show a
+    screen the product doesn't have.
   - 2026-08-09  BUBBLES IN THE MIDDLE, AND AFTER EVERY TOUR (build by, Jim). The three
     dashboard bubbles moved from the bottom of the page into a CENTERED overlay, and
     they are now offered again at the END OF EVERY DASHBOARD TOUR — not only after the
@@ -186,20 +203,14 @@
     animation:bobtag .9s ease-in-out infinite}
   @keyframes bobtag{50%{transform:translateY(-4px)}}
   /* figures drawn on the demo board (a number line, a fraction bar, a triangle) */
-  .fig{margin:6px 0;opacity:0;animation:stepin .5s forwards}
-  .fig svg{display:block;max-width:100%;height:auto;margin:0 auto}
-  .figcap{text-align:center;font-size:13px;color:#5b6079;margin-top:4px;font-family:-apple-system,sans-serif}
-  /* the microphone — the way a real student answers */
+  /* 2026-08-09 (build bz, Jim: "this was the number line — virtually invisible"). The
+     SVG had no WIDTH, and inside the whiteboard's centred flex column an auto-width SVG
+     collapses to almost nothing. Figures now claim a real width and a minimum height. */
+  .fig{margin:10px 0;opacity:0;animation:stepin .5s forwards;width:100%;max-width:660px;align-self:center}
+  .fig svg{display:block;width:100%;height:auto;min-height:150px;margin:0 auto}
+  .figcap{text-align:center;font-size:15px;font-weight:700;color:#3b3660;margin-top:8px;font-family:-apple-system,sans-serif}
   .talkwrap{display:flex;flex-direction:column;align-items:center;gap:8px}
-  .talkbtn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;
-    background:var(--grad);color:#fff;font-weight:800;font-size:17px;padding:15px 30px;
-    cursor:pointer;box-shadow:var(--shadow)}
-  .talkbtn:disabled{opacity:.55;cursor:default}
-  .talkbtn.recording{background:linear-gradient(135deg,#e0392b,#ff6a4d);animation:pulse 1.1s ease-in-out infinite}
   @keyframes pulse{50%{transform:scale(1.04)}}
-  .micico{width:22px;height:22px;fill:#fff;flex:0 0 auto}
-  .typelink{border:0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;cursor:pointer}
-  .heard{font-size:12.5px;color:var(--muted);min-height:16px;text-align:center}
   /* the three dashboard balloons — a CENTERED overlay (2026-08-09 build by, Jim:
      "I'd like those bubbles to appear in the middle of the page, not at the bottom").
      z-index sits ABOVE the dashboards so they can be offered again at the end of each
@@ -404,198 +415,126 @@
      Sample data only: a demo must never show a real child's record. ===== -->
 <div class="dash" id="dashStudent">
   <div class="dhead"><img src="/static/brand-mark.svg" alt="" style="height:24px">
-    <div><h2>Maya's Progress</h2><div class="dsub">Pre-Algebra · 7th grade · started September 8</div></div>
-    <span class="demo-badge">SAMPLE STUDENT</span>
+    <div><h2>Maya's Progress — Pre-Algebra</h2><div class="dsub">the student's own dashboard · sample data</div></div>
+    <span class="demo-badge">SAMPLE</span>
     <div style="flex:1"></div><button class="replay dashback" type="button">↩ Back to the three views</button></div>
   <div class="dwrap">
     <div class="dcard" id="sdStats"><h3>Maya at a glance</h3>
       <div class="tiles">
         <div class="tile"><b>4</b><span>Units mastered</span></div>
         <div class="tile"><b>91%</b><span>Accuracy</span></div>
-        <div class="tile"><b>312</b><span>Problems worked</span></div>
-        <div class="tile"><b>11</b><span>Day streak 🔥</span></div>
-        <div class="tile"><b>14h 20m</b><span>Time with Mr. C</span></div>
-        <div class="tile"><b>12</b><span>Awards earned</span></div>
+        <div class="tile"><b>312</b><span>Problems practiced</span></div>
+        <div class="tile"><b>2h 15m</b><span>Time this week</span></div>
+        <div class="tile"><b>11</b><span>Day streak</span></div>
       </div></div>
-
-    <div class="dcard" id="sdUnits"><h3>Your course — nine units to the Final Exam</h3>
+    <div class="dcard" id="sdUnits"><h3>Where you are — Pre-Algebra</h3>
       <div class="unitgrid">
-        <div class="ub gold"><b>1</b>Numbers &amp; operations<i>mastered · 94%</i></div>
-        <div class="ub gold"><b>2</b>Fractions<i>mastered · 92%</i></div>
-        <div class="ub gold"><b>3</b>Ratios &amp; proportions<i>mastered · 90%</i></div>
-        <div class="ub gold"><b>4</b>Percents<i>mastered · 91%</i></div>
-        <div class="ub now"><b>5</b>Decimals<i>working here now</i></div>
-        <div class="ub"><b>6</b>Negative numbers<i>next up</i></div>
-        <div class="ub"><b>7</b>Expressions<i>—</i></div>
-        <div class="ub"><b>8</b>Equations<i>—</i></div>
-        <div class="ub"><b>9</b>Data &amp; graphs<i>—</i></div>
-        <div class="ub fin"><b>🎓</b>Final Exam<i>locked until all nine are gold</i></div>
-      </div></div>
-
-    <div class="dcard" id="sdUnit5"><h3>Inside Unit 5 — Decimals</h3>
+        <div class="ub gold"><b>1 ★</b>Numbers &amp; operations<i>mastered · 94%</i></div>
+        <div class="ub gold"><b>2 ★</b>Fractions<i>mastered · 92%</i></div>
+        <div class="ub gold"><b>3 ★</b>Ratios &amp; proportions<i>mastered · 90%</i></div>
+        <div class="ub gold"><b>4 ★</b>Percents<i>mastered · 91%</i></div>
+        <div class="ub now"><b>5</b>Decimals<i>learning</i></div>
+        <div class="ub"><b>6</b>Negative numbers<i>not started</i></div>
+        <div class="ub"><b>7</b>Expressions<i>not started</i></div>
+        <div class="ub"><b>8</b>Equations<i>not started</i></div>
+        <div class="ub"><b>9</b>Data &amp; graphs<i>not started</i></div>
+        <div class="ub fin"><b>🎓</b>Final Exam<i>unlocks when all nine are mastered</i></div>
+      </div>
+      <div class="note">Mastered means 90% or better on the Unit Quiz, with no hints.</div></div>
+    <div class="dcard" id="sdQuizzes"><h3>Quiz results — Unit 5, Decimals</h3>
       <table class="roster">
-        <tr><th>Topic</th><th>Topic quiz</th><th>When</th><th></th></tr>
+        <tr><th>Topic quiz</th><th>Score</th><th>Date</th><th></th></tr>
         <tr><td>Comparing decimals</td><td class="good">88%</td><td>Nov 12</td><td class="good">passed</td></tr>
         <tr><td>Adding &amp; subtracting decimals</td><td class="good">92%</td><td>Nov 14</td><td class="good">passed</td></tr>
-        <tr><td>Multiplying decimals</td><td>—</td><td>today</td><td style="color:var(--purple);font-weight:800">working on it</td></tr>
-        <tr><td>Dividing decimals</td><td>—</td><td>—</td><td style="color:#a7a2bd">not yet</td></tr>
-        <tr><td>🏁 Unit 5 Quiz</td><td>—</td><td>—</td><td style="color:#a7a2bd">needs 90% to master</td></tr>
+        <tr><td>Multiplying decimals</td><td>—</td><td>—</td><td style="color:var(--purple);font-weight:800">in progress</td></tr>
+        <tr><td>Dividing decimals</td><td>—</td><td>—</td><td class="muted">not started</td></tr>
+        <tr><td>🏁 Unit 5 Quiz</td><td>—</td><td>—</td><td class="muted">needs 90% to master</td></tr>
       </table></div>
-
-    <div class="two" id="sdCharts">
-      <div class="dcard"><h3>Accuracy, week by week</h3><svg viewBox="0 0 430 132" role="img" aria-label="accuracy by week"><line x1="30" y1="83.0" x2="400" y2="83.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="87.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">70%</text><line x1="30" y1="60.0" x2="400" y2="60.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="64.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">80%</text><line x1="30" y1="37.0" x2="400" y2="37.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="41.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">90%</text><line x1="30" y1="14.0" x2="400" y2="14.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="18.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">100%</text><path d="M30.0 46.2 L82.9 39.3 L135.7 32.4 L188.6 64.6 L241.4 50.8 L294.3 37.0 L347.1 34.7 L400.0 30.1" fill="none" stroke="#6d5ae6" stroke-width="3" stroke-linejoin="round"/><circle cx="30.0" cy="46.2" r="4.5" fill="#6d5ae6"/><text x="30.0" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w1</text><circle cx="82.9" cy="39.3" r="4.5" fill="#6d5ae6"/><text x="82.9" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w2</text><circle cx="135.7" cy="32.4" r="4.5" fill="#6d5ae6"/><text x="135.7" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w3</text><circle cx="188.6" cy="64.6" r="4.5" fill="#d1345b"/><text x="188.6" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w4</text><circle cx="241.4" cy="50.8" r="4.5" fill="#6d5ae6"/><text x="241.4" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w5</text><circle cx="294.3" cy="37.0" r="4.5" fill="#6d5ae6"/><text x="294.3" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w6</text><circle cx="347.1" cy="34.7" r="4.5" fill="#6d5ae6"/><text x="347.1" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w7</text><circle cx="400.0" cy="30.1" r="4.5" fill="#6d5ae6"/><text x="400.0" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">w8</text></svg>
-        <div class="note">Week 3 is where percents got hard. We slowed down, and it came back.</div></div>
-      <div class="dcard"><h3>Minutes per day this week</h3><svg viewBox="0 0 430 136" role="img" aria-label="minutes per day"><rect x="29.0" y="57.3" width="44.0" height="46.7" rx="6" fill="#8f7bff"/><text x="51.0" y="52.3" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">25m</text><text x="51.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Mon</text><rect x="83.0" y="29.3" width="44.0" height="74.7" rx="6" fill="#8f7bff"/><text x="105.0" y="24.3" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">40m</text><text x="105.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Tue</text><rect x="137.0" y="101.0" width="44.0" height="3.0" rx="6" fill="#c9c2f2"/><text x="159.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Wed</text><rect x="191.0" y="20.0" width="44.0" height="84.0" rx="6" fill="#8f7bff"/><text x="213.0" y="15.0" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">45m</text><text x="213.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Thu</text><rect x="245.0" y="57.3" width="44.0" height="46.7" rx="6" fill="#8f7bff"/><text x="267.0" y="52.3" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">25m</text><text x="267.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Fri</text><rect x="299.0" y="101.0" width="44.0" height="3.0" rx="6" fill="#c9c2f2"/><text x="321.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Sat</text><rect x="353.0" y="101.0" width="44.0" height="3.0" rx="6" fill="#c9c2f2"/><text x="375.0" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Sun</text></svg>
-        <div class="note">Best on Tuesday and Thursday — right after school, before dinner.</div></div>
-    </div>
-
-    <div class="dcard" id="sdTrophies"><h3>Trophy case — 12 awards, all earned</h3>
-      <div class="trophies">
-        <span class="trophy gold">🏅 Course Champion<i>Basic Math · May 2</i></span>
-        <span class="trophy">🏆 Mastered — Unit 1<i>Sept 26</i></span>
-        <span class="trophy">🏆 Mastered — Unit 2<i>Oct 10</i></span>
-        <span class="trophy">🏆 Mastered — Unit 3<i>Oct 28</i></span>
-        <span class="trophy">🏆 Mastered — Unit 4<i>Nov 8</i></span>
-        <span class="trophy">💪 Effort medal<i>4 days on percents</i></span>
-        <span class="trophy">📗 Learning ×3<i>ratios, percents, decimals</i></span>
-        <span class="trophy">✏️ Practiced ×2<i>fractions, decimals</i></span>
-        <span class="trophy">🔍 Explored<i>“why does pi never end?”</i></span>
-      </div></div>
-
+    <div class="dcard" id="sdStrengthen"><h3>Strengthen next</h3>
+      <div class="weekrow"><span>Lining up decimal points when the numbers are different lengths</span><span class="muted">2 slips this week</span></div>
+      <div class="weekrow"><span>Percent of a number vs. percent change</span><span class="muted">1 slip</span></div></div>
     <div class="two">
-      <div class="dcard" id="sdNext"><h3>What's next</h3>
-        <div class="weekrow"><span><b>Today</b> · finish multiplying decimals</span><span class="muted">then the topic quiz</span></div>
-        <div class="weekrow"><span><b>Next</b> · dividing decimals</span><span class="muted">the last topic in Unit 5</span></div>
-        <div class="weekrow"><span><b>Then</b> · the Unit 5 Quiz</span><span class="muted">90% masters the unit</span></div>
-        <div class="weekrow"><span><b>After that</b> · Unit 6, negative numbers</span><span class="muted">her fifth gold unit</span></div></div>
+      <div class="dcard" id="sdTrophies"><h3>Trophy case</h3>
+        <div class="trophies">
+          <span class="trophy gold">🏅 Course Champion<i>Basic Math · May 2</i></span>
+          <span class="trophy">🏆 Mastered ×4<i>Units 1–4</i></span>
+          <span class="trophy">📗 Learning ×3<i>ratios, percents, decimals</i></span>
+          <span class="trophy">✏️ Practiced ×2<i>fractions, decimals</i></span>
+          <span class="trophy">🔍 Explored<i>“why does pi never end?”</i></span>
+          <span class="trophy">💪 Effort medal<i>4 days on percents</i></span></div></div>
       <div class="dcard" id="sdCourses"><h3>My courses</h3>
         <div class="weekrow"><span>🏅 <b>Basic Math</b></span><span class="good">completed · Course Champion</span></div>
-        <div class="weekrow"><span>📘 <b>Pre-Algebra</b></span><span style="color:var(--purple);font-weight:800">in progress · Unit 5 of 9</span></div>
-        <div class="weekrow"><span>📗 Algebra I</span><span class="muted">waiting when she's ready</span></div></div>
+        <div class="weekrow"><span>📘 <b>Pre-Algebra</b></span><span style="color:var(--purple);font-weight:800">4 of 9 units mastered</span></div>
+        <div class="weekrow"><span>📗 Algebra I</span><span class="muted">not started</span></div></div>
     </div>
   </div>
 </div>
 
 <div class="dash" id="dashTeacher">
   <div class="dhead"><img src="/static/brand-mark.svg" alt="" style="height:24px">
-    <div><h2>Room 12 — Pre-Algebra</h2><div class="dsub">6 students · Ms. Alvarez · week of November 17</div></div>
-    <span class="demo-badge">SAMPLE CLASS</span>
+    <div><h2>Room 12 — Pre-Algebra</h2><div class="dsub">the teacher's class view · sample data</div></div>
+    <span class="demo-badge">SAMPLE</span>
     <div style="flex:1"></div><button class="replay dashback" type="button">↩ Back to the three views</button></div>
   <div class="dwrap">
-    <div class="dcard" id="tdStats"><h3>The class this week</h3>
-      <div class="tiles">
-        <div class="tile"><b>84%</b><span>Class accuracy</span></div>
-        <div class="tile"><b>4 of 6</b><span>On track</span></div>
-        <div class="tile ping"><b>2</b><span>Need a hand today</span></div>
-        <div class="tile"><b>19h</b><span>Class time this week</span></div>
-        <div class="tile"><b>7</b><span>Quizzes passed</span></div>
-        <div class="tile"><b>3</b><span>Units mastered</span></div>
-      </div></div>
-
-    <div class="dcard" id="tdRoster"><h3>The roster right now</h3>
+    <div class="dcard" id="tdOpen"><h3>Your classes</h3>
+      <div class="weekrow"><span>🏫 <b>Room 12 — Pre-Algebra</b> · class code <b>RM12-PA</b></span><span class="good">6 students</span></div>
+      <div class="weekrow"><span>🏫 Room 12 — Basic Math · class code RM12-BM</span><span class="muted">4 students</span></div>
+      <div class="note">A teacher opens a class with its code, and every class they run lives in one place.</div></div>
+    <div class="dcard" id="tdRoster"><h3>How your students are doing in Pre-Algebra</h3>
       <table class="roster">
-        <tr><th>Student</th><th>Unit</th><th>Accuracy</th><th>Streak</th><th>Last worked</th><th>Status</th></tr>
-        <tr><td><b>Maya R.</b></td><td>5 · Decimals</td><td class="good">91%</td><td>11 days</td><td>today</td><td class="good">on track</td></tr>
-        <tr><td><b>Sofia L.</b></td><td>6 · Negatives</td><td class="good">93%</td><td>9 days</td><td>today</td><td class="good">ahead</td></tr>
-        <tr><td><b>Priya N.</b></td><td>5 · Decimals</td><td>85%</td><td>5 days</td><td>today</td><td class="good">on track</td></tr>
-        <tr><td><b>Jonah W.</b></td><td>4 · Percents</td><td>79%</td><td>3 days</td><td>yesterday</td><td class="good">on track</td></tr>
-        <tr class="warn"><td><b>Aiden T.</b></td><td>2 · Fractions</td><td>74%</td><td>1 day</td><td>yesterday</td><td class="flag">stuck 6 days</td></tr>
-        <tr class="warn"><td><b>Ben K.</b></td><td>2 · Fractions</td><td class="flag">58%</td><td>0 days</td><td>4 days ago</td><td class="flag">needs you today</td></tr>
-      </table></div>
-
-    <div class="dcard" id="tdHeat"><h3>Mastery grid — where the whole class actually is</h3>
-      <div class="heat"><div class="hrow hhead"><span class="hn"></span><i class="hc">1</i><i class="hc">2</i><i class="hc">3</i><i class="hc">4</i><i class="hc">5</i><i class="hc">6</i><i class="hc">7</i><i class="hc">8</i><i class="hc">9</i></div><div class="hrow"><span class="hn">Maya R.</span><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div><div class="hrow"><span class="hn">Sofia L.</span><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div><div class="hrow"><span class="hn">Priya N.</span><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div><div class="hrow"><span class="hn">Jonah W.</span><i class="hc gold"></i><i class="hc gold"></i><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div><div class="hrow"><span class="hn">Aiden T.</span><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div><div class="hrow"><span class="hn">Ben K.</span><i class="hc gold"></i><i class="hc now"></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i><i class="hc "></i></div></div>
-      <div class="legend"><span><i class="sw gold"></i>mastered</span><span><i class="sw now"></i>in progress</span><span><i class="sw"></i>not started</span></div>
-      <div class="note">The wall is Unit 2. Two students are stalled there and a third only just cleared it.</div></div>
-
-    <div class="dcard" id="tdStrengthen"><h3>Strengthen next — and why</h3>
-      <div class="weekrow"><span><b>Ben K.</b> — subtracting across a zero (borrowing)</span><span class="muted">missed 6 of 9 this week</span></div>
-      <div class="weekrow"><span><b>Aiden T.</b> — finding a common denominator before adding</span><span class="muted">missed 4 of 10</span></div>
-      <div class="weekrow"><span><b>Jonah W.</b> — percent of a number vs. percent change</span><span class="muted">mixes the two</span></div>
-      <div class="weekrow"><span><b>Priya N.</b> — lining up decimal points of different lengths</span><span class="muted">2 slips</span></div>
-      <div class="weekrow"><span><b>Maya R.</b> — same decimal-point habit</span><span class="muted">1 slip, improving</span></div>
-      <div class="weekrow"><span><b>Sofia L.</b> — ready for harder work</span><span class="good">consider accelerating</span></div></div>
-
-    <div class="dcard" id="tdRead"><h3>Mr. Cadabra's honest read</h3>
-      <div class="readbox">Four of your six are steady and need nothing from you this week. The one idea holding the
-        class back is <b>equivalent fractions</b> — Aiden and Ben both stall at exactly the same step, finding a
-        common denominator, and Jonah cleared it only barely. If you have ten minutes with the whole room, I'd
-        re-teach that with fraction bars before anyone else moves into Unit 3.<br><br>
-        <b>Ben needs a person, not a lesson.</b> He hasn't worked in four days and his accuracy fell from 71% to
-        58%. In my experience that pattern is discouragement, not ability — a short, winnable session would do
-        more for him than new material.<br><br>
-        <b>Sofia is being under-served.</b> She's a unit ahead at 93% and hasn't missed a Unit Quiz. She could
-        start Algebra I readiness work now without losing anything here.</div></div>
-
-    <div class="two">
-      <div class="dcard" id="tdUpcoming"><h3>Coming up</h3>
-        <div class="weekrow"><span>Maya R. · Unit 5 Quiz</span><span class="muted">likely this week</span></div>
-        <div class="weekrow"><span>Priya N. · Unit 5 Quiz</span><span class="muted">next week</span></div>
-        <div class="weekrow"><span>Sofia L. · Unit 6 Quiz</span><span class="muted">this week</span></div>
-        <div class="weekrow"><span>Class · nobody near the Final Exam yet</span><span class="muted">4 units to go</span></div></div>
-      <div class="dcard" id="tdTime"><h3>Time on task this week</h3><svg viewBox="0 0 430 136" role="img" aria-label="minutes per day"><rect x="29.0" y="28.4" width="53.0" height="75.6" rx="6" fill="#8f7bff"/><text x="55.5" y="23.4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">135m</text><text x="55.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Maya</text><rect x="92.0" y="20.0" width="53.0" height="84.0" rx="6" fill="#8f7bff"/><text x="118.5" y="15.0" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">150m</text><text x="118.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Sofia</text><rect x="155.0" y="36.8" width="53.0" height="67.2" rx="6" fill="#8f7bff"/><text x="181.5" y="31.8" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">120m</text><text x="181.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Priya</text><rect x="218.0" y="50.8" width="53.0" height="53.2" rx="6" fill="#8f7bff"/><text x="244.5" y="45.8" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">95m</text><text x="244.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Jonah</text><rect x="281.0" y="70.4" width="53.0" height="33.6" rx="6" fill="#8f7bff"/><text x="307.5" y="65.4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">60m</text><text x="307.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Aiden</text><rect x="344.0" y="97.3" width="53.0" height="6.7" rx="6" fill="#8f7bff"/><text x="370.5" y="92.3" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b6079">12m</text><text x="370.5" y="124" text-anchor="middle" font-size="10.5" fill="#5b6079">Ben</text></svg>
-        <div class="note">Ben's bar is the story: twelve minutes all week.</div></div>
-    </div>
+        <tr><th>Student</th><th>Units mastered</th><th>Units started</th><th>Needs attention</th></tr>
+        <tr><td><b>Maya R.</b></td><td class="good">4 of 9 ★</td><td>5</td><td class="muted">—</td></tr>
+        <tr><td><b>Sofia L.</b></td><td class="good">5 of 9 ★</td><td>6</td><td class="muted">—</td></tr>
+        <tr><td><b>Priya N.</b></td><td>4 of 9 ★</td><td>5</td><td class="muted">—</td></tr>
+        <tr><td><b>Jonah W.</b></td><td>3 of 9 ★</td><td>4</td><td class="muted">—</td></tr>
+        <tr class="warn"><td><b>Aiden T.</b></td><td>1 of 9 ★</td><td>2</td><td class="flag">stalled in Unit 2</td></tr>
+        <tr class="warn"><td><b>Ben K.</b></td><td>1 of 9 ★</td><td>2</td><td class="flag">scores sliding</td></tr>
+      </table>
+      <div class="legend"><span><i class="sw gold"></i>★ = unit mastered (90%+ on the Unit Quiz)</span></div></div>
+    <div class="dcard" id="tdAttention"><h3>Needs attention</h3>
+      <div class="weekrow"><span><b>Ben K.</b> — hasn't worked in 4 days and his scores are falling</span><span class="flag">look today</span></div>
+      <div class="weekrow"><span><b>Aiden T.</b> — six days on the same unit</span><span class="flag">look today</span></div>
+      <div class="note">Flagged students come first, instead of being something a teacher finds out about later.</div></div>
+    <div class="dcard" id="tdOpenStudent"><h3>Open a student</h3>
+      <div class="weekrow"><span>Tap any student to see their full dashboard, read-only</span><span class="muted">same numbers the student sees</span></div>
+      <div class="weekrow"><span>Add a student</span><span class="muted">one box: their student code</span></div>
+      <div class="weekrow"><span>Switch class · change course</span><span class="muted">top of the page</span></div></div>
   </div>
 </div>
 
 <div class="dash" id="dashParent">
   <div class="dhead"><img src="/static/brand-mark.svg" alt="" style="height:24px">
-    <div><h2>How Maya is doing</h2><div class="dsub">Pre-Algebra · week of November 17 · for Maya's family</div></div>
+    <div><h2>👪 How Maya is doing</h2><div class="dsub">the parent's view of the same dashboard · sample data</div></div>
     <span class="demo-badge">SAMPLE</span>
     <div style="flex:1"></div><button class="replay dashback" type="button">↩ Back to the three views</button></div>
   <div class="dwrap">
-    <div class="dcard" id="pdRead"><h3>An honest read on her progress</h3>
-      <div class="readbox"><b>Maya is doing well, and she's earned it.</b> She has mastered four of the nine units
-        in Pre-Algebra and is working through decimals now, getting about <b>91%</b> right on her own — that means
-        she's solving them, not being walked through them.<br><br>
-        Her best habit is one I wish more students had: she checks her answer before she commits to it, out loud,
-        without being asked. Her hardest week was the last week of October, when percents genuinely beat her twice.
-        She came back four days in a row until they clicked. That's the part I'd be proudest of.<br><br>
-        What she still finds hard is lining up decimal points when the two numbers have a different number of
-        digits. It's a common one and it isn't a worry — but you asked how she's doing, so you should know.</div></div>
-
-    <div class="dcard" id="pdWeek"><h3>This week</h3>
-      <div class="weekrow"><span>Time with Mr. Cadabra</span><span><b>2 hours 15 minutes</b> across 4 days</span></div>
-      <div class="weekrow"><span>Mastered</span><span class="good"><b>Unit 4 — Percents</b> · Unit Quiz 91%</span></div>
-      <div class="weekrow"><span>Working on now</span><span>Unit 5 — multiplying decimals</span></div>
-      <div class="weekrow"><span>Struggled with</span><span>Comparing decimals — 3 tries before it clicked</span></div>
-      <div class="weekrow"><span>Best moment</span><span class="good">Caught her own mistake and fixed it, unprompted</span></div></div>
-
-    <div class="dcard" id="pdSince"><h3>Since she started in September</h3><svg viewBox="0 0 430 132" role="img" aria-label="accuracy by week"><line x1="30" y1="83.0" x2="400" y2="83.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="87.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">70%</text><line x1="30" y1="60.0" x2="400" y2="60.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="64.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">80%</text><line x1="30" y1="37.0" x2="400" y2="37.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="41.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">90%</text><line x1="30" y1="14.0" x2="400" y2="14.0" stroke="#eee9f7" stroke-width="1"/><text x="24" y="18.0" text-anchor="end" font-size="9.5" fill="#a7a2bd">100%</text><path d="M30.0 46.2 L82.9 39.3 L135.7 32.4 L188.6 64.6 L241.4 50.8 L294.3 37.0 L347.1 34.7 L400.0 30.1" fill="none" stroke="#6d5ae6" stroke-width="3" stroke-linejoin="round"/><circle cx="30.0" cy="46.2" r="4.5" fill="#6d5ae6"/><text x="30.0" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">Sep</text><circle cx="82.9" cy="39.3" r="4.5" fill="#6d5ae6"/><text x="82.9" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079"></text><circle cx="135.7" cy="32.4" r="4.5" fill="#6d5ae6"/><text x="135.7" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">Oct</text><circle cx="188.6" cy="64.6" r="4.5" fill="#d1345b"/><text x="188.6" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079"></text><circle cx="241.4" cy="50.8" r="4.5" fill="#6d5ae6"/><text x="241.4" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079"></text><circle cx="294.3" cy="37.0" r="4.5" fill="#6d5ae6"/><text x="294.3" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079">Nov</text><circle cx="347.1" cy="34.7" r="4.5" fill="#6d5ae6"/><text x="347.1" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079"></text><circle cx="400.0" cy="30.1" r="4.5" fill="#6d5ae6"/><text x="400.0" y="126" text-anchor="middle" font-size="9.5" fill="#5b6079"></text></svg>
-      <div class="weekrow"><span>Total time</span><span><b>14 hours 20 minutes</b> over 11 weeks</span></div>
-      <div class="weekrow"><span>Problems worked</span><span><b>312</b></span></div>
-      <div class="weekrow"><span>Units mastered</span><span><b>4 of 9</b> — on pace to finish in the spring</span></div></div>
-
-    <div class="dcard" id="pdMastered"><h3>What she has actually learned</h3>
-      <table class="roster">
-        <tr><th>Unit</th><th>Mastered on</th><th>Unit Quiz</th></tr>
-        <tr><td>1 · Numbers &amp; operations</td><td>September 26</td><td class="good">94%</td></tr>
-        <tr><td>2 · Fractions</td><td>October 10</td><td class="good">92%</td></tr>
-        <tr><td>3 · Ratios &amp; proportions</td><td>October 28</td><td class="good">90%</td></tr>
-        <tr><td>4 · Percents</td><td>November 8</td><td class="good">91%</td></tr>
-      </table>
-      <div class="note">Mastery here means 90% or better on the Unit Quiz, with no hints. It isn't a participation badge.</div></div>
-
-    <div class="dcard" id="pdPlan"><h3>What's hard right now — and the plan</h3>
-      <div class="readbox"><b>The difficulty:</b> lining up decimal points when the numbers have different lengths
-        (3.5 + 12.75). She knows the rule and forgets it under pressure.<br><br>
-        <b>What I'm doing about it:</b> smaller numbers first, then money problems — dollars and cents make the
-        decimal point feel obvious — and I'll keep bringing one back each session until it's ordinary. I'll say so
-        right here when it is.<br><br>
-        <b>What helps at home:</b> nothing that feels like school. Let her price out a grocery list.</div></div>
-
-    <div class="two">
-      <div class="dcard" id="pdAwards"><h3>Awards she's earned</h3>
-        <div class="trophies"><span class="trophy gold">🏅 Course Champion<i>Basic Math</i></span>
-          <span class="trophy">🏆 Mastered ×4<i>Units 1–4</i></span>
-          <span class="trophy">💪 Effort medal<i>percents, 4 days running</i></span>
-          <span class="trophy">🔥 11-day streak<i>her longest yet</i></span></div></div>
-      <div class="dcard" id="pdRecords"><h3>Your records</h3>
-        <div class="note" style="margin:0 0 10px">Every unit, every quiz, every hour — printable in one click for a
-          homeschool portfolio or a school district file. It's your data; you can take it any time.</div>
-        <span class="cta" style="display:inline-block;width:auto;padding:11px 18px">🖨 Print the full record</span></div>
-    </div>
+    <div class="dcard" id="pdRead"><h3>Mr. Cadabra's honest read</h3>
+      <div class="readbox"><b>Maya is doing well, and she's earned it.</b> She has mastered four of the nine units in
+        Pre-Algebra and is working through decimals now, getting about <b>91%</b> right on her own — that means she's
+        solving them, not being walked through them.<br><br>
+        Her best habit is one I wish more students had: she checks her answer before she commits to it, without being
+        asked. Her hardest stretch was the last week of October, when percents genuinely beat her twice. She came back
+        four days running until they clicked. That's the part I'd be proudest of.<br><br>
+        <b>What's hard right now:</b> lining up decimal points when the two numbers have a different number of digits.
+        <b>What I'm doing about it:</b> smaller numbers first, then money problems — dollars and cents make the decimal
+        point obvious — and I'll bring one back each session until it's ordinary. I'll say so right here when it is.</div></div>
+    <div class="dcard" id="pdStats"><h3>The same numbers her teacher sees</h3>
+      <div class="tiles">
+        <div class="tile"><b>4</b><span>Units mastered</span></div>
+        <div class="tile"><b>91%</b><span>Accuracy</span></div>
+        <div class="tile"><b>312</b><span>Problems practiced</span></div>
+        <div class="tile"><b>2h 15m</b><span>Time this week</span></div>
+        <div class="tile"><b>11</b><span>Day streak</span></div>
+      </div>
+      <div class="note">One record, one set of facts. There is no separate parent version that rounds things up.</div></div>
+    <div class="dcard" id="pdStrengthen"><h3>Strengthen next</h3>
+      <div class="weekrow"><span>Lining up decimal points when the numbers are different lengths</span><span class="muted">2 slips this week</span></div>
+      <div class="weekrow"><span>Percent of a number vs. percent change</span><span class="muted">1 slip</span></div>
+      <div class="note">Specific enough to help with at the kitchen table — it comes from her actual lessons.</div></div>
+    <div class="dcard" id="pdRecords"><h3>Your records</h3>
+      <div class="note" style="margin:0 0 10px">Every unit, every quiz, every hour — printable in one click for a
+        homeschool portfolio or a school district file. It's your child's work; you can take it any time.</div>
+      <span class="cta" style="display:inline-block;width:auto;padding:11px 18px">🖨 Print the full record</span></div>
   </div>
 </div>
 
@@ -775,7 +714,41 @@
     "Everything she has mastered, with the date and the quiz score that proved it. This is the list you'd want if anyone ever asks what your child has actually learned this year.",
     "And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does.",
     "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it.",
-    "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!"
+    "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!",
+    "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and type where you land.",
+    "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Type where you land.",
+    "Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Type your move.",
+    "Close — the three is being ADDED, so we undo it with the opposite move. Type what you'd do to both sides.",
+    "Look at the board now: two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
+    "Careful — two x means two times x, so we undo it with division, not subtraction. Try that once more.",
+    "Last step. The board says eight divided by two — so what does x equal? Type the number.",
+    "Almost — think of eight split into two equal groups. Type how many are in each group.",
+    "Now look at the triangle on the board. Two of its angles are marked for you — ninety degrees and thirty-five degrees — and the third one has a question mark. All three together must add to one hundred eighty. Type that missing angle.",
+    "Let's build it up in two moves — first add the two angles you can see, ninety plus thirty-five. Then take that away from one hundred eighty. Type what's left.",
+    "Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two and count how many times you double, then type the power.",
+    "Keep doubling with me — two, four, eight, and so on. Count each step until you reach thirty-two, then type how many steps that took.",
+    "Now look at the circle on the board. The arrow sweeps exactly HALF the way around, and half a turn is what we call pi radians. How many degrees is that half turn? Type it in.",
+    "Think about the whole circle first — all the way around is three hundred sixty degrees. Our arrow goes exactly half that far. Type the number.",
+    "Three quiz scores are on the board — three, five and ten — drawn as bars so you can see their sizes. The mean is the fair share: add them all up, then split the total evenly three ways. Type the mean.",
+    "Let's do it in two moves — first add three, five and ten together. Then split that total into three equal shares. Type what one share is.",
+    "Your turn with the power rule. The board shows x CUBED. Bring the three down in front, then drop the power by one — what is the NEW power? Type it in.",
+    "Just the second half of the rule: the old power is three, and we drop it by one. Type what that leaves.",
+    "Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y, and type that number.",
+    "Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Type that order as a number.",
+    "This is Maya's own dashboard — the real screen your student opens. These five numbers are exactly the ones the product tracks: units mastered, accuracy, problems practiced, time this week, and the day streak she's protecting.",
+    "Below it, her course — all nine units. The gold ones are mastered, and mastered here means ninety percent or better on the Unit Quiz with no hints. Unit five is where she's working now, and the Final Exam at the end stays locked until every unit is gold.",
+    "Open a unit and you see the quiz results inside it — every topic quiz, the score, and the date. This is the same detail a parent or a teacher sees, because there's only one set of numbers and everybody gets the truth.",
+    "Strengthen next is my short list for her: the specific things that actually went wrong in her lessons this week. Not a level, not a percentile — the two habits I'd fix first.",
+    "And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers.",
+    "Now the teacher's side. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
+    "Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees.",
+    "The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out.",
+    "And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code.",
+    "And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English.",
+    "That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading.",
+    "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
+    "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
+    "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."
   ];
   var serverVoiceOK=true;
   // iPAD/TABLET UNLOCK: one SHARED element, unlocked inside the first real tap.
@@ -1023,12 +996,12 @@
       steps:[
         {teach:1, say:"Here's a number line. Zero sits in the middle, positive numbers run to the right, and negative numbers run to the left. Adding moves you to the right; subtracting moves you left. Watch: start at negative two, climb three steps right, and you land on positive one. Your turn next.",
          fig:{k:"numberline", from:-2, to:1, cap:"−2 + 3 = 1"}},
-        {say:"Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and tell me where you land. Tap the microphone and say it out loud.",
+        {say:"Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and type where you land.",
          board:[["−3 + 5 = ?",""]],
          fig:{k:"numberline", start:-3, cap:"start here, then climb five to the right"},
          input:{type:"ask", accept:["2","+2"],
            right:"Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.",
-           wrong:"Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Tap the mic and say where you land.",
+           wrong:"Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Type where you land.",
            board:[["−3 + 5 = 2",""]]}},
         {end:true}]},
 
@@ -1036,25 +1009,25 @@
       steps:[
         {teach:1, say:"Solving means getting x all by itself, and the one rule is: whatever you do to one side, you do to the other. Watch a quick one — x plus four equals ten. Subtract four from both sides, and x equals six. Now let's do a two-step one together.",
          board:[["x + 4 = 10",""],["   −4    −4","op"],["x = 6",""]]},
-        {say:"Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Tap the microphone and say your move.",
+        {say:"Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Type your move.",
          board:[["2x + 3 = 11",""]],
          input:{type:"ask",
            match:[/[-−]3/, /subtract.{0,14}(3|three)/, /minus.{0,10}(3|three)/, /take.{0,10}(3|three)/,
                   /remove.{0,10}(3|three)/, /(3|three)(from|off)(each|both|the)?side/],
            right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
-           wrong:"Close — the three is being ADDED, so we undo it with the opposite move. Tap the mic and tell me what to do to both sides.",
+           wrong:"Close — the three is being ADDED, so we undo it with the opposite move. Type what you'd do to both sides.",
            board:[["    −3   −3","op"],["2x = 8",""]]}},
-        {say:"Look at the board now: two x equals eight. Two x means two TIMES x — so what undoes a times two? Tap the microphone and say your move.",
+        {say:"Look at the board now: two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
          input:{type:"ask",
            match:[/[÷\/]2/, /divide.{0,20}(2|two)/, /over(2|two)/, /^by(2|two)$/, /half/,
                   /(2|two)(oneach|onboth|eachside|bothsides)/],
            right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
-           wrong:"Careful — two x means two times x, so we undo it with division, not subtraction. Tap the mic and try that once more.",
+           wrong:"Careful — two x means two times x, so we undo it with division, not subtraction. Try that once more.",
            board:[["÷2  ÷2","op"]]}},
-        {say:"Last step. The board says eight divided by two — so what does x equal? Tap the microphone and say the number.",
+        {say:"Last step. The board says eight divided by two — so what does x equal? Type the number.",
          input:{type:"ask", accept:["4","x=4"],
            right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
-           wrong:"Almost — think of eight split into two equal groups. Tap the mic and say how many are in each group.",
+           wrong:"Almost — think of eight split into two equal groups. Type how many are in each group.",
            board:[["x = 4",""],["check:  2·4 + 3 = 11  ✓","op"]]}},
         {end:true}]},
 
@@ -1062,11 +1035,11 @@
       steps:[
         {teach:1, say:"Every triangle's three angles add up to one hundred eighty degrees — always, no exceptions. Watch a friendly one: sixty plus sixty plus sixty is one hundred eighty. Now let's find a missing angle.",
          fig:{k:"triangle", a:"60°", b:"60°", c:"60°", cap:"60 + 60 + 60 = 180"}},
-        {say:"Now look at the triangle on the board. Two of its angles are marked for you — ninety degrees and thirty-five degrees — and the third one has a question mark. All three together must add to one hundred eighty. Tap the microphone and tell me that missing angle.",
+        {say:"Now look at the triangle on the board. Two of its angles are marked for you — ninety degrees and thirty-five degrees — and the third one has a question mark. All three together must add to one hundred eighty. Type that missing angle.",
          fig:{k:"triangle", a:"90°", b:"35°", c:"?", right:1, cap:"90 + 35 + ? = 180"},
          input:{type:"ask", accept:["55","55°"],
            right:"Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.",
-           wrong:"Let's build it up in two moves — first add the two angles you can see, ninety plus thirty-five. Then take that away from one hundred eighty. Tap the mic and say what's left.",
+           wrong:"Let's build it up in two moves — first add the two angles you can see, ninety plus thirty-five. Then take that away from one hundred eighty. Type what's left.",
            board:[["? = 180° − 125° = 55°",""]]}},
         {end:true}]},
 
@@ -1074,11 +1047,11 @@
       steps:[
         {teach:1, say:"An exponent just counts how many times you multiply. Two to the third means two times two times two, which is eight — each step doubles what you had. Now let's run that backwards.",
          board:[["2³ = 2 × 2 × 2 = 8",""]]},
-        {say:"Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two and count how many times you double. Tap the microphone and say the power.",
+        {say:"Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two and count how many times you double, then type the power.",
          board:[["2^? = 32",""]],
          input:{type:"ask", accept:["5"],
            right:"Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.",
-           wrong:"Keep doubling out loud with me — two, four, eight, and so on. Count each step until you reach thirty-two, then tap the mic and say how many steps that took.",
+           wrong:"Keep doubling with me — two, four, eight, and so on. Count each step until you reach thirty-two, then type how many steps that took.",
            board:[["2^5 = 32  ✓",""]]}},
         {end:true}]},
 
@@ -1086,11 +1059,11 @@
       steps:[
         {teach:1, say:"The unit circle measures turns two ways. A quarter turn is ninety degrees, and in radians we call that same quarter turn pi over two. Degrees and radians are just two rulers for the same angle. Now let's convert one.",
          fig:{k:"unitcircle", sweep:90, label:"90°  =  π/2", cap:"a quarter turn, measured two ways"}},
-        {say:"Now look at the circle on the board. The arrow sweeps exactly HALF the way around, and half a turn is what we call pi radians. How many degrees is that half turn? Tap the microphone and say it.",
+        {say:"Now look at the circle on the board. The arrow sweeps exactly HALF the way around, and half a turn is what we call pi radians. How many degrees is that half turn? Type it in.",
          fig:{k:"unitcircle", sweep:180, label:"π radians  =  ?", cap:"half a turn — how many degrees?"},
          input:{type:"ask", accept:["180","180°"],
            right:"One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.",
-           wrong:"Think about the whole circle first — all the way around is three hundred sixty degrees. Our arrow goes exactly half that far. Tap the mic and say the number.",
+           wrong:"Think about the whole circle first — all the way around is three hundred sixty degrees. Our arrow goes exactly half that far. Type the number.",
            board:[["π = 180°",""]]}},
         {end:true}]},
 
@@ -1098,11 +1071,11 @@
       steps:[
         {teach:1, say:"The mean is the fair-share average: add everything up, then split it evenly. Watch — two scores, four and eight. Together that's twelve, split between two people is six each. Now let's do three scores.",
          fig:{k:"bars", data:[["4",4],["8",8]], line:6, cap:"4 and 8 → fair share is 6 each"}},
-        {say:"Three quiz scores are on the board — three, five and ten — drawn as bars so you can see their sizes. The mean is the fair share: add them all up, then split the total evenly three ways. Tap the microphone and say the mean.",
+        {say:"Three quiz scores are on the board — three, five and ten — drawn as bars so you can see their sizes. The mean is the fair share: add them all up, then split the total evenly three ways. Type the mean.",
          fig:{k:"bars", data:[["3",3],["5",5],["10",10]], cap:"scores: 3, 5, 10 — what's the fair share?"},
          input:{type:"ask", accept:["6"],
            right:"Six! Eighteen points split evenly three ways. The mean shares everything out fairly.",
-           wrong:"Let's do it in two moves — first add three, five and ten together. Then split that total into three equal shares. Tap the mic and say what one share is.",
+           wrong:"Let's do it in two moves — first add three, five and ten together. Then split that total into three equal shares. Type what one share is.",
            board:[["(3 + 5 + 10) ÷ 3 = 6",""]]}},
         {end:true}]},
 
@@ -1110,11 +1083,11 @@
       steps:[
         {teach:1, say:"The power rule is the first tool in calculus: bring the power down in front, then drop the power by one. Watch — x squared becomes two x. That's it, that's the whole move. Now you try it on a bigger one.",
          board:[["x²   →   2x",""],["(bring the 2 down, drop the power by 1)","op"]]},
-        {say:"Your turn with the power rule. The board shows x CUBED. Bring the three down in front, then drop the power by one — what is the NEW power? Tap the microphone and say it.",
+        {say:"Your turn with the power rule. The board shows x CUBED. Bring the three down in front, then drop the power by one — what is the NEW power? Type it in.",
          board:[["f(x) = x³",""],["f′(x) = 3x^?",""]],
          input:{type:"ask", accept:["2"],
            right:"Two! So the derivative is three x squared — you just took your very first derivative.",
-           wrong:"Just the second half of the rule: the old power is three, and we drop it by one. Tap the mic and say what that leaves.",
+           wrong:"Just the second half of the rule: the old power is three, and we drop it by one. Type what that leaves.",
            board:[["f′(x) = 3x²",""]]}},
         {end:true}]},
 
@@ -1122,11 +1095,11 @@
       steps:[
         {teach:1, say:"Rule one in differential equations is: classify before you solve. The ORDER is simply the highest derivative in sight — count the tick marks. Watch: y triple-prime has three ticks, so that's third order. Now you classify one.",
          board:[["y‴ + y = 0",""],["three ticks  →  order 3","op"]]},
-        {say:"Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y. Tap the microphone and say that number.",
+        {say:"Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y, and type that number.",
          board:[["y″ + y = 0",""]],
          input:{type:"ask", accept:["2","2nd","second"],
            right:"Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.",
-           wrong:"Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Tap the mic and say that order as a number.",
+           wrong:"Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Type that order as a number.",
            board:[["order: 2   (y″)","op"]]}},
         {end:true}]}
   };
@@ -1196,27 +1169,31 @@
     wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb); answer.appendChild(wrap);
   }
 
-  // ---- ANSWER BY TALKING (2026-08-09 build bw) ----------------------------------
-  // Jim: "they're gonna click on the [microphone] just like their student would."
-  // The visitor taps the mic, says the answer, and it posts to /api/demo-transcribe --
-  // the same engine and the same transcribe-and-delete promise the classroom uses.
-  // Typing is the FALLBACK, one tap away, and becomes the default automatically when a
-  // browser cannot record or the visitor declines the microphone.
-  var MIC_SVG='<svg class="micico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/><path d="M18.5 11.5a6.5 6.5 0 0 1-13 0H3.6a8.4 8.4 0 0 0 7.4 8.33V23h2v-3.17a8.4 8.4 0 0 0 7.4-8.33h-1.9z"/></svg>';
-  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
-
-  function renderTyped(inp){                     // (name kept: it is the ASK renderer)
+  // ---- TYPED ANSWER (build bz) ------------------------------------------------------
+  // The demo's microphone was removed (Jim, 2026-08-09: "let's just drop the speaking
+  // part for the demo"). A one-shot sales page should not depend on a browser
+  // permission prompt: a declined mic, a silent tab or a bad transcript all turn the
+  // thing we are selling into a failure. In the REAL classroom the student talks --
+  // the tour and the sidebar both say so plainly -- but here a visitor just types, and
+  // the elementary courses tap. Spoken-style answers ("two", "negative two", "fifty
+  // five") are still understood, because normSpoken() runs on whatever is typed.
+  function renderTyped(inp){
     var wrap=document.createElement('div'); wrap.className='talkwrap';
     var prompt=document.createElement('div'); prompt.className='prompt';
+    prompt.innerHTML='Type your answer and press <b>Check</b> — in the real classroom your student just <b>says</b> it out loud.';
     var fb=document.createElement('div'); fb.className='fb';
-    var heard=document.createElement('div'); heard.className='heard';
     var misses=0, boardShown=false, done=false;
     function showBoard(){ if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); } }
 
-    // ---- the shared judge: same path whether the answer was SPOKEN or typed ----
+    var row=document.createElement('div'); row.className='ansrow';
+    var input=document.createElement('input'); input.type='text';
+    input.placeholder=inp.hint||'your answer'; input.autocomplete='off';
+    var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
+    row.appendChild(input); row.appendChild(check);
+
     function judge(raw){
       if(done) return;
-      var v=normSpoken(raw);
+      var v=normSpoken(raw);          // "two", "negative two", "fifty five" all work
       if(!v) return;
       var ok=false;
       if(inp.accept){ ok=inp.accept.map(function(a){return normSpoken(a);}).indexOf(v)>=0; }
@@ -1224,8 +1201,8 @@
       if(ok){
         done=true; showBoard();
         fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800;
-        lineDone=null; say(inp.right); setTimeout(next,1900);
-        return;
+        lineDone=null; say(inp.right); check.style.pointerEvents='none';
+        setTimeout(next,1900); return;
       }
       misses++;
       if(misses===1){ fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong); }
@@ -1235,80 +1212,19 @@
         fb.className='fb no'; fb.textContent=l; lineDone=null; say(l);
       } else {
         done=true; showBoard();
+        if(inp.accept && inp.accept.length){ input.value=inp.accept[0]; }
         var l3="No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!";
         fb.className='fb ok'; fb.textContent='✓ '+l3; faceHappyUntil=Date.now()+1800;
-        lineDone=null; say(l3); setTimeout(next,3400);
+        lineDone=null; say(l3); check.style.pointerEvents='none'; setTimeout(next,3400); return;
       }
+      try{ input.select(); }catch(e){}
     }
+    check.onclick=function(){ judge(input.value); };
+    input.addEventListener('keydown',function(ev){ if(ev.key==='Enter') judge(input.value); });
 
-    // ---- typing, the fallback ----
-    var typeRow=document.createElement('div'); typeRow.className='ansrow'; typeRow.style.display='none';
-    var input=document.createElement('input'); input.type='text';
-    input.placeholder=inp.hint||'your answer'; input.autocomplete='off';
-    var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
-    typeRow.appendChild(input); typeRow.appendChild(check);
-    check.onclick=function(){ judge(input.value); try{input.select();}catch(e){} };
-    input.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ judge(input.value); try{input.select();}catch(e){} } });
-    function showTyping(note){
-      typeRow.style.display='flex'; typeLink.style.display='none';
-      if(note) heard.textContent=note;
-      try{ input.focus(); }catch(e){}
-    }
-    var typeLink=document.createElement('button'); typeLink.className='typelink'; typeLink.type='button';
-    typeLink.textContent='…or type it instead';
-    typeLink.onclick=function(){ showTyping(''); };
-
-    // ---- the microphone ----
-    var talk=document.createElement('button'); talk.className='talkbtn'; talk.type='button';
-    talk.innerHTML=MIC_SVG+'<span>Tap and say your answer</span>';
-    var rec=null, chunks=[], recording=false;
-    function label(t){ talk.querySelector('span').textContent=t; }
-    function stopStream(st){ try{ st.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} }
-    async function beginRecording(){
-      try{
-        var stream=await navigator.mediaDevices.getUserMedia({audio:true});
-        chunks=[]; rec=new MediaRecorder(stream);
-        rec.ondataavailable=function(e){ if(e.data && e.data.size) chunks.push(e.data); };
-        rec.onstop=async function(){
-          stopStream(stream);
-          recording=false; talk.classList.remove('recording'); talk.disabled=true; label('one moment…');
-          heard.textContent='';
-          var blob=new Blob(chunks,{type:(chunks[0]&&chunks[0].type)||'audio/webm'});
-          var text='';
-          if(blob.size){
-            try{
-              var fd=new FormData(); fd.append('audio', blob, 'speech.webm');
-              var res=await fetch('/api/demo-transcribe',{method:'POST',body:fd});
-              text=((await res.json())||{}).text||'';
-            }catch(e){}
-          }
-          talk.disabled=false; label('Tap and say your answer');
-          if(text){ heard.textContent='I heard: “'+text+'”'; judge(text); }
-          else { heard.textContent="I didn't quite catch that — tap and try again, or type it."; typeLink.style.display='inline-block'; }
-        };
-        rec.start(); recording=true;
-        talk.classList.add('recording'); label('Listening… tap when you’re done');
-      }catch(e){
-        showTyping("I couldn't reach your microphone — no problem, type your answer instead.");
-      }
-    }
-    talk.onclick=function(){
-      if(done) return;
-      if(!recording){ beginRecording(); }
-      else { try{ rec.stop(); }catch(e){ recording=false; } }
-    };
-
-    if(canRecord){
-      prompt.textContent='Answer him out loud — exactly the way your student will.';
-      wrap.appendChild(prompt); wrap.appendChild(talk); wrap.appendChild(heard);
-      wrap.appendChild(typeLink); wrap.appendChild(typeRow); wrap.appendChild(fb);
-    } else {
-      prompt.textContent='In the real classroom your student SAYS the answer out loud. This browser can’t record, so type it here instead.';
-      typeRow.style.display='flex'; typeLink.style.display='none';
-      wrap.appendChild(prompt); wrap.appendChild(typeRow); wrap.appendChild(heard); wrap.appendChild(fb);
-    }
+    wrap.appendChild(prompt); wrap.appendChild(row); wrap.appendChild(fb);
     answer.appendChild(wrap);
-    if(!canRecord){ try{ input.focus(); }catch(e){} }
+    try{ input.focus(); }catch(e){}
   }
 
   function showEnd(){
@@ -1338,26 +1254,22 @@
   var BALLOON_LINE="And that's a real lesson! Now let me show you what the grown-ups see. There are three windows into your student's progress — theirs, a teacher's, and a parent's. Pick whichever one you'd like to look at, and I'll walk you through it.";
   var DASHES={
     student:{ id:'dashStudent', stops:[
-      {t:'sdStats',    line:"This is Maya's own dashboard — the screen your student opens to watch themselves win. Right at the top, the numbers that matter: four units mastered, ninety-one percent accuracy, three hundred twelve problems worked, and an eleven-day streak she is very proud of."},
-      {t:'sdUnits',    line:"Here's her whole course, all nine units. The gold ones are mastered — she's finished Numbers, Fractions, Ratios and Percents. Unit five is where she's working right now, and the four ahead are still waiting. At the end sits the Final Exam, locked until every unit is gold."},
-      {t:'sdUnit5',    line:"Open the unit she's in and you see the ladder inside it: every topic, every quiz, and the score she earned. Comparing decimals, eighty-eight percent. Adding and subtracting, ninety-two. Multiplying is where she is today, and the Unit Quiz waits at the top."},
-      {t:'sdCharts',   line:"These two charts are her habits. On the left, accuracy week by week — you can see the dip in week three when percents got hard, and the climb back after we slowed down. On the right, minutes per day this week. Honest pictures, both of them; a dashboard that only shows good news isn't worth having."},
-      {t:'sdTrophies', line:"And this is the trophy case — twelve awards, every one of them earned. Explored a topic. Practiced it. Learned it. Mastered a whole unit. The Course Champion medal from finishing Basic Math last spring. And the effort medal, which she got for coming back to percents four days in a row until they clicked."},
-      {t:'sdNext',     line:"Last, what's coming: the exact next three sessions, so she never wonders what happens tomorrow. And down here, her courses — Basic Math finished and championed, Pre-Algebra in progress, with everything from her old course still on the record."}]},
+      {t:'sdStats',      line:"This is Maya's own dashboard — the real screen your student opens. These five numbers are exactly the ones the product tracks: units mastered, accuracy, problems practiced, time this week, and the day streak she's protecting."},
+      {t:'sdUnits',      line:"Below it, her course — all nine units. The gold ones are mastered, and mastered here means ninety percent or better on the Unit Quiz with no hints. Unit five is where she's working now, and the Final Exam at the end stays locked until every unit is gold."},
+      {t:'sdQuizzes',    line:"Open a unit and you see the quiz results inside it — every topic quiz, the score, and the date. This is the same detail a parent or a teacher sees, because there's only one set of numbers and everybody gets the truth."},
+      {t:'sdStrengthen', line:"Strengthen next is my short list for her: the specific things that actually went wrong in her lessons this week. Not a level, not a percentile — the two habits I'd fix first."},
+      {t:'sdTrophies',   line:"And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers."}]},
     teacher:{ id:'dashTeacher', stops:[
-      {t:'tdStats',      line:"Now the teacher's view. This is Room Twelve — six students in Pre-Algebra — and the top row is the class at a glance: average accuracy, how many are on track, how many need a hand today, and the hours the class put in this week."},
-      {t:'tdRoster',     line:"Here's the roster. Every student, the unit they're in, their accuracy, their streak, and when they last worked. Ben hasn't been in for four days and his accuracy is sliding — so he's flagged in red at the top of your attention, not buried on page three."},
-      {t:'tdHeat',       line:"This grid is the one that saves a teacher a whole planning period. Nine units across, six students down, and every square colored: mastered, in progress, or not started. In one glance you can see that the whole class stalled in the same place — Unit two, fractions."},
-      {t:'tdStrengthen', line:"Then, in plain words, what to strengthen next for each student — and WHY. Not a level number, not a percentile. Ben is stalling on borrowing across a zero. Aiden can't find a common denominator yet. That's what actually went wrong in their lessons this week."},
-      {t:'tdRead',       line:"And this is my honest read on the class. Where they're solid, where several of them are wobbling on the very same idea, and what I would teach next if it were my room. A teacher can take it or overrule it — it's a colleague's opinion, never a verdict."},
-      {t:'tdTime',       line:"Down at the bottom: what's coming. Who has a Unit Quiz this week, who is close to their Final Exam, and the class time chart so a teacher can see who is quietly doing nothing."}]},
+      {t:'tdOpen',        line:"Now the teacher's side. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place."},
+      {t:'tdRoster',      line:"Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees."},
+      {t:'tdAttention',   line:"The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out."},
+      {t:'tdOpenStudent', line:"And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code."}]},
     parent:{ id:'dashParent', stops:[
-      {t:'pdRead',     line:"And now the view most parents care about. It opens with the only question that really matters — how is my child actually doing? — answered in plain English, with no jargon and no scores to decode."},
-      {t:'pdWeek',     line:"Here's her week: four days in, two hours and fifteen minutes, one unit mastered, and the thing she struggled with. We put the hard part right next to the good part on purpose. If your child had a rough week, this page will tell you so."},
-      {t:'pdSince',    line:"This is the longer arc — every week since she started in September. Hours, accuracy, units mastered. You can watch her get better, and you can see exactly which week percents nearly beat her."},
-      {t:'pdMastered', line:"Everything she has mastered, with the date and the quiz score that proved it. This is the list you'd want if anyone ever asks what your child has actually learned this year."},
-      {t:'pdPlan',     line:"And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does."},
-      {t:'pdRecords',  line:"Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it."}]}
+      {t:'pdRead',       line:"And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English."},
+      {t:'pdRead',       line:"That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading."},
+      {t:'pdStats',      line:"Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up."},
+      {t:'pdStrengthen', line:"Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table."},
+      {t:'pdRecords',    line:"And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."}]}
   };
   var dashTourCancelled=false;
 

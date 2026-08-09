@@ -2,6 +2,33 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bz-demo-figures-typed-realdash" (Jim, three things
+#               from a live walk-through).
+#               (1) THE NUMBER LINE WAS INVISIBLE. The figure SVGs carried a viewBox but
+#               no WIDTH, and inside the whiteboard's centred flex column an auto-width
+#               SVG collapses to a smudge. Figures now take a real width (max 660px) and
+#               a 150px minimum height, with a larger caption.
+#               (2) THE DEMO NO LONGER SPEAKS. Jim: "let's just drop the speaking part
+#               for the demo." A one-shot sales page should not hang on a microphone
+#               permission prompt. All 20 lesson lines re-worded for typing (appended
+#               154-173; the mic wording at 115-134 is now unused), the mic UI is gone,
+#               and POST /api/demo-transcribe is REMOVED (nothing called it, and an
+#               unused endpoint that spends ElevenLabs money is a surface we don't need).
+#               Typed answers still accept spoken forms ("two", "negative two").
+#               (3) THE DASHBOARDS NOW MATCH THE REAL PRODUCT. Asked directly whether
+#               they did, the honest answer was no: the teacher view invented a 9x6
+#               mastery grid, per-student coaching reasons, a class-level honest read and
+#               time charts, and the parent view invented week/September trend sections.
+#               None of that exists. Rebuilt from the real screens: the student view is
+#               dashboard.html's real tiles (units mastered · accuracy · problems
+#               practiced · time this week · day streak) + where-you-are + quiz results +
+#               strengthen next + trophy case + my courses; the teacher view is
+#               teacher.html's real class manager (open by class code, per-student units
+#               mastered/started with a star, needs-attention flags, open a student
+#               read-only, add by student code); the parent view is the same dashboard in
+#               parent view (How X is doing + the honest read + the same five numbers +
+#               strengthen next + the printable record). Tours rewritten to match
+#               (appended 174-187; 135-152 now unused).
 #   2026-08-09  APP_BUILD -> "2026-08-09by-demo-button-center-bubbles" (Jim, three small
 #               things). (1) A highlighted ORANGE "🎬 Try the demo" pill is now the last
 #               item in the marketing nav on every page with a .nav-links row, injected
@@ -4150,7 +4177,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09by-demo-button-center-bubbles"
+APP_BUILD = "2026-08-09bz-demo-figures-typed-realdash"
 
 
 @app.get("/health")
@@ -5037,6 +5064,46 @@ DEMO_VOICE_LINES = [
     "And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does.",
     "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it.",
     "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!",
+    # APPENDED 2026-08-09 (build bz): the demo drops the microphone -- these are the
+    # TYPED versions of the lesson lines (154-173). 115-134 (the mic wording) are
+    # now unused but stay in place: indices must never move.
+    "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and type where you land.",
+    "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Type where you land.",
+    "Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Type your move.",
+    "Close — the three is being ADDED, so we undo it with the opposite move. Type what you'd do to both sides.",
+    "Look at the board now: two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
+    "Careful — two x means two times x, so we undo it with division, not subtraction. Try that once more.",
+    "Last step. The board says eight divided by two — so what does x equal? Type the number.",
+    "Almost — think of eight split into two equal groups. Type how many are in each group.",
+    "Now look at the triangle on the board. Two of its angles are marked for you — ninety degrees and thirty-five degrees — and the third one has a question mark. All three together must add to one hundred eighty. Type that missing angle.",
+    "Let's build it up in two moves — first add the two angles you can see, ninety plus thirty-five. Then take that away from one hundred eighty. Type what's left.",
+    "Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two and count how many times you double, then type the power.",
+    "Keep doubling with me — two, four, eight, and so on. Count each step until you reach thirty-two, then type how many steps that took.",
+    "Now look at the circle on the board. The arrow sweeps exactly HALF the way around, and half a turn is what we call pi radians. How many degrees is that half turn? Type it in.",
+    "Think about the whole circle first — all the way around is three hundred sixty degrees. Our arrow goes exactly half that far. Type the number.",
+    "Three quiz scores are on the board — three, five and ten — drawn as bars so you can see their sizes. The mean is the fair share: add them all up, then split the total evenly three ways. Type the mean.",
+    "Let's do it in two moves — first add three, five and ten together. Then split that total into three equal shares. Type what one share is.",
+    "Your turn with the power rule. The board shows x CUBED. Bring the three down in front, then drop the power by one — what is the NEW power? Type it in.",
+    "Just the second half of the rule: the old power is three, and we drop it by one. Type what that leaves.",
+    "Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y, and type that number.",
+    "Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Type that order as a number.",
+    # APPENDED 2026-08-09 (build bz): dashboard tours rewritten to describe the REAL
+    # product screens (174-187). The earlier tours (135-152) described sections the
+    # product does not have and are now unused; indices never move.
+    "This is Maya's own dashboard — the real screen your student opens. These five numbers are exactly the ones the product tracks: units mastered, accuracy, problems practiced, time this week, and the day streak she's protecting.",
+    "Below it, her course — all nine units. The gold ones are mastered, and mastered here means ninety percent or better on the Unit Quiz with no hints. Unit five is where she's working now, and the Final Exam at the end stays locked until every unit is gold.",
+    "Open a unit and you see the quiz results inside it — every topic quiz, the score, and the date. This is the same detail a parent or a teacher sees, because there's only one set of numbers and everybody gets the truth.",
+    "Strengthen next is my short list for her: the specific things that actually went wrong in her lessons this week. Not a level, not a percentile — the two habits I'd fix first.",
+    "And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers.",
+    "Now the teacher's side. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
+    "Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees.",
+    "The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out.",
+    "And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code.",
+    "And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English.",
+    "That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading.",
+    "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
+    "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
+    "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time.",
 ]
 
 
@@ -5137,45 +5204,11 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
         return {"text": ""}
 
 
-@app.post("/api/demo-transcribe")
-async def demo_transcribe(request: Request, audio: UploadFile = File(...)):
-    """The /demo page's microphone (2026-08-09, build bw, Jim: a visitor should ANSWER
-    BY TALKING, exactly the way a student does -- not by typing).
-
-    Same engine and the same TRANSCRIBE-AND-DELETE guarantee as /api/transcribe: the
-    audio exists only in memory for this request, goes to ElevenLabs, and is discarded
-    when the request ends. It is never written to disk, never stored, never logged --
-    only the text comes back.
-
-    The demo has no student code, so this is rate limited BY IP instead (a demo needs
-    one or two uploads; twelve per five minutes is generous and caps the spend from any
-    single visitor). Returns {"text": ""} on every failure so the page can fall back to
-    typing rather than dead-end.
-    """
-    _rate_limit("demostt:" + _client_ip(request), limit=12, window_seconds=300,
-                what="demo voice answers")
-    if not ELEVEN_API_KEY:
-        return {"text": "", "error": "no_key"}
-    try:
-        content = await audio.read()
-        if not content:
-            return {"text": ""}
-        files = {"file": (audio.filename or "speech.webm", content,
-                          audio.content_type or "audio/webm")}
-        with httpx.Client(timeout=60.0) as client:
-            r = client.post(
-                "https://api.elevenlabs.io/v1/speech-to-text",
-                headers={"xi-api-key": ELEVEN_API_KEY},
-                data={"model_id": ELEVEN_STT_MODEL},
-                files=files,
-            )
-        if r.status_code != 200:
-            print(f"[demo-transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
-            return {"text": ""}
-        return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
-    except Exception as exc:  # noqa: BLE001
-        print(f"[demo-transcribe] error: {exc}")
-        return {"text": ""}
+# NOTE (2026-08-09, build bz): /api/demo-transcribe was removed when the demo dropped
+# voice answering (Jim). It lived here, was IP rate limited, and used the same
+# transcribe-and-delete path as /api/transcribe -- see git history if the demo ever
+# speaks again. Nothing calls it today, and an unused endpoint that spends
+# ElevenLabs money is a surface we do not need open.
 
 
 # Serve the static folder (css/js/images if we add them) under /static.
