@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09cb-firstword-quizretry" (Jim's three questions).
+#               (1) THE CLIPPED FIRST WORD, PROPERLY. Leading silence only helps if the
+#               OUTPUT DEVICE is awake -- Bluetooth speakers, headphones and many laptop
+#               codecs power down after a few seconds of quiet and swallow the first
+#               200-400ms while they wake, which is exactly "a word or two", and worst
+#               "when he comes back from doing something". Two fixes on all three
+#               teaching pages: a truly silent WAV now LOOPS in its own element for as
+#               long as the lesson is open (paused when the tab is hidden), so the audio
+#               route never sleeps; and the lead is now DYNAMIC -- a clip after >2.5s of
+#               silence (or the session's first) gets the full ~840ms pad, >0.9s gets
+#               ~560ms, back-to-back clips get ~280ms.
+#               (2) FAILED QUIZZES: NEW SHARED RULE 35 (all ten courses). A failed quiz
+#               is never re-given on the spot. Name the win, diagnose the ONE or TWO
+#               skills underneath the misses, re-teach each with a worked example, and
+#               require TWO unaided correct problems on that skill BEFORE offering a
+#               retake -- with fresh questions, never the same items. A second failure
+#               steps BACK to the prerequisite instead of looping. The word "failed" is
+#               never used about the student. ruletests.py gains the coverage check and
+#               a live scenario.
+#               (3) The parent records report was verified working end to end: /records
+#               serves the printable page and /api/records/{code} returns the real hours
+#               log, per-course unit progress and awards. No change needed.
 #   2026-08-09  APP_BUILD -> "2026-08-09ca-demo-voice-recovery" (Jim's live walk-through,
 #               two real bugs -- demo.html only; no server logic changed).
 #               (1) ⭐ HIS VOICE WAS LOST MID-DEMO. "I got the mechanical voice from the
@@ -4198,7 +4220,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09ca-demo-voice-recovery"
+APP_BUILD = "2026-08-09cb-firstword-quizretry"
 
 
 @app.get("/health")

@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  RULE 35 -- FIX, THEN RETRY (build cb, Jim asked directly: "if a student
+#               fails a quiz, do we give the quiz immediately again, or make them review
+#               what they had trouble with first?"). The old wording only said to
+#               "re-teach the gaps, then offer a fresh quiz when they're ready", which
+#               permits an instant retake. Now explicit and shared across all ten
+#               courses: name the win first · diagnose the ONE or TWO skills under the
+#               misses · re-teach each with a worked example (rule 19) · require TWO
+#               UNAIDED correct problems on that skill before a retake is offered ·
+#               fresh questions, never the same items · a second failure steps BACK to
+#               the prerequisite rather than looping a third time · never say the
+#               student "failed" -- the quiz hasn't passed YET.
 #   2026-08-09  THE PROACTIVE RULES + THE PROSE REFEREE (build bu, Jim: "implement the
 #               proactive rules as you see fit" -- from claude/Proactive_Rules_Audit_
 #               2026-08-08.md, 25 rules written BEFORE a student finds them).
@@ -4398,6 +4409,31 @@ before you build on it. These say what to DO with what you find.
     still got it?"). ONE per session, never more; it is a warm-up, not a re-teach.
     Skills that are never revisited quietly fade, and the student who "learned it last
     month" is the one who freezes on the Final Exam.
+
+
+35. A FAILED QUIZ IS NEVER RE-GIVEN ON THE SPOT (Jim's question, 2026-08-09: "if a
+    student fails a quiz, do we give it again immediately, or make them review first?").
+    Re-taking a quiz you just failed teaches nothing and feels like a punishment. The
+    order is FIX, THEN RETRY -- every time, topic quizzes and Unit Quizzes alike:
+    (a) NAME THE WIN FIRST. Say what they DID get right, specifically, before anything
+        else. A student who just missed a quiz is deciding whether they are "bad at
+        math"; the first sentence they hear matters more than the score.
+    (b) DIAGNOSE, don't re-drill. Look at WHICH questions missed and say the one or two
+        SKILLS underneath them in plain words ("the trouble wasn't the fractions -- it
+        was borrowing across a zero"). One or two, never a list of everything.
+    (c) RE-TEACH each of those skills the way rule 19 says: a worked example on the
+        board, narrated, before they try anything.
+    (d) PRACTICE UNTIL IT LANDS: they must get at least TWO problems on that skill right
+        ON THEIR OWN -- unaided, not walked through -- before a retake is offered. If
+        they are still missing, that is a signal to go SMALLER (rule 22), not to quiz.
+    (e) ONLY THEN offer the retake, and make it FRESH QUESTIONS -- never the same items.
+        Frame it as a new chance, not a re-test: "want to show me what you've got now?"
+    (f) IF THE RETAKE ALSO FAILS: do NOT run the loop a third time. Step BACK to the
+        prerequisite skill (the topic before this one) and rebuild from there, and say
+        plainly and kindly that this one needs a little more groundwork first. Two
+        failures in a row means the gap is earlier than the quiz.
+    (g) Never say or imply the student "failed". The quiz didn't pass YET; that is a
+        statement about the quiz, not about them.
 """
 
 

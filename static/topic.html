@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    2026-08-09  FIRST-WORD FIX (build cb): a silent keep-alive loop stops the output
+                device sleeping between clips, and the leading pad is now dynamic.
     2026-08-09  PROACTIVE AUDIT, CLIENT HALF (build bu): forSpeech() gains negative
                 VALUES ("negative three"; the operation stays "minus", and the board's
                 Unicode minus converts too), percents, ratios, common + mixed fractions
@@ -787,6 +789,33 @@
       for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
       return "data:audio/wav;base64," + btoa(bin);
     }
+
+    // ===== KEEP THE AUDIO ROUTE AWAKE (2026-08-09, build cb) =====================
+    // Jim, repeatedly: "his first word or two is cut off, especially when he comes back
+    // from doing something." Leading silence (the `lead` parameter) only helps if the
+    // output device is already awake. Bluetooth speakers, headphones and many laptop
+    // codecs POWER DOWN after a few seconds of silence and then swallow the first
+    // ~200-400ms of the next sound while they wake up -- which is exactly a word or two.
+    // The cure is to never let the route go quiet: a truly silent WAV loops in its own
+    // element for as long as the lesson is open, so the device stays awake and his first
+    // syllable lands on an already-running output. It is real silence (not a tone), it
+    // is paused when the tab is hidden, and it costs nothing but a decoder.
+    let keepAlive = null;
+    function startKeepAlive() {
+      try {
+        if (!keepAlive) {
+          keepAlive = new Audio(silentWavUri(1000));
+          keepAlive.loop = true; keepAlive.volume = 0.001;
+        }
+        if (keepAlive.paused) { const p = keepAlive.play(); if (p && p.catch) p.catch(() => {}); }
+      } catch (e) {}
+    }
+    function stopKeepAlive() { try { if (keepAlive) keepAlive.pause(); } catch (e) {} }
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopKeepAlive(); else if (started) startKeepAlive();
+    });
+    // How long the output has been silent -- a long gap earns a longer lead (below).
+    let lastAudioAt = 0;
     let audioWarmed = false;
     async function warmUpAudio() {
       if (audioWarmed) return; audioWarmed = true; ensureAudioGraph();
@@ -912,8 +941,8 @@
         let started = false, doneCalled = false, lastProgress = Date.now(), watchdog = null;
         const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); resolve(); };
         const onPlaying = () => { started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now(); };
-        const onProgress = () => { lastProgress = Date.now(); };
-        const onEnded = () => { finish(); };
+        const onProgress = () => { lastProgress = Date.now(); lastAudioAt = Date.now(); };
+        const onEnded = () => { lastAudioAt = Date.now(); finish(); };
         const onError = () => { cleanup(); if (!started) browserSpeak(text, resolve); else finish(); };
         function cleanup() {
           if (watchdog) { clearInterval(watchdog); watchdog = null; }
@@ -935,7 +964,12 @@
         // timeout guarantees a stuck resume can never hold up the turn.
         const startClip = () => {
           if (doneCalled) return;
-          ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + "&lead=" + (firstSpeakLead ? 3 : 1); firstSpeakLead = false;
+          // build cb: the longer the output has been silent, the more lead we ask for --
+          // the first clip of a session, and any clip after a real pause, get the full pad.
+          const quietMs = lastAudioAt ? (Date.now() - lastAudioAt) : 1e9;
+          const lead = (firstSpeakLead || quietMs > 2500) ? 3 : (quietMs > 900 ? 2 : 1);
+          startKeepAlive();
+          ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + "&lead=" + lead; firstSpeakLead = false;
           const p = ttsAudio.play();
           if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         };

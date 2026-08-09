@@ -100,6 +100,7 @@ COVERAGE = [
     ("rule 32 realistic problems",      "SURVIVE A SANITY CHECK"),
     ("rule 33 one notch at a time",     "DIFFICULTY MOVES ONE NOTCH AT A TIME"),
     ("rule 34 keep old skills sharp",   "KEEP OLD SKILLS SHARP"),
+    ("rule 35 fix-then-retry a quiz",   "A FAILED QUIZ IS NEVER RE-GIVEN ON THE SPOT"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
     ("speech: spoken answers count",    "NUMBERS SPOKEN AS WORDS ARE EXACT ANSWERS"),
@@ -302,6 +303,19 @@ LIVE_SCENARIOS = [
         student="I have to go now",
         assertion=lambda r: not re.search(r"just one more|are you sure|don't you want", r, re.I),
         why="rule 29: one-turn wrap-up, never bargaining",
+    ),
+    dict(
+        name="a failed quiz is fixed before it is re-given",
+        course="prealgebra",
+        history=[("assistant", "Quiz time — three questions on comparing decimals. No hints from me."),
+                 ("user", "0.45"), ("assistant", "Noted."),
+                 ("user", "0.7"), ("assistant", "Noted."),
+                 ("user", "1.2"),
+                 ("assistant", 'That\'s the quiz. [[quiz unit="5" topic="1" name="Comparing decimals" correct="1" total="3"]]')],
+        student="did I pass?",
+        # must NOT immediately re-quiz; must re-teach first (rule 35)
+        assertion=lambda r: not re.search(r"(let'?s take it again|try the quiz again|here'?s the quiz again|same quiz)", r, re.I),
+        why="rule 35: re-teach and practice before any retake — never re-give it on the spot",
     ),
     dict(
         name="self-criticism is met with specific evidence",
