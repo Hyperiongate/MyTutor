@@ -2,6 +2,32 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD ci -- FUNCTION NOTATION IS NOW TAUGHT. Jim, logged in as a demo
+#               student in Algebra I: "it's never been clearly stated to me what f of x
+#               is, how to say f of x... and then it flipped over to g of x. I'm not sure
+#               if it's because I've already used this student for a while, or if the
+#               teaching hasn't taken hold."
+#               It was neither. THE TEACHING WAS NEVER WRITTEN. Algebra I's "function"
+#               script defines the concept beautifully -- a rule with exactly one output,
+#               the vending machine -- and never once mentions the notation. The very
+#               NEXT script, "domain", puts f(x) = 1/x on the board. So the first time a
+#               student ever saw f(x), nothing had told them it exists, how to say it, or
+#               that it is not multiplication. Algebra II was the same. Pre-Calculus said
+#               it, but circularly. Calculus writes f( ) in NINE scripts and never reads
+#               one aloud. Differential Equations writes y prime, y double prime, dy/dx
+#               and y(0) constantly and never reads any of them.
+#               FIVE new scripts, one per affected course (algebra1, algebra2, precalc,
+#               calculus, diffeq), each: shows the written form on the board, says the
+#               words a person actually says, denies the wrong reading BY NAME ("it is
+#               not f times x"), and explains that the letter is only a NAME -- which is
+#               the half that lost Jim when it "flipped over to g of x".
+#               NOT ONE existing `say` was touched (173 verified byte-identical), so no
+#               cached audio was discarded. New audio: 2,638 characters, about 63 cents,
+#               once, ever. Scripts were INSERTED in teaching order rather than appended
+#               -- reordering the list is free, since the cache is keyed by text.
+#               ruletests.py PART 3b now fails any course that writes function notation
+#               on the board without a script that reads it aloud and denies the wrong
+#               reading. It found the diffeq gap on its first run.
 #   2026-08-09  BUILD cf -- CAPTIONS (rule 41). Ten figures had no caption= and now do,
 #               each naming what to NOTICE rather than what is drawn ("count them one at
 #               a time — the last number you say is how many", not "three stars").
@@ -517,6 +543,16 @@ FOUNDATIONS = {
             "relationship between numbers, and it is exactly what the vertical line test on a graph is "
             "checking for you.",
          "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
+        {"term": "function notation", "say":
+            "When you see a letter with something tucked inside parentheses right after it, that is "
+            "**function notation**, and you read it out loud as f of x. Say it that way every single "
+            "time. It does not mean f multiplied by x. Nothing is being multiplied at all. It is a name "
+            "and an input: the rule called f, being handed the value x. And the letter is only a name, "
+            "the way a person is called Sam. If a problem needs a second rule we usually call it g, and g "
+            "of x means exactly the same kind of thing, just a different rule doing the work.",
+         "board": ['[[write text="f(x)   ←  say it out loud: “f of x”     (NOT f times x)"]]',
+                   '[[write text="f(3) = 7   means: hand 3 to the rule called f, and 7 comes back"]]',
+                   '[[card title="the letter is only a name" items="f(x) — the rule called f | g(x) — a second rule, called g | both are read “… of x”"]]']},
         {"term": "domain", "say":
             "The **domain** of a function is the complete collection of inputs it is allowed to take. "
             "Most of the time every number works, but not always. If the rule divides by x, then x cannot "
@@ -751,6 +787,16 @@ FOUNDATIONS = {
             "with an x squared in it. That one detail changes everything: instead of a straight line, its "
             "graph is a curve called a parabola, and instead of one solution, it usually has two.",
          "board": ['[[write text="x² − 3x − 10 = 0     (highest power is 2)"]]']},
+        {"term": "function notation", "say":
+            "**Function notation** is the letter-with-parentheses way of writing a rule, and it is read "
+            "out loud as f of x. Never as f times x. Nothing is multiplied. The letter names the rule and "
+            "whatever sits in the parentheses is what you are feeding it, so f of two means hand a two to "
+            "the rule f and see what comes back. Because the letter is just a name, a problem with two "
+            "rules in it will call the second one g, and one built out of the other might be called h. "
+            "Same idea every time, only the name changes.",
+         "board": ['[[write text="f(x)   ←  read aloud: “f of x”     (never f times x)"]]',
+                   '[[write text="f(2) = 9   means: input 2 into the rule f, output 9"]]',
+                   '[[card title="different name, same idea" items="f(x) | g(x) | h(x) — all read “… of x”"]]']},
         {"term": "absolute value", "say":
             "The **absolute value** of a number is its distance from zero, and a distance is never "
             "negative. So the absolute value of negative seven is seven, and the absolute value of seven "
@@ -880,6 +926,16 @@ FOUNDATIONS = {
             "every time. We write f of x, which is read as f of x, and it simply means the output of the "
             "rule f when the input is x. It is not f multiplied by x.",
          "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
+        {"term": "function notation", "say":
+            "**Function notation** is worth slowing down for, because you will read it thousands of times "
+            "from here on. The letter names the rule, the parentheses hold the input, and you say the "
+            "whole thing out loud as f of x. Never f times x. Nothing is multiplied. What f of x actually "
+            "IS, is the OUTPUT: the number that comes back when you feed x to the rule f. So f of two is "
+            "a value, not an instruction. And since the letter is only a name, g of x and h of x are read "
+            "the same way and mean the same kind of thing, with a different rule doing the work.",
+         "board": ['[[write text="f(x)   ←  read aloud: “f of x”     (NOT f times x)"]]',
+                   '[[write text="f(x) is the OUTPUT — the value the rule f gives back for the input x"]]',
+                   '[[card title="reading them aloud" items="f(x) — “f of x” | g(x) — “g of x” | f(g(x)) — “f of g of x”"]]']},
         {"term": "radian", "say":
             "A **radian** is just another unit for measuring angles, the way inches and centimetres both "
             "measure length. Instead of chopping the circle into three hundred sixty pieces, radians "
@@ -1233,6 +1289,16 @@ FOUNDATIONS = {
             "tangent at the point you care about.",
          "board": ['[[graph func="x^2" lines="y=2x-1" points="(1,1)" range="-3..4" yrange="-3..9" caption="the tangent at (1, 1): it touches the curve and matches its slope there"]]',
                    '[[write text="tangent at a point: touches there, matches the slope there"]]']},
+        {"term": "function notation", "say":
+            "Before the calculus starts, make sure you are SAYING **function notation** correctly, "
+            "because you will read it on every page from here. The letter names the rule and the "
+            "parentheses hold the input, so you say f of x, never f times x. Nothing is multiplied. Add a "
+            "tick mark and it becomes f prime of x, which is said exactly that way and names the "
+            "derivative of f. Two tick marks is f double prime of x. And the letter is only a name, so g "
+            "of x and h of x read the same way and follow all the same rules.",
+         "board": ['[[write text="f(x)    ←  “f of x”          (never f times x)"]]',
+                   '[[write text="f′(x)   ←  “f prime of x”     — the derivative of f"]]',
+                   '[[write text="f″(x)   ←  “f double prime of x” — the derivative of the derivative"]]']},
         {"term": "chain rule", "say":
             "The **chain rule** is what you reach for when one function sits inside another, like a "
             "machine feeding a second machine. To differentiate the whole stack, take the derivative of "
@@ -1377,6 +1443,17 @@ FOUNDATIONS = {
             "solve, because the order tells us which method will work — it is the first question to ask, "
             "every time.",
          "board": ['[[write text="y″ + y = 0   →   second order"]]']},
+        {"term": "function notation", "say":
+            "In this course the unknown is a FUNCTION, not a number, so **function notation** is carrying "
+            "more weight than it used to and it is worth saying out loud. y of t means the value of the "
+            "unknown function at time t. None of it is multiplication: y of t is not y times t. A tick "
+            "mark makes it y prime, said exactly that way, and it names the derivative. Two tick marks is "
+            "y double prime. The fraction written d y over d x is said d y d x and means that same "
+            "derivative written another way. And y of zero is an initial condition: what the function "
+            "equals at the start.",
+         "board": ['[[write text="y(t)   ←  “y of t” — the unknown function at time t   (NOT y times t)"]]',
+                   '[[write text="y′ = “y prime”      y″ = “y double prime”      dy/dx = “d y d x”"]]',
+                   '[[write text="y(0) = 4   ←  “y of zero equals four” — the initial condition"]]']},
         {"term": "general solution", "say":
             "The **general solution** of a differential equation is not one function. It is the entire "
             "family of functions that satisfy the equation, carrying an arbitrary constant along with it. "

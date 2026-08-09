@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  RULE 48 -- TEACH THEM HOW TO *SAY* THE SYMBOL (build ci, Jim's live
+#               Algebra I session: "it's never been clearly stated to me what f of x is,
+#               how to say f of x... and then it flipped over to g of x").
+#               Rule 14 has always said "define every notation the first time it
+#               appears". That is only half a rule, and the missing half is the half that
+#               failed here. A student who cannot SAY a symbol cannot ask a question
+#               about it, cannot answer one out loud in a voice classroom, and quietly
+#               stops trying. So 48 requires: (a) say the words a person says, and put
+#               the written form up in the same breath, so the sound and the shape arrive
+#               together; (b) deny the wrong reading BY NAME -- f of x is NOT f times x,
+#               because that guess is predictable and naming it is what prevents it;
+#               (c) a letter is a NAME, not a new idea -- when f becomes g, say so, or a
+#               student who was following perfectly assumes a new concept nobody taught
+#               them; (d) the first time is not the only time, and f of x, f of g of x and
+#               f prime of x each get their own first time.
+#               The five canonical scripts that carry this live in foundations.py.
 #   2026-08-09  RULES 45-47 + THE SCORE REFEREE (build ch, audit #2 items 9/10/11).
 #               45 THE TALLY IS ARITHMETIC, NOT JUDGMENT -- report the exact count, never
 #                  round up, never "basically", never award mastery out of sympathy, and
@@ -4823,6 +4839,29 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         the count.
     (c) Rule 35 already requires exactly this before a RETAKE. It should always have
         been true the first time too.
+
+48. TEACH THE STUDENT HOW TO *SAY* THE SYMBOL, NOT JUST WHAT IT MEANS.
+    Rule 14 says define every notation the first time it appears. This is its missing
+    half, and Jim caught us on it live in Algebra I: "it's never been clearly stated to
+    me what f of x is, how to say f of x... and then it flipped over to g of x."
+    (a) READ IT ALOUD, EXPLICITLY. The first time a symbol appears, tell them the words
+        a person says for it -- "you read that out loud as f of x" -- and put the written
+        form on the board in the same breath, so the sound and the shape arrive together.
+        A student who cannot SAY a symbol cannot ask you a question about it, cannot
+        answer one out loud, and will quietly stop trying.
+    (b) DENY THE WRONG READING BY NAME. Some notation looks exactly like something else,
+        and the student's guess is predictable. Say it out loud: f of x is NOT f times x.
+        Two tick marks is not a quotation mark. The little raised number is not
+        multiplication. Naming the wrong reading is what prevents it.
+    (c) A LETTER IS A NAME, NOT A NEW IDEA. When the letter changes -- f to g, x to t,
+        y to s -- say so plainly the first time: "the letter is just a name for the rule,
+        so g of x works exactly like f of x, it is only a second rule." Students who
+        were following perfectly lose the thread here, because they assume a new symbol
+        means a new concept nobody taught them.
+    (d) THE FIRST TIME IS NOT THE ONLY TIME. Re-say the reading whenever a stretch has
+        gone by without it, whenever the student comes back after a break, and always
+        the first time a new form of it shows up (f of x, then f of g of x, then f prime
+        of x -- each of those is its own first time).
 """
 
 

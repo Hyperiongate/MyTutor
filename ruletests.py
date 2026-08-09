@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD ci -- rule 48 and the NOTATION READABILITY check (PART 3b).
+#               Jim found f(x) being used in Algebra I with nothing ever teaching it. The
+#               check that would have caught it: for every course, if any script writes
+#               function notation on the BOARD, some script in that course must read it
+#               ALOUD in words and deny the wrong reading by name. It failed on four
+#               courses the moment it was written, and on diffeq even after the first fix
+#               -- because diffeq writes y(t), y prime and dy/dx rather than f(x), and my
+#               first regex only knew about f, g and h. Both halves of the check now
+#               share one letter set so they can never disagree again.
 #   2026-08-09  BUILD ch -- SCORE_CASES, rules 45-47, and two arithmetic guards.
 #               SCORE_CASES covers the new score referee. Its FALSE cases carry the
 #               weight again: three false positives were caught here before shipping,
@@ -178,6 +187,7 @@ COVERAGE = [
     ("rule 45 the tally is arithmetic",  "THE TALLY IS ARITHMETIC, NOT JUDGMENT"),
     ("rule 46 one skill per question",   "A QUIZ QUESTION TESTS ONE SKILL"),
     ("rule 47 no cold quizzes",          "NO COLD QUIZZES"),
+    ("rule 48 say the symbol aloud",     "HOW TO *SAY* THE SYMBOL"),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
@@ -614,6 +624,40 @@ def part3b_foundations():
             check(f"  '{f['term']}' is a real explanation", 25 <= len(say.split()) <= 130,
                   f"{len(say.split())} words — too short to teach, or too long to listen to")
     check("every course has canonical introductions", total >= 20, f"only {total}")
+
+    # NOTATION MUST BE READABLE (2026-08-09, build ci -- Jim, live in Algebra I: "it's
+    # never been clearly stated to me what f of x is, how to say f of x... and then it
+    # flipped over to g of x"). He was right and it was not the student: Algebra I's
+    # "function" script never mentioned the notation at all, and the very NEXT script
+    # put f(x) = 1/x on the board. Any course whose scripts write a symbol like f( ) must
+    # also have a script that says it OUT LOUD, in words, and denies the wrong reading.
+    for c in COURSES:
+        items = foundations.for_course(c)
+        # The letters our courses actually use as function names. Kept identical in both
+        # halves of this check so "y(t)" on the board is answered by "y of t" in the
+        # words -- diffeq writes y(t), y', dy/dx everywhere and f/g/h almost never.
+        FN_LETTERS = "fghpquvwy"
+        writes_fx = [f["term"] for f in items
+                     if any(re.search(r"\b[" + FN_LETTERS + r"]\s*\(\s*[a-z0-9]", b)
+                            for b in f.get("board", []))]
+        if not writes_fx:
+            continue
+        reads_fx = [f["term"] for f in items
+                    if re.search(r"\b[" + FN_LETTERS + r"] of (?:[a-z]\b|zero|one|two)",
+                                 f["say"], re.I)]
+        check(f"notation [{c}]: something says it out loud "
+              f"({len(writes_fx)} scripts write it)", bool(reads_fx),
+              f"scripts {writes_fx} put function notation on the board and NOTHING ever "
+              f"tells the student it is read '\u2026 of x' -- rule 48(a)")
+        # "not f times x", "never as f times x", "does not mean f multiplied by x" --
+        # the denial is what matters, not the phrasing, so look for a negation and a
+        # multiplication word in the same breath.
+        denies = [f["term"] for f in items
+                  if re.search(r"\b(?:not|never)\b[^.]{0,30}\b(?:times|multipl\w+)\b",
+                               f["say"], re.I)]
+        check(f"notation [{c}]: the wrong reading is denied by name", bool(denies),
+              "rule 48(b): say plainly that it is NOT f times x -- that guess is the "
+              "single most common misreading in all of algebra")
     # and the site must not promise the method we abandoned
     here = os.path.dirname(os.path.abspath(__file__))
     hits = []
