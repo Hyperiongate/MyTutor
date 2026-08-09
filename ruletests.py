@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD cd -- ADDED PART 3c, "board tags actually draw".
+#               This is the machine for the failure Jim named on the demo page: "the
+#               lesson referred to a diagram that didn't show up on the board... We got
+#               one shot to do it right, and it failed." A board tag fails SILENTLY --
+#               no exception, no log, the words are still spoken -- when its name is not
+#               in handleTags(), when its attribute is not one the renderer reads, when
+#               it carries no content, or when an attribute value contains a square
+#               bracket (handleTags' own regex ends the tag there). PART 3c PARSES
+#               static/math-figures.js, static/geo-figures.js and session.html's
+#               handleTags() so the contract is read from the renderers themselves and
+#               cannot go stale; a new tag with no entry in TAG_HANDLER/TAG_INLINE fails
+#               the suite on purpose rather than being skipped. On its first run it
+#               caught 11 already-shipped foundation scripts. It also checks the two
+#               ways [[graph]] quietly draws the WRONG picture: lines= on a non-linear
+#               expression (parseLinear flattens a parabola into a straight line) and a
+#               comma where the grapher splits only on ";" or "|".
 #   2026-08-09  CREATED (build bu, proactive audit #25). Every teaching rule we have
 #               was born from Jim noticing a failure in a live lesson. That does not
 #               scale to real students. This is the machine that notices instead.
@@ -391,6 +407,209 @@ def part3b_foundations():
     check("no page still claims the Socratic method", not hits, f"still in: {hits}")
 
 
+# =============================================================================
+# PART 3c -- DOES THE BOARD TAG ACTUALLY DRAW?
+# -----------------------------------------------------------------------------
+# 2026-08-09 (build cd). This is the audit for the failure class Jim named on the
+# demo page: "the lesson referred to a diagram that didn't show up on the board...
+# We got one shot to do it right, and it failed."
+#
+# A board tag can fail SILENTLY in four different ways, and none of them raise an
+# error anywhere -- the words are spoken, the picture simply is not there:
+#   1. the tag name is not in session.html's handleTags()      -> nothing happens
+#   2. the tag name is right but the ATTRIBUTE name is wrong   -> a blank/default
+#      figure draws (e.g. [[graph expr="x^2"]]: the grapher reads func=, never
+#      expr=, so the student gets empty axes while the tutor talks about a curve)
+#   3. the tag carries no content attribute at all             -> an empty figure
+#   4. an attribute VALUE contains "[" or "]"                  -> handleTags' regex
+#      is /\[\[\s*([\w-]+)([^\]]*?)\]\]/ , so a square bracket ends the tag early
+#      and the whole thing is dropped
+#
+# So this test does not hard-code what is legal. It PARSES the three renderers --
+# static/math-figures.js, static/geo-figures.js and session.html's show* handlers
+# -- and asks each one which attributes it actually reads. When somebody adds an
+# attribute to a renderer, this test learns about it on the next run. When somebody
+# adds a NEW tag to handleTags without telling this test where its handler lives,
+# the test FAILS on purpose (see TAG_HANDLER below) rather than quietly ignoring it.
+# =============================================================================
+
+# tag name -> the session.html function that consumes its attributes. Figure tags
+# are resolved from the JS modules instead and are deliberately absent here.
+TAG_HANDLER = {
+    "balance": "showBalance", "card": "showCard", "machine": "showMachine",
+    "step": "showStep", "column": "showColumn", "write": "showWrite",
+    "solve": "showSolve", "check": "showCheck", "quiz": "showQuiz",
+    "today": "showToday", "todaydone": "markTodayDone", "unitplan": "showUnitPlan",
+    "finalexam": "showFinalExam", "choices": "showChoices", "objects": "showObjects",
+}
+# tags whose attributes are read inline in handleTags itself (no show* function)
+TAG_INLINE = {
+    "goal": {"text"}, "highlight": {"id"}, "clear": set(),
+    "mark": {"correct", "attempted"},
+}
+# a tag that draws a FIGURE needs at least one of these or it renders empty
+CONTENT_ATTRS = {
+    "graph": {"func", "fn", "functions", "lines", "parabola", "parabolas", "points"},
+    "pie": {"data", "sectors"}, "bars": {"data"},
+    "histogram": {"data", "values"}, "dotplot": {"data", "values"},
+    "boxplot": {"data", "values", "five"}, "scatter": {"points"},
+    "twoway": {"data"}, "tree": {"stage1", "stage2", "a", "b"},
+    "vector": {"v", "vectors"}, "conic": {"type"}, "areamodel": {"rows", "cols"},
+    "objects": {"n", "groups"}, "card": {"items", "id"},
+    "write": {"text", "lines"}, "solve": {"start", "top"},
+}
+
+
+def _js_fn_attrs(src, header_re):
+    """{function name -> set of attrs it reads off its single argument}, by brace-matching."""
+    out = {}
+    for m in re.finditer(header_re, src):
+        name, var = m.group(1), m.group(2)
+        i, depth = m.end() - 1, 0
+        for j in range(i, len(src)):
+            if src[j] == "{":
+                depth += 1
+            elif src[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+        out[name] = set(re.findall(r"\b" + re.escape(var) + r"\.(\w+)", src[i:j]))
+    return out
+
+
+def _board_contract(here):
+    """Read the real renderers and return (valid tag names, {tag -> allowed attrs}).
+
+    Returns (None, None, reason) if a source file is missing."""
+    paths = {
+        "math": os.path.join(here, "static", "math-figures.js"),
+        "geo": os.path.join(here, "static", "geo-figures.js"),
+        "page": os.path.join(here, "static", "session.html"),
+    }
+    for k, p in paths.items():
+        if not os.path.exists(p):
+            return None, None, f"missing {os.path.relpath(p, here)}"
+    with open(paths["math"], encoding="utf-8") as fh:
+        math_src = fh.read()
+    with open(paths["geo"], encoding="utf-8") as fh:
+        geo_src = fh.read()
+    with open(paths["page"], encoding="utf-8") as fh:
+        page_src = fh.read()
+
+    math_fns = _js_fn_attrs(math_src, r"\n  function (\w+)\((a)\)\s*\{")
+    geo_fns = _js_fn_attrs(geo_src, r"\n  function (\w+)\((a)\)\s*\{")
+    page_fns = _js_fn_attrs(page_src, r"function (show\w+|markTodayDone)\((\w+)\)\s*\{")
+
+    # only the renderers the modules actually EXPORT count as tags
+    math_exports = set(re.findall(r"(\w+): \1,", math_src[math_src.index("window.MathFigures"):]))
+    geo_exports = set(re.findall(r"(\w+): \1", geo_src[geo_src.index("window.GeoFigures"):]))
+
+    # the authoritative tag list: whatever handleTags() dispatches on
+    ht = page_src[page_src.index("function handleTags("):]
+    ht = ht[:ht.index("\n    function ")]
+    valid = set(re.findall(r'name === "([\w-]+)"', ht))
+    for arr in re.findall(r'\[((?:"[\w-]+",?)+)\]\.indexOf\(name\)', ht):
+        valid |= set(re.findall(r'"([\w-]+)"', arr))
+
+    allowed, unmapped = {}, []
+    for tag in sorted(valid):
+        if tag in geo_exports and tag in geo_fns:
+            allowed[tag] = geo_fns[tag] | {"caption"}      # showGeo draws the caption
+        elif tag in math_exports and tag in math_fns:
+            allowed[tag] = math_fns[tag] | {"caption"}     # showFig draws the caption
+        elif tag in TAG_INLINE:
+            allowed[tag] = set(TAG_INLINE[tag])
+        elif tag in TAG_HANDLER and TAG_HANDLER[tag] in page_fns:
+            allowed[tag] = page_fns[TAG_HANDLER[tag]]
+        else:
+            unmapped.append(tag)
+    return valid, (allowed, unmapped), ""
+
+
+# the EXACT regex session.html uses -- if it does not match here, it will not match there
+_HT_TAG = re.compile(r"\[\[\s*([\w-]+)([^\]]*?)\]\]")
+_HT_ATTR = re.compile(r'([\w-]+)\s*=\s*"([^"]*)"')
+
+# [[graph]] draws a *different picture* than the author meant in two quiet ways, both
+# found in build cd's audit of scripts that had already passed every other check:
+#   lines="y=x^2"          -- lines= runs parseLinear(), which reads only the slope
+#                             between x=0 and x=1. A parabola comes out a STRAIGHT LINE.
+#   lines="y=2x+1, y=-x+4" -- the grapher splits curve lists on ";" or "|", never on a
+#                             comma, so two equations arrive as one unparseable string.
+_CURVE_ATTRS = ("func", "fn", "functions", "lines", "parabola", "parabolas")
+_NONLINEAR = re.compile(r"[\^/]|sin|cos|tan|sqrt|log|exp|\*\*")
+
+
+def _graph_sanity(tag, attrs):
+    """'' if a [[graph]] will draw what its author meant, else why not."""
+    if tag != "graph":
+        return ""
+    low = {k.lower(): v for k, v in attrs.items()}
+    for k in _CURVE_ATTRS:
+        if "," in low.get(k, ""):
+            return (f'{k}="{low[k]}" separates curves with a COMMA; the grapher splits '
+                    f'on ";" or "|" only, so this arrives as one unparseable expression')
+    for piece in re.split(r"[;|]", low.get("lines", "")):
+        piece = piece.strip()
+        if piece and _NONLINEAR.search(piece.lower()):
+            return (f'lines="{piece}" is not a straight line; lines= measures one slope '
+                    f'and draws a LINE — use func= (or parabola=) to plot a curve')
+    return ""
+
+
+def part3c_board_tags():
+    """Every board line in foundations.py must actually put something on the board."""
+    print("\nPART 3c — board tags actually draw")
+    here = os.path.dirname(os.path.abspath(__file__))
+    valid, contract, why = _board_contract(here)
+    if valid is None:
+        bad("board tag contract readable", why + " — cannot verify what the board can draw")
+        return
+    allowed, unmapped = contract
+    check("every tag in handleTags() is mapped to a renderer", not unmapped,
+          f"unmapped tags {unmapped} — add them to TAG_HANDLER/TAG_INLINE in this file")
+    try:
+        import foundations
+    except Exception as exc:  # noqa: BLE001
+        bad("foundations.py imports", str(exc)); return
+
+    lines = 0
+    for course in COURSES:
+        for f in foundations.for_course(course):
+            for b in f.get("board", []):
+                lines += 1
+                label = f"  [{course}] {f['term']}"
+                m = _HT_TAG.match(b.strip())
+                if not m:
+                    bad(f"{label} — board line parses",
+                        f"handleTags' own regex does not match it (a '[' or ']' inside an "
+                        f"attribute value ends the tag early): {b}")
+                    continue
+                tag = m.group(1).lower()
+                attrs = {k.lower() for k, _v in _HT_ATTR.findall(m.group(2))}
+                if tag not in allowed:
+                    bad(f"{label} — [[{tag}]] is a real tag",
+                        f"handleTags() has no branch for '{tag}' — it draws NOTHING: {b}")
+                    continue
+                unknown = sorted(attrs - allowed[tag])
+                if unknown:
+                    bad(f"{label} — [[{tag}]] attributes are read",
+                        f"the renderer ignores {unknown} (it reads "
+                        f"{sorted(allowed[tag])}) — the figure draws, but not what was meant: {b}")
+                    continue
+                need = CONTENT_ATTRS.get(tag)
+                if need and not (attrs & need):
+                    bad(f"{label} — [[{tag}]] has content",
+                        f"no content attribute (needs one of {sorted(need)}) — it draws empty: {b}")
+                    continue
+                why2 = _graph_sanity(tag, dict(_HT_ATTR.findall(m.group(2))))
+                if why2:
+                    bad(f"{label} — [[{tag}]] draws the RIGHT thing", f"{why2}: {b}")
+                    continue
+                ok(f"{label} — [[{tag}]] draws")
+    check("board lines were actually checked", lines > 0, "no board lines found")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -421,6 +640,7 @@ def main():
     part2_prose()
     part3_speech()
     part3b_foundations()
+    part3c_board_tags()
     if live:
         part4_live()
     else:

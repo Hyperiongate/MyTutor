@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09cd-foundation-library". No code change in this
+#               file -- the build string moves so /health proves the deploy landed.
+#               TWO THINGS SHIPPED, both in files main.py only reads through tutor.py:
+#               (1) foundations.py grew from 24 canonical foundation scripts to 173 --
+#                   every course now has 17 or 18 verbatim introductions instead of 2.
+#                   Jim: "I want you to expand that library of saved script... I'd spend
+#                   a hundred dollars on it to make it complete." One-time ElevenLabs
+#                   render of all 173 is 82,856 characters -- roughly $12 to $25 at
+#                   current per-character rates, then free forever, because _tts_cache_path()
+#                   in this file keys the audio cache by the TEXT of the line. Verbatim
+#                   scripts are the whole reason that cache can ever hit.
+#               (2) ruletests.py PART 3c -- "board tags actually draw". Jim's demo
+#                   failure ("the lesson referred to a diagram that didn't show up on
+#                   the board... we got one shot to do it right, and it failed") has a
+#                   root cause that no exception ever reports: a board tag whose NAME or
+#                   ATTRIBUTE the renderer does not read draws nothing (or draws the
+#                   wrong picture) in total silence. PART 3c parses math-figures.js,
+#                   geo-figures.js and session.html's handleTags() and holds every board
+#                   line to what those renderers actually read. On its first run it
+#                   caught 11 already-shipped scripts: [[graph expr=...]] (the grapher
+#                   reads func=, never expr= -- empty axes), [[numberline from/to/mark]]
+#                   (it reads min/max/points), [[triangle a/b/c]] and [[righttriangle
+#                   a/b/c]] (they read sides/v and adj/opp/hyp), [[vector x/y]] (reads
+#                   v="4,3"), lines="y=x^2" (lines= flattens a parabola to a straight
+#                   line), a comma used where the grapher needs a semicolon, and two
+#                   [[write]] tags whose square brackets ended the tag early in
+#                   handleTags' own regex. All fixed; all 57 figures now re-rendered
+#                   through the real renderers and confirmed non-empty.
 #   2026-08-09  APP_BUILD -> "2026-08-09cc-foundation-first". ★ PEDAGOGY CHANGE (Jim).
 #               We described this classroom as SOCRATIC. That was wrong, and Jim caught
 #               it from the inside: "there's no foundation built -- when I'm looking at
@@ -4252,7 +4280,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09cc-foundation-first"
+APP_BUILD = "2026-08-09cd-foundation-library"
 
 
 @app.get("/health")
