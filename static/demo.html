@@ -1,91 +1,37 @@
 <!DOCTYPE html>
 <!--
-  - 2026-08-05  APPENDED one line to VOICE_LINES (build aj): the landing page's new "🔊 Hear him
-    teach" button plays it via the same /api/demo-audio/{i} whitelist (index 71). APPEND-ONLY
-    as always — the list MUST stay identical to main.py's DEMO_VOICE_LINES; nothing else in
-    this file changed.
-    2026-08-04  ESCALATING HELP ON REPEATED MISSES (build aa, Jim tested deliberately failing:
-                'it failed to find alternative ways to help me other than try again'). The demo
-                is scripted (no AI), so it now scripts what the real tutor does: miss 1 = the
-                step's hint (unchanged) · miss 2 = 'let's look at it a different way' + the
-                WORKED SOLUTION revealed on the board (was only shown after a right answer) ·
-                miss 3 = Mr. Cadabra shows the answer warmly (fills it in / highlights the
-                right choice), says the real classroom keeps trying new ways until it clicks,
-                and moves on — never a dead end. 'I'm not sure' taps count as misses so unsure
-                kids get shown too. THREE new fixed lines APPENDED to VOICE_LINES (and
-                identically to main.py's DEMO_VOICE_LINES — appended, so existing audio cache
-                indices stay valid; the lists must stay IN SYNC).
-  - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
+  - 2026-08-09  CLASSROOM DEMO REDESIGN (build bt, Jim): the demo now IS the classroom.
+    (1) It opens looking like the real learning board — goal banner, the three progress
+    bars in the real palette (light-green card / white segments / black text), the
+    whiteboard, Mr. Cadabra — and speaks "Welcome to the demo."
+    (2) A GUIDED TOUR walks the screen (whiteboard → progress bars → Mr. Cadabra), each
+    stop spoken in his real voice with the matching part glowing. Skippable.
+    (3) Then the LEVEL PICKER (all ten courses); picking one plays a scripted course
+    INTRO line, then runs ONE real problem INTERACTIVELY — the visitor types (or taps,
+    in the two elementary courses) their answer, wrong answers get the same escalating
+    help as before (hint → new angle + worked board → shown warmly), they can correct
+    themselves — the regular process, not a movie.
+    (4) On success: "Congratulations" (spoken), the TODAY bar lights its first segment,
+    and the end screen offers plans / another level. THE MATH KEYBOARD IS GONE — a
+    simple answer box + device keyboard replaces the keypad grid (Jim: "instead of
+    having us do this keyboard thing"). The keypad, its tutorial modal, and the 2^3
+    power-key showcase step were removed with it.
+    VOICE LINES: indices 0-71 untouched (append-only — cached audio must stay valid);
+    16 NEW lines appended (72-87: welcome, 3 tour stops, picker invite, 10 course
+    intros, congratulations) — identical append in main.py's DEMO_VOICE_LINES.
+  - 2026-08-05  APPENDED one line to VOICE_LINES (build aj): the landing page's "🔊 Hear him
+    teach" button plays it via the same /api/demo-audio/{i} whitelist (index 71).
+  - 2026-08-04  ESCALATING HELP ON REPEATED MISSES (build aa): miss 1 = hint · miss 2 = new
+    angle + worked board · miss 3 = shown warmly, never a dead end. (Kept in this redesign.)
+  - 2026-08-04  OFFICIAL LOGO · FUNNEL EVENTS ("Demo Level Picked"/"Demo Completed") ·
+    ROBOT FACE (tutor-face.js) — all kept.
+  - 2026-08-03  iPAD AUDIO FIX (one shared Audio element unlocked in the first tap) — kept.
+  - 2026-08-03  TEN-LEVEL DEMO (one sample per course) — kept, now one problem each.
+  - 2026-07-30  WARM VOICE via /api/demo-audio/{i} whitelist + cache — kept.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
-  Notes (newest first):
-  - 2026-08-04  OFFICIAL LOGO (from Jim's brand deck): the purple orb brand dot is now the real
-    Mr. Cadabra mark — a navy grid of squares with one golden starred tile (/static/
-    brand-mark.svg, clean vector; favicon updated too). Brand spots only; the robot face
-    still represents Mr. Cadabra himself where he speaks.
-  - 2026-08-04  FUNNEL EVENTS: fires "Demo Level Picked" {level} when a level is tapped and
-    "Demo Completed" {level} at the end screen (via the shared mtTrack helper in analytics.js;
-    cookieless, no personal data). Measurement plan #2.
-  - 2026-08-04  THREE POLISH ITEMS (Jim): (1) ROBOT FACE — the demo showed a plain purple sphere
-    where every real classroom page shows Mr. Cadabra's robot face (tutor-face.js). Both orbs
-    (header brand + the speaker next to the bubble) are now canvases drawn by the SAME TutorFace,
-    with mouth moving while he speaks, a happy face on right answers, and a teal glow + ring pulse
-    while speaking (the old sphere gradient remains as an automatic fallback if tutor-face.js
-    fails to load). (2) The math keyboard now says what it is NOT: a small line under the title —
-    it types symbols, it isn't a calculator. (3) WRONG-ANSWER FLOW: after a wrong check, the next
-    key tapped REPLACES the old answer automatically (calculator-style); backspace still edits the
-    old answer one character at a time, so a one-digit slip doesn't force a full retype.
-  - 2026-08-03  iPAD/TABLET AUDIO FIX: the demo created a brand-new Audio element for every
-    spoken line, and iPads block any element whose first play didn't start inside a tap -- so
-    on an iPad the voice died after (at best) the first line. Now ONE shared element is
-    unlocked by a silent clip inside the level-pick tap and REUSED for every line (same fix
-    the classroom pages use), and the browser-voice fallback is primed in that same tap.
-  - 2026-08-03  TEN-LEVEL DEMO (Jim: "one from each level, they pick"). The demo opens with a
-    LEVEL PICKER -- all ten courses, Entry-Level Math through Differential Equations -- and each
-    level runs a short scripted sample in that course's style. The two elementary levels answer
-    by TAPPING choice buttons (matching the real tap-to-answer elementary classroom, so the old
-    "no multiple choice in the product" note no longer applies to them); everything else keeps
-    the math keyboard. The original Algebra I script is byte-identical (its audio is long-cached).
-    VOICE_LINES grew to cover all scripts and is GENERATED FROM THE SAME SOURCE as main.py's
-    DEMO_VOICE_LINES (verified identical in the build) -- each new line costs ElevenLabs once
-    ever, then replays from cache. Win screen gained "Try another level".
-  - 2026-08-01  BOARD ALIGNMENT + KEYBOARD REWORK + TUTORIAL (Jim's playtest). (1) Operation
-    rows (−3 −3, ÷2 ÷2) now line up in true columns under EACH SIDE of the equation above
-    (.wrow is white-space:pre and op rows share the math rows' font size). (2) The keypad no
-    longer looks like a calculator: pill keys in three labeled groups — Numbers, Operations,
-    Math tools — with a header. (3) NEW '❓ How does it work?' button opens a 6-step keyboard
-    tutorial (powers order, √ wrapping, delete/clear, Check/Enter).
-  - 2026-08-01  GENEROUS ANSWER MATCHING (Jim typed "−3 from each side" and the demo said Not
-    quite — a correct answer rejected). Both concept questions now accept any reasonable
-    phrasing: "−3", "−3 from each side", "subtract 3 from both sides", "take away 3",
-    "÷2", "/2 on both sides", "divide each side by 2", "half"... The matchers run on the
-    space-stripped lowercase input; wrong operations (+3, ×2) still get the warm correction.
-  - 2026-08-01  REPRESENTATIVE DEMO (Jim's playtest: "there's no multiple choice anywhere in the
-    real product" + the pointless "Okay, let's go" click). Both concept questions are now answered
-    by TYPING with the math keyboard ("−3", "÷2" — flexible matching also accepts typed words like
-    "subtract 3" from a physical keyboard), exactly like a real lesson. The intro now flows straight
-    into the first question (one spoken line, no dead click). Enter submits. VOICE_LINES updated to
-    match (and main.py's DEMO_VOICE_LINES updated identically -- the lists must stay IN SYNC).
-  - 2026-07-30  SCRIPT FIXES from Jim's playtest: (1) the board used to REVEAL "x = 4" and then ask
-    the student to type it -- pointless, and it violated the never-run-ahead promise. Now the divide
-    step shows only the ÷2 operation; the student computes 8÷2 and types the answer, and ONLY THEN
-    the board confirms "x = 4" plus the check line (keypad steps can now draw board rows on success).
-    (2) The power-key instructions were backwards (following them produced "^23"): now spoken and
-    wrong-answer text both say "type 2, then the xⁿ key, then 3." VOICE_LINES updated to match
-    (and main.py's DEMO_VOICE_LINES updated identically -- the lists must stay in sync).
-  - 2026-07-30  WARM VOICE. The demo no longer sounds robotic: say() now plays Mr. Cadabra's REAL
-    ElevenLabs voice from /api/demo-audio/{i} (a server-side whitelist of exactly these fixed lines,
-    cached after the first render — near-zero marginal cost), falling back to the browser voice only
-    if server audio can't load (offline preview / key missing). VOICE_LINES here and main.py's
-    DEMO_VOICE_LINES must stay IDENTICAL — update both together. Footer note reworded to match.
-  - 2026-07-30  CONVERSION: the win screen now offers "See plans & get started →" (to /#pricing on the
-    new landing front door) beside "Try it again" -- it used to dead-end. Also served at the pretty
-    /demo route now, and gained the site favicon.
-  - Fully self-contained: inline CSS/JS, no libraries, no web fonts, no localStorage, no backend.
-  - Shows the REAL product experience: the tutor SPEAKS each line (browser voice here, since a demo
-    can't call ElevenLabs), the whiteboard draws each step, and the student answers by TYPING with the
-    on-screen MATH KEYBOARD (powers, roots, division, etc.) -- no microphone.
-  - Scripted 2-step-equation lesson so it works anywhere with zero setup. Captions always show, so it
-    works even if the browser blocks audio.
+  Fully self-contained: inline CSS/JS, no libraries, no web fonts, no localStorage.
+  VOICE_LINES here and main.py's DEMO_VOICE_LINES must stay IDENTICAL — update BOTH,
+  APPEND-ONLY. Captions always show, so it works even if the browser blocks audio.
   I did no harm and this file is not truncated.
 -->
 <html lang="en">
@@ -95,14 +41,14 @@
 <title>Try a lesson — Mr. Cadabra's Classroom</title>
 <link rel="canonical" href="https://mrcadabra.com/demo" />
 <meta property="og:title" content="Try a lesson — Mr. Cadabra's Classroom">
-<meta property="og:description" content="None">
+<meta property="og:description" content="Tour the classroom, then work a real problem with Mr. Cadabra — at any level from counting to calculus.">
 <meta property="og:url" content="https://mrcadabra.com/demo">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Try a lesson — Mr. Cadabra's Classroom">
-<meta name="twitter:description" content="None">
+<meta name="twitter:description" content="Tour the classroom, then work a real problem with Mr. Cadabra.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <style>
@@ -130,18 +76,33 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
     padding:18px;margin-bottom:14px}
 
+  /* ===== the classroom top: goal banner + the three progress bars (real palette, bm) ===== */
+  .goalbar{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#e7f6ff,#eafaf3);
+    border:1px solid #d3ecdd;border-radius:12px;padding:8px 13px;font-size:13px;margin-bottom:8px}
+  .goalbar .gl{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;flex:0 0 auto}
+  .goalbar b{color:var(--ink)}
+  .dbars{display:flex;flex-direction:column;gap:6px;background:linear-gradient(90deg,#def4e4,#cdeeda);
+    border:1px solid #b4e0c4;border-radius:12px;padding:8px 13px;box-shadow:0 4px 14px rgba(30,70,45,.10);margin-bottom:10px}
+  .dbar{display:flex;align-items:center;gap:8px;font-size:11px}
+  .dbar .dl{flex:0 0 48px;text-align:right;color:#17202b;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:9.5px}
+  .dbar .dtrack{flex:1;display:flex;align-items:center;gap:3px;min-width:0}
+  .dbar .dseg{flex:1;height:8px;border-radius:5px;background:#fff;border:1px solid #b9d9c6;min-width:7px}
+  .dbar .dseg.done{background:linear-gradient(90deg,#6d5ae6,#8f7bff);border-color:transparent}
+  .dbar .dseg.gold{background:linear-gradient(90deg,#f2c14e,#e8a71c);border-color:transparent}
+  .dbar .dmark{flex:0 0 auto;font-size:10px;line-height:1;opacity:.85}
+  .dbar .dcap{flex:0 0 auto;font-size:12px;line-height:1}
+  .dbar .dt{flex:0 0 auto;max-width:36%;color:#17202b;font-weight:600;font-size:10.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
   /* tutor */
   .tutor{display:flex;gap:12px;align-items:flex-start}
   .orb{width:52px;height:52px;border-radius:50%;flex:0 0 auto;position:relative}
   .orb canvas{width:100%;height:100%;display:block}
-  /* fallback sphere: applied by JS only if tutor-face.js failed to load */
   .orb.orb-sphere{background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
     box-shadow:0 5px 16px rgba(109,90,230,.45)}
   .orb.orb-sphere canvas{display:none}
-  /* 2026-08-04: he highlights himself while talking — teal glow to match his antenna/eyes */
   .orb.speaking{box-shadow:0 0 18px 5px rgba(47,227,200,.40);border-radius:50%}
-  .orb::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(109,90,230,.35);
-    opacity:0}
+  .orb::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(109,90,230,.35);opacity:0}
   .orb.speaking::after{animation:ring 1.1s ease-out infinite}
   @keyframes ring{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
   .orb.speaking{animation:bob .9s ease-in-out infinite}
@@ -157,11 +118,17 @@
                linear-gradient(90deg,transparent 27px,rgba(31,182,176,.05) 28px);
     background-size:28px 28px;font-family:"Courier New",monospace}
   .wrow{font-size:23px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
-    animation:stepin .45s forwards;white-space:pre}  /* pre: spaces align columns exactly */
+    animation:stepin .45s forwards;white-space:pre}
   .wrow .v{color:var(--red);font-weight:800}
-  .wrow.op{color:#8a86a6}  /* SAME size/spacing as math rows so columns line up under each side */
+  .wrow.op{color:#8a86a6}
   .wrow.chk{color:var(--ok);font-weight:700;font-size:18px}
   @keyframes stepin{to{opacity:1;transform:none}}
+  .wrow.big{font-size:32px;letter-spacing:6px}
+
+  /* the tour spotlight */
+  .demoGlow{box-shadow:0 0 0 3px rgba(109,90,230,.55), 0 0 24px 6px rgba(109,90,230,.35) !important;
+    border-radius:14px;animation:glowpulse 1.2s ease-in-out infinite}
+  @keyframes glowpulse{50%{box-shadow:0 0 0 3px rgba(109,90,230,.85), 0 0 30px 10px rgba(109,90,230,.45)}}
 
   /* answer area */
   .answer{margin-top:4px}
@@ -179,46 +146,20 @@
   .cta:active{transform:translateY(1px)}
   .fb{text-align:center;font-weight:700;margin:6px 0;min-height:22px}
   .fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
+  .skiplink{display:block;margin:10px auto 0;border:0;background:none;color:var(--muted);font-size:12.5px;
+    text-decoration:underline;cursor:pointer}
 
-  /* keypad answer */
+  /* simple answer bar (the keypad grid is gone — type with your own keyboard) */
   .kpwrap{margin-top:4px}
   .ansrow{display:flex;gap:9px;align-items:center;background:#fff;border:1.5px solid var(--keyline);
     border-radius:13px;padding:8px 8px 8px 14px}
   .ansrow input{flex:1;border:0;outline:0;font-size:19px;font-family:"Courier New",monospace;color:#2a2450;background:transparent}
   .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
-  .kb{margin-top:10px;background:#faf8ff;border:1px solid var(--line);border-radius:16px;padding:12px}
-  .kbhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .kbnote{font-size:11.5px;color:var(--muted);margin:-4px 0 10px}
-  .kbtitle{font-size:12.5px;font-weight:800;color:var(--purple);letter-spacing:.04em}
-  .kbhelp{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;font-size:12px;
-    border-radius:999px;padding:5px 12px;cursor:pointer}
-  .kgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
-  .kgroup:last-child{margin-bottom:0}
-  .klabel{flex:0 0 100%;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
-    color:#a7a2bd;margin-bottom:1px}
-  .key{border:1px solid var(--keyline);background:#fff;border-radius:999px;padding:0 14px;font-size:17px;font-weight:700;
-    color:var(--ink);cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
-  .key:active{background:var(--keyactive);transform:translateY(1px)}
-  .key.op{background:#effaf8;border-color:#cdeeea;color:#0f8b85;font-weight:800}
-  .key.fn{background:#f3f0ff;border-color:#ddd5f8;color:var(--purple);font-weight:800;font-size:16px}
-  .key.util{color:var(--muted);font-weight:700;font-size:13px;border-radius:12px}
-  .sup{font-size:.72em;vertical-align:super}
-  /* keyboard tutorial modal */
-  .kbmodal{position:fixed;inset:0;background:rgba(32,35,58,.45);display:none;align-items:center;
-    justify-content:center;z-index:60;padding:18px}
-  .kbmodal.show{display:flex}
-  .kbcard{background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);max-width:430px;width:100%;
-    padding:22px 24px;max-height:86vh;overflow:auto}
-  .kbcard h3{font-size:19px;margin-bottom:10px}
-  .kbcard ol{margin:0 0 14px 20px;font-size:14.5px;line-height:1.6;color:var(--ink)}
-  .kbcard li{margin-bottom:8px}
-  .kbcard li b{color:var(--purple)}
-  .kbcard .kex{font-family:"Courier New",monospace;background:#f6f3ff;border-radius:6px;padding:1px 7px;font-weight:700}
+
   .footer{text-align:center;color:#a7a2bd;font-size:12px;margin-top:6px}
   .endbox{text-align:center;padding:6px 4px}
   .endbox h2{font-size:22px;margin-bottom:6px}
   .endbox p{color:var(--muted);font-size:14.5px;margin-bottom:14px}
-  .wrow.big{font-size:32px;letter-spacing:6px}
   .levels{display:grid;grid-template-columns:1fr 1fr;gap:9px}
   @media(max-width:430px){.levels{grid-template-columns:1fr}}
   .lvl{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:12px 13px;text-align:left;
@@ -236,13 +177,19 @@
 <div class="wrap">
   <div class="brand"><img class="mark" src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"><b>Mr. Cadabra's Classroom</b>
     <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
-  <div class="sub">A 60-second taste at any level — he talks, draws it on the board, and you answer.</div>
+  <div class="sub">This is the real classroom screen. Take the quick tour, then work one real problem with him.</div>
 
   <div class="card">
+    <div class="goalbar" id="goalbar"><span>🎯</span><span class="gl">Today's goal</span><b id="goalText">Try a real problem with Mr. Cadabra</b></div>
+    <div class="dbars" id="dbars">
+      <div class="dbar"><span class="dl">Today</span><div class="dtrack" id="todayTrack"></div><span class="dt" id="todayText">0 of 3 goals done</span></div>
+      <div class="dbar"><span class="dl">Unit</span><div class="dtrack" id="unitTrack"></div><span class="dt">3 topics to go</span></div>
+      <div class="dbar"><span class="dl">Course</span><div class="dtrack" id="courseTrack"></div><span class="dt">2 of 9 units mastered</span></div>
+    </div>
     <div class="tutor">
       <span class="orb" id="orb"><canvas id="orbFace" width="104" height="104"></canvas></span>
-      <div>
-        <div class="bubble" id="bubble">Pick any level — I'll teach you a real sample, from counting stars to differential equations.</div>
+      <div style="flex:1">
+        <div class="bubble" id="bubble">Welcome to the demo! Tap the button below and I'll show you around the classroom your student will learn in.</div>
         <button class="replay" id="replay" style="display:none">🔊 Replay</button>
       </div>
     </div>
@@ -257,13 +204,12 @@
 
 <script>
 (function(){
-  // ---- MR. CADABRA'S FACE (2026-08-04): same robot as the classroom pages ----
+  // ---- MR. CADABRA'S FACE: same robot as the classroom pages ----
   var orbFace=document.getElementById('orbFace');
   var faceT=0, faceHappyUntil=0;
-  if(!window.TutorFace){          // script failed to load: show the old sphere, never a blank
+  if(!window.TutorFace){
     try{ document.querySelectorAll('.orb').forEach(function(el){ el.classList.add('orb-sphere'); }); }catch(e){}
   } else {
-    // (2026-08-04: header brand is now the official logo image; the robot stays as the speaker.)
     (function faceLoop(){
       try{
         var sp=document.getElementById('orb').classList.contains('speaking');
@@ -280,10 +226,9 @@
       replay=document.getElementById('replay');
   var voiceOn=true, lastSaid="";
 
-  // WARM VOICE: every spoken line in this demo is FIXED, so the server whitelists exactly
-  // these lines at /api/demo-audio/{i} (main.py DEMO_VOICE_LINES -- the two lists are
-  // GENERATED FROM ONE SOURCE and verified identical). Each line costs ElevenLabs once
-  // EVER, then replays free. Browser voice is the fallback.
+  // WARM VOICE: every spoken line is FIXED, whitelisted at /api/demo-audio/{i}
+  // (main.py DEMO_VOICE_LINES — the two lists MUST stay identical; APPEND-ONLY so
+  // cached audio indices never move). Browser voice is the fallback.
   var VOICE_LINES=[
     "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
@@ -356,15 +301,27 @@
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!",
     "Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!",
     "No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!",
-    "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level."
+    "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level.",
+    "Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.",
+    "This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.",
+    "See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.",
+    "And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead.",
+    "That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.",
+    "Entry-Level Math — where the adventure begins! We make numbers friendly with pictures you can count. Here's a real one from my classroom.",
+    "Basic Math — fractions and decimals, the friendly way. Here's a real one from my classroom.",
+    "Pre-Algebra — where negative numbers stop being scary. Here's a real one from my classroom.",
+    "Algebra One — the mystery-number hunt! Let's solve a real two-step equation together, exactly like a lesson.",
+    "Geometry — shapes, angles, and the most famous theorem in all of math. Here's a real one from my classroom.",
+    "Algebra Two — exponents and quadratics, the real power tools. Here's a real one from my classroom.",
+    "Trig and Pre-Calc — where everything flows from one beautiful circle. Here's a real one from my classroom.",
+    "Probability and Statistics — teaching numbers to tell the truth. Here's a real one from my classroom.",
+    "Calculus — the mathematics of change itself. Let's take your very first derivative together.",
+    "Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
+    "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level."
   ];
   var serverVoiceOK=true;
-  // iPAD/TABLET UNLOCK (2026-08-03): iPads/tablets refuse to start audio unless the FIRST play happens inside a real tap.
-  // One SHARED element, unlocked once inside the level-pick tap by playing a tiny silent WAV;
-  // after that, changing .src and calling .play() from timers/fetch callbacks is allowed.
-  // (The old code made a NEW Audio per line -- each new element starts locked, so iPads went
-  // silent. Reuse is the fix, same as session/practice/topic.)
-  var SILENT_WAV="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";  // 50ms of true silence
+  // iPAD/TABLET UNLOCK: one SHARED element, unlocked once inside the first real tap.
+  var SILENT_WAV="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
   var demoAudio=new Audio(), demoWarmed=false;
   function warmDemoAudio(){
     if(demoWarmed) return; demoWarmed=true;
@@ -375,28 +332,33 @@
     try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); } }catch(e){}
   }
 
+  // ---- speech with a completion signal (drives the tour's auto-advance) ----
+  var lineDone=null;
+  function fireLineDone(){ if(lineDone){ var f=lineDone; lineDone=null; try{f();}catch(e){} } }
+
   function browserSay(text){
-    if(!voiceOn||!('speechSynthesis' in window)) return;
+    if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
     try{
       speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(text.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
       u.rate=0.98; u.pitch=1.06;
       u.onstart=function(){orb.classList.add('speaking');};
-      u.onend=function(){orb.classList.remove('speaking');};
+      u.onend=function(){orb.classList.remove('speaking'); fireLineDone();};
+      u.onerror=function(){orb.classList.remove('speaking'); fireLineDone();};
       speechSynthesis.speak(u);
-    }catch(e){}
+    }catch(e){ fireLineDone(); }
   }
 
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
-    if(!voiceOn) return;
+    if(!voiceOn){ fireLineDone(); return; }
     var i=VOICE_LINES.indexOf(text);
     if(serverVoiceOK && i>=0){
       try{
         try{ demoAudio.pause(); }catch(e){}
         try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
         demoAudio.onplay=function(){orb.classList.add('speaking');};
-        demoAudio.onended=function(){orb.classList.remove('speaking');};
+        demoAudio.onended=function(){orb.classList.remove('speaking'); fireLineDone();};
         demoAudio.onerror=function(){ serverVoiceOK=false; orb.classList.remove('speaking'); browserSay(text); };
         demoAudio.src='/api/demo-audio/'+i;
         var p2=demoAudio.play(); if(p2&&p2.catch) p2.catch(function(){ serverVoiceOK=false; browserSay(text); });
@@ -405,65 +367,107 @@
     }
     browserSay(text);
   }
-  replay.onclick=function(){ warmDemoAudio(); say(lastSaid); };
+  // Speak a line and call done() when it finishes — with an absolute safety timer so
+  // the demo can NEVER stall on a missed audio event (captions carry it regardless).
+  function sayThen(text, done){
+    var finished=false;
+    function fin(){ if(finished) return; finished=true; done(); }
+    lineDone=fin;
+    say(text);
+    var w=String(text).split(/\s+/).length;
+    setTimeout(fin, 4500 + w*450);
+  }
+  replay.onclick=function(){ warmDemoAudio(); lineDone=null; say(lastSaid); };
 
   function addRow(text, cls){
     var d=document.createElement('div'); d.className='wrow'+(cls?' '+cls:'');
-    // highlight the variable x -- but never inside words or emoji rows
     d.innerHTML=(cls==='big')?text:text.replace(/x/g,'<span class="v">x</span>');
     board.appendChild(d);
     board.scrollTop=board.scrollHeight;
   }
   function clearAnswer(){ answer.innerHTML=''; }
 
+  // ---- the demo progress bars (illustration of the real ones, real palette) ----
+  function seg(cls){ var d=document.createElement('div'); d.className='dseg'+(cls?' '+cls:''); return d; }
+  (function buildBars(){
+    var t=document.getElementById('todayTrack');
+    for(var a=0;a<3;a++) t.appendChild(seg(''));
+    var u=document.getElementById('unitTrack');
+    for(var b=0;b<4;b++){ u.appendChild(seg(b<1?'done':'')); var m=document.createElement('span'); m.className='dmark'; m.textContent='📝'; u.appendChild(m); }
+    var f=document.createElement('span'); f.className='dcap'; f.textContent='🏁'; u.appendChild(f);
+    var c=document.getElementById('courseTrack');
+    for(var d=0;d<9;d++) c.appendChild(seg(d<2?'gold':''));
+    var g=document.createElement('span'); g.className='dcap'; g.textContent='🎓'; c.appendChild(g);
+  })();
+  function lightTodaySegment(){
+    var s=document.querySelector('#todayTrack .dseg');
+    if(s) s.className='dseg done';
+    document.getElementById('todayText').textContent='1 of 3 goals done';
+  }
+
   // ============================================================
-  // TEN SAMPLE LESSONS (2026-08-03, Jim: "one from each level").
-  // algebra1 keeps the original hand-written script verbatim (its
-  // audio is long-cached); the other nine are data-generated. The
-  // elementary two answer by TAPPING -- exactly like the real
-  // elementary classroom (tap-to-answer shipped 2026-08-03).
+  // ONE REAL PROBLEM PER COURSE (interactive — the regular process:
+  // answer, get coached if it's wrong, correct yourself, succeed).
+  // Ask/right/wrong lines are the long-cached originals. The intro
+  // line (new, 2026-08-09) plays first. Elementary courses TAP;
+  // everyone else TYPES in the answer bar (device keyboard —
+  // the on-screen keypad grid is gone).
   // ============================================================
   var ALG1_STEPS=[
     {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
      board:[["2x + 3 = 11",""]],
-     input:{type:"keypad", hint:"your move (an operation)",
+     input:{type:"typed", hint:"your move (an operation)",
             match:[/[-−]3/, /subtract.{0,14}(3|three)/, /minus.{0,10}(3|three)/, /take.{0,10}(3|three)/,
                    /remove.{0,10}(3|three)/, /(3|three)(from|off)(each|both|the)?side/],
             right:"Exactly — subtract three from both sides, and the threes cancel on the left.",
             wrong:"Not quite — the plus three is being added, so we do the opposite: subtract. Try typing your move again!",
             board:[["    −3   −3","op"],["2x = 8",""]]}},
     {say:"Now we've got two x equals eight. Two x means two TIMES x — so what undoes a times two? Type your move.",
-     input:{type:"keypad", hint:"your move (an operation)",
+     input:{type:"typed", hint:"your move (an operation)",
             match:[/[÷\/]2/, /divide.{0,20}(2|two)/, /over(2|two)/, /^by(2|two)$/, /half/,
                    /(2|two)(oneach|onboth|eachside|bothsides)/],
             right:"Nice — divide both sides by two. Notice the board is waiting for YOU — it never gives away the answer.",
             wrong:"Careful — two x means two times x, so we undo it with division. Give it another go!",
             board:[["÷2  ÷2","op"]]}},
     {say:"So — eight divided by two. What does x equal? Work it out and type it with the keyboard.",
-     input:{type:"keypad", accept:["4","x=4"], right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
+     input:{type:"typed", accept:["4","x=4"], right:"You got it — x equals four! And look: it checks out, two times four plus three really is eleven.",
             wrong:"Close — eight divided by two. What number is that? Type it in.",
             board:[["x = 4",""],["check:  2·4 + 3 = 11  ✓","op"]]}},
-    {say:"One quick challenge to show off the keyboard. Type two, then tap the x-to-the-n key, then type three — that builds two to the third power.",
-     input:{type:"keypad", accept:["2^3","8"], right:"Beautiful — two to the third, which is eight. You used the power key like a pro.",
-            wrong:"Order matters: type 2 first, then the xⁿ key, then 3 — that builds 2^3. Try it!"}},
     {end:true}
   ];
 
   var DEMOS={
-    entry: {title: "Entry-Level Math", steps: [{"say": "Hi! I'm Mr. Cadabra. Let's count together! Look — I put some stars on the board. Count them with your finger… how many stars do you see? Tap your answer.", "board": [["⭐⭐⭐⭐⭐", "big"]], "input": {"type": "choices", "options": ["4", "5", "6"], "correct": "5", "right": "Yes! Five stars — you counted every single one.", "wrong": "Almost! Point at each star and count them one at a time — then tap your answer.", "board": []}}, {"say": "Now watch the magic — here comes one more star! How many stars are there now? Tap your answer.", "board": [["⭐⭐⭐⭐⭐  +  ⭐", "big"]], "input": {"type": "choices", "options": ["5", "6", "7"], "correct": "6", "right": "Six! Five stars plus one more makes six. You just did adding!", "wrong": "Count the new star too — five stars, then one more. Tap your answer!", "board": []}}, {"end": true}]},
-    basic: {title: "Basic Math", steps: [{"say": "Fractions — the friendly way. The board shows one half plus one fourth. Here's the trick: one half is the same as two fourths. So two fourths plus one more fourth makes how many fourths? Tap your answer.", "board": [["1/2 + 1/4", ""], ["1/2 = 2/4", "op"]], "input": {"type": "choices", "options": ["3/4", "2/6", "1/4"], "correct": "3/4", "right": "Three fourths! Once the bottom numbers match, you just add the tops.", "wrong": "Look at the board — two fourths plus one more fourth. Count the fourths and tap again!", "board": [["2/4 + 1/4 = 3/4", ""]]}}, {"say": "Decimals now. Which is bigger — zero point five, or zero point four five? Careful — more digits does not mean bigger! Tap your answer.", "board": [["0.5  vs  0.45", ""]], "input": {"type": "choices", "options": ["0.5", "0.45", "they're equal"], "correct": "0.5", "right": "Right! Zero point five is five tenths, and zero point four five is only four and a half tenths. You didn't fall for the trap!", "wrong": "Line them up: zero point five zero versus zero point four five. Which has more tenths? Tap again!", "board": [["0.50 > 0.45", ""]]}}, {"end": true}]},
-    prealgebra: {title: "Pre-Algebra", steps: [{"say": "Negative numbers — the number one key to algebra. The board shows negative three plus five. Start three below zero and climb up five… where do you land? Type it in.", "board": [["−3 + 5 = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2", "+2"], "right": "Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.", "wrong": "Start at three below zero and climb up five steps, one at a time. Where do you land? Type it!", "board": [["−3 + 5 = 2", ""]]}}, {"say": "One more: negative four times negative two. Remember the rule — when the two signs match, the answer is positive. Type it in.", "board": [["−4 × −2 = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["8", "+8"], "right": "Eight! A negative times a negative flips positive. That one rule unlocks half of algebra.", "wrong": "Both signs are negative — a matching pair — so the answer is POSITIVE four times two. Type it!", "board": [["−4 × −2 = 8", ""]]}}, {"end": true}]},
-    geometry: {title: "Geometry", steps: [{"say": "Every triangle's angles add up to one hundred eighty degrees — always. This one has a ninety and a thirty-five. How big is the mystery angle? Type it in.", "board": [["90° + 35° + ? = 180°", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["55", "55°"], "right": "Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.", "wrong": "Add the two angles you know first — ninety plus thirty-five — then subtract from one eighty. Type it!", "board": [["? = 180° − 125° = 55°", ""]]}}, {"say": "Now the most famous theorem in math. A right triangle has legs three and four — the board shows Pythagoras at work. What's the long side? Type it in.", "board": [["3² + 4² = c²", ""], ["9 + 16 = 25", "op"]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! The three-four-five triangle — builders have trusted it for four thousand years.", "wrong": "c squared is twenty-five — so c is the number that times itself makes twenty-five. Type it!", "board": [["c = √25 = 5", ""]]}}, {"end": true}]},
-    algebra2: {title: "Algebra II", steps: [{"say": "Exponentials — where algebra gets powerful. The board asks: two to what power makes thirty-two? Count the doublings. Type the power.", "board": [["2^? = 32", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.", "wrong": "Keep doubling: two, four, eight… count how many steps it takes to reach thirty-two. Type that count!", "board": [["2^5 = 32  ✓", ""]]}}, {"say": "Now a quadratic, factored and ready: x minus five, times x plus two, equals zero. For the whole thing to be zero, one piece must be zero. What x makes the FIRST piece zero? Type it.", "board": [["(x − 5)(x + 2) = 0", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5", "x=5"], "right": "Five! And x equals negative two kills the other piece. Two solutions, no sweat — that's the zero-product property.", "wrong": "Look at the first piece: x minus five. What x makes it exactly zero? Type it!", "board": [["x = 5   (and x = −2)", ""]]}}, {"end": true}]},
-    precalc: {title: "Trig / Pre-Calc", steps: [{"say": "Welcome to the unit circle — the heart of trigonometry. Half a spin around the circle is pi radians. How many degrees is that? Type it in.", "board": [["π radians = ?°", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["180", "180°"], "right": "One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.", "wrong": "A FULL circle is three hundred sixty degrees, and pi radians is exactly half of it. Type the degrees!", "board": [["π = 180°", ""]]}}, {"say": "Now the launchpad to calculus: sine of ninety degrees — the very top of the circle. What's its value? Type it in.", "board": [["sin(90°) = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["1", "1.0"], "right": "One! At the top of the circle you're at full height. Trig is just reading heights and shadows off a circle.", "wrong": "At ninety degrees you're at the very TOP of the unit circle — as high as it gets. That height is… type it!", "board": [["sin(90°) = 1", ""]]}}, {"end": true}]},
-    probstat: {title: "Probability & Statistics", steps: [{"say": "Statistics time. Three quiz scores on the board: three, five, and ten. The mean is the fair-share average — add them up, split them evenly. What's the mean? Type it in.", "board": [["scores:  3,  5,  10", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["6"], "right": "Six! Eighteen points split evenly three ways. The mean shares everything out fairly.", "wrong": "Add all three first — three plus five plus ten — then divide by how many scores there are. Type it!", "board": [["(3 + 5 + 10) ÷ 3 = 6", ""]]}}, {"say": "Now the median — the MIDDLE value once they're in order. Same three scores. What's the median? Type it in.", "board": [["3,  5,  10   → middle?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["5"], "right": "Five! Mean six, median five — two different stories from the same data. That gap is where statistics gets interesting.", "wrong": "Line them up smallest to biggest and take the one sitting in the middle. Type it!", "board": [["median = 5", ""]]}}, {"end": true}]},
-    calculus: {title: "Calculus", steps: [{"say": "Calculus asks one big question: how fast is something changing? For x cubed, the power rule answers it — bring the three down front, drop the power by one. What's the new power? Type it in.", "board": [["f(x) = x³", ""], ["f′(x) = 3x^?", "op"]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2"], "right": "Two! So the derivative is three x squared — you just took your very first derivative.", "wrong": "The rule says drop the power by ONE. Three minus one is… type it!", "board": [["f′(x) = 3x²", ""]]}}, {"say": "Let's use it. The slope of x cubed at x equals two is three times two squared. Work that out — type the slope.", "board": [["f′(2) = 3 · 2² = ?", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["12"], "right": "Twelve! At x equals two the curve is climbing twelve units per step. That's calculus — exact speed at an exact instant.", "wrong": "Two squared is four, times three is… type it!", "board": [["f′(2) = 12", ""]]}}, {"end": true}]},
-    diffeq: {title: "Differential Equations", steps: [{"say": "Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.", "board": [["y″ + y = 0", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["2", "2nd", "second"], "right": "Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.", "wrong": "Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!", "board": [["order: 2   (y″)", "op"]]}}, {"say": "One more to classify: y prime equals three y. What order is this one? Type the number.", "board": [["y′ = 3y", ""]], "input": {"type": "keypad", "hint": "your answer", "accept": ["1", "1st", "first"], "right": "First order! And it's the equation of growth itself — money, bacteria, radioactive decay. Every model starts with classify.", "wrong": "Just one tick mark on the y — that's the FIRST derivative. Type the order!", "board": [["order: 1   (y′)", "op"]]}}, {"end": true}]},
-    algebra1: {title: "Algebra I", steps: ALG1_STEPS,
-      endSay: "That's it — you just solved a two-step equation and checked it yourself. Great work! That's how Mr. Cadabra's Classroom teaches: one friendly step at a time."}
+    entry: {title:"Entry-Level Math", intro:"Entry-Level Math — where the adventure begins! We make numbers friendly with pictures you can count. Here's a real one from my classroom.",
+      steps:[{say:"Hi! I'm Mr. Cadabra. Let's count together! Look — I put some stars on the board. Count them with your finger… how many stars do you see? Tap your answer.", board:[["⭐⭐⭐⭐⭐","big"]],
+        input:{type:"choices", options:["4","5","6"], correct:"5", right:"Yes! Five stars — you counted every single one.", wrong:"Almost! Point at each star and count them one at a time — then tap your answer.", board:[]}}, {end:true}]},
+    basic: {title:"Basic Math", intro:"Basic Math — fractions and decimals, the friendly way. Here's a real one from my classroom.",
+      steps:[{say:"Fractions — the friendly way. The board shows one half plus one fourth. Here's the trick: one half is the same as two fourths. So two fourths plus one more fourth makes how many fourths? Tap your answer.", board:[["1/2 + 1/4",""],["1/2 = 2/4","op"]],
+        input:{type:"choices", options:["3/4","2/6","1/4"], correct:"3/4", right:"Three fourths! Once the bottom numbers match, you just add the tops.", wrong:"Look at the board — two fourths plus one more fourth. Count the fourths and tap again!", board:[["2/4 + 1/4 = 3/4",""]]}}, {end:true}]},
+    prealgebra: {title:"Pre-Algebra", intro:"Pre-Algebra — where negative numbers stop being scary. Here's a real one from my classroom.",
+      steps:[{say:"Negative numbers — the number one key to algebra. The board shows negative three plus five. Start three below zero and climb up five… where do you land? Type it in.", board:[["−3 + 5 = ?",""]],
+        input:{type:"typed", hint:"your answer", accept:["2","+2"], right:"Two! You climbed from three below zero up to positive two. Negatives hold no fear for you.", wrong:"Start at three below zero and climb up five steps, one at a time. Where do you land? Type it!", board:[["−3 + 5 = 2",""]]}}, {end:true}]},
+    algebra1: {title:"Algebra I", intro:"Algebra One — the mystery-number hunt! Let's solve a real two-step equation together, exactly like a lesson.", steps:ALG1_STEPS},
+    geometry: {title:"Geometry", intro:"Geometry — shapes, angles, and the most famous theorem in all of math. Here's a real one from my classroom.",
+      steps:[{say:"Every triangle's angles add up to one hundred eighty degrees — always. This one has a ninety and a thirty-five. How big is the mystery angle? Type it in.", board:[["90° + 35° + ? = 180°",""]],
+        input:{type:"typed", hint:"your answer", accept:["55","55°"], right:"Fifty-five degrees! Ninety plus thirty-five is one twenty-five, and one eighty minus that leaves fifty-five.", wrong:"Add the two angles you know first — ninety plus thirty-five — then subtract from one eighty. Type it!", board:[["? = 180° − 125° = 55°",""]]}}, {end:true}]},
+    algebra2: {title:"Algebra II", intro:"Algebra Two — exponents and quadratics, the real power tools. Here's a real one from my classroom.",
+      steps:[{say:"Exponentials — where algebra gets powerful. The board asks: two to what power makes thirty-two? Count the doublings. Type the power.", board:[["2^? = 32",""]],
+        input:{type:"typed", hint:"your answer", accept:["5"], right:"Five! Two, four, eight, sixteen, thirty-two — five doublings. You just did a logarithm without the scary name.", wrong:"Keep doubling: two, four, eight… count how many steps it takes to reach thirty-two. Type that count!", board:[["2^5 = 32  ✓",""]]}}, {end:true}]},
+    precalc: {title:"Trig / Pre-Calc", intro:"Trig and Pre-Calc — where everything flows from one beautiful circle. Here's a real one from my classroom.",
+      steps:[{say:"Welcome to the unit circle — the heart of trigonometry. Half a spin around the circle is pi radians. How many degrees is that? Type it in.", board:[["π radians = ?°",""]],
+        input:{type:"typed", hint:"your answer", accept:["180","180°"], right:"One hundred eighty degrees! Radians are just another ruler for angles — pi is exactly half the circle.", wrong:"A FULL circle is three hundred sixty degrees, and pi radians is exactly half of it. Type the degrees!", board:[["π = 180°",""]]}}, {end:true}]},
+    probstat: {title:"Probability & Statistics", intro:"Probability and Statistics — teaching numbers to tell the truth. Here's a real one from my classroom.",
+      steps:[{say:"Statistics time. Three quiz scores on the board: three, five, and ten. The mean is the fair-share average — add them up, split them evenly. What's the mean? Type it in.", board:[["scores:  3,  5,  10",""]],
+        input:{type:"typed", hint:"your answer", accept:["6"], right:"Six! Eighteen points split evenly three ways. The mean shares everything out fairly.", wrong:"Add all three first — three plus five plus ten — then divide by how many scores there are. Type it!", board:[["(3 + 5 + 10) ÷ 3 = 6",""]]}}, {end:true}]},
+    calculus: {title:"Calculus", intro:"Calculus — the mathematics of change itself. Let's take your very first derivative together.",
+      steps:[{say:"Calculus asks one big question: how fast is something changing? For x cubed, the power rule answers it — bring the three down front, drop the power by one. What's the new power? Type it in.", board:[["f(x) = x³",""],["f′(x) = 3x^?","op"]],
+        input:{type:"typed", hint:"your answer", accept:["2"], right:"Two! So the derivative is three x squared — you just took your very first derivative.", wrong:"The rule says drop the power by ONE. Three minus one is… type it!", board:[["f′(x) = 3x²",""]]}}, {end:true}]},
+    diffeq: {title:"Differential Equations", intro:"Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
+      steps:[{say:"Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.", board:[["y″ + y = 0",""]],
+        input:{type:"typed", hint:"your answer", accept:["2","2nd","second"], right:"Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.", wrong:"Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!", board:[["order: 2   (y″)","op"]]}}, {end:true}]}
   };
-  var GENERIC_END="And that's how I teach — I talk, the board shows every step, and you do the thinking. Try another level, or come meet me in the real classroom!";
-  var LEVELS=[["entry", "Entry-Level Math", "grades 1–3 · count the stars"], ["basic", "Basic Math", "grades 4–6 · fractions & decimals"], ["prealgebra", "Pre-Algebra", "negative numbers"], ["algebra1", "Algebra I", "solve a two-step equation"], ["geometry", "Geometry", "triangle angles & Pythagoras"], ["algebra2", "Algebra II", "exponents & a quadratic"], ["precalc", "Trig / Pre-Calc", "the unit circle"], ["probstat", "Probability & Statistics", "mean & median"], ["calculus", "Calculus", "your first derivative"], ["diffeq", "Differential Equations", "classify it like a pro"]];
+  var CONGRATS_LINE="Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.";
+  var LEVELS=[["entry","Entry-Level Math","grades 1–3 · count the stars"],["basic","Basic Math","grades 4–6 · fractions"],["prealgebra","Pre-Algebra","negative numbers"],["algebra1","Algebra I","solve a two-step equation"],["geometry","Geometry","triangle angles"],["algebra2","Algebra II","exponents"],["precalc","Trig / Pre-Calc","the unit circle"],["probstat","Probability & Statistics","mean of three scores"],["calculus","Calculus","your first derivative"],["diffeq","Differential Equations","classify it like a pro"]];
 
   var steps=null, cur=null, i=-1;
   function next(){
@@ -472,14 +476,14 @@
     var s=steps[i];
     if(s.end){ showEnd(); return; }
     if(s.board) s.board.forEach(function(r){ addRow(r[0], r[1]); });
-    if(s.say) say(s.say);
+    if(s.say){ lineDone=null; say(s.say); }
     renderInput(s.input);
   }
 
   function renderInput(inp){
     clearAnswer();
     if(!inp) return;
-    if(inp.type==="keypad"){ renderKeypad(inp); }
+    if(inp.type==="typed"){ renderTyped(inp); }
     else if(inp.type==="choices"){ renderChoices(inp); }
   }
 
@@ -489,20 +493,20 @@
     var fb=document.createElement('div'); fb.className='fb';
     var grid=document.createElement('div'); grid.className='choices';
     var done=false, misses=0, boardShown=false;
-    // ESCALATING HELP (2026-08-04): scripted version of what the real tutor does.
-    // Miss 1: the hint. Miss 2: new angle + worked board. Miss 3: show, teach, move on.
     function miss(){
       misses++;
       if(misses===1){
-        fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+        fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong);
       } else if(misses===2){
-        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
-        fb.className='fb no'; fb.textContent="Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!"; say("Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!");
+        if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        var l="Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!";
+        fb.className='fb no'; fb.textContent=l; lineDone=null; say(l);
       } else {
         done=true;
-        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
         grid.querySelectorAll('.choice').forEach(function(cb){ if(cb.textContent===inp.correct) cb.classList.add('right'); });
-        fb.className='fb ok'; fb.textContent='✓ '+"No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"; faceHappyUntil=Date.now()+1800; say("No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!");
+        var l3="No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!";
+        fb.className='fb ok'; fb.textContent='✓ '+l3; faceHappyUntil=Date.now()+1800; lineDone=null; say(l3);
         setTimeout(next,3400);
       }
     }
@@ -512,8 +516,8 @@
         if(done) return;
         if(opt===inp.correct){
           done=true; b.classList.add('right');
-          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
-          fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
+          if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+          fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; lineDone=null; say(inp.right);
           setTimeout(next,1900);
         } else {
           b.classList.add('wrong');
@@ -525,168 +529,129 @@
     });
     var ns=document.createElement('button'); ns.className='choice'; ns.type='button';
     ns.textContent="🤔 I'm not sure";
-    ns.onclick=function(){ if(done) return; miss(); };   // unsure twice -> get SHOWN, kindly
+    ns.onclick=function(){ if(done) return; miss(); };
     grid.appendChild(ns);
     var hint=document.createElement('div'); hint.className='prompt'; hint.textContent='Tap your answer — just like the real elementary lessons.';
     wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb); answer.appendChild(wrap);
   }
 
-  function feedback(text,ok){
-    var f=answer.querySelector('.fb')||document.createElement('div');
-    f.className='fb '+(ok?'ok':'no'); f.textContent=(ok?'✓ ':'')+text;
-    if(!f.parentNode) answer.appendChild(f);
-  }
-
-  // ---- math keypad (unchanged engine) ----
-  function renderKeypad(inp){
+  // ---- TYPED ANSWER (simple answer bar + your device keyboard; the keypad grid is gone) ----
+  function renderTyped(inp){
     var row=document.createElement('div'); row.className='ansrow';
-    var input=document.createElement('input'); input.type='text'; input.setAttribute('inputmode','none');
+    var input=document.createElement('input'); input.type='text';
     input.placeholder=inp.hint||'your answer'; input.autocomplete='off';
     var check=document.createElement('button'); check.className='checkbtn'; check.textContent='Check ✓';
     row.appendChild(input); row.appendChild(check);
-    var kp=buildKeys(input);
     var misses=0, boardShown=false;
     var fb=document.createElement('div'); fb.className='fb';
+    var hint=document.createElement('div'); hint.className='prompt';
+    hint.textContent='Type your answer, then press Check — in the real classroom your student just SAYS it out loud.';
     var wrap=document.createElement('div'); wrap.className='kpwrap';
-    wrap.appendChild(row); wrap.appendChild(fb); wrap.appendChild(kp); answer.appendChild(wrap);
+    wrap.appendChild(hint); wrap.appendChild(row); wrap.appendChild(fb); answer.appendChild(wrap);
+    try{ input.focus(); }catch(e){}
     function submit(){
       var v=input.value.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');
-      if(!v) return;                                   // nothing typed yet: no scolding
+      if(!v) return;
       var ok=false;
       if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');}).indexOf(v)>=0; }
       if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
       if(ok){
-        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }   // the board confirms AFTER the student answers — never before
-        fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; say(inp.right);
+        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; lineDone=null; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
       } else {
-        // ESCALATING HELP (2026-08-04): hint -> new angle + worked board -> show and move on.
         misses++;
         if(misses===1){
-          fb.className='fb no'; fb.textContent=inp.wrong; say(inp.wrong);
+          fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong);
         } else if(misses===2){
           if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
-          fb.className='fb no'; fb.textContent="Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!"; say("Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!");
+          var l="Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!";
+          fb.className='fb no'; fb.textContent=l; lineDone=null; say(l);
         } else {
           if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
           if(inp.accept && inp.accept.length){ input.value=inp.accept[0]; }
-          fb.className='fb ok'; fb.textContent='✓ '+"No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!"; faceHappyUntil=Date.now()+1800; say("No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!");
+          var l3="No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!";
+          fb.className='fb ok'; fb.textContent='✓ '+l3; faceHappyUntil=Date.now()+1800; lineDone=null; say(l3);
           check.style.pointerEvents='none'; setTimeout(next,3400);
           return;
         }
-        input.dataset.stale='1';                 // next keypad tap replaces this answer
-        try{ input.select(); }catch(e){}         // hardware keyboards replace it natively
+        try{ input.select(); }catch(e){}
       }
     }
     check.onclick=submit;
     input.addEventListener('keydown',function(ev){ if(ev.key==='Enter') submit(); });
   }
-  function buildKeys(input){
-    var caret=0;
-    function setv(v,c){ input.value=v; caret=Math.max(0,Math.min(c,v.length)); input.focus(); }
-    // WRONG-ANSWER FLOW (2026-08-04, Jim): after a wrong check the old answer is STALE —
-    // the next key tapped replaces it (calculator-style), so there's no fiddly clearing.
-    // Backspace instead EDITS the stale answer (one-digit slips don't force a full retype).
-    function freshen(){ if(input.dataset.stale){ delete input.dataset.stale; setv('',0); } }
-    function ins(t){ freshen(); var v=input.value; setv(v.slice(0,caret)+t+v.slice(caret), caret+t.length); }
-    function wrap(spec){ freshen(); var idx=spec.indexOf('|'); var t=spec.replace('|',''); var v=input.value;
-      setv(v.slice(0,caret)+t+v.slice(caret), caret+idx); }
-    function back(){ delete input.dataset.stale;
-      if(caret>0){var v=input.value; setv(v.slice(0,caret-1)+v.slice(caret),caret-1);} }
-    // hardware keyboards: the wrong-handler selects the text, so typing replaces it natively
-    input.addEventListener('input', function(){ delete input.dataset.stale; caret=input.selectionStart||input.value.length; });
-    var GROUPS=[
-      {label:'Numbers', keys:[['1','t1'],['2','t2'],['3','t3'],['4','t4'],['5','t5'],
-                              ['6','t6'],['7','t7'],['8','t8'],['9','t9'],['0','t0'],['.','t.']]},
-      {label:'Operations', keys:[['+','o+'],['−','o−'],['×','o×'],['÷','o/'],['=','o=']]},
-      {label:'Math tools', keys:[['x','tx','fn'],['x²','t^2','fn'],['xⁿ','t^','fn'],['√','w√(|)','fn'],
-                                 ['⌫ delete','util'],['clear','clear']]}
-    ];
-    var g=document.createElement('div'); g.className='kb';
-    var head=document.createElement('div'); head.className='kbhead';
-    head.innerHTML='<span class="kbtitle">🧮 MATH KEYBOARD</span>';
-    var note=document.createElement('div'); note.className='kbnote';
-    note.textContent="It types math symbols — it's not a calculator. The figuring-out part is all you!";
-    var help=document.createElement('button'); help.className='kbhelp'; help.type='button';
-    help.textContent='❓ How does it work?';
-    help.onclick=function(){ document.getElementById('kbModal').classList.add('show'); };
-    head.appendChild(help); g.appendChild(head); g.appendChild(note);
-    GROUPS.forEach(function(grp){
-      var row=document.createElement('div'); row.className='kgroup';
-      var lb=document.createElement('div'); lb.className='klabel'; lb.textContent=grp.label; row.appendChild(lb);
-      grp.keys.forEach(function(d){
-        var label=d[0], code=d[1], kind=d[2]||'';
-        var b=document.createElement('button'); b.type='button';
-        if(code==='util'){ b.className='key util'; b.textContent=label; b.onclick=back; }
-        else if(code==='clear'){ b.className='key util'; b.textContent=label; b.onclick=function(){setv('',0);}; }
-        else{
-          b.className='key'+(code[0]==='o'?' op':'')+(kind?' '+kind:'');
-          b.innerHTML=label.replace('²','<span class="sup">2</span>').replace('ⁿ','<span class="sup">n</span>');
-          b.onclick=function(){
-            if(code[0]==='t') ins(code.slice(1));
-            else if(code[0]==='o') ins(code.slice(1));
-            else if(code[0]==='w') wrap(code.slice(1));
-          };
-        }
-        row.appendChild(b);
-      });
-      g.appendChild(row);
-    });
-    ensureKbModal();
-    return g;
-  }
-
-  function ensureKbModal(){
-    if(document.getElementById('kbModal')) return;
-    var m=document.createElement('div'); m.id='kbModal'; m.className='kbmodal';
-    m.innerHTML='<div class="kbcard">'+
-      '<h3>🧮 How the Math Keyboard works</h3>'+
-      '<ol>'+
-      '<li><b>Tap keys</b> to build your answer — it appears in the answer box above.</li>'+
-      '<li><b>Powers:</b> to type 2³, tap <span class="kex">2</span>, then <span class="kex">xⁿ</span>, then <span class="kex">3</span> — the order matters!</li>'+
-      '<li><b>Square roots:</b> tap <span class="kex">√</span> and it opens the root for you — then type what goes inside.</li>'+
-      '<li><b>x</b> is the mystery number we\'re solving for. <span class="kex">+ − × ÷ =</span> work just like on paper.</li>'+
-      '<li><b>Fix a mistake:</b> <span class="kex">⌫ delete</span> erases one character; <span class="kex">clear</span> starts the box over.</li>'+
-      '<li><b>Done?</b> Press <span class="kex">Check ✓</span> — or just hit Enter.</li>'+
-      '</ol>'+
-      '<button class="cta" id="kbModalClose" type="button">Got it — back to the problem</button></div>';
-    m.addEventListener('click',function(ev){ if(ev.target===m) m.classList.remove('show'); });
-    document.body.appendChild(m);
-    document.getElementById('kbModalClose').onclick=function(){ m.classList.remove('show'); };
-  }
 
   function showEnd(){
     if(window.mtTrack) mtTrack('Demo Completed', {level:curId||'unknown'});
-    say(cur && cur.endSay ? cur.endSay : GENERIC_END);
+    lineDone=null; say(CONGRATS_LINE);
+    lightTodaySegment();
+    faceHappyUntil=Date.now()+3200;
     clearAnswer();
     var box=document.createElement('div'); box.className='endbox';
-    box.innerHTML='<h2>🎉 You did it!</h2>'+
-      '<p>That\'s a quick taste of how Mr. Cadabra teaches — talking you through every step, drawing it on the board, and letting you answer at your own pace. A full course does this from placement all the way to mastery.</p>';
+    box.innerHTML='<h2>🎉 Congratulations!</h2>'+
+      '<p>You just worked a real problem the way your student will — his voice teaching, the board showing every step, and honest coaching when an answer misses. Look up top: your first goal of the day just lit up.</p>';
     var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
     go.href='/#pricing'; go.style.textDecoration='none'; go.style.display='inline-block'; go.style.marginRight='10px'; go.style.marginBottom='10px';
     var pick=document.createElement('button'); pick.className='cta'; pick.textContent='↩ Try another level';
     pick.style.background='#fff'; pick.style.color='#6d5ae6'; pick.style.border='1.5px solid #e5e2f2'; pick.style.marginBottom='10px';
-    pick.onclick=function(){ showPicker(); };
+    pick.onclick=function(){ showPicker(true); };
     var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try this one again';
     again.style.background='#fff'; again.style.color='#6d5ae6'; again.style.border='1.5px solid #e5e2f2';
     again.onclick=function(){ board.innerHTML=''; i=-1; next(); };
     box.appendChild(go); box.appendChild(pick); box.appendChild(again); answer.appendChild(box);
   }
 
-  // ---- LEVEL PICKER (2026-08-03, Jim: "one from each of our different levels") ----
+  // ---- THE GUIDED TOUR (2026-08-09): spoken stops with the matching part glowing ----
+  var TOUR=[
+    {line:"This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.", target:'board'},
+    {line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.", target:'dbars'},
+    {line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead.", target:'orb'}
+  ];
+  var PICK_LINE="That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.";
+  var WELCOME_LINE="Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.";
+  var tourCancelled=false;
+  function clearGlow(){ document.querySelectorAll('.demoGlow').forEach(function(n){ n.classList.remove('demoGlow'); }); }
+  function runTour(k){
+    if(tourCancelled) return;
+    clearGlow();
+    if(k>=TOUR.length){ showPicker(true); return; }
+    var stop=TOUR[k];
+    var t=document.getElementById(stop.target);
+    if(t) t.classList.add('demoGlow');
+    sayThen(stop.line, function(){ setTimeout(function(){ runTour(k+1); }, 500); });
+  }
+  function startDemo(){
+    warmDemoAudio();
+    if(window.mtTrack) mtTrack('Demo Started', {});
+    tourCancelled=false;
+    clearAnswer();
+    var sk=document.createElement('button'); sk.className='skiplink'; sk.type='button';
+    sk.textContent='Skip the tour — take me to the levels →';
+    sk.onclick=function(){ tourCancelled=true; lineDone=null; try{demoAudio.pause();}catch(e){}
+      try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+      orb.classList.remove('speaking'); clearGlow(); showPicker(true); };
+    answer.appendChild(sk);
+    sayThen(WELCOME_LINE, function(){ setTimeout(function(){ runTour(0); }, 400); });
+  }
+
+  // ---- LEVEL PICKER ----
   var curId='';
   function startScript(id){
-    warmDemoAudio();   // iPad: unlock inside the level-pick tap
+    warmDemoAudio();
     curId=id;
     if(window.mtTrack) mtTrack('Demo Level Picked', {level:id});
     cur=DEMOS[id]; steps=cur.steps; i=-1;
-    board.innerHTML='';
-    next();
+    board.innerHTML=''; clearAnswer(); clearGlow();
+    document.getElementById('goalText').textContent='Try a real '+cur.title+' problem';
+    // scripted course intro first, then the problem begins (the regular process).
+    sayThen(cur.intro, function(){ setTimeout(next, 500); });
   }
-  function showPicker(){
-    board.innerHTML=''; clearAnswer();
-    bubble.textContent="Pick any level — I'll teach you a real sample, from counting stars to differential equations.";
-    replay.style.display='none';
+  function showPicker(spoken){
+    tourCancelled=true;   // entering the picker always ends any running tour
+    board.innerHTML=''; clearAnswer(); clearGlow();
+    if(spoken){ lineDone=null; say(PICK_LINE); }
+    else { bubble.textContent=PICK_LINE; }
     var grid=document.createElement('div'); grid.className='levels';
     LEVELS.forEach(function(L){
       var id=L[0], title=L[1], blurb=L[2];
@@ -698,7 +663,17 @@
     answer.appendChild(grid);
   }
 
-  showPicker();
+  // ---- entry point: the welcome card with one big Start button (also the audio-unlock tap) ----
+  (function showWelcome(){
+    clearAnswer();
+    var box=document.createElement('div'); box.className='endbox';
+    box.innerHTML='<h2>👋 Welcome to the demo</h2>'+
+      '<p>This is the real classroom screen your student will use. Mr. Cadabra will show you around, then teach you one real problem — at any level you pick.</p>';
+    var go=document.createElement('button'); go.className='cta'; go.type='button';
+    go.textContent='▶ Start the demo';
+    go.onclick=function(){ startDemo(); };
+    box.appendChild(go); answer.appendChild(box);
+  })();
 })();
 </script>
 </body>

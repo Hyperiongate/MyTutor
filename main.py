@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bt-classroom-demo". THE DEMO IS THE CLASSROOM
+#               (Jim's redesign): /demo now opens as the real learning board (goal
+#               banner + the three progress bars in the real palette + whiteboard +
+#               Mr. Cadabra), speaks a welcome, gives a GUIDED TOUR of the screen
+#               (board -> bars -> Mr. Cadabra, each stop spoken + glowing, skippable),
+#               then the ten-course picker; picking a course plays a scripted INTRO
+#               line and runs ONE real problem INTERACTIVELY (type or tap, escalating
+#               help on misses -- the regular process, not a movie), ending with a
+#               spoken "Congratulations" as the TODAY bar lights its first segment.
+#               THE MATH KEYPAD GRID IS GONE from the demo (simple answer bar instead).
+#               DEMO_VOICE_LINES: 16 lines APPENDED (indices 72-87: welcome, 3 tour
+#               stops, picker invite, 10 course intros, congratulations) -- identical
+#               append in demo.html; indices 0-71 untouched so cached audio stays valid.
 #   2026-08-08  APP_BUILD -> "2026-08-08bs-worked-example-first". tutor.py only: new
 #               shared rule 19 -- every NEW topic opens with a complete worked example
 #               (tutor works every step + answer on the board, narrating why), THEN the
@@ -4049,7 +4062,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-08bs-worked-example-first"
+APP_BUILD = "2026-08-09bt-classroom-demo"
 
 
 @app.get("/health")
@@ -4843,6 +4856,25 @@ DEMO_VOICE_LINES = [
     # APPENDED (never reorder -- cached audio indices must stay valid; keep identical to
     # demo.html's VOICE_LINES).
     "Hi, I'm Mr. Cadabra! Here's how I teach: I talk you through it in my own voice, the board shows every step, and you do the thinking — I never just hand over the answer. Come try a free lesson, and I'll meet your student right at their level.",
+    # APPENDED 2026-08-09 (build bt, classroom-demo redesign): welcome + 3 tour stops +
+    # picker invite + 10 course intros + congratulations. NEVER reorder; keep identical
+    # to demo.html's VOICE_LINES.
+    "Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.",
+    "This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.",
+    "See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.",
+    "And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead.",
+    "That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.",
+    "Entry-Level Math — where the adventure begins! We make numbers friendly with pictures you can count. Here's a real one from my classroom.",
+    "Basic Math — fractions and decimals, the friendly way. Here's a real one from my classroom.",
+    "Pre-Algebra — where negative numbers stop being scary. Here's a real one from my classroom.",
+    "Algebra One — the mystery-number hunt! Let's solve a real two-step equation together, exactly like a lesson.",
+    "Geometry — shapes, angles, and the most famous theorem in all of math. Here's a real one from my classroom.",
+    "Algebra Two — exponents and quadratics, the real power tools. Here's a real one from my classroom.",
+    "Trig and Pre-Calc — where everything flows from one beautiful circle. Here's a real one from my classroom.",
+    "Probability and Statistics — teaching numbers to tell the truth. Here's a real one from my classroom.",
+    "Calculus — the mathematics of change itself. Let's take your very first derivative together.",
+    "Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
+    "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.",
 ]
 
 
