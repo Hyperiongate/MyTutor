@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bv-fullpage-demo". Jim: "when they click start
+#               the demo, I want them to go to a full page view, and go through the
+#               complete tour of the page just like we do with a new student."
+#               demo.html: the welcome card stays as the front door, but Start now swaps
+#               the window to the REAL classroom layout (left rail with Mr. Cadabra +
+#               Curriculum / Course assessment / Progress dashboard / Practice a problem
+#               / Explore a topic / Final Exam / Look it up, top bar, goal banner, the
+#               three bars, the big whiteboard, the answer zone) and he walks ALL TEN
+#               STOPS in the real student-tour order (build bf), each spoken with the
+#               matching element glowing + a "look here" tag; the Curriculum list opens
+#               for its stop and closes again (build bi). Skippable. After the tour it is
+#               unchanged from bt (picker -> scripted intro -> one interactive problem ->
+#               spoken congratulations). DEMO_VOICE_LINES: 7 APPENDED (88-94, the sidebar
+#               stops); 0-87 untouched so cached audio stays valid; lists verified
+#               identical (95 lines) and every spoken string is on the whitelist.
 #   2026-08-09  APP_BUILD -> "2026-08-09bu-proactive-rules". Jim: "implement the
 #               proactive rules as you see fit" (claude/Proactive_Rules_Audit_2026-08-
 #               08.md). No main.py logic changes -- stamp bump only. Shipped:
@@ -4080,7 +4095,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bu-proactive-rules"
+APP_BUILD = "2026-08-09bv-fullpage-demo"
 
 
 @app.get("/health")
@@ -4893,6 +4908,15 @@ DEMO_VOICE_LINES = [
     "Calculus — the mathematics of change itself. Let's take your very first derivative together.",
     "Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
     "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.",
+    # APPENDED 2026-08-09 (build bv, full-page demo): the seven SIDEBAR tour stops,
+    # so the demo walks the screen exactly like a new student's tour.
+    "Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery.",
+    "Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there.",
+    "Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn.",
+    "Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together.",
+    "Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that.",
+    "And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion.",
+    "Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it.",
 ]
 
 

@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <!--
-  - 2026-08-09  CLASSROOM DEMO REDESIGN (build bt, Jim): the demo now IS the classroom.
-    (1) It opens looking like the real learning board — goal banner, the three progress
-    bars in the real palette (light-green card / white segments / black text), the
-    whiteboard, Mr. Cadabra — and speaks "Welcome to the demo."
-    (2) A GUIDED TOUR walks the screen (whiteboard → progress bars → Mr. Cadabra), each
-    stop spoken in his real voice with the matching part glowing. Skippable.
-    (3) Then the LEVEL PICKER (all ten courses); picking one plays a scripted course
-    INTRO line, then runs ONE real problem INTERACTIVELY — the visitor types (or taps,
-    in the two elementary courses) their answer, wrong answers get the same escalating
-    help as before (hint → new angle + worked board → shown warmly), they can correct
-    themselves — the regular process, not a movie.
-    (4) On success: "Congratulations" (spoken), the TODAY bar lights its first segment,
-    and the end screen offers plans / another level. THE MATH KEYBOARD IS GONE — a
-    simple answer box + device keyboard replaces the keypad grid (Jim: "instead of
-    having us do this keyboard thing"). The keypad, its tutorial modal, and the 2^3
-    power-key showcase step were removed with it.
-    VOICE LINES: indices 0-71 untouched (append-only — cached audio must stay valid);
-    16 NEW lines appended (72-87: welcome, 3 tour stops, picker invite, 10 course
-    intros, congratulations) — identical append in main.py's DEMO_VOICE_LINES.
-  - 2026-08-05  APPENDED one line to VOICE_LINES (build aj): the landing page's "🔊 Hear him
-    teach" button plays it via the same /api/demo-audio/{i} whitelist (index 71).
-  - 2026-08-04  ESCALATING HELP ON REPEATED MISSES (build aa): miss 1 = hint · miss 2 = new
-    angle + worked board · miss 3 = shown warmly, never a dead end. (Kept in this redesign.)
-  - 2026-08-04  OFFICIAL LOGO · FUNNEL EVENTS ("Demo Level Picked"/"Demo Completed") ·
-    ROBOT FACE (tutor-face.js) — all kept.
-  - 2026-08-03  iPAD AUDIO FIX (one shared Audio element unlocked in the first tap) — kept.
-  - 2026-08-03  TEN-LEVEL DEMO (one sample per course) — kept, now one problem each.
-  - 2026-07-30  WARM VOICE via /api/demo-audio/{i} whitelist + cache — kept.
+  - 2026-08-09  FULL-PAGE CLASSROOM DEMO (build bv, Jim: "when they click start the demo,
+    I want them to go to a full page view, and go through the complete tour of the page
+    just like we do with a new student"). The welcome card he liked is kept as the front
+    door; pressing "Start the demo" now swaps the whole window to the REAL classroom
+    layout -- left rail (Mr. Cadabra, Curriculum, Course assessment, Progress dashboard,
+    Practice a problem, Explore a topic, Final Exam, Look it up), top bar, goal banner,
+    the three progress bars, the big whiteboard, and the answer zone -- and Mr. Cadabra
+    walks ALL TEN STOPS in the same order as the real student tour (build bf order:
+    curriculum -> assess -> dashboard -> practice -> topic -> final -> library -> board
+    -> bars -> me/how you answer), each stop spoken with the matching element glowing.
+    The Curriculum list opens for its own stop and closes again afterwards, exactly like
+    the real tour (build bi). Skippable throughout. Everything after the tour is
+    unchanged from build bt: course picker -> scripted course intro -> ONE real problem
+    worked INTERACTIVELY (escalating help on misses) -> spoken "Congratulations".
+    VOICE LINES: 7 APPENDED (88-94, the sidebar stops); 0-87 untouched so cached audio
+    stays valid. Identical append in main.py's DEMO_VOICE_LINES.
+  - 2026-08-09  CLASSROOM DEMO REDESIGN (build bt): the demo became a real lesson rather
+    than a movie -- welcome, spoken tour, ten-course picker, one interactive problem,
+    congratulations. The math keypad grid was retired here.
+  - 2026-08-05  landing page "Hear him teach" plays VOICE_LINES index 71 (build aj).
+  - 2026-08-04  ESCALATING HELP (build aa): miss 1 = hint · miss 2 = new angle + worked
+    board · miss 3 = shown warmly. Kept. · OFFICIAL LOGO · FUNNEL EVENTS · ROBOT FACE.
+  - 2026-08-03  iPAD AUDIO FIX (one shared Audio element unlocked in the first tap) · the
+    ten-level demo (one sample per course).
+  - 2026-07-30  WARM VOICE via the /api/demo-audio/{i} whitelist + cache.
   MyTutor — Interactive "Try It" Demo (Mr. Cadabra)  ·  for homeschool-parent promo
   Fully self-contained: inline CSS/JS, no libraries, no web fonts, no localStorage.
-  VOICE_LINES here and main.py's DEMO_VOICE_LINES must stay IDENTICAL — update BOTH,
-  APPEND-ONLY. Captions always show, so it works even if the browser blocks audio.
+  VOICE_LINES here and main.py's DEMO_VOICE_LINES must stay IDENTICAL and APPEND-ONLY.
+  Captions always show, so it works even if the browser blocks audio.
   I did no harm and this file is not truncated.
 -->
 <html lang="en">
@@ -41,14 +38,14 @@
 <title>Try a lesson — Mr. Cadabra's Classroom</title>
 <link rel="canonical" href="https://mrcadabra.com/demo" />
 <meta property="og:title" content="Try a lesson — Mr. Cadabra's Classroom">
-<meta property="og:description" content="Tour the classroom, then work a real problem with Mr. Cadabra — at any level from counting to calculus.">
+<meta property="og:description" content="Step into the real classroom: take the tour, then work a real problem with Mr. Cadabra — at any level from counting to calculus.">
 <meta property="og:url" content="https://mrcadabra.com/demo">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Try a lesson — Mr. Cadabra's Classroom">
-<meta name="twitter:description" content="Tour the classroom, then work a real problem with Mr. Cadabra.">
+<meta name="twitter:description" content="Take the tour, then work a real problem with Mr. Cadabra.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <style>
@@ -57,14 +54,16 @@
     --bg1:#fbf7ff; --bg2:#f2fbfa; --card:#fff; --line:#e9e5f5; --ok:#1fa971; --red:#d1345b;
     --grad:linear-gradient(135deg,var(--purple),var(--teal));
     --shadow:0 10px 30px rgba(60,40,120,.12); --shadow-lg:0 20px 50px rgba(60,40,120,.20);
-    --keyline:#e3def3; --keyactive:#efeaff;
+    --keyline:#e3def3;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    color:var(--ink);min-height:100vh;padding:18px 12px 40px;
+    color:var(--ink);min-height:100vh;
     background:radial-gradient(1000px 500px at 85% -10%,#efe9ff 0,transparent 60%),
                radial-gradient(900px 460px at -10% 5%,#e4faf7 0,transparent 55%),
                linear-gradient(180deg,var(--bg1),var(--bg2))}
+  body.intro{padding:18px 12px 40px}
+  /* ===== FRONT DOOR (the welcome card Jim liked) ===== */
   .wrap{max-width:560px;margin:0 auto}
   .brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
   .brand b{font-size:20px;font-weight:850}
@@ -72,17 +71,50 @@
   .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px}
   .demo-badge{display:inline-block;background:#fff3e8;color:#c2610a;border:1px solid #ffd9b3;
     font-size:11px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:3px 9px;margin-left:4px}
-
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
-    padding:18px;margin-bottom:14px}
+    padding:22px;margin-bottom:14px;text-align:center}
+  .card h2{font-size:22px;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:14.5px;margin-bottom:16px;line-height:1.55}
+  .cta{border:0;background:var(--grad);color:#fff;font-weight:800;font-size:16px;border-radius:13px;
+    padding:14px;width:100%;cursor:pointer;box-shadow:var(--shadow)}
+  .cta:active{transform:translateY(1px)}
 
-  /* ===== the classroom top: goal banner + the three progress bars (real palette, bm) ===== */
-  .goalbar{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#e7f6ff,#eafaf3);
-    border:1px solid #d3ecdd;border-radius:12px;padding:8px 13px;font-size:13px;margin-bottom:8px}
-  .goalbar .gl{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;flex:0 0 auto}
+  /* ===== THE FULL-PAGE CLASSROOM (mirrors the real lesson screen) ===== */
+  .app{display:none;grid-template-columns:264px 1fr;grid-template-rows:100vh;grid-template-rows:100dvh}
+  body.classroom{padding:0;overflow:hidden}
+  body.classroom .app{display:grid}
+  .side{padding:16px 14px;overflow-y:auto;background:rgba(255,255,255,.6);
+    border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+  .tutor-head{display:flex;align-items:center;gap:12px}
+  .orbwrap{width:76px;height:76px;flex:0 0 auto;border-radius:50%}
+  .orbwrap canvas{width:100%;height:100%;display:block}
+  .orbwrap.speaking{box-shadow:0 0 18px 6px rgba(47,227,200,.40)}
+  .tutor-name{font-weight:850;font-size:15.5px}
+  .status{font-size:11.5px;color:var(--muted);min-height:15px}
+  .leftnav{display:flex;flex-direction:column;gap:6px}
+  .navbtn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;
+    border:1px solid var(--keyline);border-radius:11px;padding:10px 12px;font-size:13.5px;
+    font-weight:700;color:var(--ink);cursor:default;text-decoration:none}
+  .navbtn .chev{margin-left:auto;color:var(--muted);transition:transform .2s ease}
+  .navbtn.open .chev{transform:rotate(90deg)}
+  .curriculum{display:none;padding:4px 2px 2px 8px}
+  .curriculum.show{display:block}
+  .curriculum .u{display:flex;gap:7px;font-size:12px;color:var(--muted);padding:3px 0}
+  .curriculum .u b{color:var(--ink);font-weight:800}
+  .controls{margin-top:auto;font-size:11.5px;color:var(--muted);line-height:1.5;
+    border-top:1px dashed var(--keyline);padding-top:12px}
+
+  .center{display:flex;flex-direction:column;height:100vh;height:100dvh;min-width:0}
+  .topbar{display:flex;align-items:center;gap:8px;padding:12px 20px 4px}
+  .topbar .title{font-weight:800;font-size:16px}
+  .topbar .spacer{flex:1}
+  .goalbar{display:flex;align-items:center;gap:8px;margin:6px 20px 0;background:linear-gradient(90deg,#e7f6ff,#eafaf3);
+    border:1px solid #d3ecdd;border-radius:12px;padding:8px 13px;font-size:13px}
+  .goalbar .gl{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em}
   .goalbar b{color:var(--ink)}
-  .dbars{display:flex;flex-direction:column;gap:6px;background:linear-gradient(90deg,#def4e4,#cdeeda);
-    border:1px solid #b4e0c4;border-radius:12px;padding:8px 13px;box-shadow:0 4px 14px rgba(30,70,45,.10);margin-bottom:10px}
+  /* progress bars — the real palette (build bm): light-green card, WHITE segments, BLACK text */
+  .dbars{display:flex;flex-direction:column;gap:6px;margin:8px 20px 0;background:linear-gradient(90deg,#def4e4,#cdeeda);
+    border:1px solid #b4e0c4;border-radius:12px;padding:8px 13px;box-shadow:0 4px 14px rgba(30,70,45,.10)}
   .dbar{display:flex;align-items:center;gap:8px;font-size:11px}
   .dbar .dl{flex:0 0 48px;text-align:right;color:#17202b;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:9.5px}
   .dbar .dtrack{flex:1;display:flex;align-items:center;gap:3px;min-width:0}
@@ -93,142 +125,158 @@
   .dbar .dcap{flex:0 0 auto;font-size:12px;line-height:1}
   .dbar .dt{flex:0 0 auto;max-width:36%;color:#17202b;font-weight:600;font-size:10.5px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  /* tutor */
-  .tutor{display:flex;gap:12px;align-items:flex-start}
-  .orb{width:52px;height:52px;border-radius:50%;flex:0 0 auto;position:relative}
-  .orb canvas{width:100%;height:100%;display:block}
-  .orb.orb-sphere{background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);
-    box-shadow:0 5px 16px rgba(109,90,230,.45)}
-  .orb.orb-sphere canvas{display:none}
-  .orb.speaking{box-shadow:0 0 18px 5px rgba(47,227,200,.40);border-radius:50%}
-  .orb::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(109,90,230,.35);opacity:0}
-  .orb.speaking::after{animation:ring 1.1s ease-out infinite}
-  @keyframes ring{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
-  .orb.speaking{animation:bob .9s ease-in-out infinite}
-  @keyframes bob{50%{transform:translateY(-3px)}}
-  .bubble{flex:1;background:#f6f3ff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;
-    font-size:15.5px;line-height:1.5;min-height:48px}
-  .replay{margin-top:8px;border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;
-    font-size:13px;border-radius:9px;padding:6px 11px;cursor:pointer}
-
-  /* whiteboard */
-  .board{margin-top:14px;padding:16px;border-radius:14px;min-height:96px;
-    background:linear-gradient(0deg,transparent 27px,rgba(109,90,230,.06) 28px),
-               linear-gradient(90deg,transparent 27px,rgba(31,182,176,.05) 28px);
-    background-size:28px 28px;font-family:"Courier New",monospace}
-  .wrow{font-size:23px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
-    animation:stepin .45s forwards;white-space:pre}
+  .saywrap{display:flex;gap:10px;align-items:flex-start;margin:10px 20px 0}
+  .bubble{flex:1;background:#f2f4ff;border:1px solid #e2e5fb;border-radius:14px;padding:11px 14px;
+    font-size:15px;line-height:1.5;min-height:44px}
+  .replay{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;
+    font-size:12px;border-radius:9px;padding:6px 10px;cursor:pointer;flex:0 0 auto}
+  .feed{flex:1;margin:10px 20px;border-radius:18px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 12px 36px rgba(20,30,45,.07);padding:16px 18px;overflow-y:auto;min-height:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background-image:linear-gradient(0deg,transparent 27px,rgba(109,90,230,.05) 28px),
+      linear-gradient(90deg,transparent 27px,rgba(31,182,176,.045) 28px);background-size:28px 28px}
+  .wrow{font-size:30px;color:#2a2450;padding:3px 6px;opacity:0;transform:translateY(6px);
+    animation:stepin .45s forwards;white-space:pre;font-family:"Courier New",monospace;font-weight:700}
   .wrow .v{color:var(--red);font-weight:800}
-  .wrow.op{color:#8a86a6}
-  .wrow.chk{color:var(--ok);font-weight:700;font-size:18px}
+  .wrow.op{color:#8a86a6;font-size:22px}
+  .wrow.big{font-size:34px;letter-spacing:6px}
   @keyframes stepin{to{opacity:1;transform:none}}
-  .wrow.big{font-size:32px;letter-spacing:6px}
-
+  .stage-hint{color:#a7a2bd;font-size:14px}
+  .answerzone{padding:0 20px 16px;max-height:47vh;overflow-y:auto}
   /* the tour spotlight */
-  .demoGlow{box-shadow:0 0 0 3px rgba(109,90,230,.55), 0 0 24px 6px rgba(109,90,230,.35) !important;
-    border-radius:14px;animation:glowpulse 1.2s ease-in-out infinite}
-  @keyframes glowpulse{50%{box-shadow:0 0 0 3px rgba(109,90,230,.85), 0 0 30px 10px rgba(109,90,230,.45)}}
-
-  /* answer area */
-  .answer{margin-top:4px}
-  .prompt{font-size:13px;color:var(--muted);text-align:center;margin:2px 0 10px}
-  .choices{display:grid;gap:9px}
-  .choice{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:14px;font-size:16px;
-    font-weight:600;color:var(--ink);cursor:pointer;transition:transform .05s,border-color .1s}
+  .demoGlow{box-shadow:0 0 0 3px rgba(109,90,230,.55),0 0 24px 6px rgba(109,90,230,.35) !important;
+    border-radius:12px;animation:glowpulse 1.2s ease-in-out infinite;position:relative;z-index:5}
+  @keyframes glowpulse{50%{box-shadow:0 0 0 3px rgba(109,90,230,.9),0 0 30px 10px rgba(109,90,230,.45)}}
+  .tourtag{position:fixed;z-index:70;background:var(--purple);color:#fff;font-weight:800;font-size:12px;
+    border-radius:999px;padding:5px 12px;box-shadow:var(--shadow);pointer-events:none;display:none;
+    animation:bobtag .9s ease-in-out infinite}
+  @keyframes bobtag{50%{transform:translateY(-4px)}}
+  /* answers */
+  .prompt{font-size:12.5px;color:var(--muted);text-align:center;margin:2px 0 9px}
+  .choices{display:grid;gap:9px;max-width:520px;margin:0 auto}
+  .choice{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:13px;font-size:16px;
+    font-weight:600;color:var(--ink);cursor:pointer}
   .choice:hover{border-color:var(--purple)}
-  .choice:active{transform:translateY(1px)}
   .choice.right{border-color:var(--ok);background:#effaf4;color:#127a52}
   .choice.wrong{border-color:#f0b8c4;background:#fdeef1;color:var(--red)}
-
-  .cta{border:0;background:var(--grad);color:#fff;font-weight:800;font-size:16px;border-radius:13px;
-    padding:14px;width:100%;cursor:pointer;box-shadow:var(--shadow)}
-  .cta:active{transform:translateY(1px)}
-  .fb{text-align:center;font-weight:700;margin:6px 0;min-height:22px}
-  .fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
-  .skiplink{display:block;margin:10px auto 0;border:0;background:none;color:var(--muted);font-size:12.5px;
-    text-decoration:underline;cursor:pointer}
-
-  /* simple answer bar (the keypad grid is gone — type with your own keyboard) */
-  .kpwrap{margin-top:4px}
   .ansrow{display:flex;gap:9px;align-items:center;background:#fff;border:1.5px solid var(--keyline);
-    border-radius:13px;padding:8px 8px 8px 14px}
+    border-radius:13px;padding:8px 8px 8px 14px;max-width:520px;margin:0 auto}
   .ansrow input{flex:1;border:0;outline:0;font-size:19px;font-family:"Courier New",monospace;color:#2a2450;background:transparent}
   .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
-
-  .footer{text-align:center;color:#a7a2bd;font-size:12px;margin-top:6px}
-  .endbox{text-align:center;padding:6px 4px}
+  .fb{text-align:center;font-weight:700;margin:8px 0;min-height:22px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
+  .skiplink{display:block;margin:8px auto 0;border:0;background:none;color:var(--muted);font-size:12.5px;
+    text-decoration:underline;cursor:pointer}
+  .levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;max-width:760px;margin:0 auto}
+  .lvl{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:11px 12px;text-align:left;cursor:pointer}
+  .lvl:hover{border-color:var(--purple)}
+  .lvl b{display:block;font-size:14px}
+  .lvl span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .endbox{text-align:center;max-width:620px;margin:0 auto}
   .endbox h2{font-size:22px;margin-bottom:6px}
   .endbox p{color:var(--muted);font-size:14.5px;margin-bottom:14px}
-  .levels{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-  @media(max-width:430px){.levels{grid-template-columns:1fr}}
-  .lvl{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:12px 13px;text-align:left;
-    cursor:pointer;transition:transform .05s,border-color .1s}
-  .lvl:hover{border-color:var(--purple)}
-  .lvl:active{transform:translateY(1px)}
-  .lvl b{display:block;font-size:14.5px;color:var(--ink)}
-  .lvl span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .endbox .cta{width:auto;display:inline-block;padding:13px 20px;margin:0 6px 10px}
+  .ghost{background:#fff !important;color:var(--purple) !important;border:1.5px solid #e5e2f2}
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    body.classroom{overflow:auto}
+    .side{flex-direction:row;flex-wrap:wrap;align-items:center;border-right:none;border-bottom:1px solid var(--line)}
+    .leftnav{flex-direction:row;flex-wrap:wrap;flex:1}
+    .navbtn{width:auto;font-size:12px;padding:7px 10px}
+    .controls{display:none}
+    .center{height:auto;min-height:70vh}
+  }
 </style>
-  <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
 </head>
-<body>
+<body class="intro">
 <script src="/static/tutor-face.js"></script>
-<div class="wrap">
-  <div class="brand"><img class="mark" src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"><b>Mr. Cadabra's Classroom</b>
-    <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
-  <div class="sub">This is the real classroom screen. Take the quick tour, then work one real problem with him.</div>
 
+<!-- ===== FRONT DOOR ===== -->
+<div class="wrap" id="intro">
+  <div class="brand"><img src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"><b>Mr. Cadabra's Classroom</b>
+    <span class="tag">· with Mr. Cadabra</span><span class="demo-badge">DEMO</span></div>
+  <div class="sub">A real lesson, start to finish — at any level from counting to calculus.</div>
   <div class="card">
-    <div class="goalbar" id="goalbar"><span>🎯</span><span class="gl">Today's goal</span><b id="goalText">Try a real problem with Mr. Cadabra</b></div>
+    <h2>👋 Welcome to the demo</h2>
+    <p>Press the button and you'll step into the actual classroom screen your student learns on.
+       Mr. Cadabra will walk you around it in his own voice — every button, the progress bars,
+       the whiteboard — and then teach you one real problem at any level you pick.</p>
+    <button class="cta" id="startBtn" type="button">▶ Start the demo</button>
+  </div>
+  <div class="sub">🔊 Turn your sound on — he talks you through the whole thing.</div>
+</div>
+
+<!-- ===== THE FULL-PAGE CLASSROOM ===== -->
+<div class="app" id="app">
+  <aside class="side">
+    <div class="tutor-head" id="tutorPanel">
+      <div class="orbwrap" id="orb"><canvas id="orbFace" width="200" height="200"></canvas></div>
+      <div>
+        <div class="tutor-name">Mr. Cadabra</div>
+        <div class="status" id="status">&nbsp;</div>
+      </div>
+    </div>
+    <nav class="leftnav">
+      <button class="navbtn" id="curriculumBtn" type="button">📚 Curriculum <span class="chev">▸</span></button>
+      <div class="curriculum" id="curriculumList"></div>
+      <span class="navbtn" id="assessLink">📋 Course assessment</span>
+      <span class="navbtn" id="dashLink">📊 Progress dashboard</span>
+      <span class="navbtn" id="practiceLink">✏️ Practice a problem</span>
+      <span class="navbtn" id="topicLink">💡 Explore a topic</span>
+      <span class="navbtn" id="finalLink">🎓 Final Exam</span>
+      <span class="navbtn" id="libraryLink">📖 Look it up</span>
+    </nav>
+    <div class="controls">In the real classroom your student answers by <b>talking</b> — they tap the
+      microphone and say it out loud. Here in the demo you'll type or tap instead.</div>
+  </aside>
+
+  <div class="center">
+    <div class="topbar">
+      <img src="/static/brand-mark.svg" alt="" style="height:22px;width:auto">
+      <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
+      <span class="demo-badge">DEMO</span>
+      <div class="spacer"></div>
+      <button class="replay" id="restart" type="button" style="display:none">↩ Start over</button>
+    </div>
+    <div class="goalbar" id="goalbar"><span>🎯</span><span class="gl">Today's goal</span><b id="goalText">Meet Mr. Cadabra and try a real problem</b></div>
     <div class="dbars" id="dbars">
       <div class="dbar"><span class="dl">Today</span><div class="dtrack" id="todayTrack"></div><span class="dt" id="todayText">0 of 3 goals done</span></div>
       <div class="dbar"><span class="dl">Unit</span><div class="dtrack" id="unitTrack"></div><span class="dt">3 topics to go</span></div>
       <div class="dbar"><span class="dl">Course</span><div class="dtrack" id="courseTrack"></div><span class="dt">2 of 9 units mastered</span></div>
     </div>
-    <div class="tutor">
-      <span class="orb" id="orb"><canvas id="orbFace" width="104" height="104"></canvas></span>
-      <div style="flex:1">
-        <div class="bubble" id="bubble">Welcome to the demo! Tap the button below and I'll show you around the classroom your student will learn in.</div>
-        <button class="replay" id="replay" style="display:none">🔊 Replay</button>
-      </div>
+    <div class="saywrap">
+      <div class="bubble" id="bubble">&nbsp;</div>
+      <button class="replay" id="replay" type="button" style="display:none">🔊 Replay</button>
     </div>
-    <div class="board" id="board"></div>
-  </div>
-
-  <div class="card">
-    <div class="answer" id="answer"></div>
-    <div class="footer" id="foot">🔊 Turn your sound on — Mr. Cadabra talks you through it. (If his warm voice can't load here, your device's built-in voice fills in.)</div>
+    <div class="feed" id="board"><div class="stage-hint" id="stageHint">Your lesson appears here — every step, drawn as we go.</div></div>
+    <div class="answerzone" id="answer"></div>
   </div>
 </div>
+<div class="tourtag" id="tourTag">👀 look here</div>
 
 <script>
 (function(){
-  // ---- MR. CADABRA'S FACE: same robot as the classroom pages ----
-  var orbFace=document.getElementById('orbFace');
+  var el=function(id){return document.getElementById(id);};
+  // ---- MR. CADABRA'S FACE: the same robot as the classroom pages ----
+  var orbFace=el('orbFace'), orb=el('orb');
   var faceT=0, faceHappyUntil=0;
-  if(!window.TutorFace){
-    try{ document.querySelectorAll('.orb').forEach(function(el){ el.classList.add('orb-sphere'); }); }catch(e){}
-  } else {
+  if(window.TutorFace){
     (function faceLoop(){
       try{
-        var sp=document.getElementById('orb').classList.contains('speaking');
+        var sp=orb.classList.contains('speaking');
         var mood=Date.now()<faceHappyUntil?'happy':(sp?'speaking':'idle');
         var level=sp?0.45+0.30*Math.abs(Math.sin(faceT*0.05)):0.10+0.05*Math.sin(faceT*0.035);
-        TutorFace.draw(orbFace.getContext('2d'),104,104,{level:level,t:faceT,mood:mood});
+        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:level,t:faceT,mood:mood});
       }catch(e){}
       faceT++; requestAnimationFrame(faceLoop);
     })();
   }
 
-  var orb=document.getElementById('orb'), bubble=document.getElementById('bubble'),
-      board=document.getElementById('board'), answer=document.getElementById('answer'),
-      replay=document.getElementById('replay');
+  var bubble=el('bubble'), board=el('board'), answer=el('answer'), replay=el('replay'),
+      statusEl=el('status'), tourTag=el('tourTag');
   var voiceOn=true, lastSaid="";
 
-  // WARM VOICE: every spoken line is FIXED, whitelisted at /api/demo-audio/{i}
-  // (main.py DEMO_VOICE_LINES — the two lists MUST stay identical; APPEND-ONLY so
-  // cached audio indices never move). Browser voice is the fallback.
   var VOICE_LINES=[
     "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
     "Exactly — subtract three from both sides, and the threes cancel on the left.",
@@ -317,38 +365,44 @@
     "Probability and Statistics — teaching numbers to tell the truth. Here's a real one from my classroom.",
     "Calculus — the mathematics of change itself. Let's take your very first derivative together.",
     "Differential Equations — the equations that run the physical world. Let's classify one like a pro.",
-    "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level."
+    "Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.",
+    "Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery.",
+    "Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there.",
+    "Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn.",
+    "Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together.",
+    "Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that.",
+    "And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion.",
+    "Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it."
   ];
   var serverVoiceOK=true;
-  // iPAD/TABLET UNLOCK: one SHARED element, unlocked once inside the first real tap.
+  // iPAD/TABLET UNLOCK: one SHARED element, unlocked inside the first real tap.
   var SILENT_WAV="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
   var demoAudio=new Audio(), demoWarmed=false;
   function warmDemoAudio(){
     if(demoWarmed) return; demoWarmed=true;
-    try{
-      demoAudio.src=SILENT_WAV;
-      var p=demoAudio.play(); if(p&&p.catch) p.catch(function(){});
-    }catch(e){}
+    try{ demoAudio.src=SILENT_WAV; var p=demoAudio.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){}
     try{ if('speechSynthesis' in window){ var u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); } }catch(e){}
   }
 
-  // ---- speech with a completion signal (drives the tour's auto-advance) ----
+  // ---- speech, with a completion signal that drives the tour's auto-advance ----
   var lineDone=null;
   function fireLineDone(){ if(lineDone){ var f=lineDone; lineDone=null; try{f();}catch(e){} } }
-
+  function setSpeaking(on){
+    orb.classList.toggle('speaking', !!on);
+    statusEl.textContent = on ? "Mr. Cadabra is talking…" : "";
+  }
   function browserSay(text){
     if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
     try{
       speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(text.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
       u.rate=0.98; u.pitch=1.06;
-      u.onstart=function(){orb.classList.add('speaking');};
-      u.onend=function(){orb.classList.remove('speaking'); fireLineDone();};
-      u.onerror=function(){orb.classList.remove('speaking'); fireLineDone();};
+      u.onstart=function(){setSpeaking(true);};
+      u.onend=function(){setSpeaking(false); fireLineDone();};
+      u.onerror=function(){setSpeaking(false); fireLineDone();};
       speechSynthesis.speak(u);
     }catch(e){ fireLineDone(); }
   }
-
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
@@ -357,9 +411,9 @@
       try{
         try{ demoAudio.pause(); }catch(e){}
         try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
-        demoAudio.onplay=function(){orb.classList.add('speaking');};
-        demoAudio.onended=function(){orb.classList.remove('speaking'); fireLineDone();};
-        demoAudio.onerror=function(){ serverVoiceOK=false; orb.classList.remove('speaking'); browserSay(text); };
+        demoAudio.onplay=function(){setSpeaking(true);};
+        demoAudio.onended=function(){setSpeaking(false); fireLineDone();};
+        demoAudio.onerror=function(){ serverVoiceOK=false; setSpeaking(false); browserSay(text); };
         demoAudio.src='/api/demo-audio/'+i;
         var p2=demoAudio.play(); if(p2&&p2.catch) p2.catch(function(){ serverVoiceOK=false; browserSay(text); });
         return;
@@ -367,52 +421,45 @@
     }
     browserSay(text);
   }
-  // Speak a line and call done() when it finishes — with an absolute safety timer so
-  // the demo can NEVER stall on a missed audio event (captions carry it regardless).
+  // Speak, then call done() -- with an absolute safety timer so the tour can NEVER stall
+  // on a missed audio event (the captions carry it either way).
   function sayThen(text, done){
     var finished=false;
     function fin(){ if(finished) return; finished=true; done(); }
-    lineDone=fin;
-    say(text);
-    var w=String(text).split(/\s+/).length;
-    setTimeout(fin, 4500 + w*450);
+    lineDone=fin; say(text);
+    setTimeout(fin, 4500 + String(text).split(/\s+/).length*450);
   }
   replay.onclick=function(){ warmDemoAudio(); lineDone=null; say(lastSaid); };
 
   function addRow(text, cls){
+    var hint=el('stageHint'); if(hint) hint.remove();
     var d=document.createElement('div'); d.className='wrow'+(cls?' '+cls:'');
     d.innerHTML=(cls==='big')?text:text.replace(/x/g,'<span class="v">x</span>');
-    board.appendChild(d);
-    board.scrollTop=board.scrollHeight;
+    board.appendChild(d); board.scrollTop=board.scrollHeight;
   }
   function clearAnswer(){ answer.innerHTML=''; }
 
-  // ---- the demo progress bars (illustration of the real ones, real palette) ----
+  // ---- the demo's progress bars + curriculum list (illustrations of the real ones) ----
   function seg(cls){ var d=document.createElement('div'); d.className='dseg'+(cls?' '+cls:''); return d; }
-  (function buildBars(){
-    var t=document.getElementById('todayTrack');
-    for(var a=0;a<3;a++) t.appendChild(seg(''));
-    var u=document.getElementById('unitTrack');
+  (function buildFurniture(){
+    var t=el('todayTrack'); for(var a=0;a<3;a++) t.appendChild(seg(''));
+    var u=el('unitTrack');
     for(var b=0;b<4;b++){ u.appendChild(seg(b<1?'done':'')); var m=document.createElement('span'); m.className='dmark'; m.textContent='📝'; u.appendChild(m); }
     var f=document.createElement('span'); f.className='dcap'; f.textContent='🏁'; u.appendChild(f);
-    var c=document.getElementById('courseTrack');
-    for(var d=0;d<9;d++) c.appendChild(seg(d<2?'gold':''));
+    var c=el('courseTrack'); for(var d=0;d<9;d++) c.appendChild(seg(d<2?'gold':''));
     var g=document.createElement('span'); g.className='dcap'; g.textContent='🎓'; c.appendChild(g);
+    var UNITS=["Numbers & operations","Fractions","Decimals & percents","Ratios & proportions",
+               "Negative numbers","Expressions","Equations","Geometry basics","Data & graphs"];
+    var list=el('curriculumList');
+    UNITS.forEach(function(n,i){ var r=document.createElement('div'); r.className='u';
+      r.innerHTML='<b>'+(i+1)+'.</b> '+n; list.appendChild(r); });
   })();
   function lightTodaySegment(){
     var s=document.querySelector('#todayTrack .dseg');
     if(s) s.className='dseg done';
-    document.getElementById('todayText').textContent='1 of 3 goals done';
+    el('todayText').textContent='1 of 3 goals done';
   }
 
-  // ============================================================
-  // ONE REAL PROBLEM PER COURSE (interactive — the regular process:
-  // answer, get coached if it's wrong, correct yourself, succeed).
-  // Ask/right/wrong lines are the long-cached originals. The intro
-  // line (new, 2026-08-09) plays first. Elementary courses TAP;
-  // everyone else TYPES in the answer bar (device keyboard —
-  // the on-screen keypad grid is gone).
-  // ============================================================
   var ALG1_STEPS=[
     {say:"Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
      board:[["2x + 3 = 11",""]],
@@ -466,6 +513,7 @@
       steps:[{say:"Differential equations describe how things change — and rule one is: classify first. The board shows y double-prime plus y equals zero. The ORDER is the highest derivative in sight. What order is this? Type the number.", board:[["y″ + y = 0",""]],
         input:{type:"typed", hint:"your answer", accept:["2","2nd","second"], right:"Second order — the double-prime is the giveaway. This little equation runs every pendulum and guitar string on Earth.", wrong:"Count the tick marks on the busiest y — double-prime means the SECOND derivative. Type the order!", board:[["order: 2   (y″)","op"]]}}, {end:true}]}
   };
+
   var CONGRATS_LINE="Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.";
   var LEVELS=[["entry","Entry-Level Math","grades 1–3 · count the stars"],["basic","Basic Math","grades 4–6 · fractions"],["prealgebra","Pre-Algebra","negative numbers"],["algebra1","Algebra I","solve a two-step equation"],["geometry","Geometry","triangle angles"],["algebra2","Algebra II","exponents"],["precalc","Trig / Pre-Calc","the unit circle"],["probstat","Probability & Statistics","mean of three scores"],["calculus","Calculus","your first derivative"],["diffeq","Differential Equations","classify it like a pro"]];
 
@@ -479,7 +527,6 @@
     if(s.say){ lineDone=null; say(s.say); }
     renderInput(s.input);
   }
-
   function renderInput(inp){
     clearAnswer();
     if(!inp) return;
@@ -487,23 +534,22 @@
     else if(inp.type==="choices"){ renderChoices(inp); }
   }
 
-  // ---- TAP-TO-ANSWER (the real elementary classroom answers this way) ----
+  // ---- TAP-TO-ANSWER (how the real elementary classroom answers) ----
   function renderChoices(inp){
-    var wrap=document.createElement('div'); wrap.className='kpwrap';
+    var wrap=document.createElement('div');
     var fb=document.createElement('div'); fb.className='fb';
     var grid=document.createElement('div'); grid.className='choices';
     var done=false, misses=0, boardShown=false;
+    function showBoard(){ if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); } }
     function miss(){
       misses++;
-      if(misses===1){
-        fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong);
-      } else if(misses===2){
-        if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+      if(misses===1){ fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong); }
+      else if(misses===2){
+        showBoard();
         var l="Let's look at it a different way — I've put the whole move on the board. Follow it through, then tap your answer!";
         fb.className='fb no'; fb.textContent=l; lineDone=null; say(l);
       } else {
-        done=true;
-        if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        done=true; showBoard();
         grid.querySelectorAll('.choice').forEach(function(cb){ if(cb.textContent===inp.correct) cb.classList.add('right'); });
         var l3="No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!";
         fb.className='fb ok'; fb.textContent='✓ '+l3; faceHappyUntil=Date.now()+1800; lineDone=null; say(l3);
@@ -515,27 +561,22 @@
       b.onclick=function(){
         if(done) return;
         if(opt===inp.correct){
-          done=true; b.classList.add('right');
-          if(inp.board && inp.board.length && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+          done=true; b.classList.add('right'); showBoard();
           fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; lineDone=null; say(inp.right);
           setTimeout(next,1900);
-        } else {
-          b.classList.add('wrong');
-          miss();
-          setTimeout(function(){ b.classList.remove('wrong'); },900);
-        }
+        } else { b.classList.add('wrong'); miss(); setTimeout(function(){ b.classList.remove('wrong'); },900); }
       };
       grid.appendChild(b);
     });
-    var ns=document.createElement('button'); ns.className='choice'; ns.type='button';
-    ns.textContent="🤔 I'm not sure";
+    var ns=document.createElement('button'); ns.className='choice'; ns.type='button'; ns.textContent="🤔 I'm not sure";
     ns.onclick=function(){ if(done) return; miss(); };
     grid.appendChild(ns);
-    var hint=document.createElement('div'); hint.className='prompt'; hint.textContent='Tap your answer — just like the real elementary lessons.';
+    var hint=document.createElement('div'); hint.className='prompt';
+    hint.textContent='Tap your answer — just like the real elementary lessons.';
     wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb); answer.appendChild(wrap);
   }
 
-  // ---- TYPED ANSWER (simple answer bar + your device keyboard; the keypad grid is gone) ----
+  // ---- TYPED ANSWER (your own keyboard; the old on-screen keypad grid is retired) ----
   function renderTyped(inp){
     var row=document.createElement('div'); row.className='ansrow';
     var input=document.createElement('input'); input.type='text';
@@ -546,9 +587,10 @@
     var fb=document.createElement('div'); fb.className='fb';
     var hint=document.createElement('div'); hint.className='prompt';
     hint.textContent='Type your answer, then press Check — in the real classroom your student just SAYS it out loud.';
-    var wrap=document.createElement('div'); wrap.className='kpwrap';
+    var wrap=document.createElement('div');
     wrap.appendChild(hint); wrap.appendChild(row); wrap.appendChild(fb); answer.appendChild(wrap);
     try{ input.focus(); }catch(e){}
+    function showBoard(){ if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); } }
     function submit(){
       var v=input.value.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');
       if(!v) return;
@@ -556,19 +598,18 @@
       if(inp.accept){ ok=inp.accept.map(function(a){return a.replace(/\s+/g,'').toLowerCase().replace(/°/g,'');}).indexOf(v)>=0; }
       if(!ok && inp.match){ ok=inp.match.some(function(re){ return re.test(v); }); }
       if(ok){
-        if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        showBoard();
         fb.className='fb ok'; fb.textContent='✓ '+inp.right; faceHappyUntil=Date.now()+1800; lineDone=null; say(inp.right);
         check.style.pointerEvents='none'; setTimeout(next,1900);
       } else {
         misses++;
-        if(misses===1){
-          fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong);
-        } else if(misses===2){
-          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+        if(misses===1){ fb.className='fb no'; fb.textContent=inp.wrong; lineDone=null; say(inp.wrong); }
+        else if(misses===2){
+          showBoard();
           var l="Let's look at it a different way — I've put the whole move on the board. Follow it through, then type your answer!";
           fb.className='fb no'; fb.textContent=l; lineDone=null; say(l);
         } else {
-          if(inp.board && !boardShown){ boardShown=true; inp.board.forEach(function(r){ addRow(r[0],r[1]); }); }
+          showBoard();
           if(inp.accept && inp.accept.length){ input.value=inp.accept[0]; }
           var l3="No worries — I'll show you this one! The answer is on the board now. In my real classroom I keep trying new ways — smaller steps, new pictures — until it clicks. On we go!";
           fb.className='fb ok'; fb.textContent='✓ '+l3; faceHappyUntil=Date.now()+1800; lineDone=null; say(l3);
@@ -585,95 +626,128 @@
   function showEnd(){
     if(window.mtTrack) mtTrack('Demo Completed', {level:curId||'unknown'});
     lineDone=null; say(CONGRATS_LINE);
-    lightTodaySegment();
-    faceHappyUntil=Date.now()+3200;
+    lightTodaySegment(); faceHappyUntil=Date.now()+3200;
     clearAnswer();
     var box=document.createElement('div'); box.className='endbox';
     box.innerHTML='<h2>🎉 Congratulations!</h2>'+
-      '<p>You just worked a real problem the way your student will — his voice teaching, the board showing every step, and honest coaching when an answer misses. Look up top: your first goal of the day just lit up.</p>';
+      '<p>You just worked a real problem the way your student will — his voice teaching, the board '+
+      'showing every step, and honest coaching when an answer misses. Look up top: today\'s first '+
+      'goal just lit up.</p>';
     var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
-    go.href='/#pricing'; go.style.textDecoration='none'; go.style.display='inline-block'; go.style.marginRight='10px'; go.style.marginBottom='10px';
-    var pick=document.createElement('button'); pick.className='cta'; pick.textContent='↩ Try another level';
-    pick.style.background='#fff'; pick.style.color='#6d5ae6'; pick.style.border='1.5px solid #e5e2f2'; pick.style.marginBottom='10px';
-    pick.onclick=function(){ showPicker(true); };
-    var again=document.createElement('button'); again.className='cta'; again.textContent='↺ Try this one again';
-    again.style.background='#fff'; again.style.color='#6d5ae6'; again.style.border='1.5px solid #e5e2f2';
+    go.href='/#pricing'; go.style.textDecoration='none';
+    var pick=document.createElement('button'); pick.className='cta ghost'; pick.type='button';
+    pick.textContent='↩ Try another level'; pick.onclick=function(){ showPicker(true); };
+    var again=document.createElement('button'); again.className='cta ghost'; again.type='button';
+    again.textContent='↺ Try this one again';
     again.onclick=function(){ board.innerHTML=''; i=-1; next(); };
     box.appendChild(go); box.appendChild(pick); box.appendChild(again); answer.appendChild(box);
   }
 
-  // ---- THE GUIDED TOUR (2026-08-09): spoken stops with the matching part glowing ----
+  // ============================================================
+  // THE FULL TOUR (2026-08-09 build bv) -- the SAME ten stops, in the SAME order, as a
+  // real new student's tour (build bf): curriculum -> course assessment -> progress
+  // dashboard -> practice -> explore a topic -> final exam -> look it up -> the board ->
+  // the bars -> me / how you answer. Each stop glows its real element and speaks in
+  // Mr. Cadabra's voice; the Curriculum list opens for its own stop and closes again
+  // afterwards, exactly like the classroom does (build bi).
+  // ============================================================
   var TOUR=[
-    {line:"This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words.", target:'board'},
-    {line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are.", target:'dbars'},
-    {line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead.", target:'orb'}
+    {t:'curriculumBtn', line:"Over here on the left is your Curriculum — everything in the course, laid out in nine units. Your student can open any unit and see exactly what's inside it, so the whole year is never a mystery."},
+    {t:'assessLink',    line:"Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there."},
+    {t:'dashLink',      line:"Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn."},
+    {t:'practiceLink',  line:"Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together."},
+    {t:'topicLink',     line:"Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that."},
+    {t:'finalLink',     line:"And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion."},
+    {t:'libraryLink',   line:"Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it."},
+    {t:'board',         line:"This big space is my whiteboard. Every step of every problem gets drawn right here — the board leads, and my voice follows. Nothing ever happens only in words."},
+    {t:'dbars',         line:"See the bars up top? That's your student's map — today's goals, the current unit with a marker for every quiz, and the whole course marching gold toward the Final Exam. They always know exactly where they are."},
+    {t:'tutorPanel',    line:"And this is me, Mr. Cadabra! In the real classroom we simply talk — your student says their answer out loud and we go back and forth like a real teacher and student. Here in the demo, you'll type or tap your answers instead."}
   ];
-  var PICK_LINE="That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.";
   var WELCOME_LINE="Welcome to the demo! This is Mr. Cadabra's Classroom — the very screen your student will learn on. Before we solve anything, let me show you around.";
-  var tourCancelled=false;
-  function clearGlow(){ document.querySelectorAll('.demoGlow').forEach(function(n){ n.classList.remove('demoGlow'); }); }
+  var PICK_LINE="That's the classroom! Ready to try a real problem? Pick your student's level — anywhere from counting stars to differential equations — and I'll teach you the exact way I teach them.";
+  var tourCancelled=false, tourOpenedCurriculum=false;
+
+  function clearGlow(){
+    document.querySelectorAll('.demoGlow').forEach(function(n){ n.classList.remove('demoGlow'); });
+    tourTag.style.display='none';
+    if(tourOpenedCurriculum){                      // build bi behaviour: close it again
+      tourOpenedCurriculum=false;
+      el('curriculumList').classList.remove('show');
+      el('curriculumBtn').classList.remove('open');
+    }
+  }
+  function glow(id){
+    clearGlow();
+    var t=el(id); if(!t) return;
+    t.classList.add('demoGlow');
+    if(id==='curriculumBtn'){                      // open the list so there's something to see
+      el('curriculumList').classList.add('show');
+      el('curriculumBtn').classList.add('open');
+      tourOpenedCurriculum=true;
+    }
+    try{ t.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+    setTimeout(function(){
+      if(!t.classList.contains('demoGlow')) return;
+      var r=t.getBoundingClientRect();
+      tourTag.style.left=Math.max(8, Math.min(window.innerWidth-120, r.left+r.width/2-52))+'px';
+      tourTag.style.top=(r.top>52 ? r.top-38 : r.bottom+10)+'px';
+      tourTag.style.display='block';
+    }, 380);
+  }
   function runTour(k){
     if(tourCancelled) return;
-    clearGlow();
-    if(k>=TOUR.length){ showPicker(true); return; }
-    var stop=TOUR[k];
-    var t=document.getElementById(stop.target);
-    if(t) t.classList.add('demoGlow');
-    sayThen(stop.line, function(){ setTimeout(function(){ runTour(k+1); }, 500); });
+    if(k>=TOUR.length){ clearGlow(); showPicker(true); return; }
+    glow(TOUR[k].t);
+    sayThen(TOUR[k].line, function(){ setTimeout(function(){ runTour(k+1); }, 420); });
+  }
+  function skipTour(){
+    tourCancelled=true; lineDone=null;
+    try{ demoAudio.pause(); }catch(e){}
+    try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+    setSpeaking(false); clearGlow(); showPicker(true);
   }
   function startDemo(){
     warmDemoAudio();
     if(window.mtTrack) mtTrack('Demo Started', {});
-    tourCancelled=false;
-    clearAnswer();
+    document.body.className='classroom';           // <-- FULL-PAGE CLASSROOM VIEW
+    el('intro').style.display='none';
+    el('restart').style.display='inline-block';
+    tourCancelled=false; clearAnswer();
     var sk=document.createElement('button'); sk.className='skiplink'; sk.type='button';
     sk.textContent='Skip the tour — take me to the levels →';
-    sk.onclick=function(){ tourCancelled=true; lineDone=null; try{demoAudio.pause();}catch(e){}
-      try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
-      orb.classList.remove('speaking'); clearGlow(); showPicker(true); };
+    sk.onclick=skipTour;
     answer.appendChild(sk);
     sayThen(WELCOME_LINE, function(){ setTimeout(function(){ runTour(0); }, 400); });
   }
+  el('startBtn').onclick=startDemo;
+  el('restart').onclick=function(){ location.reload(); };
 
   // ---- LEVEL PICKER ----
   var curId='';
   function startScript(id){
-    warmDemoAudio();
-    curId=id;
+    warmDemoAudio(); curId=id;
     if(window.mtTrack) mtTrack('Demo Level Picked', {level:id});
     cur=DEMOS[id]; steps=cur.steps; i=-1;
     board.innerHTML=''; clearAnswer(); clearGlow();
-    document.getElementById('goalText').textContent='Try a real '+cur.title+' problem';
-    // scripted course intro first, then the problem begins (the regular process).
-    sayThen(cur.intro, function(){ setTimeout(next, 500); });
+    el('courseTitle').textContent=cur.title;
+    el('goalText').textContent='Try a real '+cur.title+' problem';
+    sayThen(cur.intro, function(){ setTimeout(next, 500); });   // scripted intro, then the real thing
   }
   function showPicker(spoken){
-    tourCancelled=true;   // entering the picker always ends any running tour
+    tourCancelled=true;
     board.innerHTML=''; clearAnswer(); clearGlow();
-    if(spoken){ lineDone=null; say(PICK_LINE); }
-    else { bubble.textContent=PICK_LINE; }
+    if(spoken){ lineDone=null; say(PICK_LINE); } else { bubble.textContent=PICK_LINE; }
+    var hint=document.createElement('div'); hint.className='prompt';
+    hint.textContent='Pick a level — each one is a real problem from that course.';
     var grid=document.createElement('div'); grid.className='levels';
     LEVELS.forEach(function(L){
-      var id=L[0], title=L[1], blurb=L[2];
       var b=document.createElement('button'); b.className='lvl'; b.type='button';
-      b.innerHTML='<b>'+title+'</b><span>'+blurb+'</span>';
-      b.onclick=function(){ startScript(id); };
+      b.innerHTML='<b>'+L[1]+'</b><span>'+L[2]+'</span>';
+      b.onclick=function(){ startScript(L[0]); };
       grid.appendChild(b);
     });
-    answer.appendChild(grid);
+    answer.appendChild(hint); answer.appendChild(grid);
   }
-
-  // ---- entry point: the welcome card with one big Start button (also the audio-unlock tap) ----
-  (function showWelcome(){
-    clearAnswer();
-    var box=document.createElement('div'); box.className='endbox';
-    box.innerHTML='<h2>👋 Welcome to the demo</h2>'+
-      '<p>This is the real classroom screen your student will use. Mr. Cadabra will show you around, then teach you one real problem — at any level you pick.</p>';
-    var go=document.createElement('button'); go.className='cta'; go.type='button';
-    go.textContent='▶ Start the demo';
-    go.onclick=function(){ startDemo(); };
-    box.appendChild(go); answer.appendChild(box);
-  })();
 })();
 </script>
 </body>
