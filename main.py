@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bw-demo-voice-dashboards" (Jim's three asks).
+#               (1) THE DEMO IS ANSWERED BY TALKING. New POST /api/demo-transcribe --
+#               same ElevenLabs engine and the same TRANSCRIBE-AND-DELETE guarantee as
+#               /api/transcribe (audio lives only in the request, never disk, never
+#               stored), but rate limited BY IP (12 per 5 min) because a demo has no
+#               student code. demo.html now shows a real microphone button; spoken
+#               answers are normalised client-side ("negative two" -> -2, "one half" ->
+#               1/2, "fifty-five degrees" -> 55) before matching. Typing remains one tap
+#               away and becomes automatic when a browser can't record or the visitor
+#               declines the mic. Elementary courses still TAP (that IS their classroom).
+#               (2) TEACH FIRST (rule 19 in the demo): every course opens with a taught
+#               example -- a drawn NUMBER LINE for negative numbers, a shaded fraction
+#               bar, a labelled triangle, a worked equation -- before any question.
+#               (3) THREE DASHBOARDS: after the problem, three big balloons offer the
+#               STUDENT, TEACHER and PARENT views; each opens full-screen with sample
+#               data and Mr. Cadabra tours it in three spoken stops, then the balloons
+#               return so every view stays available.
+#               DEMO_VOICE_LINES: 20 APPENDED (95-114); 0-94 untouched so cached audio
+#               stays valid; both lists verified identical (115 lines).
 #   2026-08-09  APP_BUILD -> "2026-08-09bv-fullpage-demo". Jim: "when they click start
 #               the demo, I want them to go to a full page view, and go through the
 #               complete tour of the page just like we do with a new student."
@@ -4095,7 +4114,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bv-fullpage-demo"
+APP_BUILD = "2026-08-09bw-demo-voice-dashboards"
 
 
 @app.get("/health")
@@ -4917,6 +4936,28 @@ DEMO_VOICE_LINES = [
     "Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that.",
     "And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion.",
     "Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it.",
+    # APPENDED 2026-08-09 (build bw): the per-course TEACH step (95-104), the
+    # dashboard chooser (105), and the three dashboard tours (106-114).
+    "Before we count anything, here's the trick: we touch each one and say the numbers in order. Watch me count these three stars — one… two… three. The last number you say is how many there are. Now you try with a new group!",
+    "A fraction is just a number cut into equal pieces. Look at the bar on the board: it's cut into four equal pieces, so each piece is one fourth. Shade two of them and you have two fourths — which is exactly the same amount as one half. Now let's use that.",
+    "Here's a number line. Zero sits in the middle, positive numbers run to the right, and negative numbers run to the left. Adding moves you to the right; subtracting moves you left. Watch: start at negative two, climb three steps right, and you land on positive one. Your turn next.",
+    "Solving means getting x all by itself, and the one rule is: whatever you do to one side, you do to the other. Watch a quick one — x plus four equals ten. Subtract four from both sides, and x equals six. Now let's do a two-step one together.",
+    "Every triangle's three angles add up to one hundred eighty degrees — always, no exceptions. Watch a friendly one: sixty plus sixty plus sixty is one hundred eighty. Now let's find a missing angle.",
+    "An exponent just counts how many times you multiply. Two to the third means two times two times two, which is eight — each step doubles what you had. Now let's run that backwards.",
+    "The unit circle measures turns two ways. A quarter turn is ninety degrees, and in radians we call that same quarter turn pi over two. Degrees and radians are just two rulers for the same angle. Now let's convert one.",
+    "The mean is the fair-share average: add everything up, then split it evenly. Watch — two scores, four and eight. Together that's twelve, split between two people is six each. Now let's do three scores.",
+    "The power rule is the first tool in calculus: bring the power down in front, then drop the power by one. Watch — x squared becomes two x. That's it, that's the whole move. Now you try it on a bigger one.",
+    "Rule one in differential equations is: classify before you solve. The ORDER is simply the highest derivative in sight — count the tick marks. Watch: y triple-prime has three ticks, so that's third order. Now you classify one.",
+    "And that's a real lesson! Now let me show you what the grown-ups see. There are three windows into your student's progress — theirs, a teacher's, and a parent's. Pick whichever one you'd like to look at, and I'll walk you through it.",
+    "This is the student's own dashboard — the one they open to watch themselves win. Right up top: units mastered, how accurate they've been, problems practiced, and the day streak they're protecting.",
+    "Below that is their course map — nine units, turning gold as each one is mastered, marching toward the Final Exam. It's the same map they see on the bars during a lesson, so their progress is never a mystery.",
+    "And this is the trophy case. Every award is earned by real work — exploring a topic, practicing it, learning it, mastering the unit, and the effort medal for sticking with something hard. Nothing here is decoration.",
+    "This is the teacher's view — the whole class on one screen. Each student's current unit, their accuracy, when they last worked, and a flag when someone needs a hand today.",
+    "This column is the one teachers tell us they use most: what to strengthen next, for each student, in plain words. It comes from what actually went wrong in their lessons, not from a generic level number.",
+    "And down here is my honest read on the class — where the group is solid, where several students are wobbling on the same idea, and what I'd teach next. A teacher can use it or overrule it; it's a colleague's opinion, not a verdict.",
+    "This is the parent's view, and it answers the only question that really matters: how is my child actually doing? No jargon, no scores to decode — just an honest read in plain English.",
+    "Here's the week at a glance — time spent, what they mastered, and what they struggled with. If your child had a rough day, you'll see it here, because a dashboard that only shows good news isn't worth having.",
+    "And this button prints the whole record — every unit, every quiz, every hour — for a homeschool portfolio or a school district's file. It's your data; you can take it with you any time.",
 ]
 
 
@@ -5014,6 +5055,47 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
         return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
     except Exception as exc:  # noqa: BLE001
         print(f"[transcribe] error: {exc}")
+        return {"text": ""}
+
+
+@app.post("/api/demo-transcribe")
+async def demo_transcribe(request: Request, audio: UploadFile = File(...)):
+    """The /demo page's microphone (2026-08-09, build bw, Jim: a visitor should ANSWER
+    BY TALKING, exactly the way a student does -- not by typing).
+
+    Same engine and the same TRANSCRIBE-AND-DELETE guarantee as /api/transcribe: the
+    audio exists only in memory for this request, goes to ElevenLabs, and is discarded
+    when the request ends. It is never written to disk, never stored, never logged --
+    only the text comes back.
+
+    The demo has no student code, so this is rate limited BY IP instead (a demo needs
+    one or two uploads; twelve per five minutes is generous and caps the spend from any
+    single visitor). Returns {"text": ""} on every failure so the page can fall back to
+    typing rather than dead-end.
+    """
+    _rate_limit("demostt:" + _client_ip(request), limit=12, window_seconds=300,
+                what="demo voice answers")
+    if not ELEVEN_API_KEY:
+        return {"text": "", "error": "no_key"}
+    try:
+        content = await audio.read()
+        if not content:
+            return {"text": ""}
+        files = {"file": (audio.filename or "speech.webm", content,
+                          audio.content_type or "audio/webm")}
+        with httpx.Client(timeout=60.0) as client:
+            r = client.post(
+                "https://api.elevenlabs.io/v1/speech-to-text",
+                headers={"xi-api-key": ELEVEN_API_KEY},
+                data={"model_id": ELEVEN_STT_MODEL},
+                files=files,
+            )
+        if r.status_code != 200:
+            print(f"[demo-transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
+            return {"text": ""}
+        return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[demo-transcribe] error: {exc}")
         return {"text": ""}
 
 
