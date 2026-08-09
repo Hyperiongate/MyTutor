@@ -8,6 +8,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-09  PROACTIVE AUDIT, CLIENT HALF (build bu). (1) forSpeech(): negative
+    VALUES speak as "negative" (the OPERATION stays "minus" — and the board's Unicode
+    minus now converts too, a pre-existing gap the new ruletests.py battery caught),
+    plus percents, ratios, common fractions, mixed numbers, and thousands separators.
+    (2) Board lines NEVER wrap mid-equation any more: .wrow cells are nowrap and the
+    new fitRow() shrinks an oversized line until it fits (Jim's "dimes: 7 + 8 + = 16 /
+    1(carried)" break — a wrapped equation reads as a DIFFERENT equation). Same
+    forSpeech patch on practice + topic.
   - 2026-08-08  UNIT BAR RENDERS AT LOAD (build br, Jim: a resumed session showed only
     the course bar). The unit bar's ladder is already known at page load (curriculum
     topics + placement/focus unit + server quiz history), so loadSession now renders it
@@ -706,6 +714,12 @@
       width:100%; max-width:520px; font-size:33px; font-weight:800; color:var(--ink); line-height:1.2;
       margin:2px 0; opacity:0; animation: stepin .45s ease forwards; }
     .worklist .wrow .wl { text-align:right; } .worklist .wrow .we { color:var(--muted); } .worklist .wrow .wr { text-align:left; }
+    /* 2026-08-09 (build bu, proactive audit #11): a long step line used to WRAP inside its
+       grid cell, which literally displayed a different equation ("dimes: 7 + 8 + = 16" with
+       "1(carried)" on the next line). Cells never wrap now; fitRow() shrinks an oversized
+       row's font until the whole line fits on one line. A broken equation is worse than a
+       small one. */
+    .worklist .wrow .wl, .worklist .wrow .wr, .worklist .wrow .we { white-space: nowrap; }
     .worklist .wrow.solo { grid-template-columns:1fr; } .worklist .wrow.solo .wl { text-align:center; }
     .worklist .worow { display:grid; grid-template-columns:1fr auto 1fr; column-gap:14px; width:100%; max-width:520px;
       font-size:18px; font-weight:800; color:var(--accent); margin:0 0 2px; opacity:0; animation: stepin .4s ease forwards; }
@@ -1563,6 +1577,18 @@
     // no cents"): money is read as money, plain decimals as "point", never "dot".
     //   $1.85 -> "1 dollar and 85 cents"   $3.75 -> "3 dollars and 75 cents"
     //   $0.85 -> "85 cents"   $2 -> "2 dollars"   3.75 (no $) -> "3 point 7 5"
+    // 2026-08-09 (build bu, proactive audit #15): numbers are spoken the way people say
+    // them. A negative VALUE is "negative three" (never "minus"/"dash"); percents,
+    // ratios, common fractions and mixed numbers get their real names; thousands
+    // separators are dropped so a big number is read whole, not digit by digit.
+    var FRAC_WORDS = { "1/2": "one half", "1/3": "one third", "2/3": "two thirds",
+      "1/4": "one fourth", "3/4": "three fourths", "1/5": "one fifth", "1/8": "one eighth",
+      "1/10": "one tenth" };
+    function fracWords(m, a, b) { return FRAC_WORDS[a + "/" + b] || m; }
+    function mixedWords(m, whole, a, b) {
+      var f = FRAC_WORDS[a + "/" + b] || (a + " over " + b);
+      return whole + " and " + f;
+    }
     function moneyWords(_, d, c) {
       const dollars = parseInt(d, 10);
       const cents = c === undefined ? null : parseInt(c, 10);
@@ -1576,14 +1602,20 @@
     function forSpeech(text) {
       return String(text)
         .replace(/\*+/g, " ")                                       // strip markdown *
-        .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)         // $1.85 -> 1 dollar and 85 cents
+        .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
+        .replace(/(\d),(\d{3})\b/g, "$1$2")                            // 1,234 -> read whole
+        .replace(/(^|[(=+\u00d7\u00f7*])\s*[-\u2212](\d)/g, "$1 negative $2")   // VALUE negatives
+        .replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)\b/g, mixedWords)         // 2 1/2 -> two and one half
+        .replace(/\b(\d+)\s*\/\s*(\d+)\b/g, fracWords)                // 1/2 -> one half
+        .replace(/\s*%/g, " percent ")                                  // 20% -> 20 percent
+        .replace(/(\d)\s*:\s*(\d)/g, "$1 to $2")                       // 3:2 -> 3 to 2         // $1.85 -> 1 dollar and 85 cents
         .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))  // 3.75 -> 3 point 7 5
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")  // f(x) -> f of x
         .replace(/[()]/g, " ")                                      // drop stray parentheses
         .replace(/\s*=\s*/g, " equals ")
         .replace(/\s*\+\s*/g, " plus ")
-        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2")
-        .replace(/\s-\s/g, " minus ")
+        .replace(/(\d)\s*[-\u2212]\s*(\d)/g, "$1 minus $2")   // 2026-08-09: the board's
+        .replace(/\s[-\u2212]\s/g, " minus ")                    // Unicode minus counts too
         .replace(/\s*[×*]\s*/g, " times ")
         .replace(/\s*[÷]\s*/g, " divided by ")
         .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")
@@ -2402,6 +2434,17 @@
     }
     // One equation/expression row. If it has an "=", split into left | = | right so
     // columns line up down the board; otherwise render it centered on its own.
+    // Shrink a just-appended board row until its content fits on ONE line (see the
+    // .wrow nowrap note in the CSS). Runs after layout; a no-op for normal short lines.
+    function fitRow(row) {
+      try {
+        let size = parseFloat(getComputedStyle(row).fontSize) || 33;
+        let guard = 0;
+        while (row.scrollWidth > row.clientWidth + 1 && size > 14 && guard++ < 20) {
+          size -= 2; row.style.fontSize = size + "px";
+        }
+      } catch (e) {}
+    }
     function eqRow(eqText) {
       const s = String(eqText == null ? "" : eqText).trim();
       const row = document.createElement("div"); row.className = "wrow";
@@ -2436,8 +2479,8 @@
       const wl = getWorklist();
       const oldCap = wl.querySelector(".wcap"); if (oldCap) oldCap.remove();   // keep any caption last
       const eq = a.eq || a.result || a.line || a.text || "";
-      if (a.op) wl.appendChild(opRow(a.op));
-      if (eq) wl.appendChild(eqRow(eq));
+      if (a.op) fitRow(wl.appendChild(opRow(a.op)));
+      if (eq) fitRow(wl.appendChild(eqRow(eq)));
       if (a.check) { const c = document.createElement("div"); c.className = "wcheck"; c.innerHTML = styleVars(a.check); wl.appendChild(c); }
       if (a.cap || a.caption) setWorkCap(wl, a.cap || a.caption);
       scrollFeed();

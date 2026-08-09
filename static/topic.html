@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    2026-08-09  PROACTIVE AUDIT, CLIENT HALF (build bu): forSpeech() gains negative
+                VALUES ("negative three"; the operation stays "minus", and the board's
+                Unicode minus converts too), percents, ratios, common + mixed fractions
+                and thousands separators. All three teaching pages.
     2026-08-08  MONEY SPEECH (build bp): forSpeech() reads money as money ($1.85 ->
                 "1 dollar and 85 cents") and plain decimals with "point" digit by digit
                 (3.75 -> "3 point 7 5") -- never "dot". All three teaching pages.
@@ -830,6 +834,18 @@
     if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
     // 2026-08-08 (build bp, Jim: "$1.85" was spoken as "one dot eight five — no dollar,
     // no cents"): money is read as money, plain decimals as "point", never "dot".
+    // 2026-08-09 (build bu, proactive audit #15): numbers are spoken the way people say
+    // them. A negative VALUE is "negative three" (never "minus"/"dash"); percents,
+    // ratios, common fractions and mixed numbers get their real names; thousands
+    // separators are dropped so a big number is read whole, not digit by digit.
+    var FRAC_WORDS = { "1/2": "one half", "1/3": "one third", "2/3": "two thirds",
+      "1/4": "one fourth", "3/4": "three fourths", "1/5": "one fifth", "1/8": "one eighth",
+      "1/10": "one tenth" };
+    function fracWords(m, a, b) { return FRAC_WORDS[a + "/" + b] || m; }
+    function mixedWords(m, whole, a, b) {
+      var f = FRAC_WORDS[a + "/" + b] || (a + " over " + b);
+      return whole + " and " + f;
+    }
     function moneyWords(_, d, c) {
       const dollars = parseInt(d, 10);
       const cents = c === undefined ? null : parseInt(c, 10);
@@ -844,13 +860,19 @@
       return String(text)
         .replace(/\*+/g, " ")
         .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
+        .replace(/(\d),(\d{3})\b/g, "$1$2")                            // 1,234 -> read whole
+        .replace(/(^|[(=+\u00d7\u00f7*])\s*[-\u2212](\d)/g, "$1 negative $2")   // VALUE negatives
+        .replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)\b/g, mixedWords)         // 2 1/2 -> two and one half
+        .replace(/\b(\d+)\s*\/\s*(\d+)\b/g, fracWords)                // 1/2 -> one half
+        .replace(/\s*%/g, " percent ")                                  // 20% -> 20 percent
+        .replace(/(\d)\s*:\s*(\d)/g, "$1 to $2")                       // 3:2 -> 3 to 2
         .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")
         .replace(/[()]/g, " ")
         .replace(/\s*=\s*/g, " equals ")
         .replace(/\s*\+\s*/g, " plus ")
-        .replace(/(\d)\s*-\s*(\d)/g, "$1 minus $2")
-        .replace(/\s-\s/g, " minus ")
+        .replace(/(\d)\s*[-\u2212]\s*(\d)/g, "$1 minus $2")   // 2026-08-09: the board's
+        .replace(/\s[-\u2212]\s/g, " minus ")                    // Unicode minus counts too
         .replace(/\s*[×*]\s*/g, " times ")
         .replace(/\s*[÷]\s*/g, " divided by ")
         .replace(/(\w)\s*\/\s*(\w)/g, "$1 over $2")

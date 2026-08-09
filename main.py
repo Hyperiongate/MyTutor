@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bu-proactive-rules". Jim: "implement the
+#               proactive rules as you see fit" (claude/Proactive_Rules_Audit_2026-08-
+#               08.md). No main.py logic changes -- stamp bump only. Shipped:
+#               (1) tutor.py shared rules 20-34 (answer handling, board-over-time,
+#                   session endings, off-topic + a ⚠️ counsel-queued distress rule,
+#                   problem quality, spaced review) -- verified in ALL TEN courses;
+#               (2) number-speech rules in all eleven "HOW YOU SPEAK" blocks;
+#               (3) forSpeech() on session/practice/topic: negative VALUES, percents,
+#                   ratios, common + mixed fractions, thousands separators -- and the
+#                   board's Unicode minus now reads as "minus" (a pre-existing gap the
+#                   new test battery surfaced);
+#               (4) board lines never wrap mid-equation: nowrap cells + fitRow() shrinks
+#                   an oversized line to fit (the "7 + 8 + = 16 / 1(carried)" break);
+#               (5) ⭐ THE PROSE REFEREE in tutor.py -- catches a reply whose SPOKEN
+#                   words contradict its own board (the live 2026-08-08 "fifteen dimes"
+#                   bug); narrow by design, fails open, silently regenerates;
+#               (6) NEW ruletests.py -- the rule regression battery (51 offline checks
+#                   + scripted live student scenarios). Not imported by the app.
 #   2026-08-09  APP_BUILD -> "2026-08-09bt-classroom-demo". THE DEMO IS THE CLASSROOM
 #               (Jim's redesign): /demo now opens as the real learning board (goal
 #               banner + the three progress bars in the real palette + whiteboard +
@@ -4062,7 +4080,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bt-classroom-demo"
+APP_BUILD = "2026-08-09bu-proactive-rules"
 
 
 @app.get("/health")
