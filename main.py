@@ -2,6 +2,30 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09bx-demo-nofailure-dashboards". Jim, on the demo:
+#               "we got one shot to do it right, and it failed" -- a lesson referred to a
+#               diagram that never appeared (precalc said "welcome to the unit circle"
+#               with no circle drawn), and most lessons still told the visitor to TYPE
+#               after we moved to voice. ALL TEN LESSONS REBUILT deliberately:
+#               every visual a line mentions is DRAWN in that same step (new unit-circle
+#               and bar-chart figures; the geometry triangle now carries the ASKED
+#               angles, 90/35/?, not the taught ones), every ask is voice-worded, and
+#               each course teaches a worked example before asking. A new audit
+#               (/tmp-style checks, mirrored in the build) walks all 22 steps and fails
+#               the build on any unmatched visual reference or any "type it" language;
+#               a second walk plays a plausible SPOKEN answer through every course.
+#               THE THREE DASHBOARDS ARE NOW FULL (Jim: "extravagant and very, very
+#               thorough"): one invented student, Maya Rivera, 7th grade, with a real
+#               record -- 4 units mastered with dates and quiz scores, 312 problems,
+#               an 11-day streak, 12 awards, the unit-5 topic ladder, an accuracy trend
+#               and a minutes-per-day chart, and her next three sessions. The teacher
+#               view gains a 6-student roster, a 9x6 mastery grid, per-student
+#               "strengthen next" with reasons, a long honest read, and a time-on-task
+#               chart. The parent view gains a plain-English read, the week, the arc
+#               since September, everything mastered with dates and scores, what's hard
+#               right now WITH the plan, awards, and the printable record. Each is
+#               toured in SIX spoken stops (was three).
+#               DEMO_VOICE_LINES: 39 APPENDED (115-153); 0-114 untouched.
 #   2026-08-09  APP_BUILD -> "2026-08-09bw-demo-voice-dashboards" (Jim's three asks).
 #               (1) THE DEMO IS ANSWERED BY TALKING. New POST /api/demo-transcribe --
 #               same ElevenLabs engine and the same TRANSCRIBE-AND-DELETE guarantee as
@@ -4114,7 +4138,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bw-demo-voice-dashboards"
+APP_BUILD = "2026-08-09bx-demo-nofailure-dashboards"
 
 
 @app.get("/health")
@@ -4958,6 +4982,49 @@ DEMO_VOICE_LINES = [
     "This is the parent's view, and it answers the only question that really matters: how is my child actually doing? No jargon, no scores to decode — just an honest read in plain English.",
     "Here's the week at a glance — time spent, what they mastered, and what they struggled with. If your child had a rough day, you'll see it here, because a dashboard that only shows good news isn't worth having.",
     "And this button prints the whole record — every unit, every quiz, every hour — for a homeschool portfolio or a school district's file. It's your data; you can take it with you any time.",
+    # APPENDED 2026-08-09 (build bx): every lesson rebuilt for VOICE answering and
+    # for figures that actually appear (115-134).
+    "Your turn. The board shows negative three plus five, and there's your number line right underneath it. Start three steps below zero, climb five steps to the right, and tell me where you land. Tap the microphone and say it out loud.",
+    "Not quite — let's walk it together. Put your finger on negative three, then count five hops to the right: negative two, negative one, zero, one… and one more. Tap the mic and say where you land.",
+    "Now a real one — it's on the board: two x plus three equals eleven. Our whole goal is to get x all by itself, so the first move is undoing that plus three. What should we do to BOTH sides? Tap the microphone and say your move.",
+    "Close — the three is being ADDED, so we undo it with the opposite move. Tap the mic and tell me what to do to both sides.",
+    "Look at the board now: two x equals eight. Two x means two TIMES x — so what undoes a times two? Tap the microphone and say your move.",
+    "Careful — two x means two times x, so we undo it with division, not subtraction. Tap the mic and try that once more.",
+    "Last step. The board says eight divided by two — so what does x equal? Tap the microphone and say the number.",
+    "Almost — think of eight split into two equal groups. Tap the mic and say how many are in each group.",
+    "Now look at the triangle on the board. Two of its angles are marked for you — ninety degrees and thirty-five degrees — and the third one has a question mark. All three together must add to one hundred eighty. Tap the microphone and tell me that missing angle.",
+    "Let's build it up in two moves — first add the two angles you can see, ninety plus thirty-five. Then take that away from one hundred eighty. Tap the mic and say what's left.",
+    "Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two and count how many times you double. Tap the microphone and say the power.",
+    "Keep doubling out loud with me — two, four, eight, and so on. Count each step until you reach thirty-two, then tap the mic and say how many steps that took.",
+    "Now look at the circle on the board. The arrow sweeps exactly HALF the way around, and half a turn is what we call pi radians. How many degrees is that half turn? Tap the microphone and say it.",
+    "Think about the whole circle first — all the way around is three hundred sixty degrees. Our arrow goes exactly half that far. Tap the mic and say the number.",
+    "Three quiz scores are on the board — three, five and ten — drawn as bars so you can see their sizes. The mean is the fair share: add them all up, then split the total evenly three ways. Tap the microphone and say the mean.",
+    "Let's do it in two moves — first add three, five and ten together. Then split that total into three equal shares. Tap the mic and say what one share is.",
+    "Your turn with the power rule. The board shows x CUBED. Bring the three down in front, then drop the power by one — what is the NEW power? Tap the microphone and say it.",
+    "Just the second half of the rule: the old power is three, and we drop it by one. Tap the mic and say what that leaves.",
+    "Now you classify one. The board shows y double-prime plus y equals zero. The order is simply the highest derivative in sight — count the tick marks on the busiest y. Tap the microphone and say that number.",
+    "Look right at the y carrying the most tick marks — two of them means the SECOND derivative. Tap the mic and say that order as a number.",
+    # APPENDED 2026-08-09 (build bx): the three FULL dashboard tours, six stops
+    # each (135-152), walking a complete invented student's record.
+    "This is Maya's own dashboard — the screen your student opens to watch themselves win. Right at the top, the numbers that matter: four units mastered, ninety-one percent accuracy, three hundred twelve problems worked, and an eleven-day streak she is very proud of.",
+    "Here's her whole course, all nine units. The gold ones are mastered — she's finished Numbers, Fractions, Ratios and Percents. Unit five is where she's working right now, and the four ahead are still waiting. At the end sits the Final Exam, locked until every unit is gold.",
+    "Open the unit she's in and you see the ladder inside it: every topic, every quiz, and the score she earned. Comparing decimals, eighty-eight percent. Adding and subtracting, ninety-two. Multiplying is where she is today, and the Unit Quiz waits at the top.",
+    "These two charts are her habits. On the left, accuracy week by week — you can see the dip in week three when percents got hard, and the climb back after we slowed down. On the right, minutes per day this week. Honest pictures, both of them; a dashboard that only shows good news isn't worth having.",
+    "And this is the trophy case — twelve awards, every one of them earned. Explored a topic. Practiced it. Learned it. Mastered a whole unit. The Course Champion medal from finishing Basic Math last spring. And the effort medal, which she got for coming back to percents four days in a row until they clicked.",
+    "Last, what's coming: the exact next three sessions, so she never wonders what happens tomorrow. And down here, her courses — Basic Math finished and championed, Pre-Algebra in progress, with everything from her old course still on the record.",
+    "Now the teacher's view. This is Room Twelve — six students in Pre-Algebra — and the top row is the class at a glance: average accuracy, how many are on track, how many need a hand today, and the hours the class put in this week.",
+    "Here's the roster. Every student, the unit they're in, their accuracy, their streak, and when they last worked. Ben hasn't been in for four days and his accuracy is sliding — so he's flagged in red at the top of your attention, not buried on page three.",
+    "This grid is the one that saves a teacher a whole planning period. Nine units across, six students down, and every square colored: mastered, in progress, or not started. In one glance you can see that the whole class stalled in the same place — Unit two, fractions.",
+    "Then, in plain words, what to strengthen next for each student — and WHY. Not a level number, not a percentile. Ben is stalling on borrowing across a zero. Aiden can't find a common denominator yet. That's what actually went wrong in their lessons this week.",
+    "And this is my honest read on the class. Where they're solid, where several of them are wobbling on the very same idea, and what I would teach next if it were my room. A teacher can take it or overrule it — it's a colleague's opinion, never a verdict.",
+    "Down at the bottom: what's coming. Who has a Unit Quiz this week, who is close to their Final Exam, and the class time chart so a teacher can see who is quietly doing nothing.",
+    "And now the view most parents care about. It opens with the only question that really matters — how is my child actually doing? — answered in plain English, with no jargon and no scores to decode.",
+    "Here's her week: four days in, two hours and fifteen minutes, one unit mastered, and the thing she struggled with. We put the hard part right next to the good part on purpose. If your child had a rough week, this page will tell you so.",
+    "This is the longer arc — every week since she started in September. Hours, accuracy, units mastered. You can watch her get better, and you can see exactly which week percents nearly beat her.",
+    "Everything she has mastered, with the date and the quiz score that proved it. This is the list you'd want if anyone ever asks what your child has actually learned this year.",
+    "And this is the part I'd read first: what's hard for her right now, and what we are doing about it. Lining up decimal points when the numbers have different lengths. My plan is smaller numbers and money problems until it feels ordinary — and I'll tell you here when it does.",
+    "Finally, the record. Every unit, every quiz, every hour, printable in one click for a homeschool portfolio or a school district file. It's your data and your child's work — you can take it with you any time, and you never have to ask us for it.",
+    "Look at the board — two fourths plus one more fourth. Count the shaded pieces and tap again!",
 ]
 
 
