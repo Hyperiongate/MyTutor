@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  SCORING IS FLOORED, NOT ROUNDED (build ch, audit #2 item 9). Every
+#               score here used round(100 * correct / total) and then compared THAT to
+#               the pass mark, so a rounded-up percentage could carry a student over a
+#               bar they had not cleared -- and the rounded value was also what got
+#               STORED as best_pct, which is what the mastery bars and the printable
+#               record read. New score_pct() does it in integer arithmetic, floored, and
+#               record_check / record_topic_quiz / record_final_exam all use it.
+#               NOTHING A STUDENT HAS ALREADY EARNED CHANGES: at our real question counts
+#               (3-5 topic quiz, 4-6 unit quiz, 18 final) there is no score where
+#               rounding and flooring disagree -- verified exhaustively, and ruletests.py
+#               re-verifies it for every total from 1 to 40. But "the progress bars are
+#               honest" should not rest on a coincidence in the question counts, and a
+#               future 20-question exam would have broken it silently.
 #   2026-08-09  TODAY'S GOALS (build cg, Jim: "there's only two of the three tracking
 #               bars across the top. I don't know where the third one is, and I don't
 #               know why it keeps disappearing"). NEW TABLE `today_goals`
@@ -1172,13 +1185,29 @@ def _set_unit_status(code: str, unit: int, status: str, unit_name: str = "",
     })
 
 
+# ---- scoring: the tally is arithmetic, never judgment -----------------------
+# 2026-08-09 (build ch, proactive audit #2 item 9). Every score in this file used
+# round(100 * correct / total) and then compared THAT to the pass mark, which means a
+# rounded-up percentage could carry a student over a bar they did not clear. At our real
+# question counts (3-5 per topic quiz, 4-6 per unit quiz, 18 on the final) there is no
+# score where rounding and flooring disagree, so nothing a student has already earned
+# changes -- but "your progress bars are honest" should not depend on a coincidence in
+# the question counts, and a future 20-question exam would break it silently.
+# So: integer arithmetic, floored, one helper, used everywhere. The number we DISPLAY and
+# the number we DECIDE on are the same number, always.
+def score_pct(correct, total) -> int:
+    """The honest percentage: floor of correct/total, in integer arithmetic."""
+    c = max(0, int(correct)); t = max(1, int(total))
+    return (c * 100) // t
+
+
 def record_check(code: str, unit: int, correct: int, total: int, unit_name: str = "",
                  course: str = DEFAULT_COURSE) -> dict:
     """Record an end-of-unit check result for a course. Updates best/last score, cumulative
     accuracy, the day streak, and marks the unit 'mastered' if the student passed. Returns a
     small summary {pct, best_pct, mastered}."""
     correct = max(0, int(correct)); total = max(1, int(total))
-    pct = round(100 * correct / total)
+    pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     from sqlalchemy import select
     t = _tables["unit_checks"]
     with _engine.connect() as conn:
@@ -1215,7 +1244,7 @@ def record_topic_quiz(code: str, unit: int, topic_name: str, correct: int, total
     best/last percent and an attempt count. Returns {pct, passed, best_pct}."""
     from sqlalchemy import select
     correct = max(0, int(correct)); total = max(1, int(total))
-    pct = round(100 * correct / total)
+    pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     key = _topic_key(topic_name)
     t = _tables["topic_quizzes"]
     with _engine.connect() as conn:
@@ -1296,7 +1325,7 @@ def record_final_exam(code: str, correct: int, total: int,
     backs the 🏅 Course Champion award). Returns {pct, passed, best_pct, passed_at}."""
     from sqlalchemy import select
     correct = max(0, int(correct)); total = max(1, int(total))
-    pct = round(100 * correct / total)
+    pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     t = _tables["final_exams"]
     with _engine.connect() as conn:
         r = conn.execute(select(t.c.exams_taken, t.c.best_pct, t.c.passed_at).where(

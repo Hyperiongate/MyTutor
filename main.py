@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09ch-assessment-honesty" (proactive audit #2, the
+#               assessment group: items 9, 10 and 11). No endpoint changed shape; the
+#               work is in store.py (the arithmetic), tutor.py (rules 45-47 and a fourth
+#               referee) and ruletests.py. These three protect the progress bars, which
+#               are the product's central promise: every count here becomes a green bar,
+#               a parent dashboard line, and a row in a printable homeschool record.
 #   2026-08-09  APP_BUILD -> "2026-08-09cg-todaybar-pendingcheck". Jim's live Pre-Algebra
 #               resume, two problems, both of which we had "fixed" before.
 #               (1) "There's only two of the three tracking bars across the top. I don't
@@ -4465,7 +4471,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09cg-todaybar-pendingcheck"
+APP_BUILD = "2026-08-09ch-assessment-honesty"
 
 
 @app.get("/health")

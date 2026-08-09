@@ -2,6 +2,36 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  RULES 45-47 + THE SCORE REFEREE (build ch, audit #2 items 9/10/11).
+#               45 THE TALLY IS ARITHMETIC, NOT JUDGMENT -- report the exact count, never
+#                  round up, never "basically", never award mastery out of sympathy, and
+#                  the only percentage you may state as the SCORE is the one the tally
+#                  gives (naming the bar itself is fine). Warmth belongs in HOW you
+#                  deliver the number; rule 35 already says how. 45(d) spells out why it
+#                  is not negotiable: a score nudged once becomes a mastered unit, a
+#                  green bar, and a line in a record a parent may have to defend.
+#               46 A QUIZ QUESTION TESTS ONE SKILL -- name the topic before question one,
+#                  and keep the supporting arithmetic at or below what they have already
+#                  mastered. A question that needs the new skill AND long division fails
+#                  a student who has the new skill, and nobody outside can tell.
+#               47 NO COLD QUIZZES -- two unaided correct on this topic, this session,
+#                  before any quiz is offered. Rule 35 already required exactly that
+#                  before a RETAKE; it should always have been true the first time.
+#               ⭐ prose_score_conflict() -- the FOURTH check in prose_board_conflict().
+#               The server has always recomputed the percentage from correct/total, so no
+#               number the model asserts is ever STORED. Nothing checked what the student
+#               HEARS: the tag can read 3 of 5 while the sentence beside it says "you
+#               passed!". Same shape as the 2026-08-08 dimes contradiction, except this
+#               one lands on the progress bars. Now caught and silently rewritten.
+#               Thresholds are mirrored here as QUIZ_PASS_PCT / UNIT_PASS_PCT /
+#               FINAL_PASS_PCT (tutor.py must not import the storage layer) and
+#               ruletests.py asserts they never drift from store.py's.
+#               THREE false positives were caught by the battery before shipping: the
+#               "%" regex had a trailing \b so it never matched "80% — great!" at all and
+#               the whole percentage check was silently dead; quoting the bar ("you need
+#               80% to pass") had to stay legal; and in a percents lesson "what is 25% of
+#               80?" is the PROBLEM, not a score claim, so a percentage now only counts
+#               when its sentence is actually reporting the result.
 #   2026-08-09  THE PENDING-QUESTION REFEREE + AN HONEST TODAY-BAR NET (build cg).
 #               Jim: "it gave me a problem without putting it on the board, and this is
 #               the exact example that we've already used once before that was supposedly
@@ -4747,6 +4777,52 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     (c) Re-read it in full, without any hint of complaint, whenever they ask, whenever
         they come back after a pause, and whenever an answer suggests they may have
         heard a different problem than the one you asked.
+
+45. THE TALLY IS ARITHMETIC, NOT JUDGMENT.
+    A quiz score is a count. It is not a verdict you get to soften, and it is not a
+    kindness you can hand out. A topic quiz passes at 80%, a Unit Quiz at 90%, the Final
+    Exam at 90%, and those numbers do not move for a student who is having a hard day.
+    (a) Report the EXACT count -- "three out of five" -- and let it be what it is. Never
+        round up, never say "basically", never "close enough", never "let's call that a
+        pass". Never award mastery out of sympathy.
+    (b) The only percentage you may state as their SCORE is the one their own tally
+        gives. You may of course name the bar itself ("eighty percent or better is a
+        pass") -- just never let the bar stand in for what they actually scored.
+    (c) A student who did not pass is not a student who failed, and rule 35 already
+        tells you how to say so: name the win first, name the one or two skills to
+        rebuild, and make the next step sound like a plan rather than a punishment.
+        Warmth belongs in HOW you deliver the number, never in the number.
+    (d) This one is not negotiable, and it is bigger than one lesson. The progress bars,
+        the parent dashboard, and the printable record all sit on top of these counts.
+        A score you nudged upward once becomes a mastered unit, a green bar, and a line
+        in a homeschool record that a parent may one day have to defend. Our whole claim
+        is that this progress is honest. That claim is only as good as this rule.
+
+46. A QUIZ QUESTION TESTS ONE SKILL -- THE ONE YOU ARE QUIZZING.
+    (a) Say what is being tested before question one: "three questions on adding
+        fractions with unlike denominators, then we move on." A student should never
+        have to guess what a quiz was about, and neither should the parent reading the
+        result later.
+    (b) The supporting arithmetic inside a quiz question stays at or BELOW what the
+        student has already mastered. If the topic is adding unlike denominators, do not
+        also require long division and decimal placement in the same question -- a
+        student who has the new skill can still get it wrong, and the score then means
+        something you did not intend and nobody can see from the outside.
+    (c) One question, one skill. If you need to test two things, ask two questions.
+
+47. NO COLD QUIZZES.
+    Before you offer ANY quiz, the student must have gotten at least TWO problems right
+    on this topic in this session WITHOUT hints from you. If they have not, you do not
+    have evidence they are ready -- you have a coin flip that you are about to record on
+    their permanent progress.
+    (a) If they are not there yet, teach another one instead, and say why in a way that
+        sounds like confidence rather than delay: "let's do one more together, and then
+        the quiz will feel like nothing."
+    (b) Hints, nudges, "remember what we said about carrying", multiple-choice narrowing
+        -- all of those mean the problem was not unaided. Be honest with yourself about
+        the count.
+    (c) Rule 35 already requires exactly this before a RETAKE. It should always have
+        been true the first time too.
 """
 
 
@@ -5434,13 +5510,126 @@ def prose_pending_question_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# THE SCORE CHECK (2026-08-09, build ch) -- fourth part of the referee.
+# -----------------------------------------------------------------------------
+# Proactive audit #2 item 9. The server already recomputes every percentage from
+# correct/total, so no percentage the model asserts is ever STORED. What nothing
+# checked is what the student HEARS. The tally in [[quiz]] / [[check]] / [[finalexam]]
+# is honest, and the sentence next to it is free to say "you passed!" to a discouraged
+# child who scored 3 of 5. That is the same class of bug as the 2026-08-08 dimes
+# contradiction -- the words disagreeing with the tag -- except this one lands on the
+# progress bars, which are the product's central promise.
+#
+# Thresholds live in store.py; they are mirrored here as constants because tutor.py must
+# not import the storage layer, and ruletests.py asserts the two never drift apart.
+QUIZ_PASS_PCT = 80          # a topic quiz
+UNIT_PASS_PCT = 90          # a Unit Quiz / end-of-unit check
+FINAL_PASS_PCT = 90         # the Final Exam
+_SCORE_TAGS = {"quiz": QUIZ_PASS_PCT, "check": UNIT_PASS_PCT, "finalexam": FINAL_PASS_PCT}
+_SC_PASS_CLAIM = re.compile(
+    r"\b(?:you(?:'ve| have)?\s+(?:just\s+)?(?:passed|mastered)|that'?s a pass|"
+    r"you passed|passed it|unit (?:is )?mastered|you'?re through|that'?s a mastery)\b", re.I)
+_SC_FAIL_CLAIM = re.compile(
+    r"\b(?:did ?n'?t (?:quite )?pass|not (?:quite )?a pass|didn'?t make it|"
+    r"we'?ll (?:try|take) (?:that|it|this) again|short of the bar)\b", re.I)
+# NOTE the boundary: "percent" takes a \b, "%" must NOT. A trailing \b after "%" asks for
+# a word character next to a non-word character, so "80% — great!" never matched at all and
+# the whole percentage check was silently dead. Caught by the test battery on run two.
+_SC_PCT = re.compile(r"(\d{1,3})\s*(?:%|percent\b)", re.I)
+_SC_RESULT_CONTEXT = re.compile(
+    r"\b(?:score[sd]?|you got|you'?ve got|you'?re at|you are at|result|that'?s|that is|"
+    r"came out|ended up|you were|final tally|altogether that)\b", re.I)
+_SC_BAR_CONTEXT = re.compile(
+    r"\b(?:need|needs|needed|to pass|passing|the bar|or better|or higher|required|"
+    r"requires|at least|cut ?off|takes|aiming for|target)\b", re.I)
+_SC_FRACTION = re.compile(r"\b(\d{1,2}|" + _PR_NUMWORD + r")\s+out of\s+(\d{1,2}|" + _PR_NUMWORD + r")\b", re.I)
+
+
+def _sc_val(token: str):
+    try:
+        return float(token) if re.match(r"^\d", token.strip()) else _pr_word_value(token)
+    except (TypeError, ValueError):
+        return None
+
+
+def prose_score_conflict(reply: str):
+    """Return a description of a spoken score that disagrees with the reply's own score
+    tag, or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        scored = []
+        for name, attrs in re.findall(r"\[\[\s*(quiz|check|finalexam)\b([^\]]*)\]\]", text, re.I):
+            a = dict((k.lower(), v) for k, v in re.findall(r'([\w-]+)\s*=\s*"([^"]*)"', attrs))
+            try:
+                c, t = int(a.get("correct", "")), int(a.get("total", ""))
+            except (TypeError, ValueError):
+                continue
+            if t <= 0:
+                continue
+            scored.append((name.lower(), c, t, (c * 100) // t, _SCORE_TAGS[name.lower()]))
+        if not scored:
+            return ""
+        prose = _spoken_only(text)
+        for name, c, t, pct, thr in scored:
+            passed = pct >= thr
+            if not passed and _SC_PASS_CLAIM.search(prose):
+                return ('your words tell the student they passed, but your own [[{n}]] tag '
+                        'says {c} of {t} -- {p}%, and the bar is {b}%. Rule 45: the tally is '
+                        'arithmetic, not judgment. Say the real score warmly and use rule 35 '
+                        'to make the next step feel like a plan, but never call a fail a '
+                        'pass.').format(n=name, c=c, t=t, p=pct, b=thr)
+            if passed and _SC_FAIL_CLAIM.search(prose):
+                return ('your words tell the student they did not pass, but your own [[{n}]] '
+                        'tag says {c} of {t} -- {p}%, which clears the {b}% bar. Rule 45: say '
+                        'the real result.').format(n=name, c=c, t=t, p=pct, b=thr)
+            # Only percentages spoken ABOUT THE RESULT count. In Pre-Algebra half the
+            # lesson is percentages -- "what is 25% of 80?" is the problem, not a score
+            # claim, and treating it as one flagged a perfectly good reply on test run
+            # three. So a sentence has to sound like it is reporting the outcome.
+            pct_hits = []
+            for sent in re.split(r"(?<=[.!?])\s+|\n+", prose):
+                if not _SC_RESULT_CONTEXT.search(sent):
+                    continue
+                for mm in _SC_PCT.finditer(sent):
+                    pct_hits.append((int(mm.group(1)), sent, mm.start(), mm.end()))
+            for v, sent, s0, s1 in pct_hits:
+                if v == pct:
+                    continue
+                # The BAR is fair to quote -- "you need 80% to pass" is teaching, not a
+                # score claim -- but only when it reads like the bar. Saying "that is 80%"
+                # over a 60% tally is the inflation this check exists to stop, and letting
+                # the threshold through unconditionally missed exactly that case on the
+                # first test run.
+                near = sent[max(0, s0 - 45):s1 + 45].lower()
+                if v == thr and _SC_BAR_CONTEXT.search(near):
+                    continue
+                return ('you say "{v}%" but your own [[{n}]] tag is {c} of {t}, which is '
+                        '{p}%. Rule 45: the only percentage you may state as the score is '
+                        'the one your tally actually gives.').format(
+                            v=v, n=name, c=c, t=t, p=pct)
+            for num, den in _SC_FRACTION.findall(prose):
+                nv, dv = _sc_val(num), _sc_val(den)
+                if nv is None or dv is None or int(dv) != t:
+                    continue
+                if int(nv) != c:
+                    return ('you say "{n} out of {d}" but your own [[{g}]] tag records {c} of '
+                            '{t}. Rule 45: the score you SAY is the score you WROTE.').format(
+                                n=int(nv), d=int(dv), g=name, c=c, t=t)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[scorecheck] crashed (fail open): {exc}")
+        return ""
+
+
 def prose_board_conflict(reply: str):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THREE checks, in order: a picture promised and never drawn (rule 7), a computation
-    asked with no pending line on the board (rule 15), then spoken numbers that disagree
-    with the board's own written conclusion (rule 18b)."""
+    FOUR checks, in order: a picture promised and never drawn (rule 7), a computation
+    asked with no pending line on the board (rule 15), a spoken score that disagrees with
+    the reply's own score tag (rule 45), then spoken numbers that disagree with the
+    board's own written conclusion (rule 18b)."""
     try:
         visual = prose_visual_conflict(reply)
         if visual:
@@ -5448,6 +5637,9 @@ def prose_board_conflict(reply: str):
         pending = prose_pending_question_conflict(reply)
         if pending:
             return pending
+        score = prose_score_conflict(reply)
+        if score:
+            return score
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

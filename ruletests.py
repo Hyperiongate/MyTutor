@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD ch -- SCORE_CASES, rules 45-47, and two arithmetic guards.
+#               SCORE_CASES covers the new score referee. Its FALSE cases carry the
+#               weight again: three false positives were caught here before shipping,
+#               including one that revealed the percentage check was matching NOTHING
+#               (a stray \b after "%"). Also asserts that tutor.py's pass marks never
+#               drift from store.py's, and that no score in any total from 1 to 40 is
+#               ever stored higher than the truth.
 #   2026-08-09  BUILD cg -- PENDING_CASES and the today-bar guards.
 #               PENDING_CASES covers the new rule-15 referee, and the FALSE cases carry
 #               most of the weight: rule 39(d) now REQUIRES him to ask "does that click,
@@ -168,6 +175,9 @@ COVERAGE = [
     ("rule 42 no comparisons",           "NEVER COMPARE THIS STUDENT TO ANYONE BUT THIS STUDENT"),
     ("rule 43 no false perception",      "YOU PERCEIVE EXACTLY TWO THINGS"),
     ("rule 44 read the problem aloud",   "READ THE PROBLEM ALOUD, IN FULL, EVERY TIME"),
+    ("rule 45 the tally is arithmetic",  "THE TALLY IS ARITHMETIC, NOT JUDGMENT"),
+    ("rule 46 one skill per question",   "A QUIZ QUESTION TESTS ONE SKILL"),
+    ("rule 47 no cold quizzes",          "NO COLD QUIZZES"),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
@@ -293,6 +303,53 @@ PENDING_CASES = [
 ]
 
 
+# ---- the SCORE half (build ch, proactive audit #2 item 9) --------------------
+# The server already recomputes every percentage from correct/total, so no number the
+# model asserts is ever STORED. What nothing checked is what the student HEARS: the tag
+# can say 3 of 5 while the sentence beside it says "you passed!". These counts feed the
+# progress bars, the parent dashboard and the printable homeschool record, so a score
+# softened once becomes a green bar and a line a parent may have to defend.
+# Three false positives were caught here before shipping -- see the FALSE cases.
+SCORE_CASES = [
+    ("a fail called a pass",
+     'Nice work — you passed! [[quiz unit="2" topic="1" name="Rounding" correct="3" total="5"]]', True),
+    ("the same fail, reported honestly",
+     'Three of five this time. [[quiz unit="2" topic="1" name="Rounding" correct="3" total="5"]]', False),
+    ("a real pass",
+     'You passed — four of five! [[quiz unit="2" topic="1" name="R" correct="4" total="5"]]', False),
+    ("a pass talked down into a fail",
+     'We\'ll try that again soon. [[quiz unit="2" topic="1" name="R" correct="5" total="5"]]', True),
+    ("an inflated percentage",
+     'That is 80% — great! [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', True),
+    ("the correct percentage, stated plainly",
+     'That is 60% — one more round and you have it. [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', False),
+    ("naming the BAR is teaching, not a score claim",
+     'You need 80% to pass, and you got 60% this time. [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', False),
+    ("a mis-stated fraction",
+     'You got four out of five. [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', True),
+    ("the right fraction, in words",
+     'You got three out of five. [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', False),
+    ("80% is a topic-quiz pass but NOT unit mastery",
+     'You mastered the unit! [[check unit="2" correct="4" total="5"]]', True),
+    ("90% is",
+     'You mastered the unit — nine of ten! [[check unit="2" correct="9" total="10"]]', False),
+    ("the Final Exam, inflated",
+     'You passed the Final Exam! [[finalexam correct="15" total="18"]]', True),
+    ("the Final Exam, honest",
+     'Seventeen of eighteen — you passed the Final Exam! [[finalexam correct="17" total="18"]]', False),
+    ("no score tag: nothing to contradict",
+     'You passed that one nicely. [[step eq="7 + 8 = 15"]]', False),
+    ("a percentage inside the MATH is not a score claim",
+     'What is 25% of 80? [[write text="25% of 80 = ?"]] '
+     '[[quiz unit="2" topic="1" name="R" correct="4" total="5"]]', False),
+    ("a percents lesson that also reports honestly",
+     'Nice — 25% of 80 is 20. You got four out of five today. '
+     '[[quiz unit="2" topic="1" name="R" correct="4" total="5"]]', False),
+    ("an unrelated count is not a score",
+     'That took 5 steps. [[quiz unit="2" topic="1" name="R" correct="3" total="5"]]', False),
+]
+
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -316,11 +373,37 @@ def part2_prose():
             check(f"pending: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in SCORE_CASES:
+        got = tutor.prose_score_conflict(reply)
+        check(f"score: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"score: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    # the referee's thresholds must never drift from the ones the DATABASE enforces
+    try:
+        import store
+        check("tutor's pass marks match store's", 
+              (tutor.QUIZ_PASS_PCT, tutor.UNIT_PASS_PCT, tutor.FINAL_PASS_PCT)
+              == (store.QUIZ_PASS_PCT, store.PASS_PCT, store.PASS_PCT),
+              f"tutor {(tutor.QUIZ_PASS_PCT, tutor.UNIT_PASS_PCT, tutor.FINAL_PASS_PCT)} "
+              f"vs store {(store.QUIZ_PASS_PCT, store.PASS_PCT, store.PASS_PCT)}")
+        # and the stored percentage must never be rounded UP over a bar
+        bad_round = [(c, t) for t in range(1, 41) for c in range(t + 1)
+                     if store.score_pct(c, t) > (100 * c) / t]
+        check("no score is ever rounded up", not bad_round, f"e.g. {bad_round[:3]}")
+        check("score_pct is exact when it can be", store.score_pct(4, 5) == 80
+              and store.score_pct(9, 10) == 90 and store.score_pct(17, 18) == 94,
+              "an exact score changed value")
+    except Exception as exc:  # noqa: BLE001
+        bad("store.py score helpers", str(exc))
     for junk in [None, "", 0, [], "[[step eq=", "x: = 5", "[[numberline"]:
         try:
             tutor.prose_board_conflict(junk)
             tutor.prose_visual_conflict(junk)
             tutor.prose_pending_question_conflict(junk)
+            tutor.prose_score_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
