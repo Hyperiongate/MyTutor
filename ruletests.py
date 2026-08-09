@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD cg -- PENDING_CASES and the today-bar guards.
+#               PENDING_CASES covers the new rule-15 referee, and the FALSE cases carry
+#               most of the weight: rule 39(d) now REQUIRES him to ask "does that click,
+#               or should I show it another way?" constantly, and re-rolling those would
+#               cost real money every turn. Two false positives were caught here before
+#               shipping -- "which number is the denominator in three-fourths?" (the
+#               hyphen read as minus) and "is 1/2 bigger than the piece we shaded?" (a
+#               fraction counted as two numbers).
+#               PART 3d/3e gained the today-bar guards: the store table is in the reset
+#               cascade, session.html still rebuilds the bar from SRV_PROGRESS.today at
+#               load, and ensure_today_tag() restores a bar a reload destroyed while
+#               still never resetting one that is genuinely live.
 #   2026-08-09  BUILD cf -- PART 3e, plus rules 41-44 and two new guards.
 #               PART 3e "THE THREE TEACHING PAGES MUST MATCH" exists because auditing
 #               audit #1 found that item 11 (board lines never wrap) shipped to
@@ -199,8 +211,13 @@ PROSE_CASES = [
      'Ten pennies is one dime, so we carry it. [[step eq="pennies: 5 + 5 = 10"]]', False),
     ("numeral contradiction",
      'You end up with 15 cookies on the plate. [[step eq="cookies: 9 + 8 = 17"]]', True),
+    # 2026-08-09: this fixture used to end "...so what is eight divided by two?" with no
+    # pending line, which the new rule-15 referee correctly flags. The numeric check is
+    # still what this case tests (an unlabeled board line must not false-positive); the
+    # reply is now written the way rule 15 actually asks for.
     ("unlabeled board line",
-     'Nice! [[step eq="2x = 8"]] So what is eight divided by two?', False),
+     'Nice! [[step eq="2x = 8"]] So what is eight divided by two? '
+     '[[step op="/ 2" eq="x = ?"]]', False),
     ("no board tags at all",
      "Great job — that's fifteen dimes exactly!", False),
     ("pending '?' line is never a contradiction",
@@ -238,6 +255,43 @@ VISUAL_CASES = [
      'Nice work! Seven plus eight is fifteen. [[step eq="7 + 8 = 15"]]', False),
 ]
 
+# ---- the PENDING-QUESTION half (build cg) -----------------------------------
+# Jim's live Pre-Algebra resume: "it gave me a problem without putting it on the board,
+# and this is the exact example that we've already used once before that was supposedly
+# fixed." Rule 15 names this exact scenario and prints the exact fix, and the reply still
+# went out without a board line. So it stops being a rule and becomes a referee.
+# The FALSE cases matter just as much -- a re-roll is a real model call, and rule 39(d)
+# now REQUIRES him to ask "does that click, or should I show it another way?" constantly.
+PENDING_CASES = [
+    ("Jim's live bug: the dollars column asked, nothing pending on the board",
+     "Now for the dollars column — two dollars plus one dollar, plus the one dollar we "
+     "just carried. What's two plus one plus one? "
+     '[[column op="+" terms="2.75 | 1.85"]] [[step eq="dimes: 7 + 8 + 1 = 16"]]', True),
+    ("the same reply with the pending line rule 15 asks for",
+     "What's two plus one plus one? " '[[step eq="dollars: 2 + 1 + 1 = ?"]]', False),
+    ("the original 2026-08-08 catch: 'your turn' with no board",
+     "Your turn — what is ten minus two times three?", True),
+    ("...and the same question written up",
+     'Your turn — what is ten minus two times three? [[write text="10 - 2 × 3 = ?"]]', False),
+    ("a written expression, spoken as a question",
+     "So what does 12 ÷ 4 come to?", True),
+    ("one number plus an operator word still counts",
+     "What do you get when you add nine?", True),
+    ("a social question is not a computation",
+     'Ready to try one on your own? [[step eq="7 + 8 = 15"]]', False),
+    ("rule 39(d)'s check-in must NEVER trigger this",
+     "Does that click, or should I show it a different way?", False),
+    ("a vocabulary question is not a computation",
+     "Which number is the denominator in three-fourths?", False),
+    ("a fraction is one value, not an operation",
+     "Is 1/2 bigger than the piece we shaded?", False),
+    ("numbers in a story with no question asked",
+     'We had 5 cookies and I gave you 2 more. '
+     '[[objects emoji="🍪" groups="5" add="2" caption="count them all"]]', False),
+    ("tap-to-answer choices still need the question on the board",
+     'What is six times seven? [[write text="6 × 7 = ?"]] [[choices options="42 | 48"]]', False),
+]
+
 
 def part2_prose():
     print("\nPART 2 — the prose referee")
@@ -254,10 +308,19 @@ def part2_prose():
             check(f"visual: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in PENDING_CASES:
+        got = tutor.prose_pending_question_conflict(reply)
+        check(f"pending: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"pending: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
     for junk in [None, "", 0, [], "[[step eq=", "x: = 5", "[[numberline"]:
         try:
             tutor.prose_board_conflict(junk)
             tutor.prose_visual_conflict(junk)
+            tutor.prose_pending_question_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
@@ -803,8 +866,31 @@ def part3d_foundation_memory():
         check("foundations_heard joins the per-student reset cascade",
               ("foundations_heard", "code") in store._STUDENT_CODE_TABLES,
               "a Start Fresh would leave the memory behind")
-        for fn in ("get_foundations_heard", "record_foundation_heard"):
+        check("today_goals joins the per-student reset cascade",
+              ("today_goals", "code") in store._STUDENT_CODE_TABLES,
+              "a reset student would open the lesson to yesterday's goals")
+        for fn in ("get_foundations_heard", "record_foundation_heard",
+                   "get_today_goals", "save_today_goals"):
             check(f"store.{fn} exists", hasattr(store, fn), "main.py calls it every turn")
+    except Exception as exc:  # noqa: BLE001
+        bad("store.py imports", str(exc))
+
+    # 6. the TODAY-bar net must not stand down just because HISTORY mentions a bar.
+    #    (Jim: "there's only two of the three tracking bars... I don't know why it keeps
+    #    disappearing." A reloaded page has no bar, however many [[today]] tags the old
+    #    transcript holds, so the net now asks the SERVER whether one really exists.)
+    try:
+        stale = [{"role": "assistant", "content": 'old [[today items="a | b"]]'}]
+        opener = 'Welcome back! [[goal text="add money by carrying"]]'
+        check("the net RESTORES a bar that a reload destroyed",
+              "[[today" in tutor.ensure_today_tag(opener, stale, today_live=False),
+              "a resumed session would show only two of the three bars")
+        check("the net never resets a bar that is genuinely live",
+              "[[today" not in tutor.ensure_today_tag(opener, stale, today_live=True),
+              "it would wipe today's ticked-off goals mid-lesson")
+        check("the net never touches a reply that already has its own tag",
+              tutor.ensure_today_tag('x [[today items="a"]]', stale, False).count("[[today") == 1,
+              "it double-emitted")
     except Exception as exc:  # noqa: BLE001
         bad("store.py imports", str(exc))
 
@@ -837,6 +923,11 @@ PAGE_PARITY = [
     ("the math figures are loaded",               "/static/math-figures.js"),
 ]
 
+# Lesson-page-only wiring (the today bar exists only there).
+SESSION_ONLY_PARITY = [
+    ("the TODAY bar is rebuilt at load, like the other two", "SRV_PROGRESS.today"),
+]
+
 
 def part3e_page_parity():
     print("\nPART 3e — the three teaching pages must match")
@@ -851,6 +942,10 @@ def part3e_page_parity():
     for label, needle in PAGE_PARITY:
         missing = [p for p in PAGES if needle not in src[p]]
         check(f"all three pages: {label}", not missing, f"missing from: {missing}")
+    for label, needle in SESSION_ONLY_PARITY:
+        check(f"session.html: {label}", needle in src["session.html"],
+              f"{needle!r} is gone -- a reload would lose the bar again")
+
     # Every tag the SHARED prompt block teaches him must be drawable on every page.
     # (The lesson page has six extra handlers -- the progress bars, the goal banner and
     # the final exam -- which is correct: practice and topic are side trips with no bars,

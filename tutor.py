@@ -2,6 +2,31 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  THE PENDING-QUESTION REFEREE + AN HONEST TODAY-BAR NET (build cg).
+#               Jim: "it gave me a problem without putting it on the board, and this is
+#               the exact example that we've already used once before that was supposedly
+#               fixed. And I don't understand why it's not fixed."
+#               He is right to be annoyed. Rule 15 does not just forbid this in general --
+#               it NAMES this exact column-addition scenario, quotes it, and prints the
+#               exact fix ([[step eq="dollars: 2 + 1 + 1 = ?"]]). It has said so since
+#               build bm, and the reply still went out with the question spoken and the
+#               board empty. That is the difference between a rule the model is TOLD and
+#               a rule the machine ENFORCES, and this one has now changed sides:
+#               prose_pending_question_conflict() is the third check inside
+#               prose_board_conflict(). If a sentence asks the student to COMPUTE
+#               something -- two or more numbers, or an operator word and a number, or a
+#               written expression -- and the reply emits no board tag containing a "?",
+#               the draft is discarded and silently rewritten, exactly like a failed math
+#               check. Narrow by design (a re-roll is a real model call): number WORDS
+#               count because he speaks in words; a bare "-" or "/" does not count as an
+#               operator ("three-fourths", "1/2" are single values -- both caught by the
+#               test battery on its first two runs); and rule 39(d)'s constant
+#               "does that click, or should I show it another way?" never triggers it.
+#               ALSO: ensure_today_tag() gained today_live=. Its history guard used to
+#               read "a [[today]] was emitted earlier, so a bar is up -- don't reset it."
+#               True inside one sitting; FALSE across a page load, which is precisely
+#               where Jim kept losing the bar. It now stands down only when the SERVER
+#               confirms the bar really exists (main.py passes student["today_live"]).
 #   2026-08-09  RULES 41-44 (build cf, proactive audit #2 "do first").
 #               41 EVERY PICTURE CARRIES A CAPTION THAT SAYS WHAT TO NOTICE -- and it
 #                  captions the POINT, not the object: "both are four steps from zero",
@@ -5098,12 +5123,21 @@ _GOALS_CARD_RE = re.compile(r'\[\[\s*card\s+title="By the end[^"]*"\s+items="([^
 _GOAL_BANNER_RE = re.compile(r'\[\[\s*goal\s+text="([^"\]]+)"', re.I)
 
 
-def ensure_today_tag(reply: str, history=None) -> str:
+def ensure_today_tag(reply: str, history=None, today_live: bool = False) -> str:
+    """`today_live` (2026-08-09, build cg) = the SERVER already has today's goal bar
+    stored for this student and course, so the page can render it without help.
+
+    That flag replaced a bad assumption. The history guard below reads "a [[today]] was
+    emitted earlier, so a bar is already up -- do not reset it." True inside one sitting;
+    FALSE across a page load, which is exactly where Jim kept losing the bar: history
+    still held yesterday's tag, the net stood down, and the reloaded page had no bar at
+    all. Now history only silences the net when the bar genuinely still exists."""
     if re.search(r"\[\[\s*today\b", reply, re.I):
         return reply                                   # model did its job
-    for msg in (history or []):
-        if msg.get("role") == "assistant" and "[[today" in str(msg.get("content", "")):
-            return reply                               # today bar already live -- never reset it
+    if today_live:
+        for msg in (history or []):
+            if msg.get("role") == "assistant" and "[[today" in str(msg.get("content", "")):
+                return reply                           # bar is really up -- never reset it
     m = _GOALS_CARD_RE.search(reply)
     items = m.group(1).strip() if m else ""
     if not items:
@@ -5315,16 +5349,105 @@ def prose_visual_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# THE PENDING-QUESTION CHECK (2026-08-09, build cg) -- third part of the referee.
+# -----------------------------------------------------------------------------
+# Jim, on a live Pre-Algebra resume: "it gave me a problem without putting it on the
+# board, and this is the exact example that we've already used once before that was
+# supposedly fixed. And I don't understand why it's not fixed."
+#
+# He is right, and the reason is worth writing down. Rule 15 does not just forbid this
+# in general -- it names THIS EXACT SCENARIO, quotes the column-addition lesson, and
+# prints the fix ([[step eq="dollars: 2 + 1 + 1 = ?"]]). It has said so since build bm.
+# The reply still went out with "what's two plus one plus one?" spoken and no board
+# line, because a rule in a prompt is guidance, not a guarantee. So this stops being a
+# rule and becomes a referee: ask the student to compute something, and if the board
+# shows no pending line in that same reply, the draft is thrown away and rewritten.
+#
+# Narrow on purpose (a false positive costs a real model call): it fires only on a
+# question that asks for a COMPUTATION -- two or more numbers, or an operator word and
+# a number -- so "ready to try one?", "does that click, or should I show it another
+# way?" (rule 39d) and "how are you doing today?" are all untouched. Number WORDS count,
+# because the tutor speaks in words ("what's two plus one plus one?").
+# =============================================================================
+# Operator WORDS only. A bare "-" or "/" must never count: "three-fourths" and "1/2" are
+# single values, and treating their punctuation as an operator made the very first test
+# run flag "which number is the denominator in three-fourths?" as a computation.
+_PQ_OPERATOR = (r"\b(?:plus|minus|times|multiplied by|divided by|add|adds|added|subtract|"
+                r"subtracted|multiply|multiplied|divide|divided|sum of|product of|"
+                r"difference between|square root of|percent of)\b")
+# A written arithmetic expression counts on its own: digit, operator, digit. The
+# unambiguous operators (+ × ÷) count tight or spaced; "-", "*" and "/" only count when
+# they are SPACED, because "1/2" and "3-4" are single values, not operations. (Caught on
+# the second test run: "is 1/2 bigger than the piece we shaded?" was being read as
+# arithmetic.)
+_PQ_SYMBOL_EXPR = re.compile(r"\d\s*[+×÷]\s*\d|\d\s+[\-*/]\s+\d")
+# tags whose text can carry the pending "?" line rule 15 asks for
+_PQ_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph", "numberline",
+                  "objects", "balance", "machine", "areamodel", "choices")
+
+
+def _pq_numeric_tokens(sentence: str) -> int:
+    """How many numbers a sentence states, numerals and number-words alike.
+
+    A written fraction ("1/2", "3/4") is ONE number, not two -- counting its halves
+    separately made "is 1/2 bigger than the piece we shaded?" look like arithmetic."""
+    low = re.sub(r"\d+\s*/\s*\d+", " ½ ", sentence.lower())
+    n = len(re.findall(r"\d+(?:\.\d+)?", low)) + low.count("½")
+    n += len(re.findall(r"\b(?:" + "|".join(sorted(list(_PR_ONES) + list(_PR_TENS),
+                                                   key=len, reverse=True)) + r")\b", low))
+    return n
+
+
+def prose_pending_question_conflict(reply: str):
+    """Return a description of a computation asked with nothing on the board, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        asks = []
+        for sent in re.split(r"(?<=[.!?])\s+|\n+", prose):
+            sent = sent.strip()
+            if not sent.endswith("?"):
+                continue
+            nums = _pq_numeric_tokens(sent)
+            if (nums >= 2
+                    or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
+                    or _PQ_SYMBOL_EXPR.search(sent)):
+                asks.append(sent)
+        if not asks:
+            return ""
+        # Does the board carry a PENDING line -- a "?" standing in for the unknown?
+        for tag in re.findall(r"\[\[\s*(" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+                              text, re.I):
+            if "?" in tag[1]:
+                return ""
+        asked = " ".join(asks[-1].split())[:90]
+        return ('you ask the student to work out "{q}" but this reply puts no pending line '
+                'on the board -- nothing with a "?" in it. Rule 15: the problem you hand '
+                'them goes UP, in symbols, in the same reply you ask it, written as a '
+                'pending line like [[step eq="dollars: 2 + 1 + 1 = ?"]]. The "?" keeps the '
+                'question complete on the board without running ahead of them '
+                '(rule 6).').format(q=asked)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[pendcheck] crashed (fail open): {exc}")
+        return ""
+
+
 def prose_board_conflict(reply: str):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWO checks, in order: a picture promised and never drawn (rule 7), then spoken
-    numbers that disagree with the board's own written conclusion (rule 18b)."""
+    THREE checks, in order: a picture promised and never drawn (rule 7), a computation
+    asked with no pending line on the board (rule 15), then spoken numbers that disagree
+    with the board's own written conclusion (rule 18b)."""
     try:
         visual = prose_visual_conflict(reply)
         if visual:
             return visual
+        pending = prose_pending_question_conflict(reply)
+        if pending:
+            return pending
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
@@ -5547,7 +5670,8 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             meta={"code": code, "course": course, "mode": "lesson"},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         # build bo: deterministic TODAY-bar net (lesson mode only) -- see ensure_today_tag.
-        return ensure_today_tag(ensure_board(reply, user_message, history), history)
+        return ensure_today_tag(ensure_board(reply, user_message, history), history,
+                                today_live=bool((student or {}).get("today_live")))
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.

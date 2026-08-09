@@ -2,6 +2,21 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  TODAY'S GOALS (build cg, Jim: "there's only two of the three tracking
+#               bars across the top. I don't know where the third one is, and I don't
+#               know why it keeps disappearing"). NEW TABLE `today_goals`
+#               (code, course, day) holding the goal items and which are finished, so the
+#               TODAY bar survives a reload the way UNIT and COURSE already do -- they
+#               are rebuilt from mastery data, and TODAY had no server side at all.
+#               get_today_goals() / save_today_goals(): ticks MERGE (a later turn can
+#               never un-tick an earned win), a genuinely new plan resets them, and
+#               out-of-range marks are dropped. Scoped per day, so yesterday's goals are
+#               never shown as today's. Brand-new table -> create_all builds it; no
+#               migration. JOINS _STUDENT_CODE_TABLES on day one (standing rule).
+#               NOTE for the next person: read that table with t.c["items"], never
+#               t.c.items -- SQLAlchemy's ColumnCollection already has an .items()
+#               method, so attribute access hands back the METHOD and the query dies
+#               with "may not be passed as a SQL expression". Caught on the first dry run.
 #   2026-08-09  FOUNDATION MEMORY (build ce, Jim: "if a student is returning, nothing
 #               tells him which scripts that student has heard, so a loyal student can
 #               re-hear it. We need to fix it"). NEW TABLE `foundations_heard`
@@ -540,6 +555,24 @@ def init():
             Column("last_heard", DateTime(timezone=True)),
             Column("refreshers", Integer, default=0),
         )
+        # TODAY'S GOALS (2026-08-09, build cg). Jim, on a resumed Pre-Algebra session:
+        # "there's only two of the three tracking bars across the top. I don't know where
+        # the third one is, and I don't know why it keeps disappearing."
+        # The UNIT and COURSE bars survive a page load because the server can rebuild
+        # them from mastery data. The TODAY bar could not: it existed ONLY as a
+        # [[today items]] tag the model emitted once, held in browser memory, and a
+        # reload wiped it. Build br fixed the unit bar exactly this way; this finishes
+        # the job. One row per student, per course, per day.
+        # Brand-new table -> create_all builds it; no migration; nothing else touched.
+        _tables["today_goals"] = Table(
+            "today_goals", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True),
+            Column("day", String(10), primary_key=True),      # ISO 'YYYY-MM-DD'
+            Column("items", Text),                            # "|"-joined, as the tag wrote them
+            Column("done", String(64)),                       # "1,3" -- 1-based, comma separated
+            Column("updated_at", DateTime(timezone=True)),
+        )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
         # of `uses_allowed` and opens a `window_hours` window of full access.
         _tables["beta_codes"] = Table(
@@ -964,6 +997,67 @@ def record_awards(code: str, award_ids: list) -> None:
         if aid in existing:
             continue
         _upsert("awards", {"code": code, "award_id": aid}, {"earned_at": now})
+
+
+# ---- today's goals (2026-08-09, build cg) -----------------------------------
+# The TODAY bar's contents, so it survives a page reload the way the UNIT and COURSE
+# bars already do. Scoped to one day: yesterday's goals are never shown as today's.
+def get_today_goals(code: str, course: str, day: str = "") -> dict:
+    """{"day","items":[...],"done":[1-based ints]} for that day, or {} if none.
+    Returns {} on any storage problem -- this must never block a lesson from loading."""
+    from sqlalchemy import select
+    try:
+        d = (day or "").strip() or _today()
+        t = _tables["today_goals"]
+        # NOTE: t.c["items"], not t.c.items -- SQLAlchemy's ColumnCollection already has
+        # an .items() method, so attribute access returns the METHOD and the query blows
+        # up with "may not be passed as a SQL expression". Caught on the first dry run.
+        with _engine.connect() as conn:
+            r = conn.execute(select(t.c["items"], t.c.done).where(
+                (t.c.code == code) & (t.c.course == course) & (t.c.day == d))).first()
+        if not r:
+            return {}
+        items = [x.strip() for x in str(r[0] or "").split("|") if x.strip()]
+        if not items:
+            return {}
+        done = []
+        for piece in str(r[1] or "").split(","):
+            piece = piece.strip()
+            if piece.isdigit() and 1 <= int(piece) <= len(items):
+                done.append(int(piece))
+        return {"day": d, "items": items, "done": sorted(set(done))}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[today] read failed for {code}/{course}: {exc}")
+        return {}
+
+
+def save_today_goals(code: str, course: str, items=None, done=None, day: str = "") -> bool:
+    """Record today's goal list and/or which of them are finished.
+
+    `items` replaces the list (a new [[today]] tag = a new plan). `done` is MERGED with
+    whatever is already marked, because [[todaydone]] arrives one at a time and a later
+    turn must never un-tick an earlier win. Either may be omitted. Never raises."""
+    try:
+        d = (day or "").strip() or _today()
+        if not code or not course:
+            return False
+        current = get_today_goals(code, course, d)
+        new_items = [str(x).strip() for x in (items or []) if str(x).strip()] or current.get("items") or []
+        if not new_items:
+            return False
+        if items and current.get("items") and list(items) != current.get("items"):
+            merged_done = sorted(set(int(x) for x in (done or [])))     # new plan, fresh ticks
+        else:
+            merged_done = sorted(set(list(current.get("done") or [])
+                                     + [int(x) for x in (done or [])]))
+        merged_done = [n for n in merged_done if 1 <= n <= len(new_items)]
+        _upsert("today_goals", {"code": code, "course": course, "day": d},
+                {"items": "|".join(new_items), "done": ",".join(str(n) for n in merged_done),
+                 "updated_at": _now()})
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[today] write failed for {code}/{course}: {exc}")
+        return False
 
 
 # ---- foundation memory (2026-08-09, build ce) -------------------------------
@@ -1645,6 +1739,9 @@ _STUDENT_CODE_TABLES = [
     # "Start Fresh" that leaves these rows behind would hand the reset student a tutor
     # who still thinks he already explained fractions to them.
     ("foundations_heard", "code"),
+    # 2026-08-09 (build cg): today's goal bar, same rule -- a reset student must not
+    # open the lesson to yesterday's goals already ticked off.
+    ("today_goals", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),

@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (cg) 2026-08-09 -- THE TODAY BAR NOW SURVIVES A RELOAD. Jim: "there's only two of the
+    three tracking bars across the top. I don't know why it keeps disappearing." UNIT and
+    COURSE are rebuilt at load from the server's mastery data; TODAY had no server side at
+    all -- it lived only in browser memory from one [[today items]] tag. It is now saved
+    server-side as the tutor writes it and rebuilt here from SRV_PROGRESS.today, exactly
+    like the other two. A later [[today]] still replaces it (same render path).
     (cf) 2026-08-09 -- [[write]] lines are now fitted too. fitRow() has shrunk oversized
     [[step]] lines since build bu, but a long [[write]] line went through eqRow() with no
     fit at all, so with nowrap cells it simply overflowed. Both paths are fitted now, on
@@ -3034,6 +3040,22 @@
         // already known here (curriculum topics + placement/focus unit + the server's
         // quiz history), so it renders at load exactly like the course bar. A later
         // [[unitplan]] from Mr. Cadabra simply replaces it (same render path).
+        // 2026-08-09 (build cg, Jim: "there's only two of the three tracking bars across
+        // the top... I don't know why it keeps disappearing"): the TODAY bar now has a
+        // server side like the other two. Its items and ticks are saved as the tutor
+        // writes them, so a reload or a resume rebuilds it here instead of waiting for
+        // him to emit [[today]] again — which, on a resumed session, he never did.
+        // A later [[today]] from Mr. Cadabra replaces this (same render path).
+        if (SRV_PROGRESS && SRV_PROGRESS.today && (SRV_PROGRESS.today.items || []).length
+            && !TODAY_ITEMS.length) {
+          TODAY_ITEMS = SRV_PROGRESS.today.items.slice(0, 8);
+          TODAY_DONE = TODAY_ITEMS.map(() => false);
+          (SRV_PROGRESS.today.done || []).forEach(n => {
+            const i = parseInt(n, 10) - 1;
+            if (i >= 0 && i < TODAY_DONE.length) TODAY_DONE[i] = true;
+          });
+          renderTodayBar();
+        }
         if (SRV_PROGRESS && !UNIT_PLAN.unit) {
           const startUnit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
           const cu = (CURRICULUM || []).find(x => x.n === startUnit);

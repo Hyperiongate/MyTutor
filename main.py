@@ -2,6 +2,37 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09cg-todaybar-pendingcheck". Jim's live Pre-Algebra
+#               resume, two problems, both of which we had "fixed" before.
+#               (1) "There's only two of the three tracking bars across the top. I don't
+#               know where the third one is, and I don't know why it keeps disappearing."
+#               ROOT CAUSE: the UNIT and COURSE bars survive a page load because the
+#               SERVER can rebuild them from mastery data (build br did that for UNIT).
+#               The TODAY bar never had a server side at all -- it lived only as a
+#               [[today items]] tag the model emitted once, held in browser memory. Any
+#               reload or resume wiped it, and it could only return if the model happened
+#               to emit the tag again, which on a resumed opener it did not. Worse, the
+#               ensure_today_tag() net stood DOWN in exactly that case, because it read
+#               "a [[today]] exists earlier in history, so a bar is already up" -- true
+#               within one sitting, false the moment the page reloads.
+#               FIX, same shape as the other two bars: NEW store table `today_goals`
+#               (code, course, day) written by _record_today_bar() from the tutor's own
+#               [[today items]] / [[todaydone n]] tags, returned by /api/session as
+#               progress.today, and rendered by session.html at load. Ticks MERGE, so a
+#               later turn can never un-tick an earned win; a new plan resets them; it is
+#               scoped per day so yesterday's goals never show as today's. main.py also
+#               now tells tutor.py whether a bar genuinely exists (student["today_live"])
+#               instead of letting it guess from history.
+#               (2) "It gave me a problem without putting it on the board, and this is the
+#               exact example that we've already used once before that was supposedly
+#               fixed. And I don't understand why it's not fixed." He is right, and the
+#               reason matters: rule 15 does not merely forbid this, it names this exact
+#               column-addition scenario and prints the exact fix
+#               ([[step eq="dollars: 2 + 1 + 1 = ?"]]), and has since build bm. A rule in
+#               a prompt is guidance, not a guarantee. So it became a referee --
+#               tutor.prose_pending_question_conflict(), the third check in
+#               prose_board_conflict(): ask the student to COMPUTE something and emit no
+#               pending "?" line, and the draft is thrown away and rewritten. See tutor.py.
 #   2026-08-09  APP_BUILD -> "2026-08-09cf-audit1-closure-audit2-start". TWO JOBS.
 #               JOB 1 -- Jim: "take a look at Audit One and make sure we've accomplished
 #               all of those." Checked all 25 items of the 2026-08-08 audit against the
@@ -4434,7 +4465,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09cf-audit1-closure-audit2-start"
+APP_BUILD = "2026-08-09cg-todaybar-pendingcheck"
 
 
 @app.get("/health")
@@ -4533,6 +4564,7 @@ def session_state(code: str, course: str = "algebra1"):
     # button need, in the call the page already makes. Wrapped: a data hiccup never
     # blocks the lesson from loading.
     progress = {"mastered_units": [], "unit_quiz_best": {}, "topic_quizzes": {},
+                "today": {},
                 "final": {"eligible": False, "mastered_count": 0, "required": 9, "exam": {}}}
     if store.enabled():
         try:
@@ -4547,6 +4579,8 @@ def session_state(code: str, course: str = "algebra1"):
                 progress["topic_quizzes"].setdefault(q["unit"], []).append(
                     {"idx": q["topic_idx"], "name": q["topic_name"],
                      "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
+            # build cg: today's goal bar, so a reload/resume shows all THREE bars.
+            progress["today"] = store.get_today_goals(code, course) or {}
             fstate = _final_exam_state(code, course)
             progress["final"] = {"eligible": fstate["eligible"],
                                  "mastered_count": fstate["mastered_count"],
@@ -4742,6 +4776,39 @@ _TAG_SPLIT_RE = re.compile(r"(\[\[[^\]]*\]\])")
 # student still needs -- and ruletests.py can test that filter without booting the app.
 
 
+# ===== THE TODAY BAR MUST SURVIVE A RELOAD (2026-08-09, build cg) ============
+# Jim, on a resumed Pre-Algebra session: "there's only two of the three tracking bars
+# across the top. I don't know where the third one is, and I don't know why it keeps
+# disappearing."
+#
+# Why it kept disappearing: the UNIT and COURSE bars are rebuilt by the page at load
+# from the server's mastery data (build br did that for the unit bar). The TODAY bar
+# never had a server side at all -- it existed only as a [[today items]] tag the model
+# emitted once, held in browser memory. Close the tab, resume tomorrow, refresh: gone,
+# and it could only come back if the model happened to emit the tag again. The
+# ensure_today_tag() net could not help either, because it deliberately stands down
+# when an earlier [[today]] exists in history -- true within a session, wrong across a
+# page load, where the bar it is protecting no longer exists.
+# So we store what the tutor wrote. Same shape as the other two bars: the page renders
+# it at load, and a later [[today]] simply replaces it.
+_TODAY_TAG_RE = re.compile(r'\[\[\s*today\b[^\]]*?items\s*=\s*"([^"]{1,400})"[^\]]*\]\]', re.I)
+_TODAYDONE_TAG_RE = re.compile(r'\[\[\s*todaydone\b[^\]]*?n\s*=\s*"?(\d{1,2})"?[^\]]*\]\]', re.I)
+
+
+def _record_today_bar(code: str, course: str, reply: str) -> None:
+    """Persist this reply's [[today items]] / [[todaydone n]] so the bar survives."""
+    try:
+        if not store.enabled() or not code or not reply:
+            return
+        m = _TODAY_TAG_RE.search(reply)
+        items = [x.strip() for x in m.group(1).split("|") if x.strip()][:8] if m else []
+        done = [int(n) for n in _TODAYDONE_TAG_RE.findall(reply)]
+        if items or done:
+            store.save_today_goals(code, course, items=items, done=done)
+    except Exception as exc:  # noqa: BLE001 -- a bar is never worth failing a turn over
+        print(f"[today] recording failed: {exc}")
+
+
 def _foundations_heard(code: str, course: str) -> list:
     """The canonical terms this student has already been introduced to in this course."""
     try:
@@ -4886,6 +4953,14 @@ def chat(req: ChatRequest):
     # student has already sat through, so rule 40 can ASK instead of replaying one.
     # This is the ONLY place the tutor can learn it -- a new session's history is empty.
     student_context["foundations_heard"] = _foundations_heard(code, req.course)
+    # build cg: does the TODAY bar genuinely exist right now? The net in tutor.py used to
+    # infer that from history, which is wrong the moment the page reloads.
+    try:
+        student_context["today_live"] = bool(store.enabled()
+                                             and store.get_today_goals(code, req.course))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[today] live-check failed: {exc}")
+        student_context["today_live"] = False
 
     # OPENER: the app auto-sends "__open__" when the student opens the lesson (they did NOT
     # type anything). The OLD app sent a literal "Hi!" that got stored as a student turn, so
@@ -4940,6 +5015,7 @@ def chat(req: ChatRequest):
                 "that unit from where their mastery actually stands.)")
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         _record_learned(code, req.course, reply)
+        _record_today_bar(code, req.course, reply)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
         save_session(code, session, req.course)
@@ -4947,6 +5023,7 @@ def chat(req: ChatRequest):
 
     reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course, code=code), history)
     _record_learned(code, req.course, reply)
+    _record_today_bar(code, req.course, reply)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})
