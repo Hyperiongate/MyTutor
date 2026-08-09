@@ -2,6 +2,60 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  RULES 39 + 40 AND THE VISUAL REFEREE (build ce, Jim's three items).
+#               RULE 39 -- TALK LESS, CHECK IN OFTEN, AND MAKE THE CHECK FAILABLE.
+#               Jim: "we need to have a cap on how long we talk to an eight year old.
+#               I think you need to check in with them every now and then." There was no
+#               length rule anywhere in the prompt. In a voice product that is the fastest
+#               way to lose a young student, and you cannot see them drift. 39(a) caps a
+#               turn at ~90 spoken words, ~60 for the elementary courses and any student
+#               around ten or younger, with exactly two exceptions (a canonical foundation
+#               script, and the rule-0 opening message). 39(b) one question per turn, last.
+#               39(c) check in at every new idea and never more than ~3 turns without one.
+#               39(d) is the part that matters: "does that make sense?", "got it?", "any
+#               questions?" and "okay?" asked ALONE are BANNED. Every student says yes to
+#               those and a confused child says yes fastest, because saying no to a teacher
+#               costs them something -- a check that cannot fail is worse than no check,
+#               because it buys false confidence. He must always hand them an easy way out
+#               in the same breath ("…or should I show it a different way?") or ask for
+#               CONTENT, which a yes cannot fake. 39(e) thank a student who says they are
+#               lost. NOTE this does NOT contradict audit #2 item 3: Jim asked for more
+#               check-ins and the audit asked for better ones; 39 is both.
+#               RULE 40 -- ASK BEFORE YOU REPEAT AN INTRODUCTION. Jim: "a loyal student can
+#               re-hear it… we should just query him and say, do you think you got it, or
+#               do you want me to refresh your memory?" Exactly that: name the term in one
+#               sentence, ask, and STOP. If they want it, speak the canonical script WORD
+#               FOR WORD (same words = same lesson, and the audio is already paid for). If
+#               they say they have it, believe them -- but if a problem then goes wrong
+#               because of that term, give the script anyway and never as "you said you
+#               knew it". 40(e): the youngest students are poor judges of their own memory,
+#               so for Entry-Level and Basic Math he asks ONE small concrete question about
+#               the term instead and lets the answer decide. 40(f): he ends any reply that
+#               delivered an introduction with [[learned term="..."]] -- invisible to the
+#               student, and the only way the system remembers next month.
+#               _foundation_block()/build_system_prompt now pass the student's heard list
+#               through to foundations.prompt_block(); an older foundations.py without the
+#               second argument still works (TypeError -> retry).
+#               ⭐ THE VISUAL REFEREE -- prose_visual_conflict(), now the FIRST half of
+#               prose_board_conflict(). Jim: "you can't say one thing and then have the
+#               numbers say something different." The numeric half has done that since bu;
+#               nothing has ever checked the OTHER way a reply lies about the board. Rule 7
+#               has forbidden describing an undrawn picture since ao -- in words only. A
+#               reply that says "here's a number line" and emits no [[numberline]] passed
+#               mathcheck (tags only) and passed the prose referee (numbers only), and the
+#               student sat in front of a blank board. That is exactly the demo failure Jim
+#               called "we got one shot to do it right, and it failed". Now it is caught and
+#               silently regenerated like any other referee finding.
+#               Deliberately narrow, because every false positive costs a real model call:
+#               it fires only when ONE SENTENCE both names something this board can draw
+#               and claims in the present tense that it is appearing now. Bare "triangle"
+#               and "circle" are excluded (too common in ordinary prose), and a sentence
+#               that DEFERS ("next time I'll draw one"), OFFERS ("want me to draw it?") or
+#               looks BACK ("remember the number line we used yesterday?") is not a claim.
+#               A second, weaker check covers "look at the board" when the reply writes
+#               nothing at all. FIGURE_TAGS is a constant here (tutor.py must not read the
+#               static files at request time) and ruletests.py PART 3c proves it has not
+#               drifted from session.html's handleTags(). Fails open, always.
 #   2026-08-09  ★ FOUNDATION FIRST -- RULES 36-38 (build cc, Jim). "Socratic" was the
 #               wrong description of what a math classroom should do, and it showed:
 #               students met fractions without being told what a fraction, a numerator
@@ -4512,7 +4566,77 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         genuinely teaches. If they stumble, step BACK up the ladder. Guidance is a
         dial you turn with their competence, not a style you pick once.
     (d) A returning student who already knows the term does not need the full
-        introduction again -- one sentence of reminder, then on with the work.
+        introduction again -- ASK them first. See rule 40.
+
+39. TALK LESS. CHECK IN OFTEN. AND MAKE THE CHECK EASY TO FAIL.
+    You are a VOICE in a child's room. They cannot skim you, they cannot re-read you,
+    and you cannot see their face go blank. A long stretch of talking is the fastest
+    way to lose a young student, and you will not find out until the answer comes back
+    wrong three minutes later.
+    (a) LENGTH. Outside a canonical foundation script (which is written to be spoken
+        whole), keep ONE turn to about 90 spoken words -- roughly forty seconds out
+        loud. For Entry-Level Math and Basic Math, and for any student around ten or
+        younger, keep it to about 60. If you have more to say than that, say the first
+        piece, ask them something, and say the rest after they answer. Two short turns
+        with the student in the middle beat one long turn every single time.
+        There are exactly two exceptions: a canonical foundation script, and your
+        FIRST message of a session, which has the fixed opening job of rule 0 to do.
+        Nothing else earns extra length -- not an exciting topic, not a hard idea.
+    (b) ONE QUESTION, AND IT COMES LAST. At most one question per turn, and it is the
+        last thing you say, so the microphone opens on a question they are still
+        holding. Three questions in a row cannot be answered out loud: they pick one
+        and the rest vanish, and then you misread a partial answer as confusion.
+    (c) CHECK IN. Never go more than about three turns without checking that they are
+        still with you, and always check at the end of a new idea, before you build
+        anything on top of it.
+    (d) MAKE THE CHECK FAILABLE -- this is the part that matters. "Does that make
+        sense?", "Got it?", "Any questions?" and "Okay?" asked ALONE are BANNED. Every
+        student says yes to those, and a confused child says yes fastest of all,
+        because saying no in front of a teacher costs them something. A check that
+        cannot fail is worse than no check, because it buys you false confidence.
+        Always hand them an easy, dignified way out IN THE SAME BREATH:
+            "Does that click, or should I show it a different way?"
+            "Are you good to try one, or want to watch me do one more first?"
+            "Is that clear, or is there a part you'd like me to slow down on?"
+        Better still, ask for CONTENT, which cannot be faked with a yes:
+            "Say it back to me in your own words -- what does the denominator tell us?"
+            "What's the first thing we'd do here?"
+            "Which of these two numbers is the numerator?"
+    (e) WHEN THEY SAY THEY ARE LOST, THANK THEM. "I'm glad you told me -- that's
+        exactly the right thing to do." A student who learns that saying "I don't get
+        it" gets them help instead of disappointment will keep telling you the truth,
+        and that is worth more to their learning than any single explanation.
+
+40. NEVER MAKE A RETURNING STUDENT SIT THROUGH THE SAME INTRODUCTION TWICE -- ASK FIRST.
+    (a) The system tells you, in the CANONICAL FOUNDATION SCRIPTS section, which of this
+        course's foundation terms THIS student has already been introduced to. Terms in
+        that "already introduced" list are NOT new to them, even though this session's
+        conversation started a minute ago and contains no trace of it.
+    (b) For a term they have ALREADY heard, do NOT replay the script. Name it in one
+        short sentence and ASK, warmly, in the same breath:
+            "We met **denominator** back when we started fractions -- do you feel like
+             you've got a handle on that one, or want me to refresh your memory?"
+        Then STOP and let them answer. This is their call, not yours.
+    (c) IF THEY WANT THE REFRESHER -- "refresh my memory", "remind me", "say it again",
+        "not really", "I forgot", "I think so... maybe" -- speak the canonical script
+        WORD FOR WORD, exactly as you said it the first time, with its board lines.
+        Word for word is deliberate: the same words are the same lesson, and they cost
+        nothing to say a second time.
+    (d) IF THEY SAY THEY HAVE IT, believe them: one sentence of reminder and get to
+        work. But if a problem then goes wrong in a way that shows the term IS the
+        problem, give them the full script right then -- warmly, as something you
+        wanted to go over again, never as "I asked you and you said you knew it."
+    (e) THE YOUNGEST STUDENTS DO NOT KNOW WHAT THEY REMEMBER. In Entry-Level Math and
+        Basic Math, do not ask a child to grade their own memory in the abstract. Ask
+        ONE small concrete question about the term instead -- "quick one before we go
+        on: in three-fourths, which number is the denominator?" -- and let the answer
+        decide. Right: cheer it and move on. Wrong or unsure: "let's take one more look
+        at that one" and give the script, with no hint that they failed anything.
+    (f) MARK IT. Whenever you deliver a canonical introduction -- the first time, or as
+        a refresher -- END that reply with [[learned term="denominator"]], using the
+        term exactly as the script names it. That tag is invisible to the student; it is
+        how the system remembers, next month, what you taught them today. No tag means
+        the student hears the same introduction from scratch on their next visit.
 """
 
 
@@ -4682,13 +4806,24 @@ with the same rules as a Unit Quiz, scaled up:
 """
 
 
-def _foundation_block(course: str) -> str:
-    """This course's canonical foundation scripts (rules 36-38), or "" if none.
+def _foundation_block(course: str, heard=None) -> str:
+    """This course's canonical foundation scripts (rules 36-40), or "" if none.
+
+    `heard` is the list of terms this student was introduced to on an EARLIER visit
+    (main.py loads it from the store and puts it on the student record). It only
+    changes whether the tutor replays a script or asks first -- never the words.
     Never raises: a broken foundations.py must not take the classroom down."""
     if foundations is None:
         return ""
     try:
-        return foundations.prompt_block(course)
+        return foundations.prompt_block(course, heard)
+    except TypeError:
+        # An older foundations.py without the `heard` argument: still teach.
+        try:
+            return foundations.prompt_block(course)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[tutor] foundation block failed ({exc}) -- continuing without it")
+            return ""
     except Exception as exc:  # noqa: BLE001
         print(f"[tutor] foundation block failed ({exc}) -- continuing without it")
         return ""
@@ -4719,7 +4854,8 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         progress=progress,
         playbook=playbook,
         mastery=mastery,
-    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _foundation_block(course)
+    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _foundation_block(
+        course, (student or {}).get("foundations_heard"))
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
@@ -4978,10 +5114,132 @@ def _pr_numbers_in(text: str) -> set:
     return out
 
 
-def prose_board_conflict(reply: str):
-    """Return a short description of a prose-vs-board contradiction, or "" if clean.
+# =============================================================================
+# THE VISUAL-REFERENCE CHECK (2026-08-09, build ce) -- half of the prose referee.
+# -----------------------------------------------------------------------------
+# Jim, on the demo: "the lesson referred to a diagram that didn't show up on the
+# board... We got one shot to do it right, and it failed."
+#
+# Rule 7 has forbidden this in WORDS since build ao. Nothing has ever CHECKED it.
+# mathcheck reads tags. prose_board_conflict (below) compares spoken NUMBERS with
+# written numbers. A reply that says "here's a number line" and emits no
+# [[numberline]] passes every referee we own, and the student sits in front of a
+# blank board listening to a description of nothing.
+#
+# The check is deliberately narrow, because a false positive costs a real model
+# call: it fires only when a sentence BOTH names something the board can draw AND
+# claims, in the present tense, that it is appearing right now. "A number line has
+# zero in the middle" is fine. "Here's a number line" with nothing drawn is not.
+# Anything it is unsure about, it lets through -- like every referee here, it fails
+# open, because a checker must never brick a lesson.
+# =============================================================================
+
+# Tags that put a PICTURE on the board. Kept as a constant (tutor.py must not read
+# static files at request time); ruletests.py PART 3c asserts this list still matches
+# session.html's handleTags(), so it cannot silently drift out of date.
+FIGURE_TAGS = (
+    "graph", "numberline", "bars", "histogram", "dotplot", "boxplot", "scatter",
+    "normal", "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
+    "areamodel", "vector", "triangle", "angle", "circle", "objects", "machine",
+    "balance",
+)
+# Every tag that puts ANYTHING on the board, picture or writing.
+_BOARD_TAGS = FIGURE_TAGS + ("write", "step", "solve", "column", "card", "check",
+                             "quiz", "goal", "today", "unitplan", "finalexam",
+                             "choices", "highlight")
+
+# Nouns the board can DRAW. Bare "triangle"/"circle" are deliberately absent: they
+# appear in ordinary mathematical prose far too often to judge from one sentence.
+_VIS_NOUN = (r"(?:number ?line|graph|diagram|picture|drawing|sketch|figure|chart|plot|"
+             r"histogram|scatter ?plot|box ?plot|dot ?plot|bar chart|bar graph|pie chart|"
+             r"unit circle|area model|tape diagram|tree diagram|balance scale|"
+             r"function machine|right triangle)")
+# Phrases that claim it is appearing NOW (not "we could draw one", not "last time").
+_VIS_CUE = (r"(?:here'?s|here is|here are|i'?ve drawn|i have drawn|i drew|i just drew|"
+            r"i'?m drawing|i am drawing|i'?m putting|i am putting|let me draw|let me sketch|"
+            r"let me graph|let me plot|let me put|i'?ll draw|i will draw|i'?ll sketch|"
+            r"i'?ll graph|i'?ll plot|look at (?:the|this)|take a look at|notice (?:the|this)|"
+            r"see (?:the|this)|watch (?:me|as i)|on the board|on screen|below|above|"
+            r"this shows|these show)")
+_VIS_SENT = re.compile(_VIS_CUE + r"[^.!?]{0,60}?" + _VIS_NOUN, re.I)
+_VIS_SENT_REV = re.compile(_VIS_NOUN + r"[^.!?]{0,40}?" + r"(?:below|above|on the board|on screen)", re.I)
+# "look at the board" / "up on the screen" -- needs SOMETHING written, not a picture.
+_VIS_BOARD_ONLY = re.compile(r"(?:look at|take a look at|see|check|glance at)\s+"
+                             r"(?:the|your|our)\s+(?:board|screen|whiteboard)", re.I)
+# A sentence that DEFERS the drawing, or asks whether to draw, or points BACK at an
+# earlier one, is not a claim that a picture is on the board right now. Without this
+# guard the referee re-rolls perfectly good replies -- and every re-roll is a real
+# model call, so a false positive is not free.
+_VIS_DEFER = re.compile(
+    r"\b(?:next time|later|tomorrow|next session|another day|in a (?:minute|second|moment|bit)|"
+    r"want me to|would you like|should i|shall i|do you want|if you(?:'d| would) like|"
+    r"we could|we can|i could|remember|last time|yesterday|earlier|before|"
+    r"we (?:used|drew|made|had)|you (?:drew|made)|back when)\b", re.I)
+
+
+def _vis_sentences(prose: str):
+    """The spoken text as sentences, so a claim is judged in its own context."""
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", str(prose or "")) if s.strip()]
+
+
+def _spoken_only(text: str) -> str:
+    """The words the student actually HEARS: control tags removed, including a
+    dangling one from a reply that was cut off mid-tag."""
+    prose = re.sub(r"\[\[[^\]]*\]\]", " ", str(text or ""))
+    return re.sub(r"\[\[[\s\S]*$", " ", prose)
+
+
+def _tags_present(text: str, names) -> bool:
+    """True if the reply emits at least one tag from `names`."""
+    found = {m.lower() for m in re.findall(r"\[\[\s*([\w-]+)", str(text or ""))}
+    return bool(found & set(names))
+
+
+def prose_visual_conflict(reply: str):
+    """Return a description of a picture that was promised and never drawn, or "".
     Never raises: any unexpected input yields "" (fail open)."""
     try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        sentences = _vis_sentences(prose)
+        if not _tags_present(text, FIGURE_TAGS):
+            for sent in sentences:
+                if _VIS_DEFER.search(sent):
+                    continue                      # "next time I'll draw one" is not a claim
+                for rx in (_VIS_SENT, _VIS_SENT_REV):
+                    m = rx.search(sent)
+                    if m:
+                        said = " ".join(m.group(0).split())[:70]
+                        return ('you say "{s}" but this reply draws NO figure at all -- the '
+                                'student is looking at a board with no picture on it while '
+                                'you talk about one. Rule 7: never describe a picture you '
+                                'did not draw.').format(s=said)
+        if not _tags_present(text, _BOARD_TAGS):
+            for sent in sentences:
+                if _VIS_DEFER.search(sent):
+                    continue
+                m = _VIS_BOARD_ONLY.search(sent)
+                if m:
+                    said = " ".join(m.group(0).split())[:70]
+                    return ('you say "{s}" but this reply puts NOTHING on the board -- no '
+                            'figure, no written line. Rule 7: never point at a board you '
+                            'did not write on.').format(s=said)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[viscHeck] crashed (fail open): {exc}")
+        return ""
+
+
+def prose_board_conflict(reply: str):
+    """Return a short description of a prose-vs-board contradiction, or "" if clean.
+    Never raises: any unexpected input yields "" (fail open).
+
+    TWO checks, in order: a picture promised and never drawn (rule 7), then spoken
+    numbers that disagree with the board's own written conclusion (rule 18b)."""
+    try:
+        visual = prose_visual_conflict(reply)
+        if visual:
+            return visual
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
@@ -5037,9 +5295,11 @@ def prose_board_conflict(reply: str):
 _PROSE_NUDGE = (
     "(SYSTEM: A consistency check found a contradiction in your previous draft: {detail} "
     "The student NEVER saw that draft. Write your reply again from scratch -- same warm "
-    "teaching flow, same board tags -- with your spoken numbers and your board numbers in "
-    "agreement. If the student's answer was wrong, coach the recount (rules 18 and 22); do "
-    "not adopt their number. Do not mention this note or any checking.)")
+    "teaching flow -- so that what you SAY and what is actually on the board agree: every "
+    "picture you mention is DRAWN by a tag in this same reply, and every number you say "
+    "matches the number you write. If the student's answer was wrong, coach the recount "
+    "(rules 18 and 22); do not adopt their number. Do not mention this note or any "
+    "checking.)")
 
 
 MATHCHECK_MAX_ATTEMPTS = 3   # 1 normal attempt + up to 2 corrected retries

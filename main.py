@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09ce-checkin-memory-visualref". Jim, on the three
+#               items from proactive audit #2: "we need to have a cap on how long we talk
+#               to an eight year old… I think you need to check in with them every now and
+#               then" · "nothing tells him which scripts that student has heard, so a loyal
+#               student can re-hear it… we should just query him and say, do you think you
+#               got it, or do you want me to refresh your memory?" · "you can't say one
+#               thing and then have the numbers say something different."
+#               THIS FILE carries half of the second item -- FOUNDATION MEMORY:
+#                 _foundations_heard(code, course) reads the student's already-heard
+#                   canonical terms out of store and puts them on student_context BEFORE
+#                   the turn, which is the only way the tutor can ever know: a new
+#                   session's history is empty, so the prompt was previously telling him
+#                   to skip an introduction he had no way to identify.
+#                 _record_learned(code, course, reply) reads the [[learned term="..."]]
+#                   tags rule 40(f) asks him to emit and writes them down AFTER the turn.
+#                   Parsing and validation live in foundations.learned_terms_in(), so a
+#                   tag naming a script we do not have is DROPPED -- a typo must never
+#                   retire an introduction a student still needs -- and ruletests.py can
+#                   test that filter without booting the app.
+#                 The tag is invisible: every page's stripTags() already removes any
+#                   [[...]], so no client change was needed and none was made.
+#                 foundations is imported DEFENSIVELY here, exactly as in tutor.py.
+#               Both chat call sites (the __open__ opener and the normal turn) record.
+#               Rules 39 and 40 and the visual referee are in tutor.py; the table and its
+#               reset-cascade entry are in store.py.
 #   2026-08-09  APP_BUILD -> "2026-08-09cd-foundation-library". No code change in this
 #               file -- the build string moves so /health proves the deploy landed.
 #               TWO THINGS SHIPPED, both in files main.py only reads through tutor.py:
@@ -1513,6 +1538,14 @@ import tutor
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
 import library  # 2026-08-07: the "Look it up" reference library (seeds + generate-once)
+try:
+    # 2026-08-09 (build ce): used ONLY to validate a [[learned term="..."]] tag against
+    # the real script names before we write it down. Defensive, exactly like tutor.py's
+    # import: a missing or broken foundations.py must never keep the classroom down.
+    import foundations
+except Exception as _exc:  # noqa: BLE001
+    foundations = None
+    print(f"[main] foundations.py unavailable ({_exc}) -- foundation memory disabled")
 
 # Bring up the database backend if DATABASE_URL is configured. If it isn't (or the
 # DB can't be reached), store.enabled() stays False and we use the JSON-file storage
@@ -4280,7 +4313,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09cd-foundation-library"
+APP_BUILD = "2026-08-09ce-checkin-memory-visualref"
 
 
 @app.get("/health")
@@ -4574,6 +4607,42 @@ KEY_TERMS = [
 _TAG_SPLIT_RE = re.compile(r"(\[\[[^\]]*\]\])")
 
 
+# ===== FOUNDATION MEMORY (2026-08-09, build ce) ==============================
+# Jim: "if a student is returning, nothing tells him which scripts that student has
+# heard, so a loyal student can re-hear it. We need to fix it... we should just query
+# him and say, do you think you got it, or do you want me to refresh your memory?"
+#
+# Two halves, both here. READ: before the turn, load this student's heard terms out of
+# the store and put them on the student record, where tutor.build_system_prompt picks
+# them up. WRITE: after the turn, look for [[learned term="..."]] -- the invisible tag
+# rule 40(f) asks him to emit whenever he actually delivers an introduction -- and
+# record it. The tag parsing and the "is this a real script name?" filter both live in
+# foundations.learned_terms_in(), so a mistyped tag can never retire an introduction the
+# student still needs -- and ruletests.py can test that filter without booting the app.
+
+
+def _foundations_heard(code: str, course: str) -> list:
+    """The canonical terms this student has already been introduced to in this course."""
+    try:
+        if not store.enabled() or not code:
+            return []
+        return sorted(store.get_foundations_heard(code, course).keys())
+    except Exception as exc:  # noqa: BLE001 -- never break a turn over a memory lookup
+        print(f"[foundations] heard-list lookup failed: {exc}")
+        return []
+
+
+def _record_learned(code: str, course: str, reply: str) -> None:
+    """Persist every [[learned term="..."]] the tutor emitted in this reply."""
+    try:
+        if foundations is None or not store.enabled() or not code or not reply:
+            return
+        for term in foundations.learned_terms_in(course, reply):
+            store.record_foundation_heard(code, course, term)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[foundations] recording failed: {exc}")
+
+
 def _bold_first_terms(reply: str, history) -> str:
     """Wrap the FIRST use of each key term in **bold** (rendered red by the app).
     Skips [[tags]], terms already used in an earlier tutor turn, and anything the
@@ -4692,6 +4761,11 @@ def chat(req: ChatRequest):
     except Exception as exc:  # noqa: BLE001
         print(f"[awards] tutor note failed: {exc}")
 
+    # FOUNDATION MEMORY (2026-08-09, build ce): which canonical introductions this
+    # student has already sat through, so rule 40 can ASK instead of replaying one.
+    # This is the ONLY place the tutor can learn it -- a new session's history is empty.
+    student_context["foundations_heard"] = _foundations_heard(code, req.course)
+
     # OPENER: the app auto-sends "__open__" when the student opens the lesson (they did NOT
     # type anything). The OLD app sent a literal "Hi!" that got stored as a student turn, so
     # after a few logins the tutor saw "Hi Hi Hi..." and turned snappish. Fix: never store a
@@ -4744,12 +4818,14 @@ def chat(req: ChatRequest):
                 "their FOCUS unit (today's topic, the goal + goals card, ready-check) and teach "
                 "that unit from where their mastery actually stands.)")
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
+        _record_learned(code, req.course, reply)
         history.append({"role": "assistant", "content": reply})
         session["history"] = history
         save_session(code, session, req.course)
         return {"reply": reply}
 
     reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course, code=code), history)
+    _record_learned(code, req.course, reply)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})

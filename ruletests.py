@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD ce -- three new groups of checks, one per thing Jim asked for.
+#               PART 1 gained rules 39 and 40 (coverage across all ten courses).
+#               PART 2 gained VISUAL_CASES for the new visual referee -- including the
+#               false-positive cases, which matter just as much: a re-roll is a real model
+#               call, so ordinary prose about a number line, a promise to draw one next
+#               time, and a look back at yesterday's picture must all stay clean.
+#               PART 3c gained a drift check: tutor.FIGURE_TAGS (a constant, because
+#               tutor.py must not read static files at request time) must still name
+#               exactly the tags session.html's handleTags() routes to a figure renderer.
+#               PART 3d is new -- foundation memory: the term key survives the model's own
+#               capitalisation, a made-up term is rejected, the heard list actually reaches
+#               the prompt and marks its scripts, every script stays byte-identical either
+#               way (the audio cache depends on it), junk never raises, and the new table
+#               is in store's per-student reset cascade.
 #   2026-08-09  BUILD cd -- ADDED PART 3c, "board tags actually draw".
 #               This is the machine for the failure Jim named on the demo page: "the
 #               lesson referred to a diagram that didn't show up on the board... We got
@@ -120,6 +134,10 @@ COVERAGE = [
     ("rule 36 teach before you ask",     "TEACH THE THING BEFORE YOU ASK ABOUT THE THING"),
     ("rule 37 vocabulary is taught",     "VOCABULARY IS TAUGHT, NEVER ASSUMED"),
     ("rule 38 concrete->picture->symbol", "CONCRETE, THEN PICTURE, THEN SYMBOLS"),
+    ("rule 39 talk less, check in",      "TALK LESS. CHECK IN OFTEN"),
+    ("rule 39 the check must be failable", "MAKE THE CHECK FAILABLE"),
+    ("rule 40 ask before you repeat",    "SIT THROUGH THE SAME INTRODUCTION TWICE"),
+    ("rule 40 mark what you taught",     '[[learned term="denominator"]]'),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
@@ -171,6 +189,37 @@ PROSE_CASES = [
      'Your turn — what do the dollars come to? [[step eq="dollars: 2 + 1 + 1 = ?"]]', False),
 ]
 
+# ---- the VISUAL half of the referee (build ce) ------------------------------
+# Jim's demo failure, in a live lesson: "the lesson referred to a diagram that didn't
+# show up on the board... we got one shot to do it right, and it failed."
+# A false positive costs a real model call, so the FALSE cases below matter as much as
+# the TRUE ones -- ordinary mathematical prose about a number line must stay clean.
+VISUAL_CASES = [
+    ("the failure: a number line that was never drawn",
+     "Here's a number line from negative six to six. Where would negative three sit?", True),
+    ("the same reply, with the picture actually drawn",
+     'Here\'s a number line from negative six to six. Where would negative three sit? '
+     '[[numberline min="-6" max="6"]]', False),
+    ("'I just drew' with an empty board",
+     "I just drew a graph of this function — see how it bends upward?", True),
+    ("'look at the diagram' with only writing on the board",
+     'Look at the diagram: the two legs meet at the corner. [[write text="a=3, b=4"]]', True),
+    ("'let me draw a picture' and he does",
+     'Let me draw a picture of six stars. [[objects emoji="⭐" groups="6"]]', False),
+    ("pointing at a board he wrote nothing on",
+     "Take a look at the board — see how the twos cancel?", True),
+    ("pointing at a board he DID write on",
+     'Take a look at the board — see how the twos cancel? [[step eq="2x = 8"]]', False),
+    ("plain prose ABOUT a number line is not a claim",
+     "On a number line, numbers get bigger as you move to the right. What's bigger, 5 or 8?", False),
+    ("a promise about NEXT time is not a claim",
+     "Next time I'll draw you a picture of that. For now, what is seven plus eight?", False),
+    ("recalling a picture from earlier is not a claim",
+     "Remember the number line we used yesterday? Same idea here. What's negative two plus five?", False),
+    ("teaching with no visuals mentioned at all",
+     'Nice work! Seven plus eight is fifteen. [[step eq="7 + 8 = 15"]]', False),
+]
+
 
 def part2_prose():
     print("\nPART 2 — the prose referee")
@@ -178,9 +227,19 @@ def part2_prose():
         got = tutor.prose_board_conflict(reply)
         check(f"prose: {name}", bool(got) == should_flag,
               f"expected flag={should_flag}, got: {got or '(clean)'}")
-    for junk in [None, "", 0, [], "[[step eq=", "x: = 5"]:
+    for name, reply, should_flag in VISUAL_CASES:
+        got = tutor.prose_visual_conflict(reply)
+        check(f"visual: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        # the visual check must also reach students THROUGH the combined referee
+        if should_flag:
+            check(f"visual: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    for junk in [None, "", 0, [], "[[step eq=", "x: = 5", "[[numberline"]:
         try:
             tutor.prose_board_conflict(junk)
+            tutor.prose_visual_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
@@ -609,6 +668,102 @@ def part3c_board_tags():
                 ok(f"{label} — [[{tag}]] draws")
     check("board lines were actually checked", lines > 0, "no board lines found")
 
+    # tutor.FIGURE_TAGS drives the visual referee (PART 2). tutor.py cannot read the
+    # JS at request time, so it carries a constant -- and a constant drifts. Prove it
+    # still names exactly the tags that put a PICTURE on the board.
+    drawn = {t for t in valid if t in allowed and t not in TAG_INLINE
+             and TAG_HANDLER.get(t) not in ("showWrite", "showStep", "showSolve",
+                                            "showColumn", "showCard", "showCheck",
+                                            "showQuiz", "showToday", "markTodayDone",
+                                            "showUnitPlan", "showFinalExam", "showChoices")}
+    missing = sorted(drawn - set(tutor.FIGURE_TAGS))
+    extra = sorted(set(tutor.FIGURE_TAGS) - valid)
+    check("tutor.FIGURE_TAGS still matches handleTags()", not missing and not extra,
+          f"the visual referee would miss {missing}" if missing else
+          f"names tags the board does not have: {extra}")
+
+
+def part3d_foundation_memory():
+    """The returning student must not be replayed an introduction he already gave.
+    Jim: "nothing tells him which scripts that student has heard... we should just query
+    him and say, do you think you got it, or do you want me to refresh your memory?"
+    """
+    print("\nPART 3d — foundation memory (the returning student)")
+    try:
+        import foundations
+    except Exception as exc:  # noqa: BLE001
+        bad("foundations.py imports", str(exc)); return
+
+    # 1. the term key survives the round trip through the model's own typing
+    check("normalize_term folds case and spacing",
+          foundations.normalize_term("  Pythagorean   THEOREM ") == "pythagorean theorem",
+          repr(foundations.normalize_term("  Pythagorean   THEOREM ")))
+    check("known_term recognises a real script by any spelling",
+          foundations.known_term("geometry", "PYTHAGOREAN theorem") == "Pythagorean theorem",
+          repr(foundations.known_term("geometry", "PYTHAGOREAN theorem")))
+    check("known_term rejects a term this course has no script for",
+          foundations.known_term("geometry", "eigenvalue") == "", "it accepted a stranger")
+    check("known_term is course-scoped",
+          foundations.known_term("entrymath", "derivative") == "", "it accepted a stranger")
+
+    # 2. the [[learned]] tag main.py relies on
+    reply = ('Great work today! [[write text="1/4"]] [[learned term="denominator"]] '
+             '[[learned term="NUMERATOR"]] [[learned term="not a real term"]]')
+    got = foundations.learned_terms_in("basicmath", reply)
+    check("learned_terms_in reads the tags and canonicalises them",
+          got == ["denominator", "numerator"], f"got {got}")
+    check("learned_terms_in drops a term we have no script for",
+          "not a real term" not in got, f"got {got}")
+    for junk in [None, "", 0, [], "[[learned term=", '[[learned term=""]]']:
+        try:
+            foundations.learned_terms_in("basicmath", junk)
+        except Exception as exc:  # noqa: BLE001
+            bad("learned_terms_in: junk never raises", f"{junk!r} -> {exc}")
+            break
+    else:
+        ok("learned_terms_in: junk never raises")
+
+    # 3. the prompt actually CHANGES for a student who has heard one
+    fresh = tutor.build_system_prompt(dict(STUDENT), course="basicmath")
+    known = tutor.build_system_prompt(
+        dict(STUDENT, foundations_heard=["denominator", "Numerator"]), course="basicmath")
+    check("a brand-new student is told nothing is known yet",
+          "has not been introduced to ANY of these terms" in fresh,
+          "the fresh-student prompt lost its note")
+    check("a returning student's heard terms reach the prompt",
+          "ALREADY INTRODUCED TO THIS STUDENT" in known and "denominator, numerator" in known,
+          "the heard list never made it into the prompt")
+    check("the heard terms are marked on their own scripts",
+          known.count("[already introduced -- ask first, rule 40]") == 2,
+          f"marked {known.count('[already introduced -- ask first, rule 40]')} of 2")
+    check("the SCRIPTS themselves are byte-identical either way (the audio cache "
+          "depends on it)",
+          all(f["say"] in fresh and f["say"] in known
+              for f in foundations.for_course("basicmath")),
+          "a script's wording changed between the two prompts")
+    check("a returning student is told to ASK, not replay",
+          "refresh your memory" in known, "the ask is missing")
+    # a heard list full of nonsense must not break the block
+    for junk in [None, [], ["nothing like a real term"], "denominator", 0]:
+        try:
+            tutor.build_system_prompt(dict(STUDENT, foundations_heard=junk), course="basicmath")
+        except Exception as exc:  # noqa: BLE001
+            bad("a junk heard-list never breaks the prompt", f"{junk!r} -> {exc}")
+            break
+    else:
+        ok("a junk heard-list never breaks the prompt")
+
+    # 4. the storage layer is wired into the reset cascade (standing rule: day one)
+    try:
+        import store
+        check("foundations_heard joins the per-student reset cascade",
+              ("foundations_heard", "code") in store._STUDENT_CODE_TABLES,
+              "a Start Fresh would leave the memory behind")
+        for fn in ("get_foundations_heard", "record_foundation_heard"):
+            check(f"store.{fn} exists", hasattr(store, fn), "main.py calls it every turn")
+    except Exception as exc:  # noqa: BLE001
+        bad("store.py imports", str(exc))
+
 
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
@@ -641,6 +796,7 @@ def main():
     part3_speech()
     part3b_foundations()
     part3c_board_tags()
+    part3d_foundation_memory()
     if live:
         part4_live()
     else:

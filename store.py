@@ -2,6 +2,20 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  FOUNDATION MEMORY (build ce, Jim: "if a student is returning, nothing
+#               tells him which scripts that student has heard, so a loyal student can
+#               re-hear it. We need to fix it"). NEW TABLE `foundations_heard`
+#               (code, course, term) with first_heard, last_heard and a `refreshers`
+#               count, plus get_foundations_heard() and record_foundation_heard().
+#               Brand-new table -> create_all builds it; no migration; nothing else
+#               touched. The FIRST hearing keeps its date forever and every later
+#               delivery counts as a refresher, which is the honest signal that a term
+#               did not stick -- worth surfacing on the parent dashboard later.
+#               It JOINS _STUDENT_CODE_TABLES on day one (standing rule): a "Start
+#               Fresh" that left these rows behind would hand the reset student a tutor
+#               who still believes he already explained fractions to them.
+#               Both accessors swallow their own errors: a memory lookup must never be
+#               able to break a lesson.
 #   2026-08-07  STUDENT RESET + BETA-DELETE SAFETY (build bc). (1) delete_beta_cascade now
 #               verifies the pass EXISTS before wiping anything (a mistyped/pilot code used
 #               to get its data erased, then a "no pass" error). (2) NEW reset_student_data
@@ -508,6 +522,24 @@ def init():
             Column("award_id", String(48), primary_key=True),
             Column("earned_at", DateTime(timezone=True)),
         )
+        # FOUNDATION MEMORY (2026-08-09, build ce). Which canonical foundation scripts
+        # (foundations.py) this student has already been introduced to, per course.
+        # Jim: "if a student is returning, nothing tells him which scripts that student
+        # has heard, so a loyal student can re-hear it. We need to fix it." Without this
+        # row the tutor has no way to know -- the session history resets and the prompt
+        # tells him to skip an introduction he cannot identify. `refreshers` counts the
+        # times the student asked to hear it again, which is the honest signal that a
+        # term did NOT stick and is worth surfacing on the dashboard later.
+        # Brand-new table -> create_all builds it; no migration; nothing else touched.
+        _tables["foundations_heard"] = Table(
+            "foundations_heard", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True),
+            Column("term", String(96), primary_key=True),
+            Column("first_heard", DateTime(timezone=True)),
+            Column("last_heard", DateTime(timezone=True)),
+            Column("refreshers", Integer, default=0),
+        )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
         # of `uses_allowed` and opens a `window_hours` window of full access.
         _tables["beta_codes"] = Table(
@@ -932,6 +964,54 @@ def record_awards(code: str, award_ids: list) -> None:
         if aid in existing:
             continue
         _upsert("awards", {"code": code, "award_id": aid}, {"earned_at": now})
+
+
+# ---- foundation memory (2026-08-09, build ce) -------------------------------
+# Which canonical introductions this student has already heard, so a returning
+# student is ASKED ("want me to refresh your memory?") instead of being replayed
+# an explanation they sat through last month. See tutor.py rule 40.
+def get_foundations_heard(code: str, course: str = "") -> dict:
+    """{term: {"first": iso, "last": iso, "refreshers": n}} for this student.
+    Pass `course` to scope it to one course; omit it for every course.
+    Returns {} on any storage problem -- a lookup failure must never break a lesson."""
+    from sqlalchemy import select
+    try:
+        t = _tables["foundations_heard"]
+        where = (t.c.code == code)
+        if course:
+            where = where & (t.c.course == course)
+        with _engine.connect() as conn:
+            rows = conn.execute(select(t.c.term, t.c.first_heard, t.c.last_heard,
+                                       t.c.refreshers).where(where)).all()
+        return {r[0]: {"first": (r[1].isoformat() if r[1] else None),
+                       "last": (r[2].isoformat() if r[2] else None),
+                       "refreshers": int(r[3] or 0)} for r in rows}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[foundations] read failed for {code}/{course}: {exc}")
+        return {}
+
+
+def record_foundation_heard(code: str, course: str, term: str) -> bool:
+    """Remember that this student has now been given the canonical introduction to
+    `term`. Idempotent: the FIRST hearing keeps its original date forever, and every
+    later delivery is counted as a refresher (they asked for it again -- see rule 40).
+    Returns True if the row was written. Never raises."""
+    key = " ".join(str(term or "").strip().lower().split())
+    if not code or not course or not key:
+        return False
+    try:
+        now = _now()
+        prior = get_foundations_heard(code, course).get(key)
+        if prior:
+            _upsert("foundations_heard", {"code": code, "course": course, "term": key},
+                    {"last_heard": now, "refreshers": int(prior.get("refreshers") or 0) + 1})
+        else:
+            _upsert("foundations_heard", {"code": code, "course": course, "term": key},
+                    {"first_heard": now, "last_heard": now, "refreshers": 0})
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[foundations] write failed for {code}/{course}/{key}: {exc}")
+        return False
 
 
 # ---- mastery: end-of-unit CHECKS + student STATS (Phase A) ------------------
@@ -1561,6 +1641,10 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-07 (build bb): the Final Exam table joined the family today -- a reset
     # that leaves exam rows behind isn't a reset. Every cascade uses this list.
     ("final_exams", "code"),
+    # 2026-08-09 (build ce): foundation memory joins on day one (standing rule). A
+    # "Start Fresh" that leaves these rows behind would hand the reset student a tutor
+    # who still thinks he already explained fractions to them.
+    ("foundations_heard", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),

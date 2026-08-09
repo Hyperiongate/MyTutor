@@ -2,6 +2,18 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD ce -- THE RETURNING STUDENT IS ASKED, NOT REPLAYED.
+#               prompt_block(course, heard) now takes the list of terms THIS student was
+#               introduced to on an earlier visit (main.py reads it from the store) and
+#               marks them "ask first, rule 40" instead of letting the tutor play the
+#               script at them again. The SCRIPTS THEMSELVES ARE UNCHANGED and must stay
+#               that way: identical wording is what lets a refresher reuse the cached
+#               audio, so asking again costs nothing.
+#               NEW: normalize_term(), known_term() and learned_terms_in() -- the parser
+#               and validator for the [[learned term="..."]] tag rule 40(f) asks the tutor
+#               to emit. A tag naming a script this course does not have is DROPPED: the
+#               only thing a bad memory row can do is cost a student an introduction they
+#               still need, so an unrecognised name is never worth trusting.
 #   2026-08-09  BUILD cd -- THE LIBRARY IS NOW COMPLETE. 24 scripts -> 173. Every course
 #               carries 17 or 18 canonical introductions instead of 2, chosen to cover
 #               all nine units of that course and weighted toward the words students
@@ -1524,14 +1536,69 @@ def terms_for_course(course: str) -> list:
     return [f["term"] for f in for_course(course)]
 
 
-def prompt_block(course: str) -> str:
+import re  # noqa: E402 -- kept next to the helpers that use it, below the data
+
+
+# The invisible tag rule 40(f) asks the tutor to emit whenever he actually delivers
+# one of these introductions. The student never sees it (every page's stripTags drops
+# any [[...]]); the server reads it and writes the memory row.
+LEARNED_TAG_RE = re.compile(
+    r'\[\[\s*learned\b[^\]]*?term\s*=\s*"([^"]{1,96})"[^\]]*\]\]', re.I)
+
+
+def normalize_term(term: str) -> str:
+    """The storage key for a term: lowercased and whitespace-collapsed.
+
+    The model types the term back to us inside [[learned term="..."]], so it will
+    arrive with stray capitals and spacing. Everything that reads or writes the
+    heard-list goes through here so "Pythagorean Theorem" and "pythagorean theorem"
+    are the same memory."""
+    return " ".join(str(term or "").strip().lower().split())
+
+
+def known_term(course: str, term: str) -> str:
+    """The CANONICAL spelling of `term` in this course, or "" if this course has no
+    script for it. Used to reject a [[learned]] tag for something we never wrote,
+    so a typo can never silently retire a real introduction."""
+    want = normalize_term(term)
+    for f in for_course(course):
+        if normalize_term(f["term"]) == want:
+            return f["term"]
+    return ""
+
+
+def learned_terms_in(course: str, reply: str) -> list:
+    """The CANONICAL terms this reply claims to have introduced, from its
+    [[learned term="..."]] tags. Deduplicated, order preserved.
+
+    A tag naming something this course has no script for is DROPPED, deliberately:
+    the memory row it would write can only cost a student an introduction they still
+    need, so an unrecognised name is never worth trusting. Never raises."""
+    out = []
+    try:
+        for raw in LEARNED_TAG_RE.findall(str(reply or "")):
+            term = known_term(course, raw)
+            if term and term not in out:
+                out.append(term)
+    except Exception:  # noqa: BLE001
+        return out
+    return out
+
+
+def prompt_block(course: str, heard=None) -> str:
     """The prompt section listing this course's canonical introductions.
 
-    Returns "" when a course has none, so the prompt never grows for nothing.
-    Deliberately compact: the scripts themselves are the payload."""
+    `heard` is the set/list of terms THIS student has already been introduced to
+    (main.py reads it from the store). It changes nothing about the scripts -- the
+    words stay identical so the audio cache still hits on a refresher -- it only
+    tells the tutor which ones to ASK about instead of replaying. See rule 40.
+
+    Returns "" when a course has none, so the prompt never grows for nothing."""
     items = for_course(course)
     if not items:
         return ""
+    seen = {normalize_term(t) for t in (heard or []) if str(t or "").strip()}
+    known = [f["term"] for f in items if normalize_term(f["term"]) in seen]
     lines = [
         "",
         "============================================================",
@@ -1547,13 +1614,38 @@ def prompt_block(course: str) -> str:
         "     verbatim is rendered ONCE for the whole platform and is free from then on.",
         "     Re-wording it costs real money and gains nothing.",
         "AFTER the script, teach live as always: your worked example, then their turn.",
-        "If the student already knows the term (their notes show this course's later units,",
-        "or they say so), give one sentence of reminder instead and move on -- never make a",
-        "returning student sit through an introduction they have earned their way past.",
+        "",
+        "★ MARK EVERY INTRODUCTION YOU GIVE. When you deliver one of these scripts -- the",
+        "first time OR as a refresher -- end that reply with [[learned term=\"<term>\"]],",
+        "spelled exactly as the script names it. The student never sees that tag. It is how",
+        "the system remembers next month what you taught today; with no tag, this student",
+        "hears the same introduction from scratch on their next visit.",
         "",
     ]
+    if known:
+        lines += [
+            "★ ALREADY INTRODUCED TO THIS STUDENT -- ASK, DO NOT REPLAY (rule 40):",
+            "    " + ", ".join(known),
+            "  This session's conversation has no trace of it, but you DID teach these to",
+            "  this student on an earlier visit. Do not play the script at them again. Name",
+            "  the term in one sentence and ask whether they want it again -- \"do you feel",
+            "  like you've got a handle on that, or want me to refresh your memory?\" -- then",
+            "  stop and let them choose. If they ask for it, say the script WORD FOR WORD",
+            "  (same words, same board lines, and it costs nothing to say twice) and tag it",
+            "  again. If they say they have it, one sentence and get to work. With the",
+            "  youngest students, ask one small concrete question about the term instead of",
+            "  asking them to grade their own memory -- see rule 40(e).",
+            "",
+        ]
+    else:
+        lines += [
+            "This student has not been introduced to ANY of these terms yet, so each one",
+            "below is genuinely new to them the first time it comes up.",
+            "",
+        ]
     for f in items:
-        lines.append(f'--- {f["term"].upper()} ---')
+        mark = "  [already introduced -- ask first, rule 40]" if normalize_term(f["term"]) in seen else ""
+        lines.append(f'--- {f["term"].upper()} ---{mark}')
         lines.append(f'SAY: {f["say"]}')
         for b in f.get("board", []):
             lines.append(f"BOARD: {b}")
