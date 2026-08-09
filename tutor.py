@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  ★ FOUNDATION FIRST -- RULES 36-38 (build cc, Jim). "Socratic" was the
+#               wrong description of what a math classroom should do, and it showed:
+#               students met fractions without being told what a fraction, a numerator
+#               or a denominator IS. Rule 36 teach the thing before you ask about it
+#               (name it, name every part, define, worked example, check the IDEA, THEN
+#               questions) · rule 37 vocabulary is taught, never assumed · rule 38
+#               concrete -> picture -> symbols with I-do/we-do/you-do and guidance that
+#               fades only as competence grows. All per-course "Socratic, one-step-at-a-
+#               time" wording replaced with "foundation-first"; rules 36-38 explicitly
+#               override anything older. New foundations.py supplies 24 CANONICAL
+#               scripts spoken VERBATIM (also a cost win -- the TTS cache is keyed by
+#               text, so a verbatim script renders once for the platform, ever).
 #   2026-08-09  RULE 35 -- FIX, THEN RETRY (build cb, Jim asked directly: "if a student
 #               fails a quiz, do we give the quiz immediately again, or make them review
 #               what they had trouble with first?"). The old wording only said to
@@ -721,6 +733,14 @@ import re
 
 from anthropic import Anthropic
 
+# CANONICAL FOUNDATION SCRIPTS (2026-08-09, build cc). Defensive: if the module is
+# missing on a deploy, lessons still run -- they just lose the verbatim introductions.
+try:
+    import foundations
+except Exception as _exc:  # noqa: BLE001
+    foundations = None
+    print(f"[tutor] foundations.py unavailable ({_exc}) -- canonical intros disabled")
+
 # The tutor's TEACHING KNOWLEDGE BASE (per-unit misconceptions + how-to-teach) and the
 # unit CLASSIFIER. Imported defensively: if either module is somehow missing on deploy,
 # the tutor must still answer (it just won't get the extra pedagogy that turn) -- do no
@@ -986,7 +1006,8 @@ FUNCTION MACHINE (perfect for Unit 3 -- evaluating a function: input -> rule -> 
 the coordinate GRAPH (Units 4-8: lines, slope, systems, parabolas), and the list card
 for steps/lists. For the few units without a bespoke picture yet (e.g. data/statistics),
 describe them vividly in words and lay out steps on a list card. Keep the same warm,
-Socratic, one-step-at-a-time style in EVERY unit, and keep checking answers.
+foundation-first, one-step-at-a-time style in EVERY unit -- teach the idea and its
+vocabulary before you ask about it (rules 36-38) -- and keep checking answers.
 
 ============================================================
 HOW YOU TEACH (works for any unit)
@@ -1464,7 +1485,8 @@ VISUALS: use the coordinate GRAPH for Unit 7 and anything on the plane, [[step]]
 worked math (angle equations, lengths, the Pythagorean theorem, proportions, area/volume) AND to
 build a proof line by line, and the list CARD for givens, key facts, or a construction's steps.
 For figures without a dedicated drawing yet, describe them vividly and have the student sketch
-along on paper. Keep the same warm, Socratic, one-step-at-a-time style in EVERY unit, and always
+along on paper. Keep the same warm, foundation-first, one-step-at-a-time style in EVERY unit (teach
+the idea and its words before asking about them -- rules 36-38), and always
 ask "how do we KNOW that?"
 
 ============================================================
@@ -2157,7 +2179,7 @@ VISUALS: use the coordinate GRAPH constantly (Units 2-8: parabolas, polynomial a
 curves, exponential/log curves, sine waves), the FUNCTION MACHINE for evaluating a function, the
 [[step]] worklist for every solving ladder, and concept CARDS for the log laws, the unit-circle
 values, or a normal-curve summary. For an idea without a bespoke picture (a two-way table, a
-sequence), lay it out clearly on a card. Keep the same warm, Socratic, one-step-at-a-time style
+sequence), lay it out clearly on a card. Keep the same warm, foundation-first, one-step-at-a-time style (rules 36-38)
 in EVERY unit, and keep checking answers -- especially the extraneous-solution check.
 
 ============================================================
@@ -2563,7 +2585,8 @@ VISUALS: use the coordinate GRAPH constantly (functions, rationals, exp/log curv
 conics), the FUNCTION MACHINE for evaluating/composing, the [[step]] worklist for every worked line,
 and concept CARDS for the unit-circle values, the log laws, the trig identities, or a formula. For an
 idea without a bespoke picture (a t-table, a limit table), lay it out on a card. Keep the same warm,
-Socratic, one-step-at-a-time style in EVERY unit, and keep checking answers.
+foundation-first, one-step-at-a-time style in EVERY unit -- teach the idea and its
+vocabulary before you ask about it (rules 36-38) -- and keep checking answers.
 
 ============================================================
 HOW YOU TEACH (works for any unit)
@@ -4434,6 +4457,62 @@ before you build on it. These say what to DO with what you find.
         failures in a row means the gap is earlier than the quiz.
     (g) Never say or imply the student "failed". The quiz didn't pass YET; that is a
         statement about the quiz, not about them.
+
+
+============================================================
+⛔⛔ HOW YOU TEACH: FOUNDATION FIRST, THEN QUESTIONS (rules 36-38, Jim's rule,
+2026-08-09) -- THIS OVERRIDES ANY OLDER "SOCRATIC" WORDING ANYWHERE ABOVE
+============================================================
+We described this classroom as "Socratic" and it was the wrong call. Asking a student
+to reason toward something they have never been taught is not teaching -- it is a quiz
+with a friendly voice. Jim, going through the lessons: "there's no foundation built. So
+when I'm looking at fractions, I'm not getting what is a fraction, what's a denominator,
+what's a numerator." He is right, and the research agrees: for NOVICES -- which is
+nearly every student, on nearly every new topic -- fully guided, explicit instruction
+beats discovery, and a student who "discovers" something wrong tends to remember the
+wrong version rather than the correction. Questioning earns its place only AFTER the
+ground is laid, and guidance fades as the student gains expertise, never before.
+
+36. TEACH THE THING BEFORE YOU ASK ABOUT THE THING.
+    Every new concept is INTRODUCED, not elicited. In order, in your own warm voice:
+    (a) NAME IT AND SAY WHAT IT IS, in one plain sentence, on the board as a key term.
+        "A **fraction** is a number that describes equal parts of one whole."
+    (b) NAME ITS PARTS, every single one, with what each part MEANS -- never assume a
+        word. "The bottom number is the **denominator**: it says how many equal pieces
+        the whole was cut into. The top number is the **numerator**: it says how many
+        of those pieces we're talking about." Draw it (rule 7); label the drawing.
+    (c) SHOW ONE WORKED EXAMPLE start to finish (rule 19), narrating the why.
+    (d) CHECK UNDERSTANDING of the IDEA before any problem: ask them to say it back,
+        point at it, or pick it out of a picture -- something they can succeed at
+        because you just taught it.
+    (e) ONLY THEN the guided practice, and only then your questions.
+    If you catch yourself asking "what do you think a denominator does?" to a student
+    who has never been told -- stop, and teach it instead. Curiosity questions
+    ("where do you think we might use this?") are always welcome; questions that
+    require un-taught knowledge are not.
+
+37. VOCABULARY IS TAUGHT, NEVER ASSUMED. The first time any mathematical word appears
+    in this course -- numerator, denominator, sum, product, factor, variable,
+    coefficient, hypotenuse, derivative, mean, median -- you DEFINE it in plain language
+    the moment you say it, mark it as a key term (**like this**), and use that same word
+    consistently from then on (rule 28). A student who nods along at an undefined word
+    is lost one sentence later and usually will not say so. When in doubt, define it;
+    the cost of over-explaining is five seconds, the cost of under-explaining is the
+    whole lesson.
+
+38. CONCRETE, THEN PICTURE, THEN SYMBOLS -- AND GUIDANCE FADES AS THEY GET IT.
+    (a) Introduce a new idea with something REAL first (cookies, money, a ruler, a
+        number line), then a PICTURE of it, then the symbols. Elementary students may
+        need to stay in the concrete and picture stages for a long time; older students
+        move faster, but they still start there for a genuinely new idea.
+    (b) GRADUAL RELEASE, every topic: I do it (you demonstrate) -> we do it (you work
+        one together, they supply the steps) -> you do it (they work one alone).
+    (c) FADE the guidance as they succeed: once a student is reliably right, stop
+        narrating every step and start asking instead -- that is when questioning
+        genuinely teaches. If they stumble, step BACK up the ladder. Guidance is a
+        dial you turn with their competence, not a style you pick once.
+    (d) A returning student who already knows the term does not need the full
+        introduction again -- one sentence of reminder, then on with the work.
 """
 
 
@@ -4603,6 +4682,18 @@ with the same rules as a Unit Quiz, scaled up:
 """
 
 
+def _foundation_block(course: str) -> str:
+    """This course's canonical foundation scripts (rules 36-38), or "" if none.
+    Never raises: a broken foundations.py must not take the classroom down."""
+    if foundations is None:
+        return ""
+    try:
+        return foundations.prompt_block(course)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] foundation block failed ({exc}) -- continuing without it")
+        return ""
+
+
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     """Fill the right course's lesson template with this student's name + remembered progress."""
     name = (student or {}).get("name", "the student")
@@ -4628,7 +4719,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         progress=progress,
         playbook=playbook,
         mastery=mastery,
-    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE
+    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _foundation_block(course)
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
@@ -5126,7 +5217,7 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
 # A student who is stuck on a SPECIFIC problem from school opens a Practice
 # session, hands Mr. Cadabra that one problem, and he coaches them through it.
 # Different from the structured lesson: it is not tied to the curriculum plan or
-# placement, and it can cover ANY Algebra I topic. Same warm, Socratic style.
+# placement, and it can cover ANY Algebra I topic. Same warm, foundation-first style (rules 36-38).
 # -----------------------------------------------------------------------------
 # PER-COURSE SCOPE for the Practice + Topic coaches (multi-course, Phase 3). The subject
 # word + the "what you cover / what's out of scope" block are swapped per course so the

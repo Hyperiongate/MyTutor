@@ -2,6 +2,38 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09cc-foundation-first". ★ PEDAGOGY CHANGE (Jim).
+#               We described this classroom as SOCRATIC. That was wrong, and Jim caught
+#               it from the inside: "there's no foundation built -- when I'm looking at
+#               fractions, I'm not getting what is a fraction, what's a denominator,
+#               what's a numerator." The evidence agrees: for NOVICES -- nearly every
+#               student on a new topic -- fully guided explicit instruction beats
+#               discovery, and a student who "discovers" something wrong remembers the
+#               wrong version over the correction (Clark/Kirschner/Sweller); a 2026
+#               systematic review of Socratic method in mathematics finds it demands
+#               heavy teacher expertise, more time, and depends on prior knowledge the
+#               student may not have. So:
+#               (1) NEW SHARED RULES 36-38 (all ten courses, verified): 36 teach the
+#                   thing before you ask about the thing -- name it, name every part,
+#                   define it, worked example, check understanding, THEN questions;
+#                   37 vocabulary is taught, never assumed; 38 concrete -> picture ->
+#                   symbols, with I-do/we-do/you-do and guidance that FADES as the
+#                   student gains competence (never before).
+#               (2) The per-course templates no longer say "Socratic" -- they say
+#                   foundation-first, and rules 36-38 override any older wording.
+#               (3) NEW foundations.py -- CANONICAL FOUNDATION SCRIPTS, 24 of them, the
+#                   exact words for each course's foundational terms (what a fraction
+#                   IS, what a denominator IS, what a variable IS...). Spoken VERBATIM.
+#                   This also answers Jim's cost point directly: the TTS cache is keyed
+#                   by the TEXT, so a verbatim script is rendered ONCE for the whole
+#                   platform and is free for every student after -- teaching MORE now
+#                   costs less, not more. Re-wording it is what costs money.
+#               (4) EVERY public page swept: no page claims the Socratic method any
+#                   more (landing incl. its JSON-LD twin, mission, homeschool, features,
+#                   parents, practice, llms.txt, README).
+#               ruletests.py grows to 140 checks incl. a new PART 3b that proves each
+#               script reaches its course prompt, is speakable, marks its key term, and
+#               that no page has crept back to the old claim.
 #   2026-08-09  APP_BUILD -> "2026-08-09cb-firstword-quizretry" (Jim's three questions).
 #               (1) THE CLIPPED FIRST WORD, PROPERLY. Leading silence only helps if the
 #               OUTPUT DEVICE is awake -- Bluetooth speakers, headphones and many laptop
@@ -4220,7 +4252,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09cb-firstword-quizretry"
+APP_BUILD = "2026-08-09cc-foundation-first"
 
 
 @app.get("/health")

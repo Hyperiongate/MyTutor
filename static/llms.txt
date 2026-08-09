@@ -1,7 +1,8 @@
 # MyTutor
 
 > MyTutor (mrcadabra.com) is a warm, talking AI math tutor for homeschool families,
-> students, and classrooms. The tutor, "Mr. Cadabra," teaches Socratically: he speaks
+> students, and classrooms. The tutor, "Mr. Cadabra," teaches foundation-first — he introduces each idea and its
+> vocabulary explicitly before asking about it. He speaks
 > each step aloud in a natural voice, draws the work on a synchronized whiteboard that
 > never runs ahead of the student, and asks guiding questions instead of handing over
 > answers. Students talk with him - a real spoken back-and-forth (speech is

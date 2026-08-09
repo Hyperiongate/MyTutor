@@ -101,6 +101,10 @@ COVERAGE = [
     ("rule 33 one notch at a time",     "DIFFICULTY MOVES ONE NOTCH AT A TIME"),
     ("rule 34 keep old skills sharp",   "KEEP OLD SKILLS SHARP"),
     ("rule 35 fix-then-retry a quiz",   "A FAILED QUIZ IS NEVER RE-GIVEN ON THE SPOT"),
+    ("rule 36 teach before you ask",     "TEACH THE THING BEFORE YOU ASK ABOUT THE THING"),
+    ("rule 37 vocabulary is taught",     "VOCABULARY IS TAUGHT, NEVER ASSUMED"),
+    ("rule 38 concrete->picture->symbol", "CONCRETE, THEN PICTURE, THEN SYMBOLS"),
+    ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
     ("speech: spoken answers count",    "NUMBERS SPOKEN AS WORDS ARE EXACT ANSWERS"),
@@ -305,6 +309,16 @@ LIVE_SCENARIOS = [
         why="rule 29: one-turn wrap-up, never bargaining",
     ),
     dict(
+        name="a new topic teaches the words before asking about them",
+        course="basicmath",
+        history=[("assistant", "Ready to start on fractions?")],
+        student="yes",
+        # rule 36/37: he must NAME and DEFINE, not open with a question about un-taught words
+        assertion=lambda r: ("fraction" in r.lower()
+                             and not re.search(r"what do you think (a |an )?(fraction|numerator|denominator)", r, re.I)),
+        why="rules 36-37: define the term, never ask a student to guess an untaught word",
+    ),
+    dict(
         name="a failed quiz is fixed before it is re-given",
         course="prealgebra",
         history=[("assistant", "Quiz time — three questions on comparing decimals. No hints from me."),
@@ -326,6 +340,55 @@ LIVE_SCENARIOS = [
         why="rule 31a: reassure with real evidence, never echo the label",
     ),
 ]
+
+
+def part3b_foundations():
+    """The canonical foundation scripts (build cc). These are what a student actually
+    HEARS the first time they meet an idea, and they are spoken verbatim so the voice
+    cache can reuse them -- so they must reach the prompt, and they must stay speakable."""
+    print("\nPART 3b — canonical foundation scripts")
+    try:
+        import foundations
+    except Exception as exc:  # noqa: BLE001
+        bad("foundations.py imports", str(exc)); return
+    total = 0
+    for c in COURSES:
+        items = foundations.for_course(c)
+        if not items:
+            check(f"foundations [{c}]", False, "no canonical introductions for this course")
+            continue
+        total += len(items)
+        prompt = tutor.build_system_prompt(dict(STUDENT), course=c)
+        missing = [f["term"] for f in items if f"--- {f['term'].upper()} ---" not in prompt]
+        check(f"foundations [{c}] ({len(items)} intros reach the prompt)", not missing,
+              f"missing: {missing}")
+        for f in items:
+            say = f["say"]
+            # spoken aloud: no notation, no bare symbols (see tutor.py HOW YOU SPEAK)
+            offenders = [ch for ch in "=+×÷^<>" if ch in say]
+            check(f"  '{f['term']}' script is speakable", not offenders,
+                  f"contains symbols that get read aloud badly: {offenders}")
+            low = say.lower()
+            check(f"  '{f['term']}' marks its key term",
+                  f"**{f['term'].lower()}**" in low or f"**{f['term'].split()[-1].lower()}**" in low,
+                  "the term itself must be wrapped in ** ** so the board highlights it")
+            check(f"  '{f['term']}' is a real explanation", 25 <= len(say.split()) <= 130,
+                  f"{len(say.split())} words — too short to teach, or too long to listen to")
+    check("every course has canonical introductions", total >= 20, f"only {total}")
+    # and the site must not promise the method we abandoned
+    here = os.path.dirname(os.path.abspath(__file__))
+    hits = []
+    for root, _dirs, files in os.walk(os.path.join(here, "static")):
+        for fn in files:
+            if not fn.endswith((".html", ".txt", ".md")):
+                continue
+            try:
+                with open(os.path.join(root, fn), encoding="utf-8") as fh:
+                    if "socratic" in fh.read().lower():
+                        hits.append(fn)
+            except Exception:  # noqa: BLE001
+                pass
+    check("no page still claims the Socratic method", not hits, f"still in: {hits}")
 
 
 def part4_live():
@@ -357,6 +420,7 @@ def main():
     part1_coverage()
     part2_prose()
     part3_speech()
+    part3b_foundations()
     if live:
         part4_live()
     else:

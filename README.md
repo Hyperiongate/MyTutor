@@ -11,7 +11,7 @@
 # MyTutor (Hyperion Shift LLC)
 
 **MyTutor** is a voice-first AI math tutor for the K-12 homeschool market. Students learn
-with **Mr. Cadabra** — a warm, Socratic tutor who *speaks* his teaching aloud (natural
+with **Mr. Cadabra** — a warm teacher who builds the foundation first and *speaks* his teaching aloud (natural
 ElevenLabs voice) while a synchronized whiteboard draws each step, never running ahead of
 the student. Students answer by **talking with him** — a real spoken back-and-forth
 (speech is transcribed via ElevenLabs Scribe and the audio deleted immediately; only the
