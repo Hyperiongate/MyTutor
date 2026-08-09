@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD cf -- PART 3e, plus rules 41-44 and two new guards.
+#               PART 3e "THE THREE TEACHING PAGES MUST MATCH" exists because auditing
+#               audit #1 found that item 11 (board lines never wrap) shipped to
+#               session.html and never reached practice.html or topic.html -- Jim's
+#               broken-equation screenshot was still reproducible on two of three pages,
+#               a day after we called it fixed. Same bug shape as build bk, where a rule
+#               written into one of eleven per-course templates reached one course. PART 1
+#               made that impossible for the prompt; PART 3e does it for the pages, and
+#               also proves every board tag the SHARED prompt block teaches is drawable on
+#               all three (the six lesson-only tags are named explicitly, and the test
+#               fails if one of them ever leaks into the shared block).
+#               PART 3c now enforces rule 41: a figure with no caption= is a failure.
+#               PART 3d now proves all THREE teaching modes carry the canonical scripts
+#               and honour the heard list.
 #   2026-08-09  BUILD ce -- three new groups of checks, one per thing Jim asked for.
 #               PART 1 gained rules 39 and 40 (coverage across all ten courses).
 #               PART 2 gained VISUAL_CASES for the new visual referee -- including the
@@ -138,6 +152,10 @@ COVERAGE = [
     ("rule 39 the check must be failable", "MAKE THE CHECK FAILABLE"),
     ("rule 40 ask before you repeat",    "SIT THROUGH THE SAME INTRODUCTION TWICE"),
     ("rule 40 mark what you taught",     '[[learned term="denominator"]]'),
+    ("rule 41 captions say what to notice", "CARRIES A CAPTION THAT SAYS WHAT TO NOTICE"),
+    ("rule 42 no comparisons",           "NEVER COMPARE THIS STUDENT TO ANYONE BUT THIS STUDENT"),
+    ("rule 43 no false perception",      "YOU PERCEIVE EXACTLY TWO THINGS"),
+    ("rule 44 read the problem aloud",   "READ THE PROBLEM ALOUD, IN FULL, EVERY TIME"),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
@@ -661,6 +679,11 @@ def part3c_board_tags():
                     bad(f"{label} — [[{tag}]] has content",
                         f"no content attribute (needs one of {sorted(need)}) — it draws empty: {b}")
                     continue
+                if tag in tutor.FIGURE_TAGS and "caption" not in attrs:
+                    bad(f"{label} — [[{tag}]] says what to notice",
+                        "rule 41: a figure with no caption= hands the student back the "
+                        f"one job the picture was supposed to do for them: {b}")
+                    continue
                 why2 = _graph_sanity(tag, dict(_HT_ATTR.findall(m.group(2))))
                 if why2:
                     bad(f"{label} — [[{tag}]] draws the RIGHT thing", f"{why2}: {b}")
@@ -753,7 +776,28 @@ def part3d_foundation_memory():
     else:
         ok("a junk heard-list never breaks the prompt")
 
-    # 4. the storage layer is wired into the reset cascade (standing rule: day one)
+    # 4. all THREE teaching modes get the scripts and honour the heard list.
+    #    (Found in the build-cf audit: practice and topic were built from GROUND_RULES +
+    #    GRAPH_TOOL_NOTE only, so rules 36-40 reached them while the scripts those rules
+    #    refer to did not -- and a student could hear a different definition of the same
+    #    word depending on which page they opened, which is rule 28 broken at scale.)
+    MODES = [
+        ("lesson", lambda st: tutor.build_system_prompt(st, course="basicmath")),
+        ("practice", lambda st: tutor.build_practice_prompt(st, "3/4 + 1/2", course="basicmath")),
+        ("topic", lambda st: tutor.build_topic_prompt(st, "fractions", course="basicmath")),
+    ]
+    for label, build in MODES:
+        try:
+            f = build(dict(STUDENT))
+            k = build(dict(STUDENT, foundations_heard=["denominator"]))
+        except Exception as exc:  # noqa: BLE001
+            bad(f"{label} mode builds", str(exc)); continue
+        check(f"{label} mode carries the canonical scripts", "SPEAK THESE VERBATIM" in f,
+              "this mode teaches vocabulary with no script to teach it from")
+        check(f"{label} mode honours the heard list", "ALREADY INTRODUCED TO THIS STUDENT" in k,
+              "a returning student would be replayed an introduction here")
+
+    # 5. the storage layer is wired into the reset cascade (standing rule: day one)
     try:
         import store
         check("foundations_heard joins the per-student reset cascade",
@@ -763,6 +807,78 @@ def part3d_foundation_memory():
             check(f"store.{fn} exists", hasattr(store, fn), "main.py calls it every turn")
     except Exception as exc:  # noqa: BLE001
         bad("store.py imports", str(exc))
+
+
+# =============================================================================
+# PART 3e -- THE THREE TEACHING PAGES MUST MATCH
+# -----------------------------------------------------------------------------
+# 2026-08-09 (build cf). Found by auditing whether audit #1 really shipped: item 11,
+# the fix that stops a long board line WRAPPING mid-equation, went into session.html
+# in build bu and NEVER reached practice.html or topic.html. Jim's screenshot bug
+# ("dimes: 7 + 8 + = 16" with "1(carried)" on the next line -- a literally different
+# equation on screen) was still live on two of the three teaching pages for a day.
+#
+# This is the SAME bug shape as build bk, where a rule written into one of tutor.py's
+# eleven per-course templates reached one course. PART 1 made that impossible for the
+# prompt. This does it for the pages: session / practice / topic are three copies of
+# one classroom, and anything that fixes teaching on one must be on all three.
+# =============================================================================
+PAGES = ("session.html", "practice.html", "topic.html")
+
+# (label, needle) -- must appear in EVERY teaching page.
+PAGE_PARITY = [
+    ("board lines never wrap (audit #1 item 11)", "white-space: nowrap"),
+    ("fitRow() shrinks an oversized line",        "function fitRow(row)"),
+    ("[[step]] lines are fitted",                 "fitRow(wl.appendChild(eqRow(eq)))"),
+    ("[[write]] lines are fitted",                "fitRow(wl.appendChild(eqRow(ln)))"),
+    ("forSpeech() exists",                        "function forSpeech"),
+    ("control tags are stripped before speaking", "function stripTags"),
+    ("the geometry figures are loaded",           "/static/geo-figures.js"),
+    ("the math figures are loaded",               "/static/math-figures.js"),
+]
+
+
+def part3e_page_parity():
+    print("\nPART 3e — the three teaching pages must match")
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = {}
+    for p in PAGES:
+        path = os.path.join(here, "static", p)
+        if not os.path.exists(path):
+            bad(f"{p} exists", "missing from static/"); return
+        with open(path, encoding="utf-8") as fh:
+            src[p] = fh.read()
+    for label, needle in PAGE_PARITY:
+        missing = [p for p in PAGES if needle not in src[p]]
+        check(f"all three pages: {label}", not missing, f"missing from: {missing}")
+    # Every tag the SHARED prompt block teaches him must be drawable on every page.
+    # (The lesson page has six extra handlers -- the progress bars, the goal banner and
+    # the final exam -- which is correct: practice and topic are side trips with no bars,
+    # and nothing in the shared block ever asks him to emit those there. The named list
+    # below is the whole allowance; a new session-only tag has to be added here on
+    # purpose, and a shared-block tag can never quietly go missing from a page.)
+    LESSON_ONLY = {"today", "todaydone", "unitplan", "goal", "finalexam", "highlight"}
+    tags = {}
+    for p in PAGES:
+        try:
+            ht = src[p][src[p].index("function handleTags("):]
+            ht = ht[:ht.index("\n    function ")]
+        except ValueError:
+            bad(f"{p} has a readable handleTags()", "could not find it"); return
+        names = set(re.findall(r'name === "([\w-]+)"', ht))
+        for arr in re.findall(r'\[((?:"[\w-]+",?)+)\]\.indexOf\(name\)', ht):
+            names |= set(re.findall(r'"([\w-]+)"', arr))
+        tags[p] = names
+    every = set().union(*tags.values())
+    for p in PAGES:
+        gap = sorted(every - tags[p] - LESSON_ONLY)
+        check(f"{p} handles every shared board tag ({len(tags[p])})", not gap,
+              f"the tutor can emit {gap} here and NOTHING will draw")
+    # ...and the allowance itself must stay honest: a tag we excused must genuinely be
+    # absent from the shared block that practice and topic also receive.
+    leaked = sorted(t for t in LESSON_ONLY if f"[[{t}" in tutor.GRAPH_TOOL_NOTE)
+    check("no lesson-only tag is taught in the SHARED block", not leaked,
+          f"the shared block asks for {leaked}, but practice/topic cannot draw them")
 
 
 def part4_live():
@@ -797,6 +913,7 @@ def main():
     part3b_foundations()
     part3c_board_tags()
     part3d_foundation_memory()
+    part3e_page_parity()
     if live:
         part4_live()
     else:

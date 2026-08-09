@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (cf) 2026-08-09 -- [[write]] lines are now fitted too. fitRow() has shrunk oversized
+    [[step]] lines since build bu, but a long [[write]] line went through eqRow() with no
+    fit at all, so with nowrap cells it simply overflowed. Both paths are fitted now, on
+    all three teaching pages (ruletests.py PART 3e proves it).
     2026-08-04  QUIZZES (build y): NEW [[quiz unit topic name correct total]] tag -> a 'Quiz'
                 result card (pass = 80%+, unlocks the next topic) POSTed to /api/quiz. The
                 [[check]] card is retitled 'Unit Quiz' and its 'mastered' bar fixed 80 -> 90
@@ -2482,6 +2486,7 @@
           size -= 2; row.style.fontSize = size + "px";
         }
       } catch (e) {}
+      return row;
     }
     function eqRow(eqText) {
       const s = String(eqText == null ? "" : eqText).trim();
@@ -2571,7 +2576,7 @@
     function showWrite(a) {
       const wl = getWorklist();
       const lines = String(a.lines || a.text || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
-      for (const ln of lines) wl.appendChild(eqRow(ln));
+      for (const ln of lines) fitRow(wl.appendChild(eqRow(ln)));
       if (a.caption || a.cap) setWorkCap(wl, a.caption || a.cap);
       scrollFeed();
     }

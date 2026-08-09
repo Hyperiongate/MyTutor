@@ -2,6 +2,36 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09cf-audit1-closure-audit2-start". TWO JOBS.
+#               JOB 1 -- Jim: "take a look at Audit One and make sure we've accomplished
+#               all of those." Checked all 25 items of the 2026-08-08 audit against the
+#               REAL built prompt for all ten courses and the real source, not memory.
+#               24 had shipped. ONE HAD NOT, and it was a live bug: item 11, the fix that
+#               stops a long board line WRAPPING mid-equation, went into session.html in
+#               build bu and NEVER reached practice.html or topic.html. Jim's original
+#               screenshot ("dimes: 7 + 8 + = 16" with "1(carried)" on the next line -- a
+#               literally different equation on screen) was still reproducible on two of
+#               the three teaching pages. Both pages now have the nowrap CSS and fitRow(),
+#               and on ALL THREE pages [[write]] lines are fitted too (they never were).
+#               A second gap found the same way: practice and topic were built from
+#               GROUND_RULES + GRAPH_TOOL_NOTE only, so rules 36-40 reached them while the
+#               canonical scripts those rules refer to did not -- a student could hear one
+#               definition of "denominator" in the lesson and a different one on the topic
+#               page, which is rule 28 broken at platform scale. Both modes now get the
+#               foundation block AND the heard-list (this file wires it at both endpoints
+#               and records [[learned]] there too).
+#               ruletests.py PART 3e now makes the whole class of bug impossible: the
+#               three teaching pages are three copies of one classroom and must match.
+#               JOB 2 -- audit #2 "do first". NEW: POST /api/admin/prewarm-foundations
+#               (item 21). The TTS cache is keyed by TEXT and starts empty, so the FIRST
+#               student to reach each of the 173 scripts pays a live render -- seconds of
+#               silence on the exact turn that introduces a new idea. We know all 173
+#               strings in advance, so that first student should not be a real child.
+#               Admin-key gated, idempotent (an already-cached script is skipped free),
+#               dry_run prices it without spending, limit renders in batches, atomic
+#               writes so a partial clip is never left behind, and one failure never
+#               stops the batch. Dry run today: 173 scripts, 82,856 characters.
+#               Rules 41-44 are in tutor.py.
 #   2026-08-09  APP_BUILD -> "2026-08-09ce-checkin-memory-visualref". Jim, on the three
 #               items from proactive audit #2: "we need to have a cap on how long we talk
 #               to an eight year old… I think you need to check in with them every now and
@@ -3552,6 +3582,97 @@ class ParentResetAdminIn(BaseModel):
     email: str
 
 
+class PrewarmAdminIn(BaseModel):
+    key: str
+    course: str = ""       # blank = every course
+    limit: int = 0         # 0 = no cap; otherwise render at most this many this call
+    dry_run: bool = False   # count and price it without spending anything
+
+
+@app.post("/api/admin/prewarm-foundations")
+def admin_prewarm_foundations(body: PrewarmAdminIn):
+    """Render every canonical foundation script into the TTS cache, up front.
+
+    2026-08-09 (build cf, proactive audit #2 item 21). The TTS cache is keyed by the
+    TEXT of a line and starts empty, so the FIRST student to reach each of the 173
+    scripts pays a live ElevenLabs render -- several seconds of silence on the exact
+    turn that introduces a brand-new idea to them. Every student after that gets it
+    instantly. We know all 173 strings in advance, so there is no reason for that first
+    student to be a real child.
+
+    Idempotent and safe to re-run: a script already in the cache is skipped for free, so
+    running this after adding scripts renders only the new ones. `dry_run` prices the
+    job without spending a cent. `limit` renders in batches if you would rather not do
+    it in one request.
+
+    Admin-key protected -- this endpoint spends real ElevenLabs money."""
+    _require_admin(body.key)
+    if foundations is None:
+        raise HTTPException(status_code=503, detail="foundations.py is not available on this deploy.")
+    courses = ([body.course.strip()] if body.course.strip()
+               else list(getattr(foundations, "FOUNDATIONS", {}).keys()))
+    todo = []
+    already = 0
+    for c in courses:
+        for f in foundations.for_course(c):
+            say = (f.get("say") or "").strip()
+            if not say:
+                continue
+            try:
+                if _tts_cache_path(say).exists() and _tts_cache_path(say).stat().st_size > 0:
+                    already += 1
+                    continue
+            except Exception:  # noqa: BLE001 -- an unreadable cache entry just gets re-rendered
+                pass
+            todo.append((c, f["term"], say))
+    chars = sum(len(s) for _c, _t, s in todo)
+    if body.dry_run or not todo:
+        return {"ok": True, "dry_run": True, "courses": courses, "already_cached": already,
+                "to_render": len(todo), "characters": chars,
+                "note": "Nothing was spent. POST again with dry_run=false to render."}
+    if not ELEVEN_API_KEY:
+        raise HTTPException(status_code=503, detail="ELEVENLABS_API_KEY is not set on this deploy.")
+    if body.limit and body.limit > 0:
+        todo = todo[:body.limit]
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
+    headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
+    rendered, failed, spent = 0, [], 0
+    for course, term, say in todo:
+        try:
+            r = httpx.post(url, headers=headers, timeout=60.0, json={
+                "text": say,
+                "model_id": ELEVEN_MODEL,
+                "output_format": "mp3_44100_128",
+                "voice_settings": {"stability": 0.55, "similarity_boost": 0.75,
+                                   "use_speaker_boost": True},
+            })
+            if r.status_code != 200 or not r.content:
+                failed.append(f"{course}/{term}: HTTP {r.status_code}")
+                continue
+            # Same atomic write as the streaming path: a partial file must never be
+            # left behind, because a truncated clip would then be served forever.
+            path = _tts_cache_path(say)
+            _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(".part")
+            tmp.write_bytes(r.content)
+            tmp.replace(path)
+            rendered += 1
+            spent += len(say)
+            store.log_usage(kind="tts", code="", mode="prewarm", model=str(ELEVEN_MODEL or ""),
+                            tts_chars=len(say), tts_cache_hit=False)
+        except Exception as exc:  # noqa: BLE001 -- one bad script must not stop the batch
+            failed.append(f"{course}/{term}: {exc}")
+    try:
+        _evict_tts_cache()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[prewarm] evict skipped: {exc}")
+    print(f"[prewarm] rendered {rendered}, failed {len(failed)}, {spent} characters")
+    return {"ok": not failed, "already_cached": already, "rendered": rendered,
+            "characters_spent": spent, "failed": failed[:20], "failed_count": len(failed),
+            "remaining": max(0, len(todo) - rendered)}
+
+
 class StudentResetAdminIn(BaseModel):
     key: str
     code: str
@@ -4313,7 +4434,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09ce-checkin-memory-visualref"
+APP_BUILD = "2026-08-09cf-audit1-closure-audit2-start"
 
 
 @app.get("/health")
@@ -4891,7 +5012,13 @@ def practice(req: PracticeRequest):
         if role in ("user", "assistant") and isinstance(content, str) and content.strip():
             safe_history.append({"role": role, "content": content})
 
+    # FOUNDATION MEMORY (build cf): practice and topic teach vocabulary too, so they get
+    # the same canonical scripts AND the same "already introduced -- ask first" list. A
+    # student must not hear one definition of "denominator" in the lesson and a different
+    # one on the topic page (rule 28), and a term they met here counts as met.
+    student["foundations_heard"] = _foundations_heard(req.code.strip(), req.course)
     reply = _bold_first_terms(tutor.get_practice_reply(student, req.problem, safe_history, message, req.course, code=req.code.strip()), req.history)
+    _record_learned(req.code.strip(), req.course, reply)
 
     # Real tracking: classify the problem to a unit WITHIN this course, count "practiced".
     unit, name = curriculum.classify_unit(req.problem or message, req.course)
@@ -4927,7 +5054,9 @@ def topic(req: TopicRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
+    student["foundations_heard"] = _foundations_heard(req.code.strip(), req.course)
     reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course, code=req.code.strip()), req.history)
+    _record_learned(req.code.strip(), req.course, reply)
 
     # Real tracking: classify the chosen topic to a unit WITHIN this course, count "explored".
     unit, name = curriculum.classify_unit(req.topic or message, req.course)

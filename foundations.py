@@ -2,6 +2,11 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD cf -- CAPTIONS (rule 41). Ten figures had no caption= and now do,
+#               each naming what to NOTICE rather than what is drawn ("count them one at
+#               a time — the last number you say is how many", not "three stars").
+#               ruletests.py PART 3c fails any figure that ships without one. No `say`
+#               string was touched, so no cached audio was discarded.
 #   2026-08-09  BUILD ce -- THE RETURNING STUDENT IS ASKED, NOT REPLAYED.
 #               prompt_block(course, heard) now takes the list of terms THIS student was
 #               introduced to on an earlier visit (main.py reads it from the store) and
@@ -88,13 +93,13 @@ FOUNDATIONS = {
             "many. When I say three, I am telling you how many things there are, not which ones or how "
             "big they are. Counting is just saying the numbers in order while you touch each thing "
             "exactly once, and the very last number you say is how many you have altogether.",
-         "board": ['[[objects emoji="⭐" groups="3"]]']},
+         "board": ['[[objects emoji="⭐" groups="3" caption="count them one at a time — the last number you say is how many"]]']},
         {"term": "adding", "say":
             "**Adding** means putting groups together and finding out how many there are now. You start "
             "with what you have, then you count on for each new one. Two cookies, and then one more "
             "cookie, is three cookies altogether. Nothing disappears when we add — the pile only gets "
             "bigger.",
-         "board": ['[[objects emoji="🍪" groups="2" add="1"]]']},
+         "board": ['[[objects emoji="🍪" groups="2" add="1" caption="the group you had, then the one you added — now count them all"]]']},
         {"term": "skip-counting", "say":
             "**Skip-counting** means counting in jumps instead of one at a time. When you count by twos "
             "you say two, four, six, eight. You are still counting the same things. You are just landing "
@@ -121,7 +126,7 @@ FOUNDATIONS = {
             "three cookies. Subtracting is the opposite of adding. Adding makes the pile bigger. "
             "Subtracting makes it smaller. So the number you start with is always the biggest number in "
             "the story.",
-         "board": ['[[objects emoji="🍪" groups="5"]]']},
+         "board": ['[[objects emoji="🍪" groups="5" caption="start with all of them, then take some away"]]']},
         {"term": "fact family", "say":
             "A **fact family** is a little group of numbers that live together. Two, three and five are a "
             "family. Two and three make five. Three and two make five. Five take away three leaves two. "
@@ -243,7 +248,7 @@ FOUNDATIONS = {
             "adding all day, you learn the fact. One more thing worth knowing early. Order does not "
             "change the answer. Six groups of four and four groups of six both come to twenty-four, even "
             "though they draw as different pictures.",
-         "board": ['[[objects emoji="🍎" groups="6"]]',
+         "board": ['[[objects emoji="🍎" groups="6" caption="equal groups — equal groups are what multiplying counts"]]',
                    '[[write text="6 × 4  =  4+4+4+4+4+4  =  24"]]']},
         {"term": "division", "say":
             "**Division** is splitting an amount into equal parts. Twelve divided by three can be read "
@@ -495,7 +500,7 @@ FOUNDATIONS = {
             "into two smaller rectangles and add them. Same area either way. The mistake to avoid is "
             "handing the three to only the first term. It multiplies everything inside the parentheses, "
             "every term, or the two sides stop being equal.",
-         "board": ['[[areamodel rows="3" cols="x,2"]]']},
+         "board": ['[[areamodel rows="3" cols="x,2" caption="one rectangle, split in two — the area is the same either way"]]']},
         {"term": "inequality", "say":
             "An **inequality** compares two things that are not necessarily equal. Instead of one exact "
             "answer, its solution is a whole range of numbers, which is why we draw it on a number line "
@@ -511,7 +516,7 @@ FOUNDATIONS = {
             "never allowed to have two different outputs. That is what separates a function from any old "
             "relationship between numbers, and it is exactly what the vertical line test on a graph is "
             "checking for you.",
-         "board": ['[[machine input="3" rule="2x+1" output="7" fname="f"]]']},
+         "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
         {"term": "domain", "say":
             "The **domain** of a function is the complete collection of inputs it is allowed to take. "
             "Most of the time every number works, but not always. If the rule divides by x, then x cannot "
@@ -581,7 +586,7 @@ FOUNDATIONS = {
             "Multiply those back out and you land exactly where you started, which is how you check every "
             "single time. The reason we bother is this. A product that equals zero means one of its "
             "pieces must be zero, and that turns one hard equation into two easy ones.",
-         "board": ['[[areamodel rows="x,2" cols="x,3"]]']},
+         "board": ['[[areamodel rows="x,2" cols="x,3" caption="the same area, written as length × width"]]']},
         {"term": "quadratic", "say":
             "A **quadratic** is an expression or equation where the highest power of the variable is two. "
             "That one detail changes everything that follows. Its graph is not a line, it is a U shaped "
@@ -858,7 +863,7 @@ FOUNDATIONS = {
             "and the sine of that angle. Cosine first, sine second. That is also why sine and cosine "
             "never get bigger than one or smaller than negative one. You are reading off a circle of "
             "radius one, so there is nowhere further to go.",
-         "board": ['[[unitcircle]]']},
+         "board": ['[[unitcircle caption="radius 1 — every point on it is (cos θ, sin θ)"]]']},
         {"term": "z-score", "say":
             "A **z-score** tells you how many standard deviations a value sits above or below the mean. A "
             "z-score of two means the value is two standard deviations above average. Negative one and a "
@@ -874,7 +879,7 @@ FOUNDATIONS = {
             "one part is the whole definition — put in a three and you always get the same answer out, "
             "every time. We write f of x, which is read as f of x, and it simply means the output of the "
             "rule f when the input is x. It is not f multiplied by x.",
-         "board": ['[[machine input="3" rule="2x+1" output="7" fname="f"]]']},
+         "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
         {"term": "radian", "say":
             "A **radian** is just another unit for measuring angles, the way inches and centimetres both "
             "measure length. Instead of chopping the circle into three hundred sixty pieces, radians "
@@ -939,7 +944,7 @@ FOUNDATIONS = {
             "landed in, and the quadrant tells you the sign. Careful with one thing. A reference angle is "
             "always measured to the horizontal axis, never to the vertical one, and it is always positive "
             "and always smaller than a right angle.",
-         "board": ['[[unitcircle]]',
+         "board": ['[[unitcircle caption="radius 1 — every point on it is (cos θ, sin θ)"]]',
                    '[[write text="reference angle: acute angle to the x-axis; the quadrant supplies the sign"]]']},
         {"term": "amplitude", "say":
             "The **amplitude** of a sine or cosine wave is how tall it swings, measured from the middle "
