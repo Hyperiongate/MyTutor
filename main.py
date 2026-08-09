@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09by-demo-button-center-bubbles" (Jim, three small
+#               things). (1) A highlighted ORANGE "🎬 Try the demo" pill is now the last
+#               item in the marketing nav on every page with a .nav-links row, injected
+#               by the shared static/site-nav.js (styled in place if a page already had
+#               its own /demo link, and suppressed on /demo itself). features.html had a
+#               nav row but never loaded the shared script -- fixed. (2) The three
+#               dashboard bubbles now appear CENTERED on the screen in an overlay
+#               instead of at the bottom of the page. (3) They are offered again at the
+#               END OF EVERY DASHBOARD TOUR, not just after the lesson -- with "let me
+#               look around on my own" to dismiss them (the dashboard stays open behind)
+#               and a floating "👀 Show the three views" button to bring them back.
+#               No voice lines added; no server logic changed (stamp bump only).
 #   2026-08-09  APP_BUILD -> "2026-08-09bx-demo-nofailure-dashboards". Jim, on the demo:
 #               "we got one shot to do it right, and it failed" -- a lesson referred to a
 #               diagram that never appeared (precalc said "welcome to the unit circle"
@@ -4138,7 +4150,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bx-demo-nofailure-dashboards"
+APP_BUILD = "2026-08-09by-demo-button-center-bubbles"
 
 
 @app.get("/health")

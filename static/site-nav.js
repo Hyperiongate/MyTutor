@@ -2,6 +2,12 @@
    site-nav.js  --  MyTutor  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+   - 2026-08-09  DEMO BUTTON (Jim). Adds a highlighted ORANGE "Try the demo" pill to the
+     end of the marketing nav on every page that has a .nav-links row, linking to /demo.
+     The demo is the strongest thing we have to sell with (a full guided lesson in
+     Mr. Cadabra's voice plus the three dashboards), so it gets the one loud button in
+     the menu. Skipped automatically ON the demo page itself, and skipped if a page
+     already has its own /demo nav link.
    - 2026-08-03  NEW FILE. Adds a "College level math" DROPDOWN to the marketing top
      nav (the .nav-links row), right after the "Courses" link. The dropdown lists the
      college-level courses and is DATA-DRIVEN by the COLLEGE array below, so adding
@@ -44,7 +50,13 @@
       ".mt-college:hover .mt-college-menu,.mt-college.open .mt-college-menu{display:block}" +
       ".mt-college-menu a{display:block;padding:9px 12px;border-radius:8px;font-size:14px;" +
       "font-weight:600;white-space:nowrap;color:var(--ink,#20233a)}" +
-      ".mt-college-menu a:hover{background:#f6f3ff;color:var(--purple,#6d5ae6)}";
+      ".mt-college-menu a:hover{background:#f6f3ff;color:var(--purple,#6d5ae6)}" +
+      /* 2026-08-09: the one loud button in the menu -- the demo sells the product. */
+      ".mt-demo{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ff8a2b,#ff6a3d);" +
+      "color:#fff !important;font-weight:800;border-radius:999px;padding:9px 16px;white-space:nowrap;" +
+      "box-shadow:0 6px 16px rgba(255,106,61,.34);border:0;text-decoration:none;line-height:1.1}" +
+      ".mt-demo:hover{filter:brightness(1.06);color:#fff !important}" +
+      ".mt-demo:active{transform:translateY(1px)}";
     document.head.appendChild(css);
 
     var wrap = document.createElement("span");
@@ -87,6 +99,31 @@
     }
     if (coursesLink && coursesLink.nextSibling) links.insertBefore(wrap, coursesLink.nextSibling);
     else links.appendChild(wrap);
+
+    // ---- THE DEMO BUTTON (2026-08-09) -------------------------------------------
+    // Last item in the row so it reads as the call to action, and orange so it is the
+    // only thing in the menu competing for a first-time visitor's eye.
+    addDemoButton(links);
   });
+
+  function addDemoButton(links) {
+    if (document.getElementById("demoNav")) return;                  // already added
+    var here = (location.pathname || "").replace(/\/+$/, "");
+    if (here === "/demo" || here === "/static/demo.html") return;    // not on the demo itself
+    var existing = links.querySelectorAll('a[href="/demo"], a[href="/demo/"]');
+    if (existing.length) {                                           // page already links it: just style it
+      existing[0].id = "demoNav";
+      existing[0].className = (existing[0].className ? existing[0].className + " " : "") + "mt-demo";
+      existing[0].innerHTML = "🎬 Try the demo";
+      return;
+    }
+    var a = document.createElement("a");
+    a.id = "demoNav";
+    a.className = "mt-demo";
+    a.href = "/demo";
+    a.innerHTML = "🎬 Try the demo";
+    a.setAttribute("aria-label", "Try the interactive demo");
+    links.appendChild(a);
+  }
 })();
 /* I did no harm and this file is not truncated. */

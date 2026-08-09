@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-09  BUBBLES IN THE MIDDLE, AND AFTER EVERY TOUR (build by, Jim). The three
+    dashboard bubbles moved from the bottom of the page into a CENTERED overlay, and
+    they are now offered again at the END OF EVERY DASHBOARD TOUR — not only after the
+    lesson. "✕ Let me look around on my own" dismisses them with the dashboard still
+    open behind, and a floating "👀 Show the three views" button brings them back.
+    (Companion, outside this file: an orange "Try the demo" pill in the marketing nav,
+    added by static/site-nav.js.)
   - 2026-08-09  NO-FAILURE LESSONS + FULL DASHBOARDS (build bx, Jim: "we got one shot
     to do it right, and it failed" — a lesson referred to a diagram that never appeared).
     ALL TEN LESSONS REBUILT: every picture a spoken line mentions is DRAWN in that same
@@ -193,7 +200,24 @@
   .micico{width:22px;height:22px;fill:#fff;flex:0 0 auto}
   .typelink{border:0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;cursor:pointer}
   .heard{font-size:12.5px;color:var(--muted);min-height:16px;text-align:center}
-  /* the three dashboard balloons */
+  /* the three dashboard balloons — a CENTERED overlay (2026-08-09 build by, Jim:
+     "I'd like those bubbles to appear in the middle of the page, not at the bottom").
+     z-index sits ABOVE the dashboards so they can be offered again at the end of each
+     dashboard tour without closing the dashboard behind them. */
+  .balloonlay{position:fixed;inset:0;z-index:95;display:none;align-items:center;justify-content:center;
+    padding:22px;background:rgba(28,24,54,.55);backdrop-filter:blur(3px)}
+  .balloonlay.show{display:flex}
+  .balloonbox{background:#fff;border-radius:26px;box-shadow:var(--shadow-lg);padding:26px 26px 22px;
+    max-width:760px;width:100%;text-align:center;animation:popin .35s ease}
+  @keyframes popin{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+  .balloonbox h3{font-size:20px;margin-bottom:4px}
+  .balloonbox .bsub{font-size:13.5px;color:var(--muted);margin-bottom:18px}
+  .balloonclose{margin-top:14px;border:0;background:none;color:var(--muted);font-size:12.5px;
+    text-decoration:underline;cursor:pointer}
+  .showviews{position:fixed;right:18px;bottom:18px;z-index:88;border:0;border-radius:999px;
+    background:linear-gradient(135deg,#6d5ae6,#1fb6b0);color:#fff;font-weight:800;font-size:13.5px;
+    padding:12px 18px;cursor:pointer;box-shadow:var(--shadow-lg);display:none}
+  .showviews.show{display:block}
   .balloons{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:6px auto 0}
   .balloon{width:210px;border:0;border-radius:26px;padding:22px 16px;cursor:pointer;color:#fff;
     font-weight:800;font-size:17px;box-shadow:var(--shadow-lg);line-height:1.35}
@@ -367,6 +391,14 @@
   </div>
 </div>
 <div class="tourtag" id="tourTag">👀 look here</div>
+<div class="balloonlay" id="balloonLay"><div class="balloonbox">
+  <h3 id="balloonTitle">Three ways to see the progress</h3>
+  <div class="bsub" id="balloonSub">Pick a view — it opens full screen and I'll walk you through it.</div>
+  <div class="balloons" id="balloonRow"></div>
+  <div id="balloonExtra"></div>
+  <button class="balloonclose" id="balloonClose" type="button">✕ Let me look around on my own</button>
+</div></div>
+<button class="showviews" id="showViews" type="button">👀 Show the three views</button>
 
 <!-- ===== THE THREE DASHBOARDS (build bw) — full-screen, each with its own spoken tour.
      Sample data only: a demo must never show a real child's record. ===== -->
@@ -1330,39 +1362,50 @@
   var dashTourCancelled=false;
 
   function showBalloons(spoken, keepCongrats){
-    closeDash();
-    clearAnswer(); clearGlow(); board.innerHTML='';
-    if(keepCongrats) answer.appendChild(congratsBox());
-    if(spoken===true){ lineDone=null; say(BALLOON_LINE); }
-    else { bubble.textContent=BALLOON_LINE; }
-    el('goalText').textContent='Take a look at the three dashboards';
-    var wrap=document.createElement('div');
-    var p=document.createElement('div'); p.className='prompt';
-    p.textContent='Pick a view — each one opens full screen and I\'ll walk you through it.';
-    var row=document.createElement('div'); row.className='balloons';
-    [['student','s','👦 The student\'s dashboard','what your child sees'],
-     ['teacher','t','🍎 The teacher\'s dashboard','the whole class at a glance'],
-     ['parent','p','👪 The parent\'s dashboard','an honest read, in plain English']].forEach(function(b){
+    // The bubbles live in a CENTERED overlay, and they are offered again at the end of
+    // EVERY dashboard tour (Jim, build by) -- so the three views are always one tap away.
+    el('showViews').classList.remove('show');
+    var row=el('balloonRow'); row.innerHTML='';
+    el('balloonTitle').textContent = keepCongrats ? '🎉 Congratulations — that was a real lesson!'
+                                                  : 'Three ways to see the progress';
+    el('balloonSub').textContent = keepCongrats
+      ? "Now let me show you what the grown-ups see. Pick a view — it opens full screen and I'll walk you through it."
+      : "Pick another view — each one opens full screen with its own walk-through.";
+    [['student','s','👦 The student\u2019s dashboard','what your child sees'],
+     ['teacher','t','🍎 The teacher\u2019s dashboard','the whole class at a glance'],
+     ['parent','p','👪 The parent\u2019s dashboard','an honest read, in plain English']].forEach(function(b){
       var btn=document.createElement('button'); btn.className='balloon '+b[1]; btn.type='button';
       btn.innerHTML=b[2]+'<span>'+b[3]+'</span>';
-      btn.onclick=function(){ openDash(b[0]); };
+      btn.onclick=function(){ hideBalloons(); openDash(b[0]); };
       row.appendChild(btn);
     });
-    var more=document.createElement('div'); more.style.textAlign='center'; more.style.marginTop='16px';
+    var extra=el('balloonExtra'); extra.innerHTML='';
     var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
     go.href='/#pricing'; go.style.textDecoration='none'; go.style.width='auto';
-    go.style.display='inline-block'; go.style.padding='13px 20px'; go.style.marginRight='8px';
+    go.style.display='inline-block'; go.style.padding='12px 18px'; go.style.margin='16px 6px 0';
     var again=document.createElement('button'); again.className='cta ghost'; again.type='button';
-    again.textContent='↩ Try another level';
-    again.style.width='auto'; again.style.padding='13px 20px';
-    again.onclick=function(){ el('goalText').textContent='Try another level'; showPicker(true); };
-    more.appendChild(go); more.appendChild(again);
-    wrap.appendChild(p); wrap.appendChild(row); wrap.appendChild(more);
-    answer.appendChild(wrap);
+    again.textContent='↩ Try another level'; again.style.width='auto'; again.style.padding='12px 18px';
+    again.style.margin='16px 6px 0';
+    again.onclick=function(){ hideBalloons(); closeDash(); el('goalText').textContent='Try another level';
+      board.innerHTML=''; showPicker(true); };
+    extra.appendChild(go); extra.appendChild(again);
+    el('balloonLay').classList.add('show');
+    if(spoken===true){ lineDone=null; say(BALLOON_LINE); }
+    else { bubble.textContent=BALLOON_LINE; }
   }
+  function hideBalloons(){
+    el('balloonLay').classList.remove('show');
+    // if a dashboard is open behind, leave a way back to the bubbles
+    var openDashNow=['dashStudent','dashTeacher','dashParent'].some(function(id){ return el(id).classList.contains('show'); });
+    el('showViews').classList.toggle('show', openDashNow);
+  }
+  el('balloonClose').onclick=hideBalloons;
+  el('showViews').onclick=function(){ showBalloons(false); };
+  el('balloonLay').onclick=function(ev){ if(ev.target===el('balloonLay')) hideBalloons(); };
 
   function closeDash(){
     dashTourCancelled=true;
+    el('showViews').classList.remove('show');
     ['dashStudent','dashTeacher','dashParent'].forEach(function(id){ el(id).classList.remove('show'); });
     clearGlow();
   }
@@ -1377,7 +1420,14 @@
   }
   function runDashTour(d, k){
     if(dashTourCancelled) return;
-    if(k>=d.stops.length){ clearGlow(); return; }      // tour done: the Back button waits
+    if(k>=d.stops.length){
+      clearGlow();
+      // END OF EVERY DASHBOARD TOUR (build by): offer the three views again, right in
+      // the middle of the screen. The dashboard stays open behind, so "let me look
+      // around on my own" leaves them on the page they just heard about.
+      setTimeout(function(){ if(!dashTourCancelled) showBalloons(false); }, 700);
+      return;
+    }
     glow(d.stops[k].t);
     sayThen(d.stops[k].line, function(){ setTimeout(function(){ runDashTour(d, k+1); }, 420); });
   }
@@ -1387,7 +1437,8 @@
       try{ demoAudio.pause(); }catch(e){}
       try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
       setSpeaking(false);
-      showBalloons(true);
+      closeDash(); board.innerHTML='';
+      showBalloons(false);
     };
   });
 
