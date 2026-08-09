@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-09  HIS VOICE ALWAYS COMES BACK · NEVER STRANDED (build ca, Jim's walk).
+    (1) serverVoiceOK was a ONE-WAY LATCH: the first clip that failed to load dropped the
+    whole rest of the demo to the browser's mechanical voice. Every line now tries his
+    real voice, a failure is retried once and falls back for THAT LINE ONLY, a stalled
+    clip gives up after 6s, and the server voice is re-tried every fifth line even after
+    repeated failures. ⛔ NEVER re-introduce a permanent voice latch — the first visitor
+    to hear a newly-appended line is always the one who trips it.
+    (2) The three bubbles used to depend on the audio chain finishing, so a stalled clip
+    stranded the visitor on a dashboard. Three independent paths now bring them back —
+    the tour ending, a watchdog armed when the dashboard opens, and a "✓ Done — show the
+    three views" button visible the entire time.
   - 2026-08-09  VISIBLE FIGURES · NO MIC · REAL DASHBOARDS (build bz, Jim).
     (1) The figures were nearly invisible: the SVGs had a viewBox but no WIDTH, and in
     the whiteboard's centred flex column that collapses to a smudge. .fig now takes a
@@ -409,7 +420,7 @@
   <div id="balloonExtra"></div>
   <button class="balloonclose" id="balloonClose" type="button">✕ Let me look around on my own</button>
 </div></div>
-<button class="showviews" id="showViews" type="button">👀 Show the three views</button>
+<button class="showviews" id="showViews" type="button">✓ Done — show the three views</button>
 
 <!-- ===== THE THREE DASHBOARDS (build bw) — full-screen, each with its own spoken tour.
      Sample data only: a demo must never show a real child's record. ===== -->
@@ -750,7 +761,21 @@
     "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
     "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."
   ];
-  var serverVoiceOK=true;
+  // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
+  // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
+  // rest of the demo to the flat browser voice. That is exactly what happens to the
+  // FIRST visitor after we add lines: a brand-new clip isn't cached yet, the server has
+  // to generate it, and a slow or hiccuping fetch tripped the latch permanently.
+  // Now: every line tries his real voice, a failure is retried once, and only THAT line
+  // falls back. We give up on the server voice only after several consecutive failures,
+  // and even then we try again every fifth line.
+  var voiceFails=0, linesSinceRetry=0;
+  function serverVoiceWorthTrying(){
+    if(voiceFails < 3) return true;
+    if(linesSinceRetry >= 5){ linesSinceRetry=0; return true; }   // periodic re-try
+    linesSinceRetry++;
+    return false;
+  }
   // iPAD/TABLET UNLOCK: one SHARED element, unlocked inside the first real tap.
   var SILENT_WAV="data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
   var demoAudio=new Audio(), demoWarmed=false;
@@ -783,20 +808,34 @@
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
     var i=VOICE_LINES.indexOf(text);
-    if(serverVoiceOK && i>=0){
-      try{
-        try{ demoAudio.pause(); }catch(e){}
-        try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
-        demoAudio.onplay=function(){setSpeaking(true);};
-        demoAudio.onended=function(){setSpeaking(false); fireLineDone();};
-        demoAudio.onerror=function(){ serverVoiceOK=false; setSpeaking(false); browserSay(text); };
-        demoAudio.src='/api/demo-audio/'+i;
-        var p2=demoAudio.play(); if(p2&&p2.catch) p2.catch(function(){ serverVoiceOK=false; browserSay(text); });
-        return;
-      }catch(e){ serverVoiceOK=false; }
-    }
+    if(i>=0 && serverVoiceWorthTrying()){ playServerClip(i, text, 0); return; }
     browserSay(text);
   }
+  // One clip, with ONE retry before this line (and only this line) falls back.
+  function playServerClip(i, text, attempt){
+    try{
+      try{ demoAudio.pause(); }catch(e){}
+      try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+      var settled=false;
+      function fail(){
+        if(settled) return; settled=true;
+        setSpeaking(false);
+        if(attempt===0){ setTimeout(function(){ playServerClip(i, text, 1); }, 500); return; }
+        voiceFails++; linesSinceRetry=0;     // this LINE falls back; the next still tries
+        browserSay(text);
+      }
+      demoAudio.onplay=function(){ if(!settled){ settled=true; voiceFails=0; } setSpeaking(true); };
+      demoAudio.onended=function(){ setSpeaking(false); fireLineDone(); };
+      demoAudio.onerror=fail;
+      demoAudio.onstalled=fail;
+      demoAudio.src='/api/demo-audio/'+i+(attempt?('?r='+attempt):'');
+      var p=demoAudio.play(); if(p&&p.catch) p.catch(fail);
+      // a clip that never even starts (server still generating, dead network) must not
+      // strand the tour: fall back after 6 seconds of nothing.
+      setTimeout(function(){ if(!settled) fail(); }, 6000);
+    }catch(e){ voiceFails++; browserSay(text); }
+  }
+
   // Speak, then call done() -- with an absolute safety timer so the tour can NEVER stall
   // on a missed audio event (the captions carry it either way).
   function sayThen(text, done){
@@ -1316,7 +1355,8 @@
   el('balloonLay').onclick=function(ev){ if(ev.target===el('balloonLay')) hideBalloons(); };
 
   function closeDash(){
-    dashTourCancelled=true;
+    dashTourCancelled=true; dashDone=true;
+    if(dashWatchdog){ clearTimeout(dashWatchdog); dashWatchdog=null; }
     el('showViews').classList.remove('show');
     ['dashStudent','dashTeacher','dashParent'].forEach(function(id){ el(id).classList.remove('show'); });
     clearGlow();
@@ -1325,24 +1365,47 @@
     warmDemoAudio();
     var d=DASHES[which]; if(!d) return;
     if(window.mtTrack) mtTrack('Demo Dashboard Opened', {view:which});
-    closeDash(); dashTourCancelled=false;
+    closeDash(); dashTourCancelled=false; dashDone=false;
     el(d.id).classList.add('show');
     el(d.id).scrollTop=0;
+    el('showViews').classList.add('show');    // never strand anyone on a dashboard
+    armDashWatchdog(d);
     runDashTour(d, 0);
   }
   function runDashTour(d, k){
     if(dashTourCancelled) return;
-    if(k>=d.stops.length){
-      clearGlow();
-      // END OF EVERY DASHBOARD TOUR (build by): offer the three views again, right in
-      // the middle of the screen. The dashboard stays open behind, so "let me look
-      // around on my own" leaves them on the page they just heard about.
-      setTimeout(function(){ if(!dashTourCancelled) showBalloons(false); }, 700);
-      return;
-    }
+    if(k>=d.stops.length){ clearGlow(); endDashTour(); return; }
     glow(d.stops[k].t);
     sayThen(d.stops[k].line, function(){ setTimeout(function(){ runDashTour(d, k+1); }, 420); });
   }
+  // 2026-08-09 (build ca, Jim: "when I finished the teacher's dashboard, it stopped —
+  // it didn't put the three bubbles up again"). The bubbles used to depend on the audio
+  // chain completing; if one clip stalled, the chain stalled and the visitor was
+  // stranded on a dashboard with no way forward but the back button. Now THREE things
+  // bring them back, and any one of them is enough:
+  //   1. the tour finishing normally (endDashTour, below)
+  //   2. a hard watchdog armed when the dashboard opens
+  //   3. a "✓ Done — show the three views" button that is visible the whole time
+  var dashDone=false, dashWatchdog=null;
+  function endDashTour(){
+    if(dashDone || dashTourCancelled) return;
+    dashDone=true;
+    if(dashWatchdog){ clearTimeout(dashWatchdog); dashWatchdog=null; }
+    setTimeout(function(){ if(!dashTourCancelled) showBalloons(false); }, 600);
+  }
+  function armDashWatchdog(d){
+    if(dashWatchdog) clearTimeout(dashWatchdog);
+    // generous: every stop's spoken estimate, plus half a minute of slack
+    var ms=6000;
+    d.stops.forEach(function(s){ ms += 4500 + String(s.line).split(/\s+/).length*450 + 420; });
+    dashWatchdog=setTimeout(function(){
+      if(!dashDone && !dashTourCancelled){
+        console.log('[demo] dashboard tour watchdog — showing the three views');
+        endDashTour();
+      }
+    }, ms + 30000);
+  }
+
   document.querySelectorAll('.dashback').forEach(function(b){
     b.onclick=function(){
       lineDone=null;

@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  APP_BUILD -> "2026-08-09ca-demo-voice-recovery" (Jim's live walk-through,
+#               two real bugs -- demo.html only; no server logic changed).
+#               (1) ⭐ HIS VOICE WAS LOST MID-DEMO. "I got the mechanical voice from the
+#               browser rather than our guy's voice." Cause: `serverVoiceOK` was a
+#               ONE-WAY LATCH -- the first clip that failed to load switched the ENTIRE
+#               rest of the session to the flat browser voice. That is precisely what
+#               the first visitor hits after we append lines: a brand-new clip isn't
+#               cached, the server has to generate it, and one slow fetch poisoned
+#               everything after it. Now every line tries his real voice, a failure is
+#               retried once, only THAT line falls back, a stalled clip gives up after
+#               6s, and the server voice is re-tried every fifth line even after
+#               repeated failures. Verified: one bad clip, then the next lines are back
+#               in his voice.
+#               (2) ⭐ STRANDED ON THE TEACHER DASHBOARD. "When I finished the teacher's
+#               dashboard, it stopped -- it didn't put the three bubbles up again."
+#               The bubbles depended on the audio chain completing, so a stalled clip
+#               (bug 1) left the visitor with no way forward but the browser's back
+#               button. Now THREE independent things bring the bubbles back and any one
+#               is enough: the tour finishing, a hard watchdog armed when the dashboard
+#               opens (every stop's estimate + 30s), and a "✓ Done — show the three
+#               views" button that is visible the whole time a dashboard is open.
 #   2026-08-09  APP_BUILD -> "2026-08-09bz-demo-figures-typed-realdash" (Jim, three things
 #               from a live walk-through).
 #               (1) THE NUMBER LINE WAS INVISIBLE. The figure SVGs carried a viewBox but
@@ -4177,7 +4198,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09bz-demo-figures-typed-realdash"
+APP_BUILD = "2026-08-09ca-demo-voice-recovery"
 
 
 @app.get("/health")
