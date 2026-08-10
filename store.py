@@ -2,6 +2,17 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cu -- record_check() now also reports the UNIT's state, not only
+#               this attempt's. "mastered" has always meant "THIS attempt cleared 90%",
+#               which is right for the celebration and wrong for the student's nerve: a
+#               retake that goes badly returned mastered=False even though best_pct still
+#               held the unit and the unit status is never un-set. Added, additively:
+#               unit_mastered (best_pct >= PASS_PCT), improved, and attempt.
+#               Jim asked for a review-and-retake path for a unit passed but not mastered;
+#               the storage layer has always kept the BEST score, so every retake was
+#               already safe -- nobody had ever been told, and fear of losing a good score
+#               is the commonest reason a student refuses to try again. Rule 50(e) now
+#               says it out loud, and this is that promise being true in the data.
 #   2026-08-10  BUILD cn -- SCALE. Jim: "suppose we have ten thousand people using this
 #               app simultaneously. It needs to be able to handle that."
 #               (1) CONNECTION POOL sized on purpose. SQLAlchemy's default is five
@@ -1278,7 +1289,17 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
     s["problems_practiced"] += total
     _touch_streak(s)
     _save_stats(code, s)
-    return {"pct": pct, "best_pct": best_pct, "mastered": pct >= PASS_PCT}
+    # 2026-08-10 (build cu). "mastered" has always meant "THIS attempt cleared the bar",
+    # which is right for the celebration and wrong for the student's nerve: a retake that
+    # goes badly returns mastered=False even though best_pct still holds the unit, and the
+    # unit status is never un-set. A student who thinks a bad retake can cost them the
+    # unit will not retake it -- that is the single most common reason they refuse, and
+    # rule 50(e) now has the tutor say so out loud. It should be able to say it from the
+    # DATA, not from a promise in a prompt. Additive: nothing existing changes.
+    return {"pct": pct, "best_pct": best_pct, "mastered": pct >= PASS_PCT,
+            "unit_mastered": best_pct >= PASS_PCT,
+            "improved": pct > (r[1] if r else 0),
+            "attempt": checks_taken}
 
 
 def _topic_key(name: str) -> str:

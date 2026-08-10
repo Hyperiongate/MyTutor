@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cu -- PART 3k: A BAR MUST BE REACHABLE BY THE INSTRUMENT THAT
+#               MEASURES IT. Jim asked for a retake path for a unit passed but not
+#               mastered. Checking it found something worse: mastery is 90% and the Unit
+#               Quiz was four or five questions, so the only possible scores were 80% and
+#               100% -- the bar could only be cleared with a perfect paper. Topic quizzes
+#               likewise (four questions, 80% bar). It survived because the bar and the
+#               question count live in DIFFERENT FILES and changed on DIFFERENT DAYS, and
+#               no test ever multiplied them together. PART 3k does exactly that
+#               multiplication, for every quiz, in every course: at least one NON-PERFECT
+#               score must pass, or the bar does not mean what it says.
+#               Also here: rule 50 joins the ten-course coverage scan, the quiz lengths
+#               are scanned in all ten built prompts, and the locked Final Exam must name
+#               the units holding it shut AND fall back rather than fail shut.
 #   2026-08-10  BUILD ct -- THREE LAYOUT GUARDS, and the first real catch by cs's checks.
 #               Jim hit a live one: the demo's answer buttons were a one-per-line grid,
 #               the answer zone could take 47vh, and .feed is flex:1 -- so the whiteboard
@@ -332,6 +345,9 @@ COVERAGE = [
     ("rule 46 one skill per question",   "A QUIZ QUESTION TESTS ONE SKILL"),
     ("rule 47 no cold quizzes",          "NO COLD QUIZZES"),
     ("rule 48 say the symbol aloud",     "HOW TO *SAY* THE SYMBOL"),
+    ("rule 50 chase unfinished units",   "AN UNFINISHED UNIT IS YOUR JOB"),
+    ("quiz length: unit quiz is TEN",    "give the UNIT QUIZ: TEN questions"),
+    ("quiz length: topic quiz is FIVE",  "give a short quiz -- FIVE"),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
     ("speech: money as money",          "MONEY IS SPOKEN AS MONEY"),
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
@@ -733,11 +749,13 @@ LIVE_SCENARIOS = [
     dict(
         name="a failed quiz is fixed before it is re-given",
         course="prealgebra",
-        history=[("assistant", "Quiz time — three questions on comparing decimals. No hints from me."),
+        history=[("assistant", "Quiz time — five questions on comparing decimals. No hints from me."),
                  ("user", "0.45"), ("assistant", "Noted."),
                  ("user", "0.7"), ("assistant", "Noted."),
-                 ("user", "1.2"),
-                 ("assistant", 'That\'s the quiz. [[quiz unit="5" topic="1" name="Comparing decimals" correct="1" total="3"]]')],
+                 ("user", "1.2"), ("assistant", "Noted."),
+                 ("user", "0.09"), ("assistant", "Noted."),
+                 ("user", "2.5"),
+                 ("assistant", 'That\'s the quiz. [[quiz unit="5" topic="1" name="Comparing decimals" correct="2" total="5"]]')],
         student="did I pass?",
         # must NOT immediately re-quiz; must re-teach first (rule 35)
         assertion=lambda r: not re.search(r"(let'?s take it again|try the quiz again|here'?s the quiz again|same quiz)", r, re.I),
@@ -1697,6 +1715,7 @@ RULE_VERIFY = {
     47: ("COVERED",   "no cold quizzes"),
     48: ("ENFORCED",  "PART 3b/3f fail a course that writes notation it never reads aloud"),
     49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
+    50: ("COVERED",   "chase an unfinished unit; PART 3k proves the bar is reachable"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -1851,6 +1870,82 @@ def _voice_lines_from(path, name):
     block = re.sub(r"^\s*//.*$", "", block, flags=re.M)
     block = re.sub(r",(\s*\])", r"\1", block)
     return _json.loads(block)
+
+
+
+def part3k_mastery_reachable():
+    """PART 3k -- THE BAR MUST BE REACHABLE BY THE INSTRUMENT THAT MEASURES IT.
+
+    Build cu. Jim: "if I pass an exam with an eighty-five, I can go onto the next unit. I
+    can do all the units and still be carrying an eighty-five with me, which is gonna keep
+    me from mastering the final exam."
+    Checking it turned up something worse than the thing he described. Mastery is 90%, and
+    the Unit Quiz was FOUR OR FIVE questions -- so the only scores it could produce were
+    80% and 100%. There was no 85, and "90% mastery" silently meant a PERFECT PAPER. The
+    topic quizzes had the identical defect one floor down: three or four questions against
+    an 80% bar, i.e. four out of four.
+    Nobody would have written that on purpose. It survived because the bar and the
+    question count live in different files, changed on different days (the bar went 80 ->
+    90 on 2026-08-04), and no test ever multiplied them together.
+    THIS is that multiplication. For every quiz in the system: at least one NON-PERFECT
+    score must pass, or the bar is a lie.
+    """
+    print("\nPART 3k — mastery bars must be reachable without a perfect paper")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import store
+    prompts = {c: tutor.build_system_prompt(dict(STUDENT), course=c) for c in COURSES}
+
+    def reachable(total, bar):
+        """The best non-perfect score on `total` questions, floored, vs the bar."""
+        return store_score(total - 1, total) >= bar
+
+    def store_score(correct, total):
+        return (max(0, int(correct)) * 100) // max(1, int(total))
+
+    for label, total, bar in (("Unit Quiz", 10, 90), ("topic quiz", 5, 80)):
+        best_miss_one = store_score(total - 1, total)
+        check(f"a student can miss one on the {label} and still pass "
+              f"({total - 1}/{total} = {best_miss_one}% vs {bar}%)",
+              reachable(total, bar),
+              f"{total} questions against a {bar}% bar means a PERFECT paper -- the bar "
+              f"cannot be cleared any other way, so it does not mean what it says")
+
+    # ...and the prompts must actually ask for those counts, in every course.
+    for c in COURSES:
+        p = prompts[c]
+        check(f"  {c}: the Unit Quiz asks for ten questions",
+              "give the UNIT QUIZ: TEN questions" in p,
+              "a shorter Unit Quiz puts mastery back out of reach")
+        check(f"  {c}: no template still asks for four or five",
+              "4 or 5 questions" not in p and "3 or 4\nquestions" not in p,
+              "an old count left in one template is the build-bk bug shape: right in nine "
+              "courses, wrong in the tenth")
+
+    # The thresholds themselves must still agree across the three files that hold them.
+    check("store and tutor still agree on the bars",
+          store.PASS_PCT == 90 and store.QUIZ_PASS_PCT == 80,
+          f"store says {store.PASS_PCT}/{store.QUIZ_PASS_PCT}")
+
+    # And the locked Final Exam must tell the student what is holding the door.
+    src = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    fn = src[src.find("def _final_gate_message"):]
+    fn = fn[:fn.find("\n\n\n")] if "\n\n\n" in fn else fn[:6000]
+    check("the locked Final Exam names the units that are holding it shut",
+          "best Unit Quiz so far" in fn and "keeps your BEST score" in fn,
+          "'you've mastered 3 of 9' is true, useless, and arrives months after the unit "
+          "it is about")
+    # A retake must be SAFE, and the payload has to say so -- rule 50(e) tells the tutor
+    # to promise "the record keeps your best"; this is the promise being true in the data.
+    check("a bad retake never un-masters a unit",
+          hasattr(store, "record_check"),
+          "record_check is gone")
+    check("  the check payload reports the UNIT's state, not just this attempt's",
+          "unit_mastered" in open(os.path.join(here, "store.py"), encoding="utf-8").read(),
+          "a student who believes a bad retake can cost them the unit will not retake it")
+
+    check("  and it falls back rather than failing shut",
+          "except Exception" in fn and "FINAL_GATE_MESSAGE.format" in fn,
+          "a locked door must never also be a silent one")
 
 
 def part3j_walkthroughs():
@@ -2094,6 +2189,7 @@ def main():
     part3h_scale()
     part3i_rule_verification()
     part3j_walkthroughs()
+    part3k_mastery_reachable()
     if live:
         part4_live()
     else:

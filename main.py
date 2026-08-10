@@ -2,6 +2,30 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cu-mastery-is-reachable". Jim: "if I pass an exam
+#               with an eighty-five, I can go onto the next unit. I can do all the units
+#               and still be carrying an eighty-five with me, which is gonna keep me from
+#               mastering the final exam... there should be the ability to review and
+#               retake that quiz so we can get it up to the mastery level."
+#               ⭐ WHAT WE FOUND WAS WORSE THAN THE THING HE DESCRIBED. Mastery is 90% and
+#               the Unit Quiz was FOUR OR FIVE questions -- so the only scores it could
+#               produce were 80% and 100%. There was no 85, and "mastery = 90%" silently
+#               meant a PERFECT PAPER. The topic quizzes had the same defect one floor
+#               down: three or four questions against an 80% bar, i.e. four out of four.
+#               The bar and the question count lived in different files and moved on
+#               different days (the bar went 80 -> 90 on 2026-08-04); no test ever
+#               multiplied them together. ruletests PART 3k does that now.
+#               HIS DECISIONS: Unit Quiz -> TEN questions (90% = miss one and still
+#               master), topic quiz -> FIVE (80% = miss one and still pass); a student may
+#               still move on with a unit unmastered, but the tutor now CHASES it (new
+#               rule 50); and the locked Final Exam names the units holding it shut.
+#               THIS FILE: _final_gate_message() replaces the flat "you've mastered 3 of
+#               9" -- it names each unit still open, its best Unit Quiz score, offers the
+#               review-and-retake, and says plainly that the record keeps their BEST score
+#               so a retake can only ever help. Falls back to the old wording if the
+#               record cannot be read: a locked door must never also be a silent one.
+#               No stored data changes. store.record_check has always kept the best score,
+#               so every retake was already safe -- nobody had been told.
 #   2026-08-10  APP_BUILD -> "2026-08-10ct-board-and-all-four-views". Two things from Jim,
 #               one of them a live defect he hit in a Basic Math demo lesson:
 #               (1) "when the answers popped up, they shortened the whiteboard to the
@@ -4531,6 +4555,55 @@ FINAL_GATE_MESSAGE = (
     "when you're ready!")
 
 
+def _final_gate_message(code: str, course: str, state: dict) -> str:
+    """The locked-door message, with the door's key attached.
+
+    2026-08-10 (build cu, Jim): "I can do all the units and still be carrying an
+    eighty-five with me, which is gonna keep me from mastering the final exam. There needs
+    to be some type of option to review and retake that quiz."
+    The old message said "you've mastered 3 of 9" and stopped there -- true, useless, and
+    arriving months after the unit it is about. A student standing at a locked door needs
+    to know WHICH units are holding it shut, how close each one is, and that a retake can
+    only ever help them. Units already ATTEMPTED come first and carry their best score,
+    because those are the ones a single good session can finish. Falls back to the old
+    wording if the record cannot be read -- a locked door must never also be a silent one.
+    """
+    try:
+        names = {}
+        for i, u in enumerate(curriculum.units_for(course)):
+            if isinstance(u, (list, tuple)) and len(u) >= 2:
+                names[int(u[0])] = str(u[1])
+            else:
+                names[i + 1] = str(u)
+        checks = (store.get_mastery(code, course) or {}).get("checks", {}) if store.enabled() else {}
+        close, untouched = [], []
+        for unit in sorted(names):
+            if unit in set(state.get("mastered_units") or []):
+                continue
+            c = checks.get(unit) or checks.get(str(unit)) or {}
+            best = int(c.get("best_pct") or 0)
+            if int(c.get("checks_taken") or 0) > 0:
+                close.append(f"Unit {unit}, {names[unit]} (best Unit Quiz so far: {best}%)")
+            else:
+                untouched.append(f"Unit {unit}, {names[unit]}")
+        if not close and not untouched:
+            return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0))
+        msg = ("The Final Exam unlocks when all nine units are mastered -- 90% or better on "
+               f"each Unit Quiz. You've mastered {state.get('mastered_count', 0)} of 9.\n\n")
+        if close:
+            msg += ("These you've already taken a run at, so they're the quickest to finish:\n  - "
+                    + "\n  - ".join(close)
+                    + "\n\nAny of those we can review together and retake right now -- new questions, "
+                      "and the record always keeps your BEST score, so a retake can only ever help "
+                      "you. Just say which one.\n\n")
+        if untouched:
+            msg += "Still to come:\n  - " + "\n  - ".join(untouched) + "\n\n"
+        return msg + "Tell me where you'd like to start and I'll get us going."
+    except Exception as exc:  # noqa: BLE001
+        print(f"[final] gate message fell back: {exc}")
+        return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0))
+
+
 def _final_exam_state(code: str, course: str) -> dict:
     """The student's final-exam picture for a course: which units are mastered, whether
     the exam is unlocked, and any recorded exam result. Honest when the DB is off."""
@@ -4570,7 +4643,7 @@ def post_final(code: str, body: FinalIn):
         state = _final_exam_state(code, course)
         if not state["eligible"]:
             return {"ok": False, "tracking": True, "locked": True,
-                    "detail": FINAL_GATE_MESSAGE.format(n=state["mastered_count"])}
+                    "detail": _final_gate_message(code, course, state)}
         res = store.record_final_exam(code, int(body.correct), int(body.total), course)
         return {"ok": True, "tracking": True, **res}
     except Exception as exc:  # noqa: BLE001
@@ -4712,7 +4785,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10ct-board-and-all-four-views"
+APP_BUILD = "2026-08-10cu-mastery-is-reachable"
 
 
 @app.get("/health")
@@ -5139,7 +5212,7 @@ def chat(req: ChatRequest):
     if final_mode:
         fstate = _final_exam_state(code, req.course)
         if not fstate["eligible"]:
-            return {"reply": FINAL_GATE_MESSAGE.format(n=fstate["mastered_count"]),
+            return {"reply": _final_gate_message(code, req.course, fstate),
                     "final_locked": True}
 
     session = get_session(code, req.course)
