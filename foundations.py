@@ -2,6 +2,16 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cv -- NEW calculus script "removable discontinuity" (library 181 ->
+#               182), inserted after "limit" so it reads in teaching order. Jim read a
+#               live limits lesson and could not tell where the hole at x = 2 came from --
+#               correctly, because nothing told him. This script builds it from
+#               f(x) = (x^2-4)/(x-2): the factor cancels, the original divided by zero at
+#               x = 2, so that one input has no output. Board shows the algebra and then
+#               the line with the point removed, framed range="-1..5" (see the parseRange
+#               fix in math-figures.js -- the comma form this was first written with was
+#               being thrown away). ~800 characters of new audio, about 20 cents, once.
+#               No existing "say" string was touched.
 #   2026-08-10  BUILD cl -- DEFERRED WORDING FOR SCRIPTS ALREADY GIVEN. Jim asked us to
 #               address the prompt ceiling, and the first thing to say is that splitting
 #               FILES does not touch it: a prompt carries ONE course template, so
@@ -1306,6 +1316,18 @@ FOUNDATIONS = {
             "whole reason limits exist: a function can have a hole at a point and still be clearly "
             "heading somewhere.",
          "board": ['[[write text="what is it approaching, as x gets close?"]]']},
+        {"term": "removable discontinuity", "say":
+            "A **removable discontinuity** is the proper name for a hole in a graph, and the part that "
+            "matters is where the hole came from: a hole never simply appears. Take f of x "
+            "equals x squared minus four, all over x minus two. The top factors into x minus two times "
+            "x plus two, so the x minus two cancels and leaves x plus two, everywhere except at x equals "
+            "two, where the original fraction divided by zero. Division by zero is undefined, so that "
+            "one input has no output: the graph is the line y equals x plus two with one point punched "
+            "out of it. Cancelling did not repair x equals two, and that is why the limit there is four "
+            "while f of two does not exist.",
+         "board": ['[[write text="f(x) = (x^2 - 4)/(x - 2)"]]',
+                   '[[write text="= (x-2)(x+2)/(x-2) = x + 2,   x \u2260 2"]]',
+                   '[[graph lines="y=x+2" hole="2" range="-1..5" caption="the same line, with x = 2 removed -- the curve runs right up to the gap from both sides"]]']},
         {"term": "continuity", "say":
             "**Continuity** means a curve has no breaks in it. Picture drawing the graph with a pencil. "
             "If you can draw the whole thing without ever lifting the pencil off the paper, the function "

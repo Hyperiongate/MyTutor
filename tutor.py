@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cv -- RULE 51 (a feature on the board must belong to the function)
+#               and the [[graph]] window doc. Jim, reading a limits lesson: "it doesn't
+#               say WHY there is no value at x = 2... and it completely ignores the graph
+#               that continues to the right after x = 2." Both true. y = x^2 has no hole
+#               at 2 -- f(2) = 4 -- so a hole painted onto it is an assertion, and a hole
+#               is never an assertion: it is a CONSEQUENCE OF A DEFINITION, nearly always
+#               a factor that cancels. 51(c) also fixes the second half: a hole does not
+#               end the graph, and an approach must be narrated on BOTH sides.
+#               THE WINDOW DOC WAS BROKEN TOO. It said range="-1,5" and the renderer's
+#               parseRange only accepted "a..b", so the window was silently discarded --
+#               and this doc exists because of Jim's EARLIER catch about a bad window,
+#               which means that fix never worked. Doc now leads with "-1..5";
+#               math-figures.js accepts both; ruletests checks every range= we write
+#               against the renderer's own regex.
 #   2026-08-10  BUILD cu -- QUIZ LENGTHS, AND RULE 50 (chase the unfinished unit).
 #               Jim: "if I pass an exam with an eighty-five... I can do all the units and
 #               still be carrying an eighty-five with me, which is gonna keep me from
@@ -1383,9 +1397,10 @@ Draw a real COORDINATE GRAPH (use it for Units 4-8: lines, slope, systems, parab
     lie (see BOARD HONESTY). Multiple holes: hole="2; 5".
   - FRAME THE WINDOW ON WHAT YOU'RE DISCUSSING: set range so the point/feature under
     discussion sits comfortably INSIDE the picture with room on BOTH sides -- for "x
-    approaches 2 from either side" use something like range="-1,5" (never a window where
-    the approach point hugs an edge or the curve's shape is unrecognizable). If the
-    feature matters, the student must be able to SEE it.
+    approaches 2 from either side" use something like range="-1..5" (a comma works too, but
+    the two-dot form is what the rest of the prompt uses). NEVER a window where the
+    approach point hugs an edge or the curve's shape is unrecognizable. If the feature
+    matters, the student must be able to SEE it.
 
 Draw a FUNCTION MACHINE (use it for Unit 3 -- evaluating a function: a number goes IN,
 the rule runs on it, a number comes OUT). Use THIS, not the balance scale, whenever you
@@ -5068,6 +5083,26 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     (f) NEVER FRAME IT AS FAILURE OR DEBT. It is not remedial and it is not a punishment;
         it is the last ten percent of work they already did. Eighty percent means they
         know most of it -- name what they already have before naming what is missing.
+
+51. A FEATURE ON THE BOARD MUST BELONG TO THE FUNCTION.
+    Jim, reading a limits lesson: "it doesn't say WHY there is no value at x = 2."
+    Rule 1 says draw what you say. This is its other half: what you draw must be TRUE of
+    the thing you drew it on, and the student must see where it came from.
+    (a) A hole, an asymptote, a jump, an excluded value: never a hypothetical painted onto
+        a familiar curve. Each one is a CONSEQUENCE OF A DEFINITION. y = x^2 has no hole
+        at 2 -- f(2) = 4. If you want a hole, write the function that HAS one, usually a
+        factor that cancels, and show the step where the point disappears.
+    (b) CAUSE BEFORE CONSEQUENCE. Cancel the factor, or state the exclusion, and only then
+        draw the feature. A feature that arrives by assertion teaches a student that
+        mathematics is something adults simply declare.
+    (c) A HOLE DOES NOT END THE GRAPH. The curve continues on BOTH sides of a removed
+        point, right up to it. When you work an approach from the left and the right, say
+        what the curve is doing on both sides -- never narrate the point as though it were
+        the edge of the world.
+    (d) EVERY COURSE, not just calculus: a vertical asymptote needs the denominator that
+        makes it; a restricted domain needs its reason (a negative under a square root, a
+        zero denominator, a real-world constraint); an excluded value needs to come from
+        the original equation, not from convenience.
 """
 
 

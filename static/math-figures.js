@@ -2,6 +2,16 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-10  BUILD cv -- parseRange now accepts "a,b" and "a to b", not only "a..b".
+                 The tutor's own [[graph]] documentation has been telling it to write
+                 range="-1,5" since 2026-08-07, and this parser threw every one of those
+                 windows away and fell back to -10..10 WITHOUT A SOUND. That documentation
+                 exists because Jim caught a graph whose "window barely showed the
+                 parabola" -- so the fix for that bug had never actually worked, for three
+                 days, on every comma-framed graph in the product. A renderer should be
+                 generous about the shape of a number pair. ruletests now reads this
+                 function's regex and checks every range= we write against it, so the
+                 prompt and the renderer cannot drift apart again.
      2026-08-07  GRAPH HOLES (build av, Jim's live catch: "I've punched a hole out at x = 2"
                  spoken over an UNBROKEN curve). [[graph]] gained hole="a" (or "a; b"):
                  draws an OPEN circle (background fill + red ring + tiny "hole" label) on
@@ -118,8 +128,15 @@
     while ((m = re.exec(String(str || ""))) !== null) out.push([parseFloat(m[1]), parseFloat(m[2])]);
     return out;
   }
+  // 2026-08-10 (build cv): this used to accept ONLY the "a..b" form, while the tutor's
+  // own [[graph]] documentation told it to write range="-1,5" -- so every window framed
+  // with a comma was thrown away and the graph silently fell back to -10..10. That
+  // instruction exists BECAUSE of Jim's earlier catch ("the window barely showed the
+  // parabola"), which means the fix for that bug has never actually worked. A renderer
+  // should be generous about the shape of a number pair and strict about nothing else:
+  // "a..b", "a,b" and "a to b" all mean the same window.
   function parseRange(str) {
-    var m = String(str || "").match(/(-?\d*\.?\d+)\s*\.\.\s*(-?\d*\.?\d+)/);
+    var m = String(str || "").match(/(-?\d*\.?\d+)\s*(?:\.\.|,|\s+to\s+)\s*(-?\d*\.?\d+)/);
     return m ? [parseFloat(m[1]), parseFloat(m[2])] : null;
   }
 

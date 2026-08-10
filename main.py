@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cv-holes-windows-and-the-fold". No logic change in
+#               this file -- the stamp moves for the four fixes below (tutor.py,
+#               foundations.py, math-figures.js, session.html, ruletests.py).
+#               (1) Jim, reading a live limits lesson: "it doesn't say WHY there is no
+#               value at x = 2, and it completely ignores the graph that continues to the
+#               right after x = 2." He is right: y = x^2 has no hole at 2, and the lesson
+#               painted one on and asserted it. NEW RULE 51 -- a feature on the board must
+#               BELONG to the function, and the student must see where it came from -- plus
+#               a canonical calculus script for the removable discontinuity built on
+#               f(x) = (x^2-4)/(x-2), where the hole is something they watch appear.
+#               (2) ⭐ RENDERING THAT SCRIPT FOUND A SILENT ONE: the [[graph]] docs told
+#               the tutor to write range="-1,5" while the renderer's parseRange accepted
+#               ONLY "a..b" -- so every comma-framed window was discarded and the graph
+#               fell back to -10..10. That instruction exists BECAUSE of Jim's earlier
+#               catch that a window "barely showed the parabola", so the fix for that bug
+#               had never once worked. parseRange now takes "a..b", "a,b" and "a to b",
+#               and ruletests reads its regex out of the renderer and checks every range=
+#               we write against it.
+#               (3) Jim: "the Welcome back page should never require scrolling. I had to
+#               scroll down to see what was my option." The returning card was still
+#               carrying the first-timer's three how-it-works bullets; the new-student
+#               card overflowed too, at every common laptop size.
 #   2026-08-10  APP_BUILD -> "2026-08-10cu-mastery-is-reachable". Jim: "if I pass an exam
 #               with an eighty-five, I can go onto the next unit. I can do all the units
 #               and still be carrying an eighty-five with me, which is gonna keep me from
@@ -4785,7 +4807,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cu-mastery-is-reachable"
+APP_BUILD = "2026-08-10cv-holes-windows-and-the-fold"
 
 
 @app.get("/health")

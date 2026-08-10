@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cv -- rule 51 joins the ten-course scan, and a new check that every
+#               range= we write PARSES UNDER THE RENDERER'S OWN RULE. The regex is read
+#               out of math-figures.js so it cannot drift. It exists because rendering one
+#               new figure showed the [[graph]] documentation teaching range="-1,5" while
+#               parseRange accepted only "a..b" -- the window was discarded, silently, and
+#               the instruction had been unfollowable since the day it was written to fix
+#               exactly that complaint.
+#               ⚠️ THE OTHER LESSON FROM THIS BUILD is in _cv_welcome_check.py, not here:
+#               Playwright matches routes in REVERSE registration order, so a catch-all
+#               registered last swallowed the stubbed /api/session and the harness measured
+#               the FIRST-TIMER card while reporting on the returning one. It now asserts
+#               which screen it is looking at before it measures anything. A test must
+#               prove it is looking at the right thing before it is allowed to pass.
 #   2026-08-10  BUILD cu -- PART 3k: A BAR MUST BE REACHABLE BY THE INSTRUMENT THAT
 #               MEASURES IT. Jim asked for a retake path for a unit passed but not
 #               mastered. Checking it found something worse: mastery is 90% and the Unit
@@ -346,6 +359,7 @@ COVERAGE = [
     ("rule 47 no cold quizzes",          "NO COLD QUIZZES"),
     ("rule 48 say the symbol aloud",     "HOW TO *SAY* THE SYMBOL"),
     ("rule 50 chase unfinished units",   "AN UNFINISHED UNIT IS YOUR JOB"),
+    ("rule 51 a feature must be real",   "A FEATURE ON THE BOARD MUST BELONG TO THE FUNCTION"),
     ("quiz length: unit quiz is TEN",    "give the UNIT QUIZ: TEN questions"),
     ("quiz length: topic quiz is FIVE",  "give a short quiz -- FIVE"),
     ("canonical foundation scripts",     "SPEAK THESE VERBATIM"),
@@ -1716,6 +1730,7 @@ RULE_VERIFY = {
     48: ("ENFORCED",  "PART 3b/3f fail a course that writes notation it never reads aloud"),
     49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
     50: ("COVERED",   "chase an unfinished unit; PART 3k proves the bar is reachable"),
+    51: ("COVERED",   "a drawn feature must come from a definition (PART 3c checks the tags)"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -1920,6 +1935,30 @@ def part3k_mastery_reachable():
               "4 or 5 questions" not in p and "3 or 4\nquestions" not in p,
               "an old count left in one template is the build-bk bug shape: right in nine "
               "courses, wrong in the tenth")
+
+    # Build cv. EVERY range= WE WRITE MUST PARSE UNDER THE RENDERER'S OWN RULE.
+    # Rendering the new removable-discontinuity figure showed the [[graph]] documentation
+    # telling the tutor to write range="-1,5" while parseRange accepted only "a..b" -- so
+    # the window was thrown away and the graph fell back to -10..10, silently. That
+    # instruction exists BECAUSE of Jim's earlier catch that a window "barely showed the
+    # parabola", which means the fix for that bug had never once worked. The regex is read
+    # OUT OF math-figures.js so this check can never drift from the renderer.
+    figsrc = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    _i = figsrc.find("function parseRange")
+    mrx = re.search(r"\.match\(/([^/]+)/\)", figsrc[_i:_i + 400]) if _i >= 0 else None
+    check("the grapher's range parser can be read from the renderer", bool(mrx),
+          "parseRange changed shape -- update this check, do not delete it")
+    if mrx:
+        rng = re.compile(mrx.group(1).replace("\\d", r"\d").replace("\\.", r"\."))
+        used = set()
+        for fname in ("tutor.py", "foundations.py"):
+            used |= set(re.findall(r'range="([^"]+)"',
+                                   open(os.path.join(here, fname), encoding="utf-8").read()))
+        bad = [u for u in sorted(used) if not rng.search(u)]
+        check(f"every range= we write parses under that rule ({len(used)} distinct)",
+              not bad,
+              f"the renderer ignores {bad} and falls back to -10..10 -- the window "
+              f"instruction becomes unfollowable, silently")
 
     # The thresholds themselves must still agree across the three files that hold them.
     check("store and tutor still agree on the bars",
