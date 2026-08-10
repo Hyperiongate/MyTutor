@@ -2,6 +2,27 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD co -- RULES 2 AND 8 ARE NOW ENFORCED, NOT JUST WRITTEN DOWN.
+#               Generating the rule index (audit #2 item 23) made something plain that a
+#               person reading 49 rules would never notice: rules 2, 5 and 8 were the
+#               only ones in the entire prompt that NOTHING checked -- not a referee, not
+#               an audit, not even a coverage grep. Two of the three turned out to be the
+#               same shape as rule 7 seen from the other side, so the visual referee
+#               learned them rather than growing a new one:
+#                 rule 2 -- the student ASKED to see something ("show me", "can I see",
+#                   "draw it") and the reply puts nothing on the board. There is no
+#                   legitimate version of that: re-drawing is free and always right.
+#                   prose_visual_conflict() now takes the student's message to see it.
+#                 rule 8 -- the tutor SAYS he is about to show or draw something and then
+#                   draws nothing. Uses the same deferral guard as the rest of the
+#                   referee, so "next time I'll draw you one" is still fine -- the
+#                   battery caught that on the first run, because the case was already a
+#                   fixture from build ce.
+#               _last_user_text() feeds the student's real words in, skipping the SYSTEM
+#               nudges the referee itself appends on a retry.
+#               Rule 5 (don't narrate symbols) is left honestly UNVERIFIED: judging it
+#               needs to know what a reply SOUNDED like, and a bad guess there would
+#               re-roll good teaching.
 #   2026-08-10  BUILD cm -- PER-TURN NOTES RIDE WITH THE MESSAGE, NOT THE PROMPT.
 #               Found while answering Jim's question about whether prompt size costs
 #               money or performance. The system prompt is ONE cached block, so anything
@@ -5550,12 +5571,54 @@ def _tags_present(text: str, names) -> bool:
     return bool(found & set(names))
 
 
-def prose_visual_conflict(reply: str):
+# Rules 2 and 8 are the same shape as rule 7 from the other side: the student ASKED to
+# see something ("show me", "can I see a picture", "draw it"), or the tutor is narrating
+# a CHANGE that ought to be shown happening. Both end with a student looking at a board
+# that has nothing new on it. Added build co, when the rule index made it plain these
+# were the only two rules in the whole prompt that nothing checked at all.
+_VIS_ASKED = re.compile(
+    r"\b(?:show me|can i see|could i see|let me see|draw (?:it|one|that|me)|"
+    r"can you draw|would you draw|picture of (?:it|that))\b", re.I)
+_VIS_PROMISE = re.compile(
+    r"\b(?:here'?s|here is|let me|i'?ll|i will|watch)\b[^.!?]{0,40}"
+    r"\b(?:show|draw|sketch|graph|plot)\b", re.I)
+
+
+def prose_asked_to_see(student_message: str) -> bool:
+    """Did the student just ask to be SHOWN something? (rules 2 and 8)"""
+    try:
+        return bool(_VIS_ASKED.search(str(student_message or "")))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def prose_visual_conflict(reply: str, student_message: str = ""):
     """Return a description of a picture that was promised and never drawn, or "".
+
+    `student_message` (build co) lets this also enforce rules 2 and 8: if the student
+    ASKED to see something, this reply must draw something, full stop -- re-drawing is
+    free and always right, so there is no legitimate reason to answer "show me" with a
+    board that gains nothing.
     Never raises: any unexpected input yields "" (fail open)."""
     try:
         text = str(reply or "")
         prose = _spoken_only(text)
+        if prose_asked_to_see(student_message) and not _tags_present(text, _BOARD_TAGS):
+            return ('the student just asked to SEE something and this reply puts nothing '
+                    'on the board at all. Rule 2: "show me" / "can I see" / "draw it" '
+                    'means your reply MUST include the figure or board tag, even if '
+                    'something similar is already up -- re-drawing is free and always '
+                    'right.')
+        if not _tags_present(text, _BOARD_TAGS):
+            # Same guard as the rest of this referee: "next time I'll draw you one" is a
+            # promise about later, not a claim about now. (Caught by the battery the
+            # moment rule 8 was added -- the deferral case was already a fixture.)
+            for sent in _vis_sentences(prose):
+                if _VIS_DEFER.search(sent):
+                    continue
+                if _VIS_PROMISE.search(sent):
+                    return ('you say you are going to show or draw something and then '
+                            'draw nothing. Rule 8: show the change, do not describe it.')
         sentences = _vis_sentences(prose)
         if not _tags_present(text, FIGURE_TAGS):
             for sent in sentences:
@@ -5782,7 +5845,7 @@ def prose_score_conflict(reply: str):
         return ""
 
 
-def prose_board_conflict(reply: str):
+def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
@@ -5791,7 +5854,7 @@ def prose_board_conflict(reply: str):
     the reply's own score tag (rule 45), then spoken numbers that disagree with the
     board's own written conclusion (rule 18b)."""
     try:
-        visual = prose_visual_conflict(reply)
+        visual = prose_visual_conflict(reply, student_message)
         if visual:
             return visual
         pending = prose_pending_question_conflict(reply)
@@ -5931,6 +5994,20 @@ def _create_full(client, model, system_blocks, msgs, tokens, log_prefix=""):
     return reply.strip()
 
 
+def _last_user_text(msgs) -> str:
+    """The student's most recent words, for the referees that need to know what was
+    asked (rules 2 and 8). Ignores the SYSTEM nudges the referee itself appends."""
+    try:
+        for m in reversed(list(msgs or [])):
+            if m.get("role") == "user":
+                t = str(m.get("content", ""))
+                if not t.lstrip().startswith("(SYSTEM:"):
+                    return t
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
 def _create_verified(client, model, system_blocks, messages, log_prefix, meta=None):
     """One model call, refereed. Returns the verified reply with [[verify]] tags
     stripped, or "" if the model returned nothing (caller shows its fallback).
@@ -5960,7 +6037,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # THE PROSE REFEREE (2026-08-09): the tags are sound -- now check that the
             # SPOKEN words agree with them (see prose_board_conflict above). Same
             # treatment as a failed math check: the student never saw this draft.
-            prose_detail = prose_board_conflict(reply)
+            prose_detail = prose_board_conflict(reply, _last_user_text(msgs))
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")

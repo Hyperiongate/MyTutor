@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10co-rule-index". No code change in this file.
+#               Audit #2 items 23 and 24 shipped: every rule now DECLARES how it is
+#               verified (ruletests.py PART 3i, a ratchet -- new drift fails, old debt
+#               prints), and `python ruletests.py --rules` generates RULES.md from the
+#               prompt itself. Generating it exposed that rules 2, 5 and 8 were checked
+#               by nothing at all; 2 and 8 are now enforced by the visual referee.
+#               ⚠️ RULES.md is a NEW FILE in the repo (generated, but committed so it can
+#               be read on GitHub without running anything).
 #   2026-08-10  APP_BUILD -> "2026-08-10cn-scale-and-stability". Jim's brief: quality,
 #               low latency, no degradation over time, headroom to keep adding teaching
 #               code, ten thousand simultaneous students, build under $1,000.
@@ -4620,7 +4628,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cn-scale-and-stability"
+APP_BUILD = "2026-08-10co-rule-index"
 
 
 @app.get("/health")

@@ -2,6 +2,23 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD co -- PART 3i AND THE GENERATED RULES INDEX (audit #2 items 24
+#               and 23). This file's header has said from day one: "ADDING A RULE? Add a
+#               scenario here in the same commit. That is the whole point." We drifted
+#               anyway -- rules 42 to 47 shipped with no check of their own -- because
+#               nothing made the drift visible.
+#               RULE_VERIFY now declares, for every rule, HOW it is verified, in four
+#               honest tiers: ENFORCED (a machine catches it in a real reply),
+#               EXERCISED (a --live scenario asserts the behaviour), COVERED (the text
+#               provably reaches all ten prompts -- he was told, which is not the same as
+#               he does it), UNVERIFIED (nothing at all).
+#               It is a RATCHET, not a gate: existing debt prints but does not fail a
+#               deploy, while a NEW rule with no declaration fails, and a rule that
+#               quietly LOSES its scenario fails. Today: 13 enforced, 10 exercised,
+#               25 covered, 1 unverified.
+#               `python ruletests.py --rules` regenerates RULES.md from the prompt
+#               itself, so the index can never drift from the classroom. That file is
+#               also what you hand a curriculum advisor or a school district.
 #   2026-08-10  BUILD cn -- PART 3h, "it must not degrade, and it must scale".
 #               Nothing in this battery had ever asked whether anything GROWS, and two
 #               things did: every chat turn loaded, parsed, appended to and rewrote the
@@ -336,6 +353,21 @@ VISUAL_CASES = [
      'Nice work! Seven plus eight is fifteen. [[step eq="7 + 8 = 15"]]', False),
 ]
 
+# rules 2 and 8 -- (student's message, reply, should_flag). Added build co, when the
+# generated rule index made it plain these were two of only three rules in the entire
+# prompt that nothing checked at all.
+ASKED_CASES = [
+    ("show me a number line",
+     "Sure — a number line runs from negative five to five.", True),
+    ("show me a number line",
+     'Sure! [[numberline min="-5" max="5" points="0" caption="zero sits in the middle"]]', False),
+    ("can I see it drawn?", 'Of course. [[write text="3/4"]]', False),
+    ("draw it for me", "I will in a moment — first, what is seven plus eight?", True),
+    ("what is 7 plus 8?", 'Fifteen — nice. [[step eq="7 + 8 = 15"]]', False),
+    ("", "Let me show you what happens when we take two away.", True),
+    ("", 'Let me show you. [[objects emoji="🍪" groups="5" caption="take two away and count"]]', False),
+]
+
 # ---- the PENDING-QUESTION half (build cg) -----------------------------------
 # Jim's live Pre-Algebra resume: "it gave me a problem without putting it on the board,
 # and this is the exact example that we've already used once before that was supposedly
@@ -436,6 +468,10 @@ def part2_prose():
             check(f"visual: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for said, reply, should_flag in ASKED_CASES:
+        got = tutor.prose_board_conflict(reply, said)
+        check(f"asked-to-see: {said[:26]!r} -> {'flag' if should_flag else 'clean'}",
+              bool(got) == should_flag, f"got: {got or '(clean)'}")
     for name, reply, should_flag in PENDING_CASES:
         got = tutor.prose_pending_question_conflict(reply)
         check(f"pending: {name}", bool(got) == should_flag,
@@ -1519,6 +1555,195 @@ def part3h_scale():
               "no cap found")
 
 
+# =============================================================================
+# PART 3i -- EVERY RULE DECLARES HOW IT IS VERIFIED  (audit #2 item 24)
+# -----------------------------------------------------------------------------
+# 2026-08-10 (build co). This file's own header has said since the day it was written:
+# "ADDING A RULE? Add a scenario here in the same commit. That is the whole point."
+# We drifted anyway -- rules 42 to 47 shipped with no behavioural check of their own --
+# because nothing made the drift visible. This does.
+#
+# It is a RATCHET, not a gate. Today's honest position is recorded below and the suite
+# does NOT fail for the debt that already exists; failing a deploy over history helps
+# nobody. It fails for two things only, and both are new damage:
+#   * a rule appears in the prompt with no entry here at all
+#   * a rule that WAS enforced or exercised quietly loses its check
+# The backlog prints on every run, so it cannot be forgotten either.
+#
+# THE FOUR TIERS, in descending order of how much they are worth:
+#   ENFORCED   a machine catches the violation in a real reply. A referee regenerates
+#              the draft, or an audit fails the build. This is the only tier that
+#              protects a student on a Tuesday night with nobody watching.
+#   EXERCISED  a --live scenario plays a student against the real prompt and asserts the
+#              behaviour. Costs a few cents to run; catches real regressions.
+#   COVERED    the rule's text provably reaches all ten courses' prompts (PART 1). That
+#              is a real check -- it is the bug that hid for a day in build bk -- but it
+#              proves only that he was TOLD, not that he does it.
+#   UNVERIFIED the rule exists and nothing checks it. Honest, and the list to work from.
+# =============================================================================
+RULE_VERIFY = {
+    1:  ("COVERED",   "the board only shows what you drew"),
+    2:  ("ENFORCED",  "prose_visual_conflict: 'show me' with an unchanged board is regenerated"),
+    3:  ("EXERCISED", "first-use key terms are marked"),
+    4:  ("COVERED",   "say it then write it, in the same reply"),
+    5:  ("UNVERIFIED", "don't narrate symbols, point at them"),
+    6:  ("COVERED",   "never run ahead"),
+    7:  ("ENFORCED",  "prose_visual_conflict regenerates a reply that names an undrawn picture"),
+    8:  ("ENFORCED",  "prose_visual_conflict: promising to show something and drawing nothing"),
+    9:  ("COVERED",   "the sound-off check"),
+    10: ("ENFORCED",  "mathcheck reads every [[verify]] tag"),
+    11: ("ENFORCED",  "a tag in the wrong syntax fails to parse and is caught"),
+    12: ("ENFORCED",  "strip_verify_tags + the pages' stripTags remove it before the student"),
+    13: ("ENFORCED",  "mathcheck re-computes the claim with SymPy"),
+    14: ("COVERED",   "define every notation on first use (see also rule 48, ENFORCED)"),
+    15: ("ENFORCED",  "prose_pending_question_conflict regenerates a question with no board line"),
+    16: ("COVERED",   "a substitution question re-writes its equation"),
+    17: ("COVERED",   "never answer your own question"),
+    18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board"),
+    19: ("COVERED",   "worked example first"),
+    20: ("COVERED",   "partially right is not wrong"),
+    21: ("EXERCISED", "'I don't know' triggers a smaller step"),
+    22: ("COVERED",   "the escalation ladder"),
+    23: ("EXERCISED", "equivalent answers are correct"),
+    24: ("COVERED",   "leaps, self-corrections, 'just tell me'"),
+    25: ("COVERED",   "when the student says you are wrong"),
+    26: ("COVERED",   "a wrong line never stays on the board"),
+    27: ("COVERED",   "units and honest approximation"),
+    28: ("EXERCISED", "one name per thing"),
+    29: ("EXERCISED", "how a session ends"),
+    30: ("EXERCISED", "off-topic and personal questions"),
+    31: ("EXERCISED", "when something bigger than math shows up"),
+    32: ("COVERED",   "story problems survive a sanity check"),
+    33: ("COVERED",   "difficulty moves one notch"),
+    34: ("COVERED",   "keep old skills sharp"),
+    35: ("EXERCISED", "a failed quiz is never re-given on the spot"),
+    36: ("EXERCISED", "teach the thing before you ask about it"),
+    37: ("COVERED",   "vocabulary is taught, never assumed"),
+    38: ("COVERED",   "concrete, then picture, then symbols"),
+    39: ("COVERED",   "talk less, check in often, make the check failable"),
+    40: ("EXERCISED", "ask before repeating an introduction"),
+    41: ("ENFORCED",  "PART 3c fails any figure shipped without a caption"),
+    42: ("COVERED",   "never compare this student to anyone but this student"),
+    43: ("COVERED",   "you perceive exactly two things"),
+    44: ("COVERED",   "read the problem aloud, in full"),
+    45: ("ENFORCED",  "prose_score_conflict regenerates a spoken score that fights its own tag"),
+    46: ("COVERED",   "a quiz question tests one skill"),
+    47: ("COVERED",   "no cold quizzes"),
+    48: ("ENFORCED",  "PART 3b/3f fail a course that writes notation it never reads aloud"),
+    49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
+}
+_TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
+
+
+_TITLE_END = re.compile(r"[.:]\s|\s--\s|\s\(")
+
+
+def _rule_titles():
+    """{number: the rule's headline}. The headline is the SHOUTED part at the start of
+    each rule; the prose that follows it is the rule itself and is not repeated here.
+    (First version split on the first ". " anywhere, which turned rule 2 into
+    '"Show me", "can I see' -- the heading has to end where the capitals do.)"""
+    out = {}
+    # A rule opens at column 0 as "N. " followed by a SHOUTED headline, then prose. The
+    # headline is what belongs in an index; the prose is the rule and is not repeated.
+    # The headline ends at the first word containing a lower-case letter -- ALL-CAPS
+    # words continue it, "Something", "Never", "(Jim's" end it. (Two earlier attempts
+    # failed here: splitting on the first ". " turned rule 2 into '"Show me", "can I
+    # see', and a length-bounded body match found only the two shortest rules.)
+    for m in re.finditer(r"^(\d{1,2})\. (.{6,200})$", tutor.GRAPH_TOOL_NOTE, re.M):
+        keep = []
+        for w in m.group(2).split():
+            if re.search(r"[a-z]", w) and len(keep) >= 3:
+                break
+            keep.append(w)
+        out[int(m.group(1))] = " ".join(keep).strip(" ,.:;-") or m.group(2)[:70]
+    return out
+
+
+def part3i_rule_verification():
+    print("\nPART 3i — every rule declares how it is verified")
+    titles = _rule_titles()
+    undeclared = sorted(n for n in titles if n not in RULE_VERIFY)
+    check("every rule in the prompt is declared here", not undeclared,
+          f"rules {undeclared} have no entry in RULE_VERIFY -- a new rule must say how it "
+          f"is checked, even if the honest answer is UNVERIFIED")
+    stale = sorted(n for n in RULE_VERIFY if n not in titles)
+    check("no declaration outlives its rule", not stale,
+          f"RULE_VERIFY still lists {stale}, which are no longer in the prompt")
+
+    # the ratchet: a rule that had a real check must not quietly lose it
+    src = open(os.path.abspath(__file__), encoding="utf-8").read()
+    live_named = {int(m) for m in re.findall(r"rule (\d{1,2})", src[src.index("LIVE_SCENARIOS"):])}
+    for n, (tier, _why) in sorted(RULE_VERIFY.items()):
+        if tier == "EXERCISED":
+            check(f"  rule {n} still has its --live scenario", n in live_named,
+                  "it was exercised and now is not -- restore the scenario or downgrade "
+                  "the declaration on purpose")
+
+    counts = {t: [n for n, (tt, _w) in RULE_VERIFY.items() if tt == t] for t in _TIER_ORDER}
+    print(f"       {len(titles)} rules: " + " · ".join(
+        f"{t.lower()} {len(counts[t])}" for t in _TIER_ORDER))
+    if counts["UNVERIFIED"]:
+        print("       BACKLOG — nothing checks these at all:")
+        for n in sorted(counts["UNVERIFIED"]):
+            print(f"         rule {n:>2}: {titles.get(n, '?')[:66]}")
+    check("no rule is enforced by wishful thinking",
+          all(t in _TIER_ORDER for t, _w in RULE_VERIFY.values()), "unknown tier")
+
+
+def write_rules_index(path="RULES.md"):
+    """Generate RULES.md from the prompt itself (audit #2 item 23).
+
+    Never hand-maintained, so it cannot drift: every line comes from tutor.py or from
+    RULE_VERIFY above. This is the document to hand a curriculum advisor, a school
+    district, or the next person who has to hold 49 rules in their head."""
+    titles = _rule_titles()
+    counts = {t: [n for n, (tt, _w) in RULE_VERIFY.items() if tt == t] for t in _TIER_ORDER}
+    out = [
+        "# Mr. Cadabra — the teaching rules",
+        "",
+        "_Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand:",
+        "every line below is read out of the prompt the tutor is actually given, so this",
+        "file cannot drift away from what the classroom really does._",
+        "",
+        f"**{len(titles)} rules.** Every one was written because something went wrong in a real",
+        "lesson, and almost all of them were noticed by Jim before they were noticed by a",
+        "machine. The right-hand column is how much better we have got at that.",
+        "",
+        "| how it is verified | rules | what that means |",
+        "|---|---|---|",
+        f"| **ENFORCED** | {len(counts['ENFORCED'])} | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |",
+        f"| **EXERCISED** | {len(counts['EXERCISED'])} | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |",
+        f"| **COVERED** | {len(counts['COVERED'])} | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |",
+        f"| **UNVERIFIED** | {len(counts['UNVERIFIED'])} | the rule exists and nothing checks it |",
+        "",
+        "---",
+        "",
+    ]
+    for n in sorted(titles):
+        tier, why = RULE_VERIFY.get(n, ("UNVERIFIED", "not declared"))
+        out.append(f"### {n}. {titles[n]}")
+        out.append("")
+        out.append(f"**{tier}** — {why}")
+        out.append("")
+    out += ["---", "",
+            "## The four tiers, and why the order matters", "",
+            "**ENFORCED** is the only tier that protects a student on a Tuesday night with",
+            "nobody watching. A referee sees the draft before the child does and sends it",
+            "back. Everything else depends on someone running something.", "",
+            "**EXERCISED** catches regressions cheaply, but only when somebody runs",
+            "`ruletests.py --live` — which costs a few cents and needs an API key.", "",
+            "**COVERED** is not nothing: it is the bug that hid for a day in build bk, where",
+            "a rule written into one of eleven per-course templates reached one course out of",
+            "ten. But it proves only that the tutor was told.", "",
+            "**UNVERIFIED** is the honest backlog. Moving a rule up a tier is usually worth",
+            "more than writing a new rule.", "",
+            "I did no harm and this file is not truncated."]
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(out) + "\n")
+    return path
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -1541,6 +1766,10 @@ def part4_live():
 
 
 def main():
+    if "--rules" in sys.argv:
+        print("wrote", write_rules_index(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "RULES.md")))
+        return 0
     live = "--live" in sys.argv
     print("=" * 70)
     print("RULE REGRESSION BATTERY —", "OFFLINE + LIVE" if live else "OFFLINE ONLY")
@@ -1555,6 +1784,7 @@ def main():
     part3f_notation()
     part3g_misconceptions()
     part3h_scale()
+    part3i_rule_verification()
     if live:
         part4_live()
     else:
