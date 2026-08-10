@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD da -- four guards for probe_models(): the tool must be able to ask a
+#               key what it reaches, the pricing button must ask, a model gated behind
+#               organisation verification must say so WITH the remedy, and the probe list
+#               must be overridable without a code change.
 #   2026-08-10  BUILD cz -- five guards from the auditor's first live failure: a preflight
 #               before any lesson, a negotiated token parameter, the model list offered
 #               only for a real model error, a summary that cannot make "nothing was
@@ -2103,6 +2107,22 @@ def part3l_lesson_auditor():
     check("  and the admin panel repeats the server's summary rather than inventing one",
           "d.summary" in admin_src and "did_not_complete" in admin_src,
           "two places computing the same headline is two places to get it wrong")
+
+    # Build da. "How can I tell if my new key is good for 5.5?" is not answerable by
+    # looking at a key: access belongs to the ORGANISATION (and, for a project key, to
+    # that project's model permissions). The only honest answer is to ask the key.
+    check("the tool can ask a key which models it actually reaches",
+          "def probe_models(" in src and "PROBE_MODELS" in src,
+          "otherwise the answer is a guess dressed as a fact")
+    check("  and the pricing button asks, so one click answers it",
+          "probe_models() if (probe" in src,
+          "a price for a job that cannot run is worse than no price")
+    check("  a model needing ORGANISATION VERIFICATION says so, with the remedy",
+          "must be verified" in src and "Verify Organisation" in src,
+          "'403' with no remedy sends somebody to a search engine")
+    check("  and the probe list is overridable without a code change",
+          "OPENAI_PROBE_MODELS" in src,
+          "model names move faster than this file will")
 
     # A stale model name must be a one-line fix, never a mystery.
     check("a rejected model names the ones the account actually has",

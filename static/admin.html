@@ -218,7 +218,7 @@
       <span class="note">Scripted students take real lessons; an independent model marks the
         transcripts against all 51 rules. Nothing is changed &mdash; it hands you a report.</span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-ghost" id="laPrice" type="button">&#9312; Price it (free)</button>
+      <button class="btn btn-ghost" id="laPrice" type="button">&#9312; Check my key &amp; price it</button>
       <button class="btn btn-primary" id="laRun" type="button">&#9313; Run 2 lessons</button>
       <span class="note" id="laWhere">starting at lesson 1</span>
       <button class="btn btn-ghost" id="laCopy" type="button" style="display:none">&#128203; Copy the report</button>
@@ -584,12 +584,30 @@
       var d = await api("/api/admin/lesson-audit", { method: "POST",
         body: JSON.stringify({ key: KEY, dry_run: true }) });
       var lines = d.scenarios.map(function (s, i) { return "  " + (i + 1) + ". " + s.id + "  (" + s.course + ")"; });
-      laShow("The whole cast \u2014 " + d.scenarios.length + " lessons, " + d.turns_each + " turns each:\n" +
-             lines.join("\n") + "\n\nModel: " + d.model +
-             "\nOpenAI key on the server: " + (d.have_openai_key ? "present" : "MISSING \u2014 add OPENAI_API_KEY in Render") +
-             "\n\nEstimated cost for all of them: $" + d.estimated_cost_usd +
-             "\n(" + d.estimate_note + ")");
-      laMsg("Nothing was spent. Press \u2461 when you are ready.", "ok");
+      // build da: this button now ASKS THE KEY what it can reach. "Is my new key good for
+      // 5.5?" is not answerable by looking at a key -- access belongs to the ORGANISATION
+      // (and, for a project key, to that project's model permissions), so the only honest
+      // way is to try it, cheaply, before committing to a run.
+      var out = "The whole cast \u2014 " + d.scenarios.length + " lessons, " + d.turns_each +
+                " turns each:\n" + lines.join("\n") +
+                "\n\nConfigured model: " + d.model +
+                "\nOpenAI key on the server: " + (d.have_openai_key ? "present" : "MISSING \u2014 add OPENAI_API_KEY in Render");
+      if (d.models && d.models.length) {
+        out += "\n\nWHAT THIS KEY CAN ACTUALLY REACH (asked just now):";
+        d.models.forEach(function (m) {
+          out += "\n  " + (m.ok ? "\u2713 " : "\u2717 ") + m.model + "  \u2014  " + m.why;
+        });
+      }
+      out += "\n\nEstimated cost for all of them: $" + d.estimated_cost_usd +
+             "\n(" + d.estimate_note + ")";
+      laShow(out);
+      var usable = (d.models || []).filter(function (m) { return m.ok; });
+      laMsg(d.models && d.models.length
+              ? ("Checked. " + usable.length + " model(s) usable with this key" +
+                 (usable.length ? " \u2014 set OPENAI_AUDIT_MODEL in Render to the one you want. " : ". ") +
+                 "That check cost a fraction of a cent; no lesson was taught.")
+              : "Nothing was spent. Press \u2461 when you are ready.",
+            "ok");
     } catch (e) { laMsg(e.message); }
   });
 

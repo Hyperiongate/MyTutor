@@ -2,6 +2,13 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD da -- probe_models(). Jim asked how to tell whether a new key can
+#               use gpt-5.5. There is no way to tell by looking, so this asks the key: one
+#               tiny call per candidate, strongest first, overridable via
+#               OPENAI_PROBE_MODELS. The verification case is named with its remedy
+#               because OpenAI gates the GPT-5 family behind organisation verification and
+#               a bare 403 tells nobody what to do next. dry_run() now runs the probe, so
+#               the /admin pricing button answers the question in one click.
 #   2026-08-10  BUILD cz -- FIXES FROM THE FIRST REAL RUN. It failed, and usefully.
 #               * max_tokens -> negotiated token parameter (newer models want
 #                 max_completion_tokens). Ask the API, do not guess from the name.
@@ -283,6 +290,45 @@ def _openai(messages, max_tokens=900, want_json=False, model=None, _retry=True):
     return None, f"OpenAI {r.status_code}: {detail}"
 
 
+# The models worth asking about, strongest first. This is a PROBE LIST, not a promise --
+# the only authority on what a key can reach is the key itself, which is why we ask it.
+PROBE_MODELS = [m.strip() for m in os.environ.get(
+    "OPENAI_PROBE_MODELS",
+    "gpt-5.5,gpt-5.1,gpt-5,gpt-4.1,gpt-4o,gpt-4o-mini").split(",") if m.strip()]
+
+
+def probe_models(candidates=None):
+    """Ask the KEY which models it can actually use, one tiny call each.
+
+    2026-08-10 (build da). Jim, holding a new key: "how can I tell if it's for chat five
+    point five?" There is no way to tell by looking -- a key carries no model list, and a
+    key's access is a property of the ORGANISATION (and, for project keys, of the
+    project's model permissions). The only honest answer is to try it, cheaply.
+
+    Returns a list of {model, ok, why} in the order asked. Costs a fraction of a cent per
+    model and about a second each. Never raises."""
+    out = []
+    for name in (candidates or PROBE_MODELS):
+        text, err = _openai([{"role": "user", "content": "Reply with: ok"}],
+                            max_tokens=5, model=name)
+        if not err:
+            out.append({"model": name, "ok": True, "why": "usable with this key"})
+            continue
+        low = (err or "").lower()
+        # OpenAI is explicit about this one and it has a specific remedy, so say the
+        # remedy rather than making somebody paste an error into a search box.
+        if "must be verified" in low or "verify" in low:
+            why = ("this model needs ORGANISATION VERIFICATION -- OpenAI platform "
+                   "Settings > General > Verify Organisation (photo ID + a live selfie). "
+                   "Access switches on about 15 minutes after approval.")
+        elif "does not exist" in low or "do not have access" in low or "model_not_found" in low:
+            why = "not available to this key"
+        else:
+            why = err
+        out.append({"model": name, "ok": False, "why": why})
+    return out
+
+
 def preflight():
     """Prove the OpenAI side works BEFORE any lesson runs. One tiny call, a fraction of a
     cent, about a second.
@@ -398,8 +444,13 @@ def critique(sc, transcript):
 # =============================================================================
 # THE RUN
 # =============================================================================
-def dry_run(limit=None, offset=0, turns=TURNS):
-    """Price it, spend nothing. Deliberately blunt about being an estimate."""
+def dry_run(limit=None, offset=0, turns=TURNS, probe=True):
+    """Price the job, and prove the key -- without teaching a single lesson.
+
+    2026-08-10 (build da): this used to be pure arithmetic and could therefore tell you a
+    price for a job that could not run at all. It now also ASKS THE KEY which models it
+    can reach, which is the question a person actually has when they paste in a new one.
+    Not free any more, but a fraction of a cent -- and honest about that."""
     picked = SCENARIOS[offset:offset + limit] if limit else SCENARIOS[offset:]
     claude = len(picked) * turns * EST_CLAUDE_PER_TURN
     # per scenario: (turns-1) student turns, each small, plus one big critique
@@ -417,6 +468,9 @@ def dry_run(limit=None, offset=0, turns=TURNS):
                           "from either vendor. Read the real figure off the two billing "
                           "dashboards after the first run and correct the constants at "
                           "the top of lessonaudit.py."),
+        "models": (probe_models() if (probe and os.environ.get("OPENAI_API_KEY", "").strip())
+                   else []),
+        "token_parameter": _TOKEN_PARAM,
     }
 
 
@@ -544,6 +598,10 @@ def main():
         print(f"  scenarios         {len(d['scenarios'])} × {d['turns_each']} turns")
         for s in d["scenarios"]:
             print(f"    - {s['id']:<20} {s['course']}")
+        if d.get("models"):
+            print("\n  what this key can actually reach:")
+            for m in d["models"]:
+                print(f"    {'YES' if m['ok'] else 'no '}  {m['model']:<12} {m['why'][:80]}")
         print(f"\n  estimated cost    ${d['estimated_cost_usd']}")
         print(f"  {d['estimate_note']}\n")
         return 0

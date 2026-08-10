@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10da-which-models". Jim, holding a new OpenAI key:
+#               "how can I tell if it's for chat five point five?"
+#               You cannot tell by looking. A key carries no model list; access belongs to
+#               the ORGANISATION, and for a project-scoped key to that project's model
+#               permissions. The only honest answer is to ASK THE KEY -- so the tool does.
+#               NEW probe_models(): one tiny call per candidate model, reporting which this
+#               key can actually reach. Folded into the /admin "① Check my key & price it"
+#               button, so one click answers the question for a fraction of a cent without
+#               teaching a lesson. A model that needs ORGANISATION VERIFICATION now says
+#               so AND gives the remedy (Settings > General > Verify Organisation, photo
+#               ID and a live selfie, access about 15 minutes after approval) instead of
+#               handing back a 403 for somebody to paste into a search engine.
+#               The button no longer claims to be "free": it costs a fraction of a cent
+#               and says so. A price for a job that cannot run is worse than no price.
 #   2026-08-10  APP_BUILD -> "2026-08-10cz-audit-preflight". Jim ran the lesson auditor
 #               for the first time and it failed. Four fixes, three of them mine:
 #               (1) OpenAI's newer models reject "max_tokens" and want
@@ -4939,7 +4953,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cz-audit-preflight"
+APP_BUILD = "2026-08-10da-which-models"
 
 
 @app.get("/health")
