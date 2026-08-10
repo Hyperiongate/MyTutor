@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cy -- THE FIFTH REFEREE: prose_self_answer_conflict(), and rule
+#               39(b) moves from COVERED to ENFORCED.
+#               Source: the MAA Instructional Practices Guide (CP.1.2, wait time).
+#               Teachers wait under 1.5 seconds before answering their own question; the
+#               evidence says wait seven; the first benefit listed is fewer "I don't know"
+#               responses -- the exact thing Jim keeps meeting. The guide's vignette is an
+#               instructor asking eight questions and answering all eight himself.
+#               NARROW, because every false positive costs a real model call. It fires
+#               only when the reply asks something ANSWERABLE and then states a number the
+#               QUESTION DID NOT ALREADY CONTAIN. That last clause was not in the first
+#               version and had to be: sweeping our own 227 demo lines found "two to WHAT
+#               power makes thirty-two? Start at two and count how many times you double"
+#               -- a HINT restating the question's own number, and never the answer. A
+#               referee that cannot tell a hint from an answer punishes good teaching.
+#               Swept clean afterwards against all 182 foundation scripts (all of which
+#               are shaped "What is a numerator? The numerator is...") and all 227 demo
+#               lines. Fails open, like every other referee.
 #   2026-08-10  BUILD cv -- RULE 51 (a feature on the board must belong to the function)
 #               and the [[graph]] window doc. Jim, reading a limits lesson: "it doesn't
 #               say WHY there is no value at x = 2... and it completely ignores the graph
@@ -4844,10 +4861,15 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         There are exactly two exceptions: a canonical foundation script, and your
         FIRST message of a session, which has the fixed opening job of rule 0 to do.
         Nothing else earns extra length -- not an exciting topic, not a hard idea.
-    (b) ONE QUESTION, AND IT COMES LAST. At most one question per turn, and it is the
-        last thing you say, so the microphone opens on a question they are still
-        holding. Three questions in a row cannot be answered out loud: they pick one
-        and the rest vanish, and then you misread a partial answer as confusion.
+    (b) ONE QUESTION, AND IT COMES LAST -- AND THEN YOU STOP. At most one question per
+        turn, and it is the last thing you say, so the microphone opens on a question
+        they are still holding. Three questions in a row cannot be answered out loud:
+        they pick one and the rest vanish, and then you misread a partial answer as
+        confusion. NEVER ANSWER IT YOURSELF IN THE SAME BREATH. Teachers wait about a
+        second and a half before answering their own question; the evidence says wait
+        seven, and the first thing that improves when you wait is how often a student
+        says "I don't know" (MAA Instructional Practices Guide). Their answer is the
+        NEXT turn's job -- if they are stuck, rule 24 gives you the whole ladder then.
     (c) CHECK IN. Never go more than about three turns without checking that they are
         still with you, and always check at the end of a new idea, before you build
         anything on top of it.
@@ -5878,6 +5900,106 @@ def prose_pending_question_conflict(reply: str):
 
 
 # =============================================================================
+# THE SELF-ANSWER CHECK (2026-08-10, build cy) -- fifth part of the referee.
+# -----------------------------------------------------------------------------
+# WAIT TIME, and why this is not a new rule but an old one finally enforced.
+#
+# From the MAA Instructional Practices Guide (CP.1.2), which Jim put in the tutor folder:
+# instructors wait on average LESS THAN 1.5 SECONDS before answering their own question
+# or asking another; the research says wait at least SEVEN, and that an average above
+# three seconds is the threshold at which the discourse actually changes (Fuller et al.
+# 1985; Tobin 1987). The first benefit the guide lists for waiting is "a decrease in the
+# number of 'I don't know' responses" -- which is the exact thing Jim keeps meeting.
+#
+# The guide's vignette is a calculus instructor asking eight questions in a row and
+# answering EVERY ONE of them himself a second later. We cannot rush our students -- they
+# type or speak whenever they like -- but we can rush OURSELVES, in exactly that way: ask
+# a question and then supply the answer in the same reply. The student never gets the
+# seven seconds because the answer was already on the screen.
+#
+# RULE 39(b) ALREADY FORBIDS THIS: one question per turn, and it comes LAST. It has been
+# COVERED since build ce -- written into all ten prompts and never checked. Moving a rule
+# up a tier is worth more than writing a new one, so this enforces 39(b) rather than
+# adding rule 52 (and it costs no prompt budget, which at 134,476 characters matters).
+#
+# NARROW ON PURPOSE, because every false positive costs a real model call. It fires only
+# when BOTH halves are true:
+#   1. the reply asks something ANSWERABLE -- the same test rule 15's referee uses, so a
+#      rhetorical "so what happens next?" is not a question for these purposes; and
+#   2. after that question, the reply keeps talking AND states a NUMBER.
+# "What is 7 plus 5? Take your time." is clean -- no number after the question.
+# "What is 7 plus 5? It's 12." is not.
+# A question that is genuinely last is clean, which is the behaviour we want.
+_SA_TRAILING_NUM = re.compile(r"\d")
+# A second way in, for questions that carry no numbers of their own ("how much work is
+# done on each slice?" -- the guide's own vignette). Widening the QUESTION test would have
+# caught our foundation scripts, which are all shaped "What is a numerator? The numerator
+# is ..." -- teaching, not self-answering. So the widening goes on the TAIL instead:
+# nobody announces a definition with "the answer is". Both halves still required.
+_SA_ANSWER_MARKER = re.compile(
+    r"\b(?:the answer is|that'?s just|that is just|it'?s just|which is just|"
+    r"so the answer|comes out to|works out to|equals)\b", re.I)
+
+
+def _sa_number_tokens(text: str) -> set:
+    """The number tokens a sentence states, numerals and number-words alike, as a SET --
+    so the tail can be compared against the question and a restated number recognised as
+    a hint rather than an answer."""
+    low = str(text or "").lower()
+    out = set(re.findall(r"\d+(?:\.\d+)?", low))
+    words = sorted(list(_PR_ONES) + list(_PR_TENS), key=len, reverse=True)
+    out |= set(re.findall(r"\b(?:" + "|".join(words) + r")\b", low))
+    return out
+
+
+def prose_self_answer_conflict(reply: str):
+    """Return a description of the tutor answering its own question, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+|\n+", prose) if x.strip()]
+        last_ask = -1
+        asked = ""
+        for i, sent in enumerate(sentences):
+            if not sent.endswith("?"):
+                continue
+            nums = _pq_numeric_tokens(sent)
+            rest = " ".join(sentences[i + 1:])
+            if (nums >= 2
+                    or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
+                    or _PQ_SYMBOL_EXPR.search(sent)
+                    or _SA_ANSWER_MARKER.search(rest)):
+                last_ask, asked = i, sent
+        if last_ask < 0:
+            return ""
+        tail = " ".join(sentences[last_ask + 1:]).strip()
+        if not tail:
+            return ""                      # the question is last -- exactly right
+        # Words of encouragement after a question are fine and often kind. Stating a
+        # number gives the answer away -- but ONLY a number the question did not already
+        # contain. Caught on the sweep of our own 227 demo lines: "two to WHAT power makes
+        # thirty-two? Start at two and count how many times you double" restates "two"
+        # from the question as a HINT and never says five. A hint is not an answer, and a
+        # referee that cannot tell them apart would punish good teaching.
+        asked_nums = _sa_number_tokens(asked)
+        novel = [t for t in _sa_number_tokens(tail) if t not in asked_nums]
+        if not novel:
+            return ""
+        return ('you ask "{q}" and then keep talking, and what follows states a number -- '
+                '"{t}". Rule 39(b): ONE question per turn and it comes LAST. The research '
+                'behind it is blunt: teachers wait about a second and a half before '
+                'answering their own question, the evidence says wait seven, and the first '
+                'thing that improves when you wait is how often a student says "I don\'t '
+                'know". Ask, then stop. Their answer is the next turn\'s job, and if they '
+                'are stuck, rule 24 gives you the whole ladder -- on the NEXT turn.'
+                ).format(q=" ".join(asked.split())[:70], t=" ".join(tail.split())[:60])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[selfanswer] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE SCORE CHECK (2026-08-09, build ch) -- fourth part of the referee.
 # -----------------------------------------------------------------------------
 # Proactive audit #2 item 9. The server already recomputes every percentage from
@@ -5993,10 +6115,11 @@ def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    FOUR checks, in order: a picture promised and never drawn (rule 7), a computation
+    FIVE checks, in order: a picture promised and never drawn (rule 7), a computation
     asked with no pending line on the board (rule 15), a spoken score that disagrees with
-    the reply's own score tag (rule 45), then spoken numbers that disagree with the
-    board's own written conclusion (rule 18b)."""
+    the reply's own score tag (rule 45), the tutor answering its OWN question in the same
+    breath (rule 39b -- wait time), then spoken numbers that disagree with the board's own
+    written conclusion (rule 18b)."""
     try:
         visual = prose_visual_conflict(reply, student_message)
         if visual:
@@ -6007,6 +6130,9 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         score = prose_score_conflict(reply)
         if score:
             return score
+        selfans = prose_self_answer_conflict(reply)
+        if selfans:
+            return selfans
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

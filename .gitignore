@@ -33,5 +33,16 @@ run_state.json
 _to_delete/
 _fresh_*
 .venv/
+# --- 2026-08-10 (build cy): RESEARCH READING, kept next to the code, never deployed ---
+# Jim is collecting the evidence base in this folder -- the WWC and MAA guides, the Eureka
+# curriculum files. About 104 MB of it so far and growing. It belongs beside the code on
+# his machine; it does NOT belong in the GitHub repository or in the image Render builds,
+# where it would be shipped on every deploy and never once opened by the app.
+# The exception below keeps the ONE PDF the product actually serves.
+*.pdf
+!static/**/*.pdf
+# a browser download that died part-way -- never a file we want
+*.crdownload
+
 # NOTE: static/chart.umd.min.js IS committed on purpose (bundled Chart.js library).
 # I did no harm and this file is not truncated.

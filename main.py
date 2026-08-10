@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cy-wait-time". No code change in this file -- the
+#               stamp moves for the FIFTH REFEREE in tutor.py.
+#               From the MAA Instructional Practices Guide Jim added to the tutor folder:
+#               teachers wait LESS THAN 1.5 SECONDS before answering their own question;
+#               the research says wait SEVEN; and the first thing that improves when you
+#               wait is HOW OFTEN A STUDENT SAYS "I DON'T KNOW" (Fuller 1985, Tobin 1987).
+#               The guide's vignette is an instructor asking eight questions and answering
+#               every one himself a second later. We cannot rush our students -- they
+#               answer whenever they like -- but we can rush OURSELVES exactly that way.
+#               ⭐ NOT A NEW RULE. Rule 39(b) already says one question per turn and it
+#               comes LAST; it has been COVERED since build ce -- written into all ten
+#               prompts and never checked. Moving a rule UP A TIER is worth more than
+#               writing a new one, and it costs no prompt budget. 39 is now ENFORCED.
+#               Also: .gitignore now excludes *.pdf. The evidence base in D:\MyTutor is
+#               ~104 MB and growing; it belongs beside the code on Jim's machine, not in
+#               the GitHub repo or the image Render builds on every deploy.
 #   2026-08-10  APP_BUILD -> "2026-08-10cx-buttons-not-instructions". Jim asked "tell me
 #               exactly how to run it", and the honest answer was that he could not.
 #               BOTH admin jobs -- the new lesson auditor and the foundation pre-render --
@@ -4901,7 +4917,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cx-buttons-not-instructions"
+APP_BUILD = "2026-08-10cy-wait-time"
 
 
 @app.get("/health")

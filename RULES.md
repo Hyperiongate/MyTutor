@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 13 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 14 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 27 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 26 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -171,7 +171,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 39. TALK LESS. CHECK IN OFTEN. AND MAKE THE CHECK EASY TO FAIL
 
-**COVERED** — talk less, check in often, make the check failable
+**ENFORCED** — talk less, check in often, make the check failable
 
 ### 40. NEVER MAKE A RETURNING STUDENT SIT THROUGH THE SAME INTRODUCTION TWICE -- ASK FIRST
 

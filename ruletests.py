@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cy -- SELF_ANSWER_CASES and the corpus sweep. Rule 39(b) is ENFORCED
+#               now, not merely COVERED. Two of the FALSE cases are real false positives
+#               caught by sweeping our own content before shipping: a foundation script
+#               ("What is a numerator? The numerator is...") and a demo line that restates
+#               the question's own number as a hint. Both are now permanent fixtures, and
+#               the suite sweeps every foundation script on every run so a future widening
+#               of the referee cannot quietly start punishing good teaching.
 #   2026-08-10  BUILD cx -- a check that an admin job the owner cannot reach is NOT
 #               SHIPPED. Jim asked "tell me exactly how to run it" and the honest answer
 #               was that he could not: both money-spending admin jobs were documented as
@@ -577,6 +584,51 @@ SCORE_CASES = [
 ]
 
 
+# =============================================================================
+# SELF_ANSWER_CASES (2026-08-10, build cy) -- the tutor answering its own question.
+# -----------------------------------------------------------------------------
+# Rule 39(b) -- one question per turn, and it comes LAST -- has been COVERED since build
+# ce: written into all ten prompts and never once checked. The MAA Instructional Practices
+# Guide gave us the reason to enforce it: instructors wait less than 1.5 seconds before
+# answering their own question, the research says wait SEVEN, and the first thing that
+# improves when you wait is how often a student says "I don't know".
+# The FALSE cases are the important half, as always. Two of them exist because they were
+# real false positives found by sweeping our own corpus: every foundation script is shaped
+# "What is a numerator? The numerator is ..." (teaching, not self-answering), and demo line
+# "two to WHAT power makes thirty-two? Start at two..." restates a number from the question
+# as a HINT. A referee that cannot tell a hint from an answer punishes good teaching.
+SELF_ANSWER_CASES = [
+    ("the MAA guide's own vignette",
+     "So, how much work is done on each slice? That's just F(x) times 4.", True),
+    ("ask and answer in one breath",
+     "What is 7 plus 5? It's 12. Now try the next one.", True),
+    ("the answer announced after a board tag",
+     'What is 12 divided by 4? [[step eq="12 / 4 = ?"]] The answer is 3.', True),
+    ("a wordy question, then 'the answer is'",
+     "So what do we do with the remainder? The answer is 3.", True),
+    ("a hint that leaks a NEW number is still a leak",
+     "What is 7 plus 5? Remember that 7 plus 3 is 10, so...", True),
+    ("the question is last -- exactly right",
+     'Nice work. What is 7 plus 5? [[step eq="7 + 5 = ?"]]', False),
+    ("encouragement after the question is kind, not a leak",
+     'What is 7 plus 5? Take your time -- I am not going anywhere. [[step eq="7 + 5 = ?"]]', False),
+    ("A FOUNDATION SCRIPT defining a term (real false positive, swept)",
+     "What is a **numerator**? The numerator is the top number of a fraction. It tells "
+     "you how many of the 4 equal pieces we are counting.", False),
+    ("A HINT restating the question's own number (real false positive, swept)",
+     "Here's the puzzle on the board: two to WHAT power makes thirty-two? Start at two "
+     "and count how many times you double.", False),
+    ("rule 39(d)'s check-in must never trip it",
+     "Does that click, or should I show it another way?", False),
+    ("a story with numbers, question last",
+     "A bag holds 6 marbles and you add 2 more. How many marbles now?", False),
+    ("numbers before the question, none after",
+     "We had 7 apples and 5 arrived. How many are there now?", False),
+    ("rhetorical, no numbers anywhere",
+     "So what happens next? Let's find out together.", False),
+]
+
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -604,6 +656,30 @@ def part2_prose():
             check(f"pending: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in SELF_ANSWER_CASES:
+        got = tutor.prose_self_answer_conflict(reply)
+        check(f"self-answer: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"self-answer: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    # THE SWEEP THAT MATTERS: the referee must be silent on every canonical script we own
+    # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
+    # and a false positive in either is a real model call wasted on correct teaching.
+    try:
+        import foundations as _F
+        bad = []
+        for _c, _items in getattr(_F, "FOUNDATIONS", {}).items():
+            for _it in _items:
+                _blob = (_it.get("say") or "") + " " + " ".join(_it.get("board") or [])
+                if tutor.prose_self_answer_conflict(_blob):
+                    bad.append(f"{_c}/{_it.get('term')}")
+        check(f"the self-answer referee is silent on all {sum(len(v) for v in _F.FOUNDATIONS.values())} "
+              f"foundation scripts", not bad, f"false positives: {bad[:4]}")
+    except Exception as _exc:  # noqa: BLE001
+        skip("self-answer sweep of foundations", str(_exc))
+
     for name, reply, should_flag in SCORE_CASES:
         got = tutor.prose_score_conflict(reply)
         check(f"score: {name}", bool(got) == should_flag,
@@ -1760,7 +1836,7 @@ RULE_VERIFY = {
     36: ("EXERCISED", "teach the thing before you ask about it"),
     37: ("COVERED",   "vocabulary is taught, never assumed"),
     38: ("COVERED",   "concrete, then picture, then symbols"),
-    39: ("COVERED",   "talk less, check in often, make the check failable"),
+    39: ("ENFORCED",   "talk less, check in often, make the check failable"),
     40: ("EXERCISED", "ask before repeating an introduction"),
     41: ("ENFORCED",  "PART 3c fails any figure shipped without a caption"),
     42: ("COVERED",   "never compare this student to anyone but this student"),
