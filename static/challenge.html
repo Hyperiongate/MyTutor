@@ -4,6 +4,15 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-10  DIFFEQ BANK RESTRUCTURED to the CUPM mainstream syllabus (build de, paired with
+    curriculum.py/pedagogy.py/tutor.py/session.html/topic.html). DIFFEQ_UNIT_NAMES now matches the
+    new nine units byte-for-byte (ruletests PART 3o checks this file too). The bank was re-mapped:
+    unit 2 blends the old separable + linear questions; units 3 (equilibria/stability), 4 (Euler),
+    and 9 (nonlinear systems) are NEW question sets, each answer hand-verified (e.g. one Euler step
+    for y′ = y from y(0)=1 with h=1 gives 1 + 1·1 = 2); old unit-4 exact/Bernoulli questions were
+    RETIRED (exact is now one brief topic, Bernoulli left the syllabus); old units 6+7 merged into
+    the new unit 6; Laplace moved 8→7; the old systems questions moved into the new unit 8 with two
+    new eigen questions. Still 9 units × 5 questions. Do no harm.
   - 2026-08-03  iPAD/TABLET AUDIO FIX: begin() awaited a fetch BEFORE the first ttsAudio.play(),
     and iPads only allow audio whose first play starts INSIDE the tap itself -- so on an iPad the
     entire assessment was silent. begin() now warms the audio element (a synchronous silent-WAV
@@ -767,25 +776,25 @@
         {p:"An initial condition is used to find…", e:"→", c:["the order","the slope","the derivative","the constant C"], a:3}
       ],
       2: [
-        {p:"Solve", e:"dy/dx = 2x", c:["y = 2 + C","y = 2x² + C","y = x² + C","y = x + C"], a:2},
         {p:"An equation is separable if it can be written as", e:"→", c:["y′ + Py = Q","ay″ + by′ + cy = 0","M dx + N dy = 0","f(y)dy = g(x)dx"], a:3},
         {p:"Solve", e:"dy/dx = y", c:["y = Ce^x","y = x + C","y = e^x","y = Cx"], a:0},
         {p:"Exponential decay is modeled by", e:"→", c:["dy/dt = k","dy/dt = −ky","dy/dt = kt","y = kt + C"], a:1},
-        {p:"Newton's law of cooling says the rate depends on the…", e:"→", c:["time only","volume","temperature difference","mass only"], a:2}
+        {p:"The integrating factor μ equals", e:"→", c:["∫P dx","e^P","e^(∫P dx)","P(x)"], a:2},
+        {p:"For y′ + 2y = 0, the integrating factor is", e:"→", c:["e^(−2x)","2x","e^x","e^(2x)"], a:3}
       ],
       3: [
-        {p:"Standard form of a first-order linear equation is", e:"→", c:["y′ = f(y)g(x)","y′ + P(x)y = Q(x)","ay″ + by′ = 0","M dx + N dy = 0"], a:1},
-        {p:"The integrating factor μ equals", e:"→", c:["∫P dx","e^P","e^(∫P dx)","P(x)"], a:2},
-        {p:"For y′ + 2y = 0, the integrating factor is", e:"→", c:["e^(−2x)","2x","e^x","e^(2x)"], a:3},
-        {p:"Before finding μ you must first put the equation in…", e:"→", c:["standard form","factored form","matrix form","polar form"], a:0},
-        {p:"After multiplying by μ, the left side becomes the derivative of", e:"→", c:["y","μy","μ","y′"], a:1}
+        {p:"An equilibrium solution is where", e:"dy/dt = ?", c:["dy/dt = 0","y = 0","t = 0","dy/dt = 1"], a:0},
+        {p:"An equation is autonomous when dy/dt depends only on…", e:"→", c:["t","y","both y and t","neither"], a:1},
+        {p:"An equilibrium is STABLE when nearby solutions…", e:"→", c:["stay put","run away","move toward it","oscillate forever"], a:2},
+        {p:"For dy/dt = y(1 − y), the equilibria are", e:"→", c:["y = 1 only","y = 0 only","y = −1 and 1","y = 0 and 1"], a:3},
+        {p:"Uniqueness of solutions means two solution curves can…", e:"→", c:["never cross","cross once","cross twice","always cross"], a:0}
       ],
       4: [
-        {p:"M dx + N dy = 0 is exact when", e:"→", c:["∂M/∂y = ∂N/∂x","M = N","∂M/∂x = ∂N/∂y","M + N = 0"], a:0},
-        {p:"Solving an exact equation means finding a…", e:"→", c:["characteristic root","potential function F(x,y)","transform","matrix"], a:1},
-        {p:"A Bernoulli equation is made linear by substituting", e:"→", c:["v = y/x","v = xy","v = y^(1−n)","v = y′"], a:2},
-        {p:"A homogeneous first-order equation is solved by substituting", e:"→", c:["v = y^(1−n)","v = x/y′","v = e^y","v = y/x"], a:3},
-        {p:"When rebuilding F by integrating M with respect to x, the 'constant' is", e:"→", c:["a function of y","a real number","zero","a function of x"], a:0}
+        {p:"One Euler step is: new y = y + …", e:"step size h", c:["h","h · f(x, y)","f(x, y)","h · y"], a:1},
+        {p:"Euler from y(0) = 1 with h = 1 for", e:"y′ = y", c:["1","e","2","0"], a:2},
+        {p:"Making the step size smaller generally makes the answer…", e:"→", c:["more accurate","less accurate","exact","unchanged"], a:0},
+        {p:"Euler's method follows the…", e:"at each point", c:["normal line","secant line","chord","tangent line"], a:3},
+        {p:"Numerical methods are used when an equation…", e:"→", c:["is linear","has no formula solution","is separable","has order 1"], a:1}
       ],
       5: [
         {p:"For y″ + 3y′ + 2y = 0, the characteristic equation is", e:"→", c:["r² + 3r = 0","2r + 3 = 0","r + 3 = 0","r² + 3r + 2 = 0"], a:3},
@@ -798,29 +807,29 @@
         {p:"The general solution of a nonhomogeneous equation is", e:"→", c:["y_c only","y_p only","y_c + y_p","y_c · y_p"], a:2},
         {p:"Initial conditions must be applied to…", e:"→", c:["y_c only","y_p only","the forcing function","the full solution y_c + y_p"], a:3},
         {p:"If your trial y_p duplicates a term in y_c, you…", e:"→", c:["multiply it by x","discard it","divide by x","add a constant"], a:0},
-        {p:"For a forcing term of 5x + 2, a good trial y_p is", e:"→", c:["Ae^x","Ax + B","A sin x","Ax²"], a:1},
-        {p:"When undetermined coefficients won't work, use…", e:"→", c:["separation of variables","the Wronskian only","variation of parameters","an integrating factor"], a:2}
+        {p:"Underdamped motion looks like", e:"→", c:["no oscillation","steady growth","oscillation that dies out","a constant"], a:2},
+        {p:"Resonance happens when the forcing frequency matches the…", e:"→", c:["damping constant","mass","spring length","natural frequency"], a:3}
       ],
       7: [
-        {p:"A mass-spring system with no damping produces", e:"→", c:["exponential decay","simple harmonic motion","a straight line","no motion"], a:1},
-        {p:"Underdamped motion looks like", e:"→", c:["no oscillation","steady growth","oscillation that dies out","a constant"], a:2},
-        {p:"Resonance happens when the forcing frequency matches the…", e:"→", c:["damping constant","mass","spring length","natural frequency"], a:3},
-        {p:"An RLC circuit is modeled by the same equation as a…", e:"→", c:["mass-spring system","separable equation","matrix system","power series"], a:0},
-        {p:"The part of a forced solution that dies out is called the…", e:"→", c:["steady-state","transient","resonance","amplitude"], a:1}
-      ],
-      8: [
         {p:"The Laplace transform turns a differential equation into a(n)…", e:"→", c:["algebraic equation","integral equation","matrix","series"], a:0},
         {p:"The Laplace transform of 1 is", e:"→", c:["s","1/s","1","1/s²"], a:1},
         {p:"Transforming a derivative automatically includes the…", e:"→", c:["forcing function","damping","initial conditions","eigenvalues"], a:2},
         {p:"To undo a Laplace transform you use the…", e:"→", c:["derivative","Wronskian","characteristic equation","inverse transform"], a:3},
         {p:"Partial fractions are used to prepare Y(s) for", e:"→", c:["inverting back to y(t)","differentiating","classifying","separating"], a:0}
       ],
-      9: [
-        {p:"A power-series solution assumes y equals a…", e:"→", c:["single exponential","polynomial of degree 2","constant","sum of aₙxⁿ"], a:3},
-        {p:"Substituting a series gives a relation between coefficients called the…", e:"→", c:["recurrence relation","characteristic equation","Wronskian","transform"], a:0},
+      8: [
         {p:"A 2×2 linear system is solved using…", e:"→", c:["partial fractions","eigenvalues and eigenvectors","separation of variables","the exactness test"], a:1},
         {p:"A phase plane plots", e:"→", c:["y against t","the slope against t","one variable against the other","the area"], a:2},
-        {p:"A second-order equation can be rewritten as a system of how many first-order equations?", e:"→", c:["1","3","4","2"], a:3}
+        {p:"A second-order equation can be rewritten as a system of how many first-order equations?", e:"→", c:["1","3","4","2"], a:3},
+        {p:"An eigenvalue sets the growth rate; the direction comes from the…", e:"→", c:["eigenvector","Wronskian","forcing term","step size"], a:0},
+        {p:"Complex eigenvalues make phase-plane solutions…", e:"→", c:["straight lines","spirals","constants","parabolas"], a:1}
+      ],
+      9: [
+        {p:"Most nonlinear systems are understood by…", e:"→", c:["an exact formula","partial fractions","qualitative analysis","u-substitution"], a:2},
+        {p:"An equilibrium of a system is where…", e:"→", c:["both rates are zero","time is zero","one rate is zero","y is largest"], a:0},
+        {p:"Linearization describes a nonlinear system…", e:"→", c:["everywhere","near an equilibrium","only at t = 0","for large y"], a:1},
+        {p:"In a predator-prey phase plane, the closed loops are…", e:"→", c:["errors","equilibria","straight lines","population cycles"], a:3},
+        {p:"To classify an equilibrium of a nonlinear system, you use the eigenvalues of its…", e:"→", c:["Laplace transform","forcing term","linearization","slope field"], a:2}
       ]
     };
     const ALG_UNIT_NAMES = { 1:"Foundations & Expressions", 2:"Linear Equations & Inequalities",
@@ -990,11 +999,11 @@
       5:"Curve Sketching & Optimization", 6:"Antiderivatives & Indefinite Integrals",
       7:"The Definite Integral & the Fundamental Theorem", 8:"Applications of Integration",
       9:"Introduction to Differential Equations" };
-    const DIFFEQ_UNIT_NAMES = { 1:"Introduction & Classification",
-      2:"First-Order Separable Equations & Models", 3:"First-Order Linear Equations",
-      4:"Exact Equations & Substitutions", 5:"Second-Order Linear: Homogeneous",
-      6:"Second-Order Linear: Nonhomogeneous", 7:"Applications: Vibrations & Circuits",
-      8:"Laplace Transforms", 9:"Series Solutions & Systems" };
+    const DIFFEQ_UNIT_NAMES = { 1:"Introduction, Classification & Slope Fields",
+      2:"First-Order Equations: Separable & Linear", 3:"Qualitative Analysis: Equilibria & Stability",
+      4:"Numerical Methods: Euler & Runge-Kutta", 5:"Second-Order Linear: Homogeneous",
+      6:"Second-Order: Nonhomogeneous, Vibrations & Resonance", 7:"Laplace Transforms",
+      8:"Linear Systems & the Phase Plane", 9:"Nonlinear Systems & Stability" };
     // Select the bank + labels for the course being assessed (defaults to Algebra I).
     const COURSE_DATA = {
       algebra1:   { bank: ALG_BANK,    unitNames: ALG_UNIT_NAMES,    subject: "algebra" },

@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10de-diffeq-cupm". DIFFEQ RESTRUCTURED TO THE
+#               CUPM MAINSTREAM SYLLABUS. Jim: "go with the one that you feel will be
+#               most acceptable to most schools." The MAA/CUPM ODE course study (in
+#               D:\MyTutor) describes where mainstream college ODE courses have
+#               converged: qualitative analysis (equilibria, phase line, stability) and
+#               numerical methods (Euler, Runge-Kutta) are core units now; series
+#               solutions have largely moved out; systems get real time including the
+#               phase plane and a taste of nonlinear dynamics. Our old syllabus was the
+#               older formula-methods sequence. New nine: 1 intro/classification/slope
+#               fields, 2 separable+linear (exact = one brief topic), 3 qualitative,
+#               4 numerical, 5 homogeneous 2nd-order, 6 nonhomogeneous+vibrations+
+#               resonance, 7 Laplace, 8 linear systems/phase plane, 9 nonlinear/
+#               linearization. No changes in THIS file beyond the stamp -- the work
+#               lives in curriculum.py, tutor.py, pedagogy.py, foundations.py (four new
+#               scripts: slope field, equilibrium, Euler's method, eigenvalue),
+#               session.html, topic.html. NOTE: unit numbers changed meaning. No live
+#               students exist; any old diffeq mastery rows describe the OLD units and
+#               would mislead -- acceptable only because we are pre-launch.
 #   2026-08-11  APP_BUILD -> "2026-08-11dd-fluency-sprints". THE LARGEST EVIDENCE GAP
 #               CLOSED: WWC guide 26 recommendation 6 ("regularly include timed
 #               activities", STRONG -- named independently by four sources) -- we had
@@ -5076,7 +5094,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dd-fluency-sprints"
+APP_BUILD = "2026-08-10de-diffeq-cupm"
 
 
 @app.get("/health")

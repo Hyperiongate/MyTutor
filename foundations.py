@@ -2,6 +2,16 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD de -- FOUR NEW diffeq scripts for the CUPM restructure (library
+#               182 -> 186): "slope field" (now taught in unit 1), "equilibrium" (new
+#               unit 3, qualitative analysis), "Euler's method" (new unit 4, numerical
+#               methods), "eigenvalue" (unit 8, linear systems). APPENDED at the end of
+#               the diffeq list -- no existing "say" string was touched, per the
+#               append-only rule (each edit to a heard string re-bills its audio and
+#               orphans the cached clip). Each follows the house shape: what it is, a
+#               concrete picture, "Here is the trap." All 25-130 words, term wrapped in
+#               **bold**, boards are [[write]]/[[card]] with no square brackets inside
+#               attribute values.
 #   2026-08-10  BUILD cv -- NEW calculus script "removable discontinuity" (library 181 ->
 #               182), inserted after "limit" so it reads in teaching order. Jim read a
 #               live limits lesson and could not tell where the hole at x = 2 came from --
@@ -1680,6 +1690,45 @@ FOUNDATIONS = {
             "travel along the path.",
          "board": ['[[write text="phase plane: x across, y up — time is hidden in the direction of travel"]]',
                    '[[card title="equilibrium types" items="eigenvalues negative: stable | positive: unstable | complex: spiral"]]']},
+        {"term": "slope field", "say":
+            "A **slope field** is a picture of a differential equation before you solve anything. At "
+            "each point of the plane you draw a tiny dash whose slope is whatever the equation says "
+            "y prime equals right there. Do that everywhere and the dashes line up into currents, and "
+            "every solution curve is just a path that flows with the current through its starting "
+            "point. Here is the trap. The dashes are not the solutions. They are directions, and a "
+            "solution threads through them the way a leaf rides a stream.",
+         "board": ['[[write text="at each point (x, y): draw a dash with slope y\' = f(x, y)"]]',
+                   '[[card title="reading a slope field" items="dashes = directions, not curves | a solution flows with the current | one curve per starting point"]]']},
+        {"term": "equilibrium", "say":
+            "An **equilibrium** is a solution that never moves: a constant where the rate of change "
+            "is exactly zero, so a system that starts there stays there forever. You find them by "
+            "setting y prime equal to zero and solving. The interesting question is what happens "
+            "nearby. If neighbors drift back in, the equilibrium is stable. If they run away, it is "
+            "unstable. Here is the trap. An equilibrium existing says nothing about it lasting. A "
+            "pencil balanced on its point is at equilibrium too — the sign of the drift on each side "
+            "decides.",
+         "board": ['[[write text="equilibrium: set y\' = 0 and solve for y"]]',
+                   '[[card title="stability test" items="neighbors drift back: stable | neighbors run away: unstable | check the sign of y-prime on each side"]]']},
+        {"term": "Euler's method", "say":
+            "**Euler's method** is the honest confession that most differential equations have no "
+            "formula solution — and the plan for solving them anyway. You stand at a known point, ask "
+            "the equation for the slope there, and take one small straight step in that direction. "
+            "Then you ask again and step again. String enough steps together and the broken line "
+            "shadows the true curve. Smaller steps track it better and cost more steps. Here is the "
+            "trap. The slope is only right where you asked, so every step drifts a little, and the "
+            "drift compounds.",
+         "board": ['[[write text="next y = y + h·f(x, y) ,  h = the step size"]]',
+                   '[[card title="one Euler step" items="ask the equation for the slope here | step h in that direction | repeat from the new point"]]']},
+        {"term": "eigenvalue", "say":
+            "An **eigenvalue** is the growth rate a matrix keeps hidden inside it. For a system of "
+            "differential equations, each eigenvalue is an r for which the system has a solution that "
+            "grows or shrinks like e to the r t along one special direction, called its eigenvector. "
+            "Find the eigenvalues and you know the system's fate: negative ones pull solutions in, "
+            "positive ones push them out, complex ones make them spiral. Here is the trap. The "
+            "eigenvalue is a number, not a direction. The direction is the eigenvector that comes "
+            "with it.",
+         "board": ['[[write text="A·v = r·v  →  solution  x(t) = e^(rt)·v"]]',
+                   '[[card title="what the eigenvalues say" items="all negative: solutions pulled in | any positive: pushed out | complex: spirals"]]']},
     ],
 }
 

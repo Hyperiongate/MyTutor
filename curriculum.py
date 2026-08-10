@@ -2,6 +2,20 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD de -- DIFFERENTIAL EQUATIONS RESTRUCTURED to the CUPM mainstream
+#               syllabus (MAA Ordinary Differential Equations subcommittee report, in the
+#               tutor folder). Jim: "go with the one that you feel will be most acceptable
+#               to most schools" -- that is CUPM's: the modern course is computational and
+#               qualitative, and the report says plainly that "some specialized analytical
+#               techniques ... have necessarily been dropped" to make room.
+#               WHAT MOVED: qualitative analysis (equilibria/stability/phase line) and
+#               NUMERICAL METHODS (Euler/Runge-Kutta) become units 3-4; systems grow from
+#               half a unit to TWO (linear + nonlinear, units 8-9); old units 6-7 merge
+#               (the damping cases ARE the root cases -- one unit says so); EXACT
+#               EQUATIONS shrink from a whole unit to one topic in unit 2; SERIES
+#               SOLUTIONS are dropped, per the report. Unit count stays 9.
+#               ⚠️ Unit NUMBERS changed meaning. No live students yet (development
+#               phase); any pilot diffeq mastery rows describe the old units.
 #   2026-08-03  ADDED TWO ELEMENTARY COURSES BELOW PRE-ALGEBRA (Jim's restructure): ENTRY-LEVEL
 #               MATH (grades 1-3) and BASIC MATH (grades 4-6). Each is a full peer: 9 units +
 #               aliases + ordered keyword rules, registered in COURSES with grade_band
@@ -433,57 +447,71 @@ _CALCULUS_RULES = [
 # Calculus Unit 9 is the on-ramp, so this course does NOT re-teach it.
 # =============================================================================
 _DIFFEQ_UNITS = [
-    (1, "Introduction & Classification"),
-    (2, "First-Order Separable Equations & Models"),
-    (3, "First-Order Linear Equations"),
-    (4, "Exact Equations & Substitutions"),
+    (1, "Introduction, Classification & Slope Fields"),
+    (2, "First-Order Equations: Separable & Linear"),
+    (3, "Qualitative Analysis: Equilibria & Stability"),
+    (4, "Numerical Methods: Euler & Runge-Kutta"),
     (5, "Second-Order Linear: Homogeneous"),
-    (6, "Second-Order Linear: Nonhomogeneous"),
-    (7, "Applications: Vibrations & Circuits"),
-    (8, "Laplace Transforms"),
-    (9, "Series Solutions & Systems"),
+    (6, "Second-Order: Nonhomogeneous, Vibrations & Resonance"),
+    (7, "Laplace Transforms"),
+    (8, "Linear Systems & the Phase Plane"),
+    (9, "Nonlinear Systems & Stability"),
 ]
 
 # NOTE: matched by SUBSTRING in insertion order, so specific phrases come FIRST (e.g. "second-order
 # linear" before "linear", "nonhomogeneous" before "homogeneous").
+# 2026-08-11 (build de): restructured to the CUPM mainstream syllabus -- see the module
+# change note. Exact equations fold into unit 2 as a brief topic; series solutions are
+# dropped (CUPM names them as what modern courses removed to make room for systems).
 _DIFFEQ_ALIASES = {
-    "series solution": 9, "power series": 9, "eigenvalue": 9, "phase plane": 9,
-    "system of equations": 9, "recurrence": 9,
-    "laplace": 8, "inverse transform": 8, "partial fractions": 8, "step function": 8,
-    "vibration": 7, "spring": 7, "damping": 7, "damped": 7, "resonance": 7, "circuit": 7,
+    "predator": 9, "competing species": 9, "linearization": 9, "limit cycle": 9,
+    "nonlinear system": 9,
+    "eigenvalue": 8, "eigenvector": 8, "matrix form": 8, "phase plane": 8,
+    "phase portrait": 8, "system of equations": 8, "straight-line solution": 8,
+    "laplace": 7, "inverse transform": 7, "partial fractions": 7, "step function": 7,
     "nonhomogeneous": 6, "undetermined coefficients": 6, "variation of parameters": 6,
-    "particular solution": 6,
+    "particular solution": 6, "vibration": 6, "spring": 6, "damping": 6, "damped": 6,
+    "resonance": 6, "circuit": 6,
     "characteristic equation": 5, "auxiliary equation": 5, "repeated root": 5, "wronskian": 5,
     "homogeneous": 5, "second-order": 5, "second order": 5,
-    "exact equation": 4, "bernoulli": 4, "integrating factor": 3, "substitution": 4,
-    "first-order linear": 3, "mixing problem": 3, "tank problem": 3,
+    "euler's method": 4, "euler method": 4, "runge": 4, "numerical method": 4,
+    "step size": 4, "numerical solution": 4,
+    "phase line": 3, "autonomous": 3, "stability": 3, "stable": 3, "unstable": 3,
+    "existence and uniqueness": 3, "long-term behavior": 3, "equilibrium": 3,
     "separable": 2, "separation of variables": 2, "logistic": 2, "newton's law of cooling": 2,
-    "exponential decay": 2, "growth model": 2,
-    "slope field": 1, "classification": 1, "initial value problem": 1, "equilibrium": 1,
+    "exponential decay": 2, "growth model": 2, "integrating factor": 2,
+    "first-order linear": 2, "mixing problem": 2, "tank problem": 2, "exact equation": 2,
+    "bernoulli": 2,
+    "slope field": 1, "direction field": 1, "classification": 1, "initial value problem": 1,
     "differential equation": 1, "order": 1,
 }
 
 # Ordered specific -> generic. Unit 1 (intro/classification) is the catch-all, so it goes LAST.
 _DIFFEQ_RULES = [
-    (9, [r"series solution", r"power series", r"eigenvalue", r"eigenvector", r"phase (plane|portrait)",
-         r"\bsystem", r"recurrence", r"matrix form", r"ordinary point", r"singular point"]),
-    (8, [r"laplace", r"inverse transform", r"partial fraction", r"step function",
-         r"heaviside", r"transform of a derivative", r"\bs-?domain"]),
-    (7, [r"vibrat", r"\bspring", r"mass[- ]spring", r"\bdamp", r"resonan", r"\bcircuit",
-         r"\brlc\b", r"natural frequency", r"steady[- ]state", r"transient", r"oscillat"]),
+    (9, [r"predator", r"competing species", r"linearizat", r"limit cycle",
+         r"nonlinear (system|equation)", r"lotka|volterra"]),
+    (8, [r"eigenvalue", r"eigenvector", r"matrix form", r"phase (plane|portrait)",
+         r"system", r"straight[- ]line solution", r"2\s*x\s*2"]),
+    (7, [r"laplace", r"inverse transform", r"partial fraction", r"step function",
+         r"heaviside", r"transform of a derivative", r"s-?domain"]),
     (6, [r"nonhomogeneous", r"non-homogeneous", r"undetermined coefficient",
-         r"variation of parameters", r"particular solution", r"y_?p\b", r"complementary"]),
+         r"variation of parameters", r"particular solution", r"y_?p", r"complementary",
+         r"vibrat", r"spring", r"mass[- ]spring", r"damp", r"resonan", r"circuit",
+         r"rlc", r"natural frequency", r"steady[- ]state", r"transient", r"oscillat"]),
     (5, [r"characteristic equation", r"auxiliary equation", r"repeated root", r"wronskian",
-         r"homogeneous", r"second[- ]order", r"\bcomplex roots?\b", r"linearly independent"]),
-    (4, [r"exact equation", r"\bexactness\b", r"potential function", r"bernoulli",
-         r"\bsubstitution\b", r"reduce to", r"\bhomogeneous substitution\b"]),
-    (3, [r"integrating factor", r"first[- ]order linear", r"standard form", r"mixing problem",
-         r"tank problem", r"\bbrine\b"]),
+         r"homogeneous", r"second[- ]order", r"complex roots?", r"linearly independent"]),
+    (4, [r"euler", r"runge|kutta", r"numerical (method|solution)", r"step size",
+         r"local error", r"global error", r"tangent[- ]line approximation"]),
+    (3, [r"phase line", r"autonomous", r"stabilit", r"(un)?stable", r"semi-?stable",
+         r"existence", r"uniqueness", r"long[- ]term", r"equilibri"]),
     (2, [r"separable", r"separation of variables", r"logistic", r"law of cooling",
-         r"exponential (growth|decay)", r"growth model", r"decay model", r"half-?life"]),
-    (1, [r"classif", r"slope field", r"direction field", r"initial[- ]value", r"equilibrium",
-         r"verify (a|the) solution", r"general solution", r"\border\b", r"\blinear\b",
-         r"differential equation", r"\bode\b"]),
+         r"exponential (growth|decay)", r"growth model", r"decay model", r"half-?life",
+         r"integrating factor", r"first[- ]order linear", r"standard form",
+         r"mixing problem", r"tank problem", r"brine", r"exact equation",
+         r"exactness", r"potential function", r"bernoulli"]),
+    (1, [r"classif", r"slope field", r"direction field", r"initial[- ]value",
+         r"verify (a|the) solution", r"general solution", r"order", r"linear",
+         r"differential equation", r"ode"]),
 ]
 
 # =============================================================================

@@ -2,6 +2,10 @@
 # pedagogy.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD de -- DIFFEQ pedagogy restructured to the CUPM mainstream syllabus:
+#               names + all nine unit briefs. Units 3 (qualitative), 4 (numerical), 8
+#               (linear systems) and 9 (nonlinear) are new; 2 and 6 are merges of old
+#               pairs; series solutions dropped per the CUPM report.
 #   2026-08-03  ADDED TWO ELEMENTARY TEACHING BRAINS (Jim's restructure): COURSE_PEDAGOGY["entry"]
 #               (Entry-Level Math, grades 1-3) and ["basic"] (Basic Math, grades 4-6). Each has
 #               unit_names, 9 units of {misconceptions, how_to_teach, progression}, and a
@@ -1164,76 +1168,89 @@ ERROR WATCH-LIST (catch these all year, in every unit):
 # success here is CLASSIFY FIRST -- the method follows from the type.
 # -----------------------------------------------------------------------------
 _DIFFEQ_UNIT_NAMES = {
-    1: "Introduction & Classification",
-    2: "First-Order Separable Equations & Models",
-    3: "First-Order Linear Equations",
-    4: "Exact Equations & Substitutions",
+    1: "Introduction, Classification & Slope Fields",
+    2: "First-Order Equations: Separable & Linear",
+    3: "Qualitative Analysis: Equilibria & Stability",
+    4: "Numerical Methods: Euler & Runge-Kutta",
     5: "Second-Order Linear: Homogeneous",
-    6: "Second-Order Linear: Nonhomogeneous",
-    7: "Applications: Vibrations & Circuits",
-    8: "Laplace Transforms",
-    9: "Series Solutions & Systems",
+    6: "Second-Order: Nonhomogeneous, Vibrations & Resonance",
+    7: "Laplace Transforms",
+    8: "Linear Systems & the Phase Plane",
+    9: "Nonlinear Systems & Stability",
 }
 
+# 2026-08-11 (build de): restructured to the CUPM mainstream syllabus. Units 3, 4, 8, 9
+# are new or substantially new; 2 merges the old 2+3 (plus exact equations as a brief
+# topic); 6 merges the old 6+7. Series solutions dropped, per the CUPM report.
 _DIFFEQ_UNIT_PEDAGOGY = {
     1: {
         "misconceptions": (
             "thinking the solution to a differential equation is a NUMBER (it is a function, or a "
             "whole family of them); confusing ORDER (the highest derivative) with degree; calling an "
             "equation linear because it looks simple (linearity is about y and its derivatives, not "
-            "about x); forgetting the general solution carries as many constants as the order."
+            "about x); forgetting the general solution carries as many constants as the order; "
+            "thinking a slope field shows ONE solution (it shows the whole family at once)."
         ),
         "how_to_teach": (
             "Start from a rate the student already believes -- 'the population grows at a rate "
             "proportional to its size' -- and write it symbolically. That IS a differential equation. "
-            "Make substituting a candidate solution back in the reflex. Slope fields show the whole "
-            "family at once; an initial condition picks one out."
+            "Make substituting a candidate solution back in the reflex. Slope fields come EARLY and "
+            "stay all course: every little segment is a slope the equation dictates, a solution "
+            "curve just follows the arrows, and an initial condition picks one curve out."
         ),
-        "progression": "classify order & linearity  ->  verify a solution  ->  general vs particular  ->  read a slope field  ->  equilibrium solutions  ->  set up a DE from a described rate",
+        "progression": "classify order & linearity  ->  verify a solution  ->  general vs particular  ->  read a slope field  ->  sketch a solution through a point  ->  set up a DE from a described rate",
     },
     2: {
         "misconceptions": (
-            "forgetting the constant of integration, or adding it AFTER solving for y instead of at "
-            "the integration step; dividing by an expression without noting where it is zero (which "
-            "loses equilibrium solutions); treating dy/dx as a fraction carelessly; forgetting to "
-            "solve FOR y at the end."
+            "forgetting the constant of integration, or adding it AFTER solving for y; dividing by "
+            "an expression without noting where it is zero (which loses equilibrium solutions); "
+            "forgetting to put a linear equation in STANDARD FORM before building the integrating "
+            "factor; dropping the constant in the exponent of mu; forgetting to solve FOR y."
         ),
         "how_to_teach": (
-            "The recipe: all the y's with dy on one side, all the x's with dx on the other, integrate "
-            "BOTH sides (constant on one side only), solve for y, and apply the initial condition "
-            "LAST. Point out the solutions you lose when you divide. Ground every model in a story "
-            "with units."
+            "Two workhorse methods, and the CLASSIFY-FIRST habit decides between them. Separable: "
+            "all the y's with dy on one side, all the x's with dx on the other, integrate BOTH "
+            "sides, constant once, solve for y, initial condition LAST -- and ground every model in "
+            "a story with units. Linear: show WHY the integrating factor works -- multiplying by mu "
+            "makes the left side (mu*y)', so you just integrate. Exact equations get a brief, honest "
+            "look: the test is checking whether the equation is a total differential."
         ),
-        "progression": "identify separable  ->  separate & integrate  ->  solve for y  ->  apply an initial condition  ->  exponential growth/decay  ->  Newton's law of cooling  ->  logistic growth",
+        "progression": "identify separable  ->  separate, integrate, solve for y  ->  growth/decay & cooling  ->  logistic  ->  standard form & the integrating factor  ->  a mixing problem  ->  a brief exact-equation check",
     },
     3: {
         "misconceptions": (
-            "forgetting to put the equation in STANDARD FORM first (a leading coefficient that isn't "
-            "1 breaks everything); dropping the constant in the exponent of the integrating factor; "
-            "not seeing that multiplying by mu makes the left side the exact derivative (mu*y)'; sign "
-            "errors in P(x)."
+            "thinking every differential equation must be SOLVED to be understood (the whole point "
+            "here is what you can know without a formula); reading the phase line as a graph of y "
+            "against t; calling an equilibrium stable because solutions exist near it (they must "
+            "move TOWARD it); assuming solutions can cross (uniqueness says they cannot)."
         ),
         "how_to_teach": (
-            "Show WHY the integrating factor works: multiplying by mu turns the left side into the "
-            "derivative of a product, so you can just integrate both sides. That one insight makes "
-            "the method memorable instead of magical. Standard form first, every single time."
+            "This is the modern heart of the course. For an autonomous equation, dy/dt depends only "
+            "on y -- so mark where dy/dt is zero (the equilibria), test the sign in between, and the "
+            "phase line tells you every solution's fate without an integral in sight. Stable pulls "
+            "neighbors in; unstable pushes them away; semistable does one on each side. Existence & "
+            "uniqueness is the license for all of it: through each point, exactly one solution, so "
+            "curves never cross and the phase line's regions are honest."
         ),
-        "progression": "standard form  ->  compute mu = e^(integral of P)  ->  multiply and recognize (mu*y)'  ->  integrate  ->  solve for y  ->  an initial condition  ->  a mixing/tank problem",
+        "progression": "spot an autonomous equation  ->  find equilibria  ->  sign-test the phase line  ->  classify stable/unstable/semistable  ->  predict long-term behavior from y(0)  ->  what existence & uniqueness promises",
     },
     4: {
         "misconceptions": (
-            "mixing up which partial derivative to take in the exactness test; forgetting that the "
-            "'constant of integration' is a FUNCTION of the other variable when reconstructing the "
-            "potential; choosing the wrong substitution for the equation type; not converting back to "
-            "the original variable at the end."
+            "treating the numerical answer as EXACT; thinking a smaller step size is free (it costs "
+            "steps, and round-off eventually pushes back); confusing local and global error; "
+            "believing numerical methods are a fallback for weak students rather than the working "
+            "tool of every engineer whose equation has no formula."
         ),
         "how_to_teach": (
-            "Frame exactness as 'is this the total differential of some F(x, y)?' -- the test is just "
-            "Clairaut's theorem. When rebuilding F, stress that integrating with respect to x leaves "
-            "an unknown g(y), not a constant. For substitutions, NAME the type first (the classify-"
-            "first habit paying off), then apply the standard change of variable."
+            "Euler's method is one idea repeated: stand at a point, ask the equation for the slope, "
+            "step along that tangent line, repeat. Do the first three steps BY HAND in a table -- "
+            "x, y, slope, new y -- before any talk of error. Then halve the step size on the same "
+            "problem and compare: the error roughly halves, and that observation IS the concept of "
+            "order. Improved Euler averages the slope at both ends; Runge-Kutta samples smartly in "
+            "the middle and wins big. Frame it honestly: for most real equations this is not the "
+            "backup plan, it is the plan."
         ),
-        "progression": "test for exactness  ->  find the potential function  ->  an integrating factor to force exactness  ->  a homogeneous substitution (v = y/x)  ->  a Bernoulli substitution",
+        "progression": "the tangent-line step  ->  three Euler steps by hand  ->  halve the step, watch the error  ->  improved Euler  ->  why Runge-Kutta wins  ->  a problem with no closed form",
     },
     5: {
         "misconceptions": (
@@ -1253,34 +1270,25 @@ _DIFFEQ_UNIT_PEDAGOGY = {
     },
     6: {
         "misconceptions": (
-            "applying the initial conditions to y_c ALONE instead of y_c + y_p (the most common error "
-            "in this unit by far); forgetting to multiply the trial solution by x when it duplicates "
-            "a term already in y_c; picking an incomplete trial form (only sin when both sin and cos "
-            "are needed); trying undetermined coefficients on a forcing function it cannot handle."
+            "applying the initial conditions to y_c ALONE instead of y_c + y_p (the most common "
+            "error in this unit by far); forgetting to multiply the trial solution by x when it "
+            "duplicates a term in y_c; picking an incomplete trial form; sign errors setting up the "
+            "spring equation; not connecting the three DAMPING cases to the three ROOT cases; "
+            "thinking resonance requires exactly zero damping."
         ),
         "how_to_teach": (
-            "Teach the ARCHITECTURE first: the general solution is ALWAYS complementary + particular. "
-            "Build the trial-form table together. Let them WATCH a guess fail when it duplicates y_c, "
-            "so the 'multiply by x' rule is discovered rather than memorized. Variation of parameters "
-            "is the fallback when the forcing function isn't a nice polynomial/exponential/sinusoid."
+            "Teach the ARCHITECTURE first: the general solution is ALWAYS complementary + "
+            "particular. Build the trial-form table together, and let them WATCH a guess fail when "
+            "it duplicates y_c, so the multiply-by-x rule is discovered rather than memorized. Then "
+            "the payoff, in the same unit so the connection cannot be missed: the three damping "
+            "cases ARE the three characteristic-root cases, seen physically, and the SAME equation "
+            "governs a spring and an RLC circuit -- that is the moment the subject feels powerful. "
+            "Transient dies out; steady-state persists; resonance is forcing at the natural "
+            "frequency."
         ),
-        "progression": "y = y_c + y_p  ->  trial form for a polynomial forcing  ->  for an exponential  ->  for a sinusoid  ->  the overlap case (multiply by x)  ->  variation of parameters  ->  initial conditions on the FULL solution",
+        "progression": "y = y_c + y_p  ->  trial forms (polynomial, exponential, sinusoid)  ->  the overlap case  ->  variation of parameters  ->  a mass-spring equation  ->  the three damping cases  ->  forced motion & resonance  ->  the RLC analogy",
     },
     7: {
-        "misconceptions": (
-            "sign errors setting up the equation (which direction is positive?); not connecting the "
-            "three DAMPING cases to the three ROOT cases from the previous unit; thinking resonance "
-            "requires exactly zero damping; ignoring units."
-        ),
-        "how_to_teach": (
-            "Make the correspondence explicit: the three damping cases ARE the three characteristic-"
-            "root cases, seen physically -- this is where the abstract algebra pays off. Show the SAME "
-            "equation governing a spring and an RLC circuit; that is the moment the subject feels "
-            "powerful. Transient (dies out) vs steady-state (persists) makes forced motion intuitive."
-        ),
-        "progression": "set up a spring-mass equation  ->  free undamped (simple harmonic)  ->  underdamped  ->  critically/overdamped  ->  forced motion & resonance  ->  the RLC analogy",
-    },
-    8: {
         "misconceptions": (
             "forgetting to include the INITIAL CONDITIONS when transforming a derivative (they are "
             "built into the formula -- that is the method's whole advantage); botching partial "
@@ -1295,21 +1303,41 @@ _DIFFEQ_UNIT_PEDAGOGY = {
         ),
         "progression": "transform basic functions  ->  transform of a derivative (with initial conditions)  ->  solve for Y(s)  ->  partial fractions  ->  invert  ->  a step-function/piecewise forcing problem",
     },
-    9: {
+    8: {
         "misconceptions": (
-            "index errors when shifting summation indices (the classic series-solution trap); "
-            "forgetting that a system needs as many independent eigen-solutions as its dimension; "
-            "confusing eigenvalues WITH solutions; thinking the phase plane plots y against t (it "
-            "plots one variable against the other)."
+            "confusing eigenvalues WITH solutions (an eigenvalue sets the growth rate; the "
+            "eigenvector sets the direction); thinking the phase plane plots y against t (it plots "
+            "one variable against the other, with time flowing along the curves); forgetting a 2x2 "
+            "system needs TWO independent eigen-solutions; sign errors turning a second-order "
+            "equation into a system."
         ),
         "how_to_teach": (
-            "For series, do the index shift SLOWLY and out loud the first time -- that is where "
-            "everyone stumbles. For systems, connect straight back to the second-order unit: turning "
-            "y'' + ay' + by = 0 into a 2x2 system and finding eigenvalues reproduces the "
-            "characteristic equation, so it is the same idea in new clothes. The phase portrait is "
-            "the qualitative payoff."
+            "Connect straight back to unit 5: turning y'' + ay' + by = 0 into a 2x2 system and "
+            "finding eigenvalues reproduces the characteristic equation -- the same idea in new "
+            "clothes, which makes eigenvalues feel earned rather than invented. Straight-line "
+            "solutions run along eigenvectors; everything else bends between them. The phase "
+            "portrait is the qualitative payoff: real eigenvalues make nodes and saddles, complex "
+            "ones make spirals, and the signs decide stability."
         ),
-        "progression": "ordinary vs singular point  ->  assume a power series & find the recurrence  ->  write a system in matrix form  ->  eigenvalues & eigenvectors  ->  the general solution of a 2x2 system  ->  read a phase portrait",
+        "progression": "second-order equation -> 2x2 system  ->  eigenvalues & eigenvectors  ->  straight-line solutions  ->  the general solution  ->  sketch the phase portrait  ->  classify node/saddle/spiral",
+    },
+    9: {
+        "misconceptions": (
+            "expecting a formula (most nonlinear systems have none -- qualitative reasoning IS the "
+            "method); treating linearization as exact rather than local; assuming a nonlinear system "
+            "behaves like its linear part far from the equilibrium; reading predator-prey axes as "
+            "time instead of the two populations."
+        ),
+        "how_to_teach": (
+            "Open with the honest statement: for most nonlinear systems nobody can write the "
+            "solution, and yet we can say what happens -- that is the course's closing argument. "
+            "Find the equilibria (both right-hand sides zero), linearize at each one (the unit-8 "
+            "machinery, reused locally), classify, and stitch the local pictures into a global "
+            "phase portrait. Predator-prey makes it real: the closed loops ARE the boom-and-bust "
+            "cycles, and the student can narrate a full cycle in plain words -- foxes up, rabbits "
+            "down, foxes starve, rabbits recover."
+        ),
+        "progression": "find equilibria of a system  ->  linearize at each  ->  classify locally  ->  stitch a global portrait  ->  predator-prey  ->  competing species  ->  narrate the model's story",
     },
 }
 

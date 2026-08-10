@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (de) 2026-08-10 -- DIFFEQ RESTRUCTURED TO THE CUPM MAINSTREAM SYLLABUS. Jim: "go with
+    the one that you feel will be most acceptable to most schools." The CURRICULUM_BY_COURSE
+    diffeq block now matches curriculum.py/pedagogy.py exactly: slope fields join unit 1,
+    separable + linear merge into unit 2 (exact equations kept as one brief topic), NEW
+    unit 3 qualitative analysis (phase line, stability), NEW unit 4 numerical methods
+    (Euler, Runge-Kutta), nonhomogeneous + vibrations merge into unit 6, and systems get
+    two full units (8 linear/phase plane, 9 nonlinear/linearization). Series solutions
+    dropped -- the CUPM ODE study found most mainstream courses have moved them out in
+    favor of qualitative + numerical work. Unit names here MUST stay byte-identical to
+    pedagogy.COURSE_PEDAGOGY["diffeq"]["unit_names"] -- ruletests checks the parity.
     (dd) 2026-08-11 -- FLUENCY SPRINTS. WWC guide 26 rec 6 (Strong): one optional link on
     the welcome card ("totally optional" is in the copy on purpose), a full-screen
     overlay reusing .welcome-card (so the cv short-screen sizing applies for free), two
@@ -1515,24 +1525,24 @@
         topics: ["What a differential equation is", "Slope fields", "Separable equations", "Growth & decay models"] },
       ],
       diffeq: [
-      { n: 1, name: "Introduction & Classification", blurb: "What a differential equation is — and how to tell which kind you have.",
+      { n: 1, name: "Introduction, Classification & Slope Fields", blurb: "What a differential equation is — and how to see its solutions before solving.",
         topics: ["Order & linearity", "Verifying a solution", "General vs particular", "Slope fields"] },
-      { n: 2, name: "First-Order Separable Equations & Models", blurb: "Split the variables, integrate both sides.",
-        topics: ["Separation of variables", "Initial conditions", "Growth & decay", "Logistic & cooling models"] },
-      { n: 3, name: "First-Order Linear Equations", blurb: "The integrating factor — and why it works.",
-        topics: ["Standard form", "The integrating factor", "Solving & initial conditions", "Mixing problems"] },
-      { n: 4, name: "Exact Equations & Substitutions", blurb: "Spotting a total differential, and changing variables.",
-        topics: ["The exactness test", "Potential functions", "Homogeneous substitution", "Bernoulli equations"] },
+      { n: 2, name: "First-Order Equations: Separable & Linear", blurb: "The two workhorse solution methods — and the models they unlock.",
+        topics: ["Separation of variables", "The integrating factor", "Growth, decay & mixing models", "Exact equations (a brief look)"] },
+      { n: 3, name: "Qualitative Analysis: Equilibria & Stability", blurb: "What solutions do in the long run — without solving anything.",
+        topics: ["Autonomous equations", "Equilibrium solutions", "The phase line", "Stable vs unstable"] },
+      { n: 4, name: "Numerical Methods: Euler & Runge-Kutta", blurb: "When no formula exists, march forward step by step.",
+        topics: ["Euler's method by hand", "Step size & error", "Improved Euler", "Runge-Kutta"] },
       { n: 5, name: "Second-Order Linear: Homogeneous", blurb: "The characteristic equation and its three cases.",
         topics: ["The characteristic equation", "Distinct real roots", "Repeated roots", "Complex roots"] },
-      { n: 6, name: "Second-Order Linear: Nonhomogeneous", blurb: "Complementary plus particular.",
-        topics: ["y = y_c + y_p", "Undetermined coefficients", "The overlap case", "Variation of parameters"] },
-      { n: 7, name: "Applications: Vibrations & Circuits", blurb: "Where these equations come from.",
-        topics: ["Mass-spring systems", "The damping cases", "Forced motion & resonance", "RLC circuits"] },
-      { n: 8, name: "Laplace Transforms", blurb: "Turn calculus into algebra — initial conditions included.",
+      { n: 6, name: "Second-Order: Nonhomogeneous, Vibrations & Resonance", blurb: "Complementary plus particular — and the physics it describes.",
+        topics: ["y = y_c + y_p", "Undetermined coefficients", "Mass-spring & damping cases", "Forced motion & resonance"] },
+      { n: 7, name: "Laplace Transforms", blurb: "Turn calculus into algebra — initial conditions included.",
         topics: ["Transforms & inverses", "Transforming derivatives", "Partial fractions", "Step functions"] },
-      { n: 9, name: "Series Solutions & Systems", blurb: "When no formula works — and how systems behave.",
-        topics: ["Power-series solutions", "Recurrence relations", "Systems & eigenvalues", "The phase plane"] },
+      { n: 8, name: "Linear Systems & the Phase Plane", blurb: "Two equations moving together — eigenvalues tell the story.",
+        topics: ["Systems in matrix form", "Eigenvalues & eigenvectors", "Nodes, saddles & spirals", "The phase plane"] },
+      { n: 9, name: "Nonlinear Systems & Stability", blurb: "Real models are nonlinear — linearize locally to understand them.",
+        topics: ["Nonlinear systems", "Equilibria of systems", "Linearization", "Predator-prey models"] },
       ],
       probstat: [
       { n: 1, name: "Exploring Data", blurb: "Types of data and the right way to picture them.",

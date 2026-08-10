@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD de -- PART 3o: unit-name parity across all FIVE files. The diffeq
+#               restructure (CUPM mainstream syllabus) edited the same nine unit names
+#               in curriculum.py, pedagogy.py, session.html and topic.html, and nothing
+#               proved they agreed -- each file works fine alone while the picker shows
+#               one name and the tutor teaches another. curriculum.units_for() is now
+#               the declared source of truth and the other four are compared to it byte
+#               for byte for every course. Writing the check found the FIFTH copy:
+#               challenge.html's *_UNIT_NAMES (the labels on assessment results), which
+#               still carried the OLD diffeq units -- fixed in the same build, and its
+#               banks are also shape-checked (9 units x 5 questions, answer index 0-3),
+#               since the diffeq re-mapping is exactly the edit that could leave a unit
+#               short a question. Any future rename that misses a file fails the
+#               battery instead of shipping.
 #   2026-08-11  BUILD dd -- PART 3n: fluency sprints. Priorities in order of what they
 #               would cost a child: all 1,620 generated answers verified RIGHT (a drill
 #               that reinforces a wrong fact is worse than none), sprints gate NOTHING
@@ -2604,6 +2617,92 @@ def part3j_walkthroughs():
               "a walkthrough would end in silence, or on another audience's words")
 
 
+def part3o_unit_name_parity():
+    # Added 2026-08-10 (build de). The diffeq restructure touched the SAME unit list in
+    # four places -- curriculum.py, pedagogy.py, session.html's CURRICULUM_BY_COURSE and
+    # topic.html's UNITS_BY_COURSE -- and nothing proved they agreed. A drift here is
+    # nasty precisely because every file works alone: the picker shows one name, the
+    # tutor teaches another, and mastery rows land under a number that means two
+    # different things. curriculum.units_for() is the single source of truth; the other
+    # three must match it byte for byte, for EVERY course, forever.
+    print("\nPART 3o — unit names must agree across all four files")
+    import curriculum
+    import pedagogy
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = {}
+    for p in ("session.html", "topic.html"):
+        path = os.path.join(here, "static", p)
+        if not os.path.exists(path):
+            bad(f"{p} exists", "missing from static/"); return
+        with open(path, encoding="utf-8") as fh:
+            src[p] = fh.read()
+
+    def block(text, marker, course):
+        """The [...] literal for one course inside a JS object that starts at marker."""
+        try:
+            body = text[text.index(marker):]
+            body = body[body.index(f"{course}: ["):]
+            return body[:body.index("],")]
+        except ValueError:
+            return None
+
+    for course, _title in curriculum.list_courses():
+        truth = [name for _n, name in curriculum.units_for(course)]
+
+        ped = pedagogy.COURSE_PEDAGOGY.get(course, {}).get("unit_names", {})
+        ped_names = [ped.get(i) for i in range(1, len(truth) + 1)]
+        check(f"pedagogy.py matches curriculum.py: {course}", ped_names == truth,
+              f"first drift: {next(((a, b) for a, b in zip(truth, ped_names) if a != b), None)}")
+
+        sess = block(src["session.html"], "const CURRICULUM_BY_COURSE", course)
+        if sess is None:
+            bad(f"session.html has a {course} block", "not found"); continue
+        sess_names = re.findall(r'name:\s*"((?:[^"\\]|\\.)*)"', sess)
+        check(f"session.html matches curriculum.py: {course}", sess_names == truth,
+              f"first drift: {next(((a, b) for a, b in zip(truth, sess_names) if a != b), 'count differs')}")
+
+        top = block(src["topic.html"], "UNITS_BY_COURSE", course)
+        if top is None:
+            bad(f"topic.html has a {course} block", "not found"); continue
+        top_names = re.findall(r'"((?:[^"\\]|\\.)*)"', top)
+        check(f"topic.html matches curriculum.py: {course}", top_names == truth,
+              f"first drift: {next(((a, b) for a, b in zip(truth, top_names) if a != b), 'count differs')}")
+
+    # challenge.html keeps a FIFTH copy of every course's unit names (the assessment
+    # labels a student sees on their results). COURSE_DATA maps each course to its
+    # *_UNIT_NAMES constant; every one must match curriculum.py too. And while we are
+    # in the file: every bank must still be 9 units x 5 questions with a sane answer
+    # index -- the build-de diffeq re-mapping is exactly the kind of edit that could
+    # leave a unit with four questions or an answer pointing past the choices.
+    ch_path = os.path.join(here, "static", "challenge.html")
+    if not os.path.exists(ch_path):
+        skip("challenge.html unit names", "file not present in this checkout")
+        return
+    with open(ch_path, encoding="utf-8") as fh:
+        ch = fh.read()
+    cd = ch[ch.index("const COURSE_DATA"):]
+    cd = cd[:cd.index("};")]
+    mapping = re.findall(r"(\w+):\s*\{\s*bank:\s*(\w+),\s*unitNames:\s*(\w+)", cd)
+    check("challenge.html: COURSE_DATA covers every course",
+          {c for c, _b, _u in mapping} == {c for c, _t in curriculum.list_courses()},
+          f"mapped: {sorted(c for c, _b, _u in mapping)}")
+    for course, bank_const, names_const in mapping:
+        truth = [name for _n, name in curriculum.units_for(course)]
+        m = re.search(r"const %s = \{(.*?)\};" % names_const, ch, re.S)
+        names = re.findall(r'\d+\s*:\s*"((?:[^"\\]|\\.)*)"', m.group(1)) if m else []
+        check(f"challenge.html matches curriculum.py: {course}", names == truth,
+              f"first drift: {next(((a, b) for a, b in zip(truth, names) if a != b), 'count differs')}")
+        bm = re.search(r"const %s = \{(.*?)\n    \};" % bank_const, ch, re.S)
+        if not bm:
+            bad(f"challenge.html has a readable {bank_const}", "could not find it"); continue
+        units = re.findall(r"\n      (\d+): \[(.*?)\n      \]", bm.group(1) + "\n      ]", re.S)
+        qcounts = {int(n): len(re.findall(r"\{p:", body)) for n, body in units}
+        answers_ok = all(0 <= int(a) <= 3 for a in re.findall(r"a:\s*(\d+)\s*\}", bm.group(1)))
+        check(f"  {bank_const}: 9 units x 5 questions, answers in range",
+              qcounts == {n: 5 for n in range(1, 10)} and answers_ok,
+              f"unit question counts: {qcounts}")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -2649,6 +2748,7 @@ def main():
     part3k_mastery_reachable()
     part3l_lesson_auditor()
     part3n_sprints()
+    part3o_unit_name_parity()
     if live:
         part4_live()
     else:

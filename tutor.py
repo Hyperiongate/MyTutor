@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD de -- the DIFFEQ course arc restructured to the CUPM mainstream
+#               syllabus (Jim: "the one most acceptable to most schools"). Qualitative
+#               analysis and numerical methods become units 3-4; systems get two units;
+#               old 6-7 merge; exact equations shrink to a topic; series solutions drop.
+#               Only the NINE UNITS block changed -- every teaching rule is untouched.
 #   2026-08-10  BUILD cy -- THE FIFTH REFEREE: prose_self_answer_conflict(), and rule
 #               39(b) moves from COVERED to ENFORCED.
 #               Source: the MAA Instructional Practices Guide (CP.1.2, wait time).
@@ -3788,24 +3793,33 @@ WHAT YOU TEACH -- THE FULL DIFFERENTIAL EQUATIONS COURSE
 You teach the ENTIRE course -- all NINE units, in order. START where their assessment placed them.
 
 THE NINE UNITS (name -- what they'll be able to DO -- the key idea):
-  1. Introduction & Classification -- order, linear vs nonlinear, general vs particular solutions,
-     initial-value problems, verifying a solution, slope fields, equilibrium solutions. CLASSIFY FIRST.
-  2. First-Order Separable Equations & Models -- separation of variables, initial conditions, and the
-     classic models: exponential growth/decay, Newton's law of cooling, logistic growth.
-  3. First-Order Linear Equations -- standard form, the integrating factor e^(integral of P), mixing
-     and tank problems. Multiplying by mu makes the left side (mu*y)' -- that's WHY it works.
-  4. Exact Equations & Substitutions -- the exactness test, potential functions, integrating factors
-     that force exactness, and homogeneous / Bernoulli substitutions.
+  1. Introduction, Classification & Slope Fields -- order, linear vs nonlinear, general vs
+     particular solutions, verifying a solution, initial-value problems, and READING a slope field:
+     the whole family of solutions at a glance, before any formula. CLASSIFY FIRST.
+  2. First-Order Equations: Separable & Linear -- separation of variables and the classic models
+     (growth/decay, cooling, logistic); standard form and the integrating factor (multiplying by mu
+     makes the left side (mu*y)' -- that's WHY it works); mixing problems; a brief look at exact
+     equations and the exactness test.
+  3. Qualitative Analysis: Equilibria & Stability -- autonomous equations, the phase line, stable /
+     unstable / semistable equilibria, existence & uniqueness (what the theorem promises and what
+     it does not), and long-term behavior WITHOUT solving. Modern courses live here.
+  4. Numerical Methods: Euler & Runge-Kutta -- Euler's method as repeated tangent-line steps, step
+     size vs error, improved Euler, and why Runge-Kutta wins; when a numerical answer is the ONLY
+     answer. Solutions you can compute even when no formula exists.
   5. Second-Order Linear: Homogeneous -- the characteristic equation and its three root cases
      (distinct real, repeated -- with the extra x, complex -- e^(ax)(C1 cos + C2 sin)), the Wronskian.
-  6. Second-Order Linear: Nonhomogeneous -- y = y_c + y_p, undetermined coefficients (including the
-     overlap case: multiply by x), variation of parameters. Initial conditions go on the FULL solution.
-  7. Applications: Vibrations & Circuits -- mass-spring systems (free, damped, forced), the three
-     damping cases, resonance, RLC circuits. The damping cases ARE the three root cases, physically.
-  8. Laplace Transforms -- transforms and inverses, transforming derivatives (initial conditions come
-     along free), partial fractions, step functions and piecewise forcing.
-  9. Series Solutions & Systems -- power-series solutions about an ordinary point and the recurrence
-     relation; systems in matrix form, eigenvalues, and the phase plane.
+  6. Second-Order: Nonhomogeneous, Vibrations & Resonance -- y = y_c + y_p, undetermined
+     coefficients (including the overlap case: multiply by x), variation of parameters; then the
+     payoff: mass-spring systems, the three damping cases (they ARE the three root cases,
+     physically), forced motion, resonance, RLC circuits.
+  7. Laplace Transforms -- transforms and inverses, transforming derivatives (initial conditions
+     come along free), partial fractions, step functions and piecewise forcing.
+  8. Linear Systems & the Phase Plane -- systems in matrix form, eigenvalues and eigenvectors,
+     straight-line solutions, the general solution of a 2x2 system, and phase portraits: reading a
+     system's whole behavior from one picture.
+  9. Nonlinear Systems & Stability -- autonomous planar systems, equilibria and linearization,
+     stability classification, and the models that make it real: predator-prey and competing
+     species. Qualitative reasoning is the point -- most nonlinear systems have no formula.
 
 Woven through: the cross-cutting watch-list -- CLASSIFY FIRST; a solution is a FUNCTION (a family
 until an initial condition pins it down); the constant appears at the INTEGRATION step; apply initial
