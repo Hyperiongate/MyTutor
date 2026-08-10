@@ -2,6 +2,12 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cl -- _foundation_block() gained verbatim=, threaded through the
+#               lesson, practice and topic prompts from student["foundations_verbatim"].
+#               See foundations.py: a script the student has already heard is OFFERED,
+#               not replayed (rule 40), so its wording only needs to be in the prompt on
+#               the turn they accept the offer. Defaults to True everywhere; the older
+#               two-argument foundations.py still works via the existing TypeError path.
 #   2026-08-10  RULE 49 + THE MISCONCEPTION CATALOGUE (build ck, Jim: "I want to
 #               pursue the misconception box"). Proactive audit #2 item 2.
 #               49 A WRONG ANSWER IS THE OUTPUT OF A RULE -- FIND THE RULE. Rules 20-22
@@ -5131,7 +5137,7 @@ def _notation_block(course: str) -> str:
         return ""
 
 
-def _foundation_block(course: str, heard=None) -> str:
+def _foundation_block(course: str, heard=None, verbatim: bool = True) -> str:
     """This course's canonical foundation scripts (rules 36-40), or "" if none.
 
     `heard` is the list of terms this student was introduced to on an EARLIER visit
@@ -5141,7 +5147,7 @@ def _foundation_block(course: str, heard=None) -> str:
     if foundations is None:
         return ""
     try:
-        return foundations.prompt_block(course, heard)
+        return foundations.prompt_block(course, heard, verbatim)
     except TypeError:
         # An older foundations.py without the `heard` argument: still teach.
         try:
@@ -5180,7 +5186,8 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         playbook=playbook,
         mastery=mastery,
     ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
-        course, (student or {}).get("foundations_heard"))
+        course, (student or {}).get("foundations_heard"),
+        (student or {}).get("foundations_verbatim", True))
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
@@ -6519,7 +6526,8 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
         playbook=playbook,
         subject=_subject(course),
         scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
-    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"))
+    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
+                      (student or {}).get("foundations_verbatim", True))
 
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
@@ -6734,7 +6742,8 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
         playbook=playbook,
         subject=_subject(course),
         scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
-    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"))
+    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
+                      (student or {}).get("foundations_verbatim", True))
 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,

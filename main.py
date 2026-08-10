@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cl-prompt-budget". Jim on the character ceiling:
+#               "we broke the files into sub-files... I don't know if that creates
+#               problems or an increased chance of errors. I don't want to have that."
+#               MEASURED FIRST. Splitting files does not reduce the prompt at all -- a
+#               prompt carries ONE course template, so cross-template duplication costs
+#               disk (471 KB) and not prompt (130 KB). And the templates overlap the
+#               shared rules by 0%, so there is no duplication left to reclaim anywhere.
+#               Every reduction from here removes or defers real teaching content, so
+#               exactly one was taken, the one rule 40 already made safe: a script the
+#               student has HEARD is offered, not replayed, so its wording only belongs
+#               in the prompt on the turn they accept the offer. THIS FILE decides that,
+#               reading the student's words and -- because the offer is usually answered
+#               with a bare "yes" -- the tutor's previous turn as well. Fails OPEN.
+#               6,000-8,000 chars off an ordinary returning-student turn, growing as the
+#               student learns more. ruletests now prints a per-block PROMPT BUDGET so
+#               the next block's cost is visible before it is paid.
 #   2026-08-10  APP_BUILD -> "2026-08-10ck-misconceptions". NEW FILE misconceptions.py
 #               (148 catalogued wrong RULES; audit #2 item 2 -- the highest-leverage
 #               teaching item left). THIS FILE adds the just-in-time half: before the
@@ -4503,7 +4519,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10ck-misconceptions"
+APP_BUILD = "2026-08-10cl-prompt-budget"
 
 
 @app.get("/health")
@@ -5009,6 +5025,24 @@ def chat(req: ChatRequest):
     # student has already sat through, so rule 40 can ASK instead of replaying one.
     # This is the ONLY place the tutor can learn it -- a new session's history is empty.
     student_context["foundations_heard"] = _foundations_heard(code, req.course)
+    # build cl: does this turn need the FULL WORDING of scripts he has already given?
+    # Rule 40 means a heard script is offered, not replayed, so its exact text is dead
+    # weight in every prompt except the one where the student accepts the offer. That
+    # acceptance is usually a bare "yes", so we read his previous turn too. Fails OPEN
+    # (carry the words) on any doubt -- a missing script would make him paraphrase, which
+    # costs a cache miss AND drifts the wording every student is supposed to share.
+    try:
+        last_tutor = ""
+        for _m in reversed(history or []):
+            if _m.get("role") == "assistant":
+                last_tutor = str(_m.get("content", "")); break
+        student_context["foundations_verbatim"] = (
+            foundations is None
+            or not student_context.get("foundations_heard")
+            or foundations.wants_refresher(message, last_tutor))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[foundations] refresher check failed (carrying full text): {exc}")
+        student_context["foundations_verbatim"] = True
     # build cg: does the TODAY bar genuinely exist right now? The net in tutor.py used to
     # infer that from history, which is wrong the moment the page reloads.
     try:

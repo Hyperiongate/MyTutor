@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cl -- DEFERRAL TESTS + THE PROMPT BUDGET.
+#               The deferral tests care far more about RESTORING than about saving: a
+#               brand-new student still gets every script verbatim, a returning student
+#               keeps every UNHEARD script verbatim, heard scripts stay NAMED so he can
+#               still offer them, asking restores the exact wording, the default is to
+#               carry the words, and the refresher detector is checked on both the
+#               explicit ask and the bare "yes" that follows rule 40(b)'s offer.
+#               The prompt ceiling is now a BUDGET TABLE, not a single number. A total
+#               tells you that you are over and nothing about what to do; the table
+#               prices every block, so the next person adding one sees the cost before
+#               paying it. Measured and recorded in the failure message: there is 0%
+#               overlap between the course templates and the shared rules, so nothing can
+#               be reclaimed for free -- the honest options are consolidating rules,
+#               deferring another block the way cl defers heard scripts, or raising the
+#               ceiling deliberately with the reason written down.
 #   2026-08-10  BUILD ck -- PART 3g, the misconception catalogue, and a PROMPT-SIZE
 #               tripwire (audit #2 item 22). PART 3g checks every entry has all nine
 #               fields, unique ids, a speakable SAY that does NOT open by telling the
@@ -1017,6 +1032,54 @@ def part3d_foundation_memory():
         check(f"{label} mode honours the heard list", "ALREADY INTRODUCED TO THIS STUDENT" in k,
               "a returning student would be replayed an introduction here")
 
+    # 4b. DEFERRED WORDING (build cl). A heard script's exact text is dropped from the
+    #     ordinary turns of a returning student and restored the moment they ask. The
+    #     danger is obvious -- if it is ever missing when he needs it he will paraphrase,
+    #     which costs a cache miss AND drifts wording every student is meant to share --
+    #     so the tests below care far more about RESTORING than about saving.
+    heard = [d["term"] for d in foundations.for_course("algebra2")][:12]
+    full = tutor.build_system_prompt(
+        dict(STUDENT, foundations_heard=heard, foundations_verbatim=True), course="algebra2")
+    lean = tutor.build_system_prompt(
+        dict(STUDENT, foundations_heard=heard, foundations_verbatim=False), course="algebra2")
+    fresh = tutor.build_system_prompt(dict(STUDENT), course="algebra2")
+    a2 = foundations.for_course("algebra2")
+    check("a brand-new student still gets every script verbatim",
+          all(f["say"] in fresh for f in a2), "a new student lost a script")
+    check("a returning student keeps UNHEARD scripts verbatim",
+          all(f["say"] in lean for f in a2 if f["term"] not in heard),
+          "a script they have never met was deferred -- that is a teaching loss")
+    check("heard scripts are still NAMED on an ordinary turn",
+          all(f["term"].upper() in lean for f in a2 if f["term"] in heard),
+          "he cannot offer a refresher for a term he cannot see")
+    check("asking for it restores the EXACT wording",
+          all(f["say"] in full for f in a2),
+          "the refresher turn is missing a script -- he would have to paraphrase")
+    check("deferring actually saves something", len(lean) < len(full) - 2000,
+          f"only {len(full) - len(lean)} chars")
+    check("the default is to CARRY the words",
+          "prompt_block" in dir(foundations)
+          and foundations.prompt_block("algebra2", heard) == foundations.prompt_block(
+              "algebra2", heard, True),
+          "verbatim must default to True -- fail open, always")
+    for msg, last, want in [
+            ("remind me what a denominator is", "", True),
+            ("yes please", "…or want me to refresh your memory?", True),
+            ("not really", "…got a handle on that?", True),
+            ("I forgot", "", True),
+            ("yes", "so what is seven plus eight?", False),
+            ("sixteen", "", False)]:
+        check(f"refresher detector: {msg!r} -> {'restore' if want else 'defer'}",
+              foundations.wants_refresher(msg, last) == want,
+              f"got {foundations.wants_refresher(msg, last)}")
+    for junk in [None, 0, [], "?" * 500]:
+        try:
+            foundations.wants_refresher(junk, junk)
+        except Exception as exc:  # noqa: BLE001
+            bad("refresher detector: junk never raises", f"{junk!r} -> {exc}"); break
+    else:
+        ok("refresher detector: junk never raises")
+
     # 5. the storage layer is wired into the reset cascade (standing rule: day one)
     try:
         import store
@@ -1334,11 +1397,37 @@ def part3g_misconceptions():
     CEILING = 135_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
-    print(f"       prompt sizes: {min(sizes.values()):,}-{max(sizes.values()):,} chars "
-          f"(largest: {biggest})")
+    # THE BUDGET, not just the total. A single number tells you that you are over and
+    # nothing about what to do; this table tells you what every block costs, so the next
+    # person adding one can see the price before they pay it. Measured 2026-08-10: the
+    # course templates and the shared rules share ZERO text -- there is no duplication
+    # left to reclaim, so any reduction from here removes or defers real teaching.
+    try:
+        import notation as _n, misconceptions as _m, foundations as _f
+        c = biggest
+        blocks = [
+            ("shared rules 0-49", len(tutor.GRAPH_TOOL_NOTE)),
+            ("course lesson template", len(tutor.LESSON_TEMPLATES.get(c, ""))),
+            ("foundation scripts", len(_f.prompt_block(c))),
+            ("misconception catalogue", len(_m.prompt_block(c))),
+            ("session opener rules", len(tutor.SESSION_OPENER_RULES)),
+            ("progress-tag note", len(tutor.PROGRESS_TAGS_NOTE)),
+            ("notation table", len(_n.prompt_block(c))),
+            ("ground rules", len(tutor.GROUND_RULES)),
+        ]
+        tot = sum(v for _k, v in blocks) or 1
+        print(f"       PROMPT BUDGET ({c}, the largest):")
+        for k, v in sorted(blocks, key=lambda x: -x[1]):
+            print(f"         {k:<26}{v:>8,}  {100*v/tot:5.1f}%")
+        print(f"         {'total':<26}{sizes[biggest]:>8,}  (ceiling {CEILING:,})")
+    except Exception as exc:  # noqa: BLE001
+        print(f"       (budget table unavailable: {exc})")
     check(f"no prompt exceeds {CEILING:,} chars", sizes[biggest] <= CEILING,
-          f"{biggest} is {sizes[biggest]:,}. The rules block is ~45% of it -- consolidate "
-          f"overlapping rules rather than raising this number.")
+          f"{biggest} is {sizes[biggest]:,}. There is NO duplication left to reclaim "
+          f"(measured 0% overlap between the templates and the shared rules), so the "
+          f"honest options are: consolidate overlapping RULES, defer another block the "
+          f"way build cl defers heard scripts, or raise this deliberately with a reason "
+          f"written down. Do not raise it silently.")
 
 
 def part4_live():

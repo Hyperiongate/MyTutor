@@ -2,6 +2,28 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cl -- DEFERRED WORDING FOR SCRIPTS ALREADY GIVEN. Jim asked us to
+#               address the prompt ceiling, and the first thing to say is that splitting
+#               FILES does not touch it: a prompt carries ONE course template, so
+#               duplication across the ten templates costs disk, not prompt. Measured
+#               2026-08-10: the templates and the shared rules overlap by 0%, so there
+#               is no duplication anywhere to reclaim. Every reduction from here removes
+#               or defers real content -- which is why this is the only one taken.
+#               It is safe because rule 40 already changed the job of a heard script: it
+#               is OFFERED, not replayed. Its exact wording is therefore dead weight in
+#               every prompt except the one where the student says yes. prompt_block()
+#               gained verbatim=, defaulting to TRUE, and main.py turns it off only for
+#               the ordinary turns of a returning student. Heard terms are still NAMED,
+#               so he can always make the offer; only the words wait.
+#               wants_refresher() decides. It reads the student's own words ("remind me",
+#               "I forgot") AND, because rule 40(b) makes him ASK, a bare "yes" -- but a
+#               bare yes only counts when his previous turn actually offered a refresher.
+#               It FAILS OPEN: any doubt, any exception, and the words are carried. A
+#               missing script would make him paraphrase, which costs a cached render and
+#               drifts wording that every student is supposed to share.
+#               Saves 6,000-8,000 chars on an ordinary returning-student turn, and grows
+#               as a student learns more -- which is exactly when the misconception and
+#               notation blocks matter most.
 #   2026-08-09  BUILD cj -- THREE SUBSCRIPT SCRIPTS (algebra2, calculus, diffeq).
 #               Found by the new notation registry, not by a person: those three courses
 #               write a₁, xᵢ and y₁ on the board and NO script anywhere ever said the
@@ -1699,13 +1721,23 @@ def learned_terms_in(course: str, reply: str) -> list:
     return out
 
 
-def prompt_block(course: str, heard=None) -> str:
+def prompt_block(course: str, heard=None, verbatim: bool = True) -> str:
     """The prompt section listing this course's canonical introductions.
 
     `heard` is the set/list of terms THIS student has already been introduced to
     (main.py reads it from the store). It changes nothing about the scripts -- the
     words stay identical so the audio cache still hits on a refresher -- it only
     tells the tutor which ones to ASK about instead of replaying. See rule 40.
+
+    `verbatim` (2026-08-10, build cl) controls whether the FULL text of an
+    already-heard script is included. It defaults to True and main.py turns it off for
+    the ordinary turns of a returning student, because rule 40 means a heard script is
+    not replayed -- it is OFFERED. He only needs the exact words at the moment the
+    student takes him up on it, and main.py restores them for that turn. A student who
+    has met twelve terms was carrying about nine thousand characters of text he had
+    already decided not to say. Terms are still NAMED either way, so he always knows
+    what he has taught them; only the wording is deferred, and only for terms he has
+    already delivered.
 
     Returns "" when a course has none, so the prompt never grows for nothing."""
     items = for_course(course)
@@ -1758,7 +1790,16 @@ def prompt_block(course: str, heard=None) -> str:
             "",
         ]
     for f in items:
-        mark = "  [already introduced -- ask first, rule 40]" if normalize_term(f["term"]) in seen else ""
+        already = normalize_term(f["term"]) in seen
+        if already and not verbatim:
+            # Rule 40: this one is OFFERED, not replayed. He needs the name to make the
+            # offer; the wording comes back the moment the student accepts it.
+            lines.append(f'--- {f["term"].upper()} ---  [already introduced -- ask first '
+                         f'(rule 40). The exact script is restored the moment they ask '
+                         f'for it, so offer it freely.]')
+            lines.append("")
+            continue
+        mark = "  [already introduced -- ask first, rule 40]" if already else ""
         lines.append(f'--- {f["term"].upper()} ---{mark}')
         lines.append(f'SAY: {f["say"]}')
         for b in f.get("board", []):
@@ -1766,6 +1807,35 @@ def prompt_block(course: str, heard=None) -> str:
         lines.append("")
     lines.append("============================================================")
     return "\n".join(lines)
+
+
+REFRESH_RE = re.compile(
+    r"\b(refresh|remind me|say (?:it|that) again|go over (?:it|that) again|one more time|"
+    r"i forgot|forgotten|don'?t remember|can'?t remember|what (?:is|was) a\b|"
+    r"what does .{0,24} mean|explain (?:it|that) again|not really\b|no,? ?(?:i )?don'?t)\b",
+    re.I)
+_YES_RE = re.compile(r"^\W{0,3}(yes|yeah|yep|yup|sure|ok|okay|please|yes please|"
+                     r"go ahead|i guess|maybe|uh huh|mm ?hm)\b", re.I)
+
+
+def wants_refresher(student_message: str, last_tutor_message: str = "") -> bool:
+    """True when the full wording of an already-heard script must be in this prompt.
+
+    Two ways a student asks. Explicitly -- "remind me what a denominator is" -- or by
+    simply accepting the offer rule 40(b) requires him to make, which usually arrives as
+    a bare "yes". The bare yes only counts when his previous turn actually offered a
+    refresher, which is why the last tutor message is read too. Never raises."""
+    try:
+        msg = str(student_message or "")
+        if REFRESH_RE.search(msg):
+            return True
+        last = str(last_tutor_message or "").lower()
+        offered = ("refresh your memory" in last or "refresh my memory" in last
+                   or "got a handle on" in last or "handle on that" in last
+                   or "want me to go over" in last)
+        return bool(offered and _YES_RE.match(msg.strip()))
+    except Exception:  # noqa: BLE001
+        return True          # fail OPEN: when unsure, carry the words
 
 
 # I did no harm and this file is not truncated.
