@@ -1,6 +1,6 @@
-# MyTutor
+# Mr. Cadabra's Classroom
 
-> MyTutor (mrcadabra.com) is a warm, talking AI math tutor for homeschool families,
+> Mr. Cadabra's Classroom (mrcadabra.com) is a warm, talking AI math tutor for homeschool families,
 > students, and classrooms. The tutor, "Mr. Cadabra," teaches foundation-first — he introduces each idea and its
 > vocabulary explicitly before asking about it. He speaks
 > each step aloud in a natural voice, draws the work on a synchronized whiteboard that
@@ -15,7 +15,8 @@ Key facts:
   Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calc, Calculus,
   Differential Equations, and Probability & Statistics.
 - A voluntary placement assessment starts each student exactly where they belong;
-  mastery is proven with scored unit checks (80%+), never assumed.
+  unit mastery is proven with a scored ten-question Unit Quiz at 90% or better,
+  never assumed.
 - Parents get a read-only dashboard with honest time-on-task (idle minutes count as
   zero), real mastery status, and a plain-language "How are they doing, really?"
   narrative assessment.
@@ -32,7 +33,7 @@ Key facts:
 
 ## Pages
 
-- [Home](https://mrcadabra.com/): what MyTutor is, how a lesson works, FAQ
+- [Home](https://mrcadabra.com/): what Mr. Cadabra's Classroom is, how a lesson works, FAQ
 - [Courses](https://mrcadabra.com/courses): all ten courses with printable scope & sequence
 - [Homeschool](https://mrcadabra.com/homeschool): the homeschool experience - teaching, records, honest hours
 - [Parents](https://mrcadabra.com/parents): what your child experiences and what you can see

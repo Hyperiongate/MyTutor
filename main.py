@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10df-honest-copy". HONEST-COPY SWEEP. Jim: "make
+#               sure we don't have anything in here that says evidence based learning as
+#               a blanket statement." The sweep proved NO such claim exists anywhere on
+#               the site -- the only "evidence" wording is "mastery evidence" in the
+#               records/portfolio sense, which is honest and stays. But it caught three
+#               stale facts, all fixed in df: (1) courses.html (the PRINTABLE scope &
+#               sequence) still said the questioning-method word build cc retired, and
+#               (2) still listed the pre-restructure diffeq units; (3) llms.txt (the
+#               public AI-crawler summary) claimed unit mastery at "80%+" where the real
+#               bar is 90%+ on a ten-question Unit Quiz, and still carried the old
+#               MyTutor brand name from before the 08-03 rebrand. NO changes in this
+#               file beyond the stamp -- the work lives in courses.html, llms.txt and
+#               ruletests.py (PART 3o learns courses.html's ten unit lists; NEW PART 3p
+#               bans the retired method word and blanket "evidence-based" from every
+#               visible page, llms.txt and README, forever).
 #   2026-08-10  APP_BUILD -> "2026-08-10de-diffeq-cupm". DIFFEQ RESTRUCTURED TO THE
 #               CUPM MAINSTREAM SYLLABUS. Jim: "go with the one that you feel will be
 #               most acceptable to most schools." The MAA/CUPM ODE course study (in
@@ -5094,7 +5109,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10de-diffeq-cupm"
+APP_BUILD = "2026-08-10df-honest-copy"
 
 
 @app.get("/health")

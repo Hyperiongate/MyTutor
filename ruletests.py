@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD df -- PART 3o learns the SIXTH unit-name copy and PART 3p bans two
+#               phrases from marketing copy. Jim asked for a sweep proving no blanket
+#               "evidence based learning" claim exists anywhere. It doesn't -- but the
+#               sweep caught courses.html (the PRINTABLE scope & sequence) still saying
+#               "taught Socratically" (missed by build cc's site-wide removal) and still
+#               listing the pre-restructure diffeq units, plus llms.txt claiming unit
+#               mastery at 80%+ (it is 90%+ on a ten-question Unit Quiz) under the old
+#               MyTutor brand name. All fixed in df. PART 3o now parses courses.html's
+#               ten unit lists (order-based; the cards sit in curriculum order); PART 3p
+#               strips HTML comments then fails the build if "Socratic" or
+#               "evidence-based" appears in any static page, llms.txt, or README.md.
 #   2026-08-10  BUILD de -- PART 3o: unit-name parity across all FIVE files. The diffeq
 #               restructure (CUPM mainstream syllabus) edited the same nine unit names
 #               in curriculum.py, pedagogy.py, session.html and topic.html, and nothing
@@ -2702,6 +2713,70 @@ def part3o_unit_name_parity():
               qcounts == {n: 5 for n in range(1, 10)} and answers_ok,
               f"unit question counts: {qcounts}")
 
+    # And the SIXTH copy (build df): courses.html, the printable scope & sequence that
+    # homeschool families file for curriculum records. Its ten cards carry no reliable
+    # ids but sit in curriculum order, so the ten <ul class="units"> lists are read in
+    # document order and zipped against curriculum.list_courses(). This page shipped
+    # with the OLD diffeq units for a day after the build-de restructure -- a printed
+    # scope & sequence disagreeing with the classroom is exactly what a curriculum
+    # office notices.
+    co_path = os.path.join(here, "static", "courses.html")
+    if not os.path.exists(co_path):
+        skip("courses.html unit lists", "file not present in this checkout")
+        return
+    with open(co_path, encoding="utf-8") as fh:
+        co = fh.read()
+    uls = re.findall(r'<ul class="units">(.*?)</ul>', co, re.S)
+    courses = curriculum.list_courses()
+    check("courses.html: one unit list per course, in curriculum order",
+          len(uls) == len(courses), f"{len(uls)} lists for {len(courses)} courses")
+    for (course, title), body in zip(courses, uls):
+        names = [n.replace("&amp;", "&").strip() for n in re.findall(r"</b>\s*(.*?)</li>", body)]
+        truth = [name for _n, name in curriculum.units_for(course)]
+        check(f"courses.html matches curriculum.py: {course}", names == truth,
+              f"first drift: {next(((a, b) for a, b in zip(truth, names) if a != b), 'count differs')}")
+        check(f"  courses.html: the {course} card is present", title in co,
+              f"course title {title!r} not found on the page")
+
+
+def part3p_marketing_claims():
+    # Added 2026-08-10 (build df). Jim: "make sure we don't have anything in here that
+    # says evidence based learning as a blanket statement." Two phrases are banned from
+    # every piece of VISIBLE marketing copy, permanently:
+    #   - "evidence-based" / "evidence based": true in the strict WWC sense only for the
+    #     elementary/algebra courses; a blanket claim is the kind of thing a school
+    #     district's curriculum office checks, and one caught overreach discredits every
+    #     true claim on the page. Per-level wording lives in Teaching_Evidence_Base sec 6.
+    #   - "Socratic": Jim retired the word site-wide in build cc (the method is
+    #     foundation-first, rules 36-38) -- and the sweep that wrote THIS check still
+    #     found one live "taught Socratically" on courses.html that cc had missed.
+    # HTML comments are stripped first: historical change notes are records, not copy.
+    print("\nPART 3p — banned marketing claims stay banned")
+    here = os.path.dirname(os.path.abspath(__file__))
+    targets = sorted(
+        p for p in os.listdir(os.path.join(here, "static")) if p.endswith(".html")
+    ) + ["llms.txt"]
+    banned = [("blanket 'evidence-based' claim", re.compile(r"evidence[\s-]based", re.I)),
+              ("'Socratic'", re.compile(r"socratic", re.I))]
+    for name in targets:
+        path = os.path.join(here, "static", name)
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding="utf-8") as fh:
+            visible = re.sub(r"<!--.*?-->", "", fh.read(), flags=re.S)
+        for label, pat in banned:
+            m = pat.search(visible)
+            check(f"{name}: no {label}", m is None,
+                  f"found {m.group(0)!r} in visible copy" if m else "")
+    readme = os.path.join(here, "README.md")
+    if os.path.exists(readme):
+        with open(readme, encoding="utf-8") as fh:
+            txt = fh.read()
+        for label, pat in banned:
+            m = pat.search(txt)
+            check(f"README.md: no {label}", m is None,
+                  f"found {m.group(0)!r}" if m else "")
+
 
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
@@ -2749,6 +2824,7 @@ def main():
     part3l_lesson_auditor()
     part3n_sprints()
     part3o_unit_name_parity()
+    part3p_marketing_claims()
     if live:
         part4_live()
     else:
