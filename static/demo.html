@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <!--
-    (cq) 2026-08-10 -- SCREEN FIRST, WORDS SECOND · AND HOMESCHOOL GETS ITS OWN SCRIPT.
+    (cr) 2026-08-10 -- ONE DOOR, ONE DASHBOARD. Jim: "when we go to the homeschool page,
+    the teacher page, the student page, I want that demo to only show the dashboard
+    that's interesting to that particular person. I don't want any links to any other
+    dashboards from there."
+    AUDIENCE_KEY is set ONCE at page load from ?view=, and audienceLocked() is asked by
+    every path that could hand the visitor somebody else's screen. There were three, and
+    each failed silently -- nothing errors, the wrong dashboard just opens:
+      1. the end-of-tour panel (showBalloons) offered all three views;
+      2. the "✓ Done — show the three views" button, visible the whole time;
+      3. the "↩ Back to the three views" button in each dashboard header.
+    All three now lead to showAudienceEnd() -- this door's own ending, with its own
+    spoken closing line. The three-balloon chooser still belongs to the OPEN demo at
+    /demo, where the visitor asked to see all three; that path is untouched.
+    A locked door must not become a dead end, so the ending offers the walkthrough again,
+    a real lesson at any level, and the pricing page. "See a real lesson" goes through
+    enterClassroomPicker(), which sets the classroom layout FIRST -- the audience doors
+    deliberately never set it, so without that the picker drew into a hidden panel: the
+    cq blank-screen bug in a new costume.
+    VOICE_LINES 197 -> 201 (four closing lines, APPENDED). ruletests PART 3j checks all of
+    this from the source; the behaviour itself was driven in a real browser across all
+    four doors plus the open demo.
+  - (cq) 2026-08-10 -- SCREEN FIRST, WORDS SECOND · AND HOMESCHOOL GETS ITS OWN SCRIPT.
     Jim, walking the homeschool door: "it talks for a long time and says this is the page
     that your child works from. It's just a blank screen. It stays blank, blank, blank,
     blank until it gets to the parents' view." Both faults were introduced in cp.
@@ -815,6 +836,17 @@
     // shows the parent dashboard -- the right SCREEN -- but the parent's own stops
     // are written for a parent checking on a teacher. A homeschool parent IS the
     // teacher, so the same screen means something different to them. APPENDED.
+,
+    "And that's the parent's view. Every number on it was earned by a real piece of work — nothing on that screen is a guess, and nothing is rounded up to make a week look better than it was. If you'd like to see what your child actually does in a lesson, I can teach you one right now, at any level from counting to calculus.",
+    "And that's the teacher's view. One room, every student, and no guessing about who needs you this week — the flags come from the work itself, not from a survey or a self-report. If you'd like to see what a lesson looks like from the student's side, I can teach you one right now, at any level you choose.",
+    "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your child actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
+    "And that's your dashboard! Every gold unit, every trophy, every number on it — you earned all of that yourself. Want to see what a real lesson is like? Pick any level you want and I'll teach you one right now, exactly the way I'd teach you for real."
+
+    // 2026-08-10 (build cr): the four AUDIENCE CLOSING lines. A visitor who came in
+    // through their own door is NOT offered the other dashboards at the end (Jim:
+    // "I don't want any links to any other dashboards from there"), so the ending
+    // needed words of its own -- and every ending offers the one thing that is
+    // genuinely next for them: a real lesson. APPENDED.
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -888,6 +920,21 @@
     lineStarting("Strengthen next is your lesson plan"),
     lineStarting("And this is the one homeschool families ask about first")
   ];
+  // The closing line for each door (build cr). Spoken when that walkthrough ends, in
+  // place of the three-view invitation -- which a visitor who came through one door is
+  // never shown.
+  var AUD_OUTRO = {
+    parents:    lineStarting("And that's the parent's view."),
+    teachers:   lineStarting("And that's the teacher's view."),
+    homeschool: lineStarting("And that's the homeschool view."),
+    students:   lineStarting("And that's your dashboard!")
+  };
+  // Which door this visitor came through, decided ONCE at page load from the URL and
+  // never changed afterwards. Everything that could lead to another audience's screen
+  // asks this first. Empty string = the open demo at /demo, where the visitor asked to
+  // see all three views and should keep getting them.
+  var AUDIENCE_KEY = '';
+  function audienceLocked(){ return !!AUDIENCE_KEY; }
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
@@ -1396,7 +1443,66 @@
   };
   var dashTourCancelled=false;
 
+  // 2026-08-10 (build cr, Jim: "when we go to the homeschool page, the teacher page, the
+  // student page, I want that demo to only show the dashboard that's interesting to that
+  // particular person. I don't want any links to any other dashboards from there.")
+  // THE ONE PLACE THIS IS DECIDED. A visitor who arrived through their own door never
+  // sees another audience's screen -- not at the end of the walkthrough, not on the Done
+  // button, not on the back button in the dashboard header. The three-balloon chooser
+  // belongs to the OPEN demo at /demo, where the visitor asked to see all three.
+  // He is not left at a dead end: the ending offers the walkthrough again, a real lesson,
+  // and the pricing page -- none of which is another dashboard.
+  var AUD_END = {
+    parents:    {title:"That's the parent's view",
+                 sub:"Every number on it was earned by a real piece of work. Here's what's next."},
+    teachers:   {title:"That's the teacher's view",
+                 sub:"One room, every student, no guessing about who needs you. Here's what's next."},
+    homeschool: {title:"That's the homeschool view",
+                 sub:"The week in front of you and the record behind you. Here's what's next."},
+    students:   {title:"That's your dashboard",
+                 sub:"Every gold unit and every trophy on it, you earn yourself. Here's what's next."}
+  };
+  function showAudienceEnd(spoken){
+    var e=AUD_END[AUDIENCE_KEY] || {title:"That's the walk-through", sub:"Here's what's next."};
+    el('showViews').classList.remove('show');
+    el('balloonTitle').textContent=e.title;
+    el('balloonSub').textContent=e.sub;
+    var row=el('balloonRow'); row.innerHTML='';
+    [['again','p','↻ Watch it again','the same walk-through from the top'],
+     ['lesson','s','✏️ See a real lesson','one real problem, at any level you pick']].forEach(function(b){
+      var btn=document.createElement('button'); btn.className='balloon '+b[1]; btn.type='button';
+      btn.innerHTML=b[2]+'<span>'+b[3]+'</span>';
+      btn.onclick=function(){
+        hideBalloons();
+        if(b[0]==='again'){ startAudienceWalkthrough(AUDIENCE_KEY); }
+        else { closeDash(); enterClassroomPicker(); }
+      };
+      row.appendChild(btn);
+    });
+    var extra=el('balloonExtra'); extra.innerHTML='';
+    var go=document.createElement('a'); go.className='cta'; go.textContent='See plans & get started →';
+    go.href='/#pricing'; go.style.textDecoration='none'; go.style.width='auto';
+    go.style.display='inline-block'; go.style.padding='12px 18px'; go.style.margin='16px 6px 0';
+    extra.appendChild(go);
+    el('balloonLay').classList.add('show');
+    var line=AUD_OUTRO[AUDIENCE_KEY]||'';
+    if(spoken && line){ lineDone=null; say(line); }
+    else if(line){ bubble.textContent=line; }
+  }
+  // Stepping out of a walkthrough and into a real lesson needs the full-page classroom
+  // layout. The audience doors deliberately do NOT set it (the dashboard is its own
+  // full-screen overlay), so the picker would have been drawn onto a hidden panel --
+  // the same blank-screen shape as the cq bug. One helper, both callers.
+  function enterClassroomPicker(){
+    document.body.className='classroom';
+    el('intro').style.display='none';
+    el('restart').style.display='inline-block';
+    el('goalText').textContent='Try a real problem';
+    board.innerHTML='';
+    showPicker(true);
+  }
   function showBalloons(spoken, keepCongrats){
+    if(audienceLocked()){ showAudienceEnd(spoken===true); return; }
     // The bubbles live in a CENTERED overlay, and they are offered again at the end of
     // EVERY dashboard tour (Jim, build by) -- so the three views are always one tap away.
     el('showViews').classList.remove('show');
@@ -1421,8 +1527,8 @@
     var again=document.createElement('button'); again.className='cta ghost'; again.type='button';
     again.textContent='↩ Try another level'; again.style.width='auto'; again.style.padding='12px 18px';
     again.style.margin='16px 6px 0';
-    again.onclick=function(){ hideBalloons(); closeDash(); el('goalText').textContent='Try another level';
-      board.innerHTML=''; showPicker(true); };
+    again.onclick=function(){ hideBalloons(); closeDash(); enterClassroomPicker();
+      el('goalText').textContent='Try another level'; };
     extra.appendChild(go); extra.appendChild(again);
     el('balloonLay').classList.add('show');
     if(spoken===true){ lineDone=null; say(BALLOON_LINE); }
@@ -1493,7 +1599,10 @@
     if(dashDone || dashTourCancelled) return;
     dashDone=true;
     if(dashWatchdog){ clearTimeout(dashWatchdog); dashWatchdog=null; }
-    setTimeout(function(){ if(!dashTourCancelled) showBalloons(false); }, 600);
+    // build cr: an audience walkthrough ends with a SPOKEN closing line, because the
+    // three-view invitation it used to end on is exactly what these visitors must not be
+    // offered -- and ending in silence would be worse than either.
+    setTimeout(function(){ if(!dashTourCancelled) showBalloons(audienceLocked()); }, 600);
   }
   function armDashWatchdog(d, intro){
     if(dashWatchdog) clearTimeout(dashWatchdog);
@@ -1517,7 +1626,10 @@
       try{ demoAudio.pause(); }catch(e){}
       try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
       setSpeaking(false);
-      closeDash(); board.innerHTML='';
+      // build cr: in an audience walkthrough the dashboard STAYS UP behind the panel.
+      // Closing it would leave nothing behind the overlay -- these doors never set the
+      // classroom layout, so there is no page under there to return to.
+      if(!audienceLocked()){ closeDash(); board.innerHTML=''; }
       showBalloons(false);
     };
   });
@@ -1642,6 +1754,13 @@
   (function(){
     var key=audienceParam();
     if(!key) return;
+    // build cr: LOCK the demo to this one door, before anything can offer another.
+    AUDIENCE_KEY=key;
+    // Two labels in the markup name "the three views" out loud. They are the visitor's
+    // escape hatches and must never be removed -- rule: a checker or a tour must never
+    // strand anyone -- but here they lead to this door's own ending, so they say so.
+    var sv=el('showViews'); if(sv) sv.textContent='✓ Done — what happens next';
+    document.querySelectorAll('.dashback').forEach(function(b){ b.textContent='✓ Done'; });
     // One tap to begin: browsers will not play audio until the visitor acts, and a silent
     // walkthrough is worse than none. Same shape as the Start button, different words.
     var b=el('startBtn');

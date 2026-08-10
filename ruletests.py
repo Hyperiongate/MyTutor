@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cr -- PART 3j now proves ONE DOOR, ONE DASHBOARD. Jim: "I don't
+#               want any links to any other dashboards from there." Three paths could
+#               hand an audience visitor somebody else's screen and all three fail
+#               silently, so each is checked against the SOURCE rather than against a
+#               comment claiming it: showBalloons must return through the audience
+#               ending BEFORE it builds the three balloons, the ending itself must
+#               contain no dashboard opener at all, and the dashboard's back button must
+#               not close a locked walkthrough (there is no page behind it).
+#               Also checked: a locked door still leads somewhere. A test that only
+#               proves an absence would happily pass on a dead end.
+#               NOT IN THIS FILE, deliberately: the behaviour was also driven in a real
+#               browser across all four doors and the open demo (59 checks). That harness
+#               needs playwright, and this battery must stay runnable anywhere in a
+#               second -- it lives in the sandbox, not the repo.
 #   2026-08-10  BUILD cq -- PART 3j grew two checks and one of its own bugs was fixed.
 #               New: the walkthrough must open the dashboard BEFORE it starts talking
 #               (Jim watched a blank screen talk at him for thirty seconds), and every
@@ -1875,8 +1889,8 @@ def part3j_walkthroughs():
         # the SAME character to close it.
         anchors = [m[1] for m in re.findall(
             r'''lineStarting\(\s*(["'])((?:(?!\1).){12,80})\1\s*\)''', demo_src)]
-        check(f"every audience anchor is declared ({len(anchors)} found)", len(anchors) >= 9,
-              "expected four intros and five homeschool stops")
+        check(f"every audience anchor is declared ({len(anchors)} found)", len(anchors) >= 13,
+              "expected four intros, five homeschool stops and four closing lines")
         for a in anchors:
             hits = [ln for ln in demo_lines if ln.startswith(a)]
             check(f"  anchor {a[:34]!r} resolves to exactly one line", len(hits) == 1,
@@ -1895,6 +1909,51 @@ def part3j_walkthroughs():
         check("an audience walkthrough can retitle the dashboard's stops",
               "runDashTour(d, 0, opts.lines)" in demo_src and "lines:HS_STOPS" in demo_src,
               "the homeschool view would speak the parent's words on the parent's screen")
+
+        # Build cr, Jim: "when we go to the homeschool page, the teacher page, the student
+        # page, I want that demo to only show the dashboard that's interesting to that
+        # particular person. I don't want any links to any other dashboards from there."
+        # Three doors out of a walkthrough could hand the visitor another audience's
+        # screen, and all three are silent failures -- nothing errors, the wrong dashboard
+        # simply opens. Each is checked from the SOURCE, not from a comment claiming it.
+        def _fn_body(name, src, span=2600):
+            i = src.find("function " + name)
+            return src[i:i + span] if i >= 0 else ""
+
+        sb = _fn_body("showBalloons", demo_src)
+        check("the audience walkthroughs are locked to ONE dashboard",
+              "audienceLocked()" in demo_src and "var AUDIENCE_KEY" in demo_src,
+              "nothing decides which door the visitor came through")
+        check("  the three-view chooser is skipped when a door is locked",
+              bool(sb) and "audienceLocked()" in sb
+              and sb.index("audienceLocked()") < (sb.index("openDash(")
+                                                  if "openDash(" in sb else len(sb)),
+              "showBalloons must return through the audience ending BEFORE it builds "
+              "the three dashboard balloons")
+        ae = _fn_body("showAudienceEnd", demo_src)
+        check("  the audience ending offers no other dashboard",
+              bool(ae) and "openDash(" not in ae and "dashStudent" not in ae
+              and "dashTeacher" not in ae and "dashParent" not in ae,
+              "the ending panel would put another audience's screen one tap away")
+        check("  the ending offers a way onward instead of a dead end",
+              "startAudienceWalkthrough(AUDIENCE_KEY)" in ae
+              and "enterClassroomPicker()" in ae and "#pricing" in ae,
+              "a locked door must still lead somewhere: watch it again, a real lesson, "
+              "or the pricing page")
+        check("  the dashboard's back button does not blank a locked walkthrough",
+              "if(!audienceLocked()){ closeDash(); board.innerHTML=''; }" in demo_src,
+              "these doors never set the classroom layout, so closing the dashboard "
+              "leaves nothing behind the overlay -- the cq blank-screen bug again")
+        check("  stepping into a real lesson sets the classroom layout first",
+              "function enterClassroomPicker" in demo_src
+              and "document.body.className='classroom'" in
+                  _fn_body("enterClassroomPicker", demo_src, 400),
+              "showPicker would draw into a hidden panel")
+        check("  every door has a closing line and an ending panel",
+              all(k in demo_src for k in ("AUD_OUTRO", "AUD_END"))
+              and all(f"{k}:" in demo_src.split("var AUD_END")[1][:600]
+                      for k in ("parents", "teachers", "homeschool", "students")),
+              "a walkthrough would end in silence, or on another audience's words")
 
 
 def part4_live():

@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cr-one-door-one-dashboard". Jim: "when we go to
+#               the homeschool page, the teacher page, the student page, I want that demo
+#               to only show the dashboard that's interesting to that particular person.
+#               I don't want any links to any other dashboards from there."
+#               The three-view chooser belongs to the OPEN demo at /demo, where the
+#               visitor asked to see all three. A visitor who came through one door is now
+#               locked to it: the ending panel, the "Done" button and the dashboard's own
+#               back button all lead to that door's own ending, never to another
+#               audience's screen. Not a dead end -- the ending offers the walkthrough
+#               again, a real lesson, and the pricing page.
+#               THIS FILE: four closing lines APPENDED to DEMO_VOICE_LINES (197 -> 201),
+#               one per door, byte-identical to demo.html's VOICE_LINES. Appended, never
+#               inserted: clips are served BY INDEX. New audio is about 1,300 characters,
+#               roughly thirty cents, once.
 #   2026-08-10  APP_BUILD -> "2026-08-10cq-homeschool-walkthrough". Jim walked the
 #               homeschool door and hit a bug I put there in cp: "it talks for a long
 #               time and says this is the page that your child works from. It's just a
@@ -4659,7 +4673,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cq-homeschool-walkthrough"
+APP_BUILD = "2026-08-10cr-one-door-one-dashboard"
 
 
 @app.get("/health")
@@ -5738,6 +5752,14 @@ DEMO_VOICE_LINES = [
     "These five numbers are the ones a homeschool week turns on: units mastered, accuracy, problems practised, time on task this week, and the day streak. The hours are measured engaged time, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
     "Strengthen next is your lesson plan for the week, already written. It comes from her actual work, so it is specific enough to sit down at the kitchen table with — not 'review fractions', but the exact step that is wobbling.",
     "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your child's work, and you can take it with you any time, whether or not you stay with us.",
+    # 2026-08-10 (build cr): the four AUDIENCE CLOSING lines. Identical to
+    # demo.html's VOICE_LINES, APPENDED, never reordered -- clips are served BY
+    # INDEX, so an insert above these would play the wrong audio under the right
+    # words and nothing would error.
+    "And that's the parent's view. Every number on it was earned by a real piece of work — nothing on that screen is a guess, and nothing is rounded up to make a week look better than it was. If you'd like to see what your child actually does in a lesson, I can teach you one right now, at any level from counting to calculus.",
+    "And that's the teacher's view. One room, every student, and no guessing about who needs you this week — the flags come from the work itself, not from a survey or a self-report. If you'd like to see what a lesson looks like from the student's side, I can teach you one right now, at any level you choose.",
+    "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your child actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
+    "And that's your dashboard! Every gold unit, every trophy, every number on it — you earned all of that yourself. Want to see what a real lesson is like? Pick any level you want and I'll teach you one right now, exactly the way I'd teach you for real.",
 ]
 
 
