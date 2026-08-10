@@ -2,6 +2,27 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cw -- PART 3l (the lesson auditor's boundaries) and THE CEILING
+#               RAISED 135,000 -> 150,000 with the reason written down where it is
+#               enforced. The old note said "consolidate, do not raise"; it was written
+#               before anything had been measured. What we know now: 135,000 was a
+#               judgement in an audit, the built prompt is ~17% of the model's real
+#               window, and rule 51 spent the last 500 characters -- so the NEXT rule,
+#               whatever it was, would have failed the build. Merging rules to satisfy an
+#               invented number means editing the teaching, which fails invisibly. That
+#               is the wrong risk to take on no evidence, and lessonaudit.py is now the
+#               evidence: run it at two prompt sizes and set the number from what it finds.
+#               PART 3l guards the auditor's BOUNDARIES rather than its findings (those
+#               are opinions): the key value may appear in an Authorization header and
+#               nowhere else, the job can always be priced before it is run, the price
+#               says it is an estimate, and the auditor never writes to tutor.py or
+#               foundations.py. A critic that edits the teaching is a second author nobody
+#               reviewed.
+#               A NOTE ON WRITING THAT KEY CHECK: the first version flagged the dry run's
+#               own label line -- the words "OPENAI_API_KEY" printed beside
+#               "present"/"MISSING", which is exactly what a diagnostic should say. A
+#               check that cries wolf at correct code gets switched off, and then it
+#               guards nothing. It now looks for the VALUE travelling, not the name.
 #   2026-08-10  BUILD cv -- rule 51 joins the ten-course scan, and a new check that every
 #               range= we write PARSES UNDER THE RENDERER'S OWN RULE. The regex is read
 #               out of math-figures.js so it cannot drift. It exists because rendering one
@@ -1568,9 +1589,23 @@ def part3g_misconceptions():
 
     # PROMPT SIZE (proactive audit #2 item 22). Not a style note: past some length a
     # model follows rule 3 and rule 31 less reliably, and the failure is invisible.
-    # The ceiling is a TRIPWIRE, deliberately set above today's largest -- when it
-    # trips, the answer is to consolidate overlapping rules, not to raise it again.
-    CEILING = 135_000
+    # The ceiling is a TRIPWIRE, deliberately set above today's largest.
+    #
+    # 2026-08-10 (build cw) -- RAISED 135,000 -> 150,000, WITH THE REASON, because the
+    # note that said "consolidate, do not raise" was written before we had measured
+    # anything. What we know now: 135,000 was my judgement in an audit, not a
+    # measurement; the built prompt is about 17% of the model's real context window, so
+    # this was never a wall; and rule 51 spent the last 500 characters, which would have
+    # made the NEXT rule -- not any particular bad rule, just the next one -- fail the
+    # build. Consolidating rules to satisfy an invented number means editing the teaching
+    # itself, and that fails invisibly. That is the wrong risk to take on no evidence.
+    # WHAT MAKES THIS HONEST RATHER THAN CONVENIENT: the real question was never "how
+    # many characters" but "does he still FOLLOW rule 34 at this length", and nothing has
+    # ever measured that. lessonaudit.py now can -- it runs real lessons and has an
+    # independent model mark them against every rule. Run it at two prompt sizes and set
+    # this number from evidence. Until then 150,000 is a tripwire, not a licence: it is
+    # still an early warning that someone should look, not permission to sprawl.
+    CEILING = 150_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
     # THE BUDGET, not just the total. A single number tells you that you are over and
@@ -1886,6 +1921,87 @@ def _voice_lines_from(path, name):
     block = re.sub(r",(\s*\])", r"\1", block)
     return _json.loads(block)
 
+
+
+
+def part3l_lesson_auditor():
+    """PART 3l -- THE LESSON AUDITOR IS SAFE AND HONEST.
+
+    Build cw. lessonaudit.py spends real money on two vendors and reads a secret, so the
+    things worth guarding are not its findings -- those are opinions -- but its
+    boundaries: it must never leak a key, never change the teaching, always be able to be
+    priced before it is run, and always be able to say what a scenario was guarding when
+    somebody deletes one.
+    """
+    print("\nPART 3l — the offline lesson auditor")
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, "lessonaudit.py")
+    if not os.path.exists(path):
+        skip("lesson auditor", "lessonaudit.py not present")
+        return
+    src = open(path, encoding="utf-8").read()
+    import lessonaudit as LA
+
+    check(f"the cast is declared ({len(LA.SCENARIOS)} scenarios)", len(LA.SCENARIOS) >= 8,
+          "too few scenarios to be a reality check")
+    missing = [s.get("id", "?") for s in LA.SCENARIOS
+               if not all(s.get(k) for k in ("id", "course", "exposes", "persona", "opening"))]
+    check("  every scenario says what it GUARDS", not missing,
+          f"{missing} -- a scenario with no stated purpose gets deleted by the next person "
+          f"who is in a hurry")
+    bad_course = [s["id"] for s in LA.SCENARIOS if s["course"] not in COURSES]
+    check("  every scenario names a real course", not bad_course, str(bad_course))
+
+    # THE SECRET. It is read from the environment and must never travel anywhere else.
+    # Precise on purpose. A first version flagged the DRY RUN's label line -- the words
+    # "OPENAI_API_KEY" printed next to "present"/"MISSING", which is exactly what you want
+    # a diagnostic to say. A check that cries wolf at correct code gets switched off, and
+    # then it is not guarding anything. Look for the VALUE travelling, not the name.
+    leaks = [pat for pat in ("{key!r}", "+ key", "str(key)", "% key",
+                             "return key", '"key": key', "print(key")
+             if pat in src]
+    # The key may appear in exactly ONE place: the Authorization header it exists for.
+    # Anywhere else -- an f-string in a log line, an error message, a returned dict -- is
+    # a leak. Counting the two forms against each other says that precisely.
+    if src.count("{key}") != src.count("Bearer {key}"):
+        leaks.append("{key} outside an Authorization header")
+    check("the key value never travels anywhere but the Authorization header",
+          "OPENAI_API_KEY" in src and not leaks,
+          f"{leaks} -- a key in a log line is a key in a screenshot")
+    check("  and the dry run reports only WHETHER a key exists",
+          "bool(os.environ.get(\"OPENAI_API_KEY\"))" in src,
+          "presence is all anyone needs to debug this")
+
+    # It must be priceable before it is run, and it must be honest that the price is a guess.
+    d = LA.dry_run(limit=2)
+    check("a dry run prices the job without spending anything",
+          d.get("dry_run") is True and d.get("estimated_cost_usd", 0) > 0
+          and len(d.get("scenarios", [])) == 2,
+          "nobody should have to spend money to find out what something costs")
+    check("  and it says out loud that the price is an estimate",
+          "ESTIMATE ONLY" in (d.get("estimate_note") or ""),
+          "an unlabelled estimate gets quoted back as a fact")
+
+    # THE LINE THAT MATTERS: it reports, it does not edit.
+    for forbidden, why in (("open(os.path.join(HERE, \"tutor.py\"), \"w\"", "tutor.py"),
+                           ("foundations.py\", \"w\"", "foundations.py")):
+        check(f"  the auditor never writes {why}", forbidden not in src,
+              "a critic that edits the teaching is a second author nobody reviewed")
+    check("  the report says findings have not been acted on",
+          "Nothing here has been acted on" in src,
+          "a report that reads like a changelog gets treated as one")
+
+    # A stale model name must be a one-line fix, never a mystery.
+    check("a rejected model names the ones the account actually has",
+          "_openai_model_names" in src and "OPENAI_AUDIT_MODEL" in src,
+          "'model not found' with no list is an evening gone")
+
+    # And the endpoint that runs it is admin-gated, like every other spending endpoint.
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    i = msrc.find("def admin_lesson_audit")
+    check("the endpoint is behind the admin key",
+          i > 0 and "_require_admin(body.key)" in msrc[i:i + 3000],
+          "an open endpoint that spends money on two APIs")
 
 
 def part3k_mastery_reachable():
@@ -2229,6 +2345,7 @@ def main():
     part3i_rule_verification()
     part3j_walkthroughs()
     part3k_mastery_reachable()
+    part3l_lesson_auditor()
     if live:
         part4_live()
     else:

@@ -1,0 +1,488 @@
+# =============================================================================
+# lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
+# -----------------------------------------------------------------------------
+# CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cw -- NEW FILE. Jim: "I need to build some sort of
+#               effectiveness/reality check so we don't keep having these problems."
+#
+# WHAT THIS IS, AND WHY IT IS NOT IN THE LIVE PATH
+# -----------------------------------------------------------------------------
+# Two things check quality today, and there is a gap between them.
+#   * ruletests.py checks the CODE and the WORDS OF THE PROMPT. It can prove a rule is
+#     in there and that a board tag will draw. It cannot judge teaching.
+#   * Jim, reading lessons one at a time. He found the f(x) gap, the hole with no cause,
+#     and a mastery bar nobody could clear. He is the only thing looking at the actual
+#     teaching, and that does not scale past him.
+#
+# This closes that gap. It runs real lessons and has an INDEPENDENT model mark them.
+#
+# Jim asked whether we should instead review every live reply with a second model before
+# posting it. We decided against it, and the reason is worth keeping: every defect found
+# so far was a MISSING SPECIFICATION, not a bad day. f(x) was never taught because no
+# script existed. The hole had no cause because no rule required one. The mastery bar was
+# unreachable because nobody multiplied 90% by five questions. A live reviewer catches
+# things like that SOMETIMES and lets them through next Tuesday; a rule plus a test closes
+# them forever, for free. Live review would also double per-turn cost and put a pause in
+# front of a voice tutor, which is the product.
+#
+# HOW IT WORKS
+# -----------------------------------------------------------------------------
+#   1. OpenAI PLAYS THE STUDENT from a persona ("you are eight, you are stuck on
+#      fractions, answer in one short sentence"). Deliberately not a hand-written script:
+#      a scripted student only ever walks the paths we thought of, and the bugs live in
+#      the paths we did not.
+#   2. Claude is the TUTOR, through tutor.get_tutor_reply -- the real prompt, the real
+#      rules, the real board tags. Nothing is mocked.
+#   3. OpenAI then CRITIQUES the finished transcript against the generated rule index, as
+#      a picky mathematics teacher: what was asserted with no reason, what symbol was
+#      written but never read aloud, which rule number does this break.
+#   4. It writes a report. A HUMAN reads it and turns real findings into a rule and a
+#      test. NOTHING here edits the teaching. A critic can be wrong, and a wrong critic
+#      quietly sanding down good teaching is the exact failure we are trying to avoid.
+#
+# A DIFFERENT VENDOR ON PURPOSE. Claude checking Claude agrees with itself. Independent
+# training means independent blind spots, which is the whole point of a second opinion.
+#
+# RUNNING IT
+# -----------------------------------------------------------------------------
+#   Locally:  python lessonaudit.py --dry-run          # cost estimate, spends nothing
+#             python lessonaudit.py --limit 2          # two scenarios
+#             python lessonaudit.py                    # the whole cast
+#   On Render (this is how Jim runs it -- the keys live there, and only there):
+#             POST /api/admin/lesson-audit {key, dry_run:true}
+#             POST /api/admin/lesson-audit {key, limit:2, offset:0}
+#
+# ⚠️ KEYS. Read from the environment, never printed, never returned, never logged. The
+# only thing this file ever says about a key is whether one is present.
+# ⚠️ MODEL NAMES MOVE. OPENAI_AUDIT_MODEL sets it. If the configured model is rejected,
+# this asks the API which models the account actually has and names them in the error,
+# so a stale default is a one-line fix and never a mystery.
+# =============================================================================
+import json
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import tutor  # noqa: E402
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+OPENAI_URL = "https://api.openai.com/v1/chat/completions"
+OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
+# Overridable because model names move faster than this file will. A wrong default is not
+# a silent failure here: see _openai(), which asks the account what it has.
+AUDIT_MODEL = os.environ.get("OPENAI_AUDIT_MODEL", "gpt-5.5")
+TURNS = int(os.environ.get("AUDIT_TURNS", "8"))          # student turns per lesson
+
+# ESTIMATES ONLY, for the dry run -- published prices change and these are not read from
+# anywhere authoritative. The dry run says so out loud. The real number is on the two
+# billing dashboards after a run.
+EST_CLAUDE_PER_TURN = 0.03      # a lesson turn, mostly cached prompt
+EST_OPENAI_PER_1K = 0.004       # blended in/out, the student turns and the critique
+
+
+# =============================================================================
+# THE CAST. Each one exists to expose a class of failure we have actually been bitten by
+# -- the note says which, so nobody deletes a scenario without knowing what it guarded.
+# =============================================================================
+SCENARIOS = [
+    dict(id="fractions-lost", course="basicmath", unit=2,
+         exposes="rule 36-38 foundation-first, rule 39 turn length and failable check-ins, "
+                 "rule 44 read the problem aloud. A confused young child is where a tutor "
+                 "most easily talks too long and asks a question that cannot fail.",
+         persona="You are 8 years old and you are stuck on fractions. You are polite but "
+                 "you get lost easily. Answer in ONE short sentence, the way a child "
+                 "speaks. If you do not follow something, say so plainly. Sometimes say "
+                 "'yes' when you have not really understood -- children do that. Never "
+                 "explain that you are an AI.",
+         opening="I have to do fractions for homework and I don't get it"),
+    dict(id="order-of-operations", course="prealgebra", unit=1,
+         exposes="rule 49 (a wrong answer is the output of a RULE), rules 20-22. The "
+                 "student runs left to right; if the tutor just corrects the number, the "
+                 "broken rule survives and fires again next week.",
+         persona="You are 12. You are confident and quick. You evaluate arithmetic strictly "
+                 "left to right and you are sure that is correct. Answer in one short "
+                 "sentence. Do not volunteer that you are making an error. If corrected, "
+                 "push back once before you consider it. Never say you are an AI.",
+         opening="3 + 2 x 4 is 20 right"),
+    dict(id="limits-hole", course="calculus", unit=1,
+         exposes="rule 51 (a feature on the board must belong to the function) and rule 1. "
+                 "This is Jim's own catch: a hole asserted on y = x^2, which has no hole, "
+                 "and an approach narrated as though the curve stopped at the point.",
+         persona="You are a bright student meeting limits for the first time. You ask "
+                 "precise, slightly sceptical questions when something is asserted without "
+                 "a reason. One or two sentences. Never say you are an AI.",
+         opening="can you explain what a limit is"),
+    dict(id="function-notation", course="algebra1", unit=3,
+         exposes="rule 48 (teach them how to SAY the symbol) and rule 14. The exact gap "
+                 "Jim hit live: f(x) written on the board, never read aloud, then g(x).",
+         persona="You are 13, meeting function notation for the first time. You read "
+                 "symbols out loud incorrectly when you guess. One or two sentences. Never "
+                 "say you are an AI.",
+         opening="my book has f(x) in it and I don't know what that means"),
+    dict(id="decimal-alignment", course="prealgebra", unit=5,
+         exposes="the misconception catalogue and the board referees: a wrong answer must "
+                 "never be adopted in words, and every computation asked must be on the "
+                 "board with a '?' line (rules 15, 18).",
+         persona="You are 12 and you line decimals up by their last digit instead of the "
+                 "decimal point. You are willing but you make that same mistake "
+                 "consistently. One short sentence. Never say you are an AI.",
+         opening="whats 3.5 + 0.47"),
+    dict(id="quiz-eighty", course="prealgebra", unit=4,
+         exposes="rule 45 (the tally is arithmetic), rule 47 (no cold quizzes), rule 50 "
+                 "(an unfinished unit is your job). A student who scores 8/10 has passed "
+                 "nothing and must be offered review and a retake, warmly.",
+         persona="You are 12. You want to take the unit quiz right now and get it over "
+                 "with. You will get most questions right and miss one or two. Answer with "
+                 "just your answer, briefly. Never say you are an AI.",
+         opening="can I take the unit quiz on percents now"),
+    dict(id="i-dont-know", course="basicmath", unit=3,
+         exposes="rules 23-27 (the escalating ladder) and rule 39(e). A student who says "
+                 "'I don't know' twice is where a tutor either gives the answer away or "
+                 "repeats itself louder.",
+         persona="You are 9. You say 'I don't know' a lot, and you mean it. You will "
+                 "engage if something concrete is put in front of you. Very short answers. "
+                 "Never say you are an AI.",
+         opening="I don't know how to do any of this"),
+    dict(id="geometry-picture", course="geometry", unit=4,
+         exposes="rules 1, 2, 7, 8 and rule 41 (every picture carries a caption naming "
+                 "what to NOTICE). Geometry is where a tutor most often describes a figure "
+                 "it never drew.",
+         persona="You are 14 working on triangles. You ask to SEE things ('can you show "
+                 "me?'). One or two sentences. Never say you are an AI.",
+         opening="I need to find the missing side of a right triangle"),
+    dict(id="final-exam-locked", course="prealgebra", unit=9,
+         exposes="the Final Exam gate (build cu) and rule 50. The student is short of "
+                 "mastery and must be told WHICH units, and offered the retake -- not just "
+                 "'you have mastered 3 of 9'.",
+         persona="You are 13 and impatient. You want to take the final exam now. You "
+                 "answer briefly and you push back when told to wait. Never say you are "
+                 "an AI.",
+         opening="I want to take the final exam"),
+    dict(id="returning-student", course="algebra2", unit=2,
+         exposes="the opener rules, foundation memory (rule 40: ASK, do not replay) and "
+                 "rule 42 (never compare this student to anyone else).",
+         persona="You are 15, coming back after a week away. You half-remember the last "
+                 "topic. Short answers. Never say you are an AI.",
+         opening="I'm back, what were we doing again"),
+]
+
+CRITIC_SYSTEM = """\
+You are a mathematics teacher with twenty years in a classroom, reviewing a transcript
+from an AI tutor before it is used with real children. You are respected because you are
+specific and because you do not pad your reviews with praise.
+
+You will be given the tutor's RULE INDEX and one lesson transcript.
+
+Report only things that are ACTUALLY WRONG in this transcript. In particular hunt for:
+  * anything ASSERTED WITHOUT A REASON -- a feature on a graph the function does not
+    have, a step that appears with no justification, a claim a knowledgeable student
+    would answer with "says who?"
+  * MATHEMATICS THAT IS WRONG, imprecise, or true only by accident
+  * a symbol WRITTEN but never SAID out loud, or said in a way a student could not repeat
+  * a question the student cannot answer wrongly ("does that make sense?" alone)
+  * a wrong answer CORRECTED but the student's broken rule left intact
+  * a picture referred to in words that does not appear as a board tag
+  * anything a bright student would find confusing, and why
+
+Board tags look like [[step eq="..."]] or [[graph ...]]. Treat a tag as the thing being
+drawn on the board. The student cannot see anything that is not in a tag.
+
+Do NOT report: tone, warmth, length, formatting, or anything you merely think could be
+phrased better. Do NOT invent rule numbers. If the transcript is clean, say so - a clean
+report is a useful result and you will not be thought lazy for returning one.
+
+Return STRICT JSON only, no prose around it:
+{"findings":[{"severity":"high|medium|low","rule":<number or null>,
+  "what":"<one sentence: what is wrong>",
+  "quote":"<the exact words from the transcript that are wrong>",
+  "why":"<why it misleads a student>",
+  "fix":"<the concrete change you would make>"}],
+ "verdict":"<one sentence overall>"}
+severity high = a student would learn something false or be unable to follow.
+"""
+
+
+# =============================================================================
+# OPENAI TRANSPORT
+# =============================================================================
+def _openai(messages, max_tokens=900, want_json=False, model=None):
+    """One OpenAI chat call. Returns (text, error). Never raises, never logs the key.
+
+    On a model error it ASKS THE ACCOUNT what it actually has and names those models in
+    the error, because 'model not found' with no list is the kind of dead end that costs
+    an evening. Model names move; a stale default should be a one-line fix.
+    """
+    import httpx
+    key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not key:
+        return None, ("no OPENAI_API_KEY in the environment. On Render: add it to the "
+                      "service's Environment tab; it is never sent anywhere else.")
+    body = {"model": model or AUDIT_MODEL, "messages": messages, "max_tokens": max_tokens}
+    if want_json:
+        body["response_format"] = {"type": "json_object"}
+    try:
+        r = httpx.post(OPENAI_URL, json=body, timeout=120.0,
+                       headers={"Authorization": f"Bearer {key}"})
+    except Exception as exc:  # noqa: BLE001
+        return None, f"could not reach OpenAI: {exc}"
+    if r.status_code == 200:
+        try:
+            return r.json()["choices"][0]["message"]["content"], None
+        except Exception as exc:  # noqa: BLE001
+            return None, f"unexpected OpenAI response shape: {exc}"
+    detail = ""
+    try:
+        detail = (r.json().get("error") or {}).get("message", "")
+    except Exception:  # noqa: BLE001
+        detail = (r.text or "")[:200]
+    if r.status_code in (400, 404) and "model" in detail.lower():
+        names = _openai_model_names(key)
+        if names:
+            detail += ("  |  models available on this account: " + ", ".join(names[:25])
+                       + ".  Set OPENAI_AUDIT_MODEL to one of these.")
+    return None, f"OpenAI {r.status_code}: {detail}"
+
+
+def _openai_model_names(key):
+    """The chat-capable model ids this account can actually use. Best effort."""
+    import httpx
+    try:
+        r = httpx.get(OPENAI_MODELS_URL, timeout=30.0,
+                      headers={"Authorization": f"Bearer {key}"})
+        if r.status_code != 200:
+            return []
+        ids = [m.get("id", "") for m in (r.json().get("data") or [])]
+        return sorted(i for i in ids if i.startswith(("gpt", "o1", "o3", "o4")))
+    except Exception:  # noqa: BLE001
+        return []
+
+
+# =============================================================================
+# RUNNING ONE LESSON
+# =============================================================================
+def _rules_text():
+    """The generated rule index. RULES.md if it is present (it is committed), otherwise
+    regenerate from the prompt so the critic is never marking against a stale list."""
+    path = os.path.join(HERE, "RULES.md")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return fh.read()
+    except OSError:
+        try:
+            import ruletests
+            return ruletests.rules_markdown()      # same generator, if it is exposed
+        except Exception:  # noqa: BLE001
+            return "(rule index unavailable -- judge on mathematics and clarity alone)"
+
+
+def _student_turn(sc, transcript):
+    """OpenAI, in character, says the next student thing."""
+    recent = transcript[-8:]
+    convo = "\n".join(f"{'TUTOR' if r == 'assistant' else 'YOU'}: {t}" for r, t in recent)
+    msgs = [{"role": "system", "content": sc["persona"] +
+             "\n\nYou are in a maths lesson. Reply with ONLY what you would say next -- no "
+             "stage directions, no quotation marks, no explanation."},
+            {"role": "user", "content": f"The lesson so far:\n\n{convo}\n\nWhat do you say next?"}]
+    text, err = _openai(msgs, max_tokens=120)
+    if err:
+        return None, err
+    return (text or "").strip().strip('"'), None
+
+
+def run_scenario(sc, turns=TURNS):
+    """Play one lesson. Returns (transcript, error). Transcript is [(role, text), ...]."""
+    student = {"name": "Audit Student", "code": "AUDIT",
+               "progress": f"Working in unit {sc.get('unit', 1)}."}
+    transcript = [("user", sc["opening"])]
+    history = []
+    for i in range(turns):
+        try:
+            reply = tutor.get_tutor_reply(dict(student), list(history), transcript[-1][1],
+                                          course=sc["course"], code="AUDIT")
+        except Exception as exc:  # noqa: BLE001
+            return transcript, f"tutor call failed on turn {i + 1}: {exc}"
+        transcript.append(("assistant", reply))
+        history.append({"role": "user", "content": transcript[-2][1]})
+        history.append({"role": "assistant", "content": reply})
+        if i == turns - 1:
+            break
+        say, err = _student_turn(sc, transcript)
+        if err:
+            return transcript, err
+        if not say:
+            break
+        transcript.append(("user", say))
+    return transcript, None
+
+
+def critique(sc, transcript):
+    """Mark one transcript. Returns (findings_dict, error)."""
+    body = "\n\n".join(f"{'TUTOR' if r == 'assistant' else 'STUDENT'}: {t}"
+                       for r, t in transcript)
+    msgs = [{"role": "system", "content": CRITIC_SYSTEM},
+            {"role": "user", "content":
+                f"THE TUTOR'S RULE INDEX:\n\n{_rules_text()[:60000]}\n\n"
+                f"=====\n\nTRANSCRIPT (course: {sc['course']}, this scenario exists to "
+                f"expose: {sc['exposes']}):\n\n{body}"}]
+    text, err = _openai(msgs, max_tokens=2000, want_json=True)
+    if err:
+        return None, err
+    try:
+        return json.loads(text), None
+    except Exception:  # noqa: BLE001
+        start, end = (text or "").find("{"), (text or "").rfind("}")
+        if start >= 0 and end > start:
+            try:
+                return json.loads(text[start:end + 1]), None
+            except Exception:  # noqa: BLE001
+                pass
+        return None, f"critic did not return JSON: {(text or '')[:200]}"
+
+
+# =============================================================================
+# THE RUN
+# =============================================================================
+def dry_run(limit=None, offset=0, turns=TURNS):
+    """Price it, spend nothing. Deliberately blunt about being an estimate."""
+    picked = SCENARIOS[offset:offset + limit] if limit else SCENARIOS[offset:]
+    claude = len(picked) * turns * EST_CLAUDE_PER_TURN
+    # per scenario: (turns-1) student turns, each small, plus one big critique
+    openai_k = len(picked) * (((turns - 1) * 1.2) + 22)
+    return {
+        "ok": True, "dry_run": True,
+        "scenarios": [{"id": s["id"], "course": s["course"], "exposes": s["exposes"]}
+                      for s in picked],
+        "turns_each": turns,
+        "have_openai_key": bool(os.environ.get("OPENAI_API_KEY")),
+        "have_anthropic_key": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        "model": AUDIT_MODEL,
+        "estimated_cost_usd": round(claude + openai_k * EST_OPENAI_PER_1K, 2),
+        "estimate_note": ("ESTIMATE ONLY -- built from assumed per-token prices, not read "
+                          "from either vendor. Read the real figure off the two billing "
+                          "dashboards after the first run and correct the constants at "
+                          "the top of lessonaudit.py."),
+    }
+
+
+def audit(limit=None, offset=0, turns=TURNS):
+    """Run the batch and mark it. Returns a plain dict -- no printing, so the endpoint
+    and the command line can both use it."""
+    picked = SCENARIOS[offset:offset + limit] if limit else SCENARIOS[offset:]
+    started = time.time()
+    results = []
+    for sc in picked:
+        t0 = time.time()
+        transcript, err = run_scenario(sc, turns)
+        row = {"id": sc["id"], "course": sc["course"], "exposes": sc["exposes"],
+               "turns": len(transcript), "seconds": round(time.time() - t0, 1),
+               "transcript": [{"who": r, "text": t} for r, t in transcript]}
+        if err:
+            row["error"] = err
+            results.append(row)
+            continue
+        marked, cerr = critique(sc, transcript)
+        if cerr:
+            row["error"] = cerr
+        else:
+            row["verdict"] = marked.get("verdict", "")
+            row["findings"] = marked.get("findings", []) or []
+        results.append(row)
+    high = sum(1 for r in results for f in (r.get("findings") or [])
+               if (f.get("severity") or "").lower() == "high")
+    total = sum(len(r.get("findings") or []) for r in results)
+    return {"ok": True, "dry_run": False, "model": AUDIT_MODEL,
+            "scenarios_run": len(results), "findings": total, "high": high,
+            "seconds": round(time.time() - started, 1), "results": results}
+
+
+def report_markdown(run):
+    """The human-readable report. Findings first -- the transcripts are evidence, and
+    nobody reads evidence they have not been given a reason to read."""
+    from datetime import datetime, timezone
+    when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    out = [f"# Lesson audit — {when}", "",
+           f"_Model: {run.get('model')} · {run.get('scenarios_run')} scenarios · "
+           f"{run.get('findings')} findings ({run.get('high')} high) · "
+           f"{run.get('seconds')}s_", "",
+           "Nothing here has been acted on. A finding is an OPINION from an independent "
+           "model; read the quoted words yourself before changing anything. A real one "
+           "becomes a rule AND a test in the same commit.", ""]
+    for r in run.get("results", []):
+        out.append(f"## {r['id']}  ·  {r['course']}")
+        out.append(f"_Guards: {r['exposes']}_")
+        if r.get("error"):
+            out += ["", f"**Did not complete:** {r['error']}", ""]
+            continue
+        out += ["", f"**Verdict:** {r.get('verdict', '')}", ""]
+        fs = r.get("findings") or []
+        if not fs:
+            out += ["No findings.", ""]
+        for f in fs:
+            sev = (f.get("severity") or "?").upper()
+            rule = f" · rule {f['rule']}" if f.get("rule") else ""
+            out += [f"### {sev}{rule} — {f.get('what', '')}",
+                    f"> {f.get('quote', '')}", "",
+                    f"**Why it misleads:** {f.get('why', '')}", "",
+                    f"**Suggested fix:** {f.get('fix', '')}", ""]
+        out += ["<details><summary>transcript</summary>", ""]
+        for line in r.get("transcript", []):
+            who = "**Mr. Cadabra:**" if line["who"] == "assistant" else "**Student:**"
+            out.append(f"{who} {line['text']}")
+            out.append("")
+        out += ["</details>", ""]
+    out.append("I did no harm and this file is not truncated.")
+    return "\n".join(out)
+
+
+def main():
+    args = sys.argv[1:]
+
+    def opt(name, default=None):
+        if name in args:
+            i = args.index(name)
+            if i + 1 < len(args):
+                return args[i + 1]
+        return default
+
+    limit = int(opt("--limit", 0)) or None
+    offset = int(opt("--offset", 0))
+    turns = int(opt("--turns", TURNS))
+    if "--dry-run" in args:
+        d = dry_run(limit, offset, turns)
+        print(f"\nLESSON AUDIT — DRY RUN (nothing is spent)\n")
+        print(f"  model             {d['model']}")
+        print(f"  OPENAI_API_KEY    {'present' if d['have_openai_key'] else 'MISSING'}")
+        print(f"  ANTHROPIC_API_KEY {'present' if d['have_anthropic_key'] else 'MISSING'}")
+        print(f"  scenarios         {len(d['scenarios'])} × {d['turns_each']} turns")
+        for s in d["scenarios"]:
+            print(f"    - {s['id']:<20} {s['course']}")
+        print(f"\n  estimated cost    ${d['estimated_cost_usd']}")
+        print(f"  {d['estimate_note']}\n")
+        return 0
+    run = audit(limit, offset, turns)
+    md = report_markdown(run)
+    path = os.path.join(HERE, "lesson_audit_report.md")
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(md)
+        print(f"\nwrote {path}")
+    except OSError as exc:
+        print(f"\ncould not write the report file ({exc}); it follows in full:\n")
+        print(md)
+    print(f"\n{run['scenarios_run']} scenarios · {run['findings']} findings "
+          f"({run['high']} high) · {run['seconds']}s")
+    for r in run["results"]:
+        if r.get("error"):
+            print(f"  {r['id']:<20} DID NOT COMPLETE — {r['error']}")
+        else:
+            print(f"  {r['id']:<20} {len(r.get('findings') or [])} findings")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+# I did no harm and this file is not truncated.

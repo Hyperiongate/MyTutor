@@ -2,6 +2,30 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cw-lesson-auditor". Jim: "I need to build some
+#               sort of effectiveness/reality check so we don't keep having these
+#               problems." NEW FILE lessonaudit.py + POST /api/admin/lesson-audit.
+#               Two things check quality today and there is a gap between them:
+#               ruletests.py checks the CODE and the WORDS OF THE PROMPT and cannot judge
+#               teaching, and Jim reads lessons one at a time, which does not scale past
+#               Jim. The auditor closes it: student PERSONAS played by OpenAI take real
+#               lessons from the real prompt, then OpenAI marks each transcript against
+#               the generated rule index as a picky maths teacher. Ten scenarios, each
+#               built around a failure class we have actually been bitten by.
+#               ⭐ WE CHOSE THIS OVER LIVE PER-TURN REVIEW, and the reason is the point:
+#               every defect found this week was a MISSING SPECIFICATION, not a bad day.
+#               A live reviewer catches those sometimes and lets them through next
+#               Tuesday; a rule plus a test closes them forever, for free -- and live
+#               review would roughly double per-turn cost and put a pause in front of a
+#               voice tutor, which is the product.
+#               NOTHING IN IT CHANGES THE TEACHING. It returns a report a human reads; a
+#               wrong critic quietly sanding down good teaching is the exact failure this
+#               is meant to prevent. Admin-key gated because it spends on two APIs, runs
+#               on Render because that is where the keys are, dry_run prices it for free,
+#               limit/offset walk the cast in batches so no request runs long.
+#               NEW ENV VARS: OPENAI_API_KEY (required for a real run) and optional
+#               OPENAI_AUDIT_MODEL / AUDIT_TURNS. The key is read, never printed, never
+#               returned, never logged -- ruletests PART 3l holds that line.
 #   2026-08-10  APP_BUILD -> "2026-08-10cv-holes-windows-and-the-fold". No logic change in
 #               this file -- the stamp moves for the four fixes below (tutor.py,
 #               foundations.py, math-figures.js, session.html, ruletests.py).
@@ -3913,6 +3937,60 @@ class PrewarmAdminIn(BaseModel):
     dry_run: bool = False   # count and price it without spending anything
 
 
+class LessonAuditIn(BaseModel):
+    key: str
+    limit: int = 2          # scenarios THIS call -- a lesson takes a minute or two
+    offset: int = 0         # where to start, so the cast can be walked in batches
+    turns: int = 0          # 0 = the file's default
+    dry_run: bool = False   # price it and spend nothing
+
+
+@app.post("/api/admin/lesson-audit")
+def admin_lesson_audit(body: LessonAuditIn):
+    """Run the OFFLINE LESSON AUDITOR and return its report.
+
+    2026-08-10 (build cw). Jim: "I need to build some sort of effectiveness/reality check
+    so we don't keep having these problems."
+
+    Two things check quality today and there is a gap between them: ruletests.py checks
+    the CODE and the WORDS OF THE PROMPT and cannot judge teaching, and Jim reads lessons
+    one at a time, which does not scale past Jim. This closes that gap: scripted student
+    PERSONAS (played by OpenAI) take real lessons from the real prompt, and OpenAI then
+    marks each transcript against the generated rule index as a picky maths teacher.
+
+    NOTHING HERE CHANGES THE TEACHING. It returns a report a human reads. A critic can be
+    wrong, and a wrong critic quietly sanding down good teaching is exactly the failure
+    this is meant to prevent. A real finding becomes a rule AND a test, in one commit.
+
+    It lives behind the admin key because it spends real money on two APIs, and it runs
+    HERE rather than on a laptop because this is where the keys are. `dry_run` prices it
+    for free. `limit`/`offset` walk the cast in batches so a request never runs long
+    enough to time out -- two scenarios a call is comfortable.
+
+    Needs OPENAI_API_KEY in the environment (Render -> Environment). The key is read,
+    never printed, never returned, never logged."""
+    _require_admin(body.key)
+    try:
+        import lessonaudit
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503,
+                            detail=f"lessonaudit.py is not available on this deploy: {exc}")
+    turns = int(body.turns) or lessonaudit.TURNS
+    limit = max(0, int(body.limit)) or None
+    if body.dry_run:
+        return lessonaudit.dry_run(limit, int(body.offset), turns)
+    if not os.environ.get("OPENAI_API_KEY", "").strip():
+        raise HTTPException(status_code=503,
+                            detail=("No OPENAI_API_KEY on this service. Add it in Render -> "
+                                    "Environment and redeploy; it is used only here, only "
+                                    "when you call this endpoint."))
+    run = lessonaudit.audit(limit, int(body.offset), turns)
+    run["report_markdown"] = lessonaudit.report_markdown(run)
+    run["next_offset"] = int(body.offset) + run.get("scenarios_run", 0)
+    run["remaining"] = max(0, len(lessonaudit.SCENARIOS) - run["next_offset"])
+    return run
+
+
 @app.post("/api/admin/prewarm-foundations")
 def admin_prewarm_foundations(body: PrewarmAdminIn):
     """Render every canonical foundation script into the TTS cache, up front.
@@ -4807,7 +4885,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cv-holes-windows-and-the-fold"
+APP_BUILD = "2026-08-10cw-lesson-auditor"
 
 
 @app.get("/health")
