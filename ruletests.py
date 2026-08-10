@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cq -- PART 3j grew two checks and one of its own bugs was fixed.
+#               New: the walkthrough must open the dashboard BEFORE it starts talking
+#               (Jim watched a blank screen talk at him for thirty seconds), and every
+#               audience line must be anchored by its opening WORDS, each anchor
+#               resolving to exactly ONE whitelisted line.
+#               THE BUG WORTH REMEMBERING: my first anchor regex used ["']([^"']{12,80})["']
+#               to pull the anchor text out. Four of the nine anchors have an apostrophe
+#               inside a double-quoted string -- "the parent's view", "That's the honest
+#               read." -- and [^"'] stops dead at that apostrophe. The test found five
+#               anchors, called it a pass at >=9 only by accident of failing loudly, and
+#               would otherwise have checked less than half of what its name claimed.
+#               A test that silently checks a subset is worse than no test. Capture the
+#               opening quote, require the same character to close it.
 #   2026-08-10  BUILD cp -- PART 3j, the audience walkthroughs. Guards the two things
 #               that can break /demo?view=... silently: a marketing page pointing at a
 #               view the demo does not implement, and the two voice lists falling out of
@@ -1849,9 +1862,39 @@ def part3j_walkthroughs():
                   any(key.rstrip('s') in ln.lower() or key in ln.lower() for ln in spoken)
                   or len(spoken) == 4,
                   "the walkthrough would fall back to the browser voice")
-        check("the audience intros are at the END (append-only)",
-              len(demo_lines) >= 192,
-              "they were inserted rather than appended -- every cached clip after them shifts")
+        # Build cq: the audience lines are anchored by their opening WORDS, not by
+        # counting back from the end -- the end moves on every append. Prove every
+        # anchor still resolves to exactly ONE whitelisted line, because a miss here is
+        # silent: the walkthrough just drops to the browser's mechanical voice.
+        demo_src = demo
+        # NOTE the quote handling: four of the nine anchors contain an apostrophe
+        # INSIDE a double-quoted string ("the parent's view", "That's the honest
+        # read."). A naive [^"'] class stops dead at that apostrophe and silently
+        # finds five anchors instead of nine -- a passing-looking test that checks
+        # less than half of what it claims. Capture the opening quote and require
+        # the SAME character to close it.
+        anchors = [m[1] for m in re.findall(
+            r'''lineStarting\(\s*(["'])((?:(?!\1).){12,80})\1\s*\)''', demo_src)]
+        check(f"every audience anchor is declared ({len(anchors)} found)", len(anchors) >= 9,
+              "expected four intros and five homeschool stops")
+        for a in anchors:
+            hits = [ln for ln in demo_lines if ln.startswith(a)]
+            check(f"  anchor {a[:34]!r} resolves to exactly one line", len(hits) == 1,
+                  f"matched {len(hits)} -- the walkthrough would fall back to the "
+                  f"browser voice, or play the wrong clip")
+
+        # And the bug Jim actually hit: the screen must go up BEFORE the words.
+        check("the walkthrough shows the dashboard before it starts talking",
+              "openDash(v.dash, { intro: v.intro" in demo_src
+              and "document.body.className=''" not in
+                  demo_src[demo_src.index("function startAudienceWalkthrough"):
+                           demo_src.index("function startAudienceWalkthrough") + 900],
+              "blanking the page and then speaking for thirty seconds is what Jim saw: "
+              "'it's just a blank screen... blank, blank, blank until it gets to the "
+              "parents' view'")
+        check("an audience walkthrough can retitle the dashboard's stops",
+              "runDashTour(d, 0, opts.lines)" in demo_src and "lines:HS_STOPS" in demo_src,
+              "the homeschool view would speak the parent's words on the parent's screen")
 
 
 def part4_live():

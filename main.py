@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cq-homeschool-walkthrough". Jim walked the
+#               homeschool door and hit a bug I put there in cp: "it talks for a long
+#               time and says this is the page that your child works from. It's just a
+#               blank screen. It stays blank, blank, blank, blank until it gets to the
+#               parents' view." Two faults, both mine.
+#               (1) ORDER. startAudienceWalkthrough blanked the page and THEN spoke a
+#               thirty-second intro before opening the dashboard. Nobody should ever be
+#               talked at by an empty screen. The screen goes up FIRST now, the first
+#               stop glows, and the words come over the top of something to look at.
+#               (2) TAILORING. Homeschool borrowed the parent tour verbatim, so a
+#               homeschool visitor heard a parent's script. It now has five stop lines of
+#               its own -- Monday morning, one adult teaching several grades, no
+#               teacher's aide behind you.
+#               THIS FILE: five lines APPENDED to DEMO_VOICE_LINES (192 -> 197). Appended,
+#               never inserted: clips are addressed BY INDEX, so anything inserted above
+#               them would play the wrong audio under the right words, silently. They are
+#               byte-identical to demo.html's VOICE_LINES and PART 3j proves it every run.
 #   2026-08-10  APP_BUILD -> "2026-08-10cp-audience-walkthroughs". Jim: the demo "is
 #               almost like a video... I would like one of those available, a very
 #               obvious button that says view the demo on the parent page, the teacher
@@ -4642,7 +4659,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cp-audience-walkthroughs"
+APP_BUILD = "2026-08-10cq-homeschool-walkthrough"
 
 
 @app.get("/health")
@@ -5713,6 +5730,14 @@ DEMO_VOICE_LINES = [
     "Welcome — this is the teacher's view of Mr. Cadabra's Classroom, built from a made-up class so no real student is ever on display. I'll walk you through the roster, who needs you this week and why, the mastery picture across the whole class, and the time each student actually spent. Every number is earned: mastery means ninety percent or better on a unit quiz with no hints from me.",
     "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your child's work and you can take it with you any time.",
     "Hi! This is your dashboard — the screen you'd open every time you come back. I'm using a made-up student called Maya so nobody's real work is on show. I'll walk you through your five numbers, your course map with the gold units you've mastered, what you're working on next, and the trophies you've earned. Everything here is stuff you actually did.",
+    # 2026-08-10 (build cq): the HOMESCHOOL stop lines for /demo?view=homeschool.
+    # Same screen as the parent view, different audience: a homeschool parent IS the
+    # teacher. APPENDED; must stay byte-identical to demo.html's VOICE_LINES.
+    "This is the dashboard you'd open on a Monday morning. You are the teacher here, so it leads with the thing you actually need to know before you plan the week: how is this child really doing, in plain English, not a score out of ten.",
+    "That's the honest read. It names what she has genuinely got, what she is stuck on, and what Mr. Cadabra is doing about it. If she had a rough week it will say so plainly — a record that only ever says 'great job' is no use to a parent who is also the teacher.",
+    "These five numbers are the ones a homeschool week turns on: units mastered, accuracy, problems practised, time on task this week, and the day streak. The hours are measured engaged time, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
+    "Strengthen next is your lesson plan for the week, already written. It comes from her actual work, so it is specific enough to sit down at the kitchen table with — not 'review fractions', but the exact step that is wobbling.",
+    "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your child's work, and you can take it with you any time, whether or not you stay with us.",
 ]
 
 

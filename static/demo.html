@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <!--
-    (cp) 2026-08-10 -- AUDIENCE WALKTHROUGHS: /demo?view=parents|teachers|homeschool|
+    (cq) 2026-08-10 -- SCREEN FIRST, WORDS SECOND · AND HOMESCHOOL GETS ITS OWN SCRIPT.
+    Jim, walking the homeschool door: "it talks for a long time and says this is the page
+    that your child works from. It's just a blank screen. It stays blank, blank, blank,
+    blank until it gets to the parents' view." Both faults were introduced in cp.
+    (1) startAudienceWalkthrough set document.body.className='' -- blanking the page --
+    and then spoke a ~70-word intro BEFORE openDash() ever ran. Thirty seconds of talking
+    at nothing. openDash(which, opts) now paints the dashboard, glows the first stop, THEN
+    speaks the intro, THEN runs the tour; the body class is deliberately left alone; and
+    armDashWatchdog is told about the intro so its deadline accounts for the extra words.
+    If you change the order back, PART 3j fails -- deliberately.
+    (2) Homeschool was pointed at the PARENT dashboard and inherited the parent's stop
+    lines word for word, so a homeschool visitor was told about "your child's teacher".
+    runDashTour(d, k, lines) now takes an override script and homeschool supplies five
+    lines of its own. The layout is still the parent one on purpose: it is the right set
+    of numbers, and duplicating a dashboard to change five sentences is the copy-paste
+    drift that gave us the build-bk rule bug.
+    Also: the audience lines are found by their opening WORDS (lineStarting) instead of by
+    counting back from the end of VOICE_LINES. The end moves every time we append; a
+    counted index rots the moment anyone adds a line, and it rots SILENTLY -- straight to
+    the browser's mechanical voice. Five lines APPENDED (192 -> 197), matching main.py.
+  - (cp) 2026-08-10 -- AUDIENCE WALKTHROUGHS: /demo?view=parents|teachers|homeschool|
     students. Jim: "it's almost like a video... I would like one of those available, a
     very obvious button that says view the demo on the parent page, the teacher page,
     the homeschooling page, and the student page... at the very least it will go through
@@ -784,6 +804,17 @@
     // 2026-08-10 (build cp): the four AUDIENCE INTROS for /demo?view=... — the
     // 'view the demo' button on the parents, teachers, homeschool and students
     // pages. APPENDED, never reordered: clips are addressed by index.
+,
+    "This is the dashboard you'd open on a Monday morning. You are the teacher here, so it leads with the thing you actually need to know before you plan the week: how is this child really doing, in plain English, not a score out of ten.",
+    "That's the honest read. It names what she has genuinely got, what she is stuck on, and what Mr. Cadabra is doing about it. If she had a rough week it will say so plainly — a record that only ever says 'great job' is no use to a parent who is also the teacher.",
+    "These five numbers are the ones a homeschool week turns on: units mastered, accuracy, problems practised, time on task this week, and the day streak. The hours are measured engaged time, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
+    "Strengthen next is your lesson plan for the week, already written. It comes from her actual work, so it is specific enough to sit down at the kitchen table with — not 'review fractions', but the exact step that is wobbling.",
+    "And this is the one homeschool families ask about first. It prints the whole record — every unit, every quiz, every hour, dated — ready for a portfolio, an end-of-year review, or a district file. It is your child's work, and you can take it with you any time, whether or not you stay with us."
+
+    // 2026-08-10 (build cq): the HOMESCHOOL stop lines. The homeschool walkthrough
+    // shows the parent dashboard -- the right SCREEN -- but the parent's own stops
+    // are written for a parent checking on a teacher. A homeschool parent IS the
+    // teacher, so the same screen means something different to them. APPENDED.
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -831,12 +862,32 @@
   // The four audience intros live at the END of VOICE_LINES (appended, build cp). They
   // are referenced BY TEXT here and looked up by index at play time, exactly like every
   // other line -- so nothing breaks if more lines are appended later.
+  // The audience lines are found by their opening WORDS, not by counting back from the
+  // end of the list. The end moves: VOICE_LINES is append-only, so the very next line
+  // anybody adds would have silently shifted every one of these by one and played the
+  // wrong clip under the right words. Anchors do not move.
+  function lineStarting(prefix){
+    for(var i=0;i<VOICE_LINES.length;i++){
+      if(VOICE_LINES[i].indexOf(prefix)===0) return VOICE_LINES[i];
+    }
+    console.warn('[demo] audience line not found in VOICE_LINES:', prefix);
+    return '';
+  }
   var AUD_INTRO = {
-    parents:    VOICE_LINES[VOICE_LINES.length-4],
-    teachers:   VOICE_LINES[VOICE_LINES.length-3],
-    homeschool: VOICE_LINES[VOICE_LINES.length-2],
-    students:   VOICE_LINES[VOICE_LINES.length-1]
+    parents:    lineStarting("Welcome — this is the parent's view"),
+    teachers:   lineStarting("Welcome — this is the teacher's view"),
+    homeschool: lineStarting("Welcome — this is the homeschool view"),
+    students:   lineStarting("Hi! This is your dashboard")
   };
+  // The five homeschool stop lines — same panels as the parent dashboard, words written
+  // for a parent who is also the teacher.
+  var HS_STOPS = [
+    lineStarting("This is the dashboard you'd open on a Monday morning"),
+    lineStarting("That's the honest read."),
+    lineStarting("These five numbers are the ones a homeschool week"),
+    lineStarting("Strengthen next is your lesson plan"),
+    lineStarting("And this is the one homeschool families ask about first")
+  ];
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
@@ -1394,22 +1445,40 @@
     ['dashStudent','dashTeacher','dashParent'].forEach(function(id){ el(id).classList.remove('show'); });
     clearGlow();
   }
-  function openDash(which){
+  function openDash(which, opts){
     warmDemoAudio();
     var d=DASHES[which]; if(!d) return;
+    opts = opts || {};
     if(window.mtTrack) mtTrack('Demo Dashboard Opened', {view:which});
     closeDash(); dashTourCancelled=false; dashDone=false;
     el(d.id).classList.add('show');
     el(d.id).scrollTop=0;
     el('showViews').classList.add('show');    // never strand anyone on a dashboard
-    armDashWatchdog(d);
-    runDashTour(d, 0);
+    armDashWatchdog(d, opts.intro);
+    // 2026-08-10 (build cq, Jim: "it talks for a long time... it's just a blank screen.
+    // It stays blank, blank, blank until it gets to the parents' view").
+    // The screen goes up FIRST and the words follow. The intro is ABOUT what they are
+    // looking at, so making them listen to it against a blank page was the whole bug --
+    // and it also broke rule 7 in spirit: never describe what you have not drawn.
+    if(opts.intro){
+      glow(d.stops[0].t);
+      sayThen(opts.intro, function(){
+        setTimeout(function(){ runDashTour(d, 0, opts.lines); }, 350);
+      });
+      return;
+    }
+    runDashTour(d, 0, opts.lines);
   }
-  function runDashTour(d, k){
+  // `lines` (build cq) lets an audience walkthrough keep the dashboard's TARGETS -- the
+  // real screen, the real order -- while speaking words written for that visitor. The
+  // homeschool view shows the parent dashboard because it IS the right screen; but a
+  // homeschool parent is the teacher, so the same panels mean something different to them.
+  function runDashTour(d, k, lines){
     if(dashTourCancelled) return;
     if(k>=d.stops.length){ clearGlow(); endDashTour(); return; }
     glow(d.stops[k].t);
-    sayThen(d.stops[k].line, function(){ setTimeout(function(){ runDashTour(d, k+1); }, 420); });
+    var line=(lines && lines[k]) ? lines[k] : d.stops[k].line;
+    sayThen(line, function(){ setTimeout(function(){ runDashTour(d, k+1, lines); }, 420); });
   }
   // 2026-08-09 (build ca, Jim: "when I finished the teacher's dashboard, it stopped —
   // it didn't put the three bubbles up again"). The bubbles used to depend on the audio
@@ -1426,10 +1495,13 @@
     if(dashWatchdog){ clearTimeout(dashWatchdog); dashWatchdog=null; }
     setTimeout(function(){ if(!dashTourCancelled) showBalloons(false); }, 600);
   }
-  function armDashWatchdog(d){
+  function armDashWatchdog(d, intro){
     if(dashWatchdog) clearTimeout(dashWatchdog);
     // generous: every stop's spoken estimate, plus half a minute of slack
     var ms=6000;
+    // build cq: an audience intro plays BEFORE the stops, so the watchdog has to know
+    // about it -- otherwise it fires mid-walkthrough and dumps the visitor at the views.
+    if(intro) ms += 4500 + String(intro).split(/\s+/).length*450;
     d.stops.forEach(function(s){ ms += 4500 + String(s.line).split(/\s+/).length*450 + 420; });
     dashWatchdog=setTimeout(function(){
       if(!dashDone && !dashTourCancelled){
@@ -1545,7 +1617,7 @@
                   title:"The parent's view" },
     teachers:   { dash:'teacher', intro:AUD_INTRO.teachers,
                   title:"The teacher's view" },
-    homeschool: { dash:'parent',  intro:AUD_INTRO.homeschool,
+    homeschool: { dash:'parent',  intro:AUD_INTRO.homeschool, lines:HS_STOPS,
                   title:"The homeschool view" },
     students:   { dash:'student', intro:AUD_INTRO.students,
                   title:"Your dashboard" }
@@ -1562,10 +1634,10 @@
     if(window.mtTrack) mtTrack('Demo Audience Walkthrough', {view:key});
     el('intro').style.display='none';
     el('restart').style.display='inline-block';
-    document.body.className='';
-    // Speak the audience intro first (it names what this visitor came to see, and the
-    // features that matter to them), THEN hand straight to the dashboard's own tour.
-    sayThen(v.intro, function(){ setTimeout(function(){ openDash(v.dash); }, 350); });
+    // NOTE: body class is deliberately left alone. The dashboard is a full-screen
+    // overlay, so it covers the page by itself -- blanking the body first is what left
+    // Jim looking at nothing for thirty seconds.
+    openDash(v.dash, { intro: v.intro, lines: v.lines });
   }
   (function(){
     var key=audienceParam();
