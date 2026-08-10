@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cs-full-parent-dashboard". Jim: "the demo is what
+#               is selling this product, and the parent is our number one customer... we
+#               have this great dashboard for parents. What we've done with this demo is
+#               we created a shortened dashboard that doesn't show much at all with a
+#               whole lot of words. I want a fully fleshed out parent dashboard, and I
+#               want you to give me a tour of that dashboard."
+#               He is right, and the demo's OWN design notes already said so: they
+#               specify seven sections for the parent view and it shipped with four.
+#               /demo's parent dashboard is now a section-for-section mirror of the real
+#               /dashboard?view=parent -- honest read, the read-only parent box with the
+#               records link, five tiles with the mastery ring, focus areas, nine units
+#               with dates AND scores, the learning journey, the status meter, the trophy
+#               case, the courses strip, the placement strengths, the honesty footer.
+#               The tour went from 5 stops to 10, and homeschool overrides all 10.
+#               THIS FILE: ten lines APPENDED to DEMO_VOICE_LINES (201 -> 211), five
+#               parent and five homeschool, byte-identical to demo.html's VOICE_LINES.
+#               Appended, never inserted -- clips are served BY INDEX. New audio is about
+#               2,500 characters, roughly sixty cents, once.
 #   2026-08-10  APP_BUILD -> "2026-08-10cr-one-door-one-dashboard". Jim: "when we go to
 #               the homeschool page, the teacher page, the student page, I want that demo
 #               to only show the dashboard that's interesting to that particular person.
@@ -4673,7 +4691,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cr-one-door-one-dashboard"
+APP_BUILD = "2026-08-10cs-full-parent-dashboard"
 
 
 @app.get("/health")
@@ -5760,6 +5778,19 @@ DEMO_VOICE_LINES = [
     "And that's the teacher's view. One room, every student, and no guessing about who needs you this week — the flags come from the work itself, not from a survey or a self-report. If you'd like to see what a lesson looks like from the student's side, I can teach you one right now, at any level you choose.",
     "And that's the homeschool view. The week in front of you and the record behind you, both ready whenever you need them, and both built from work your child actually did. If you'd like to see what a lesson looks like, I can teach you one right now, at any level from counting to calculus.",
     "And that's your dashboard! Every gold unit, every trophy, every number on it — you earned all of that yourself. Want to see what a real lesson is like? Pick any level you want and I'll teach you one right now, exactly the way I'd teach you for real.",
+    # 2026-08-10 (build cs): FIVE parent stops and FIVE homeschool stops for the
+    # rebuilt parent dashboard. The parent tour went from five stops to ten and
+    # homeschool overrides all ten BY INDEX. Identical to demo.html, APPENDED.
+    "If you only have a minute, this box is the whole dashboard in four lines: what she has mastered, her streak, how accurate she is, and how many problems she has actually done. Underneath it, where to help next — and the link that prints her records.",
+    "Here are her nine units. The gold ones are mastered, and every gold unit carries the date she proved it and the score she proved it with. Mastered means ninety percent or better on the Unit Quiz with no hints from me — so a gold unit is evidence, not encouragement.",
+    "This is the same nine units drawn as a path, so you can see the shape of her year at a glance: four behind her, decimals under her feet right now, four still ahead. Beside it, the same thing counted up, with the hours she has actually put in since September.",
+    "Her trophy case. A Course Champion medal for finishing Basic Math, a badge for every unit she has mastered, and an effort medal she earned for coming back four days running when percents beat her. None of these are participation stickers — every one came from recorded work.",
+    "And her courses. She finished Basic Math and moved up, and one subscription covers every course we teach, so she moves on when she is ready rather than when a term ends. Beside it, the strengths her placement check found on the very first day.",
+    "If Monday is busy, this box is your whole week in four lines — mastered, streak, accuracy, problems done — and then where to help next. The records link underneath it is the one that matters at filing time.",
+    "Here are the nine units, and every mastered one carries a date and a score. That pairing is what turns a checkbox into evidence, which is exactly what an end-of-year review or a portfolio asks you for.",
+    "The same nine units as a path, so you can see the whole year at a glance and plan against it. Beside it, the hours — measured engaged time since September, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
+    "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
+    "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day."
 ]
 
 

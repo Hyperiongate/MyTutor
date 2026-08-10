@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <!--
-    (cr) 2026-08-10 -- ONE DOOR, ONE DASHBOARD. Jim: "when we go to the homeschool page,
+    (cs) 2026-08-10 -- THE PARENT DASHBOARD IS THE REAL ONE NOW. Jim: "the demo is what
+    is selling this product, and the parent is our number one customer... we have this
+    great dashboard for parents. What we've done with this demo is we created a shortened
+    dashboard that doesn't show much at all with a whole lot of words. I want a fully
+    fleshed out parent dashboard, and I want you to give me a tour of that dashboard."
+    He is right, and this page's own design notes already said so: they specify seven
+    sections for the parent view and it shipped with four -- honest read, tiles,
+    strengthen, records. The talking had outgrown the screen.
+    #dashParent is now a section-for-section mirror of /dashboard?view=parent: the honest
+    read, the read-only parent box with the records link, five tiles with the mastery
+    ring, focus areas, the nine units with dates AND scores, the learning journey, the
+    status meter, the trophy case, the courses strip, the placement strengths, the
+    honesty footer. Component CSS follows dashboard.html so a visitor is looking at the
+    product, not at an artist's impression of it.
+    ⚠️ TWO THINGS MOVE TOGETHER NOW. The parent tour is TEN stops, and HS_STOPS overrides
+    it BY INDEX -- add a stop without adding a homeschool line and a homeschooling parent
+    is told about their child's teacher, silently. PART 3j fails on a length mismatch.
+    VOICE_LINES 201 -> 211 (five parent stops, five homeschool), APPENDED.
+    Numbers are Maya Rivera's canonical set from Demo_Design_Notes and must agree across
+    the student, teacher and parent views. Change one, change all three.
+  - (cr) 2026-08-10 -- ONE DOOR, ONE DASHBOARD. Jim: "when we go to the homeschool page,
     the teacher page, the student page, I want that demo to only show the dashboard
     that's interesting to that particular person. I don't want any links to any other
     dashboards from there."
@@ -366,6 +386,72 @@
     border:1px solid #e3def3;margin-right:5px;vertical-align:-2px}
   .legend .sw.gold{background:linear-gradient(135deg,#f2c14e,#e8a71c);border-color:transparent}
   .legend .sw.now{background:#8f7bff;border-color:transparent}
+  /* ---------------------------------------------------------------------------
+     2026-08-10 (build cs, Jim): "the parent is our number one customer... we have
+     this great dashboard for parents... what we've done with this demo is we
+     created a shortened dashboard that doesn't show much at all with a whole lot
+     of words. I want a fully fleshed out parent dashboard."
+     These are the components the REAL parent dashboard (/dashboard?view=parent)
+     has and the demo did not: the ring tile, the read-only parent box, the my-
+     courses strip, the focus-area cards, the learning journey, the status meter
+     and the placement chips. Shapes and colours follow dashboard.html so the demo
+     shows the product rather than an artist's impression of it.
+     --------------------------------------------------------------------------- */
+  .ptbadge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;
+    text-transform:uppercase;color:#4b3fb3;background:rgba(109,90,230,.13);
+    border-radius:999px;padding:3px 9px;vertical-align:3px;margin-left:8px}
+  .ptbox{background:#f6f3ff;border:1px solid #e2e5fb;border-radius:14px;padding:14px 16px;
+    font-size:13.5px;line-height:1.65}
+  .ptbox h4{font-size:15px;margin:0 0 7px}
+  .ptbox a{color:var(--purple);font-weight:800;text-decoration:none}
+  .tile .ring{width:56px;height:56px;border-radius:50%;margin:0 auto 6px;display:flex;
+    align-items:center;justify-content:center;
+    background:conic-gradient(var(--purple) calc(var(--p)*1%), #e9e5fb 0)}
+  .tile .ring span{width:42px;height:42px;border-radius:50%;background:#f8f6ff;display:flex;
+    align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--purple)}
+  .tile .sm{display:block;font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .mycourses{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .mc{background:#fff;border:1px solid var(--keyline);border-radius:14px;padding:12px 14px}
+  .mc.current{border-color:var(--purple);box-shadow:0 0 0 3px rgba(109,90,230,.13)}
+  .mc .nm{font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px}
+  .mc .nm .here{font-size:9.5px;font-weight:800;color:var(--purple);background:rgba(109,90,230,.13);
+    border-radius:999px;padding:2px 7px;letter-spacing:.03em}
+  .mc .cnt{font-size:12px;color:var(--muted);margin-top:5px}
+  .mc .bar{height:7px;border-radius:5px;background:#eef0f7;margin-top:8px;overflow:hidden}
+  .mc .bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#2fbf87,#48c99a)}
+  .weaks{display:flex;flex-direction:column;gap:9px}
+  .weak{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--keyline);
+    border-radius:13px;padding:10px 12px}
+  .weak .n{flex:0 0 30px;height:30px;border-radius:9px;background:#f1eef9;color:var(--purple);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .weak .nm{font-weight:800;font-size:13.5px}
+  .weak .meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .weak .focustag{margin-left:auto;flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;
+    text-transform:uppercase;color:#a05a00;background:#fdf3d8;border:1px solid #e8cf86;
+    border-radius:999px;padding:3px 9px}
+  .journey{overflow-x:auto;padding-bottom:4px}
+  .track{display:flex;gap:0;min-width:560px}
+  .track .stop{flex:1;text-align:center;position:relative;padding-top:14px}
+  .track .stop .bar{position:absolute;top:22px;left:-50%;width:100%;height:4px;background:#e9e5fb;z-index:0}
+  .track .stop:first-child .bar{display:none}
+  .track .stop .node{position:relative;z-index:1;width:30px;height:30px;margin:0 auto;border-radius:50%;
+    background:#fff;border:2px solid #ddd8f2;color:#8a86a6;font-size:13px;font-weight:800;
+    display:flex;align-items:center;justify-content:center}
+  .track .stop .caption{font-size:10.5px;color:var(--muted);margin-top:6px;line-height:1.3;padding:0 3px}
+  .track .stop.done .node{background:linear-gradient(135deg,#f2c14e,#e8a71c);border-color:transparent;color:#5b4300}
+  .track .stop.done .bar{background:#f2c14e}
+  .track .stop.here .node{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 4px rgba(109,90,230,.14)}
+  .meter{display:flex;height:26px;border-radius:9px;overflow:hidden;border:1px solid var(--keyline)}
+  .meter .seg{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:#fff}
+  .meter .seg.mastered{background:linear-gradient(90deg,#f2c14e,#e8a71c);color:#5b4300}
+  .meter .seg.learning{background:#8f7bff}
+  .meter .seg.notstarted{background:#dfe3ee;color:#7c8398}
+  .mkey{display:flex;gap:13px;flex-wrap:wrap;margin-top:9px;font-size:11.5px;color:var(--muted)}
+  .mkey .sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-2px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:#effaf4;border:1px solid #bfe8d5;color:#127a52;border-radius:999px;
+    padding:6px 12px;font-size:12.5px;font-weight:700}
+  .dfoot{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;padding:2px 6px 4px}
   /* answers */
   .prompt{font-size:12.5px;color:var(--muted);text-align:center;margin:2px 0 9px}
   .choices{display:grid;gap:9px;max-width:520px;margin:0 auto}
@@ -569,13 +655,26 @@
   </div>
 </div>
 
+<!-- 2026-08-10 (build cs, Jim: "the parent is our number one customer... we have this great
+     dashboard for parents. What we've done with this demo is we created a shortened
+     dashboard that doesn't show much at all with a whole lot of words. I want a fully
+     fleshed out parent dashboard, and I want you to give me a tour of that dashboard.")
+     This is now a section-for-section mirror of the REAL parent view at
+     /dashboard?view=parent: the honest read, the read-only parent box with the records
+     link, the five tiles (with the mastery ring), focus areas, the nine units with dates
+     and scores, the learning journey and status meter, the trophy case, the courses strip,
+     the placement strengths, the honesty footer. Numbers are Maya Rivera's canonical set
+     (Demo_Design_Notes) and must agree with the student and teacher views -- change one,
+     change all three. Sample data only: a demo must never show a real child's record. -->
 <div class="dash" id="dashParent">
   <div class="dhead"><img src="/static/brand-mark.svg" alt="" style="height:24px">
-    <div><h2>👪 How Maya is doing</h2><div class="dsub">the parent's view of the same dashboard · sample data</div></div>
+    <div><h2>📊 Maya's Progress — Pre-Algebra<span class="ptbadge">Parent view</span></h2>
+      <div class="dsub">a read-only view of this student's real progress — where they're strong and where they
+        need help · sample data</div></div>
     <span class="demo-badge">SAMPLE</span>
     <div style="flex:1"></div><button class="replay dashback" type="button">↩ Back to the three views</button></div>
   <div class="dwrap">
-    <div class="dcard" id="pdRead"><h3>Mr. Cadabra's honest read</h3>
+    <div class="dcard" id="pdRead"><h3>💬 How is she doing, really?</h3>
       <div class="readbox"><b>Maya is doing well, and she's earned it.</b> She has mastered four of the nine units in
         Pre-Algebra and is working through decimals now, getting about <b>91%</b> right on her own — that means she's
         solving them, not being walked through them.<br><br>
@@ -584,24 +683,125 @@
         four days running until they clicked. That's the part I'd be proudest of.<br><br>
         <b>What's hard right now:</b> lining up decimal points when the two numbers have a different number of digits.
         <b>What I'm doing about it:</b> smaller numbers first, then money problems — dollars and cents make the decimal
-        point obvious — and I'll bring one back each session until it's ordinary. I'll say so right here when it is.</div></div>
+        point obvious — and I'll bring one back each session until it's ordinary. I'll say so right here when it is.</div>
+      <div class="note">Written fresh each time you ask, from her recorded work — never from a template.</div></div>
+
+    <div class="dcard" id="pdBox"><h3>👪 The short version</h3>
+      <div class="ptbox">
+        <h4>How Maya is doing</h4>
+        <div><b>4 of 9</b> units mastered · <b>11-day</b> streak · <b>91%</b> accuracy ·
+          <b>312</b> problems practiced.</div>
+        <div style="margin-top:6px"><b>Where to help next:</b> Decimals (no Unit Quiz yet), Percents (91%).</div>
+        <div style="margin-top:6px"><b>Strengths:</b> whole-number arithmetic, reading a word problem,
+          fraction basics.</div>
+        <div style="margin-top:8px">🖨 <a href="#" onclick="return false">Print homeschool records</a> — hours log,
+          mastery evidence and awards, ready for portfolios and filings.</div>
+      </div>
+      <div class="note">This is the whole dashboard in four lines, for the week you only have four lines' worth
+        of time.</div></div>
+
     <div class="dcard" id="pdStats"><h3>The same numbers her teacher sees</h3>
       <div class="tiles">
-        <div class="tile"><b>4</b><span>Units mastered</span></div>
-        <div class="tile"><b>91%</b><span>Accuracy</span></div>
-        <div class="tile"><b>312</b><span>Problems practiced</span></div>
-        <div class="tile"><b>2h 15m</b><span>Time this week</span></div>
-        <div class="tile"><b>11</b><span>Day streak</span></div>
+        <div class="tile"><div class="ring" style="--p:44"><span>44%</span></div><b>4 / 9</b><span>Units mastered</span></div>
+        <div class="tile"><b>🔥 11</b><span>Day streak<i class="sm">days in a row</i></span></div>
+        <div class="tile"><b>91%</b><span>Accuracy<i class="sm">on quizzes &amp; practice</i></span></div>
+        <div class="tile"><b>312</b><span>Problems practiced<i class="sm">keep it climbing</i></span></div>
+        <div class="tile"><b>2h 15m</b><span>Time this week<i class="sm">35 min today · real work only</i></span></div>
       </div>
-      <div class="note">One record, one set of facts. There is no separate parent version that rounds things up.</div></div>
-    <div class="dcard" id="pdStrengthen"><h3>Strengthen next</h3>
-      <div class="weekrow"><span>Lining up decimal points when the numbers are different lengths</span><span class="muted">2 slips this week</span></div>
-      <div class="weekrow"><span>Percent of a number vs. percent change</span><span class="muted">1 slip</span></div>
-      <div class="note">Specific enough to help with at the kitchen table — it comes from her actual lessons.</div></div>
+      <div class="note">One record, one set of facts. There is no separate parent version that rounds things up —
+        and the hours are measured engaged time, not a timer left running.</div></div>
+
+    <div class="dcard" id="pdStrengthen"><h3>Strengthen next
+      <span style="text-transform:none;letter-spacing:0">— the fastest wins, built from her real checks and practice</span></h3>
+      <div class="weaks">
+        <div class="weak"><div class="n">5</div>
+          <div><div class="nm">Decimals</div><div class="meta">No Unit Quiz yet — pass the topic quizzes, then take it</div></div>
+          <span class="focustag">Focus area</span></div>
+        <div class="weak"><div class="n">4</div>
+          <div><div class="nm">Percents</div><div class="meta">Unit Quiz best: 91% · mastered, but the weakest of the four</div></div>
+          <span class="focustag">Watch</span></div>
+      </div>
+      <div class="note">Specific enough to help with at the kitchen table: not "review decimals", but lining up the
+        decimal points when the two numbers are different lengths.</div></div>
+
+    <div class="dcard" id="pdUnits"><h3>Her nine Pre-Algebra units</h3>
+      <div class="unitgrid">
+        <div class="ub gold"><b>1 ★</b>Numbers &amp; operations<i>mastered · 94% · Sep 26</i></div>
+        <div class="ub gold"><b>2 ★</b>Fractions<i>mastered · 92% · Oct 10</i></div>
+        <div class="ub gold"><b>3 ★</b>Ratios &amp; proportions<i>mastered · 90% · Oct 28</i></div>
+        <div class="ub gold"><b>4 ★</b>Percents<i>mastered · 91% · Nov 8</i></div>
+        <div class="ub now"><b>5</b>Decimals<i>learning · 2 of 4 topic quizzes passed</i></div>
+        <div class="ub"><b>6</b>Negative numbers<i>not started</i></div>
+        <div class="ub"><b>7</b>Expressions<i>not started</i></div>
+        <div class="ub"><b>8</b>Equations<i>not started</i></div>
+        <div class="ub"><b>9</b>Data &amp; graphs<i>not started</i></div>
+        <div class="ub fin"><b>🎓</b>Final Exam<i>unlocks when all nine are mastered</i></div>
+      </div>
+      <div class="note">Mastered means <b>90% or better on the Unit Quiz, with no hints from me</b> — and the date is
+        the day she proved it. Nothing here is a participation mark.</div></div>
+
+    <div class="two">
+      <div class="dcard" id="pdJourney"><h3>Her learning journey</h3>
+        <div class="journey"><div class="track">
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Numbers</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Fractions</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Ratios</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Percents</div></div>
+          <div class="stop here"><div class="bar"></div><div class="node">5</div><div class="caption">Decimals</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">6</div><div class="caption">Negatives</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">7</div><div class="caption">Expressions</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">8</div><div class="caption">Equations</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">9</div><div class="caption">Data</div></div>
+        </div></div></div>
+      <div class="dcard" id="pdMeter"><h3>How far she's gone</h3>
+        <div class="meter">
+          <div class="seg mastered" style="width:44.4%">4</div>
+          <div class="seg learning" style="width:11.2%">1</div>
+          <div class="seg notstarted" style="width:44.4%">4</div>
+        </div>
+        <div class="mkey">
+          <span><span class="sw" style="background:linear-gradient(90deg,#f2c14e,#e8a71c)"></span>🏆 Mastered — <b>4</b></span>
+          <span><span class="sw" style="background:#8f7bff"></span>📗 Learning — <b>1</b></span>
+          <span><span class="sw" style="background:#dfe3ee"></span>Not started — <b>4</b></span>
+        </div>
+        <div class="note">14h 20m of real work since September 8.</div></div>
+    </div>
+
+    <div class="dcard" id="pdTrophies"><h3>🏆 Trophy case</h3>
+      <div class="trophies">
+        <span class="trophy gold">🏅 Course Champion<i>Basic Math · finished May 2</i></span>
+        <span class="trophy">🏆 Mastered ×4<i>Units 1–4, each at 90%+</i></span>
+        <span class="trophy">📗 Learning ×3<i>ratios, percents, decimals</i></span>
+        <span class="trophy">✏️ Practiced ×2<i>fractions, decimals</i></span>
+        <span class="trophy">🔍 Explored<i>"why does pi never end?"</i></span>
+        <span class="trophy">💪 Effort medal<i>came back four days on percents</i></span></div>
+      <div class="note">Twelve awards, every one of them earned from recorded work.
+        <b>Next up:</b> 🏅 Halfway There — 4 of 5 units mastered.</div></div>
+
+    <div class="two">
+      <div class="dcard" id="pdCourses"><h3>Her courses</h3>
+        <div class="mycourses">
+          <div class="mc"><div class="nm">Basic Math</div><div class="cnt">9 of 9 units mastered</div>
+            <div class="bar"><i style="width:100%"></i></div></div>
+          <div class="mc current"><div class="nm">Pre-Algebra <span class="here">HERE</span></div>
+            <div class="cnt">4 of 9 units mastered</div><div class="bar"><i style="width:44%"></i></div></div>
+        </div>
+        <div class="note">Thirteen units mastered across two courses. One subscription covers every course —
+          she moves on when she's ready, not when a term ends.</div></div>
+      <div class="dcard" id="pdStrengths"><h3>Strengths from her level check</h3>
+        <div class="chips"><span class="chip">Whole-number arithmetic</span><span class="chip">Reading a word problem</span>
+          <span class="chip">Fraction basics</span><span class="chip">Estimating an answer</span></div>
+        <div class="note">From the optional placement check she took on September 8 — it is what put her in Unit 1
+          instead of guessing.</div></div>
+    </div>
+
     <div class="dcard" id="pdRecords"><h3>Your records</h3>
       <div class="note" style="margin:0 0 10px">Every unit, every quiz, every hour — printable in one click for a
         homeschool portfolio or a school district file. It's your child's work; you can take it any time.</div>
       <span class="cta" style="display:inline-block;width:auto;padding:11px 18px">🖨 Print the full record</span></div>
+
+    <div class="dfoot">This dashboard shows <b>real</b> activity — nothing on it is made up. It starts empty and
+      grows every time she takes a lesson, practices a problem, or passes a quiz.</div>
   </div>
 </div>
 
@@ -847,6 +1047,24 @@
     // "I don't want any links to any other dashboards from there"), so the ending
     // needed words of its own -- and every ending offers the one thing that is
     // genuinely next for them: a real lesson. APPENDED.
+,
+    "If you only have a minute, this box is the whole dashboard in four lines: what she has mastered, her streak, how accurate she is, and how many problems she has actually done. Underneath it, where to help next — and the link that prints her records.",
+    "Here are her nine units. The gold ones are mastered, and every gold unit carries the date she proved it and the score she proved it with. Mastered means ninety percent or better on the Unit Quiz with no hints from me — so a gold unit is evidence, not encouragement.",
+    "This is the same nine units drawn as a path, so you can see the shape of her year at a glance: four behind her, decimals under her feet right now, four still ahead. Beside it, the same thing counted up, with the hours she has actually put in since September.",
+    "Her trophy case. A Course Champion medal for finishing Basic Math, a badge for every unit she has mastered, and an effort medal she earned for coming back four days running when percents beat her. None of these are participation stickers — every one came from recorded work.",
+    "And her courses. She finished Basic Math and moved up, and one subscription covers every course we teach, so she moves on when she is ready rather than when a term ends. Beside it, the strengths her placement check found on the very first day.",
+    "If Monday is busy, this box is your whole week in four lines — mastered, streak, accuracy, problems done — and then where to help next. The records link underneath it is the one that matters at filing time.",
+    "Here are the nine units, and every mastered one carries a date and a score. That pairing is what turns a checkbox into evidence, which is exactly what an end-of-year review or a portfolio asks you for.",
+    "The same nine units as a path, so you can see the whole year at a glance and plan against it. Beside it, the hours — measured engaged time since September, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
+    "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
+    "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day."
+
+    // 2026-08-10 (build cs): FIVE parent stops and FIVE homeschool stops for the
+    // rebuilt parent dashboard (Jim: "I want a fully fleshed out parent dashboard,
+    // and I want you to give me a tour of that dashboard"). The parent tour went
+    // from five stops to ten; homeschool overrides all ten BY INDEX, so the two
+    // lists must stay the same length -- a short override falls through to the
+    // parent's own words, which is the cq bug in a different disguise. APPENDED.
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -911,13 +1129,22 @@
     homeschool: lineStarting("Welcome — this is the homeschool view"),
     students:   lineStarting("Hi! This is your dashboard")
   };
-  // The five homeschool stop lines — same panels as the parent dashboard, words written
-  // for a parent who is also the teacher.
+  // The homeschool stop lines — the same panels as the parent dashboard, in the same
+  // order, with words written for a parent who is also the teacher.
+  // ⚠️ ONE ENTRY PER PARENT STOP, IN THE SAME ORDER. runDashTour reads this BY INDEX and
+  // falls through to the parent's own line where this array is short, so a missing entry
+  // does not error -- it just tells a homeschooling parent about their child's teacher.
+  // ruletests PART 3j fails the build if the two lengths ever disagree.
   var HS_STOPS = [
     lineStarting("This is the dashboard you'd open on a Monday morning"),
     lineStarting("That's the honest read."),
+    lineStarting("If Monday is busy, this box is your whole week"),
     lineStarting("These five numbers are the ones a homeschool week"),
     lineStarting("Strengthen next is your lesson plan"),
+    lineStarting("Here are the nine units, and every mastered one"),
+    lineStarting("The same nine units as a path"),
+    lineStarting("The trophy case does a job in a homeschool"),
+    lineStarting("And her courses. One subscription covers all ten"),
     lineStarting("And this is the one homeschool families ask about first")
   ];
   // The closing line for each door (build cr). Spoken when that walkthrough ends, in
@@ -1434,11 +1661,21 @@
       {t:'tdRoster',      line:"Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees."},
       {t:'tdAttention',   line:"The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out."},
       {t:'tdOpenStudent', line:"And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code."}]},
+    // 2026-08-10 (build cs, Jim: "the parent is our number one customer... I want a fully
+    // fleshed out parent dashboard, and I want you to give me a tour of that dashboard").
+    // TEN stops now, one per panel of the real parent view, in the order the real page
+    // lays them out. HS_STOPS overrides all ten BY INDEX -- add a stop here and you add
+    // one there in the same edit, or a homeschooling parent hears the parent's words.
     parent:{ id:'dashParent', stops:[
       {t:'pdRead',       line:"And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English."},
       {t:'pdRead',       line:"That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading."},
+      {t:'pdBox',        line:lineStarting("If you only have a minute, this box is the whole dashboard")},
       {t:'pdStats',      line:"Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up."},
       {t:'pdStrengthen', line:"Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table."},
+      {t:'pdUnits',      line:lineStarting("Here are her nine units.")},
+      {t:'pdJourney',    line:lineStarting("This is the same nine units drawn as a path")},
+      {t:'pdTrophies',   line:lineStarting("Her trophy case.")},
+      {t:'pdCourses',    line:lineStarting("And her courses. She finished Basic Math")},
       {t:'pdRecords',    line:"And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."}]}
   };
   var dashTourCancelled=false;

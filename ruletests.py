@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cs -- THE WHITELIST CHECK THAT SHOULD HAVE EXISTED SINCE bx. The
+#               demo design notes have said "every spoken string must be on the
+#               whitelist" from the beginning and NOTHING enforced it. say() looks the
+#               text up in VOICE_LINES and plays clip N by index; a line that is not
+#               there does not raise -- that one stop drops to the browser's flat
+#               mechanical voice in the middle of Mr. Cadabra speaking. All 24 literal
+#               tour lines are now checked, on every tour on the page. Two more: every
+#               tour stop must point at an element that EXISTS (glow() returns quietly on
+#               a missing id, so a typo means the words play over a dashboard that never
+#               moves), and the homeschool override must cover every parent stop (it is
+#               read BY INDEX and falls through to the PARENT's words where it is short).
+#               A LESSON FROM WRITING IT: the first version wrapped the parse in `except
+#               Exception`, which swallowed a NameError -- ast was never imported -- so
+#               every line looked off-list and the failure blamed the demo instead of the
+#               test. The except is narrow now. A test's error handling must not be able
+#               to hide the test's own bugs.
 #   2026-08-10  BUILD cr -- PART 3j now proves ONE DOOR, ONE DASHBOARD. Jim: "I don't
 #               want any links to any other dashboards from there." Three paths could
 #               hand an audience visitor somebody else's screen and all three fail
@@ -215,6 +231,7 @@
 #
 # ADDING A RULE?  Add a scenario here in the same commit. That is the whole point.
 # =============================================================================
+import ast
 import os
 import re
 import subprocess
@@ -1889,8 +1906,9 @@ def part3j_walkthroughs():
         # the SAME character to close it.
         anchors = [m[1] for m in re.findall(
             r'''lineStarting\(\s*(["'])((?:(?!\1).){12,80})\1\s*\)''', demo_src)]
-        check(f"every audience anchor is declared ({len(anchors)} found)", len(anchors) >= 13,
-              "expected four intros, five homeschool stops and four closing lines")
+        check(f"every audience anchor is declared ({len(anchors)} found)", len(anchors) >= 23,
+              "expected four intros, ten homeschool stops, four closing lines and the "
+              "five new parent stops")
         for a in anchors:
             hits = [ln for ln in demo_lines if ln.startswith(a)]
             check(f"  anchor {a[:34]!r} resolves to exactly one line", len(hits) == 1,
@@ -1949,6 +1967,51 @@ def part3j_walkthroughs():
               and "document.body.className='classroom'" in
                   _fn_body("enterClassroomPicker", demo_src, 400),
               "showPicker would draw into a hidden panel")
+        # Build cs. THE CHECK THAT SHOULD HAVE EXISTED SINCE bx: every spoken string in a
+        # tour must be ON THE WHITELIST. say() looks the text up in VOICE_LINES and plays
+        # clip N by index; a line that is not there does not error, it drops that stop to
+        # the browser's flat mechanical voice in the middle of Mr. Cadabra talking. The
+        # design notes have said "every spoken string must be on the whitelist" since bx
+        # and nothing enforced it -- so it is enforced here, for every tour on the page.
+        spoken_lits = re.findall(r'''line:\s*(["'])((?:\\.|(?!\1).)*)\1''', demo_src)
+        off_list = []
+        for q, raw in spoken_lits:
+            try:
+                txt = ast.literal_eval(('"' + raw.replace('"', '\\"') + '"') if q == '"'
+                                       else (q + raw + q))
+            except (SyntaxError, ValueError):
+                # NARROW on purpose. The first version of this caught bare Exception and
+                # swallowed a NameError (ast was never imported), so every line looked
+                # off-list and the failure message blamed the demo instead of the test.
+                off_list.append(raw[:50])
+                continue
+            if txt not in demo_lines:
+                off_list.append(txt[:50])
+        check(f"every spoken tour line is on the voice whitelist "
+              f"({len(spoken_lits)} checked)", not off_list,
+              f"off the list: {off_list[:3]} -- that stop drops to the browser's flat "
+              f"voice mid-tour, and nothing errors")
+
+        # Every tour stop must point at an element that EXISTS. glow() returns quietly on
+        # a missing id, so a typo means the words play over a dashboard that never moves.
+        targets = re.findall(r"""\{\s*t:\s*'([A-Za-z0-9_]+)'\s*,""", demo_src)
+        missing = [t for t in targets if f'id="{t}"' not in demo_src]
+        check(f"every tour stop points at a real element ({len(targets)} stops)",
+              not missing, f"no such id: {missing[:4]} -- glow() fails silently")
+
+        # The homeschool override is read BY INDEX and falls through where it is short.
+        def _count(block_start, pattern):
+            i = demo_src.find(block_start)
+            if i < 0:
+                return -1
+            return len(re.findall(pattern, demo_src[i:demo_src.index("]", i)]))
+        hs_n = _count("var HS_STOPS = [", r"lineStarting\(")
+        pd_n = _count("parent:{ id:'dashParent', stops:[", r"\{\s*t:\s*'pd")
+        check(f"the homeschool script covers every parent stop ({hs_n} vs {pd_n})",
+              hs_n == pd_n and hs_n > 0,
+              "a short override does not error -- it just speaks the PARENT's words at a "
+              "homeschooling parent for the stops it does not cover")
+
         check("  every door has a closing line and an ending panel",
               all(k in demo_src for k in ("AUD_OUTRO", "AUD_END"))
               and all(f"{k}:" in demo_src.split("var AUD_END")[1][:600]
