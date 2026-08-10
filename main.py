@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cm-cache-discipline". Jim asked whether "cost"
+#               meant money or performance. Checking the money side found a real defect
+#               I had shipped the build before: the misconception hint was appended into
+#               the SYSTEM PROMPT, which is one cached block -- so every turn it fired
+#               moved the cache prefix and re-billed ~15,000 tokens (plus a cache write)
+#               to deliver a ~195-token note. It now travels as turn_note= on the
+#               student's own message, where nothing is cached. Same information to the
+#               model, better placed, and the system prompt is byte-identical turn to
+#               turn again.
 #   2026-08-10  APP_BUILD -> "2026-08-10cl-prompt-budget". Jim on the character ceiling:
 #               "we broke the files into sub-files... I don't know if that creates
 #               problems or an increased chance of errors. I don't want to have that."
@@ -4519,7 +4528,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cl-prompt-budget"
+APP_BUILD = "2026-08-10cm-cache-discipline"
 
 
 @app.get("/health")
@@ -5012,14 +5021,17 @@ def chat(req: ChatRequest):
     # bare numbers were stripped from the evidence at build time, matches are on word
     # boundaries, and at most two theories come back -- but it is still a guess about a
     # child's thinking, and a confident wrong diagnosis is worse than none (rule 49d/e).
+    # build cm: this note travels with the TURN, not in the system prompt. Appending it
+    # to the prompt (as build ck did) moved the cache prefix and re-billed ~16k tokens
+    # on exactly the turns the hint fired. It is per-turn information; it belongs next
+    # to the message it is about.
+    turn_note = ""
     try:
         if misconceptions is not None and message and not message.startswith("__"):
-            note = misconceptions.hint_note(req.course, message)
-            if note:
-                student_context["mastery_note"] = (
-                    str(student_context.get("mastery_note", "")) + note).strip()
+            turn_note = misconceptions.hint_note(req.course, message)
     except Exception as exc:  # noqa: BLE001 -- a hint is never worth failing a turn over
         print(f"[misconceptions] hint failed: {exc}")
+        turn_note = ""
 
     # FOUNDATION MEMORY (2026-08-09, build ce): which canonical introductions this
     # student has already sat through, so rule 40 can ASK instead of replaying one.
@@ -5111,7 +5123,8 @@ def chat(req: ChatRequest):
         save_session(code, session, req.course)
         return {"reply": reply}
 
-    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course, code=code), history)
+    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course,
+                                                    code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)
     _record_today_bar(code, req.course, reply)
 

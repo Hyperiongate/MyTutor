@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cm -- PER-TURN NOTES RIDE WITH THE MESSAGE, NOT THE PROMPT.
+#               Found while answering Jim's question about whether prompt size costs
+#               money or performance. The system prompt is ONE cached block, so anything
+#               written into it MOVES THE CACHE PREFIX and re-bills every token from that
+#               point on. Build ck appended the misconception hint into the prompt (via
+#               mastery_note), 63,629 characters in -- so every turn a hint fired threw
+#               away roughly 15,000 tokens of cache and paid a cache write on top, to
+#               deliver about 195 tokens of actual note.
+#               get_tutor_reply() gained turn_note=, appended to THIS turn's user
+#               message where nothing is cached anyway. The note reaches the model
+#               exactly as before -- arguably better placed, right beside the answer it
+#               is about -- and the system prompt is byte-identical from turn to turn.
+#               RULE OF THUMB for anyone adding one: if it changes every turn, it is not
+#               a system prompt, it is a message.
 #   2026-08-10  BUILD cl -- _foundation_block() gained verbatim=, threaded through the
 #               lesson, practice and topic prompts from student["foundations_verbatim"].
 #               See foundations.py: a script the student has already heard is OFFERED,
@@ -5973,7 +5987,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
 
 
 def get_tutor_reply(student: dict, history: list, user_message: str,
-                    course: str = DEFAULT_COURSE, code: str = "") -> str:
+                    course: str = DEFAULT_COURSE, code: str = "",
+                    turn_note: str = "") -> str:
     """
     Ask Claude for the tutor's next reply.
 
@@ -5995,7 +6010,15 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
     model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
 
     messages = _trim_history(list(history or []))
-    messages.append({"role": "user", "content": user_message})
+    # PER-TURN NOTES RIDE WITH THE STUDENT'S MESSAGE, NOT THE SYSTEM PROMPT
+    # (2026-08-10, build cm). The system prompt is ONE cached block. Anything that
+    # changes it changes the cache prefix, so a note appended into it re-bills every
+    # token from that point on -- the build-ck misconception hint sat 63,629 characters
+    # in, which threw away ~16k tokens of cache on the exact turns it fired. A note is
+    # about THIS turn, so it belongs beside THIS turn's message, where nothing is cached
+    # anyway. The system prompt is now byte-identical from turn to turn.
+    messages.append({"role": "user",
+                     "content": (user_message + turn_note) if turn_note else user_message})
 
     try:
         client = Anthropic(api_key=api_key)

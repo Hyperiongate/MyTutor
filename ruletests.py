@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cm -- CACHE DISCIPLINE CHECKS. The system prompt is one cached
+#               block; per-turn content inside it moves the cache prefix and re-bills
+#               everything after it. PART 3g now asserts get_tutor_reply takes a
+#               turn_note, that per-turn asides never appear in the system prompt, and
+#               that two ordinary turns build a byte-identical prompt.
 #   2026-08-10  BUILD cl -- DEFERRAL TESTS + THE PROMPT BUDGET.
 #               The deferral tests care far more about RESTORING than about saving: a
 #               brand-new student still gets every script verbatim, a returning student
@@ -1380,6 +1385,22 @@ def part3g_misconceptions():
             bad("matcher: junk never raises", f"{junk!r} -> {exc}"); break
     else:
         ok("matcher: junk never raises")
+    # CACHE DISCIPLINE (build cm). The system prompt is ONE cached block, so anything
+    # per-turn that lands inside it moves the cache prefix and re-bills every token from
+    # that point on. Build ck put the misconception hint into the prompt and threw away
+    # ~16k tokens on every turn it fired. Per-turn notes now ride with the message.
+    import inspect
+    check("get_tutor_reply takes a per-turn note",
+          "turn_note" in inspect.signature(tutor.get_tutor_reply).parameters,
+          "a per-turn note has nowhere to go except the cached prompt")
+    base = tutor.build_system_prompt(dict(STUDENT), course="basicmath")
+    for volatile in ("[LIKELY MISCONCEPTION -- ...]", "\n[some per-turn aside]"):
+        check(f"a per-turn note does NOT reach the system prompt ({volatile[:22]}…)",
+              volatile not in base, "it would move the cache prefix every turn")
+    check("the system prompt is identical for two ordinary turns",
+          tutor.build_system_prompt(dict(STUDENT), course="basicmath") == base,
+          "the cached prefix changes turn to turn -- every turn re-bills in full")
+
     check("a hit produces a note the tutor may DISCARD",
           "IGNORE this note" in M.hint_note("basicmath", "two fifths"),
           "the note must never override his own reading of the student (rule 49d)")
