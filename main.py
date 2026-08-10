@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cp-audience-walkthroughs". Jim: the demo "is
+#               almost like a video... I would like one of those available, a very
+#               obvious button that says view the demo on the parent page, the teacher
+#               page, the homeschooling page, and the student page."
+#               Four doors into ONE demo: /demo?view=parents|teachers|homeschool|students
+#               speaks an intro written for that visitor -- naming the features they came
+#               for -- and then runs the matching dashboard's existing narrated tour.
+#               Deep-linked rather than rebuilt four times, because copying a tour into
+#               four marketing pages is the copy-paste-drift that gave us the build-bk
+#               rule bug and the board-wrap bug.
+#               THIS FILE: four lines APPENDED to DEMO_VOICE_LINES (188 -> 192). They are
+#               addressed BY INDEX, so they go on the END and nothing above them moves;
+#               they must stay byte-identical to demo.html's VOICE_LINES, and PART 3j now
+#               proves it on every run.
 #   2026-08-10  APP_BUILD -> "2026-08-10co-rule-index". No code change in this file.
 #               Audit #2 items 23 and 24 shipped: every rule now DECLARES how it is
 #               verified (ruletests.py PART 3i, a ratchet -- new drift fails, old debt
@@ -4628,7 +4642,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10co-rule-index"
+APP_BUILD = "2026-08-10cp-audience-walkthroughs"
 
 
 @app.get("/health")
@@ -5690,6 +5704,15 @@ DEMO_VOICE_LINES = [
     "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
     "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
     "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time.",
+    # 2026-08-10 (build cp): the four AUDIENCE INTROS for /demo?view=... -- the
+    # "view the demo" button on the parents, teachers, homeschool and students pages.
+    # APPENDED, never reordered: clips are addressed by INDEX, so an insert anywhere
+    # above would silently shift every cached clip after it. Must stay byte-identical
+    # to demo.html's VOICE_LINES.
+    "Welcome — this is the parent's view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. In a moment I'll walk you through the dashboard you'd open: what your child has actually mastered, what they're working on right now, what's hard this week, and the printable record you can take with you. Everything you'll see comes from real work — we never invent a number to make a week look better than it was.",
+    "Welcome — this is the teacher's view of Mr. Cadabra's Classroom, built from a made-up class so no real student is ever on display. I'll walk you through the roster, who needs you this week and why, the mastery picture across the whole class, and the time each student actually spent. Every number is earned: mastery means ninety percent or better on a unit quiz with no hints from me.",
+    "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your child's work and you can take it with you any time.",
+    "Hi! This is your dashboard — the screen you'd open every time you come back. I'm using a made-up student called Maya so nobody's real work is on show. I'll walk you through your five numbers, your course map with the gold units you've mastered, what you're working on next, and the trophies you've earned. Everything here is stuff you actually did.",
 ]
 
 

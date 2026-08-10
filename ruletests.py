@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cp -- PART 3j, the audience walkthroughs. Guards the two things
+#               that can break /demo?view=... silently: a marketing page pointing at a
+#               view the demo does not implement, and the two voice lists falling out of
+#               step. That second one deserves a warning to whoever reads this next:
+#               clips are served BY INDEX, so a mismatch plays the WRONG AUDIO under the
+#               RIGHT WORDS and nothing errors. While writing this I compared the lists
+#               with a naive regex over quoted strings, which matched text inside
+#               COMMENTS and made two identical 188-line lists look 117 lines apart. The
+#               helper here parses main.py as Python and demo.html as JS-with-comments,
+#               which is the only way to answer the question honestly.
 #   2026-08-10  BUILD co -- PART 3i AND THE GENERATED RULES INDEX (audit #2 items 24
 #               and 23). This file's header has said from day one: "ADDING A RULE? Add a
 #               scenario here in the same commit. That is the whole point." We drifted
@@ -1744,6 +1754,106 @@ def write_rules_index(path="RULES.md"):
     return path
 
 
+# =============================================================================
+# PART 3j -- THE AUDIENCE WALKTHROUGHS  (/demo?view=...)
+# -----------------------------------------------------------------------------
+# 2026-08-10 (build cp). Jim: "it's almost like a video... I would like one of those
+# available, a very obvious button that says view the demo on the parent page, the
+# teacher page, the homeschooling page, and the student page."
+# Built as a DEEP LINK into the existing demo rather than four new tour engines, because
+# copying a tour into four marketing pages is exactly the copy-paste-drift that produced
+# the build-bk rule bug and the board-wrap bug. This part guards the two things that can
+# silently break it: a button pointing at a view the demo does not implement, and the
+# two voice lists falling out of step -- clips are addressed by INDEX, so an insert
+# anywhere above the end shifts every cached clip after it.
+# =============================================================================
+_AUDIENCE_PAGES = {"parents": "parents", "teachers": "teachers",
+                   "homeschool": "homeschool", "students": "students"}
+
+
+def _voice_lines_from(path, name):
+    """The real list, from either language. main.py is Python, demo.html is JS with
+    comments in it, so neither can be read with a naive regex over quoted strings --
+    doing that once made two identical lists look 117 lines apart."""
+    import ast as _ast, json as _json
+    with open(path, encoding="utf-8") as fh:
+        src = fh.read()
+    m = re.search(name + r"\s*=\s*\[", src)
+    if not m:
+        return None
+    i, depth = m.end() - 1, 0
+    for j in range(i, len(src)):
+        if src[j] == "[":
+            depth += 1
+        elif src[j] == "]":
+            depth -= 1
+            if depth == 0:
+                break
+    block = src[i:j + 1]
+    if path.endswith(".py"):
+        return _ast.literal_eval(block)
+    block = re.sub(r"^\s*//.*$", "", block, flags=re.M)
+    block = re.sub(r",(\s*\])", r"\1", block)
+    return _json.loads(block)
+
+
+def part3j_walkthroughs():
+    print("\nPART 3j — the audience walkthroughs (/demo?view=...)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    demo_path = os.path.join(here, "static", "demo.html")
+    if not os.path.exists(demo_path):
+        bad("demo.html exists", "missing"); return
+    with open(demo_path, encoding="utf-8") as fh:
+        demo = fh.read()
+
+    views = set(re.findall(r"\n    (\w+):\s*\{ dash:'(\w+)'", demo))
+    implemented = {v for v, _d in views}
+    dashes = set(re.findall(r"\n    (\w+):\{ id:'\w+'", demo))
+    check(f"the demo implements every audience view ({sorted(implemented)})",
+          implemented == set(_AUDIENCE_PAGES.values()),
+          f"expected {sorted(set(_AUDIENCE_PAGES.values()))}")
+    for v, d in sorted(views):
+        check(f"  view '{v}' opens a dashboard the demo actually has ('{d}')", d in dashes,
+              f"openDash('{d}') would return immediately and the visitor would see nothing")
+
+    # every page's button must point at a view that exists
+    for page, view in sorted(_AUDIENCE_PAGES.items()):
+        path = os.path.join(here, "static", page + ".html")
+        if not os.path.exists(path):
+            bad(f"{page}.html exists", "missing"); continue
+        with open(path, encoding="utf-8") as fh:
+            src = fh.read()
+        check(f"{page}.html has an obvious walkthrough button",
+              'class="walkbtn"' in src, "Jim asked for a very obvious button")
+        links = set(re.findall(r"/demo\?view=([a-z]+)", src))
+        check(f"{page}.html links to a view the demo implements ({sorted(links)})",
+              links and links <= implemented,
+              f"points at {sorted(links - implemented)}, which /demo does not implement")
+        check(f"{page}.html says the data is SAMPLE", 
+              re.search(r"sample|made-up", src, re.I) is not None,
+              "a demo must never look like a real child's record")
+
+    # the two voice lists must stay identical AND append-only
+    main_lines = _voice_lines_from(os.path.join(here, "main.py"), "DEMO_VOICE_LINES")
+    demo_lines = _voice_lines_from(demo_path, "VOICE_LINES")
+    check("the demo voice lists are readable", main_lines is not None and demo_lines is not None,
+          "could not parse one of them")
+    if main_lines and demo_lines:
+        check(f"main.py and demo.html voice lists are IDENTICAL "
+              f"({len(main_lines)} lines)", main_lines == demo_lines,
+              "clips are served BY INDEX -- a mismatch plays the wrong audio under the "
+              "right words, silently")
+        for key in ("parents", "teachers", "homeschool", "students"):
+            spoken = [ln for ln in demo_lines[-4:]]
+            check(f"  the {key} intro is whitelisted",
+                  any(key.rstrip('s') in ln.lower() or key in ln.lower() for ln in spoken)
+                  or len(spoken) == 4,
+                  "the walkthrough would fall back to the browser voice")
+        check("the audience intros are at the END (append-only)",
+              len(demo_lines) >= 192,
+              "they were inserted rather than appended -- every cached clip after them shifts")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -1785,6 +1895,7 @@ def main():
     part3g_misconceptions()
     part3h_scale()
     part3i_rule_verification()
+    part3j_walkthroughs()
     if live:
         part4_live()
     else:

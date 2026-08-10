@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    (cp) 2026-08-10 -- AUDIENCE WALKTHROUGHS: /demo?view=parents|teachers|homeschool|
+    students. Jim: "it's almost like a video... I would like one of those available, a
+    very obvious button that says view the demo on the parent page, the teacher page,
+    the homeschooling page, and the student page... at the very least it will go through
+    the appropriate dashboards for that site."
+    Built as a DEEP LINK, not four new tour engines. Everything a walkthrough needs is
+    already here and already right: the real dashboard layouts, the one sample student
+    whose numbers agree across all three views, the narrated stops, the per-line voice
+    retry, the watchdog that can never strand anyone. Copying that into four marketing
+    pages is precisely the copy-paste-drift behind the build-bk rule bug and the
+    board-wrap bug. One classroom, one demo, four doors into it.
+    The visitor still taps once to begin -- browsers will not play audio until someone
+    acts, and a silent walkthrough is worse than none. VOICE_LINES gained FOUR audience
+    intros, APPENDED (clips are addressed by index); main.py's DEMO_VOICE_LINES has the
+    identical four. ruletests.py PART 3j proves the lists stay identical.
   - 2026-08-09  HIS VOICE ALWAYS COMES BACK · NEVER STRANDED (build ca, Jim's walk).
     (1) serverVoiceOK was a ONE-WAY LATCH: the first clip that failed to load dropped the
     whole rest of the demo to the browser's mechanical voice. Every line now tries his
@@ -760,7 +775,16 @@
     "Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up.",
     "Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table.",
     "And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."
-  ];
+  ,
+    "Welcome — this is the parent's view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. In a moment I'll walk you through the dashboard you'd open: what your child has actually mastered, what they're working on right now, what's hard this week, and the printable record you can take with you. Everything you'll see comes from real work — we never invent a number to make a week look better than it was.",
+    "Welcome — this is the teacher's view of Mr. Cadabra's Classroom, built from a made-up class so no real student is ever on display. I'll walk you through the roster, who needs you this week and why, the mastery picture across the whole class, and the time each student actually spent. Every number is earned: mastery means ninety percent or better on a unit quiz with no hints from me.",
+    "Welcome — this is the homeschool view of Mr. Cadabra's Classroom, using a made-up student so no real child's record is ever on display. I'll show you the dashboard you'd open each week, and the part homeschool families ask about first: the printable record. Every unit, every quiz, every hour, dated and ready for a portfolio or a district file. It's your child's work and you can take it with you any time.",
+    "Hi! This is your dashboard — the screen you'd open every time you come back. I'm using a made-up student called Maya so nobody's real work is on show. I'll walk you through your five numbers, your course map with the gold units you've mastered, what you're working on next, and the trophies you've earned. Everything here is stuff you actually did."
+
+    // 2026-08-10 (build cp): the four AUDIENCE INTROS for /demo?view=... — the
+    // 'view the demo' button on the parents, teachers, homeschool and students
+    // pages. APPENDED, never reordered: clips are addressed by index.
+];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
   // rest of the demo to the flat browser voice. That is exactly what happens to the
@@ -804,6 +828,15 @@
       speechSynthesis.speak(u);
     }catch(e){ fireLineDone(); }
   }
+  // The four audience intros live at the END of VOICE_LINES (appended, build cp). They
+  // are referenced BY TEXT here and looked up by index at play time, exactly like every
+  // other line -- so nothing breaks if more lines are appended later.
+  var AUD_INTRO = {
+    parents:    VOICE_LINES[VOICE_LINES.length-4],
+    teachers:   VOICE_LINES[VOICE_LINES.length-3],
+    homeschool: VOICE_LINES[VOICE_LINES.length-2],
+    students:   VOICE_LINES[VOICE_LINES.length-1]
+  };
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
@@ -1495,6 +1528,56 @@
   }
   el('startBtn').onclick=startDemo;
   el('restart').onclick=function(){ location.reload(); };
+
+  // ===== AUDIENCE WALKTHROUGHS — /demo?view=parents|teachers|homeschool|students =====
+  // 2026-08-10 (build cp, Jim: "it's almost like a video... I would like one of those
+  // available, a very obvious button that says view the demo on the parent page, the
+  // teacher page, the homeschooling page, and the student page... at the very least it
+  // will go through the appropriate dashboards for that site").
+  // Built as a DEEP LINK rather than four new tour engines, deliberately. Everything the
+  // walkthrough needs already exists here and is already correct: the real dashboard
+  // layouts, the one sample student whose numbers agree across all three views, the
+  // narrated stops, the per-line voice retry, the watchdog that can never strand anyone.
+  // Copying that into four marketing pages is precisely the copy-paste-drift that gave us
+  // the build-bk bug and the wrap bug -- one classroom, one demo, four doors into it.
+  var VIEWS = {
+    parents:    { dash:'parent',  intro:AUD_INTRO.parents,
+                  title:"The parent's view" },
+    teachers:   { dash:'teacher', intro:AUD_INTRO.teachers,
+                  title:"The teacher's view" },
+    homeschool: { dash:'parent',  intro:AUD_INTRO.homeschool,
+                  title:"The homeschool view" },
+    students:   { dash:'student', intro:AUD_INTRO.students,
+                  title:"Your dashboard" }
+  };
+  function audienceParam(){
+    try{
+      var v=(new URLSearchParams(location.search).get('view')||'').toLowerCase().trim();
+      return VIEWS[v] ? v : '';
+    }catch(e){ return ''; }
+  }
+  function startAudienceWalkthrough(key){
+    var v=VIEWS[key]; if(!v) return;
+    warmDemoAudio();
+    if(window.mtTrack) mtTrack('Demo Audience Walkthrough', {view:key});
+    el('intro').style.display='none';
+    el('restart').style.display='inline-block';
+    document.body.className='';
+    // Speak the audience intro first (it names what this visitor came to see, and the
+    // features that matter to them), THEN hand straight to the dashboard's own tour.
+    sayThen(v.intro, function(){ setTimeout(function(){ openDash(v.dash); }, 350); });
+  }
+  (function(){
+    var key=audienceParam();
+    if(!key) return;
+    // One tap to begin: browsers will not play audio until the visitor acts, and a silent
+    // walkthrough is worse than none. Same shape as the Start button, different words.
+    var b=el('startBtn');
+    if(b){
+      b.textContent='▶ '+VIEWS[key].title+' — start the walkthrough';
+      b.onclick=function(){ startAudienceWalkthrough(key); };
+    }
+  })();
 
   // ---- LEVEL PICKER ----
   var curId='';

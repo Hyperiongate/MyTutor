@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (cp) 2026-08-10 -- "VIEW THE DEMO" WALKTHROUGH BUTTON (Jim). The narrated
+    walkthrough is the strongest thing this page has to offer and it was previously
+    reachable only by guessing at /demo, so the button is deliberately the loudest thing
+    under the headline. It deep-links to /demo?view=parents, which speaks a short intro
+    written for THIS audience and then runs the matching dashboard's own narrated tour --
+    the real screen, with sample data, never a real child's record.
   - 2026-08-04  WEEKLY EMAIL IS REAL NOW (build x): the report section's eyebrow no longer
     says 'Coming with launch' — the Friday parent email actually sends (main.py scheduler +
     the same AI parent-voice summary as the dashboard). Copy updated to describe what it
@@ -121,6 +127,19 @@
   .cap{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center}
   footer{border-top:1px solid var(--line);padding:34px 0;margin-top:26px;color:var(--muted);font-size:14px}
   .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+
+  /* 2026-08-10 (build cp, Jim): the "view the demo" walkthrough button. Deliberately the
+     loudest thing under the headline -- the narrated walkthrough is the strongest thing
+     this page has to offer and it was previously reachable only by guessing at /demo. */
+  .walkbtn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;
+    padding:15px 26px;font-size:17px;font-weight:800;cursor:pointer;text-decoration:none;
+    color:#fff;background:linear-gradient(135deg,#e8790f,#f2a33c);
+    box-shadow:0 10px 26px rgba(232,121,15,.34);transition:transform .12s ease}
+  .walkbtn:hover{transform:translateY(-2px)}
+  .walkbtn .wbicon{font-size:20px;line-height:1}
+  .walkbtn .wbsub{display:block;font-size:12px;font-weight:600;opacity:.93;margin-top:2px}
+  .walkrow{margin:20px 0 4px}
+  .walknote{font-size:13px;color:var(--muted);margin-top:9px}
   @media print{nav,.nav-cta,footer,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
   .beta-ribbon{background:var(--grad);text-align:center;padding:9px 16px;font-size:14px;color:#fff}
   .beta-ribbon a{color:#fff}
@@ -161,6 +180,13 @@
   <h1><span class="grad-text">You stay in charge.</span></h1>
   <p class="sub">What your child experiences, what you get to see, and how your family's data is treated —
   the three things a parent actually wants to know before handing a kid a math app.</p>
+  <div class="walkrow">
+    <a class="walkbtn" href="/demo?view=parents">
+      <span class="wbicon">▶</span>
+      <span>Watch the parent walkthrough<span class="wbsub">2 minutes · Mr. Cadabra shows you the dashboard, out loud</span></span>
+    </a>
+    <div class="walknote">Sample data only — a demo never shows a real child's record.</div>
+  </div>
 </header>
 
 <section class="wrap">

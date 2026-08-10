@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (cp) 2026-08-10 -- "VIEW THE DEMO" WALKTHROUGH BUTTON (Jim). The narrated
+    walkthrough is the strongest thing this page has to offer and it was previously
+    reachable only by guessing at /demo, so the button is deliberately the loudest thing
+    under the headline. It deep-links to /demo?view=teachers, which speaks a short intro
+    written for THIS audience and then runs the matching dashboard's own narrated tour --
+    the real screen, with sample data, never a real child's record.
   - 2026-08-07  VOICE-FIRST CLASSROOM (build ao, Jim): student voice input is restored, so the
     "no microphone, ever" claims on this page are replaced with the true new story: the student
     TALKS with Mr. Cadabra (speech transcribed to text, audio deleted immediately, never stored);
@@ -119,6 +125,19 @@
   .cap{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center}
   footer{border-top:1px solid var(--line);padding:34px 0;margin-top:26px;color:var(--muted);font-size:14px}
   .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+
+  /* 2026-08-10 (build cp, Jim): the "view the demo" walkthrough button. Deliberately the
+     loudest thing under the headline -- the narrated walkthrough is the strongest thing
+     this page has to offer and it was previously reachable only by guessing at /demo. */
+  .walkbtn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;
+    padding:15px 26px;font-size:17px;font-weight:800;cursor:pointer;text-decoration:none;
+    color:#fff;background:linear-gradient(135deg,#e8790f,#f2a33c);
+    box-shadow:0 10px 26px rgba(232,121,15,.34);transition:transform .12s ease}
+  .walkbtn:hover{transform:translateY(-2px)}
+  .walkbtn .wbicon{font-size:20px;line-height:1}
+  .walkbtn .wbsub{display:block;font-size:12px;font-weight:600;opacity:.93;margin-top:2px}
+  .walkrow{margin:20px 0 4px}
+  .walknote{font-size:13px;color:var(--muted);margin-top:9px}
   @media print{nav,.nav-cta,footer,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
   .beta-ribbon{background:var(--grad);text-align:center;padding:9px 16px;font-size:14px;color:#fff}
   .beta-ribbon a{color:#fff}
@@ -160,6 +179,13 @@
   <h1>See your whole class <span class="grad-text">at a glance</span>.</h1>
   <p class="sub">Every student gets the same patient one-on-one tutor — and you get the classroom view:
   who's mastered what, who needs help, and where the whole class is stuck.</p>
+  <div class="walkrow">
+    <a class="walkbtn" href="/demo?view=teachers">
+      <span class="wbicon">▶</span>
+      <span>Watch the teacher walkthrough<span class="wbsub">2 minutes · the roster, the mastery grid and who needs you this week</span></span>
+    </a>
+    <div class="walknote">Sample class — a demo never shows a real student's record.</div>
+  </div>
 </header>
 <section class="wrap" style="max-width:900px;margin-left:auto;margin-right:auto">
   <video id="tvid" controls preload="metadata" playsinline poster="/static/videos/teachers-poster.jpg"
