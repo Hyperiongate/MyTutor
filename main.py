@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10db-room-to-think". Jim's second key probe came
+#               back: gpt-5.5 ✓ (the answer he wanted), and gpt-5.1 marked unusable with
+#               "max_tokens or model output limit was reached". THAT LINE WAS MY BUG, and
+#               it is a false NEGATIVE worth understanding: a reasoning-family model
+#               spends tokens THINKING before it writes a word, and that spending counts
+#               against max_completion_tokens -- so my 5-token probe left it no room to
+#               think, and an error that PROVES access (the request was accepted, billed
+#               and answered) read as no-access.
+#               Fix, same philosophy as the parameter swap: the API names the limit that
+#               was hit, so take it at its word -- retry once with room to think (4x or
+#               +3000 tokens), never guessed from the model name. Also handles the QUIET
+#               variant: a 200 with an empty message and finish_reason "length", which
+#               would otherwise end a lesson looking like the student walked out.
+#               This matters beyond the probe: with OPENAI_AUDIT_MODEL=gpt-5.5, the
+#               student turns (120-token budget) would have died the same way.
 #   2026-08-10  APP_BUILD -> "2026-08-10da-which-models". Jim, holding a new OpenAI key:
 #               "how can I tell if it's for chat five point five?"
 #               You cannot tell by looking. A key carries no model list; access belongs to
@@ -4953,7 +4968,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10da-which-models"
+APP_BUILD = "2026-08-10db-room-to-think"
 
 
 @app.get("/health")

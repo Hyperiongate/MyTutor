@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD db -- two guards for the reasoning budget: an "output limit
+#               reached" probe result must be retried with room to think (it is proof of
+#               access, not absence), and the quiet variant (200 + empty message +
+#               finish_reason length) must not end a lesson looking like the student
+#               left.
 #   2026-08-10  BUILD da -- four guards for probe_models(): the tool must be able to ask a
 #               key what it reaches, the pricing button must ask, a model gated behind
 #               organisation verification must say so WITH the remedy, and the probe list
@@ -2123,6 +2128,18 @@ def part3l_lesson_auditor():
     check("  and the probe list is overridable without a code change",
           "OPENAI_PROBE_MODELS" in src,
           "model names move faster than this file will")
+
+    # Build db, from Jim's second probe. A reasoning model spends tokens THINKING before
+    # it writes, and that spending counts against the completion budget -- so a tiny
+    # probe budget comes back "output limit was reached", which LOOKS like no-access and
+    # is PROOF of access. The probe called gpt-5.1 unusable for exactly this reason.
+    check("a model that spent the probe budget reasoning is retried with room to think",
+          "output limit was reached" in src and "roomy" in src,
+          "a reasoning model on a 5-token budget reads as broken when it is merely "
+          "thinking -- the API said which limit was hit, so take it at its word")
+    check("  and the quiet variant -- 200, empty message, finish_reason length -- too",
+          'finish_reason") == "length"' in src.replace("'", '"'),
+          "an empty student turn ends the lesson early and looks like the student left")
 
     # A stale model name must be a one-line fix, never a mystery.
     check("a rejected model names the ones the account actually has",

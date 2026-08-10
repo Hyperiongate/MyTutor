@@ -2,6 +2,13 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD db -- ROOM TO THINK. Jim's probe marked gpt-5.1 unusable on a
+#               5-token budget: a reasoning model had spent the whole budget thinking.
+#               "Output limit reached" is proof of access, not absence of it. Retry once
+#               with a roomy budget (4x or +3000) when the API says the output limit was
+#               hit -- and likewise for the quiet variant, a 200 whose message is empty
+#               with finish_reason "length". Without this, running the audit on gpt-5.5
+#               would have killed every 120-token student turn.
 #   2026-08-10  BUILD da -- probe_models(). Jim asked how to tell whether a new key can
 #               use gpt-5.5. There is no way to tell by looking, so this asks the key: one
 #               tiny call per candidate, strongest first, overridable via
@@ -257,7 +264,18 @@ def _openai(messages, max_tokens=900, want_json=False, model=None, _retry=True):
         return None, f"could not reach OpenAI: {exc}"
     if r.status_code == 200:
         try:
-            return r.json()["choices"][0]["message"]["content"], None
+            choice = r.json()["choices"][0]
+            content = choice["message"]["content"]
+            # A reasoning model can also fail QUIETLY: 200, finish_reason "length", and
+            # an empty message, because the whole budget went to thinking. An empty
+            # student turn would end the lesson early and look like the student left.
+            if (_retry and not (content or "").strip()
+                    and (choice.get("finish_reason") == "length")):
+                roomy = max(max_tokens * 4, max_tokens + 3000)
+                print(f"[audit] empty message with finish_reason=length; "
+                      f"retrying with {roomy} tokens")
+                return _openai(messages, roomy, want_json, model, _retry=False)
+            return content, None
         except Exception as exc:  # noqa: BLE001
             return None, f"unexpected OpenAI response shape: {exc}"
     detail = ""
@@ -276,6 +294,21 @@ def _openai(messages, max_tokens=900, want_json=False, model=None, _retry=True):
                         else "max_tokens")
         print(f"[audit] switching token parameter to {_TOKEN_PARAM} and retrying")
         return _openai(messages, max_tokens, want_json, model, _retry=False)
+
+    # THE REASONING BUDGET (2026-08-10, build db, found by Jim's second probe). A
+    # reasoning-family model spends tokens THINKING before it writes a word, and that
+    # spending counts against max_completion_tokens -- so a tiny budget comes back as
+    # "Could not finish the message because max_tokens or model output limit was
+    # reached", which LOOKS like no-access and is actually proof of access (the request
+    # was accepted, billed, and answered -- with thinking). Jim's probe called gpt-5.1
+    # unusable for exactly this reason, on a 5-token budget. Same philosophy as the
+    # parameter swap: the API told us what was wrong, so take it at its word and retry
+    # once with room to think. Never guessed from the model name.
+    if (_retry and r.status_code == 400
+            and "output limit was reached" in low):
+        roomy = max(max_tokens * 4, max_tokens + 3000)
+        print(f"[audit] model spent the budget reasoning; retrying with {roomy} tokens")
+        return _openai(messages, roomy, want_json, model, _retry=False)
 
     # Only a genuine MODEL problem earns the model list. The first version appended it to
     # anything containing the word "model", which is how a parameter error came back
