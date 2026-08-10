@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10dc-count-the-stumbles". Jim ran the FULL first
+#               audit: ten lessons, nine critic findings. Adjudication is in the project
+#               (Audit_Findings_2026-08-10.md): most findings were rejected on the quoted
+#               evidence -- including the critic calling our removable-discontinuity
+#               graph WRONG (the line y=x+2 with the point removed IS the standard graph
+#               of (x^2-4)/(x-2); the transcript derived it two lines earlier) and
+#               flagging a missing [[step eq="b = sqrt(64) = ?"]] that is plainly there.
+#               ⭐ THE REAL FINDING WAS ONE THE CRITIC CANNOT MAKE: the tutor STUMBLED
+#               four times in ten lessons -- graceful-failure turns ("Sorry, I lost my
+#               train of thought") a real student would have watched. A content marker
+#               reads straight past absence, so counting stumbles is now CODE's job:
+#               detected, retried once (a student would repeat themselves), counted, and
+#               injected into the report as a reliability finding at fixed severity.
+#               "Lost my train of thought" = the model returned EMPTY after retries;
+#               "having trouble thinking" = the API call itself failed. Jim: the Render
+#               logs from 21:45-22:09 UTC name the underlying errors.
+#               The critic's system prompt also gained the three discipline checks its
+#               first marking run earned: re-read surrounding turns before flagging,
+#               search the reply for your own suggested fix, and correct-under-standard-
+#               conventions mathematics is never a finding.
 #   2026-08-10  APP_BUILD -> "2026-08-10db-room-to-think". Jim's second key probe came
 #               back: gpt-5.5 ✓ (the answer he wanted), and gpt-5.1 marked unusable with
 #               "max_tokens or model output limit was reached". THAT LINE WAS MY BUG, and
@@ -4968,7 +4988,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10db-room-to-think"
+APP_BUILD = "2026-08-10dc-count-the-stumbles"
 
 
 @app.get("/health")

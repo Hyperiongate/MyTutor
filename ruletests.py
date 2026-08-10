@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD dc -- three guards: the auditor must count graceful-failure turns
+#               itself (absence is invisible to a content marker), retry a stumbled turn
+#               once, and carry the critic's three discipline checks earned from its
+#               first-run false positives.
 #   2026-08-10  BUILD db -- two guards for the reasoning budget: an "output limit
 #               reached" probe result must be retried with room to think (it is proof of
 #               access, not absence), and the quiet variant (200 + empty message +
@@ -2140,6 +2144,26 @@ def part3l_lesson_auditor():
     check("  and the quiet variant -- 200, empty message, finish_reason length -- too",
           'finish_reason") == "length"' in src.replace("'", '"'),
           "an empty student turn ends the lesson early and looks like the student left")
+
+    # Build dc, from the first FULL audit. Ten lessons ran; the critic marked the
+    # mathematics and read straight past FOUR graceful-failure turns -- "(Sorry, I lost
+    # my train of thought)" -- because a critic marking content does not think to mark
+    # absence. Counting the tutor's stumbles is CODE's job, at a fixed severity, so a
+    # generous marker can never argue reliability away.
+    check("the auditor counts the tutor's graceful-failure turns itself",
+          "FALLBACK_MARKERS" in src and "lost my train of thought" in src
+          and "tutor_stumbles" in src,
+          "four stumbles in ten lessons went unflagged by the critic -- absence is "
+          "invisible to a content marker")
+    check("  a stumbled turn is retried once, like a student repeating themselves",
+          "_is_fallback(retry)" in src,
+          "an audit lesson derailed by a transient hiccup marks nothing")
+    check("  and the critic is told about its own first-run false positives",
+          "re-read the surrounding turns" in src
+          and "standard, correct graph" in src
+          and "SEARCH the reply" in src,
+          "the critic flagged a correct removable-discontinuity graph and a board line "
+          "that was already present; each rejection cost a human time")
 
     # A stale model name must be a one-line fix, never a mystery.
     check("a rejected model names the ones the account actually has",

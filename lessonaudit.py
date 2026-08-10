@@ -2,6 +2,15 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD dc -- COUNT THE STUMBLES. The first full audit's most important
+#               finding was made by a human reading the transcripts, not by the critic:
+#               four graceful-failure turns in ten lessons. A critic marking content
+#               reads straight past absence. Fallback turns are now detected by string
+#               (FALLBACK_MARKERS), retried once, counted per lesson and in the summary,
+#               and injected as a code-made reliability finding the marker cannot argue
+#               away. The critic prompt gained three discipline checks from its own
+#               false positives (the removable-discontinuity graph it called wrong, the
+#               board line it called missing while quoting it).
 #   2026-08-10  BUILD db -- ROOM TO THINK. Jim's probe marked gpt-5.1 unusable on a
 #               5-token budget: a reasoning model had spent the whole budget thinking.
 #               "Output limit reached" is proof of access, not absence of it. Retry once
@@ -222,6 +231,18 @@ Do NOT report: tone, warmth, length, formatting, or anything you merely think co
 phrased better. Do NOT invent rule numbers. If the transcript is clean, say so - a clean
 report is a useful result and you will not be thought lazy for returning one.
 
+Three discipline checks, added after your predecessor's first marking run (each cost a
+human time to reject):
+1. BEFORE you flag, re-read the surrounding turns. A claim that was derived or justified
+   EARLIER in the transcript is not an unjustified assertion. (Example from that run: a
+   graph of y = x+2 with a hole at x = 2 was flagged as a false feature -- but the
+   transcript had just cancelled (x^2-4)/(x-2) to x+2 with x != 2, and the line-with-a-
+   point-removed IS the standard, correct graph of that rational function.)
+2. BEFORE you flag a missing board line or missing spoken words, SEARCH the reply for
+   them. If your suggested fix already appears in the transcript, you have no finding.
+3. Mathematics that is correct under standard conventions is never a finding, however
+   surprising it looks.
+
 Return STRICT JSON only, no prose around it:
 {"findings":[{"severity":"high|medium|low","rule":<number or null>,
   "what":"<one sentence: what is wrong>",
@@ -424,18 +445,50 @@ def _student_turn(sc, transcript):
     return (text or "").strip().strip('"'), None
 
 
+# The tutor's own graceful-failure apologies. get_tutor_reply never raises to a
+# student; it returns one of these instead -- "lost my train of thought" when the model
+# came back EMPTY after retries, "having trouble thinking" when the API call itself
+# failed (rate limit, overload, network). In a real classroom each one is a turn the
+# student watches the tutor stumble.
+# 2026-08-10 (build dc): Jim's first full audit had FOUR of these across ten lessons --
+# one scenario opened with two in a row -- and the CRITIC read straight past every one,
+# because a critic marking mathematics does not think to mark absence. Counting them is
+# code's job. Frequency is the finding: one is weather, four in ten lessons is a rate.
+FALLBACK_MARKERS = ("lost my train of thought", "having trouble thinking right now")
+
+
+def _is_fallback(reply: str) -> bool:
+    low = (reply or "").lower()
+    return any(m in low for m in FALLBACK_MARKERS)
+
+
 def run_scenario(sc, turns=TURNS):
-    """Play one lesson. Returns (transcript, error). Transcript is [(role, text), ...]."""
+    """Play one lesson. Returns (transcript, error, fallbacks). Transcript is
+    [(role, text), ...]; fallbacks counts tutor turns that came back as an apology."""
     student = {"name": "Audit Student", "code": "AUDIT",
                "progress": f"Working in unit {sc.get('unit', 1)}."}
     transcript = [("user", sc["opening"])]
     history = []
+    fallbacks = 0
     for i in range(turns):
         try:
             reply = tutor.get_tutor_reply(dict(student), list(history), transcript[-1][1],
                                           course=sc["course"], code="AUDIT")
+            if _is_fallback(reply):
+                # Count it, then retry ONCE -- an audit lesson derailed by a transient
+                # API hiccup marks nothing, and a real student would simply repeat
+                # themselves, which is exactly what this does.
+                fallbacks += 1
+                time.sleep(2)
+                retry = tutor.get_tutor_reply(dict(student), list(history),
+                                              transcript[-1][1],
+                                              course=sc["course"], code="AUDIT")
+                if not _is_fallback(retry):
+                    reply = retry
+                else:
+                    fallbacks += 1
         except Exception as exc:  # noqa: BLE001
-            return transcript, f"tutor call failed on turn {i + 1}: {exc}"
+            return transcript, f"tutor call failed on turn {i + 1}: {exc}", fallbacks
         transcript.append(("assistant", reply))
         history.append({"role": "user", "content": transcript[-2][1]})
         history.append({"role": "assistant", "content": reply})
@@ -443,11 +496,11 @@ def run_scenario(sc, turns=TURNS):
             break
         say, err = _student_turn(sc, transcript)
         if err:
-            return transcript, err
+            return transcript, err, fallbacks
         if not say:
             break
         transcript.append(("user", say))
-    return transcript, None
+    return transcript, None, fallbacks
 
 
 def critique(sc, transcript):
@@ -525,9 +578,10 @@ def audit(limit=None, offset=0, turns=TURNS):
     results = []
     for sc in picked:
         t0 = time.time()
-        transcript, err = run_scenario(sc, turns)
+        transcript, err, fallbacks = run_scenario(sc, turns)
         row = {"id": sc["id"], "course": sc["course"], "exposes": sc["exposes"],
                "turns": len(transcript), "seconds": round(time.time() - t0, 1),
+               "fallbacks": fallbacks,
                "transcript": [{"who": r, "text": t} for r, t in transcript]}
         if err:
             row["error"] = err
@@ -539,6 +593,24 @@ def audit(limit=None, offset=0, turns=TURNS):
         else:
             row["verdict"] = marked.get("verdict", "")
             row["findings"] = marked.get("findings", []) or []
+        # THE FINDING THE CRITIC CANNOT MAKE: reliability. Injected by CODE, at a fixed
+        # severity, so it can never be argued away by a generous marker.
+        if fallbacks:
+            row.setdefault("findings", []).append({
+                "severity": "high" if fallbacks >= 2 else "medium",
+                "rule": None,
+                "what": f"the tutor stumbled {fallbacks} time(s) -- turns came back as "
+                        f"the graceful-failure apology instead of teaching",
+                "quote": "(Sorry, I lost my train of thought. Could you say that again?)",
+                "why": "a real student watches the tutor fail and repeats themselves; "
+                       "'lost my train of thought' means the model returned EMPTY, "
+                       "'having trouble thinking' means the API call itself failed -- "
+                       "check the Render logs from this run's timestamps for the cause",
+                "fix": "read the [tutor] error lines in the Render logs; if these are "
+                       "rate limits from back-to-back audit lessons they will not affect "
+                       "single students, but if they appear in live traffic too, that is "
+                       "a product problem",
+            })
         results.append(row)
     high = sum(1 for r in results for f in (r.get("findings") or [])
                if (f.get("severity") or "").lower() == "high")
@@ -546,6 +618,7 @@ def audit(limit=None, offset=0, turns=TURNS):
     # ⚠️ HONESTY IN THE HEADLINE. The first version reported "2 scenarios · 0 findings"
     # for a run in which BOTH scenarios died before a single word was marked. Zero
     # findings and zero lessons marked are opposite results and must never read the same.
+    stumbles = sum(r.get("fallbacks", 0) for r in results)
     failed = sum(1 for r in results if r.get("error"))
     marked = len(results) - failed
     if marked == 0 and failed:
@@ -556,9 +629,13 @@ def audit(limit=None, offset=0, turns=TURNS):
                    f"⚠️ {failed} lesson(s) did NOT complete, so this audit is partial.")
     else:
         summary = f"{marked} lesson(s) marked, {total} finding(s) ({high} serious)."
+    if stumbles:
+        summary += (f" The tutor stumbled {stumbles} time(s) across the batch "
+                    f"(graceful-failure turns -- see the reliability finding).")
     return {"ok": True, "dry_run": False, "model": AUDIT_MODEL,
             "scenarios_run": len(results), "lessons_marked": marked,
             "did_not_complete": failed, "findings": total, "high": high,
+            "tutor_stumbles": stumbles,
             "seconds": round(time.time() - started, 1), "summary": summary,
             "results": results}
 
