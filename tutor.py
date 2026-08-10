@@ -2,6 +2,35 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  RULE 49 + THE MISCONCEPTION CATALOGUE (build ck, Jim: "I want to
+#               pursue the misconception box"). Proactive audit #2 item 2.
+#               49 A WRONG ANSWER IS THE OUTPUT OF A RULE -- FIND THE RULE. Rules 20-22
+#                  say what to DO about a wrong answer and never say what to work out
+#                  first. A student who says 3 + 2 x 4 is twenty is not guessing: they
+#                  are evaluating left to right, faithfully, and will do it again next
+#                  week. A student who says twenty-one made a slip. Same topic, same
+#                  wrongness, OPPOSITE remedies. 49 makes him reconstruct the procedure
+#                  from the number, fix the RULE rather than the answer, check the
+#                  hypothesis with one question before acting on it, never announce a
+#                  diagnosis as a fact about the student (rule 42), and diagnose from
+#                  what they actually said when nothing in the catalogue fits.
+#               NEW misconceptions.py carries 148 catalogued wrong rules; this file
+#               appends the course's catalogue to the lesson, practice and topic
+#               prompts (TELL + RULE + FIX -- the ready-made wording is delivered
+#               just-in-time by main.py instead, so the prompt is not paying for 146
+#               sets of words that will not come up this turn). Defensive import.
+#   2026-08-09  THE SYMBOL TABLE REACHES THE TUTOR (build cj). Jim: "it looks like
+#               we've fixed the function notation, but math is filled with these kinds
+#               of things. How can we make sure that every one of these is caught all
+#               of the time?"
+#               Rule 48 (build ci) told him to read every symbol aloud and to deny the
+#               wrong reading BY NAME -- and never told him our readings. That is the
+#               same mistake as rule 40 before foundation memory: a rule the model has
+#               no data to obey. NEW notation.py registers all 28 families once, and
+#               _notation_block(course) appends a compact "HOW TO SAY WHAT YOU WRITE"
+#               table to the lesson, practice AND topic prompts, listing only the
+#               symbols that course actually uses, each with the words to say and the
+#               wrong reading to deny. Defensive import, like foundations.
 #   2026-08-09  RULE 48 -- TEACH THEM HOW TO *SAY* THE SYMBOL (build ci, Jim's live
 #               Algebra I session: "it's never been clearly stated to me what f of x is,
 #               how to say f of x... and then it flipped over to g of x").
@@ -4862,6 +4891,33 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         gone by without it, whenever the student comes back after a break, and always
         the first time a new form of it shows up (f of x, then f of g of x, then f prime
         of x -- each of those is its own first time).
+
+49. A WRONG ANSWER IS THE OUTPUT OF A RULE. FIND THE RULE.
+    Rules 20 to 22 tell you what to DO about a wrong answer. This one tells you what to
+    work out FIRST, and getting it wrong wastes the whole lesson.
+    (a) Wrong answers are almost never random. A student who says three plus two times
+        four is twenty is not guessing -- they are running left to right, faithfully and
+        consistently, and they will run it again next week on a different problem. A
+        student who says twenty-one made a slip. Same topic, same wrongness, opposite
+        remedies: the first needs one rule replaced, the second needs nothing but "check
+        that middle step again".
+    (b) SO ASK YOURSELF, BEFORE YOU REPLY: what rule, applied carefully, produces
+        exactly this answer? Reconstruct their procedure from their number. The
+        catalogue of the ones this course actually produces is below the rules; when the
+        system spots one it will hand you the wording too.
+    (c) FIX THE RULE, NOT THE ANSWER. Correcting the answer leaves the rule intact and
+        it fires again. Name what they did that WORKS first -- there is nearly always a
+        correct procedure underneath, stretched one step too far -- then show them the
+        one case where their rule breaks, using something they can SEE or check
+        themselves in five seconds. A counterexample a student verifies with their own
+        hands kills a bad rule permanently; being told kills it until Thursday.
+    (d) CHECK THE HYPOTHESIS BEFORE YOU ACT ON IT. One question -- "how did you get
+        that?" or "what did you do first?" -- costs a turn and stops you from correcting
+        an error they were not making. Never announce the diagnosis to the student as a
+        fact about them ("you always forget to distribute"); rule 42 applies here too.
+    (e) IF NOTHING FITS, DIAGNOSE FROM WHAT THEY ACTUALLY SAID rather than forcing the
+        nearest catalogued rule onto it. A confident wrong diagnosis is worse than an
+        honest "walk me through your first step".
 """
 
 
@@ -5031,6 +5087,50 @@ with the same rules as a Unit Quiz, scaled up:
 """
 
 
+try:
+    # 2026-08-09 (build cj): the notation registry. Defensive, exactly like foundations:
+    # a broken notation.py must never take the classroom down.
+    import notation
+except Exception as _nexc:  # noqa: BLE001
+    notation = None
+    print(f"[tutor] notation.py unavailable ({_nexc}) -- continuing without the symbol table")
+
+
+try:
+    # 2026-08-10 (build ck): the misconception catalogue. Defensive, like the others.
+    import misconceptions
+except Exception as _mexc:  # noqa: BLE001
+    misconceptions = None
+    print(f"[tutor] misconceptions.py unavailable ({_mexc}) -- continuing without it")
+
+
+def _misconception_block(course: str) -> str:
+    """This course's catalogue of the wrong RULES students run (rule 49), or "".
+    Never raises: a broken misconceptions.py must not take the classroom down."""
+    if misconceptions is None:
+        return ""
+    try:
+        return misconceptions.prompt_block(course)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] misconception block failed ({exc}) -- continuing without it")
+        return ""
+
+
+def _notation_block(course: str) -> str:
+    """The per-course 'HOW TO SAY WHAT YOU WRITE' table (rule 48), or "".
+
+    Rule 48 tells him to read every symbol aloud and to deny the wrong reading by name.
+    Until this block existed it never told him OUR readings -- the same mistake as
+    telling him to skip an introduction he had no way to identify. Never raises."""
+    if notation is None:
+        return ""
+    try:
+        return notation.prompt_block(course)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tutor] notation block failed ({exc}) -- continuing without it")
+        return ""
+
+
 def _foundation_block(course: str, heard=None) -> str:
     """This course's canonical foundation scripts (rules 36-40), or "" if none.
 
@@ -5079,7 +5179,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         progress=progress,
         playbook=playbook,
         mastery=mastery,
-    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _foundation_block(
+    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
         course, (student or {}).get("foundations_heard"))
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
@@ -6419,7 +6519,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
         playbook=playbook,
         subject=_subject(course),
         scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
-    ) + _foundation_block(course, (student or {}).get("foundations_heard"))
+    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"))
 
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
@@ -6634,7 +6734,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
         playbook=playbook,
         subject=_subject(course),
         scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
-    ) + _foundation_block(course, (student or {}).get("foundations_heard"))
+    ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"))
 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,

@@ -2,6 +2,12 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-09  BUILD cj -- THREE SUBSCRIPT SCRIPTS (algebra2, calculus, diffeq).
+#               Found by the new notation registry, not by a person: those three courses
+#               write a₁, xᵢ and y₁ on the board and NO script anywhere ever said the
+#               word "sub". A student reading "x sub i" as "x times i" is not making a
+#               careless error, they are reading it the only way anyone ever showed them.
+#               Library 178 -> 181. No existing `say` touched.
 #   2026-08-09  BUILD ci -- FUNCTION NOTATION IS NOW TAUGHT. Jim, logged in as a demo
 #               student in Algebra I: "it's never been clearly stated to me what f of x
 #               is, how to say f of x... and then it flipped over to g of x. I'm not sure
@@ -902,6 +908,15 @@ FOUNDATIONS = {
             "thing to do with any sequence is decide which it is. Is the difference constant, or is the "
             "ratio constant? That one question picks your formula.",
          "board": ['[[write text="arithmetic:  2, 5, 8, 11  (+3)        geometric:  3, 6, 12, 24  (×2)"]]']},
+        {"term": "subscript", "say":
+            "A small number written low and tight against a letter is a **subscript**, and you read it "
+            "out loud as sub. So a with a little one after it is said a sub one. It does not mean a "
+            "multiplied by one. Nothing is being multiplied. A subscript is a LABEL: it tells you which "
+            "one of a whole family of numbers you mean. a sub one, a sub two, a sub three, and a sub n "
+            "for whichever one sits in position n. The letter names the family, and the subscript picks "
+            "out the member you want.",
+         "board": ['[[write text="a₁ , a₂ , a₃ , … , aₙ    ←  “a sub one, a sub two, … a sub n”"]]',
+                   '[[write text="aₙ is a LABEL for one term — it is NOT a · n"]]']},
         {"term": "unit circle", "say":
             "The **unit circle** is the circle with radius one, centered at the origin, and it is the "
             "reference map for all of trigonometry. Pick an angle, start at the right side and turn "
@@ -1389,6 +1404,14 @@ FOUNDATIONS = {
             "use the one the problem asks for.",
          "board": ['[[write text="Riemann sum: Σ f(x_i)·Δx ,  Δx = (b - a)/n"]]',
                    '[[card title="where do you read the height?" items="left endpoint | right endpoint | midpoint"]]']},
+        {"term": "subscript", "say":
+            "A small character sitting low beside a letter is a **subscript**, said out loud as sub. So x "
+            "with a little i is x sub i, and it does not mean x multiplied by i. Nothing is multiplied. "
+            "When we slice an interval into pieces, the cut points are x sub zero, x sub one, x sub two, "
+            "and so on, and x sub i just means whichever one is in position i. It is how we talk about a "
+            "whole list of numbers without having to name every single one of them.",
+         "board": ['[[write text="x₀ , x₁ , x₂ , … , xₙ    ←  “x sub zero, x sub one, … x sub n”"]]',
+                   '[[write text="xᵢ names ONE cut point — it is not x · i"]]']},
         {"term": "definite integral", "say":
             "A **definite integral** is a single number: the accumulated total of a rate across an "
             "interval. Geometrically it is the area caught between the curve and the horizontal axis, "
@@ -1554,6 +1577,15 @@ FOUNDATIONS = {
             "nonlinear equations it fails immediately.",
          "board": ['[[write text="if y1 and y2 solve y\'\' + p·y\' + q·y = 0 , so does c1·y1 + c2·y2"]]',
                    '[[card title="where the rule stops" items="homogeneous linear: works | nonhomogeneous: fails | nonlinear: fails"]]']},
+        {"term": "subscript", "say":
+            "A small number tucked low beside a letter is a **subscript**, and you say it out loud as "
+            "sub. So y with a little one is y sub one, and it is not y multiplied by one. Nothing is "
+            "multiplied. Here it labels DIFFERENT SOLUTIONS of the same equation: y sub one and y sub two "
+            "are two genuinely different functions that both satisfy it, and c sub one and c sub two are "
+            "the two constants that go with them. The subscript is how we keep them straight while we "
+            "build the general solution out of both.",
+         "board": ['[[write text="y₁ , y₂    ←  “y sub one, y sub two” — two different solutions"]]',
+                   '[[write text="general: y = c₁·y₁ + c₂·y₂     (“c sub one y sub one plus c sub two y sub two”)"]]']},
         {"term": "particular solution", "say":
             "A **particular solution** is one single function that satisfies the equation, with no "
             "arbitrary constants left in it. In the nonhomogeneous chapter it has a sharper job: it is "

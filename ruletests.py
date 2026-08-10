@@ -2,6 +2,35 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD ck -- PART 3g, the misconception catalogue, and a PROMPT-SIZE
+#               tripwire (audit #2 item 22). PART 3g checks every entry has all nine
+#               fields, unique ids, a speakable SAY that does NOT open by telling the
+#               student they are wrong (rules 20/49c), and -- the important one -- that
+#               no `detect` string is just a NUMBER in any spelling. The first end-to-end
+#               run matched "I did three plus two first, so twenty" and returned two
+#               confident WRONG theories, because "three" and "two" had survived a filter
+#               that only required a letter. A numeric answer is evidence only in the
+#               context of the problem it answers, and the matcher cannot see the
+#               problem. That case is now a permanent fixture.
+#               The prompt-size check prints every course's size and fails above 135,000
+#               characters. It is a TRIPWIRE set above today's largest (130,022): when it
+#               trips the answer is to consolidate overlapping rules -- the rules block
+#               is ~45% of the prompt -- not to raise the number.
+#   2026-08-09  BUILD cj -- PART 3f, NOTATION COVERAGE. Jim asked the right question
+#               after the f(x) fix: "math is filled with these kinds of things. How can
+#               we make sure every one of these is caught all of the time?" Fixing f(x)
+#               by hand fixed one symbol and guaranteed nothing. PART 3f is the general
+#               answer, held against notation.py:
+#                 A  every notation on every board we ship is REGISTERED for that course
+#                    (317 board strings scanned). Write a symbol the registry does not
+#                    know and the build fails -- so a symbol cannot reach a child's
+#                    screen without us having said, somewhere, how to read it.
+#                 B  the DEEP families need a real script that says them aloud, not a
+#                    table row. It caught three courses using subscripts silently.
+#                 C  the registry must recognise its own examples, must reach all ten
+#                    prompts, and no entry may collide with a narrower one -- that last
+#                    invariant was added after the first run reported diffeq's mu as an
+#                    unregistered population mean, because two entries matched one glyph.
 #   2026-08-09  BUILD ci -- rule 48 and the NOTATION READABILITY check (PART 3b).
 #               Jim found f(x) being used in Algebra I with nothing ever teaching it. The
 #               check that would have caught it: for every course, if any script writes
@@ -109,6 +138,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import tutor  # noqa: E402
+import notation  # noqa: E402
 
 COURSES = ["entrymath", "basicmath", "prealgebra", "algebra1", "geometry",
            "algebra2", "precalc", "calculus", "probstat", "diffeq"]
@@ -1103,6 +1133,214 @@ def part3e_page_parity():
           f"the shared block asks for {leaked}, but practice/topic cannot draw them")
 
 
+# =============================================================================
+# PART 3f -- NOTATION COVERAGE: WE NEVER WRITE A SYMBOL WE HAVEN'T SAID
+# -----------------------------------------------------------------------------
+# 2026-08-09 (build cj). Jim, after the f(x) fix: "it looks like we've fixed the
+# function notation, but math is filled with these kinds of things. How can we make
+# sure that every one of these is caught all of the time?"
+#
+# Build ci fixed f(x) by hand, which fixes one symbol and guarantees nothing. This is
+# the general answer. notation.py registers every notation the courses use -- how it is
+# written, how it is SAID, and the wrong reading to deny -- and this test holds every
+# board line we ship to it:
+#   CHECK A  every notation on a board is REGISTERED for that course. If we write a
+#            symbol the registry does not know, the tutor was never told how to read it
+#            and the build fails. This is the guarantee: we cannot put a symbol on a
+#            child's screen without having said, somewhere, how to say it.
+#   CHECK B  the DEEP families (function, prime, exponent, subscript, absolute value,
+#            radical) need a real foundation script that reads them aloud -- a one-line
+#            table row is not teaching. It caught three courses using subscripts with
+#            nothing anywhere saying "sub".
+#   CHECK C  the registry reaches every course's prompt, and its own patterns are sane
+#            (every `shown` example must match its own `wrote` pattern, and every
+#            `spoken` example its own `heard` pattern -- a registry that cannot
+#            recognise its own examples is worse than none).
+# =============================================================================
+_NT_TAG = re.compile(r"\[\[\s*([\w-]+)([^\]]*?)\]\]")
+_NT_ATTR = re.compile(r'([\w-]+)\s*=\s*"([^"]*)"')
+
+
+def _board_readable(entry) -> list:
+    """The parts of a script's board a STUDENT actually reads (not renderer inputs)."""
+    out = []
+    for b in entry.get("board", []):
+        m = _NT_TAG.match(b.strip())
+        if not m:
+            continue
+        for k, v in _NT_ATTR.findall(m.group(2)):
+            if k.lower() in notation.READABLE_ATTRS:
+                out.append((v, b))
+    return out
+
+
+def part3f_notation():
+    print("\nPART 3f — notation coverage (we never write a symbol we haven't said)")
+    try:
+        import foundations
+    except Exception as exc:  # noqa: BLE001
+        bad("foundations.py imports", str(exc)); return
+
+    # CHECK C first: a registry that cannot recognise its own examples proves nothing.
+    for n in notation.NOTATIONS:
+        check(f"  registry [{n['id']}] recognises its own written form",
+              bool(re.search(n["wrote"], n["shown"])),
+              f"shown={n['shown']!r} does not match wrote={n['wrote']!r}")
+        check(f"  registry [{n['id']}] recognises its own spoken form",
+              bool(re.search(n["heard"], n["spoken"], re.I)),
+              f"spoken={n['spoken']!r} does not match heard={n['heard']!r}")
+        # If one entry's example ALSO matches another entry, that other entry must be
+        # legal everywhere this one is -- otherwise a perfectly good board line gets
+        # reported as an unregistered symbol. (Exactly what happened with mu: a stats
+        # entry and a general-name entry both matched the same glyph.)
+        overlap = [o for o in notation.written_in(n["shown"]) if o != n["id"]
+                   and not set(n["courses"]) <= set(notation.by_id(o)["courses"])]
+        check(f"  registry [{n['id']}] does not collide with a narrower entry",
+              not overlap,
+              f"{n['shown']!r} also matches {overlap}, which are not allowed in every "
+              f"course [{n['id']}] is -- merge them or tighten the patterns")
+    for c in COURSES:
+        p = tutor.build_system_prompt(dict(STUDENT), course=c)
+        check(f"the symbol table reaches [{c}]", "HOW TO SAY WHAT YOU WRITE" in p,
+              "this course's tutor has no canonical readings -- rule 48 is unfollowable")
+
+    # CHECK A: nothing on any board is unregistered for its course.
+    unregistered = {}
+    scanned = 0
+    for c in COURSES:
+        allowed = {n["id"] for n in notation.for_course(c)}
+        for d in foundations.for_course(c):
+            for value, raw in _board_readable(d):
+                scanned += 1
+                for nid in notation.written_in(value):
+                    if nid not in allowed:
+                        unregistered.setdefault((c, nid), (d["term"], raw))
+    check(f"every notation on every board is registered ({scanned} board strings)",
+          not unregistered,
+          "; ".join(f"{c} writes [{n}] in '{t}' — register it in notation.py or stop "
+                    f"writing it: {r[:60]}" for (c, n), (t, r) in sorted(unregistered.items())))
+
+    # CHECK B: a deep notation must be TAUGHT, not just tabled.
+    for c in COURSES:
+        items = foundations.for_course(c)
+        used = set()
+        for d in items:
+            for value, _raw in _board_readable(d):
+                used.update(notation.written_in(value))
+        said = set()
+        for d in items:
+            said.update(notation.spoken_in(d["say"]))
+        for nid in sorted(used):
+            if not notation.by_id(nid).get("deep"):
+                continue
+            check(f"  [{c}] teaches [{nid}] aloud, not just on the board", nid in said,
+                  f"this course writes {notation.by_id(nid)['shown']} and NO script ever "
+                  f"says \"{notation.by_id(nid)['spoken']}\" — rule 48(a)")
+
+
+# =============================================================================
+# PART 3g -- THE MISCONCEPTION CATALOGUE (rule 49)
+# =============================================================================
+_CARDINALS = set("""zero one two three four five six seven eight nine ten eleven twelve
+thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty
+sixty seventy eighty ninety hundred thousand million negative minus point and a""".split())
+
+
+def part3g_misconceptions():
+    print("\nPART 3g — the misconception catalogue")
+    try:
+        import misconceptions as M
+    except Exception as exc:  # noqa: BLE001
+        bad("misconceptions.py imports", str(exc)); return
+    seen_ids, total = set(), 0
+    for c in COURSES:
+        items = M.for_course(c)
+        total += len(items)
+        check(f"[{c}] has a catalogue ({len(items)} error patterns)", len(items) >= 10,
+              "too few to be worth consulting")
+        for m in items:
+            lab = f"  [{c}] {m['id']}"
+            check(f"{lab} has every field",
+                  all(m.get(k) for k in ("id", "name", "topic", "tell", "rule", "why", "fix", "say")),
+                  f"missing: {[k for k in ('id','name','topic','tell','rule','why','fix','say') if not m.get(k)]}")
+            check(f"{lab} id is unique", m["id"] not in seen_ids, "duplicated across courses")
+            seen_ids.add(m["id"])
+            offenders = [ch for ch in "=+×÷^<>" if ch in m["say"]]
+            check(f"{lab} SAY is speakable", not offenders,
+                  f"symbols that get read aloud badly: {offenders}")
+            w = len(m["say"].split())
+            check(f"{lab} SAY is a real sentence", 20 <= w <= 75, f"{w} words")
+            # rule 49(c)/20: never open by telling them they are wrong
+            opener = " ".join(m["say"].split()[:6]).lower()
+            check(f"{lab} SAY does not open with 'wrong'",
+                  not re.match(r"^(that'?s |that is )?(wrong|incorrect|no,|nope|not quite)", opener),
+                  f"opens: {opener!r}")
+            for d in m.get("detect", []):
+                # A numeric answer is only evidence in the context of the problem it
+                # answers, and the matcher cannot see the problem. So numbers never
+                # count -- in ANY spelling. The first version of this filter allowed
+                # anything containing a letter, and "three" and "two" promptly matched
+                # "I did three plus two first, so twenty" and produced two confident
+                # WRONG theories on the first end-to-end run (rule 49e).
+                toks = [t for t in re.split(r"[\s\-]+", d.lower()) if t]
+                barenum = toks and all(
+                    t in _CARDINALS or re.fullmatch(r"[-+]?\d+(?:\.\d+)?", t) for t in toks)
+                check(f"{lab} evidence {d!r} is not just a number", not barenum,
+                      "a number fires on correct answers too -- evidence must be a "
+                      "procedure word or a distinctive symbolic form")
+    check(f"the catalogue is substantial ({total} patterns)", total >= 120, f"only {total}")
+
+    # the matcher must be conservative: it fires on real evidence and stays silent otherwise
+    CASES = [
+        ("basicmath", "two fifths", "add-across-fractions", True),
+        ("algebra1", "three x plus four", "distribute-one-term-only", True),
+        ("basicmath", "sixteen", None, False),
+        ("basicmath", "I am not sure", None, False),
+        # the false-positive that the first end-to-end run produced
+        ("prealgebra", "I did three plus two first, so twenty", None, False),
+        ("prealgebra", "twenty", None, False),
+        ("probstat", "so it causes it", "correlation-is-causation", True),
+        ("prealgebra", "", None, False),
+    ]
+    for course, said, want_id, want_hit in CASES:
+        hits = M.match(course, said)
+        check(f"matcher: {said!r} -> {'a theory' if want_hit else 'silence'}",
+              bool(hits) == want_hit and (not want_id or any(h["id"] == want_id for h in hits)),
+              f"got {[h['id'] for h in hits]}")
+    check("the matcher never returns a crowd", all(len(M.match(c, "two fifths x plus four")) <= 2
+                                                   for c in COURSES),
+          "more than two theories is the same as none (rule 49d)")
+    for junk in [None, "", 0, [], "?" * 400]:
+        try:
+            M.match("basicmath", junk); M.hint_note("basicmath", junk)
+        except Exception as exc:  # noqa: BLE001
+            bad("matcher: junk never raises", f"{junk!r} -> {exc}"); break
+    else:
+        ok("matcher: junk never raises")
+    check("a hit produces a note the tutor may DISCARD",
+          "IGNORE this note" in M.hint_note("basicmath", "two fifths"),
+          "the note must never override his own reading of the student (rule 49d)")
+
+    # every course's catalogue must actually reach its prompt
+    for c in COURSES:
+        p = tutor.build_system_prompt(dict(STUDENT), course=c)
+        check(f"the catalogue reaches [{c}]", "WHY THE ANSWER WAS WRONG" in p,
+              "rule 49 is unfollowable in this course")
+
+    # PROMPT SIZE (proactive audit #2 item 22). Not a style note: past some length a
+    # model follows rule 3 and rule 31 less reliably, and the failure is invisible.
+    # The ceiling is a TRIPWIRE, deliberately set above today's largest -- when it
+    # trips, the answer is to consolidate overlapping rules, not to raise it again.
+    CEILING = 135_000
+    sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
+    biggest = max(sizes, key=sizes.get)
+    print(f"       prompt sizes: {min(sizes.values()):,}-{max(sizes.values()):,} chars "
+          f"(largest: {biggest})")
+    check(f"no prompt exceeds {CEILING:,} chars", sizes[biggest] <= CEILING,
+          f"{biggest} is {sizes[biggest]:,}. The rules block is ~45% of it -- consolidate "
+          f"overlapping rules rather than raising this number.")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -1136,6 +1374,8 @@ def main():
     part3c_board_tags()
     part3d_foundation_memory()
     part3e_page_parity()
+    part3f_notation()
+    part3g_misconceptions()
     if live:
         part4_live()
     else:

@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10ck-misconceptions". NEW FILE misconceptions.py
+#               (148 catalogued wrong RULES; audit #2 item 2 -- the highest-leverage
+#               teaching item left). THIS FILE adds the just-in-time half: before the
+#               turn, match what the student JUST said against this course's catalogue
+#               and, on a hit, hand the tutor the diagnosis AND the remedy in the same
+#               note. Always framed as a possibility he may discard -- a matcher that
+#               overrode his own reading of a child would be worse than no matcher
+#               (rule 49d/e). Conservative by construction: numbers are never evidence
+#               in any spelling, matches are on word boundaries, at most two theories.
+#               ⚠️ misconceptions.py MUST be committed with this batch.
+#   2026-08-09  APP_BUILD -> "2026-08-09cj-notation-registry". No code change in this
+#               file. NEW FILE notation.py -- the single source of truth for every
+#               symbol the courses use: how it is written, how it is SAID, and the wrong
+#               reading to deny. tutor.py feeds it into every prompt; ruletests.py PART
+#               3f fails the build if any board line writes a symbol the registry does
+#               not know. ⚠️ notation.py MUST be committed with this batch.
+#               ⚠️ Re-run POST /api/admin/prewarm-foundations: three new scripts.
 #   2026-08-09  APP_BUILD -> "2026-08-09ci-function-notation". No code change in this
 #               file. Jim, live in Algebra I: "it's never been clearly stated to me what
 #               f of x is, how to say f of x... and then it flipped over to g of x."
@@ -1613,6 +1630,13 @@ import tutor
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
 import library  # 2026-08-07: the "Look it up" reference library (seeds + generate-once)
+try:
+    # 2026-08-10 (build ck): the misconception catalogue, used to recognise a known
+    # error pattern in what the student JUST said and hand the tutor the fix for it.
+    import misconceptions
+except Exception as _exc:  # noqa: BLE001
+    misconceptions = None
+    print(f"[main] misconceptions.py unavailable ({_exc}) -- diagnosis note disabled")
 try:
     # 2026-08-09 (build ce): used ONLY to validate a [[learned term="..."]] tag against
     # the real script names before we write it down. Defensive, exactly like tutor.py's
@@ -4479,7 +4503,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-09ci-function-notation"
+APP_BUILD = "2026-08-10ck-misconceptions"
 
 
 @app.get("/health")
@@ -4962,6 +4986,24 @@ def chat(req: ChatRequest):
                     "-- then keep teaching. Don't repeat the congratulations every turn.]")
     except Exception as exc:  # noqa: BLE001
         print(f"[awards] tutor note failed: {exc}")
+
+    # LIKELY MISCONCEPTION (2026-08-10, build ck). Rules 20-22 say what to DO about a
+    # wrong answer; rule 49 says to work out WHICH RULE produced it first. This is the
+    # part the model cannot do from the prompt alone at speed: match what the student
+    # just said against the 148 catalogued error patterns for this course and, on a hit,
+    # hand him the diagnosis AND the remedy in the same breath.
+    # Framed as a possibility he may discard, always. The matcher is conservative --
+    # bare numbers were stripped from the evidence at build time, matches are on word
+    # boundaries, and at most two theories come back -- but it is still a guess about a
+    # child's thinking, and a confident wrong diagnosis is worse than none (rule 49d/e).
+    try:
+        if misconceptions is not None and message and not message.startswith("__"):
+            note = misconceptions.hint_note(req.course, message)
+            if note:
+                student_context["mastery_note"] = (
+                    str(student_context.get("mastery_note", "")) + note).strip()
+    except Exception as exc:  # noqa: BLE001 -- a hint is never worth failing a turn over
+        print(f"[misconceptions] hint failed: {exc}")
 
     # FOUNDATION MEMORY (2026-08-09, build ce): which canonical introductions this
     # student has already sat through, so rule 40 can ASK instead of replaying one.
