@@ -2,6 +2,20 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cn -- SCALE. Jim: "suppose we have ten thousand people using this
+#               app simultaneously. It needs to be able to handle that."
+#               (1) CONNECTION POOL sized on purpose. SQLAlchemy's default is five
+#                   connections plus ten overflow -- fifteen, total, for a service whose
+#                   sync endpoints each want one from a FastAPI threadpool. Now
+#                   DB_POOL_SIZE / DB_MAX_OVERFLOW (10 + 20 by default), with
+#                   pool_recycle=1800 so a managed Postgres cannot hand us a socket it
+#                   quietly closed overnight, and pool_timeout so a spike queues instead
+#                   of hanging forever.
+#               (2) purge_usage_log(days) -- the usage log is one row per model call and
+#                   per TTS request and NOTHING ever removed one. At ten thousand
+#                   students that is millions of rows a month, in the same database the
+#                   lessons run on. main.py calls this once a day off the heartbeat that
+#                   already exists. Counts only; no student text was ever in there.
 #   2026-08-09  SCORING IS FLOORED, NOT ROUNDED (build ch, audit #2 item 9). Every
 #               score here used round(100 * correct / total) and then compared THAT to
 #               the pass mark, so a rounded-up percentage could carry a student over a
@@ -336,7 +350,19 @@ def init():
     try:
         from sqlalchemy import (create_engine, MetaData, Table, Column, String,
                                  Integer, Text, DateTime)
-        _engine = create_engine(_normalize_url(DATABASE_URL), pool_pre_ping=True, future=True)
+        # POOL SIZING (2026-08-10, build cn). SQLAlchemy's defaults are pool_size=5 with
+        # max_overflow=10, i.e. fifteen connections -- fine for a pilot, a hard ceiling
+        # under real load, because FastAPI runs these sync endpoints in a threadpool and
+        # every one of those threads wants a connection. pool_recycle keeps a managed
+        # Postgres from handing us a socket it closed while we were idle, which is the
+        # classic "first request after a quiet night fails" bug.
+        # Deliberately env-tunable rather than hard-coded: the right number depends on
+        # the database plan's own connection limit, and that changes before the code does.
+        _pool = int(os.environ.get("DB_POOL_SIZE", "10") or 10)
+        _overflow = int(os.environ.get("DB_MAX_OVERFLOW", "20") or 20)
+        _engine = create_engine(
+            _normalize_url(DATABASE_URL), pool_pre_ping=True, future=True,
+            pool_size=_pool, max_overflow=_overflow, pool_recycle=1800, pool_timeout=30)
         _meta = MetaData()
 
         # Accounts / students. For the pilot this mirrors students.json; real
@@ -1010,6 +1036,29 @@ def record_awards(code: str, award_ids: list) -> None:
         if aid in existing:
             continue
         _upsert("awards", {"code": code, "award_id": aid}, {"earned_at": now})
+
+
+def purge_usage_log(days: int = 180) -> int:
+    """Delete usage rows older than `days`. Returns how many went. Never raises.
+
+    2026-08-10 (build cn): one row per model call and per TTS request, and nothing ever
+    removed one. The cost dashboard looks back weeks, so older rows are pure weight in
+    the same database the lessons run on. Counts only -- no conversation text was ever
+    stored here, so nothing about a student is lost."""
+    from sqlalchemy import delete
+    try:
+        d = int(days or 0)
+        if d <= 0 or not _ENABLED:
+            return 0
+        from datetime import timedelta
+        cutoff = _now() - timedelta(days=d)
+        t = _tables["usage_log"]
+        with _engine.begin() as conn:
+            res = conn.execute(delete(t).where(t.c.created_at < cutoff))
+        return int(res.rowcount or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[usage] purge failed: {exc}")
+        return 0
 
 
 # ---- today's goals (2026-08-09, build cg) -----------------------------------

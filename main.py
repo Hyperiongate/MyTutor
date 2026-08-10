@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cn-scale-and-stability". Jim's brief: quality,
+#               low latency, no degradation over time, headroom to keep adding teaching
+#               code, ten thousand simultaneous students, build under $1,000.
+#               ★ THE DEGRADATION HE DESCRIBED WAS REAL AND IT WAS HERE. Every chat turn
+#               loaded the student's ENTIRE conversation, parsed it, appended two
+#               messages, re-serialised it and wrote it all back -- to use the last 30.
+#               A student a year in was moving several megabytes of JSON per turn, and it
+#               got worse every week they came back. MAX_STORED_MESSAGES caps it at 60
+#               (double what the tutor reads) via _bounded_history on the one path every
+#               save goes through. Nothing the tutor uses is lost; progress, mastery,
+#               quizzes, hours and awards live in their own tables. It is also the right
+#               privacy posture for a child's conversation.
+#               ★ USAGE LOG now purged daily off the existing heartbeat (USAGE_LOG_DAYS,
+#                 default 180). ★ RATE BUCKETS now expire by AGE -- the old sweep only
+#                 dropped already-empty buckets, so with every bucket busy the table grew
+#                 past its cap and never came down. ★ DB POOL sized in store.py.
+#               ★ REVERSED BUILD cl. Deferring the wording of heard scripts saved ~6,500
+#                 characters a turn and cost a cache rebuild on every flip: about $0.24
+#                 an episode to save $0.0005 a turn, plus a slower turn each time. The
+#                 prompt is now byte-identical for a whole session. A STABLE prompt beats
+#                 a smaller one, and at ~34k tokens we are using 17% of the window.
 #   2026-08-10  APP_BUILD -> "2026-08-10cm-cache-discipline". Jim asked whether "cost"
 #               meant money or performance. Checking the money side found a real defect
 #               I had shipped the build before: the misconception hint was appended into
@@ -1754,7 +1775,40 @@ def get_session(code: str, course: str = "algebra1") -> dict:
     return all_sessions.get(_ck(code, course), {"history": []})
 
 
+# THE STORED TRANSCRIPT IS BOUNDED (2026-08-10, build cn).
+# Jim: "I don't want to build in something that's going to degrade over time where the
+# errors are gonna start to add up... because we're not discarding things that we should
+# discard." This was that, and it was the biggest one in the app.
+# Every chat turn LOADED the entire conversation, parsed it, appended two messages,
+# re-serialised it and wrote the whole thing back. The tutor never sees more than the
+# last MAX_HISTORY_MESSAGES (30) -- _trim_history throws the rest away immediately -- so
+# a student one year in was moving several megabytes of JSON per turn to use 30 messages
+# of it. At 10,000 students that is roughly 48 GB of transcript and a turn that gets
+# slower every single week.
+# We keep a generous margin over what the model reads (60 stored vs 30 sent) so nothing
+# the tutor could want is ever missing, and we keep the OLDEST messages when trimming
+# is impossible -- no. We keep the NEWEST, which is what a conversation needs.
+# It also happens to be the right privacy posture: this is a child's conversation, we
+# already delete their audio on the spot, and retaining a transcript forever is a
+# liability rather than an asset. Progress, mastery, quizzes, hours and awards all live
+# in their own tables and are untouched by this.
+MAX_STORED_MESSAGES = 60
+
+
+def _bounded_history(session: dict) -> dict:
+    """Return `session` with its transcript capped. Never raises."""
+    try:
+        h = session.get("history")
+        if isinstance(h, list) and len(h) > MAX_STORED_MESSAGES:
+            session = dict(session)
+            session["history"] = h[-MAX_STORED_MESSAGES:]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[session] history trim skipped: {exc}")
+    return session
+
+
 def save_session(code: str, session: dict, course: str = "algebra1") -> None:
+    session = _bounded_history(session)
     if store.enabled():
         store.save_session(code, session, course)
         return
@@ -2073,9 +2127,20 @@ def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests
     now = time.monotonic()
     with _RL_LOCK:
         # Keep the bucket table itself from growing without bound.
-        if len(_RL_BUCKETS) > 10000:
-            for k in [k for k, q in _RL_BUCKETS.items() if not q]:
+        # build cn: the old sweep only dropped buckets that were ALREADY empty, so with
+        # ten thousand active students -- every bucket non-empty -- the table could grow
+        # past the cap and never come back down. Expire by age instead: a bucket whose
+        # newest hit is older than its window is spent, whatever it still holds.
+        if len(_RL_BUCKETS) > 5000:
+            stale = [k for k, q in _RL_BUCKETS.items()
+                     if not q or q[-1] <= now - max(window_seconds, 3600)]
+            for k in stale:
                 _RL_BUCKETS.pop(k, None)
+            if len(_RL_BUCKETS) > 50000:      # pathological: shed the oldest wholesale
+                for k in sorted(_RL_BUCKETS, key=lambda k: _RL_BUCKETS[k][-1]
+                                if _RL_BUCKETS[k] else 0)[:20000]:
+                    _RL_BUCKETS.pop(k, None)
+                print("[rate] bucket table shed to 30k keys")
         q = _RL_BUCKETS[key]
         while q and q[0] <= now - window_seconds:
             q.popleft()
@@ -3460,6 +3525,33 @@ def _digest_loop():
             _ops_watch_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[ops] watch loop error: {exc}")
+        # build cn: the usage log is one row per model call and per TTS request. At
+        # 10,000 students that is millions of rows a month, and nothing ever removed
+        # one. The cost dashboard only ever looks back weeks, so anything older than
+        # USAGE_LOG_DAYS is dead weight in the same database the lessons run on.
+        try:
+            _usage_purge_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[usage] purge loop error: {exc}")
+
+
+USAGE_LOG_DAYS = int(os.environ.get("USAGE_LOG_DAYS", "180") or 180)
+_last_usage_purge = [0.0]
+
+
+def _usage_purge_pass() -> None:
+    """Drop usage rows older than USAGE_LOG_DAYS. Runs at most once a day, from the
+    heartbeat that already exists. Counts only -- no conversation text was ever in
+    there. Silent and harmless when the DB is off."""
+    if not store.enabled() or USAGE_LOG_DAYS <= 0:
+        return
+    now = time.monotonic()
+    if _last_usage_purge[0] and now - _last_usage_purge[0] < 86400:
+        return
+    _last_usage_purge[0] = now
+    removed = store.purge_usage_log(USAGE_LOG_DAYS)
+    if removed:
+        print(f"[usage] purged {removed} rows older than {USAGE_LOG_DAYS} days")
 
 
 _digest_thread_started = False
@@ -4528,7 +4620,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cm-cache-discipline"
+APP_BUILD = "2026-08-10cn-scale-and-stability"
 
 
 @app.get("/health")
@@ -5037,24 +5129,22 @@ def chat(req: ChatRequest):
     # student has already sat through, so rule 40 can ASK instead of replaying one.
     # This is the ONLY place the tutor can learn it -- a new session's history is empty.
     student_context["foundations_heard"] = _foundations_heard(code, req.course)
-    # build cl: does this turn need the FULL WORDING of scripts he has already given?
-    # Rule 40 means a heard script is offered, not replayed, so its exact text is dead
-    # weight in every prompt except the one where the student accepts the offer. That
-    # acceptance is usually a bare "yes", so we read his previous turn too. Fails OPEN
-    # (carry the words) on any doubt -- a missing script would make him paraphrase, which
-    # costs a cache miss AND drifts the wording every student is supposed to share.
-    try:
-        last_tutor = ""
-        for _m in reversed(history or []):
-            if _m.get("role") == "assistant":
-                last_tutor = str(_m.get("content", "")); break
-        student_context["foundations_verbatim"] = (
-            foundations is None
-            or not student_context.get("foundations_heard")
-            or foundations.wants_refresher(message, last_tutor))
-    except Exception as exc:  # noqa: BLE001
-        print(f"[foundations] refresher check failed (carrying full text): {exc}")
-        student_context["foundations_verbatim"] = True
+    # THE PROMPT IS DELIBERATELY STABLE (2026-08-10, build cn -- reversing build cl).
+    # Build cl deferred the wording of already-heard scripts to save ~6,500 characters on
+    # an ordinary turn. Then we did the cache arithmetic, and it was the wrong trade:
+    #   deferring saves    ~$0.0005 on each ordinary turn
+    #   but every flip between the two prompt shapes rebuilds the cached prefix, and
+    #   there are two flips per refresher, at ~$0.24
+    #   -> it only pays if a student goes 460 turns between refreshers, and rule 40 has
+    #      him OFFER one every time a known term comes up.
+    # It was also a slower turn each time, which is the thing Jim asked for least of all.
+    # So the wording is always carried and the system prompt is byte-identical for the
+    # whole of a student's session. A STABLE prompt beats a smaller one: the cache is
+    # what makes size cheap, and at ~34k tokens we are using 17% of the context window.
+    # The mechanism is left in place (foundations.prompt_block(..., verbatim=False) and
+    # wants_refresher) because it becomes the right answer if the library ever grows to
+    # where it does not fit, or if the cache lifetime changes. It is dormant, not gone.
+    student_context["foundations_verbatim"] = True
     # build cg: does the TODAY bar genuinely exist right now? The net in tutor.py used to
     # infer that from history, which is wrong the moment the page reloads.
     try:

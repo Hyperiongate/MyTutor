@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cn -- PART 3h, "it must not degrade, and it must scale".
+#               Nothing in this battery had ever asked whether anything GROWS, and two
+#               things did: every chat turn loaded, parsed, appended to and rewrote the
+#               student's ENTIRE conversation in order to read the last thirty messages
+#               of it, and the usage log kept every row forever. PART 3h now checks the
+#               transcript cap (and that it stays above what the model reads), the usage
+#               retention pass, deliberate pool sizing, age-based rate-bucket eviction
+#               and the TTS cache cap.
+#               It also asserts the prompt does not FLIP SHAPE between turns -- build cl
+#               made it do that to save characters, and the cache arithmetic showed the
+#               flip costs about $0.24 an episode to save $0.0005 a turn.
 #   2026-08-10  BUILD cm -- CACHE DISCIPLINE CHECKS. The system prompt is one cached
 #               block; per-turn content inside it moves the cache prefix and re-bills
 #               everything after it. PART 3g now asserts get_tutor_reply takes a
@@ -1042,6 +1053,10 @@ def part3d_foundation_memory():
     #     danger is obvious -- if it is ever missing when he needs it he will paraphrase,
     #     which costs a cache miss AND drifts wording every student is meant to share --
     #     so the tests below care far more about RESTORING than about saving.
+    # build cn: the deferral below is DORMANT in production -- main.py always carries the
+    # wording, because flipping the prompt shape costs a cache rebuild worth far more
+    # than the characters it saves (see main.py). The mechanism is still tested, because
+    # it is the right answer if the library ever outgrows the window.
     heard = [d["term"] for d in foundations.for_course("algebra2")][:12]
     full = tutor.build_system_prompt(
         dict(STUDENT, foundations_heard=heard, foundations_verbatim=True), course="algebra2")
@@ -1397,6 +1412,12 @@ def part3g_misconceptions():
     for volatile in ("[LIKELY MISCONCEPTION -- ...]", "\n[some per-turn aside]"):
         check(f"a per-turn note does NOT reach the system prompt ({volatile[:22]}…)",
               volatile not in base, "it would move the cache prefix every turn")
+    check("the prompt shape does not flip between turns in production",
+          "student_context[\"foundations_verbatim\"] = True" in
+          open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py"),
+               encoding="utf-8").read(),
+          "a prompt that changes shape rebuilds the cache -- ~$0.24 an episode, and a "
+          "slower turn, to save $0.0005")
     check("the system prompt is identical for two ordinary turns",
           tutor.build_system_prompt(dict(STUDENT), course="basicmath") == base,
           "the cached prefix changes turn to turn -- every turn re-bills in full")
@@ -1451,6 +1472,53 @@ def part3g_misconceptions():
           f"written down. Do not raise it silently.")
 
 
+# =============================================================================
+# PART 3h -- IT MUST NOT DEGRADE, AND IT MUST SCALE
+# -----------------------------------------------------------------------------
+# 2026-08-10 (build cn). Jim: "I don't want to build in something that's going to
+# degrade over time where their errors are gonna start to add up and making more and
+# more mess because we're not discarding things that we should discard... suppose we
+# have ten thousand people using this app simultaneously."
+# Nothing in the battery had ever asked whether anything GROWS. It did: every chat turn
+# loaded, parsed, appended to and rewrote the student's ENTIRE conversation to use the
+# last thirty messages of it, and the usage log kept every row forever.
+# =============================================================================
+def part3h_scale():
+    print("\nPART 3h — it must not degrade, and it must scale")
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = {}
+    for f in ("main.py", "store.py"):
+        with open(os.path.join(here, f), encoding="utf-8") as fh:
+            src[f] = fh.read()
+
+    check("the stored transcript is capped", "MAX_STORED_MESSAGES" in src["main.py"],
+          "a year-old student would move megabytes of JSON on every turn")
+    check("every save goes through the cap",
+          "def save_session" in src["main.py"]
+          and "_bounded_history(session)" in src["main.py"],
+          "some path writes an untrimmed transcript")
+    m = re.search(r"MAX_STORED_MESSAGES\s*=\s*(\d+)", src["main.py"])
+    stored = int(m.group(1)) if m else 0
+    check(f"the cap ({stored}) leaves margin over what the model reads "
+          f"({tutor.MAX_HISTORY_MESSAGES})", stored > tutor.MAX_HISTORY_MESSAGES,
+          "trimming below what the tutor reads would silently shorten his memory")
+    check("the usage log has a retention pass",
+          "purge_usage_log" in src["store.py"] and "_usage_purge_pass" in src["main.py"],
+          "one row per model call and per TTS request, kept forever")
+    check("the connection pool is sized on purpose",
+          "pool_size=" in src["store.py"] and "pool_recycle=" in src["store.py"],
+          "SQLAlchemy's default is 15 connections -- a hard ceiling under load")
+    check("rate-limit buckets expire by AGE, not just emptiness",
+          "q[-1] <= now - max(window_seconds" in src["main.py"],
+          "with every bucket busy the table grows past its cap and never shrinks")
+    # the caps must be real numbers, not aspirations
+    for name, pat, lo in [("TTS cache cap", r"_TTS_CACHE_MAX_BYTES\s*=\s*([\d_]+)", 1),
+                          ("usage retention days", r"USAGE_LOG_DAYS[^\n]*?\"(\d+)\"", 1)]:
+        mm = re.search(pat, src["main.py"])
+        check(f"{name} is set", bool(mm) and int(mm.group(1).replace("_", "")) >= lo,
+              "no cap found")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -1486,6 +1554,7 @@ def main():
     part3e_page_parity()
     part3f_notation()
     part3g_misconceptions()
+    part3h_scale()
     if live:
         part4_live()
     else:
