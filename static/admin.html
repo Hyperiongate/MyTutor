@@ -207,6 +207,41 @@
       A wiped student code keeps working — it just starts from zero.</p>
   </div></section>
 
+  <!-- 2026-08-10 (build cx, Jim: "tell me exactly how to run it"). The honest answer was
+       that he could not: the lesson auditor and the foundation pre-render were both
+       "POST /api/admin/..." with no way to POST, which is why the pre-render had sat
+       un-run for days while three handoff documents told him to run it. A control panel
+       whose controls are instructions to use a tool he does not have is not a control
+       panel. Both are buttons now, and each prices itself first, for free. -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#128300; Lesson audit</h2>
+      <span class="note">Scripted students take real lessons; an independent model marks the
+        transcripts against all 51 rules. Nothing is changed &mdash; it hands you a report.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" id="laPrice" type="button">&#9312; Price it (free)</button>
+      <button class="btn btn-primary" id="laRun" type="button">&#9313; Run 2 lessons</button>
+      <span class="note" id="laWhere">starting at lesson 1</span>
+      <button class="btn btn-ghost" id="laCopy" type="button" style="display:none">&#128203; Copy the report</button>
+    </div>
+    <div class="msg" id="laMsg"></div>
+    <pre id="laOut" style="display:none;white-space:pre-wrap;background:#faf9ff;border:1px solid var(--line);
+      border-radius:12px;padding:14px;font-size:12.5px;line-height:1.55;max-height:520px;overflow:auto"></pre>
+    <p class="note" style="margin-top:12px">A run takes a couple of minutes per lesson &mdash; leave this tab open.
+      Two at a time keeps each request comfortably short; the button moves itself along, so keep
+      pressing &#9313; until it says there are none left. Needs <b>OPENAI_API_KEY</b> in Render.</p>
+  </div></section>
+
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#128266; Foundation voice pre-render</h2>
+      <span class="note">Renders every canonical script into the voice cache up front, so the first
+        student to meet a new idea never waits on it. Safe to re-run &mdash; already-cached lines are free.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" id="pwPrice" type="button">&#9312; Price it (free)</button>
+      <button class="btn btn-primary" id="pwRun" type="button">&#9313; Render them</button>
+    </div>
+    <div class="msg" id="pwMsg"></div>
+  </div></section>
+
   <!-- Quick links -->
   <section class="wrap"><div class="card">
     <div class="sechead"><h2>🔗 Quick links</h2><span class="note">Your other control panels — the ones needing your key open ready to use.</span></div>
@@ -532,6 +567,73 @@
     }
     frDisarm();
     $("frGo").disabled = false;
+  });
+
+  // ---------- lesson audit + voice pre-render (build cx) ----------
+  // Both endpoints already existed and both were unreachable without a tool for POSTing
+  // JSON. Wired to buttons here: price first (free), then run. The audit walks its cast
+  // in twos and remembers where it got to, so a long job never becomes one long request.
+  var laOffset = 0, laReport = "";
+  function laMsg(t, k) { var el = $("laMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  function laShow(text) { var el = $("laOut"); el.style.display = text ? "" : "none"; el.textContent = text || ""; }
+  function pwMsg(t, k) { var el = $("pwMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+
+  $("laPrice").addEventListener("click", async function () {
+    laMsg("Working it out\u2026", "ok"); laShow("");
+    try {
+      var d = await api("/api/admin/lesson-audit", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true }) });
+      var lines = d.scenarios.map(function (s, i) { return "  " + (i + 1) + ". " + s.id + "  (" + s.course + ")"; });
+      laShow("The whole cast \u2014 " + d.scenarios.length + " lessons, " + d.turns_each + " turns each:\n" +
+             lines.join("\n") + "\n\nModel: " + d.model +
+             "\nOpenAI key on the server: " + (d.have_openai_key ? "present" : "MISSING \u2014 add OPENAI_API_KEY in Render") +
+             "\n\nEstimated cost for all of them: $" + d.estimated_cost_usd +
+             "\n(" + d.estimate_note + ")");
+      laMsg("Nothing was spent. Press \u2461 when you are ready.", "ok");
+    } catch (e) { laMsg(e.message); }
+  });
+
+  $("laRun").addEventListener("click", async function () {
+    var b = $("laRun"); b.disabled = true;
+    laMsg("Running two lessons \u2014 this takes a few minutes. Leave this tab open.", "ok");
+    try {
+      var d = await api("/api/admin/lesson-audit", { method: "POST",
+        body: JSON.stringify({ key: KEY, limit: 2, offset: laOffset }) });
+      laOffset = d.next_offset || laOffset;
+      laReport = (laReport ? laReport + "\n\n---\n\n" : "") + (d.report_markdown || "");
+      laShow(laReport);
+      $("laCopy").style.display = "";
+      $("laWhere").textContent = d.remaining
+        ? (d.remaining + " lesson" + (d.remaining === 1 ? "" : "s") + " left \u2014 press \u2461 again")
+        : "all lessons done";
+      laMsg(d.scenarios_run + " lessons marked \u00b7 " + d.findings + " findings (" + d.high +
+            " serious) \u00b7 " + d.seconds + "s. Copy the report and send it to Claude.", "ok");
+    } catch (e) { laMsg(e.message); }
+    b.disabled = false;
+  });
+
+  $("laCopy").addEventListener("click", function () {
+    try { navigator.clipboard.writeText(laReport); laMsg("Report copied.", "ok"); }
+    catch (e) { laMsg("Couldn't copy automatically \u2014 select the text above and copy it."); }
+  });
+
+  $("pwPrice").addEventListener("click", async function () {
+    pwMsg("Counting\u2026", "ok");
+    try {
+      var d = await api("/api/admin/prewarm-foundations", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true }) });
+      pwMsg(JSON.stringify(d), "ok");
+    } catch (e) { pwMsg(e.message); }
+  });
+  $("pwRun").addEventListener("click", async function () {
+    var b = $("pwRun"); b.disabled = true;
+    pwMsg("Rendering \u2014 this can take a few minutes. Leave this tab open.", "ok");
+    try {
+      var d = await api("/api/admin/prewarm-foundations", { method: "POST",
+        body: JSON.stringify({ key: KEY }) });
+      pwMsg(JSON.stringify(d), "ok");
+    } catch (e) { pwMsg(e.message); }
+    b.disabled = false;
   });
 
   // ---------- load ----------

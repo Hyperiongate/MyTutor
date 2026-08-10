@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cx -- a check that an admin job the owner cannot reach is NOT
+#               SHIPPED. Jim asked "tell me exactly how to run it" and the honest answer
+#               was that he could not: both money-spending admin jobs were documented as
+#               "POST /api/admin/..." and nothing in the product can POST JSON. The
+#               foundation pre-render had therefore sat un-run for days while three
+#               handoff documents told him to run it. Every spending endpoint must now
+#               have a button on /admin and be priceable from there.
 #   2026-08-10  BUILD cw -- PART 3l (the lesson auditor's boundaries) and THE CEILING
 #               RAISED 135,000 -> 150,000 with the reason written down where it is
 #               enforced. The old note said "consolidate, do not raise"; it was written
@@ -1995,6 +2002,22 @@ def part3l_lesson_auditor():
     check("a rejected model names the ones the account actually has",
           "_openai_model_names" in src and "OPENAI_AUDIT_MODEL" in src,
           "'model not found' with no list is an evening gone")
+
+    # Build cx. AN ADMIN JOB THE OWNER CANNOT REACH IS NOT SHIPPED. Both money-spending
+    # jobs were documented as "POST /api/admin/..." and nothing in the product can POST
+    # JSON, which is why the foundation pre-render sat un-run for days while three handoff
+    # documents told Jim to run it. Every admin endpoint that spends money must have a
+    # button on /admin.
+    admin_html = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    for endpoint, why in (("/api/admin/lesson-audit", "the lesson auditor"),
+                          ("/api/admin/prewarm-foundations", "the voice pre-render")):
+        check(f"{why} can be run from /admin, not just described",
+              endpoint in admin_html,
+              "a control panel whose controls are instructions to use a tool the owner "
+              "does not have is not a control panel")
+    check("  and each one can be PRICED from there before it spends",
+          admin_html.count("dry_run: true") >= 2,
+          "nobody should have to spend money to find out what something costs")
 
     # And the endpoint that runs it is admin-gated, like every other spending endpoint.
     msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()

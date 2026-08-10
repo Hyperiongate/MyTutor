@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cx-buttons-not-instructions". Jim asked "tell me
+#               exactly how to run it", and the honest answer was that he could not.
+#               BOTH admin jobs -- the new lesson auditor and the foundation pre-render --
+#               were documented as "POST /api/admin/... with {key, dry_run:true}", and
+#               nothing in the product can POST JSON. That is why the pre-render had sat
+#               UN-RUN FOR DAYS while three handoff documents kept telling him to run it.
+#               A control panel whose controls are instructions to use a tool the owner
+#               does not have is not a control panel.
+#               /admin now has both as buttons: price it (free), then run it. The audit
+#               walks its cast two lessons at a time and remembers where it got to, so a
+#               long job never becomes one long request, and it has a Copy-the-report
+#               button because the report's whole purpose is to be handed to someone.
+#               THE GENERAL LESSON, worth more than the buttons: a feature is not shipped
+#               when the endpoint answers. It is shipped when the person it was built for
+#               can reach it. This file's own change notes have been quietly failing that
+#               test since build cf.
 #   2026-08-10  APP_BUILD -> "2026-08-10cw-lesson-auditor". Jim: "I need to build some
 #               sort of effectiveness/reality check so we don't keep having these
 #               problems." NEW FILE lessonaudit.py + POST /api/admin/lesson-audit.
@@ -4885,7 +4901,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cw-lesson-auditor"
+APP_BUILD = "2026-08-10cx-buttons-not-instructions"
 
 
 @app.get("/health")
