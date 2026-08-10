@@ -606,8 +606,13 @@
       $("laWhere").textContent = d.remaining
         ? (d.remaining + " lesson" + (d.remaining === 1 ? "" : "s") + " left \u2014 press \u2461 again")
         : "all lessons done";
-      laMsg(d.scenarios_run + " lessons marked \u00b7 " + d.findings + " findings (" + d.high +
-            " serious) \u00b7 " + d.seconds + "s. Copy the report and send it to Claude.", "ok");
+      // build cz: the SERVER writes the summary, because a run in which every lesson
+      // failed must never read like a clean one. This line used to say "2 lessons marked
+      // \u00b7 0 findings" for a run where nothing was marked at all.
+      var clean = !d.did_not_complete && d.lessons_marked;
+      laMsg((d.summary || "") + " \u00b7 " + d.seconds + "s"
+            + (clean ? ". Copy the report and send it to Claude." : ""),
+            clean ? "ok" : "err");
     } catch (e) { laMsg(e.message); }
     b.disabled = false;
   });

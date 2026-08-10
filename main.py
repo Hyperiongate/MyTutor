@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10cz-audit-preflight". Jim ran the lesson auditor
+#               for the first time and it failed. Four fixes, three of them mine:
+#               (1) OpenAI's newer models reject "max_tokens" and want
+#               "max_completion_tokens". The parameter is now NEGOTIATED -- try one, and
+#               if the API names the other, switch and remember. Not guessed from the
+#               model name: names change, and guessing is how you ship a break.
+#               (2) ⭐ A PREFLIGHT. His run spent 89.9 SECONDS AND TWO LIVE TUTOR CALLS
+#               before discovering a parameter name. One tiny call now proves the key,
+#               the model and the parameter first, for a fraction of a cent.
+#               (3) The default model was "gpt-5.5", chosen from a press release rather
+#               than from his account. His key reaches gpt-4.1 and gpt-4o; the default is
+#               now gpt-4.1, still overridden by OPENAI_AUDIT_MODEL.
+#               (4) ⚠️ AN HONESTY BUG IN MY OWN REPORT. It headlined "2 scenarios · 0
+#               findings" for a run in which BOTH lessons died before a word was marked.
+#               Zero findings and zero lessons marked are OPPOSITE RESULTS and must never
+#               read the same. The report and the /admin panel now say "NOTHING WAS
+#               MARKED", and the panel repeats the server's summary instead of composing
+#               its own.
+#               One thing that worked exactly as designed: the error named every model his
+#               account can reach, so the diagnosis took seconds. It named them for the
+#               wrong reason though -- the check fired on any error containing the word
+#               "model" -- so that now fires only on a genuine model error.
 #   2026-08-10  APP_BUILD -> "2026-08-10cy-wait-time". No code change in this file -- the
 #               stamp moves for the FIFTH REFEREE in tutor.py.
 #               From the MAA Instructional Practices Guide Jim added to the tutor folder:
@@ -4917,7 +4939,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cy-wait-time"
+APP_BUILD = "2026-08-10cz-audit-preflight"
 
 
 @app.get("/health")

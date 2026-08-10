@@ -2,6 +2,17 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cz -- FIXES FROM THE FIRST REAL RUN. It failed, and usefully.
+#               * max_tokens -> negotiated token parameter (newer models want
+#                 max_completion_tokens). Ask the API, do not guess from the name.
+#               * NEW preflight(): one tiny call proves key + model + parameter BEFORE any
+#                 lesson. The failing run cost 89.9 seconds and two live tutor calls to
+#                 learn a parameter name; it should cost a second.
+#               * default model gpt-5.5 -> gpt-4.1, which his key actually reaches.
+#               * the model list is offered only on a genuine model error, not on any
+#                 message containing the word "model".
+#               * the summary tells the truth: a run where nothing was marked no longer
+#                 reads as "0 findings", which is what a clean audit reads as.
 #   2026-08-10  BUILD cw -- NEW FILE. Jim: "I need to build some sort of
 #               effectiveness/reality check so we don't keep having these problems."
 #
@@ -73,7 +84,10 @@ OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
 # Overridable because model names move faster than this file will. A wrong default is not
 # a silent failure here: see _openai(), which asks the account what it has.
-AUDIT_MODEL = os.environ.get("OPENAI_AUDIT_MODEL", "gpt-5.5")
+# 2026-08-10 (build cz): default changed gpt-5.5 -> gpt-4.1 after Jim's first live run
+# listed what his key can actually reach. Picking a default from a press release rather
+# than from the account is how the first run burned 90 seconds to say "no".
+AUDIT_MODEL = os.environ.get("OPENAI_AUDIT_MODEL", "gpt-4.1")
 TURNS = int(os.environ.get("AUDIT_TURNS", "8"))          # student turns per lesson
 
 # ESTIMATES ONLY, for the dry run -- published prices change and these are not read from
@@ -208,19 +222,25 @@ severity high = a student would learn something false or be unable to follow.
 # =============================================================================
 # OPENAI TRANSPORT
 # =============================================================================
-def _openai(messages, max_tokens=900, want_json=False, model=None):
-    """One OpenAI chat call. Returns (text, error). Never raises, never logs the key.
+# Which token-limit parameter this model wants. The newer models reject "max_tokens" and
+# require "max_completion_tokens"; the older ones are the other way round. We do not guess
+# from the model NAME -- names change and guessing is how you ship a break. We try one,
+# and if the API tells us it wanted the other we switch and remember for the rest of the
+# run. Learned from Jim's first real run, which failed on exactly this after spending 90
+# seconds and two live tutor calls first.
+_TOKEN_PARAM = "max_completion_tokens"
 
-    On a model error it ASKS THE ACCOUNT what it actually has and names those models in
-    the error, because 'model not found' with no list is the kind of dead end that costs
-    an evening. Model names move; a stale default should be a one-line fix.
-    """
+
+def _openai(messages, max_tokens=900, want_json=False, model=None, _retry=True):
+    """One OpenAI chat call. Returns (text, error). Never raises, never logs the key."""
+    global _TOKEN_PARAM
     import httpx
     key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not key:
         return None, ("no OPENAI_API_KEY in the environment. On Render: add it to the "
                       "service's Environment tab; it is never sent anywhere else.")
-    body = {"model": model or AUDIT_MODEL, "messages": messages, "max_tokens": max_tokens}
+    body = {"model": model or AUDIT_MODEL, "messages": messages,
+            _TOKEN_PARAM: max_tokens}
     if want_json:
         body["response_format"] = {"type": "json_object"}
     try:
@@ -234,16 +254,49 @@ def _openai(messages, max_tokens=900, want_json=False, model=None):
         except Exception as exc:  # noqa: BLE001
             return None, f"unexpected OpenAI response shape: {exc}"
     detail = ""
+    code = ""
     try:
-        detail = (r.json().get("error") or {}).get("message", "")
+        err = (r.json().get("error") or {})
+        detail = err.get("message", "")
+        code = (err.get("code") or "") + " " + (err.get("param") or "")
     except Exception:  # noqa: BLE001
         detail = (r.text or "")[:200]
-    if r.status_code in (400, 404) and "model" in detail.lower():
+    low = detail.lower()
+
+    # THE TOKEN-PARAMETER SWAP. The API names the parameter it wanted; take it at its word.
+    if _retry and r.status_code == 400 and "max_tokens" in low and "max_completion_tokens" in low:
+        _TOKEN_PARAM = ("max_completion_tokens" if "'max_tokens' is not supported" in low
+                        else "max_tokens")
+        print(f"[audit] switching token parameter to {_TOKEN_PARAM} and retrying")
+        return _openai(messages, max_tokens, want_json, model, _retry=False)
+
+    # Only a genuine MODEL problem earns the model list. The first version appended it to
+    # anything containing the word "model", which is how a parameter error came back
+    # wearing a costume -- true information, wrong diagnosis, and Jim had to read past it.
+    if (r.status_code in (400, 404)
+            and ("model_not_found" in code or "does not exist" in low
+                 or "do not have access" in low or "invalid model" in low)):
         names = _openai_model_names(key)
         if names:
             detail += ("  |  models available on this account: " + ", ".join(names[:25])
                        + ".  Set OPENAI_AUDIT_MODEL to one of these.")
     return None, f"OpenAI {r.status_code}: {detail}"
+
+
+def preflight():
+    """Prove the OpenAI side works BEFORE any lesson runs. One tiny call, a fraction of a
+    cent, about a second.
+
+    Jim's first real run spent 89.9 seconds and two live tutor calls before failing on a
+    parameter name. Everything that can be wrong here -- missing key, wrong model name,
+    wrong token parameter, no network -- is knowable in one cheap round trip, and finding
+    out cheaply is the difference between a typo and a wasted afternoon.
+    Returns (ok, message)."""
+    text, err = _openai([{"role": "user", "content": "Reply with the single word: ready"}],
+                        max_tokens=5)
+    if err:
+        return False, err
+    return True, f"OpenAI reachable · model {AUDIT_MODEL} · token parameter {_TOKEN_PARAM}"
 
 
 def _openai_model_names(key):
@@ -372,6 +425,16 @@ def audit(limit=None, offset=0, turns=TURNS):
     and the command line can both use it."""
     picked = SCENARIOS[offset:offset + limit] if limit else SCENARIOS[offset:]
     started = time.time()
+    # FAIL FAST AND CHEAP. One tiny call proves the key, the model and the token parameter
+    # before a single lesson is taught. Jim's first run spent 89.9 seconds and two live
+    # tutor calls to discover a parameter name.
+    ok, note = preflight()
+    if not ok:
+        return {"ok": False, "dry_run": False, "model": AUDIT_MODEL,
+                "scenarios_run": 0, "findings": 0, "high": 0, "did_not_complete": 0,
+                "seconds": round(time.time() - started, 1), "results": [],
+                "preflight_error": note,
+                "summary": f"Nothing was run. The OpenAI side failed its preflight: {note}"}
     results = []
     for sc in picked:
         t0 = time.time()
@@ -393,9 +456,24 @@ def audit(limit=None, offset=0, turns=TURNS):
     high = sum(1 for r in results for f in (r.get("findings") or [])
                if (f.get("severity") or "").lower() == "high")
     total = sum(len(r.get("findings") or []) for r in results)
+    # ⚠️ HONESTY IN THE HEADLINE. The first version reported "2 scenarios · 0 findings"
+    # for a run in which BOTH scenarios died before a single word was marked. Zero
+    # findings and zero lessons marked are opposite results and must never read the same.
+    failed = sum(1 for r in results if r.get("error"))
+    marked = len(results) - failed
+    if marked == 0 and failed:
+        summary = (f"NOTHING WAS MARKED. All {failed} lesson(s) failed to complete -- see "
+                   f"the reason on each below. This is not a clean audit.")
+    elif failed:
+        summary = (f"{marked} lesson(s) marked, {total} finding(s) ({high} serious). "
+                   f"⚠️ {failed} lesson(s) did NOT complete, so this audit is partial.")
+    else:
+        summary = f"{marked} lesson(s) marked, {total} finding(s) ({high} serious)."
     return {"ok": True, "dry_run": False, "model": AUDIT_MODEL,
-            "scenarios_run": len(results), "findings": total, "high": high,
-            "seconds": round(time.time() - started, 1), "results": results}
+            "scenarios_run": len(results), "lessons_marked": marked,
+            "did_not_complete": failed, "findings": total, "high": high,
+            "seconds": round(time.time() - started, 1), "summary": summary,
+            "results": results}
 
 
 def report_markdown(run):
@@ -403,10 +481,17 @@ def report_markdown(run):
     nobody reads evidence they have not been given a reason to read."""
     from datetime import datetime, timezone
     when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    fails = run.get("did_not_complete", 0)
     out = [f"# Lesson audit — {when}", "",
-           f"_Model: {run.get('model')} · {run.get('scenarios_run')} scenarios · "
-           f"{run.get('findings')} findings ({run.get('high')} high) · "
-           f"{run.get('seconds')}s_", "",
+           f"_Model: {run.get('model')} · {run.get('lessons_marked', run.get('scenarios_run'))} "
+           f"lesson(s) marked · {run.get('findings')} findings ({run.get('high')} high)"
+           + (f" · ⚠️ {fails} DID NOT COMPLETE" if fails else "")
+           + f" · {run.get('seconds')}s_", "",
+           f"**{run.get('summary', '')}**", "",]
+    if run.get("preflight_error"):
+        out += [f"> The OpenAI side never answered, so no lesson was taught: "
+                f"`{run['preflight_error']}`", ""]
+    out += [
            "Nothing here has been acted on. A finding is an OPINION from an independent "
            "model; read the quoted words yourself before changing anything. A real one "
            "becomes a rule AND a test in the same commit.", ""]

@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD cz -- five guards from the auditor's first live failure: a preflight
+#               before any lesson, a negotiated token parameter, the model list offered
+#               only for a real model error, a summary that cannot make "nothing was
+#               marked" look like "no findings", and the admin panel repeating the
+#               server's summary instead of computing a second one.
 #   2026-08-10  BUILD cy -- SELF_ANSWER_CASES and the corpus sweep. Rule 39(b) is ENFORCED
 #               now, not merely COVERED. Two of the FALSE cases are real false positives
 #               caught by sweeping our own content before shipping: a foundation script
@@ -2073,6 +2078,31 @@ def part3l_lesson_auditor():
     check("  the report says findings have not been acted on",
           "Nothing here has been acted on" in src,
           "a report that reads like a changelog gets treated as one")
+
+    # Build cz, all four from Jim's FIRST REAL RUN, which failed after 89.9 seconds.
+    check("the run is proved cheaply before any lesson is taught",
+          "def preflight(" in src and "ok, note = preflight()" in src,
+          "a wrong model name should cost a second and a fraction of a cent, not 90 "
+          "seconds and two live tutor calls")
+    check("  the token-limit parameter is negotiated, not guessed from the model name",
+          "_TOKEN_PARAM" in src and "max_completion_tokens" in src,
+          "newer models reject max_tokens and older ones reject its replacement; the API "
+          "says which it wants, so take it at its word instead of pattern-matching names")
+    check("  the model list is offered only for a genuine MODEL error",
+          "model_not_found" in src and 'and "model" in detail.lower()' not in src,
+          "the first version appended the account's model list to any error containing "
+          "the word 'model' -- so a PARAMETER error came back wearing a costume: true "
+          "information, wrong diagnosis, and a person has to read past it")
+    check("  a run where nothing was marked cannot read like a clean one",
+          "NOTHING WAS MARKED" in src and "lessons_marked" in src
+          and "did_not_complete" in src,
+          "the first report headlined '2 scenarios \u00b7 0 findings' for a run in which "
+          "BOTH lessons died before a word was marked. Zero findings and zero lessons "
+          "marked are opposite results and must never read the same")
+    admin_src = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("  and the admin panel repeats the server's summary rather than inventing one",
+          "d.summary" in admin_src and "did_not_complete" in admin_src,
+          "two places computing the same headline is two places to get it wrong")
 
     # A stale model name must be a one-line fix, never a mystery.
     check("a rejected model names the ones the account actually has",
