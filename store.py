@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dd -- FLUENCY SPRINTS: new table `sprints` (one row per completed
+#               sprint), record_sprint() and get_sprint_history(). Counts are CLAMPED
+#               (correct <= attempted <= 30) so the dashboards this will feed stay
+#               honest, and `personal_best` compares only with THIS student's own
+#               history (rule 42). Joins _STUDENT_CODE_TABLES on day one -- a Start
+#               Fresh that left sprint rows behind would hand the reset student a
+#               personal best they never set. Recording a sprint touches no mastery, no
+#               status, no unlock -- sprints never gate, and PART 3n enforces it.
 #   2026-08-10  BUILD cu -- record_check() now also reports the UNIT's state, not only
 #               this attempt's. "mastered" has always meant "THIS attempt cleared 90%",
 #               which is right for the celebration and wrong for the student's nerve: a
@@ -622,6 +630,26 @@ def init():
             Column("items", Text),                            # "|"-joined, as the tag wrote them
             Column("done", String(64)),                       # "1,3" -- 1-based, comma separated
             Column("updated_at", DateTime(timezone=True)),
+        )
+        # FLUENCY SPRINTS (2026-08-11, build dd): one row per completed sprint. The
+        # improvement column is the number the product celebrates -- B minus A, the
+        # Eureka structure, rule-42-safe because it only ever compares the student to
+        # the student. Brand-new table -> create_all builds it; no migration.
+        # JOINS _STUDENT_CODE_TABLES on day one (standing rule).
+        _tables["sprints"] = Table(
+            "sprints", _meta,
+            Column("id", Integer, primary_key=True, autoincrement=True),
+            Column("code", String(64), index=True),
+            Column("course", String(32)),
+            Column("unit", Integer),
+            Column("skill", String(80)),
+            Column("day", String(10)),                        # ISO 'YYYY-MM-DD'
+            Column("a_correct", Integer, default=0),
+            Column("a_attempted", Integer, default=0),
+            Column("b_correct", Integer, default=0),
+            Column("b_attempted", Integer, default=0),
+            Column("improvement", Integer, default=0),        # b_correct - a_correct
+            Column("created_at", DateTime(timezone=True)),
         )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
         # of `uses_allowed` and opens a `window_hours` window of full access.
@@ -1302,6 +1330,55 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
             "attempt": checks_taken}
 
 
+def record_sprint(code: str, course: str, unit: int, skill: str,
+                  a_correct: int, a_attempted: int, b_correct: int, b_attempted: int) -> dict:
+    """Record one completed fluency sprint (2026-08-11, build dd).
+
+    Counts are CLAMPED server-side: correct can never exceed attempted, and attempted
+    can never exceed the 30 problems a half actually holds -- the bars this feeds are
+    honest, so the row must be too. Returns {improvement, best_b, personal_best} where
+    personal_best is True when this B beats every previous B for the same skill --
+    the comparison is always and only with this student's own history (rule 42)."""
+    from sqlalchemy import select, func as _f
+    a_att = max(0, min(int(a_attempted), 30)); a_cor = max(0, min(int(a_correct), a_att))
+    b_att = max(0, min(int(b_attempted), 30)); b_cor = max(0, min(int(b_correct), b_att))
+    imp = b_cor - a_cor
+    t = _tables["sprints"]
+    with _engine.connect() as conn:
+        prev_best = conn.execute(
+            select(_f.max(t.c.b_correct)).where(
+                (t.c.code == code) & (t.c.course == course)
+                & (t.c.unit == int(unit)))).scalar() or 0
+        conn.execute(t.insert().values(
+            code=code, course=course, unit=int(unit), skill=str(skill)[:80],
+            day=_today(), a_correct=a_cor, a_attempted=a_att,
+            b_correct=b_cor, b_attempted=b_att, improvement=imp,
+            created_at=_now()))
+        conn.commit()
+    s = _get_stats_row(code)
+    _touch_streak(s)
+    _save_stats(code, s)
+    return {"improvement": imp, "best_b": max(prev_best, b_cor),
+            "personal_best": b_cor > prev_best}
+
+
+def get_sprint_history(code: str, course: str, unit=None, limit: int = 20) -> list:
+    """Most-recent-first sprint rows for the dashboards' progress graph (WWC guide 26
+    rec 6: track it and SHOW it). [{unit, skill, day, a, b, improvement}]."""
+    from sqlalchemy import select
+    t = _tables["sprints"]
+    q = select(t.c.unit, t.c.skill, t.c.day, t.c.a_correct, t.c.b_correct,
+               t.c.improvement).where((t.c.code == code) & (t.c.course == course))
+    if unit is not None:
+        q = q.where(t.c.unit == int(unit))
+    q = q.order_by(t.c.id.desc()).limit(int(limit))
+    with _engine.connect() as conn:
+        rows = conn.execute(q).fetchall()
+    return [{"unit": int(r[0]), "skill": r[1], "day": r[2],
+             "a": int(r[3] or 0), "b": int(r[4] or 0),
+             "improvement": int(r[5] or 0)} for r in rows]
+
+
 def _topic_key(name: str) -> str:
     """Normalized slug of a topic name -- stable across small wording differences."""
     import re as _re
@@ -1841,6 +1918,9 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-09 (build cg): today's goal bar, same rule -- a reset student must not
     # open the lesson to yesterday's goals already ticked off.
     ("today_goals", "code"),
+    # 2026-08-11 (build dd): sprint history, same rule -- a reset student starts with a
+    # clean personal-best slate.
+    ("sprints", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),

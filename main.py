@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dd-fluency-sprints". THE LARGEST EVIDENCE GAP
+#               CLOSED: WWC guide 26 recommendation 6 ("regularly include timed
+#               activities", STRONG -- named independently by four sources) -- we had
+#               nothing. Format studied from the real Eureka G1M1 Teacher Edition and
+#               rebuilt with OUR items (their curriculum is (c) Great Minds, not open):
+#               two sibling 60-second rounds, pattern-family sequencing, and the only
+#               celebrated number is B minus A -- the student against the student
+#               (rule 42, which Eureka's design independently arrived at).
+#               Jim's calls: offered at lesson start (one optional link on the welcome
+#               card), TAP answers (a timed minute must not measure our transcription
+#               latency), full A/B with a stretch break.
+#               THIS FILE: GET/POST /api/sprint/{code}. Seeded per student-per-day (a
+#               mid-sprint reload rebuilds the SAME sprint; tomorrow's is fresh), history
+#               and personal best from the new store table, counts re-clamped server-side.
+#               ⚠️ SPRINTS NEVER GATE ANYTHING -- ruletests PART 3n proves it at all
+#               three layers, and verifies every one of the 1,620 generated answers.
+#               NEW FILE sprints.py (27 units across entry/basic/prealgebra); store.py
+#               gains the sprints table (JOINS _STUDENT_CODE_TABLES day one);
+#               session.html gains the overlay. The teaching prompt is UNTOUCHED -- the
+#               offer is deterministic UI, so the prompt budget paid nothing.
 #   2026-08-10  APP_BUILD -> "2026-08-10dc-count-the-stumbles". Jim ran the FULL first
 #               audit: ten lessons, nine critic findings. Adjudication is in the project
 #               (Audit_Findings_2026-08-10.md): most findings were rejected on the quoted
@@ -1957,6 +1977,12 @@ except Exception as _exc:  # noqa: BLE001
     foundations = None
     print(f"[main] foundations.py unavailable ({_exc}) -- foundation memory disabled")
 
+try:
+    import sprints
+except Exception as _exc:  # noqa: BLE001
+    sprints = None
+    print(f"[main] sprints.py unavailable ({_exc}) -- fluency sprints disabled")
+
 # Bring up the database backend if DATABASE_URL is configured. If it isn't (or the
 # DB can't be reached), store.enabled() stays False and we use the JSON-file storage
 # below, exactly as before -- so the current app is unaffected until a DB is added.
@@ -2202,6 +2228,16 @@ class ChatRequest(BaseModel):
     # 2026-08-07 FINAL EXAM: "" (normal lesson) | "prep" | "exam". The server RE-VERIFIES
     # eligibility (all 9 units mastered) on every turn -- the client is never trusted.
     final: str = ""
+
+
+class SprintResultIn(BaseModel):
+    course: str = "prealgebra"
+    unit: int = 1
+    skill: str = ""
+    a_correct: int = 0
+    a_attempted: int = 0
+    b_correct: int = 0
+    b_attempted: int = 0
 
 
 class FinalIn(BaseModel):
@@ -4833,6 +4869,58 @@ def _final_exam_state(code: str, course: str) -> dict:
     }
 
 
+@app.get("/api/sprint/{code}")
+def get_sprint(code: str, course: str = "prealgebra", unit: int = 1):
+    """The day's fluency sprint for this student+course+unit, or {available:false}.
+
+    2026-08-11 (build dd). WWC guide 26 recommendation 6 (STRONG): "regularly include
+    timed activities... track and monitor progress". Format follows Eureka's Sprints
+    (studied, not copied -- see sprints.py's licence note): two sibling halves, the
+    celebrated number is B minus A, and the ONLY comparison is with this student's own
+    history (rule 42).
+    Seeded per student-per-day: a re-request today rebuilds the SAME sprint (a reload
+    mid-sprint changes nothing); tomorrow's is fresh. ⚠️ NEVER GATES: nothing anywhere
+    reads sprint results as a requirement, and declining is simply not calling this."""
+    _student_or_404(code)
+    code = code.strip()
+    if sprints is None or not sprints.available(course, unit):
+        return {"available": False}
+    import datetime as _dt
+    day = _dt.date.today().isoformat()
+    built = sprints.build(course, unit, f"{code}|{course}|{unit}|{day}")
+    out = {"available": True, "skill": built["skill"], "unit": int(unit),
+           "a": built["a"], "b": built["b"], "seconds": 60,
+           "history": [], "best_b": 0, "done_today": False}
+    if store.enabled():
+        try:
+            hist = store.get_sprint_history(code, course, unit, limit=8)
+            out["history"] = hist
+            out["best_b"] = max([h["b"] for h in hist], default=0)
+            out["done_today"] = any(h["day"] == day for h in hist)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[sprint] history read failed: {exc}")
+    return out
+
+
+@app.post("/api/sprint/{code}")
+def post_sprint(code: str, body: SprintResultIn):
+    """Record a finished sprint. Counts are re-clamped in store.record_sprint (correct
+    <= attempted <= 30) so the dashboards this feeds stay honest. Returns the
+    celebration facts: improvement, best_b, personal_best -- all self-referential."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False}
+    try:
+        res = store.record_sprint(code, body.course, int(body.unit), body.skill,
+                                  int(body.a_correct), int(body.a_attempted),
+                                  int(body.b_correct), int(body.b_attempted))
+        return {"ok": True, "tracking": True, **res}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[sprint] record failed: {exc}")
+        return {"ok": False, "tracking": True}
+
+
 @app.post("/api/final/{code}")
 def post_final(code: str, body: FinalIn):
     """Record a FINAL EXAM score ([[finalexam]] tag). Server-side gate: the score only
@@ -4988,7 +5076,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10dc-count-the-stumbles"
+APP_BUILD = "2026-08-11dd-fluency-sprints"
 
 
 @app.get("/health")

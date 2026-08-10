@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <!--
-    (cv) 2026-08-10 -- THE WELCOME CARD MUST NOT NEED SCROLLING. Jim: "the Welcome back
+    (dd) 2026-08-11 -- FLUENCY SPRINTS. WWC guide 26 rec 6 (Strong): one optional link on
+    the welcome card ("totally optional" is in the copy on purpose), a full-screen
+    overlay reusing .welcome-card (so the cv short-screen sizing applies for free), two
+    60-second tap rounds with a stretch break, and the ONLY celebrated number is B minus
+    A -- the student against the student. Skipping costs one tap, a low count changes
+    nothing, and nothing anywhere is gated on a sprint. Spoken lines ride /api/speak
+    (cached by text, fire-and-forget -- a sprint must work silent). Measured with the
+    offer present: the welcome card still fits its box at 1366x768.
+  - (cv) 2026-08-10 -- THE WELCOME CARD MUST NOT NEED SCROLLING. Jim: "the Welcome back
     page should never require scrolling. I had to scroll down to see what was my option."
     Two faults, and the second was worse than the one he hit.
     (1) The RETURNING card still carried the FIRST-TIMER'S three how-it-works bullets --
@@ -619,6 +627,20 @@
     .welcome-go { width: 100%; border: none; border-radius: 30px; cursor: pointer; color: #fff; font-size: 21px;
       font-weight: 800; padding: 19px; background: linear-gradient(90deg, var(--accent), var(--accent2));
       box-shadow: 0 10px 24px rgba(91,91,214,.4); }
+    /* 2026-08-11 (build dd) -- FLUENCY SPRINTS. The overlay reuses .welcome/.welcome-card
+       so it inherits the short-screen sizing from the cv media query for free. */
+    .spr-timer { height: 10px; border-radius: 6px; background: #eef0f7; overflow: hidden; margin: 4px 0 16px; }
+    .spr-timer i { display: block; height: 100%; width: 100%; border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s linear; }
+    .spr-q { font-size: 42px; font-weight: 800; font-family: "Courier New", monospace; color: #2a2450;
+      margin: 10px 0 20px; min-height: 56px; }
+    .spr-choices { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .spr-choice { min-width: 104px; font-size: 24px; font-weight: 800; padding: 15px 18px; border-radius: 15px;
+      border: 2px solid var(--line); background: #fff; cursor: pointer; color: var(--ink); }
+    .spr-choice:active { transform: translateY(2px); }
+    .spr-meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
+    .spr-copy { font-size: 17px; line-height: 1.55; color: var(--ink); margin: 8px 0 20px; }
+    .spr-copy b { color: var(--accent); }
     /* 2026-08-10 (build cv, Jim: "the Welcome back page should never require scrolling.
        I had to scroll down to see what was my option").
        Fixing the returning card showed the same fault on the FIRST-TIME card, which is
@@ -1125,6 +1147,37 @@
        opener when a toured student enters a NEW course), only when this course has no
        history and no placement yet. Reuses the welcome-overlay design. Never forced:
        "start at Unit 1" continues the exact pre-existing flow. -->
+  <!-- FLUENCY SPRINT (2026-08-11, build dd). WWC guide 26 rec 6, format from Eureka's
+       Sprints (studied, never copied): two sibling rounds, 60 seconds each, and the only
+       number celebrated is B minus A -- the student against the student (rule 42).
+       ⚠️ NEVER GATES ANYTHING. The offer is one small link on the welcome card; ignoring
+       it IS declining. A low count changes nothing, and the framing says so out loud. -->
+  <div class="welcome" id="sprintLay">
+    <div class="welcome-card">
+      <div class="welcome-badge">⚡</div>
+      <h2 id="sprTitle">Warm-up sprint</h2>
+      <div id="sprIntro">
+        <p class="spr-copy" id="sprIntroCopy"></p>
+        <button class="welcome-go" id="sprGoA" type="button">Round A — GO ▶</button>
+        <a href="#" id="sprSkip" style="display:inline-block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:underline;">…or skip straight to my lesson</a>
+      </div>
+      <div id="sprRun" style="display:none">
+        <div class="spr-timer"><i id="sprBar"></i></div>
+        <div class="spr-q" id="sprQ"></div>
+        <div class="spr-choices" id="sprC"></div>
+        <div class="spr-meta"><span id="sprCount"></span> · your personal best is the only score that matters</div>
+      </div>
+      <div id="sprBreak" style="display:none">
+        <p class="spr-copy" id="sprBreakCopy"></p>
+        <button class="welcome-go" id="sprGoB" type="button">Round B — beat it by one ▶</button>
+      </div>
+      <div id="sprDone" style="display:none">
+        <p class="spr-copy" id="sprDoneCopy"></p>
+        <button class="welcome-go" id="sprToLesson" type="button">Start my lesson ▶</button>
+      </div>
+    </div>
+  </div>
+
   <div class="welcome" id="assessInvite">
     <div class="welcome-card">
       <div class="welcome-badge">📋</div>
@@ -3038,6 +3091,123 @@
     if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
 
     // ---------- Load ----------
+    // ================= FLUENCY SPRINTS (2026-08-11, build dd) =================
+    // Offered once per day, at lesson start, as ONE small link on the welcome card --
+    // cv's lesson stands: the card must never grow past the fold, and one 13px line
+    // matches the assessment link that is already there. Ignoring the link IS declining.
+    // Tap-to-answer on purpose (Jim's call): voice is the LESSON's mode; in a timed
+    // minute, transcription latency would make the score measure us instead of them.
+    // The three spoken lines ride /api/speak, which caches by text -- rendered once,
+    // free forever -- and every play is fire-and-forget: a sprint must work silent.
+    let SPR = null, sprRound = "", sprIdx = 0, sprTimer = null, sprLeft = 60;
+    let sprA = { correct: 0, attempted: 0 }, sprB = { correct: 0, attempted: 0 };
+    function sprSay(text) {
+      try { new Audio("/api/speak?text=" + encodeURIComponent(text) +
+                      "&code=" + encodeURIComponent(CODE)).play().catch(function () {}); }
+      catch (e) {}
+    }
+    function sprShow(panel) {
+      ["sprIntro", "sprRun", "sprBreak", "sprDone"].forEach(function (id) {
+        el(id).style.display = (id === panel) ? "" : "none";
+      });
+    }
+    async function maybeOfferSprint() {
+      try {
+        const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
+        const r = await fetch("/api/sprint/" + encodeURIComponent(CODE) +
+                              "?course=" + encodeURIComponent(COURSE) + "&unit=" + unit);
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d.available || d.done_today || el("sprintOffer")) return;   // once a day, once a card
+        SPR = d; SPR.unitNum = unit;
+        const a = document.createElement("a");
+        a.id = "sprintOffer"; a.href = "#";
+        a.style.cssText = "display:inline-block;margin-top:10px;font-size:13px;color:var(--muted);text-decoration:underline;";
+        a.textContent = "⚡ Warm up first — a 1-minute " + d.skill.toLowerCase() + " sprint (totally optional)";
+        a.addEventListener("click", function (ev) { ev.preventDefault(); sprStart(); });
+        el("welcomeGo").insertAdjacentElement("afterend", a);
+      } catch (e) { /* the sprint is a bonus -- never block the lesson */ }
+    }
+    function sprStart() {
+      welcome.classList.remove("show");
+      el("sprTitle").textContent = "⚡ " + SPR.skill + " sprint";
+      const pb = SPR.best_b ? (" Your best round here so far is <b>" + SPR.best_b + "</b>.") : "";
+      el("sprIntroCopy").innerHTML =
+        "Sixty seconds, as many as you can. I don't expect you to finish them all — " +
+        "just do as many as you can. Your personal best is the only score that matters." + pb;
+      sprShow("sprIntro");
+      el("sprintLay").classList.add("show");
+      sprSay("Sixty seconds, as many as you can. I don't expect you to finish. Your personal best is the only score that matters. Ready?");
+    }
+    function sprRunRound(which) {
+      sprRound = which; sprIdx = 0; sprLeft = SPR.seconds || 60;
+      (which === "a" ? sprA : sprB).correct = 0;
+      (which === "a" ? sprA : sprB).attempted = 0;
+      sprShow("sprRun");
+      el("sprBar").style.width = "100%";
+      sprNextProblem();
+      if (sprTimer) clearInterval(sprTimer);
+      sprTimer = setInterval(function () {
+        sprLeft -= 1;
+        el("sprBar").style.width = Math.max(0, (sprLeft / (SPR.seconds || 60)) * 100) + "%";
+        if (sprLeft <= 0) sprEndRound(false);
+      }, 1000);
+    }
+    function sprNextProblem() {
+      const probs = SPR[sprRound];
+      if (sprIdx >= probs.length) { sprEndRound(true); return; }
+      const p = probs[sprIdx];
+      el("sprQ").textContent = p.q;
+      el("sprCount").textContent = "Problem " + (sprIdx + 1);
+      const box = el("sprC"); box.innerHTML = "";
+      p.c.forEach(function (choice) {
+        const btn = document.createElement("button");
+        btn.className = "spr-choice"; btn.type = "button"; btn.textContent = choice;
+        btn.addEventListener("click", function () {
+          const tally = (sprRound === "a") ? sprA : sprB;
+          tally.attempted += 1;
+          if (choice === probs[sprIdx].a) tally.correct += 1;
+          sprIdx += 1; sprNextProblem();
+        });
+        box.appendChild(btn);
+      });
+    }
+    function sprEndRound(finishedAll) {
+      if (sprTimer) { clearInterval(sprTimer); sprTimer = null; }
+      if (sprRound === "a") {
+        const line = finishedAll
+          ? "You finished the whole sprint — every single one!"
+          : "Time! You got <b>" + sprA.correct + "</b> right.";
+        el("sprBreakCopy").innerHTML = line +
+          " Now stand up, stretch tall, and shake your arms out for a second. " +
+          "Round B has <b>fresh numbers, same patterns</b> — see if you can beat your Round A by just one.";
+        sprShow("sprBreak");
+        sprSay("Stand up, stretch tall, shake your arms out. Round B has fresh numbers and the same patterns. Beat your first round by just one.");
+      } else {
+        sprFinish();
+      }
+    }
+    function sprFinish() {
+      const imp = sprB.correct - sprA.correct;
+      let line;
+      if (imp > 0)        line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — you beat yourself by <b>" + imp + "</b>! That's the whole game.";
+      else if (imp === 0) line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — you matched yourself exactly. Rock steady.";
+      else                line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — your Round A was strong, and that's the score to chase tomorrow.";
+      if (SPR.best_b && sprB.correct > SPR.best_b) line += " And <b>" + sprB.correct + "</b> is a new personal best here!";
+      line += " Did you spot the pattern in the problems? Keep it in your pocket — it'll show up in today's lesson.";
+      el("sprDoneCopy").innerHTML = line;
+      sprShow("sprDone");
+      sprSay(imp > 0 ? "You beat yourself. That is the whole game. Well done!"
+                     : "Every sprint makes the next one faster. Well done!");
+      fetch("/api/sprint/" + encodeURIComponent(CODE), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ course: COURSE, unit: SPR.unitNum, skill: SPR.skill,
+          a_correct: sprA.correct, a_attempted: sprA.attempted,
+          b_correct: sprB.correct, b_attempted: sprB.attempted }),
+      }).catch(function () {});    // recording is a bonus; the celebration already happened
+    }
+    // ==========================================================================
+
     async function loadSession() {
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenEnabled = !!(await vs.json()).eleven; } catch (e) {}
       if (!canRecord) {
@@ -3165,9 +3335,21 @@
             el("welcomeGo").insertAdjacentElement("afterend", rb);
           }
         }
+        maybeOfferSprint();
       } catch (e) { window.location.href = "/login"; }
     }
     loadSession();
+    el("sprGoA").addEventListener("click", function () { sprRunRound("a"); });
+    el("sprGoB").addEventListener("click", function () { sprRunRound("b"); });
+    el("sprSkip").addEventListener("click", function (ev) {
+      ev.preventDefault(); el("sprintLay").classList.remove("show");
+      welcome.classList.add("show");        // right back where they were, nothing lost
+    });
+    el("sprToLesson").addEventListener("click", function () {
+      el("sprintLay").classList.remove("show");
+      welcome.classList.add("show");
+      el("welcomeGo").click();              // the normal lesson start, unchanged
+    });
 
     // Debug hook (harmless): lets us drive the orb state for testing/screenshots.
     window.__setState = setState;

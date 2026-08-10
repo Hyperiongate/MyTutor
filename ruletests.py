@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dd -- PART 3n: fluency sprints. Priorities in order of what they
+#               would cost a child: all 1,620 generated answers verified RIGHT (a drill
+#               that reinforces a wrong fact is worse than none), sprints gate NOTHING
+#               (checked at store, endpoint and page level), and half B must be a
+#               sibling of half A, not a twin -- the first registry shipped B as a
+#               byte-identical twin of A, which would have made "improvement" a memory
+#               test, and the sibling check caught two more twin families (percents,
+#               make-ten's shifted ramp pushing past nine) before ship.
 #   2026-08-10  BUILD dc -- three guards: the auditor must count graceful-failure turns
 #               itself (absence is invisible to a content marker), retry a stumbled turn
 #               once, and carry the critic's three discipline checks earned from its
@@ -2025,6 +2033,110 @@ def _voice_lines_from(path, name):
 
 
 
+
+def part3n_sprints():
+    """PART 3n -- FLUENCY SPRINTS (build dd). WWC guide 26 rec 6, Strong evidence.
+
+    The three things worth guarding, in order of what they would cost a child:
+    every generated ANSWER must be RIGHT (a fluency drill that reinforces a wrong fact
+    is worse than no drill); the sprint must never GATE anything (EEF's anxiety caution
+    is a requirement, not advice); and half B must be a sibling of half A, not its twin
+    (identical questions would make "improvement" a memory test).
+    """
+    print("\nPART 3n — fluency sprints")
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import sprints as SP
+    except Exception as exc:  # noqa: BLE001
+        bad("sprints module imports", str(exc))
+        return
+    import re as _re
+    from fractions import Fraction as _Fr
+
+    def _verify(q, a):
+        qq = q.replace("×", "*").replace("−", "-").replace("÷", "/")
+        m = _re.fullmatch(r"\s*(-?\d+)\s*([+*/-])\s*(-?\d+)\s*", qq)
+        if m:
+            x, op, y = int(m.group(1)), m.group(2), int(m.group(3))
+            return str({"+": x + y, "-": x - y, "*": x * y, "/": x // y}[op]) == a
+        m = _re.fullmatch(r"\s*(\d+)\s*\+\s*2\s*\*\s*(\d+)\s*", qq)
+        if m:
+            return str(int(m.group(1)) + 2 * int(m.group(2))) == a
+        m = _re.fullmatch(r"\s*(\d+)/(\d+)\s*\+\s*(\d+)/(\d+)\s*", qq)
+        if m:
+            am = _re.fullmatch(r"(\d+)/(\d+)", a)
+            return bool(am) and (_Fr(int(m.group(1)), int(m.group(2)))
+                                 + _Fr(int(m.group(3)), int(m.group(4)))
+                                 == _Fr(int(am.group(1)), int(am.group(2))))
+        m = _re.fullmatch(r"\s*0\.(\d)\s*\+\s*0\.(\d)\s*", qq)
+        if m:
+            return abs(float(a) - (int(m.group(1)) + int(m.group(2))) / 10) < 1e-9
+        return None
+
+    units = sum(len(u) for u in SP.SPRINTS.values())
+    check(f"the registry covers the elementary courses ({units} units, "
+          f"{len(SP.SPRINTS)} courses)", units >= 27 and len(SP.SPRINTS) >= 3,
+          "the WWC evidence is strongest exactly where the sprints are missing")
+    wrong, total, verified, twin_units = [], 0, 0, 0
+    for course, us in SP.SPRINTS.items():
+        for unit in us:
+            s = SP.build(course, unit, "ruletest-seed")
+            if [p["q"] for p in s["a"]] == [p["q"] for p in s["b"]]:
+                twin_units += 1
+            for half in ("a", "b"):
+                if len(s[half]) != SP.PER_HALF:
+                    wrong.append(f"{course}/{unit}/{half}: {len(s[half])} problems")
+                for p in s[half]:
+                    total += 1
+                    if p["a"] not in p["c"]:
+                        wrong.append(f"{course}/{unit}: answer {p['a']!r} not tappable")
+                    v = _verify(p["q"], p["a"])
+                    if v is False:
+                        wrong.append(f"{course}/{unit}: WRONG ANSWER {p['q']} = {p['a']}")
+                    if v is not None:
+                        verified += 1
+    check(f"every generated answer is right and tappable ({total} problems, "
+          f"{verified} arithmetic-verified)", not wrong, str(wrong[:4]))
+    check(f"  half B is a sibling of half A, not a twin "
+          f"({units - twin_units} of {units} units differ)",
+          twin_units <= 3,
+          "identical questions make 'improvement' a memory test -- only the fixed-list "
+          "families (shapes, primes) are allowed to repeat")
+    check("  the same seed rebuilds the same sprint (a mid-sprint reload changes nothing)",
+          SP.build("prealgebra", 3, "k") == SP.build("prealgebra", 3, "k"),
+          "a reload must not hand out fresh problems mid-sprint")
+    check("  an unknown course or unit fails soft", SP.build("calculus", 1, "k") is None
+          and not SP.available("nope", 1), "the app must simply make no offer")
+
+    # NEVER GATES. Checked at all three layers, from the source.
+    st = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    i = st.find("def record_sprint")
+    check("recording a sprint touches no mastery, no status, no unlock",
+          i > 0 and "_set_unit_status" not in st[i:i + 2500]
+          and "mastered" not in st[i:i + 2500],
+          "EEF's anxiety caution is a requirement: a sprint result must never change "
+          "what a student is allowed to do")
+    check('  and the sprints table joins the reset family',
+          '("sprints", "code"),' in st,
+          "a Start Fresh that leaves sprint rows behind hands the reset student a "
+          "personal best they never set")
+    mn = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("both endpoints exist and are student-gated",
+          '@app.get("/api/sprint/{code}")' in mn and '@app.post("/api/sprint/{code}")' in mn
+          and mn[mn.find('def get_sprint'):mn.find('def get_sprint') + 1600]
+              .count("_student_or_404") == 1,
+          "an open endpoint that hands out per-student data")
+    sess = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("the offer is one optional link, with a skip inside",
+          "totally optional" in sess and 'id="sprSkip"' in sess
+          and "sprStart()" not in sess.split("addEventListener")[0],
+          "the offer must never auto-start and declining must cost one tap")
+    check('  the framing is personal-best-only, said out loud',
+          "personal best is the only score that matters" in sess
+          and "beat your" in sess.lower(),
+          "the frame is the anxiety mitigation -- it is not decoration")
+
+
 def part3l_lesson_auditor():
     """PART 3l -- THE LESSON AUDITOR IS SAFE AND HONEST.
 
@@ -2536,6 +2648,7 @@ def main():
     part3j_walkthroughs()
     part3k_mastery_reachable()
     part3l_lesson_auditor()
+    part3n_sprints()
     if live:
         part4_live()
     else:
