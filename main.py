@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  APP_BUILD -> "2026-08-10ct-board-and-all-four-views". Two things from Jim,
+#               one of them a live defect he hit in a Basic Math demo lesson:
+#               (1) "when the answers popped up, they shortened the whiteboard to the
+#               point where I could only see a fraction of what was actually being
+#               displayed... maybe instead of four answers stacked on top of each other,
+#               one row of four, or two rows of two." The answer buttons were a
+#               one-per-line grid and the answer zone could take 47vh; the board is flex,
+#               so whatever the answers took, the whiteboard lost. THE REAL CLASSROOM
+#               ALREADY SOLVED THIS -- session.html lays its tap-to-answer buttons out as
+#               a centred wrapping ROW. The demo now matches it. Measured at 1280x800:
+#               board 351px -> 435px, answers 193px -> 109px, four buttons on one row.
+#               (2) "I'd like to do that same idea for the homeschool, the teacher, and
+#               the student." The teacher and student dashboards got the cs treatment.
+#               Homeschool needed nothing: it rides the parent dashboard, so it was
+#               finished in cs.
+#               THIS FILE: sixteen lines APPENDED to DEMO_VOICE_LINES (211 -> 227) --
+#               five teacher stops, four student stops, five for the student DOOR (which
+#               was describing the visitor in the third person right after greeting them
+#               with "this is your dashboard"), and two for the habit charts. Appended,
+#               never inserted: clips are served BY INDEX. About 4,000 characters of new
+#               audio, roughly a dollar, once.
 #   2026-08-10  APP_BUILD -> "2026-08-10cs-full-parent-dashboard". Jim: "the demo is what
 #               is selling this product, and the parent is our number one customer... we
 #               have this great dashboard for parents. What we've done with this demo is
@@ -4691,7 +4712,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10cs-full-parent-dashboard"
+APP_BUILD = "2026-08-10ct-board-and-all-four-views"
 
 
 @app.get("/health")
@@ -5790,7 +5811,26 @@ DEMO_VOICE_LINES = [
     "Here are the nine units, and every mastered one carries a date and a score. That pairing is what turns a checkbox into evidence, which is exactly what an end-of-year review or a portfolio asks you for.",
     "The same nine units as a path, so you can see the whole year at a glance and plan against it. Beside it, the hours — measured engaged time since September, not a timer left running, because in most states the hours are the part you have to be able to stand behind.",
     "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
-    "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day."
+    "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day.",
+    # 2026-08-10 (build ct): five teacher stops, four student stops, and the
+    # student door's own second-person script. Identical to demo.html, APPENDED.
+    "Three numbers first, and the third one is really a question. Six students, eighteen units mastered between them — and then the unit the class as a whole is struggling with. Here that's Unit 2, fractions, at a seventy-eight percent class average.",
+    "This is the heatmap: every student down the side, every unit across the top, and the real score in each box. Read down a column and you find the wall — Unit 2, where Aiden and Ben both stopped. Read across a row and you get one student's whole story in a second.",
+    "And this is my honest read on the class. Aiden isn't lazy — he's missing an idea underneath, he's treating a fraction as two separate whole numbers. Ben isn't stuck, he's stopped. And one you didn't ask about: Sofia is being under-served. She's ready for Algebra One now, and keeping her in step with the class is costing her a term.",
+    "Strengthen next, one line per student, and every line names the broken rule rather than the wrong answer. Fixing an answer leaves the rule intact, and it fires again next week.",
+    "And time on task — engaged time, not a tab left open. It is the fastest way to tell stuck apart from stopped, and those two need opposite responses from you.",
+    "This is the part you can ask for any time: how am I doing, in plain words. It's written from your own work — what you're good at, what's hard right now, and what we're going to do about it.",
+    "Your nine units drawn as a path, so you can see the whole year at once: four behind you, decimals right where you're standing, and four still ahead. Beside it, the same thing counted up, with every hour you've put in since September.",
+    "And your next three sessions, already planned. Finish multiplying decimals, then dividing, then the Unit Five Quiz — ninety percent with no hints and Unit Five turns gold. And I won't offer you that quiz until you've got two right on your own first.",
+    "Your courses. You finished Basic Math and moved up, and every course is included — so Algebra One opens the day you are ready for it, not when a term ends.",
+    "These five numbers are yours: how many units you've mastered, how accurate you are, how many problems you've done, your time this week, and the day streak you're protecting. Every one of them comes from work you actually did.",
+    "Below that is your whole course — all nine units. The gold ones you've mastered, and mastered means ninety percent or better on the Unit Quiz with no hints from me. Unit five is where you are right now, and the Final Exam stays locked until every unit is gold.",
+    "Open a unit and you can see every quiz inside it — the score and the date. Your parents and your teacher see exactly this same page, because there is only one set of numbers and everybody gets the truth.",
+    "Strengthen next is my short list for you: the specific things that went wrong in your lessons this week. Not a level, not a percentile — the two things I would fix first.",
+    "And your trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal you earned for finishing Basic Math. Every one of them came from real work — none of them are participation stickers.",
+    # 2026-08-10 (build ct): the two habit charts. Identical to demo.html, APPENDED.
+    "Two charts here, and they are her habits. On the left, accuracy week by week — the dip is week eight, the week percents beat her, and the climb after it is four days of coming anyway. On the right, minutes a day this week, including the two days she did nothing. Honest pictures, both of them: a dashboard that only ever shows good news isn't worth having.",
+    "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture."
 ]
 
 

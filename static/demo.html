@@ -1,6 +1,39 @@
 <!DOCTYPE html>
 <!--
-    (cs) 2026-08-10 -- THE PARENT DASHBOARD IS THE REAL ONE NOW. Jim: "the demo is what
+    (ct) 2026-08-10 -- THE BOARD KEEPS ITS SPACE · AND ALL FOUR VIEWS ARE THE REAL ONES.
+
+    ⭐ THE LIVE DEFECT FIRST. Jim, in a Basic Math demo lesson: "it started off showing
+    everything really good on the board. But then when the answers popped up, they
+    shortened the whiteboard to the point where I could only see a fraction of what was
+    actually being displayed... maybe instead of four answers stacked on top of each
+    other, one row of four, or two rows of two."
+    Root cause: .choices was a one-per-line GRID and .answerzone could take 47vh, while
+    .feed is flex:1 -- so every pixel the answers took came straight out of the
+    whiteboard, and the fraction bars he was being taught with were cut off top and
+    bottom. THE REAL CLASSROOM ALREADY SOLVED THIS: session.html lays its tap-to-answer
+    buttons out as a centred WRAPPING ROW (.choicerow). The demo was the outlier. Same
+    shape here now, the answer zone is capped at 32vh, and the board has a min-height
+    FLOOR so no future widget can squeeze it again. Measured at 1280x800: board
+    351px -> 435px, answers 193px -> 109px, four buttons on one row instead of four.
+
+    ⭐ AND THE OTHER THREE VIEWS. Jim: "the parents view looks great. So I'd like to do
+    that same idea for the homeschool, the teacher, and the student." The teacher and
+    student dashboards now get what the parent view got in cs -- a section-for-section
+    mirror of the real page, with a stop per panel:
+      TEACHER: class tiles · the 9x6 MASTERY HEATMAP (its CSS had been sitting in this
+      file unused since a rebuild dropped the grid) · a fuller roster · an honest read on
+      the class that names the under-served student, not just the struggling ones ·
+      per-student strengthen-next WITH the broken rule · time on task.
+      STUDENT: the honest read · tiles with the ring · units · quiz ladder · strengthen ·
+      the two habit charts · journey + meter · what's next · trophies · courses.
+    HOMESCHOOL needed nothing new -- it rides the parent dashboard, finished in cs.
+
+    ⚠️ The student DOOR now has its own script (STU_STOPS). The shared student tour talks
+    about Maya in the third person, which is right when a parent is being shown "what your
+    child sees" -- and wrong at /demo?view=students, where the visitor IS the student and
+    was just greeted with "Hi! This is your dashboard."
+    VOICE_LINES 211 -> 227, APPENDED.
+  - (cs) 2026-08-10 -- THE PARENT DASHBOARD IS THE REAL ONE NOW. Jim: "the demo is what
     is selling this product, and the parent is our number one customer... we have this
     great dashboard for parents. What we've done with this demo is we created a shortened
     dashboard that doesn't show much at all with a whole lot of words. I want a fully
@@ -242,7 +275,7 @@
   .controls{margin-top:auto;font-size:11.5px;color:var(--muted);line-height:1.5;
     border-top:1px dashed var(--keyline);padding-top:12px}
 
-  .center{display:flex;flex-direction:column;height:100vh;height:100dvh;min-width:0}
+  .center{display:flex;flex-direction:column;height:100vh;height:100dvh;min-width:0;overflow:hidden}
   .topbar{display:flex;align-items:center;gap:8px;padding:12px 20px 4px}
   .topbar .title{font-weight:800;font-size:16px}
   .topbar .spacer{flex:1}
@@ -268,8 +301,8 @@
     font-size:15px;line-height:1.5;min-height:44px}
   .replay{border:1px solid var(--keyline);background:#fff;color:var(--purple);font-weight:700;
     font-size:12px;border-radius:9px;padding:6px 10px;cursor:pointer;flex:0 0 auto}
-  .feed{flex:1;margin:10px 20px;border-radius:18px;background:#fff;border:1px solid var(--line);
-    box-shadow:0 12px 36px rgba(20,30,45,.07);padding:16px 18px;overflow-y:auto;min-height:0;
+  .feed{flex:1 1 auto;margin:10px 20px;border-radius:18px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 12px 36px rgba(20,30,45,.07);padding:16px 18px;overflow-y:auto;min-height:180px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     background-image:linear-gradient(0deg,transparent 27px,rgba(109,90,230,.05) 28px),
       linear-gradient(90deg,transparent 27px,rgba(31,182,176,.045) 28px);background-size:28px 28px}
@@ -280,7 +313,13 @@
   .wrow.big{font-size:34px;letter-spacing:6px}
   @keyframes stepin{to{opacity:1;transform:none}}
   .stage-hint{color:#a7a2bd;font-size:14px}
-  .answerzone{padding:0 20px 16px;max-height:47vh;overflow-y:auto}
+  /* build ct: 47vh let the answer widget take nearly half the window. 32vh plus the
+     board's own floor keeps the whiteboard the biggest thing on the screen, which is the
+     one thing this page exists to show. It still scrolls, so nothing is ever unreachable. */
+  .answerzone{flex:0 1 auto;min-height:0;padding:0 20px 16px;max-height:32vh;overflow-y:auto}
+  /* .center CLIPS rather than pushing the answers off a short screen: the answer zone may
+     SHRINK below its cap (flex:0 1 auto) and scroll inside itself, so the board keeps its
+     floor and the buttons stay reachable on a small laptop. */
   /* the tour spotlight */
   .demoGlow{box-shadow:0 0 0 3px rgba(109,90,230,.55),0 0 24px 6px rgba(109,90,230,.35) !important;
     border-radius:12px;animation:glowpulse 1.2s ease-in-out infinite;position:relative;z-index:5}
@@ -452,11 +491,55 @@
   .chip{background:#effaf4;border:1px solid #bfe8d5;color:#127a52;border-radius:999px;
     padding:6px 12px;font-size:12.5px;font-weight:700}
   .dfoot{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;padding:2px 6px 4px}
+  /* build ct: the heatmap CSS above (.heat/.hrow/.hc) had been styled and never used --
+     the 9x6 mastery grid the design notes call for went missing in a rebuild. These are
+     the score bands the real teacher page uses. */
+  .hc.poor{background:#f6c9d2;border-color:#eeb3c0;color:#7d2338}
+  .hc.low{background:#fbe2bb;border-color:#f2d199;color:#7a4b00}
+  .hc.mid{background:#d9f0e2;border-color:#bfe3ce;color:#14663f}
+  .hc.star{background:linear-gradient(135deg,#f2c14e,#e8a71c);border-color:transparent;color:#5b4300;font-weight:800}
+  .tbars{display:flex;flex-direction:column;gap:7px}
+  .tbar{display:flex;align-items:center;gap:10px;font-size:12.5px}
+  .tbar .nm{flex:0 0 78px;font-weight:800}
+  .tbar .tk{flex:1;height:14px;border-radius:7px;background:#f1eef9;overflow:hidden}
+  .tbar .tk i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#6d5ae6,#8f7bff)}
+  .tbar .vl{flex:0 0 64px;text-align:right;color:var(--muted)}
+  .tbar.low .tk i{background:linear-gradient(90deg,#e2647c,#f08ea3)}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.charts{grid-template-columns:1fr}}
+  .chart h4{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+  .cbars{display:flex;align-items:flex-end;gap:5px;height:104px;border-bottom:1px solid var(--line);
+    padding:16px 0 2px}   /* the top padding is room for the value labels above the tallest bar */
+  .cb{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#8f7bff,#6d5ae6);min-height:2px;position:relative}
+  .cb.dip{background:linear-gradient(180deg,#f0a1b3,#e2647c)}
+  .cb.zero{background:#eceaf6}
+  .cb span{position:absolute;top:-15px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:var(--muted)}
+  .cx{display:flex;gap:5px;margin-top:5px}
+  .cx i{flex:1;text-align:center;font-style:normal;font-size:9.5px;color:var(--muted)}
+  .nextrow{display:flex;align-items:center;gap:11px;padding:9px 0;border-top:1px solid var(--line)}
+  .nextrow:first-child{border-top:0}
+  .nextrow .stepn{flex:0 0 26px;height:26px;border-radius:8px;background:#f1eef9;color:var(--purple);
+    font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .nextrow .t{font-size:13.5px;font-weight:700}
+  .nextrow .s{font-size:12px;color:var(--muted);margin-top:1px}
   /* answers */
   .prompt{font-size:12.5px;color:var(--muted);text-align:center;margin:2px 0 9px}
-  .choices{display:grid;gap:9px;max-width:520px;margin:0 auto}
-  .choice{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:13px;font-size:16px;
-    font-weight:600;color:var(--ink);cursor:pointer}
+  /* 2026-08-10 (build ct, Jim, in a Basic Math demo lesson): "it started off showing
+     everything really good on the board. But then when the answers popped up, they
+     shortened the whiteboard to the point where I could only see a fraction of what was
+     actually being displayed... maybe instead of four answers stacked on top of each
+     other, one row of four, or two rows of two."
+     The answers were a one-per-line GRID, so four of them plus the prompt and the
+     feedback line ate up to 47vh -- and .feed is flex:1, so whatever the answers took,
+     the whiteboard lost. THE REAL CLASSROOM ALREADY SOLVES THIS: session.html lays its
+     tap-to-answer buttons out as a centred WRAPPING ROW (.choicerow/.choicebtn). The
+     demo was the outlier. Same shape, same sizes here now -- short answers make one row
+     of four, longer ones fall into two rows of two, and a phone still gets one column.
+     The board also has a FLOOR (min-height) so no future answer widget can crush it. */
+  .choices{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:760px;margin:0 auto}
+  .choice{flex:0 1 auto;min-width:96px;border:1.5px solid var(--keyline);background:#fff;border-radius:14px;
+    padding:13px 22px;font-size:19px;font-weight:800;color:var(--ink);cursor:pointer;text-align:center}
+  @media(max-width:520px){.choices{flex-direction:column}.choice{width:100%}}
   .choice:hover{border-color:var(--purple)}
   .choice.right{border-color:var(--ok);background:#effaf4;color:#127a52}
   .choice.wrong{border-color:#f0b8c4;background:#fdeef1;color:var(--red)}
@@ -572,13 +655,22 @@
     <span class="demo-badge">SAMPLE</span>
     <div style="flex:1"></div><button class="replay dashback" type="button">↩ Back to the three views</button></div>
   <div class="dwrap">
+    <div class="dcard" id="sdRead"><h3>💬 How am I doing?</h3>
+      <div class="readbox"><b>You're doing well, and you earned it.</b> You've mastered four units and you're
+        getting about <b>91%</b> right on your own — on your own is the part that counts.<br><br>
+        The thing I like best: you check your answer before you commit to it, and nobody told you to do that.
+        The last week of October was hard — percents beat you twice — and you came back four days running until
+        they clicked. That is the whole skill.<br><br>
+        <b>What's hard right now:</b> lining the decimal points up when the two numbers are different lengths.
+        <b>The plan:</b> smaller numbers first, then money — dollars and cents make the decimal point obvious.</div>
+      <div class="note">Written fresh from your own work every time you ask. Never a template.</div></div>
     <div class="dcard" id="sdStats"><h3>Maya at a glance</h3>
       <div class="tiles">
-        <div class="tile"><b>4</b><span>Units mastered</span></div>
-        <div class="tile"><b>91%</b><span>Accuracy</span></div>
-        <div class="tile"><b>312</b><span>Problems practiced</span></div>
-        <div class="tile"><b>2h 15m</b><span>Time this week</span></div>
-        <div class="tile"><b>11</b><span>Day streak</span></div>
+        <div class="tile"><div class="ring" style="--p:44"><span>44%</span></div><b>4 / 9</b><span>Units mastered</span></div>
+        <div class="tile"><b>🔥 11</b><span>Day streak<i class="sm">days in a row</i></span></div>
+        <div class="tile"><b>91%</b><span>Accuracy<i class="sm">on quizzes &amp; practice</i></span></div>
+        <div class="tile"><b>312</b><span>Problems practiced<i class="sm">keep it climbing</i></span></div>
+        <div class="tile"><b>2h 15m</b><span>Time this week<i class="sm">35 min today · real work only</i></span></div>
       </div></div>
     <div class="dcard" id="sdUnits"><h3>Where you are — Pre-Algebra</h3>
       <div class="unitgrid">
@@ -603,9 +695,88 @@
         <tr><td>Dividing decimals</td><td>—</td><td>—</td><td class="muted">not started</td></tr>
         <tr><td>🏁 Unit 5 Quiz</td><td>—</td><td>—</td><td class="muted">needs 90% to master</td></tr>
       </table></div>
-    <div class="dcard" id="sdStrengthen"><h3>Strengthen next</h3>
-      <div class="weekrow"><span>Lining up decimal points when the numbers are different lengths</span><span class="muted">2 slips this week</span></div>
-      <div class="weekrow"><span>Percent of a number vs. percent change</span><span class="muted">1 slip</span></div></div>
+    <div class="dcard" id="sdStrengthen"><h3>Strengthen next
+      <span style="text-transform:none;letter-spacing:0">— your plan, built from your own checks and practice</span></h3>
+      <div class="weaks">
+        <div class="weak"><div class="n">5</div>
+          <div><div class="nm">Decimals</div><div class="meta">No Unit Quiz yet — pass the topic quizzes, then take it</div></div>
+          <span class="focustag" style="background:#efe9ff;border-color:#d7cbff;color:#4b3fb3">Work on it →</span></div>
+        <div class="weak"><div class="n">4</div>
+          <div><div class="nm">Percents</div><div class="meta">Unit Quiz best: 91% · mastered, but the one to keep warm</div></div>
+          <span class="focustag" style="background:#efe9ff;border-color:#d7cbff;color:#4b3fb3">Work on it →</span></div>
+      </div></div>
+
+    <div class="two">
+      <div class="dcard" id="sdJourney"><h3>Your learning journey</h3>
+        <div class="journey"><div class="track">
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Numbers</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Fractions</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Ratios</div></div>
+          <div class="stop done"><div class="bar"></div><div class="node">★</div><div class="caption">Percents</div></div>
+          <div class="stop here"><div class="bar"></div><div class="node">5</div><div class="caption">Decimals</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">6</div><div class="caption">Negatives</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">7</div><div class="caption">Expressions</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">8</div><div class="caption">Equations</div></div>
+          <div class="stop"><div class="bar"></div><div class="node">9</div><div class="caption">Data</div></div>
+        </div></div></div>
+      <div class="dcard" id="sdMeter"><h3>How far you've gone</h3>
+        <div class="meter">
+          <div class="seg mastered" style="width:44.4%">4</div>
+          <div class="seg learning" style="width:11.2%">1</div>
+          <div class="seg notstarted" style="width:44.4%">4</div>
+        </div>
+        <div class="mkey">
+          <span><span class="sw" style="background:linear-gradient(90deg,#f2c14e,#e8a71c)"></span>🏆 Mastered — <b>4</b></span>
+          <span><span class="sw" style="background:#8f7bff"></span>📗 Learning — <b>1</b></span>
+          <span><span class="sw" style="background:#dfe3ee"></span>Not started — <b>4</b></span>
+        </div>
+        <div class="note">14h 20m of real work since September 8.</div></div>
+    </div>
+
+    <div class="dcard" id="sdCharts"><h3>Your habits</h3>
+      <div class="charts">
+        <div class="chart"><h4>Accuracy, week by week</h4>
+          <div class="cbars">
+            <div class="cb" style="height:82%"><span>82</span></div>
+            <div class="cb" style="height:86%"><span>86</span></div>
+            <div class="cb" style="height:88%"><span>88</span></div>
+            <div class="cb" style="height:90%"><span>90</span></div>
+            <div class="cb" style="height:89%"><span>89</span></div>
+            <div class="cb" style="height:91%"><span>91</span></div>
+            <div class="cb" style="height:88%"><span>88</span></div>
+            <div class="cb dip" style="height:74%"><span>74</span></div>
+            <div class="cb" style="height:85%"><span>85</span></div>
+            <div class="cb" style="height:91%"><span>91</span></div>
+          </div>
+          <div class="cx"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>10</i></div>
+          <div class="note" style="margin-top:6px">Week 8 is the week percents beat her. The climb back is
+            four days of coming anyway.</div></div>
+        <div class="chart"><h4>Minutes a day, this week</h4>
+          <div class="cbars">
+            <div class="cb" style="height:50%"><span>20</span></div>
+            <div class="cb" style="height:100%"><span>40</span></div>
+            <div class="cb zero" style="height:3%"></div>
+            <div class="cb" style="height:63%"><span>25</span></div>
+            <div class="cb" style="height:38%"><span>15</span></div>
+            <div class="cb zero" style="height:3%"></div>
+            <div class="cb" style="height:88%"><span>35</span></div>
+          </div>
+          <div class="cx"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div>
+          <div class="note" style="margin-top:6px">Two days off, and the chart says so. 2h 15m in total.</div></div>
+      </div>
+      <div class="note">Honest pictures, both of them. A dashboard that only ever shows good news is not
+        worth having.</div></div>
+
+    <div class="dcard" id="sdNext"><h3>What's next — your next three sessions</h3>
+      <div class="nextrow"><span class="stepn">1</span>
+        <div><div class="t">Finish multiplying decimals</div><div class="s">one topic quiz, 5 questions — you need 80%</div></div></div>
+      <div class="nextrow"><span class="stepn">2</span>
+        <div><div class="t">Dividing decimals</div><div class="s">the last topic in Unit 5</div></div></div>
+      <div class="nextrow"><span class="stepn">3</span>
+        <div><div class="t">🏁 The Unit 5 Quiz</div><div class="s">90% with no hints and Unit 5 turns gold</div></div></div>
+      <div class="note">No cold quizzes: I won't offer one until you've got two right on your own, in this
+        session, on that exact skill.</div></div>
+
     <div class="two">
       <div class="dcard" id="sdTrophies"><h3>Trophy case</h3>
         <div class="trophies">
@@ -616,10 +787,18 @@
           <span class="trophy">🔍 Explored<i>“why does pi never end?”</i></span>
           <span class="trophy">💪 Effort medal<i>4 days on percents</i></span></div></div>
       <div class="dcard" id="sdCourses"><h3>My courses</h3>
-        <div class="weekrow"><span>🏅 <b>Basic Math</b></span><span class="good">completed · Course Champion</span></div>
-        <div class="weekrow"><span>📘 <b>Pre-Algebra</b></span><span style="color:var(--purple);font-weight:800">4 of 9 units mastered</span></div>
-        <div class="weekrow"><span>📗 Algebra I</span><span class="muted">not started</span></div></div>
+        <div class="mycourses">
+          <div class="mc"><div class="nm">Basic Math</div><div class="cnt">9 of 9 units mastered</div>
+            <div class="bar"><i style="width:100%"></i></div></div>
+          <div class="mc current"><div class="nm">Pre-Algebra <span class="here">HERE</span></div>
+            <div class="cnt">4 of 9 units mastered</div><div class="bar"><i style="width:44%"></i></div></div>
+        </div>
+        <div class="note">Thirteen units mastered across two courses — and every course is included, so you can
+          open Algebra I the day you're ready for it.</div></div>
     </div>
+
+    <div class="dfoot">This dashboard shows your <b>real</b> work — nothing on it is made up. It started empty
+      and it grows every time you take a lesson, practice a problem, or pass a quiz.</div>
   </div>
 </div>
 
@@ -633,25 +812,110 @@
       <div class="weekrow"><span>🏫 <b>Room 12 — Pre-Algebra</b> · class code <b>RM12-PA</b></span><span class="good">6 students</span></div>
       <div class="weekrow"><span>🏫 Room 12 — Basic Math · class code RM12-BM</span><span class="muted">4 students</span></div>
       <div class="note">A teacher opens a class with its code, and every class they run lives in one place.</div></div>
-    <div class="dcard" id="tdRoster"><h3>How your students are doing in Pre-Algebra</h3>
+    <div class="dcard" id="tdTiles"><h3>Room 12 at a glance</h3>
+      <div class="tiles">
+        <div class="tile"><b>6</b><span>Students<i class="sm">in this class</i></span></div>
+        <div class="tile"><b>18</b><span>Units mastered<i class="sm">across the class</i></span></div>
+        <div class="tile ping"><b>Unit 2</b><span>Needs attention<i class="sm">78% class average — the lowest</i></span></div>
+      </div>
+      <div class="note">Three numbers, and the third one is a question: which unit is the class as a whole
+        struggling with? Here it is fractions, and two students are stuck there.</div></div>
+
+    <div class="dcard" id="tdHeat"><h3>Mastery heatmap — every student, every unit</h3>
+      <div class="heat">
+        <div class="hrow hhead"><span class="hn"></span><i class="hc">1</i><i class="hc">2</i><i class="hc">3</i>
+          <i class="hc">4</i><i class="hc">5</i><i class="hc">6</i><i class="hc">7</i><i class="hc">8</i><i class="hc">9</i></div>
+        <div class="hrow"><span class="hn">Maya R.</span><i class="hc star">94</i><i class="hc star">92</i>
+          <i class="hc star">90</i><i class="hc star">91</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+        <div class="hrow"><span class="hn">Sofia L.</span><i class="hc star">96</i><i class="hc star">95</i>
+          <i class="hc star">93</i><i class="hc star">92</i><i class="hc star">91</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+        <div class="hrow"><span class="hn">Priya N.</span><i class="hc star">93</i><i class="hc star">90</i>
+          <i class="hc star">91</i><i class="hc star">90</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+        <div class="hrow"><span class="hn">Jonah W.</span><i class="hc star">91</i><i class="hc star">90</i>
+          <i class="hc star">92</i><i class="hc mid">74</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+        <div class="hrow"><span class="hn">Aiden T.</span><i class="hc star">90</i><i class="hc poor">44</i>
+          <i class="hc">·</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+        <div class="hrow"><span class="hn">Ben K.</span><i class="hc star">91</i><i class="hc low">58</i>
+          <i class="hc">·</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i><i class="hc">·</i>
+          <i class="hc">·</i><i class="hc">·</i></div>
+      </div>
+      <div class="legend"><span><i class="sw"></i>not assessed</span>
+        <span><i class="sw" style="background:#f6c9d2;border-color:#eeb3c0"></i>under 50%</span>
+        <span><i class="sw" style="background:#fbe2bb;border-color:#f2d199"></i>50–69%</span>
+        <span><i class="sw" style="background:#d9f0e2;border-color:#bfe3ce"></i>70–79%</span>
+        <span><i class="sw gold"></i>90%+ mastered ★</span></div>
+      <div class="note">Read it down a column and you find the wall: <b>Unit 2</b>, where Aiden and Ben both
+        stopped. Read it across a row and you find one student's story.</div></div>
+
+    <div class="dcard" id="tdRoster"><h3>Students <span style="text-transform:none;letter-spacing:0">— tap a name to open their full progress page</span></h3>
       <table class="roster">
-        <tr><th>Student</th><th>Units mastered</th><th>Units started</th><th>Needs attention</th></tr>
-        <tr><td><b>Maya R.</b></td><td class="good">4 of 9 ★</td><td>5</td><td class="muted">—</td></tr>
-        <tr><td><b>Sofia L.</b></td><td class="good">5 of 9 ★</td><td>6</td><td class="muted">—</td></tr>
-        <tr><td><b>Priya N.</b></td><td>4 of 9 ★</td><td>5</td><td class="muted">—</td></tr>
-        <tr><td><b>Jonah W.</b></td><td>3 of 9 ★</td><td>4</td><td class="muted">—</td></tr>
-        <tr class="warn"><td><b>Aiden T.</b></td><td>1 of 9 ★</td><td>2</td><td class="flag">stalled in Unit 2</td></tr>
-        <tr class="warn"><td><b>Ben K.</b></td><td>1 of 9 ★</td><td>2</td><td class="flag">scores sliding</td></tr>
+        <tr><th>Student</th><th>Units mastered</th><th>Working on</th><th>This week</th><th>Needs attention</th></tr>
+        <tr><td><b>Sofia L.</b> <span class="muted">2345</span></td><td class="good">5 of 9 ★</td><td>Unit 6 · Negatives</td><td>2h 40m</td><td class="muted">—</td></tr>
+        <tr><td><b>Maya R.</b> <span class="muted">1234</span></td><td class="good">4 of 9 ★</td><td>Unit 5 · Decimals</td><td>2h 15m</td><td class="muted">—</td></tr>
+        <tr><td><b>Priya N.</b> <span class="muted">3456</span></td><td class="good">4 of 9 ★</td><td>Unit 5 · Decimals</td><td>2h 00m</td><td class="muted">—</td></tr>
+        <tr><td><b>Jonah W.</b> <span class="muted">4567</span></td><td>3 of 9 ★</td><td>Unit 4 · Percents (74%)</td><td>1h 35m</td><td class="muted">—</td></tr>
+        <tr class="warn"><td><b>Aiden T.</b> <span class="muted">5678</span></td><td>1 of 9 ★</td><td>Unit 2 · Fractions (44%)</td><td>25m</td><td class="flag">six days, same unit</td></tr>
+        <tr class="warn"><td><b>Ben K.</b> <span class="muted">6789</span></td><td>1 of 9 ★</td><td>Unit 2 · Fractions (58%)</td><td>15m</td><td class="flag">scores sliding</td></tr>
       </table>
-      <div class="legend"><span><i class="sw gold"></i>★ = unit mastered (90%+ on the Unit Quiz)</span></div></div>
-    <div class="dcard" id="tdAttention"><h3>Needs attention</h3>
-      <div class="weekrow"><span><b>Ben K.</b> — hasn't worked in 4 days and his scores are falling</span><span class="flag">look today</span></div>
-      <div class="weekrow"><span><b>Aiden T.</b> — six days on the same unit</span><span class="flag">look today</span></div>
-      <div class="note">Flagged students come first, instead of being something a teacher finds out about later.</div></div>
+      <div class="legend"><span><i class="sw gold"></i>★ = unit mastered (90%+ on the Unit Quiz, no hints)</span></div></div>
+
+    <div class="dcard" id="tdRead"><h3>💬 How is Room 12 doing, really?</h3>
+      <div class="readbox"><b>Four of your six are fine and two need you this week.</b> The class has 18 units
+        mastered between them and nobody is coasting — but the average hides two different problems.<br><br>
+        <b>Aiden</b> has been on Unit 2 for six days and his best fractions score is 44%. That is not effort;
+        that is a missing idea underneath — he is treating the numerator and denominator as two separate
+        whole numbers. I am working it with fraction bars, but he would move faster with five minutes from
+        you.<br><br>
+        <b>Ben</b> is a different story: he passed Unit 1 at 91% and has slid since. Fifteen minutes of work
+        this week. He is not stuck, he has stopped.<br><br>
+        <b>And one you did not ask about: Sofia is being under-served.</b> She has mastered five units, finishes
+        every session early, and has not missed a Unit Quiz yet. She is ready for Algebra I now — keeping her
+        in step with the class is costing her a term.</div></div>
+
+    <div class="dcard" id="tdStrengthen"><h3>Strengthen next — per student, with the reason</h3>
+      <div class="weaks">
+        <div class="weak"><div class="n">A</div>
+          <div><div class="nm">Aiden T. — Unit 2, Fractions</div>
+            <div class="meta">Adds denominators: says 1/2 + 1/4 is 2/6. He is treating a fraction as two
+              whole numbers.</div></div><span class="focustag">Focus area</span></div>
+        <div class="weak"><div class="n">B</div>
+          <div><div class="nm">Ben K. — Unit 2, Fractions</div>
+            <div class="meta">Knows the method, stopped practising. Best score fell 91% → 58% in nine days.</div></div>
+          <span class="focustag">Focus area</span></div>
+        <div class="weak"><div class="n">J</div>
+          <div><div class="nm">Jonah W. — Unit 4, Percents</div>
+            <div class="meta">Percent of a number vs percent change — one idea, two names.</div></div>
+          <span class="focustag">Watch</span></div>
+      </div>
+      <div class="note">Every line names the <b>broken rule</b>, not just the wrong answer. Fixing an answer
+        leaves the rule intact and it fires again next week.</div></div>
+
+    <div class="dcard" id="tdTime"><h3>Time on task this week</h3>
+      <div class="tbars">
+        <div class="tbar"><span class="nm">Sofia L.</span><span class="tk"><i style="width:100%"></i></span><span class="vl">2h 40m</span></div>
+        <div class="tbar"><span class="nm">Maya R.</span><span class="tk"><i style="width:84%"></i></span><span class="vl">2h 15m</span></div>
+        <div class="tbar"><span class="nm">Priya N.</span><span class="tk"><i style="width:75%"></i></span><span class="vl">2h 00m</span></div>
+        <div class="tbar"><span class="nm">Jonah W.</span><span class="tk"><i style="width:59%"></i></span><span class="vl">1h 35m</span></div>
+        <div class="tbar low"><span class="nm">Aiden T.</span><span class="tk"><i style="width:16%"></i></span><span class="vl">25m</span></div>
+        <div class="tbar low"><span class="nm">Ben K.</span><span class="tk"><i style="width:9%"></i></span><span class="vl">15m</span></div>
+      </div>
+      <div class="note">Measured engaged time — a lesson in progress, not a tab left open. It is the fastest
+        way to tell "stuck" apart from "stopped", and they need opposite responses.</div></div>
+
     <div class="dcard" id="tdOpenStudent"><h3>Open a student</h3>
       <div class="weekrow"><span>Tap any student to see their full dashboard, read-only</span><span class="muted">same numbers the student sees</span></div>
       <div class="weekrow"><span>Add a student</span><span class="muted">one box: their student code</span></div>
-      <div class="weekrow"><span>Switch class · change course</span><span class="muted">top of the page</span></div></div>
+      <div class="weekrow"><span>Switch class · change course</span><span class="muted">top of the page</span></div>
+      <div class="note">There is no separate teacher version of the numbers. You are looking at the student's
+        own record, read-only.</div></div>
+
+    <div class="dfoot">Sample class. Every figure here is the kind the product records from real work —
+      nothing on this page is estimated, curved, or filled in to look better.</div>
   </div>
 </div>
 
@@ -1059,6 +1323,46 @@
     "The trophy case does a job in a homeschool that is easy to underrate: it is the part your child can show somebody. A medal for finishing a whole course, a badge for every unit mastered, and one for effort — earned the week percents nearly beat her.",
     "And her courses. One subscription covers all ten, so a child who is ahead in one subject and behind in another is not a billing problem — she moves on when she is ready. Beside it, what her placement check found on the very first day."
 
+,
+    "Three numbers first, and the third one is really a question. Six students, eighteen units mastered between them — and then the unit the class as a whole is struggling with. Here that's Unit 2, fractions, at a seventy-eight percent class average.",
+    "This is the heatmap: every student down the side, every unit across the top, and the real score in each box. Read down a column and you find the wall — Unit 2, where Aiden and Ben both stopped. Read across a row and you get one student's whole story in a second.",
+    "And this is my honest read on the class. Aiden isn't lazy — he's missing an idea underneath, he's treating a fraction as two separate whole numbers. Ben isn't stuck, he's stopped. And one you didn't ask about: Sofia is being under-served. She's ready for Algebra One now, and keeping her in step with the class is costing her a term.",
+    "Strengthen next, one line per student, and every line names the broken rule rather than the wrong answer. Fixing an answer leaves the rule intact, and it fires again next week.",
+    "And time on task — engaged time, not a tab left open. It is the fastest way to tell stuck apart from stopped, and those two need opposite responses from you.",
+    "This is the part you can ask for any time: how am I doing, in plain words. It's written from your own work — what you're good at, what's hard right now, and what we're going to do about it.",
+    "Your nine units drawn as a path, so you can see the whole year at once: four behind you, decimals right where you're standing, and four still ahead. Beside it, the same thing counted up, with every hour you've put in since September.",
+    "And your next three sessions, already planned. Finish multiplying decimals, then dividing, then the Unit Five Quiz — ninety percent with no hints and Unit Five turns gold. And I won't offer you that quiz until you've got two right on your own first.",
+    "Your courses. You finished Basic Math and moved up, and every course is included — so Algebra One opens the day you are ready for it, not when a term ends."
+
+,
+    "These five numbers are yours: how many units you've mastered, how accurate you are, how many problems you've done, your time this week, and the day streak you're protecting. Every one of them comes from work you actually did.",
+    "Below that is your whole course — all nine units. The gold ones you've mastered, and mastered means ninety percent or better on the Unit Quiz with no hints from me. Unit five is where you are right now, and the Final Exam stays locked until every unit is gold.",
+    "Open a unit and you can see every quiz inside it — the score and the date. Your parents and your teacher see exactly this same page, because there is only one set of numbers and everybody gets the truth.",
+    "Strengthen next is my short list for you: the specific things that went wrong in your lessons this week. Not a level, not a percentile — the two things I would fix first.",
+    "And your trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal you earned for finishing Basic Math. Every one of them came from real work — none of them are participation stickers."
+
+,
+    "Two charts here, and they are her habits. On the left, accuracy week by week — the dip is week eight, the week percents beat her, and the climb after it is four days of coming anyway. On the right, minutes a day this week, including the two days she did nothing. Honest pictures, both of them: a dashboard that only ever shows good news isn't worth having.",
+    "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture."
+
+    // 2026-08-10 (build ct): the two HABIT CHARTS, third person and second person.
+    // ⚠️ There is an older cached line for these charts (index 138, from build bx) and it
+    // is deliberately NOT reused: it says the dip is "week three", while the honest read
+    // every other view carries puts her hard week at the end of October -- week eight.
+    // Reusing it would have saved sixty cents and produced exactly the contradiction Jim
+    // named: "you can't say one thing and then have the numbers say something different."
+,
+    // 2026-08-10 (build ct): the STUDENT DOOR speaks to the student. The shared student
+    // tour describes Maya in the third person, which is right when a parent is being
+    // shown "what your child sees" from the open demo -- and wrong at
+    // /demo?view=students, where the visitor IS the student and was just greeted with
+    // "Hi! This is your dashboard". Same defect homeschool had in cq. APPENDED.
+    //
+    // 2026-08-10 (build ct): FIVE teacher stops and FOUR student stops, for the same
+    // treatment the parent view got in cs (Jim: "I'd like to do that same idea for the
+    // homeschool, the teacher, and the student"). Homeschool needed nothing new -- it
+    // rides the parent dashboard, so it was finished in cs. APPENDED.
+    //
     // 2026-08-10 (build cs): FIVE parent stops and FIVE homeschool stops for the
     // rebuilt parent dashboard (Jim: "I want a fully fleshed out parent dashboard,
     // and I want you to give me a tour of that dashboard"). The parent tour went
@@ -1162,6 +1466,21 @@
   // see all three views and should keep getting them.
   var AUDIENCE_KEY = '';
   function audienceLocked(){ return !!AUDIENCE_KEY; }
+  // The student door's own script (build ct). Same nine panels, same order, spoken TO the
+  // student instead of about her. ⚠️ ONE ENTRY PER STUDENT STOP — runDashTour reads this
+  // by index and falls through to the shared line where it is short.
+  var STU_STOPS = [
+    lineStarting("This is the part you can ask for any time"),
+    lineStarting("These five numbers are yours"),
+    lineStarting("Below that is your whole course"),
+    lineStarting("Open a unit and you can see every quiz inside it"),
+    lineStarting("Strengthen next is my short list for you"),
+    lineStarting("These two charts are your habits."),
+    lineStarting("Your nine units drawn as a path"),
+    lineStarting("And your next three sessions, already planned."),
+    lineStarting("And your trophy case."),
+    lineStarting("Your courses. You finished Basic Math and moved up")
+  ];
   function say(text){
     lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
@@ -1650,16 +1969,32 @@
   // ============================================================
   var BALLOON_LINE="And that's a real lesson! Now let me show you what the grown-ups see. There are three windows into your student's progress — theirs, a teacher's, and a parent's. Pick whichever one you'd like to look at, and I'll walk you through it.";
   var DASHES={
+    // build ct: nine stops, one per panel of the real student dashboard.
     student:{ id:'dashStudent', stops:[
+      {t:'sdRead',       line:lineStarting("This is the part you can ask for any time")},
       {t:'sdStats',      line:"This is Maya's own dashboard — the real screen your student opens. These five numbers are exactly the ones the product tracks: units mastered, accuracy, problems practiced, time this week, and the day streak she's protecting."},
       {t:'sdUnits',      line:"Below it, her course — all nine units. The gold ones are mastered, and mastered here means ninety percent or better on the Unit Quiz with no hints. Unit five is where she's working now, and the Final Exam at the end stays locked until every unit is gold."},
       {t:'sdQuizzes',    line:"Open a unit and you see the quiz results inside it — every topic quiz, the score, and the date. This is the same detail a parent or a teacher sees, because there's only one set of numbers and everybody gets the truth."},
       {t:'sdStrengthen', line:"Strengthen next is my short list for her: the specific things that actually went wrong in her lessons this week. Not a level, not a percentile — the two habits I'd fix first."},
-      {t:'sdTrophies',   line:"And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers."}]},
+      {t:'sdCharts',     line:lineStarting("Two charts here, and they are her habits.")},
+      {t:'sdJourney',    line:lineStarting("Your nine units drawn as a path")},
+      {t:'sdNext',       line:lineStarting("And your next three sessions, already planned.")},
+      {t:'sdTrophies',   line:"And the trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal she earned for finishing Basic Math. Every one of them comes from real work; none of them are participation stickers."},
+      {t:'sdCourses',    line:lineStarting("Your courses. You finished Basic Math and moved up")}]},
+    // build ct: nine stops, one per panel of the real teacher page. The old tdAttention
+    // CARD is gone -- its content lives in the flags, the honest read and the per-student
+    // strengthen list now -- so its line moved onto the roster, where the column it
+    // describes actually is. PART 3j would have failed the build if it had been left
+    // pointing at an element that no longer exists.
     teacher:{ id:'dashTeacher', stops:[
       {t:'tdOpen',        line:"Now the teacher's side. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place."},
+      {t:'tdTiles',       line:lineStarting("Three numbers first, and the third one is really a question.")},
+      {t:'tdHeat',        line:lineStarting("This is the heatmap:")},
       {t:'tdRoster',      line:"Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees."},
-      {t:'tdAttention',   line:"The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out."},
+      {t:'tdRoster',      line:"The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out."},
+      {t:'tdRead',        line:lineStarting("And this is my honest read on the class. Aiden")},
+      {t:'tdStrengthen',  line:lineStarting("Strengthen next, one line per student")},
+      {t:'tdTime',        line:lineStarting("And time on task — engaged time")},
       {t:'tdOpenStudent', line:"And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code."}]},
     // 2026-08-10 (build cs, Jim: "the parent is our number one customer... I want a fully
     // fleshed out parent dashboard, and I want you to give me a tour of that dashboard").
@@ -1968,7 +2303,7 @@
                   title:"The teacher's view" },
     homeschool: { dash:'parent',  intro:AUD_INTRO.homeschool, lines:HS_STOPS,
                   title:"The homeschool view" },
-    students:   { dash:'student', intro:AUD_INTRO.students,
+    students:   { dash:'student', intro:AUD_INTRO.students, lines:STU_STOPS,
                   title:"Your dashboard" }
   };
   function audienceParam(){

@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-10  BUILD ct -- THREE LAYOUT GUARDS, and the first real catch by cs's checks.
+#               Jim hit a live one: the demo's answer buttons were a one-per-line grid,
+#               the answer zone could take 47vh, and .feed is flex:1 -- so the whiteboard
+#               lost every pixel the answers took. PART 3j now insists the buttons are a
+#               wrapping ROW (the real classroom's own shape), the answer zone is capped
+#               at 35vh or less, and the board carries a min-height FLOOR.
+#               ⭐ AND cs's "every tour stop points at a real element" check paid for
+#               itself immediately: rebuilding the teacher dashboard removed the
+#               tdAttention CARD while its tour stop still pointed at it. glow() returns
+#               quietly on a missing id, so that stop would have narrated a dashboard
+#               that never moved -- no error, no log, just a paragraph about a panel the
+#               visitor cannot see. The line moved onto the roster instead.
 #   2026-08-10  BUILD cs -- THE WHITELIST CHECK THAT SHOULD HAVE EXISTED SINCE bx. The
 #               demo design notes have said "every spoken string must be on the
 #               whitelist" from the beginning and NOTHING enforced it. say() looks the
@@ -1991,6 +2003,27 @@ def part3j_walkthroughs():
               f"({len(spoken_lits)} checked)", not off_list,
               f"off the list: {off_list[:3]} -- that stop drops to the browser's flat "
               f"voice mid-tour, and nothing errors")
+
+        # Build ct, Jim in a Basic Math demo lesson: "when the answers popped up, they
+        # shortened the whiteboard to the point where I could only see a fraction of what
+        # was actually being displayed." The board is flex, so anything below it takes its
+        # space. Three rules keep the whiteboard the biggest thing on the page.
+        ch = re.search(r"\.choices\{([^}]*)\}", demo_src)
+        check("the answer buttons lay out as a wrapping ROW, not a stack",
+              bool(ch) and "display:flex" in ch.group(1) and "flex-wrap:wrap" in ch.group(1),
+              "a one-per-line grid pushes four buttons down the page and the whiteboard "
+              "loses every pixel they take -- the real classroom uses a wrapping row "
+              "(.choicerow in session.html) and the demo must match it")
+        az = re.search(r"\.answerzone\{([^}]*)\}", demo_src)
+        azcap = re.search(r"max-height:(\d+)vh", az.group(1)) if az else None
+        check("the answer zone cannot take half the window",
+              bool(azcap) and int(azcap.group(1)) <= 35,
+              f"max-height is {azcap.group(1) + 'vh' if azcap else 'unset'} -- at 47vh the "
+              f"answers and the board were nearly the same size")
+        fd = re.search(r"\.feed\{([^}]*)\}", demo_src)
+        check("the whiteboard has a floor no widget can push through",
+              bool(fd) and re.search(r"min-height:\s*\d+px", fd.group(1)) is not None,
+              "min-height:0 lets any future answer widget squeeze the board to nothing")
 
         # Every tour stop must point at an element that EXISTS. glow() returns quietly on
         # a missing id, so a typo means the words play over a dashboard that never moves.
