@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dx -- ASSESSMENT SAVE/RESUME, GUARDED: challenge.html must keep
+#               saving after every answer, offering the resume on the start panel,
+#               clearing on finish AND on deliberate fresh starts, and discarding a
+#               save whose question bank changed (never resume into a different test).
 #   2026-08-11  BUILD dw -- REFRESHER + THREE BARS, GUARDED: the opener must keep its
 #               gap check (1+ days away -> a real 3-4 sentence refresher with a
 #               memory-jog, "a friend catching you up, never a test"), the server's
@@ -3521,6 +3525,20 @@ def part3p_marketing_claims():
           'sprShow("sprBreak", 1200)' in sess4 and 'sprShow("sprDone", 1200)' in sess4
           and "shieldMs" in sess4,
           "a click meant for the last answer must never dismiss the results")
+
+    # ---- BUILD dx: the assessment survives a closed tab -----------------------------
+    ch = open(os.path.join(here, "static", "challenge.html"), encoding="utf-8").read()
+    check("the assessment saves after every answer and offers a resume (dx)",
+          "function saveState" in ch and "saveState();" in ch
+          and 'id="resumeRow"' in ch and "function offerResume" in ch,
+          "45 questions and 20 minutes must never die with a tab")
+    check("  a finished run and a deliberate fresh start both clear the save (dx)",
+          "clearSaved();         // dx: a finished run" in ch
+          and "clearSaved(); begin(false);" in ch,
+          "a stale save must never shadow a completed assessment")
+    check("  a changed question bank discards the save (dx)",
+          "s.total !== TOTAL_Q" in ch,
+          "never resume a student into a different test")
 
     # ---- BUILD dw: the gap-aware refresher + three bars, always ---------------------
     mn4 = open(os.path.join(here, "main.py"), encoding="utf-8").read()

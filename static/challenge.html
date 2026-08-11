@@ -4,6 +4,16 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-11  (build dx) SAVE / RESUME (Four-Lens student item 4). A 45-question,
+                15-25 minute run used to die with a closed tab, a crash, or a stray
+                Exit tap -- everything gone. The question order is deterministic, so
+                the run state is tiny: saved to THIS DEVICE after every answer
+                (localStorage, keyed per student+course), offered back on the start
+                panel for 48 hours ("Pick up where you left off -- question 23 of 45"),
+                cleared on finish and on a deliberate fresh start. If the question
+                bank changed between visits the save is discarded (never resume into
+                a different test). Same-device only by design: the failure mode is
+                the closed tab, not a device switch.
     2026-08-11  (build ds) ❓ Help link added to the top bar -> the new /help page. This
                 page had NO help affordance at all -- the most anxious moment in the app
                 (a 45-question assessment) had the fewest doors. One link, no other change.
@@ -220,6 +230,11 @@
       <h1>Your course assessment</h1>
       <p>This is your full course check-up — about 45 questions across all nine units, so give it 15–25 minutes. It’s not a race and a miss costs nothing; it just shows exactly where you’re strong and where to focus. Ready?</p>
       <button class="btn" id="beginBtn" style="margin-top:12px;">Start the assessment →</button>
+      <!-- dx 2026-08-11: an unfinished run on this device can be resumed -->
+      <div id="resumeRow" style="display:none;margin-top:14px">
+        <button class="btn" id="resumeBtn" style="background:linear-gradient(90deg,#22a06b,#3ac08a)">▶ Pick up where you left off — <span id="resumeAt"></span></button>
+        <p style="font-size:13px;opacity:.75;margin-top:8px">Your earlier answers are safe on this device. "Start the assessment" begins fresh instead.</p>
+      </div>
     </div>
 
     <!-- QUIZ (hidden until start) -->
@@ -1089,16 +1104,57 @@
     const TOTAL_Q = ORDER.length;
     const PER_UNIT = {}; for (let u = 1; u <= 9; u++) PER_UNIT[u] = { correct: 0, total: (BANK[u] || []).length };
 
-    async function begin() {
+    // ---- 2026-08-11 (build dx): SAVE / RESUME. A 45-question, 20-minute run used to
+    // die with a closed tab or a stray Exit tap. The question ORDER is deterministic
+    // (banks in unit order, no shuffle), so the whole run state is four numbers and
+    // nine per-unit counts. Saved on this device after EVERY answer; offered back on
+    // the start panel for 48 hours; cleared on finish and on a deliberate fresh start.
+    const SAVE_KEY = "mt_assess_" + CODE + "_" + COURSE;
+    function saveState() {
+      try {
+        const pu = {}; for (let u = 1; u <= 9; u++) pu[u] = PER_UNIT[u].correct;
+        localStorage.setItem(SAVE_KEY, JSON.stringify(
+          { idx, points, answered, pu, total: TOTAL_Q, at: Date.now() }));
+      } catch (e) {}
+    }
+    function clearSaved() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+    function loadSaved() {
+      try {
+        const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+        if (!s || !(s.idx > 0) || s.idx >= TOTAL_Q) return null;
+        if (s.total !== TOTAL_Q) return null;              // the bank changed under it
+        if (Date.now() - (s.at || 0) > 48 * 3600 * 1000) return null;   // stale
+        return s;
+      } catch (e) { return null; }
+    }
+
+    async function begin(resume) {
       warmUpAudio();   // iPad: MUST run before the await below, while we're still inside the tap
       try { const vs = await fetch("/api/voice-status"); if (vs.ok) elevenOn = !!(await vs.json()).eleven; } catch(e){}
       el("startPanel").style.display = "none";
       el("quiz").style.display = "flex";
-      say("Alright — let's map out your whole course. Take your time; there's no penalty for a miss.",
-          "Alright! Let's map out your whole course. Take your time. There's no penalty for a miss.");
+      if (resume) {
+        el("pts").textContent = points; el("streak").textContent = (points / 100);
+        say("Welcome back — picking up right where you left off. Question " + (idx + 1) + ".",
+            "Welcome back! Picking up right where you left off.");
+      } else {
+        say("Alright — let's map out your whole course. Take your time; there's no penalty for a miss.",
+            "Alright! Let's map out your whole course. Take your time. There's no penalty for a miss.");
+      }
       setTimeout(nextQuestion, 700);
     }
-    el("beginBtn").onclick = begin;
+    el("beginBtn").onclick = function () { clearSaved(); begin(false); };  // a deliberate fresh start
+    (function offerResume() {
+      const s = loadSaved();
+      if (!s) return;
+      el("resumeAt").textContent = "question " + (s.idx + 1) + " of " + s.total;
+      el("resumeRow").style.display = "block";
+      el("resumeBtn").onclick = function () {
+        idx = s.idx; points = s.points || 0; answered = s.answered || 0;
+        for (let u = 1; u <= 9; u++) PER_UNIT[u].correct = (s.pu && s.pu[u]) || 0;
+        begin(true);
+      };
+    })();
 
     function nextQuestion() {
       if (idx >= TOTAL_Q) return finish();
@@ -1133,10 +1189,12 @@
       answered++;
       el("prog").textContent = "Question " + Math.min(idx + 1, TOTAL_Q) + " of " + TOTAL_Q;
       idx++;
+      saveState();          // dx: every answer survives a closed tab from here on
       setTimeout(nextQuestion, correct ? 650 : 1000);
     }
 
     function finish() {
+      clearSaved();         // dx: a finished run leaves nothing to resume
       el("quiz").style.display = "none";
       el("resultPanel").style.display = "block";
       // Per-unit results (rating 0..10; competent at COMPETENCY%).

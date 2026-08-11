@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dx-assessment-save-resume". THE 45-QUESTION
+#               ASSESSMENT SURVIVES A CLOSED TAB (Four-Lens student item 4). Nothing
+#               in this file changed but the stamp: challenge.html now saves the run
+#               state on the student's device after EVERY answer (the question order
+#               is deterministic, so the whole state is four numbers and nine
+#               per-unit counts), offers "Pick up where you left off -- question N of
+#               45" on the start panel for 48 hours, clears on finish and on a
+#               deliberate fresh start, and discards the save if the question bank
+#               itself changed between visits. Same-device only, by design.
 #   2026-08-11  APP_BUILD -> "2026-08-11dw-refresher-and-three-bars". TWO MORE OF JIM'S
 #               LIVE CATCHES. (1) THE GAP-AWARE OPENER: "welcome back, we were looking
 #               at this chart, ready to keep going?" is fine after lunch and useless
@@ -5646,7 +5655,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dw-refresher-and-three-bars"
+APP_BUILD = "2026-08-11dx-assessment-save-resume"
 
 
 @app.get("/health")
