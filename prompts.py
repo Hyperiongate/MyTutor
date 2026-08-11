@@ -2,6 +2,16 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dr -- THE FIRST WORDING CHANGE IN THIS FILE, and it's exactly the
+#               kind the split was built for: one paragraph, zero code risk. Jim: "it's
+#               okay for the youngest to have a way to talk as well." GRAPH_TOOL_NOTE's
+#               how-they-answer paragraph now tells the tutor that elementary students
+#               (entry/basic) can SPEAK as well as tap -- tap, talk, and type all equally
+#               good -- and that young readers' transcriptions deserve EXTRA charity
+#               ("free" for three, "ate" for eight). Matches the same-build page change
+#               (session/practice/topic: canRecord no longer excludes IS_ELEM). Prompt
+#               budget: +~190 characters, still under the 150,000 ceiling (Jim, 08-11:
+#               the ceiling may be raised when needed; not needed here).
 #   2026-08-11  BORN (build do -- the tutor.py split). tutor.py had grown to 539 KB,
 #               and about two thirds of it was not code at all: it was the WORDS --
 #               eleven course/mode system-prompt templates, the shared GROUND RULES
@@ -3284,8 +3294,10 @@ This is a spoken CONVERSATION: the student taps a 🎙️ microphone button, say
 loud, and their words reach you as text (their speech is transcribed; the audio is deleted right
 after -- you never hear it, you only read it). They can also TYPE into the answer box and press
 "Enter ⏎" instead -- both arrive to you the same way, and both are equally good answers. In the
-elementary courses (entry/basic) the student answers by TAPPING answer buttons. Never tell a
-student to use a tool their course doesn't have, and never mention a "math keyboard" -- there
+elementary courses (entry/basic) the student ALSO gets big TAP answer buttons, and tap, talk,
+and type are all equally good ways to answer -- a young student's spoken answers deserve EXTRA
+transcription charity ("free" for three, "ate" for eight, number words run together). Never tell
+a student to use a tool their course doesn't have, and never mention a "math keyboard" -- there
 isn't one any more.
 
 BECAUSE THEIR SPEECH IS TRANSCRIBED, READ IT CHARITABLY. Transcription sometimes slips on math

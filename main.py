@@ -2,6 +2,47 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11ds-sprints-anytime-help". TWO STUDENT-LENS FIXES
+#               (Four-Lens Review items 3 and 6). (1) HELP THAT WORKS FOR A KID: new
+#               /help route + static/help.html, a student-first FAQ (sign-in, mic,
+#               sound, "I'm confused" is a power move, nothing is lost on refresh) with
+#               a grown-ups section (family page, teacher tool, support address as
+#               TEXT a kid can show a parent). app-nav.js's Contact pill -- a mailto:
+#               dead on school Chromebooks -- is now ❓ Help -> /help on every app
+#               page, and challenge.html (the highest-stakes page, which had NO help
+#               affordance at all) gains the same link. (2) SPRINTS ON REQUEST: the
+#               dashboard sprint card gains "⚡ Run one now" -> /session?...&sprint=1,
+#               which starts the sprint directly; before, sprints were startable ONLY
+#               from the lesson-open offer, so a student who skipped it had no way
+#               back. Card still hidden until a first sprint exists; parent/teacher
+#               view never shows the button; no sprint for the unit fails soft.
+#   2026-08-11  APP_BUILD -> "2026-08-11dr-elementary-voice". THE YOUNGEST STUDENTS GET
+#               A VOICE (Jim: "I think it's okay for the youngest to have a way to talk
+#               as well"). Nothing in this file changed but the stamp: session/practice/
+#               topic drop canRecord's !IS_ELEM exclusion (entry/basic students -- the
+#               ones least able to type -- get the same tap-to-talk mic as everyone
+#               else, with the tap answer buttons unchanged beside it), and prompts.py's
+#               how-they-answer note tells the tutor they may speak, with EXTRA
+#               transcription charity for young readers. The transcribe/speak pipeline
+#               is untouched -- it never cared what course the audio came from.
+#   2026-08-11  APP_BUILD -> "2026-08-11dq-family-mission-control". THE LINKS-AND-COPY
+#               BATCH (Four-Lens Review, order-of-attack item 1 -- Jim: "fix all the
+#               things you found that you think you can fix"). /family becomes
+#               MISSION CONTROL: NEW GET /api/parent/overview (parent-token gated,
+#               one call) gives each child's real minutes this week, active days,
+#               units mastered, last-active, and most-worked course; NEW POST
+#               /api/parent/weekly-email is the in-product Friday-report toggle
+#               (before: the only switch was the tokenized link inside the email).
+#               family.html gains per-child stat lines, a Records link (the
+#               homeschool page's "one click from your parent view" is finally
+#               TRUE), an inline "How are they doing?" narrative per child, and the
+#               email toggle. parents.html drops two promises the product doesn't
+#               make (there IS no separate read-only parent code -- the parent door
+#               takes the child's code; parent accounts are LIVE, not "rolling out")
+#               and points at /family. teachers.html finally links to the real
+#               /teacher tool. records.html's bare-visit message points at /family.
+#               Marketing-copy discipline going forward: copy ships in the same
+#               build as the feature it describes.
 #   2026-08-11  APP_BUILD -> "2026-08-11dp-sprints-all-courses". FLUENCY SPRINTS REACH
 #               EVERY COURSE. The registry (sprints.py) grows from the 3 elementary
 #               courses to ALL TEN -- 70 units with a genuine 60-second recall skill
@@ -2670,6 +2711,13 @@ def records_page():
     return FileResponse(STATIC_DIR / "records.html")
 
 
+@app.get("/help")
+def help_page():
+    """In-app help (2026-08-11, build ds): the student-first FAQ. Every app page's
+    ❓ Help button lands here -- the old mailto: link was dead on school Chromebooks."""
+    return FileResponse(STATIC_DIR / "help.html")
+
+
 @app.get("/students")
 def students_page():
     """Marketing/help: the student how-to page (lesson flow, tools, earnable awards)."""
@@ -4156,6 +4204,70 @@ def parent_add_student(body: ParentStudentIn):
     return _parent_payload(parent)
 
 
+@app.get("/api/parent/overview")
+def parent_overview(request: Request):
+    """MISSION CONTROL for /family (build dq -- Four-Lens Review, homeschool item 1).
+    One parent-token-gated call returns the numbers a parent actually wants next to
+    each child's name: real minutes this week (idle never counts), active days, total
+    units mastered, last-active date, and the child's most-worked course (so the
+    "How are they doing?" button asks about the right one) -- plus the weekly-email
+    setting so the page can show the toggle. Every per-child block is wrapped: a
+    stats panel is a BONUS and must never break the family page."""
+    parent = _require_parent(request.headers.get("x-parent-token", ""))
+    import datetime as _dt
+    today = _dt.date.today()
+    week_ago = (today - _dt.timedelta(days=6)).isoformat()
+    titles = dict(curriculum.list_courses())
+    kids = []
+    for s in store.list_students_for_parent(parent["id"]):
+        code = s["code"]
+        minutes, days_set, per_course = 0, set(), {}
+        try:
+            for row in store.get_time_between(code, week_ago, today.isoformat()):
+                m = int(row.get("minutes") or 0)
+                minutes += m
+                if m:
+                    days_set.add(row.get("day"))
+                    per_course[row["course"]] = per_course.get(row["course"], 0) + m
+        except Exception:  # noqa: BLE001
+            pass
+        mastered, last_active, act = 0, None, {}
+        try:
+            act = store.get_course_activity(code)
+            for a in act.values():
+                mastered += int(a.get("units_mastered") or 0)
+                la = a.get("last_active")
+                if la and (last_active is None or la > last_active):
+                    last_active = la
+        except Exception:  # noqa: BLE001
+            pass
+        top = max(per_course, key=per_course.get) if per_course else None
+        if not top and act:
+            top = max(act, key=lambda c: act[c].get("last_active") or "")
+        kids.append({"code": code, "minutes_week": minutes,
+                     "active_days_week": len(days_set), "units_mastered": mastered,
+                     "last_active": last_active, "top_course": top,
+                     "top_course_title": titles.get(top, "")})
+    state = store.ensure_digest_state(parent["id"])
+    return {"ok": True, "students": kids,
+            "weekly_email_on": not int(state.get("optout") or 0)}
+
+
+class WeeklyEmailIn(BaseModel):
+    token: str = ""
+    on: bool = True
+
+
+@app.post("/api/parent/weekly-email")
+def parent_weekly_email(body: WeeklyEmailIn, request: Request):
+    """The IN-PRODUCT toggle for the Friday report (build dq). Before this, the only
+    way to stop the weekly email was the tokenized link inside the email itself --
+    a setting with no switch. Same store flag the unsubscribe link flips."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    store.set_digest_optout(parent["id"], not bool(body.on))
+    return {"ok": True, "on": bool(body.on)}
+
+
 # =============================================================================
 # BETA PASS ADMIN (2026-07-31) -- Jim's generator
 # -----------------------------------------------------------------------------
@@ -5385,7 +5497,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dp-sprints-all-courses"
+APP_BUILD = "2026-08-11ds-sprints-anytime-help"
 
 
 @app.get("/health")

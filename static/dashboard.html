@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-08-11  RUN A SPRINT FROM HERE (build ds -- Four-Lens Review, student lens item 6).
+                The sprint-record card gains "⚡ Run one now →" (students only, never the
+                read-only parent/teacher view) -> /session?...&sprint=1, which starts the
+                sprint directly. Before this, sprints were startable ONLY from the
+                lesson-open offer; a student who skipped it had no way back. The card
+                still stays hidden until a first sprint exists (an empty card is a nag).
     2026-08-04  RECORDS LINK (build z): the parent/teacher box now links to the NEW printable
                 homeschool records report at /records?code=... (hours log, mastery, awards).
     2026-08-04  QUIZZES (build y): unit cards now show topic-quiz progress ('N topic quizzes
@@ -832,6 +838,15 @@
         el("sprintNote").textContent = "— " + hist.length + " sprint"
           + (hist.length === 1 ? "" : "s") + " · personal best " + (d.best_b || 0)
           + " in a minute · pale bar = round A, solid = round B";
+        // 2026-08-11 (build ds): sprints used to be startable ONLY from the lesson-open
+        // offer -- a student who skipped it had no way back. Since this card only shows
+        // for students who already sprint, the button is an invitation, never a nag.
+        if (!isTeacher && CODE) {     // students only -- the parent/teacher view is read-only
+          el("sprintChart").insertAdjacentHTML("afterend",
+            '<p style="margin:10px 2px 0;font-size:14px"><a style="font-weight:800;color:var(--purple, #6d5ae6)" ' +
+            'href="/session?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) +
+            '&sprint=1">⚡ Run one now →</a> <span class="note">sixty seconds, racing only your own best</span></p>');
+        }
         el("sprintWrap").style.display = "block";
       } catch (e) { /* the card is a bonus -- never block the dashboard */ }
     }

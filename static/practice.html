@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (dr) 2026-08-11 -- THE YOUNGEST STUDENTS GET A VOICE (Jim). canRecord's !IS_ELEM
+    clause removed, same as session.html: entry/basic students get tap-to-talk here too,
+    with the tap answer buttons unchanged beside it. Ready-hint teaches both paths.
     (cf) 2026-08-09 -- THE NO-WRAP FIX FINALLY LANDED HERE. session.html got it in build
     bu; this page never did, so for a day Jim's original bug was still reproducible here:
     a long board line WRAPPED inside its grid cell and displayed a literally different
@@ -1593,8 +1596,9 @@
     // ON for the typing courses on browsers that can record; OFF for elementary tap-to-answer
     // courses (IS_ELEM) and browsers without getUserMedia/MediaRecorder (they type). The
     // browser only asks for mic permission when the student actually taps 🎙️ to record.
-    const canRecord = !IS_ELEM
-      && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    // 2026-08-11 (build dr): !IS_ELEM removed -- elementary students get the microphone
+    // here too (Jim's call; tap buttons stay first-class alongside talk and type).
+    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
       && (typeof MediaRecorder !== "undefined");
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
@@ -1607,7 +1611,9 @@
         talkBtn.disabled = false; talkBtn.classList.add("ready"); el("newProblem").disabled = false;
         talkLabel.textContent = "Tap to talk";
         hint.textContent = canRecord
-          ? "Your turn — tap 🎙️ and say your answer, or type it below."
+          ? (IS_ELEM
+              ? "Your turn — tap 🎙️ and SAY your answer, or tap an answer button!"
+              : "Your turn — tap 🎙️ and say your answer, or type it below.")
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");

@@ -1,5 +1,19 @@
 <!DOCTYPE html>
 <!--
+    (ds) 2026-08-11 -- SPRINT ON REQUEST. Arriving with &sprint=1 (the dashboard card's
+    new "Run one now" button) starts the fluency sprint directly for the current/focus
+    unit. The once-a-day rule still tames the unprompted lesson-open OFFER; an explicit
+    request is always honoured. Fails soft: no sprint for the unit -> the lesson simply
+    proceeds.
+    (dr) 2026-08-11 -- THE YOUNGEST STUDENTS GET A VOICE (Jim: "I think it's okay for the
+    youngest to have a way to talk as well"). canRecord's !IS_ELEM clause removed: entry/
+    basic students -- the ones least able to type, in a voice-first classroom -- now get
+    the same tap-to-talk microphone as everyone else. The tap answer buttons stay exactly
+    as they were (tap, talk, and type are all first-class); the ready-hint, welcome tip,
+    and the tour's final stop all teach both paths; the browser still asks for the mic
+    only when the student actually taps 🎙️. The teaching brain's how-they-answer note
+    (prompts.py) now tells the tutor elementary students may speak, and to read young
+    readers' transcriptions with EXTRA charity. Same change on practice.html/topic.html.
     (de) 2026-08-10 -- DIFFEQ RESTRUCTURED TO THE CUPM MAINSTREAM SYLLABUS. Jim: "go with
     the one that you feel will be most acceptable to most schools." The CURRICULUM_BY_COURSE
     diffeq block now matches curriculum.py/pedagogy.py exactly: slope fields join unit 1,
@@ -2882,8 +2896,11 @@
     // courses (IS_ELEM) and browsers without getUserMedia/MediaRecorder (they fall back to
     // typing). The tap-to-talk code below drives it; "Type instead" is always available. The
     // browser only asks for mic permission when the student actually taps 🎙️ to record.
-    const canRecord = !IS_ELEM
-      && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    // 2026-08-11 (build dr, Jim: "it's okay for the youngest to have a way to talk as
+    // well"): the !IS_ELEM clause is GONE -- elementary students get the microphone too.
+    // They're the students least able to type, in a voice-first classroom; the tap
+    // buttons stay exactly as they were, so tap, talk, and type are all first-class.
+    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
       && (typeof MediaRecorder !== "undefined");
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
@@ -2895,7 +2912,9 @@
         talkBtn.disabled = false; talkBtn.classList.add("ready");
         talkLabel.textContent = "Tap to talk";
         hint.textContent = canRecord
-          ? "Your turn — tap the microphone to talk, or tap “Type my answer” below."
+          ? (IS_ELEM
+              ? "Your turn — tap the microphone and SAY your answer, or tap an answer button!"
+              : "Your turn — tap the microphone to talk, or tap “Type my answer” below.")
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");
@@ -3026,7 +3045,9 @@
         text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
         text: IS_ELEM
-          ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
+          ? (canRecord
+              ? "Last one, and it's the important one: when I ask you a question, you have TWO easy ways to answer. Tap the glowing microphone and just SAY your answer out loud — or tap one of the big answer buttons that pop up at the bottom. Both are perfect! And if you're not sure, tap 'I'm not sure' and I'll help you figure it out."
+              : "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out.")
           : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
@@ -3253,10 +3274,13 @@
           : "He talks — you type. Your answer box is at the BOTTOM of the screen. Press Enter ⏎ to send.";
         showComposer();
       }
-      // ELEMENTARY welcome overlay: talk about tapping choices, never about keyboards.
+      // ELEMENTARY welcome overlay: tap is the anchor; since build dr, talking joins it
+      // whenever the browser can record. Never about keyboards.
       if (IS_ELEM) {
         const tip = el("welcomeAnswerTip");
-        if (tip) tip.innerHTML = '<span class="ic">👆</span><span>When it\'s your turn, <b>answer buttons pop up at the bottom</b> — just tap the answer you think is right. Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>';
+        if (tip) tip.innerHTML = canRecord
+          ? '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the microphone and say your answer out loud</b> — or <b>tap one of the answer buttons at the bottom</b>. Both work! Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>'
+          : '<span class="ic">👆</span><span>When it\'s your turn, <b>answer buttons pop up at the bottom</b> — just tap the answer you think is right. Not sure? Tap <b>"I\'m not sure"</b> and he\'ll help.</span>';
       } else if (canRecord) {
         // 2026-08-06: voice is on — tell the student they can talk (or type).
         const tip = el("welcomeAnswerTip");
@@ -3372,7 +3396,23 @@
           }
         }
         maybeOfferSprint();
+        // 2026-08-11 (build ds): the dashboard's "Run one now" button lands here with
+        // &sprint=1 -- the student ASKED for a sprint, so start it directly. The
+        // once-a-day rule tames the unprompted OFFER, never an explicit request.
+        if (params.get("sprint") === "1") startRequestedSprint();
       } catch (e) { window.location.href = "/login"; }
+    }
+    async function startRequestedSprint() {
+      try {
+        const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
+        const r = await fetch("/api/sprint/" + encodeURIComponent(CODE) +
+                              "?course=" + encodeURIComponent(COURSE) + "&unit=" + unit);
+        if (!r.ok) return;                       // fails soft: the lesson simply proceeds
+        const d = await r.json();
+        if (!d.available) return;
+        SPR = d; SPR.unitNum = unit;
+        sprStart();
+      } catch (e) { /* a sprint is a bonus -- never block the lesson */ }
     }
     loadSession();
     el("sprGoA").addEventListener("click", function () { sprRunRound("a"); });

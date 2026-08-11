@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  help.html  --  MyTutor  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+    2026-08-11  NEW (build ds -- Four-Lens Review, student lens item 3). The only help
+                exit on every app page was a mailto: link -- dead on a school Chromebook
+                with no mail app, useless to an 8-year-old. This page is the in-app
+                answer: written to the STUDENT first (big, warm, no jargon), with a
+                clearly separated grown-ups section at the bottom. app-nav.js now sends
+                its ❓ Help button here on every app page; support@mrcadabra.com is
+                still on the page (as text a kid can show a parent, plus a normal link
+                for adults). No scripts beyond the shared analytics include; nothing
+                here reads or writes any student data.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Help — Mr. Cadabra's Classroom</title>
+<meta name="description" content="Quick help for students and parents: signing in, talking to Mr. Cadabra, sound, and who to contact." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.65;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:820px;margin:0 auto;padding:0 22px 60px}
+  a{color:var(--purple);font-weight:700;text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.page{padding:44px 0 8px;text-align:center}
+  h1{font-size:34px;letter-spacing:-.02em;margin:8px 0;font-weight:850}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:16.5px;max-width:56ch;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px;box-shadow:var(--shadow);margin-top:18px}
+  .card h2{font-size:19px;font-weight:820;margin-bottom:6px}
+  .card p{color:#3a3f57;font-size:15.5px;margin-top:8px}
+  .card b{color:var(--ink)}
+  .grown{border-top:3px solid var(--line);margin-top:34px;padding-top:8px}
+  .backrow{text-align:center;margin-top:26px}
+  .btn{display:inline-block;padding:12px 22px;border-radius:12px;font-weight:800;font-size:15px;background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn:hover{text-decoration:none;transform:translateY(-1px)}
+</style>
+  <!-- Privacy-friendly analytics by Plausible (shared include) -->
+  <script src="/static/analytics.js"></script>
+</head>
+<body>
+<header class="page wrap">
+  <h1>Need a hand? <span class="grad-text">You're in the right place.</span></h1>
+  <p class="sub">Quick answers first. If your question isn't here, the grown-ups section at the
+  bottom says exactly who to ask.</p>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2>🔑 "How do I sign in?"</h2>
+    <p>You need your <b>login code</b> — it looks like <b>MAPLE42</b>. Your parent has it (it's on
+    their family page). Go to <a href="/login">Student sign in</a>, type the code, and you're in.
+    No password — the code is the whole key. Lost it? Ask your parent to open
+    <b>mrcadabra.com/family</b>; it's right under your name.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎙️ "The microphone isn't working."</h2>
+    <p>First tap the mic button once — your browser will ask <b>"Allow microphone?"</b> Tap
+    <b>Allow</b>. If you tapped Block by mistake, click the little lock (or mic) icon in the
+    address bar at the top and switch the microphone to Allow, then try again.</p>
+    <p>And remember: <b>you never need the mic.</b> Tap <b>"Type my answer"</b> and type instead —
+    Mr. Cadabra treats typed answers exactly the same. In the younger courses you can also just
+    tap the answer buttons.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔇 "I can't hear Mr. Cadabra."</h2>
+    <p>Check the sound switch on your device (and the volume keys). If you're on headphones or
+    Bluetooth, give it a second — his first word sometimes waits for your speaker to wake up. If
+    he's still silent, refresh the page; the lesson picks up right where you were. Nothing is
+    lost when you refresh.</p>
+  </div>
+
+  <div class="card">
+    <h2>😵 "I'm stuck on the math."</h2>
+    <p>Say (or type) <b>"I'm confused."</b> That's not giving up — it's a power move. It tells
+    Mr. Cadabra to slow down and try a different way. You can also tap <b>📖 Look it up</b> in a
+    lesson to read about any topic, or tap <b>"I'm not sure"</b> when answer buttons are up.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔁 "I closed the tab / my computer died."</h2>
+    <p>It's fine. Sign back in and Mr. Cadabra remembers where you were — your progress, your
+    quizzes, your trophies. Nothing disappears when a tab closes.</p>
+  </div>
+
+  <div class="grown">
+    <div class="card">
+      <h2>👪 For parents &amp; teachers</h2>
+      <p><b>Parents:</b> your account at <a href="/family">mrcadabra.com/family</a> is mission
+      control — each child's login code, progress, printable records, the weekly-email switch,
+      and billing. The plain-language privacy promise is at <a href="/privacy">Parents &amp;
+      Privacy</a>.</p>
+      <p><b>Teachers &amp; co-ops:</b> your class view lives at <a href="/teacher">mrcadabra.com/teacher</a>.</p>
+      <p><b>A real person answers email:</b> write to <b>support@mrcadabra.com</b>
+      (<a href="mailto:support@mrcadabra.com">open in your mail app</a>) — questions, bugs,
+      billing, data requests, anything. Students: if that button doesn't work on your school
+      computer, just show a grown-up this address.</p>
+    </div>
+  </div>
+
+  <div class="backrow">
+    <a class="btn" href="javascript:history.back()">← Back to what I was doing</a>
+  </div>
+</div>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

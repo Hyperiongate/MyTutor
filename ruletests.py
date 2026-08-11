@@ -2,6 +2,30 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD ds -- HELP AND SPRINTS-ON-REQUEST, GUARDED (PART 3p block):
+#               app-nav's help pill must stay /help and never regress to a mailto
+#               (dead on school Chromebooks); help.html must exist whole with the
+#               support address as SHOWABLE text; main.py must route /help; the
+#               assessment page keeps its help door; session.html must honour
+#               &sprint=1; the dashboard's Run-one-now stays student-only.
+#   2026-08-11  BUILD dr -- ELEMENTARY VOICE, GUARDED. PART 3e's parity list now proves
+#               all three teaching pages use the capability-only canRecord (the mic
+#               excludes NO course), that "canRecord = !IS_ELEM" never returns (it
+#               would silently mute the students least able to type), and that the
+#               prompt's how-they-answer note tells the tutor elementary students may
+#               talk, with EXTRA transcription charity for young readers.
+#   2026-08-11  BUILD dq -- MARKETING MUST MATCH THE PRODUCT (PART 3p grows the
+#               Four-Lens theme-B guards). Machine-caught from now on: parents.html
+#               can never again promise the phantom "parent code" or call live
+#               features "rolling out"; family.html must keep its per-child Records
+#               link, How-are-they-doing narrative, and weekly-email toggle;
+#               teachers.html must link the real /teacher tool; records.html's
+#               bare-visit message points home, never at URL surgery; the two new
+#               endpoints (/api/parent/overview, /api/parent/weekly-email) exist and
+#               are parent-token gated. Plus the whole family flow LIVE (subprocess
+#               + TestClient + sqlite): signup -> add child -> overview numbers ->
+#               toggle the Friday email off -> flag lands where the digest pass
+#               reads it -> tokenless requests refused.
 #   2026-08-11  BUILD dp -- SPRINTS FOR ALL TEN COURSES, AND EVERY FACT RE-DERIVED.
 #               PART 3n's coverage bar rises from 27 units/3 courses to 70/10 (a
 #               ratchet -- shrinking it means someone's course lost its sprints).
@@ -1730,6 +1754,10 @@ PAGES = ("session.html", "practice.html", "topic.html")
 
 # (label, needle) -- must appear in EVERY teaching page.
 PAGE_PARITY = [
+    # build dr: the mic is a CAPABILITY check and excludes no course -- Jim's call
+    # ("it's okay for the youngest to have a way to talk as well"). If !IS_ELEM ever
+    # creeps back into canRecord, the youngest students silently lose their voice.
+    ("the mic excludes no course (dr)", "const canRecord = !!(navigator.mediaDevices"),
     ("board lines never wrap (audit #1 item 11)", "white-space: nowrap"),
     ("fitRow() shrinks an oversized line",        "function fitRow(row)"),
     ("[[step]] lines are fitted",                 "fitRow(wl.appendChild(eqRow(eq)))"),
@@ -1762,6 +1790,17 @@ def part3e_page_parity():
     for label, needle in SESSION_ONLY_PARITY:
         check(f"session.html: {label}", needle in src["session.html"],
               f"{needle!r} is gone -- a reload would lose the bar again")
+
+    # build dr: the old exclusion must never return, and the teaching brain must know
+    # the youngest students can speak (with extra charity for young readers).
+    relapsed = [p for p in PAGES if "canRecord = !IS_ELEM" in src[p]]
+    check("no page ever re-excludes elementary from the mic (dr)", not relapsed,
+          f"{relapsed} would silently mute the students least able to type")
+    check("the prompt tells the tutor elementary students may TALK (dr)",
+          "tap, talk," in tutor.GRAPH_TOOL_NOTE
+          and "EXTRA" in tutor.GRAPH_TOOL_NOTE
+          and '"free" for three' in tutor.GRAPH_TOOL_NOTE,
+          "the pages let them speak but the tutor was never told")
 
     # Every tag the SHARED prompt block teaches him must be drawable on every page.
     # (The lesson page has six extra handlers -- the progress bars, the goal banner and
@@ -2731,8 +2770,9 @@ def part3n_sprints():
           "any other comparison violates rule 42")
     check("  the loader is a bonus that can never block the dashboard",
           "loadSprints" in dash and "/api/sprints/" in dash
-          and "never block the dashboard" in dash.split("loadSprints")[1][:2400],
-          "the card must fail soft like every bonus section")
+          and "never block the dashboard" in dash.split("loadSprints")[1][:3600],
+          "the card must fail soft like every bonus section")   # window widened in ds
+          # (the Run-one-now button grew the loader; the guarded catch is unchanged)
     mn2 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
     check("GET /api/sprints/{code} exists and is student-gated",
           '@app.get("/api/sprints/{code}")' in mn2
@@ -3380,6 +3420,124 @@ def part3p_marketing_claims():
             m = pat.search(txt)
             check(f"README.md: no {label}", m is None,
                   f"found {m.group(0)!r}" if m else "")
+
+    # ---- BUILD dq: MARKETING MUST MATCH THE PRODUCT (Four-Lens Review theme B) ------
+    # Two kinds of drift, both now machine-caught: promises the product doesn't keep
+    # (the phantom "read-only parent code") and product the marketing hides (teachers.html
+    # never linked the real /teacher tool; records was never one click from /family).
+    def _visible(name):
+        with open(os.path.join(here, "static", name), encoding="utf-8") as fh:
+            return re.sub(r"<!--.*?-->", "", fh.read(), flags=re.S)
+    pv = _visible("parents.html")
+    check("parents.html no longer promises a 'parent code' (it never existed)",
+          "parent code" not in pv.lower() and "read-only code for you" not in pv.lower(),
+          "the parent door takes the CHILD's code; a promised second code is a lie")
+    check("parents.html no longer calls live parent accounts 'rolling out'",
+          "rolling out with launch" not in pv,
+          "accounts shipped 2026-07-31 -- the page must not trail the product")
+    check("parents.html points parents at their real home (/family)",
+          '"/family"' in pv, "the page describes the account but never links it")
+    fv = _visible("family.html")
+    check("family.html links each child's printable Records report",
+          "/records?code=" in fv,
+          "the homeschool page's 'one click from your parent view' depends on this")
+    check("family.html carries the How-are-they-doing narrative and the email toggle",
+          "assessLink" in fv and 'id="mailToggle"' in fv,
+          "mission control lost a panel")
+    tv = _visible("teachers.html")
+    check("teachers.html links the REAL class tool (/teacher)",
+          'href="/teacher"' in tv,
+          "a marketing page that hides the product it describes")
+    rv = open(os.path.join(here, "static", "records.html"), encoding="utf-8").read()
+    check("records.html's bare-visit message points home, not at URL surgery",
+          '"/family"' in rv and "Add ?code=STUDENT-CODE to the address, or open" not in
+          re.sub(r"<!--.*?-->", "", rv, flags=re.S),
+          "a parent should never be told to edit an address bar")
+    mn2 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("the overview + email-toggle endpoints exist and are parent-token gated",
+          '@app.get("/api/parent/overview")' in mn2
+          and '@app.post("/api/parent/weekly-email")' in mn2
+          and mn2.split('@app.get("/api/parent/overview")')[1][:800].count("_require_parent") == 1
+          and mn2.split('@app.post("/api/parent/weekly-email")')[1][:800].count("_require_parent") == 1,
+          "family mission control must never be an open door")
+
+    # ---- BUILD ds: help that works for a kid, sprints on request ---------------------
+    check("every app page's help pill goes to /help, never a mailto (ds)",
+          '"/help"' in open(os.path.join(here, "static", "app-nav.js"),
+                            encoding="utf-8").read()
+          and 'add("mailto:' not in open(os.path.join(here, "static", "app-nav.js"),
+                                         encoding="utf-8").read(),
+          "a mailto is a dead end on a school Chromebook")
+    hp = os.path.join(here, "static", "help.html")
+    check("help.html exists, ends whole, and shows the support address as TEXT",
+          os.path.exists(hp)
+          and "not truncated" in open(hp, encoding="utf-8").read()[-80:]
+          and "support@mrcadabra.com</b>" in open(hp, encoding="utf-8").read(),
+          "a kid must be able to SHOW a grown-up the address, not just click it")
+    check("main.py serves /help",
+          '@app.get("/help")' in mn2 or '@app.get("/help")' in
+          open(os.path.join(here, "main.py"), encoding="utf-8").read(),
+          "the page exists but nothing routes to it")
+    check("the assessment page has a help door (ds)",
+          'href="/help"' in open(os.path.join(here, "static", "challenge.html"),
+                                 encoding="utf-8").read(),
+          "the highest-stakes page had NO help affordance at all")
+    sess2 = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("&sprint=1 starts a sprint on request (ds)",
+          'params.get("sprint") === "1"' in sess2
+          and "startRequestedSprint" in sess2,
+          "the dashboard button would land on a page that ignores it")
+    dash2 = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
+    check("the dashboard sprint card offers Run-one-now to students only (ds)",
+          "&sprint=1" in dash2 and "!isTeacher && CODE" in dash2,
+          "either no way back to sprints, or the read-only view got a start button")
+
+    # ...and the whole family flow proven LIVE: signup -> add child -> overview ->
+    # toggle the Friday email off -> the flag lands where the digest pass reads it.
+    try:
+        import httpx  # noqa: F401
+        _have_httpx2 = True
+    except Exception:  # noqa: BLE001
+        _have_httpx2 = False
+    if not _have_httpx2:
+        skip("family mission-control live drill", "httpx not installed here")
+    else:
+        import tempfile as _tf4
+        with _tf4.TemporaryDirectory() as tmp4:
+            drill = os.path.join(tmp4, "famdrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main, store\n"
+                    "c = TestClient(main.app)\n"
+                    "r = c.post('/api/parent/signup', json={'email': 'drill@example.com',\n"
+                    "           'password': 'drill-pass-123', 'name': 'Drill'})\n"
+                    "assert r.status_code == 200, r.text\n"
+                    "tok = r.json()['token']\n"
+                    "h = {'X-Parent-Token': tok}\n"
+                    "r = c.post('/api/parent/students', json={'token': tok, 'name': 'Kid'})\n"
+                    "assert r.status_code == 200, r.text\n"
+                    "r = c.get('/api/parent/overview', headers=h)\n"
+                    "d = r.json()\n"
+                    "assert r.status_code == 200 and len(d['students']) == 1, d\n"
+                    "assert d['weekly_email_on'] is True, d\n"
+                    "s = d['students'][0]\n"
+                    "assert s['minutes_week'] == 0 and s['units_mastered'] == 0, s\n"
+                    "r = c.post('/api/parent/weekly-email', json={'token': tok, 'on': False})\n"
+                    "assert r.status_code == 200 and r.json()['on'] is False, r.text\n"
+                    "d2 = c.get('/api/parent/overview', headers=h).json()\n"
+                    "assert d2['weekly_email_on'] is False, d2\n"
+                    "r = c.get('/api/parent/overview')\n"
+                    "assert r.status_code == 401, ('no token must be refused', r.status_code)\n"
+                    "print('FAMILY-DRILL-OK')\n")
+            env = dict(os.environ,
+                       DATABASE_URL=f"sqlite:///{os.path.join(tmp4, 'f.db')}",
+                       WEEKLY_EMAIL="off", PYTHONPATH=here)
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("family flow live: signup -> child -> overview -> email off -> gate holds",
+                  r.returncode == 0 and "FAMILY-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-300:])
 
 
 def part3q_reliability():

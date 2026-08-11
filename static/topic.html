@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (dr) 2026-08-11 -- THE YOUNGEST STUDENTS GET A VOICE (Jim). canRecord's !IS_ELEM
+    clause removed, same as session.html: entry/basic students get tap-to-talk here too,
+    with the tap answer buttons unchanged beside it. Ready-hint teaches both paths.
     (de) 2026-08-10 -- DIFFEQ UNIT NAMES UPDATED to the CUPM mainstream restructure
     (build de): slope fields in unit 1, separable+linear merged in 2, qualitative
     analysis 3, numerical methods 4, nonhomogeneous+vibrations merged in 6, Laplace 7,
@@ -1653,8 +1656,9 @@
     // ON for the typing courses on browsers that can record; OFF for elementary tap-to-answer
     // courses (IS_ELEM) and browsers without getUserMedia/MediaRecorder (they type). The
     // browser only asks for mic permission when the student actually taps 🎙️ to record.
-    const canRecord = !IS_ELEM
-      && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    // 2026-08-11 (build dr): !IS_ELEM removed -- elementary students get the microphone
+    // here too (Jim's call; tap buttons stay first-class alongside talk and type).
+    const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
       && (typeof MediaRecorder !== "undefined");
     let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
@@ -1667,7 +1671,9 @@
         talkBtn.disabled = false; talkBtn.classList.add("ready"); el("newTopic").disabled = false;
         talkLabel.textContent = "Tap to talk";
         hint.textContent = canRecord
-          ? "Your turn — tap 🎙️ and say your answer, or type it below."
+          ? (IS_ELEM
+              ? "Your turn — tap 🎙️ and SAY your answer, or tap an answer button!"
+              : "Your turn — tap 🎙️ and say your answer, or type it below.")
           : (IS_ELEM
               ? "Your turn — tap one of the answer buttons!"
               : "Your turn — type your answer below and press Enter ⏎.");

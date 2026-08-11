@@ -4,6 +4,12 @@
   records.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-11  (build dq) A parent landing here BARE (no ?code=) used to get developer
+                instructions ("Add ?code=STUDENT-CODE to the address"). Now the message
+                speaks parent: open it from your family page, where every child has a
+                Records link -- with a real link to /family. The family page gained
+                those per-child Records links this same build, which is what finally
+                makes the homeschool page's "one click from your parent view" true.
     2026-08-04  NEW (build z, Jim: "do they have a page where they can download the required
                 records?"). The printable HOMESCHOOL RECORDS report the homeschool page promises:
                 for one student (by code), over a chosen range -- (1) summary tiles, (2) the
@@ -126,7 +132,14 @@
 
   function fail(msg) { const e = el("err"); e.style.display = "block"; e.textContent = msg; }
 
-  if (!CODE) { fail("Add ?code=STUDENT-CODE to the address, or open this page from the parent dashboard."); return; }
+  // dq: a parent landing here bare gets pointed home, not handed URL surgery
+  if (!CODE) {
+    const e = el("err"); e.style.display = "block";
+    e.innerHTML = 'This report belongs to one student. Open it from ' +
+      '<a href="/family" style="font-weight:800">your family page</a> — every child there ' +
+      'has a <b>Records →</b> link (or from the parent view of their dashboard).';
+    return;
+  }
 
   el("printBtn").addEventListener("click", () => window.print());
   el("range").addEventListener("change", load);

@@ -1,6 +1,11 @@
 /* =============================================================================
  * app-nav.js  --  MyTutor  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-11  ❓ HELP REPLACES THE DEAD MAILTO (build ds -- Four-Lens Review, student
+ *               lens item 3). The Contact pill was mailto:support@mrcadabra.com on every
+ *               app page -- dead on a school Chromebook with no mail app, useless to an
+ *               8-year-old. It now goes to the NEW in-app /help page (student-first FAQ;
+ *               the support address lives there as text a kid can show a grown-up).
  *   2026-07-30  NEW shared component (Jim: "navigating backwards is hard — give me buttons
  *               back to my main decision points, and a Contact button on every top bar").
  *               Injects clearly-labeled pill links into each app page's top bar:
@@ -62,7 +67,8 @@
       if (page !== "/dashboard") add("/dashboard" + q, "📊", "Progress");
       add("/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");
     }
-    add("mailto:support@mrcadabra.com", "✉️", "Contact");
+    // ds: /help, not mailto -- a kid on a school Chromebook has no mail app.
+    add("/help", "❓", "Help");
 
     // Hide the page's old, easy-to-miss nav link once ours is in ("☰ Menu" / "← Home") --
     // but NEVER the parent/teacher "← Back", which is that view's own way out.
