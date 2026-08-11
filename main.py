@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dz-a11y-and-phones". ACCESSIBILITY + PHONE
+#               PASS (Four-Lens student items 5 and 8). Nothing in this file changed
+#               but the stamp: on all three teaching pages the transcription readout
+#               and your-turn hint are polite aria-live regions, the mic button has a
+#               spoken name, the orb is decorative, session's four overlays are real
+#               dialogs (welcome focuses its action), and prefers-reduced-motion
+#               stills every pulse. PHONES: the board comes FIRST and the left rail
+#               becomes a compact bottom DOCK (orb+status row, horizontal nav chips,
+#               mic and answer box always in reach). Desktop untouched; all inside
+#               the existing 900px media query.
 #   2026-08-11  APP_BUILD -> "2026-08-11dy-child-management". FOUR SUPPORT EMAILS
 #               BECOME FOUR BUTTONS (Four-Lens parent item 2). New parent-token-gated,
 #               ownership-checked endpoints: /api/parent/student-rename ·
@@ -5757,7 +5767,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dy-child-management"
+APP_BUILD = "2026-08-11dz-a11y-and-phones"
 
 
 @app.get("/health")

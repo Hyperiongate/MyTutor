@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dz -- ACCESSIBILITY + PHONES, GUARDED: all three teaching pages
+#               must keep their polite live regions, the mic's spoken name, the
+#               reduced-motion block, and the phone dock (board first, rail stuck to
+#               the bottom); session's four overlays stay real dialogs with focus on
+#               the welcome action.
 #   2026-08-11  BUILD dy -- CHILD MANAGEMENT, GUARDED AND DRILLED: the four endpoints
 #               stay parent-gated + ownership-checked (misses 404 so probes learn
 #               nothing); remove keeps its server-verified typed-name consent; attach
@@ -3533,6 +3538,22 @@ def part3p_marketing_claims():
           'sprShow("sprBreak", 1200)' in sess4 and 'sprShow("sprDone", 1200)' in sess4
           and "shieldMs" in sess4,
           "a click meant for the last answer must never dismiss the results")
+
+    # ---- BUILD dz: accessibility + phones -------------------------------------------
+    for pg in ("session.html", "practice.html", "topic.html"):
+        psrc = open(os.path.join(here, "static", pg), encoding="utf-8").read()
+        check(f"{pg}: live regions, mic name, reduced motion, phone dock (dz)",
+              'aria-live="polite"' in psrc
+              and 'aria-label="Talk to Mr. Cadabra' in psrc
+              and "prefers-reduced-motion" in psrc
+              and "position: sticky; bottom: 0" in psrc
+              and ".center { order: 1;" in psrc,
+              "a voice-first tutor must be the accessible one, on every teaching page")
+    sess6 = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("session's overlays are real dialogs and the welcome takes focus (dz)",
+          sess6.count('role="dialog" aria-modal="true"') >= 4
+          and 'el("welcomeGo").focus()' in sess6,
+          "an overlay a screen reader cannot see is a locked door")
 
     # ---- BUILD dy: child management -- four support emails become four buttons ------
     mn5 = open(os.path.join(here, "main.py"), encoding="utf-8").read()

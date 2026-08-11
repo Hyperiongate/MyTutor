@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (dz) 2026-08-11 -- ACCESSIBILITY + PHONE PASS, same as session.html: live regions
+    on the transcription readout + hint, spoken name on the mic, reduced-motion
+    support, and the phone DOCK layout (board first, rail stuck to the bottom).
     (dr) 2026-08-11 -- THE YOUNGEST STUDENTS GET A VOICE (Jim). canRecord's !IS_ELEM
     clause removed, same as session.html: entry/basic students get tap-to-talk here too,
     with the tap answer buttons unchanged beside it. Ready-hint teaches both paths.
@@ -579,7 +582,38 @@
       background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
       background-attachment: fixed, fixed, fixed, scroll, scroll, scroll, scroll, scroll;
     }
-  </style>
+  
+    /* ===== 2026-08-11 (build dz) ACCESSIBILITY + PHONE LAYOUT ===== */
+    /* Reduced motion: the pulsing glows and bounces become still for anyone who asked. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+      }
+    }
+    /* Phones: THE BOARD COMES FIRST. The old stack put the whole left rail (orb, nav,
+       mic) above the board, so a student scrolled past everything to see the math.
+       Now the transcript leads and the rail becomes a compact DOCK stuck to the
+       bottom -- orb and status in one small row, the nav a horizontal chip strip,
+       the mic and answer box always in reach. Desktop is untouched. */
+    @media (max-width: 900px) {
+      .app { display: flex; flex-direction: column; min-height: 100dvh; }
+      .center { order: 1; flex: 1 1 auto; height: auto; min-height: 0;
+        display: flex; flex-direction: column; }
+      .feed { margin: 10px; min-height: 44vh; }
+      .side.left { order: 2; position: sticky; bottom: 0; z-index: 25;
+        background: var(--panel); border-top: 1px solid var(--line);
+        box-shadow: 0 -10px 26px rgba(20,30,45,.10);
+        padding: 8px 12px 10px; gap: 6px; overflow: visible; }
+      .side.left .tutor-head { padding: 0 0 4px; border-bottom: none; }
+      .side.left .orbwrap, .side.left .orbwrap canvas { width: 44px; height: 44px; }
+      .side.left .leftnav { flex-direction: row; overflow-x: auto; gap: 8px;
+        padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+      .side.left .leftnav .navbtn { white-space: nowrap; flex: 0 0 auto; }
+      .side.left .controls { margin-top: 0; padding-top: 6px; }
+      .side.left .talkbtn { padding: 11px 16px; font-size: 15px; }
+    }
+</style>
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
 </head>
@@ -587,7 +621,7 @@
   <div class="app">
     <aside class="side left">
       <div class="tutor-head">
-        <div class="orbwrap"><canvas id="orb" width="300" height="300"></canvas></div>
+        <div class="orbwrap"><canvas id="orb" width="300" height="300" aria-hidden="true"></canvas></div>
         <div class="tutor-meta">
           <div class="tutor-name">Mr. Cadabra</div>
           <div class="status" id="status">&nbsp;</div>
@@ -599,18 +633,18 @@
         <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
       </nav>
       <div class="controls">
-        <button class="talkbtn" id="talkBtn" disabled><svg class="micico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/><path d="M18.5 11.5a6.5 6.5 0 0 1-13 0H3.6a8.4 8.4 0 0 0 7.4 8.33V23h2v-3.17a8.4 8.4 0 0 0 7.4-8.33h-1.9z"/></svg> <span id="talkLabel">…</span></button>
+        <button class="talkbtn" id="talkBtn" disabled aria-label="Talk to Mr. Cadabra — tap to record, tap again to send"><svg class="micico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/><path d="M18.5 11.5a6.5 6.5 0 0 1-13 0H3.6a8.4 8.4 0 0 0 7.4 8.33V23h2v-3.17a8.4 8.4 0 0 0 7.4-8.33h-1.9z"/></svg> <span id="talkLabel">…</span></button>
         <button class="pausebtn" id="pauseBtn">⏸ Pause</button>
         <div class="quickrow" id="quickRow">
           <button class="quick newp" id="newProblem" disabled>✏️ New problem</button>
         </div>
-        <div class="hint" id="hint">Let's take a look at your problem…</div>
+        <div class="hint" id="hint" aria-live="polite">Let's take a look at your problem…</div>
         <button class="link" id="typeToggle">Type instead</button>
         <div class="composer" id="composer">
           <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
           <button id="send">Send</button>
         </div>
-        <div class="live" id="live"></div>
+        <div class="live" id="live" role="status" aria-live="polite"></div>
       </div>
     </aside>
 
