@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dj -- PART 3s: BACKUPS. A backup system is only real if the
+#               restore has been rehearsed, so the battery now performs the whole
+#               drill on every run: seed a real SQLite database through the public
+#               store API, snapshot it with export_all, prove the DRY LOOK changes
+#               nothing, restore into a second blank database THROUGH THE ACTUAL
+#               restore_backup.py tool (gzip file and all), and prove the two
+#               databases row-for-row identical. Boundaries proven from source:
+#               main.py never calls import_all (no restore endpoint can exist), the
+#               download rides the X-Admin-Key header, the nightly pass is fenced and
+#               atomic, rotation keeps BACKUP_KEEP, /admin has the download button
+#               (cx: buttons, not instructions) and NO restore control, and
+#               RECOVERY.md + restore_backup.py ship complete.
 #   2026-08-11  BUILD di -- PART 3r: the figures the audit could not draw, proven
 #               through the REAL renderer (node executes math-figures.js, the same
 #               file the browser runs). Piecewise domains clip and mark their own
@@ -3185,6 +3197,146 @@ def part3r_batch_d_figures():
               "the shared board-tools note is missing from this course's prompt")
 
 
+# =============================================================================
+# PART 3s -- BACKUPS: THE WAY BACK MUST ACTUALLY WORK (build dj)
+# -----------------------------------------------------------------------------
+# Jim: "if Render falters or something falters, do we have sufficient backup so that
+# we could recreate everything right away?" A backup system is only real if the
+# RESTORE has been rehearsed, so this part performs the whole drill on every run:
+# seed a real database, snapshot it with store.export_all, restore that snapshot into
+# a SECOND, blank database THROUGH THE ACTUAL restore_backup.py TOOL (dry look first,
+# which must change nothing), then prove the two databases are row-for-row identical.
+# Plus the boundaries: no restore endpoint may ever exist, the download rides the
+# header, the nightly pass is fenced and atomic.
+# =============================================================================
+_BK_SEED = r'''
+import json, os, sys
+import store
+store.init()
+assert store.enabled(), "sqlite store failed to enable: " + str(store.status())
+store.record_check("BKTEST", 2, 9, 10, "Integers", course="prealgebra")
+store.record_check("BKTEST", 4, 8, 10, "Fractions", course="prealgebra")
+store.record_foundation_heard("BKTEST", "prealgebra", "fraction")
+store.create_beta_code("TRY-BACKUP7", "backup drill", 5, 2)
+store.log_usage(kind="brain", code="BKTEST", course="prealgebra", mode="lesson",
+                model="test", input_tokens=10, output_tokens=5)
+snap = store.export_all()
+json.dump(snap, open(sys.argv[1], "w"))
+print(sum(snap["row_counts"].values()))
+'''
+
+_BK_EXPORT = r'''
+import json, sys
+import store
+store.init()
+assert store.enabled(), "sqlite store failed to enable"
+json.dump(store.export_all(), open(sys.argv[1], "w"))
+'''
+
+
+def _bk_tables(path):
+    import json as _json
+    snap = _json.load(open(path))
+    # order-independent, deep comparison: each table's rows as a sorted list of
+    # sorted-key JSON strings
+    return {name: sorted(_json.dumps(r, sort_keys=True) for r in rows)
+            for name, rows in snap["tables"].items()}
+
+
+def part3s_backups():
+    print("\nPART 3s — backups: the way back must actually work")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import gzip as _gz
+    import json as _json
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as tmp:
+        db1 = os.path.join(tmp, "db1.sqlite")
+        db2 = os.path.join(tmp, "db2.sqlite")
+        snap_json = os.path.join(tmp, "snap.json")
+        snap_gz = os.path.join(tmp, "snap.json.gz")
+        seed = os.path.join(tmp, "seed.py")
+        exp = os.path.join(tmp, "exp.py")
+        with open(seed, "w") as fh:
+            fh.write(_BK_SEED)
+        with open(exp, "w") as fh:
+            fh.write(_BK_EXPORT)
+
+        def run(script, dburl, *args):
+            # PYTHONPATH, not just cwd: python puts the SCRIPT'S directory on the
+            # path, and the seed/export scripts live in the temp dir, not the repo.
+            env = dict(os.environ, DATABASE_URL=dburl, PYTHONPATH=here)
+            return subprocess.run([sys.executable, script, *args], cwd=here, env=env,
+                                  capture_output=True, text=True)
+
+        # 1. seed a real database and snapshot it
+        r = run(seed, f"sqlite:///{db1}", snap_json)
+        if r.returncode != 0:
+            bad("backup drill: seed + export", r.stderr.strip()[:300])
+            return
+        total = int(r.stdout.strip().splitlines()[-1])
+        check(f"a seeded database exports ({total} rows)", total >= 5, f"only {total} rows")
+        with open(snap_json, "rb") as fh:
+            _gz_bytes = _gz.compress(fh.read())
+        with open(snap_gz, "wb") as fh:
+            fh.write(_gz_bytes)
+
+        # 2. the DRY LOOK must change nothing (a blank second database stays blank)
+        r = run(os.path.join(here, "restore_backup.py"), f"sqlite:///{db2}", snap_gz)
+        check("restore_backup.py without the flag is a DRY LOOK (exit 0, says so)",
+              r.returncode == 0 and "DRY LOOK" in r.stdout, (r.stdout + r.stderr)[-200:])
+        r = run(exp, f"sqlite:///{db2}", os.path.join(tmp, "after_dry.json"))
+        dry_rows = sum(len(v) for v in _bk_tables(os.path.join(tmp, "after_dry.json")).values()) \
+            if r.returncode == 0 else -1
+        check("the dry look changed NOTHING (second database still empty)", dry_rows == 0,
+              f"{dry_rows} rows appeared without the flag")
+
+        # 3. the real restore, THROUGH THE ACTUAL TOOL, gzip file and all
+        r = run(os.path.join(here, "restore_backup.py"), f"sqlite:///{db2}",
+                snap_gz, "--yes-i-mean-it")
+        check("restore_backup.py --yes-i-mean-it restores", r.returncode == 0,
+              (r.stdout + r.stderr)[-300:])
+        r = run(exp, f"sqlite:///{db2}", os.path.join(tmp, "after_restore.json"))
+        if r.returncode != 0:
+            bad("backup drill: re-export after restore", r.stderr.strip()[:300])
+            return
+        t1, t2 = _bk_tables(snap_json), _bk_tables(os.path.join(tmp, "after_restore.json"))
+        diff = [n for n in set(t1) | set(t2) if t1.get(n) != t2.get(n)]
+        check("the restored database is ROW-FOR-ROW identical to the snapshot",
+              not diff, f"tables differing after restore: {diff[:5]}")
+
+    # 4. the boundaries, from the source
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        mn = fh.read()
+    check("main.py NEVER calls import_all (no restore endpoint can exist)",
+          "import_all" not in mn,
+          "a remote wipe-and-replace is a foot-gun -- restores are offline only")
+    check("the backup download rides the X-Admin-Key header",
+          'def admin_backup_download' in mn and mn.count('alias="X-Admin-Key"') >= 6,
+          "backup endpoints missing the header alias")
+    check("the nightly pass is fenced inside the heartbeat",
+          "_backup_pass()" in mn and "[backup] loop error" in mn,
+          "an unfenced pass could kill the digests")
+    check("the snapshot write is ATOMIC (tmp then rename)",
+          "os.replace(tmp, _BACKUP_DIR / name)" in mn,
+          "a crash mid-write must never leave a half snapshot")
+    check("rotation keeps BACKUP_KEEP newest",
+          "[:-BACKUP_KEEP]" in mn, "no rotation found")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        adm = fh.read()
+    check("/admin has the Backups card with a header-borne download",
+          'id="bkDownload"' in adm and '"X-Admin-Key": KEY' in adm,
+          "the offsite copy needs a button (build cx: buttons, not instructions)")
+    check("/admin has NO restore control",
+          "restore" not in adm.lower() or "restore_backup.py" in adm,
+          "restore must stay an offline, deliberate act")
+    for fname in ("RECOVERY.md", "restore_backup.py"):
+        check(f"{fname} exists and is not truncated",
+              os.path.exists(os.path.join(here, fname))
+              and "I did no harm and this file is not truncated"
+              in open(os.path.join(here, fname), encoding="utf-8").read(),
+              "the runbook/tool must ship with the code")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -3234,6 +3386,7 @@ def main():
     part3p_marketing_claims()
     part3q_reliability()
     part3r_batch_d_figures()
+    part3s_backups()
     if live:
         part4_live()
     else:

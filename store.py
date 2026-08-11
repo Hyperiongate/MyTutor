@@ -2,6 +2,26 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dj -- BACKUPS (Jim: "if Render falters, do we have sufficient
+#               backup so that we could recreate everything right away?"). The code is
+#               safe on GitHub and the voice cache is recreatable for ~$20 -- the
+#               DATABASE is the one thing that was not recreatable at all. Two new
+#               functions, deliberately symmetrical and deliberately dialect-agnostic
+#               (they go through SQLAlchemy, so a snapshot taken from Postgres restores
+#               into Postgres OR SQLite, which is also how the round-trip is tested):
+#                 export_all()  -> one JSON-serializable snapshot of EVERY table this
+#                                  file owns, dates as ISO strings, with row counts.
+#                 import_all(payload, wipe=True) -> restores a snapshot inside ONE
+#                                  transaction: wipe a table, insert its rows, next
+#                                  table; any failure rolls the WHOLE restore back, so
+#                                  a half-restored database cannot exist. Unknown
+#                                  tables in old snapshots are skipped with a note;
+#                                  unknown columns are dropped row-by-row (a snapshot
+#                                  from an older build restores into a newer schema).
+#               NEVER exposed as a write endpoint -- restore runs only from the
+#               offline restore_backup.py with an explicit flag. main.py writes the
+#               nightly snapshot; /admin gains a download button; RECOVERY.md is the
+#               runbook.
 #   2026-08-11  BUILD dd -- FLUENCY SPRINTS: new table `sprints` (one row per completed
 #               sprint), record_sprint() and get_sprint_history(). Counts are CLAMPED
 #               (correct <= attempted <= 30) so the dashboards this will feed stay
@@ -2614,6 +2634,100 @@ def admin_stats() -> dict:
         print(f"[store] admin_stats failed: {_redact(exc)}")
         out["error"] = type(exc).__name__
     return out
+
+
+# =============================================================================
+# BACKUP & RESTORE (2026-08-11, build dj)
+# -----------------------------------------------------------------------------
+# Jim: "if Render falters or something falters, do we have sufficient backup so that
+# we could recreate everything right away?" The code is on GitHub and the voice cache
+# is recreatable for ~$20. The DATABASE -- every student's mastery, every quiz, every
+# parent account -- was the one thing with no way back. These two functions are that
+# way back. They are symmetrical, they go through SQLAlchemy (so a Postgres snapshot
+# restores into Postgres OR SQLite -- which is also how the round trip is tested), and
+# import_all is ONLY ever called by the offline restore_backup.py script. There is no
+# restore endpoint on purpose: a remote wipe-and-replace is a foot-gun, not a feature.
+# =============================================================================
+BACKUP_FORMAT = 1
+
+
+def export_all() -> dict:
+    """One JSON-serializable snapshot of every table this file owns. Dates and
+    datetimes become ISO strings; everything else is already JSON-safe (this schema
+    is strings, integers, floats and NULLs throughout). Raises if the DB is off --
+    a backup that silently snapshots nothing is worse than no backup."""
+    if not _ENABLED:
+        raise RuntimeError("database is not enabled -- nothing to export")
+    import datetime as _dt
+    snap = {"format": BACKUP_FORMAT,
+            "created_utc": _dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "dialect": _engine.dialect.name,
+            "tables": {}, "row_counts": {}}
+    with _engine.connect() as cx:
+        for name, t in _tables.items():
+            rows = []
+            for r in cx.execute(t.select()):
+                d = {}
+                for k, v in dict(r._mapping).items():
+                    if isinstance(v, (_dt.datetime, _dt.date)):
+                        v = v.isoformat()
+                    d[k] = v
+                rows.append(d)
+            snap["tables"][name] = rows
+            snap["row_counts"][name] = len(rows)
+    return snap
+
+
+def import_all(payload: dict, wipe: bool = True) -> dict:
+    """Restore a snapshot made by export_all. ONE transaction: any failure rolls the
+    whole restore back, so a half-restored database cannot exist. Snapshot tables the
+    current schema does not know are SKIPPED (named in the result); snapshot columns a
+    table no longer has are dropped row-by-row, so a snapshot from an older build
+    restores into a newer schema. Returns {"restored": {table: rows}, "skipped": [...]}.
+    Called ONLY by restore_backup.py -- never expose this over HTTP."""
+    if not _ENABLED:
+        raise RuntimeError("database is not enabled -- nowhere to restore")
+    if not isinstance(payload, dict) or "tables" not in payload:
+        raise ValueError("not a backup snapshot (no 'tables' key)")
+    fmt = payload.get("format")
+    if fmt != BACKUP_FORMAT:
+        raise ValueError(f"unknown backup format {fmt!r} (this build reads format {BACKUP_FORMAT})")
+    import datetime as _dt
+    from sqlalchemy import Date as _Date, DateTime as _DateTime
+    restored, skipped = {}, []
+    with _engine.begin() as cx:                      # one transaction for the WHOLE restore
+        for name, rows in payload["tables"].items():
+            t = _tables.get(name)
+            if t is None:
+                skipped.append(name)
+                continue
+            if wipe:
+                cx.execute(t.delete())
+            cols = {c.name: c for c in t.columns}
+            fixed = []
+            for row in rows or []:
+                d = {}
+                for k, v in row.items():
+                    c = cols.get(k)
+                    if c is None:
+                        continue                      # column retired since the snapshot
+                    if isinstance(v, str) and v:
+                        if isinstance(c.type, _DateTime):
+                            try:
+                                v = _dt.datetime.fromisoformat(v)
+                            except ValueError:
+                                pass                  # leave as-is; the DB will complain loudly
+                        elif isinstance(c.type, _Date):
+                            try:
+                                v = _dt.date.fromisoformat(v)
+                            except ValueError:
+                                pass
+                    d[k] = v
+                fixed.append(d)
+            if fixed:
+                cx.execute(t.insert(), fixed)
+            restored[name] = len(fixed)
+    return {"restored": restored, "skipped": skipped}
 
 
 # I did no harm and this file is not truncated.

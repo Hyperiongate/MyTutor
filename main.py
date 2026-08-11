@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dj-backups". Jim: "if Render falters or
+#               something falters, do we have sufficient backup so that we could
+#               recreate everything right away?" The honest audit: code = safe on
+#               GitHub; voice cache = recreatable for ~$20 (and since 08-11 it
+#               survives deploys on the persistent disk); the DATABASE = no way back
+#               at all. Now it has three: (1) NIGHTLY SNAPSHOT -- _backup_pass rides
+#               the existing 30-minute heartbeat, writes one gzipped JSON snapshot of
+#               every table per day to DATA_DIR/backups (the persistent disk),
+#               atomically (.tmp then rename), restart-safe (gates on the newest
+#               file's mtime, not process memory), rotated (BACKUP_KEEP, default 14);
+#               (2) RENDER'S OWN database backups (paid DB plans -- Jim confirms the
+#               plan); (3) THE OFFSITE COPY -- GET /api/admin/backup streams a FRESH
+#               snapshot as a download (admin key in the X-Admin-Key header, build-dg
+#               discipline), wired to a button on /admin's new 🛟 Backups card, plus
+#               GET /api/admin/backup/status for the card's nightly report. THERE IS
+#               DELIBERATELY NO RESTORE ENDPOINT -- a remote wipe-and-replace is a
+#               foot-gun; restores run offline via the new restore_backup.py with an
+#               explicit --yes-i-mean-it flag, inside one transaction. The full drill
+#               (bad deploy / lost database / Render gone entirely) is RECOVERY.md;
+#               render.yaml was refreshed into a truthful recreation recipe (disk,
+#               DATA_DIR, all env names). Export/restore themselves live in store.py.
 #   2026-08-11  APP_BUILD -> "2026-08-11di-piecewise". BATCH D of the first full audit
 #               (Audit_Findings_2026-08-11.md): the board tools the audit proved
 #               missing. NOTHING in this file changed but the stamp -- the work lives in
@@ -2018,6 +2039,7 @@
 #   change is needed once the disk is attached.
 # =============================================================================
 
+import gzip
 import hashlib
 import hmac
 import json
@@ -3919,10 +3941,68 @@ def _digest_loop():
             _usage_purge_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[usage] purge loop error: {exc}")
+        # build dj: the nightly database snapshot rides the same heartbeat, fenced in
+        # its own try like everything else here -- a failing backup must never stop
+        # the digests, and vice versa. The pass itself decides whether a day has gone
+        # by (it reads the newest file on disk, so it is restart-safe).
+        try:
+            _backup_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[backup] loop error: {exc}")
 
 
 USAGE_LOG_DAYS = int(os.environ.get("USAGE_LOG_DAYS", "180") or 180)
 _last_usage_purge = [0.0]
+
+
+# =============================================================================
+# NIGHTLY DATABASE SNAPSHOT (2026-08-11, build dj)
+# -----------------------------------------------------------------------------
+# Jim: "if Render falters or something falters, do we have sufficient backup so that
+# we could recreate everything right away?" The honest answer was NO for exactly one
+# asset: the database. This writes one gzipped JSON snapshot of every table per day
+# to DATA_DIR/backups -- which since the 08-11 infrastructure change is the Render
+# PERSISTENT DISK, so snapshots survive deploys. Restart-safe (the gate is the newest
+# file's mtime on disk, not process memory), atomic (write .tmp, then rename), and
+# rotated (BACKUP_KEEP newest are kept, default 14). Copies leave the machine via the
+# /admin download button -- the third copy lives on Jim's own computer. The full
+# recovery drill is RECOVERY.md in the repo.
+# =============================================================================
+BACKUP_KEEP = int(os.environ.get("BACKUP_KEEP", "14") or 14)
+_BACKUP_DIR = DATA_DIR / "backups"
+
+
+def _backup_blob() -> tuple[bytes, dict]:
+    """The current database as gzipped JSON bytes, plus the snapshot's row counts."""
+    snap = store.export_all()
+    blob = gzip.compress(json.dumps(snap, separators=(",", ":")).encode("utf-8"))
+    return blob, snap["row_counts"]
+
+
+def _backup_pass() -> None:
+    """Write today's snapshot if a day has passed since the newest one on disk.
+    Called from the 30-minute heartbeat; silent and harmless when the DB is off."""
+    if not store.enabled() or BACKUP_KEEP <= 0:
+        return
+    _BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    existing = sorted(_BACKUP_DIR.glob("backup-*.json.gz"))
+    if existing:
+        newest = max(p.stat().st_mtime for p in existing)
+        if time.time() - newest < 24 * 3600 - 300:   # 5-min grace so the slot can't drift
+            return
+    blob, counts = _backup_blob()
+    name = "backup-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ".json.gz"
+    tmp = _BACKUP_DIR / (name + ".tmp")
+    tmp.write_bytes(blob)
+    os.replace(tmp, _BACKUP_DIR / name)              # atomic: never a half-written snapshot
+    print(f"[backup] wrote {name} ({len(counts)} tables, {sum(counts.values())} rows, "
+          f"{len(blob):,} bytes)")
+    for p in sorted(_BACKUP_DIR.glob("backup-*.json.gz"))[:-BACKUP_KEEP]:
+        try:
+            p.unlink()
+            print(f"[backup] rotated out {p.name}")
+        except OSError as exc:
+            print(f"[backup] rotation could not remove {p.name}: {exc}")
 
 
 def _usage_purge_pass() -> None:
@@ -4143,6 +4223,48 @@ def admin_stats_api(key: str = "",
         "errors24": store.errors_count(24),
         "errors_recent": store.recent_errors(24, 20),
     }
+
+
+# =============================================================================
+# BACKUP ENDPOINTS (2026-08-11, build dj) -- download and status. READ-ONLY both:
+# there is deliberately NO restore endpoint (a remote wipe-and-replace is a foot-gun;
+# restores run offline via restore_backup.py with an explicit flag). Key rides in the
+# X-Admin-Key header like every admin call since build dg.
+# =============================================================================
+@app.get("/api/admin/backup/status")
+def admin_backup_status(key: str = "",
+                        x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """What the nightly snapshot has been doing: every snapshot on the persistent
+    disk, newest first, plus the retention setting. Feeds the /admin Backups card."""
+    _require_admin(x_admin_key or key)
+    snaps = []
+    try:
+        for p in sorted(_BACKUP_DIR.glob("backup-*.json.gz"), reverse=True):
+            st = p.stat()
+            snaps.append({"name": p.name, "bytes": st.st_size,
+                          "written_utc": time.strftime("%Y-%m-%d %H:%M UTC",
+                                                       time.gmtime(st.st_mtime))})
+    except OSError:
+        pass
+    return {"ok": True, "db": store.enabled(), "keep": BACKUP_KEEP,
+            "dir": str(_BACKUP_DIR), "snapshots": snaps}
+
+
+@app.get("/api/admin/backup")
+def admin_backup_download(key: str = "",
+                          x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """A FRESH full snapshot, streamed as a download -- not a file from the disk, so
+    what Jim saves is the database as of this click. This is the offsite copy: the
+    nightly file protects against deploys and app mistakes; this one protects against
+    losing Render itself."""
+    _require_admin(x_admin_key or key)
+    _require_db()
+    blob, counts = _backup_blob()
+    fname = "mrcadabra-backup-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ".json.gz"
+    return Response(blob, media_type="application/gzip",
+                    headers={"Content-Disposition": f'attachment; filename="{fname}"',
+                             "X-Backup-Rows": str(sum(counts.values())),
+                             "X-Backup-Tables": str(len(counts))})
 
 
 # =============================================================================
@@ -5168,7 +5290,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11di-piecewise"
+APP_BUILD = "2026-08-11dj-backups"
 
 
 @app.get("/health")

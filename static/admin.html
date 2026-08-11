@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-11  BACKUPS CARD (build dj, Jim: "if Render falters, do we have sufficient
+    backup so that we could recreate everything right away?"). New 🛟 Backups card: shows
+    the nightly snapshots the server now writes to the persistent disk by itself, and a
+    one-click "Download a fresh backup" that saves a complete database snapshot to Jim's
+    own computer (the offsite copy -- click roughly weekly). The download goes through
+    fetch with the X-Admin-Key header (build dg discipline: the key never rides a URL)
+    and hands the file to the browser via a blob link. NO restore button, on purpose:
+    restores are the offline restore_backup.py with an explicit flag (see RECOVERY.md).
   - 2026-08-11  THE KEY LEAVES THE ADDRESS BAR (build dg). This page used to put the admin
     key into URLs -- "/admin?key=...", "/api/admin/stats?key=..." -- and query strings are
     written into Render's request logs in PLAINTEXT, which is how the key ended up in a
@@ -252,6 +260,27 @@
       <button class="btn btn-primary" id="pwRun" type="button">&#9313; Render them</button>
     </div>
     <div class="msg" id="pwMsg"></div>
+  </div></section>
+
+  <!-- 2026-08-11 (build dj, Jim: "if Render falters, do we have sufficient backup so
+       that we could recreate everything right away?"). The database is the one asset
+       that was not recreatable. A nightly snapshot now writes itself to the persistent
+       disk automatically; this card shows those snapshots and adds the OFFSITE copy:
+       one click downloads a fresh snapshot to Jim's own computer. Restores are
+       deliberately offline-only (restore_backup.py in the repo -- see RECOVERY.md). -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#128735; Backups</h2>
+      <span class="note">A snapshot of the whole database writes itself to the persistent disk every
+        night. The download button makes the third copy &mdash; the one that lives on YOUR computer.
+        Click it about once a week, and keep the newest few files somewhere safe.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary" id="bkDownload" type="button">&#11015; Download a fresh backup</button>
+      <span class="note" id="bkNightly">checking the nightly snapshots&hellip;</span>
+    </div>
+    <div class="msg" id="bkMsg"></div>
+    <p class="note" style="margin-top:12px">Restoring is a deliberate, offline act: the repo's
+      <b>restore_backup.py</b> walks you through it, and <b>RECOVERY.md</b> is the full drill.
+      There is no restore button here on purpose.</p>
   </div></section>
 
   <!-- Quick links -->
@@ -608,6 +637,43 @@
   function laMsg(t, k) { var el = $("laMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
   function laShow(text) { var el = $("laOut"); el.style.display = text ? "" : "none"; el.textContent = text || ""; }
   function pwMsg(t, k) { var el = $("pwMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  function bkMsg(t, k) { var el = $("bkMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+
+  // ---------- backups (build dj) ----------
+  // The download goes through fetch so the admin key rides in the header (build dg
+  // discipline: the key never appears in a URL), then a blob link hands the file to
+  // the browser's normal save flow.
+  async function bkStatus() {
+    try {
+      var d = await api("/api/admin/backup/status");
+      if (!d.db) { $("bkNightly").textContent = "database is off — nothing to snapshot"; return; }
+      if (!d.snapshots || !d.snapshots.length) {
+        $("bkNightly").textContent = "no nightly snapshot yet — the first writes within 24h of this deploy";
+        return;
+      }
+      var s = d.snapshots[0];
+      $("bkNightly").textContent = "nightly snapshots on the persistent disk: " + d.snapshots.length +
+        " (keeping " + d.keep + ") — newest " + s.written_utc + ", " + Math.round(s.bytes / 1024) + " KB";
+    } catch (e) { $("bkNightly").textContent = "could not read snapshot status: " + e.message; }
+  }
+  $("bkDownload").addEventListener("click", async function () {
+    var b = this; b.disabled = true; bkMsg("Building a fresh snapshot…", "ok");
+    try {
+      var r = await fetch("/api/admin/backup", { headers: { "X-Admin-Key": KEY } });
+      if (!r.ok) { throw new Error(r.status === 401 ? "That key didn't work." : "Backup failed (" + r.status + ")."); }
+      var blob = await r.blob();
+      var cd = r.headers.get("Content-Disposition") || "";
+      var m = cd.match(/filename="([^"]+)"/);
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (m && m[1]) || "mrcadabra-backup.json.gz";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      bkMsg("Saved: " + a.download + " (" + Math.round(blob.size / 1024) + " KB, " +
+            (r.headers.get("X-Backup-Rows") || "?") + " rows). Keep it somewhere safe.", "ok");
+    } catch (e) { bkMsg(e.message); }
+    b.disabled = false;
+  });
 
   $("laPrice").addEventListener("click", async function () {
     laMsg("Working it out\u2026", "ok"); laShow("");
@@ -702,6 +768,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
+      try { bkStatus(); } catch (e) {}   // build dj: the Backups card's nightly status
       var now = new Date();
       $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
     } catch (e) {
