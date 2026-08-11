@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dp-sprints-all-courses". FLUENCY SPRINTS REACH
+#               EVERY COURSE. The registry (sprints.py) grows from the 3 elementary
+#               courses to ALL TEN -- 70 units with a genuine 60-second recall skill
+#               (one-step solves, slopes, factor pairs, special angles, the power
+#               rule, Laplace facts...); concept units get no sprint ON PURPOSE.
+#               Nothing in this file changed but the stamp: the offer, endpoints,
+#               store, and dashboard card were built course-agnostic in dd/dm and
+#               light up for the new courses on their own. Every computed answer is
+#               formula-derived and the battery's oracle now arithmetic-proves the
+#               question shapes; every fixed FACT list (trig values, i-powers, the
+#               68-95-99.7 rule, derivatives, identities...) is re-derived from
+#               mathematics (sympy/erf/complex) on every battery run. Also fixed in
+#               sprints.py, found by this build's probe: negative answers had been
+#               starved to a SINGLE tap choice by a no-negatives distractor rule
+#               meant for the counting courses (live since dd in prealgebra unit 3).
+#               Anxiety rules unchanged: never gates, personal-best only.
 #   2026-08-11  APP_BUILD -> "2026-08-11do-prompt-split". THE WORDS AND THE MACHINERY
 #               NOW LIVE APART. tutor.py (539 KB) was two-thirds prompt TEXT; all of
 #               it moved VERBATIM into the NEW prompts.py (353 KB of pure text, no
@@ -5369,7 +5385,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11do-prompt-split"
+APP_BUILD = "2026-08-11dp-sprints-all-courses"
 
 
 @app.get("/health")

@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dp -- SPRINTS FOR ALL TEN COURSES, AND EVERY FACT RE-DERIVED.
+#               PART 3n's coverage bar rises from 27 units/3 courses to 70/10 (a
+#               ratchet -- shrinking it means someone's course lost its sprints).
+#               The _verify oracle learned every upper-course question shape (one-
+#               and two-step solves, slopes, systems, exponent laws, factor pairs,
+#               roots/powers, means/medians, angle pairs, triangle sum, Pythagorean
+#               triples, circle facts, midpoints, areas, logs, sequences, limits,
+#               power/chain rules, antipowers, definite integrals, characteristic
+#               roots, probabilities, compositions, zeros, reflections, distributes)
+#               -- so the generated-answer sweep now arithmetic-proves the bulk of
+#               all ~4,200 problems per seed. The FIXED FACT LISTS (trig values,
+#               radians, i-powers, empirical rule, dice, derivative facts, trig
+#               identities, ODE orders, Laplace) each get an INDEPENDENT oracle:
+#               sympy, math.erf, complex arithmetic, enumeration -- a wrong "fact"
+#               fails the build. The unknown-course fixture moved off "calculus"
+#               (which HAS sprints now) onto a concept unit left out on purpose.
+#               Also fixed (found by this build's probe): _num_choices starved
+#               NEGATIVE answers down to one tap button (blanket no-negatives rule);
+#               and answers now use the same unicode minus the questions use.
 #   2026-08-11  BUILD do -- THE tutor.py SPLIT, GUARDED. tutor.py's prompt text (the
 #               eleven templates, GROUND_RULES, GRAPH_TOOL_NOTE, the overlays, scopes,
 #               and assessment voices) moved VERBATIM to the new prompts.py; the move
@@ -2392,6 +2411,8 @@ def part3n_sprints():
     from fractions import Fraction as _Fr
 
     def _verify(q, a):
+        # build dp: answers may carry the unicode minus the student sees
+        a = a.replace("−", "-")
         qq = q.replace("×", "*").replace("−", "-").replace("÷", "/")
         m = _re.fullmatch(r"\s*(-?\d+)\s*([+*/-])\s*(-?\d+)\s*", qq)
         if m:
@@ -2409,12 +2430,150 @@ def part3n_sprints():
         m = _re.fullmatch(r"\s*0\.(\d)\s*\+\s*0\.(\d)\s*", qq)
         if m:
             return abs(float(a) - (int(m.group(1)) + int(m.group(2))) / 10) < 1e-9
+        # ---- build dp: the upper-course shapes, one oracle per question form ----
+        def _i(*gs):
+            return [int(g) for g in gs]
+        m = _re.fullmatch(r"x \+ (\d+) = (\d+)\.\s+x = \?", qq)
+        if m:
+            x, s = _i(*m.groups()); return str(s - x) == a
+        m = _re.fullmatch(r"(\d+)x = (\d+)\.\s+x = \?", qq)
+        if m:
+            c, s = _i(*m.groups()); return s % c == 0 and str(s // c) == a
+        m = _re.fullmatch(r"(\d+)x \+ (\d+) = (\d+)\.\s+x = \?", qq)
+        if m:
+            c, b, s = _i(*m.groups()); return (s - b) % c == 0 and str((s - b) // c) == a
+        m = _re.fullmatch(r"f\(x\) = (\d+)x \+ (\d+)\.\s+f\((\d+)\) = \?", qq)
+        if m:
+            c, b, n = _i(*m.groups()); return str(c * n + b) == a
+        m = _re.fullmatch(r"f\(x\) = x \+ (\d+), g\(x\) = (\d+)x\.\s+f\(g\((\d+)\)\) = \?", qq)
+        if m:
+            b, c, n = _i(*m.groups()); return str(c * n + b) == a
+        m = _re.fullmatch(r"Slope of y = (\d+)x \+ \d+\?", qq)
+        if m:
+            return m.group(1) == a
+        m = _re.fullmatch(r"Slope through \(0, 0\) and \((\d+), (\d+)\)\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return y % x == 0 and str(y // x) == a
+        m = _re.fullmatch(r"x \+ y = (\d+),\s+x - y = (\d+)\.\s+x = \?", qq)
+        if m:
+            s, d = _i(*m.groups()); return (s + d) % 2 == 0 and str((s + d) // 2) == a
+        m = _re.fullmatch(r"Complement of (\d+)°\?", qq)
+        if m:
+            return str(90 - int(m.group(1))) == a
+        m = _re.fullmatch(r"Supplement of (\d+)°\?", qq)
+        if m:
+            return str(180 - int(m.group(1))) == a
+        m = _re.fullmatch(r"Triangle angles (\d+)° and (\d+)°\. Third angle\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return str(180 - x - y) == a
+        m = _re.fullmatch(r"Legs (\d+) and (\d+)\. Hypotenuse\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return x * x + y * y == int(a) ** 2
+        m = _re.fullmatch(r"Radius (\d+)\. Diameter\?", qq)
+        if m:
+            return str(2 * int(m.group(1))) == a
+        m = _re.fullmatch(r"Diameter (\d+)\. Radius\?", qq)
+        if m:
+            d = int(m.group(1)); return d % 2 == 0 and str(d // 2) == a
+        m = _re.fullmatch(r"Midpoint of (\d+) and (\d+) on a number line\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return (x + y) % 2 == 0 and str((x + y) // 2) == a
+        m = _re.fullmatch(r"(?:Mean|Median) of (-?\d+), (-?\d+), (-?\d+)\?", qq)
+        if m:
+            v = sorted(_i(*m.groups()))
+            if qq.startswith("Mean"):
+                return sum(v) % 3 == 0 and str(sum(v) // 3) == a
+            return str(v[1]) == a
+        m = _re.fullmatch(r"Side (\d+) scales to (\d+)\. Scale factor\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return y % x == 0 and str(y // x) == a
+        m = _re.fullmatch(r"Triangle: base (\d+), height (\d+)\. Area\?", qq)
+        if m:
+            b, h = _i(*m.groups()); return (b * h) % 2 == 0 and str(b * h // 2) == a
+        m = _re.fullmatch(r"√(\d+) = \?", qq)
+        if m:
+            return int(a) ** 2 == int(m.group(1))
+        m = _re.fullmatch(r"∛(\d+) = \?", qq)
+        if m:
+            return int(a) ** 3 == int(m.group(1))
+        m = _re.fullmatch(r"(\d)([²³⁴⁵]) = \?", qq)
+        if m:
+            e = {"²": 2, "³": 3, "⁴": 4, "⁵": 5}[m.group(2)]
+            return str(int(m.group(1)) ** e) == a
+        m = _re.fullmatch(r"x\^(\d+) · x\^(\d+) = x\^\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return str(x + y) == a
+        m = _re.fullmatch(r"x\^(\d+) / x\^(\d+) = x\^\?", qq)
+        if m:
+            x, y = _i(*m.groups()); return str(x - y) == a
+        m = _re.fullmatch(r"x² \+ (\d+)x \+ (\d+) = \(x \+ (\d+)\)\(x \+ \?\)", qq)
+        if m:
+            b, c, p = _i(*m.groups()); q_ = int(a)
+            return p + q_ == b and p * q_ == c
+        m = _re.fullmatch(r"Degree of x\^(\d+) \+ x \+ 1\?", qq)
+        if m:
+            return m.group(1) == a
+        m = _re.fullmatch(r"log([₂₃₅]|₁₀) (\d+) = \?", qq)
+        if m:
+            base = {"₂": 2, "₃": 3, "₅": 5, "₁₀": 10}[m.group(1)]
+            return base ** int(a) == int(m.group(2))
+        m = _re.fullmatch(r"(\d+)! = \?", qq)
+        if m:
+            import math as _math
+            return str(_math.factorial(int(m.group(1)))) == a
+        m = _re.fullmatch(r"C\((\d+), 2\) — ways to choose 2 of \d+\?", qq)
+        if m:
+            n = int(m.group(1)); return str(n * (n - 1) // 2) == a
+        m = _re.fullmatch(r"(-?\d+), (-?\d+), (-?\d+), \?", qq)
+        if m:
+            x, y, z = _i(*m.groups())
+            if y - x == z - y:                       # arithmetic
+                return str(z + (y - x)) == a
+            if x != 0 and y % x == 0 and z * x == y * y:   # geometric
+                return str(z * (y // x)) == a
+            return None
+        m = _re.fullmatch(r"lim \(x → (\d+)\) of x² \+ (\d+) = \?", qq)
+        if m:
+            n, add = _i(*m.groups()); return str(n * n + add) == a
+        m = _re.fullmatch(r"d/dx x\^(\d+) = \?·(?:x|x\^\d+)", qq)
+        if m:
+            return m.group(1) == a
+        m = _re.fullmatch(r"d/dx e\^\((\d+)x\) = \?·e\^\(\d+x\)", qq)
+        if m:
+            return m.group(1) == a
+        m = _re.fullmatch(r"∫ (?:x|x\^(\d+)) dx = x\^(\d+)/\?\s+\(\+ C\)", qq)
+        if m:
+            n = int(m.group(1) or 1); return n + 1 == int(m.group(2)) == int(a)
+        m = _re.fullmatch(r"∫ from 0 to (\d+) of 2x dx = \?", qq)
+        if m:
+            return str(int(m.group(1)) ** 2) == a
+        m = _re.fullmatch(r"y″ - (\d+)y = 0:\s+r = ±\?", qq)
+        if m:
+            return int(a) ** 2 == int(m.group(1))
+        m = _re.fullmatch(r"Expected successes: 10 tries at P = 0\.(\d)\?", qq)
+        if m:
+            return m.group(1) == a
+        m = _re.fullmatch(r"P\(rain\) = 0\.(\d)\.\s+P\(no rain\) = \?", qq)
+        if m:
+            return abs(float(a) - (10 - int(m.group(1))) / 10) < 1e-9
+        m = _re.fullmatch(r"Reflect \((\d+), (\d+)\) over the ([xy])-axis", qq)
+        if m:
+            x, y = _i(m.group(1), m.group(2))
+            want = f"({x}, -{y})" if m.group(3) == "x" else f"(-{x}, {y})"
+            return a == want
+        m = _re.fullmatch(r"Zeros of \(x - (\d+)\)\(x \+ (\d+)\):\s+x = \d+ and x = \?", qq)
+        if m:
+            return a == f"-{m.group(2)}"
+        m = _re.fullmatch(r"(\d+)\(x \+ (\d+)\) = \?", qq)
+        if m:
+            c, b = _i(*m.groups()); return a == f"{c}x + {c * b}"
         return None
 
     units = sum(len(u) for u in SP.SPRINTS.values())
-    check(f"the registry covers the elementary courses ({units} units, "
-          f"{len(SP.SPRINTS)} courses)", units >= 27 and len(SP.SPRINTS) >= 3,
-          "the WWC evidence is strongest exactly where the sprints are missing")
+    check(f"the registry covers ALL TEN courses ({units} units, "
+          f"{len(SP.SPRINTS)} courses)", units >= 70 and len(SP.SPRINTS) >= 10,
+          "build dp raised the bar from the 3 elementary courses to all ten -- "
+          "a shrink here means sprints silently vanished from someone's course")
     wrong, total, verified, twin_units = [], 0, 0, 0
     for course, us in SP.SPRINTS.items():
         for unit in us:
@@ -2443,8 +2602,93 @@ def part3n_sprints():
     check("  the same seed rebuilds the same sprint (a mid-sprint reload changes nothing)",
           SP.build("prealgebra", 3, "k") == SP.build("prealgebra", 3, "k"),
           "a reload must not hand out fresh problems mid-sprint")
-    check("  an unknown course or unit fails soft", SP.build("calculus", 1, "k") is None
-          and not SP.available("nope", 1), "the app must simply make no offer")
+    check("  an unknown course or unit fails soft", SP.build("latin", 1, "k") is None
+          and SP.build("precalc", 6, "k") is None and not SP.available("nope", 1),
+          "the app must simply make no offer")   # dp: calculus HAS sprints now; a
+    # concept unit deliberately left out (precalc 6) is the new absent fixture
+
+    # ---- BUILD dp: the FIXED FACT LISTS are RE-DERIVED, never trusted ---------------
+    # A drill that stamps in a wrong "fact" is the worst thing this feature could do.
+    # So every fact list ships with an independent oracle: i-powers by actually raising
+    # i, trig values and radians against math.sin/cos/pi, the empirical rule against
+    # the error function, dice against enumeration fractions, derivatives and
+    # identities against sympy, ODE order by counting prime marks, Laplace against
+    # n!/s^(n+1). If a fact and mathematics disagree, the build fails.
+    import math as _m
+    bad_f = []
+    _sup = {"²": 2, "³": 3, "⁴": 4, "⁵": 5, "⁶": 6, "⁸": 8}
+    _cname = {(1, 0): "1", (-1, 0): "−1", (0, 1): "i", (0, -1): "−i"}
+    for q, a, ch in SP.I_POWER_FACTS:
+        v = 1j ** _sup[q[1]]
+        if a != _cname[(round(v.real), round(v.imag))] or a not in ch:
+            bad_f.append(("i-power", q, a))
+    _tv = {"0": 0.0, "1": 1.0, "1/2": .5, "√2/2": _m.sqrt(2) / 2,
+           "√3/2": _m.sqrt(3) / 2}
+    for q, a, ch in SP.SIN_FACTS + SP.COS_FACTS:
+        fn = _m.sin if q.startswith("sin") else _m.cos
+        deg = int(_re.search(r"(\d+)°", q).group(1))
+        if abs(fn(_m.radians(deg)) - _tv[a]) > 1e-9 or a not in ch:
+            bad_f.append(("trig", q, a))
+    _rad = {"π": _m.pi, "2π": 2 * _m.pi, "π/2": _m.pi / 2, "π/4": _m.pi / 4,
+            "π/6": _m.pi / 6, "π/3": _m.pi / 3}
+    for q, a, ch in SP.RADIAN_FACTS:
+        deg = int(_re.search(r"(\d+)°", q).group(1))
+        if abs(_m.radians(deg) - _rad[a]) > 1e-9 or a not in ch:
+            bad_f.append(("radian", q, a))
+    for q, a, ch in SP.EMPIRICAL_FACTS:
+        k = int(_re.search(r"(\d) SD", q).group(1))
+        within = 100 * _m.erf(k / _m.sqrt(2))
+        true = within if "ithin" in q else 100 - within
+        if abs(float(a) - true) > 0.7 or a not in ch:
+            bad_f.append(("empirical", q, a, round(true, 2)))
+    _die_truth = [_Fr(1, 6), _Fr(1, 2), _Fr(1, 2), _Fr(1, 3), _Fr(1, 4), _Fr(2, 3)]
+    for (q, a, ch), truth in zip(SP.DIE_FACTS, _die_truth):
+        num = int(_re.search(r"= (\d)/\?", q).group(1))
+        if _Fr(num, int(a)) != truth or a not in ch:
+            bad_f.append(("die", q, a))
+    import sympy as _sp
+    _x, _t = _sp.symbols("x t")
+    _dexpr = {"d/dx sin x = ?": _sp.sin(_x), "d/dx cos x = ?": _sp.cos(_x),
+              "d/dx eˣ = ?": _sp.exp(_x), "d/dx ln x = ?": _sp.log(_x),
+              "d/dx of a constant = ?": _sp.Integer(7), "d/dx x = ?": _x}
+    _dans = {"cos x": _sp.cos(_x), "−sin x": -_sp.sin(_x), "eˣ": _sp.exp(_x),
+             "1/x": 1 / _x, "0": _sp.Integer(0), "1": _sp.Integer(1)}
+    for q, a, ch in SP.DERIV_FACTS:
+        if _sp.simplify(_sp.diff(_dexpr[q], _x) - _dans[a]) != 0 or a not in ch:
+            bad_f.append(("deriv", q, a))
+    _ie = {"sin²θ + cos²θ = ?": (_sp.sin(_t) ** 2 + _sp.cos(_t) ** 2,
+                                 "1", _sp.Integer(1)),
+           "tan θ = sin θ / ?": (_sp.sin(_t) / _sp.tan(_t), "cos θ", _sp.cos(_t)),
+           "sin(−θ) = ?": (_sp.sin(-_t), "−sin θ", -_sp.sin(_t)),
+           "cos(−θ) = ?": (_sp.cos(-_t), "cos θ", _sp.cos(_t)),
+           "1 + tan²θ = ?": (1 + _sp.tan(_t) ** 2, "sec²θ", _sp.sec(_t) ** 2),
+           "sin 2θ = ?": (_sp.sin(2 * _t), "2 sin θ cos θ",
+                          2 * _sp.sin(_t) * _sp.cos(_t))}
+    for q, a, ch in SP.IDENTITY_FACTS:
+        lhs, want_a, want_e = _ie[q]
+        if a != want_a or _sp.simplify(lhs - want_e) != 0 or a not in ch:
+            bad_f.append(("identity", q, a))
+    _omap = {"⁗": 4, "‴": 3, "″": 2, "′": 1}
+    for q, a, ch in SP.ODE_ORDER_FACTS:
+        order = max(v for k, v in _omap.items() if k in q)
+        if str(order) != a or a not in ch:
+            bad_f.append(("ode-order", q, a))
+    for q, a, ch in SP.LAPLACE_FACTS:
+        m1 = _re.fullmatch(r"L\{(1|t|t²|t³)\} = (\d+)/s\^\?", q)
+        if m1:
+            n = {"1": 0, "t": 1, "t²": 2, "t³": 3}[m1.group(1)]
+            okk = int(m1.group(2)) == _m.factorial(n) and int(a) == n + 1
+        else:
+            m2 = _re.fullmatch(r"L\{e\^\((\d+)t\)\} = 1/\(s − \?\)", q)
+            okk = bool(m2) and m2.group(1) == a
+        if not okk or a not in ch:
+            bad_f.append(("laplace", q, a))
+    n_facts = sum(len(v) for v in (SP.I_POWER_FACTS, SP.SIN_FACTS, SP.COS_FACTS,
+                                   SP.RADIAN_FACTS, SP.EMPIRICAL_FACTS, SP.DIE_FACTS,
+                                   SP.DERIV_FACTS, SP.IDENTITY_FACTS,
+                                   SP.ODE_ORDER_FACTS, SP.LAPLACE_FACTS))
+    check(f"every fixed FACT re-derives from mathematics itself ({n_facts} facts)",
+          not bad_f, str(bad_f[:4]))
 
     # NEVER GATES. Checked at all three layers, from the source.
     st = open(os.path.join(here, "store.py"), encoding="utf-8").read()
