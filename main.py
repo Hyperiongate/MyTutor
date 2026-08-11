@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11du-retake-and-parent-view". TWO DOORS ON TOP OF
+#               dt's FOUNDATION. (1) THE RETAKE BUTTON (Four-Lens student item 2): the
+#               dashboard's "Unit Quiz best 62% -- let's get it to 90%" line finally
+#               has a button. "📝 Retake the Unit Quiz →" opens /session?...&quiz=1;
+#               session.html treats it like the Final-Exam door (no tour, no side
+#               offers, welcome button says what it does) and sends the NEW
+#               "__unit_quiz__" sentinel; this file turns it into marching orders --
+#               administer the focus unit's quiz NOW, remind them the record keeps
+#               their BEST (rule 50), never make them ask again; warm-up offered only
+#               if the notes show unmet topics. (2) THE PARENT'S ANSWER (parent item
+#               6, unlocked by dt): the parent box and the Friday email's per-child
+#               section both gain the actual missed problems ("Recently tricky" /
+#               "Tricky this week"), max 3, with the child's own answers -- absent
+#               entirely when there were none.
 #   2026-08-11  APP_BUILD -> "2026-08-11dt-missed-problems". THE DATA FOUNDATION
 #               (Four-Lens student item 1, NEW RULE 55): until today a 62% Unit Quiz
 #               stored ONLY "62%" -- nobody, including the tutor next session, could
@@ -3915,6 +3929,21 @@ def _weekly_child_section(student: dict, week: dict) -> str:
                  for a in week["award_ids"] if a in AWARD_DEFS]
         if names:
             lines.append("New awards earned: " + ", ".join(names) + ".")
+    # 2026-08-11 (build du, parent lens item 6): the question every parent asks --
+    # "what did they struggle with?" -- answered with the ACTUAL problems from this
+    # week's quizzes (rule 55's rows). Capped at 3; absent when the week had none.
+    try:
+        import datetime as _dt
+        cutoff = (_dt.date.today() - _dt.timedelta(days=7)).isoformat()
+        tricky = [m for m in store.get_misses(student.get("code") or "", limit=15)
+                  if (m.get("when") or "") >= cutoff][:3]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[digest] get_misses failed (ignored): {exc}")
+        tricky = []
+    if tricky:
+        lines.append("Tricky this week (worth five minutes together): " + "; ".join(
+            f"\"{m['question']}\" -- they answered \"{m['answer']}\"" for m in tricky)
+            + ". Mr. Cadabra brings one of these back himself, gently, next session.")
     return "\n".join(lines)
 
 
@@ -5588,7 +5617,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dt-missed-problems"
+APP_BUILD = "2026-08-11du-retake-and-parent-view"
 
 
 @app.get("/health")
@@ -6128,7 +6157,7 @@ def chat(req: ChatRequest):
     # fake student greeting, strip any leftover junk ones, generate a warm recap, and save
     # ONLY the tutor's reply so the conversation stays coherent.
     if message in ("__open__", "__tour_done__", "__open_declined__", "__tour_done_declined__",
-                   "__open_fresh__"):
+                   "__open_fresh__", "__unit_quiz__"):
         after_tour = message.startswith("__tour_done")
         # 2026-08-07 (build at): "_declined" = the student JUST answered the on-screen
         # assessment-invitation card with "Not right now" -- the tutor must respect it.
@@ -6138,8 +6167,12 @@ def chat(req: ChatRequest):
         # (an explored topic / practice problem); they want their next unmastered unit,
         # which the page sent as the focus unit.
         fresh_start = (message == "__open_fresh__")
+        # 2026-08-11 (build du): "__unit_quiz__" = the dashboard's "Retake the Unit
+        # Quiz" button. The student came for exactly one thing; deliver exactly that.
+        quiz_intent = (message == "__unit_quiz__")
         junk = ("hi", "hi!", "hi.", "hello", "hey", "__open__", "__tour_done__",
-                "__open_declined__", "__tour_done_declined__", "__open_fresh__")
+                "__open_declined__", "__tour_done_declined__", "__open_fresh__",
+                "__unit_quiz__")
         history = [m for m in history if not (
             m.get("role") == "user" and str(m.get("content", "")).strip().lower() in junk)]
         if after_tour:
@@ -6159,6 +6192,17 @@ def chat(req: ChatRequest):
                 "give a SHORT recap of where you two are and what's next, then invite them to keep "
                 "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
                 "them, do NOT tell them to focus, and do NOT act annoyed.)")
+        if quiz_intent:
+            # replaces the generic opener outright -- this door has one purpose
+            opener_note = (
+                "(SYSTEM: The student clicked 'Retake the Unit Quiz' on their dashboard for "
+                "their FOCUS unit -- they came specifically to take that Unit Quiz NOW, and "
+                "the app already confirmed the intent. One warm welcome-back sentence, remind "
+                "them the record keeps their BEST score so a retake can only help (rule 50), "
+                "then administer the FOCUS unit's Unit Quiz per the QUIZZES rules -- the full "
+                "quiz, no teaching lesson first, and do NOT make them ask again. Exception: if "
+                "your notes show they have genuinely never met some of this unit's topics, say "
+                "so plainly and offer a very short warm-up first -- their choice.)")
         if assess_declined:
             opener_note += (
                 " (ALSO: the app just showed the Course Assessment invitation card ON SCREEN and "

@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (du) 2026-08-11 -- THE RETAKE DOOR. Arriving with &unit=N&quiz=1 (the dashboard's
+    new "Retake the Unit Quiz" button) works like FINAL_MODE: no tour, no side offers;
+    the welcome button reads "📝 Take the Unit Quiz ▶" and kicks off with the NEW
+    "__unit_quiz__" sentinel -- main.py turns it into marching orders (administer the
+    focus unit's quiz now; the record keeps their BEST score, so a retake can only
+    help). The student clicked a very specific door; we open exactly that door.
     (dt) 2026-08-11 -- MISSED PROBLEMS ARE REMEMBERED (rule 55, Four-Lens student item
     1). The [[quiz]] / [[check]] / [[finalexam]] tags may now carry
     missed="question => their answer | ..." -- parseMissed() turns it into [{q, a}]
@@ -1265,6 +1271,9 @@
     // 2026-08-07 (build au): `let`, not const — the welcome overlay's "start at my next
     // unmastered unit" choice retargets it before the opener is sent.
     let FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
+    // 2026-08-11 (build du): &quiz=1 with a unit = the dashboard's "Retake the Unit
+    // Quiz" button. The student clicked a very specific door; open it (like FINAL_MODE).
+    const QUIZ_INTENT = params.get("quiz") === "1" && FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9;
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this lesson is for (multi-course)
     // 2026-08-07 FINAL EXAM: "" | "prep" | "exam" — sent with every chat turn; the SERVER
     // re-verifies eligibility (all 9 units mastered) each time. This flag is a courtesy.
@@ -3022,6 +3031,8 @@
       // 2026-08-07 FINAL EXAM MODES: prep/exam sessions skip the tour and the assessment
       // invitation entirely — the student clicked a very specific door; open it.
       if (FINAL_MODE) { busy = true; setPhase("busy"); kickoff(); return; }
+      // 2026-08-11 (build du): same for a Unit Quiz retake — no tour, no side offers.
+      if (QUIZ_INTENT) { busy = true; setPhase("busy"); kickoff("__unit_quiz__"); return; }
       // The tour runs for a student's first lesson IN THIS CLASSROOM TYPE (the server's
       // `toured` flag counts the elementary tap-to-answer courses separately from the
       // typing courses, so a veteran typist still gets the tap intro and vice versa).
@@ -3417,6 +3428,8 @@
             el("welcomeGo").insertAdjacentElement("afterend", rb);
           }
         }
+        // 2026-08-11 (build du): the quiz-retake door gets a matching welcome button.
+        if (QUIZ_INTENT) el("welcomeGo").innerHTML = "📝 Take the Unit Quiz ▶";
         maybeOfferSprint();
         // 2026-08-11 (build ds): the dashboard's "Run one now" button lands here with
         // &sprint=1 -- the student ASKED for a sprint, so start it directly. The

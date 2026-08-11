@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD du -- RETAKE DOOR + PARENT'S TRICKY LIST, GUARDED: the
+#               dashboard's 90% line keeps its Retake button (students only, gated on
+#               a real quiz score existing); session.html opens the &quiz=1 door like
+#               the final-exam door and sends "__unit_quiz__"; main.py interprets the
+#               sentinel with the BEST-score reassurance (rule 50); the parent box
+#               ("Recently tricky") and the Friday email ("Tricky this week") both
+#               answer the most-asked parent question from rule 55's rows.
 #   2026-08-11  BUILD dt -- MISSED-PROBLEM MEMORY, GUARDED END TO END (rule 55 joins
 #               RULE_VERIFY as COVERED). Source checks: session.html parses missed=
 #               and ships it on all three score POSTs; the dashboard's Tricky-ones
@@ -3477,6 +3484,26 @@ def part3p_marketing_claims():
           and "[[finalexam" not in tutor.GRAPH_TOOL_NOTE,
           "quiz tags exist only in lessons; the SHARED block must not teach "
           "practice/topic a tag their pages cannot draw (PART 3e's own guard)")
+
+    # ---- BUILD du: the retake door + the parent's tricky list -----------------------
+    check("the dashboard's 90% line has its Retake button, students only (du)",
+          "&quiz=1" in dash3.replace("&amp;", "&")
+          and "Retake the Unit Quiz" in dash3
+          and "u.checks_taken ?" in dash3,
+          "'let's get it to 90%' without a button is a taunt")
+    check("session.html opens the retake door like the final-exam door (du)",
+          "QUIZ_INTENT" in sess3 and '"__unit_quiz__"' in sess3
+          and "Take the Unit Quiz ▶" in sess3,
+          "the button must land on a page that opens exactly that door")
+    check("main.py turns __unit_quiz__ into administer-it-NOW orders (du)",
+          '"__unit_quiz__"' in mn3
+          and "record keeps their BEST score" in mn3
+          and mn3.count("__unit_quiz__") >= 3,   # sentinel tuple + junk list + handler
+          "a sentinel nobody interprets is a dead button")
+    check("the parent box and the Friday email answer 'what was tricky?' (du)",
+          "Recently tricky:" in dash3
+          and "Tricky this week" in mn3,
+          "parent item 6 -- the most-asked question -- must be answered in both places")
 
     # ---- BUILD dq: MARKETING MUST MATCH THE PRODUCT (Four-Lens Review theme B) ------
     # Two kinds of drift, both now machine-caught: promises the product doesn't keep
