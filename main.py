@@ -2,6 +2,35 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dw-refresher-and-three-bars". TWO MORE OF JIM'S
+#               LIVE CATCHES. (1) THE GAP-AWARE OPENER: "welcome back, we were looking
+#               at this chart, ready to keep going?" is fine after lunch and useless
+#               after four days. The opener branch now computes the days since the
+#               last session in THIS course (store.get_course_activity, fail-open)
+#               and, at 1+ days, orders a REAL refresher: name the unit and topic,
+#               say plainly what you were working on and what they'd already nailed,
+#               board the key thing, one gentle memory-jog question -- "a friend
+#               catching you up, never a test." (2) THREE BARS, ALWAYS: the TODAY bar
+#               was routinely missing on resumed sessions -- the tutor announced no
+#               goals, ensure_today_tag can only mirror announced goals, and
+#               yesterday's stored goals rightly don't rebuild today. Now the server
+#               KNOWS when the bar is empty (today_live) and hands the opener a
+#               per-turn ORDER to state the 2-3 item plan and emit [[today items]];
+#               session.html additionally shows the labeled TODAY placeholder from
+#               the first second, so the wall never has fewer than three maps. Both
+#               notes are per-turn dynamic text -- zero static prompt cost.
+#   2026-08-11  APP_BUILD -> "2026-08-11dv-sprint-buzzer-shield". JIM'S OWN LIVE CATCH:
+#               he answered a sprint's last question exactly as the 60 seconds ended;
+#               the timer swapped the panel under his click, the click landed on
+#               "Start my lesson ▶" (same screen spot as the answer buttons), and the
+#               whole A/B celebration vanished before he saw it. Nothing in this file
+#               changed but the stamp: session.html's sprShow() gained a shield --
+#               any sprint panel swapped in BY THE TIMER (stretch break, results)
+#               keeps its buttons inert and dimmed for 1.2 seconds, so a
+#               buzzer-beater click can never dismiss the results. Deliberate-tap
+#               panels are unshielded. His sprint DATA was never at risk (the POST
+#               fires before the panel can be dismissed) -- what vanished was the
+#               celebration, which is half the point of the feature.
 #   2026-08-11  APP_BUILD -> "2026-08-11du-retake-and-parent-view". TWO DOORS ON TOP OF
 #               dt's FOUNDATION. (1) THE RETAKE BUTTON (Four-Lens student item 2): the
 #               dashboard's "Unit Quiz best 62% -- let's get it to 90%" line finally
@@ -5617,7 +5646,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11du-retake-and-parent-view"
+APP_BUILD = "2026-08-11dw-refresher-and-three-bars"
 
 
 @app.get("/health")
@@ -6192,6 +6221,41 @@ def chat(req: ChatRequest):
                 "give a SHORT recap of where you two are and what's next, then invite them to keep "
                 "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
                 "them, do NOT tell them to focus, and do NOT act annoyed.)")
+        # 2026-08-11 (build dw, Jim live: "welcome back, we were looking at this chart,
+        # ready to keep going?" after DAYS away): the opener now knows the gap. A day
+        # or more since the last session in this course -> a real refresher, not a
+        # one-liner. Fail-open: no data, no gap note, opener unchanged.
+        gap_days = 0
+        try:
+            if store.enabled():
+                la = (store.get_course_activity(code).get(req.course) or {}).get("last_active")
+                if la:
+                    import datetime as _dt
+                    gap_days = max(0, (_dt.date.today()
+                                       - _dt.date.fromisoformat(str(la)[:10])).days)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[opener] gap check failed (ignored): {exc}")
+        if gap_days >= 1 and not (after_tour or fresh_start):
+            opener_note += (
+                f" (ALSO: it has been {gap_days} day{'s' if gap_days != 1 else ''} since "
+                "your last session together in this course. Do NOT open with a bare "
+                "'ready to keep going?'. Give a REAL refresher first, warmly and briefly "
+                "(3-4 sentences): name the unit and topic you two were in, remind them in "
+                "plain words what you were working on and what they had already figured "
+                "out or nailed (use your notes and the recent conversation), put the key "
+                "thing back on the board if it helps, THEN ask one gentle memory-jog "
+                "question before moving forward. Memory fades in a few days -- back up a "
+                "little; it should feel like a friend catching you up, never a test.)")
+        # 2026-08-11 (build dw, Jim live: "it's only showing two bars"): the server KNOWS
+        # when the TODAY bar is empty. When it is, the opener's standing instruction to
+        # emit [[today items]] becomes a per-turn order it cannot miss.
+        if not student_context.get("today_live"):
+            opener_note += (
+                " (ALSO: the TODAY progress bar at the top of the student's screen is "
+                "EMPTY right now. Your FIRST message must state today's short plan (2-3 "
+                "items) and emit the matching [[today items=\"...\"]] tag -- resumed "
+                "sessions included, every time. No session starts without today's map "
+                "on the wall.)")
         if quiz_intent:
             # replaces the generic opener outright -- this door has one purpose
             opener_note = (

@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <!--
+    (dw) 2026-08-11 -- THREE BARS, ALWAYS (Jim live: "it's only showing two bars
+    regardless of who I sign in as"). Root cause: on welcome-back sessions the tutor
+    often announces no goals, ensure_today_tag can only mirror goals that WERE
+    announced, and yesterday's stored goals rightly don't rebuild today's bar -- so
+    the TODAY row simply never appeared. Two fixes: (1) here, when the server has no
+    today-goals, the TODAY row shows its labeled placeholder from the first second
+    (real [[today]] replaces it -- same render path as the tour preview); (2) in
+    main.py, when the server sees the bar is empty it hands the opener a per-turn
+    ORDER to state today's 2-3 item plan and emit [[today items]]. Same build: the
+    opener also learns the GAP since the last session -- a day or more away earns a
+    real 3-4 sentence refresher (what unit, what you were doing, what they'd nailed,
+    one memory-jog question), never a bare "ready to keep going?" (Jim's other catch).
+    (dv) 2026-08-11 -- THE BUZZER-BEATER SHIELD (Jim's own catch, live). He answered a
+    sprint's last question exactly as time ran out; the timer swapped the panel and his
+    click landed on "Start my lesson ▶" -- which sits where the answer buttons were --
+    and the whole A/B celebration vanished unseen. Fix: sprShow(panel, shieldMs) -- any
+    panel the TIMER swaps in (the stretch break and the results) keeps its buttons
+    inert and visibly dimmed for 1.2 seconds, so a late click cannot dismiss what the
+    student needs to see. Panels reached by deliberate taps are unshielded.
     (du) 2026-08-11 -- THE RETAKE DOOR. Arriving with &unit=N&quiz=1 (the dashboard's
     new "Retake the Unit Quiz" button) works like FINAL_MODE: no tour, no side offers;
     the welcome button reads "📝 Take the Unit Quiz ▶" and kicks off with the NEW
@@ -3196,10 +3215,28 @@
                       "&code=" + encodeURIComponent(CODE)).play().catch(function () {}); }
       catch (e) {}
     }
-    function sprShow(panel) {
+    function sprShow(panel, shieldMs) {
       ["sprIntro", "sprRun", "sprBreak", "sprDone"].forEach(function (id) {
         el(id).style.display = (id === panel) ? "" : "none";
       });
+      // 2026-08-11 (build dv, Jim's own catch): time ran out UNDER his click -- the
+      // timer swapped the panel and the click meant for the last answer landed on
+      // "Start my lesson ▶", which sits in the same spot, and the whole celebration
+      // vanished before he saw it. So: any panel reached BY THE TIMER (the break and
+      // the results) keeps its buttons inert for a moment -- visibly dimmed, ignoring
+      // clicks -- so a buzzer-beater click can never dismiss the results.
+      const ms = shieldMs || 0;
+      if (ms > 0) {
+        const btns = el(panel).querySelectorAll("button, a");
+        btns.forEach(function (b) {
+          b.disabled = true; b.style.pointerEvents = "none"; b.style.opacity = "0.45";
+        });
+        setTimeout(function () {
+          btns.forEach(function (b) {
+            b.disabled = false; b.style.pointerEvents = ""; b.style.opacity = "";
+          });
+        }, ms);
+      }
     }
     async function maybeOfferSprint() {
       try {
@@ -3271,7 +3308,7 @@
         el("sprBreakCopy").innerHTML = line +
           " Now stand up, stretch tall, and shake your arms out for a second. " +
           "Round B has <b>fresh numbers, same patterns</b> — see if you can beat your Round A by just one.";
-        sprShow("sprBreak");
+        sprShow("sprBreak", 1200);   // dv: the buzzer swapped this panel in -- shield it
         sprSay("Stand up, stretch tall, shake your arms out. Round B has fresh numbers and the same patterns. Beat your first round by just one.");
       } else {
         sprFinish();
@@ -3286,7 +3323,7 @@
       if (SPR.best_b && sprB.correct > SPR.best_b) line += " And <b>" + sprB.correct + "</b> is a new personal best here!";
       line += " Did you spot the pattern in the problems? Keep it in your pocket — it'll show up in today's lesson.";
       el("sprDoneCopy").innerHTML = line;
-      sprShow("sprDone");
+      sprShow("sprDone", 1200);      // dv: the results panel too -- Jim must SEE his sprint
       sprSay(imp > 0 ? "You beat yourself. That is the whole game. Well done!"
                      : "Every sprint makes the next one faster. Well done!");
       fetch("/api/sprint/" + encodeURIComponent(CODE), {
@@ -3367,6 +3404,13 @@
             renderUnitBar();
           }
         }
+        // 2026-08-11 (build dw, Jim live: "it's only showing two bars"): when the
+        // server has no today-goals for this course, the TODAY row now shows its
+        // clearly-labeled placeholder from the first second — three maps on the wall,
+        // always. The tutor's real [[today]] replaces it (same render path; the
+        // preview flag is deleted). The unit/course rows are already real by here, so
+        // showBarsPreview() no-ops on them.
+        if (!TODAY_ITEMS.length) showBarsPreview();
         tutorName = data.tutor_name || "Tutor"; tutorNameEl.textContent = tutorName;
         el("wTutor").textContent = tutorName;
         studentNameEl.textContent = data.name ? ("Student: " + data.name) : "";

@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dw -- REFRESHER + THREE BARS, GUARDED: the opener must keep its
+#               gap check (1+ days away -> a real 3-4 sentence refresher with a
+#               memory-jog, "a friend catching you up, never a test"), the server's
+#               empty-TODAY-bar order must survive (today_live -> per-turn [[today]]
+#               demand), and session.html must keep the TODAY placeholder at load so
+#               two bars is never the resting state. Both found live by Jim.
+#   2026-08-11  BUILD dv -- THE BUZZER-BEATER SHIELD, GUARDED: sprint panels swapped
+#               in by the TIMER (break, results) must stay shielded for 1.2s so a
+#               click meant for the last answer can never dismiss the celebration.
+#               Found live by Jim, on his own product, within hours of dp deploying.
 #   2026-08-11  BUILD du -- RETAKE DOOR + PARENT'S TRICKY LIST, GUARDED: the
 #               dashboard's 90% line keeps its Retake button (students only, gated on
 #               a real quiz score existing); session.html opens the &quiz=1 door like
@@ -3504,6 +3514,28 @@ def part3p_marketing_claims():
           "Recently tricky:" in dash3
           and "Tricky this week" in mn3,
           "parent item 6 -- the most-asked question -- must be answered in both places")
+
+    # ---- BUILD dv: the buzzer-beater shield (Jim's live catch) ----------------------
+    sess4 = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("timer-swapped sprint panels are shielded for 1.2s (dv)",
+          'sprShow("sprBreak", 1200)' in sess4 and 'sprShow("sprDone", 1200)' in sess4
+          and "shieldMs" in sess4,
+          "a click meant for the last answer must never dismiss the results")
+
+    # ---- BUILD dw: the gap-aware refresher + three bars, always ---------------------
+    mn4 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("a returning student gets a real refresher after a day away (dw)",
+          "gap_days" in mn4 and "memory-jog" in mn4
+          and "never a test" in mn4,
+          "'ready to keep going?' after four days is a cold shoulder")
+    check("an empty TODAY bar becomes a per-turn ORDER to the opener (dw)",
+          'student_context.get("today_live")' in mn4
+          and "EMPTY right now. Your FIRST message" in mn4,
+          "the standing instruction alone was routinely ignored on resumes")
+    sess5 = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("the TODAY row shows its placeholder from the first second (dw)",
+          "if (!TODAY_ITEMS.length) showBarsPreview();" in sess5,
+          "two bars must never be the resting state")
 
     # ---- BUILD dq: MARKETING MUST MATCH THE PRODUCT (Four-Lens Review theme B) ------
     # Two kinds of drift, both now machine-caught: promises the product doesn't keep
