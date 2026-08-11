@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD di -- PART 3r: the figures the audit could not draw, proven
+#               through the REAL renderer (node executes math-figures.js, the same
+#               file the browser runs). Piecewise domains clip and mark their own
+#               endpoints (open for strict, closed for inclusive -- the audit's jump
+#               figure is the fixture); an unparseable domain fails OPEN; the shared
+#               tool note reaches all ten prompts; and the three showColumn bodies are
+#               compared byte-for-byte (build-bk drift class) with align="last" proven
+#               unable to complete a wrong sum. ⭐ THE HARNESS'S FIRST RUN FOUND A LIVE
+#               BUG: hole= had NEVER drawn on a genuine 0/0 removable point -- the
+#               renderer evaluated the function AT the hole, got NaN, and bailed; the
+#               feature only worked on functions DEFINED at the point, which is exactly
+#               where holes do not belong, and the canonical scripts had quietly worked
+#               around it with pre-simplified forms. Fixed with a numeric limit (both
+#               sides sampled and required to agree), and the asymptote case -- where
+#               painting a hole would be rule 51(e) broken in pixels -- is a permanent
+#               NEGATIVE fixture.
 #   2026-08-11  BUILD dh -- the audit's teaching findings, tested. ANSWERED_CASES (rule
 #               17's new referee: the board must not answer the question -- the audit's
 #               ticket card is the fixture, plus commuted and word-number variants, plus
@@ -3071,6 +3087,104 @@ def part3q_reliability():
           n_pref >= 4, f"found {n_pref} of 4")
 
 
+# =============================================================================
+# PART 3r -- THE FIGURES THE AUDIT COULD NOT DRAW (build di)
+# -----------------------------------------------------------------------------
+# Finding S-4: a jump discontinuity "drawn" as two full parallel lines because the
+# grapher had no piecewise vocabulary. Finding S-9: a student asked twice to SEE the
+# wrong decimal lineup and got prose labels because no tag could draw it. Both tools
+# exist now, and this part proves them THROUGH THE REAL RENDERER (node executes
+# math-figures.js, the same file the browser runs) -- plus the discovery the harness
+# made on its first run: hole= had NEVER drawn on a genuine 0/0 removable point,
+# because the renderer evaluated the function AT the hole and bailed on NaN. The
+# canonical scripts had quietly worked around it with pre-simplified forms.
+# =============================================================================
+_DI_GRAPH_HARNESS = r'''
+const fs = require("fs");
+global.window = {};
+eval(fs.readFileSync(process.argv[2], "utf8"));
+const MF = global.window.MathFigures;
+const out = [];
+function t(name, cond) { out.push([name, !!cond]); }
+// the audit's jump, drawn right: open circle at (2,3), closed dot at (2,6), no bridge
+const svg = MF.graph({ func: "x+1 for x<2; x+4 for x>=2", range: "0..4", yrange: "0..8" });
+t("the strict bound gets an OPEN circle at (2,3)", svg.includes('cy="267.5" r="5" fill="#fbfbff"'));
+t("the inclusive bound gets a CLOSED dot at (2,6)", /cy="125" r="5" fill="#[0-9a-f]{6}" stroke="#ffffff"/.test(svg));
+const polys = [...svg.matchAll(/<polyline points="([^"]+)"/g)].map(m => m[1].split(" ").map(p => parseFloat(p.split(",")[0])));
+t("two pieces, each clipped to its own side of x=2",
+  polys.length === 2 && Math.max(...polys[0]) <= 220.01 && Math.min(...polys[1]) >= 219.99);
+t("the legend names the domains", svg.includes("for x&lt;2") && svg.includes("for x&gt;=2"));
+const s2 = MF.graph({ func: "x^2 for -1<=x<3", range: "-4..4" });
+t("a double-ended domain marks both endpoints", (s2.match(/r="5"/g) || []).length === 2);
+const s3 = MF.graph({ func: "x+1 for x≥2", range: "0..4" });
+t("unicode bounds are accepted", /stroke="#ffffff"/.test(s3));
+const s4 = MF.graph({ func: "x+1 for banana", range: "0..4" });
+t("an unparseable domain fails OPEN -- the curve still draws",
+  [...s4.matchAll(/<polyline/g)].length === 1);
+// the harness's own first-run discovery, kept forever:
+const s5 = MF.graph({ func: "(x^2-4)/(x-2)", hole: "2", range: "0..4", yrange: "0..6" });
+t("a hole on a genuine 0/0 point actually draws (numeric limit)", s5.includes(">hole<"));
+const s6 = MF.graph({ func: "1/(x-2)", hole: "2", range: "0..4", yrange: "-6..6" });
+t("an asymptote NEVER gets a hole painted on it (rule 51e in pixels)", !s6.includes(">hole<"));
+const s7 = MF.graph({ func: "sin(x)", range: "-6..6" });
+t("a plain un-domained function is untouched", s7.includes("<polyline"));
+console.log(JSON.stringify(out));
+'''
+
+
+def part3r_batch_d_figures():
+    print("\nPART 3r — the figures the audit could not draw (build di)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    # (1) the three showColumn bodies must be BYTE-IDENTICAL -- the build-bk drift class
+    bodies = {}
+    for page in ("session", "practice", "topic"):
+        try:
+            with open(os.path.join(here, "static", f"{page}.html"), encoding="utf-8") as fh:
+                m = re.search(r"function showColumn\(a\) \{[\s\S]*?\n    \}", fh.read())
+            bodies[page] = m.group(0) if m else ""
+        except OSError:
+            bodies[page] = ""
+    check("showColumn is byte-identical on all three teaching pages",
+          bool(bodies.get("session")) and len(set(bodies.values())) == 1,
+          "the pages have drifted -- the build-bk bug class")
+    check("align='last' NEVER completes the wrong layout",
+          "res && !wrongAlign" in bodies.get("session", ""),
+          "a result row in the deliberately-wrong lineup would complete a wrong sum "
+          "on our board (rules 13 and 26)")
+    check("the wrong lineup carries its built-in badge",
+          '"cwarn"' in bodies.get("session", ""), "the badge div is missing")
+    for page in ("session", "practice", "topic"):
+        with open(os.path.join(here, "static", f"{page}.html"), encoding="utf-8") as fh:
+            css = fh.read()
+        check(f"  [{page}] carries the wrong-way styling", ".colmath.colwrong" in css,
+              "amber styling missing -- the wrong way must never look like the taught way")
+    # (2) the piecewise/hole behaviour, proven through the REAL math-figures.js
+    try:
+        subprocess.run(["node", "--version"], capture_output=True, check=True)
+    except Exception:  # noqa: BLE001
+        skip("piecewise render checks", "node not available")
+        return
+    import json as _json
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as tmp:
+        hpath = os.path.join(tmp, "di.js")
+        with open(hpath, "w") as fh:
+            fh.write(_DI_GRAPH_HARNESS)
+        res = subprocess.run(["node", hpath, os.path.join(here, "static", "math-figures.js")],
+                             capture_output=True, text=True)
+        if res.returncode != 0:
+            bad("piecewise render harness", res.stderr.strip()[:200])
+            return
+        for name, okk in _json.loads(res.stdout):
+            check(f"render: {name}", okk, "see math-figures.js graph()")
+    # (3) the shared tool note reaches every course (PART 1's discipline)
+    for c in COURSES:
+        prompt = tutor.build_system_prompt(dict(STUDENT), course=c)
+        check(f"piecewise + wrong-lineup docs reach [{c}]",
+              "for x<2" in prompt and 'align="last"' in prompt,
+              "the shared board-tools note is missing from this course's prompt")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -3119,6 +3233,7 @@ def main():
     part3o_unit_name_parity()
     part3p_marketing_claims()
     part3q_reliability()
+    part3r_batch_d_figures()
     if live:
         part4_live()
     else:

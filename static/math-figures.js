@@ -2,6 +2,24 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-11  BUILD di -- PIECEWISE DOMAINS + AUTOMATIC OPEN/CLOSED ENDPOINTS (first
+                 full audit, finding S-4). The audit's limits lesson taught a jump
+                 discontinuity with [[graph func="x+1; x+4"]] -- and the board drew two
+                 FULL parallel lines while the caption claimed "a genuine jump". The
+                 renderer had no piecewise vocabulary, so the tutor could not do better.
+                 Now each func piece may carry a domain: func="x+1 for x<2; x+4 for
+                 x>=2". The piece is clipped to its domain, and its boundary point is
+                 marked AUTOMATICALLY: an OPEN circle for a strict bound (< or >, the
+                 value does not belong to this piece), a CLOSED dot for an inclusive one
+                 (<= or >=). Those two circles ARE the pedagogy of a jump -- the open
+                 point at (2, 3) under the closed point at (2, 6) is the picture the
+                 lesson needed. Accepted forms: "x<2", "x>=2", "2<x", "-1<=x<3", and the
+                 unicode ≤/≥. DELIBERATELY NO SQUARE BRACKETS in the syntax: handleTags
+                 ends a tag at the first "]", so interval notation inside an attribute
+                 would truncate the whole tag (the build-cd lesson). A piece whose
+                 domain fails to parse draws UN-clipped (fail open) rather than
+                 vanishing -- a missing curve is the silent failure this file exists to
+                 prevent.
      2026-08-10  BUILD cv -- parseRange now accepts "a,b" and "a to b", not only "a..b".
                  The tutor's own [[graph]] documentation has been telling it to write
                  range="-1,5" since 2026-08-07, and this parser threw every one of those
@@ -140,6 +158,39 @@
     return m ? [parseFloat(m[1]), parseFloat(m[2])] : null;
   }
 
+  // ---- PIECEWISE DOMAIN (build di, audit finding S-4) -------------------------------
+  // "x<2", "x>=2", "2<x", "-1<=x<3", plus the unicode ≤/≥ forms. NO square brackets in
+  // this syntax on purpose: handleTags ends a tag at the first "]", so bracket interval
+  // notation inside an attribute value would truncate the whole tag. Returns
+  // {lo, loInc, hi, hiInc, src} or null; a null domain means "draw the whole window"
+  // (fail open -- a vanished curve is the silent failure this file exists to prevent).
+  function parseDomain(str) {
+    var s = String(str || "").replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/\s+/g, "");
+    var m = s.match(/^(-?\d*\.?\d+)(<=?)x(<=?)(-?\d*\.?\d+)$/);   // "-1<=x<3"
+    if (m) return { lo: parseFloat(m[1]), loInc: m[2] === "<=",
+                    hi: parseFloat(m[4]), hiInc: m[3] === "<=", src: s };
+    m = s.match(/^x(<=|<|>=|>)(-?\d*\.?\d+)$/);                   // "x<2", "x>=2"
+    if (m) {
+      var v = parseFloat(m[2]);
+      if (m[1] === "<") return { hi: v, hiInc: false, src: s };
+      if (m[1] === "<=") return { hi: v, hiInc: true, src: s };
+      if (m[1] === ">") return { lo: v, loInc: false, src: s };
+      return { lo: v, loInc: true, src: s };
+    }
+    m = s.match(/^(-?\d*\.?\d+)(<=|<)x$/);                        // "2<x" means x > 2
+    if (m) return { lo: parseFloat(m[1]), loInc: m[2] === "<=", src: s };
+    m = s.match(/^(-?\d*\.?\d+)(>=|>)x$/);                        // "5>x" means x < 5
+    if (m) return { hi: parseFloat(m[1]), hiInc: m[2] === ">=", src: s };
+    return null;
+  }
+
+  function inDomain(x, d) {
+    if (!d) return true;
+    if (d.lo != null && (d.loInc ? x < d.lo : x <= d.lo)) return false;
+    if (d.hi != null && (d.hiInc ? x > d.hi : x >= d.hi)) return false;
+    return true;
+  }
+
   // ---- [[graph]] : the real function grapher ----
   function graph(a) {
     var S = 440, PAD = 30, plot = S - 2 * PAD;
@@ -149,7 +200,16 @@
     // collect sampleable curves: func= expressions, sloped lines, and parabolas
     var curves = [];
     String(a.func || a.fn || a.functions || "").split(/[;|]/).forEach(function (s) {
-      s = s.trim(); if (!s) return; var f = compile(s); if (f) curves.push({ label: (/^y=/i.test(s) ? s : "y=" + s), fn: f });
+      s = s.trim(); if (!s) return;
+      // PIECEWISE (build di): "x+1 for x<2" -- the domain is stripped BEFORE compile
+      // (the compiler maps unknown words to NaN, so "for" left in place would silently
+      // kill the whole piece), the piece is clipped to it, and its endpoints are
+      // marked open/closed automatically below.
+      var dom = null, mfor = s.match(/^(.*\S)\s+for\s+(.+)$/i);
+      if (mfor) { dom = parseDomain(mfor[2]); s = mfor[1].trim(); }
+      var f = compile(s); if (!f) return;
+      var label = (/^y=/i.test(s) ? s : "y=" + s) + (dom ? " for " + dom.src : "");
+      curves.push({ label: label, fn: f, dom: dom });
     });
     var lineSpecs = String(a.lines || "").split(/[;|]/).map(function (s) { return s.trim(); }).filter(Boolean);
     var parsedLines = [];
@@ -171,6 +231,7 @@
         if (!c.fn) return;
         for (var i = 0; i <= 160; i++) {
           var x = xmin + (xmax - xmin) * i / 160, y;
+          if (!inDomain(x, c.dom)) continue;   // a clipped piece only auto-fits its own part
           try { y = c.fn(x); } catch (e) { continue; }
           if (isFinite(y) && Math.abs(y) <= 200) ys.push(y);
         }
@@ -229,11 +290,12 @@
     curves.forEach(function (c) {
       if (!c.fn) return;
       var col = COLORS[ci % COLORS.length]; ci++;
+      c._col = col;   // remembered so this piece's endpoint markers match its curve
       var N = 480, segs = [], cur = [], prevY = null;
       for (var i = 0; i <= N; i++) {
         var x = xmin + (xmax - xmin) * i / N, y;
         try { y = c.fn(x); } catch (e) { y = NaN; }
-        var ok = isFinite(y) && Math.abs(y) <= span * 6 + 40;
+        var ok = isFinite(y) && Math.abs(y) <= span * 6 + 40 && inDomain(x, c.dom);
         if (ok && prevY !== null && Math.abs(y - prevY) > span * 1.8) { if (cur.length) segs.push(cur); cur = []; }
         if (ok) { cur.push(mapX(x) + "," + mapY(y)); prevY = y; }
         else { if (cur.length) segs.push(cur); cur = []; prevY = null; }
@@ -266,10 +328,43 @@
       var c0 = null;
       for (var kk = 0; kk < curves.length; kk++) { if (curves[kk].fn) { c0 = curves[kk]; break; } }
       if (!c0) return;
-      var hy; try { hy = c0.fn(hx); } catch (e) { return; }
+      var hy; try { hy = c0.fn(hx); } catch (e) { hy = NaN; }
+      // BUILD di: at a REAL removable point the function is 0/0 AT the hole -- that is
+      // exactly what makes it a hole -- so direct evaluation returns NaN and the old
+      // code bailed out. Found by the Batch-D harness: hole="2" on (x^2-4)/(x-2) had
+      // NEVER drawn; the feature only worked on functions DEFINED at the point, which
+      // is precisely where holes do not belong. When the point itself is NaN, take the
+      // LIMIT numerically: both sides sampled, and only if they agree (a hole) -- an
+      // asymptote's sides disagree or blow up, and drawing a hole there would be rule
+      // 51(e) broken in pixels.
+      if (!isFinite(hy)) {
+        var heps = (xmax - xmin) / 1e6, hyl, hyr;
+        try { hyl = c0.fn(hx - heps); } catch (e) { hyl = NaN; }
+        try { hyr = c0.fn(hx + heps); } catch (e) { hyr = NaN; }
+        if (isFinite(hyl) && isFinite(hyr)
+            && Math.abs(hyl - hyr) <= Math.max(1, Math.abs(hyl)) * 0.05) hy = (hyl + hyr) / 2;
+      }
       if (!isFinite(hy) || hx < xmin || hx > xmax || hy < ymin || hy > ymax) return;
       svg += '<circle cx="' + mapX(hx) + '" cy="' + mapY(hy) + '" r="5.5" fill="#fbfbff" stroke="#e0392b" stroke-width="2.5"/>';
       svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="10.5" font-weight="700" fill="#c0392b">hole</text>';
+    });
+    // PIECEWISE ENDPOINTS (build di, audit finding S-4): a domain-clipped piece marks
+    // its own boundary -- an OPEN circle for a strict bound (the value does not belong
+    // to this piece), a CLOSED dot for an inclusive one. These two circles ARE the
+    // pedagogy of a jump: the open point at (2, 3) under the closed point at (2, 6) is
+    // exactly the picture the audit's limits lesson needed and could not draw. Drawn
+    // after the holes so they share the top layer.
+    curves.forEach(function (c) {
+      if (!c.fn || !c.dom) return;
+      var col = c._col || COLORS[0];
+      [[c.dom.lo, c.dom.loInc], [c.dom.hi, c.dom.hiInc]].forEach(function (bp) {
+        var bx = bp[0];
+        if (bx == null || !isFinite(bx) || bx < xmin || bx > xmax) return;
+        var by; try { by = c.fn(bx); } catch (e) { return; }
+        if (!isFinite(by) || by < ymin || by > ymax) return;
+        if (bp[1]) svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="' + col + '" stroke="#ffffff" stroke-width="1.5"/>';
+        else svg += '<circle cx="' + mapX(bx) + '" cy="' + mapY(by) + '" r="5" fill="#fbfbff" stroke="' + col + '" stroke-width="2.5"/>';
+      });
     });
     svg += "</g>";
 

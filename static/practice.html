@@ -66,6 +66,17 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-11  BUILD di -- [[column]] gains align="last" (first full audit, finding
+                S-9): a DELIBERATELY-WRONG last-digit lineup, amber with a built-in
+                "wrong way" badge, so the tutor can SHOW why the misconception fails
+                instead of describing it (the audit's student asked to SEE it twice and
+                got prose labels). The whole number rides in the integer cell so rows
+                right-align on their final digit; a result row is REFUSED in this mode
+                (the wrong layout is never completed on our board). Identical change on
+                all three teaching pages, byte-for-byte -- ruletests PART 3r compares
+                the three showColumn bodies so they can never drift (the build-bk bug
+                class). Companion: math-figures.js gained piecewise domains + automatic
+                open/closed endpoints in the same build.
   - 2026-08-03  iPAD/TABLET PASS: (1) the type-box font went 15px -> 16px -- iPads auto-zoom
     the whole page when a smaller input is tapped, and it stays zoomed; 16px stops that.
     (2) The full-height layout now also sets 100dvh (kept 100vh for older browsers) so the
@@ -447,6 +458,11 @@
     .colmath .cres { color:#0e9f6e; }
     .colmath .crule { grid-column:1 / -1; border-top:3px solid var(--ink); height:0; margin:6px 0 4px; }
     .colmath .ccap { grid-column:1 / -1; text-align:center; font-size:15px; font-weight:600; color:var(--muted); margin-top:10px; }
+    /* build di (audit S-9): the DELIBERATELY-WRONG last-digit lineup -- amber, dashed
+       rule, and a badge, so the wrong way can never be mistaken for the taught way. */
+    .colmath.colwrong .cip, .colmath.colwrong .cfp, .colmath.colwrong .cop { color:#b45309; }
+    .colmath.colwrong .crule { border-top-color:#b45309; border-top-style:dashed; }
+    .colmath .cwarn { grid-column:1 / -1; text-align:center; font-size:14px; font-weight:800; color:#b45309; margin-top:8px; }
     @media (max-width:560px){ .colmath { font-size:30px; } }
 
     /* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
@@ -1405,11 +1421,20 @@
       const terms = String(a.terms || a.nums || a.lines || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
       if (!terms.length) return;
       const op = colOp(a.op);
+      // BUILD di (audit finding S-9): align="last" deliberately stacks the numbers by
+      // their LAST DIGIT -- the wrong way -- so the tutor can SHOW a student why the
+      // last-digit rule fails instead of describing it in words (the audit's student
+      // asked to SEE it twice and got prose labels). Amber "wrong way" styling plus a
+      // built-in badge so it can never be mistaken for the taught method; the whole
+      // number goes into the integer cell, so every row right-aligns on its final
+      // digit. A result row is REFUSED in this mode -- the wrong layout is never
+      // completed on our board (rules 13 and 26).
+      const wrongAlign = String(a.align || "").trim().toLowerCase() === "last";
       const stage = feedBlock();
-      const box = document.createElement("div"); box.className = "colmath pop";
+      const box = document.createElement("div"); box.className = "colmath pop" + (wrongAlign ? " colwrong" : "");
       const addRow = (num, showOp, resClass) => {
         const rc = resClass ? " cres" : "";
-        const parts = splitNum(num);
+        const parts = wrongAlign ? { ip: String(num), fp: "" } : splitNum(num);
         const cop = document.createElement("div"); cop.className = "cop" + rc; cop.textContent = showOp ? op : "";
         const cip = document.createElement("div"); cip.className = "cip" + rc; cip.textContent = parts.ip;
         const cfp = document.createElement("div"); cfp.className = "cfp" + rc; cfp.textContent = parts.fp;
@@ -1419,7 +1444,8 @@
       terms.forEach((t, i) => addRow(t, terms.length > 1 && i === terms.length - 1, false));
       const rule = document.createElement("div"); rule.className = "crule"; box.appendChild(rule);
       const res = String(a.result || a.sum || a.answer || a.total || "").trim();
-      if (res) addRow(res, false, true);
+      if (res && !wrongAlign) addRow(res, false, true);   // never complete the wrong layout
+      if (wrongAlign) { const w = document.createElement("div"); w.className = "cwarn"; w.textContent = "\u26a0 lined up by the LAST digit \u2014 the wrong way"; box.appendChild(w); }
       if (a.caption || a.cap) { const c = document.createElement("div"); c.className = "ccap"; c.textContent = (a.caption || a.cap); box.appendChild(c); }
       stage.appendChild(box); scrollFeed();
     }

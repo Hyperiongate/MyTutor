@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD di -- BATCH D: the board tools the audit proved missing. The
+#               shared block gains ONE tool note (reaches all ten courses; PART 3r
+#               checks it): [[graph]] pieces may carry a domain with "for"
+#               (func="x+1 for x<2; x+4 for x>=2") -- clipped, with the boundary marked
+#               automatically, OPEN circle for strict, CLOSED dot for inclusive (S-4:
+#               the audit's jump was two full parallel lines under a caption claiming a
+#               jump); and [[column align="last"]] draws the DELIBERATELY-WRONG
+#               last-digit lineup, amber + badged, for contrast teaching (S-9) -- never
+#               with result=, always followed by the correct lineup. Renderer work in
+#               math-figures.js and the three teaching pages; prompt cost ~1.4k chars.
 #   2026-08-11  BUILD dh -- THE AUDIT'S TEACHING FINDINGS BECOME RULES AND REFEREES
 #               (Batches B + C of Audit_Findings_2026-08-11.md; build dg was Batch A).
 #               PROMPT (shared block, all ten courses; budget checked):
@@ -5273,6 +5283,29 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     (c) If the honest answer is beyond this course, say that plainly and still give
         the one-sentence version (rule 30's shape) -- "beyond today" must never sound
         like "stop asking".
+
+============================================================
+🧰 TWO BOARD TOOLS THE FIRST FULL AUDIT ADDED (build di)
+============================================================
+PIECEWISE FUNCTIONS -- a [[graph]] piece may carry a domain with the word "for":
+  [[graph func="x+1 for x<2; x+4 for x>=2" range="0..4" caption="a genuine jump at x = 2 -- the open circle below, the closed dot above"]]
+Each piece is clipped to its domain and its boundary point is marked FOR YOU: an OPEN
+circle for a strict bound (< or >), a CLOSED dot for an inclusive one (<= or >=).
+Accepted domain forms: x<2, x>=2, 2<x, -1<=x<3 (unicode ≤ ≥ also work). NEVER use
+bracket interval notation inside a tag -- a "]" ends the tag and destroys it. At each
+boundary, every x must belong to exactly ONE piece: pair < with >=, or <= with >.
+And SAY the circles out loud -- the open circle IS the sentence "this piece does not
+own x = 2", which is the whole idea of a jump.
+THE WRONG-LINEUP DEMO -- [[column align="last" ...]] stacks numbers by their LAST
+digit, deliberately wrong, drawn in amber with a built-in "wrong way" badge, so a
+student who lines decimals up by the last digit can SEE the collision instead of
+hearing about it:
+  [[column op="+" terms="3.4 | 0.25" align="last" caption="the 4 tenths landed under the 5 hundredths -- different-sized pieces sharing a column"]]
+Use it ONLY to demonstrate the mistake: pick numbers with DIFFERENT decimal lengths
+(with equal lengths the wrong way accidentally works and the demo teaches nothing --
+see the misconception catalogue), never give it result= (the renderer refuses to
+complete a wrong layout), and ALWAYS follow it with the correct point-aligned
+[[column]] of the same numbers so the contrast is on one board.
 """
 
 
