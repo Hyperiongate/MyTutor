@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dk -- BATCH E of the audit re-run. BOARD_NOTATION_CASES: the two
+#               notation abuses quoted from real re-run boards ("$50 + 10% = $55" and
+#               "a^2 + 64 = 100 = ?") become permanent referee fixtures with the legal
+#               shapes as FALSE cases (the "of" form, percent-with-percent, pending
+#               percent lines, worked chains ending in a number). The foundation-corpus
+#               sweep grows to FOUR draft-level referees. PART 3r gains the
+#               point-on-a-hole fixtures (dropped at the hole, preserved elsewhere).
+#               RULE_VERIFY: 27 moves COVERED -> ENFORCED for the percent-sum shape.
 #   2026-08-11  BUILD dj -- PART 3s: BACKUPS. A backup system is only real if the
 #               restore has been rehearsed, so the battery now performs the whole
 #               drill on every run: seed a real SQLite database through the public
@@ -829,6 +837,29 @@ UNSPOKEN_CASES = [
 ]
 
 
+# ---- the board-notation check (build dk) -- both TRUE cases quoted from the re-run --
+BOARD_NOTATION_CASES = [
+    ("the re-run's percent abuse: bare percent added and COMPLETED",
+     'Ten percent of fifty is five, so fifty-five. [[step eq="$50 + 10% = $55 ✓"]]', True),
+    ("plain number plus bare percent, completed",
+     'So we add the tip. [[step eq="50 + 10% = 55"]]', True),
+    ("the honest 'of' form is exactly right",
+     'The tickets first. [[step eq="$50 + 10% of $50 = $55"]]', False),
+    ("percent-with-percent arithmetic stays legal",
+     'The rest of the class: [[step eq="100% - 40% = 60%"]]', False),
+    ("a percent conversion stays legal",
+     'Three fourths as a percent: [[step eq="3/4 = 75%"]]', False),
+    ("a pending percent line stays legal (the ? is rule 15 doing its job)",
+     'Your turn: [[step eq="10% of 90 = ?"]]', False),
+    ("the re-run's chained equals: '= 100 = ?' asks what 100 equals",
+     'Now solve for a. [[step eq="a^2 + 64 = 100 = ?"]]', True),
+    ("the clean version: true equation, then its own pending line",
+     'Now solve for a. [[step eq="a^2 + 64 = 100"]] [[step eq="a^2 = ?"]]', False),
+    ("a worked chain that ends in a NUMBER is ordinary arithmetic",
+     'All together: [[step eq="a^2 = 100 - 64 = 36"]]', False),
+]
+
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -880,6 +911,14 @@ def part2_prose():
             check(f"unspoken: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in BOARD_NOTATION_CASES:
+        got = tutor.board_notation_conflict(reply)
+        check(f"board-notation: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"board-notation: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
     # THE SWEEP THAT MATTERS: the referees must be silent on every canonical script we own
     # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
     # and a false positive in either is a real model call wasted on correct teaching --
@@ -892,10 +931,11 @@ def part2_prose():
                 _blob = (_it.get("say") or "") + " " + " ".join(_it.get("board") or [])
                 for _fn, _lbl in ((tutor.prose_self_answer_conflict, "self-answer"),
                                   (tutor.prose_answered_question_conflict, "answered-q"),
-                                  (tutor.prose_unspoken_problem_conflict, "unspoken")):
+                                  (tutor.prose_unspoken_problem_conflict, "unspoken"),
+                                  (tutor.board_notation_conflict, "board-notation")):
                     if _fn(_blob):
                         bad.append(f"{_lbl}: {_c}/{_it.get('term')}")
-        check(f"all three draft-level referees are silent on all "
+        check(f"all four draft-level referees are silent on all "
               f"{sum(len(v) for v in _F.FOUNDATIONS.values())} foundation scripts",
               not bad, f"false positives: {bad[:4]}")
     except Exception as _exc:  # noqa: BLE001
@@ -934,6 +974,7 @@ def part2_prose():
             tutor.prose_score_conflict(junk)
             tutor.prose_answered_question_conflict(junk)
             tutor.prose_unspoken_problem_conflict(junk)
+            tutor.board_notation_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
@@ -2048,7 +2089,8 @@ RULE_VERIFY = {
     24: ("COVERED",   "leaps, self-corrections, 'just tell me'"),
     25: ("COVERED",   "when the student says you are wrong"),
     26: ("COVERED",   "a wrong line never stays on the board"),
-    27: ("COVERED",   "units and honest approximation"),
+    27: ("ENFORCED",  "board_notation_conflict regenerates a completed bare-percent sum "
+                      "(build dk); the rest of the rule remains prompt-covered"),
     28: ("EXERCISED", "one name per thing"),
     29: ("EXERCISED", "how a session ends"),
     30: ("EXERCISED", "off-topic and personal questions"),
@@ -3140,6 +3182,10 @@ const s6 = MF.graph({ func: "1/(x-2)", hole: "2", range: "0..4", yrange: "-6..6"
 t("an asymptote NEVER gets a hole painted on it (rule 51e in pixels)", !s6.includes(">hole<"));
 const s7 = MF.graph({ func: "sin(x)", range: "-6..6" });
 t("a plain un-domained function is untouched", s7.includes("<polyline"));
+// build dk (re-run finding 8): a labeled point must never sit on a declared hole
+const s8 = MF.graph({ lines: "y=x+3", hole: "3", points: "(3,6) (1,4)", range: "0..6" });
+t("a point AT a declared hole is dropped", !s8.includes("(3, 6)"));
+t("...while other points on the same graph survive", s8.includes("(1, 4)"));
 console.log(JSON.stringify(out));
 '''
 

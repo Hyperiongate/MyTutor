@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-11  BUILD dk -- A POINT NEVER SITS ON A HOLE (audit re-run finding 8). The
+                 model drew points="(3,6)" on the same graph as hole="3": a labeled,
+                 filled value at the very x it had just called undefined. The hole
+                 circle happened to overpaint the dot, but the "(3, 6)" coordinate
+                 label survived beside an open circle -- a written contradiction. Any
+                 explicit point whose x coincides with a declared hole is now dropped
+                 before drawing. Rule 51(e) in one more place.
      2026-08-11  BUILD di -- PIECEWISE DOMAINS + AUTOMATIC OPEN/CLOSED ENDPOINTS (first
                  full audit, finding S-4). The audit's limits lesson taught a jump
                  discontinuity with [[graph func="x+1; x+4"]] -- and the board drew two
@@ -312,9 +319,20 @@
         svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="#c0392b">(' + trimnum(ix) + ", " + trimnum(iy) + ')</text>';
       }
     }
+    // BUILD dk (audit re-run finding 8): a point must never be drawn AT a declared
+    // hole -- the model did exactly that (points="(3,6)" beside hole="3"), writing a
+    // labeled value at the very x it had just called undefined. Hole x's are parsed
+    // here, ahead of the points, so coinciding points are dropped silently.
+    var holeXs = [];
+    String(a.hole || a.holes || "").split(/[;|,]/).forEach(function (s) {
+      var v = parseFloat(s); if (isFinite(v)) holeXs.push(v);
+    });
     // explicit points
     parsePts(a.points).forEach(function (p) {
       if (p[0] < xmin || p[0] > xmax || p[1] < ymin || p[1] > ymax) return;
+      for (var hi = 0; hi < holeXs.length; hi++) {
+        if (Math.abs(p[0] - holeXs[hi]) < 1e-9) return;   // the hole owns that x
+      }
       svg += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4.5" fill="#5b5bd6"/>';
       svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="10.5" fill="#26263a">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
     });

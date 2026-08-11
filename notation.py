@@ -2,6 +2,12 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dk -- NEW family "fraction-slash" for the four lower courses
+#               (audit re-run finding 2, a real voice-first catch): the tutor says
+#               "the BOTTOM number" while the board shows "1/4" with a SLASH -- a
+#               confused child sees no bottom. The table row hands the tutor the
+#               bridge sentence: the number AFTER the slash is the denominator, the
+#               bottom number when written stacked; say both once.
 #   2026-08-11  BUILD dh -- the function family gains the GROUPED-INPUT reading (first
 #               full audit, finding S-6): spoken, "f of a plus 1" is ambiguous between
 #               f(a)+1 and f(a+1), and the audit's student invented "f of bracket a plus
@@ -193,6 +199,23 @@ NOTATIONS = [
     {"id": "percent", "shown": "52%", "spoken": "fifty-two percent", "never": "fifty-two",
      "courses": ALL_COURSES, "wrote": r"\d\s*%",
      "heard": r"percent", "note": ""},
+
+    # build dk (audit re-run, finding 2): the tutor says "the BOTTOM number" while the
+    # board shows "1/4" with a SLASH -- a confused child sees no bottom. The note is
+    # the bridge sentence between the two ways the same fraction is written.
+    {"id": "fraction-slash", "shown": "3/4", "spoken": "three fourths",
+     "never": "three point four",
+     # ALL courses: PART 3f's own guard proved slash fractions appear on boards well
+     # beyond the elementary courses (algebra2 writes x^(1/2)), so the reading row
+     # belongs everywhere the symbol does.
+     "courses": ALL_COURSES,
+     "wrote": r"\b\d{1,2}\s*/\s*\d{1,2}\b",
+     "heard": r"\b(?:half|halves|third|thirds|fourth|fourths|fifth|fifths|sixth|sixths|"
+              r"eighth|eighths|tenth|tenths|numerator|denominator|over\b)\b",
+     "note": "written with a slash, the number AFTER the slash is the denominator -- "
+             "the BOTTOM number of the stacked form. Before using top/bottom language "
+             "over a slash form, say that bridge once (a young student looking at 1/4 "
+             "sees no bottom)"},
 
     {"id": "setbraces", "shown": "{ }", "spoken": "the set containing", "never": "curly things",
      "courses": ("algebra2", "precalc", "probstat", "diffeq"), "wrote": r"[{}]",

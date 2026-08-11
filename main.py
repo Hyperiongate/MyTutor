@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dk-audit-polish". BATCH E -- the audit
+#               re-run's six small accuracy fixes. NOTHING in this file changed but
+#               the stamp: rule 48(e) say-it-back + rule 52(d) compute-is-not-this-rule
+#               + the new board_notation_conflict referee live in tutor.py; the
+#               point-on-a-hole guard in static/math-figures.js; the fraction-slash
+#               bridge in notation.py; the fixtures in ruletests.py; RULES.md
+#               regenerated (rule 27 -> ENFORCED for the percent-sum shape).
 #   2026-08-11  APP_BUILD -> "2026-08-11dj-backups". Jim: "if Render falters or
 #               something falters, do we have sufficient backup so that we could
 #               recreate everything right away?" The honest audit: code = safe on
@@ -5290,7 +5297,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dj-backups"
+APP_BUILD = "2026-08-11dk-audit-polish"
 
 
 @app.get("/health")

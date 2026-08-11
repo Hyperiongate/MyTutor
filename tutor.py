@@ -2,6 +2,29 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dk -- BATCH E: the audit RE-RUN's six small accuracy fixes
+#               (Audit_Findings_2026-08-11.md, PART 9; the re-run scored 30->17
+#               findings, 10->2 high, 6->0 stumbles -- these close most of what
+#               remained). In THIS file:
+#               - rule 48(e): when the student SAYS a symbol wrongly ("f BRACKET x"),
+#                 affirm the idea and hand back the right words in the same breath --
+#                 in a voice classroom a wrong reading you let stand is one you taught;
+#               - rule 52(d): a request to COMPUTE is not a rule-52 question -- coach
+#                 the work as always; rule 52 is about questions ABOUT the mathematics
+#                 (the critic misapplied our own new rule; now neither model nor critic
+#                 can);
+#               - NEW deterministic referee board_notation_conflict (EIGHTH check in
+#                 prose_board_conflict): "$50 + 10% = $55" (a bare percent added to a
+#                 plain quantity and COMPLETED -- invisible to mathcheck, $ and % are
+#                 not sympy) and "a^2 + 64 = 100 = ?" (a chained equals ending in "= ?"
+#                 after a bare number). Both quoted from real re-run boards; the legal
+#                 shapes (the "of" form, percent-with-percent, conversions, pending
+#                 lines, worked chains ending in a number) are FALSE fixtures. Rule 27
+#                 moves COVERED -> ENFORCED for the percent shape.
+#               Elsewhere in dk: math-figures.js drops any labeled point sitting on a
+#               declared hole; notation.py gains the fraction-slash bridge for the four
+#               lower courses ("the number AFTER the slash is the denominator -- the
+#               BOTTOM number when written stacked").
 #   2026-08-11  BUILD di -- BATCH D: the board tools the audit proved missing. The
 #               shared block gains ONE tool note (reaches all ten courses; PART 3r
 #               checks it): [[graph]] pieces may carry a domain with "for"
@@ -5180,6 +5203,13 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         gone by without it, whenever the student comes back after a break, and always
         the first time a new form of it shows up (f of x, then f of g of x, then f prime
         of x -- each of those is its own first time).
+    (e) WHEN THE STUDENT SAYS IT WRONG, HAND BACK THE RIGHT WORDS IN THE SAME BREATH
+        (audit re-run, 2026-08-11: a student said "so f BRACKET x means the rule f
+        does something to x?" -- the idea was exactly right, and the tutor affirmed it
+        without ever returning the reading). Affirm the thinking, then give the words:
+        "exactly right -- and we say that out loud as 'f of x'." In a voice classroom
+        the reading IS the notation, and a wrong reading you let stand is a wrong
+        reading you taught.
 
 49. A WRONG ANSWER IS THE OUTPUT OF A RULE. FIND THE RULE.
     Rules 20 to 22 tell you what to DO about a wrong answer. This one tells you what to
@@ -5283,6 +5313,12 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     (c) If the honest answer is beyond this course, say that plainly and still give
         the one-sentence version (rule 30's shape) -- "beyond today" must never sound
         like "stop asking".
+    (d) A REQUEST TO COMPUTE IS NOT THIS RULE (audit re-run, 2026-08-11: a critic read
+        "what's 3.5 + 0.47?" as a rule-52 question). A problem handed to you is the
+        lesson's WORK: coach it on the board as always (rules 15, 24, 36-38) -- you
+        are not required to blurt the final answer first. This rule is about questions
+        ABOUT the mathematics: why it works, whether a pattern holds, what would
+        happen if. Those get answered before anything else does.
 
 ============================================================
 🧰 TWO BOARD TOOLS THE FIRST FULL AUDIT ADDED (build di)
@@ -6232,6 +6268,52 @@ def prose_self_answer_conflict(reply: str):
 
 
 # =============================================================================
+# THE BOARD-NOTATION CHECK (2026-08-11, build dk) -- deterministic, no model call.
+# -----------------------------------------------------------------------------
+# Two abuses of notation the audit RE-RUN shipped to real boards, each teaching a
+# broken rule in writing, and neither visible to mathcheck ($ and % are not sympy):
+#   1. "$50 + 10% = $55" -- a bare percent ADDED to a plain quantity, COMPLETED. The
+#      missing idea is "10% OF $50" (rules 13/27). Percent-with-percent arithmetic
+#      ("100% - 40% = 60%") stays legal: the pattern requires a plain first operand.
+#   2. "a^2 + 64 = 100 = ?" -- a chain of equals signs ending in "= ?" straight after
+#      a bare number: "100 = ?" asks what one hundred equals (rule 15's "?" is a value
+#      to compute, never a dangling continuation).
+# Deterministic and NARROW: a legitimate pending line ("50 - 25% = ?"), a percent
+# conversion ("3/4 = 75%"), and the "of" form all pass untouched. Swept against every
+# canonical script before ship, like every referee since cy.
+_BN_PCT = re.compile(
+    r"(?:\$\s*)?\d+(?:\.\d+)?\s*[+\-−]\s*\d+(?:\.\d+)?\s*%\s*=\s*\$?\s*\d")
+_BN_CHAIN = re.compile(r"=\s*-?\d+(?:\.\d+)?\s*=\s*\?")
+
+
+def board_notation_conflict(reply: str):
+    """Return a description of a malformed board line, or "". Never raises: any
+    unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+            for val in re.findall(r'"([^"]*)"', tag):
+                if _BN_PCT.search(val):
+                    v = " ".join(val.split())[:60]
+                    return ('the board completes "{v}" -- a bare percent ADDED to a '
+                            "plain quantity. Rule 27: a percent is not an amount; the "
+                            'missing idea is "of". Write "$50 + 10% of $50 = $55", or '
+                            'convert first ("10% of $50 = $5" then "$50 + $5 = $55") -- '
+                            "never complete the malformed form.").format(v=v)
+                if _BN_CHAIN.search(val):
+                    v = " ".join(val.split())[:60]
+                    return ('the board writes "{v}" -- a chain of equals signs ending '
+                            'in "= ?" right after a bare number, which asks what that '
+                            'number equals. Rule 15: the "?" marks a value to COMPUTE. '
+                            'Write the true equation alone ("a^2 + 64 = 100"), then the '
+                            'pending step as its own line ("a^2 = ?").').format(v=v)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardnote] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE ANSWERED-QUESTION CHECK (2026-08-11, build dh) -- rule 17 moves COVERED -> ENFORCED.
 # -----------------------------------------------------------------------------
 # First full audit, twice in one run, two courses apart: a worked card said
@@ -6496,6 +6578,9 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         unspoken = prose_unspoken_problem_conflict(reply)
         if unspoken:
             return unspoken
+        boardnote = board_notation_conflict(reply)
+        if boardnote:
+            return boardnote
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

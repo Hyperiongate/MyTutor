@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 16 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 17 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 25 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 24 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -123,7 +123,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 27. UNITS AND HONEST APPROXIMATION
 
-**COVERED** — units and honest approximation
+**ENFORCED** — board_notation_conflict regenerates a completed bare-percent sum (build dk); the rest of the rule remains prompt-covered
 
 ### 28. ONE NAME PER THING, ALL LESSON
 
