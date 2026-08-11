@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dl -- the two WWC-Strong teaching rules land: 53 (the number line
+#               used on purpose -- magnitude and comparison, fractions between 0 and 1
+#               first then past 1, benchmarks 0/half/1, equivalents at ONE position)
+#               and 54 (word problems have TYPES -- Change, Equal Groups, Compare; the
+#               type chooses the operation; key-word rules are BANNED). Rule 54(b) is
+#               ENFORCED from day one: board_notation_conflict now also catches the
+#               tutor TEACHING a story-cue shortcut ("altogether always means add"),
+#               in prose or on a board, with the vocabulary distinction honoured (a
+#               "sum means add" definition is rule 37, not a shortcut) -- five new
+#               fixtures, both corpora swept clean.
 #   2026-08-11  BUILD dk -- BATCH E of the audit re-run. BOARD_NOTATION_CASES: the two
 #               notation abuses quoted from real re-run boards ("$50 + 10% = $55" and
 #               "a^2 + 64 = 100 = ?") become permanent referee fixtures with the legal
@@ -857,6 +867,19 @@ BOARD_NOTATION_CASES = [
      'Now solve for a. [[step eq="a^2 + 64 = 100"]] [[step eq="a^2 = ?"]]', False),
     ("a worked chain that ends in a NUMBER is ordinary arithmetic",
      'All together: [[step eq="a^2 = 100 - 64 = 36"]]', False),
+    # ---- rule 54(b), build dl: key-word shortcuts are a taught misconception --------
+    ("teaching a key-word rule in prose is caught",
+     "Here's a trick to remember: altogether always means add! So let's add.", True),
+    ("teaching key-word rules on a card is caught",
+     'Handy tricks: [[card title="word clues" items="in all means add | left means subtract"]]', True),
+    ("talking ABOUT a cue word is teaching, not a shortcut",
+     "The word altogether tells us the story is about combining — but let's name the "
+     "TYPE first: is this a Change story or a Compare story?", False),
+    ("vocabulary is never a shortcut: sum IS the name of the result",
+     "The **sum** means the result of adding two numbers — that's its name.", False),
+    ("a compare story taught by TYPE, the rule-54 way",
+     "Maria has 5 more apples than Tom. Before any arithmetic: what KIND of story is "
+     'this? [[card title="Compare" items="bigger amount: ? | smaller amount: 3 | difference: 5"]]', False),
 ]
 
 
@@ -2118,6 +2141,10 @@ RULE_VERIFY = {
     51: ("COVERED",   "a drawn feature must come from a definition (PART 3c checks the tags)"),
     52: ("COVERED",   "a direct mathematical question is answered first (build dh; candidate "
                       "for a --live scenario once an assertion sharp enough exists)"),
+    53: ("COVERED",   "the number line used on purpose: magnitude, benchmarks, equivalents "
+                      "at one position (build dl; WWC g26 r4)"),
+    54: ("ENFORCED",  "board_notation_conflict regenerates a taught key-word shortcut "
+                      "(build dl; WWC g26 r5); the schema half remains prompt-covered"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 

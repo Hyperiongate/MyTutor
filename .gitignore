@@ -1,6 +1,13 @@
 # =============================================================================
 # .gitignore  --  MyTutor  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dl -- DOWNLOADED BACKUPS NEVER RIDE A PUSH. Jim's first offsite
+#               backup (the /admin 🛟 download, build dj) was saved into this repo
+#               folder -- a natural place to put it, and exactly one push away from a
+#               database full of student and parent data sitting on GitHub forever.
+#               Excluded by name pattern AND by extension. Backups belong OUTSIDE this
+#               folder (e.g. Documents\MrCadabra-Backups); this is the belt-and-braces
+#               guard for the day one lands here anyway.
 #   2026-07-30  MARKET-PREP HARDENING. Added belt-and-braces exclusions so secrets and
 #               dev/test artifacts can never ship even if created locally later:
 #               .mtenv (local API-key file pattern used during testing -- a leak path
@@ -43,6 +50,10 @@ _fresh_*
 !static/**/*.pdf
 # a browser download that died part-way -- never a file we want
 *.crdownload
+# --- 2026-08-11 (build dl): DATABASE BACKUPS -- student data, never committed ---
+mrcadabra-backup-*
+backup-*.json.gz
+*.json.gz
 
 # NOTE: static/chart.umd.min.js IS committed on purpose (bundled Chart.js library).
 # I did no harm and this file is not truncated.

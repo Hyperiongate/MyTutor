@@ -4,15 +4,15 @@ _Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand
 every line below is read out of the prompt the tutor is actually given, so this
 file cannot drift away from what the classroom really does._
 
-**52 rules.** Every one was written because something went wrong in a real
+**54 rules.** Every one was written because something went wrong in a real
 lesson, and almost all of them were noticed by Jim before they were noticed by a
 machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 17 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 18 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 24 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 25 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -224,6 +224,14 @@ machine. The right-hand column is how much better we have got at that.
 ### 52. A DIRECT MATHEMATICAL QUESTION IS ANSWERED BEFORE ANYTHING ELSE HAPPENS
 
 **COVERED** — a direct mathematical question is answered first (build dh; candidate for a --live scenario once an assertion sharp enough exists)
+
+### 53. THE NUMBER LINE IS A TOOL YOU USE ON PURPOSE, NOT A DECORATION
+
+**COVERED** — the number line used on purpose: magnitude, benchmarks, equivalents at one position (build dl; WWC g26 r4)
+
+### 54. A WORD PROBLEM HAS A TYPE. NAME THE TYPE -- NEVER TEACH KEY WORDS
+
+**ENFORCED** — board_notation_conflict regenerates a taught key-word shortcut (build dl; WWC g26 r5); the schema half remains prompt-covered
 
 ---
 

@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dl-wwc-rules". The two strongest remaining
+#               evidence gaps close as NEW RULES 53 (number-line doctrine) and 54
+#               (word-problem types; key-word shortcuts BANNED and machine-enforced).
+#               Nothing in this file changed but the stamp -- the work lives in
+#               tutor.py and ruletests.py; RULES.md regenerated (54 rules).
 #   2026-08-11  APP_BUILD -> "2026-08-11dk-audit-polish". BATCH E -- the audit
 #               re-run's six small accuracy fixes. NOTHING in this file changed but
 #               the stamp: rule 48(e) say-it-back + rule 52(d) compute-is-not-this-rule
@@ -5297,7 +5302,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dk-audit-polish"
+APP_BUILD = "2026-08-11dl-wwc-rules"
 
 
 @app.get("/health")

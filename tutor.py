@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dl -- THE TWO STRONGEST REMAINING EVIDENCE GAPS, CLOSED AS RULES
+#               (Teaching_Evidence_Base gaps 2 and 3, both WWC Strong; the Forward
+#               Plan's queue item 3).
+#               NEW RULE 53 -- THE NUMBER LINE IS A TOOL YOU USE ON PURPOSE: magnitude
+#               and comparison (two numbers on one line settles size arguments),
+#               fractions introduced BETWEEN 0 and 1 against the 0 / 1/2 / 1
+#               benchmarks and then deliberately extended past 1, equivalent fractions
+#               (and the decimal and percent costumes of the same value) at ONE
+#               position with their names in the caption. Written against what
+#               [[numberline]] can actually draw today (points, open circles, ineq --
+#               no point labels), so the rule never asks for an undrawable picture.
+#               NEW RULE 54 -- A WORD PROBLEM HAS A TYPE: name it (Change, Equal
+#               Groups, Compare; part-whole/rate/proportion upstairs) BEFORE any
+#               arithmetic, schema on the board, the equation comes FROM the schema.
+#               54(b) BANS teaching key-word rules -- the WWC guide's own warning --
+#               and is ENFORCED from day one: board_notation_conflict also catches
+#               "altogether always means add" (prose or board), with the vocabulary
+#               distinction honoured: "sum means add" is a DEFINITION (rule 37), not a
+#               shortcut; the banned list is story-cue words only.
 #   2026-08-11  BUILD dk -- BATCH E: the audit RE-RUN's six small accuracy fixes
 #               (Audit_Findings_2026-08-11.md, PART 9; the re-run scored 30->17
 #               findings, 10->2 high, 6->0 stumbles -- these close most of what
@@ -5320,6 +5339,40 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         ABOUT the mathematics: why it works, whether a pattern holds, what would
         happen if. Those get answered before anything else does.
 
+53. THE NUMBER LINE IS A TOOL YOU USE ON PURPOSE, NOT A DECORATION.
+    (WWC guide 26 rec. 4, Strong evidence, and the fractions guide arrives at the same
+    place independently: fractions are NUMBERS, and the number line is the central way
+    to show it.)
+    (a) USE IT FOR MAGNITUDE AND COMPARISON, not only for operations. "Which is
+        bigger, 2/5 or 1/3?" wants a [[numberline]] with both points ON it -- where a
+        number LIVES is a claim about its size, and seeing two numbers share one line
+        settles arguments words cannot.
+    (b) FRACTIONS LIVE ON THE LINE. Introduce them BETWEEN 0 and 1 first, against the
+        benchmarks 0, 1/2 and 1 -- then deliberately extend PAST 1 (5/4 has a home
+        too; a student who only ever sees fractions below one learns a false ceiling).
+        EQUIVALENT fractions sit at the SAME position: one point, and the caption or a
+        [[write]] line gives its several names ("1/2 = 2/4 = 0.5 -- one number, three
+        costumes"). Fraction, decimal and percent of the same value share ONE point.
+    (c) In the elementary courses, connect counting paths to the line (each hop is
+        one), and remember it also serves elapsed time and simple data.
+
+54. A WORD PROBLEM HAS A TYPE. NAME THE TYPE -- NEVER TEACH KEY WORDS.
+    (WWC guide 26 rec. 5, Strong evidence -- and the guide's own warning: "key words"
+    do NOT reliably signal operations, and teaching them installs a wrong rule.)
+    (a) Before any arithmetic, help the student say WHAT KIND of story it is:
+        CHANGE (start, something happens, end -- "had 8, ate 3"), EQUAL GROUPS
+        (so-many groups of so-much -- "4 bags of 6"), or COMPARE (bigger, smaller,
+        difference -- "5 more than Tom"). The upper-course cousins -- part-whole,
+        rate, proportion -- get named the same way. The TYPE chooses the operation;
+        the schema goes on the board (a [[card]] naming the parts and which one is
+        unknown), and the equation comes FROM the schema.
+    (b) ⛔ NEVER say or imply that a WORD picks the operation -- no "altogether means
+        add", no "left means subtract", no "of means multiply" taught as a rule.
+        Key-word rules break by design: "Maria has 5 more apples than Tom, who has 3.
+        How many does MARIA have?" -- the word "more" appears, and subtracting is
+        wrong. If the STUDENT is running a key-word rule, that is a misconception
+        (rule 49): show it betraying them on exactly such a problem, warmly.
+
 ============================================================
 🧰 TWO BOARD TOOLS THE FIRST FULL AUDIT ADDED (build di)
 ============================================================
@@ -6284,6 +6337,24 @@ def prose_self_answer_conflict(reply: str):
 _BN_PCT = re.compile(
     r"(?:\$\s*)?\d+(?:\.\d+)?\s*[+\-−]\s*\d+(?:\.\d+)?\s*%\s*=\s*\$?\s*\d")
 _BN_CHAIN = re.compile(r"=\s*-?\d+(?:\.\d+)?\s*=\s*\?")
+# BUILD dl -- rule 54(b)'s referee: the tutor TEACHING a key-word-to-operation rule.
+# The WWC guide names this as a habit tutors install by accident, and it is exactly
+# the kind of confident, friendly sentence a model produces ("remember: 'altogether'
+# always means add!"). Narrow: it requires the quoted-word/means/operation SHAPE, so
+# talking ABOUT a key word ("the word 'altogether' tells us the story combines
+# things") stays legal, and so does honest notation reading ("the fraction bar means
+# divide"). Fails open like every referee.
+# The banned list is STORY-CUE words only. "Sum means add" and "difference means
+# subtract" are VOCABULARY -- those words are the operations' names, and rule 37
+# requires teaching them. The trap the guide warns about is narrative cue words that
+# merely CORRELATE with an operation ("altogether", "left", "more") being taught as if
+# they decided it.
+_KW_SHORTCUT = re.compile(
+    r"\b(?:altogether|all together|in all|in total|left(?:\s+over)?|remain(?:s|ing)?|"
+    r"fewer|more)\b[\"'”’)]?\s*"
+    r"(?:always\s+|usually\s+|just\s+)?means?\s+(?:you\s+|to\s+|we\s+)?"
+    r"(?:add(?:ing|ition)?|plus|subtract(?:ing|ion)?|minus|take\s+away|"
+    r"multipl(?:y|ying|ication)|times|divid(?:e|ing)|division)\b", re.I)
 
 
 def board_notation_conflict(reply: str):
@@ -6307,6 +6378,24 @@ def board_notation_conflict(reply: str):
                             'number equals. Rule 15: the "?" marks a value to COMPUTE. '
                             'Write the true equation alone ("a^2 + 64 = 100"), then the '
                             'pending step as its own line ("a^2 = ?").').format(v=v)
+        # rule 54(b), build dl: teaching a key-word-to-operation shortcut, in prose or
+        # on the board. The words that get banned are story CUES only (see above).
+        m = _KW_SHORTCUT.search(_spoken_only(text))
+        if not m:
+            for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+                for val in re.findall(r'"([^"]*)"', tag):
+                    m = _KW_SHORTCUT.search(val)
+                    if m:
+                        break
+                if m:
+                    break
+        if m:
+            return ('you teach "{q}" -- a key-word rule. Rule 54(b): key words do NOT '
+                    "reliably signal operations, and a key-word rule installs a "
+                    "misconception with your authority behind it. Name the problem's "
+                    "TYPE instead (Change, Equal Groups, Compare) and let the type "
+                    "choose the operation. Words describe the story; the schema decides "
+                    "the arithmetic.").format(q=" ".join(m.group(0).split())[:60])
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[boardnote] crashed (fail open): {exc}")
