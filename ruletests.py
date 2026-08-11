@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dy -- CHILD MANAGEMENT, GUARDED AND DRILLED: the four endpoints
+#               stay parent-gated + ownership-checked (misses 404 so probes learn
+#               nothing); remove keeps its server-verified typed-name consent; attach
+#               keeps refusing other families' codes (409) and demo codes; a code
+#               change must keep moving EVERY per-student table. LIVE drill: two
+#               parents, rename, cross-parent 404s, history follows a new code, the
+#               old code dies, orphan attaches, owned code refused, wrong typed name
+#               400s, right one deletes account AND data.
 #   2026-08-11  BUILD dx -- ASSESSMENT SAVE/RESUME, GUARDED: challenge.html must keep
 #               saving after every answer, offering the resume on the start panel,
 #               clearing on finish AND on deliberate fresh starts, and discarding a
@@ -3526,6 +3534,35 @@ def part3p_marketing_claims():
           and "shieldMs" in sess4,
           "a click meant for the last answer must never dismiss the results")
 
+    # ---- BUILD dy: child management -- four support emails become four buttons ------
+    mn5 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    for ep in ("student-rename", "student-newcode", "student-remove", "student-attach"):
+        seg = mn5.split(f'@app.post("/api/parent/{ep}")')
+        check(f"/api/parent/{ep} exists and is parent-gated (dy)",
+              len(seg) == 2 and "_require_parent" in seg[1][:900],
+              "child management must never be an open door")
+    check("rename/newcode/remove are OWNERSHIP-checked, misses 404 (dy)",
+          mn5.count("_own_student(parent, body.code)") >= 3
+          and "404" in mn5.split("def _own_student")[1][:600],
+          "a parent may only ever touch their OWN children; probes learn nothing")
+    check("remove demands the child's name typed back, server-verified (dy)",
+          "typed != want" in mn5,
+          "a mis-tap must never delete a childhood of progress")
+    check("attach refuses another family's code and demo codes (dy)",
+          '"owned"' in mn5 and "409" in mn5.split('student-attach')[1][:1600]
+          and "code in STUDENTS" in mn5,
+          "the code is a credential, not a transfer instrument")
+    st5 = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    check("a code change moves EVERY per-student table in one transaction (dy)",
+          "def change_student_code" in st5
+          and "_STUDENT_CODE_TABLES" in st5.split("def change_student_code")[1][:900],
+          "a new code that strands old rows loses the child's history")
+    fam5 = open(os.path.join(here, "static", "family.html"), encoding="utf-8").read()
+    check("family.html has the Manage panel and the attach door (dy)",
+          "manageLink" in fam5 and "data-newcode" in fam5
+          and 'id="attachLink"' in fam5 and "Remove forever" in fam5,
+          "the endpoints without the panel are still support emails")
+
     # ---- BUILD dx: the assessment survives a closed tab -----------------------------
     ch = open(os.path.join(here, "static", "challenge.html"), encoding="utf-8").read()
     check("the assessment saves after every answer and offers a resume (dx)",
@@ -3719,6 +3756,60 @@ def part3p_marketing_claims():
                                capture_output=True, text=True)
             check("missed-problem pipeline live: clamp -> read-back -> note -> sweep -> reset",
                   r.returncode == 0 and "MISS-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-300:])
+
+        # ---- BUILD dy: child management, LIVE -- all four doors + every refusal -----
+        import tempfile as _tf6
+        with _tf6.TemporaryDirectory() as tmp6:
+            drill = os.path.join(tmp6, "kiddrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main, store\n"
+                    "c = TestClient(main.app)\n"
+                    "def signup(em):\n"
+                    "    r = c.post('/api/parent/signup', json={'email': em,\n"
+                    "               'password': 'drill-pass-123', 'name': 'P'})\n"
+                    "    assert r.status_code == 200, r.text\n"
+                    "    return r.json()['token']\n"
+                    "tok = signup('a@example.com'); tok2 = signup('b@example.com')\n"
+                    "r = c.post('/api/parent/students', json={'token': tok, 'name': 'Ana'})\n"
+                    "code = r.json()['students'][0]['code']\n"
+                    "# rename\n"
+                    "r = c.post('/api/parent/student-rename', json={'token': tok, 'code': code, 'name': 'Ana Banana'})\n"
+                    "assert r.json()['students'][0]['name'] == 'Ana Banana', r.text\n"
+                    "# the OTHER parent can touch nothing (404, not 403)\n"
+                    "for ep in ('student-rename', 'student-newcode', 'student-remove'):\n"
+                    "    r = c.post(f'/api/parent/{ep}', json={'token': tok2, 'code': code, 'name': 'x'})\n"
+                    "    assert r.status_code == 404, (ep, r.status_code)\n"
+                    "# new code: history must MOVE\n"
+                    "store.record_sprint(code, 'prealgebra', 1, 'make ten', 5, 8, 7, 9)\n"
+                    "r = c.post('/api/parent/student-newcode', json={'token': tok, 'code': code})\n"
+                    "new = r.json()['new_code']\n"
+                    "assert new != code and r.json()['students'][0]['code'] == new, r.text\n"
+                    "assert store.get_account(code) is None, 'old code must be dead'\n"
+                    "assert len(store.get_sprint_history(new, 'prealgebra')) == 1, 'history must follow'\n"
+                    "# attach: another family's code is refused; an orphan attaches\n"
+                    "r = c.post('/api/parent/student-attach', json={'token': tok2, 'code': new})\n"
+                    "assert r.status_code == 409, r.status_code\n"
+                    "store.create_student_account('ORPHAN77', 'Zed', '')\n"
+                    "r = c.post('/api/parent/student-attach', json={'token': tok2, 'code': 'ORPHAN77'})\n"
+                    "assert r.status_code == 200 and r.json()['students'][0]['code'] == 'ORPHAN77', r.text\n"
+                    "# remove: wrong typed name 400s; the right one deletes account AND data\n"
+                    "r = c.post('/api/parent/student-remove', json={'token': tok, 'code': new, 'name': 'wrong'})\n"
+                    "assert r.status_code == 400, r.status_code\n"
+                    "r = c.post('/api/parent/student-remove', json={'token': tok, 'code': new, 'name': 'ana banana'})\n"
+                    "assert r.status_code == 200 and r.json()['students'] == [], r.text\n"
+                    "assert store.get_account(new) is None\n"
+                    "assert store.get_sprint_history(new, 'prealgebra') == []\n"
+                    "print('KID-DRILL-OK')\n")
+            env = dict(os.environ,
+                       DATABASE_URL=f"sqlite:///{os.path.join(tmp6, 'k.db')}",
+                       WEEKLY_EMAIL="off", PYTHONPATH=here)
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("child management live: rename, code-move, attach rules, typed-name remove",
+                  r.returncode == 0 and "KID-DRILL-OK" in r.stdout,
                   (r.stdout + r.stderr)[-300:])
 
 

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dy-child-management". FOUR SUPPORT EMAILS
+#               BECOME FOUR BUTTONS (Four-Lens parent item 2). New parent-token-gated,
+#               ownership-checked endpoints: /api/parent/student-rename ·
+#               student-newcode (a leaked login code is a leaked key: fresh code
+#               minted, EVERY per-student row moves with it in one transaction via
+#               store.change_student_code, old code dies instantly) · student-remove
+#               (permanent; the parent must TYPE the child's name back, and the
+#               server verifies it -- then the same cascade Start Fresh uses) ·
+#               student-attach (claim an UNOWNED code; another family's code returns
+#               409 with a support hand-off; shared demo codes refused). Ownership
+#               misses return 404, not 403 -- an outsider probing codes learns
+#               nothing. family.html grows the ⚙ Manage panel per child + the
+#               attach link under Add-a-child.
 #   2026-08-11  APP_BUILD -> "2026-08-11dx-assessment-save-resume". THE 45-QUESTION
 #               ASSESSMENT SURVIVES A CLOSED TAB (Four-Lens student item 4). Nothing
 #               in this file changed but the stamp: challenge.html now saves the run
@@ -4397,6 +4410,95 @@ def parent_weekly_email(body: WeeklyEmailIn, request: Request):
 
 
 # =============================================================================
+# PARENT CHILD-MANAGEMENT (2026-08-11, build dy -- Four-Lens parent item 2).
+# Rename / new code / remove / attach: everything that used to be a support email.
+# Every endpoint is parent-token gated AND ownership-checked -- a parent can only
+# ever touch their OWN children. Remove additionally demands the child's name typed
+# back (a mis-tap must never delete a childhood of progress).
+# =============================================================================
+class ParentChildIn(BaseModel):
+    token: str = ""
+    code: str = ""
+    name: str = ""             # rename: the new name · remove: the typed confirmation
+
+
+def _own_student(parent: dict, code: str) -> str:
+    """The child must be THIS parent's. 404 (not 403) on a miss: an outsider probing
+    codes learns nothing about which codes exist."""
+    code = (code or "").strip()
+    mine = {s["code"] for s in store.list_students_for_parent(parent["id"])}
+    if code not in mine:
+        raise HTTPException(status_code=404, detail="That student isn't on your account.")
+    return code
+
+
+@app.post("/api/parent/student-rename")
+def parent_student_rename(body: ParentChildIn, request: Request):
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    code = _own_student(parent, body.code)
+    name = (body.name or "").strip()[:40]
+    if not name:
+        raise HTTPException(status_code=400, detail="Please enter the new name.")
+    store.rename_student(code, name)
+    return _parent_payload(store.get_parent(parent["id"]))
+
+
+@app.post("/api/parent/student-newcode")
+def parent_student_newcode(body: ParentChildIn, request: Request):
+    """A leaked login code is a leaked key. Mint a fresh one; every scrap of the
+    child's history moves with it in one transaction; the old code dies instantly."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    code = _own_student(parent, body.code)
+    new_code = _new_student_code()
+    res = store.change_student_code(code, new_code)
+    if not res.get("ok"):
+        raise HTTPException(status_code=500, detail="Couldn't change the code — nothing was altered. Try again.")
+    out = _parent_payload(store.get_parent(parent["id"]))
+    out["new_code"] = new_code
+    return out
+
+
+@app.post("/api/parent/student-remove")
+def parent_student_remove(body: ParentChildIn, request: Request):
+    """PERMANENT. Deletes the child's account and every per-student row (the same
+    cascade Start Fresh uses -- accounts is in the reset family). The parent must
+    type the child's name back exactly (case-insensitive) as consent."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    code = _own_student(parent, body.code)
+    acct = store.get_account(code) or {}
+    want = (acct.get("name") or "").strip().lower()
+    typed = (body.name or "").strip().lower()
+    if not want or typed != want:
+        raise HTTPException(status_code=400, detail=(
+            "To remove this student, type their name exactly as it appears — this "
+            "permanently deletes their progress."))
+    store.reset_student_data(code)
+    return _parent_payload(store.get_parent(parent["id"]))
+
+
+@app.post("/api/parent/student-attach")
+def parent_student_attach(body: ParentChildIn, request: Request):
+    """Attach an existing UNOWNED student code (an early beta student, a code made
+    before the parent signed up). A code owned by another parent is never
+    transferable here; pilot demo codes can't be claimed at all."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    _require_db()
+    code = (body.code or "").strip().upper()
+    if not code:
+        raise HTTPException(status_code=400, detail="Please enter the student's login code.")
+    if code in STUDENTS:
+        raise HTTPException(status_code=400, detail="That's a shared demo code — it can't join a family account.")
+    result = store.attach_student(code, parent["id"])
+    if result == "missing":
+        raise HTTPException(status_code=404, detail="No student found with that code — check it letter by letter.")
+    if result == "owned":
+        raise HTTPException(status_code=409, detail=(
+            "That code already belongs to another family account. If it's yours, "
+            "email support@mrcadabra.com and a person will sort it out."))
+    return _parent_payload(store.get_parent(parent["id"]))
+
+
+# =============================================================================
 # BETA PASS ADMIN (2026-07-31) -- Jim's generator
 # -----------------------------------------------------------------------------
 # Keyed on FORUM_MOD_KEY (Jim's one admin key). The /beta page shows a generator
@@ -5655,7 +5757,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dx-assessment-save-resume"
+APP_BUILD = "2026-08-11dy-child-management"
 
 
 @app.get("/health")

@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dy -- PARENT CHILD-MANAGEMENT (Four-Lens parent item 2): NEW
+#               rename_student() (accounts row only), change_student_code() (a leaked
+#               login code is a leaked key -- every per-student row moves to the fresh
+#               code in ONE transaction, because the code is the join key everywhere;
+#               the old code dies the moment it commits), and attach_student() (claim
+#               an UNOWNED account by its code; an account owned by another parent is
+#               never transferable here -- returns 'owned' so the endpoint can refuse).
+#               Remove needed nothing new: reset_student_data() already cascades the
+#               accounts row with everything else.
 #   2026-08-11  BUILD dt -- MISSED-PROBLEM MEMORY (Four-Lens student item 1, the data
 #               foundation). NEW table quiz_misses (one row per missed quiz/check/final
 #               question: the question as asked + the student's exact wrong answer,
@@ -2212,6 +2221,62 @@ def list_students_for_parent(parent_id: str) -> list:
                             .where(t.c.parent_id == parent_id)
                             .order_by(t.c.created_at)).fetchall()
     return [_row_to_dict(r, _ACCOUNT_COLS) for r in rows]
+
+
+# ---- parent child-management (2026-08-11, build dy -- Four-Lens parent item 2) ----
+# Rename, regenerate a leaked login code, and attach an orphan code -- everything that
+# used to be a support email. Remove is reset_student_data(): the accounts row is in
+# _STUDENT_CODE_TABLES, so the cascade IS the removal.
+
+def rename_student(code: str, name: str) -> bool:
+    """Change the display name on one student account. The caller has already
+    verified ownership; this only touches the accounts row."""
+    from sqlalchemy import update
+    t = _tables["accounts"]
+    with _engine.begin() as conn:
+        r = conn.execute(update(t).where(t.c.code == (code or "").strip())
+                         .values(name=(name or "").strip()[:40]))
+    return bool(r.rowcount)
+
+
+def change_student_code(old: str, new: str) -> dict:
+    """Move a student to a FRESH login code (a leaked code is a leaked key). The code
+    is the join key across every per-student table, so every row moves in ONE
+    transaction -- progress, quizzes, sprints, misses, awards, time, transcripts, the
+    account row itself. The old code stops working the moment this commits. Returns
+    {ok, moved: {table: rows}}."""
+    from sqlalchemy import update
+    old, new = (old or "").strip(), (new or "").strip()
+    if not old or not new or old == new:
+        return {"ok": False, "moved": {}}
+    moved: dict = {}
+    with _engine.begin() as conn:
+        for tname, col in _STUDENT_CODE_TABLES:
+            t = _tables.get(tname)
+            if t is None:
+                continue
+            r = conn.execute(update(t).where(t.c[col] == old).values(**{col: new}))
+            moved[tname] = int(r.rowcount or 0)
+    return {"ok": True, "moved": moved}
+
+
+def attach_student(code: str, parent_id: str) -> str:
+    """Claim an existing UNOWNED student account for this parent (build dy). The code
+    itself is the credential -- but an account that already belongs to another parent
+    is NEVER transferable here (that is a support conversation, not an endpoint).
+    Returns 'ok', 'owned' (someone else's), or 'missing'."""
+    from sqlalchemy import update
+    acct = get_account(code)
+    if not acct:
+        return "missing"
+    current = (acct.get("parent_id") or "").strip()
+    if current and current != parent_id:
+        return "owned"
+    with _engine.begin() as conn:
+        t = _tables["accounts"]
+        conn.execute(update(t).where(t.c.code == (code or "").strip())
+                     .values(parent_id=parent_id))
+    return "ok"
 
 
 # ---- beta passes (2026-07-31: Jim's beta-tester program) --------------------

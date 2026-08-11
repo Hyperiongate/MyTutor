@@ -4,6 +4,16 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-11  CHILD MANAGEMENT (build dy -- Four-Lens parent item 2). Every child row
+    gains "⚙ Manage": RENAME (Mr. Cadabra uses it next session), NEW LOGIN CODE
+    (two-tap confirm; for leaked codes -- all progress moves over in one transaction
+    server-side, the old code dies instantly, the new one is shown in the banner), and
+    REMOVE (permanent; the parent must TYPE the child's name back -- a mis-tap must
+    never delete a childhood of progress; server re-checks the typed name too). Under
+    Add-a-child: "Already have a student code from before? Attach it" claims an
+    UNOWNED code (another family's code is refused server-side with a support
+    hand-off; shared demo codes can't be claimed). Everything parent-token gated AND
+    ownership-checked server-side -- these used to be four kinds of support email.
   - 2026-08-11  MISSION CONTROL (build dq -- Four-Lens Review, homeschool lens item 1).
     A signed-in parent used to see each child as just a name, a code, and one link.
     Now every child row carries: a real-numbers stat line (minutes this week -- idle
@@ -152,6 +162,17 @@
   .kidstats{flex-basis:100%;font-size:13.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
   .kidstats b{color:var(--ink)}
   .kidassess{flex-basis:100%;display:none;background:#f8f7fc;border-radius:10px;padding:12px 14px;font-size:14.5px;line-height:1.55}
+  /* 2026-08-11 (dy): the per-child management panel */
+  .kidmanage{flex-basis:100%;display:none;background:#fbfaff;border:1px dashed var(--line);border-radius:10px;padding:12px 14px}
+  .kidmanage.on{display:block}
+  .mrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:7px 0;border-bottom:1px dashed #efecfa;font-size:14px}
+  .mrow:last-of-type{border-bottom:none}
+  .mrow .cap{flex-basis:100%;margin:0}
+  .mIn{flex:0 1 220px;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;width:auto}
+  .mbtn{border:1.5px solid var(--line);background:#fff;border-radius:9px;font-weight:700;font-size:13.5px;cursor:pointer;padding:8px 14px}
+  .mbtn:hover{border-color:var(--purple);color:var(--purple)}
+  .mbtn.danger{border-color:#f5cfc8;color:#b3402e}
+  .mbtn.danger:hover{background:#fdf0ee}
   .kidassess.on{display:block}
   .togglebtn{border:1.5px solid var(--line);background:#fff;border-radius:999px;font-weight:800;font-size:14px;cursor:pointer;padding:8px 18px}
   .togglebtn.on{border-color:var(--teal);color:#0f766e;background:#eefaf5}
@@ -289,6 +310,16 @@
         names, ever. Each child gets their own <b>login code</b> (not a password — it's the only
         thing they sign in with, at mrcadabra.com → Student sign in), takes the placement, and
         Mr. Cadabra meets them at their level.</p>
+        <!-- dy 2026-08-11: claim a code that existed before this account did -->
+        <p class="cap" style="margin-top:8px"><a href="#" id="attachLink" style="color:var(--purple);font-weight:700">Already
+        have a student code from before? Attach it →</a></p>
+        <div id="attachRow" style="display:none;margin-top:8px">
+          <div style="display:flex;gap:10px">
+            <input id="attachCode" maxlength="20" autocomplete="off" placeholder="e.g. MAPLE42" style="flex:1;text-transform:uppercase" />
+            <button class="btn btn-ghost" id="attachGo" type="button">Attach</button>
+          </div>
+          <div class="msg" id="attachMsg"></div>
+        </div>
       </form>
     </div>
 
@@ -384,9 +415,20 @@
           '<a href="/dashboard?code=' + encodeURIComponent(k.code) + '&view=parent">Progress →</a>' +
           '<a href="/records?code=' + encodeURIComponent(k.code) + '">Records →</a>' +
           '<a href="#" class="assessLink" data-code="' + esc(k.code) + '" data-name="' + esc(k.name) + '">💬 How are they doing?</a>' +
+          '<a href="#" class="manageLink" data-code="' + esc(k.code) + '">⚙ Manage</a>' +
         '</span>' +
         '<div class="kidstats" data-stats="' + esc(k.code) + '">Loading this week’s numbers…</div>' +
         '<div class="kidassess" data-assess="' + esc(k.code) + '"></div>' +
+        '<div class="kidmanage" data-manage="' + esc(k.code) + '">' +
+          '<div class="mrow"><b>Rename</b> <input class="mIn" data-rename="' + esc(k.code) + '" maxlength="40" value="' + esc(k.name) + '" />' +
+            '<button class="mbtn" data-dorename="' + esc(k.code) + '" type="button">Save name</button></div>' +
+          '<div class="mrow"><b>New login code</b> <span class="cap">If the code leaked (a sibling, a classmate), mint a fresh one — all progress moves over and the old code stops working instantly.</span>' +
+            '<button class="mbtn" data-newcode="' + esc(k.code) + '" type="button">Get a new code</button></div>' +
+          '<div class="mrow"><b style="color:#b3402e">Remove this student</b> <span class="cap">Permanently deletes their account AND all their progress. To confirm, type their name:</span>' +
+            '<input class="mIn" data-confirm="' + esc(k.code) + '" maxlength="40" placeholder="' + esc(k.name) + '" />' +
+            '<button class="mbtn danger" data-remove="' + esc(k.code) + '" data-name="' + esc(k.name) + '" type="button">Remove forever</button></div>' +
+          '<div class="msg" data-mmsg="' + esc(k.code) + '"></div>' +
+        '</div>' +
         '</div>';
     }).join("");
     Array.prototype.forEach.call(box.querySelectorAll(".code"), function (el) {
@@ -401,6 +443,68 @@
     Array.prototype.forEach.call(box.querySelectorAll(".assessLink"), function (el) {
       el.addEventListener("click", function (ev) { ev.preventDefault(); showAssessment(el); });
     });
+    // 2026-08-11 (dy): child management -- rename / new code / remove, per child
+    Array.prototype.forEach.call(box.querySelectorAll(".manageLink"), function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        var p = box.querySelector('.kidmanage[data-manage="' + el.getAttribute("data-code") + '"]');
+        if (p) p.classList.toggle("on");
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-dorename]"), function (b) {
+      b.addEventListener("click", function () { doRename(b.getAttribute("data-dorename")); });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-newcode]"), function (b) {
+      b.addEventListener("click", function () { doNewCode(b.getAttribute("data-newcode"), b); });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-remove]"), function (b) {
+      b.addEventListener("click", function () { doRemove(b.getAttribute("data-remove")); });
+    });
+  }
+
+  // ---------- child management (2026-08-11, dy) ----------
+  function mmsg(code, text, kind) {
+    var el2 = document.querySelector('.msg[data-mmsg="' + code + '"]');
+    if (el2) { el2.className = "msg" + (text ? " " + (kind || "err") : ""); el2.textContent = text || ""; }
+  }
+  async function doRename(code) {
+    if (state.busy) return; state.busy = true;
+    var inp = document.querySelector('.mIn[data-rename="' + code + '"]');
+    try {
+      state.me = await api("/api/parent/student-rename", { method: "POST",
+        body: JSON.stringify({ token: token(), code: code, name: (inp.value || "").trim() }) });
+      render();
+      banner("Name updated — Mr. Cadabra will use it from their next session.", "ok");
+    } catch (e) { mmsg(code, e.message, "err"); }
+    state.busy = false;
+  }
+  async function doNewCode(code, btn) {
+    if (state.busy) return;
+    // two-tap confirm: the first tap arms the button, the second acts
+    if (btn.getAttribute("data-armed") !== "1") {
+      btn.setAttribute("data-armed", "1"); btn.textContent = "Tap again to confirm — old code stops working";
+      setTimeout(function () { btn.removeAttribute("data-armed"); btn.textContent = "Get a new code"; }, 4000);
+      return;
+    }
+    state.busy = true;
+    try {
+      var out = await api("/api/parent/student-newcode", { method: "POST",
+        body: JSON.stringify({ token: token(), code: code }) });
+      state.me = out; render();
+      banner("✅ New login code: " + out.new_code + " — all progress moved over. The old code no longer works; give your child the new one.", "ok");
+    } catch (e) { mmsg(code, e.message, "err"); }
+    state.busy = false;
+  }
+  async function doRemove(code) {
+    if (state.busy) return; state.busy = true;
+    var inp = document.querySelector('.mIn[data-confirm="' + code + '"]');
+    try {
+      state.me = await api("/api/parent/student-remove", { method: "POST",
+        body: JSON.stringify({ token: token(), code: code, name: (inp.value || "").trim() }) });
+      render();
+      banner("Removed. Their account and progress are permanently deleted.", "warn");
+    } catch (e) { mmsg(code, e.message, "err"); }
+    state.busy = false;
   }
 
   // ---------- mission control (2026-08-11, dq) ----------
@@ -657,6 +761,23 @@
   $("signout").addEventListener("click", async function () {
     try { await api("/api/parent/logout", { method: "POST", body: JSON.stringify({ token: token() }) }); } catch (e) {}
     setToken(""); state.me = null; render();
+  });
+
+  // dy: attach an existing (unowned) student code
+  $("attachLink").addEventListener("click", function (ev) {
+    ev.preventDefault();
+    var r = $("attachRow"); r.style.display = (r.style.display === "none") ? "" : "none";
+  });
+  $("attachGo").addEventListener("click", async function () {
+    if (state.busy) return; state.busy = true; $("attachGo").disabled = true; msg("attachMsg", "");
+    try {
+      state.me = await api("/api/parent/student-attach", { method: "POST",
+        body: JSON.stringify({ token: token(), code: ($("attachCode").value || "").trim().toUpperCase() }) });
+      $("attachCode").value = "";
+      render();
+      msg("attachMsg", "Attached! They're part of the family now — progress and all.", "ok");
+    } catch (e) { msg("attachMsg", e.message, "err"); }
+    state.busy = false; $("attachGo").disabled = false;
   });
 
   $("addForm").addEventListener("submit", async function (ev) {
