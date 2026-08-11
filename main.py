@@ -2,6 +2,29 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dg-reliability". BATCH A: the first full audit's
+#               stumbles were OUR bugs, not rate limits (Audit_Findings_2026-08-11.md,
+#               PART 5). The teaching-side fixes live in tutor.py (referee false
+#               positives, negotiated continuation, ceiling 1600 -> 3000, empty-reply
+#               retry, stand-alone regeneration nudges). THIS file's share is SECURITY:
+#               the admin key was riding in QUERY STRINGS ("GET /api/admin/stats?key=..."),
+#               and query strings are written into Render's request logs in plaintext.
+#               The OpenAI key was protected from exactly this in build cw (PART 3l:
+#               Authorization header and nowhere else); the admin key now gets the same
+#               discipline. The four admin GET endpoints (/api/beta/list,
+#               /api/admin/stats, /api/admin/email-test, /api/admin/digest-test) accept
+#               the key in an X-Admin-Key HEADER; admin.html sends it that way and never
+#               puts the key in a URL again (unlock stores it in sessionStorage; a legacy
+#               ?key= bookmark is honoured once, stashed, and scrubbed from the address
+#               bar). The query parameter is still ACCEPTED server-side so nothing Jim
+#               has saved breaks, but no page we ship generates it any more.
+#               ⚠️ AFTER THIS DEPLOYS, JIM ROTATES FORUM_MOD_KEY IN RENDER -- the old
+#               value has been logged and must be treated as burned.
+#               KNOWN RESIDUAL, queued: /community?mod=<key> (forum moderation) still
+#               carries the key in a URL because community.html has no other unlock;
+#               admin.html's moderation quick-link keeps working that way until that
+#               page's auth is reworked (its own small build). The /beta quick-link is
+#               now PLAIN /beta -- the generator lives on /admin itself since 08-04.
 #   2026-08-10  APP_BUILD -> "2026-08-10df-honest-copy". HONEST-COPY SWEEP. Jim: "make
 #               sure we don't have anything in here that says evidence based learning as
 #               a blanket statement." The sweep proved NO such claim exists anywhere on
@@ -1985,7 +2008,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -3570,12 +3593,15 @@ def parent_forgot(body: ParentForgotIn, request: Request):
 
 
 @app.get("/api/admin/email-test")
-def admin_email_test(key: str = "", to: str = ""):
+def admin_email_test(key: str = "", to: str = "",
+                     x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     """Jim's email-pipe diagnostic (admin-key protected): sends ONE real test email
     and returns exactly what happened -- the precise SMTP failure text on error,
     and the active config WITHOUT the password. This is how we debug 'the email
-    never arrived' without guessing."""
-    _require_admin(key)
+    never arrived' without guessing.
+    BUILD dg: key accepted in the X-Admin-Key header (preferred); the query param
+    stays for a hand-typed URL, but remember it lands in Render's logs when used."""
+    _require_admin(x_admin_key or key)
     cfg = {"SMTP_HOST": os.environ.get("SMTP_HOST", "(not set)"),
            "SMTP_PORT": os.environ.get("SMTP_PORT", "(not set -> 465)"),
            "SMTP_USER": os.environ.get("SMTP_USER", "(not set)"),
@@ -3770,11 +3796,14 @@ def weekly_email_unsubscribe(request: Request, token: str = "", resub: str = "")
 
 
 @app.get("/api/admin/digest-test")
-def admin_digest_test(key: str = "", email: str = "", to: str = ""):
+def admin_digest_test(key: str = "", email: str = "", to: str = "",
+                      x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     """Jim's weekly-email diagnostic (admin-key protected): builds a REAL parent's
     digest and returns it as JSON WITHOUT sending. Add &to=an@address to also send
-    exactly one copy there for eyeballing. Never marks the parent as sent."""
-    _require_admin(key)
+    exactly one copy there for eyeballing. Never marks the parent as sent.
+    BUILD dg: key accepted in the X-Admin-Key header (preferred); the query param
+    stays for a hand-typed URL, but remember it lands in Render's logs when used."""
+    _require_admin(x_admin_key or key)
     _require_db()
     email = (email or "").strip().lower()
     if not email:
@@ -3999,9 +4028,13 @@ def beta_create(body: BetaCreateIn):
 
 
 @app.get("/api/beta/list")
-def beta_list(key: str = ""):
+def beta_list(key: str = "",
+              x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    # BUILD dg: the key belongs in the X-Admin-Key HEADER -- query strings are written
+    # into Render's request logs in plaintext. The query param stays accepted so old
+    # bookmarks keep working, but no page we ship sends it that way any more.
     _require_db()
-    _require_admin(key)
+    _require_admin(x_admin_key or key)
     return {"ok": True, "codes": store.list_beta_codes()}
 
 
@@ -4067,10 +4100,13 @@ def _usage_with_dollars(days: int) -> dict:
 
 
 @app.get("/api/admin/stats")
-def admin_stats_api(key: str = ""):
-    """The numbers behind /admin. Admin-key protected (constant-time compare)."""
+def admin_stats_api(key: str = "",
+                    x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """The numbers behind /admin. Admin-key protected (constant-time compare).
+    BUILD dg: key accepted in the X-Admin-Key header (preferred -- query strings land
+    in Render's logs); the query param stays for old bookmarks only."""
     _require_db()
-    _require_admin(key)
+    _require_admin(x_admin_key or key)
     return {
         "ok": True,
         "build": APP_BUILD,
@@ -5109,7 +5145,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-10df-honest-copy"
+APP_BUILD = "2026-08-11dg-reliability"
 
 
 @app.get("/health")

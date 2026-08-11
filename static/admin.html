@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-11  THE KEY LEAVES THE ADDRESS BAR (build dg). This page used to put the admin
+    key into URLs -- "/admin?key=...", "/api/admin/stats?key=..." -- and query strings are
+    written into Render's request logs in PLAINTEXT, which is how the key ended up in a
+    log excerpt. Now: the unlock box stores the key in sessionStorage (this tab only,
+    cleared when the tab closes); every API call sends it in the X-Admin-Key HEADER;
+    a legacy /admin?key= bookmark still unlocks ONCE, but the key is immediately stashed
+    and scrubbed from the address bar (history.replaceState). The beta quick-link is now
+    plain /beta (the generator lives on this page). KNOWN RESIDUAL: the forum-moderation
+    quick-link still opens /community?mod=<key> because that page has no other unlock --
+    queued for its own build. ⚠️ Jim rotates FORUM_MOD_KEY in Render after this deploys;
+    the old value is burned.
   - 2026-08-07  STUDENT WIPE (build bc, Jim: "wipe 0000 so I can use it as new"): the Start
     Fresh card gained a second row — wipe ONE student code (pilot/demo personas) with the
     same two-click confirm -> POST /api/admin/student-reset. The code keeps working,
@@ -50,9 +61,10 @@
                     links pre-loaded with the key so they open ready to use).
                 Protected by the SAME admin key as the beta generator and forum
                 moderation (FORUM_MOD_KEY). The key NEVER lives in this file: it
-                comes from the ?key= URL parameter (or the unlock box) and is
-                verified server-side on every request. A visitor without the key
-                sees only a locked "enter your key" prompt.
+                comes from the unlock box (kept in sessionStorage, sent in the
+                X-Admin-Key header -- build dg; never in a URL) and is verified
+                server-side on every request. A visitor without the key sees
+                only a locked "enter your key" prompt.
   =============================================================================
 -->
 <html lang="en">
@@ -254,8 +266,20 @@
 <script>
 (function () {
   "use strict";
+  // BUILD dg: the key NEVER rides in a URL any more -- query strings are logged in
+  // plaintext by Render. It lives in sessionStorage (this tab only) and travels in the
+  // X-Admin-Key header. A legacy /admin?key= bookmark is honoured once: the key is
+  // stashed and immediately scrubbed from the address bar so it is not re-logged on
+  // the next refresh (the load that brought it here was already logged -- rotate!).
   var params = new URLSearchParams(window.location.search);
-  var KEY = (params.get("key") || "").trim();
+  var KEY = "";
+  try { KEY = (sessionStorage.getItem("mt_admin_key") || "").trim(); } catch (e) {}
+  var legacyKey = (params.get("key") || "").trim();
+  if (legacyKey) {
+    KEY = legacyKey;
+    try { sessionStorage.setItem("mt_admin_key", KEY); } catch (e) {}
+    try { history.replaceState(null, "", "/admin"); } catch (e) {}
+  }
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
@@ -273,7 +297,9 @@
 
   async function api(path, opts) {
     opts = opts || {};
-    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    // BUILD dg: the admin key travels in a HEADER on every call, never in the URL.
+    opts.headers = Object.assign({ "Content-Type": "application/json",
+                                   "X-Admin-Key": KEY }, opts.headers || {});
     var r = await fetch(path, opts);
     var data = {};
     try { data = await r.json(); } catch (e) {}
@@ -293,8 +319,10 @@
     ev.preventDefault();
     var k = $("keyInput").value.trim();
     if (!k) { keyMsg("Please enter your key."); return; }
-    // Reload with the key in the URL so a refresh keeps working.
-    window.location.href = "/admin?key=" + encodeURIComponent(k);
+    // BUILD dg: sessionStorage keeps a refresh working; the URL never carries the key.
+    KEY = k;
+    try { sessionStorage.setItem("mt_admin_key", KEY); } catch (e) {}
+    load();
   });
 
   // ---------- dashboard render ----------
@@ -417,11 +445,14 @@
   }
 
   function renderLinks() {
+    // BUILD dg: the beta link is PLAIN -- the generator lives on this page, so the key
+    // has no reason to ride along. The moderation link still carries ?mod= because
+    // community.html has no other unlock (known residual, queued for its own build).
     var k = encodeURIComponent(KEY);
     var items = [
       { href: "/health", t: "Health check", d: "Build stamp & database status" },
-      { href: "/beta?admin=" + k, t: "Beta page (admin)", d: "The public /beta with your generator" },
-      { href: "/community?mod=" + k, t: "Forum moderation", d: "Hide/restore posts" },
+      { href: "/beta", t: "Beta page (public view)", d: "Your pass generator lives on THIS page" },
+      { href: "/community?mod=" + k, t: "Forum moderation", d: "Hide/restore posts (key rides in this one link — rotates with the key)" },
       { href: "/family", t: "Family portal", d: "The parent sign-in page" },
       { href: "/pricing", t: "Pricing page", d: "What families see" },
       { href: "https://dashboard.render.com", t: "Render", d: "Deploys, logs, env vars", ext: true },
@@ -664,17 +695,22 @@
     if (!KEY) { showLock(""); return; }
     $("refreshBtn").disabled = true;
     try {
-      var payload = await api("/api/admin/stats?key=" + encodeURIComponent(KEY));
+      var payload = await api("/api/admin/stats");   // key rides in the header (build dg)
       $("lockView").style.display = "none";
       $("dashView").style.display = "";
       $("refreshBtn").style.display = "";
       renderBoard(payload);
       renderLinks();
-      try { renderTable((await api("/api/beta/list?key=" + encodeURIComponent(KEY))).codes); } catch (e) {}
+      try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
       var now = new Date();
       $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
     } catch (e) {
-      if (e.status === 401) showLock("That key didn't work. Try again.");
+      if (e.status === 401) {
+        // a wrong key must not stick around and re-fail on every refresh (build dg)
+        KEY = "";
+        try { sessionStorage.removeItem("mt_admin_key"); } catch (err) {}
+        showLock("That key didn't work. Try again.");
+      }
       else showLock("Couldn't load the dashboard: " + e.message);
     }
     $("refreshBtn").disabled = false;

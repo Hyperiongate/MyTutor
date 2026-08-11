@@ -2,6 +2,36 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dg -- RELIABILITY: THE AUDIT'S STUMBLES WERE OURS, NOT RATE LIMITS.
+#               The first full audit's Render logs (Audit_Findings_2026-08-11.md, PART 5)
+#               named the mechanisms; all are fixed here.
+#               (1) THE REFEREE CRIED WOLF. prose_pending_question_conflict counted the
+#               pronoun "one" as a number ("Want to try ONE yourself, or see ONE more
+#               worked example?" read as two-number arithmetic) and had no concept of an
+#               OFFER, so it killed good drafts a dozen times in forty minutes of audit
+#               traffic -- and one geometry lesson shipped WITHOUT its worked example
+#               because the drafts that contained it kept being discarded, and the third
+#               draft wrote as if the student had seen them. Offers and look-questions
+#               are now excluded (both rule-15 and rule-39(b) referees), "one" counts as
+#               a number only in arithmetic company, the sentence splitter no longer
+#               merges a quote-ended sentence into the question after it, and every
+#               misfire quoted in the logs is a permanent ruletests case.
+#               (2) BOTH REGENERATION NUDGES now order the rewrite to STAND ALONE -- a
+#               regenerated draft must re-carry everything the student needs (worked
+#               example, definition, board lines) and never pick up mid-thought from a
+#               draft the student never saw.
+#               (3) _create_full: claude-sonnet-5 intermittently REJECTS assistant-prefill
+#               continuation (400: "does not support assistant message prefill"), and
+#               each rejection surfaced as a stumble the student watches. Continuation is
+#               now NEGOTIATED like the build-cz token parameter: prefill first, and on
+#               that named 400 a user-message continuation nudge, remembered for the rest
+#               of the process. Ceiling 1600 -> 3000 (MAX_REPLY_TOKENS): the logs show
+#               tag-heavy teaching turns hitting 1600 constantly, and five replies
+#               shipped as admitted "stitched partials" in forty minutes. A ceiling is
+#               not a target -- normal turns end far under it and cost nothing extra.
+#               (4) _create_verified retries ONCE, silently, on an empty reply before the
+#               student ever hears "I lost my train of thought" -- the audit counted that
+#               apology 6 times in 10 lessons.
 #   2026-08-11  BUILD de -- the DIFFEQ course arc restructured to the CUPM mainstream
 #               syllabus (Jim: "the one most acceptable to most schools"). Qualitative
 #               analysis and numerical methods become units 3-4; systems get two units;
@@ -5865,16 +5895,63 @@ _PQ_SYMBOL_EXPR = re.compile(r"\d\s*[+×÷]\s*\d|\d\s+[\-*/]\s+\d")
 _PQ_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph", "numberline",
                   "objects", "balance", "machine", "areamodel", "choices")
 
+# BUILD dg (2026-08-11): TWO FALSE-POSITIVE CLASSES, FOUND IN THE FIRST FULL AUDIT'S
+# RENDER LOGS. This referee killed good drafts a dozen times in forty minutes, and one
+# geometry lesson shipped WITHOUT its worked example because the drafts that contained
+# it kept being discarded (Audit_Findings_2026-08-11.md, S-1 and L-3). The exact quoted
+# misfires are permanent cases in ruletests.py. The two classes:
+#   (a) OFFERS. "Want to try one yourself now, or see one more worked example first?"
+#       asks the student's PREFERENCE, not for a computed answer. If they accept, the
+#       problem goes up NEXT turn, where rule 15 applies in full force. Look-questions
+#       ("See how the five sits under the four?") direct the eyes at a board that is
+#       already drawn -- there is nothing pending to compute. ("See how MANY..." still
+#       counts: that asks for a count, which is a computation.)
+#   (b) THE PRONOUN "one". "try ONE more", "see ONE yourself" made offers read as
+#       two-number arithmetic. "one" now counts as a number only in arithmetic company:
+#       beside an operator word, a fraction word, or "more/less than".
+_PQ_OFFER = re.compile(
+    r"^(?:(?:and|so|now|or|okay|ok|alright|great|nice|perfect)[,\s]+)*"
+    r"(?:do you want|want to|want me to|want another|want more|wanna|"
+    r"would you (?:like|rather|prefer)|are you ready|ready to|ready for|"
+    r"shall we|should we|how about|care to|up for|feel like|what do you say|"
+    r"(?:do you|can you)?\s*see (?:how|that|why|where|it)(?!\s+(?:many|much|few|long))|"
+    r"notice (?:how|that|the)(?!\s+(?:many|much))|look at)\b", re.I)
+
+
+def _pq_is_offer(sentence: str) -> bool:
+    """True when a question asks the student's PREFERENCE or directs their eyes --
+    an invitation or a look-question, never a computation handed to them. Offers need
+    no pending board line: the problem itself arrives on the turn the student accepts."""
+    return bool(_PQ_OFFER.match(str(sentence or "").strip()))
+
+
+# "one" in arithmetic company -- the only "one" that counts as a number (build dg).
+_PQ_ONE_ARITH = re.compile(
+    r"\b(?:plus|minus|times|add|adds|added|subtract|multiplied|divided|of)\s+one\b"
+    r"|\bone\s+(?:plus|minus|times|divided|multiplied|more\s+than|less\s+than|"
+    r"hundred|thousand|half|halves|third|thirds|fourth|fourths|fifth|fifths|"
+    r"sixth|sixths|seventh|sevenths|eighth|eighths|ninth|ninths|tenth|tenths)\b", re.I)
+
+# A sentence-splitter that sees a sentence ending INSIDE a closing quote. The old split
+# key ((?<=[.!?])\s+) stopped dead at «...goes in." Want me to...» -- the period hides
+# before the quote mark, the two sentences merged, and a statement full of numbers
+# inherited the next sentence's "?" (the third false-positive class in the audit logs).
+_PQ_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+|(?<=[.!?][\"'”’])\s+|\n+")
+
 
 def _pq_numeric_tokens(sentence: str) -> int:
     """How many numbers a sentence states, numerals and number-words alike.
 
     A written fraction ("1/2", "3/4") is ONE number, not two -- counting its halves
-    separately made "is 1/2 bigger than the piece we shaded?" look like arithmetic."""
+    separately made "is 1/2 bigger than the piece we shaded?" look like arithmetic.
+    And "one" only counts in arithmetic company (build dg) -- as a bare pronoun
+    ("try one more", "see one yourself") it is not a number at all."""
     low = re.sub(r"\d+\s*/\s*\d+", " ½ ", sentence.lower())
     n = len(re.findall(r"\d+(?:\.\d+)?", low)) + low.count("½")
-    n += len(re.findall(r"\b(?:" + "|".join(sorted(list(_PR_ONES) + list(_PR_TENS),
-                                                   key=len, reverse=True)) + r")\b", low))
+    words = sorted([w for w in list(_PR_ONES) + list(_PR_TENS) if w != "one"],
+                   key=len, reverse=True)
+    n += len(re.findall(r"\b(?:" + "|".join(words) + r")\b", low))
+    n += len(_PQ_ONE_ARITH.findall(low))
     return n
 
 
@@ -5885,10 +5962,12 @@ def prose_pending_question_conflict(reply: str):
         text = str(reply or "")
         prose = _spoken_only(text)
         asks = []
-        for sent in re.split(r"(?<=[.!?])\s+|\n+", prose):
+        for sent in _PQ_SENT_SPLIT.split(prose):
             sent = sent.strip()
             if not sent.endswith("?"):
                 continue
+            if _pq_is_offer(sent):
+                continue          # an invitation, not a computation (build dg)
             nums = _pq_numeric_tokens(sent)
             if (nums >= 2
                     or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
@@ -5972,12 +6051,14 @@ def prose_self_answer_conflict(reply: str):
     try:
         text = str(reply or "")
         prose = _spoken_only(text)
-        sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+|\n+", prose) if x.strip()]
+        sentences = [x.strip() for x in _PQ_SENT_SPLIT.split(prose) if x.strip()]
         last_ask = -1
         asked = ""
         for i, sent in enumerate(sentences):
             if not sent.endswith("?"):
                 continue
+            if _pq_is_offer(sent):
+                continue          # an invitation, not a question he can self-answer (dg)
             nums = _pq_numeric_tokens(sent)
             rest = " ".join(sentences[i + 1:])
             if (nums >= 2
@@ -6204,7 +6285,11 @@ _PROSE_NUDGE = (
     "The student NEVER saw that draft. Write your reply again from scratch -- same warm "
     "teaching flow -- so that what you SAY and what is actually on the board agree: every "
     "picture you mention is DRAWN by a tag in this same reply, and every number you say "
-    "matches the number you write. If the student's answer was wrong, coach the recount "
+    "matches the number you write. Your new reply must STAND ALONE: the student saw and "
+    "heard NOTHING of the discarded draft, so any worked example, definition, or board "
+    "line they need must appear here IN FULL -- never open mid-thought, never say 'so' "
+    "about a result you have not shown in THIS reply, never refer to anything only the "
+    "draft contained. If the student's answer was wrong, coach the recount "
     "(rules 18 and 22); do not adopt their number. Do not mention this note or any "
     "checking.)")
 
@@ -6215,7 +6300,10 @@ _MATHCHECK_NUDGE = (
     "(SYSTEM: A math engine checked your previous draft and found an error: {detail}. "
     "The student NEVER saw that draft. Write your reply again from scratch with the "
     "correct math -- same warm teaching flow, same board tags, corrected numbers and "
-    "corrected [[verify]] tag(s). Do not mention this note, the mistake, or any checking.)")
+    "corrected [[verify]] tag(s). Your new reply must STAND ALONE: the student saw and "
+    "heard nothing of the discarded draft, so everything they need must appear here in "
+    "full -- never open mid-thought or build on something only the draft contained. "
+    "Do not mention this note, the mistake, or any checking.)")
 
 
 def _log_brain_usage(meta, model, tokens, attempts, verify_status):
@@ -6243,6 +6331,38 @@ def _add_usage(tokens, response):
     tokens["cw"] = tokens.get("cw", 0) + int(getattr(u, "cache_creation_input_tokens", 0) or 0)
 
 
+# BUILD dg (2026-08-11): the continuation is NEGOTIATED, and the ceiling rose.
+# The first full audit's Render logs showed claude-sonnet-5 intermittently REJECTING the
+# assistant-prefill continuation with a 400 that names its objection ("This model does
+# not support assistant message prefill. The conversation must end with a user
+# message."). Intermittent is worse than always: it looked like it worked. Every
+# rejection surfaced to the student as a stumble. Same philosophy as the build-cz token
+# parameter: the API SAYS what it will not accept, so take it at its word -- try prefill
+# (seamless when accepted), and on that named 400 switch to a continuation nudge in a
+# user message and remember the choice for the rest of the process. Never guessed from
+# the model name; names change, and guessing is how you ship a break.
+_PREFILL_OK: dict = {}    # model name -> False once the API has refused prefill once
+
+_CONTINUE_NUDGE = (
+    "(SYSTEM: Your reply above was cut off by a length limit, mid-flow. Continue it "
+    "EXACTLY from where it stopped: output ONLY the continuation -- no greeting, no "
+    "recap, no repeated words -- and close any unfinished board tag first. The student "
+    "will see your earlier text and this continuation joined as one message.)")
+
+# A CEILING, not a target -- normal turns end far under it and unused headroom costs
+# nothing. Raised 1600 -> 3000 (build dg): the audit logs showed tag-heavy teaching
+# turns hitting 1600 CONSTANTLY, and five replies shipped as admitted partials in forty
+# minutes. Referee retries multiply the exposure, so the ceiling must fit a long,
+# figure-heavy teaching turn with room to spare.
+MAX_REPLY_TOKENS = 3000
+
+
+def _is_prefill_rejection(exc) -> bool:
+    """True when the API's own words say it refused the assistant-prefill shape."""
+    msg = str(exc).lower()
+    return "prefill" in msg or "must end with a user message" in msg
+
+
 def _create_full(client, model, system_blocks, msgs, tokens, log_prefix=""):
     """One LOGICAL model turn that can never be silently truncated. 2026-08-08 (Jim's
     live freeze in Basic Math): the first teaching turn -- tag-heavy ([[today]],
@@ -6250,29 +6370,44 @@ def _create_full(client, model, system_blocks, msgs, tokens, log_prefix=""):
     stripped the dangling tag and the student saw the single word "Let" with an empty
     board and no answer buttons. Nothing anywhere checked stop_reason.
     Now: if the response stops at the max_tokens ceiling (stop_reason == "max_tokens"),
-    the partial reply is fed back as an ASSISTANT PREFILL and the model continues
-    exactly where it stopped; the pieces are stitched together. Up to 2 continuations
-    (~4800 tokens total -- far beyond any real teaching turn), then we return whatever
-    we have rather than loop forever."""
+    the model is asked to continue exactly where it stopped -- by assistant prefill when
+    the model accepts that shape, by a user-message nudge when it does not (build dg;
+    see _PREFILL_OK above) -- and the pieces are stitched together. Up to 2
+    continuations (~9000 tokens total -- far beyond any real teaching turn), then we
+    return whatever we have rather than loop forever."""
     reply = ""
-    for hop in range(3):
-        convo = msgs if not reply else msgs + [{"role": "assistant", "content": reply.rstrip()}]
-        response = client.messages.create(
-            model=model,
-            # A CEILING, not a target -- normal turns end well under it. Raised
-            # 1200 -> 1600 alongside the continuation safety net above.
-            max_tokens=1600,
-            system=system_blocks,
-            messages=convo,
-        )
+    hop = 0
+    while hop < 3:
+        if not reply:
+            convo = msgs
+        elif _PREFILL_OK.get(model, True):
+            convo = msgs + [{"role": "assistant", "content": reply.rstrip()}]
+        else:
+            convo = msgs + [{"role": "assistant", "content": reply.rstrip()},
+                            {"role": "user", "content": _CONTINUE_NUDGE}]
+        try:
+            response = client.messages.create(
+                model=model,
+                max_tokens=MAX_REPLY_TOKENS,
+                system=system_blocks,
+                messages=convo,
+            )
+        except Exception as exc:  # noqa: BLE001 -- only the NAMED rejection is handled
+            if reply and _PREFILL_OK.get(model, True) and _is_prefill_rejection(exc):
+                print(f"[tutor]{log_prefix} model refuses assistant prefill -- switching "
+                      f"continuations to a user-message nudge for the rest of this run")
+                _PREFILL_OK[model] = False
+                continue          # retry the SAME hop in the fallback shape
+            raise
         part = "".join(block.text for block in response.content
                        if getattr(block, "type", None) == "text")
         _add_usage(tokens, response)
         reply = (reply.rstrip() + part) if reply else part
         if getattr(response, "stop_reason", "") != "max_tokens":
             break
-        if hop < 2:
-            print(f"[tutor]{log_prefix} reply hit max_tokens -- continuing (hop {hop + 1}/2)")
+        hop += 1
+        if hop < 3:
+            print(f"[tutor]{log_prefix} reply hit max_tokens -- continuing (hop {hop}/2)")
         else:
             print(f"[tutor]{log_prefix} reply STILL at max_tokens after 2 continuations -- returning stitched partial")
     return reply.strip()
@@ -6303,7 +6438,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
         reply = _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
         if not reply:
-            _log_brain_usage(meta, model, tokens, attempt, "")
+            # BUILD dg: a student who hears "I lost my train of thought" repeats
+            # themselves -- so the code repeats itself FIRST. One silent retry before
+            # the apology; the audit counted that apology 6 times in 10 lessons, so
+            # this path is common enough to matter.
+            print(f"[tutor]{log_prefix} model returned an EMPTY reply -- retrying once")
+            reply = _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
+        if not reply:
+            _log_brain_usage(meta, model, tokens, attempt, "empty")
             return ""
         if mathcheck is None:
             # Verifier missing on this deploy (defensive import failed): skip the

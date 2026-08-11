@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dg -- PART 3q (reliability) + the audit-log misfires become
+#               permanent referee cases. The first full audit's Render logs proved the
+#               stumbles were OUR bugs, not rate limits: the rule-15 referee counted the
+#               pronoun "one" as a number and had no concept of an OFFER (a dozen
+#               misfires in forty minutes, each burning a paid draft -- and the geometry
+#               lesson's worked example with them, S-1); claude-sonnet-5 intermittently
+#               rejects assistant-prefill continuation (each rejection was a stumble);
+#               five replies shipped as admitted partials at the 1600 ceiling. Every
+#               quoted misfire is now a PENDING_CASES / SELF_ANSWER_CASES fixture (plus
+#               guards proving the exclusions did not swallow the referee), and PART 3q
+#               proves with a scripted client: the negotiated prefill fallback (the
+#               named 400 switches shapes and is REMEMBERED; unrelated errors still
+#               raise), the 3000 ceiling, the one silent retry on an empty reply, the
+#               stand-alone wording in both regeneration nudges, and the admin key's
+#               exit from query strings (X-Admin-Key header; sessionStorage; no
+#               key-carrying URL built anywhere in admin.html).
 #   2026-08-10  BUILD df -- PART 3o learns the SIXTH unit-name copy and PART 3p bans two
 #               phrases from marketing copy. Jim asked for a sweep proving no blanket
 #               "evidence based learning" claim exists anywhere. It doesn't -- but the
@@ -584,6 +600,39 @@ PENDING_CASES = [
      '[[objects emoji="🍪" groups="5" add="2" caption="count them all"]]', False),
     ("tap-to-answer choices still need the question on the board",
      'What is six times seven? [[write text="6 × 7 = ?"]] [[choices options="42 | 48"]]', False),
+    # ---- BUILD dg (2026-08-11): THE AUDIT-LOG MISFIRES, PERMANENT. Every line below was
+    # quoted in a real [prosecheck] CONTRADICTION on 2026-08-10/11 (Audit_Findings_
+    # 2026-08-11.md, L-3). Each misfire cost a paid regeneration -- and in the geometry
+    # lesson the regenerations cost the student the worked example itself (S-1): the
+    # drafts that contained it kept being discarded, and the surviving draft wrote as if
+    # they had been seen. None of these is a computation handed to the student.
+    ("the S-1 lesson's offer: 'one ... one more' are pronouns, not numbers",
+     "Want to try one yourself now, or see one more worked example first?", False),
+    ("an offer NAMING a candidate problem is still an offer",
+     "Want to try a trickier one — maybe f of x plus 3, or plugging in a negative number?", False),
+    ("an offer with 'f of a plus one' inside it",
+     "Want to try one more with a different expression, like f of a plus one, or are you "
+     "ready to move on?", False),
+    ("an offer with a concrete input",
+     "Want to try one with a different input, like f of 5 for that same rule?", False),
+    ("an offer about limits",
+     "Want to try one yourself — say, finding the limit as x approaches 3 for a similar "
+     "broken f?", False),
+    ("'Ready to...' with real numbers is still an offer",
+     "Ready to try your triangle with legs 6 and 8 now, using the same steps?", False),
+    ("a statement ending inside a quote must not merge into the question after it",
+     'We write that whole thing as "f of 3 equals 7." Want me to run one more number '
+     "through the machine, or try one yourself?", False),
+    ("a look-question directs the eyes at a board already drawn",
+     "See how the last-digit way puts the five right under the seven, which is a "
+     "hundredths piece?", False),
+    # ...and the exclusions must not swallow the referee whole:
+    ("'see how MANY' still asks for a count -- a computation",
+     "See how many apples are left after we take away three and two more?", True),
+    ("comparing unit fractions is still a real computation ask",
+     "So between one fourth and one eighth, which piece is actually bigger?", True),
+    ("'one plus one' is arithmetic even though the word is 'one'",
+     "What is one plus one?", True),
 ]
 
 
@@ -676,6 +725,13 @@ SELF_ANSWER_CASES = [
      "We had 7 apples and 5 arrived. How many are there now?", False),
     ("rhetorical, no numbers anywhere",
      "So what happens next? Let's find out together.", False),
+    # BUILD dg (2026-08-11): the second geometry misfire from the audit logs. An OFFER
+    # followed by the problem GOING UP is exactly right -- rule 39(b)'s referee read the
+    # offer as an answerable question and the problem's own numbers as the leak.
+    ("an offer, then the problem going up, is teaching -- not self-answering",
+     "Want to try one yourself now, or see one more worked example first? Here's one "
+     "ready for you if you're up for it: legs of 6 and 8. "
+     '[[step eq="6^2 + 8^2 = ?"]]', False),
 ]
 
 
@@ -2778,6 +2834,150 @@ def part3p_marketing_claims():
                   f"found {m.group(0)!r}" if m else "")
 
 
+def part3q_reliability():
+    # Added 2026-08-11 (build dg). The first full audit's Render logs proved the
+    # stumbles were OURS, not rate limits (Audit_Findings_2026-08-11.md, PART 5):
+    # claude-sonnet-5 intermittently rejects assistant-prefill continuation (a 400 that
+    # NAMES its objection), five replies shipped as admitted partials at the old 1600
+    # ceiling, and the rule-15 referee's false positives fed both by burning drafts.
+    # This part proves the negotiated continuation, the raised ceiling, the empty-reply
+    # retry, the stand-alone nudges, and the admin key's exit from query strings.
+    print("\nPART 3q — reliability: continuation, empty retry, nudges, key transport")
+
+    class _Resp:
+        def __init__(self, text, stop):
+            class _B:
+                pass
+            b = _B()
+            b.type = "text"
+            b.text = text
+            self.content = [b]
+            self.stop_reason = stop
+            self.usage = None
+
+    class _Stub:
+        """A scripted stand-in for the Anthropic client. Each script step is a _Resp
+        to return or an Exception to raise; every call's kwargs are recorded."""
+        def __init__(self, script):
+            self.script = list(script)
+            self.calls = []
+            self.messages = self          # so stub.messages.create(...) works
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            step = self.script.pop(0)
+            if isinstance(step, Exception):
+                raise step
+            return step
+
+    _PREFILL_ERR = Exception(
+        "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', "
+        "'message': 'This model does not support assistant message prefill. The "
+        "conversation must end with a user message.'}}")
+
+    # --- the ceiling rose, and it is a named constant ---------------------------------
+    check("MAX_REPLY_TOKENS is 3000 (raised from 1600 in build dg)",
+          getattr(tutor, "MAX_REPLY_TOKENS", None) == 3000,
+          f"got {getattr(tutor, 'MAX_REPLY_TOKENS', None)}")
+
+    msgs = [{"role": "user", "content": "hello"}]
+
+    # --- plain reply: one call, ceiling passed through --------------------------------
+    stub = _Stub([_Resp("All done.", "end_turn")])
+    out = tutor._create_full(stub, "dg-stub-plain", None, msgs, {})
+    check("plain turn: one call, text returned", out == "All done." and len(stub.calls) == 1,
+          f"out={out!r}, calls={len(stub.calls)}")
+    check("plain turn: max_tokens kwarg is the ceiling",
+          stub.calls[0].get("max_tokens") == tutor.MAX_REPLY_TOKENS,
+          f"got {stub.calls[0].get('max_tokens')}")
+
+    # --- prefill continuation, when the model accepts it ------------------------------
+    stub = _Stub([_Resp("abc", "max_tokens"), _Resp("def", "end_turn")])
+    out = tutor._create_full(stub, "dg-stub-prefill-ok", None, msgs, {})
+    last = stub.calls[1]["messages"][-1]
+    check("prefill continuation: stitched", out == "abcdef", f"out={out!r}")
+    check("prefill continuation: second call ends with the assistant partial",
+          last.get("role") == "assistant" and last.get("content") == "abc",
+          f"last message: {last}")
+
+    # --- THE AUDIT'S BUG: the named 400 switches to the user-nudge fallback -----------
+    stub = _Stub([_Resp("part1", "max_tokens"), _PREFILL_ERR, _Resp("part2", "end_turn")])
+    out = tutor._create_full(stub, "dg-stub-prefill-no", None, msgs, {})
+    last = stub.calls[2]["messages"][-1]
+    check("prefill rejection: reply still completes (negotiated fallback)",
+          out == "part1part2", f"out={out!r}, calls={len(stub.calls)}")
+    check("prefill rejection: fallback call ends with the continuation nudge",
+          last.get("role") == "user" and "cut off" in str(last.get("content", "")),
+          f"last message: {last}")
+    check("prefill rejection: the refusal is REMEMBERED for this run",
+          tutor._PREFILL_OK.get("dg-stub-prefill-no") is False, "flag not recorded")
+    # ...and the next turn on that model goes straight to the fallback shape
+    stub = _Stub([_Resp("x", "max_tokens"), _Resp("y", "end_turn")])
+    out = tutor._create_full(stub, "dg-stub-prefill-no", None, msgs, {})
+    last = stub.calls[1]["messages"][-1]
+    check("remembered refusal: no second 400 is ever risked",
+          out == "xy" and last.get("role") == "user",
+          f"out={out!r}, last={last}")
+    tutor._PREFILL_OK.pop("dg-stub-prefill-no", None)   # leave no test residue
+
+    # --- an unrelated API error must still RAISE (never swallowed) --------------------
+    stub = _Stub([_Resp("head", "max_tokens"), Exception("rate limited, try later")])
+    try:
+        tutor._create_full(stub, "dg-stub-other-err", None, msgs, {})
+        ok_ = False
+    except Exception:
+        ok_ = True
+    check("an unrelated API error still raises (only the NAMED 400 is negotiated)", ok_,
+          "the error was swallowed")
+
+    # --- still truncated after 2 continuations: stitched, loudly, 3 calls total -------
+    stub = _Stub([_Resp("a", "max_tokens"), _Resp("b", "max_tokens"), _Resp("c", "max_tokens")])
+    out = tutor._create_full(stub, "dg-stub-partial", None, msgs, {})
+    check("hop limit: exactly 3 calls, pieces stitched", out == "abc" and len(stub.calls) == 3,
+          f"out={out!r}, calls={len(stub.calls)}")
+
+    # --- an EMPTY reply is retried once before any apology ----------------------------
+    stub = _Stub([_Resp("", "end_turn"), _Resp("Nice work. Let's keep going.", "end_turn")])
+    out = tutor._create_verified(stub, "dg-stub-empty", None, msgs, " [test]")
+    check("empty reply: retried once, silently",
+          out == "Nice work. Let's keep going." and len(stub.calls) == 2,
+          f"out={out!r}, calls={len(stub.calls)}")
+    stub = _Stub([_Resp("", "end_turn"), _Resp("", "end_turn")])
+    out = tutor._create_verified(stub, "dg-stub-empty2", None, msgs, " [test]")
+    check("empty twice: gives up cleanly so the caller can apologize",
+          out == "" and len(stub.calls) == 2, f"out={out!r}, calls={len(stub.calls)}")
+
+    # --- both regeneration nudges order the rewrite to STAND ALONE --------------------
+    # The S-1 mechanism: two good drafts were burned by referee misfires, and the third
+    # opened "So the hypotenuse is 5" -- the tail of an explanation only the DISCARDED
+    # drafts contained. The nudge is the only voice in the room at that moment.
+    check("the prose nudge orders a stand-alone rewrite",
+          "STAND ALONE" in tutor._PROSE_NUDGE and "from scratch" in tutor._PROSE_NUDGE,
+          "missing the stand-alone instruction")
+    check("the mathcheck nudge orders a stand-alone rewrite",
+          "STAND ALONE" in tutor._MATHCHECK_NUDGE, "missing the stand-alone instruction")
+
+    # --- the admin key stays out of query strings (the L-4 leak) ----------------------
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        adm = fh.read()
+    check("admin.html sends the key in the X-Admin-Key header",
+          '"X-Admin-Key"' in adm, "header not found")
+    check("admin.html never builds a key-carrying URL",
+          not re.search(r'\?key="\s*\+', adm), "found a '?key=\" +' URL construction")
+    check("admin.html keeps the key in sessionStorage, not the address bar",
+          'sessionStorage.setItem("mt_admin_key"' in adm and "history.replaceState" in adm,
+          "sessionStorage stash or address-bar scrub missing")
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        mn = fh.read()
+    n_alias = mn.count('alias="X-Admin-Key"')
+    check("all four admin GET endpoints accept the X-Admin-Key header",
+          n_alias >= 4, f"found {n_alias} of 4")
+    n_pref = mn.count("_require_admin(x_admin_key or key)")
+    check("the header is preferred over the query param",
+          n_pref >= 4, f"found {n_pref} of 4")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -2825,6 +3025,7 @@ def main():
     part3n_sprints()
     part3o_unit_name_parity()
     part3p_marketing_claims()
+    part3q_reliability()
     if live:
         part4_live()
     else:
