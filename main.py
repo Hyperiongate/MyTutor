@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dt-missed-problems". THE DATA FOUNDATION
+#               (Four-Lens student item 1, NEW RULE 55): until today a 62% Unit Quiz
+#               stored ONLY "62%" -- nobody, including the tutor next session, could
+#               see WHICH problems were missed. Now: the tutor reports each miss in
+#               the tag (missed="question => their answer | ...", rule 55a -- the
+#               tutor is the only one who knows what was asked); /api/quiz,
+#               /api/check, and /api/final accept the list via _keep_misses (HONESTLY
+#               CLAMPED: never more entries than total-correct, <= 25, fail-open so a
+#               malformed list never costs the score); store.quiz_misses keeps the
+#               newest 200 per student and joins the reset family day one. Surfaced
+#               three ways: NEW GET /api/misses/{code} feeds the dashboard's
+#               "Tricky ones" card; _mastery_note hands the last 5 back to the tutor
+#               with rule 55(b)'s marching orders (revisit exactly ONE, early, as a
+#               fresh similar problem -- spaced retrieval, never a re-test); and the
+#               parent's "what did she struggle with?" becomes buildable later from
+#               the same rows.
 #   2026-08-11  APP_BUILD -> "2026-08-11ds-sprints-anytime-help". TWO STUDENT-LENS FIXES
 #               (Four-Lens Review items 3 and 6). (1) HELP THAT WORKS FOR A KID: new
 #               /help route + static/help.html, a student-first FAQ (sign-in, mic,
@@ -2400,6 +2416,23 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> s
             qparts.append(f"Unit {n}: " + "; ".join(items))
         note += (" TOPIC QUIZZES so far -- " + " | ".join(qparts) +
                  ". Resume each unit at its first unpassed topic; do not re-quiz passed topics.")
+    # RECENT MISSES (2026-08-11, build dt -- rule 55's spaced-review half). The tutor
+    # reported these in quiz tags; now they come back as steering. Capped tight: the
+    # note is per-turn prompt weight, and ONE revisited problem is the whole ask.
+    try:
+        misses = store.get_misses(code, course, limit=5)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[mastery-note] get_misses failed (ignored): {exc}")
+        misses = []
+    if misses:
+        mm = "; ".join(
+            f"\"{m['question'][:80]}\" (they answered \"{m['answer'][:40]}\""
+            + (f", Unit {m['unit']}" if m.get("unit") else "") + f", {m['when']})"
+            for m in misses)
+        note += (" RECENT MISSED PROBLEMS (rule 55): " + mm +
+                 ". Early in this session -- after the opener, never as a cold open -- "
+                 "revisit exactly ONE of these as a FRESH, slightly different problem "
+                 "of the same kind, warmly. One is enough; never re-run a failed quiz.")
     fu = int(focus_unit or 0)
     if 1 <= fu <= 9:
         note += (f" TODAY the student chose to work on Unit {fu} "
@@ -2455,6 +2488,7 @@ class FinalIn(BaseModel):
     correct: int
     total: int
     course: str = "algebra1"
+    missed: list = []          # build dt: rule 55's missed problems ride the same POST
 
 
 class PracticeRequest(BaseModel):
@@ -2487,7 +2521,11 @@ class PlacementIn(BaseModel):
     points: int = 0
 
 
-class CheckIn(BaseModel):
+class _CheckMissedMixin(BaseModel):
+    missed: list = []          # build dt: rule 55's missed problems ride the same POST
+
+
+class CheckIn(_CheckMissedMixin):
     unit: int                  # which of the 9 units this end-of-unit check covered
     correct: int = 0           # questions the student got right
     total: int = 1             # questions on the check
@@ -2502,6 +2540,29 @@ class QuizIn(BaseModel):
     correct: int = 0
     total: int = 1
     course: str = "algebra1"
+    missed: list = []          # build dt: [{"q": question, "a": their answer}, ...] from rule 55
+
+
+def _keep_misses(code: str, course: str, unit: int, topic: int, kind: str,
+                 missed, correct: int, total: int) -> None:
+    """Store the tag's missed problems (build dt), HONESTLY CLAMPED: never more
+    entries than were actually missed (total - correct), never more than 25, and
+    always fail-open -- a malformed missed list must never cost the score above it."""
+    try:
+        if not (store.enabled() and missed):
+            return
+        room = max(0, min(25, int(total) - int(correct)))
+        if not room:
+            return
+        items = []
+        for it in list(missed)[:room]:
+            if isinstance(it, dict):
+                items.append({"q": it.get("q"), "a": it.get("a")})
+        if items:
+            store.record_misses(code, course, int(unit or 0), int(topic or 0),
+                                kind, items)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[misses] store failed (ignored): {exc}")
 
 
 # TEACHER / PARENT CLASSROOM (2026-07-28) -- see the classroom endpoints below.
@@ -5357,6 +5418,8 @@ def post_final(code: str, body: FinalIn):
             return {"ok": False, "tracking": True, "locked": True,
                     "detail": _final_gate_message(code, course, state)}
         res = store.record_final_exam(code, int(body.correct), int(body.total), course)
+        _keep_misses(code, course, 0, 0, "final",
+                     getattr(body, "missed", []), body.correct, body.total)
         return {"ok": True, "tracking": True, **res}
     except Exception as exc:  # noqa: BLE001
         print(f"[final] record_final_exam failed: {exc}")
@@ -5375,6 +5438,8 @@ def post_check(code: str, body: CheckIn):
         course = getattr(body, "course", None) or "algebra1"
         name = curriculum.unit_name(course, int(body.unit))
         res = store.record_check(code, int(body.unit), int(body.correct), int(body.total), name, course)
+        _keep_misses(code, course, body.unit, 0, "check",
+                     body.missed, body.correct, body.total)
         return {"ok": True, "tracking": True, **res}
     except Exception as exc:  # noqa: BLE001
         print(f"[check] record_check failed: {exc}")
@@ -5465,10 +5530,36 @@ def post_quiz(code: str, body: QuizIn):
         res = store.record_topic_quiz(code, int(body.unit), (body.name or "").strip(),
                                       int(body.correct), int(body.total), course,
                                       topic_idx=int(body.topic or 0))
+        _keep_misses(code, course, body.unit, body.topic, "quiz",
+                     body.missed, body.correct, body.total)
         return {"ok": True, "tracking": True, **res}
     except Exception as exc:  # noqa: BLE001
         print(f"[quiz] record_topic_quiz failed: {exc}")
         return {"ok": False, "tracking": True}
+
+
+@app.get("/api/misses/{code}")
+def get_misses_api(code: str, course: str = ""):
+    """The student's recent missed problems (build dt) for the dashboard's review
+    card: newest first, with unit names attached. Student-gated like every
+    per-student read; honest {tracking:false} when the DB is off."""
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": False, "tracking": False, "misses": []}
+    course = course if course in curriculum.COURSES else ""
+    try:
+        rows = store.get_misses(code, course or None, limit=30)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[misses] read failed: {exc}")
+        rows = []
+    for r in rows:
+        try:
+            r["unit_name"] = (curriculum.unit_name(course or "algebra1", r["unit"])
+                              if r.get("unit") else "")
+        except Exception:  # noqa: BLE001
+            r["unit_name"] = ""
+    return {"ok": True, "tracking": True, "misses": rows}
 
 
 @app.post("/api/mark/{code}")
@@ -5497,7 +5588,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11ds-sprints-anytime-help"
+APP_BUILD = "2026-08-11dt-missed-problems"
 
 
 @app.get("/health")

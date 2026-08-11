@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    2026-08-11  TRICKY-ONES REVIEW CARD (build dt, rule 55 -- Four-Lens student item 1:
+                "show me what I got wrong"). New hidden-until-data card listing the exact
+                quiz problems this student missed (question + what they answered), from
+                the new GET /api/misses. Students only; empty = invisible (no nag); a
+                Practice link sits right under it, and the card says plainly that
+                Mr. Cadabra will weave one into the next lesson himself (the spaced-
+                review half of rule 55). Fails soft like every bonus card.
     2026-08-11  RUN A SPRINT FROM HERE (build ds -- Four-Lens Review, student lens item 6).
                 The sprint-record card gains "⚡ Run one now →" (students only, never the
                 read-only parent/teacher view) -> /session?...&sprint=1, which starts the
@@ -420,6 +427,19 @@
     <div id="sprintWrap" style="display:none;">
       <div class="section-h">⚡ Your sprint record <span class="note" id="sprintNote">— one-minute rounds, racing only yourself</span></div>
       <div class="sprintcard"><div id="sprintChart"></div></div>
+    </div>
+
+    <!-- 2026-08-11 (build dt, rule 55): the review card. Hidden until a quiz actually
+         records a miss (an empty card is a nag); students only. These are the exact
+         problems the student missed, in their own words — Mr. Cadabra weaves one into
+         the next lesson himself (spaced review), and Practice is one tap away. -->
+    <div id="missWrap" style="display:none;">
+      <div class="section-h">🩹 Tricky ones — worth one more look <span class="note" id="missNote"></span></div>
+      <div class="sprintcard"><div id="missList"></div>
+        <p style="margin:10px 2px 0;font-size:13.5px;color:var(--muted, #6b6580)">
+          Mr. Cadabra remembers these too — he'll weave one into your next lesson.
+          Want to beat one now? <a id="missPractice" style="font-weight:800;color:#6d5ae6" href="#">✏️ Take one to Practice →</a></p>
+      </div>
     </div>
 
     <div class="tiles" id="tiles"></div>
@@ -851,6 +871,31 @@
       } catch (e) { /* the card is a bonus -- never block the dashboard */ }
     }
     loadSprints();
+
+    // ----- 2026-08-11 (build dt, rule 55): the missed-problems review card -----------
+    async function loadMisses() {
+      try {
+        const res = await fetch("/api/misses/" + encodeURIComponent(CODE) +
+                                "?course=" + encodeURIComponent(COURSE));
+        if (!res.ok) return;
+        const d = await res.json();
+        const rows = (d && d.misses) || [];
+        if (!rows.length || isTeacher) return;        // empty = hidden; parent view: theirs to see via the tutor, not a wall of misses
+        el("missList").innerHTML = rows.slice(0, 8).map(r => {
+          const where = r.unit ? ("Unit " + r.unit + (r.unit_name ? " · " + esc(r.unit_name) : "")) :
+                        (r.kind === "final" ? "Final Exam" : "");
+          return '<div style="padding:9px 4px;border-bottom:1px dashed #e8e5f4;font-size:14.5px">' +
+            '<b>' + esc(r.question) + '</b>' +
+            (r.answer ? ' <span style="color:#b3402e">— you said “' + esc(r.answer) + '”</span>' : '') +
+            '<span class="note" style="margin-left:8px">' + esc(where) + (r.when ? " · " + esc(r.when) : "") + '</span></div>';
+        }).join("");
+        el("missNote").textContent = "— " + rows.length + " from your quizzes · newest first · beating one feels great";
+        el("missPractice").href = "/practice?code=" + encodeURIComponent(CODE) +
+                                  "&course=" + encodeURIComponent(COURSE);
+        el("missWrap").style.display = "block";
+      } catch (e) { /* the card is a bonus -- never block the dashboard */ }
+    }
+    loadMisses();
 
     // ----- MY COURSES strip: the student's whole picture, not just the course they walked in with -----
     async function loadMyCourses() {

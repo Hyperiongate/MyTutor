@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dt -- MISSED-PROBLEM MEMORY (Four-Lens student item 1, the data
+#               foundation). NEW table quiz_misses (one row per missed quiz/check/final
+#               question: the question as asked + the student's exact wrong answer,
+#               reported by the tutor per rule 55) + record_misses() (re-clamped
+#               lengths, <= 25 per event, swept to the newest 200 rows per student on
+#               every write) + get_misses() (newest first, course-filterable). Joins
+#               _STUDENT_CODE_TABLES on day one; export/backup picks it up
+#               automatically because export_all() walks _tables.
 #   2026-08-11  BUILD dj -- BACKUPS (Jim: "if Render falters, do we have sufficient
 #               backup so that we could recreate everything right away?"). The code is
 #               safe on GitHub and the voice cache is recreatable for ~$20 -- the
@@ -669,6 +677,27 @@ def init():
             Column("b_correct", Integer, default=0),
             Column("b_attempted", Integer, default=0),
             Column("improvement", Integer, default=0),        # b_correct - a_correct
+            Column("created_at", DateTime(timezone=True)),
+        )
+        # MISSED QUIZ PROBLEMS (2026-08-11, build dt -- Four-Lens student item 1, THE
+        # data foundation). One row per missed question from a topic quiz / Unit Quiz /
+        # Final Exam: the question as asked and the student's exact wrong answer,
+        # reported by the tutor in the tag's missed= attribute (rule 55). Powers the
+        # dashboard's review card, the mastery note's spaced-review block, and (later)
+        # the parent's "what did she struggle with?". Swept to the newest 200 rows per
+        # student on every write (a years-old miss is noise, not memory). Brand-new
+        # table -> create_all builds it; no migration. JOINS _STUDENT_CODE_TABLES on
+        # day one (standing rule).
+        _tables["quiz_misses"] = Table(
+            "quiz_misses", _meta,
+            Column("id", Integer, primary_key=True, autoincrement=True),
+            Column("code", String(64), index=True),
+            Column("course", String(32)),
+            Column("unit", Integer, default=0),
+            Column("topic", Integer, default=0),
+            Column("kind", String(8)),                        # 'quiz' | 'check' | 'final'
+            Column("question", String(200)),
+            Column("answer", String(120)),                    # the student's wrong answer
             Column("created_at", DateTime(timezone=True)),
         )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
@@ -1382,6 +1411,56 @@ def record_sprint(code: str, course: str, unit: int, skill: str,
             "personal_best": b_cor > prev_best}
 
 
+def record_misses(code: str, course: str, unit: int, topic: int, kind: str,
+                  items: list) -> int:
+    """Store the missed problems from one quiz/check/final (2026-08-11, build dt).
+
+    `items` is [{"q": question, "a": the student's answer}, ...] straight from the
+    tag's missed= attribute (rule 55), ALREADY clamped by main.py (count <= the number
+    actually missed). Lengths are re-clamped here anyway -- the row must be honest even
+    if a caller isn't. After writing, the student's rows are swept to the newest 200:
+    this is review material, not an archive. Returns how many rows were written."""
+    t = _tables["quiz_misses"]
+    kind = kind if kind in ("quiz", "check", "final") else "quiz"
+    wrote = 0
+    with _engine.connect() as conn:
+        for it in list(items or [])[:25]:
+            q = str((it or {}).get("q") or "").strip()[:200]
+            a = str((it or {}).get("a") or "").strip()[:120]
+            if not q:
+                continue
+            conn.execute(t.insert().values(
+                code=code, course=course, unit=int(unit or 0), topic=int(topic or 0),
+                kind=kind, question=q, answer=a, created_at=_now()))
+            wrote += 1
+        # sweep: keep the newest 200 rows for this student (all courses together)
+        from sqlalchemy import select
+        ids = [r[0] for r in conn.execute(
+            select(t.c.id).where(t.c.code == code)
+            .order_by(t.c.id.desc()).offset(200)).all()]
+        if ids:
+            conn.execute(t.delete().where(t.c.id.in_(ids)))
+        conn.commit()
+    return wrote
+
+
+def get_misses(code: str, course=None, limit: int = 30) -> list:
+    """Newest-first missed problems for the review card and the mastery note:
+    [{unit, topic, kind, question, answer, when}] -- `when` is an ISO date."""
+    from sqlalchemy import select
+    t = _tables["quiz_misses"]
+    q = select(t.c.unit, t.c.topic, t.c.kind, t.c.question, t.c.answer,
+               t.c.created_at).where(t.c.code == code)
+    if course:
+        q = q.where(t.c.course == course)
+    q = q.order_by(t.c.id.desc()).limit(max(1, int(limit)))
+    with _engine.connect() as conn:
+        rows = conn.execute(q).all()
+    return [{"unit": r[0] or 0, "topic": r[1] or 0, "kind": r[2] or "quiz",
+             "question": r[3] or "", "answer": r[4] or "",
+             "when": (r[5].date().isoformat() if r[5] else "")} for r in rows]
+
+
 def get_sprint_history(code: str, course: str, unit=None, limit: int = 20) -> list:
     """Most-recent-first sprint rows for the dashboards' progress graph (WWC guide 26
     rec 6: track it and SHOW it). [{unit, skill, day, a, b, improvement}]."""
@@ -1941,6 +2020,9 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-11 (build dd): sprint history, same rule -- a reset student starts with a
     # clean personal-best slate.
     ("sprints", "code"),
+    # 2026-08-11 (build dt): missed quiz problems, same rule -- a reset student's
+    # review list starts empty, and no ghost misses steer their new tutor.
+    ("quiz_misses", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),

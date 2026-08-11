@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dt -- MISSED-PROBLEM MEMORY, GUARDED END TO END (rule 55 joins
+#               RULE_VERIFY as COVERED). Source checks: session.html parses missed=
+#               and ships it on all three score POSTs; the dashboard's Tricky-ones
+#               card exists, hides when empty, fails soft; _keep_misses clamps to
+#               total-correct (a tutor can never report more misses than there were
+#               questions); GET /api/misses is student-gated; the mastery note hands
+#               misses back with rule 55(b)'s revisit-ONE orders; quiz_misses joins
+#               the reset family; rule 55 lives in the SHARED block exactly once.
+#               LIVE drill (TestClient + sqlite): post a 3/5 quiz reporting 4 misses
+#               -> exactly 2 stored, newest first, unit names attached; the mastery
+#               note carries them; a 5/5 with a phantom miss stores NOTHING; the
+#               sweep holds the newest 200; reset_student_data leaves the list empty.
 #   2026-08-11  BUILD ds -- HELP AND SPRINTS-ON-REQUEST, GUARDED (PART 3p block):
 #               app-nav's help pill must stay /help and never regress to a mailto
 #               (dead on school Chromebooks); help.html must exist whole with the
@@ -2266,6 +2278,10 @@ RULE_VERIFY = {
                       "at one position (build dl; WWC g26 r4)"),
     54: ("ENFORCED",  "board_notation_conflict regenerates a taught key-word shortcut "
                       "(build dl; WWC g26 r5); the schema half remains prompt-covered"),
+    55: ("COVERED",   "missed-problem memory (build dt): the tag->store->mastery-note "
+                      "pipeline is proven end-to-end in the dt block (PART 3n) -- the "
+                      "wording halves (tag emission, one-fresh-revisit) are prompt-"
+                      "covered; candidate for EXERCISED via a future audit scenario"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -3421,6 +3437,47 @@ def part3p_marketing_claims():
             check(f"README.md: no {label}", m is None,
                   f"found {m.group(0)!r}" if m else "")
 
+    # ---- BUILD dt: MISSED PROBLEMS ARE REMEMBERED (rule 55, the data foundation) ----
+    # The whole pipeline, source-checked here and drilled live below: the tag carries
+    # the misses, the pages parse and POST them, the server clamps honestly, the store
+    # sweeps, the reset wipes, the mastery note hands them back for spaced review.
+    sess3 = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("session.html parses missed= and ships it on all three score POSTs (dt)",
+          "function parseMissed" in sess3
+          and sess3.count("missed: parseMissed(a.missed)") >= 3,
+          "a tag the pages ignore is a rule the product doesn't keep")
+    dash3 = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
+    check("the dashboard has the hidden-until-data Tricky-ones card (dt)",
+          'id="missWrap" style="display:none;"' in dash3
+          and "/api/misses/" in dash3 and "never block the dashboard" in
+          dash3.split("loadMisses")[1][:2400],
+          "review-my-misses must exist, hide when empty, and fail soft")
+    mn3 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("misses are HONESTLY CLAMPED server-side (dt)",
+          "def _keep_misses" in mn3
+          and "min(25, int(total) - int(correct))" in mn3,
+          "the tutor could otherwise report more misses than there were questions")
+    check("GET /api/misses/{code} exists and is student-gated (dt)",
+          '@app.get("/api/misses/{code}")' in mn3
+          and "_student_or_404" in mn3.split('@app.get("/api/misses/{code}")')[1][:700],
+          "an open endpoint that hands out a child's mistakes")
+    check("the mastery note hands misses back with rule 55(b)'s orders (dt)",
+          "RECENT MISSED PROBLEMS (rule 55)" in mn3
+          and "revisit exactly ONE" in mn3,
+          "stored misses the tutor never sees are a diary, not a teaching tool")
+    st3 = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    check("quiz_misses joins the reset family day one (dt)",
+          '("quiz_misses", "code"),' in st3,
+          "a reset student must not keep ghost misses")
+    check("rule 55 lives in the SHARED block exactly once (dt)",
+          tutor.GRAPH_TOOL_NOTE.count("55. A MISSED QUIZ PROBLEM COMES BACK") == 1,
+          "the rule must reach every course from ONE place")
+    check("  ...and the missed= tag spec lives in the LESSON-ONLY note (dt)",
+          'missed="2/5 + 1/5 => 3/10' in tutor.PROGRESS_TAGS_NOTE
+          and "[[finalexam" not in tutor.GRAPH_TOOL_NOTE,
+          "quiz tags exist only in lessons; the SHARED block must not teach "
+          "practice/topic a tag their pages cannot draw (PART 3e's own guard)")
+
     # ---- BUILD dq: MARKETING MUST MATCH THE PRODUCT (Four-Lens Review theme B) ------
     # Two kinds of drift, both now machine-caught: promises the product doesn't keep
     # (the phantom "read-only parent code") and product the marketing hides (teachers.html
@@ -3537,6 +3594,54 @@ def part3p_marketing_claims():
                                capture_output=True, text=True)
             check("family flow live: signup -> child -> overview -> email off -> gate holds",
                   r.returncode == 0 and "FAMILY-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-300:])
+
+        # ---- BUILD dt: the missed-problem pipeline, LIVE end to end ------------------
+        import tempfile as _tf5
+        with _tf5.TemporaryDirectory() as tmp5:
+            drill = os.path.join(tmp5, "missdrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main, store\n"
+                    "c = TestClient(main.app)\n"
+                    "# 4 reported, only 2 actually missed -> exactly 2 may be stored\n"
+                    "r = c.post('/api/quiz/1234', json={'unit': 3, 'topic': 1,\n"
+                    "    'name': 'Adding fractions', 'correct': 3, 'total': 5,\n"
+                    "    'course': 'prealgebra', 'missed': [\n"
+                    "    {'q': '2/5 + 1/5', 'a': '3/10'}, {'q': '1/2 + 1/4', 'a': '2/6'},\n"
+                    "    {'q': 'fake 3', 'a': 'x'}, {'q': 'fake 4', 'a': 'y'}]})\n"
+                    "assert r.status_code == 200 and r.json()['ok'], r.text\n"
+                    "d = c.get('/api/misses/1234?course=prealgebra').json()\n"
+                    "assert d['ok'] and len(d['misses']) == 2, d\n"
+                    "assert d['misses'][0]['question'] == '1/2 + 1/4', d  # newest first\n"
+                    "assert d['misses'][0]['unit_name'], d               # unit name attached\n"
+                    "# the mastery note hands them back with the spaced-review orders\n"
+                    "note = main._mastery_note('1234', 0, 'prealgebra')\n"
+                    "assert 'RECENT MISSED PROBLEMS (rule 55)' in note, note[-300:]\n"
+                    "assert '2/5 + 1/5' in note and 'revisit exactly ONE' in note\n"
+                    "# a perfect score stores nothing, whatever the tag claims\n"
+                    "c.post('/api/quiz/1234', json={'unit': 3, 'topic': 2, 'name': 'x',\n"
+                    "    'correct': 5, 'total': 5, 'course': 'prealgebra',\n"
+                    "    'missed': [{'q': 'phantom', 'a': 'z'}]})\n"
+                    "d = c.get('/api/misses/1234?course=prealgebra').json()\n"
+                    "assert len(d['misses']) == 2 and 'phantom' not in str(d), d\n"
+                    "# the sweep keeps the newest 200\n"
+                    "for i in range(9):\n"
+                    "    store.record_misses('1234', 'prealgebra', 1, 0, 'quiz',\n"
+                    "        [{'q': f'bulk {i}-{j}', 'a': 'w'} for j in range(25)])\n"
+                    "assert len(store.get_misses('1234', limit=500)) <= 200\n"
+                    "# Start Fresh wipes the review list with everything else\n"
+                    "store.reset_student_data('1234')\n"
+                    "assert store.get_misses('1234', limit=10) == []\n"
+                    "print('MISS-DRILL-OK')\n")
+            env = dict(os.environ,
+                       DATABASE_URL=f"sqlite:///{os.path.join(tmp5, 'm.db')}",
+                       WEEKLY_EMAIL="off", PYTHONPATH=here)
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("missed-problem pipeline live: clamp -> read-back -> note -> sweep -> reset",
+                  r.returncode == 0 and "MISS-DRILL-OK" in r.stdout,
                   (r.stdout + r.stderr)[-300:])
 
 
