@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dh-audit-rules". BATCHES B + C of the first full
+#               audit (Audit_Findings_2026-08-11.md). NOTHING in this file changed but
+#               the stamp -- the work lives in tutor.py (nine rule additions incl. NEW
+#               rule 52; two new referees: rules 17 and 44 move COVERED -> ENFORCED),
+#               ruletests.py (their fixtures, quoted from the audit; the three-referee
+#               foundation sweep), misconceptions.py (denominator-zero-means-hole; the
+#               discriminating-counterexample warning on decimal alignment),
+#               notation.py (f(a+1) read as "f of the quantity a plus one"), and
+#               lessonaudit.py (the final-exam scenario seeds a real mastery picture;
+#               critic discipline checks 4 and 5: the board's capital-letter convention,
+#               and decided designs are not findings). RULES.md regenerated -- 52 rules,
+#               16 enforced.
 #   2026-08-11  APP_BUILD -> "2026-08-11dg-reliability". BATCH A: the first full audit's
 #               stumbles were OUR bugs, not rate limits (Audit_Findings_2026-08-11.md,
 #               PART 5). The teaching-side fixes live in tutor.py (referee false
@@ -5145,7 +5157,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dg-reliability"
+APP_BUILD = "2026-08-11dh-audit-rules"
 
 
 @app.get("/health")

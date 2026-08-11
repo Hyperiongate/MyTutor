@@ -2,6 +2,28 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dh -- three lessons from adjudicating the first FULL-CAST run
+#               (Audit_Findings_2026-08-11.md):
+#               (1) SCENARIOS CAN SEED A PROGRESS RECORD. The final-exam-locked finding
+#               (E-1) could not be adjudicated because the audit student was a bare
+#               {"progress": "Working in unit 9."} -- no mastery state, and this harness
+#               calls tutor.get_tutor_reply directly, so main.py's real server-side
+#               final-exam gate never runs here. The scenario now seeds an explicit
+#               mastery picture (which units are mastered, which are checked-but-open and
+#               at what best score), so the critic can legitimately mark whether the
+#               tutor names the open units. NOTE, recorded so nobody re-litigates it:
+#               the SERVER gate (_final_gate_message, build cu) is out of this harness's
+#               reach by design and is proven by its own end-to-end test in that build.
+#               (2) THE CRITIC LEARNS THE BOARD'S CASE CONVENTION (discipline check 4).
+#               It flagged "x^2 - 3X - 10" as inconsistent notation -- but the student's
+#               board renders EVERY single-letter variable as a red CAPITAL regardless of
+#               the case in the tag (session.html styleVars), so tag-level case mixing is
+#               invisible to the student. Findings about it are noise.
+#               (3) THE CRITIC LEARNS OUR DECIDED DESIGNS (discipline check 5). Three of
+#               its findings re-litigated the sanctioned rule-39(d) check-in wording, and
+#               one re-litigated rule 50's student agency. Decided designs are not
+#               findings; the checks name both so the next run spends its attention on
+#               real defects.
 #   2026-08-10  BUILD dc -- COUNT THE STUMBLES. The first full audit's most important
 #               finding was made by a human reading the transcripts, not by the critic:
 #               four graceful-failure turns in ten lessons. A critic marking content
@@ -193,7 +215,15 @@ SCENARIOS = [
     dict(id="final-exam-locked", course="prealgebra", unit=9,
          exposes="the Final Exam gate (build cu) and rule 50. The student is short of "
                  "mastery and must be told WHICH units, and offered the retake -- not just "
-                 "'you have mastered 3 of 9'.",
+                 "'you have mastered 3 of 9'. The progress seed below IS the test: units "
+                 "4 and 7 are open at named best scores, so a correct reply names BOTH, "
+                 "offers review and retake, and says the record keeps their best score.",
+         # build dh (E-1): this harness bypasses main.py's server-side gate by design,
+         # so the scenario must carry the mastery picture the real path would load.
+         progress=("Working in unit 9. Units mastered: 1, 2, 3, 5, 6, 8. "
+                   "Checked but not yet mastered: Unit 4 (Fractions, best score 85%), "
+                   "Unit 7 (Percents, best score 80%). Unit 9 in progress, no quiz yet. "
+                   "The Final Exam stays locked until every unit is mastered."),
          persona="You are 13 and impatient. You want to take the final exam now. You "
                  "answer briefly and you push back when told to wait. Never say you are "
                  "an AI.",
@@ -242,6 +272,17 @@ human time to reject):
    them. If your suggested fix already appears in the transcript, you have no finding.
 3. Mathematics that is correct under standard conventions is never a finding, however
    surprising it looks.
+4. THE BOARD'S CASE CONVENTION: the student's screen renders every single-letter
+   variable as a red CAPITAL letter, whatever the case inside the tag -- so
+   "x^2 - 3X - 10" displays perfectly consistently. Case mixing inside a tag is
+   invisible to the student and is NOT a finding.
+5. DECIDED DESIGNS ARE NOT FINDINGS. Two you will be tempted by: (a) the check-in
+   "...or should I show it a different way?" is REQUIRED wording (the rules ban the
+   bare "does that make sense?" and mandate exactly this escape-hatch form -- flag only
+   the bare form asked alone); (b) a student MAY choose to move past an unfinished unit
+   once the tutor has raised it -- rule 50 preserves that agency on purpose; flag only a
+   tutor who never raised it at all. And an OFFER ("Want to try one more, or move on?")
+   is an invitation, not an understanding check, and needs no pending board line.
 
 Return STRICT JSON only, no prose around it:
 {"findings":[{"severity":"high|medium|low","rule":<number or null>,
@@ -465,8 +506,11 @@ def _is_fallback(reply: str) -> bool:
 def run_scenario(sc, turns=TURNS):
     """Play one lesson. Returns (transcript, error, fallbacks). Transcript is
     [(role, text), ...]; fallbacks counts tutor turns that came back as an apology."""
+    # build dh: a scenario may seed a full progress record (mastery state, open units,
+    # best scores) -- the harness calls the tutor directly, so anything main.py would
+    # normally load onto the student must arrive through the scenario itself.
     student = {"name": "Audit Student", "code": "AUDIT",
-               "progress": f"Working in unit {sc.get('unit', 1)}."}
+               "progress": sc.get("progress") or f"Working in unit {sc.get('unit', 1)}."}
     transcript = [("user", sc["opening"])]
     history = []
     fallbacks = 0

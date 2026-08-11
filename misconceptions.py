@@ -2,6 +2,18 @@
 # misconceptions.py  --  WHY THE ANSWER WAS WRONG  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dh -- two findings from the first full audit become catalogue
+#               knowledge. (1) NEW algebra2 entry "denominator-zero-means-hole" (S-3):
+#               the mirror image of hole-called-asymptote, usually LEARNED from a lesson
+#               that asserted the shortcut; the dislodging move is the same discriminating
+#               step in both directions -- try to cancel, then table the point. (2) The
+#               prealgebra "decimals-lined-up-right" fix now warns that a DEMONSTRATION of
+#               the failing rule needs numbers of DIFFERENT decimal lengths (S-8: the
+#               tutor picked 1.50 + 0.25, where last-digit lineup accidentally works, and
+#               narrated a failure that was not on the board -- a counterexample must
+#               actually break the rule it is disproving). Entry counts: algebra2 grows
+#               by one; no cached audio anywhere in this file (nothing here is spoken
+#               verbatim), so edits are free.
 #   2026-08-10  NEW FILE (build ck, Jim: "I want to pursue the misconception box").
 #               Proactive audit #2, item 2 -- the highest-leverage teaching item left.
 #
@@ -519,7 +531,12 @@ MISCONCEPTIONS = {
                 " the place values is new.",
          "fix": "Estimate first: 3.4 plus a quarter is a bit more than 3, so 5.9 is impossible. Then"
                 " write both with the same number of decimal places, 3.40 and 0.25, and stack the points"
-                " in a straight vertical line. Money makes it concrete: 3 dollars 40 plus 25 cents.",
+                " in a straight vertical line. Money makes it concrete: 3 dollars 40 plus 25 cents."
+                " CHOOSING THE DEMONSTRATION (first full audit, 2026-08-11): to SHOW the last-digit"
+                " rule failing, the two numbers must have DIFFERENT decimal lengths -- 3.4 + 0.25 or"
+                " 1.5 + 0.25. With equal lengths (1.50 + 0.25) last-digit lineup lands on the same"
+                " layout as point lineup, the 'wrong' method quietly works, and the demonstration"
+                " teaches nothing -- a counterexample must actually break the rule it is disproving.",
          "say": "Your digits are added correctly, so the arithmetic is not the issue. Estimate it"
                 " first. Three point four is a bit over three, and you added about a quarter, so the"
                 " answer should still be near three. Write them as money and line the points up"
@@ -1509,6 +1526,28 @@ MISCONCEPTIONS = {
                 " a special value here. Make me a table with x at one point nine, one point nine nine,"
                 " and two point zero one. If the outputs settle down instead of running away, we are"
                 " looking at a hole.",
+        },
+        {"id": "denominator-zero-means-hole", "name": "calling every denominator zero a hole",
+         "topic": "Asymptotes & holes",
+         "tell": "for 1/x, a hole reported at x = 0 because the denominator is zero there",
+         "detect": ["hole because the denominator", "denominator is zero so there is a hole",
+                    "denominator is zero so there's a hole", "zero on the bottom so a hole"],
+         "rule": "They treat a zero denominator as sufficient proof of a hole, so every undefined"
+                 " point gets the open-circle picture, including the ones where the values blow up"
+                 " into a vertical asymptote.",
+         "why": "It is the mirror image of calling everything an asymptote, and it is usually learned"
+                " from a lesson that said 'the denominator is zero, so there is a hole' about an"
+                " example where that happened to be true. A zero denominator proves undefined, and"
+                " nothing more; which KIND of gap it is takes one more step.",
+         "fix": "The same discriminating move settles it in both directions: try to cancel. If a"
+                " shared factor cancels, the gap is a hole and the simplified expression names its"
+                " height. If nothing cancels, build a table walking into the point and watch the"
+                " outputs run away: that is an asymptote. 1/x at zero is the clean counterexample --"
+                " nothing cancels, and the outputs explode.",
+         "say": "The denominator being zero tells us the function is undefined there, and that part"
+                " you have exactly right. It does not yet tell us which kind of missing. Try to"
+                " cancel a factor from top and bottom. If one cancels, it is a hole. If nothing"
+                " cancels, make me a small table walking in, and watch what the outputs do.",
         },
         {"id": "root-across-a-sum", "name": "square rooting each term of a sum",
          "topic": "Simplifying & rationalizing",

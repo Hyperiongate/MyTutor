@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dh -- the audit's teaching findings, tested. ANSWERED_CASES (rule
+#               17's new referee: the board must not answer the question -- the audit's
+#               ticket card is the fixture, plus commuted and word-number variants, plus
+#               the shapes good teaching uses as FALSE cases) and UNSPOKEN_CASES (rule
+#               44's new referee: a numeric board problem with a numberless spoken ask --
+#               the audit's "First question: ... What's the answer?" is the fixture).
+#               The foundation-corpus sweep now runs ALL THREE draft-level referees
+#               (self-answer, answered-q, unspoken) over every canonical script on every
+#               run, so a future widening cannot quietly start flagging correct lessons
+#               (the build-cy discipline, now paid for twice). RULE_VERIFY: 17 and 44
+#               move COVERED -> ENFORCED; rule 52 declared (COVERED). Junk-input
+#               never-raises covers the two new referees.
 #   2026-08-11  BUILD dg -- PART 3q (reliability) + the audit-log misfires become
 #               permanent referee cases. The first full audit's Render logs proved the
 #               stumbles were OUR bugs, not rate limits: the rule-15 referee counted the
@@ -515,8 +527,14 @@ PROSE_CASES = [
      '[[step op="/ 2" eq="x = ?"]]', False),
     ("no board tags at all",
      "Great job — that's fifteen dimes exactly!", False),
+    # build dh: this fixture's REPLY was updated, not its point. The old wording ("what
+    # do the dollars come to?") never spoke the problem's numbers -- which rule 44 has
+    # forbidden since build cf and the new unspoken-problem referee now catches. The
+    # case still proves what it always proved: a pending "?" line is not a number
+    # contradiction.
     ("pending '?' line is never a contradiction",
-     'Your turn — what do the dollars come to? [[step eq="dollars: 2 + 1 + 1 = ?"]]', False),
+     'Your turn — what do two plus one plus one dollars come to? '
+     '[[step eq="dollars: 2 + 1 + 1 = ?"]]', False),
 ]
 
 # ---- the VISUAL half of the referee (build ce) ------------------------------
@@ -735,6 +753,54 @@ SELF_ANSWER_CASES = [
 ]
 
 
+# ---- rule 17's referee (build dh) -- the board must not answer the question ----------
+# Both TRUE cases are quoted from the first full audit (Audit_Findings_2026-08-11.md,
+# S-2): a worked card completing "3 × 2 = 6" while the prose asks "so what's 3 times 2?".
+# A question the board has already answered cannot fail, and the "win" that follows is
+# not evidence. The FALSE cases are the shapes good teaching actually uses.
+ANSWERED_CASES = [
+    ("the audit's ticket card: board completes the line, prose asks it",
+     'Say you have 5 dollars, plus 3 tickets at 2 dollars each. '
+     '[[card title="5 dollars + 3 tickets at $2 each" '
+     'items="tickets cost: 3 × 2 = 6 dollars | then add: 5 + 6 = ?"]] '
+     "So what's 3 times 2 first?", True),
+    ("same question, commuted on the board -- still answered",
+     'So what\'s 2 times 3? [[step eq="3 × 2 = 6"]]', True),
+    ("number words in the prose, digits on the board -- still answered",
+     'What is seven plus five? [[step eq="7 + 5 = 12"]]', True),
+    ("the pending '?' line is rule 15 done RIGHT -- never flagged",
+     'What is 7 plus 5? [[step eq="7 + 5 = ?"]]', False),
+    ("a completed line for a DIFFERENT computation is a worked step, not the answer",
+     'Now add that to your 5 dollars: what is 5 plus 6? '
+     '[[step eq="3 × 2 = 6"]] [[step eq="5 + 6 = ?"]]', False),
+    ("an offer that names numbers is an invitation, not a question",
+     'Want to see why 3 times 2 makes 6? [[step eq="3 × 2 = 6"]]', False),
+    ("a recap sentence with no asking lead-in is not a question",
+     'Remember, 3 times 2 is 6 -- shall we keep going? [[step eq="3 × 2 = 6"]]', False),
+]
+
+
+# ---- rule 44's referee (build dh) -- the spoken words must read the problem ----------
+# The TRUE case is quoted from the audit's final-exam lesson: a quiz question that
+# existed only as board text while the voice said "What's the answer?". This is a VOICE
+# classroom; a problem never spoken is a problem some students cannot attempt.
+UNSPOKEN_CASES = [
+    ("the audit's quiz turn: numeric problem on the board, numberless spoken ask",
+     'First question: [[step eq="Q1:  Evaluate 5x - 2 when x = 4"]] '
+     "What's the answer?", True),
+    ("a pending line whose ask was read aloud in words",
+     "Give it a shot: what's three point five plus zero point four seven? "
+     '[[column op="+" terms="3.50 | 0.47"]] [[step eq="3.50 + 0.47 = ?"]]', False),
+    ("a concept question over a fraction on the board (a fraction is ONE number)",
+     'Which part is the denominator? [[write text="3/4 ... ?"]]', False),
+    ("even one spoken number means we stay silent (fail open by design)",
+     'Question two: [[step eq="Q2: Combine like terms: 6y + 2y - y"]] '
+     "What do you get?", False),
+    ("no question asked at all -- a worked line narrated",
+     'Here is the step written out. [[step eq="Q3: 12 ÷ 4 = 3"]] Nice and steady.', False),
+]
+
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -770,21 +836,42 @@ def part2_prose():
             check(f"self-answer: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
-    # THE SWEEP THAT MATTERS: the referee must be silent on every canonical script we own
+    for name, reply, should_flag in ANSWERED_CASES:
+        got = tutor.prose_answered_question_conflict(reply)
+        check(f"answered-q: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"answered-q: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    for name, reply, should_flag in UNSPOKEN_CASES:
+        got = tutor.prose_unspoken_problem_conflict(reply)
+        check(f"unspoken: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"unspoken: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    # THE SWEEP THAT MATTERS: the referees must be silent on every canonical script we own
     # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
-    # and a false positive in either is a real model call wasted on correct teaching.
+    # and a false positive in either is a real model call wasted on correct teaching --
+    # or, proven in build dg, the good draft destroyed outright.
     try:
         import foundations as _F
         bad = []
         for _c, _items in getattr(_F, "FOUNDATIONS", {}).items():
             for _it in _items:
                 _blob = (_it.get("say") or "") + " " + " ".join(_it.get("board") or [])
-                if tutor.prose_self_answer_conflict(_blob):
-                    bad.append(f"{_c}/{_it.get('term')}")
-        check(f"the self-answer referee is silent on all {sum(len(v) for v in _F.FOUNDATIONS.values())} "
-              f"foundation scripts", not bad, f"false positives: {bad[:4]}")
+                for _fn, _lbl in ((tutor.prose_self_answer_conflict, "self-answer"),
+                                  (tutor.prose_answered_question_conflict, "answered-q"),
+                                  (tutor.prose_unspoken_problem_conflict, "unspoken")):
+                    if _fn(_blob):
+                        bad.append(f"{_lbl}: {_c}/{_it.get('term')}")
+        check(f"all three draft-level referees are silent on all "
+              f"{sum(len(v) for v in _F.FOUNDATIONS.values())} foundation scripts",
+              not bad, f"false positives: {bad[:4]}")
     except Exception as _exc:  # noqa: BLE001
-        skip("self-answer sweep of foundations", str(_exc))
+        skip("referee sweep of foundations", str(_exc))
 
     for name, reply, should_flag in SCORE_CASES:
         got = tutor.prose_score_conflict(reply)
@@ -817,6 +904,8 @@ def part2_prose():
             tutor.prose_visual_conflict(junk)
             tutor.prose_pending_question_conflict(junk)
             tutor.prose_score_conflict(junk)
+            tutor.prose_answered_question_conflict(junk)
+            tutor.prose_unspoken_problem_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
@@ -1920,7 +2009,8 @@ RULE_VERIFY = {
     14: ("COVERED",   "define every notation on first use (see also rule 48, ENFORCED)"),
     15: ("ENFORCED",  "prose_pending_question_conflict regenerates a question with no board line"),
     16: ("COVERED",   "a substitution question re-writes its equation"),
-    17: ("COVERED",   "never answer your own question"),
+    17: ("ENFORCED",  "prose_answered_question_conflict: a question the reply's own board "
+                      "already answers is regenerated (build dh)"),
     18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board"),
     19: ("COVERED",   "worked example first"),
     20: ("COVERED",   "partially right is not wrong"),
@@ -1947,7 +2037,8 @@ RULE_VERIFY = {
     41: ("ENFORCED",  "PART 3c fails any figure shipped without a caption"),
     42: ("COVERED",   "never compare this student to anyone but this student"),
     43: ("COVERED",   "you perceive exactly two things"),
-    44: ("COVERED",   "read the problem aloud, in full"),
+    44: ("ENFORCED",  "prose_unspoken_problem_conflict: a numeric board problem with a "
+                      "numberless spoken ask is regenerated (build dh)"),
     45: ("ENFORCED",  "prose_score_conflict regenerates a spoken score that fights its own tag"),
     46: ("COVERED",   "a quiz question tests one skill"),
     47: ("COVERED",   "no cold quizzes"),
@@ -1955,6 +2046,8 @@ RULE_VERIFY = {
     49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
     50: ("COVERED",   "chase an unfinished unit; PART 3k proves the bar is reachable"),
     51: ("COVERED",   "a drawn feature must come from a definition (PART 3c checks the tags)"),
+    52: ("COVERED",   "a direct mathematical question is answered first (build dh; candidate "
+                      "for a --live scenario once an assertion sharp enough exists)"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 

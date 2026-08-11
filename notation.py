@@ -2,6 +2,13 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dh -- the function family gains the GROUPED-INPUT reading (first
+#               full audit, finding S-6): spoken, "f of a plus 1" is ambiguous between
+#               f(a)+1 and f(a+1), and the audit's student invented "f of bracket a plus
+#               1 bracket" and was praised without ever being handed the standard words.
+#               In a voice classroom the repeatable phrase IS the notation, so the note
+#               now carries it: f(a+1) is said "f of the quantity a plus one". Flows into
+#               every relevant course's HOW-TO-SAY table automatically; no script edits.
 #   2026-08-09  NEW FILE (build cj, Jim). "It looks like we've fixed the function
 #               notation, but math is filled with these kinds of things. How can we
 #               make sure that every one of these is caught all of the time?"
@@ -57,7 +64,11 @@ NOTATIONS = [
      "deep": True, "courses": ("algebra1", "algebra2", "precalc", "calculus", "diffeq"),
      "wrote": r"\b[fghpquvwy]\s*\(\s*[a-z0-9]",
      "heard": r"\b[fghpquvwy] of (?:[a-z]\b|zero|one|two)",
-     "note": "the letter is only a NAME -- g(x) works exactly the same way"},
+     # build dh (first full audit, S-6): spoken, "f of a plus 1" is ambiguous between
+     # f(a)+1 and f(a+1) -- in a voice classroom the repeatable phrase IS the notation.
+     "note": "the letter is only a NAME -- g(x) works exactly the same way; a compound "
+             "input is read as a QUANTITY: f(a+1) is said 'f of the quantity a plus "
+             "one', never 'f of a, plus one'"},
 
     {"id": "prime", "shown": "y′", "spoken": "y prime", "never": "y apostrophe",
      "deep": True, "courses": ("calculus", "diffeq"),

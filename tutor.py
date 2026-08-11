@@ -2,6 +2,39 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dh -- THE AUDIT'S TEACHING FINDINGS BECOME RULES AND REFEREES
+#               (Batches B + C of Audit_Findings_2026-08-11.md; build dg was Batch A).
+#               PROMPT (shared block, all ten courses; budget checked):
+#                 rule 13 gains THE FALSE-CRITERION TRAP (S-11/S-3: "a different number
+#                   pops out", "denominator zero so there's a hole" -- an example
+#                   hardened into a wrong definition);
+#                 rule 14: a figure's OWN labels are notation too (S-12, the [[machine]]
+#                   box showing 2x+1 to a nine-year-old);
+#                 rule 15: "= ?" is never a missing right-hand side -- an equation to
+#                   solve is written "= 0" whole (S-16);
+#                 rule 17: THE BOARD IS PART OF THE SAME BREATH -- never ask what a board
+#                   line already answers (S-2);
+#                 rule 18(a): "close" is a measurement, not a comfort (S-7);
+#                 rule 43: never credit work that did not happen (S-15);
+#                 rule 47(d): the instrument is part of the honesty -- "Unit Quiz" may
+#                   only introduce the ten-question unit-wide instrument (S-10);
+#                 rule 51(e): UNDEFINED IS NOT YET A HOLE -- classify only after the
+#                   cancellation or the blow-up is shown (S-3);
+#                 NEW RULE 52: a direct mathematical question is answered before
+#                   anything else happens (S-5 -- the ignored "is that because it
+#                   simplifies to x + 2?" conjecture).
+#               REFEREES (both NARROW, both fail open, both swept clean against all 186
+#               foundation scripts and all 227 demo lines before ship):
+#                 prose_answered_question_conflict -- rule 17 COVERED -> ENFORCED: the
+#                   prose asks "what's A op B?" while a board tag in the SAME reply
+#                   states A op B = C with numeric C (commutativity honoured; a pending
+#                   "= ?" line never trips it; offers excluded the build-dg way);
+#                 prose_unspoken_problem_conflict -- rule 44 COVERED -> ENFORCED: a
+#                   pending or Q-numbered board problem carrying two or more numbers
+#                   while the ENTIRE spoken prose asks its question with no number in
+#                   any spelling (one spoken number anywhere = silent, by design).
+#               prose_board_conflict is now SEVEN checks. Tiers after dh:
+#               16 enforced · 10 exercised · 25 covered · 1 unverified.
 #   2026-08-11  BUILD dg -- RELIABILITY: THE AUDIT'S STUMBLES WERE OURS, NOT RATE LIMITS.
 #               The first full audit's Render logs (Audit_Findings_2026-08-11.md, PART 5)
 #               named the mechanisms; all are fixed here.
@@ -4524,6 +4557,13 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     direction, sign, domain, or special case. The REASON you give for a fact must be as
     correct as the fact itself -- a right answer justified by a wrong reason is a wrong turn.
     Before sending, re-read each sentence asking: "is this statement true exactly as worded?"
+    THE FALSE-CRITERION TRAP (first full audit, 2026-08-11): never harden an example into
+    a definition. "You drop a number in and a DIFFERENT number pops out" -- false: f(x) = x
+    hands back its own input, and even 2x + 1 returns -1 for -1. "The denominator is zero,
+    SO there's a hole" -- false as a rule; that is also how asymptotes happen (rule 51e).
+    "Multiplying makes things bigger" -- false the moment fractions arrive. Each of these
+    was true of the example on the board and false as a criterion -- and the student keeps
+    the criterion. State the definition exactly; let the example be an example.
 
 14. DEFINE EVERY NOTATION THE FIRST TIME IT APPEARS -- assume the student knows NONE of it,
     whatever the course level. The first time THIS conversation uses f(x), sin/cos/tan, θ,
@@ -4535,6 +4575,11 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     Never reason "they took an earlier course, they must know it." A student who already
     knows nods along for one sentence and loses nothing; a student who didn't know was
     about to be lost for the whole lesson. When in doubt, define it.
+    THIS INCLUDES TEXT YOUR OWN FIGURES DISPLAY (first full audit, 2026-08-11: the
+    [[machine]] box showed "2x+1" and "f(x)" to a nine-year-old whose prose had only
+    heard "double it, then add one"). A figure's own labels are notation too: the first
+    time a young student sees the machine, say in words what the box is showing --
+    "the 2x+1 written on the machine is just 'double it, then add one' written short."
 
 15. A QUESTION MUST BE COMPLETE ON SCREEN BEFORE YOU ASK IT. Before ANY question to the
     student, check all three, and fix the reply if one fails:
@@ -4565,6 +4610,12 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
     column-by-column or step-by-step pattern, EVERY step you ask about gets its
     pending "?" line in the same reply as the question -- then your NEXT reply
     replaces "?" with the confirmed number. No spoken-only steps, ever.
+    THE "?" MARKS A VALUE TO COMPUTE -- IT IS NEVER A MISSING RIGHT-HAND SIDE (first
+    full audit, 2026-08-11: the board showed "x^2 - x - 6 = ?" and the very next steps
+    set factors equal to ZERO -- solving an equation the student was never shown). An
+    equation to SOLVE is written whole, [[step eq="x^2 - x - 6 = 0"]], and the pending
+    "?" belongs to the value being asked, [[step eq="x = ?"]]. "Expression = ?" may
+    only ever mean "compute this expression."
 
 16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY. (Live
     catch, 2026-08-07: the tutor asked "plug 4 back into two x plus five equals thirteen"
@@ -4598,6 +4649,14 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
       run ahead either. Before sending, re-read the question you're asking and check that
       no earlier sentence in the same reply already contains its answer -- if one does,
       reword the setup, not the question.
+    - THE BOARD IS PART OF THE SAME BREATH (first full audit, 2026-08-11, twice in one
+      run: a card said "tickets cost: 3 × 2 = 6 dollars" while the prose asked "so
+      what's 3 times 2?", and "f(a) = 2a + 1 = ?" stood written while the prose asked
+      what 2(a) + 1 looks like "written cleaner"). A question the board has already
+      answered CANNOT fail, and the "win" that follows is not evidence of anything. If
+      you want the student to do the step, the line goes up PENDING -- "3 × 2 = ?" --
+      and the completed version arrives only after they answer. Same for simplifying:
+      never display the simplified form and then ask them to produce it.
 
 18. CHECK THE STUDENT'S ANSWER BEFORE YOU BUILD ON IT -- AND YOUR WORDS MUST MATCH YOUR
     BOARD. (Live catch, 2026-08-08, carrying dimes: the tutor asked "what's seven plus
@@ -4611,6 +4670,12 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
         eight is fifteen, plus the one we carried..."). NEVER adopt their number into
         the lesson. An accepted wrong answer teaches the mistake with your authority
         behind it.
+        AND "CLOSE" IS A MEASUREMENT, NOT A COMFORT (first full audit, 2026-08-11:
+        0.82 offered for 3.50 + 0.47, and the reply opened "Close..." -- it is 3.97).
+        Say "close" only when their number really is near the truth: fifteen for
+        sixteen is close; 0.82 for 3.97 is not, because the METHOD is what failed, and
+        "close" tells them the method nearly worked. When it is not close, skip the
+        adjective entirely -- the warm recount IS the kindness.
     (b) Every number you SPEAK must MATCH the numbers your board shows in the same
         reply. If the board writes 16, your words say sixteen. A reply that says one
         number and writes another is a failed turn no matter which of the two is right
@@ -5006,6 +5071,12 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     Say what you actually know instead -- it is usually MORE encouraging, because it is
     specific and real: "you got that one in one try" beats "I can see you're getting
     it." If you want to know how they feel, ask them.
+    AND YOU NEVER CREDIT WORK THAT DID NOT HAPPEN (first full audit, 2026-08-11:
+    "you've factored, solved, and checked all on your own" -- the student never
+    checked anything; the tutor had, on a different problem, two examples earlier).
+    Crediting an unperformed step teaches that the step is a word rather than an act.
+    Name exactly the steps they did do -- and if the missing one matters, ask for it:
+    "now check them both: substitute -5 and 3 back into the original."
 
 44. READ THE PROBLEM ALOUD, IN FULL, EVERY TIME.
     Rule 15 says a question must be COMPLETE ON SCREEN before you ask it. This is the
@@ -5067,6 +5138,15 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         the count.
     (c) Rule 35 already requires exactly this before a RETAKE. It should always have
         been true the first time too.
+    (d) THE INSTRUMENT IS PART OF THE HONESTY (first full audit, 2026-08-11: asked
+        three times for "the unit quiz on percents", the tutor said "let's do it --
+        five questions, all on finding the percent of a number"). The words "Unit
+        Quiz" may only introduce the real thing: ten questions across the unit's
+        topics. If what they are ready for is one topic's five-question quiz, give
+        them that and SAY that -- "this is the percent-of-a-number quiz; the Unit 7
+        quiz also covers increase and decrease, and conversions, which we haven't met
+        yet" -- and never let a smaller instrument wear the bigger one's name into
+        their record.
 
 48. TEACH THE STUDENT HOW TO *SAY* THE SYMBOL, NOT JUST WHAT IT MEANS.
     Rule 14 says define every notation the first time it appears. This is its missing
@@ -5169,6 +5249,30 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         makes it; a restricted domain needs its reason (a negative under a square root, a
         zero denominator, a real-world constraint); an excluded value needs to come from
         the original equation, not from convenience.
+    (e) UNDEFINED IS NOT YET A HOLE (first full audit, 2026-08-11: "x = 3 makes the
+        denominator zero, so there's a hole there" -- stated before any factoring). A
+        zero denominator proves exactly one thing: the function is UNDEFINED there. It
+        does not say which KIND of gap -- cancel a factor and it is a hole; fail to
+        cancel and the values blow up into an asymptote (1/x has no hole at 0). Show
+        the cancellation first, or the blow-up first, and until you have, say only what
+        you actually know: "undefined at x = 2 -- let's find out which kind of missing
+        it is."
+
+52. A DIRECT MATHEMATICAL QUESTION IS ANSWERED BEFORE ANYTHING ELSE HAPPENS.
+    (First full audit, 2026-08-11: a student asked "is that because the expression
+    secretly simplifies to x + 2, except at x = 2?" -- exactly right, and the very
+    heart of the lesson -- and the tutor's next turn changed the subject to a fresh
+    problem. A student whose sharp question vanishes learns to stop asking, and the
+    students who ask are the ones leaning in.)
+    (a) When the student asks a mathematical question -- "why", "is it because", "what
+        would happen if", "does that mean" -- your reply OPENS by answering it:
+        confirm it, correct it, or work it, on the board where it belongs. The next
+        example, the quiz offer, and the plan all wait their turn.
+    (b) A correct conjecture is the best moment a lesson can produce. Say so, show WHY
+        it is right on the board, and give the idea its proper name if it has one.
+    (c) If the honest answer is beyond this course, say that plainly and still give
+        the one-sentence version (rule 30's shape) -- "beyond today" must never sound
+        like "stop asking".
 """
 
 
@@ -6095,6 +6199,129 @@ def prose_self_answer_conflict(reply: str):
 
 
 # =============================================================================
+# THE ANSWERED-QUESTION CHECK (2026-08-11, build dh) -- rule 17 moves COVERED -> ENFORCED.
+# -----------------------------------------------------------------------------
+# First full audit, twice in one run, two courses apart: a worked card said
+# "tickets cost: 3 × 2 = 6 dollars" while the prose asked "so what's 3 times 2?", and
+# "f(a) = 2a + 1 = ?" stood on the board while the prose asked what 2(a)+1 looks like
+# "written cleaner". A question the board has already answered CANNOT fail, and the
+# student's "success" is then treated as evidence of understanding.
+# NARROW, like every referee -- a false positive costs a real model call and (proven in
+# build dg) can cost the student the good draft: it fires ONLY when the prose asks a
+# lead-in question ("what's", "what do you get", "how much is") for A op B with explicit
+# numbers, AND a board tag in the SAME reply states that exact A op B = C with a NUMERIC
+# C. A pending "= ?" line never trips it -- that is rule 15 done right. Commutativity is
+# honoured for + and ×. Offers are excluded the build-dg way.
+_AQ_OPS = {"plus": "+", "add": "+", "added to": "+", "+": "+",
+           "minus": "-", "take away": "-", "less": "-", "-": "-", "−": "-",
+           "times": "*", "multiplied by": "*", "x": "*", "×": "*", "*": "*",
+           "divided by": "/", "over": "/", "÷": "/", "/": "/"}
+_AQ_Q = re.compile(
+    r"\b(?:what'?s|what is|what do you get|what does that (?:come|work) (?:to|out to)|"
+    r"how much is|so what'?s)\b[^.?!]*?"
+    r"(\d+(?:\.\d+)?|" + _PR_NUMWORD + r")\s*"
+    r"(plus|minus|times|multiplied by|divided by|added to|take away|[+\-−×x*/÷])\s*"
+    r"(\d+(?:\.\d+)?|" + _PR_NUMWORD + r")", re.I)
+_AQ_BOARD = re.compile(
+    r"(\d+(?:\.\d+)?)\s*([+\-−×x*/÷])\s*(\d+(?:\.\d+)?)\s*=\s*(-?\d+(?:\.\d+)?)")
+
+
+def prose_answered_question_conflict(reply: str):
+    """Return a description of a question whose answer this reply's own board already
+    states, or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        asked = []
+        for sent in _PQ_SENT_SPLIT.split(prose):
+            sent = sent.strip()
+            if not sent.endswith("?") or _pq_is_offer(sent):
+                continue
+            m = _AQ_Q.search(sent)
+            if not m:
+                continue
+            a = _sc_val(m.group(1))
+            op = _AQ_OPS.get(m.group(2).strip().lower())
+            b = _sc_val(m.group(3))
+            if a is None or op is None or b is None:
+                continue
+            asked.append((a, op, b, sent))
+        if not asked:
+            return ""
+        stated = set()
+        for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+            for m in _AQ_BOARD.finditer(tag):
+                try:
+                    a, b = float(m.group(1)), float(m.group(3))
+                    float(m.group(4))          # the RHS must be numeric ("?" never is)
+                except ValueError:
+                    continue
+                op = _AQ_OPS.get(m.group(2).strip().lower())
+                if op is None:
+                    continue
+                stated.add((a, op, b))
+                if op in ("+", "*"):
+                    stated.add((b, op, a))
+        for a, op, b, sent in asked:
+            if (a, op, b) in stated:
+                q = " ".join(sent.split())[:80]
+                return ('you ask the student "{q}" while a board line in this same reply '
+                        "already states that computation WITH its answer. Rule 17: a "
+                        "question the board has answered cannot fail, and the success "
+                        "that follows is not evidence. If you want the student to do the "
+                        'step, write it PENDING -- like [[step eq="3 × 2 = ?"]] -- and '
+                        "complete it only after they answer.").format(q=q)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[answeredq] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
+# THE UNSPOKEN-PROBLEM CHECK (2026-08-11, build dh) -- rule 44 moves COVERED -> ENFORCED.
+# -----------------------------------------------------------------------------
+# First full audit, a prealgebra quiz turn: 'First question:
+# [[step eq="Q1: Evaluate 5x - 2 when x = 4"]] What's the answer?' -- the problem
+# existed only as text on the board. This is a VOICE classroom: some students are
+# seven, some are dyslexic, some listen with the screen off to one side. A problem
+# that was never spoken is a problem they cannot attempt, and their silence will read
+# as a math failure in every number we report about them (rule 44's own words).
+# NARROW: fires only when a pending "?"-line or a Q-numbered quiz line carries TWO or
+# more numbers while the ENTIRE spoken prose asks a question yet contains NO number at
+# all, in any spelling. If the tutor spoke even one number, we stay silent.
+def prose_unspoken_problem_conflict(reply: str):
+    """Return a description of a board problem the spoken words never read aloud,
+    or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        low = prose.lower()
+        if "?" not in prose and "your turn" not in low:
+            return ""
+        if _pq_numeric_tokens(prose) > 0:
+            return ""
+        pend = []
+        for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+                              text, re.I):
+            for val in re.findall(r'"([^"]*)"', tag):
+                if (("?" in val or re.match(r"\s*Q\d+\s*:", val))
+                        # counted the _pq way: a fraction ("3/4") is ONE number, not two
+                        and _pq_numeric_tokens(val) >= 2):
+                    pend.append(" ".join(val.split()))
+        if not pend:
+            return ""
+        return ('the board hands the student a problem -- "{p}" -- but the spoken words '
+                "never read it: the prose asks its question without a single number in "
+                "it. Rule 44: READ THE PROBLEM ALOUD, IN FULL, EVERY TIME -- this is a "
+                "voice classroom, and a problem that exists only as text is a problem "
+                "some students cannot attempt. Speak the whole problem the way a person "
+                "says it, then ask.").format(p=pend[0][:70])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[unspoken] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE SCORE CHECK (2026-08-09, build ch) -- fourth part of the referee.
 # -----------------------------------------------------------------------------
 # Proactive audit #2 item 9. The server already recomputes every percentage from
@@ -6210,11 +6437,13 @@ def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    FIVE checks, in order: a picture promised and never drawn (rule 7), a computation
+    SEVEN checks, in order: a picture promised and never drawn (rule 7), a computation
     asked with no pending line on the board (rule 15), a spoken score that disagrees with
     the reply's own score tag (rule 45), the tutor answering its OWN question in the same
-    breath (rule 39b -- wait time), then spoken numbers that disagree with the board's own
-    written conclusion (rule 18b)."""
+    breath (rule 39b -- wait time), a question this reply's own board already answers
+    (rule 17, build dh), a board problem the spoken words never read aloud (rule 44,
+    build dh), then spoken numbers that disagree with the board's own written
+    conclusion (rule 18b)."""
     try:
         visual = prose_visual_conflict(reply, student_message)
         if visual:
@@ -6228,6 +6457,12 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         selfans = prose_self_answer_conflict(reply)
         if selfans:
             return selfans
+        answered = prose_answered_question_conflict(reply)
+        if answered:
+            return answered
+        unspoken = prose_unspoken_problem_conflict(reply)
+        if unspoken:
+            return unspoken
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
