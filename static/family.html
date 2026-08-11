@@ -4,6 +4,13 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-11  THE PACING STEER (build ea -- Four-Lens homeschool item 3). The Manage
+    panel gains "Steer their lessons": pick Unit 1-9, Set the plan -> Mr. Cadabra
+    centers the child's next sessions there (course resolved server-side to where the
+    child actually works); Clear ends it. The current plan shows on the child's row
+    and inside the panel until changed. Honest by design: the tutor introduces it as
+    today's plan (never as the child's request), and the child's own choice in the
+    moment still wins (rule 50).
   - 2026-08-11  CHILD MANAGEMENT (build dy -- Four-Lens parent item 2). Every child row
     gains "⚙ Manage": RENAME (Mr. Cadabra uses it next session), NEW LOGIN CODE
     (two-tap confirm; for leaked codes -- all progress moves over in one transaction
@@ -173,6 +180,7 @@
   .mbtn:hover{border-color:var(--purple);color:var(--purple)}
   .mbtn.danger{border-color:#f5cfc8;color:#b3402e}
   .mbtn.danger:hover{background:#fdf0ee}
+  .steernow{flex-basis:100%;font-size:13.5px}
   .kidassess.on{display:block}
   .togglebtn{border:1.5px solid var(--line);background:#fff;border-radius:999px;font-weight:800;font-size:14px;cursor:pointer;padding:8px 18px}
   .togglebtn.on{border-color:var(--teal);color:#0f766e;background:#eefaf5}
@@ -422,6 +430,14 @@
         '<div class="kidmanage" data-manage="' + esc(k.code) + '">' +
           '<div class="mrow"><b>Rename</b> <input class="mIn" data-rename="' + esc(k.code) + '" maxlength="40" value="' + esc(k.name) + '" />' +
             '<button class="mbtn" data-dorename="' + esc(k.code) + '" type="button">Save name</button></div>' +
+          '<div class="mrow"><b>Steer their lessons</b> <span class="cap">Ask Mr. Cadabra to center the next sessions on one unit — your child can still choose otherwise in the moment.</span>' +
+            '<span class="steernow" data-steer="' + esc(k.code) + '"></span>' +
+            '<select class="mIn" data-steerunit="' + esc(k.code) + '" style="flex-basis:120px">' +
+              '<option value="">Unit…</option>' +
+              [1,2,3,4,5,6,7,8,9].map(function (u) { return '<option value="' + u + '">Unit ' + u + '</option>'; }).join("") +
+            '</select>' +
+            '<button class="mbtn" data-dosteer="' + esc(k.code) + '" type="button">Set the plan</button>' +
+            '<button class="mbtn" data-clearsteer="' + esc(k.code) + '" type="button">Clear</button></div>' +
           '<div class="mrow"><b>New login code</b> <span class="cap">If the code leaked (a sibling, a classmate), mint a fresh one — all progress moves over and the old code stops working instantly.</span>' +
             '<button class="mbtn" data-newcode="' + esc(k.code) + '" type="button">Get a new code</button></div>' +
           '<div class="mrow"><b style="color:#b3402e">Remove this student</b> <span class="cap">Permanently deletes their account AND all their progress. To confirm, type their name:</span>' +
@@ -460,6 +476,28 @@
     Array.prototype.forEach.call(box.querySelectorAll("[data-remove]"), function (b) {
       b.addEventListener("click", function () { doRemove(b.getAttribute("data-remove")); });
     });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-dosteer]"), function (b) {
+      b.addEventListener("click", function () { doSteer(b.getAttribute("data-dosteer"), false); });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-clearsteer]"), function (b) {
+      b.addEventListener("click", function () { doSteer(b.getAttribute("data-clearsteer"), true); });
+    });
+  }
+
+  // 2026-08-11 (ea): the pacing steer -- set or clear the standing plan
+  async function doSteer(code, clear) {
+    if (state.busy) return; state.busy = true;
+    var sel = document.querySelector('.mIn[data-steerunit="' + code + '"]');
+    var unit = clear ? 0 : parseInt(sel && sel.value, 10) || 0;
+    if (!clear && !unit) { mmsg(code, "Pick a unit first (1–9)."); state.busy = false; return; }
+    try {
+      state.me = await api("/api/parent/student-steer", { method: "POST",
+        body: JSON.stringify({ token: token(), code: code, unit: unit }) });
+      render();
+      banner(clear ? "Plan cleared — Mr. Cadabra follows their own path again."
+                   : "Plan set — their next sessions will center on Unit " + unit + ". You can clear it any time.", "ok");
+    } catch (e) { mmsg(code, e.message, "err"); }
+    state.busy = false;
   }
 
   // ---------- child management (2026-08-11, dy) ----------
@@ -542,6 +580,15 @@
       if (s.last_active) bits.push("last worked " + whenDate(s.last_active));
       if (s.top_course_title) bits.push("mostly in <b>" + esc(s.top_course_title) + "</b>");
       el.innerHTML = bits.join(" · ");
+      // ea: the standing plan, visible right on the row until changed or cleared
+      var st = document.querySelector('.steernow[data-steer="' + s.code + '"]');
+      if (st) st.innerHTML = s.steer
+        ? '<b style="color:#0f766e">📌 Current plan: Unit ' + s.steer.unit + ' — ' + esc(s.steer.unit_name) + ' (' + esc(s.steer.course_title) + ')</b>'
+        : '<span class="cap">No plan set — Mr. Cadabra follows their path.</span>';
+      if (s.steer) {
+        var row = document.querySelector('.kidstats[data-stats="' + s.code + '"]');
+        if (row) row.innerHTML += ' · 📌 plan: <b>Unit ' + s.steer.unit + '</b>';
+      }
     });
     var t = $("mailToggle");
     t.style.display = "";

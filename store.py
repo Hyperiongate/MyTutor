@@ -2,6 +2,11 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD ea -- THE PACING STEER (Four-Lens homeschool item 3). New table
+#               steers (ONE standing plan per student: course + unit) + set_steer/
+#               get_steer/clear_steer. Reset family AND the dy code-move both cover it
+#               via _STUDENT_CODE_TABLES. Applied in main.py's chat handler; shown and
+#               controlled on /family.
 #   2026-08-11  BUILD dy -- PARENT CHILD-MANAGEMENT (Four-Lens parent item 2): NEW
 #               rename_student() (accounts row only), change_student_code() (a leaked
 #               login code is a leaked key -- every per-student row moves to the fresh
@@ -708,6 +713,21 @@ def init():
             Column("question", String(200)),
             Column("answer", String(120)),                    # the student's wrong answer
             Column("created_at", DateTime(timezone=True)),
+        )
+        # PACING STEER (2026-08-11, build ea -- Four-Lens homeschool item 3, the design
+        # Jim approved 2026-07-28: a parent may act as teacher for their own kids). ONE
+        # standing steer per student: "center sessions on Unit N of course C". Set and
+        # cleared from /family; applied by /api/chat whenever the student opens that
+        # course WITHOUT an explicit focus of their own (an explicit dashboard link
+        # always wins -- the student's own intent outranks the standing plan). Visible
+        # on /family until the parent changes or clears it. Joins _STUDENT_CODE_TABLES
+        # day one (standing rule).
+        _tables["steers"] = Table(
+            "steers", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32)),
+            Column("unit", Integer, default=0),
+            Column("set_at", DateTime(timezone=True)),
         )
         # BETA PASSES (2026-07-31): shareable trial codes. Each sign-in consumes one
         # of `uses_allowed` and opens a `window_hours` window of full access.
@@ -2032,6 +2052,10 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-11 (build dt): missed quiz problems, same rule -- a reset student's
     # review list starts empty, and no ghost misses steer their new tutor.
     ("quiz_misses", "code"),
+    # 2026-08-11 (build ea): the pacing steer, same rule -- and it must also FOLLOW a
+    # child to a regenerated login code, which it does by being in this list (dy's
+    # change_student_code walks the same table registry).
+    ("steers", "code"),
 ]
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),
@@ -2277,6 +2301,33 @@ def attach_student(code: str, parent_id: str) -> str:
         conn.execute(update(t).where(t.c.code == (code or "").strip())
                      .values(parent_id=parent_id))
     return "ok"
+
+
+
+def set_steer(code: str, course: str, unit: int) -> None:
+    """The parent's standing plan: center sessions on this unit (build ea)."""
+    _upsert("steers", {"code": (code or "").strip()},
+            {"course": (course or "").strip(), "unit": int(unit or 0), "set_at": _now()})
+
+
+def get_steer(code: str):
+    """{course, unit, set_at} or None."""
+    from sqlalchemy import select
+    t = _tables["steers"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.course, t.c.unit, t.c.set_at)
+                         .where(t.c.code == (code or "").strip())).first()
+    if not r:
+        return None
+    return {"course": r[0], "unit": int(r[1] or 0),
+            "set_at": r[2].isoformat() if r[2] else None}
+
+
+def clear_steer(code: str) -> None:
+    from sqlalchemy import delete
+    t = _tables["steers"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.code == (code or "").strip()))
 
 
 # ---- beta passes (2026-07-31: Jim's beta-tester program) --------------------

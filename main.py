@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11ea-pacing-steer". THE PACING CONTROL (Four-Lens
+#               homeschool item 3; the parent-as-teacher design Jim approved 07-28).
+#               A parent can now set ONE standing plan per child on /family: "center
+#               sessions on Unit N for now." NEW POST /api/parent/student-steer
+#               (parent-gated + ownership-checked; unit=0 clears; course defaults to
+#               where the child actually works, resolved server-side so no page grows
+#               a seventh course list). Applied by _resolve_focus in the chat handler:
+#               the child's OWN explicit focus always outranks the plan (rule 50), and
+#               the mastery note words it honestly -- "their parent asked", introduced
+#               as today's plan, never as the student's request, never a punishment,
+#               and the student's agency wins if they ask for something else. The
+#               steer shows on /family (overview carries it) until changed or cleared;
+#               it survives a dy code regeneration and dies with a reset.
 #   2026-08-11  APP_BUILD -> "2026-08-11dz-a11y-and-phones". ACCESSIBILITY + PHONE
 #               PASS (Four-Lens student items 5 and 8). Nothing in this file changed
 #               but the stamp: on all three teaching pages the transcription readout
@@ -2437,7 +2450,25 @@ def _track_topic(code: str, unit, name: str, status: str, course: str = "algebra
         print(f"[track] record_topic failed (ignored): {exc}")
 
 
-def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> str:
+def _resolve_focus(code: str, course: str, req_unit: int):
+    """(focus_unit, steered) for this turn (build ea). Order of authority:
+    1. the student's own explicit focus (a dashboard link) -- always wins;
+    2. the parent's standing steer for THIS course (set on /family);
+    3. none. Fail-open: a store hiccup never costs a turn."""
+    if 1 <= int(req_unit or 0) <= 9:
+        return int(req_unit), False
+    try:
+        if store.enabled():
+            s = store.get_steer(code)
+            if s and s.get("course") == course and 1 <= int(s.get("unit") or 0) <= 9:
+                return int(s["unit"]), True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[steer] resolve failed (ignored): {exc}")
+    return 0, False
+
+
+def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1",
+                  steered: bool = False) -> str:
     """PHASE B: a short, human-readable summary of what this student has MASTERED vs. still
     needs IN THIS COURSE, for the tutor to STEER by (spend effort on weak units + spaced
     review). Empty string when the DB is off or anything errors -- never breaks a turn."""
@@ -2510,8 +2541,17 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1") -> s
                  "of the same kind, warmly. One is enough; never re-run a failed quiz.")
     fu = int(focus_unit or 0)
     if 1 <= fu <= 9:
-        note += (f" TODAY the student chose to work on Unit {fu} "
-                 f"({curriculum.unit_name(course, fu)}) -- center this session there.")
+        if steered:
+            # build ea: the PARENT set this plan on /family -- the student did not ask.
+            note += (f" THE FAMILY PLAN: their parent asked that sessions center on "
+                     f"Unit {fu} ({curriculum.unit_name(course, fu)}) for now. Steer "
+                     f"there warmly and introduce it as today's plan -- never as "
+                     f"something the student requested, and never as a punishment. If "
+                     f"the student asks to work on something else, honor rule 50: "
+                     f"their agency wins for this session.")
+        else:
+            note += (f" TODAY the student chose to work on Unit {fu} "
+                     f"({curriculum.unit_name(course, fu)}) -- center this session there.")
     return note
 
 
@@ -4395,10 +4435,19 @@ def parent_overview(request: Request):
         top = max(per_course, key=per_course.get) if per_course else None
         if not top and act:
             top = max(act, key=lambda c: act[c].get("last_active") or "")
+        steer = None
+        try:
+            s = store.get_steer(code)
+            if s and 1 <= int(s.get("unit") or 0) <= 9:
+                steer = {"course": s["course"], "unit": s["unit"],
+                         "course_title": titles.get(s["course"], s["course"]),
+                         "unit_name": curriculum.unit_name(s["course"], s["unit"])}
+        except Exception:  # noqa: BLE001
+            pass
         kids.append({"code": code, "minutes_week": minutes,
                      "active_days_week": len(days_set), "units_mastered": mastered,
                      "last_active": last_active, "top_course": top,
-                     "top_course_title": titles.get(top, "")})
+                     "top_course_title": titles.get(top, ""), "steer": steer})
     state = store.ensure_digest_state(parent["id"])
     return {"ok": True, "students": kids,
             "weekly_email_on": not int(state.get("optout") or 0)}
@@ -4440,6 +4489,40 @@ def _own_student(parent: dict, code: str) -> str:
     if code not in mine:
         raise HTTPException(status_code=404, detail="That student isn't on your account.")
     return code
+
+
+class ParentSteerIn(BaseModel):
+    token: str = ""
+    code: str = ""
+    course: str = ""
+    unit: int = 0              # 1-9 sets the plan; 0 clears it
+
+
+@app.post("/api/parent/student-steer")
+def parent_student_steer(body: ParentSteerIn, request: Request):
+    """The pacing control (build ea): "center their sessions on Unit N for now."
+    Applies when the child opens that course without a focus of their own; the
+    child's explicit choice always outranks it (rule 50). unit=0 clears the plan."""
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    code = _own_student(parent, body.code)
+    unit = int(body.unit or 0)
+    if unit == 0:
+        store.clear_steer(code)
+        return _parent_payload(store.get_parent(parent["id"]))
+    if not (1 <= unit <= 9):
+        raise HTTPException(status_code=400, detail="Pick a unit from 1 to 9 (or clear the plan).")
+    course = (body.course or "").strip()
+    if course not in curriculum.COURSES:
+        # default to where the child actually works: most engaged-time course, else
+        # most recently active, else algebra1 -- resolved HERE so the page never
+        # needs its own course list (unit names live in six files already; no seventh).
+        try:
+            act = store.get_course_activity(code)
+            course = max(act, key=lambda c: act[c].get("last_active") or "") if act else "algebra1"
+        except Exception:  # noqa: BLE001
+            course = "algebra1"
+    store.set_steer(code, course, unit)
+    return _parent_payload(store.get_parent(parent["id"]))
 
 
 @app.post("/api/parent/student-rename")
@@ -5767,7 +5850,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dz-a11y-and-phones"
+APP_BUILD = "2026-08-11ea-pacing-steer"
 
 
 @app.get("/health")
@@ -6221,7 +6304,11 @@ def chat(req: ChatRequest):
         focus_unit = int(getattr(req, "unit", 0) or 0)
     except (TypeError, ValueError):
         focus_unit = 0
-    mnote = _mastery_note(code, focus_unit, req.course)
+    # 2026-08-11 (build ea): the PARENT'S STANDING PLAN. When the student opens this
+    # course with no focus of their own, the steer set on /family supplies one. An
+    # explicit dashboard link always wins -- the student's own intent outranks the plan.
+    focus_unit, steered = _resolve_focus(code, req.course, focus_unit)
+    mnote = _mastery_note(code, focus_unit, req.course, steered=steered)
     if mnote:
         student_context["mastery_note"] = mnote
     if 1 <= focus_unit <= 9:

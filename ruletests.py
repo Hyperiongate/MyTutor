@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD ea -- THE PACING STEER, GUARDED AND DRILLED: endpoint parent-
+#               gated + ownership-checked; the child's explicit choice outranks the
+#               plan (rule 50, source AND live-proven); the steered mastery note names
+#               WHO asked and protects the student's agency; steers join the reset
+#               family; family.html keeps its controls. Live: set -> overview carries
+#               it -> _resolve_focus applies/yields/ignores correctly -> clear -> reset.
 #   2026-08-11  BUILD dz -- ACCESSIBILITY + PHONES, GUARDED: all three teaching pages
 #               must keep their polite live regions, the mic's spoken name, the
 #               reduced-motion block, and the phone dock (board first, rail stuck to
@@ -3539,6 +3545,30 @@ def part3p_marketing_claims():
           and "shieldMs" in sess4,
           "a click meant for the last answer must never dismiss the results")
 
+    # ---- BUILD ea: the pacing steer ---------------------------------------------------
+    mn6 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    st6 = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    fam6 = open(os.path.join(here, "static", "family.html"), encoding="utf-8").read()
+    check("the steer endpoint is parent-gated and ownership-checked (ea)",
+          '@app.post("/api/parent/student-steer")' in mn6
+          and "_own_student" in
+          mn6.split('@app.post("/api/parent/student-steer")')[1][:1200],
+          "a standing plan for someone else's child is not a feature")
+    check("the child's explicit choice OUTRANKS the plan (ea, rule 50)",
+          "def _resolve_focus" in mn6
+          and "return int(req_unit), False" in mn6,
+          "the steer is a plan, not a cage")
+    check("the steered mastery note is honest about WHO asked (ea)",
+          "THE FAMILY PLAN: their parent asked" in mn6
+          and "their agency wins" in mn6,
+          "the tutor must never present the parent's plan as the student's request")
+    check("steers join the reset family (and therefore follow a dy code move) (ea)",
+          '("steers", "code"),' in st6,
+          "a reset student must not inherit a ghost plan")
+    check("family.html has the steer controls and shows the current plan (ea)",
+          "data-dosteer" in fam6 and "data-clearsteer" in fam6 and "steernow" in fam6,
+          "an endpoint without its panel is still a support email")
+
     # ---- BUILD dz: accessibility + phones -------------------------------------------
     for pg in ("session.html", "practice.html", "topic.html"):
         psrc = open(os.path.join(here, "static", pg), encoding="utf-8").read()
@@ -3831,6 +3861,48 @@ def part3p_marketing_claims():
                                capture_output=True, text=True)
             check("child management live: rename, code-move, attach rules, typed-name remove",
                   r.returncode == 0 and "KID-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-300:])
+
+        # ---- BUILD ea: the pacing steer, LIVE ---------------------------------------
+        import tempfile as _tf7
+        with _tf7.TemporaryDirectory() as tmp7:
+            drill = os.path.join(tmp7, "steerdrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main, store\n"
+                    "c = TestClient(main.app)\n"
+                    "tok = c.post('/api/parent/signup', json={'email': 's@example.com',\n"
+                    "    'password': 'drill-pass-123', 'name': 'P'}).json()['token']\n"
+                    "code = c.post('/api/parent/students', json={'token': tok,\n"
+                    "    'name': 'Ana'}).json()['students'][0]['code']\n"
+                    "r = c.post('/api/parent/student-steer', json={'token': tok,\n"
+                    "    'code': code, 'unit': 4, 'course': 'prealgebra'})\n"
+                    "assert r.status_code == 200, r.text\n"
+                    "d = c.get('/api/parent/overview', headers={'X-Parent-Token': tok}).json()\n"
+                    "assert d['students'][0]['steer']['unit'] == 4, d\n"
+                    "# the plan applies when the student arrives with no focus of their own\n"
+                    "assert main._resolve_focus(code, 'prealgebra', 0) == (4, True)\n"
+                    "# ...their explicit choice outranks it (rule 50)\n"
+                    "assert main._resolve_focus(code, 'prealgebra', 7) == (7, False)\n"
+                    "# ...and a different course is untouched\n"
+                    "assert main._resolve_focus(code, 'algebra1', 0) == (0, False)\n"
+                    "note = main._mastery_note(code, 4, 'prealgebra', steered=True)\n"
+                    "assert 'THE FAMILY PLAN' in note and 'their agency wins' in note\n"
+                    "# clearing ends it; a reset wipes it\n"
+                    "c.post('/api/parent/student-steer', json={'token': tok, 'code': code, 'unit': 0})\n"
+                    "assert main._resolve_focus(code, 'prealgebra', 0) == (0, False)\n"
+                    "store.set_steer(code, 'prealgebra', 2)\n"
+                    "store.reset_student_data(code)\n"
+                    "assert store.get_steer(code) is None\n"
+                    "print('STEER-DRILL-OK')\n")
+            env = dict(os.environ,
+                       DATABASE_URL=f"sqlite:///{os.path.join(tmp7, 's.db')}",
+                       WEEKLY_EMAIL="off", PYTHONPATH=here)
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("pacing steer live: set -> applies -> student outranks -> clear -> reset",
+                  r.returncode == 0 and "STEER-DRILL-OK" in r.stdout,
                   (r.stdout + r.stderr)[-300:])
 
 
