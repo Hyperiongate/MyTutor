@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD do -- THE tutor.py SPLIT, GUARDED. tutor.py's prompt text (the
+#               eleven templates, GROUND_RULES, GRAPH_TOOL_NOTE, the overlays, scopes,
+#               and assessment voices) moved VERBATIM to the new prompts.py; the move
+#               itself was proven byte-identical outside this battery (52 built
+#               prompts hashed before/after, 52 equal). What THIS file now guards
+#               forever: PART 3h proves prompts.py stays TEXT ONLY (AST: top-level
+#               string/dict assignments -- no imports, defs, classes, or calls; the
+#               boundary is the point), that tutor still re-exports every moved name
+#               non-empty (every tutor.<NAME> reference keeps working), and that the
+#               assembled lesson prompt kept its full size. The range=" sweep and the
+#               auditor's never-writes list both learned the new file. No check was
+#               weakened; every existing check runs against the split layout
+#               unchanged -- the whole 2,7xx-check battery IS the do-no-harm proof.
 #   2026-08-11  BUILD dn -- PART 3q's key-transport block closes dg's documented
 #               residual: /community?mod= was the LAST key-in-a-URL. New checks prove
 #               community.html reads the key from the SHARED sessionStorage stash
@@ -2077,6 +2090,36 @@ def part3h_scale():
         check(f"{name} is set", bool(mm) and int(mm.group(1).replace("_", "")) >= lo,
               "no cap found")
 
+    # --- BUILD do: prompts.py is TEXT ONLY, and stays that way -----------------------
+    # The split's whole value is the boundary: every word the model reads in one file
+    # with no machinery, so a wording edit can never break code and a code edit can
+    # never change the teaching. AST-verified: top-level assignments of strings and
+    # dicts only -- no imports, no defs, no classes, no calls. And the boundary must
+    # not have dropped anything: tutor still exposes every moved name, non-empty.
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    ptree = ast.parse(psrc)
+    offenders = []
+    for node in ptree.body:
+        if isinstance(node, ast.Assign):
+            if not isinstance(node.value, (ast.Constant, ast.JoinedStr, ast.Dict)):
+                offenders.append(f"L{node.lineno}: {type(node.value).__name__} assigned")
+        else:
+            offenders.append(f"L{node.lineno}: {type(node).__name__}")
+    check("prompts.py holds text only -- no imports, functions, classes, or calls",
+          not offenders, str(offenders[:4]))
+    _MOVED = ("TUTOR_NAME", "LESSON_TEMPLATES", "GROUND_RULES", "GRAPH_TOOL_NOTE",
+              "SESSION_OPENER_RULES", "PROGRESS_TAGS_NOTE", "FINAL_PREP_NOTE",
+              "FINAL_EXAM_NOTE", "COURSE_SUBJECT", "PRACTICE_SCOPE", "TOPIC_SCOPE",
+              "PRACTICE_SYSTEM_PROMPT_TEMPLATE", "TOPIC_SYSTEM_PROMPT_TEMPLATE",
+              "ASSESSMENT_SYSTEM_STUDENT", "ASSESSMENT_SYSTEM_PARENT",
+              "SYSTEM_PROMPT_TEMPLATE", "ELEMENTARY_SYSTEM_PROMPT_TEMPLATE")
+    gone = [n for n in _MOVED if not getattr(tutor, n, None)]
+    check("tutor re-exports every moved prompt name, non-empty", not gone, str(gone))
+    check("the lesson prompt still assembles at full size",
+          len(tutor.build_system_prompt({"name": "T"}, "algebra1")) > 100_000,
+          "the split must never shrink what the model reads by accident")
+
 
 # =============================================================================
 # PART 3i -- EVERY RULE DECLARES HOW IT IS VERIFIED  (audit #2 item 24)
@@ -2537,6 +2580,7 @@ def part3l_lesson_auditor():
 
     # THE LINE THAT MATTERS: it reports, it does not edit.
     for forbidden, why in (("open(os.path.join(HERE, \"tutor.py\"), \"w\"", "tutor.py"),
+                           ("prompts.py\", \"w\"", "prompts.py"),
                            ("foundations.py\", \"w\"", "foundations.py")):
         check(f"  the auditor never writes {why}", forbidden not in src,
               "a critic that edits the teaching is a second author nobody reviewed")
@@ -2709,7 +2753,7 @@ def part3k_mastery_reachable():
     if mrx:
         rng = re.compile(mrx.group(1).replace("\\d", r"\d").replace("\\.", r"\."))
         used = set()
-        for fname in ("tutor.py", "foundations.py"):
+        for fname in ("tutor.py", "prompts.py", "foundations.py"):   # prompts.py: build do
             used |= set(re.findall(r'range="([^"]+)"',
                                    open(os.path.join(here, fname), encoding="utf-8").read()))
         bad = [u for u in sorted(used) if not rng.search(u)]

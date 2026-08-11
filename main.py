@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11do-prompt-split". THE WORDS AND THE MACHINERY
+#               NOW LIVE APART. tutor.py (539 KB) was two-thirds prompt TEXT; all of
+#               it moved VERBATIM into the NEW prompts.py (353 KB of pure text, no
+#               logic -- the battery now enforces that boundary by AST), leaving
+#               tutor.py a 190 KB engine. Proven byte-identical: 52 built prompts
+#               (every course x lesson/first-meeting/practice/topic + final modes +
+#               standalone constants) hashed before and after -- 52 of 52 equal, so
+#               NOTHING the model reads changed and no cached audio or behavior can
+#               shift. Nothing in this file changed but the stamp; tutor.py re-exports
+#               every moved name, so main.py's imports work untouched. From here on:
+#               edit the WORDS in prompts.py, the MACHINERY in tutor.py. NEW FILE
+#               prompts.py rides this push.
 #   2026-08-11  APP_BUILD -> "2026-08-11dn-modkey-header". THE LAST KEY-IN-A-URL
 #               RESIDUAL IS CLOSED. Build dg moved the admin key out of query strings
 #               (Render logs them in plaintext) but left one documented residual: the
@@ -5357,7 +5369,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dn-modkey-header"
+APP_BUILD = "2026-08-11do-prompt-split"
 
 
 @app.get("/health")
