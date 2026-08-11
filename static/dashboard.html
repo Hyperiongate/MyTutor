@@ -10,6 +10,15 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-11  SPRINT RECORD CARD (build dm). WWC guide 26 rec 6 says track fluency
+                progress AND SHOW it -- the sprints table has recorded every one-minute
+                round since build dd and nothing displayed the growth. New hidden-until-
+                data section (the loadMyCourses pattern): GET /api/sprints/{code}?course=
+                feeds an inline SVG, two bars per sprint (round A pale #c9c6ee, round B
+                solid #5b5bd6, a green +n over every self-beat), personal best in the
+                note line. The ONLY comparison anywhere is this student with this student
+                (rule 42), and with zero sprints the card never renders -- sprints never
+                gate anything, so an empty card would only nag.
     2026-08-04  MASTERY = 90% + GRADUATE (Jim): "let's get it to 80%" -> 90%; and completing a
                 whole course now shows as a 🎓 "Graduate — <Course>" trophy (was the generic 🏆
                 "Course completed" tile). Computed live from the awards API; wording only here.
@@ -200,6 +209,9 @@
 
     /* KPI tiles */
     .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 12px; }
+    /* build dm: the sprint record card -- pale round-A bar beside solid round-B bar */
+    .sprintcard { background: #fff; border: 1px solid var(--line, #ece8f6); border-radius: 14px;
+      padding: 14px 16px 10px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(60,40,120,.05); }
     .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
       position: relative; overflow: hidden; box-shadow: 0 10px 28px rgba(20,30,45,.07); }
     .tile .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
@@ -391,6 +403,17 @@
     <div id="trophyWrap" class="trophywrap" style="display:none;">
       <div class="section-h">🏆 Trophy case <span class="note" id="trophyNote"></span></div>
       <div class="trophycase" id="trophyCase"></div>
+    </div>
+
+    <!-- FLUENCY SPRINT RECORD (2026-08-11, build dm). WWC guide 26 rec 6: track fluency
+         progress AND SHOW it -- the sprints table has recorded since build dd and nothing
+         displayed it. Two bars per sprint (round A pale, round B solid) so the story each
+         pair tells is "you beat yourself"; the ONLY comparison anywhere is this student
+         with this student (rule 42). Hidden until at least one sprint exists: sprints
+         never gate anything, so an empty card would only nag. -->
+    <div id="sprintWrap" style="display:none;">
+      <div class="section-h">⚡ Your sprint record <span class="note" id="sprintNote">— one-minute rounds, racing only yourself</span></div>
+      <div class="sprintcard"><div id="sprintChart"></div></div>
     </div>
 
     <div class="tiles" id="tiles"></div>
@@ -766,6 +789,53 @@
       }
     })();
 
+
+    // ----- SPRINT RECORD (2026-08-11, build dm) -----
+    // WWC guide 26 rec 6: track fluency progress AND SHOW it. Two bars per sprint --
+    // round A pale, round B solid -- so every pair tells the one story we celebrate:
+    // you beat yourself. The ONLY comparison on this card is this student with this
+    // student (rule 42). No sprints yet -> the card never appears (sprints never gate
+    // anything, so an empty card would only nag).
+    async function loadSprints() {
+      try {
+        const res = await fetch("/api/sprints/" + encodeURIComponent(CODE) +
+                                "?course=" + encodeURIComponent(COURSE));
+        if (!res.ok) return;
+        const d = await res.json();
+        const hist = (d && d.history) || [];
+        if (!hist.length) return;
+        const last = hist.slice(-14);                  // the recent story fits one card
+        const W = 640, H = 150, pad = 26;
+        const slot = (W - 2 * pad) / last.length;
+        const bw = Math.max(6, Math.min(18, slot / 2.6));
+        const maxv = Math.max(10, ...last.map(s => Math.max(s.a, s.b)));
+        const y = v => H - 24 - (H - 52) * v / maxv;
+        let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"'
+                + ' style="width:100%;height:auto;display:block">';
+        last.forEach((s, i) => {
+          const x0 = pad + i * slot + (slot - 2 * bw - 3) / 2;
+          svg += '<rect x="' + x0 + '" y="' + y(s.a) + '" width="' + bw + '" height="'
+               + (H - 24 - y(s.a)) + '" rx="3" fill="#c9c6ee"><title>' + esc(s.day)
+               + ' — round A: ' + s.a + '</title></rect>';
+          svg += '<rect x="' + (x0 + bw + 3) + '" y="' + y(s.b) + '" width="' + bw + '" height="'
+               + (H - 24 - y(s.b)) + '" rx="3" fill="#5b5bd6"><title>' + esc(s.day)
+               + ' — round B: ' + s.b + '</title></rect>';
+          if (s.b > s.a) {
+            svg += '<text x="' + (x0 + bw + 3 + bw / 2) + '" y="' + (y(s.b) - 5)
+                 + '" font-size="11" font-weight="800" fill="#0e9f6e" text-anchor="middle">+'
+                 + (s.b - s.a) + '</text>';
+          }
+        });
+        svg += '<line x1="' + pad + '" y1="' + (H - 24) + '" x2="' + (W - pad) + '" y2="'
+             + (H - 24) + '" stroke="#d9d6ea"/></svg>';
+        el("sprintChart").innerHTML = svg;
+        el("sprintNote").textContent = "— " + hist.length + " sprint"
+          + (hist.length === 1 ? "" : "s") + " · personal best " + (d.best_b || 0)
+          + " in a minute · pale bar = round A, solid = round B";
+        el("sprintWrap").style.display = "block";
+      } catch (e) { /* the card is a bonus -- never block the dashboard */ }
+    }
+    loadSprints();
 
     // ----- MY COURSES strip: the student's whole picture, not just the course they walked in with -----
     async function loadMyCourses() {

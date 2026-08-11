@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-11  THE LAST KEY-CARRYING LINK IS GONE (build dn). Build dg's one documented
+    residual -- the forum-moderation quick-link opened /community?mod=<key> -- is closed:
+    community.html now reads the key from the SAME sessionStorage stash this page fills
+    ("mt_admin_key") and sends it in the X-Admin-Key header, so the quick-link is plain
+    /community and unlocks automatically in this tab. No page anywhere builds a
+    key-carrying URL any more.
   - 2026-08-11  BACKUPS CARD (build dj, Jim: "if Render falters, do we have sufficient
     backup so that we could recreate everything right away?"). New 🛟 Backups card: shows
     the nightly snapshots the server now writes to the persistent disk by itself, and a
@@ -475,13 +481,15 @@
 
   function renderLinks() {
     // BUILD dg: the beta link is PLAIN -- the generator lives on this page, so the key
-    // has no reason to ride along. The moderation link still carries ?mod= because
-    // community.html has no other unlock (known residual, queued for its own build).
-    var k = encodeURIComponent(KEY);
+    // has no reason to ride along. BUILD dn closes dg's documented residual: the
+    // moderation link is now plain /community too -- that page reads the key from the
+    // SAME sessionStorage stash this page fills ("mt_admin_key"), so opening it from
+    // here (same tab) is already unlocked. NO admin page ever builds a key-carrying
+    // URL again.
     var items = [
       { href: "/health", t: "Health check", d: "Build stamp & database status" },
       { href: "/beta", t: "Beta page (public view)", d: "Your pass generator lives on THIS page" },
-      { href: "/community?mod=" + k, t: "Forum moderation", d: "Hide/restore posts (key rides in this one link — rotates with the key)" },
+      { href: "/community", t: "Forum moderation", d: "Hide posts/replies — unlocked automatically once this page is unlocked" },
       { href: "/family", t: "Family portal", d: "The parent sign-in page" },
       { href: "/pricing", t: "Pricing page", d: "What families see" },
       { href: "https://dashboard.render.com", t: "Render", d: "Deploys, logs, env vars", ext: true },

@@ -2,6 +2,26 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD dn -- PART 3q's key-transport block closes dg's documented
+#               residual: /community?mod= was the LAST key-in-a-URL. New checks prove
+#               community.html reads the key from the SHARED sessionStorage stash
+#               ("mt_admin_key" -- /admin unlocks both), honours a legacy ?mod= link
+#               once then scrubs the address bar, sends the key in the X-Admin-Key
+#               header and NEVER in the request body, and clears the stash on a 401;
+#               admin.html builds no key-carrying URL of any kind; POST
+#               /api/forum/moderate takes the header through the same _require_admin
+#               constant-time gate as every other admin call. The whole door is also
+#               proven LIVE (subprocess + TestClient + sqlite): wrong header 401s,
+#               the right header gets PAST the gate (400 bad kind / 404 unknown id),
+#               the legacy body key still authorizes (a cached pre-dn page must keep
+#               working across the deploy), and no key at all is refused.
+#   2026-08-11  BUILD dm -- PART 3n grows the DISPLAY half of the sprint guarantee:
+#               the dashboard's sprint-record card starts hidden, never renders on an
+#               empty history (sprints never gate, an empty card is a nag), compares
+#               this student only with this student (rule 42), fails soft, and the
+#               endpoint is student-gated -- plus the whole display drill run LIVE
+#               against a real database (two sprints recorded through store.record_
+#               sprint, read back oldest-first with the personal best).
 #   2026-08-11  BUILD dl -- the two WWC-Strong teaching rules land: 53 (the number line
 #               used on purpose -- magnitude and comparison, fractions between 0 and 1
 #               first then past 1, benchmarks 0/half/1, equivalents at ONE position)
@@ -2312,6 +2332,11 @@ def part3n_sprints():
     is worse than no drill); the sprint must never GATE anything (EEF's anxiety caution
     is a requirement, not advice); and half B must be a sibling of half A, not its twin
     (identical questions would make "improvement" a memory test).
+    Build dm added the DISPLAY half of the recommendation ("track AND SHOW progress"):
+    the dashboard's sprint-record card, guarded at the end of this part -- shown only
+    when history exists, self-comparison only, and the whole drill proven live: two
+    sprints recorded through the real store, the new endpoint returning them oldest
+    first with the personal best.
     """
     print("\nPART 3n — fluency sprints")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -2405,6 +2430,51 @@ def part3n_sprints():
           "personal best is the only score that matters" in sess
           and "beat your" in sess.lower(),
           "the frame is the anxiety mitigation -- it is not decoration")
+
+    # ---- BUILD dm: the DISPLAY half of WWC g26 r6 -- "track AND SHOW progress" ------
+    dash = open(os.path.join(here, "static", "dashboard.html"), encoding="utf-8").read()
+    check("the sprint-record card exists and starts HIDDEN",
+          'id="sprintWrap" style="display:none;"' in dash,
+          "the card must never render before there is data")
+    check("  zero sprints -> the card never appears (no nagging)",
+          "if (!hist.length) return;" in dash,
+          "sprints never gate; an empty card is a nag")
+    check("  the card compares this student only with this student (rule 42)",
+          "racing only yourself" in dash and "personal best" in dash,
+          "any other comparison violates rule 42")
+    check("  the loader is a bonus that can never block the dashboard",
+          "loadSprints" in dash and "/api/sprints/" in dash
+          and "never block the dashboard" in dash.split("loadSprints")[1][:2400],
+          "the card must fail soft like every bonus section")
+    mn2 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("GET /api/sprints/{code} exists and is student-gated",
+          '@app.get("/api/sprints/{code}")' in mn2
+          and "_student_or_404" in mn2.split('@app.get("/api/sprints/{code}")')[1][:900],
+          "an open endpoint that hands out per-student data")
+    # the whole display drill, live: record two sprints, read them back oldest-first
+    import tempfile as _tf2
+    with _tf2.TemporaryDirectory() as tmp2:
+        drill = os.path.join(tmp2, "drill.py")
+        with open(drill, "w") as fh:
+            fh.write(
+                "import store\n"
+                "store.init()\n"
+                "assert store.enabled()\n"
+                "store.record_sprint('SPRTEST', 'prealgebra', 1, 'make ten', 5, 8, 7, 9)\n"
+                "store.record_sprint('SPRTEST', 'prealgebra', 2, 'doubles', 6, 8, 9, 10)\n"
+                "h = store.get_sprint_history('SPRTEST', 'prealgebra', unit=None, limit=30)\n"
+                "assert len(h) == 2, h\n"
+                "rows = list(reversed(h))\n"
+                "assert rows[0]['skill'] == 'make ten' and rows[1]['b'] == 9, rows\n"
+                "assert max(r['b'] for r in rows) == 9\n"
+                "print('SPRINT-DRILL-OK')\n")
+        env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp2, 's.db')}",
+                   PYTHONPATH=here)
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True)
+        check("record two sprints -> history reads back oldest-first with the best",
+              r.returncode == 0 and "SPRINT-DRILL-OK" in r.stdout,
+              (r.stdout + r.stderr)[-250:])
 
 
 def part3l_lesson_auditor():
@@ -3166,6 +3236,82 @@ def part3q_reliability():
     n_pref = mn.count("_require_admin(x_admin_key or key)")
     check("the header is preferred over the query param",
           n_pref >= 4, f"found {n_pref} of 4")
+
+    # --- BUILD dn: dg's documented residual is closed -- /community?mod= is gone ------
+    # The forum-moderation unlock was the LAST place an admin key rode in a URL.
+    # community.html now uses the exact discipline admin.html got in dg: the key lives
+    # in sessionStorage (the SAME "mt_admin_key" stash, so /admin unlocks both), a
+    # legacy ?mod= link is honoured once then scrubbed from the address bar, and the
+    # moderate call sends the key in the X-Admin-Key header -- never in the body.
+    with open(os.path.join(here, "static", "community.html"), encoding="utf-8") as fh:
+        com = fh.read()
+    check("community.html reads the mod key from the shared sessionStorage stash",
+          'sessionStorage.getItem("mt_admin_key")' in com, "stash read not found")
+    check("community.html honours a legacy ?mod= link ONCE, then scrubs the address bar",
+          'params.get("mod")' in com and 'sessionStorage.setItem("mt_admin_key"' in com
+          and 'history.replaceState(null, "", "/community")' in com,
+          "legacy stash-and-scrub missing")
+    check("community.html sends the mod key in the X-Admin-Key header",
+          '"X-Admin-Key": MOD_KEY' in com, "header transport not found")
+    check("community.html never puts the key in the moderate request body",
+          "key: MOD_KEY" not in com, "the body still carries the key")
+    check("a 401 clears the stash and drops back to the public view",
+          'sessionStorage.removeItem("mt_admin_key")' in com
+          and "e.status === 401" in com, "the wrong-key recovery path is missing")
+    check("admin.html no longer builds ANY key-carrying URL (?mod= construction gone)",
+          '?mod=" +' not in adm and '"/community"' in adm,
+          "the moderation quick-link still carries the key")
+    i_mod = mn.find("def forum_moderate")
+    mod_src = mn[i_mod:i_mod + 900] if i_mod > 0 else ""
+    check("POST /api/forum/moderate accepts the X-Admin-Key header",
+          'alias="X-Admin-Key"' in mod_src, "header parameter not found on the endpoint")
+    check("  through the same constant-time gate as every admin call",
+          "_require_admin(x_admin_key or body.key)" in mod_src,
+          "expected _require_admin(x_admin_key or body.key)")
+
+    # ...and the whole door proven LIVE: wrong header 401s, right header passes auth
+    # (400/404 further in prove we got PAST the gate), the legacy body key still works
+    # for a cached pre-dn page, and no key at all is refused.
+    try:
+        import httpx  # noqa: F401  (TestClient's engine)
+        _have_httpx = True
+    except Exception:  # noqa: BLE001
+        _have_httpx = False
+    if not _have_httpx:
+        skip("moderate endpoint live drill", "httpx not installed here")
+    else:
+        import tempfile as _tf3
+        with _tf3.TemporaryDirectory() as tmp3:
+            drill = os.path.join(tmp3, "moddrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main\n"
+                    "c = TestClient(main.app)\n"
+                    "u = '/api/forum/moderate'\n"
+                    "r = c.post(u, json={'kind': 'post', 'item_id': 'x'},\n"
+                    "           headers={'X-Admin-Key': 'WRONG'})\n"
+                    "assert r.status_code == 401, ('wrong header', r.status_code)\n"
+                    "r = c.post(u, json={'kind': 'banana', 'item_id': 'x'},\n"
+                    "           headers={'X-Admin-Key': 'TESTMOD123'})\n"
+                    "assert r.status_code == 400, ('right header, bad kind', r.status_code)\n"
+                    "r = c.post(u, json={'kind': 'post', 'item_id': 'nope'},\n"
+                    "           headers={'X-Admin-Key': 'TESTMOD123'})\n"
+                    "assert r.status_code == 404, ('right header, unknown id', r.status_code)\n"
+                    "r = c.post(u, json={'key': 'TESTMOD123', 'kind': 'banana', 'item_id': 'x'})\n"
+                    "assert r.status_code == 400, ('legacy body key', r.status_code)\n"
+                    "r = c.post(u, json={'kind': 'post', 'item_id': 'x'})\n"
+                    "assert r.status_code == 401, ('no key at all', r.status_code)\n"
+                    "print('MODKEY-DRILL-OK')\n")
+            env = dict(os.environ,
+                       DATABASE_URL=f"sqlite:///{os.path.join(tmp3, 'm.db')}",
+                       FORUM_MOD_KEY="TESTMOD123", WEEKLY_EMAIL="off",
+                       PYTHONPATH=here)
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("moderate endpoint live: 401 wrong / past-the-gate right / legacy body ok",
+                  r.returncode == 0 and "MODKEY-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-300:])
 
 
 # =============================================================================

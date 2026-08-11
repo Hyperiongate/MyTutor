@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-11  THE MOD KEY LEAVES THE ADDRESS BAR (build dn -- the residual build dg
+    documented). /community?mod=<key> put the admin key in a URL, and query strings are
+    written into Render's request logs in PLAINTEXT (that is how the key got burned the
+    first time). Now: mod mode reads the key from sessionStorage ("mt_admin_key" -- the
+    SAME stash the /admin unlock box fills, so opening this page from the admin
+    quick-link in the same tab is already unlocked); a legacy ?mod= link still works
+    ONCE, but the key is immediately stashed and scrubbed from the address bar
+    (history.replaceState). The moderate call now sends the key in the X-Admin-Key
+    HEADER, never in the request body. A 401 (wrong or rotated key) clears the stash
+    and drops back to the public view instead of re-failing forever.
   - 2026-08-02  DISCOVERY PASS (AI search + Google): canonical, og+twitter added to <head>. Site-wide: new robots.txt + sitemap.xml + llms.txt (served by main.py). No visible changes to the page.
   =============================================================================
   community.html  --  MyTutor  --  Hyperion Shift LLC
@@ -205,8 +215,21 @@
     { id: "courses",  label: "🎓 Courses you'd like", prompt: "Beyond the ten math courses — what would you like Mr. Cadabra's Classroom to teach next? Inside math or beyond it, tell us what your family needs." }
   ];
   var state = { section: "working", posts: [], busy: false };
+  // BUILD dn: the mod key NEVER rides in a URL any more -- query strings are logged in
+  // plaintext by Render. It lives in sessionStorage under the SAME name the /admin page
+  // uses ("mt_admin_key"), so unlocking /admin in this tab unlocks moderation here too,
+  // and it travels in the X-Admin-Key header. A legacy ?mod= link is honoured once: the
+  // key is stashed and immediately scrubbed from the address bar so it is not re-logged
+  // on the next refresh (the load that brought it here was already logged -- rotate!).
+  var MOD_KEY = "";
+  try { MOD_KEY = (sessionStorage.getItem("mt_admin_key") || "").trim(); } catch (e) {}
   var params = new URLSearchParams(window.location.search);
-  var MOD_KEY = (params.get("mod") || "").trim();
+  var legacyMod = (params.get("mod") || "").trim();
+  if (legacyMod) {
+    MOD_KEY = legacyMod;
+    try { sessionStorage.setItem("mt_admin_key", MOD_KEY); } catch (e) {}
+    try { history.replaceState(null, "", "/community"); } catch (e) {}
+  }
   function token() { try { return localStorage.getItem("mt_parent_token") || ""; } catch (e) { return ""; } }
 
   function $(id) { return document.getElementById(id); }
@@ -343,11 +366,25 @@
   }
 
   async function moderate(kind, id) {
+    // BUILD dn: the key travels in the X-Admin-Key HEADER, never in the body and
+    // never in a URL. A 401 means the key is wrong or was rotated: clear the stash
+    // (so it cannot re-fail on every click) and drop back to the public view.
     try {
       await api("/api/forum/moderate", { method: "POST",
-        body: JSON.stringify({ key: MOD_KEY, kind: kind, item_id: id }) });
+        headers: { "X-Admin-Key": MOD_KEY },
+        body: JSON.stringify({ kind: kind, item_id: id }) });
       load();
-    } catch (e) { alert2(e.message); }
+    } catch (e) {
+      if (e.status === 401) {
+        MOD_KEY = "";
+        try { sessionStorage.removeItem("mt_admin_key"); } catch (err) {}
+        // re-render WITHOUT the hide buttons first, THEN show the explanation --
+        // load() rewrites the post list, so a notice shown before it would be wiped
+        load().then(function () {
+          alert2("That moderation key didn't work — it may have been rotated. Unlock the Admin page again to refresh it.");
+        });
+      } else { alert2(e.message); }
+    }
   }
 
   // ---------- composer ----------

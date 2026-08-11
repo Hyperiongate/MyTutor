@@ -2,6 +2,35 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11dn-modkey-header". THE LAST KEY-IN-A-URL
+#               RESIDUAL IS CLOSED. Build dg moved the admin key out of query strings
+#               (Render logs them in plaintext) but left one documented residual: the
+#               forum-moderation unlock was /community?mod=<key>, and the moderate
+#               call carried the key in its JSON body from a URL-sourced variable.
+#               Now: POST /api/forum/moderate accepts the key in the X-Admin-Key
+#               HEADER (preferred) via the same _require_admin() constant-time gate
+#               as every other admin call -- the body key stays ACCEPTED (optional,
+#               default "") so nothing breaks mid-deploy, but no page we ship sends
+#               it any more. community.html reads the key from sessionStorage
+#               ("mt_admin_key", the same stash admin.html fills, so mod mode follows
+#               Jim from /admin in the same tab); a legacy ?mod= link is honoured
+#               ONCE, stashed, and scrubbed from the address bar. admin.html's
+#               moderation quick-link is now plain /community. A wrong/rotated key
+#               401s -> the page clears the stash and returns to the public view.
+#               Zero prompt characters (the dn lane continues while the prompt-size
+#               measurement stays postponed).
+#   2026-08-11  APP_BUILD -> "2026-08-11dm-sprint-graph". THE DISPLAY HALF OF WWC g26
+#               rec 6 ("track AND SHOW progress") -- the sprints table has recorded
+#               every one-minute round since build dd and nothing displayed the
+#               growth. NEW GET /api/sprints/{code}?course= (student-gated, whole
+#               course history oldest-first, personal best; empty when the DB is off
+#               -- the card is a bonus, never a 500) feeding dashboard.html's new
+#               hidden-until-data "⚡ Your sprint record" card: two bars per sprint
+#               (round A pale, round B solid), a green +n over every self-beat.
+#               Rule 42 throughout: the only comparison is this student with this
+#               student. Chosen over the prompt-budget work ON PURPOSE: Jim postponed
+#               the two-size auditor measurement, so today's builds spend ZERO prompt
+#               characters (this one) until that measurement runs.
 #   2026-08-11  APP_BUILD -> "2026-08-11dl-wwc-rules". The two strongest remaining
 #               evidence gaps close as NEW RULES 53 (number-line doctrine) and 54
 #               (word-problem types; key-word shortcuts BANNED and machine-enforced).
@@ -4821,7 +4850,9 @@ class ForumReplyIn(BaseModel):
 
 
 class ForumModIn(BaseModel):
-    key: str
+    key: str = ""              # LEGACY transport (build dn): the page now sends the key
+                               # in the X-Admin-Key header; the body field stays accepted
+                               # so an old cached page keeps working across the deploy.
     kind: str                  # 'post' | 'reply'
     item_id: str
 
@@ -4884,12 +4915,15 @@ def forum_create_reply(body: ForumReplyIn, request: Request):
 
 
 @app.post("/api/forum/moderate")
-def forum_moderate(body: ForumModIn):
-    """Jim's moderation: soft-delete a post or reply. Needs FORUM_MOD_KEY (env)."""
+def forum_moderate(body: ForumModIn,
+                   x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """Jim's moderation: soft-delete a post or reply. Needs FORUM_MOD_KEY (env).
+    BUILD dn: key accepted in the X-Admin-Key header (preferred -- the old
+    /community?mod= link put it in a URL, and query strings land in Render's logs
+    in plaintext); the body key stays accepted for a cached pre-dn page only.
+    Same _require_admin constant-time gate as every other admin call."""
     _require_db()
-    mod_key = os.environ.get("FORUM_MOD_KEY", "").strip()
-    if not mod_key or not hmac.compare_digest((body.key or "").strip(), mod_key):
-        raise HTTPException(status_code=401, detail="Not authorized.")
+    _require_admin(x_admin_key or body.key)
     if body.kind not in ("post", "reply"):
         raise HTTPException(status_code=400, detail="kind must be 'post' or 'reply'.")
     if not store.delete_forum_item(body.kind, (body.item_id or "").strip()):
@@ -5093,6 +5127,27 @@ def _final_exam_state(code: str, course: str) -> dict:
         "eligible": len(mastered) >= 9,
         "exam": exam,
     }
+
+
+@app.get("/api/sprints/{code}")
+def api_sprint_record(code: str, course: str = "prealgebra"):
+    """The student's whole sprint history for one course, oldest first -- the
+    dashboard's '⚡ Your sprint record' card (2026-08-11, build dm). WWC guide 26
+    rec. 6 says track progress AND SHOW it; the data has recorded since build dd and
+    nothing displayed it. Self-referential only (rule 42): this student's rounds,
+    this student's best, nobody else's anything. Empty history -> the card never
+    renders (sprints never gate and never nag)."""
+    _student_or_404(code)
+    if not store.enabled():
+        return {"ok": True, "history": [], "best_b": 0}
+    try:
+        rows = store.get_sprint_history(code.strip(), course, unit=None, limit=30)
+    except Exception as exc:  # noqa: BLE001 -- the card is a bonus, never a 500
+        print(f"[sprint] record read failed: {exc}")
+        rows = []
+    rows = list(reversed(rows))                      # oldest first, for a growth line
+    return {"ok": True, "history": rows,
+            "best_b": max([r["b"] for r in rows], default=0)}
 
 
 @app.get("/api/sprint/{code}")
@@ -5302,7 +5357,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11dl-wwc-rules"
+APP_BUILD = "2026-08-11dn-modkey-header"
 
 
 @app.get("/health")
