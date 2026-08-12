@@ -57,7 +57,7 @@
 
 import re
 
-ALL_COURSES = ("entrymath", "basicmath", "prealgebra", "algebra1", "geometry",
+ALL_COURSES = ("entry", "basic", "prealgebra", "algebra1", "geometry",
                "algebra2", "precalc", "calculus", "probstat", "diffeq")
 # Courses from Algebra I up -- where symbolic notation really lives.
 SYMBOLIC = ("algebra1", "geometry", "algebra2", "precalc", "calculus", "probstat", "diffeq")
@@ -193,7 +193,7 @@ NOTATIONS = [
      "heard": r"\btimes\b|multiplied by", "note": "rule 4: the multiplication sign is × on the board, never a lowercase x"},
 
     {"id": "cents", "shown": "25¢", "spoken": "twenty-five cents", "never": "twenty-five c",
-     "courses": ("entrymath", "basicmath", "prealgebra"), "wrote": r"¢",
+     "courses": ("entry", "basic", "prealgebra"), "wrote": r"¢",
      "heard": r"\bcents?\b", "note": ""},
 
     {"id": "percent", "shown": "52%", "spoken": "fifty-two percent", "never": "fifty-two",
@@ -240,9 +240,25 @@ def by_id(nid: str) -> dict:
     return _BY_ID.get(nid, {})
 
 
+# ONE TRUE NAME PER COURSE (build ek, 2026-08-12). The canonical course keys live in
+# curriculum.py and this module's content is keyed by those names. The older
+# "entrymath"/"basicmath" spellings used to live HERE, which meant a real lesson (which
+# runs as "basic") got NOTHING from this module -- see curriculum.py's build-ek note.
+# Kept as a local map rather than an import so this stays a dependency-free data module.
+_ALIASES = {"entrymath": "entry", "basicmath": "basic"}
+
+
+def _canon(course):
+    """The canonical course key, resolving the legacy spellings. Unknown names pass
+    through unchanged so an unrecognised course yields an EMPTY block, never the wrong
+    course's content."""
+    c = (course or "").strip().lower()
+    return _ALIASES.get(c, c)
+
+
 def for_course(course: str) -> list:
     """Every notation this course is allowed to put on a student's screen."""
-    c = (course or "").strip().lower()
+    c = _canon(course)
     return [n for n in NOTATIONS if c in n["courses"]]
 
 

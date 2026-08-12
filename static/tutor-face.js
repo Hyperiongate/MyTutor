@@ -2,6 +2,36 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build ej) THE VIDEO PRESENCE LAYER -- Mr. Cadabra's real face, robot as
+                 fallback (Jim: "I don't like the robot... I think it's fine to have Mr.
+                 Cadabra in every instance"). This file now carries BOTH faces:
+                   - On the first draw() call it probes /static/videos/cadabra/presence.json
+                     ONCE. If the manifest loads, a muted looping <video> of Mr. Cadabra
+                     (generated once in HeyGen -- see the Video Presence project plan) is
+                     laid over the canvas in the same circular slot, and the loop follows
+                     the SAME moods the pages already send: idle/speaking -> the idle loop
+                     (his real voice talks; the face deliberately does NOT lip-sync -- an
+                     honest "he's here and listening" presence, never a fake mouth),
+                     listening -> the listening loop, thinking -> the thinking loop, and
+                     happy -> the thumbs-up one-shot (Jim's ask: a right answer cues a
+                     thumbs up), which plays once and returns to idle.
+                   - The ROBOT KEEPS DRAWING underneath on every frame. No manifest, a 404,
+                     a video error, a stalled network, data-saver -- ANY failure simply
+                     tears the video down and the robot is already there. Do no harm: this
+                     file works exactly as before until the assets exist, so code and
+                     videos deploy independently.
+                   - prefers-reduced-motion: no video plays; the still poster shows instead
+                     (and if there's no poster, the robot -- whose own bob/blink the pages'
+                     dz rule already stills).
+                   - Two stacked <video> elements crossfade on loop changes so a mood
+                     switch never flashes black; sources swap only when the mood's video
+                     actually differs, with a short hold so chatty mood changes can't
+                     thrash the network. Videos are muted+playsinline+aria-hidden always:
+                     the presence NEVER makes sound -- Mr. Cadabra's voice stays exactly
+                     where it lives today.
+                 Pages need NO edits: everything hangs off the existing
+                 TutorFace.draw(ctx, w, h, {level, t, mood}) call all six pages already
+                 make. New optional API: TutorFace.presenceActive() for curious pages.
      2026-07-28  NEW. Mr. Cadabra's FACE: a small, friendly robot head that replaces the voice
                  orb on every coaching page. Draws into the SAME <canvas id="orb"> and is driven
                  by the SAME 0..1 amplitude the orb already computed from the ElevenLabs audio
@@ -179,6 +209,147 @@
     ctx.restore();
   }
 
-  window.TutorFace = { draw: draw, moodFrom: moodFrom };
+  // ===========================================================================
+  // THE VIDEO PRESENCE LAYER (build ej, 2026-08-12) -- see the change note above.
+  // ===========================================================================
+  var P = {
+    state: "unprobed",        // unprobed -> probing -> active | off
+    manifest: null,
+    base: "/static/videos/cadabra/",
+    host: null,               // the wrapper div we insert over the canvas
+    vids: null,               // [videoA, videoB] for crossfades
+    front: 0,                 // which of the two is visible
+    currentKey: "",           // which loop is showing ("idle", "listening", ...)
+    oneshotUntil: 0,          // while a one-shot plays, loop changes wait
+    lastSwitch: 0,            // debounce clock
+    reduced: false
+  };
+  try {
+    P.reduced = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  } catch (e) {}
+
+  function presenceProbe(canvas) {
+    P.state = "probing";
+    // One fetch, once per page. A 404 or bad JSON = the robot stays. Nothing retries,
+    // nothing errors loudly -- absence of the assets is a NORMAL state (phase-dark).
+    try {
+      fetch(P.base + "presence.json", { cache: "no-cache" }).then(function (r) {
+        if (!r.ok) throw 0;
+        return r.json();
+      }).then(function (m) {
+        if (!m || !m.loops || !m.loops.idle) throw 0;
+        P.manifest = m;
+        presenceMount(canvas, m);
+      }).catch(function () { P.state = "off"; });
+    } catch (e) { P.state = "off"; }
+  }
+
+  function presenceMount(canvas, m) {
+    var parent = canvas.parentNode;
+    if (!parent) { P.state = "off"; return; }
+    var cs = getComputedStyle(parent);
+    if (cs.position === "static") parent.style.position = "relative";
+    var host = document.createElement("div");
+    host.setAttribute("aria-hidden", "true");           // decorative; the VOICE is the content
+    host.style.cssText = "position:absolute;inset:0;border-radius:50%;overflow:hidden;" +
+                         "pointer-events:none;background:transparent;";
+    // Reduced motion: a still poster instead of motion; no poster -> keep the robot.
+    if (P.reduced) {
+      if (!m.poster) { P.state = "off"; return; }
+      var img = document.createElement("img");
+      img.alt = ""; img.src = P.base + m.poster;
+      img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;";
+      img.onerror = function () { presenceTeardown(); };
+      host.appendChild(img);
+      parent.appendChild(host);
+      P.host = host; P.state = "active";
+      return;
+    }
+    function mkVid() {
+      var v = document.createElement("video");
+      v.muted = true; v.loop = true; v.autoplay = true;
+      v.setAttribute("muted", "");                       // attribute form for iOS autoplay
+      v.setAttribute("playsinline", "");
+      v.playsInline = true;
+      v.preload = "auto";
+      if (m.poster) v.poster = P.base + m.poster;
+      v.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" +
+                        "transition:opacity .35s ease;opacity:0;";
+      v.onerror = function () { presenceTeardown(); };   // ANY media failure -> robot
+      host.appendChild(v);
+      return v;
+    }
+    P.vids = [mkVid(), mkVid()];
+    parent.appendChild(host);
+    P.host = host;
+    P.state = "active";
+    presenceShow("idle", false);
+  }
+
+  function presenceTeardown() {
+    // The robot never stopped drawing underneath, so this is instant and seamless.
+    try { if (P.host && P.host.parentNode) P.host.parentNode.removeChild(P.host); } catch (e) {}
+    P.host = null; P.vids = null; P.state = "off";
+  }
+
+  function presenceShow(key, isOneshot) {
+    if (P.state !== "active" || !P.vids) return;
+    var m = P.manifest;
+    var file = isOneshot ? (m.oneshots && m.oneshots[key]) : (m.loops && m.loops[key]);
+    if (!file) { key = "idle"; isOneshot = false; file = m.loops.idle; }
+    if (!isOneshot && key === P.currentKey) return;
+    var back = 1 - P.front;
+    var v = P.vids[back], old = P.vids[P.front];
+    v.loop = !isOneshot;
+    v.src = P.base + file;
+    var settled = false;
+    v.oncanplay = function () {
+      if (settled) return; settled = true;
+      var p = v.play(); if (p && p.catch) p.catch(function () {});
+      v.style.opacity = "1";
+      old.style.opacity = "0";
+      setTimeout(function () { try { old.pause(); } catch (e) {} }, 400);
+      P.front = back;
+    };
+    if (isOneshot) {
+      P.oneshotUntil = Date.now() + 15000;               // safety ceiling, not the real end
+      v.onended = function () {
+        P.oneshotUntil = 0;
+        P.currentKey = "";                                // force the idle reload
+        presenceShow("idle", false);
+      };
+    } else {
+      v.onended = null;
+    }
+    P.currentKey = isOneshot ? ("!" + key) : key;
+  }
+
+  // Called from draw() every frame. Maps the pages' moods onto the loops; "speaking"
+  // deliberately uses the IDLE loop -- his real voice talks, the face stays honestly
+  // alive, and we never fake a mouth (the whole design).
+  function presenceTick(canvas, mood) {
+    if (P.state === "unprobed") presenceProbe(canvas);
+    if (P.state !== "active" || P.reduced) return;
+    var now = Date.now();
+    if (P.oneshotUntil) {
+      if (now < P.oneshotUntil) return;                  // let the thumbs-up finish
+      P.oneshotUntil = 0; P.currentKey = ""; presenceShow("idle", false); return;
+    }
+    if (mood === "happy") { presenceShow("happy", true); return; }
+    if (now - P.lastSwitch < 600) return;                // hold: mood chatter never thrashes
+    var want = (mood === "listening") ? "listening"
+             : (mood === "thinking")  ? "thinking"
+             : "idle";                                    // idle AND speaking
+    if (want !== P.currentKey) { P.lastSwitch = now; presenceShow(want, false); }
+  }
+
+  var _drawRobot = draw;
+  function drawWithPresence(ctx, w, h, opts) {
+    _drawRobot(ctx, w, h, opts);                         // the robot ALWAYS draws (fallback)
+    try { presenceTick(ctx.canvas, (opts && opts.mood) || "idle"); } catch (e) {}
+  }
+
+  window.TutorFace = { draw: drawWithPresence, moodFrom: moodFrom,
+                       presenceActive: function () { return P.state === "active"; } };
 })();
 /* I did no harm and this file is not truncated. */

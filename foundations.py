@@ -161,7 +161,7 @@
 #   say    : the EXACT words he speaks -- verbatim, so the audio caches
 #   board  : lines/tags for the whiteboard while he says it
 FOUNDATIONS = {
-    "entrymath": [
+    "entry": [
         {"term": "number", "say":
             "Before we count anything, here is what a **number** really is: it is a way of saying how "
             "many. When I say three, I am telling you how many things there are, not which ones or how "
@@ -274,7 +274,7 @@ FOUNDATIONS = {
             "begins.",
          "board": ['[[write text="⭐⭐⭐⭐   ⭐⭐⭐⭐   ⭐⭐⭐⭐   =   3 rows of 4  =  12"]]']},
     ],
-    "basicmath": [
+    "basic": [
         {"term": "fraction", "say":
             "Here is what a **fraction** is. A fraction is a number that describes equal parts of one "
             "whole. The word equal matters: if I cut a cookie into two pieces and one piece is tiny, "
@@ -1735,7 +1735,7 @@ FOUNDATIONS = {
 
 def for_course(course: str) -> list:
     """The canonical foundation scripts for a course, in teaching order ([] if none)."""
-    return FOUNDATIONS.get((course or "").strip().lower(), [])
+    return FOUNDATIONS.get(_canon(course), [])
 
 
 def terms_for_course(course: str) -> list:
@@ -1790,6 +1790,22 @@ def learned_terms_in(course: str, reply: str) -> list:
     except Exception:  # noqa: BLE001
         return out
     return out
+
+
+# ONE TRUE NAME PER COURSE (build ek, 2026-08-12). The canonical course keys live in
+# curriculum.py and this module's content is keyed by those names. The older
+# "entrymath"/"basicmath" spellings used to live HERE, which meant a real lesson (which
+# runs as "basic") got NOTHING from this module -- see curriculum.py's build-ek note.
+# Kept as a local map rather than an import so this stays a dependency-free data module.
+_ALIASES = {"entrymath": "entry", "basicmath": "basic"}
+
+
+def _canon(course):
+    """The canonical course key, resolving the legacy spellings. Unknown names pass
+    through unchanged so an unrecognised course yields an EMPTY block, never the wrong
+    course's content."""
+    c = (course or "").strip().lower()
+    return _ALIASES.get(c, c)
 
 
 def prompt_block(course: str, heard=None, verbatim: bool = True) -> str:

@@ -2,6 +2,37 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ek-course-identity". ONE TRUE NAME PER COURSE --
+#               a live teaching defect in the two YOUNGEST courses (build stamp only in
+#               this file; the work is in curriculum.py, notation.py, misconceptions.py,
+#               foundations.py, lessonaudit.py and ruletests.py). THE DEFECT: this file
+#               validates an incoming course against curriculum.COURSES, whose keys are
+#               "entry" and "basic" -- but the three CONTENT modules filed the same two
+#               courses under "entrymath" and "basicmath". So every real Entry-Level and
+#               Basic Math lesson asked those modules for their content and got NOTHING:
+#               misconception catalogue 0 bytes (rule 49 had no rules to look up),
+#               foundation scripts 0 bytes (rules 36-38 had no canonical wording),
+#               notation table 0 bytes (rule 48 had no registry). Measured, then fixed.
+#               It hid because ruletests.py and lessonaudit.py used the phantom
+#               spellings too -- the tests and the content agreed with each other and
+#               both disagreed with production. NOTHING IS RENAMED IN THE STORE: the
+#               new curriculum.canon() resolves the legacy spellings forward, so any
+#               student row, mastery record or bookmark written under the old name still
+#               lands on the right course instead of silently falling back to Algebra I.
+#               Guarded by new ruletests PART 3v (20 checks), which was negative-tested:
+#               re-introducing the bug fails the build.
+#   2026-08-12  APP_BUILD -> "2026-08-12ej-video-presence". THE VIDEO PRESENCE LAYER,
+#               PHASE 1 (build stamp only in this file; the work lives in
+#               static/tutor-face.js + new PART 3u in ruletests.py; the full design
+#               is claude/Video_Presence_Project_Plan_2026-08-12.md). Jim is retiring
+#               the canvas robot in favor of Mr. Cadabra's real face: a one-time
+#               HeyGen video library (scripts + audio kit delivered 2026-08-12) --
+#               muted presence loops in the corner (idle/listening/thinking + a
+#               thumbs-up one-shot on "happy"), robot kept as the always-drawn
+#               fallback under any failure, reduced-motion gets a still poster.
+#               SHIPS DARK: until static/videos/cadabra/presence.json + clips land,
+#               every page behaves exactly as before. No page edits -- the layer
+#               hangs off the TutorFace.draw call all six coaching pages already make.
 #   2026-08-12  APP_BUILD -> "2026-08-12ei-teachers-demo". THE TEACHERS DEMO DOOR:
 #               ASSISTANT, NOT REPLACEMENT (Jim: teachers see three wins -- helps
 #               me, helps my students, individualized pace -- and one threat: "am I
@@ -6127,7 +6158,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ei-teachers-demo"
+APP_BUILD = "2026-08-12ek-course-identity"
 
 
 @app.get("/health")

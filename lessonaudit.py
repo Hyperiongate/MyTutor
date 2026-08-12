@@ -147,7 +147,7 @@ EST_OPENAI_PER_1K = 0.004       # blended in/out, the student turns and the crit
 # -- the note says which, so nobody deletes a scenario without knowing what it guarded.
 # =============================================================================
 SCENARIOS = [
-    dict(id="fractions-lost", course="basicmath", unit=2,
+    dict(id="fractions-lost", course="basic", unit=2,
          exposes="rule 36-38 foundation-first, rule 39 turn length and failable check-ins, "
                  "rule 44 read the problem aloud. A confused young child is where a tutor "
                  "most easily talks too long and asks a question that cannot fail.",
@@ -197,7 +197,7 @@ SCENARIOS = [
                  "with. You will get most questions right and miss one or two. Answer with "
                  "just your answer, briefly. Never say you are an AI.",
          opening="can I take the unit quiz on percents now"),
-    dict(id="i-dont-know", course="basicmath", unit=3,
+    dict(id="i-dont-know", course="basic", unit=3,
          exposes="rules 23-27 (the escalating ladder) and rule 39(e). A student who says "
                  "'I don't know' twice is where a tutor either gives the answer away or "
                  "repeats itself louder.",

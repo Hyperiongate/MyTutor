@@ -2,6 +2,33 @@
 # curriculum.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ek -- ONE TRUE NAME PER COURSE (the elementary content gap).
+#               THE DEFECT: this file has always keyed the two elementary courses
+#               "entry" and "basic", while notation.py, misconceptions.py and
+#               foundations.py keyed the SAME courses "entrymath" and "basicmath".
+#               main.py validates an incoming course against COURSES here, so a real
+#               lesson runs as "basic" -- and then asked those three modules for their
+#               content and got NOTHING back: no misconception catalogue (rule 49 had
+#               no rules to look up), no canonical foundation scripts (rules 36-38),
+#               no notation table (rule 48). The two YOUNGEST courses, the ones the
+#               elementary work was built for, were the only two running without the
+#               safety net. It hid because ruletests.py and lessonaudit.py used the
+#               PHANTOM spellings too: the tests and the content agreed with each
+#               other and both disagreed with production. Measured before the fix:
+#               notation/misconceptions/foundations = 0/0/0 bytes for entry and basic;
+#               1694/10837/10635 for the phantom "basicmath".
+#               THE FIX: the canonical names are the ones here ("entry", "basic"), the
+#               three content modules are re-keyed to match, and canon() below is the
+#               single source of truth for course identity. NOTHING IS RENAMED IN THE
+#               STORE: student rows, mastery, topic progress and time logs are keyed by
+#               the course string a session ran under, so canon() RESOLVES the legacy
+#               spellings forward instead of orphaning any record. _course() now routes
+#               through canon(), so a stored or bookmarked "basicmath" lands on Basic
+#               Math instead of silently falling back to Algebra I -- which is what it
+#               did before, and is why nobody saw a stack trace.
+#               GUARDED: ruletests PART 3v proves every REAL course gets all three
+#               blocks non-empty, that no module keys content by a name that is not a
+#               real course, and that canon() still resolves the legacy spellings.
 #   2026-08-11  BUILD de -- DIFFERENTIAL EQUATIONS RESTRUCTURED to the CUPM mainstream
 #               syllabus (MAA Ordinary Differential Equations subcommittee report, in the
 #               tutor folder). Jim: "go with the one that you feel will be most acceptable
@@ -736,9 +763,35 @@ UNIT_NAME = {n: name for n, name in UNITS}
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
+# ONE TRUE NAME PER COURSE (build ek, 2026-08-12). The keys of COURSES above are the
+# canonical names and the only ones any module may key content by. These are the older
+# spellings that leaked into the content modules and the test harness; they stay here
+# FOREVER as read-only aliases, because a student record written under one of them must
+# still resolve to the right course. Never add a new alias to make a typo work -- fix
+# the typo. ruletests PART 3v fails the build if a module keys content by a non-canonical
+# name.
+COURSE_ALIASES = {
+    "entrymath": "entry",
+    "basicmath": "basic",
+}
+
+
+def canon(course):
+    """The canonical key for a course name, resolving legacy aliases.
+
+    Unknown names are returned UNCHANGED (not defaulted): the caller decides what to do
+    with a name nobody recognises, and _course() below still falls back safely. Returning
+    the default here would re-create exactly the silent-fallback bug this build fixed."""
+    c = (course or "").strip().lower()
+    return COURSE_ALIASES.get(c, c)
+
+
 def _course(course):
-    """Return a course dict; unknown/None falls back to the default course (do no harm)."""
-    return COURSES.get(course or DEFAULT_COURSE) or COURSES[DEFAULT_COURSE]
+    """Return a course dict; unknown/None falls back to the default course (do no harm).
+
+    2026-08-12 (build ek): routes through canon() first, so a legacy "basicmath" resolves
+    to Basic Math instead of silently becoming Algebra I."""
+    return COURSES.get(canon(course) or DEFAULT_COURSE) or COURSES[DEFAULT_COURSE]
 
 
 def list_courses():

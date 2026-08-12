@@ -71,7 +71,7 @@ import re
 #   fix     : the concrete move that dislodges it
 #   say     : words the tutor can use almost verbatim
 MISCONCEPTIONS = {
-    "entrymath": [
+    "entry": [
         {"id": "decade-back-drops-a-ten", "name": "one less takes away a whole ten",
          "topic": "One more & one less",
          "tell": "one less than 70 answered as 60",
@@ -286,7 +286,7 @@ MISCONCEPTIONS = {
                 " true?",
         },
     ],
-    "basicmath": [
+    "basic": [
         {"id": "borrow-across-zero", "name": "borrowing from a zero without paying it back",
          "topic": "Multi-digit subtraction",
          "tell": "500 - 236 answered as 364",
@@ -2635,7 +2635,7 @@ MISCONCEPTIONS = {
 
 def for_course(course: str) -> list:
     """Every catalogued wrong rule for this course ([] if none)."""
-    return MISCONCEPTIONS.get((course or "").strip().lower(), [])
+    return MISCONCEPTIONS.get(_canon(course), [])
 
 
 def by_id(course: str, mid: str) -> dict:
@@ -2687,6 +2687,22 @@ def hint_note(course: str, text: str) -> str:
         lines.append(f'  \u2022 {m["name"].upper()} -- {m["rule"]}')
         lines.append(f'    FIX: {m["fix"]}')
     return "\n".join(lines)
+
+
+# ONE TRUE NAME PER COURSE (build ek, 2026-08-12). The canonical course keys live in
+# curriculum.py and this module's content is keyed by those names. The older
+# "entrymath"/"basicmath" spellings used to live HERE, which meant a real lesson (which
+# runs as "basic") got NOTHING from this module -- see curriculum.py's build-ek note.
+# Kept as a local map rather than an import so this stays a dependency-free data module.
+_ALIASES = {"entrymath": "entry", "basicmath": "basic"}
+
+
+def _canon(course):
+    """The canonical course key, resolving the legacy spellings. Unknown names pass
+    through unchanged so an unrecognised course yields an EMPTY block, never the wrong
+    course's content."""
+    c = (course or "").strip().lower()
+    return _ALIASES.get(c, c)
 
 
 def prompt_block(course: str) -> str:

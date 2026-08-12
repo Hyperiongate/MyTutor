@@ -2,6 +2,35 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ek -- ONE TRUE NAME PER COURSE, GUARDED. THIS FILE WAS PART OF
+#               THE BUG. Its COURSES list used the phantom spellings "entrymath" and
+#               "basicmath", so for two of the ten courses the whole battery has been
+#               proving things about a course that does not exist -- and the two REAL
+#               elementary courses ("entry", "basic") were never tested at all. That is
+#               why nothing here caught that a real Basic Math lesson was running with
+#               an EMPTY misconception catalogue, EMPTY foundation scripts and an EMPTY
+#               notation table (0/0/0 bytes, measured). The tests and the content shared
+#               the same wrong assumption, agreed with each other, and both disagreed
+#               with production. COURSES is now the real keys, and NEW PART 3v is the
+#               check that would have caught it on day one: every real course must get a
+#               NON-EMPTY block from all three content modules; no module may key
+#               content by a name that is not a real course; ruletests' own course list
+#               must equal curriculum's keys; lessonaudit must audit real courses; and
+#               canon() must resolve the legacy spellings (so no stored student record
+#               is orphaned) while leaving unknown names alone (so a typo can never
+#               silently become Algebra I again).
+#   2026-08-12  BUILD ej -- THE VIDEO PRESENCE LAYER (phase 1), GUARDED. tutor-face.js
+#               now carries Mr. Cadabra's video face over the canvas robot, robot as
+#               the always-drawn fallback. NEW PART 3u: the robot draw path must
+#               survive (any video failure lands on it), the presence must be
+#               muted+playsinline+aria-hidden FOREVER (his voice lives in the pages,
+#               never in the corner), every media error must tear down to the robot,
+#               reduced-motion must get a still poster or the robot, the robot must
+#               draw BEFORE the presence tick on every frame, all six coaching pages
+#               must still include tutor-face.js and its export must keep draw +
+#               moodFrom. FUTURE-PROOF: if/when static/videos/cadabra/presence.json
+#               lands (Jim's HeyGen assets), the battery automatically validates it
+#               -- parses, has an idle loop, and every referenced file exists.
 #   2026-08-12  BUILD ei -- TEACHERS DEMO DOOR REWRITE, GUARDED. The /demo?view=
 #               teachers walkthrough now names the replacement threat in its first
 #               breath and frames everything as the teaching ASSISTANT. NEW ei
@@ -657,7 +686,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tutor  # noqa: E402
 import notation  # noqa: E402
 
-COURSES = ["entrymath", "basicmath", "prealgebra", "algebra1", "geometry",
+COURSES = ["entry", "basic", "prealgebra", "algebra1", "geometry",
            "algebra2", "precalc", "calculus", "probstat", "diffeq"]
 STUDENT = {"name": "Testy", "grade": "7"}
 
@@ -1332,7 +1361,7 @@ LIVE_SCENARIOS = [
     ),
     dict(
         name="equivalent form is accepted as correct",
-        course="basicmath",
+        course="basic",
         history=[("assistant", 'What is one half, as a decimal or a fraction? '
                                '[[step eq="1/2 = ?"]]')],
         student="point five",
@@ -1367,7 +1396,7 @@ LIVE_SCENARIOS = [
     ),
     dict(
         name="a new topic teaches the words before asking about them",
-        course="basicmath",
+        course="basic",
         history=[("assistant", "Ready to start on fractions?")],
         student="yes",
         # rule 36/37: he must NAME and DEFINE, not open with a question about un-taught words
@@ -1727,19 +1756,19 @@ def part3d_foundation_memory():
     check("known_term rejects a term this course has no script for",
           foundations.known_term("geometry", "eigenvalue") == "", "it accepted a stranger")
     check("known_term is course-scoped",
-          foundations.known_term("entrymath", "derivative") == "", "it accepted a stranger")
+          foundations.known_term("entry", "derivative") == "", "it accepted a stranger")
 
     # 2. the [[learned]] tag main.py relies on
     reply = ('Great work today! [[write text="1/4"]] [[learned term="denominator"]] '
              '[[learned term="NUMERATOR"]] [[learned term="not a real term"]]')
-    got = foundations.learned_terms_in("basicmath", reply)
+    got = foundations.learned_terms_in("basic", reply)
     check("learned_terms_in reads the tags and canonicalises them",
           got == ["denominator", "numerator"], f"got {got}")
     check("learned_terms_in drops a term we have no script for",
           "not a real term" not in got, f"got {got}")
     for junk in [None, "", 0, [], "[[learned term=", '[[learned term=""]]']:
         try:
-            foundations.learned_terms_in("basicmath", junk)
+            foundations.learned_terms_in("basic", junk)
         except Exception as exc:  # noqa: BLE001
             bad("learned_terms_in: junk never raises", f"{junk!r} -> {exc}")
             break
@@ -1747,9 +1776,9 @@ def part3d_foundation_memory():
         ok("learned_terms_in: junk never raises")
 
     # 3. the prompt actually CHANGES for a student who has heard one
-    fresh = tutor.build_system_prompt(dict(STUDENT), course="basicmath")
+    fresh = tutor.build_system_prompt(dict(STUDENT), course="basic")
     known = tutor.build_system_prompt(
-        dict(STUDENT, foundations_heard=["denominator", "Numerator"]), course="basicmath")
+        dict(STUDENT, foundations_heard=["denominator", "Numerator"]), course="basic")
     check("a brand-new student is told nothing is known yet",
           "has not been introduced to ANY of these terms" in fresh,
           "the fresh-student prompt lost its note")
@@ -1762,14 +1791,14 @@ def part3d_foundation_memory():
     check("the SCRIPTS themselves are byte-identical either way (the audio cache "
           "depends on it)",
           all(f["say"] in fresh and f["say"] in known
-              for f in foundations.for_course("basicmath")),
+              for f in foundations.for_course("basic")),
           "a script's wording changed between the two prompts")
     check("a returning student is told to ASK, not replay",
           "refresh your memory" in known, "the ask is missing")
     # a heard list full of nonsense must not break the block
     for junk in [None, [], ["nothing like a real term"], "denominator", 0]:
         try:
-            tutor.build_system_prompt(dict(STUDENT, foundations_heard=junk), course="basicmath")
+            tutor.build_system_prompt(dict(STUDENT, foundations_heard=junk), course="basic")
         except Exception as exc:  # noqa: BLE001
             bad("a junk heard-list never breaks the prompt", f"{junk!r} -> {exc}")
             break
@@ -1782,9 +1811,9 @@ def part3d_foundation_memory():
     #    refer to did not -- and a student could hear a different definition of the same
     #    word depending on which page they opened, which is rule 28 broken at scale.)
     MODES = [
-        ("lesson", lambda st: tutor.build_system_prompt(st, course="basicmath")),
-        ("practice", lambda st: tutor.build_practice_prompt(st, "3/4 + 1/2", course="basicmath")),
-        ("topic", lambda st: tutor.build_topic_prompt(st, "fractions", course="basicmath")),
+        ("lesson", lambda st: tutor.build_system_prompt(st, course="basic")),
+        ("practice", lambda st: tutor.build_practice_prompt(st, "3/4 + 1/2", course="basic")),
+        ("topic", lambda st: tutor.build_topic_prompt(st, "fractions", course="basic")),
     ]
     for label, build in MODES:
         try:
@@ -2142,10 +2171,10 @@ def part3g_misconceptions():
 
     # the matcher must be conservative: it fires on real evidence and stays silent otherwise
     CASES = [
-        ("basicmath", "two fifths", "add-across-fractions", True),
+        ("basic", "two fifths", "add-across-fractions", True),
         ("algebra1", "three x plus four", "distribute-one-term-only", True),
-        ("basicmath", "sixteen", None, False),
-        ("basicmath", "I am not sure", None, False),
+        ("basic", "sixteen", None, False),
+        ("basic", "I am not sure", None, False),
         # the false-positive that the first end-to-end run produced
         ("prealgebra", "I did three plus two first, so twenty", None, False),
         ("prealgebra", "twenty", None, False),
@@ -2162,7 +2191,7 @@ def part3g_misconceptions():
           "more than two theories is the same as none (rule 49d)")
     for junk in [None, "", 0, [], "?" * 400]:
         try:
-            M.match("basicmath", junk); M.hint_note("basicmath", junk)
+            M.match("basic", junk); M.hint_note("basic", junk)
         except Exception as exc:  # noqa: BLE001
             bad("matcher: junk never raises", f"{junk!r} -> {exc}"); break
     else:
@@ -2175,7 +2204,7 @@ def part3g_misconceptions():
     check("get_tutor_reply takes a per-turn note",
           "turn_note" in inspect.signature(tutor.get_tutor_reply).parameters,
           "a per-turn note has nowhere to go except the cached prompt")
-    base = tutor.build_system_prompt(dict(STUDENT), course="basicmath")
+    base = tutor.build_system_prompt(dict(STUDENT), course="basic")
     for volatile in ("[LIKELY MISCONCEPTION -- ...]", "\n[some per-turn aside]"):
         check(f"a per-turn note does NOT reach the system prompt ({volatile[:22]}…)",
               volatile not in base, "it would move the cache prefix every turn")
@@ -2186,11 +2215,11 @@ def part3g_misconceptions():
           "a prompt that changes shape rebuilds the cache -- ~$0.24 an episode, and a "
           "slower turn, to save $0.0005")
     check("the system prompt is identical for two ordinary turns",
-          tutor.build_system_prompt(dict(STUDENT), course="basicmath") == base,
+          tutor.build_system_prompt(dict(STUDENT), course="basic") == base,
           "the cached prefix changes turn to turn -- every turn re-bills in full")
 
     check("a hit produces a note the tutor may DISCARD",
-          "IGNORE this note" in M.hint_note("basicmath", "two fifths"),
+          "IGNORE this note" in M.hint_note("basic", "two fifths"),
           "the note must never override his own reading of the student (rule 49d)")
 
     # every course's catalogue must actually reach its prompt
@@ -4937,6 +4966,177 @@ def part3t_teaching_upgrades():
           "tour -- otherwise the opening walk-through breaks")
 
 
+# =============================================================================
+# PART 3u -- THE VIDEO PRESENCE LAYER (build ej, 2026-08-12)
+# =============================================================================
+# Mr. Cadabra's video face (one-time HeyGen library) rides OVER the canvas robot in
+# tutor-face.js; the robot is the always-drawn fallback. These checks pin the safety
+# properties that make that swap harmless, and they validate the asset manifest the
+# moment it exists -- so the day Jim drops the videos in, the battery starts proving
+# them instead of ignoring them.
+def part3u_video_presence():
+    print("\nPART 3u — the video presence layer (robot as fallback)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    tf_path = os.path.join(here, "static", "tutor-face.js")
+    try:
+        with open(tf_path, encoding="utf-8") as fh:
+            tf = fh.read()
+    except OSError as exc:
+        bad("tutor-face.js readable", str(exc)); return
+
+    check("the robot still draws (the fallback face exists)",
+          "---- mouth: a bar that OPENS with the voice ----" in tf and "VISOR" in tf,
+          "the canvas robot is the safety net under every video failure -- it must "
+          "never be deleted, only covered")
+    check("the robot draws BEFORE the presence tick, every frame",
+          "_drawRobot(ctx, w, h, opts);" in tf
+          and tf.index("_drawRobot(ctx, w, h, opts);") < tf.index("presenceTick(ctx.canvas"),
+          "if the video dies mid-lesson the robot must already be on the canvas")
+    check("the presence is muted, inline, and decorative -- forever",
+          "v.muted = true" in tf and 'setAttribute("playsinline"' in tf
+          and 'setAttribute("aria-hidden", "true")' in tf,
+          "the corner NEVER makes sound (his voice lives in the pages) and a screen "
+          "reader must skip it")
+    check("the presence never unmutes",
+          ".muted = false" not in tf and "v.volume" not in tf,
+          "a second audio source under his real voice would be chaos")
+    check("any media error tears down to the robot",
+          tf.count("presenceTeardown()") >= 2,
+          "onerror must remove the video layer, not leave a black circle")
+    check("absence of assets is a NORMAL state (phase-dark)",
+          'P.state = "off"' in tf and "presence.json" in tf,
+          "a 404 on the manifest must be silent -- code and videos deploy independently")
+    check("reduced-motion gets a still poster or the robot",
+          "prefers-reduced-motion" in tf,
+          "motion-sensitive users must never get a looping video")
+    check("the export keeps the API every page depends on",
+          "draw: drawWithPresence" in tf and "moodFrom: moodFrom" in tf,
+          "six pages call TutorFace.draw/moodFrom -- the names must survive")
+    check('"speaking" deliberately maps to the idle loop (no fake lip-sync)',
+          '"idle";                                    // idle AND speaking' in tf,
+          "the design's honest heart: his voice talks, the face never fakes a mouth")
+    for page in ("session.html", "practice.html", "topic.html",
+                 "demo.html", "challenge.html", "landing.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            check(f"{page} still includes tutor-face.js", "tutor-face.js" in fh.read(),
+                  "the page would lose both faces at once")
+
+    # The manifest is validated the day it exists; until then its absence is correct.
+    man_path = os.path.join(here, "static", "videos", "cadabra", "presence.json")
+    if os.path.exists(man_path):
+        try:
+            import json as _json
+            with open(man_path, encoding="utf-8") as fh:
+                man = _json.load(fh)
+            check("presence.json parses and has an idle loop",
+                  isinstance(man, dict) and man.get("loops", {}).get("idle"),
+                  "a manifest without an idle loop mounts a black circle")
+            vdir = os.path.dirname(man_path)
+            names = list((man.get("loops") or {}).values()) \
+                  + list((man.get("oneshots") or {}).values()) \
+                  + ([man["poster"]] if man.get("poster") else [])
+            missing = [n for n in names if not os.path.exists(os.path.join(vdir, n))]
+            check("every file the manifest names exists", not missing,
+                  f"missing from static/videos/cadabra/: {missing}")
+        except Exception as exc:  # noqa: BLE001
+            bad("presence.json is valid JSON", str(exc))
+    else:
+        print("       (presence.json not present yet -- phase-dark, robot active; the "
+              "manifest is validated automatically once Jim's assets land)")
+
+
+# =============================================================================
+# PART 3v -- ONE TRUE NAME PER COURSE (build ek, 2026-08-12)
+# =============================================================================
+# The bug this exists to prevent, in one sentence: curriculum.py keyed the two
+# elementary courses "entry"/"basic" while three content modules keyed the same two
+# courses "entrymath"/"basicmath", so real lessons asked for content under a name
+# nobody had filed it under and got NOTHING -- silently, because the lookups fall back
+# to an empty list and _course() fell back to Algebra I. Rule 49 had no catalogue,
+# rules 36-38 had no canonical scripts and rule 48 had no notation table, for the two
+# youngest courses only, for as long as those modules have existed.
+#
+# The first check below is the one that would have caught it on day one, and it is
+# deliberately the dumbest possible check: ASK EVERY REAL COURSE FOR ITS CONTENT AND
+# FAIL IF IT COMES BACK EMPTY. A test that walks the same key the product walks is
+# worth more than a hundred that agree with the data file.
+def part3v_course_identity():
+    print("\nPART 3v — one true name per course (the elementary content gap)")
+    import curriculum as _c, notation as _n, misconceptions as _m, foundations as _f
+
+    real = sorted(_c.COURSES.keys())
+    check(f"curriculum knows all ten courses ({len(real)})", len(real) == 10,
+          f"found {real}")
+
+    # 1. THE CHECK THAT WOULD HAVE CAUGHT IT.
+    for course in real:
+        blocks = {"notation": len(_n.prompt_block(course)),
+                  "misconception catalogue": len(_m.prompt_block(course)),
+                  "foundation scripts": len(_f.prompt_block(course))}
+        empty = sorted(k for k, v in blocks.items() if v == 0)
+        check(f"  {course}: every content module answers to its REAL name", not empty,
+              f"{empty} came back EMPTY for a course a real student can start -- "
+              f"that module keys its content by a name the product never uses "
+              f"(sizes: {blocks})")
+
+    # 2. No module may key content by a name that is not a real course. This is what
+    #    stops the next person re-introducing a second vocabulary.
+    known = set(real) | set(_c.COURSE_ALIASES)
+    stray = set()
+    for entry in _n.NOTATIONS:
+        stray |= {c for c in entry.get("courses", ()) if c not in known}
+    stray |= {k for k in _m.MISCONCEPTIONS if k not in known}
+    stray |= {k for k in _f.FOUNDATIONS if k not in known}
+    check("no content is keyed by a course that does not exist", not stray,
+          f"unknown course keys in the content modules: {sorted(stray)}")
+
+    # 3. The content modules must use the CANONICAL name, not an alias -- an alias in a
+    #    data file is how this bug started.
+    aliased = set()
+    for entry in _n.NOTATIONS:
+        aliased |= {c for c in entry.get("courses", ()) if c in _c.COURSE_ALIASES}
+    aliased |= {k for k in _m.MISCONCEPTIONS if k in _c.COURSE_ALIASES}
+    aliased |= {k for k in _f.FOUNDATIONS if k in _c.COURSE_ALIASES}
+    check("content is filed under the CANONICAL name, never an alias", not aliased,
+          f"{sorted(aliased)} are legacy spellings -- re-key the content, don't add "
+          f"an alias to make it work")
+
+    # 4. canon(): aliases resolve (no student record is orphaned), unknown names pass
+    #    through UNCHANGED (a typo must never silently become Algebra I again).
+    for legacy, want in _c.COURSE_ALIASES.items():
+        check(f"  canon({legacy!r}) resolves to {want!r}", _c.canon(legacy) == want,
+              "a record or bookmark written under the old spelling would be orphaned")
+        check(f"  a legacy {legacy!r} lands on the right COURSE, not the default",
+              _c.units_for(legacy) == _c.units_for(want),
+              "this is the silent fallback that hid the bug: an unknown key used to "
+              "return Algebra I's units with no error")
+    check("an unknown course is NOT silently renamed to the default",
+          _c.canon("no-such-course") == "no-such-course",
+          "canon must pass strangers through; _course() does the safe fallback, and "
+          "hiding it inside canon would re-create the original bug")
+
+    # 5. The battery must test the courses the PRODUCT has, not a list of its own.
+    check("ruletests' own course list IS curriculum's course list",
+          set(COURSES) == set(real),
+          f"the battery would be proving things about courses that do not exist: "
+          f"only-in-tests={sorted(set(COURSES) - set(real))}, "
+          f"never-tested={sorted(set(real) - set(COURSES))}")
+
+    # 6. And the auditor must audit real courses (its basicmath scenarios were running
+    #    against Algebra I's unit list, which is why a Basic Math student got taught
+    #    function notation in the 2026-08-12 audit).
+    try:
+        import lessonaudit as _la
+        scen = [s.get("course") for s in getattr(_la, "SCENARIOS", []) if s.get("course")]
+        bad_keys = sorted({c for c in scen if c not in real})
+        check(f"every lesson-audit scenario names a real course ({len(scen)} scenarios)",
+              not bad_keys,
+              f"{bad_keys} -- those scenarios audit a phantom course and their findings "
+              f"describe a lesson no student can ever have")
+    except Exception as exc:  # noqa: BLE001
+        print(f"       (lessonaudit not importable here: {exc})")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -4988,6 +5188,8 @@ def main():
     part3r_batch_d_figures()
     part3s_backups()
     part3t_teaching_upgrades()
+    part3u_video_presence()
+    part3v_course_identity()
     if live:
         part4_live()
     else:
