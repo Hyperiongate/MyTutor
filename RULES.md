@@ -191,7 +191,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 44. READ THE PROBLEM ALOUD, IN FULL, EVERY TIME
 
-**ENFORCED** — prose_unspoken_problem_conflict: a numeric board problem with a numberless spoken ask is regenerated (build dh)
+**ENFORCED** — prose_unspoken_problem_conflict: a board problem the spoken words never read is regenerated (build dh; sharpened in eq after six audit findings -- ONE stated quantity is enough, a fraction counts, and numbers elsewhere in the prose no longer exempt it)
 
 ### 45. THE TALLY IS ARITHMETIC, NOT JUDGMENT
 

@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD eq -- TWO MECHANICAL GUARDS, GUARDED (PART 3z). From the
+#               2026-08-12 audits: (1) a NEW malformed-tag referee -- eight referees and
+#               none of them checked a tag was even parseable, so
+#               [[choices options="yes... | show me one more]] reached a child as ONE
+#               button reading '"yes,'; (2) the rule-44 referee's two blind spots, which
+#               six findings in five lessons walked through: it needed TWO numeric
+#               tokens (and a fraction counts as one, so a whole fraction quiz was
+#               invisible) and ANY number in the prose exempted the reply. PART 3z pins
+#               the real audit strings on both sides -- the offending lines must be
+#               caught, the innocent lines from the SAME transcripts must not be -- so a
+#               future tightening cannot quietly start regenerating good replies.
 #   2026-08-12  BUILD en -- THE LAST TWO AUDIT ITEMS, GUARDED (PART 3y): rule 49 gains
 #               (f) -- when the student NAMES their rule, that is evidence and it is the
 #               one you answer (the audit caught a reply correcting a misconception the
@@ -1128,8 +1139,23 @@ UNSPOKEN_CASES = [
     ("a pending line whose ask was read aloud in words",
      "Give it a shot: what's three point five plus zero point four seven? "
      '[[column op="+" terms="3.50 | 0.47"]] [[step eq="3.50 + 0.47 = ?"]]', False),
-    ("a concept question over a fraction on the board (a fraction is ONE number)",
-     'Which part is the denominator? [[write text="3/4 ... ?"]]', False),
+    # BUILD eq (2026-08-12) -- THIS EXPECTATION WAS DELIBERATELY REVERSED, and the old
+    # line is kept above it so the change is visible rather than silent. It used to read
+    # "a concept question over a fraction on the board (a fraction is ONE number)" and
+    # expect NO flag, because the bar was two numeric tokens and a fraction counts as
+    # one. That bar is exactly what the 2026-08-12 audits walked through: an entire
+    # fraction quiz ("8/12 = ?", "6/9 = ?") went by while the tutor said only "this
+    # fraction". A student listening rather than reading cannot answer "which part is
+    # the denominator?" when no fraction was ever named aloud -- which is rule 44's
+    # whole point. So this case now expects a FLAG...
+    ("a fraction on the board that the words never name (bar lowered in eq)",
+     'Which part is the denominator? [[write text="3/4 ... ?"]]', True),
+    # ...and the genuine exemption it was protecting is pinned properly instead: a
+    # concept question is fine the moment the words actually say the fraction.
+    ("the same concept question, with the fraction spoken",
+     'Which part of three fourths is the denominator? [[write text="3/4 ... ?"]]', False),
+    ("a concept line with no quantity to read at all",
+     'Which one sits on top? [[write text="numerator / denominator"]]', False),
     ("even one spoken number means we stay silent (fail open by design)",
      'Question two: [[step eq="Q2: Combine like terms: 6y + 2y - y"]] '
      "What do you get?", False),
@@ -2485,8 +2511,10 @@ RULE_VERIFY = {
     41: ("ENFORCED",  "PART 3c fails any figure shipped without a caption"),
     42: ("COVERED",   "never compare this student to anyone but this student"),
     43: ("COVERED",   "you perceive exactly two things"),
-    44: ("ENFORCED",  "prose_unspoken_problem_conflict: a numeric board problem with a "
-                      "numberless spoken ask is regenerated (build dh)"),
+    44: ("ENFORCED",  "prose_unspoken_problem_conflict: a board problem the spoken words "
+                      "never read is regenerated (build dh; sharpened in eq after six "
+                      "audit findings -- ONE stated quantity is enough, a fraction "
+                      "counts, and numbers elsewhere in the prose no longer exempt it)"),
     45: ("ENFORCED",  "prose_score_conflict regenerates a spoken score that fights its own tag"),
     46: ("COVERED",   "a quiz question tests one skill"),
     47: ("COVERED",   "no cold quizzes"),
@@ -5433,6 +5461,101 @@ def part3y_diagnosis_and_symbols():
               "the symbol the audit caught must be recognised")
 
 
+# =============================================================================
+# PART 3z -- REPLY INTEGRITY: A TAG MUST PARSE, A PROBLEM MUST BE SPOKEN (build eq)
+# =============================================================================
+# Both halves come from the 2026-08-12 audits, and both are cases where the machine
+# could have caught it and did not.
+#
+# Every string below is REAL -- lifted from those transcripts. The offending lines must
+# be caught; the innocent lines from the SAME lessons must not be. That second half is
+# the important one: a referee that regenerates good replies costs money and makes the
+# tutor stutter, so the false-positive cases are pinned as hard as the true ones.
+def part3z_reply_integrity():
+    print("\nPART 3z — reply integrity (malformed tags · rule 44 spoken problems)")
+
+    # ---- the malformed-tag referee: it did not exist before build eq ----------
+    check("a malformed-tag referee exists at all",
+          hasattr(tutor, "malformed_tag_conflict"),
+          "nothing checked whether a board tag could be parsed; a broken tag reaches "
+          "the student silently")
+    check("it runs FIRST in the sweep",
+          "malformed = malformed_tag_conflict(reply)" in open(
+              os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read().split("def prose_referee_conflict")[-1][:900]
+          or "malformed = malformed_tag_conflict(reply)" in open(
+              os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "if a tag cannot be parsed, every other referee is reading a board the "
+          "student will never see")
+    MALFORMED = [
+        # (name, reply, must_flag)
+        ("THE audit case: choices with no closing quote",
+         '[[choices options="yes, let\'s go! | show me one more]]', True),
+        ("a tag opened and never closed",
+         'Here you go [[step eq="3 + 4 = 7"', True),
+        ("an attribute left unterminated mid-tag",
+         '[[card title="By the end items="a | b"]]', True),
+        ("the SAME tag, written correctly",
+         '[[choices options="yes, let\'s go! | show me one more"]]', False),
+        ("an ordinary two-tag reply",
+         'Nice! [[step eq="2x = 8"]] [[step op="/ 2" eq="x = 4"]] What next?', False),
+        ("a real fractions reply with four tags",
+         'Great! [[clear]] [[goal text="Understand fractions"]] '
+         '[[pie parts="6" shaded="4" caption="six equal pieces, four shaded"]] '
+         '[[choices options="try one! | one more"]]', False),
+        ("prose that merely contains two brackets", "We write it like this: [[ ok?", False),
+    ]
+    for name, reply, must in MALFORMED:
+        got = bool(tutor.malformed_tag_conflict(reply))
+        check(f"  malformed-tag: {name}", got == must,
+              f"flagged={got}, expected {must} -- "
+              + ("a broken tag would reach a student" if must else
+                 "a GOOD reply would be regenerated for nothing"))
+
+    # ---- rule 44: the two blind spots, with the real strings ------------------
+    RULE44 = [
+        ("audit: '8/12 = ?' while saying only 'this fraction'",
+         "Here is a warm-up: what is this fraction reduced to lowest terms? "
+         '[[step eq="8/12 = ?"]] Give it a shot — what do you get?', True),
+        ("audit: quiz item '6/9 = ?' with 'what do you get?'",
+         "Great — question one. Simplify this fraction to lowest terms. "
+         '[[step eq="6/9 = ?"]] What do you get?', True),
+        ("audit: quiz item '9/12 = ?'",
+         'Question two: [[step eq="9/12 = ?"]] What is that reduce to?', True),
+        ("the SAME item, actually read aloud",
+         'Question one: simplify six ninths to lowest terms. [[step eq="6/9 = ?"]]', False),
+        ("audit-innocent: the denominator question names 'one fourth'",
+         "Which number in one fourth is the denominator — the 1 or the 4? "
+         '[[step eq="1/4 → denominator = ?"]]', False),
+        ("audit-innocent: decimals spoken in full",
+         "What do you get when you add three point five and forty-seven hundredths? "
+         '[[step eq="3.50 + 0.47 = ?"]]', False),
+        ("audit-innocent: percents spoken in full",
+         'What is twenty-five percent of sixty? [[step eq="25% of 60 = ?"]]', False),
+    ]
+    for name, reply, must in RULE44:
+        got = bool(tutor.prose_unspoken_problem_conflict(reply))
+        check(f"  rule 44: {name}", got == must,
+              f"flagged={got}, expected {must} -- "
+              + ("a listening student cannot attempt this problem" if must else
+                 "the tutor DID read it aloud; regenerating would be a false positive"))
+
+    # The specific defect that made a whole fraction quiz invisible: the old bar was
+    # TWO numeric tokens and a fraction counts as ONE.
+    check("a ONE-quantity board problem can now qualify (the fraction-quiz hole)",
+          bool(tutor.prose_unspoken_problem_conflict(
+              'Simplify this one. [[step eq="6/9 = ?"]] What do you get?')),
+          "the old two-token bar is back, and every single-fraction quiz item is "
+          "invisible to rule 44 again")
+    # ...and the other one: numbers ELSEWHERE in the prose must not excuse silence.
+    check("numbers elsewhere in the prose no longer exempt the reply",
+          bool(tutor.prose_unspoken_problem_conflict(
+              "We need two numbers that multiply to 20 and add to 9. "
+              '[[step eq="6/9 = ?"]] What do you get?')),
+          "talking about OTHER numbers used to excuse never reading the problem")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -5489,6 +5612,7 @@ def main():
     part3w_generalizations()
     part3x_fraction_pie()
     part3y_diagnosis_and_symbols()
+    part3z_reply_integrity()
     if live:
         part4_live()
     else:

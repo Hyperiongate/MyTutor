@@ -55,5 +55,24 @@ mrcadabra-backup-*
 backup-*.json.gz
 *.json.gz
 
+# --- 2026-08-12 (build ep/eq): MR CADABRA'S VIDEO WORKING FILES, never committed ---
+# The presence loops that SHIP live directly in static/videos/cadabra/ and are tiny
+# (~360 KB for all ten files). These two subfolders are the WORKSHOP, not the product:
+#   raw/       the untouched HeyGen downloads -- 1080x1920, ~102 MB and growing with
+#              every clip generated. One of them is 56 MB on its own, which is what
+#              tripped GitHub's large-file warning on the 2026-08-12 push.
+#   processed/ the intermediate crops/encodes, byte-identical to the shipped copies
+#              one folder up. Committing them ships everything twice.
+# Keep both on disk -- the raw footage is the source for re-cutting a loop without
+# spending HeyGen credits again -- just never in the repository or the Render image.
+static/videos/cadabra/raw/
+static/videos/cadabra/processed/
+# ...and the workshop itself, moved OUT of static/ on 2026-08-12 so Render stops
+# shipping 102 MB it never serves. The raw HeyGen downloads live here now -- keep them,
+# they are the source for re-cutting a loop without paying for the clip again.
+_video_workshop/
+# working probe images written while inspecting footage
+static/videos/**/_probe_*.png
+
 # NOTE: static/chart.umd.min.js IS committed on purpose (bundled Chart.js library).
 # I did no harm and this file is not truncated.

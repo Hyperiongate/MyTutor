@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12eq-reply-integrity". TWO MECHANICAL GUARDS from
+#               the 2026-08-12 audits (build stamp only here; the work is in tutor.py
+#               and ruletests.py PART 3z). (1) NEW malformed_tag_conflict, running
+#               FIRST in the referee sweep: eight referees existed and not one checked
+#               that a board tag could be PARSED, so a missing closing quote reached a
+#               Basic Math student as one answer button reading '"yes,' with the second
+#               choice absent. (2) The rule-44 referee had two blind spots that six
+#               findings in five lessons walked straight through -- it required TWO
+#               numeric tokens (a fraction counts as one, so an entire fraction quiz
+#               was invisible while the tutor said only "this fraction"), and any
+#               number anywhere in the prose exempted the whole reply. Now one stated
+#               quantity qualifies and the test is whether the words carry THIS
+#               problem's numbers. Both verified against the real audit strings, on
+#               both sides: the offending lines caught, the innocent lines from the
+#               same transcripts untouched.
 #   2026-08-12  APP_BUILD -> "2026-08-12ep-cadabra-is-here". THE ROBOT IS RETIRED --
 #               Mr. Cadabra's real face is live in the corner of every teaching page
 #               (build stamp only here; the work is in static/tutor-face.js, the new
@@ -6221,7 +6236,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ep-cadabra-is-here"
+APP_BUILD = "2026-08-12eq-reply-integrity"
 
 
 @app.get("/health")

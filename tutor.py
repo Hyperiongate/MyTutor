@@ -2,6 +2,27 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD eq -- TWO MECHANICAL GUARDS from the 2026-08-12 audits.
+#               (1) NEW malformed_tag_conflict, and it runs FIRST in the sweep: nothing
+#               in eight referees checked whether a tag was even well-formed. The audit
+#               caught [[choices options="yes, let's go! | show me one more]] -- no
+#               closing quote -- which the page renders as ONE answer button reading
+#               '"yes,' with the second choice simply absent. Silent, student-visible
+#               breakage with no guard. Fires only on provable damage: unbalanced
+#               quotes, an unterminated attribute, or a tag never closed.
+#               (2) prose_unspoken_problem_conflict (rule 44) had TWO blind spots that
+#               six findings in five lessons walked straight through. It required TWO
+#               numeric tokens, and a fraction counts as ONE by design -- so an entire
+#               quiz of "8/12 = ?" and "6/9 = ?" was invisible to it while the tutor
+#               said only "what's this fraction reduced to lowest terms?". And ANY
+#               number anywhere in the prose exempted the whole reply, so "two numbers
+#               that multiply to 10 and add to 7" excused never reading the equation
+#               aloud. Now: ONE stated quantity is enough to be worth reading, the line
+#               must actually pose something (an operator or a fraction, not a label),
+#               and the test is whether the words carry THIS problem's numbers --
+#               numerals or the words a person says, with "eight twelfths" counting for
+#               both halves of 8/12. Verified against the real audit lines: the three
+#               caught, the innocent ones untouched.
 #   2026-08-11  BUILD do -- THE WORDS MOVED TO prompts.py. This file had grown to
 #               539 KB and two thirds of it was TEXT, not code: the eleven course/mode
 #               system-prompt templates, GROUND_RULES, the shared teaching-rules block
@@ -2176,6 +2197,58 @@ def prose_answered_question_conflict(reply: str):
 # NARROW: fires only when a pending "?"-line or a Q-numbered quiz line carries TWO or
 # more numbers while the ENTIRE spoken prose asks a question yet contains NO number at
 # all, in any spelling. If the tutor spoke even one number, we stay silent.
+# BUILD eq (2026-08-12). The rule-44 referee used to give up the moment the SPOKEN text
+# contained any number at all -- so "two numbers that multiply to 10 and add to 7" was
+# enough to excuse never reading "x squared plus seven x plus ten equals zero" out loud.
+# The honest question is not "does the prose contain a number" but "does the prose carry
+# THIS problem's numbers". Every quantity the board line states has to appear in the
+# words, as a numeral or as the word a person would say. Fractions are checked as a pair
+# ("8/12" needs eight AND twelve, or the spoken "eight twelfths"), because that is the
+# exact case the audits caught twice in one quiz.
+_EQ_NUMWORD = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+               7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve",
+               13: "thirteen", 14: "fourteen", 15: "fifteen", 16: "sixteen",
+               17: "seventeen", 18: "eighteen", 19: "nineteen", 20: "twenty",
+               30: "thirty", 40: "forty", 50: "fifty", 60: "sixty", 70: "seventy",
+               80: "eighty", 90: "ninety", 100: "hundred"}
+# the spoken names of a fraction's bottom number ("8/12" -> "twelfths")
+_EQ_DENOM_WORD = {2: "half|halves", 3: "third", 4: "fourth|quarter", 5: "fifth",
+                  6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth",
+                  12: "twelfth", 16: "sixteenth", 100: "hundredth"}
+
+
+def _pq_spoken_covers(prose: str, board_value: str) -> bool:
+    """True if the SPOKEN words carry the numbers this board line states.
+
+    Deliberately generous -- this decides whether to REGENERATE a reply, so it errs
+    toward 'the tutor said it'. A single missing quantity is not enough; the words have
+    to miss EVERY number the problem states before we call it unspoken."""
+    try:
+        low = " " + re.sub(r"[^a-z0-9/\.\s-]", " ", str(prose or "").lower()) + " "
+        # a spoken fraction ("eight twelfths", "three fourths") counts for both halves
+        frac = re.search(r"(\d+)\s*/\s*(\d+)", board_value or "")
+        if frac:
+            top, bot = int(frac.group(1)), int(frac.group(2))
+            top_said = (re.search(r"\b%d\b" % top, low)
+                        or (top in _EQ_NUMWORD and re.search(r"\b%s\b" % _EQ_NUMWORD[top], low)))
+            bot_said = (re.search(r"\b%d\b" % bot, low)
+                        or (bot in _EQ_DENOM_WORD and re.search(r"\b(?:%s)s?\b" % _EQ_DENOM_WORD[bot], low))
+                        or (bot in _EQ_NUMWORD and re.search(r"\b%s\b" % _EQ_NUMWORD[bot], low)))
+            return bool(top_said and bot_said)
+        nums = [int(n) for n in re.findall(r"\b\d{1,4}\b", board_value or "")]
+        if not nums:
+            return True                      # nothing numeric to read aloud
+        for n in nums:
+            if re.search(r"\b%d\b" % n, low):
+                return True
+            w = _EQ_NUMWORD.get(n)
+            if w and re.search(r"\b%s\b" % w, low):
+                return True
+        return False
+    except Exception:                        # noqa: BLE001 -- fail open, always
+        return True
+
+
 def prose_unspoken_problem_conflict(reply: str):
     """Return a description of a board problem the spoken words never read aloud,
     or "". Never raises: any unexpected input yields "" (fail open)."""
@@ -2185,15 +2258,31 @@ def prose_unspoken_problem_conflict(reply: str):
         low = prose.lower()
         if "?" not in prose and "your turn" not in low:
             return ""
-        if _pq_numeric_tokens(prose) > 0:
-            return ""
         pend = []
         for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
                               text, re.I):
             for val in re.findall(r'"([^"]*)"', tag):
-                if (("?" in val or re.match(r"\s*Q\d+\s*:", val))
-                        # counted the _pq way: a fraction ("3/4") is ONE number, not two
-                        and _pq_numeric_tokens(val) >= 2):
+                if not ("?" in val or re.match(r"\s*Q\d+\s*:", val)):
+                    continue
+                # BUILD eq (2026-08-12) -- TWO BLIND SPOTS THE 2026-08-12 AUDITS WALKED
+                # STRAIGHT THROUGH, six findings in five lessons.
+                # (1) THE BAR WAS TWO NUMBERS. A fraction counts as ONE token by design
+                #     (see _pq_numeric_tokens), so a whole quiz of "8/12 = ?" and
+                #     "6/9 = ?" could never qualify no matter how silent the prose was --
+                #     and "what's this fraction reduced to lowest terms?" is precisely
+                #     the sentence a listening student cannot act on. A board problem
+                #     needs ONE stated quantity to be worth reading aloud, not two.
+                # (2) It must still be a PROBLEM, not a label: "Q1: ..." or a line that
+                #     poses something with an operator or a fraction in it. A bare
+                #     "denominator = ?" asks about the board, not for arithmetic.
+                if _pq_numeric_tokens(val) < 1:
+                    continue
+                if not (re.match(r"\s*Q\d+\s*:", val)
+                        or re.search(r"[+\-−×x*/÷^=]", val)
+                        or re.search(r"\d+\s*/\s*\d+", val)):
+                    continue
+                spoken_here = _pq_spoken_covers(prose, val)
+                if not spoken_here:
                     pend.append(" ".join(val.split()))
         if not pend:
             return ""
@@ -2249,6 +2338,71 @@ def _sc_val(token: str):
         return float(token) if re.match(r"^\d", token.strip()) else _pr_word_value(token)
     except (TypeError, ValueError):
         return None
+
+
+# =============================================================================
+# BUILD eq (2026-08-12) -- THE MALFORMED-TAG REFEREE
+# =============================================================================
+# The 2026-08-12 audit caught this on a Basic Math board:
+#     [[choices options="yes, let's go! | show me one more]]
+# The closing quote is missing. Traced through the page's own parser: the tag IS
+# recognised, the attribute regex cannot match an unterminated quoted value, so it falls
+# back to the next whitespace-delimited token and the child is shown ONE answer button
+# reading   "yes,   -- and the second choice does not exist at all.
+#
+# EIGHT referees ran on that reply and not one of them looks at whether a tag is even
+# well-formed. Every other referee asks whether the tutor said something WRONG; this one
+# asks whether what he emitted can be drawn at all. A malformed tag is silent: nothing
+# errors, the lesson continues, and only the student sees the broken control.
+#
+# DELIBERATELY NARROW -- this regenerates a reply, so it only fires on damage it can
+# prove: an odd number of quotes inside a tag, an attribute whose value is unterminated,
+# or a tag opened and never closed. Prose that merely contains "[[" is not a tag.
+_EQ_TAGNAME = re.compile(r"\[\[\s*([\w-]+)")
+
+
+def malformed_tag_conflict(reply: str):
+    """Return a description of a board tag the page cannot parse, or "". Fail open."""
+    try:
+        text = str(reply or "")
+        if "[[" not in text:
+            return ""
+        # 1. A tag opened and never closed swallows the rest of the reply. Count only
+        #    REAL openings -- "[[" followed by a tag name. Prose that merely contains
+        #    two brackets ("we write it like this: [[ ...") is not a tag and must not
+        #    cost a regeneration.
+        opens = len(re.findall(r"\[\[[\w-]+", text))   # "[[step", never "[[ is how a tag"
+        closes = text.count("]]")
+        if opens > closes:
+            frag = text[text.rindex("[["):][:70]
+            return ('a board tag is opened and never closed -- "{f}". The page reads to '
+                    "the end of the reply looking for ]] and draws nothing, so the "
+                    "student loses that control entirely. Close every tag."
+                    ).format(f=" ".join(frag.split()))
+        # 2. Inside each tag, quotes must pair up and every attr= must be terminated.
+        for m in re.finditer(r"\[\[(.*?)\]\]", text, re.S):
+            body = m.group(1)
+            name_m = _EQ_TAGNAME.match("[[" + body)
+            name = name_m.group(1).lower() if name_m else "?"
+            if body.count('"') % 2:
+                return ('the board tag [[{n} ...]] has an ODD number of quote marks, so '
+                        'one of its values is never closed -- "{f}". The page cannot '
+                        "parse that attribute: it falls back to the next word, and the "
+                        "student sees a broken or missing control instead of what you "
+                        "meant. Every attribute is name=\"value\", quotes balanced."
+                        ).format(n=name, f=" ".join(("[[" + body + "]]").split())[:80])
+            # an attribute that opens a quote with no closing quote before the tag ends
+            for am in re.finditer(r'([\w-]+)\s*=\s*"', body):
+                rest = body[am.end():]
+                if '"' not in rest:
+                    return ('the board tag [[{n} ...]] leaves {a}="..." unterminated -- '
+                            '"{f}". The student sees a broken control. Close the quote.'
+                            ).format(n=name, a=am.group(1),
+                                     f=" ".join(("[[" + body + "]]").split())[:80])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[malformed-tag] crashed (fail open): {exc}")
+        return ""
 
 
 def prose_score_conflict(reply: str):
@@ -2332,6 +2486,11 @@ def prose_board_conflict(reply: str, student_message: str = ""):
     build dh), then spoken numbers that disagree with the board's own written
     conclusion (rule 18b)."""
     try:
+        # build eq: FIRST -- if a tag cannot be parsed, every other referee below is
+        # reading a board the student will never actually see.
+        malformed = malformed_tag_conflict(reply)
+        if malformed:
+            return malformed
         visual = prose_visual_conflict(reply, student_message)
         if visual:
             return visual
