@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ef-homeschool-pitch". THE CONFERENCE PITCH
+#               REWORK of /homeschool (build stamp only in this file; the work lives
+#               in static/homeschool.html + new ef guards in ruletests.py). Jim,
+#               pitching at a homeschooling conference: same content, new spine --
+#               records/filing day FIRST, honest hours as its evidence, the mastery
+#               bars named (80/90, never rounds up), a new "You're still the teacher"
+#               section (steer + placement + works-with-your-curriculum), a new "The
+#               trust questions" section (four calm answers: never a bare answer, the
+#               separate math-engine check, voice audio deleted immediately -> links
+#               /privacy, something-bigger-than-math -> a trusted adult), and a
+#               method line naming the WWC guides. No dollar figure on the page --
+#               prices live on /pricing alone. FAQ byte-identical (eb guards).
 #   2026-08-12  APP_BUILD -> "2026-08-12ee-teaching-upgrades". THE FIVE TEACHING
 #               UPGRADES (prompt lane; claude/Teaching_Evidence_Base_2026-08-10.md).
 #               No route or logic changes in THIS file -- the build stamp only. The
@@ -6076,7 +6088,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ee-teaching-upgrades"
+APP_BUILD = "2026-08-12ef-homeschool-pitch"
 
 
 @app.get("/health")

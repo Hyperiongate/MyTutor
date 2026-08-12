@@ -1,5 +1,31 @@
 <!DOCTYPE html>
 <!--
+    (ef) 2026-08-12 -- THE CONFERENCE PITCH REWORK (Jim, from a homeschooling
+    conference: "lead with and strengthen these points"). Same content, new spine.
+    The page now leads with what homeschool families told us matters most and answers
+    the trust questions before they're asked:
+      1. RECORDS FIRST: the records/requirements section moved from sixth to FIRST
+         (right after the video), records report leading -- "when it's time to file,
+         the records already exist." Honest-hours follows it as supporting evidence.
+      2. HONEST MASTERY, NAMED: the parent-view section now states the real bars
+         (80% topic / 90% unit) and that the dashboard never rounds up.
+      3. NEW "You're still the teacher" section: steer-the-pace + placement +
+         works-with-your-curriculum (the old three-card row's content, re-homed --
+         the voice card moved into the trust section). Not a black box.
+      4. NEW "The trust questions" section: the four questions a careful parent asks
+         any AI tutor, answered in one calm card each -- answers-first (rule 24c
+         honesty: a genuine "just tell me" gets a narrated demo THEN their own
+         problem, never a bare answer), the math engine check, voice audio deleted
+         immediately (links /privacy), and something-bigger-than-math -> a trusted
+         adult. Plus the method line: WWC practice guides where they exist
+         (elementary through algebra), professional standards (NCTM, MAA) above.
+      5. Hero + meta reframed to teacher-AND-records; CTA invites the tutoring-cost
+         comparison without inventing a statistic; no dollar figure on this page (the
+         price lives on /pricing alone, so the pages can never disagree).
+    UNCHANGED on purpose: the walkthrough button (cp), the video (am), the weekly
+    email section (x), the FAQ -- all 8 questions byte-identical (eb's disjointness
+    guard), no "parent code" (eb), /family link kept. New ef guards in ruletests.py
+    pin the records-first ordering and the four trust answers.
     (eb) 2026-08-11 -- HOMESCHOOL FAQ AT THE BOTTOM (Jim: "a FAQ section on the bottom of
     the homeschool, the parent, teacher and student pages... different FAQs because they
     have different questions"). Eight questions a homeschool family actually asks (whole
@@ -86,16 +112,16 @@
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="canonical" href="https://mrcadabra.com/homeschool" />
 <meta property="og:title" content="Mr. Cadabra's Classroom — Homeschool Math: teaching, records &amp; honest hours">
-<meta property="og:description" content="Homeschool math with a talking tutor: a read-only parent view, honest time-on-task for instructional-hour logs, printable scope & sequence for every course, and weekly progress reports.">
+<meta property="og:description" content="Homeschool math with a talking tutor — and the paperwork handled: a printable records report (honest hours log, mastery evidence), a scope & sequence for every course, a read-only parent view, and a weekly report.">
 <meta property="og:url" content="https://mrcadabra.com/homeschool">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mr. Cadabra's Classroom">
 <meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mr. Cadabra's Classroom — Homeschool Math: teaching, records &amp; honest hours">
-<meta name="twitter:description" content="Homeschool math with a talking tutor: a read-only parent view, honest time-on-task for instructional-hour logs, printable scope & sequence for every course, and weekly progress reports.">
+<meta name="twitter:description" content="Homeschool math with a talking tutor — and the paperwork handled: a printable records report (honest hours log, mastery evidence), a scope & sequence for every course, a read-only parent view, and a weekly report.">
 <meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
-<meta name="description" content="Homeschool math with a talking tutor: a read-only parent view, honest time-on-task for instructional-hour logs, printable scope & sequence for every course, and weekly progress reports.">
+<meta name="description" content="Homeschool math with a talking tutor — and the paperwork handled: a printable records report (honest hours log, mastery evidence), a scope & sequence for every course, a read-only parent view, and a weekly report.">
 <style>
   :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
     --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
@@ -211,10 +237,11 @@
 <div class="beta-ribbon"><a href="/beta">🧪 <b>We're in beta!</b> Want early access and a say in what we build? <u>Become a beta tester — 5 free sign-ins</u> →</a></div>
 <header class="page wrap">
   <span class="eyebrow">Built for homeschool families</span>
-  <h1>The math teacher in your homeschool — <span class="grad-text">patient, honest, and always on call</span>.</h1>
-  <p class="sub">Mr. Cadabra teaches every lesson out loud, one step at a time, starting from what a word even means — and Mr. Cadabra's Classroom quietly keeps
-  the records a homeschool family actually needs: real progress, real time-on-task, and a printable plan for
-  every course.</p>
+  <h1>The math teacher in your homeschool — <span class="grad-text">who also does your paperwork</span>.</h1>
+  <p class="sub">Mr. Cadabra teaches every lesson out loud, one step at a time, starting from what a word even
+  means — patient, honest, and always on call. And while he teaches, Mr. Cadabra's Classroom quietly builds the
+  file a homeschool family actually needs: an honest instructional-hours log, mastery evidence from real
+  quizzes, and a printable records report for your state, evaluator, or co-op.</p>
   <div class="walkrow">
     <a class="walkbtn" href="/demo?view=homeschool">
       <span class="wbicon">▶</span>
@@ -248,6 +275,36 @@
 </section>
 
 <section class="wrap">
+  <span class="eyebrow" style="display:block;text-align:center">Records &amp; requirements</span>
+  <h2 style="text-align:center">Your homeschool paperwork, <span class="grad-text">already done</span>.</h2>
+  <p class="sub" style="text-align:center;margin-top:8px">Every math program promises personalized learning. Here's the promise
+  that matters on filing day: <b>when it's time to show your work, the records already exist.</b> While Mr. Cadabra
+  teaches, the Classroom quietly builds the file your state, evaluator, or co-op wants to see.</p>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>🖨 The printable records report</h3><p>One click from your parent view: an <b>instructional-hours
+      log</b>, scored unit checks, <b>mastery evidence</b>, and dated awards — a running record of demonstrated skill, not
+      just attendance. Print it for an evaluator, a co-op, or the filing drawer.</p></div>
+    <div class="card"><h3>📋 A printable plan</h3><p>Every course page doubles as a <b>scope &amp; sequence</b> — all nine units,
+      printable for portfolios and curriculum filings. <a href="/courses" style="color:var(--purple);font-weight:700">See the courses →</a></p></div>
+    <div class="card"><h3>⏱ An hours log you can trust</h3><p>Engaged-time tracking gives you honest instructional minutes per
+      day and per course — many states ask homeschoolers to keep exactly this, and ours counts real work only (more below).</p></div>
+  </div>
+  <p class="cap" style="margin-top:16px">Homeschool rules differ by state — Mr. Cadabra's Classroom gives you the records and the plan;
+  you stay in charge of your state's specifics.</p>
+</section>
+
+<section class="wrap">
+  <span class="eyebrow" style="display:block;text-align:center">Honest hours</span>
+  <h2 style="text-align:center">We track time the way a homeschool log needs it — <span class="grad-text">real work only</span>.</h2>
+  <p class="sub" style="text-align:center;margin-top:8px">Mr. Cadabra's Classroom counts a minute only when the lesson tab is actually open
+  <b>and</b> your student is actually doing something. Walk away, switch tabs, leave it running — the clock stops.
+  So "3h 59m this week" means three hours and fifty-nine minutes of <i>math</i>, a number you can put in an
+  instructional-hours log with a straight face.</p>
+  <img class="shot" src="/static/shots/timetile.png" style="margin-top:22px" alt="Dashboard tiles: units mastered, day streak, accuracy, problems practiced, and time this week — 3h 59m, real work only" />
+  <p class="cap">Every dashboard shows it: today, this week, per course. <i>(Sample data.)</i></p>
+</section>
+
+<section class="wrap">
   <div class="grid g2" style="align-items:center">
     <div>
       <span class="eyebrow">Your window in</span>
@@ -255,7 +312,9 @@
       <p style="color:var(--muted);font-size:16px;margin-top:8px">Your free parent account (at
       <a href="/family" style="color:var(--purple);font-weight:700">mrcadabra.com/family</a>) opens a <b>read-only view</b> of your child's
       real progress: what's mastered, what's slipping, and — most useful of all — <b>"where to help next."</b>
-      No made-up numbers, no participation trophies: every score comes from an actual check your student took.</p>
+      No made-up numbers, no participation trophies: every score comes from an actual check your student took —
+      advancing a topic takes a real <b>80%</b>, mastering a unit takes <b>90%</b>, and the bars never round up.
+      When this dashboard says mastered, it's true.</p>
       <p style="color:var(--muted);font-size:16px;margin-top:10px">Teaching more than one child? Each gets their own code,
       their own dashboard, and their own pace.</p>
     </div>
@@ -283,17 +342,6 @@
 </section>
 
 <section class="wrap">
-  <span class="eyebrow" style="display:block;text-align:center">Honest hours</span>
-  <h2 style="text-align:center">We track time the way a homeschool log needs it — <span class="grad-text">real work only</span>.</h2>
-  <p class="sub" style="text-align:center;margin-top:8px">Mr. Cadabra's Classroom counts a minute only when the lesson tab is actually open
-  <b>and</b> your student is actually doing something. Walk away, switch tabs, leave it running — the clock stops.
-  So "3h 59m this week" means three hours and fifty-nine minutes of <i>math</i>, a number you can put in an
-  instructional-hours log with a straight face.</p>
-  <img class="shot" src="/static/shots/timetile.png" style="margin-top:22px" alt="Dashboard tiles: units mastered, day streak, accuracy, problems practiced, and time this week — 3h 59m, real work only" />
-  <p class="cap">Every dashboard shows it: today, this week, per course. <i>(Sample data.)</i></p>
-</section>
-
-<section class="wrap">
   <div class="card" style="padding:30px">
     <div class="grid g2" style="align-items:center">
       <div>
@@ -318,35 +366,48 @@
 </section>
 
 <section class="wrap">
-  <span class="eyebrow" style="display:block;text-align:center">Records &amp; requirements</span>
-  <h2 style="text-align:center">Homeschool paperwork, handled.</h2>
+  <span class="eyebrow" style="display:block;text-align:center">You're still the teacher</span>
+  <h2 style="text-align:center">A very good assistant teacher — <span class="grad-text">who takes direction</span>.</h2>
+  <p class="sub" style="text-align:center;margin-top:8px">This isn't a black box you hand your homeschool to. You set the
+  direction; Mr. Cadabra supplies the patient, step-by-step teaching — and reports back to you.</p>
   <div class="grid g3" style="margin-top:26px">
-    <div class="card"><h3>🖨 A printable plan</h3><p>Every course page doubles as a <b>scope &amp; sequence</b> — all nine units,
-      printable for portfolios and curriculum filings. <a href="/courses" style="color:var(--purple);font-weight:700">See the courses →</a></p></div>
-    <div class="card"><h3>⏱ An hours log you can trust</h3><p>Engaged-time tracking gives you honest instructional minutes per
-      day and per course — many states ask homeschoolers to keep exactly this. A <b>printable records report</b> (hours log,
-      mastery evidence, awards) is one click from your parent view.</p></div>
-    <div class="card"><h3>★ Mastery evidence</h3><p>Scored unit checks, accuracy, and assessment results — a running record of
-      demonstrated skill, not just attendance.</p></div>
+    <div class="card"><h3>🧭 Steer the pace</h3><p>From your parent account, pick the unit you want front and center and it
+      becomes today's plan in the classroom. Your plan steers — and your child's own deliberate choice is still respected
+      in the moment, so steering never turns into a cage.</p></div>
+    <div class="card"><h3>🎯 Meets them where they are</h3><p>Placement starts each student at the right unit — an older student
+      can rebuild fractions without ever seeing a grade level on screen.</p></div>
+    <div class="card"><h3>📚 Works with your curriculum</h3><p>Use it as the math spine or alongside what you already love —
+      practice mode coaches your student through <i>any</i> problem they bring.</p></div>
   </div>
-  <p class="cap" style="margin-top:16px">Homeschool rules differ by state — Mr. Cadabra's Classroom gives you the records and the plan;
-  you stay in charge of your state's specifics.</p>
 </section>
 
-<section class="wrap"><div class="grid g3">
-  <div class="card"><h3>🎯 Meets them where they are</h3><p>Placement starts each student at the right unit — an older student
-    can rebuild fractions without ever seeing a grade level on screen.</p></div>
-  <div class="card"><h3>🎙️ A real conversation</h3><p>Your student talks with Mr. Cadabra, back and forth — and their voice is
-    transcribed then deleted immediately, never stored. Need it quiet? Typing works any time.</p></div>
-  <div class="card"><h3>📚 Works with your curriculum</h3><p>Use it as the math spine or alongside what you already love —
-    practice mode coaches your student through <i>any</i> problem they bring.</p></div>
-</div></section>
+<section class="wrap">
+  <span class="eyebrow" style="display:block;text-align:center">The trust questions</span>
+  <h2 style="text-align:center">The questions you should ask <span class="grad-text">any</span> AI tutor.</h2>
+  <p class="sub" style="text-align:center;margin-top:8px">You're right to ask them. Here are ours, answered plainly.</p>
+  <div class="grid g2" style="margin-top:26px">
+    <div class="card"><h3>"Will it just give my kid the answers?"</h3><p>No. Mr. Cadabra teaches one step at a time and waits
+      for your student's turn. Even a frustrated <i>"just tell me"</i> never gets a bare answer: after a genuine try, he works
+      a problem on the board while explaining it — then immediately hands your student a similar one that's theirs.</p></div>
+    <div class="card"><h3>"Can I trust the math?"</h3><p>As Mr. Cadabra teaches, a separate math engine re-computes his
+      checkable claims before your student sees them — and every score is plain arithmetic, never a judgment call.</p></div>
+    <div class="card"><h3>"What happens to my child's voice?"</h3><p>They talk with Mr. Cadabra back and forth; their speech is
+      transcribed to text and the audio is <b>deleted immediately — never stored</b>. Need it quiet? Typing works any time,
+      and elementary students can simply tap their answers. <a href="/privacy" style="color:var(--purple);font-weight:700">Parents &amp; privacy →</a></p></div>
+    <div class="card"><h3>"What if my child says something personal?"</h3><p>Mr. Cadabra stays warmly on the math — he never
+      pretends to be human and doesn't wander into chit-chat. If something bigger than math ever comes up, he responds with
+      care in one short message and encourages your child to talk with you or another trusted adult.</p></div>
+  </div>
+  <p class="cap" style="margin-top:16px">The method behind the teaching: built on the What Works Clearinghouse practice guides
+  where they exist (elementary math through algebra), and on professional standards — NCTM, MAA — for the courses above them.</p>
+</section>
 
 <section class="wrap" style="text-align:center">
   <div class="card" style="padding:36px">
     <h2>Homeschool families are who this was built for.</h2>
-    <p class="sub" style="margin-bottom:20px">Try a full lesson free — no card required. Founding families lock in
-    introductory pricing and get a direct line to the builder.</p>
+    <p class="sub" style="margin-bottom:20px">One family plan covers ten complete courses, first grade through college —
+    compare that to what a single hour with a private tutor costs where you live. Try a full lesson free, no card
+    required. Founding families lock in introductory pricing and get a direct line to the builder.</p>
     <a class="btn btn-primary" href="/demo">Try a lesson free</a>
     <a class="btn btn-ghost" href="/pricing" style="margin-left:8px">See pricing</a>
   </div>

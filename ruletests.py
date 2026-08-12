@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ef -- HOMESCHOOL CONFERENCE-PITCH REWORK, GUARDED. Jim, pitching
+#               at a homeschooling conference, asked /homeschool to LEAD with the
+#               points that land at a real table: records/filing first, honest mastery
+#               named (80/90, never rounds up), you're-still-the-teacher, and the four
+#               trust questions answered plainly. New ef guards (in the eb marketing
+#               block): the section ORDER is pinned (records -> hours -> window-in ->
+#               ... -> teacher -> trust -> FAQ), the mastery bars and the four trust
+#               answers must stay on the page, /privacy must be linked from the voice
+#               answer, the method line must name the What Works Clearinghouse (the
+#               blanket phrase stays banned), and NO dollar figure may appear (prices
+#               live on /pricing alone). FAQ untouched: same 8 questions, still
+#               pairwise disjoint; parent-code and walkbtn guards unchanged.
 #   2026-08-12  BUILD ee -- THE FIVE TEACHING UPGRADES, GUARDED (rules 56-60 join the
 #               shared block; claude/Teaching_Evidence_Base_2026-08-10.md is the
 #               source). NEW PART 3t: each rule's headline + load-bearing phrases must
@@ -3691,6 +3703,51 @@ def part3p_marketing_claims():
     check("homeschool.html no longer promises a 'parent code' (eb, dq's fix extended)",
           "parent code" not in hv7.lower() and '"/family"' in hv7,
           "the phantom parent code was scrubbed from parents.html; it must not survive here")
+
+    # ---- BUILD ef (2026-08-12): the conference-pitch rework of /homeschool ----------
+    # Jim, pitching at a homeschooling conference: lead with what families actually
+    # buy -- records first, honest mastery named, parent control, and the trust
+    # questions answered before they're asked. These guards pin the SPINE of that
+    # page so a future copy pass can't quietly bury the lead again.
+    def _at(needle):
+        i = hv7.find(needle)
+        check(f"homeschool.html still says: {needle[:48]!r} (ef)", i >= 0,
+              "a pitch anchor left the page -- restore it or retire this guard on purpose")
+        return i if i >= 0 else len(hv7)
+    _rec = _at("Records &amp; requirements")
+    _hrs = _at("Honest hours")
+    _win = _at("Your window in")
+    _tch = _at("You're still the teacher")
+    _tru = _at("The trust questions")
+    _faqi = hv7.find('id="faq"')
+    check("homeschool.html leads with RECORDS, then hours, then the window in (ef)",
+          _rec < _hrs < _win,
+          "the records section must come FIRST after the video -- filing day is the "
+          "promise homeschool families buy; burying it re-loses the conference pitch")
+    check("homeschool.html: teacher-control then trust questions, before the FAQ (ef)",
+          _win < _tch < _tru < _faqi,
+          "the you're-still-the-teacher and trust sections belong between the product "
+          "story and the FAQ")
+    check("homeschool.html names the honest mastery bars (ef)",
+          "80%" in hv7 and "90%" in hv7 and "never round up" in hv7,
+          "the 80/90 bars and never-rounds-up are the honesty pitch -- say them")
+    for label, needle in (
+        ("answers are never just handed over", "never gets a bare answer"),
+        ("the math engine check", "a separate math engine re-computes"),
+        ("voice audio deleted immediately", "deleted immediately"),
+        ("something bigger than math -> a trusted adult", "trusted adult"),
+    ):
+        check(f"homeschool.html trust answer: {label} (ef)", needle in hv7,
+              f"{needle!r} left the trust section -- a careful parent asks this at "
+              f"every conference table")
+    check("homeschool.html links /privacy from the trust section (ef)",
+          '"/privacy"' in hv7, "the voice-data answer must hand the parent the policy")
+    check("homeschool.html: the method line names WWC without the banned phrase (ef)",
+          "What Works Clearinghouse" in hv7,
+          "name the actual guides -- the blanket phrase stays banned (PART 3p) and a "
+          "savvy homeschooler knows the difference")
+    check("homeschool.html quotes no dollar figure (ef)", "$" not in hv7,
+          "prices live on /pricing alone so the two pages can never disagree")
 
     # ---- BUILD ec: security hardening pass 1 (F3 spoof, F4 headers, F5 upload cap) ---
     mn8 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
