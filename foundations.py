@@ -2,6 +2,23 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD el -- ONE SAY-STRING CORRECTED, DELIBERATELY (function notation,
+#               algebra1). The 2026-08-12 lesson audit caught the tutor teaching "when
+#               you see a letter with something tucked inside parentheses right after
+#               it, that's function notation" -- and it was not a live slip, it was
+#               THIS SCRIPT, spoken verbatim. The sentence is false: x(y+1) is
+#               multiplication, and the tutor contradicts itself two board lines later
+#               by writing f(3) = 2(3) + 1. Corrected to name the real discriminator --
+#               whether the letter in front is the NAME of a rule -- which is the
+#               teaching a student actually needs, and which now says out loud that
+#               parentheses DO mean multiplying elsewhere. The say-string rule is
+#               "never edit casually"; a false sentence spoken verbatim to every
+#               algebra student is the least casual reason there is. ⚠️ AUDIO: this
+#               script's cached clip is discarded and re-renders once per student --
+#               run the foundation pre-render on /admin after deploying to pay it once,
+#               up front. New rule 61 (prompts.py) covers the general failure mode, and
+#               ruletests PART 3w fails the build if this false form -- or any of the
+#               other four the audit caught -- ever returns to authored content.
 #   2026-08-10  BUILD de -- FOUR NEW diffeq scripts for the CUPM restructure (library
 #               182 -> 186): "slope field" (now taught in unit 1), "equilibrium" (new
 #               unit 3, qualitative analysis), "Euler's method" (new unit 4, numerical
@@ -592,12 +609,13 @@ FOUNDATIONS = {
             "checking for you.",
          "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
         {"term": "function notation", "say":
-            "When you see a letter with something tucked inside parentheses right after it, that is "
-            "**function notation**, and you read it out loud as f of x. Say it that way every single "
-            "time. It does not mean f multiplied by x. Nothing is being multiplied at all. It is a name "
-            "and an input: the rule called f, being handed the value x. And the letter is only a name, "
-            "the way a person is called Sam. If a problem needs a second rule we usually call it g, and g "
-            "of x means exactly the same kind of thing, just a different rule doing the work.",
+            "Here, f is the NAME of a rule. So f with something tucked inside parentheses right after "
+            "it is **function notation**, and you read it out loud as f of x. Say it that way every "
+            "single time. It is a name and an input: the rule called f, handed the value x. Nothing "
+            "here is being multiplied, though parentheses really do mean multiplying in other places, "
+            "so what tells them apart is whether the letter in front names a rule. And that letter is "
+            "only a name, the way a person is called Sam. If a problem needs a second rule we usually "
+            "call it g, and g of x works exactly the same way.",
          "board": ['[[write text="f(x)   ←  say it out loud: “f of x”     (NOT f times x)"]]',
                    '[[write text="f(3) = 7   means: hand 3 to the rule called f, and 7 comes back"]]',
                    '[[card title="the letter is only a name" items="f(x) — the rule called f | g(x) — a second rule, called g | both are read “… of x”"]]']},

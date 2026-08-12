@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12el-generalizations". NEW RULE 61: A
+#               GENERALIZATION CARRIES ITS CONDITION (build stamp only in this file;
+#               the work is in prompts.py, foundations.py and ruletests.py). From the
+#               2026-08-12 lesson audits, which caught FIVE false universal claims
+#               across calculus, algebra1 and algebra2 -- all the same failure, a
+#               helpful heuristic spoken as a law, and all invisible to mathcheck
+#               because there is no arithmetic in the word "always". Rule 61 carries
+#               the five real catches with their true forms and forbids the obvious
+#               overcorrection (true absolutes stay crisp). ALSO: one of the five was
+#               not a live slip -- it was the algebra1 function-notation FOUNDATION
+#               SCRIPT, spoken verbatim; corrected in foundations.py, so its cached
+#               audio re-renders once (run the /admin foundation pre-render after
+#               deploying to pay that once, up front). Guarded by new PART 3w, which
+#               bans the five SENTENCES from all authored content -- never the word
+#               "always" -- and was negative-tested both ways.
 #   2026-08-12  APP_BUILD -> "2026-08-12ek-course-identity". ONE TRUE NAME PER COURSE --
 #               a live teaching defect in the two YOUNGEST courses (build stamp only in
 #               this file; the work is in curriculum.py, notation.py, misconceptions.py,
@@ -6158,7 +6173,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ek-course-identity"
+APP_BUILD = "2026-08-12el-generalizations"
 
 
 @app.get("/health")

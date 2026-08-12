@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD el -- RULE 61 (a generalization carries its condition), GUARDED,
+#               plus the AUTHORED-CONTENT guard that is the real enforcement here. The
+#               2026-08-12 audits caught five false universal claims across three
+#               courses; mathcheck structurally cannot see them (no arithmetic in
+#               "always"), so live replies are prompt-covered. But ONE of the five was
+#               not a live slip at all -- it was the algebra1 function-notation
+#               FOUNDATION SCRIPT, spoken verbatim to every student who meets f(x).
+#               NEW PART 3w: the five known-false forms may never appear in ANY authored
+#               content (prompts.py, foundations.py, notation.py), rule 61 must live in
+#               the shared block exactly once with its five corrections and its
+#               do-not-overcorrect clause, and the true absolutes it protects must still
+#               be sayable. High-precision by design: it bans the five SENTENCES, never
+#               the word "always" -- "the hypotenuse is always the longest side" is true
+#               and must stay.
 #   2026-08-12  BUILD ek -- ONE TRUE NAME PER COURSE, GUARDED. THIS FILE WAS PART OF
 #               THE BUG. Its COURSES list used the phantom spellings "entrymath" and
 #               "basicmath", so for two of the ten courses the whole battery has been
@@ -779,6 +793,7 @@ COVERAGE = [
     ("rule 58 two ways, one board",      'TWO WAYS, ONE BOARD, THEN "WHICH WOULD YOU CHOOSE?"'),
     ("rule 59 right answer, wrong method", "A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD"),
     ("rule 60 the board spotlight",      "POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON"),
+    ("rule 61 conditions on claims",     "A GENERALIZATION CARRIES ITS CONDITION"),
 ]
 
 
@@ -2246,13 +2261,21 @@ def part3g_misconceptions():
     # independent model mark them against every rule. Run it at two prompt sizes and set
     # this number from evidence. Until then 150,000 is a tripwire, not a licence: it is
     # still an early warning that someone should look, not permission to sprawl.
+    # 2026-08-12 (build el): RAISED 160,000 -> 175,000. Rule 61 took the largest prompt
+    # to 159,652 -- 348 characters of headroom, which is the tripwire doing its job: it
+    # said "someone should look", and someone did. Raised deliberately rather than by
+    # trimming teaching, for the reason the essay above gives: consolidating rules to
+    # satisfy an invented number means editing the teaching itself, and that fails
+    # invisibly. Same standing authorization as the last raise; this is its change note.
+    # The honest measurement (lessonaudit at two prompt sizes, to find where rule-following
+    # actually degrades) is STILL the right way to set this number, and still not done.
     # 2026-08-12 (build ee): RAISED 150,000 -> 160,000 for rules 56-60, the five
     # evidence-backed teaching upgrades (~8.2k shared characters; largest prompt now
     # 156,515). Authorized by Jim's standing decision (2026-08-11, Four_Lens_Review:
     # "if you need to raise it, you raise it" -- each raise gets its own change note;
     # this is that note). Still a tripwire: the lessonaudit two-sizes measurement is
     # still the right way to set this number from evidence someday.
-    CEILING = 160_000
+    CEILING = 175_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
     # THE BUDGET, not just the total. A single number tells you that you are over and
@@ -2470,6 +2493,13 @@ RULE_VERIFY = {
     59: ("COVERED",   "right answer, wrong method (build ee; MAA IPG): PART 3t pins "
                       "accept-the-answer-first (rule 45 untouched), the how-did-you-"
                       "get-that ask, and the one-case-where-it-breaks move"),
+    61: ("ENFORCED",  "a generalization carries its condition (build el; from the "
+                      "2026-08-12 audits): PART 3w fails the build if any of the five "
+                      "known-false universal claims appears in AUTHORED content -- which "
+                      "is where one of them actually lived (the function-notation "
+                      "foundation script, spoken verbatim). Live replies remain prompt-"
+                      "covered: mathcheck cannot see an overgeneralization because there "
+                      "is no arithmetic in the word 'always'"),
     60: ("COVERED",   "the board spotlight (build ee): the MECHANISM is machine-checked "
                       "-- PART 3t asserts all three teaching pages implement "
                       "spotlightBoard with the line+board keys, the .stepglow CSS, and "
@@ -5137,6 +5167,95 @@ def part3v_course_identity():
         print(f"       (lessonaudit not importable here: {exc})")
 
 
+# =============================================================================
+# PART 3w -- A GENERALIZATION CARRIES ITS CONDITION (rule 61, build el, 2026-08-12)
+# =============================================================================
+# The 2026-08-12 lesson audits caught five false universal claims in three courses.
+# They are invisible to every referee we own: mathcheck re-computes ARITHMETIC, and
+# there is no arithmetic in "always". So for LIVE replies rule 61 is prompt-covered.
+#
+# But one of the five was never a live slip -- it was the algebra1 function-notation
+# FOUNDATION SCRIPT, spoken verbatim to every student who ever meets f(x). Authored
+# content we can check, so we do, and that is what makes rule 61 ENFORCED rather than
+# hopeful.
+#
+# DELIBERATELY NARROW: this bans five SENTENCES, never the word "always". Rule 61(d)
+# exists because the obvious overcorrection -- hedging everything -- is its own harm,
+# and the last check below proves the true absolutes are still sayable.
+def part3w_generalizations():
+    print("\nPART 3w — a generalization carries its condition (rule 61)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    note = tutor.GRAPH_TOOL_NOTE
+
+    check("rule 61 lives in the shared block exactly once",
+          note.count("61. A GENERALIZATION CARRIES ITS CONDITION") == 1,
+          "a shared rule goes in once, never per course")
+    for label, needle in (
+        ("the six-word fix (say the condition in the same breath)",
+         "SAY THE CONDITION IN THE SAME BREATH"),
+        ("the believes-it-forever test", "believes that sentence forever"),
+        ("0/0 corrected", "we do not know yet and have to investigate"),
+        ("function notation corrected", "here f is the NAME of a rule"),
+        ("square root corrected", "when we SOLVE x squared = a for a positive a"),
+        ("completing the square corrected", "when the coefficient of x squared is 1"),
+        ("discriminant corrected", "REAL solutions, and whether complex ones"),
+        ("the do-not-overcorrect clause", "DO NOT OVERCORRECT INTO MUSH"),
+    ):
+        check(f"  rule 61: {label}", needle in note,
+              f"{needle!r} left the rule -- restore it or change this anchor on purpose")
+
+    # THE ENFORCEMENT: the five known-false forms may never appear in authored content.
+    # Each pattern is the FALSE sentence itself, not a keyword -- so a correct use of
+    # the same words (rule 61 quoting them as NOT-forms) has to be excluded explicitly.
+    BANNED = [
+        ("0/0 has a hidden common factor",
+         re.compile(r"means the expression has a hidden common factor", re.I)),
+        ("a letter with parentheses is function notation",
+         re.compile(r"letter with something tucked inside parentheses", re.I)),
+        ("a square root always gives two answers",
+         re.compile(r"square root always gives you (?:two|2)", re.I)),
+        ("always half the middle coefficient, squared",
+         re.compile(r"always half the middle coefficient", re.I)),
+        ("the discriminant counts ALL solutions",
+         re.compile(r"discriminant to predict how many solutions", re.I)),
+    ]
+    AUTHORED = ("prompts.py", "foundations.py", "notation.py", "curriculum.py")
+    for fname in AUTHORED:
+        try:
+            with open(os.path.join(here, fname), encoding="utf-8") as fh:
+                src = fh.read()
+        except OSError:
+            continue
+        # A dated CHANGE NOTE that quotes the false sentence in order to record why it
+        # was fixed is documentation, not something a student hears -- strip comment
+        # lines first, exactly as PART 3p strips HTML comments before reading copy.
+        # (This is not a loophole: a comment is never sent to the model or the student.
+        # Anything inside a real string stays in scope.)
+        src = re.sub(r"^\s*#.*$", "", src, flags=re.M)
+        # rule 61 itself quotes the false forms as things NOT to say; that block is the
+        # one legitimate place they appear in live text, so it is excluded by name.
+        if fname == "prompts.py" and "61. A GENERALIZATION CARRIES ITS CONDITION" in src:
+            i = src.index("61. A GENERALIZATION CARRIES ITS CONDITION")
+            j = src.index("DO NOT OVERCORRECT INTO MUSH", i)
+            src = src[:i] + src[j:]
+        for label, pat in BANNED:
+            m = pat.search(src)
+            check(f"  {fname}: never says {label!r}", m is None,
+                  f"found {m.group(0)!r} -- this sentence is FALSE as stated and this "
+                  f"file is spoken to students; say the true form with its condition"
+                  if m else "")
+
+    # And the guard against the overcorrection: true absolutes must survive. If a future
+    # pass starts hedging these, rule 61(d) has been misread.
+    fnd = open(os.path.join(here, "foundations.py"), encoding="utf-8").read()
+    for label, needle in (("the hypotenuse is the longest side", "always the longest side"),
+                          ("an acute angle is smaller than a right angle",
+                           "always smaller than a right angle")):
+        check(f"  a TRUE absolute is still said plainly: {label}", needle in fnd,
+              "rule 61(d): hedging a true sentence is its own failure -- these must "
+              "stay crisp")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -5190,6 +5309,7 @@ def main():
     part3t_teaching_upgrades()
     part3u_video_presence()
     part3v_course_identity()
+    part3w_generalizations()
     if live:
         part4_live()
     else:
