@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  BUILD eb -- CALM FEATURES PAGE + FOUR AUDIENCE FAQs, GUARDED: the
+#               features page must stay icon-free (no emoji rows, no .ic spans), stay
+#               six drop-down sections of >=41 plain bullets, and keep naming the
+#               post-rewrite features (sprints, refresher, save/resume, retake,
+#               tricky-ones, steer, phone, a11y). Each audience page (students,
+#               parents, homeschool, teachers) must end with its OWN 8-question FAQ,
+#               and the four question sets are swept PAIRWISE DISJOINT (Jim:
+#               "different FAQs"). The dq "phantom parent code" guard now covers
+#               homeschool.html too, where the same stale line was found and fixed.
 #   2026-08-11  BUILD ea -- THE PACING STEER, GUARDED AND DRILLED: endpoint parent-
 #               gated + ownership-checked; the child's explicit choice outranks the
 #               plan (rule 50, source AND live-proven); the steered mastery note names
@@ -3568,6 +3577,51 @@ def part3p_marketing_claims():
     check("family.html has the steer controls and shows the current plan (ea)",
           "data-dosteer" in fam6 and "data-clearsteer" in fam6 and "steernow" in fam6,
           "an endpoint without its panel is still a support email")
+
+    # ---- BUILD eb: the calm features page + four audience FAQs ----------------------
+    # Jim 2026-08-11: "too much information... I don't really like the icons. I'd rather
+    # just use bullet points... consolidate... drop-down menus" + "a FAQ section on the
+    # bottom of the homeschool, the parent, teacher and student pages... DIFFERENT FAQs
+    # because they have different questions."
+    def _vis7(name):  # visible text only (change notes talk ABOUT icons; that's fine)
+        with open(os.path.join(here, "static", name), encoding="utf-8") as fh:
+            return re.sub(r"<!--.*?-->", "", fh.read(), flags=re.S)
+    feat7 = _vis7("features.html")
+    check("features.html carries NO emoji icon rows (eb)",
+          'class="ic"' not in feat7 and "details.feat" not in feat7
+          and "🗣️" not in feat7 and "🖍️" not in feat7 and "🧑‍🏫" not in feat7
+          and "👨‍👩‍👧" not in feat7 and "🛡️" not in feat7,
+          "Jim asked for bullets, not icons -- the old rows must not creep back")
+    check("features.html is six drop-down sections of plain bullets (eb)",
+          feat7.count('<details class="sec"') == 6
+          and feat7.count("<li><b>") >= 41,
+          "consolidated means six calm rows hiding the full list, not a wall")
+    check("features.html names the features shipped since the last rewrite (eb)",
+          all(s in feat7 for s in ("Fluency sprints", "refresher after time away",
+                                   "Pause it, finish it later", "Retake any Unit Quiz",
+                                   "tricky ones come back", "Steer the pace",
+                                   "lesson on a phone", "include everyone")),
+          "a features page that trails the product hides the work")
+    _faq_pages = ("students.html", "parents.html", "homeschool.html", "teachers.html")
+    _faq_qs = {}
+    for _fp in _faq_pages:
+        _fsrc = _vis7(_fp)
+        check(f"{_fp} ends with its own 8-question FAQ (eb)",
+              'id="faq"' in _fsrc and _fsrc.count('<details class="qa"') == 8
+              and _fsrc.rfind('id="faq"') > _fsrc.rfind("walkbtn"),
+              "every audience page owes its visitors their OWN questions, at the bottom")
+        _faq_qs[_fp] = set(re.findall(r'class="qa"><summary>(.*?)<span', _fsrc))
+        check(f"{_fp}: all 8 FAQ questions parsed for the disjointness sweep (eb)",
+              len(_faq_qs[_fp]) == 8, f"parsed {len(_faq_qs[_fp])} -- markup drifted?")
+    for _i, _a in enumerate(_faq_pages):
+        for _b in _faq_pages[_i + 1:]:
+            check(f"FAQ questions are DISJOINT: {_a} vs {_b} (eb)",
+                  not (_faq_qs[_a] & _faq_qs[_b]),
+                  f"shared: {_faq_qs[_a] & _faq_qs[_b]} -- Jim asked for DIFFERENT FAQs")
+    hv7 = _vis7("homeschool.html")
+    check("homeschool.html no longer promises a 'parent code' (eb, dq's fix extended)",
+          "parent code" not in hv7.lower() and '"/family"' in hv7,
+          "the phantom parent code was scrubbed from parents.html; it must not survive here")
 
     # ---- BUILD dz: accessibility + phones -------------------------------------------
     for pg in ("session.html", "practice.html", "topic.html"):

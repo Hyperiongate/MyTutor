@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-11  APP_BUILD -> "2026-08-11eb-features-faq". CALM FEATURES PAGE + FOUR
+#               AUDIENCE FAQs (Jim: "the features page has too much information... I don't
+#               like the icons... just bullet points... consolidate... drop-downs" + "a FAQ
+#               section on the bottom of the homeschool, parent, teacher and student pages
+#               ... DIFFERENT FAQs"). Static-only build -- nothing in this file changed but
+#               the stamp. features.html: one calm column of six <details> drop-downs,
+#               features as plain bullets (bold name + one line), NO emoji icons, 30 -> 41
+#               features (the eleven shipped since the last rewrite: sprints, refresher,
+#               save/resume, retake, tricky-ones x2, steer, child management, phone dock,
+#               a11y, /help). students/parents/homeschool/teachers .html each end with an
+#               8-question FAQ in that audience's own voice; no question repeats across
+#               pages; every answer states only what the product does today. homeschool
+#               also lost its phantom "parent code" line (same dq honesty fix as parents).
+#               Checks: ruletests PART 3p eb block (icon-free features page, new features
+#               present, four disjoint FAQs, parent-code guard extended to homeschool).
 #   2026-08-11  APP_BUILD -> "2026-08-11ea-pacing-steer". THE PACING CONTROL (Four-Lens
 #               homeschool item 3; the parent-as-teacher design Jim approved 07-28).
 #               A parent can now set ONE standing plan per child on /family: "center
@@ -5850,7 +5865,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11ea-pacing-steer"
+APP_BUILD = "2026-08-11eb-features-faq"
 
 
 @app.get("/health")

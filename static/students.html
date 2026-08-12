@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (eb) 2026-08-11 -- STUDENT FAQ AT THE BOTTOM (Jim: "a FAQ section on the bottom of the
+    homeschool, the parent, teacher and student pages... different FAQs because they have
+    different questions, especially the students"). Eight questions in a student's own
+    voice (do I have to talk out loud? what if I'm wrong? will he just give me the answer?
+    what can my parents see?), answered honestly from what the product actually does today.
+    Native <details> accordion, zero JS, no icons -- same calm pattern as the redesigned
+    /features page. Each audience page gets its OWN set; no question is repeated across
+    pages (machine-checked in ruletests PART 3p).
     (cp) 2026-08-10 -- "VIEW THE DEMO" WALKTHROUGH BUTTON (Jim). The narrated
     walkthrough is the strongest thing this page has to offer and it was previously
     reachable only by guessing at /demo, so the button is deliberately the loudest thing
@@ -145,6 +153,20 @@
   .walkbtn .wbsub{display:block;font-size:12px;font-weight:600;opacity:.93;margin-top:2px}
   .walkrow{margin:20px 0 4px}
   .walknote{font-size:13px;color:var(--muted);margin-top:9px}
+  /* FAQ accordion (2026-08-11, build eb): audience-specific questions, native <details> --
+     zero JS, keyboard/screen-reader friendly, matching the /features page's calm pattern. */
+  .faq{max-width:820px;margin:0 auto}
+  details.qa{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);margin:10px 0;padding:2px 20px}
+  details.qa summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;
+    padding:13px 2px;font-weight:700;font-size:15.5px;user-select:none}
+  details.qa summary::-webkit-details-marker{display:none}
+  details.qa summary .chev{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .15s ease}
+  details.qa[open] summary .chev{transform:rotate(90deg);color:var(--purple)}
+  details.qa summary:hover,details.qa[open] summary{color:var(--purple)}
+  details.qa p{color:var(--muted);font-size:14.5px;padding:0 2px 14px;line-height:1.6}
+  details.qa p b{color:var(--ink)}
+  details.qa a{color:var(--purple);font-weight:700}
   @media print{nav,.nav-cta,footer,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
   .beta-ribbon{background:var(--grad);text-align:center;padding:9px 16px;font-size:14px;color:#fff}
   .beta-ribbon a{color:#fff}
@@ -264,6 +286,42 @@
     <p class="sub" style="margin-bottom:20px">Try the practice lesson — or sign in with your code and go earn that first badge.</p>
     <a class="btn btn-primary" href="/demo">Try a lesson</a>
     <a class="btn btn-ghost" href="/login" style="margin-left:8px">Sign in</a>
+  </div>
+</section>
+
+<section class="wrap" id="faq">
+  <span class="eyebrow" style="display:block;text-align:center">Questions students ask</span>
+  <h2 style="text-align:center">Good questions. Straight answers.</h2>
+  <div class="faq" style="margin-top:18px">
+    <details class="qa"><summary>Do I have to talk out loud?<span class="chev">▶</span></summary>
+      <p>No. Talking is the quickest way, but you can <b>type every answer</b> instead — Mr. Cadabra treats
+      both exactly the same. And the youngest students don't type at all: they tap big answer buttons.</p></details>
+    <details class="qa"><summary>What happens when I get one wrong?<span class="chev">▶</span></summary>
+      <p>First you get a hint. Miss again and he explains it a <b>different way</b>, working the steps right on
+      the board. He never makes you feel bad about a wrong answer — he gets curious about it, because wrong
+      answers show him exactly how to help you.</p></details>
+    <details class="qa"><summary>Will he just give me the answer if I keep asking?<span class="chev">▶</span></summary>
+      <p>No — and that's on purpose. He'll ask the next small question, drop hints, and re-explain, but
+      <b>you</b> do the thinking. If you're truly stuck, he shows the way warmly and you move on together.</p></details>
+    <details class="qa"><summary>Can he help with my real homework?<span class="chev">▶</span></summary>
+      <p>Yes. Open <b>Practice</b> and bring the exact problem from school — he works through it with you,
+      step by step, without just doing it for you. You leave knowing how, not just what.</p></details>
+    <details class="qa"><summary>What if I have to stop in the middle of something?<span class="chev">▶</span></summary>
+      <p>Your progress <b>saves automatically</b> — quizzes, badges, streaks, everything. Even a placement
+      assessment picks up right where you stopped if you come back within a couple of days. Sign in with the
+      same code on any computer, tablet, or phone and it's all there.</p></details>
+    <details class="qa"><summary>How do I earn the badges and trophies?<span class="chev">▶</span></summary>
+      <p>Score <b>90% or better on a Unit Quiz</b> and that unit's merit badge is yours. Master all nine units
+      and the course trophy goes in your trophy case. Medals reward the work itself — streaks, minutes,
+      problems practiced — and once you've earned something, it never gets taken away. Rough quiz day?
+      You can <b>retake it</b> when you're ready — your best real score is the one that counts.</p></details>
+    <details class="qa"><summary>What's a sprint?<span class="chev">▶</span></summary>
+      <p>A short, timed race through quick math facts — start one from your dashboard whenever you want.
+      It's you against your own best score, and it's the fastest way to make the facts automatic.</p></details>
+    <details class="qa"><summary>What can my parents and teachers see?<span class="chev">▶</span></summary>
+      <p>Your real progress: units mastered, quiz scores, honest time, and which problems were tricky lately.
+      Their view is <b>read-only</b> — nobody can change your work but you. And your voice is never recorded:
+      what you say becomes text and the audio is deleted right away.</p></details>
   </div>
 </section>
 <footer><div class="wrap foot-in">
