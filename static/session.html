@@ -2240,7 +2240,8 @@
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); }   /* build er: a right answer earns the thumbs-up */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); }   /* build er: a FINISHED problem earns the full celebration */
+        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);

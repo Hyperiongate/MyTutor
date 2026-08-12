@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12et-two-intensities". THE RING HAD ALMOST NOTHING TO
+#               FIRE ON (build stamp only here; the work is in prompts.py,
+#               static/tutor-face.js and the three teaching pages). es shipped and Jim
+#               still saw nothing, so I fired celebrate() by hand on the live site: the
+#               ring drew perfectly. The fault was upstream, in the prompt text every
+#               course carries -- "Silently, during normal practice, when the student
+#               COMPLETES a problem you MAY record whether they got it right... not for
+#               every small sub-step." Optional, and sub-steps excluded, so during a
+#               teaching lesson the doorbell was almost never pressed. Two consequences,
+#               both fixed: the celebration never fired, AND problems-practiced/accuracy
+#               have been under-counting for every student since those numbers existed.
+#               [[mark]] is now REQUIRED on a finished problem (one canonical paragraph
+#               replacing nine slightly different ones), and NEW [[nice]] marks a correct
+#               answer along the way -- at most one per reply, never alongside [[mark]],
+#               never while correcting, no tally, no server call. The pages draw a quieter
+#               single ring for it. Guarded in PART 3u, including a check that reads
+#               prompts.py and fails if "you may record" ever comes back.
 #   2026-08-12  APP_BUILD -> "2026-08-12es-celebration-is-ours". THE THUMBS-UP CLIP HAS NO
 #               THUMBS IN IT (build stamp only here; the work is in static/tutor-face.js).
 #               Jim, after er deployed: "I'm answering questions correctly and I'm not
@@ -6265,7 +6282,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12es-celebration-is-ours"
+APP_BUILD = "2026-08-12et-two-intensities"
 
 
 @app.get("/health")

@@ -1616,6 +1616,9 @@ TAG_HANDLER = {
 TAG_INLINE = {
     "goal": {"text"}, "highlight": {"id"}, "clear": set(),
     "mark": {"correct", "attempted"},
+    # build et: [[nice]] is attribute-free -- a correct answer along the way, no tally,
+    # no server call, just the quiet ring.
+    "nice": set(),
 }
 # a tag that draws a FIGURE needs at least one of these or it renders empty
 CONTENT_ATTRS = {
@@ -5134,7 +5137,7 @@ def part3u_video_presence():
           "invisible again")
     check("  the burst fires even with NO video presence at all",
           'if (P.state !== "active" || P.reduced) return false;' not in tf
-          and "celebrationBurst(canvas || _lastCanvas)" in tf,
+          and "celebrationBurst(_lastCanvas, small)" in tf,
           "the robot fallback and reduced-motion users earn a celebration too; celebrate() "
           "must never early-return before the ring")
     check("  reduced motion gets an opacity-only ring (no scaling, no sparkles)",
@@ -5155,6 +5158,48 @@ def part3u_video_presence():
     check("  the burst cleans itself up and cannot stack",
           "C.timer = setTimeout" in tf and "if (C.timer) { clearTimeout(C.timer)" in tf,
           "five right answers in a row must not leave five rings pinned over his face")
+
+    # BUILD et: THE RING NEEDED SOMETHING TO FIRE ON. es shipped and Jim STILL saw nothing:
+    # firing celebrate() by hand on the live site drew the ring perfectly, so the fault was
+    # upstream in the prompt -- marking was optional ("you MAY record") and sub-steps were
+    # explicitly excluded, so in a teaching lesson the doorbell was almost never pressed.
+    # [[mark]] is now REQUIRED on a finished problem and [[nice]] carries the smaller wins.
+    check("celebrate() takes a SMALL intensity for wins along the way",
+          "function celebrate(opts)" in tf and "opts.small" in tf,
+          "one intensity means either the big moment is cheapened or a child goes minutes "
+          "with no sign anyone noticed")
+    check("  the small ring does NOT swap the video",
+          "if (!small && P.state ===" in tf,
+          "a clip change on every sub-step would thrash the network and flatten the "
+          "finished-problem moment")
+    for page in ("session.html", "practice.html", "topic.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            src = fh.read()
+        check(f"  {page} draws the quiet ring on [[nice]]",
+              'name === "nice"' in src and "TutorFace.celebrate({ small: true })" in src,
+              "without this the new tag is inert and we are back where es was")
+        check(f"  {page}'s [[nice]] never touches the tally",
+              'name === "nice"' in src
+              and "/api/mark/" not in src.split('name === "nice"')[1].split("}")[0],
+              "[[nice]] is encouragement, not a score -- counting sub-steps as problems "
+              "would inflate every student's practice numbers")
+
+    # The prompts must actually ASK for the two tags, in every course, or the pages above
+    # are wired to a doorbell nobody presses. This is the check that would have caught the
+    # es miss on the first run.
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        pr = fh.read()
+    check("[[mark]] is REQUIRED of the tutor, never optional",
+          "you may record" not in pr and pr.count("[[mark]] is REQUIRED") >= 9,
+          "'you MAY record' is why a child could answer right all lesson and see nothing -- "
+          "and why problems-practiced under-counted for every student")
+    check("  every course prompt asks for [[nice]] too",
+          pr.count("[[nice]]") >= 20,
+          "the nine course prompts plus the practice and topic templates each need it")
+    check("  [[nice]] and [[mark]] are never asked for in the same reply",
+          pr.count("never in the same reply as [[mark]]") >= 1
+          and pr.count("NEVER in the same reply as [[mark]]") >= 9,
+          "two celebrations for one moment reads as a glitch")
 
     # The manifest is validated the day it exists; until then its absence is correct.
     man_path = os.path.join(here, "static", "videos", "cadabra", "presence.json")

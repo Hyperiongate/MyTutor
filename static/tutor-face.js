@@ -2,6 +2,17 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build et) TWO INTENSITIES, BECAUSE THE RING HAD ALMOST NOTHING TO FIRE ON.
+                 es shipped and Jim still saw nothing -- so I fired celebrate() by hand on
+                 the live site and the ring drew perfectly. The fault was upstream: the
+                 tutor is told marking is optional ("you MAY record") and explicitly told
+                 NOT to mark sub-steps, so in a teaching lesson the doorbell was almost
+                 never pressed. prompts.py now makes [[mark]] REQUIRED on a finished
+                 problem and adds [[nice]] for a correct answer along the way. This file
+                 gains the second intensity: celebrate({small:true}) draws ONE thin ring --
+                 no flash, no sparkles, no video swap (a clip change on every sub-step would
+                 thrash the network and flatten the big moment). celebrate() with no
+                 argument is unchanged, so nothing that already called it moves.
      2026-08-12  (build es) THE THUMBS-UP CLIP HAS NO THUMBS IN IT -- SO THE CELEBRATION
                  STOPS DEPENDING ON THE AVATAR. Jim, after er deployed: "I'm answering
                  questions correctly and I'm not getting a thumbs up." I pulled frames from
@@ -444,7 +455,7 @@
     (document.head || document.documentElement).appendChild(el);
   }
 
-  function celebrationBurst(canvas) {
+  function celebrationBurst(canvas, small) {
     if (!canvas || !canvas.parentNode) return false;
     celebrationStyle();
     var parent = canvas.parentNode;
@@ -484,9 +495,11 @@
       return r;
     }
 
-    if (P.reduced) {
-      // No scaling, no sparkles: one ring, opacity only.
-      host.appendChild(ring(0, ringW, true));
+    if (P.reduced || small) {
+      // SMALL (build et): one thin ring, no flash, no sparkles -- the quiet nod that says
+      // "yes, that part was right" without spending the big moment. Reduced motion lands
+      // here too, and additionally gets the opacity-only variant.
+      host.appendChild(ring(0, Math.max(2, ringW - 1), !!P.reduced));
     } else {
       var flash = document.createElement("div");
       flash.style.cssText =
@@ -523,7 +536,7 @@
       try { if (host.parentNode) host.parentNode.removeChild(host); } catch (e) {}
       if (C.host === host) C.host = null;
       C.timer = 0;
-    }, 1500);
+    }, small ? 1000 : 1500);
     return true;
   }
 
@@ -537,12 +550,17 @@
   // BUILD es (2026-08-12) -- the clip is no longer load-bearing. The gold ring fires
   // ALWAYS (video, poster or bare robot); the happy one-shot plays underneath only when
   // there is a live video presence. Returns true whenever the child saw something.
-  function celebrate(canvas) {
+  // BUILD et (2026-08-12) -- TWO INTENSITIES. celebrate() is the finished problem: full
+  // burst plus his warmer clip. celebrate({small:true}) is a correct answer ALONG THE WAY:
+  // one thin ring, no sparkles, and deliberately NO video swap -- a clip change on every
+  // sub-step would thrash the network and make the big moment feel like nothing.
+  function celebrate(opts) {
+    var small = !!(opts && opts.small);
     var shown = false;
     try {
-      if (P.state === "active" && !P.reduced) { presenceShow("happy", true); shown = true; }
+      if (!small && P.state === "active" && !P.reduced) { presenceShow("happy", true); shown = true; }
     } catch (e) {}
-    try { if (celebrationBurst(canvas || _lastCanvas)) shown = true; } catch (e) {}
+    try { if (celebrationBurst(_lastCanvas, small)) shown = true; } catch (e) {}
     return shown;
   }
 
