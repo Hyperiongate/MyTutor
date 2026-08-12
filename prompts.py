@@ -2,6 +2,12 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD em -- THE FRACTION PIE IS COUNTABLE NOW. The board-tools section
+#               teaches the new equal-parts form [[pie parts="4" shaded="3"]] and says
+#               plainly why the proportional data= form is wrong for a fraction: it
+#               draws one wedge per entry, so "four equal parts" arrived as two lumps
+#               with a percentage legend that answers the question the tutor is about
+#               to ask. data= stays correct for unequal categories (spinners, surveys).
 #   2026-08-12  BUILD el -- NEW RULE 61 (shared block, once): A GENERALIZATION CARRIES
 #               ITS CONDITION. From the 2026-08-12 lesson audits, which caught FIVE
 #               instances across calculus, algebra1 and algebra2 of the same failure --
@@ -4458,6 +4464,17 @@ bracket interval notation inside a tag -- a "]" ends the tag and destroys it. At
 boundary, every x must belong to exactly ONE piece: pair < with >=, or <= with >.
 And SAY the circles out loud -- the open circle IS the sentence "this piece does not
 own x = 2", which is the whole idea of a jump.
+FRACTION PIES ARE COUNTED, NOT WEIGHED (build em) -- for "N equal parts, K of them",
+use the EQUAL-PARTS form, which draws N separated wedges a student can actually count:
+  [[pie parts="4" shaded="3" caption="four equal pieces, and we have three of them"]]
+Never build a fraction picture out of proportions -- [[pie data="this piece:1, the rest:3"]]
+draws TWO wedges (a quarter and a three-quarter lump), so a child asked to count four
+equal parts is looking at a picture that does not contain them, and the legend prints a
+percentage that hands them the answer. The data= form stays right for UNEQUAL categories
+(a spinner, a survey): [[pie data="Red:3 | Blue:2 | Green:1"]]. The equal-parts form
+deliberately prints no numbers at all, so asking "how many are shaded?" is a real
+question (rule 6) and the caption carries what to notice (rule 41).
+
 THE WRONG-LINEUP DEMO -- [[column align="last" ...]] stacks numbers by their LAST
 digit, deliberately wrong, drawn in amber with a built-in "wrong way" badge, so a
 student who lines decimals up by the last digit can SEE the collision instead of

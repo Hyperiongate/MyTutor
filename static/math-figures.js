@@ -2,6 +2,16 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  BUILD em -- [[pie parts="N" shaded="K"]]: EQUAL PARTS, COUNTABLE, and
+                 with NO answer printed on it. The proportional mode draws one wedge per
+                 data entry, so a fractions board captioned "cut into four equal parts"
+                 showed TWO wedges and a student was asked to count three shaded pieces
+                 that were never drawn (2026-08-12 audit; the source was a canonical
+                 foundation script). The new mode draws N equal separated wedges with the
+                 first K filled, caps N at 12 so it stays countable, and deliberately
+                 prints no legend/percentage -- a percentage on a fractions board answers
+                 the question the tutor is about to ask (rule 6: never run ahead). The
+                 proportional mode is untouched and still right for unequal categories.
      2026-08-11  BUILD dk -- A POINT NEVER SITS ON A HOLE (audit re-run finding 8). The
                  model drew points="(3,6)" on the same graph as hole="3": a labeled,
                  filled value at the very x it had just called undefined. The hole
@@ -603,6 +613,37 @@
 
   // ---- [[pie]] : pie chart / spinner ----
   function pie(a) {
+    // EQUAL-PARTS MODE (build em, 2026-08-12) -- [[pie parts="4" shaded="3"]].
+    // WHY THIS EXISTS: the proportional mode below draws ONE wedge per data entry, so
+    // data="this piece:1, the rest:3" under the caption "cut into four equal parts"
+    // drew TWO wedges -- and a lesson then asked a beginner to COUNT three shaded
+    // pieces that were never drawn (2026-08-12 lesson audit, and it came from a
+    // canonical foundation script, not a live slip). A fraction picture has to be
+    // COUNTABLE: N equal wedges, separated, the first `shaded` of them filled.
+    // IT PRINTS NO ANSWER ON PURPOSE. The proportional mode prints a percentage legend,
+    // which on a fractions board hands the student the answer to the question the tutor
+    // is about to ask ("the rest 75%"). Rule 6: the board never runs ahead. Here the
+    // student counts, and the caption says what to notice (rule 41).
+    var parts = parseInt(a.parts, 10);
+    if (!isNaN(parts) && parts >= 2 && parts <= 12) {
+      var shaded = parseInt(a.shaded, 10); if (isNaN(shaded)) shaded = 0;
+      shaded = Math.max(0, Math.min(parts, shaded));
+      var PW = 380, PH = 240, pcx = 190, pcy = 120, PR = 92;
+      var out = svgOpen(PW, PH, 380), start = -Math.PI / 2, step = 2 * Math.PI / parts;
+      for (var k = 0; k < parts; k++) {
+        var a1 = start + k * step, a2 = a1 + step;
+        var px1 = pcx + PR * Math.cos(a1), py1 = pcy + PR * Math.sin(a1);
+        var px2 = pcx + PR * Math.cos(a2), py2 = pcy + PR * Math.sin(a2);
+        var big = step > Math.PI ? 1 : 0;
+        out += '<path d="M ' + pcx + ' ' + pcy + ' L ' + px1 + ' ' + py1 + ' A ' + PR +
+               ' ' + PR + ' 0 ' + big + ' 1 ' + px2 + ' ' + py2 + ' Z" fill="' +
+               (k < shaded ? "#5b5bd6" : "#eef0f7") +
+               '" stroke="#ffffff" stroke-width="2.5"/>';
+      }
+      out += '<circle cx="' + pcx + '" cy="' + pcy + '" r="' + PR +
+             '" fill="none" stroke="#c9c6e0" stroke-width="1.5"/>';
+      return out + "</svg>";
+    }
     var d = parseData(a.data || a.sectors); if (!d.length) return "";
     var total = d.reduce(function (s, o) { return s + o.value; }, 0) || 1;
     var W = 380, H = 240, cx = 118, cy = 120, R = 92, s = svgOpen(W, H, 380), ang = -Math.PI / 2;

@@ -2,6 +2,18 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD em -- FIVE PIE BOARD LINES CORRECTED (the fraction pictures). The
+#               2026-08-12 audit: a board captioned "one whole, cut into four equal
+#               parts" drew TWO wedges, and the lesson then asked a beginner "how many
+#               pieces are shaded?" over ONE shaded wedge -- the student answered "3"
+#               and cannot have counted it. The cause was HERE, in these canonical
+#               board lines: data="this piece:1, the rest:3" tells the renderer to draw
+#               one 25% sector and one 75% sector, and it prints "the rest 75%" beside
+#               a picture teaching one fourth. All five fraction/probability pies now
+#               use the new EQUAL-PARTS form -- [[pie parts="4" shaded="3"]] -- which
+#               draws four separated countable wedges and prints NO answer on the board
+#               (rule 6). Captions rewritten to say what to NOTICE (rule 41) without
+#               giving the count away. `say` strings untouched: no audio is re-billed.
 #   2026-08-12  BUILD el -- ONE SAY-STRING CORRECTED, DELIBERATELY (function notation,
 #               algebra1). The 2026-08-12 lesson audit caught the tutor teaching "when
 #               you see a letter with something tucked inside parentheses right after
@@ -297,7 +309,7 @@ FOUNDATIONS = {
             "whole. The word equal matters: if I cut a cookie into two pieces and one piece is tiny, "
             "those are not halves. So a fraction always means we cut something into fair, matching "
             "pieces, and then we talk about some of those pieces.",
-         "board": ['[[pie data="this piece:1, the rest:3" caption="one whole, cut into four equal parts"]]']},
+         "board": ['[[pie parts="4" shaded="1" caption="one whole, cut into four equal parts — one of them is shaded"]]']},
         {"term": "denominator", "say":
             "Every fraction is written with two numbers, and each one has a job. The bottom number is "
             "called the **denominator**. It tells you how many equal pieces the whole was cut into. A "
@@ -311,7 +323,7 @@ FOUNDATIONS = {
             "and the three says we have three of them. Bottom number: how many pieces in all. Top number: "
             "how many we are counting. That is the whole idea.",
          "board": ['[[write text="3/4   ← the 3 is the NUMERATOR: three of those pieces"]]',
-                   '[[pie data="ours:3, not ours:1" caption="three fourths — three of the four equal pieces"]]']},
+                   '[[pie parts="4" shaded="3" caption="four equal pieces, and we have three of them"]]']},
         {"term": "decimal", "say":
             "A **decimal** is another way to write parts of a whole, using place value instead of two "
             "stacked numbers. The dot is called the decimal point, and everything to the right of it is "
@@ -383,7 +395,7 @@ FOUNDATIONS = {
             "same thing, and that works because you are really multiplying by one. Change only the top, "
             "or only the bottom, and you have changed the value, not just the look.",
          "board": ['[[write text="1/2  =  2/4  =  4/8"]]',
-                   '[[pie data="shaded:2, rest:2" caption="two fourths is one half"]]']},
+                   '[[pie parts="4" shaded="2" caption="two of the four equal pieces — count them, it is the same as one half"]]']},
         {"term": "common denominator", "say":
             "A **common denominator** means two fractions have been cut into pieces of the same size. You "
             "need one before you add or subtract fractions, and here is exactly why. One third plus one "
@@ -492,7 +504,7 @@ FOUNDATIONS = {
             "the bottom by the same number, or by dividing the top and the bottom by the same number. "
             "Both is the key word there. Change only the top and you have changed the amount, not just "
             "the way it looks.",
-         "board": ['[[pie data="ours:1, the rest:1" caption="1/2 = 2/4 = 4/8 — the same amount, cut differently"]]']},
+         "board": ['[[pie parts="8" shaded="4" caption="eight equal pieces with four shaded — the same amount as one half"]]']},
         {"term": "mixed number", "say":
             "A **mixed number** is a whole number and a fraction written side by side, like two and one "
             "third. It means exactly what it looks like. Two whole things, and one third of another one. "
@@ -839,7 +851,7 @@ FOUNDATIONS = {
             "and divide by the total number of outcomes. Rolling a four on a fair die is one out of six. "
             "Probability promises nothing about your next roll. One out of six is what settles out over a "
             "great many rolls, not a schedule.",
-         "board": ['[[pie data="rolling a 4:1, anything else:5" caption="P(4) = 1 out of 6"]]']},
+         "board": ['[[pie parts="6" shaded="1" caption="six equal faces, and exactly one of them is the 4"]]']},
     ],
     "algebra2": [
         {"term": "exponent", "say":

@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD em -- THE FRACTION PIE, GUARDED (PART 3x). The 2026-08-12 audit's
+#               one HIGH finding: a board captioned "one whole, cut into four equal
+#               parts" drew TWO wedges, and a beginner was then asked to count three
+#               shaded pieces that were never on screen. Verified in the renderer (one
+#               wedge per data entry, plus a percentage legend that hands over the
+#               answer) and traced to FIVE canonical foundation board lines. New
+#               equal-parts mode [[pie parts="N" shaded="K"]]; PART 3x pins it: the
+#               renderer must draw exactly N separated wedges with K filled, must print
+#               NO text at all (rule 6 -- a percentage on a fractions board answers the
+#               question the tutor is about to ask), must cap N so it stays countable,
+#               must leave the proportional mode intact for unequal categories, and NO
+#               authored pie board line may use the proportional form. Node renders the
+#               real SVG in the check -- this is measured, not asserted.
 #   2026-08-12  BUILD el -- RULE 61 (a generalization carries its condition), GUARDED,
 #               plus the AUTHORED-CONTENT guard that is the real enforcement here. The
 #               2026-08-12 audits caught five false universal claims across three
@@ -1571,7 +1584,9 @@ TAG_INLINE = {
 # a tag that draws a FIGURE needs at least one of these or it renders empty
 CONTENT_ATTRS = {
     "graph": {"func", "fn", "functions", "lines", "parabola", "parabolas", "points"},
-    "pie": {"data", "sectors"}, "bars": {"data"},
+    # build em: "parts" is the EQUAL-PARTS fraction form ([[pie parts="4" shaded="3"]]),
+    # which carries its content in parts/shaded rather than data/sectors.
+    "pie": {"data", "sectors", "parts"}, "bars": {"data"},
     "histogram": {"data", "values"}, "dotplot": {"data", "values"},
     "boxplot": {"data", "values", "five"}, "scatter": {"points"},
     "twoway": {"data"}, "tree": {"stage1", "stage2", "a", "b"},
@@ -5256,6 +5271,97 @@ def part3w_generalizations():
               "stay crisp")
 
 
+# =============================================================================
+# PART 3x -- A FRACTION PICTURE MUST BE COUNTABLE (build em, 2026-08-12)
+# =============================================================================
+# The audit's HIGH finding, and the most damaging kind of board bug: the picture and
+# its caption disagreed, in a lesson for a confused child. data="this piece:1, the
+# rest:3" draws ONE quarter-wedge and ONE three-quarter wedge -- so "cut into four
+# equal parts" was a lie, and the follow-up question ("how many pieces are shaded?")
+# could not be answered from the screen. It came from canonical foundation scripts.
+#
+# These checks RENDER THE REAL SVG with node rather than trusting the source, because
+# the whole failure was a gap between what a tag says and what it draws.
+def part3x_fraction_pie():
+    print("\nPART 3x — a fraction picture must be countable (the equal-parts pie)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    figs = os.path.join(here, "static", "math-figures.js")
+    try:
+        src = open(figs, encoding="utf-8").read()
+    except OSError as exc:
+        bad("math-figures.js readable", str(exc)); return
+
+    check("the equal-parts mode exists", 'parseInt(a.parts, 10)' in src,
+          '[[pie parts="4" shaded="3"]] is how a fraction picture is drawn now')
+    check("the proportional mode survives for unequal categories",
+          "parseData(a.data || a.sectors)" in src,
+          "spinners and surveys still need one wedge per category")
+
+    probe = r"""
+      global.window = global;
+      %s
+      function count(s, re) { return (s.match(re) || []).length; }
+      var r = {};
+      var p43 = MathFigures.pie({parts:"4", shaded:"3"});
+      r.wedges43   = count(p43, /<path /g);
+      r.filled43   = count(p43, /fill="#5b5bd6"/g);
+      r.pale43     = count(p43, /fill="#eef0f7"/g);
+      r.hasText43  = /<text/.test(p43);
+      r.separated  = count(p43, /stroke="#ffffff"/g);
+      var p61 = MathFigures.pie({parts:"6", shaded:"1"});
+      r.wedges61 = count(p61, /<path /g); r.filled61 = count(p61, /fill="#5b5bd6"/g);
+      var huge = MathFigures.pie({parts:"400", shaded:"1"});
+      r.hugeFellBack = !/stroke="#ffffff" stroke-width="2.5"/.test(huge);
+      var legacy = MathFigures.pie({data:"Red:3 | Blue:2 | Green:1"});
+      r.legacyWedges = count(legacy, /<path |<circle /g);
+      console.log(JSON.stringify(r));
+    """ % src
+    try:
+        import subprocess, json as _json, tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as fh:
+            fh.write(probe); path = fh.name
+        out = subprocess.run(["node", path], capture_output=True, text=True, timeout=60)
+        os.unlink(path)
+        r = _json.loads(out.stdout.strip().splitlines()[-1])
+    except Exception as exc:  # noqa: BLE001
+        skip("the equal-parts pie renders", f"node unavailable here: {exc}")
+        return
+
+    check("parts=4 shaded=3 draws FOUR wedges, not two",
+          r["wedges43"] == 4,
+          f'drew {r["wedges43"]} -- a child asked to count four equal parts must be '
+          f'looking at four of them')
+    check("  three of the four are filled and one is not",
+          r["filled43"] == 3 and r["pale43"] == 1,
+          f'filled={r["filled43"]} pale={r["pale43"]}')
+    check("  the wedges are separated so they can be counted",
+          r["separated"] >= 4, "without a stroke between them four quarters read as "
+                               "one shape")
+    check("parts=6 shaded=1 draws SIX wedges with one filled",
+          r["wedges61"] == 6 and r["filled61"] == 1, f'{r["wedges61"]}/{r["filled61"]}')
+    check("the equal-parts picture prints NO text at all (rule 6)",
+          not r["hasText43"],
+          "a percentage or a count on the board answers the very question the tutor is "
+          "about to ask -- the student must COUNT it")
+    check("an absurd parts= falls back instead of drawing confetti",
+          r["hugeFellBack"], "400 wedges is not a countable picture")
+    check("the proportional pie still renders for unequal categories",
+          r["legacyWedges"] > 0, "spinners and surveys must keep working")
+
+    # And the authored board lines that caused it.
+    import foundations as _f
+    offenders = []
+    for course in sorted(_f.FOUNDATIONS):
+        for script in _f.for_course(course):
+            for line in script.get("board", []):
+                if "[[pie" in line and "parts=" not in line:
+                    offenders.append(f'{course}/{script["term"]}')
+    check(f"no authored pie board line uses the proportional form ({len(offenders)} bad)",
+          not offenders,
+          f"{offenders} -- a canonical script is DRAWN verbatim; a fraction pie built "
+          f"from proportions is the bug this part exists for")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -5310,6 +5416,7 @@ def main():
     part3u_video_presence()
     part3v_course_identity()
     part3w_generalizations()
+    part3x_fraction_pie()
     if live:
         part4_live()
     else:

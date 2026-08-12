@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12em-countable-fractions". THE FRACTION PIE (the
+#               2026-08-12 audit's one HIGH finding; build stamp only in this file --
+#               the work is in static/math-figures.js, foundations.py, prompts.py and
+#               ruletests.py). A board captioned "one whole, cut into four equal parts"
+#               drew TWO wedges (a quarter and a three-quarter lump) and printed "the
+#               rest 75%" beside a picture teaching one fourth -- then the lesson asked
+#               a beginner "how many pieces are shaded?" over ONE shaded wedge and the
+#               student answered "3", which they cannot have counted. Traced to FIVE
+#               canonical foundation board lines, not a live slip. NEW equal-parts mode
+#               [[pie parts="4" shaded="3"]]: N separated countable wedges, K filled,
+#               capped at 12, and printing NO text at all -- because a percentage on a
+#               fractions board answers the question the tutor is about to ask (rule 6).
+#               The proportional data= form is untouched and still correct for unequal
+#               categories (spinners, surveys). Guarded by PART 3x, which renders the
+#               real SVG with node and counts the wedges rather than trusting the
+#               source, and which fails if any authored board line ever goes back.
 #   2026-08-12  APP_BUILD -> "2026-08-12el-generalizations". NEW RULE 61: A
 #               GENERALIZATION CARRIES ITS CONDITION (build stamp only in this file;
 #               the work is in prompts.py, foundations.py and ruletests.py). From the
@@ -6173,7 +6189,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12el-generalizations"
+APP_BUILD = "2026-08-12em-countable-fractions"
 
 
 @app.get("/health")
