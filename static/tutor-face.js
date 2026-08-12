@@ -2,6 +2,17 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build ep) THE REAL FOOTAGE LANDS, AND A CLIP BECOMES A LIST OF
+                 ENCODINGS. Jim's four HeyGen loops are in, so the layer is live rather
+                 than phase-dark. One change to the machinery: presenceShow() now builds
+                 <source> children (webm/VP9 first, then mp4/H.264) instead of setting a
+                 single .src, so the BROWSER picks the encoding it can actually decode.
+                 That covers Safari/iOS (H.264 only) and equally a Chromium build with no
+                 proprietary codecs -- which is exactly how this was caught: the real
+                 mp4s tore down to the robot in a headless test that could not decode
+                 H.264. A manifest entry may still be a plain string, so nothing older
+                 breaks. The video's own error (all sources failed) still tears down to
+                 the robot; a single missing encoding does not.
      2026-08-12  (build ej) THE VIDEO PRESENCE LAYER -- Mr. Cadabra's real face, robot as
                  fallback (Jim: "I don't like the robot... I think it's fine to have Mr.
                  Cadabra in every instance"). This file now carries BOTH faces:
@@ -275,7 +286,9 @@
       if (m.poster) v.poster = P.base + m.poster;
       v.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" +
                         "transition:opacity .35s ease;opacity:0;";
-      v.onerror = function () { presenceTeardown(); };   // ANY media failure -> robot
+      // The video's own error fires only after EVERY <source> has failed, which is the
+      // semantics we want: one missing encoding is fine, no playable encoding is not.
+      v.onerror = function () { presenceTeardown(); };   // no playable media -> robot
       host.appendChild(v);
       return v;
     }
@@ -301,7 +314,21 @@
     var back = 1 - P.front;
     var v = P.vids[back], old = P.vids[P.front];
     v.loop = !isOneshot;
-    v.src = P.base + file;
+    // build ep: a clip is a LIST of encodings, best-supported first (webm/VP9 then
+    // mp4/H.264). Letting the browser choose with <source> children -- rather than
+    // setting .src to one file -- is what makes this work everywhere from Safari/iOS
+    // (H.264 only) to a headless Chromium build with no proprietary codecs. A string
+    // is still accepted so an older manifest keeps working.
+    var files = (typeof file === "string") ? [file] : file;
+    while (v.firstChild) v.removeChild(v.firstChild);
+    for (var fi = 0; fi < files.length; fi++) {
+      var srcEl = document.createElement("source");
+      srcEl.src = P.base + files[fi];
+      if (/\.webm$/i.test(files[fi])) srcEl.type = "video/webm";
+      else if (/\.mp4$/i.test(files[fi])) srcEl.type = "video/mp4";
+      v.appendChild(srcEl);
+    }
+    v.load();
     var settled = false;
     v.oncanplay = function () {
       if (settled) return; settled = true;

@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "built": "2026-08-12",
+  "note": "Mr. Cadabra's presence loops (build ep). Muted, decorative, NEVER lip-synced -- his real voice does the talking (rule 60). Each clip lists its encodings best-supported-first; the browser picks.",
+  "loops": {
+    "idle":      ["cadabra_idle.webm", "cadabra_idle.mp4"],
+    "listening": ["cadabra_listening.webm", "cadabra_listening.mp4"],
+    "thinking":  ["cadabra_thinking.webm", "cadabra_thinking.mp4"]
+  },
+  "oneshots": {
+    "happy": ["cadabra_thumbs_up.webm", "cadabra_thumbs_up.mp4"]
+  },
+  "poster": "cadabra_poster.jpg"
+}

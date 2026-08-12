@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ep-cadabra-is-here". THE ROBOT IS RETIRED --
+#               Mr. Cadabra's real face is live in the corner of every teaching page
+#               (build stamp only here; the work is in static/tutor-face.js, the new
+#               static/videos/cadabra/ assets, and ruletests PART 3u). Jim generated
+#               the four presence loops in HeyGen from the near-silent audio kit; they
+#               came back 1080x1920 portrait and were cropped to the circular slot,
+#               loop-sealed with a 1-second crossfade, and encoded twice: 105 MB of raw
+#               footage became 368 KB of web assets. ONE MACHINERY CHANGE: a manifest
+#               clip is now a LIST of encodings (webm/VP9 then mp4/H.264) rendered as
+#               <source> children so the BROWSER picks what it can decode -- which is
+#               how this was caught, the mp4s tearing down to the robot in a headless
+#               test with no proprietary codecs. Verified live against the real app:
+#               presence mounts and PLAYS, all five moods map correctly (speaking still
+#               deliberately shows the idle loop -- his voice talks, the face never
+#               fakes a mouth), reduced-motion gets the still poster, and any media
+#               failure still lands on the robot underneath.
 #   2026-08-12  APP_BUILD -> "2026-08-12en-diagnosis-and-symbols". THE LAST TWO AUDIT
 #               ITEMS (build stamp only here; the work is in prompts.py, notation.py
 #               and ruletests.py). (1) RULE 49 GAINS (f): when a student NAMES their
@@ -6205,7 +6221,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12en-diagnosis-and-symbols"
+APP_BUILD = "2026-08-12ep-cadabra-is-here"
 
 
 @app.get("/health")

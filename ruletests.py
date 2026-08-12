@@ -5087,8 +5087,12 @@ def part3u_video_presence():
                   isinstance(man, dict) and man.get("loops", {}).get("idle"),
                   "a manifest without an idle loop mounts a black circle")
             vdir = os.path.dirname(man_path)
-            names = list((man.get("loops") or {}).values()) \
-                  + list((man.get("oneshots") or {}).values()) \
+            # build ep: a clip is a LIST of encodings (webm then mp4) so the browser can
+            # pick; a bare string is still accepted for older manifests.
+            def _files(v):
+                return [v] if isinstance(v, str) else list(v)
+            names = [f for v in (man.get("loops") or {}).values() for f in _files(v)] \
+                  + [f for v in (man.get("oneshots") or {}).values() for f in _files(v)] \
                   + ([man["poster"]] if man.get("poster") else [])
             missing = [n for n in names if not os.path.exists(os.path.join(vdir, n))]
             check("every file the manifest names exists", not missing,
