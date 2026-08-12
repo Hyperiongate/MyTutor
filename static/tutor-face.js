@@ -2,6 +2,15 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build er) THE THUMBS-UP GETS A DOORBELL. Jim, looking at the live site:
+                 "all I'm seeing is a little circle... nothing else." He was right, and
+                 the reason was concrete: the teaching pages' setState only ever holds
+                 speaking / listening / thinking / idle, so mood "happy" was NEVER passed
+                 in and the thumbs-up clip he had generated could not play at all. New
+                 public TutorFace.celebrate() fires that one-shot directly, without
+                 touching the page's `state` -- the busy glow, the thinking flag and the
+                 level meter all stay exactly as they were. The pages call it when the
+                 tutor MARKS a correct answer, which is the moment a child earns it.
      2026-08-12  (build ep) THE REAL FOOTAGE LANDS, AND A CLIP BECOMES A LIST OF
                  ENCODINGS. Jim's four HeyGen loops are in, so the layer is live rather
                  than phase-dark. One change to the machinery: presenceShow() now builds
@@ -376,7 +385,22 @@
     try { presenceTick(ctx.canvas, (opts && opts.mood) || "idle"); } catch (e) {}
   }
 
-  window.TutorFace = { draw: drawWithPresence, moodFrom: moodFrom,
+  // BUILD er (2026-08-12) -- THE THUMBS-UP HAD NO TRIGGER. The pages' state machine only
+  // ever holds speaking / listening / thinking / idle (session.html setState), so
+  // mood "happy" was never once passed in and the one-shot Jim generated could not play
+  // in a real lesson. celebrate() is the missing doorbell: it fires the one-shot
+  // DIRECTLY, without touching `state`, so the page's audio/turn logic -- the busy glow,
+  // the thinking flag, the level meter -- is completely undisturbed. Safe to call when
+  // there is no video presence at all: it simply does nothing and the robot carries on.
+  function celebrate() {
+    try {
+      if (P.state !== "active" || P.reduced) return false;
+      presenceShow("happy", true);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  window.TutorFace = { draw: drawWithPresence, moodFrom: moodFrom, celebrate: celebrate,
                        presenceActive: function () { return P.state === "active"; } };
 })();
 /* I did no harm and this file is not truncated. */

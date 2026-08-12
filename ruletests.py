@@ -5104,6 +5104,25 @@ def part3u_video_presence():
             check(f"{page} still includes tutor-face.js", "tutor-face.js" in fh.read(),
                   "the page would lose both faces at once")
 
+    # BUILD er: THE THUMBS-UP MUST HAVE A DOORBELL. It was generated, shipped, listed in
+    # the manifest -- and unreachable, because the pages' setState only ever holds
+    # speaking/listening/thinking/idle and "happy" was never passed in. A clip nothing
+    # can trigger is a clip that does not exist.
+    check("the presence exposes a celebrate() one-shot", "function celebrate" in tf
+          and "celebrate: celebrate" in tf,
+          "mood 'happy' is never set by any page, so the thumbs-up needs its own door")
+    check("  celebrate() does NOT touch the page's state machine",
+          "presenceShow(\"happy\", true)" in tf,
+          "hijacking `state` would disturb the busy glow, the thinking flag and the "
+          "level meter, which all read it")
+    for page in ("session.html", "practice.html", "topic.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            src = fh.read()
+        check(f"  {page} rings it when a correct answer is marked",
+              "TutorFace.celebrate()" in src and 'name === "mark"' in src,
+              "a right answer is the moment the thumbs-up is FOR; without this call the "
+              "clip can never play in a real lesson")
+
     # The manifest is validated the day it exists; until then its absence is correct.
     man_path = os.path.join(here, "static", "videos", "cadabra", "presence.json")
     if os.path.exists(man_path):

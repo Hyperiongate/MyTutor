@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12er-thumbs-up-works". THE THUMBS-UP HAD NO
+#               TRIGGER (build stamp only here; the work is in static/tutor-face.js and
+#               the three teaching pages). Jim, looking at the deployed site: "all I'm
+#               seeing is a little circle ahead of Mister instead of the robot. Nothing
+#               else." He was right, and the reason was concrete: the pages' setState
+#               only ever holds speaking / listening / thinking / idle, so mood "happy"
+#               was never once passed to the presence layer and the thumbs-up clip --
+#               generated, shipped, listed in the manifest -- could not play in a real
+#               lesson. A clip nothing can trigger is a clip that does not exist. NEW
+#               TutorFace.celebrate() fires that one-shot directly WITHOUT touching
+#               `state`, so the busy glow, the thinking flag and the level meter (which
+#               all read it) are undisturbed; session/practice/topic ring it the moment
+#               the tutor MARKS a correct answer. Verified live: idle -> thumbs-up ->
+#               back to idle, no page errors. Guarded in PART 3u so the doorbell cannot
+#               be removed without failing the build.
 #   2026-08-12  APP_BUILD -> "2026-08-12eq-reply-integrity". TWO MECHANICAL GUARDS from
 #               the 2026-08-12 audits (build stamp only here; the work is in tutor.py
 #               and ruletests.py PART 3z). (1) NEW malformed_tag_conflict, running
@@ -6236,7 +6251,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12eq-reply-integrity"
+APP_BUILD = "2026-08-12er-thumbs-up-works"
 
 
 @app.get("/health")
