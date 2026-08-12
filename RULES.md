@@ -4,7 +4,7 @@ _Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand
 every line below is read out of the prompt the tutor is actually given, so this
 file cannot drift away from what the classroom really does._
 
-**55 rules.** Every one was written because something went wrong in a real
+**60 rules.** Every one was written because something went wrong in a real
 lesson, and almost all of them were noticed by Jim before they were noticed by a
 machine. The right-hand column is how much better we have got at that.
 
@@ -12,7 +12,7 @@ machine. The right-hand column is how much better we have got at that.
 |---|---|---|
 | **ENFORCED** | 18 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 26 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 31 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -236,6 +236,26 @@ machine. The right-hand column is how much better we have got at that.
 ### 55. A MISSED QUIZ PROBLEM COMES BACK -- ONCE, FRESH, AND KINDLY
 
 **COVERED** — missed-problem memory (build dt): the tag->store->mastery-note pipeline is proven end-to-end in the dt block (PART 3n) -- the wording halves (tag emission, one-fresh-revisit) are prompt-covered; candidate for EXERCISED via a future audit scenario
+
+### 56. FIND THE ERROR: A WRONG SOLUTION, CLEARLY LABELED, IS A PROBLEM TYPE OF ITS OWN
+
+**COVERED** — find the error (build ee; WWC g20 r1): PART 3t pins the three safety anchors (announced game, catalogued mistake, wrong work never stays) and the incomplete-solution cousin; the teaching behaviour itself is prompt-covered -- candidate for a --live scenario once the misconception catalogue can seed one
+
+### 57. TEACH THE STUDENT TO CHECK THEMSELVES
+
+**COVERED** — self-monitoring prompts (build ee; WWC g16 r2, EEF r5): PART 3t pins the before/during/after questions and the one-at-a-time guard; candidate for EXERCISED via a lessonaudit scenario
+
+### 58. TWO WAYS, ONE BOARD, THEN "WHICH WOULD YOU CHOOSE?"
+
+**COVERED** — two ways, one board (build ee; WWC g16 r4 + g20 r3): PART 3t pins same-problem-same-board, the comparison questions, and respect for the student's choice (rule 23 tie-in)
+
+### 59. A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD -- CHECK THE METHOD TOO
+
+**COVERED** — right answer, wrong method (build ee; MAA IPG): PART 3t pins accept-the-answer-first (rule 45 untouched), the how-did-you-get-that ask, and the one-case-where-it-breaks move
+
+### 60. POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON: THE BOARD SPOTLIGHT
+
+**COVERED** — the board spotlight (build ee): the MECHANISM is machine-checked -- PART 3t asserts all three teaching pages implement spotlightBoard with the line+board keys, the .stepglow CSS, and a turn-start clear -- and the when-to-use half (one per reply, words still say the where) is prompt-covered
 
 ---
 

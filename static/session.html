@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    (ee) 2026-08-12 -- THE BOARD SPOTLIGHT (teaching upgrade, rule 60 / signaling).
+    The [[highlight]] tag could only glow page furniture (tour stops: buttons, bars,
+    panels) -- never the one place a student's eyes matter most while teaching: the
+    board. Now two board keys work everywhere the tutor teaches:
+      [[highlight id="line"]]  -> the NEWEST line of board work glows for ~6 seconds
+      [[highlight id="board"]] -> the whole board glows
+    Implementation: spotlightBoard() runs FIRST in the tag dispatcher; page-tour ids
+    still fall through to highlightEl() unchanged. The glow is a CUE, not a state --
+    it self-clears on a timer, a new spotlight replaces the old, and the start of the
+    next tutor turn clears it too (clearHighlight). Styling is .stepglow, a calmer
+    cousin of .tourglow (no bouncing "look here" tag -- the tutor's words do that
+    job); the global prefers-reduced-motion rule (dz) stills its pulse automatically.
+    Same-build: practice.html + topic.html gain the same two keys; prompts.py rule 60
+    teaches when to use it (at most one per reply; words still say the where).
+
     (dz) 2026-08-11 -- ACCESSIBILITY + PHONE PASS (Four-Lens student items 5 and 8).
     A voice-first tutor should be the accessible one, and it wasn't: ONE aria attribute
     on the whole page. Now: the transcription readout and the your-turn hint are polite
@@ -959,6 +974,13 @@
     /* Tour highlight (Mr. Cadabra walking through the page) */
     .tourglow { border-radius: 12px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px rgba(91,91,214,.22);
       animation: tourpulse 1.3s ease-in-out infinite; position: relative; z-index: 5; }
+    /* BOARD SPOTLIGHT (build ee, rule 60): [[highlight id="line"|"board"]] glows board
+       work while teaching. A calmer tourglow -- no bounce tag, self-clears on a timer
+       (see spotlightBoard). The dz reduced-motion rule stills the pulse automatically. */
+    .stepglow { border-radius: 10px; box-shadow: 0 0 0 3px var(--accent), 0 0 18px 5px rgba(91,91,214,.30);
+      animation: stepglowpulse 1.2s ease-in-out infinite; position: relative; z-index: 4; }
+    @keyframes stepglowpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 14px 4px rgba(91,91,214,.20); }
+      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 24px 8px rgba(91,91,214,.40); } }
     #tourTag { position: fixed; z-index: 70; display: none; pointer-events: none;
       background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff;
       font-weight: 800; font-size: 13px; border-radius: 999px; padding: 6px 14px;
@@ -2012,6 +2034,7 @@
     // student couldn't see him glowing for the rest of the walk.
     let tourOpenedCurriculum = false;
     function clearHighlight() {
+      clearSpot();   // build ee: a stale board spotlight never survives into a new turn
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
       const tag = document.getElementById("tourTag");
       if (tag) tag.style.display = "none";
@@ -2023,6 +2046,40 @@
       // for the whole tour and is REPLACED by the real bars when the lesson fills them
       // (see showBarsPreview). Clearing it per-stop was why Jim saw only the course bar.
     }
+    // ---------- BOARD SPOTLIGHT (build ee, rule 60 / signaling) ----------
+    // [[highlight id="line"]] glows the newest line of board work; [[highlight
+    // id="board"]] glows the whole board. Returns true when it HANDLED a board key
+    // (so the dispatcher doesn't also run the page tour), false when the id belongs
+    // to the tour (highlightEl's territory, unchanged). The glow is a CUE, not a
+    // state: it self-clears after SPOT_MS, a new spotlight replaces the old one, and
+    // clearHighlight (start of every tutor turn) clears it too.
+    const SPOT_MS = 6000;
+    let spotTimer = null;
+    function clearSpot() {
+      if (spotTimer) { clearTimeout(spotTimer); spotTimer = null; }
+      document.querySelectorAll(".stepglow").forEach(n => n.classList.remove("stepglow"));
+    }
+    function spotlightBoard(id) {
+      const key = String(id || "").toLowerCase();
+      let target = null;
+      if (key === "line" || key === "step" || key === "last") {
+        // the newest piece of board WORK this problem: equation rows, check rows,
+        // captions -- whichever was appended last. An empty board falls back to the
+        // board itself so the cue never silently vanishes.
+        const rows = feed.querySelectorAll(".worklist .wrow, .worklist .wcheck, .worklist .wcap");
+        target = rows.length ? rows[rows.length - 1] : feed;
+      } else if (key === "board") {
+        target = feed;
+      } else {
+        return false;                      // not a board key -- the page tour owns it
+      }
+      clearSpot();
+      target.classList.add("stepglow");
+      try { target.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
+      spotTimer = setTimeout(clearSpot, SPOT_MS);
+      return true;
+    }
+
     function highlightEl(id) {
       clearHighlight();
       const key = String(id || "").toLowerCase();
@@ -2171,7 +2228,7 @@
         else if (name === "graph") showFig("graph", attrs);
         else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector"].indexOf(name) >= 0) showFig(name, attrs);
         else if (name === "machine") showMachine(attrs);
-        else if (name === "highlight" && attrs.id) highlightEl(attrs.id);
+        else if (name === "highlight" && attrs.id) { if (!spotlightBoard(attrs.id)) highlightEl(attrs.id); }   // build ee: board keys first, tour ids unchanged
         else if (name === "step") showStep(attrs);
         else if (name === "column") showColumn(attrs);
         else if (name === "write") showWrite(attrs);

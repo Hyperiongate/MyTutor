@@ -2,6 +2,24 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ee -- THE FIVE TEACHING UPGRADES, GUARDED (rules 56-60 join the
+#               shared block; claude/Teaching_Evidence_Base_2026-08-10.md is the
+#               source). NEW PART 3t: each rule's headline + load-bearing phrases must
+#               be present in GRAPH_TOOL_NOTE exactly ONCE (shared, never per-course);
+#               rule 56 must keep its three safety anchors (the announced game, the
+#               catalogued mistake, THE WRONG WORK NEVER STAYS); rule 60's two board
+#               keys must be documented; and all THREE teaching pages (session,
+#               practice, topic) must implement the board spotlight -- spotlightBoard()
+#               with the line+board keys, the .stepglow CSS with its pulse, a
+#               turn-start clear, and (session) the tour fallthrough so page-tour ids
+#               still reach highlightEl. COVERAGE gains five needles so rules 56-60
+#               are proven to reach all ten courses. THE CEILING: 150,000 -> 160,000.
+#               That number was always a tripwire, not a measurement (see the PART 3h
+#               essay); Jim's standing decision (2026-08-11, recorded in
+#               Four_Lens_Review: "if you need to raise it, you raise it") authorizes
+#               raising it when a teaching upgrade needs the space. This build spends
+#               ~8.2k shared characters on five evidence-backed rules -- exactly the
+#               trade the decision anticipated. Largest prompt measured 156,515 after.
 #   2026-08-12  BUILD ed -- READ-BY-CODE THROTTLE (F1), GUARDED: every GET-by-code data
 #               endpoint (session, records, misses, awards, time, topics, assessment,
 #               placement, courses, sprints, sprint) must front its work with
@@ -680,6 +698,12 @@ COVERAGE = [
     ("speech: number words",            "NUMBERS ARE SPOKEN THE WAY PEOPLE SAY THEM"),
     ("speech: spoken answers count",    "NUMBERS SPOKEN AS WORDS ARE EXACT ANSWERS"),
     ("progress: today bar every session", "THIS INCLUDES RESUMED SESSIONS"),
+    # build ee (2026-08-12): the five teaching upgrades reach every course
+    ("rule 56 find the error",           "FIND THE ERROR: A WRONG SOLUTION, CLEARLY LABELED"),
+    ("rule 57 self-monitoring",          "TEACH THE STUDENT TO CHECK THEMSELVES"),
+    ("rule 58 two ways, one board",      'TWO WAYS, ONE BOARD, THEN "WHICH WOULD YOU CHOOSE?"'),
+    ("rule 59 right answer, wrong method", "A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD"),
+    ("rule 60 the board spotlight",      "POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON"),
 ]
 
 
@@ -1886,7 +1910,10 @@ def part3e_page_parity():
     # and nothing in the shared block ever asks him to emit those there. The named list
     # below is the whole allowance; a new session-only tag has to be added here on
     # purpose, and a shared-block tag can never quietly go missing from a page.)
-    LESSON_ONLY = {"today", "todaydone", "unitplan", "goal", "finalexam", "highlight"}
+    # 2026-08-12 (build ee): "highlight" LEFT this list on purpose -- rule 60 teaches
+    # it in the shared block now, and all three pages draw it (the board spotlight;
+    # PART 3t proves the implementation). Five lesson-only tags remain.
+    LESSON_ONLY = {"today", "todaydone", "unitplan", "goal", "finalexam"}
     tags = {}
     for p in PAGES:
         try:
@@ -2144,7 +2171,13 @@ def part3g_misconceptions():
     # independent model mark them against every rule. Run it at two prompt sizes and set
     # this number from evidence. Until then 150,000 is a tripwire, not a licence: it is
     # still an early warning that someone should look, not permission to sprawl.
-    CEILING = 150_000
+    # 2026-08-12 (build ee): RAISED 150,000 -> 160,000 for rules 56-60, the five
+    # evidence-backed teaching upgrades (~8.2k shared characters; largest prompt now
+    # 156,515). Authorized by Jim's standing decision (2026-08-11, Four_Lens_Review:
+    # "if you need to raise it, you raise it" -- each raise gets its own change note;
+    # this is that note). Still a tripwire: the lessonaudit two-sizes measurement is
+    # still the right way to set this number from evidence someday.
+    CEILING = 160_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
     # THE BUDGET, not just the total. A single number tells you that you are over and
@@ -2348,6 +2381,25 @@ RULE_VERIFY = {
                       "pipeline is proven end-to-end in the dt block (PART 3n) -- the "
                       "wording halves (tag emission, one-fresh-revisit) are prompt-"
                       "covered; candidate for EXERCISED via a future audit scenario"),
+    56: ("COVERED",   "find the error (build ee; WWC g20 r1): PART 3t pins the three "
+                      "safety anchors (announced game, catalogued mistake, wrong work "
+                      "never stays) and the incomplete-solution cousin; the teaching "
+                      "behaviour itself is prompt-covered -- candidate for a --live "
+                      "scenario once the misconception catalogue can seed one"),
+    57: ("COVERED",   "self-monitoring prompts (build ee; WWC g16 r2, EEF r5): PART 3t "
+                      "pins the before/during/after questions and the one-at-a-time "
+                      "guard; candidate for EXERCISED via a lessonaudit scenario"),
+    58: ("COVERED",   "two ways, one board (build ee; WWC g16 r4 + g20 r3): PART 3t "
+                      "pins same-problem-same-board, the comparison questions, and "
+                      "respect for the student's choice (rule 23 tie-in)"),
+    59: ("COVERED",   "right answer, wrong method (build ee; MAA IPG): PART 3t pins "
+                      "accept-the-answer-first (rule 45 untouched), the how-did-you-"
+                      "get-that ask, and the one-case-where-it-breaks move"),
+    60: ("COVERED",   "the board spotlight (build ee): the MECHANISM is machine-checked "
+                      "-- PART 3t asserts all three teaching pages implement "
+                      "spotlightBoard with the line+board keys, the .stepglow CSS, and "
+                      "a turn-start clear -- and the when-to-use half (one per reply, "
+                      "words still say the where) is prompt-covered"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -4596,6 +4648,124 @@ def part3s_backups():
               "the runbook/tool must ship with the code")
 
 
+# =============================================================================
+# PART 3t -- THE FIVE TEACHING UPGRADES (build ee, 2026-08-12)
+# =============================================================================
+# Rules 56-60 are the prompt-lane queue from the evidence-base work
+# (claude/Teaching_Evidence_Base_2026-08-10.md): find-the-error (WWC g20 r1),
+# self-monitoring (WWC g16 r2 + EEF r5), two-ways-one-board (WWC g16 r4 + g20 r3),
+# right-answer-wrong-method (MAA IPG), and the board spotlight (signaling).
+# WHAT THIS PART PROVES:
+#   (a) each rule lives in the SHARED block exactly once -- never copied per course
+#       (the bk lesson: a rule pasted into one of eleven templates reached one course);
+#   (b) each rule keeps its load-bearing phrases -- the anchors a future edit must not
+#       quietly drop (rule 56's safety frame most of all: wrong work is ANNOUNCED as a
+#       game, sourced from the CATALOGUE, and NEVER STAYS on the board);
+#   (c) the spotlight is not just words: all THREE teaching pages implement it -- the
+#       spotlightBoard function with both board keys, the .stepglow CSS and its pulse,
+#       a turn-start clear -- and session.html still falls through to the page tour
+#       (highlightEl) for non-board ids, so the opening walk-through is unharmed.
+def part3t_teaching_upgrades():
+    print("\nPART 3t — the five teaching upgrades (rules 56-60, build ee)")
+    note = tutor.GRAPH_TOOL_NOTE
+    built = tutor.build_system_prompt(dict(STUDENT), course="algebra1")
+
+    headlines = {
+        56: "FIND THE ERROR: A WRONG SOLUTION, CLEARLY LABELED",
+        57: "TEACH THE STUDENT TO CHECK THEMSELVES",
+        58: 'TWO WAYS, ONE BOARD, THEN "WHICH WOULD YOU CHOOSE?"',
+        59: "A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD",
+        60: "POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON",
+    }
+    for n, h in sorted(headlines.items()):
+        check(f"rule {n} lives in the shared block exactly once", note.count(h) == 1,
+              f"count in GRAPH_TOOL_NOTE = {note.count(h)} -- shared rules go in once, "
+              f"never per course")
+        check(f"rule {n} reaches a built prompt exactly once", built.count(h) == 1,
+              f"count in the built algebra1 prompt = {built.count(h)} -- a duplicate "
+              f"means it leaked into a course template too")
+
+    anchors = {
+        56: [("the game is ANNOUNCED on the board itself",
+              '[[step eq="Detective time: find the mistake!"]]'),
+             ("the mistake comes from the CATALOGUE, not thin air",
+              "misconception catalogue below the rules"),
+             ("the wrong work NEVER stays on the board",
+              "THE WRONG WORK NEVER STAYS"),
+             ("the incomplete-solution cousin is offered",
+              "an INCOMPLETE solution")],
+        57: [("the before-question is the panel's",
+              "what is this problem asking, in your own words?"),
+             ("the after-question is the panel's",
+              "does the answer make sense for the story?"),
+             ("one question at a time, never a checklist",
+              "ONE at a time, at a natural moment")],
+        58: [("same problem, same board",
+              "applied to the SAME problem, on the SAME board"),
+             ("the where-do-they-meet question",
+              "where do the two ways"),
+             ("the which-would-you-choose question",
+              "which would YOU pick"),
+             ("the student's chosen method is respected after",
+              "RESPECTED in the")],
+        59: [("the right answer is accepted FIRST",
+              "accept the answer FIRST"),
+             ("the ask is how-did-you-get-that",
+              "out of curiosity, not suspicion"),
+             ("the method is broken with its own failure case",
+              "WHEN would it stop working?"),
+             ("the tally is never touched by method work",
+              "rule 45 is untouched")],
+        60: [("the line key is documented",
+              '[[highlight id="line"]]'),
+             ("the board key is documented",
+              '[[highlight id="board"]]'),
+             ("one spotlight per reply, at most",
+              "AT MOST ONE spotlight")],
+    }
+    for n, pairs in sorted(anchors.items()):
+        for label, needle in pairs:
+            check(f"  rule {n}: {label}", needle in note,
+                  f"the phrase {needle!r} left the shared block -- restore it or "
+                  f"update this anchor ON PURPOSE")
+
+    # (c) the spotlight mechanism, on every page a student is taught on
+    here = os.path.dirname(os.path.abspath(__file__))
+    for page in ("session.html", "practice.html", "topic.html"):
+        path = os.path.join(here, "static", page)
+        try:
+            with open(path, encoding="utf-8") as fh:
+                src = fh.read()
+        except OSError as exc:
+            bad(f"{page}: readable", str(exc))
+            continue
+        check(f"{page}: spotlightBoard exists", "function spotlightBoard" in src,
+              "the board spotlight function is gone")
+        check(f"{page}: handles the line key", 'key === "line"' in src,
+              '[[highlight id="line"]] would silently no-op')
+        check(f"{page}: handles the board key", 'key === "board"' in src,
+              '[[highlight id="board"]] would silently no-op')
+        check(f"{page}: .stepglow style present", ".stepglow {" in src,
+              "the glow class has no styling -- an invisible cue")
+        check(f"{page}: the glow pulses", "stepglowpulse" in src,
+              "the pulse animation is gone (reduced-motion users get the still "
+              "glow via the dz rule; everyone else should see it breathe)")
+        check(f"{page}: a stale spotlight is cleared at turn start",
+              src.count("clearSpot()") >= 2,
+              "clearSpot must be CALLED (not just defined) so a glow never outlives "
+              "its moment")
+        check(f"{page}: reduced-motion rule still present",
+              "prefers-reduced-motion" in src,
+              "the dz accessibility rule must survive this build")
+    # session only: the opening tour must still work for non-board ids
+    with open(os.path.join(here, "static", "session.html"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    check("session.html: page-tour ids still fall through to highlightEl",
+          "if (!spotlightBoard(attrs.id)) highlightEl(attrs.id)" in ssrc,
+          "board keys must be tried FIRST and everything else must still reach the "
+          "tour -- otherwise the opening walk-through breaks")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -4646,6 +4816,7 @@ def main():
     part3q_reliability()
     part3r_batch_d_figures()
     part3s_backups()
+    part3t_teaching_upgrades()
     if live:
         part4_live()
     else:

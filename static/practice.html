@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (ee) 2026-08-12 -- THE BOARD SPOTLIGHT, same as session.html (rule 60 / signaling):
+    the [[highlight]] tag gains two board keys here -- id="line" glows the NEWEST line
+    of board work for ~6 seconds, id="board" glows the whole board. spotlightBoard()
+    handles them in the tag dispatcher (this page has no opening tour, so those are
+    the only highlight keys it acts on); the glow self-clears on a timer, a new turn
+    clears it too (handleTags), and the dz reduced-motion rule stills its pulse.
     (dz) 2026-08-11 -- ACCESSIBILITY + PHONE PASS, same as session.html: live regions
     on the transcription readout + hint, spoken name on the mic, reduced-motion
     support, and the phone DOCK layout (board first, rail stuck to the bottom).
@@ -433,6 +439,13 @@
     /* ---- Persistent WORKLIST board: a running column that STACKS and STAYS ---- */
     .worklist { width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center;
       gap:2px; max-height:100%; overflow-y:auto; }
+    /* BOARD SPOTLIGHT (build ee, rule 60): [[highlight id="line"|"board"]] glows board
+       work while teaching -- self-clears on a timer (see spotlightBoard); the dz
+       reduced-motion rule stills the pulse automatically. */
+    .stepglow { border-radius: 10px; box-shadow: 0 0 0 3px var(--accent), 0 0 18px 5px rgba(91,91,214,.30);
+      animation: stepglowpulse 1.2s ease-in-out infinite; position: relative; z-index: 4; }
+    @keyframes stepglowpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 14px 4px rgba(91,91,214,.20); }
+      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 24px 8px rgba(91,91,214,.40); } }
     .worklist .wrow { display:grid; grid-template-columns:1fr auto 1fr; align-items:baseline; column-gap:14px;
       width:100%; max-width:520px; font-size:33px; font-weight:800; color:var(--ink); line-height:1.2;
       margin:2px 0; opacity:0; animation: stepin .45s ease forwards; }
@@ -1111,6 +1124,7 @@
 
     function handleTags(text) {
       clearChoices();                            // stale answer buttons never survive a new turn
+      clearSpot();                               // build ee: a stale board spotlight never survives a new turn either
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
@@ -1121,6 +1135,7 @@
         else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector"].indexOf(name) >= 0) showFig(name, attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "step") showStep(attrs);
+        else if (name === "highlight" && attrs.id) spotlightBoard(attrs.id);   // build ee: board spotlight (rule 60)
         else if (name === "column") showColumn(attrs);
         else if (name === "write") showWrite(attrs);
         else if (name === "solve") showSolve(attrs);
@@ -1379,6 +1394,39 @@
     // the previous one, so the whole worked solution builds up. Nothing replaces earlier
     // lines -- only [[clear]] wipes it. Equation rows use a 3-column grid (left | = |
     // right) so a both-sides operation lines up under each side, like working on paper.
+    // ---------- BOARD SPOTLIGHT (build ee, rule 60 / signaling) ----------
+    // [[highlight id="line"]] glows the newest line of board work; [[highlight
+    // id="board"]] glows the whole board. This page has no opening tour, so these
+    // are the only highlight keys acted on here (any other id is ignored). The glow
+    // is a CUE, not a state: it self-clears after SPOT_MS, a new spotlight replaces
+    // the old one, and the start of every tutor turn clears it too (handleTags).
+    const SPOT_MS = 6000;
+    let spotTimer = null;
+    function clearSpot() {
+      if (spotTimer) { clearTimeout(spotTimer); spotTimer = null; }
+      document.querySelectorAll(".stepglow").forEach(n => n.classList.remove("stepglow"));
+    }
+    function spotlightBoard(id) {
+      const key = String(id || "").toLowerCase();
+      let target = null;
+      if (key === "line" || key === "step" || key === "last") {
+        // the newest piece of board WORK: equation rows, check rows, captions --
+        // whichever was appended last. An empty board falls back to the board itself
+        // so the cue never silently vanishes.
+        const rows = feed.querySelectorAll(".worklist .wrow, .worklist .wcheck, .worklist .wcap");
+        target = rows.length ? rows[rows.length - 1] : feed;
+      } else if (key === "board") {
+        target = feed;
+      } else {
+        return false;                      // not a board key -- ignored on this page
+      }
+      clearSpot();
+      target.classList.add("stepglow");
+      try { target.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
+      spotTimer = setTimeout(clearSpot, SPOT_MS);
+      return true;
+    }
+
     function getWorklist() {
       if (!curWork) {
         clearHint();

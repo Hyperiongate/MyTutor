@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ee-teaching-upgrades". THE FIVE TEACHING
+#               UPGRADES (prompt lane; claude/Teaching_Evidence_Base_2026-08-10.md).
+#               No route or logic changes in THIS file -- the build stamp only. The
+#               work lives in: prompts.py (rules 56-60: find-the-error,
+#               self-monitoring, two-ways-one-board, right-answer-wrong-method, the
+#               board spotlight), the three teaching pages session/practice/topic
+#               (the [[highlight]] tag gains id="line" and id="board" -- board work
+#               glows while teaching; self-clears; reduced-motion safe), and
+#               ruletests.py (new PART 3t; coverage needles; the 150k prompt ceiling
+#               raised to 160k per Jim's standing 2026-08-11 decision).
 #   2026-08-12  APP_BUILD -> "2026-08-12ed-read-throttle". SECURITY PASS 2 -- finding F1
 #               (claude/Security_Review_2026-08-12.md). The GET-by-code reads that return a
 #               child's data (session, records, misses, awards, time, topics, assessment,
@@ -6066,7 +6076,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ed-read-throttle"
+APP_BUILD = "2026-08-12ee-teaching-upgrades"
 
 
 @app.get("/health")
