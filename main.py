@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ed-read-throttle". SECURITY PASS 2 -- finding F1
+#               (claude/Security_Review_2026-08-12.md). The GET-by-code reads that return a
+#               child's data (session, records, misses, awards, time, topics, assessment,
+#               placement, courses, sprints, sprint) were enumerable and UNTHROTTLED -- a
+#               short code was the only key. Two-part fix:
+#               (A) _read_guard(request, code) now fronts every one of those endpoints. It
+#                   applies a generous per-IP raw read cap (READ_IP_LIMIT=600/5min) AND the
+#                   real anti-enumeration guard: a per-IP DISTINCT-CODE ceiling
+#                   (CODE_PROBE_MAX=50 distinct codes / CODE_PROBE_WINDOW=900s). A family
+#                   re-reads its own 1-2 codes forever (never trips); a scraper walking
+#                   thousands of DIFFERENT codes is refused after ~50. Self-pruning,
+#                   in-process, env-tunable. Pairs with the ec F3 fix (an IP can't be
+#                   spoofed, so the cap can't be dodged by rotating addresses).
+#               (B) _new_student_code widened 2 -> 4 digits: 50 x 9000 = 450,000 (was
+#                   4,500), a ~100x space. Existing 2-digit codes keep working (nothing
+#                   validates digit count); only NEW codes are longer. Still one friendly
+#                   word + a number for a child to type.
+#               Guards: ruletests "BUILD ed" block (every read endpoint calls _read_guard;
+#               the generator is 4-digit) + a live SEC2-DRILL (enumeration from one IP
+#               hits 429; a fresh IP is unaffected; same-code re-reads never trip; new
+#               codes match WORD+4digits). F2 (class lock) remains for the teacher-auth build.
 #   2026-08-12  APP_BUILD -> "2026-08-12ec-security-hardening-1". SECURITY PASS 1 of the
 #               review in claude/Security_Review_2026-08-12.md (Jim: "make sure our security
 #               is robust"). Three low-risk, universal fixes:
@@ -2937,6 +2958,68 @@ def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests
         q.append(now)
 
 
+# =============================================================================
+# READ-BY-CODE ENUMERATION GUARD (build ed, 2026-08-12 -- finding F1)
+# -----------------------------------------------------------------------------
+# A student's login code is the only key to their data, and the GET-by-code reads
+# (session, records, misses, awards, time, topics, assessment, placement, courses,
+# sprints, sprint) had NO speed limit -- someone could script guesses across the
+# short code space and harvest children's names and progress.
+#
+# The precise defense: ENUMERATION IS, BY DEFINITION, "many DIFFERENT codes from
+# one source." A real family reads its own 1-2 codes over and over; a scraper walks
+# thousands. So on top of a generous raw per-IP read cap (blunts hammering/cost), we
+# track how many DISTINCT codes each IP has touched in a rolling window and refuse
+# once it crosses a ceiling set far above any honest use (a whole co-op reviewed
+# from one address is ~30 kids; the ceiling is higher still). Repeatedly reading the
+# SAME code -- a real dashboard reloading -- never trips it. Paired with the widened
+# code format (_new_student_code) and the F3 IP-spoofing fix, a sweep is infeasible:
+# an IP is capped to CODE_PROBE_MAX guesses per window and can't rotate its address.
+# All in-process, self-pruning; env-tunable without a code change.
+# =============================================================================
+try:
+    _READ_IP_LIMIT = int(os.environ.get("READ_IP_LIMIT", "600") or 600)
+except (TypeError, ValueError):
+    _READ_IP_LIMIT = 600
+try:
+    _CODE_PROBE_MAX = int(os.environ.get("CODE_PROBE_MAX", "50") or 50)
+except (TypeError, ValueError):
+    _CODE_PROBE_MAX = 50
+try:
+    _CODE_PROBE_WINDOW = int(os.environ.get("CODE_PROBE_WINDOW", "900") or 900)
+except (TypeError, ValueError):
+    _CODE_PROBE_WINDOW = 900
+_CODE_PROBE_LOCK = threading.Lock()
+_CODE_PROBE: dict = defaultdict(dict)      # ip -> {code: last_seen_monotonic}
+
+
+def _read_guard(request: Request, code: str) -> None:
+    """Throttle a read-by-code endpoint against enumeration. Raises 429 when an IP
+    exceeds the raw read rate OR touches too many DISTINCT codes in the window."""
+    ip = _client_ip(request)
+    # (1) raw per-IP read cap -- generous for a browsing family, a wall for a firehose.
+    _rate_limit("read:" + ip, limit=_READ_IP_LIMIT, window_seconds=300, what="lookups")
+    # (2) distinct-code ceiling -- the actual anti-enumeration guard.
+    key = (code or "").strip()
+    now = time.monotonic()
+    with _CODE_PROBE_LOCK:
+        seen = _CODE_PROBE[ip]
+        for c in [c for c, t in seen.items() if t <= now - _CODE_PROBE_WINDOW]:
+            del seen[c]
+        seen[key] = now
+        distinct = len(seen)
+        if not seen:                                    # never keep an empty inner dict
+            _CODE_PROBE.pop(ip, None)
+        if len(_CODE_PROBE) > 20000:                    # keep the outer table bounded
+            for k in [k for k, d in _CODE_PROBE.items()
+                      if not d or max(d.values()) <= now - _CODE_PROBE_WINDOW]:
+                _CODE_PROBE.pop(k, None)
+    if distinct > _CODE_PROBE_MAX:
+        raise HTTPException(status_code=429, detail=(
+            "Too many different codes tried from this connection — if you're a "
+            "teacher reviewing a class, please wait a minute between students."))
+
+
 def _client_ip(request: Request) -> str:
     """Caller IP for the per-IP rate limiter, read from the position we actually trust.
 
@@ -3203,9 +3286,10 @@ AWARD_DEFS = {
 
 
 @app.get("/api/awards/{code}")
-def awards_state(code: str):
+def awards_state(code: str, request: Request):
     """The student's trophy case: course trophies, per-course merit-badge counts, and
     effort awards (persisted once earned). Honest {tracking:false} when the DB is off."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     code = code.strip()
     if not store.enabled():
@@ -3356,10 +3440,11 @@ def heartbeat(req: HeartbeatRequest):
 
 
 @app.get("/api/time/{code}")
-def time_summary(code: str, days: int = 14):
+def time_summary(code: str, request: Request, days: int = 14):
     """Recent engaged time for the dashboard: per-day totals (newest first) with a
     per-course split. The CLIENT computes 'today' / 'this week' against the days
     it recorded, so the student's local calendar stays authoritative."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     code = code.strip()
     if not store.enabled():
@@ -3379,13 +3464,14 @@ def time_summary(code: str, days: int = 14):
 
 
 @app.get("/api/topics/{code}")
-def topics_state(code: str, course: str = "algebra1"):
+def topics_state(code: str, request: Request, course: str = "algebra1"):
     """
     REAL, honest per-topic progress for the dashboard: all of the CHOSEN COURSE's units with
     the student's actual engagement (explored / learning / practiced) or 'not-started'.
     Only meaningful when the database is on (`tracking:true`); otherwise it reports
     tracking is off so the dashboard can say so rather than invent numbers.
     """
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     student = _student_or_404(code)
     code = code.strip()
     placement = read_placement(code, course)
@@ -3707,10 +3793,17 @@ def _require_parent(token: str) -> dict:
 
 
 def _new_student_code() -> str:
-    """A fresh, friendly student code (e.g. MAPLE42) that collides with nothing:
-    not the pilot codes in students.json, not any existing account."""
+    """A fresh, friendly student code (e.g. MAPLE4821) that collides with nothing:
+    not the pilot codes in students.json, not any existing account.
+
+    WIDENED (build ed, 2026-08-12 -- finding F1): the digit block went 2 -> 4 digits,
+    so the space is 50 words x 9000 = 450,000 (was 4,500) -- a ~100x jump that makes
+    guessing a valid code infeasible even before the read-throttle. Still one short
+    word + a number, so it's just as easy for a child to read and type. Existing
+    2-digit codes keep working untouched -- nothing validates the digit count; this
+    only changes what NEW codes look like."""
     for _ in range(60):
-        code = f"{secrets.choice(_CODE_WORDS)}{secrets.randbelow(90) + 10}"
+        code = f"{secrets.choice(_CODE_WORDS)}{secrets.randbelow(9000) + 1000}"
         if code in STUDENTS:
             continue
         if store.get_account(code):
@@ -5512,11 +5605,12 @@ def forum_moderate(body: ForumModIn,
 
 
 @app.get("/api/courses/{code}")
-def student_courses(code: str):
+def student_courses(code: str, request: Request):
     """EVERY course this student has actually worked in, with units mastered/started -- for the
     dashboard's "My courses" strip. Returns courses with REAL activity only, in ladder order, so
     a student sees their whole picture at a glance and can switch with one click. When tracking is
     off it reports that rather than inventing anything."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     code = code.strip()
     if not store.enabled():
@@ -5710,13 +5804,14 @@ def _final_exam_state(code: str, course: str) -> dict:
 
 
 @app.get("/api/sprints/{code}")
-def api_sprint_record(code: str, course: str = "prealgebra"):
+def api_sprint_record(code: str, request: Request, course: str = "prealgebra"):
     """The student's whole sprint history for one course, oldest first -- the
     dashboard's '⚡ Your sprint record' card (2026-08-11, build dm). WWC guide 26
     rec. 6 says track progress AND SHOW it; the data has recorded since build dd and
     nothing displayed it. Self-referential only (rule 42): this student's rounds,
     this student's best, nobody else's anything. Empty history -> the card never
     renders (sprints never gate and never nag)."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     if not store.enabled():
         return {"ok": True, "history": [], "best_b": 0}
@@ -5731,7 +5826,7 @@ def api_sprint_record(code: str, course: str = "prealgebra"):
 
 
 @app.get("/api/sprint/{code}")
-def get_sprint(code: str, course: str = "prealgebra", unit: int = 1):
+def get_sprint(code: str, request: Request, course: str = "prealgebra", unit: int = 1):
     """The day's fluency sprint for this student+course+unit, or {available:false}.
 
     2026-08-11 (build dd). WWC guide 26 recommendation 6 (STRONG): "regularly include
@@ -5742,6 +5837,7 @@ def get_sprint(code: str, course: str = "prealgebra", unit: int = 1):
     Seeded per student-per-day: a re-request today rebuilds the SAME sprint (a reload
     mid-sprint changes nothing); tomorrow's is fresh. ⚠️ NEVER GATES: nothing anywhere
     reads sprint results as a requirement, and declining is simply not calling this."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     code = code.strip()
     if sprints is None or not sprints.available(course, unit):
@@ -5826,11 +5922,12 @@ def post_check(code: str, body: CheckIn):
 
 
 @app.get("/api/records/{code}")
-def records_report(code: str, days: int = 90):
+def records_report(code: str, request: Request, days: int = 90):
     """Everything the printable homeschool records report needs (2026-08-04), in one
     call: the full-range hours log, per-course unit progress (statuses, topic quizzes,
     Unit Quiz best, mastered at 90%), placement titles, and dated awards. Read-only;
     honest {tracking:false} when the DB is off."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     student = _student_or_404(code)
     code = code.strip()
     days = max(7, min(730, int(days or 90)))
@@ -5918,10 +6015,11 @@ def post_quiz(code: str, body: QuizIn):
 
 
 @app.get("/api/misses/{code}")
-def get_misses_api(code: str, course: str = ""):
+def get_misses_api(code: str, request: Request, course: str = ""):
     """The student's recent missed problems (build dt) for the dashboard's review
     card: newest first, with unit names attached. Student-gated like every
     per-student read; honest {tracking:false} when the DB is off."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     code = code.strip()
     if not store.enabled():
@@ -5958,8 +6056,9 @@ def post_mark(code: str, body: MarkIn):
 
 
 @app.get("/api/placement/{code}")
-def get_placement(code: str, course: str = "algebra1"):
+def get_placement(code: str, request: Request, course: str = "algebra1"):
     """Return this student's saved placement result for a course (or {})."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
     return read_placement(code.strip(), course)
 
@@ -5967,7 +6066,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ec-security-hardening-1"
+APP_BUILD = "2026-08-12ed-read-throttle"
 
 
 @app.get("/health")
@@ -6050,7 +6149,7 @@ def login(req: LoginRequest, request: Request):
 
 
 @app.get("/api/session/{code}")
-def session_state(code: str, course: str = "algebra1"):
+def session_state(code: str, request: Request, course: str = "algebra1"):
     """
     Return the student's info, remembered conversation (for resume), and their
     placement -- ALL scoped to the given course. The hub/session page uses `placed`
@@ -6058,6 +6157,7 @@ def session_state(code: str, course: str = "algebra1"):
     Challenge first) and `history` to decide between a first-time tour and a
     welcome-back recap.
     """
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     student = _student_or_404(code)
     code = code.strip()
     session = get_session(code, course)
@@ -6213,6 +6313,7 @@ def _assessment_facts(code: str, student: dict, course: str) -> str:
 def assessment(code: str, request: Request, course: str = "algebra1",
                audience: str = "student"):
     """A warm, honest narrative assessment -- student voice or parent voice."""
+    _read_guard(request, code)            # F1: throttle read-by-code enumeration
     student = _student_or_404(code)
     code = code.strip()
     audience = "parent" if audience == "parent" else "student"

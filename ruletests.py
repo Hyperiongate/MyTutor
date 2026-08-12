@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ed -- READ-BY-CODE THROTTLE (F1), GUARDED: every GET-by-code data
+#               endpoint (session, records, misses, awards, time, topics, assessment,
+#               placement, courses, sprints, sprint) must front its work with
+#               _read_guard; the guard must cap DISTINCT codes per IP + the raw read
+#               rate; _new_student_code must be widened to 4 digits. LIVE SEC2-DRILL:
+#               enumeration from one IP 429s near the cap, a fresh IP starts clean,
+#               same-code reloads never trip, and new codes match WORD+4digits.
 #   2026-08-12  BUILD ec -- SECURITY HARDENING 1, GUARDED: F3 _client_ip must trust the
 #               proxy-appended (rightmost) X-Forwarded-For end via TRUSTED_PROXY_HOPS,
 #               never the spoofable leftmost (the old .split(",")[0] pattern is now
@@ -3711,6 +3718,83 @@ def part3p_marketing_claims():
                                capture_output=True, text=True)
             check("security live: headers ship on page + API; XFF read from the trusted end (ec)",
                   r.returncode == 0 and "SEC-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-400:])
+
+    # ---- BUILD ed: read-by-code enumeration throttle + widened codes (F1) ------------
+    mn9 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    # (A) every read-by-code endpoint must front its work with _read_guard.
+    _READ_EPS = ("awards_state", "time_summary", "topics_state", "records_report",
+                 "get_misses_api", "get_placement", "student_courses",
+                 "api_sprint_record", "get_sprint", "session_state", "assessment")
+    for _fn in _READ_EPS:
+        _seg = mn9.split(f"def {_fn}(", 1)
+        _body = _seg[1].split("\ndef ", 1)[0] if len(_seg) == 2 else ""
+        check(f"F1: read endpoint {_fn} is throttled by _read_guard (ed)",
+              "request: Request" in _body[:200] and "_read_guard(request, code)" in _body,
+              "an un-guarded read-by-code endpoint is an open enumeration door")
+    # the guard itself: distinct-code ceiling + raw per-IP cap, both present.
+    _rg = mn9.split("def _read_guard(", 1)[1].split("\ndef ", 1)[0]
+    check("F1: _read_guard caps DISTINCT codes per IP and raw read rate (ed)",
+          "_CODE_PROBE_MAX" in _rg and "distinct = len(seen)" in _rg
+          and 'limit=_READ_IP_LIMIT' in _rg and "status_code=429" in _rg,
+          "enumeration is many DIFFERENT codes from one source; that's what must be capped")
+    # (B) the widened code format.
+    _nsc = mn9.split("def _new_student_code(", 1)[1].split("\ndef ", 1)[0]
+    check("F1: new student codes are widened to 4 digits (~450k space) (ed)",
+          "randbelow(9000) + 1000" in _nsc and "randbelow(90)" not in _nsc,
+          "a 4,500-code space is guessable; existing 2-digit codes still work")
+
+    # ---- BUILD ed: LIVE -- enumeration is blocked, honest use is not -----------------
+    try:
+        import httpx as _httpx9  # noqa: F401
+        _have_httpx9 = True
+    except Exception:  # noqa: BLE001
+        _have_httpx9 = False
+    if not _have_httpx9:
+        skip("read-throttle live drill", "httpx not installed here")
+    else:
+        import tempfile as _tf9
+        with _tf9.TemporaryDirectory() as tmp9:
+            drill = os.path.join(tmp9, "readdrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "import os as _os, re\n"
+                    "_os.environ['TRUSTED_PROXY_HOPS']='1'\n"
+                    "_os.environ['CODE_PROBE_MAX']='50'\n"
+                    "from fastapi.testclient import TestClient\n"
+                    "import main\n"
+                    "c = TestClient(main.app)\n"
+                    "A = {'x-forwarded-for': '203.0.113.7'}\n"
+                    "# enumeration: many DIFFERENT codes from ONE ip -> 429 kicks in near the cap\n"
+                    "blocked = None\n"
+                    "for i in range(90):\n"
+                    "    r = c.get(f'/api/session/GUESS{i:04d}', headers=A)\n"
+                    "    if r.status_code == 429:\n"
+                    "        blocked = i; break\n"
+                    "assert blocked is not None and 40 <= blocked <= 60, blocked\n"
+                    "# a FRESH ip does not inherit the block (per-IP isolation, F3 makes ip real)\n"
+                    "r = c.get('/api/session/GUESS0000', headers={'x-forwarded-for': '198.51.100.9'})\n"
+                    "assert r.status_code != 429, 'a new connection must start clean'\n"
+                    "# a real family re-reading the SAME code never trips the distinct guard\n"
+                    "B = {'x-forwarded-for': '198.51.100.22'}\n"
+                    "for _ in range(120):\n"
+                    "    r = c.get('/api/session/MAPLE42', headers=B)\n"
+                    "    assert r.status_code != 429, 'same-code reloads must never be throttled'\n"
+                    "# widened codes: WORD + 4 digits (stub the collision probe so the\n"
+                    "# format test needs no database)\n"
+                    "main.STUDENTS = {}\n"
+                    "main.store.get_account = lambda *a, **k: None\n"
+                    "for _ in range(25):\n"
+                    "    code = main._new_student_code()\n"
+                    "    assert re.match(r'^[A-Z]+\\d{4}$', code), code\n"
+                    "print('SEC2-DRILL-OK')\n")
+            env = dict(os.environ)
+            env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
+            env["WEEKLY_EMAIL"] = "off"
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("read-throttle live: enumeration 429s; fresh IP + same-code reads pass; codes widened (ed)",
+                  r.returncode == 0 and "SEC2-DRILL-OK" in r.stdout,
                   (r.stdout + r.stderr)[-400:])
 
     # ---- BUILD dz: accessibility + phones -------------------------------------------
