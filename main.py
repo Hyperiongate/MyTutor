@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12es-celebration-is-ours". THE THUMBS-UP CLIP HAS NO
+#               THUMBS IN IT (build stamp only here; the work is in static/tutor-face.js).
+#               Jim, after er deployed: "I'm answering questions correctly and I'm not
+#               getting a thumbs up... maybe he's giving a thumbs up outside the range of
+#               the circle." Frames pulled from the raw HeyGen source and from the shipped
+#               crop settle it: the avatar never raises a hand at ANY crop -- it is a
+#               chest-up photoreal presenter that does not gesture, so the "thumbs_up"
+#               clip is a slightly warmer smile, invisible at 70px beside the idle loop.
+#               The trigger built in er works; there was simply nothing to see. So the
+#               celebration no longer depends on the avatar: a gold ring pulse, flash and
+#               sparkles are drawn in the same circular slot over the video, the poster or
+#               the bare robot, on EVERY correct answer, with an opacity-only variant under
+#               prefers-reduced-motion. The happy one-shot still plays underneath when the
+#               presence is live. Guarded in PART 3u.
 #   2026-08-12  APP_BUILD -> "2026-08-12er-thumbs-up-works". THE THUMBS-UP HAD NO
 #               TRIGGER (build stamp only here; the work is in static/tutor-face.js and
 #               the three teaching pages). Jim, looking at the deployed site: "all I'm
@@ -6251,7 +6265,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12er-thumbs-up-works"
+APP_BUILD = "2026-08-12es-celebration-is-ours"
 
 
 @app.get("/health")

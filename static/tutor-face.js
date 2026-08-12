@@ -2,6 +2,31 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build es) THE THUMBS-UP CLIP HAS NO THUMBS IN IT -- SO THE CELEBRATION
+                 STOPS DEPENDING ON THE AVATAR. Jim, after er deployed: "I'm answering
+                 questions correctly and I'm not getting a thumbs up." I pulled frames from
+                 the raw HeyGen source (_video_workshop/raw, the 5.96s clip) and from the
+                 shipped crop: the avatar NEVER raises a hand. It is a chest-up photoreal
+                 presenter that does not gesture, so what we shipped as "thumbs_up" is
+                 really just a slightly warmer smile -- at 70px, next to the idle loop, that
+                 is invisible. Jim guessed the gesture might be cropped out of the circle;
+                 it is not -- there is no gesture at ANY crop. Regenerating with a gesture-
+                 capable avatar would change his face, so instead the celebration is now
+                 drawn BY US and owes the avatar nothing:
+                   - celebrationBurst(): a gold ring pulse (two, staggered) + a soft gold
+                     flash + eight sparkles, in the SAME circular slot, over whatever is
+                     underneath -- video presence, still poster, or the bare robot.
+                   - It fires on EVERY correct answer, including when there is no video at
+                     all. celebrate() no longer returns false when presence is off; the
+                     ring IS the celebration, the clip is a bonus.
+                   - prefers-reduced-motion: no scaling, no sparkles -- a single ring that
+                     fades in and out on opacity alone.
+                   - Everything is inset so the animation can never overflow the slot and be
+                     clipped by a parent, is pointer-events:none and aria-hidden (the tally
+                     and his voice carry the meaning; this is decoration), self-removes
+                     after ~1.4s, and re-firing mid-burst restarts cleanly.
+                 The happy one-shot STILL plays underneath when the presence is live -- his
+                 expression does brighten -- it just is not load-bearing any more.
      2026-08-12  (build er) THE THUMBS-UP GETS A DOORBELL. Jim, looking at the live site:
                  "all I'm seeing is a little circle... nothing else." He was right, and
                  the reason was concrete: the teaching pages' setState only ever holds
@@ -271,8 +296,16 @@
     if (cs.position === "static") parent.style.position = "relative";
     var host = document.createElement("div");
     host.setAttribute("aria-hidden", "true");           // decorative; the VOICE is the content
+    // build es: the host carries the POSTER as its own background. Two <video> elements
+    // crossfading means both are briefly semi-transparent, and a transparent host let the
+    // canvas ROBOT ghost through Mr. Cadabra's face on every mood change (green eyes over
+    // his eyes -- caught on a frame-by-frame capture). A still frame of the same man
+    // underneath makes every transition read as a dissolve instead of a haunting. The
+    // robot is still there, still drawing, still the fallback the instant a video errors.
     host.style.cssText = "position:absolute;inset:0;border-radius:50%;overflow:hidden;" +
-                         "pointer-events:none;background:transparent;";
+                         "pointer-events:none;background:#2a2a3f;" +
+                         (m.poster ? "background-image:url('" + P.base + m.poster + "');" +
+                                     "background-size:cover;background-position:center;" : "");
     // Reduced motion: a still poster instead of motion; no poster -> keep the robot.
     if (P.reduced) {
       if (!m.poster) { P.state = "off"; return; }
@@ -380,9 +413,118 @@
   }
 
   var _drawRobot = draw;
+  var _lastCanvas = null;                                // build es: celebrate() needs a slot
   function drawWithPresence(ctx, w, h, opts) {
     _drawRobot(ctx, w, h, opts);                         // the robot ALWAYS draws (fallback)
+    try { _lastCanvas = ctx.canvas; } catch (e) {}
     try { presenceTick(ctx.canvas, (opts && opts.mood) || "idle"); } catch (e) {}
+  }
+
+  // ===========================================================================
+  // THE CELEBRATION BURST (build es, 2026-08-12) -- see the change note above.
+  // The avatar cannot gesture, so the celebration is ours: a gold ring pulse in the
+  // same circular slot, over the video / poster / robot alike. Decorative only.
+  // ===========================================================================
+  var C = { host: null, styled: false, timer: 0 };
+  var GOLD = "#ffd45e", GOLD_DEEP = "#f2a93b";
+
+  function celebrationStyle() {
+    if (C.styled) return;
+    C.styled = true;
+    var css =
+      "@keyframes tfRing{0%{transform:scale(.80);opacity:0}" +
+      "22%{transform:scale(.93);opacity:1}100%{transform:scale(1.05);opacity:0}}" +
+      "@keyframes tfFlash{0%{opacity:0}25%{opacity:.50}100%{opacity:0}}" +
+      "@keyframes tfSpark{0%{transform:translate(0,0) scale(.35);opacity:0}" +
+      "22%{opacity:1}100%{transform:translate(var(--tfdx),var(--tfdy)) scale(1);opacity:0}}" +
+      "@keyframes tfRingStill{0%{opacity:0}25%{opacity:.95}100%{opacity:0}}";
+    var el = document.createElement("style");
+    el.setAttribute("data-tutor-face", "celebration");
+    el.appendChild(document.createTextNode(css));
+    (document.head || document.documentElement).appendChild(el);
+  }
+
+  function celebrationBurst(canvas) {
+    if (!canvas || !canvas.parentNode) return false;
+    celebrationStyle();
+    var parent = canvas.parentNode;
+    try {
+      var cs = getComputedStyle(parent);
+      if (cs.position === "static") parent.style.position = "relative";
+    } catch (e) {}
+
+    // Re-firing mid-burst restarts cleanly rather than stacking rings.
+    if (C.timer) { clearTimeout(C.timer); C.timer = 0; }
+    try { if (C.host && C.host.parentNode) C.host.parentNode.removeChild(C.host); } catch (e) {}
+    C.host = null;
+
+    // EVERYTHING scales off the slot's real on-screen size. The corner face is ~70-110px
+    // in the teaching pages but ~220px on the demo, and fixed pixel sizes that looked
+    // right at one size threw dinner-plate sparkles at the other.
+    var S = 0;
+    try { var rect = canvas.getBoundingClientRect(); S = Math.min(rect.width, rect.height); } catch (e) {}
+    if (!S) S = Math.min(canvas.width || 100, canvas.height || 100);
+    var ringW = Math.max(2, Math.round(S * 0.016));
+    var dotR  = Math.max(3, Math.round(S * 0.038));
+    var throwD = S * 0.07;               // a drift outward from the ring, not a launch
+
+    var host = document.createElement("div");
+    host.setAttribute("aria-hidden", "true");            // the tally carries the meaning
+    host.style.cssText = "position:absolute;inset:0;border-radius:50%;pointer-events:none;" +
+                         "z-index:3;overflow:hidden;";
+
+    function ring(delayMs, widthPx, still) {
+      var r = document.createElement("div");
+      r.style.cssText =
+        "position:absolute;inset:8%;border-radius:50%;box-sizing:border-box;" +
+        "border:" + widthPx + "px solid " + GOLD + ";opacity:0;" +
+        "box-shadow:0 0 12px rgba(255,212,94,.75),inset 0 0 10px rgba(255,212,94,.45);" +
+        "animation:" + (still ? "tfRingStill 1200ms ease-out" : "tfRing 1100ms ease-out") +
+        " " + delayMs + "ms both;";
+      return r;
+    }
+
+    if (P.reduced) {
+      // No scaling, no sparkles: one ring, opacity only.
+      host.appendChild(ring(0, ringW, true));
+    } else {
+      var flash = document.createElement("div");
+      flash.style.cssText =
+        "position:absolute;inset:8%;border-radius:50%;opacity:0;" +
+        "background:radial-gradient(circle at 50% 50%,rgba(255,212,94,.55) 0%," +
+        "rgba(242,169,59,.28) 55%,rgba(242,169,59,0) 75%);" +
+        "animation:tfFlash 900ms ease-out both;";
+      host.appendChild(flash);
+      host.appendChild(ring(0, ringW, false));
+      host.appendChild(ring(170, Math.max(2, ringW - 1), false));
+
+      // Eight sparkles ON THE RING, drifting a little further out as they fade. They sit
+      // at the rim rather than flying from the centre: thrown from the middle they land
+      // across his face and read as confetti stuck to his nose (checked frame by frame).
+      for (var i = 0; i < 8; i++) {
+        var ang = (Math.PI * 2 * i) / 8 + 0.39;
+        var ox = Math.cos(ang) * (S * 0.40), oy = Math.sin(ang) * (S * 0.40);
+        var s = document.createElement("div");
+        s.style.cssText =
+          "position:absolute;left:50%;top:50%;width:" + dotR + "px;height:" + dotR + "px;" +
+          "margin:" + (oy - dotR / 2).toFixed(1) + "px 0 0 " + (ox - dotR / 2).toFixed(1) + "px;" +
+          "border-radius:50%;background:" + GOLD + ";opacity:0;" +
+          "box-shadow:0 0 " + Math.round(dotR * 1.2) + "px " + GOLD_DEEP + ";" +
+          "--tfdx:" + (Math.cos(ang) * throwD).toFixed(2) + "px;" +
+          "--tfdy:" + (Math.sin(ang) * throwD).toFixed(2) + "px;" +
+          "animation:tfSpark 950ms ease-out " + (60 + i * 25) + "ms both;";
+        host.appendChild(s);
+      }
+    }
+
+    parent.appendChild(host);
+    C.host = host;
+    C.timer = setTimeout(function () {
+      try { if (host.parentNode) host.parentNode.removeChild(host); } catch (e) {}
+      if (C.host === host) C.host = null;
+      C.timer = 0;
+    }, 1500);
+    return true;
   }
 
   // BUILD er (2026-08-12) -- THE THUMBS-UP HAD NO TRIGGER. The pages' state machine only
@@ -392,12 +534,16 @@
   // DIRECTLY, without touching `state`, so the page's audio/turn logic -- the busy glow,
   // the thinking flag, the level meter -- is completely undisturbed. Safe to call when
   // there is no video presence at all: it simply does nothing and the robot carries on.
-  function celebrate() {
+  // BUILD es (2026-08-12) -- the clip is no longer load-bearing. The gold ring fires
+  // ALWAYS (video, poster or bare robot); the happy one-shot plays underneath only when
+  // there is a live video presence. Returns true whenever the child saw something.
+  function celebrate(canvas) {
+    var shown = false;
     try {
-      if (P.state !== "active" || P.reduced) return false;
-      presenceShow("happy", true);
-      return true;
-    } catch (e) { return false; }
+      if (P.state === "active" && !P.reduced) { presenceShow("happy", true); shown = true; }
+    } catch (e) {}
+    try { if (celebrationBurst(canvas || _lastCanvas)) shown = true; } catch (e) {}
+    return shown;
   }
 
   window.TutorFace = { draw: drawWithPresence, moodFrom: moodFrom, celebrate: celebrate,

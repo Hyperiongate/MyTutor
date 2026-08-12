@@ -5123,6 +5123,39 @@ def part3u_video_presence():
               "a right answer is the moment the thumbs-up is FOR; without this call the "
               "clip can never play in a real lesson")
 
+    # BUILD es: THE CELEBRATION MUST NOT DEPEND ON THE AVATAR. The clip we shipped as
+    # "thumbs_up" contains no thumbs -- the HeyGen presenter never raises a hand, at any
+    # crop -- so er's doorbell rang a silent bell. The gold ring is the celebration now;
+    # the clip is a bonus. These checks stop it from quietly becoming avatar-dependent
+    # again, and stop the burst from being the kind of decoration that hurts people.
+    check("a correct answer draws OUR celebration, not the avatar's",
+          "function celebrationBurst" in tf and "tfRing" in tf,
+          "the shipped clip has no gesture in it -- if the ring goes, a right answer is "
+          "invisible again")
+    check("  the burst fires even with NO video presence at all",
+          'if (P.state !== "active" || P.reduced) return false;' not in tf
+          and "celebrationBurst(canvas || _lastCanvas)" in tf,
+          "the robot fallback and reduced-motion users earn a celebration too; celebrate() "
+          "must never early-return before the ring")
+    check("  reduced motion gets an opacity-only ring (no scaling, no sparkles)",
+          "tfRingStill" in tf and "if (P.reduced) {" in tf,
+          "a motion-sensitive child must not be thrown a sparkle burst")
+    check("  the burst is decorative and cannot be clicked",
+          "pointer-events:none" in tf and tf.count('setAttribute("aria-hidden", "true")') >= 2,
+          "the tally and his voice carry the meaning; the ring must be invisible to a "
+          "screen reader and must never intercept a tap on the board")
+    check("  the burst scales off the slot's real size, not fixed pixels",
+          "getBoundingClientRect()" in tf and "S * 0.016" in tf,
+          "the corner face is ~90px in a lesson and ~220px on the demo; fixed sizes throw "
+          "dinner-plate sparkles at one of them")
+    check("  the presence host hides the robot behind a still frame",
+          "background-image:url('" in tf and "m.poster" in tf,
+          "two videos crossfading are both briefly semi-transparent -- with a transparent "
+          "host the ROBOT's green eyes ghost through Mr. Cadabra's face on every mood change")
+    check("  the burst cleans itself up and cannot stack",
+          "C.timer = setTimeout" in tf and "if (C.timer) { clearTimeout(C.timer)" in tf,
+          "five right answers in a row must not leave five rings pinned over his face")
+
     # The manifest is validated the day it exists; until then its absence is correct.
     man_path = os.path.join(here, "static", "videos", "cadabra", "presence.json")
     if os.path.exists(man_path):
