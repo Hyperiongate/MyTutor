@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12en-diagnosis-and-symbols". THE LAST TWO AUDIT
+#               ITEMS (build stamp only here; the work is in prompts.py, notation.py
+#               and ruletests.py). (1) RULE 49 GAINS (f): when a student NAMES their
+#               own rule out loud, that is evidence, not a hypothesis, and it is the
+#               rule you answer -- the audit caught a reply explaining that 3x2 is not
+#               3+2 to a student who had just said "we do 5 plus 3 first because it's
+#               on the left", so their real rule survived until they objected. (2) TWO
+#               NOTATION REGISTRY GAPS CLOSED: bare < and > were absent entirely (only
+#               the or-equal pair, and not for elementary) though comparing fractions
+#               is core Basic Math and the audit caught "1/4 > 1/8" written and never
+#               read aloud; and the imaginary unit was absent though algebra2 teaches
+#               complex numbers. Both patterns dry-run against every authored board
+#               string before shipping, and PART 3y pins the false-positive behaviour
+#               (arrows are not inequalities; x_i is not the imaginary unit).
+#               THE 2026-08-12 AUDIT LIST IS NOW CLOSED except the two items
+#               deliberately declined (see WHEN_YOU_ARE_BACK).
 #   2026-08-12  APP_BUILD -> "2026-08-12em-countable-fractions". THE FRACTION PIE (the
 #               2026-08-12 audit's one HIGH finding; build stamp only in this file --
 #               the work is in static/math-figures.js, foundations.py, prompts.py and
@@ -6189,7 +6205,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12em-countable-fractions"
+APP_BUILD = "2026-08-12en-diagnosis-and-symbols"
 
 
 @app.get("/health")

@@ -2,6 +2,17 @@
 # notation.py  --  THE NOTATION REGISTRY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD en -- TWO REGISTRY GAPS CLOSED, both from the 2026-08-12 audits.
+#               (1) BARE < and > were not in this registry at all -- only ≤/≥, and not
+#               for the elementary courses -- so when a Basic Math lesson wrote
+#               "1/4 > 1/8" the tutor had no canonical reading to give and rule 48 had
+#               nothing to enforce. Comparing fractions is core Basic Math; registered
+#               for every course. (2) The IMAGINARY UNIT was absent though algebra2
+#               teaches complex numbers. Both patterns were dry-run against every
+#               authored board string first: the inequality one refuses ->, =>, <=, >=
+#               so arrows in captions are never mistaken for inequalities, and the
+#               imaginary one refuses x_i and "x · i" so the calculus subscript scripts
+#               are not reported as unregistered symbols.
 #   2026-08-11  BUILD dk -- NEW family "fraction-slash" for the four lower courses
 #               (audit re-run finding 2, a real voice-first catch): the tutor says
 #               "the BOTTOM number" while the board shows "1/4" with a SLASH -- a
@@ -110,6 +121,30 @@ NOTATIONS = [
     {"id": "notequal", "shown": "≠", "spoken": "is not equal to", "never": "",
      "courses": SYMBOLIC + ("prealgebra",), "wrote": r"≠",
      "heard": r"not equal|does not equal|is ?n'?t equal", "note": ""},
+
+    # build en (2026-08-12): BARE < and > were never registered AT ALL -- only the
+    # or-equal pair, and not for the elementary courses. The 2026-08-12 audit caught a
+    # Basic Math lesson writing "1/4 > 1/8" on the board and never saying how to read
+    # it, which is rule 48 with nothing behind it: comparing fractions IS Basic Math.
+    # The pattern deliberately refuses <=, >=, ->, => and <- so an arrow in a caption
+    # is never mistaken for an inequality (dry-run against every authored board string
+    # before it shipped: one true match, zero false ones).
+    {"id": "inequality", "shown": "< / >", "spoken": "is less than / is greater than",
+     "never": "the arrow", "courses": ALL_COURSES,
+     "wrote": r"(?<![-=<>])[<>](?![-=<>])",
+     "heard": r"less than|greater than|smaller than|bigger than",
+     "note": "the small end points at the smaller number; say the whole sentence out "
+             "loud -- one fourth is greater than one eighth"},
+
+    # build en: the imaginary unit, absent though algebra2 teaches complex numbers.
+    # The pattern matches i ONLY where it really is the unit (2i, i², i = √-1) and not
+    # where it is an index or a subscript -- x_i and "it is not x · i" both live in the
+    # calculus scripts and must never be reported as an unregistered symbol.
+    {"id": "imaginary", "shown": "2i", "spoken": "two i, where i is the imaginary unit",
+     "never": "two times the variable i", "courses": ("algebra2", "precalc"),
+     "wrote": r"(?:(?<=\d)i(?![A-Za-z])|(?<![A-Za-z_])i(?=²|\^2|\s*=\s*√))",
+     "heard": r"imaginary unit|imaginary number",
+     "note": "i is a NUMBER, not a variable: it is the one whose square is negative one"},
 
     {"id": "lessequal", "shown": "≤ / ≥", "spoken": "is less than or equal to", "never": "",
      "courses": SYMBOLIC + ("prealgebra",), "wrote": r"[≤≥]",

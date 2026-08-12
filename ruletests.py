@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD en -- THE LAST TWO AUDIT ITEMS, GUARDED (PART 3y): rule 49 gains
+#               (f) -- when the student NAMES their rule, that is evidence and it is the
+#               one you answer (the audit caught a reply correcting a misconception the
+#               student never had while their real one survived) -- and the two notation
+#               registry gaps are closed: bare < and > (absent entirely, though comparing
+#               fractions is core Basic Math) and the imaginary unit (absent though
+#               algebra2 teaches complex numbers). PART 3y also pins the FALSE-POSITIVE
+#               behaviour, because both patterns were the risky kind: arrows (->, =>) and
+#               the or-equal pair must never read as inequalities, and the calculus
+#               subscript scripts (x_i, "x · i") must never read as the imaginary unit.
 #   2026-08-12  BUILD em -- THE FRACTION PIE, GUARDED (PART 3x). The 2026-08-12 audit's
 #               one HIGH finding: a board captioned "one whole, cut into four equal
 #               parts" drew TWO wedges, and a beginner was then asked to count three
@@ -5362,6 +5372,63 @@ def part3x_fraction_pie():
           f"from proportions is the bug this part exists for")
 
 
+# =============================================================================
+# PART 3y -- ANSWER THE RULE THEY NAMED, AND READ THE SYMBOL YOU WROTE (build en)
+# =============================================================================
+# Two 2026-08-12 audit findings that share a root: the tutor had the student's own
+# words in front of it and did not use them.
+#   * rule 49(f): the student SAID "we do 5 plus 3 first" -- a left-to-right rule --
+#     and the reply corrected a different misconception entirely.
+#   * rule 48: "1/4 > 1/8" went on a Basic Math board with no way to say ">", because
+#     bare < and > were never in the notation registry at all (only the or-equal pair,
+#     and not for elementary). Comparing fractions IS Basic Math.
+def part3y_diagnosis_and_symbols():
+    print("\nPART 3y — answer the rule they named; read the symbol you wrote (build en)")
+    note = tutor.GRAPH_TOOL_NOTE
+
+    for label, needle in (
+        ("their stated rule is EVIDENCE, not a hypothesis",
+         "WHEN THEY TELL YOU THEIR RULE, THAT IS NOT A HYPOTHESIS"),
+        ("the live catch is recorded with its date", "Live catch, 2026-08-12"),
+        ("the move: say it back, name when it IS true, show where it breaks",
+         "say exactly WHEN it is true and when it is not"),
+    ):
+        check(f"rule 49(f): {label}", needle in note,
+              f"{needle!r} left rule 49 -- restore it or change this anchor on purpose")
+    check("rule 49(f) reaches every course (it lives in the shared block)",
+          note.count("WHEN THEY TELL YOU THEIR RULE") == 1,
+          "a shared rule goes in once, never per course")
+
+    # The registry gaps, and the guarantee that closing them did not break detection.
+    for nid, must_have in (("inequality", ("basic", "entry", "prealgebra")),
+                           ("imaginary", ("algebra2",))):
+        try:
+            entry = notation.by_id(nid)
+        except Exception:
+            entry = None
+        check(f"[{nid}] is registered at all", bool(entry),
+              "the tutor writes this symbol and rule 48 has no canonical reading for it")
+        if not entry:
+            continue
+        missing = [c for c in must_have if c not in entry["courses"]]
+        check(f"  [{nid}] covers {', '.join(must_have)}", not missing,
+              f"missing {missing} -- the course that WRITES the symbol is the course "
+              f"that needs to be told how to say it")
+
+    # The patterns must not fire on things that merely look similar. These five strings
+    # are the real ones that would have broken the build if the regexes were naive:
+    # arrows in captions, the or-equal pair, and the calculus subscript scripts.
+    for text, forbidden in (("x -> y", "inequality"), ("a <= b", "inequality"),
+                            ("f(x_i)", "imaginary"), ("it is not x * i", "imaginary")):
+        check(f"  {forbidden!r} does not fire on {text!r}",
+              forbidden not in notation.written_in(text),
+              "a false positive here fails the build on innocent board text")
+    for text, expected in (("1/4 > 1/8", "inequality"), ("3 + 2i", "imaginary")):
+        check(f"  {expected!r} IS detected in {text!r}",
+              expected in notation.written_in(text),
+              "the symbol the audit caught must be recognised")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -5417,6 +5484,7 @@ def main():
     part3v_course_identity()
     part3w_generalizations()
     part3x_fraction_pie()
+    part3y_diagnosis_and_symbols()
     if live:
         part4_live()
     else:
