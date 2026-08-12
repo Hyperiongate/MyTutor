@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12eh-students-demo". THE STUDENTS DEMO DOOR
+#               CHARMS THE CHILD AND REASSURES THE PARENT (Jim: parents try the
+#               student door as if they were their child). THIS FILE: four lines
+#               APPENDED to DEMO_VOICE_LINES (234 -> 238), identical to demo.html's
+#               VOICE_LINES -- new students intro ("I really talk, and I really
+#               listen" -- say it out loud, he hears you, you work it out together),
+#               a new ask-me-out-loud honest-read stop (no mystery numbers, no
+#               report-card code), a trophy-case stop that makes EARNING the point
+#               ("nobody can give you these -- not me, not anyone"), and a new outro
+#               carrying the two safety promises a listening parent needs: math ONLY
+#               (anything else gets a smile and a steer straight back) and never
+#               just handing over the answer. Tour untouched: same ten stops, same
+#               panels, same order. Clips render on first play or via pre-render.
 #   2026-08-12  APP_BUILD -> "2026-08-12eg-parents-demo". THE PARENTS DEMO DOOR
 #               SPEAKS TO WHAT A PARENT ACTUALLY ASKS (Jim, from a parent-teacher
 #               conference: a teacher shows the app -- what does the parent want to
@@ -6101,7 +6114,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12eg-parents-demo"
+APP_BUILD = "2026-08-12eh-students-demo"
 
 
 @app.get("/health")
@@ -7284,7 +7297,13 @@ DEMO_VOICE_LINES = [
     "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a child protects a streak she built.",
     "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
     "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
-    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus."
+    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus.",
+    # 2026-08-12 (build eh): FOUR student-door lines -- the kid-and-parent rewrite
+    # (intro, stop 1, the trophy stop, outro). Identical to demo.html, APPENDED.
+    "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
+    "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
+    "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
+    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now."
 ]
 
 

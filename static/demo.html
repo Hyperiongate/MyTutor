@@ -1,5 +1,29 @@
 <!DOCTYPE html>
 <!--
+    (eh) 2026-08-12 -- THE STUDENTS DOOR CHARMS THE CHILD AND REASSURES THE PARENT.
+    Jim: parents try the student door AS IF they were their child -- "what does my
+    child want to see?" So /demo?view=students now leads with the three things that
+    sell that double audience, with the tour untouched (same ten stops, same panels,
+    same order; STU_STOPS still overrides by index and still has ten entries):
+      - NEW INTRO: the wow first -- "I really talk, and I really listen": say your
+        answer out loud, he hears you, you work it out together on the whiteboard at
+        your speed. Made-up-Maya disclaimer kept.
+      - Stop 1 (honest read): "the part you can just ask me for, out loud, any time"
+        -- no mystery numbers, no report-card code; you always know where you stand.
+      - Stop 9 (trophy case, the one Jim named): earning is the whole point --
+        "nobody can give you these, not me, not anyone" -- which is why the page
+        feels good to open. Badges per gold unit, the effort medal, Course Champion.
+      - NEW OUTRO: the two promises a listening parent needs to hear, in the kid's
+        own tour -- I ONLY ever talk about math (anything else gets a smile and a
+        steer straight back), and I NEVER just give you the answer -- then the
+        real-lesson invitation.
+    Stops 2-8 and 10 keep their proven lines (five numbers, gold units, quiz detail,
+    strengthen next, habit charts, the path, next-three-sessions, courses).
+    MECHANICS: four lines APPENDED to VOICE_LINES (234 -> 238), identical in
+    main.py's DEMO_VOICE_LINES -- clips addressed by index, lists never reorder,
+    every anchor still resolves to exactly one line (PART 3j). New clips render on
+    first play; the per-line retry (build ca) keeps a slow first fetch from tripping
+    the voice latch.
     (eg) 2026-08-12 -- THE PARENTS DOOR SPEAKS TO WHAT A PARENT ACTUALLY ASKS.
     Jim, from a parent-teacher conference: a teacher shows the app to a parent -- what
     does that parent want to know? Two things, everywhere: IS MY CHILD ACTUALLY
@@ -1417,7 +1441,18 @@
     "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a child protects a streak she built.",
     "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
     "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
-    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus."
+    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus.",
+    // 2026-08-12 (build eh): FOUR student-door lines. Jim: parents try the student
+    // door AS IF they were their child -- so it must charm the child and reassure
+    // the parent in the same breath. New intro (he really talks and really
+    // LISTENS), a new ask-me-out-loud honest-read stop, a trophy-case stop that
+    // makes earning the point ('nobody can give you these'), and a new outro with
+    // the two safety promises: math ONLY, and never just handing over the answer.
+    // Stops 2-8 and 10 keep their proven lines. Identical to main.py, APPENDED.
+    "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
+    "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
+    "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
+    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now."
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -1480,7 +1515,7 @@
     parents:    lineStarting("Hello, and come on in — this is the parent's side"),
     teachers:   lineStarting("Welcome — this is the teacher's view"),
     homeschool: lineStarting("Welcome — this is the homeschool view"),
-    students:   lineStarting("Hi! This is your dashboard")
+    students:   lineStarting("Hi there! I'm Mr. Cadabra")
   };
   // The homeschool stop lines — the same panels as the parent dashboard, in the same
   // order, with words written for a parent who is also the teacher.
@@ -1507,7 +1542,7 @@
     parents:    lineStarting("And that's the parent's window."),
     teachers:   lineStarting("And that's the teacher's view."),
     homeschool: lineStarting("And that's the homeschool view."),
-    students:   lineStarting("And that's your dashboard!")
+    students:   lineStarting("And that's your dashboard, top to bottom!")
   };
   // Which door this visitor came through, decided ONCE at page load from the URL and
   // never changed afterwards. Everything that could lead to another audience's screen
@@ -1519,7 +1554,7 @@
   // student instead of about her. ⚠️ ONE ENTRY PER STUDENT STOP — runDashTour reads this
   // by index and falls through to the shared line where it is short.
   var STU_STOPS = [
-    lineStarting("This is the part you can ask for any time"),
+    lineStarting("This is the part you can just ask me for"),
     lineStarting("These five numbers are yours"),
     lineStarting("Below that is your whole course"),
     lineStarting("Open a unit and you can see every quiz inside it"),
@@ -1527,7 +1562,7 @@
     lineStarting("These two charts are your habits."),
     lineStarting("Your nine units drawn as a path"),
     lineStarting("And your next three sessions, already planned."),
-    lineStarting("And your trophy case."),
+    lineStarting("And here it is — the trophy case."),
     lineStarting("Your courses. You finished Basic Math and moved up")
   ];
   function say(text){

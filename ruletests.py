@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD eh -- STUDENTS DEMO DOOR REWRITE, GUARDED. The /demo?view=
+#               students walkthrough now charms the child AND reassures the parent
+#               trying the door as if they were their child (Jim). NEW eh needles in
+#               PART 3j, same shape as eg's: both voice lists must carry the
+#               talks-and-LISTENS intro, the math-ONLY promise, the never-just-gives-
+#               the-answer promise, and the nobody-can-give-you-a-trophy line; the
+#               students intro/outro anchors must be the NEW ones. Everything else
+#               rides the existing enforcement: lists identical + append-only
+#               (234 -> 238), every anchor resolves to exactly one line, STU_STOPS
+#               still overrides ten-for-ten by index.
 #   2026-08-12  BUILD eg -- PARENTS DEMO DOOR REWRITE, GUARDED. The /demo?view=parents
 #               walkthrough now answers the two questions a parent brings to a
 #               conference table -- "is my child actually learning" and "will she
@@ -3331,6 +3341,33 @@ def part3j_walkthroughs():
         check("eg: the parents door CLOSES with the privacy outro",
               'parents:    lineStarting("And that\'s the parent\'s window.")' in demo_src,
               "AUD_OUTRO.parents must anchor the new outro carrying the voice answer")
+
+        # Build eh (2026-08-12): the students door must charm the child AND reassure
+        # the parent listening over their shoulder -- and must speak the NEW lines.
+        for label, needle in (
+            ("the talks-and-LISTENS opener",
+             "I really talk, and I really listen"),
+            ("the math-ONLY promise",
+             "I only ever talk about math"),
+            ("the never-just-gives-the-answer promise",
+             "I never just give you the answer"),
+            ("trophies are earned -- nobody can give them",
+             "Nobody can give you these — not me, not anyone"),
+            ("the ask-me-out-loud honest read",
+             "No mystery numbers, no report-card code"),
+        ):
+            check(f"eh: the students door carries {label}",
+                  any(needle in ln for ln in demo_lines),
+                  f"{needle!r} left the voice list -- the students walkthrough lost "
+                  f"its answer")
+        check("eh: the students door OPENS with the new intro",
+              'students:   lineStarting("Hi there! I\'m Mr. Cadabra")' in demo_src,
+              "AUD_INTRO.students must anchor the talks-and-listens intro")
+        check("eh: the students door CLOSES with the two-promises outro",
+              'students:   lineStarting("And that\'s your dashboard, top to bottom!")'
+              in demo_src,
+              "AUD_OUTRO.students must anchor the outro carrying math-only and "
+              "never-just-the-answer")
 
         # And the bug Jim actually hit: the screen must go up BEFORE the words.
         check("the walkthrough shows the dashboard before it starts talking",
