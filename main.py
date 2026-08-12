@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ec-security-hardening-1". SECURITY PASS 1 of the
+#               review in claude/Security_Review_2026-08-12.md (Jim: "make sure our security
+#               is robust"). Three low-risk, universal fixes:
+#               F3 -- _client_ip no longer trusts the SPOOFABLE leftmost X-Forwarded-For
+#                     entry (a visitor could prepend a fake and slip the per-IP brute-force
+#                     limits on sign-in / signup / password-reset). It now trusts only the
+#                     rightmost TRUSTED_PROXY_HOPS entries (default 1 = the address Render
+#                     appended) -- un-spoofable behind our own proxy.
+#               F4 -- a new @app.middleware stamps the standard browser-hardening headers on
+#                     EVERY response: nosniff, X-Frame-Options SAMEORIGIN, Referrer-Policy,
+#                     HSTS, a mic-only Permissions-Policy, and a Content-Security-Policy in
+#                     REPORT-ONLY mode (our inline styles/scripts + Plausible mean an
+#                     enforcing CSP could blank the site; report-only describes it safely
+#                     and can be flipped on later with a nonce refactor).
+#               F5 -- /api/transcribe caps the audio it reads at MAX_AUDIO_BYTES (12 MB,
+#                     env-tunable) and returns a clean 413 over it, instead of pulling an
+#                     unbounded upload into memory. The catch-all except now re-raises
+#                     HTTPException so the 413 actually reaches the caller.
+#               Nothing else changed. Guards: ruletests PART 3 "BUILD ec" block (source
+#               checks + a live TestClient drill proving headers ship and XFF is read from
+#               the trusted end). F1 (read-by-code throttle) and F2 (class lock) are the
+#               next two builds, per the review's proposed order.
 #   2026-08-11  APP_BUILD -> "2026-08-11eb-features-faq". CALM FEATURES PAGE + FOUR
 #               AUDIENCE FAQs (Jim: "the features page has too much information... I don't
 #               like the icons... just bullet points... consolidate... drop-downs" + "a FAQ
@@ -2415,6 +2437,15 @@ def get_session(code: str, course: str = "algebra1") -> dict:
 # in their own tables and are untouched by this.
 MAX_STORED_MESSAGES = 60
 
+# SECURITY (build ec, 2026-08-12 -- finding F5): the largest audio upload /api/transcribe
+# will pull into memory. A few seconds of student speech is well under 1 MB; 12 MB is a
+# roomy ceiling for a long answer while closing the unbounded-read memory/cost hole.
+# Env-tunable (MAX_AUDIO_BYTES) without a code change.
+try:
+    MAX_AUDIO_BYTES = int(os.environ.get("MAX_AUDIO_BYTES", str(12 * 1024 * 1024)) or (12 * 1024 * 1024))
+except (TypeError, ValueError):
+    MAX_AUDIO_BYTES = 12 * 1024 * 1024
+
 
 def _bounded_history(session: dict) -> dict:
     """Return `session` with its transcript capped. Never raises."""
@@ -2747,6 +2778,59 @@ class MarkIn(BaseModel):
 app = FastAPI(title="Math Tutor MVP", version="0.1.0")
 
 
+# =============================================================================
+# SECURITY HEADERS (build ec, 2026-08-12 -- finding F4)
+# -----------------------------------------------------------------------------
+# One small middleware stamps the standard browser-hardening headers on EVERY
+# response (pages, API, static). These are defense-in-depth: alone they ruin
+# nothing, but together they stop a whole class of tricks -- clickjacking (our
+# site framed inside a fake page), MIME-sniffing, protocol downgrade, and
+# referrer leakage.
+#
+#   X-Content-Type-Options   nosniff -- browser must honor our declared types
+#   X-Frame-Options          SAMEORIGIN -- only WE may frame our own pages
+#   Referrer-Policy          strict-origin-when-cross-origin -- no path leak off-site
+#   Strict-Transport-Security force HTTPS for a year (Render is HTTPS-only already)
+#   Permissions-Policy       deny camera/geolocation/payment; MIC stays allowed
+#                            (the tutor is voice-first)
+#   Content-Security-Policy-Report-Only  -- the ONE header shipped in REPORT-ONLY
+#                            mode on purpose. Our pages use inline <style>/<script>
+#                            and load Plausible; an enforcing CSP could blank the
+#                            site, so we start by DESCRIBING the policy without
+#                            blocking, and can flip it to enforcing (and add a
+#                            nonce refactor to drop 'unsafe-inline') once proven.
+# setdefault() everywhere so a route that sets its own header always wins.
+# =============================================================================
+_CSP_REPORT_ONLY = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline' https://plausible.io; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self' data:; "
+    "connect-src 'self' https://plausible.io; "
+    "frame-ancestors 'self'; "
+    "base-uri 'self'; "
+    "form-action 'self'; "
+    "object-src 'none'"
+)
+_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Permissions-Policy": "camera=(), geolocation=(), payment=(), microphone=(self)",
+    "Content-Security-Policy-Report-Only": _CSP_REPORT_ONLY,
+}
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    response = await call_next(request)
+    for _h, _v in _SECURITY_HEADERS.items():
+        response.headers.setdefault(_h, _v)
+    return response
+
+
 def _lookup_student(code: str):
     """Find a student by code, wherever they live (2026-07-31).
 
@@ -2854,10 +2938,28 @@ def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests
 
 
 def _client_ip(request: Request) -> str:
-    """Best-effort caller IP. On Render we sit behind a proxy, so X-Forwarded-For is the real one."""
-    fwd = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    """Caller IP for the per-IP rate limiter, read from the position we actually trust.
+
+    SECURITY (build ec, 2026-08-12 -- finding F3): X-Forwarded-For is built LEFT-to-right
+    (client, proxy1, proxy2, ...). A visitor can PREPEND any value they like on the left,
+    so the old `.split(",")[0]` (leftmost) was attacker-controlled -- rotating a fake header
+    let someone slip the sign-in / signup / password-reset brute-force limits. Our own
+    proxy (Render) APPENDS the real peer on the RIGHT, and the client cannot control what we
+    append. So we trust only the rightmost `TRUSTED_PROXY_HOPS` entries and take the one just
+    inside them. Default 1 hop = "the last entry" = the address Render saw the connection
+    from. If ever fronted by an extra trusted proxy (e.g. Cloudflare -> Render), set
+    TRUSTED_PROXY_HOPS=2 in the environment; never lower it below the real hop count.
+    """
+    try:
+        hops = int(os.environ.get("TRUSTED_PROXY_HOPS", "1") or 1)
+    except (TypeError, ValueError):
+        hops = 1
+    if hops < 1:
+        hops = 1
+    fwd = [p.strip() for p in (request.headers.get("x-forwarded-for") or "").split(",") if p.strip()]
     if fwd:
-        return fwd
+        idx = len(fwd) - hops                 # the entry just inside our trusted proxy hops
+        return fwd[idx] if idx >= 0 else fwd[0]
     return request.client.host if request.client else "unknown"
 
 
@@ -5865,7 +5967,7 @@ def get_placement(code: str, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-11eb-features-faq"
+APP_BUILD = "2026-08-12ec-security-hardening-1"
 
 
 @app.get("/health")
@@ -7117,7 +7219,15 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
     if not ELEVEN_API_KEY:
         return {"text": "", "error": "no_key"}
     try:
-        content = await audio.read()
+        # SECURITY (build ec, 2026-08-12 -- finding F5): read at most MAX_AUDIO_BYTES + 1
+        # so a giant upload can't be pulled whole into memory. A few seconds of student
+        # speech is well under a megabyte; the cap (default 12 MB, env-tunable) is roomy
+        # for a long answer yet closes the memory/cost hole. Over the cap -> a clean 413.
+        content = await audio.read(MAX_AUDIO_BYTES + 1)
+        if len(content) > MAX_AUDIO_BYTES:
+            raise HTTPException(status_code=413, detail=(
+                "That recording is too large — try a shorter answer, "
+                "or type it instead."))
         if not content:
             return {"text": ""}
         files = {"file": (audio.filename or "speech.webm", content,
@@ -7133,6 +7243,10 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
             print(f"[transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
             return {"text": ""}
         return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
+    except HTTPException:
+        # The 413 "too large" refusal (build ec) is a real answer -- it must reach the
+        # caller, not be swallowed by the catch-all below that turns errors into "".
+        raise
     except Exception as exc:  # noqa: BLE001
         print(f"[transcribe] error: {exc}")
         return {"text": ""}

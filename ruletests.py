@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ec -- SECURITY HARDENING 1, GUARDED: F3 _client_ip must trust the
+#               proxy-appended (rightmost) X-Forwarded-For end via TRUSTED_PROXY_HOPS,
+#               never the spoofable leftmost (the old .split(",")[0] pattern is now
+#               forbidden); F4 the security-headers middleware must stamp the full set
+#               (nosniff, SAMEORIGIN, referrer, HSTS, permissions, CSP) with the CSP in
+#               REPORT-ONLY mode only (an enforcing CSP would blank our inline scripts);
+#               F5 /api/transcribe must cap the read at MAX_AUDIO_BYTES, 413 over it, and
+#               re-raise HTTPException so the cap isn't swallowed. LIVE drill (SEC-DRILL):
+#               headers ship on a page AND the API, and _client_ip picks the trusted end
+#               even when the caller prepends fakes.
 #   2026-08-11  BUILD eb -- CALM FEATURES PAGE + FOUR AUDIENCE FAQs, GUARDED: the
 #               features page must stay icon-free (no emoji rows, no .ic spans), stay
 #               six drop-down sections of >=41 plain bullets, and keep naming the
@@ -3622,6 +3632,86 @@ def part3p_marketing_claims():
     check("homeschool.html no longer promises a 'parent code' (eb, dq's fix extended)",
           "parent code" not in hv7.lower() and '"/family"' in hv7,
           "the phantom parent code was scrubbed from parents.html; it must not survive here")
+
+    # ---- BUILD ec: security hardening pass 1 (F3 spoof, F4 headers, F5 upload cap) ---
+    mn8 = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    # F3: the caller IP must come from the TRUSTED (rightmost) end, never the spoofable
+    # leftmost. The old attacker-controlled pattern must be gone.
+    _cip = mn8.split("def _client_ip(", 1)[1].split("\ndef ", 1)[0]
+    check("F3: _client_ip trusts the proxy-appended end, not the spoofable leftmost (ec)",
+          "TRUSTED_PROXY_HOPS" in _cip
+          and "len(fwd) - hops" in _cip
+          and '.split(",")[0].strip()' not in _cip,
+          "a visitor who can prepend a fake XFF entry can slip every per-IP limit")
+    # F4: the security-headers middleware must exist and carry the full set.
+    check("F4: a security-headers middleware stamps the standard set on every response (ec)",
+          '@app.middleware("http")' in mn8 and "async def _security_headers" in mn8
+          and all(h in mn8 for h in (
+              '"X-Content-Type-Options": "nosniff"',
+              '"X-Frame-Options": "SAMEORIGIN"',
+              '"Referrer-Policy"', '"Strict-Transport-Security"',
+              '"Permissions-Policy"', "Content-Security-Policy-Report-Only")),
+          "defense-in-depth headers protect every page, API, and asset")
+    check("F4: the CSP ships REPORT-ONLY (never blocks our own inline scripts) (ec)",
+          "_CSP_REPORT_ONLY" in mn8
+          and '"Content-Security-Policy":' not in mn8
+          and "https://plausible.io" in mn8,
+          "an enforcing CSP would blank pages that use inline styles/scripts + Plausible")
+    # F5: the upload cap is real -- bounded read AND a 413 AND the catch-all re-raises it.
+    _stt = mn8.split("async def transcribe(", 1)[1].split("\n@app.", 1)[0]
+    check("F5: /api/transcribe caps the upload and returns 413, un-swallowed (ec)",
+          "MAX_AUDIO_BYTES" in mn8
+          and "audio.read(MAX_AUDIO_BYTES + 1)" in _stt
+          and "status_code=413" in _stt
+          and "except HTTPException:" in _stt,
+          "an unbounded read is a memory/cost hole; a swallowed 413 is no cap at all")
+
+    # ---- BUILD ec: LIVE -- headers actually ship + XFF read from the trusted end -----
+    try:
+        import httpx as _httpx8  # noqa: F401
+        _have_httpx8 = True
+    except Exception:  # noqa: BLE001
+        _have_httpx8 = False
+    if not _have_httpx8:
+        skip("security hardening live drill", "httpx not installed here")
+    else:
+        import tempfile as _tf8
+        with _tf8.TemporaryDirectory() as tmp8:
+            drill = os.path.join(tmp8, "secdrill.py")
+            with open(drill, "w") as fh:
+                fh.write(
+                    "from fastapi.testclient import TestClient\n"
+                    "import main\n"
+                    "c = TestClient(main.app)\n"
+                    "# F4: every response carries the hardening headers (a page AND the API)\n"
+                    "for path in ('/', '/api/voice-status'):\n"
+                    "    r = c.get(path)\n"
+                    "    h = r.headers\n"
+                    "    assert h.get('x-content-type-options') == 'nosniff', (path, dict(h))\n"
+                    "    assert h.get('x-frame-options') == 'SAMEORIGIN', path\n"
+                    "    assert 'strict-origin' in h.get('referrer-policy',''), path\n"
+                    "    assert 'max-age=' in h.get('strict-transport-security',''), path\n"
+                    "    assert h.get('content-security-policy-report-only'), path\n"
+                    "    assert 'content-security-policy' not in {k.lower() for k in h} - {'content-security-policy-report-only'}, path\n"
+                    "# F3: leftmost XFF is a fake the client prepended; we must read the\n"
+                    "# rightmost (proxy-appended) entry instead.\n"
+                    "class _Req:\n"
+                    "    def __init__(s, xff): s.headers={'x-forwarded-for': xff}; s.client=type('C',(),{'host':'9.9.9.9'})()\n"
+                    "    headers=None\n"
+                    "import os as _os\n"
+                    "_os.environ['TRUSTED_PROXY_HOPS']='1'\n"
+                    "assert main._client_ip(_Req('6.6.6.6, 1.2.3.4')) == '1.2.3.4', 'must trust the appended end'\n"
+                    "assert main._client_ip(_Req('6.6.6.6')) == '6.6.6.6', 'single entry is the client'\n"
+                    "assert main._client_ip(_Req('a, b, 1.2.3.4')) == '1.2.3.4', 'many fakes cannot push past the trusted end'\n"
+                    "print('SEC-DRILL-OK')\n")
+            env = dict(os.environ)
+            env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
+            env["WEEKLY_EMAIL"] = "off"
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("security live: headers ship on page + API; XFF read from the trusted end (ec)",
+                  r.returncode == 0 and "SEC-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-400:])
 
     # ---- BUILD dz: accessibility + phones -------------------------------------------
     for pg in ("session.html", "practice.html", "topic.html"):
