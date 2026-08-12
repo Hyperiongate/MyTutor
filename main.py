@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12eg-parents-demo". THE PARENTS DEMO DOOR
+#               SPEAKS TO WHAT A PARENT ACTUALLY ASKS (Jim, from a parent-teacher
+#               conference: a teacher shows the app -- what does the parent want to
+#               know? "Is my child actually learning" and "will she actually want to
+#               do this"). THIS FILE: seven lines APPENDED to DEMO_VOICE_LINES
+#               (227 -> 234), identical to demo.html's VOICE_LINES -- new parents
+#               intro, new words for parent stops 1/2/4/5/8 (conference question ·
+#               teaches-never-hands-answers · one-record + the streak nobody can
+#               assign · kitchen-table + missed-problems-come-back · trophy case as
+#               the will-she-use-it answer), and a new outro carrying the
+#               voice-privacy answer. The tour structure is untouched: same ten
+#               stops, same panels, same order; HS_STOPS unchanged. Clips render on
+#               first play or via the admin pre-render.
 #   2026-08-12  APP_BUILD -> "2026-08-12ef-homeschool-pitch". THE CONFERENCE PITCH
 #               REWORK of /homeschool (build stamp only in this file; the work lives
 #               in static/homeschool.html + new ef guards in ruletests.py). Jim,
@@ -6088,7 +6101,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12ef-homeschool-pitch"
+APP_BUILD = "2026-08-12eg-parents-demo"
 
 
 @app.get("/health")
@@ -7262,7 +7275,16 @@ DEMO_VOICE_LINES = [
     "And your trophy case. Explored, practiced, learning, mastered, the effort medal, and the Course Champion medal you earned for finishing Basic Math. Every one of them came from real work — none of them are participation stickers.",
     # 2026-08-10 (build ct): the two habit charts. Identical to demo.html, APPENDED.
     "Two charts here, and they are her habits. On the left, accuracy week by week — the dip is week eight, the week percents beat her, and the climb after it is four days of coming anyway. On the right, minutes a day this week, including the two days she did nothing. Honest pictures, both of them: a dashboard that only ever shows good news isn't worth having.",
-    "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture."
+    "These two charts are your habits. On the left, how accurate you were week by week — that dip is the week percents beat you, and the climb right after it is you coming back four days running. On the right, your minutes a day this week, days off included. I'd rather show you the truth than a flattering picture.",
+    # 2026-08-12 (build eg): SEVEN parent-door lines -- the conference rewrite
+    # (intro, stops 1/2/4/5/8, outro). Identical to demo.html, APPENDED.
+    "Hello, and come on in — this is the parent's side of Mr. Cadabra's Classroom, shown with a made-up student named Maya so no real child's record is ever on display. Parents bring me the same two questions everywhere: is my child actually learning, and will she actually want to do this? Every panel on this screen answers one of those two — and every number on it comes from real work, because we never invent a good week.",
+    "This is the dashboard you'd open at home, and it leads with the question you'd ask me at a parent-teacher conference: how is my child really doing? Not a score out of ten, not a percentile — an answer in plain English, written from the work she actually did.",
+    "That's my honest read. It names what she's genuinely got, what she's stuck on, and what I'm doing about it — because I teach: out loud, one step at a time, and I never just hand her the answer. When this paragraph says she owns something, she earned it. And when she has a hard week, it says that too, plainly.",
+    "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a child protects a streak she built.",
+    "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
+    "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
+    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus."
 ]
 
 

@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD eg -- PARENTS DEMO DOOR REWRITE, GUARDED. The /demo?view=parents
+#               walkthrough now answers the two questions a parent brings to a
+#               conference table -- "is my child actually learning" and "will she
+#               actually want to do this" -- with the tour structure untouched. NEW eg
+#               needles in PART 3j: both voice lists must carry the two parent
+#               questions, the teaches-never-hands-answers promise, the
+#               missed-problem-comes-back line, and the voice-privacy outro; the
+#               parents intro/outro anchors must be the NEW ones (the old lines stay
+#               in the lists forever -- append-only -- but the parents door must not
+#               speak them). Everything else PART 3j already enforced does the heavy
+#               lifting: lists identical + append-only (227 -> 234), every anchor
+#               resolves to exactly one line, every spoken literal is whitelisted,
+#               HS_STOPS still covers every parent stop.
 #   2026-08-12  BUILD ef -- HOMESCHOOL CONFERENCE-PITCH REWORK, GUARDED. Jim, pitching
 #               at a homeschooling conference, asked /homeschool to LEAD with the
 #               points that land at a real table: records/filing first, honest mastery
@@ -3292,6 +3305,32 @@ def part3j_walkthroughs():
             check(f"  anchor {a[:34]!r} resolves to exactly one line", len(hits) == 1,
                   f"matched {len(hits)} -- the walkthrough would fall back to the "
                   f"browser voice, or play the wrong clip")
+
+        # Build eg (2026-08-12): the parents door must SPEAK to the two questions a
+        # parent actually brings to a conference table -- and must speak the NEW
+        # lines, not the old ones (both stay in the lists forever; append-only).
+        for label, needle in (
+            ("the two parent questions, named up front",
+             "is my child actually learning, and will she actually want to do this?"),
+            ("the teaching promise -- never just hands her the answer",
+             "I never just hand her the answer"),
+            ("a missed problem comes back fresh (rule 55, in parent words)",
+             "a miss becomes a second chance instead of a quiet gap"),
+            ("the voice-privacy answer in the outro",
+             "the audio is deleted right away — never stored"),
+            ("the trophy case answers will-she-use-it",
+             "will she actually use it?"),
+        ):
+            check(f"eg: the parents door carries {label}",
+                  any(needle in ln for ln in demo_lines),
+                  f"{needle!r} left the voice list -- the parents walkthrough lost "
+                  f"its answer")
+        check("eg: the parents door OPENS with the new intro",
+              'parents:    lineStarting("Hello, and come on in' in demo_src,
+              "AUD_INTRO.parents must anchor the conference intro, not the old welcome")
+        check("eg: the parents door CLOSES with the privacy outro",
+              'parents:    lineStarting("And that\'s the parent\'s window.")' in demo_src,
+              "AUD_OUTRO.parents must anchor the new outro carrying the voice answer")
 
         # And the bug Jim actually hit: the screen must go up BEFORE the words.
         check("the walkthrough shows the dashboard before it starts talking",

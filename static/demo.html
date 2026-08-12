@@ -1,5 +1,37 @@
 <!DOCTYPE html>
 <!--
+    (eg) 2026-08-12 -- THE PARENTS DOOR SPEAKS TO WHAT A PARENT ACTUALLY ASKS.
+    Jim, from a parent-teacher conference: a teacher shows the app to a parent -- what
+    does that parent want to know? Two things, everywhere: IS MY CHILD ACTUALLY
+    LEARNING, and WILL SHE ACTUALLY WANT TO DO THIS? The /demo?view=parents
+    walkthrough now answers both, stop by stop, while keeping the exact same tour
+    (same ten stops, same panels, same order -- HS_STOPS still overrides all ten by
+    index and is untouched):
+      - NEW INTRO: names the two parent questions up front, keeps the made-up-Maya
+        disclaimer and the never-invent-a-good-week promise.
+      - Stop 1 (honest read): reframed as the conference question -- "how is my child
+        really doing" in plain English, not a score out of ten.
+      - Stop 2 (honest read): adds the teaching promise -- he teaches out loud, one
+        step at a time, and NEVER just hands her the answer; hard weeks are said
+        plainly.
+      - Stop 4 (five numbers): one record shared with the teacher, nothing rounded
+        up -- plus the engagement proof: nobody can assign a streak; it only grows on
+        days she opens the classroom herself.
+      - Stop 5 (strengthen next): kitchen-table specific, and the rule-55 story a
+        parent loves: a missed problem comes back days later as a fresh one -- a
+        second chance, not a quiet gap.
+      - Stop 8 (trophy case): reframed as THE answer to "will she actually use it?"
+        -- earned, never given, and why a child opens the classroom unasked.
+      - NEW OUTRO: carries the voice-privacy answer (speech becomes text, audio
+        deleted right away, never stored; he stays warmly on the math) before the
+        real-lesson invitation.
+    Stops 3, 6, 7, 9, 10 keep their proven lines (the minute-box, units-as-evidence,
+    the journey path, courses, and the printable record). MECHANICS: seven lines
+    APPENDED to VOICE_LINES (227 -> 234), identical in main.py's DEMO_VOICE_LINES --
+    clips are addressed by index, the lists never reorder, and every anchor still
+    resolves to exactly one line (PART 3j). New clips render on first play (or via
+    the admin pre-render); the per-line retry keeps a slow first fetch from tripping
+    the voice latch (build ca).
     (ct) 2026-08-10 -- THE BOARD KEEPS ITS SPACE · AND ALL FOUR VIEWS ARE THE REAL ONES.
 
     ⭐ THE LIVE DEFECT FIRST. Jim, in a Basic Math demo lesson: "it started off showing
@@ -1369,6 +1401,23 @@
     // from five stops to ten; homeschool overrides all ten BY INDEX, so the two
     // lists must stay the same length -- a short override falls through to the
     // parent's own words, which is the cq bug in a different disguise. APPENDED.
+    //
+    // 2026-08-12 (build eg): SEVEN parent-door lines. Jim, from a parent-teacher
+    // conference: push what a parent most wants to know -- is my child actually
+    // learning, and will she actually want to do this? New intro, new words for
+    // stops 1, 2, 4, 5 and 8 (honest read + he TEACHES and never hands over the
+    // answer; one record shared with the teacher + the streak nobody can assign;
+    // kitchen-table help + a missed problem comes back fresh; the trophy case as
+    // the will-she-use-it answer), and a new outro carrying the voice-privacy
+    // answer. Stops 3, 6, 7, 9, 10 keep their proven lines. Identical to main.py,
+    // APPENDED -- clips are addressed by index and the lists never reorder.
+    "Hello, and come on in — this is the parent's side of Mr. Cadabra's Classroom, shown with a made-up student named Maya so no real child's record is ever on display. Parents bring me the same two questions everywhere: is my child actually learning, and will she actually want to do this? Every panel on this screen answers one of those two — and every number on it comes from real work, because we never invent a good week.",
+    "This is the dashboard you'd open at home, and it leads with the question you'd ask me at a parent-teacher conference: how is my child really doing? Not a score out of ten, not a percentile — an answer in plain English, written from the work she actually did.",
+    "That's my honest read. It names what she's genuinely got, what she's stuck on, and what I'm doing about it — because I teach: out loud, one step at a time, and I never just hand her the answer. When this paragraph says she owns something, she earned it. And when she has a hard week, it says that too, plainly.",
+    "These five numbers are the same five her teacher and I see — one record, one set of facts, nothing rounded up. And the day streak is my favorite of the five, because nobody can assign a streak: it only grows on days she opens the classroom herself, and a child protects a streak she built.",
+    "Strengthen next tells you exactly where she's wobbling right now — specific enough to sit down with at the kitchen table. And a problem she misses doesn't just vanish into a percentage: a few days later I bring back a fresh one just like it, so a miss becomes a second chance instead of a quiet gap.",
+    "Her trophy case — and this panel is my answer to the question 'will she actually use it?' The badges are earned, never given: a Course Champion medal for finishing Basic Math, a badge for every unit she's mastered, and an effort medal for coming back four days running the week percents beat her. This is why a child opens the classroom without being asked.",
+    "And that's the parent's window. One more thing, because careful parents always ask: in a lesson your child talks with me out loud, her speech becomes text, and the audio is deleted right away — never stored — while I stay warmly on the math and nothing else. If you'd like to see how I actually teach, I can give you a real lesson right now, at any level from counting to calculus."
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -1428,7 +1477,7 @@
     return '';
   }
   var AUD_INTRO = {
-    parents:    lineStarting("Welcome — this is the parent's view"),
+    parents:    lineStarting("Hello, and come on in — this is the parent's side"),
     teachers:   lineStarting("Welcome — this is the teacher's view"),
     homeschool: lineStarting("Welcome — this is the homeschool view"),
     students:   lineStarting("Hi! This is your dashboard")
@@ -1455,7 +1504,7 @@
   // place of the three-view invitation -- which a visitor who came through one door is
   // never shown.
   var AUD_OUTRO = {
-    parents:    lineStarting("And that's the parent's view."),
+    parents:    lineStarting("And that's the parent's window."),
     teachers:   lineStarting("And that's the teacher's view."),
     homeschool: lineStarting("And that's the homeschool view."),
     students:   lineStarting("And that's your dashboard!")
@@ -2002,14 +2051,14 @@
     // lays them out. HS_STOPS overrides all ten BY INDEX -- add a stop here and you add
     // one there in the same edit, or a homeschooling parent hears the parent's words.
     parent:{ id:'dashParent', stops:[
-      {t:'pdRead',       line:"And this is the parent's view. It's the same dashboard, opened with a parent's link — but it leads with the question a parent actually has: how is my child really doing, in plain English."},
-      {t:'pdRead',       line:"That's my honest read. It names what she's good at, what she's stuck on, and what I'm doing about it. If your child had a hard week, this paragraph will say so — a report that only ever says 'great job' isn't worth reading."},
+      {t:'pdRead',       line:lineStarting("This is the dashboard you'd open at home")},
+      {t:'pdRead',       line:lineStarting("That's my honest read. It names what she's genuinely")},
       {t:'pdBox',        line:lineStarting("If you only have a minute, this box is the whole dashboard")},
-      {t:'pdStats',      line:"Underneath are the same five numbers her teacher and I see. One record, one set of facts, no separate parent version that quietly rounds things up."},
-      {t:'pdStrengthen', line:"Strengthen next tells you exactly where she is wobbling right now — and because it comes from her actual lessons, it's specific enough to help with at the kitchen table."},
+      {t:'pdStats',      line:lineStarting("These five numbers are the same five her teacher")},
+      {t:'pdStrengthen', line:lineStarting("Strengthen next tells you exactly where she's wobbling")},
       {t:'pdUnits',      line:lineStarting("Here are her nine units.")},
       {t:'pdJourney',    line:lineStarting("This is the same nine units drawn as a path")},
-      {t:'pdTrophies',   line:lineStarting("Her trophy case.")},
+      {t:'pdTrophies',   line:lineStarting("Her trophy case — and this panel")},
       {t:'pdCourses',    line:lineStarting("And her courses. She finished Basic Math")},
       {t:'pdRecords',    line:"And this prints the whole record: every unit, every quiz, every hour, ready for a homeschool portfolio or a school district file. It's your child's work, and you can take it with you any time."}]}
   };
