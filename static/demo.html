@@ -1,5 +1,32 @@
 <!DOCTYPE html>
 <!--
+    (ei) 2026-08-12 -- THE TEACHERS DOOR: ASSISTANT, NOT REPLACEMENT.
+    Jim: a teacher sees three wins in this app -- it can help ME, it can help my
+    STUDENTS, and it lets me teach INDIVIDUALLY (who needs more help, who can go
+    ahead) -- and one threat: "I'm responsible for this class. Am I really going to
+    let an AI run it and replace me?" The /demo?view=teachers walkthrough now names
+    that threat in its FIRST BREATH and answers it all the way through, with the
+    tour untouched (same nine stops, same panels, same order):
+      - NEW INTRO: opens "I am not here to replace you" -- he's the teaching
+        assistant who gives every student patient one-on-one practice at their own
+        pace and reports back. Made-up-class disclaimer and the earned-mastery
+        sentence kept. "Your class stays yours."
+      - Stop 1 (open a class): the right way to think of him -- the assistant who
+        does what no teacher has thirty hours a day for, while YOU do the teaching.
+      - Stop 5 (needs attention): reframed as triage that frees the teacher from
+        one-pace-fits-all -- the stalled surface early, the students pulling ahead
+        surface too (the honest read below carries Sofia), "no class learns at one
+        speed, and you never have to teach as if it does."
+      - Stop 9 (open a student): the decision line -- "I gather the picture, you
+        make the teaching decisions."
+      - NEW OUTRO: what it DOESN'T do (plan your lessons, grade your judgment, run
+        your room), what it hands you instead, then the real-lesson invitation.
+    Stops 2/3/4/6/7/8 keep their proven lines (three numbers, the heatmap, the
+    roster, the honest read on Aiden/Ben/Sofia, strengthen next, time on task).
+    MECHANICS: five lines APPENDED to VOICE_LINES (238 -> 243), identical in
+    main.py's DEMO_VOICE_LINES -- clips by index, lists never reorder, every anchor
+    resolves to exactly one line (PART 3j). Clips render on first play (build ca
+    retry protects the first visitor).
     (eh) 2026-08-12 -- THE STUDENTS DOOR CHARMS THE CHILD AND REASSURES THE PARENT.
     Jim: parents try the student door AS IF they were their child -- "what does my
     child want to see?" So /demo?view=students now leads with the three things that
@@ -1452,7 +1479,22 @@
     "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
     "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
     "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
-    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now."
+    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now.",
+    // 2026-08-12 (build ei): FIVE teacher-door lines. Jim: a teacher sees three
+    // wins (helps me, helps my students, individualized pace) and one threat --
+    // 'am I really going to let an AI run my class and replace me?' So the door
+    // now NAMES the threat in its first breath ('I am not here to replace you')
+    // and frames everything as the teaching ASSISTANT: the patient one-on-one
+    // practice no teacher has thirty hours a day for, triage that frees them from
+    // one-pace-fits-all, and every decision left with the teacher. New intro,
+    // new words for stops 1, 5 and 9, new outro. Stops 2/3/4/6/7/8 keep their
+    // proven lines (tiles, heatmap, roster, honest read, strengthen, time).
+    // Identical to main.py, APPENDED -- clips by index, lists never reorder.
+    "Welcome! And let me say the most important thing first: I am not here to replace you. I'm a teaching assistant — the kind that gives every one of your students patient, one-on-one practice at their own pace, and then reports back to you. This is the teacher's view, built from a made-up class so no real student is ever on display, and every number in it is earned: mastery means ninety percent or better on a unit quiz with no hints from me. Your class stays yours — let me show you what I hand back.",
+    "Now the teacher's side — and here is the right way to think of me: I'm the assistant who does what no teacher has thirty hours a day for, the patient one-on-one practice, while you do the teaching. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
+    "This column — needs attention — is me doing your triage: a student who has stalled, or whose scores are sliding, gets flagged before they get lost in the middle of a class. And the students pulling ahead surface too, in my honest read below — because no class learns at one speed, and with an assistant watching every student every day, you never have to teach as if it does.",
+    "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
+    "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
 ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -1513,7 +1555,7 @@
   }
   var AUD_INTRO = {
     parents:    lineStarting("Hello, and come on in — this is the parent's side"),
-    teachers:   lineStarting("Welcome — this is the teacher's view"),
+    teachers:   lineStarting("Welcome! And let me say the most important thing first"),
     homeschool: lineStarting("Welcome — this is the homeschool view"),
     students:   lineStarting("Hi there! I'm Mr. Cadabra")
   };
@@ -1540,7 +1582,7 @@
   // never shown.
   var AUD_OUTRO = {
     parents:    lineStarting("And that's the parent's window."),
-    teachers:   lineStarting("And that's the teacher's view."),
+    teachers:   lineStarting("And that's the teacher's side of the classroom."),
     homeschool: lineStarting("And that's the homeschool view."),
     students:   lineStarting("And that's your dashboard, top to bottom!")
   };
@@ -2071,15 +2113,15 @@
     // describes actually is. PART 3j would have failed the build if it had been left
     // pointing at an element that no longer exists.
     teacher:{ id:'dashTeacher', stops:[
-      {t:'tdOpen',        line:"Now the teacher's side. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place."},
+      {t:'tdOpen',        line:lineStarting("Now the teacher's side — and here is the right way")},
       {t:'tdTiles',       line:lineStarting("Three numbers first, and the third one is really a question.")},
       {t:'tdHeat',        line:lineStarting("This is the heatmap:")},
       {t:'tdRoster',      line:"Here's the class. One row per student, showing how many of the nine units they've mastered, how many they've started, and a star when a unit is finished. Nothing here is guessed; it's the same mastery record the student sees."},
-      {t:'tdRoster',      line:"The column that matters most is this one: needs attention. A student who has stalled, or whose scores are sliding, gets flagged here so they're the first thing a teacher sees instead of the last thing they find out."},
+      {t:'tdRoster',      line:lineStarting("This column — needs attention — is me doing your triage")},
       {t:'tdRead',        line:lineStarting("And this is my honest read on the class. Aiden")},
       {t:'tdStrengthen',  line:lineStarting("Strengthen next, one line per student")},
       {t:'tdTime',        line:lineStarting("And time on task — engaged time")},
-      {t:'tdOpenStudent', line:"And a teacher can open any student to see their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. Adding a student is one box: their student code."}]},
+      {t:'tdOpenStudent', line:lineStarting("And you can open any student for their full dashboard")}]},
     // 2026-08-10 (build cs, Jim: "the parent is our number one customer... I want a fully
     // fleshed out parent dashboard, and I want you to give me a tour of that dashboard").
     // TEN stops now, one per panel of the real parent view, in the order the real page

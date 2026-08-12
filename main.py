@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12ei-teachers-demo". THE TEACHERS DEMO DOOR:
+#               ASSISTANT, NOT REPLACEMENT (Jim: teachers see three wins -- helps
+#               me, helps my students, individualized pace -- and one threat: "am I
+#               really going to let an AI run my class and replace me?"). THIS
+#               FILE: five lines APPENDED to DEMO_VOICE_LINES (238 -> 243),
+#               identical to demo.html's VOICE_LINES -- a new intro that opens
+#               "I am not here to replace you" and closes "your class stays yours",
+#               new words for teacher stops 1/5/9 (the assistant who does what no
+#               teacher has thirty hours a day for · needs-attention as triage that
+#               frees them from one-pace-fits-all, "no class learns at one speed" ·
+#               "I gather the picture, you make the teaching decisions"), and a new
+#               outro naming what it DOESN'T do (plan lessons, grade judgment, run
+#               the room). Tour untouched: nine stops, same panels, same order.
 #   2026-08-12  APP_BUILD -> "2026-08-12eh-students-demo". THE STUDENTS DEMO DOOR
 #               CHARMS THE CHILD AND REASSURES THE PARENT (Jim: parents try the
 #               student door as if they were their child). THIS FILE: four lines
@@ -6114,7 +6127,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12eh-students-demo"
+APP_BUILD = "2026-08-12ei-teachers-demo"
 
 
 @app.get("/health")
@@ -7303,7 +7316,14 @@ DEMO_VOICE_LINES = [
     "Hi there! I'm Mr. Cadabra — and yes, I really talk, and I really listen. In a real lesson you just say your answer out loud, I hear you, and we work it out together on my whiteboard, step by step, at your speed. This is your dashboard — I'm using a made-up student called Maya so nobody's real work is on show — and I'll show you your five numbers, your course map with its gold units, and the trophy case you're going to fill. Everything on this screen is stuff you actually did.",
     "This is the part you can just ask me for, out loud, any time: how am I doing? And I'll tell you straight, in plain words — what you're good at, what's hard right now, and what we're going to do about it together. No mystery numbers, no report-card code: you always know exactly where you stand.",
     "And here it is — the trophy case. A badge for every unit you turn gold, an effort medal for the week you refused to give up, and the big one: a Course Champion medal for finishing a whole course. Nobody can give you these — not me, not anyone. The only way a trophy gets into this case is that you earned it, and that's exactly why it feels so good to open this page.",
-    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now."
+    "And that's your dashboard, top to bottom! Every gold unit and every trophy on it, you'd earn yourself — I can't hand those out, and I wouldn't want to. Two promises before you go: I only ever talk about math — ask me about anything else and I'll smile and steer us straight back — and I never just give you the answer, because you getting it yourself is the whole fun. Want to see? Pick any level you like and I'll teach you a real lesson right now.",
+    # 2026-08-12 (build ei): FIVE teacher-door lines -- assistant, not replacement
+    # (intro, stops 1/5/9, outro). Identical to demo.html, APPENDED.
+    "Welcome! And let me say the most important thing first: I am not here to replace you. I'm a teaching assistant — the kind that gives every one of your students patient, one-on-one practice at their own pace, and then reports back to you. This is the teacher's view, built from a made-up class so no real student is ever on display, and every number in it is earned: mastery means ninety percent or better on a unit quiz with no hints from me. Your class stays yours — let me show you what I hand back.",
+    "Now the teacher's side — and here is the right way to think of me: I'm the assistant who does what no teacher has thirty hours a day for, the patient one-on-one practice, while you do the teaching. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
+    "This column — needs attention — is me doing your triage: a student who has stalled, or whose scores are sliding, gets flagged before they get lost in the middle of a class. And the students pulling ahead surface too, in my honest read below — because no class learns at one speed, and with an assistant watching every student every day, you never have to teach as if it does.",
+    "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
+    "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
 ]
 
 

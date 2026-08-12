@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  BUILD ei -- TEACHERS DEMO DOOR REWRITE, GUARDED. The /demo?view=
+#               teachers walkthrough now names the replacement threat in its first
+#               breath and frames everything as the teaching ASSISTANT. NEW ei
+#               needles in PART 3j, same shape as eg/eh: both voice lists must
+#               carry "I am not here to replace you", the thirty-hours-a-day
+#               assistant line, "no class learns at one speed", "you make the
+#               teaching decisions", and the outro's what-it-DOESN'T-do line; the
+#               teachers intro/outro anchors must be the NEW ones. Everything else
+#               rides the existing enforcement: lists identical + append-only
+#               (238 -> 243), every anchor resolves to exactly one line, nine
+#               teacher stops on the same panels.
 #   2026-08-12  BUILD eh -- STUDENTS DEMO DOOR REWRITE, GUARDED. The /demo?view=
 #               students walkthrough now charms the child AND reassures the parent
 #               trying the door as if they were their child (Jim). NEW eh needles in
@@ -3368,6 +3379,33 @@ def part3j_walkthroughs():
               in demo_src,
               "AUD_OUTRO.students must anchor the outro carrying math-only and "
               "never-just-the-answer")
+
+        # Build ei (2026-08-12): the teachers door must name the replacement threat
+        # first and keep the assistant frame throughout -- and must speak the NEW lines.
+        for label, needle in (
+            ("the replacement threat, named and answered first",
+             "I am not here to replace you"),
+            ("the thirty-hours-a-day assistant line",
+             "no teacher has thirty hours a day for"),
+            ("freedom from one-pace-fits-all",
+             "no class learns at one speed"),
+            ("the decisions stay with the teacher",
+             "you make the teaching decisions"),
+            ("the outro names what it DOESN'T do",
+             "it doesn't plan your lessons, grade your judgment, or run your room"),
+        ):
+            check(f"ei: the teachers door carries {label}",
+                  any(needle in ln for ln in demo_lines),
+                  f"{needle!r} left the voice list -- the teachers walkthrough lost "
+                  f"its answer")
+        check("ei: the teachers door OPENS by disarming the threat",
+              'teachers:   lineStarting("Welcome! And let me say the most important thing first")'
+              in demo_src,
+              "AUD_INTRO.teachers must anchor the not-here-to-replace-you intro")
+        check("ei: the teachers door CLOSES with the assistant outro",
+              'teachers:   lineStarting("And that\'s the teacher\'s side of the classroom.")'
+              in demo_src,
+              "AUD_OUTRO.teachers must anchor the what-it-doesn't-do outro")
 
         # And the bug Jim actually hit: the screen must go up BEFORE the words.
         check("the walkthrough shows the dashboard before it starts talking",
