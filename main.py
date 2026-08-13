@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13fb-full-journey". ⭐ A LIVE BUG FOUND BY WALKING
+#               A WHOLE COURSE. Jim asked for an end-to-end trial -- one student who
+#               validates the first three units on the Course Assessment, works the rest,
+#               meets the locked Final Exam, goes back and passes the owed quizzes, takes
+#               the exam, and lands a Course Champion medal that shows on the parent AND
+#               teacher views. The new tool is course_trial.py, and ON ITS FIRST RUN it
+#               failed at the last step: A TEACHER COULD NOT ADD A PARENT-CREATED STUDENT
+#               TO A CLASS. "No student with the code 'OTTER5911'" -- for a code that was
+#               perfectly valid and whose dashboard, awards and progress all worked.
+#               CAUSE: the classroom endpoints predate parent accounts (2026-07-28 vs
+#               2026-07-31) and consulted the in-memory STUDENTS dict -- students.json,
+#               the four pilot personas -- while _lookup_student has known about BOTH
+#               sources since the day parent accounts shipped. So every real customer's
+#               child was invisible to the class path: unaddable, and if somehow added,
+#               shown with no name and no progress. It would have blocked any school
+#               pilot on day one.
+#               FIXED in the three places that did it: post_class_student's existence
+#               check, _class_public's roster names, and _class_student_row's name
+#               lookup -- all now route through _lookup_student. Nothing else in the app
+#               had the bug; only the class path was written before parent accounts.
+#               Guarded by ruletests PART 3af, which also RUNS course_trial.py on every
+#               push, and negative-tested by re-introducing the students.json-only check.
 #   2026-08-13  APP_BUILD -> "2026-08-13fa-classroom-locked". ⭐ SECURITY FINDING F2 IS
 #               CLOSED -- the last open item from the 2026-08-12 review, and reading the
 #               code to fix it showed it was worse than the note said.
@@ -3943,7 +3965,7 @@ def _class_student_row(code: str, course: str, class_code: str = "") -> dict:
     """One student's snapshot for the classroom view: per-unit best scores + a small summary.
     Mirrors what /api/topics reports, but trimmed to what a roster grid needs. Never raises --
     a student whose data can't be read still appears in the grid (with zeros)."""
-    student = STUDENTS.get(code) or {}
+    student = _lookup_student(code) or {}     # build fb: parent-created students too
     checks, stats, recorded = {}, {}, {}
     try:
         m = store.get_mastery(code, course)
@@ -4089,12 +4111,16 @@ def _class_public(cls: dict) -> dict:
     function that every class response goes through."""
     roster = []
     for c in (cls.get("students") or []):
-        known = bool(STUDENTS.get(c))
+        # build fb: _lookup_student, NOT STUDENTS. The class path predated parent
+        # accounts and only ever knew students.json -- so every child a real parent
+        # created showed here as an "unknown code" with no name. Found by the
+        # full-journey trial.
+        stu = _lookup_student(c) or {}
         roster.append({
             "ref": _member_ref(cls.get("class_code", ""), c),
-            "name": (STUDENTS.get(c) or {}).get("name") or _mask_code(c),
+            "name": stu.get("name") or _mask_code(c),
             "code_masked": _mask_code(c),
-            "known": known,
+            "known": bool(stu),
         })
     return {"class_code": cls.get("class_code", ""), "name": cls.get("name") or "",
             "owner_name": cls.get("owner_name") or "", "roster": roster}
@@ -4319,7 +4345,10 @@ def post_class_student(class_code: str, body: ClassStudentIn,
     code = (body.code or "").strip()
     if not code:
         raise HTTPException(status_code=400, detail="Please enter a student code.")
-    if code not in STUDENTS:
+    # build fb: a teacher must be able to add ANY real student -- including the ones a
+    # parent created, which is every real customer's child. This checked students.json
+    # alone, so a valid parent-made code was rejected as "no student with that code".
+    if not _lookup_student(code):
         raise HTTPException(status_code=404,
                             detail=f"No student with the code '{code}'. Check the code and try again.")
     store.add_student(class_code, code)
@@ -6754,7 +6783,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13fa-classroom-locked"
+APP_BUILD = "2026-08-13fb-full-journey"
 
 
 @app.get("/health")

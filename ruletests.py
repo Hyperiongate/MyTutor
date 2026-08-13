@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fb -- THE FULL JOURNEY, END TO END (NEW PART 3af). Everything else
+#               in this battery checks a PART. This runs one student's whole life through
+#               the real app -- sign up, validate three units on the Course Assessment,
+#               work the rest, hit the LOCKED Final Exam and read what it says, go back
+#               and pass the owed quizzes, take the exam, Course Champion in the trophy
+#               case, and the same picture on the parent AND teacher views -- by invoking
+#               the new shipped tool course_trial.py. ⭐ It earned its place on its first
+#               run by finding a live bug no single-endpoint test could see: a teacher
+#               could not add a parent-created student to a class, because the classroom
+#               path predated parent accounts and consulted students.json alone. PART 3af
+#               also pins that specific regression (the three class lookups must route
+#               through _lookup_student), and it is negative-tested by putting the
+#               students.json-only check back.
 #   2026-08-13  BUILD fa -- SECURITY F2 CLOSED, GUARDED (NEW PART 3ae). This part does NOT
 #               trust the source to look right: it stands the real app up against a real
 #               database and drives every class endpoint three ways -- anonymously, as the
@@ -5902,6 +5915,62 @@ def part3z_reply_integrity():
 
 
 # =============================================================================
+# PART 3af -- THE FULL JOURNEY, END TO END (build fb, 2026-08-13)
+# =============================================================================
+# Jim's brief: "run to make sure from start to finish that this works outside of the
+# audit." Everything else in this battery checks a PART. This runs one student's whole
+# life through the real app: sign up → validate the first three units on the Course
+# Assessment → work the rest → hit the LOCKED Final Exam and read what it says → go
+# back and pass the validated units' quizzes → take the exam → Course Champion in the
+# trophy case → and the same picture on the parent AND teacher views.
+#
+# ⭐ IT EARNED ITS PLACE ON ITS FIRST RUN: a teacher could not add a parent-created
+# student to a class at all. The classroom path predated parent accounts and consulted
+# students.json alone, so every real customer's child was invisible to it. Nothing that
+# reads one endpoint at a time would have found that -- it takes walking the journey.
+def part3af_full_journey():
+    print("\nPART 3af — the full journey, end to end (build fb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    mn = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+
+    # The specific regression the trial found: the class path must know about students
+    # a PARENT created, not just the pilot personas in students.json.
+    for fn in ("_class_public", "_class_student_row"):
+        m = re.search(r"def " + fn + r"\(.*?(?=\ndef |\n@app\.)", mn, re.S)
+        check(f"{fn} finds parent-created students, not just students.json",
+              bool(m) and "_lookup_student(" in m.group(0)
+              and "STUDENTS.get(" not in m.group(0),
+              "the classroom path predated parent accounts; consulting STUDENTS alone "
+              "makes every real customer's child an 'unknown code' with no progress")
+    m = re.search(r'@app\.post\("/api/class/\{class_code\}/students"\).*?(?=\n@app\.)', mn, re.S)
+    check("a teacher can add ANY real student to a class",
+          bool(m) and "_lookup_student(" in m.group(0) and "not in STUDENTS" not in m.group(0),
+          "`code not in STUDENTS` rejects every parent-created code as nonexistent -- "
+          "found by the full-journey trial, and it would have blocked any school pilot")
+
+    trial = os.path.join(here, "course_trial.py")
+    check("course_trial.py ships with the app", os.path.exists(trial),
+          "the journey trial is a tool Jim can run any time; it must live in the repo")
+    try:
+        from fastapi.testclient import TestClient  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("full-journey trial", "fastapi TestClient not installed here")
+        return
+    if not os.path.exists(trial):
+        return
+    env = dict(os.environ)
+    env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
+    env["WEEKLY_EMAIL"] = "off"
+    r = subprocess.run([sys.executable, trial], cwd=here, env=env,
+                       capture_output=True, text=True)
+    check("FULL-JOURNEY TRIAL: validate 3 units · work the rest · the Final Exam stays "
+          "LOCKED and says which units are owed · pass them · take the exam · Course "
+          "Champion in the trophy case · parent AND teacher see it",
+          r.returncode == 0 and "TRIAL PASSED" in r.stdout,
+          (r.stdout + r.stderr)[-900:])
+
+
+# =============================================================================
 # PART 3ae -- SECURITY F2: THE CLASSROOM IS LOCKED (build fa, 2026-08-13)
 # =============================================================================
 # F2 was the last open finding from the 2026-08-12 security review, and reading the
@@ -6666,6 +6735,7 @@ def main():
     part3ac_voice_sequencing()
     part3ad_clip_never_eats()
     part3ae_classroom_locked()
+    part3af_full_journey()
     if live:
         part4_live()
     else:
