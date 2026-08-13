@@ -1,5 +1,31 @@
 <!DOCTYPE html>
 <!--
+    2026-08-13  (build fa) ⭐ REAL TEACHER SIGN-IN — SECURITY FINDING F2, CLOSED.
+                Until today the only "sign-in" on this page was `?teacher=MRSBAKER` in the
+                URL: a short, guessable, unthrottled code that opened a roster of children.
+                This file's own comments called it "a door, not a lock", and main.py's did
+                too. Worse, the API behind it returned every child's RAW LOGIN CODE in the
+                roster — and a student code IS the login. One guessed class code handed
+                over a whole class.
+                NOW: a real account (email + password, PBKDF2, 30-day token), created or
+                signed into on the new STAGE 0 panel, with a forgot-password link and an
+                emailed single-use reset (?reset=… opens STAGE 0b). The token lives in
+                localStorage as `mt_teacher_token` and rides the X-Teacher-Token header on
+                every call through ONE api() wrapper — so a new call site cannot forget it,
+                and a dead session lands on the sign-in screen instead of a blank page.
+                THE CODE BOX CHANGED MEANING, deliberately: it used to OPEN any class by
+                its code (that WAS the vulnerability). It now CLAIMS an unowned class —
+                one made before sign-in existed — and a class already belonging to an
+                account can never be claimed, so it cannot take a roster from anyone.
+                ROSTER: names with MASKED codes (MAPLE••••). "Show code" reveals ONE, on
+                request, through the owner-gated throttled /reveal/{ref} endpoint; the
+                heatmap names and "View progress" reveal-then-navigate the same way. A
+                projected or screenshotted roster no longer leaks thirty logins at once.
+                Removing a student uses the opaque ref, and the server confirms that
+                student is in THIS class first.
+                Proven in a real browser end to end: anonymous → sign-in screen; signup →
+                class list; create class; add student (the raw code appears NOWHERE in the
+                DOM); Show code reveals it on request; a class URL with no token → sign-in.
     2026-08-04  HONEST 90 (build y): the heatmap's 'mastered' class still starred at 80%+ --
                 missed in the build-w sweep; now 90 to match store.PASS_PCT and the legend.
   =============================================================================
@@ -147,6 +173,11 @@
 
     /* Student rows */
     .studs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    /* build fa: a heatmap name is now a BUTTON (it reveals one login code before
+       navigating), so it has to look exactly like the link it replaced. */
+    .golink { border: none; background: none; padding: 0; font: inherit; color: var(--purple);
+      text-decoration: underline; cursor: pointer; text-align: left; }
+    .golink[disabled] { opacity: .6; cursor: wait; }
     .stud { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
       padding: 14px 16px; box-shadow: 0 6px 18px rgba(20,30,45,.05); }
     .stud .nm { font-weight: 800; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
@@ -223,8 +254,67 @@
       heatmap aren't available until it's switched on.
     </div>
 
+    <!-- STAGE 0 (build fa): SIGN IN. Before this, the only "sign-in" was a teacher code in
+         the URL -- a convenience key this file's own comments called "a door, not a lock".
+         A roster of children needs a lock. -->
+    <div id="stage0" style="display:none;">
+      <div class="panel">
+        <h2 id="authTitle">Teacher sign-in</h2>
+        <p class="note" id="authNote">Your classes and your students' progress live behind this
+          sign-in. It's free, and it takes a moment.</p>
+        <div class="row">
+          <div>
+            <label for="authEmail">Email</label>
+            <input id="authEmail" type="email" autocomplete="email" placeholder="you@school.org" maxlength="256" />
+          </div>
+          <div>
+            <label for="authPw">Password</label>
+            <input id="authPw" type="password" autocomplete="current-password" placeholder="at least 8 characters" maxlength="128" />
+          </div>
+        </div>
+        <div class="row" id="signupExtra" style="display:none;">
+          <div>
+            <label for="authName">Your name</label>
+            <input id="authName" autocomplete="name" placeholder="e.g. Ms. Baker" maxlength="128" />
+          </div>
+          <div>
+            <label for="authSchool">School <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input id="authSchool" autocomplete="organization" placeholder="e.g. Oak Ridge Middle" maxlength="128" />
+          </div>
+          <div>
+            <label for="authTcode">Old teacher code <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input id="authTcode" autocomplete="off" placeholder="e.g. MRSBAKER" maxlength="64" />
+          </div>
+        </div>
+        <p class="note" id="tcodeNote" style="display:none;">If you ran classes before sign-in
+          existed, enter the teacher code you used and those classes come with you.</p>
+        <div class="row">
+          <button id="authBtn" class="btn">Sign in</button>
+          <button id="authSwitch" class="btn ghost" type="button">Create an account</button>
+          <button id="forgotBtn" class="btn ghost" type="button">Forgot password</button>
+        </div>
+        <div id="authMsg" class="msg"></div>
+      </div>
+    </div>
+
+    <!-- STAGE 0b: choosing a new password from an emailed link (?reset=...) -->
+    <div id="stageReset" style="display:none;">
+      <div class="panel">
+        <h2>Choose a new password</h2>
+        <p class="note">This link works once and expires 45 minutes after it was sent.</p>
+        <div class="row">
+          <div>
+            <label for="rsPw">New password</label>
+            <input id="rsPw" type="password" autocomplete="new-password" placeholder="at least 8 characters" maxlength="128" />
+          </div>
+          <button id="rsBtn" class="btn">Save password</button>
+        </div>
+        <div id="rsMsg" class="msg"></div>
+      </div>
+    </div>
+
     <!-- STAGE 1: your classes (when signed in), or open / create a class -->
-    <div id="stage1">
+    <div id="stage1" style="display:none;">
       <!-- Shown only when we arrived with a teacher code -->
       <div class="panel" id="myClassesPanel" style="display:none;">
         <h2 id="myClassesTitle">Your classes</h2>
@@ -324,17 +414,35 @@
     const params = new URLSearchParams(location.search);
     let CLASS = (params.get("class") || "").trim().toUpperCase();
     let COURSE = (params.get("course") || "algebra1").trim();
-    // The signed-in teacher's personal code, if they came through the teacher door on the home
-    // page. Empty is perfectly valid -- then this page behaves exactly as it always has
-    // (open a class by its code, or create one).
-    const TEACHER = (params.get("teacher") || "").trim().toUpperCase();
+    // ---------- build fa: REAL SIGN-IN ----------------------------------------------
+    // The old `?teacher=MRSBAKER` URL param is GONE. It was a short, guessable,
+    // unthrottled key that opened a roster of children, and this file used to say so
+    // itself. A 30-day token now rides in the X-Teacher-Token header on every call,
+    // exactly as the parent surface has always done. ME holds the signed-in teacher.
+    const TOKEN_KEY = "mt_teacher_token";
+    const RESET = (params.get("reset") || "").trim();
+    let ME = null;
+    function token() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+    function setToken(t) {
+      try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+    }
+    // ONE authenticated fetch. Every class call goes through here, so the header can
+    // never be forgotten on a new call site, and a dead session lands on the sign-in
+    // screen instead of a blank page.
+    async function api(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({}, opts.headers || {});
+      if (token()) opts.headers["X-Teacher-Token"] = token();
+      if (opts.body) opts.headers["Content-Type"] = "application/json";
+      const res = await fetch(path, opts);
+      if (res.status === 401) { setToken(""); ME = null; showAuth(); throw new Error("signed-out"); }
+      return res;
+    }
 
-    // Build a /teacher URL, always carrying the teacher code forward so the class list stays
-    // one click away no matter how deep you go.
+    // Build a /teacher URL. Nothing identifying travels in the query string any more --
+    // who you are is the token, not the address bar.
     function teacherUrl(extra) {
-      const q = [];
-      if (TEACHER) q.push("teacher=" + encodeURIComponent(TEACHER));
-      (extra || []).forEach(p => q.push(p));
+      const q = (extra || []).slice();
       return "/teacher" + (q.length ? "?" + q.join("&") : "");
     }
     function classUrl(cc, course) {
@@ -358,89 +466,93 @@
       return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // ---------- Stage 1: open / create ----------
+    // ---------- Stage 1: CLAIM / create ----------
+    // build fa: "open any class by its code" is gone -- that WAS the vulnerability. The
+    // box now CLAIMS an unowned class (one made before sign-in existed). A class that
+    // already belongs to an account can never be claimed, so this cannot take a roster
+    // from another teacher.
     el("openBtn").onclick = async () => {
       const cc = (el("openCode").value || "").trim();
-      if (!cc) { setMsg("openMsg", "Please enter your class code.", "error"); return; }
-      setMsg("openMsg", "Looking…");
+      if (!cc) { setMsg("openMsg", "Please enter the class code.", "error"); return; }
+      setMsg("openMsg", "Checking…");
       try {
-        const res = await fetch("/api/class/" + encodeURIComponent(cc));
-        if (res.status === 404) { setMsg("openMsg", "No class with that code yet — you can create it below.", "error"); return; }
+        const res = await api("/api/teacher/claim", {
+          method: "POST", body: JSON.stringify({ token: token(), class_code: cc }) });
         const d = await res.json();
-        if (d.tracking === false) { showTrackingOff(); return; }
+        if (!res.ok) { setMsg("openMsg", (d.detail || "Couldn't add that class."), "error"); return; }
         location.href = classUrl(cc, COURSE);
-      } catch (e) { setMsg("openMsg", "Couldn't reach the server. Try again.", "error"); }
+      } catch (e) {
+        if (String(e.message) !== "signed-out") setMsg("openMsg", "Couldn't reach the server. Try again.", "error");
+      }
     };
     el("createBtn").onclick = async () => {
       const cc = (el("newCode").value || "").trim();
       if (!cc) { setMsg("createMsg", "Please choose a class code.", "error"); return; }
       setMsg("createMsg", "Creating…");
       try {
-        const res = await fetch("/api/class", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          // teacher_code is sent only when we're signed in; the backend ignores an empty one and
-          // never overwrites a class that already belongs to a different teacher.
-          body: JSON.stringify({ class_code: cc, name: (el("newName").value || "").trim(),
-                                 owner_name: (el("newOwner").value || "").trim(),
-                                 teacher_code: TEACHER })
+        const res = await api("/api/class", {
+          method: "POST",
+          body: JSON.stringify({ token: token(), class_code: cc,
+                                 name: (el("newName").value || "").trim(),
+                                 owner_name: (el("newOwner").value || "").trim() })
         });
         const d = await res.json();
         if (!res.ok) { setMsg("createMsg", (d.detail || "Couldn't create that class."), "error"); return; }
         if (d.tracking === false) { showTrackingOff(); return; }
         location.href = classUrl(cc, COURSE);
-      } catch (e) { setMsg("createMsg", "Couldn't reach the server. Try again.", "error"); }
+      } catch (e) {
+        if (String(e.message) !== "signed-out") setMsg("createMsg", "Couldn't reach the server. Try again.", "error");
+      }
     };
     // Enter key submits whichever box you're in.
     el("openCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("openBtn").click(); });
     el("newCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("createBtn").click(); });
 
     // ---------- Stage 1a: the signed-in teacher's own class list ----------
+    function renderMyClasses(list) {
+      el("myClassesPanel").style.display = "block";
+      if (!list.length) {
+        el("myClassesTitle").textContent = "No classes yet";
+        el("myClassesNote").textContent =
+          "Create your first class below and it will be here every time you sign in.";
+        el("myClasses").innerHTML = "";
+        return;
+      }
+      el("myClassesTitle").textContent = "Your classes (" + list.length + ")";
+      el("myClassesNote").textContent = "Tap a class to see how its students are doing.";
+      el("myClasses").innerHTML = list.map(c => {
+        const label = c.name || c.class_code;
+        const n = c.students;
+        return '<a class="classcard" href="' + esc(classUrl(c.class_code, COURSE)) + '">'
+          + '<div class="cnm">' + esc(label) + "</div>"
+          + '<div class="ccode">' + esc(c.class_code) + "</div>"
+          + '<div class="ccount">' + n + " student" + (n === 1 ? "" : "s") + "</div></a>";
+      }).join("");
+    }
     async function loadTeacherClasses() {
       showStage1();
+      const who = ME && (ME.name || ME.email) ? (ME.name || ME.email) : "";
       el("whoami").style.display = "inline-block";
-      el("whoami").textContent = "🍎 " + TEACHER;
+      el("whoami").textContent = "🍎 " + who;
       el("sub").textContent = "Every class you run, in one place.";
       document.querySelector(".top .title").textContent = "🍎 My Classes";
       document.title = "Mr. Cadabra's Classroom — My Classes";
-      // With a class list right above it, the code box is a fallback, not the main way in.
-      el("openTitle").textContent = "Open a class by its code";
+      el("openTitle").textContent = "Add a class you already run";
       el("openNote").textContent =
-        "Handy for a class someone else set up, or one made before teacher sign-in existed.";
+        "For a class made before teacher sign-in existed. Enter its code and it joins your "
+        + "account. A class that already belongs to another account can't be added here.";
       el("createNote").textContent =
-        "Pick any short code you'll remember. It will be attached to your teacher code (" +
-        TEACHER + "), so it shows up here next time. Then add your students by their student codes.";
+        "Pick any short code you'll remember. It belongs to your account from the moment you "
+        + "make it. Then add your students by their student codes.";
       try {
-        const res = await fetch("/api/teacher/" + encodeURIComponent(TEACHER) + "/classes");
+        const res = await api("/api/teacher/me");
         const d = await res.json();
-        if (d.tracking === false) { showTrackingOff(); return; }
-        const list = (d && d.classes) || [];
-        el("myClassesPanel").style.display = "block";
-        if (!list.length) {
-          el("myClassesTitle").textContent = "No classes under this code yet";
-          el("myClassesNote").textContent =
-            "Nothing here yet — create your first class below and it will appear on this page "
-            + "every time you sign in with " + TEACHER + ".";
-          el("myClasses").innerHTML = "";
-          return;
-        }
-        el("myClassesTitle").textContent =
-          "Your classes (" + list.length + ")";
-        el("myClassesNote").textContent = "Tap a class to see how its students are doing.";
-        el("myClasses").innerHTML = list.map(c => {
-          const label = c.name || c.class_code;
-          const n = c.student_count;
-          return '<a class="classcard" href="' + esc(classUrl(c.class_code, COURSE)) + '">'
-            + '<div class="cnm">' + esc(label) + "</div>"
-            + '<div class="ccode">' + esc(c.class_code) + "</div>"
-            + '<div class="ccount">' + n + " student" + (n === 1 ? "" : "s") + "</div></a>";
-        }).join("");
+        renderMyClasses((d && d.classes) || []);
       } catch (e) {
-        // The class list is a convenience -- if it can't load, the open/create panels below
-        // still work, so never blank the page.
+        if (String(e.message) === "signed-out") return;
         el("myClassesPanel").style.display = "block";
         el("myClasses").innerHTML =
-          '<div class="empty">Couldn\'t load your class list right now. You can still open a '
-          + 'class by its code below.</div>';
+          '<div class="empty">Couldn\'t load your class list right now.</div>';
       }
     }
 
@@ -468,8 +580,10 @@
       units.forEach(u => { h += '<th title="' + esc(u.name) + '">U' + u.unit + "</th>"; });
       h += "</tr>";
       studs.forEach(s => {
-        const q = "?code=" + encodeURIComponent(s.code) + "&course=" + encodeURIComponent(data.course) + "&view=teacher";
-        h += '<tr><td class="stu"><a href="/dashboard' + q + '">' + esc(s.name) + "</a></td>";
+        // build fa: no raw login code in the markup. The name reveals its code on click
+        // and then navigates -- one code, deliberately, instead of thirty in the HTML.
+        h += '<tr><td class="stu"><button class="golink" data-go="' + esc(s.ref) + '">'
+             + esc(s.name) + "</button></td>";
         s.units.forEach(u => {
           const cls = cellClass(u);
           const label = u.checks_taken ? (u.best_pct + (u.mastered ? "★" : "")) : "–";
@@ -481,33 +595,74 @@
       });
       h += "</table>";
       el("heat").innerHTML = h;
+      wireGo(el("heat"), data.course);      // build fa: names reveal-then-navigate
     }
+    // build fa: ONE place that turns a roster ref into a real login code, used by the
+    // heatmap names, the "View progress" buttons and "Show code". Owner-gated and
+    // throttled server-side; one code per click, never a page full of them.
+    async function revealCode(ref) {
+      const res = await api("/api/class/" + encodeURIComponent(CLASS) + "/reveal/" + encodeURIComponent(ref));
+      const d = await res.json();
+      if (!res.ok || !d.code) throw new Error("no-code");
+      return d.code;
+    }
+    function wireGo(root, course) {
+      root.querySelectorAll("button[data-go]").forEach(b => {
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            const code = await revealCode(b.dataset.go);
+            location.href = "/dashboard?code=" + encodeURIComponent(code)
+              + "&course=" + encodeURIComponent(course || COURSE) + "&view=teacher";
+          } catch (e) { b.disabled = false; }
+        };
+      });
+    }
+
     function renderStudents(data) {
       const box = el("studs"), studs = data.students || [];
       if (!studs.length) { box.innerHTML = '<div class="empty">Add your first student by their student code.</div>'; return; }
       box.innerHTML = "";
+      // build fa: a row is identified by an opaque `ref`, and the login code shows
+      // MASKED. Thirty children's logins no longer sit on a projected screen at once;
+      // "Show code" fetches ONE, on purpose, when a teacher actually needs to hand it
+      // back to a child. "View progress" needs the real code, so it is revealed on
+      // demand too rather than sitting in every link on the page.
       studs.forEach(s => {
         const d = document.createElement("div"); d.className = "stud";
-        const q = "?code=" + encodeURIComponent(s.code) + "&course=" + encodeURIComponent(data.course) + "&view=teacher";
         const weak = (s.weakest || []).length
           ? '<div class="weak">Focus next: ' + s.weakest.map(w => "<b>Unit " + w.unit + " — " + esc(w.name) + "</b> (" + w.best_pct + "%)").join(", ") + "</div>"
           : '<div class="weak" style="color:var(--muted)">No check scores yet in this course.</div>';
         d.innerHTML =
-          '<div class="nm">' + esc(s.name) + '<span class="code">' + esc(s.code) + "</span>" +
+          '<div class="nm">' + esc(s.name) + '<span class="code" data-slot="' + esc(s.ref) + '">' + esc(s.code_masked) + "</span>" +
             (s.known ? "" : '<span class="unknown">unknown code</span>') + "</div>" +
           '<div class="meta">' + s.units_mastered + " of " + (data.units || []).length +
             " units mastered · " + s.units_started + " started</div>" +
           weak +
-          '<div class="acts"><a class="view" href="/dashboard' + q + '">View progress →</a>' +
-          '<button class="rm" data-code="' + esc(s.code) + '">Remove</button></div>';
+          '<div class="acts">' +
+          '<button class="view" data-go="' + esc(s.ref) + '" style="border:none;background:none;cursor:pointer;font:inherit">View progress →</button>' +
+          '<button class="rm" data-show="' + esc(s.ref) + '">Show code</button>' +
+          '<button class="rm" data-ref="' + esc(s.ref) + '">Remove</button></div>';
         box.appendChild(d);
       });
-      box.querySelectorAll("button.rm").forEach(b => {
+      box.querySelectorAll("button[data-show]").forEach(b => {
         b.onclick = async () => {
           b.disabled = true;
           try {
-            await fetch("/api/class/" + encodeURIComponent(CLASS) + "/students/" + encodeURIComponent(b.dataset.code),
-                        { method: "DELETE" });
+            const code = await revealCode(b.dataset.show);
+            const slot = box.querySelector('[data-slot="' + b.dataset.show + '"]');
+            if (slot) slot.textContent = code;
+            b.remove();
+          } catch (e) { b.disabled = false; }
+        };
+      });
+      wireGo(box, data.course);
+      box.querySelectorAll("button[data-ref]").forEach(b => {
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            await api("/api/class/" + encodeURIComponent(CLASS) + "/students/" + encodeURIComponent(b.dataset.ref),
+                      { method: "DELETE" });
             load();
           } catch (e) { b.disabled = false; }
         };
@@ -516,8 +671,11 @@
 
     async function load() {
       try {
-        const res = await fetch("/api/class/" + encodeURIComponent(CLASS) + "/summary?course=" + encodeURIComponent(COURSE));
-        if (res.status === 404) { setMsg("openMsg", "That class no longer exists.", "error"); showStage1(); return; }
+        const res = await api("/api/class/" + encodeURIComponent(CLASS) + "/summary?course=" + encodeURIComponent(COURSE));
+        if (res.status === 404) {
+          setMsg("openMsg", "That class isn't on your account. If you run it, add it by its code below.", "error");
+          loadTeacherClasses(); return;
+        }
         const d = await res.json();
         if (d.tracking === false) { showTrackingOff(); return; }
 
@@ -570,34 +728,123 @@
       if (!code) { setMsg("addMsg", "Enter the student's code.", "error"); return; }
       setMsg("addMsg", "Adding…");
       try {
-        const res = await fetch("/api/class/" + encodeURIComponent(CLASS) + "/students", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: code })
+        const res = await api("/api/class/" + encodeURIComponent(CLASS) + "/students", {
+          method: "POST",
+          body: JSON.stringify({ token: token(), code: code })
         });
         const d = await res.json();
         if (!res.ok) { setMsg("addMsg", (d.detail || "Couldn't add that student."), "error"); return; }
         el("addCode").value = "";
         setMsg("addMsg", "Added.", "good");
         load();
-      } catch (e) { setMsg("addMsg", "Couldn't reach the server. Try again.", "error"); }
+      } catch (e) {
+        if (String(e.message) !== "signed-out") setMsg("addMsg", "Couldn't reach the server. Try again.", "error");
+      }
     };
     el("addCode").addEventListener("keydown", (e) => { if (e.key === "Enter") el("addBtn").click(); });
 
-    // ---------- Boot ----------
-    // 1) A class in the URL wins -- go straight into it.
-    // 2) Otherwise, a signed-in teacher sees their own class list.
-    // 3) Otherwise, the original open-or-create screen, unchanged.
-    if (CLASS) {
-      // "Switch class" returns to the teacher's class list when signed in, else the plain form.
-      el("switchBtn").href = teacherUrl();
-      el("switchBtn").textContent = TEACHER ? "My classes" : "Switch class";
-      if (TEACHER) { el("whoami").style.display = "inline-block"; el("whoami").textContent = "🍎 " + TEACHER; }
-      load();
-    } else if (TEACHER) {
-      loadTeacherClasses();
-    } else {
-      showStage1();
+    // ---------- build fa: sign-in / sign-up / reset ----------
+    let signupMode = false;
+    function showAuth() {
+      el("stage0").style.display = "block";
+      el("stage1").style.display = "none";
+      el("stage2").style.display = "none";
+      el("stageReset").style.display = "none";
+      el("whoami").style.display = "none";
+      el("sub").textContent = "Sign in to see your classes and your students' progress.";
     }
+    el("authSwitch").onclick = () => {
+      signupMode = !signupMode;
+      el("authTitle").textContent = signupMode ? "Create a teacher account" : "Teacher sign-in";
+      el("authBtn").textContent = signupMode ? "Create account" : "Sign in";
+      el("authSwitch").textContent = signupMode ? "I already have an account" : "Create an account";
+      el("signupExtra").style.display = signupMode ? "flex" : "none";
+      el("tcodeNote").style.display = signupMode ? "block" : "none";
+      el("authPw").setAttribute("autocomplete", signupMode ? "new-password" : "current-password");
+      setMsg("authMsg", "");
+    };
+    el("authBtn").onclick = async () => {
+      const email = (el("authEmail").value || "").trim();
+      const pw = el("authPw").value || "";
+      if (!email || !pw) { setMsg("authMsg", "Please fill in both boxes.", "error"); return; }
+      setMsg("authMsg", signupMode ? "Creating…" : "Signing in…");
+      const path = signupMode ? "/api/teacher/signup" : "/api/teacher/login";
+      const body = signupMode
+        ? { email: email, password: pw, name: (el("authName").value || "").trim(),
+            school: (el("authSchool").value || "").trim(),
+            teacher_code: (el("authTcode").value || "").trim() }
+        : { email: email, password: pw };
+      try {
+        const res = await fetch(path, { method: "POST",
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const d = await res.json();
+        if (!res.ok) { setMsg("authMsg", (d.detail || "That didn't work."), "error"); return; }
+        setToken(d.token); ME = d.teacher;
+        if (d.adopted) setMsg("authMsg", "Welcome! " + d.adopted + " existing class"
+          + (d.adopted === 1 ? "" : "es") + " moved to your account.", "good");
+        el("stage0").style.display = "none";
+        renderMyClasses(d.classes || []);
+        loadTeacherClasses();
+      } catch (e) { setMsg("authMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    el("forgotBtn").onclick = async () => {
+      const email = (el("authEmail").value || "").trim();
+      if (!email) { setMsg("authMsg", "Enter your email above first, then tap Forgot password.", "error"); return; }
+      setMsg("authMsg", "Sending…");
+      try {
+        const res = await fetch("/api/teacher/forgot", { method: "POST",
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email }) });
+        const d = await res.json();
+        if (!res.ok) { setMsg("authMsg", (d.detail || "Couldn't send that."), "error"); return; }
+        setMsg("authMsg", d.note || "If that address has an account, a reset link is on its way.", "good");
+      } catch (e) { setMsg("authMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    el("rsBtn").onclick = async () => {
+      const pw = el("rsPw").value || "";
+      if (pw.length < 8) { setMsg("rsMsg", "Please use at least 8 characters.", "error"); return; }
+      setMsg("rsMsg", "Saving…");
+      try {
+        const res = await fetch("/api/teacher/reset", { method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: RESET, password: pw }) });
+        const d = await res.json();
+        if (!res.ok) { setMsg("rsMsg", (d.detail || "That link didn't work."), "error"); return; }
+        setToken(d.token); ME = d.teacher;
+        history.replaceState({}, "", "/teacher");
+        el("stageReset").style.display = "none";
+        loadTeacherClasses();
+      } catch (e) { setMsg("rsMsg", "Couldn't reach the server. Try again.", "error"); }
+    };
+    ["authEmail", "authPw"].forEach(id =>
+      el(id).addEventListener("keydown", (e) => { if (e.key === "Enter") el("authBtn").click(); }));
+    el("rsPw").addEventListener("keydown", (e) => { if (e.key === "Enter") el("rsBtn").click(); });
+
+    // ---------- Boot ----------
+    // build fa: EVERY path now starts from "are you signed in?". A class code in the URL
+    // is no longer a way in -- it only says which of YOUR classes to open once the token
+    // has been checked.
+    (async function boot() {
+      if (RESET) {
+        el("stageReset").style.display = "block";
+        el("sub").textContent = "Choose a new password for your teacher account.";
+        return;
+      }
+      if (!token()) { showAuth(); return; }
+      try {
+        const res = await api("/api/teacher/me");
+        const d = await res.json();
+        ME = d.teacher;
+        if (CLASS) {
+          el("switchBtn").href = teacherUrl();
+          el("switchBtn").textContent = "My classes";
+          el("whoami").style.display = "inline-block";
+          el("whoami").textContent = "🍎 " + ((ME && (ME.name || ME.email)) || "");
+          load();
+        } else {
+          loadTeacherClasses();
+        }
+      } catch (e) { /* api() already showed the sign-in screen on a 401 */ }
+    })();
   </script>
   <script src="/static/app-nav.js"></script>
 </body>

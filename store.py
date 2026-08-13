@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fa -- TEACHER ACCOUNTS (security finding F2). NEW tables `teachers`,
+#               `teacher_tokens` and `teacher_resets`, deliberately MIRRORING the parent
+#               tables rather than reusing them: a parent row carries Stripe and
+#               subscription state that has nothing to do with a teacher, and the parent
+#               path is live with paying customers. Same shape, same token discipline,
+#               separate blast radius. NEW nullable `classes.teacher_id` (the real OWNER)
+#               via the same additive, self-healing migration used for teacher_code and
+#               parent_id -- existing classes keep every row with teacher_id NULL, which
+#               means UNOWNED and claimable, never lost. NEW claim_class() and
+#               adopt_classes_by_teacher_code(): both do their ownership test and their
+#               write in ONE transaction with `teacher_id IS NULL` in the WHERE clause, so
+#               two teachers racing for the same class cannot both win and a legacy
+#               teacher code can never outrank a real password by taking an owned class.
 #   2026-08-11  BUILD ea -- THE PACING STEER (Four-Lens homeschool item 3). New table
 #               steers (ONE standing plan per student: course + unit) + set_steer/
 #               get_steer/clear_steer. Reset family AND the dy code-move both cover it
@@ -548,14 +561,51 @@ def init():
             Column("last_active", String(10)),            # 'YYYY-MM-DD'
             Column("updated_at", DateTime(timezone=True)),
         )
+        # TEACHER ACCOUNTS (2026-08-13, build fa -- security finding F2). Deliberately a
+        # MIRROR of the parents tables above, not a reuse of them: the parent row carries
+        # Stripe and subscription state that has nothing to do with a teacher, and the
+        # parent path is live with paying customers. Same shape, same PBKDF2 hashing, same
+        # token discipline, separate blast radius. A teacher is identity only -- no billing
+        # here, and no child's personal data.
+        _tables["teachers"] = Table(
+            "teachers", _meta,
+            Column("id", String(64), primary_key=True),           # uuid hex
+            Column("email", String(256), unique=True, index=True),
+            Column("name", String(256)),
+            Column("password_hash", String(512)),
+            Column("school", String(256)),        # optional, display only
+            Column("created_at", DateTime(timezone=True)),
+        )
+        _tables["teacher_tokens"] = Table(
+            "teacher_tokens", _meta,
+            Column("token", String(128), primary_key=True),
+            Column("teacher_id", String(64), index=True),
+            Column("expires_at", DateTime(timezone=True)),
+            Column("created_at", DateTime(timezone=True)),
+        )
+        # Single-use, short-lived password resets. token_hash is SHA-256 of the emailed
+        # token -- the raw token exists only in the teacher's inbox, exactly as for parents.
+        _tables["teacher_resets"] = Table(
+            "teacher_resets", _meta,
+            Column("token_hash", String(128), primary_key=True),
+            Column("teacher_id", String(64), index=True),
+            Column("expires_at", DateTime(timezone=True)),
+            Column("used", Integer, default=0),
+            Column("created_at", DateTime(timezone=True)),
+        )
         # TEACHER / PARENT CLASSROOM (2026-07-28). A "class" is deliberately lightweight: a short
         # CLASS CODE plus a list of EXISTING student codes, so a teacher or parent can follow
         # several students at once WITHOUT an accounts/login system. No new personal data is
         # stored -- just an optional class label and owner display name. Brand-new tables, so
         # create_all builds them; no migration needed.
+        # ⚠️ 2026-08-13 (build fa): `teacher_id` is the OWNER, and it is what every class
+        # endpoint now checks. `teacher_code` above it is the OLD convenience key and is
+        # kept ONLY so a teacher can inherit their pre-accounts classes at signup; it is
+        # not, and never was, a password.
         _tables["classes"] = Table(
             "classes", _meta,
             Column("class_code", String(32), primary_key=True),   # e.g. "MRSB-P3"
+            Column("teacher_id", String(64), index=True),         # build fa: the real owner
             Column("name", String(128)),          # e.g. "Period 3 Algebra"
             Column("owner_name", String(128)),    # teacher/parent display name (optional)
             # 2026-07-28: the teacher's own short code (e.g. "MRSBAKER"). Nullable on purpose --
@@ -803,6 +853,9 @@ def init():
         # Give the `classes` table its `teacher_code` column if it predates teacher sign-in
         # (additive + nullable; no key change). No-ops once migrated.
         _migrate_classes_teacher_code()
+        # Give `classes` its `teacher_id` OWNER column if it predates teacher accounts
+        # (additive + nullable; NULL = unowned and claimable). No-ops once migrated.
+        _migrate_classes_teacher_id()
         # Give `accounts` its `parent_id` column if it predates real parent accounts
         # (additive + nullable; no key change). No-ops once migrated.
         _migrate_accounts_parent_id()
@@ -885,6 +938,29 @@ def _migrate_classes_teacher_code():
     with _engine.begin() as conn:
         conn.execute(_text("ALTER TABLE classes ADD COLUMN teacher_code VARCHAR(64)"))
     print("[store] migrated classes: +teacher_code column (nullable).")
+
+
+def _migrate_classes_teacher_id():
+    """One-time, ADDITIVE migration (2026-08-13, build fa): give `classes` a nullable
+    `teacher_id` column -- the real OWNER, checked by every class endpoint now that
+    finding F2 is closed.
+
+    Same safe pattern as teacher_code above: nullable column, primary key untouched, so a
+    plain ALTER TABLE behaves identically on PostgreSQL and SQLite. Existing classes keep
+    every row with teacher_id NULL, which means UNOWNED -- reachable only by a signed-in
+    teacher who CLAIMS them (by class code, or by inheriting their old teacher_code at
+    signup). Nothing is deleted and nothing is silently handed to the wrong person: an
+    unowned class is claimable exactly once, and an owned class can never be re-claimed."""
+    from sqlalchemy import inspect, text as _text
+    insp = inspect(_engine)
+    if "classes" not in set(insp.get_table_names()):
+        return  # create_all will build it new, already carrying teacher_id
+    cols = [c["name"] for c in insp.get_columns("classes")]
+    if "teacher_id" in cols:
+        return  # already migrated
+    with _engine.begin() as conn:
+        conn.execute(_text("ALTER TABLE classes ADD COLUMN teacher_id VARCHAR(64)"))
+    print("[store] migrated classes: +teacher_id column (nullable = unowned).")
 
 
 def _migrate_accounts_parent_id():
@@ -1721,19 +1797,227 @@ def create_class(class_code: str, name: str = "", owner_name: str = "",
 
 
 def get_class(class_code: str) -> dict:
-    """{class_code, name, owner_name, teacher_code, students:[codes]} -- {} if it doesn't exist."""
+    """{class_code, name, owner_name, teacher_code, teacher_id, students:[codes]} -- {} if
+    it doesn't exist. `teacher_id` (build fa) is the OWNER; "" means unowned and claimable."""
     from sqlalchemy import select
     cc = _norm_class(class_code)
     if not cc:
         return {}
     t = _tables["classes"]
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.class_code, t.c.name, t.c.owner_name, t.c.teacher_code)
+        r = conn.execute(select(t.c.class_code, t.c.name, t.c.owner_name, t.c.teacher_code,
+                                t.c.teacher_id)
                          .where(t.c.class_code == cc)).first()
     if not r:
         return {}
     return {"class_code": r[0], "name": r[1] or "", "owner_name": r[2] or "",
-            "teacher_code": r[3] or "", "students": list_students(cc)}
+            "teacher_code": r[3] or "", "teacher_id": r[4] or "",
+            "students": list_students(cc)}
+
+
+# =============================================================================
+# TEACHER ACCOUNTS (2026-08-13, build fa -- closing security finding F2)
+# -----------------------------------------------------------------------------
+# A deliberate MIRROR of the parent functions above. Same shapes, same token
+# discipline, same reset flow -- and a separate table, so the live parent/billing
+# path is never touched by this work. Every function here is safe to call only when
+# store.enabled(); main.py's _require_db() gates that exactly as it does for parents.
+# =============================================================================
+_TEACHER_COLS = ["id", "email", "name", "password_hash", "school", "created_at"]
+
+
+def create_teacher(teacher_id: str, email: str, name: str, password_hash: str,
+                   school: str = "") -> bool:
+    """Insert a new teacher. Returns False (and inserts nothing) if the email is taken.
+    The unique index on email is the real guarantee under concurrency; the pre-check
+    just gives a friendlier code path. Mirrors create_parent exactly."""
+    from sqlalchemy import insert, select
+    email = (email or "").strip().lower()
+    t = _tables["teachers"]
+    try:
+        with _engine.begin() as conn:
+            exists = conn.execute(select(t.c.id).where(t.c.email == email)).first()
+            if exists:
+                return False
+            conn.execute(insert(t).values(
+                id=teacher_id, email=email, name=(name or "").strip(),
+                password_hash=password_hash, school=(school or "").strip()[:256],
+                created_at=_now()))
+        return True
+    except Exception:  # unique-index race: someone signed up the same email first
+        return False
+
+
+def get_teacher(teacher_id: str):
+    from sqlalchemy import select
+    t = _tables["teachers"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _TEACHER_COLS])
+                         .where(t.c.id == teacher_id)).first()
+    return _row_to_dict(r, _TEACHER_COLS)
+
+
+def get_teacher_by_email(email: str):
+    from sqlalchemy import select
+    t = _tables["teachers"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(*[t.c[c] for c in _TEACHER_COLS])
+                         .where(t.c.email == (email or "").strip().lower())).first()
+    return _row_to_dict(r, _TEACHER_COLS)
+
+
+def create_teacher_token(token: str, teacher_id: str, days: int = 30) -> None:
+    from sqlalchemy import insert
+    t = _tables["teacher_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            token=token, teacher_id=teacher_id,
+            expires_at=_now() + _dt.timedelta(days=days), created_at=_now()))
+
+
+def get_teacher_token(token: str):
+    """Return the teacher_id for a live token, or None. Expired tokens are deleted on
+    sight so the table stays small. Mirrors get_parent_token."""
+    from sqlalchemy import select, delete
+    if not token:
+        return None
+    t = _tables["teacher_tokens"]
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.teacher_id, t.c.expires_at)
+                         .where(t.c.token == token)).first()
+    if not r:
+        return None
+    exp = r[1]
+    if exp is not None and exp.tzinfo is None:      # SQLite returns naive datetimes
+        exp = exp.replace(tzinfo=_dt.timezone.utc)
+    if exp is not None and exp < _now():
+        with _engine.begin() as conn:
+            conn.execute(delete(t).where(t.c.token == token))
+        return None
+    return r[0]
+
+
+def delete_teacher_token(token: str) -> None:
+    from sqlalchemy import delete
+    t = _tables["teacher_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.token == token))
+
+
+def delete_teacher_tokens_for(teacher_id: str) -> None:
+    """Sign this teacher out of EVERY device (used after a password reset)."""
+    from sqlalchemy import delete
+    t = _tables["teacher_tokens"]
+    with _engine.begin() as conn:
+        conn.execute(delete(t).where(t.c.teacher_id == teacher_id))
+
+
+def create_teacher_reset(token_hash: str, teacher_id: str, minutes: int = 45) -> None:
+    """Store a password-reset token HASH (never the token). Short-lived, single-use."""
+    from sqlalchemy import insert
+    t = _tables["teacher_resets"]
+    with _engine.begin() as conn:
+        conn.execute(insert(t).values(
+            token_hash=token_hash, teacher_id=teacher_id,
+            expires_at=_now() + _dt.timedelta(minutes=minutes), used=0,
+            created_at=_now()))
+
+
+def use_teacher_reset(token_hash: str):
+    """Consume a reset token: returns the teacher_id if it is live and unused, else None.
+    Marks it used in the SAME transaction, so a token can never be spent twice."""
+    from sqlalchemy import select, update
+    t = _tables["teacher_resets"]
+    with _engine.begin() as conn:
+        r = conn.execute(select(t.c.teacher_id, t.c.expires_at, t.c.used)
+                         .where(t.c.token_hash == token_hash)).first()
+        if not r or int(r[2] or 0):
+            return None
+        exp = r[1]
+        if exp is not None and exp.tzinfo is None:
+            exp = exp.replace(tzinfo=_dt.timezone.utc)
+        if exp is not None and exp < _now():
+            return None
+        conn.execute(update(t).where(t.c.token_hash == token_hash).values(used=1))
+        return r[0]
+
+
+def set_teacher_password(teacher_id: str, password_hash: str) -> None:
+    from sqlalchemy import update
+    t = _tables["teachers"]
+    with _engine.begin() as conn:
+        conn.execute(update(t).where(t.c.id == teacher_id)
+                     .values(password_hash=password_hash))
+
+
+def claim_class(class_code: str, teacher_id: str) -> str:
+    """Give an UNOWNED class to this teacher. Returns "" on success, or a plain-English
+    reason it could not happen.
+
+    The whole safety of the claim flow lives in this one function, so it is written to be
+    read: the ownership test and the write happen inside a SINGLE transaction, and the
+    UPDATE itself carries `teacher_id IS NULL` in its WHERE clause. Two teachers racing
+    for the same unowned class therefore cannot both win -- the second update matches
+    zero rows and is reported as already-claimed. An OWNED class is never reassigned by
+    this path; that would be exactly the takeover finding F2 was about."""
+    from sqlalchemy import select, update
+    cc = _norm_class(class_code)
+    if not cc or not teacher_id:
+        return "Please enter a class code."
+    t = _tables["classes"]
+    with _engine.begin() as conn:
+        r = conn.execute(select(t.c.teacher_id).where(t.c.class_code == cc)).first()
+        if not r:
+            return "No class with that code."
+        if (r[0] or "") == teacher_id:
+            return ""                       # already yours: claiming twice is harmless
+        if r[0]:
+            return "That class already belongs to another teacher's account."
+        res = conn.execute(update(t)
+                           .where((t.c.class_code == cc) & (t.c.teacher_id.is_(None)))
+                           .values(teacher_id=teacher_id, updated_at=_now()))
+        if not res.rowcount:
+            return "That class was just claimed by another account."
+    return ""
+
+
+def adopt_classes_by_teacher_code(teacher_code: str, teacher_id: str) -> int:
+    """Hand every UNOWNED class carrying this legacy teacher_code to this teacher, and
+    return how many moved. Used once, at signup, so a teacher who ran classes before
+    accounts existed does not lose them.
+
+    Only unowned rows are touched (`teacher_id IS NULL` in the WHERE), so this can never
+    take a class away from an account that already holds it -- an old teacher code is a
+    convenience key, and it must not outrank a real password."""
+    from sqlalchemy import update
+    tc = _norm_teacher(teacher_code)
+    if not tc or not teacher_id:
+        return 0
+    t = _tables["classes"]
+    with _engine.begin() as conn:
+        res = conn.execute(update(t)
+                           .where((t.c.teacher_code == tc) & (t.c.teacher_id.is_(None)))
+                           .values(teacher_id=teacher_id, updated_at=_now()))
+    return int(res.rowcount or 0)
+
+
+def list_classes_for_teacher_id(teacher_id: str) -> list:
+    """EVERY class OWNED by this teacher account, oldest-created first, with student
+    counts. The signed-in replacement for list_classes_for_teacher(teacher_code)."""
+    from sqlalchemy import select, func
+    if not teacher_id:
+        return []
+    cl, cm = _tables["classes"], _tables["class_members"]
+    with _engine.connect() as conn:
+        rows = conn.execute(
+            select(cl.c.class_code, cl.c.name, cl.c.owner_name, cl.c.created_at)
+            .where(cl.c.teacher_id == teacher_id)).all()
+        counts = dict(conn.execute(
+            select(cm.c.class_code, func.count(cm.c.student_code))
+            .group_by(cm.c.class_code)).all())
+    rows = sorted(rows, key=lambda r: (r[3] is None, r[3], r[0]))
+    return [{"class_code": r[0], "name": r[1] or "", "owner_name": r[2] or "",
+             "students": int(counts.get(r[0], 0))} for r in rows]
 
 
 def list_classes_for_teacher(teacher_code: str) -> list:

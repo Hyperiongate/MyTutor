@@ -2,6 +2,43 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13fa-classroom-locked". ⭐ SECURITY FINDING F2 IS
+#               CLOSED -- the last open item from the 2026-08-12 review, and reading the
+#               code to fix it showed it was worse than the note said.
+#               WHAT WAS WRONG: every class endpoint was UNAUTHENTICATED, and
+#               GET /api/class/{code} returned the whole roster INCLUDING every child's
+#               login code -- and a student code IS the login (students have no password).
+#               One guessed class code handed over every child in that class: their codes,
+#               their progress, their transcripts. Those routes never got F1's _read_guard
+#               either, so they were enumerable AND unthrottled. The old "teacher code"
+#               was documented in this very file as "a door, not a lock", and it was.
+#               THE FIX: real teacher accounts mirroring the parent stack -- same PBKDF2
+#               hashing, same 30-day token, same single-use emailed reset -- in their own
+#               tables, so the live parent/billing path is untouched. A class now has an
+#               OWNER (classes.teacher_id) and EVERY read and write goes through
+#               _require_teacher + _own_class. A class that exists but is not yours
+#               answers 404, never 403: "it exists, it just isn't yours" is a membership
+#               oracle on an endpoint family that was an enumeration target already.
+#               NEW: /api/teacher/signup · login · logout · me · claim · forgot · reset,
+#               and /api/class/{code}/reveal/{ref}.
+#               REMOVED: GET /api/teacher/{teacher_code}/classes (a roster of children
+#               behind a short guessable key), and the helper _class_or_404, which looked
+#               a class up with no ownership check and was what every leaking endpoint
+#               reached for -- leaving it would invite the next handler to use it.
+#               EXISTING CLASSES (Jim's call): nothing is deleted or orphaned. They start
+#               UNOWNED and are taken over either by entering the old teacher code at
+#               signup or by claiming a class by code while signed in. Unowned classes
+#               can be claimed exactly ONCE; an owned class can never be re-claimed by
+#               either path -- both guarantees are enforced inside one transaction in
+#               store.claim_class.
+#               ROSTER CODES (Jim's call): no class response ships a raw login code any
+#               more. Rows carry a masked code plus an opaque ref, and the owning teacher
+#               reveals ONE code at a time through its own throttled endpoint. A
+#               projected or screenshotted roster no longer leaks thirty logins at once.
+#               Guarded by ruletests PART 3ae, which stands the real app up against a real
+#               database and drives every endpoint anonymously, as the WRONG teacher, and
+#               as the owner -- a source-reading check would have passed on the old code.
+#               Negative-tested three ways; the teacher page driven in a real browser.
 #   2026-08-13  APP_BUILD -> "2026-08-13ez-hear-him-teach". BUILD STAMP ONLY here -- the
 #               work is in static/landing.html, static/demo.html and ruletests.py (NEW
 #               PART 3ad). Three regressions Jim found by using the site: the hero's
@@ -3066,11 +3103,45 @@ class ClassIn(BaseModel):
     class_code: str            # short, case-insensitive key the teacher picks (e.g. "MRSB-P3")
     name: str = ""             # friendly label, e.g. "Period 3 Algebra"
     owner_name: str = ""       # teacher/parent display name (optional)
-    teacher_code: str = ""     # the teacher's personal sign-in code (optional; e.g. "MRSBAKER")
+    teacher_code: str = ""     # LEGACY convenience key, kept only for inheritance (build fa)
+    token: str = ""            # build fa: the signed-in teacher's token -- now REQUIRED
 
 
 class ClassStudentIn(BaseModel):
     code: str                  # an EXISTING student code to add to the class
+    token: str = ""            # build fa: the signed-in teacher's token
+
+
+# TEACHER ACCOUNTS (2026-08-13, build fa -- closing security finding F2).
+class TeacherSignupIn(BaseModel):
+    email: str
+    password: str
+    name: str = ""             # display name (optional)
+    school: str = ""           # optional, display only
+    teacher_code: str = ""     # OPTIONAL: inherit the classes run under this legacy code
+
+
+class TeacherLoginIn(BaseModel):
+    email: str
+    password: str
+
+
+class TeacherForgotIn(BaseModel):
+    email: str
+
+
+class TeacherResetIn(BaseModel):
+    token: str
+    password: str
+
+
+class TeacherTokenIn(BaseModel):
+    token: str = ""
+
+
+class TeacherClaimIn(BaseModel):
+    token: str = ""
+    class_code: str
 
 
 class ParentSignupIn(BaseModel):
@@ -3862,14 +3933,13 @@ def topics_state(code: str, request: Request, course: str = "algebra1"):
 # (`classes` / `class_members`); when the DB is off these endpoints report tracking:false
 # instead of failing, exactly like the rest of the tracking layer.
 # =============================================================================
-def _class_or_404(class_code: str) -> dict:
-    cls = store.get_class(class_code)
-    if not cls:
-        raise HTTPException(status_code=404, detail="That class code was not found.")
-    return cls
+# ⛔ _class_or_404 was REMOVED in build fa. It fetched a class by code with no ownership
+# check at all, and it was the helper every leaking endpoint reached for. `_own_class`
+# replaces it everywhere. Leaving a ready-made no-auth lookup in the file would invite
+# the next handler to use it -- the same reasoning that retired challenge.html's postJSON.
 
 
-def _class_student_row(code: str, course: str) -> dict:
+def _class_student_row(code: str, course: str, class_code: str = "") -> dict:
     """One student's snapshot for the classroom view: per-unit best scores + a small summary.
     Mirrors what /api/topics reports, but trimmed to what a roster grid needs. Never raises --
     a student whose data can't be read still appears in the grid (with zeros)."""
@@ -3907,8 +3977,12 @@ def _class_student_row(code: str, course: str) -> dict:
     weak = [u for u in units if u["checks_taken"] and not u["mastered"]]
     last = [r.get("last_touched") for r in recorded.values() if r.get("last_touched")]
     return {
-        "code": code,
-        "name": student.get("name") or code,
+        # build fa: the grid identifies a child by an opaque ref and a MASKED code. It
+        # used to carry the raw login code for every student in the class -- the single
+        # richest thing finding F2 exposed. `class_code` is passed in purely to key the ref.
+        "ref": _member_ref(class_code, code) if class_code else "",
+        "code_masked": _mask_code(code),
+        "name": student.get("name") or _mask_code(code),
         "known": bool(student),           # False = the code isn't in students.json (typo?)
         "units": units,
         "units_mastered": len([u for u in units if u["mastered"]]),
@@ -3920,58 +3994,328 @@ def _class_student_row(code: str, course: str) -> dict:
     }
 
 
+# =============================================================================
+# TEACHER ACCOUNTS (2026-08-13, build fa) -- SECURITY FINDING F2, CLOSED
+# -----------------------------------------------------------------------------
+# WHAT WAS WRONG, stated plainly because it was serious: every class endpoint was
+# UNAUTHENTICATED. GET /api/class/{code} returned the whole roster INCLUDING every
+# child's login code -- and a student code IS the login (students have no password).
+# So one guessed class code handed over every child in that class: their codes,
+# their progress, their transcripts. Those routes never got F1's _read_guard either,
+# so they were enumerable AND unthrottled. The old "teacher code" was documented in
+# this file as "a door, not a lock", and it was exactly that.
+#
+# THE FIX: real teacher accounts, mirroring the parent stack (same PBKDF2 hashing,
+# same 30-day token, same single-use email reset), with a separate table so the live
+# parent/billing path is untouched. A class now has an OWNER (classes.teacher_id) and
+# every read and every write checks it.
+#
+# WHAT HAPPENS TO CLASSES THAT ALREADY EXIST (Jim's call, 2026-08-13): nothing is
+# deleted and nothing is orphaned. They start UNOWNED, and a teacher takes ownership
+# either by entering their old teacher code at signup (inherits every class carrying
+# it) or by claiming a class by its code while signed in. An UNOWNED class can be
+# claimed exactly once; an OWNED class can never be re-claimed, by either path.
+#
+# ROSTER CODES (Jim's call): the roster no longer ships raw student codes. Each row
+# carries a masked code and an opaque `ref`; the owning teacher can reveal ONE code
+# at a time through its own endpoint. A projected or screenshotted roster no longer
+# leaks thirty children's logins at once.
+# =============================================================================
+def _require_teacher(token: str) -> dict:
+    """Validate a teacher token and return the teacher row (sans password hash)."""
+    _require_db()
+    teacher_id = store.get_teacher_token((token or "").strip())
+    if not teacher_id:
+        raise HTTPException(status_code=401, detail="Please sign in again.")
+    teacher = store.get_teacher(teacher_id)
+    if not teacher:
+        raise HTTPException(status_code=401, detail="Please sign in again.")
+    teacher.pop("password_hash", None)      # never let the hash near a response
+    return teacher
+
+
+def _own_class(teacher: dict, class_code: str) -> dict:
+    """Return the class ONLY if this teacher owns it. The single chokepoint every
+    class endpoint goes through -- the ownership rule lives in one place so it cannot
+    drift between five handlers.
+
+    A class that exists but belongs to someone else answers 404, not 403: telling a
+    stranger "that class exists, it just isn't yours" is a membership oracle, and this
+    endpoint family was an enumeration target to begin with."""
+    cls = store.get_class((class_code or "").strip())
+    if not cls or (cls.get("teacher_id") or "") != teacher["id"]:
+        raise HTTPException(status_code=404, detail="No class with that code on your account.")
+    return cls
+
+
+def _member_ref(class_code: str, student_code: str) -> str:
+    """A stable, opaque handle for one roster row, so the roster can be rendered and
+    edited WITHOUT shipping children's login codes to the page. Not a credential --
+    every endpoint that takes a ref is owner-gated anyway; it exists so the codes
+    themselves stay off the screen and out of the payload."""
+    raw = f"{_norm_class_code(class_code)}|{(student_code or '').strip()}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def _norm_class_code(cc: str) -> str:
+    return (str(cc or "").strip().upper())[:32]
+
+
+def _mask_code(code: str) -> str:
+    """MAPLE4821 -> MAPLE••••. Enough for a teacher to recognise a row at a glance,
+    useless to somebody reading over their shoulder or looking at a screenshot."""
+    c = (code or "").strip()
+    if len(c) <= 4:
+        return "•" * len(c)
+    keep = max(2, len(c) - 4)
+    return c[:keep] + "•" * (len(c) - keep)
+
+
+def _resolve_member(cls: dict, ref_or_code: str) -> str:
+    """Turn a roster `ref` (or, for older callers, a raw student code) into the student
+    code that is actually IN this class. Returns "" when it matches no member -- so a
+    remove can only ever touch this class's own roster."""
+    want = (ref_or_code or "").strip()
+    for code in cls.get("students", []):
+        if want == _member_ref(cls["class_code"], code) or want == code:
+            return code
+    return ""
+
+
+def _class_public(cls: dict) -> dict:
+    """The class as a page may see it: the roster carries NAMES and MASKED codes plus an
+    opaque ref, never a child's raw login code, and the owner id never leaves the server.
+    Build fa -- this shape is the whole point of finding F2's fix, so it lives in ONE
+    function that every class response goes through."""
+    roster = []
+    for c in (cls.get("students") or []):
+        known = bool(STUDENTS.get(c))
+        roster.append({
+            "ref": _member_ref(cls.get("class_code", ""), c),
+            "name": (STUDENTS.get(c) or {}).get("name") or _mask_code(c),
+            "code_masked": _mask_code(c),
+            "known": known,
+        })
+    return {"class_code": cls.get("class_code", ""), "name": cls.get("name") or "",
+            "owner_name": cls.get("owner_name") or "", "roster": roster}
+
+
+def _teacher_payload(teacher: dict) -> dict:
+    """The signed-in teacher + their classes. One place, so signup, login and refresh
+    all return exactly the same shape (the parent stack's _parent_payload lesson)."""
+    return {
+        "ok": True,
+        "teacher": {"id": teacher["id"], "email": teacher.get("email") or "",
+                    "name": teacher.get("name") or "", "school": teacher.get("school") or ""},
+        "classes": store.list_classes_for_teacher_id(teacher["id"]),
+    }
+
+
+@app.post("/api/teacher/signup")
+def teacher_signup(body: TeacherSignupIn, request: Request):
+    """Create a teacher account. Free, no card. If they give the teacher code they used
+    before accounts existed, every UNOWNED class carrying it becomes theirs."""
+    _require_db()
+    _rate_limit("tsignup:" + _client_ip(request), limit=5, window_seconds=3600,
+                what="signup attempts")
+    email = (body.email or "").strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
+    if len(body.password or "") < 8:
+        raise HTTPException(status_code=400, detail="Please use a password of at least 8 characters.")
+    teacher_id = uuid.uuid4().hex
+    if not store.create_teacher(teacher_id, email, body.name, _hash_password(body.password),
+                                body.school or ""):
+        raise HTTPException(status_code=409, detail=(
+            "That email already has a teacher account — use Sign in instead."))
+    adopted = 0
+    if (body.teacher_code or "").strip():
+        adopted = store.adopt_classes_by_teacher_code(body.teacher_code, teacher_id)
+    out = _teacher_payload(store.get_teacher(teacher_id))
+    out["token"] = _issue_teacher_token(teacher_id)
+    out["adopted"] = adopted
+    return out
+
+
+@app.post("/api/teacher/login")
+def teacher_login(body: TeacherLoginIn, request: Request):
+    _require_db()
+    _rate_limit("tlogin:" + _client_ip(request), limit=20, window_seconds=300,
+                what="sign-in attempts")
+    teacher = store.get_teacher_by_email(body.email)
+    # Verify against a real or dummy hash either way, so a wrong email and a wrong
+    # password take the same time (no probing which addresses have accounts).
+    stored = teacher["password_hash"] if teacher else _hash_password("timing-decoy")
+    if not _verify_password(body.password, stored) or not teacher:
+        raise HTTPException(status_code=401, detail="Email or password didn't match.")
+    out = _teacher_payload(teacher)
+    out["token"] = _issue_teacher_token(teacher["id"])
+    return out
+
+
+@app.post("/api/teacher/logout")
+def teacher_logout(body: TeacherTokenIn):
+    if store.enabled():
+        store.delete_teacher_token((body.token or "").strip())
+    return {"ok": True}
+
+
+@app.get("/api/teacher/me")
+def teacher_me(request: Request):
+    """The signed-in teacher and their classes. Token in the X-Teacher-Token header."""
+    teacher = _require_teacher(request.headers.get("x-teacher-token", ""))
+    return _teacher_payload(teacher)
+
+
+@app.post("/api/teacher/claim")
+def teacher_claim(body: TeacherClaimIn):
+    """Take ownership of an UNOWNED class by its code. The race and the
+    already-owned case are both settled inside store.claim_class, in one transaction."""
+    teacher = _require_teacher(body.token)
+    why = store.claim_class(body.class_code, teacher["id"])
+    if why:
+        raise HTTPException(status_code=409, detail=why)
+    out = _teacher_payload(teacher)
+    out["claimed"] = _norm_class_code(body.class_code)
+    return out
+
+
+@app.post("/api/teacher/forgot")
+def teacher_forgot(body: TeacherForgotIn, request: Request):
+    """Email a password-reset link. SAME answer whether or not the address has an
+    account. Single-use, 45 minutes, only the SHA-256 hash is stored. Mirrors the
+    parent flow exactly, including its anti-probing behaviour."""
+    _require_db()
+    _rate_limit("tforgot:" + _client_ip(request), limit=5, window_seconds=3600,
+                what="reset requests")
+    email = (body.email or "").strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
+    _rate_limit("tforgot-email:" + email, limit=3, window_seconds=3600,
+                what="reset requests")
+    if not _smtp_configured():
+        return {"ok": True, "sent": False,
+                "note": ("Email isn't switched on here yet — write to support@mrcadabra.com "
+                         "and we'll reset it for you.")}
+    teacher = store.get_teacher_by_email(email)
+    if not teacher:
+        print("[email] teacher forgot: no account matches that address -- no email sent")
+    if teacher:
+        raw = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        store.create_teacher_reset(token_hash, teacher["id"], minutes=45)
+        base = os.environ.get("APP_BASE_URL", "https://mrcadabra.com").rstrip("/")
+        link = f"{base}/teacher?reset={raw}"
+        send_err = _send_email(email, "Reset your Mr. Cadabra's Classroom teacher password",
+            "Hi" + ((" " + teacher.get("name")) if teacher.get("name") else "") + ",\n\n"
+            "Someone asked to reset the password for this Mr. Cadabra's Classroom teacher "
+            "account. If that was you, open this link and choose a new password:\n\n"
+            f"{link}\n\n"
+            "The link works once and expires in 45 minutes.\n\n"
+            "If you didn't ask for this, you can safely ignore this email — your password "
+            "is unchanged and your classes are unaffected.\n\n"
+            "— Mr. Cadabra's Classroom\nsupport@mrcadabra.com")
+        if send_err:
+            print(f"[email] teacher forgot: send FAILED for a real account: {send_err}")
+    return {"ok": True, "sent": True}
+
+
+@app.post("/api/teacher/reset")
+def teacher_reset(body: TeacherResetIn):
+    """Spend a reset token and set a new password. Every existing session is signed
+    out, so a stolen token cannot outlive the reset."""
+    _require_db()
+    if len(body.password or "") < 8:
+        raise HTTPException(status_code=400, detail="Please use a password of at least 8 characters.")
+    token_hash = hashlib.sha256((body.token or "").encode("utf-8")).hexdigest()
+    teacher_id = store.use_teacher_reset(token_hash)
+    if not teacher_id:
+        raise HTTPException(status_code=400, detail=(
+            "That reset link has expired or was already used. Please request a new one."))
+    store.set_teacher_password(teacher_id, _hash_password(body.password))
+    store.delete_teacher_tokens_for(teacher_id)
+    out = _teacher_payload(store.get_teacher(teacher_id))
+    out["token"] = _issue_teacher_token(teacher_id)
+    return out
+
+
+def _issue_teacher_token(teacher_id: str) -> str:
+    token = secrets.token_hex(32)
+    store.create_teacher_token(token, teacher_id, days=30)
+    return token
+
+
 @app.post("/api/class")
 def post_class(body: ClassIn):
-    """Create a class, or update its label/owner if the code already exists."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
+    """Create a class, or update its label if you already own it.
+
+    build fa: creating a class now REQUIRES a signed-in teacher, and the new class is
+    owned by them from its first moment. Updating one you do not own is a 404 (see
+    _own_class) -- previously ANY caller could rename ANY class, or quietly attach
+    their own teacher code to it."""
+    teacher = _require_teacher(body.token)
     cc = (body.class_code or "").strip()
     if not cc:
         raise HTTPException(status_code=400, detail="Please choose a class code.")
+    existing = store.get_class(cc)
+    if existing:
+        _own_class(teacher, cc)             # yours to edit, or it does not exist to you
     cls = store.create_class(cc, body.name or "", body.owner_name or "",
                              body.teacher_code or "")
-    return {"ok": True, "tracking": True, "klass": cls}
+    if not existing:
+        store.claim_class(cc, teacher["id"])    # brand new: owned from birth
+    return {"ok": True, "tracking": True, "klass": _class_public(store.get_class(cc))}
 
 
-@app.get("/api/teacher/{teacher_code}/classes")
-def get_teacher_classes(teacher_code: str):
-    """EVERY class run by this teacher code -- what a teacher sees right after signing in.
-
-    An unknown code is NOT a 404: it simply has no classes yet, and the page invites the teacher
-    to create their first one. Reports tracking:false when the database is off, like the rest of
-    the classroom API.
-
-    NOTE (deliberate, and stated in the UI): a teacher code is a convenience key, not a password.
-    Until the accounts work lands, anyone who knows a teacher's code can see that teacher's
-    classes. This is a door, not a lock.
-    """
-    if not store.enabled():
-        return {"ok": False, "tracking": False, "classes": []}
-    tc = (teacher_code or "").strip()
-    if not tc:
-        raise HTTPException(status_code=400, detail="Please enter your teacher code.")
-    classes = store.list_classes_for_teacher(tc)
-    return {"ok": True, "tracking": True, "teacher_code": tc.upper(), "classes": classes}
+# ⛔ REMOVED in build fa: GET /api/teacher/{teacher_code}/classes.
+# It listed every class run by a teacher code, unauthenticated, and its own docstring
+# admitted what it was: "a teacher code is a convenience key, not a password... This is a
+# door, not a lock." A short, guessable, unthrottled key is not an acceptable way to reach
+# a roster of children. Its replacement is GET /api/teacher/me, behind a real token.
+# The teacher code itself survives ONLY as an inheritance hint at signup (build fa).
 
 
 @app.get("/api/class/{class_code}")
-def get_class_info(class_code: str):
-    """The class label plus its roster (student codes + display names)."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    cls = _class_or_404(class_code)
-    roster = [{"code": c, "name": (STUDENTS.get(c) or {}).get("name") or c,
-               "known": bool(STUDENTS.get(c))} for c in cls.get("students", [])]
-    return {"ok": True, "tracking": True, "klass": {**cls, "roster": roster}}
+def get_class_info(class_code: str, request: Request,
+                   x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
+    """The class label plus its roster -- OWNER ONLY (build fa, finding F2).
+
+    The roster carries names, MASKED codes and opaque refs; a child's real login code is
+    never in this response. Use /api/class/{code}/reveal/{ref} for one code at a time.
+    _read_guard still fronts it, so even a signed-in account cannot sweep class codes."""
+    teacher = _require_teacher(x_teacher_token)
+    _read_guard(request, class_code)        # defence in depth: no enumeration, ever
+    cls = _own_class(teacher, class_code)
+    return {"ok": True, "tracking": True, "klass": _class_public(cls)}
+
+
+@app.get("/api/class/{class_code}/reveal/{ref}")
+def reveal_class_student_code(class_code: str, ref: str, request: Request,
+                              x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
+    """Reveal ONE student's login code to the owning teacher (build fa, Jim's call).
+
+    A teacher genuinely needs a code sometimes -- to hand it back to a child who has lost
+    it -- and they typed it in the first place to build the roster, so this is not new
+    exposure to them. What it stops is thirty codes sitting on a projected screen at once.
+    Deliberately one at a time, owner-gated, and throttled."""
+    teacher = _require_teacher(x_teacher_token)
+    _rate_limit("reveal:" + teacher["id"], limit=40, window_seconds=300,
+                what="code reveals")
+    cls = _own_class(teacher, class_code)
+    code = _resolve_member(cls, ref)
+    if not code:
+        raise HTTPException(status_code=404, detail="That student isn't in this class.")
+    return {"ok": True, "code": code}
 
 
 @app.post("/api/class/{class_code}/students")
-def post_class_student(class_code: str, body: ClassStudentIn):
-    """Add an EXISTING student code to the class. Unknown codes are rejected with a clear
-    message so a teacher sees their typo instead of a silently empty row."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    _class_or_404(class_code)
+def post_class_student(class_code: str, body: ClassStudentIn,
+                       x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
+    """Add an EXISTING student code to the class -- OWNER ONLY (build fa). Unknown codes
+    are rejected with a clear message so a teacher sees their typo instead of a silently
+    empty row."""
+    teacher = _require_teacher(x_teacher_token or body.token)
+    _own_class(teacher, class_code)
     code = (body.code or "").strip()
     if not code:
         raise HTTPException(status_code=400, detail="Please enter a student code.")
@@ -3982,24 +4326,33 @@ def post_class_student(class_code: str, body: ClassStudentIn):
     return {"ok": True, "tracking": True}
 
 
-@app.delete("/api/class/{class_code}/students/{student_code}")
-def delete_class_student(class_code: str, student_code: str):
-    """Remove a student from the class. The student's own progress is NOT deleted."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    _class_or_404(class_code)
-    store.remove_student(class_code, student_code)
+@app.delete("/api/class/{class_code}/students/{ref}")
+def delete_class_student(class_code: str, ref: str,
+                         x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
+    """Remove a student from the class -- OWNER ONLY (build fa). The student's own
+    progress is NOT deleted. Takes the roster `ref` (a raw code still works for older
+    callers); either way _resolve_member confirms the student is in THIS class first, so
+    a remove can never reach outside the roster in front of you."""
+    teacher = _require_teacher(x_teacher_token)
+    cls = _own_class(teacher, class_code)
+    code = _resolve_member(cls, ref)
+    if not code:
+        raise HTTPException(status_code=404, detail="That student isn't in this class.")
+    store.remove_student(class_code, code)
     return {"ok": True, "tracking": True}
 
 
 @app.get("/api/class/{class_code}/summary")
-def get_class_summary(class_code: str, course: str = "algebra1"):
+def get_class_summary(class_code: str, request: Request, course: str = "algebra1",
+                      x_teacher_token: str = Header(default="", alias="X-Teacher-Token")):
     """THE CLASSROOM VIEW: every student in the class with their per-unit mastery for ONE
-    course, plus class-wide aggregates (which units the class as a whole is weakest on)."""
-    if not store.enabled():
-        return {"ok": False, "tracking": False}
-    cls = _class_or_404(class_code)
-    students = [_class_student_row(c, course) for c in cls.get("students", [])]
+    course, plus class-wide aggregates (which units the class as a whole is weakest on).
+    OWNER ONLY since build fa -- this is the richest view of children's data in the app."""
+    teacher = _require_teacher(x_teacher_token)
+    _read_guard(request, class_code)
+    cls = _own_class(teacher, class_code)
+    students = [_class_student_row(c, course, cls["class_code"])
+                for c in cls.get("students", [])]
     unit_names = curriculum.units_for(course)
 
     # Class-wide per-unit picture: how many students have mastered each unit, and the average
@@ -6401,7 +6754,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13ez-hear-him-teach"
+APP_BUILD = "2026-08-13fa-classroom-locked"
 
 
 @app.get("/health")

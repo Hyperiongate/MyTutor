@@ -2,6 +2,26 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fa -- SECURITY F2 CLOSED, GUARDED (NEW PART 3ae). This part does NOT
+#               trust the source to look right: it stands the real app up against a real
+#               database and drives every class endpoint three ways -- anonymously, as the
+#               WRONG teacher, and as the owner. That matters, because a source-reading
+#               check would have passed on the OLD code too; those handlers looked
+#               perfectly reasonable, and they were handing out children's login codes.
+#               The drill asserts: every endpoint 401s anonymously · another teacher gets
+#               404 on read, summary, reveal, add, remove and rename · no raw login code
+#               appears in ANY class response (roster or summary) · reveal returns one
+#               code to the owner and 404s a bogus ref · an unowned class can be claimed
+#               once and an owned one never · signup inheritance moves only unowned
+#               classes · logout really kills the token. Static checks alongside it pin
+#               that _class_or_404 and the unauthenticated teacher-classes route stay
+#               gone, that every /api/class handler calls _require_teacher AND _own_class
+#               (naming any offender rather than counting), and that the page signs in
+#               with a token instead of a URL parameter and renders masked codes.
+#               NEGATIVE-TESTED three ways: dropping the ownership check, putting the raw
+#               code back in the roster, and letting an owned class be re-claimed -- each
+#               fails the build, and the middle one is invisible to every check that reads
+#               source. The teacher page was also driven in a real browser end to end.
 #   2026-08-13  BUILD ez -- A CLIP NEVER EATS SOMETHING BETTER (NEW PART 3ad). Three
 #               regressions Jim found by USING the site, all one species: the video work
 #               quietly took over something already doing a better job. (1) Build eu put
@@ -5882,6 +5902,211 @@ def part3z_reply_integrity():
 
 
 # =============================================================================
+# PART 3ae -- SECURITY F2: THE CLASSROOM IS LOCKED (build fa, 2026-08-13)
+# =============================================================================
+# F2 was the last open finding from the 2026-08-12 security review, and reading the
+# code to fix it showed it was worse than the note said: GET /api/class/{code}
+# returned the whole roster INCLUDING every child's login code, and a student code IS
+# the login. One guessed class code handed over every child in that class. Those
+# routes never got F1's _read_guard either, so they were enumerable and unthrottled.
+#
+# This part does NOT trust the source to look right. It stands the real app up against
+# a real database and drives every endpoint three ways: with no token, with the WRONG
+# teacher's token, and with the owner's. A source-reading check would have passed on
+# the old code too -- the handlers looked perfectly reasonable.
+def part3ae_classroom_locked():
+    print("\nPART 3ae — security F2: the classroom is locked (build fa)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    mn = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+
+    # --- static: the no-auth lookup helper must stay gone ---------------------
+    check("the no-auth class lookup (_class_or_404) is gone",
+          "def _class_or_404" not in mn,
+          "it fetched a class by code with NO ownership check and was the helper every "
+          "leaking endpoint reached for; leaving it invites the next handler to use it")
+    check("the unauthenticated teacher-classes route is gone",
+          '@app.get("/api/teacher/{teacher_code}/classes")' not in mn,
+          "it listed a teacher's classes behind a short guessable code and its own "
+          "docstring called it 'a door, not a lock'")
+    # Read each /api/class handler and prove IT calls _require_teacher. Counting
+    # occurrences would be clever and brittle; this names the offender instead.
+    routes, naked, unowned = [], [], []
+    for m in re.finditer(r'@app\.(?:get|post|delete)\("(/api/class[^"]*)"\)\s*\n'
+                         r'def \w+\(.*?(?=\n@app\.|\ndef |\Z)', mn, re.S):
+        path, body = m.group(1), m.group(0)
+        routes.append(path)
+        if "_require_teacher(" not in body:
+            naked.append(path)
+        if "{class_code}" in path and "_own_class(" not in body:
+            unowned.append(path)
+    check(f"every /api/class endpoint requires a signed-in teacher ({len(routes)} routes)",
+          bool(routes) and not naked,
+          f"UNAUTHENTICATED: {naked} -- this is precisely finding F2")
+    check("every per-class endpoint also checks OWNERSHIP",
+          not unowned,
+          f"authenticated but not owner-gated: {unowned} -- any signed-in teacher could "
+          f"then read or edit any class, which is the same leak with one extra step")
+
+    # --- the teacher PAGE must not carry the old door around either -----------
+    th = open(os.path.join(here, "static", "teacher.html"), encoding="utf-8").read()
+    th_code = re.sub(r"<!--.*?-->", "", th, flags=re.S)
+    check("the teacher page no longer signs in with a URL parameter",
+          'params.get("teacher")' not in th_code,
+          "?teacher=MRSBAKER was the old 'sign-in': a short guessable code in a URL, "
+          "shared in screenshots and saved in browser history")
+    check("the teacher page sends a real token on every class call",
+          'localStorage.getItem(TOKEN_KEY)' in th_code
+          and '"X-Teacher-Token"' in th_code
+          and 'fetch("/api/class' not in th_code,
+          "every class call must go through the api() wrapper that attaches the token -- "
+          "a bare fetch is a call site that will forget it")
+    # \b after "code" means s.code_masked does NOT match -- that field is the fix, not
+    # the bug, and a naive substring test flags it.
+    check("the roster renders MASKED codes, never a raw login code",
+          "code_masked" in th_code and not re.search(r"\bs\.code\b", th_code),
+          "the page must not put thirty children's logins on a projected screen")
+    check("revealing a code is one student at a time, through one helper",
+          th_code.count("async function revealCode(") == 1
+          and "/reveal/" in th_code,
+          "one funnel, owner-gated and throttled server-side")
+
+    try:
+        from fastapi.testclient import TestClient  # noqa: F401
+        _have = True
+    except Exception:  # noqa: BLE001
+        _have = False
+    if not _have:
+        skip("F2 live drill", "fastapi TestClient not installed here")
+        return
+
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as tmp:
+        drill = os.path.join(tmp, "f2drill.py")
+        with open(drill, "w") as fh:
+            fh.write(r'''
+import os, uuid
+os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(os.environ["F2TMP"], "f2.db")
+os.environ["WEEKLY_EMAIL"] = "off"
+from fastapi.testclient import TestClient
+import main, store
+c = TestClient(main.app)
+assert store.enabled(), "the drill needs its own database"
+
+STU = sorted(main.STUDENTS.keys())[:2]
+assert len(STU) >= 2, "need two pilot students"
+
+def signup(email, tcode=""):
+    r = c.post("/api/teacher/signup", json={"email": email, "password": "hunter2hunter2",
+                                            "name": "T", "teacher_code": tcode})
+    assert r.status_code == 200, (email, r.status_code, r.text[:200])
+    return r.json()
+
+# ---- 1. EVERY class endpoint refuses an anonymous caller --------------------
+anon = [
+    ("get",    "/api/class/ANY"),
+    ("get",    "/api/class/ANY/summary"),
+    ("get",    "/api/class/ANY/reveal/deadbeef"),
+    ("post",   "/api/class"),
+    ("post",   "/api/class/ANY/students"),
+    ("delete", "/api/class/ANY/students/deadbeef"),
+]
+for verb, path in anon:
+    r = getattr(c, verb)(path, **({"json": {"class_code": "ANY", "code": "X"}}
+                                  if verb == "post" else {}))
+    assert r.status_code == 401, ("ANON REACHED " + path, r.status_code, r.text[:200])
+
+# ---- 2. the retired route is really gone ------------------------------------
+assert c.get("/api/teacher/MRSBAKER/classes").status_code == 404, "the old route answered"
+
+# ---- 3. an owner can work; the roster never carries a raw login code --------
+A = signup("a@x.com")
+ta = A["token"]
+HA = {"X-Teacher-Token": ta}
+r = c.post("/api/class", json={"token": ta, "class_code": "P3", "name": "Period 3"})
+assert r.status_code == 200, r.text[:200]
+r = c.post("/api/class/P3/students", headers=HA, json={"code": STU[0]})
+assert r.status_code == 200, r.text[:200]
+r = c.get("/api/class/P3", headers=HA)
+assert r.status_code == 200, r.text[:200]
+body = r.text
+klass = r.json()["klass"]
+assert klass["roster"], "the roster is empty"
+row = klass["roster"][0]
+assert "ref" in row and "code_masked" in row, row
+for s in STU:
+    assert s not in body, ("A RAW LOGIN CODE IS IN THE ROSTER RESPONSE", s)
+assert "•" in row["code_masked"], row
+
+# the summary is the richest view; it must mask too
+r = c.get("/api/class/P3/summary", headers=HA)
+assert r.status_code == 200, r.text[:200]
+for s in STU:
+    assert s not in r.text, ("A RAW LOGIN CODE IS IN THE SUMMARY", s)
+
+# ---- 4. reveal: one code, to the owner only ---------------------------------
+r = c.get("/api/class/P3/reveal/" + row["ref"], headers=HA)
+assert r.status_code == 200 and r.json()["code"] == STU[0], r.text[:200]
+assert c.get("/api/class/P3/reveal/nosuchref", headers=HA).status_code == 404
+
+# ---- 5. ANOTHER teacher is a stranger to this class -------------------------
+B = signup("b@x.com")
+HB = {"X-Teacher-Token": B["token"]}
+assert c.get("/api/class/P3", headers=HB).status_code == 404, "B READ A'S CLASS"
+assert c.get("/api/class/P3/summary", headers=HB).status_code == 404, "B READ A'S SUMMARY"
+assert c.get("/api/class/P3/reveal/" + row["ref"], headers=HB).status_code == 404
+assert c.post("/api/class/P3/students", headers=HB,
+              json={"code": STU[1]}).status_code == 404, "B ADDED TO A'S CLASS"
+assert c.delete("/api/class/P3/students/" + row["ref"],
+                headers=HB).status_code == 404, "B REMOVED FROM A'S CLASS"
+assert c.post("/api/class", json={"token": B["token"], "class_code": "P3",
+                                  "name": "hijacked"}).status_code == 404, "B RENAMED A'S CLASS"
+assert c.get("/api/class/P3", headers=HA).json()["klass"]["name"] == "Period 3"
+
+# ---- 6. claiming: unowned once, owned never ---------------------------------
+store.create_class("LEGACY1", "Old class", "Mrs B", "MRSBAKER")
+assert store.get_class("LEGACY1")["teacher_id"] == ""
+r = c.post("/api/teacher/claim", json={"token": B["token"], "class_code": "LEGACY1"})
+assert r.status_code == 200, r.text[:200]
+r = c.post("/api/teacher/claim", json={"token": ta, "class_code": "LEGACY1"})
+assert r.status_code == 409, ("A CLAIMED AN OWNED CLASS", r.status_code)
+assert c.post("/api/teacher/claim", json={"token": ta,
+                                          "class_code": "NOPE"}).status_code == 409
+
+# ---- 7. inheritance at signup, and it cannot steal an owned class -----------
+store.create_class("LEGACY2", "Another", "Mrs B", "MRSBAKER")
+C = signup("c@x.com", tcode="MRSBAKER")
+assert C["adopted"] == 1, ("inherited the wrong number", C["adopted"])
+mine = [k["class_code"] for k in C["classes"]]
+assert "LEGACY2" in mine and "LEGACY1" not in mine, ("STOLE AN OWNED CLASS", mine)
+
+# ---- 8. the session behaves: me / logout ------------------------------------
+assert c.get("/api/teacher/me", headers=HA).json()["teacher"]["email"] == "a@x.com"
+c.post("/api/teacher/logout", json={"token": ta})
+assert c.get("/api/teacher/me", headers=HA).status_code == 401, "TOKEN SURVIVED LOGOUT"
+assert c.get("/api/class/P3", headers=HA).status_code == 401
+
+# ---- 9. duplicate email, weak password, wrong password ----------------------
+assert c.post("/api/teacher/signup", json={"email": "a@x.com", "password": "hunter2hunter2"}
+              ).status_code == 409
+assert c.post("/api/teacher/signup", json={"email": "d@x.com", "password": "short"}
+              ).status_code == 400
+assert c.post("/api/teacher/login", json={"email": "a@x.com", "password": "wrong"}
+              ).status_code == 401
+print("F2-DRILL-OK")
+''')
+        env = dict(os.environ)
+        env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
+        env["F2TMP"] = tmp
+        env["WEEKLY_EMAIL"] = "off"
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True)
+        check("F2 LIVE DRILL: anonymous refused · another teacher refused · no raw "
+              "login code in any class response · claim/inherit cannot steal",
+              r.returncode == 0 and "F2-DRILL-OK" in r.stdout,
+              (r.stdout + r.stderr)[-700:])
+
+
+# =============================================================================
 # PART 3ad -- A CLIP NEVER EATS SOMETHING BETTER (build ez, 2026-08-13)
 # =============================================================================
 # Three regressions Jim found by USING the site, all the same species: the video work
@@ -6440,6 +6665,7 @@ def main():
     part3ab_seven_defects()
     part3ac_voice_sequencing()
     part3ad_clip_never_eats()
+    part3ae_classroom_locked()
     if live:
         part4_live()
     else:
