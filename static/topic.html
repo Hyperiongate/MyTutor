@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (fx) 2026-08-13 -- FINISHED PROBLEMS FOLD AWAY (Jim's design note "Narration/Board
+    Sync and Board Lifecycle", option 1). [[clear]] used to drop a "-- new problem --"
+    divider, so every solved problem stayed on screen and the board never read clean. It
+    now MOVES the finished problem into a collapsed block with a one-line summary
+    ("Problem 1 -- 2X + 1 = 25") that reopens on click. Deliberately NOT an erase: #feed
+    is the lesson TRANSCRIPT as well as the board (chat bubbles and worked math share it),
+    so erasing would delete the conversation. Two guards: the CURRENT tutor turn is never
+    folded (his words are added BEFORE his tags render, so the bubble introducing the new
+    problem is already on screen -- lastTurnEl marks it), and a stretch with no worked
+    math in it is never folded (the opener and plain talk keep the old divider). New CSS:
+    .probdone/.probsum/.probbody. Same change in session.html, practice.html, topic.html.
     (ee) 2026-08-12 -- THE BOARD SPOTLIGHT, same as session.html (rule 60 / signaling):
     the [[highlight]] tag gains two board keys here -- id="line" glows the NEWEST line
     of board work for ~6 seconds, id="board" glows the whole board. spotlightBoard()
@@ -260,6 +271,27 @@
       border: 1px solid var(--line); box-shadow: 0 12px 36px rgba(20,30,45,.08);
       padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
     .feed .stage-hint { margin: auto; }
+    /* FINISHED PROBLEMS FOLD AWAY (2026-08-13, build fx -- see the long wipeBoard() note
+       in the script below). A closed problem becomes ONE clickable summary row; its real
+       content is still in the DOM inside .probbody and comes straight back on click. */
+    .feed .probdone { align-self: stretch; width: 100%; }
+    .feed .probdone .probsum { display: flex; align-items: baseline; gap: 8px; width: 100%;
+      background: #f7f8fc; border: 1px solid var(--line); border-radius: 12px;
+      padding: 9px 13px; cursor: pointer; font: inherit; font-size: 13px;
+      color: var(--muted); text-align: left; }
+    .feed .probdone .probsum:hover { background: #eef0f8; }
+    .feed .probdone .probsum:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .feed .probdone .probcar { font-size: 10px; color: var(--accent); }
+    .feed .probdone .probeq { font-weight: 700; color: var(--ink); }
+    .feed .probdone .probtick { color: var(--ok); font-weight: 800; }
+    .feed .probdone .probhint { margin-left: auto; font-size: 12px; color: var(--accent); }
+    .feed .probdone .probbody { display: none; }
+    .feed .probdone.open .probbody { display: flex; flex-direction: column; gap: 12px;
+      padding: 12px 2px 2px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .feed .probdone.open .probbody { animation: probopen .18s ease; }
+      @keyframes probopen { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    }
     /* THINKING FLAG (2026-08-08, build bl, Jim): "is thinking" only lived in the tiny
        corner status line — easy to miss. A red pulsing badge now appears in the MIDDLE
        of the whiteboard while he thinks, and disappears the moment he starts talking. */
@@ -1212,10 +1244,103 @@
     }
     function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your topic will appear here.</div>'; }
     // [[clear]] = "new problem." The transcript RETAINS history, so we drop a divider instead of erasing.
+    // -------------------------------------------------------------------------------
+    // [[clear]] = "this problem is finished."  (2026-08-13, build fx -- Jim's design note
+    // "Narration/Board Sync and Board Lifecycle", option 1: OLD PROBLEMS COLLAPSE.)
+    //
+    // WHY THIS IS NOT AN ERASE. The centre of this page is ONE surface: chat bubbles and
+    // worked math share #feed, so it is the lesson TRANSCRIPT as well as the board. A true
+    // erase would delete the conversation along with the math -- which is exactly why an
+    // earlier build replaced the eraser sweep with a "-- new problem --" divider. But the
+    // divider left every finished problem on screen, so the board still never read clean
+    // and the student could not tell which work belonged to the problem in front of them.
+    //
+    // What happens instead: a finished problem is MOVED into a collapsed block headed by a
+    // one-line summary ("Problem 1 -- 2X + 1 = 25 checked") that reopens on click. Nothing
+    // is destroyed -- the nodes are re-parented, not removed.
+    //
+    // TWO THINGS THIS DELIBERATELY WILL NOT DO:
+    //  1. It never folds the CURRENT tutor turn. runTutor() adds his words to the feed
+    //     BEFORE it renders his tags, so at [[clear]] time the bubble introducing the NEW
+    //     problem is already on screen. lastTurnEl is that bubble; it and anything after
+    //     it are left out of the fold.
+    //  2. It never folds a stretch containing no worked math (the opener, the goals card,
+    //     plain conversation). Nothing was solved, so there is no problem to fold away --
+    //     that case keeps the old divider, behaving exactly as it did before.
+    // -------------------------------------------------------------------------------
+    let CLOSED_PROBLEMS = 0;
+    // The summary line's equation, read from the FIRST board row of the folded problem.
+    function problemLabel(body) {
+      let eq = "";
+      try {
+        const row = body.querySelector(".worklist .wrow");
+        if (row) {
+          const l = row.querySelector(".wl"), r = row.querySelector(".wr");
+          const lt = l ? l.textContent.trim() : "";
+          const rt = r ? r.textContent.trim() : "";
+          eq = rt ? (lt + " = " + rt) : lt;
+        }
+      } catch (e) {}
+      eq = eq.replace(/\s+/g, " ").trim();
+      if (eq.length > 44) eq = eq.slice(0, 43) + "…";
+      return eq;
+    }
     function wipeBoard() {
       curWork = null;
-      const div = document.createElement("div"); div.className = "feeddiv"; div.textContent = "— new problem —";
-      feed.appendChild(div); scrollFeed();
+      const kids = Array.from(feed.children);
+      // Fold everything since the last folded problem...
+      let start = 0;
+      for (let i = kids.length - 1; i >= 0; i--) {
+        if (kids[i].classList && kids[i].classList.contains("probdone")) { start = i + 1; break; }
+      }
+      // ...but stop before the current tutor turn (guard 1 above).
+      let stop = kids.length;
+      if (lastTurnEl && lastTurnEl.isConnected) {
+        const at = kids.indexOf(lastTurnEl);
+        if (at >= start) stop = at;
+      }
+      const seg = kids.slice(start, stop).filter(function (n) {
+        return n.classList && !n.classList.contains("stage-hint");
+      });
+      const hasMath = seg.some(function (n) {
+        return n.classList.contains("mblock") || (n.querySelector && !!n.querySelector(".mblock"));
+      });
+      if (!seg.length || !hasMath) {                      // guard 2 above -- old behaviour
+        const div = document.createElement("div"); div.className = "feeddiv"; div.textContent = "— new problem —";
+        feed.appendChild(div); scrollFeed(); return;
+      }
+      CLOSED_PROBLEMS++;
+      const wrap = document.createElement("div"); wrap.className = "probdone";
+      const body = document.createElement("div"); body.className = "probbody";
+      seg.forEach(function (n) { body.appendChild(n); });  // MOVES them; nothing is destroyed
+      const solved = !!body.querySelector(".worklist .wcheck");
+      const eq = problemLabel(body);
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "probsum";
+      btn.setAttribute("aria-expanded", "false");
+      const car = document.createElement("span"); car.className = "probcar"; car.textContent = "▸";
+      const lab = document.createElement("span"); lab.className = "problab";
+      lab.textContent = "Problem " + CLOSED_PROBLEMS + (eq ? " — " : "");
+      const eqs = document.createElement("span"); eqs.className = "probeq"; eqs.textContent = eq;
+      const tick = document.createElement("span"); tick.className = "probtick"; tick.textContent = solved ? "✓" : "";
+      const hint = document.createElement("span"); hint.className = "probhint"; hint.textContent = "show";
+      btn.appendChild(car); btn.appendChild(lab); btn.appendChild(eqs);
+      btn.appendChild(tick); btn.appendChild(hint);
+      btn.setAttribute("aria-label", "Problem " + CLOSED_PROBLEMS + (eq ? ", " + eq : "") + ". Show the work.");
+      btn.addEventListener("click", function () {
+        const open = wrap.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        car.textContent = open ? "▾" : "▸";
+        hint.textContent = open ? "hide" : "show";
+        btn.setAttribute("aria-label", "Problem " + CLOSED_PROBLEMS + (eq ? ", " + eq : "") +
+                         (open ? ". Hide the work." : ". Show the work."));
+        scrollFeed();
+      });
+      wrap.appendChild(btn); wrap.appendChild(body);
+      // Put the folded block back where the stretch used to be, so the NEW problem's work
+      // still lands at the bottom of the transcript.
+      if (stop < kids.length) feed.insertBefore(wrap, kids[stop]); else feed.appendChild(wrap);
+      scrollFeed();
     }
     function showCard(a) {
       const items = String(a.items || "").split("|").map(s => s.trim()).filter(Boolean);
