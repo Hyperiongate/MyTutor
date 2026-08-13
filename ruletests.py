@@ -2,6 +2,42 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD ex -- THE SEVEN VERIFIED TEACHING DEFECTS, GUARDED (NEW PART
+#               3ab). The last open items from the 2026-08-12 audit batch: rule 19(e)
+#               a never-watched move is modelled before it is asked (the regrouping
+#               catch) · 27(c) a story model holds ONE unit line to line (the
+#               "3 dollars + 8 tickets" catch, pinned verbatim) · 49(g) the KIND of
+#               error is spoken in words the student keeps (the 0.82 place-value
+#               catch) · 50(g) the locked Final Exam's reply offers the retake path
+#               unprompted · 51(f) a limit carries its approach and each side of an
+#               asymptote is its own claim (both calculus catches, incl. the true
+#               MINUS-infinity left side) · 52(e) the verdict opens the reply ("No --
+#               it's 11") without overriding rule 22's ladder · NEW RULE 62 a
+#               back-reference must point at work that actually happened. PART 3ab
+#               pins each headline once-in-shared-block + once-in-a-built-prompt and
+#               the load-bearing phrases INCLUDING the deliberate guard rails (52e
+#               keeps the ladder; 62 keeps connecting-is-teaching; 51f names the true
+#               behavior). COVERAGE gains seven needles so every course provably
+#               receives all seven. RULE_VERIFY gains 62 (COVERED); RULES.md
+#               regenerated -- 62 rules.
+#   2026-08-13  BUILD ew -- PLACEMENT NEVER PASSES A UNIT; THE FINAL GATE IS DERIVED
+#               (NEW PART 3aa). The 2026-08-13 status doc declared Jim's
+#               no-credit-from-placement policy already in force. It was not:
+#               challenge.html posted one /api/check per unit with the assessment
+#               scores, record_check masters a unit at >= 90%, and _final_exam_state
+#               reads that same table -- 5/5 on five placement questions silently
+#               passed the unit. PART 3aa pins the policy on every path (no /api/check
+#               in the assessment page, postJSON stays gone, post_placement and
+#               save_placement inert toward mastery) and pins the keep-the-value half
+#               (the placement POST carries strengths + units; PlacementIn round-trips
+#               them; the result screen carries the honest sentence written AND
+#               framed as quick wins). It also pins build ew's second fix: the
+#               final-exam requirement is DERIVED from curriculum.units_for (no
+#               "required": 9 literal in code -- comment lines stripped before the
+#               ban, same as PART 3w; _units_required verified against every real
+#               course's unit count in-process; the gate messages and session.html
+#               speak the derived number; the shared FINAL notes in prompts.py are
+#               count-neutral).
 #   2026-08-12  BUILD eq -- TWO MECHANICAL GUARDS, GUARDED (PART 3z). From the
 #               2026-08-12 audits: (1) a NEW malformed-tag referee -- eight referees and
 #               none of them checked a tag was even parseable, so
@@ -828,6 +864,14 @@ COVERAGE = [
     ("rule 59 right answer, wrong method", "A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD"),
     ("rule 60 the board spotlight",      "POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON"),
     ("rule 61 conditions on claims",     "A GENERALIZATION CARRIES ITS CONDITION"),
+    # build ex -- the seven verified teaching defects from the 2026-08-12 audits
+    ("rule 19e a new move is new",       "A NEW MOVE INSIDE A FAMILIAR TOPIC COUNTS AS NEW"),
+    ("rule 27c one unit per model",      "A STORY MODEL HOLDS ONE UNIT FROM ITS FIRST LINE"),
+    ("rule 49g the diagnosis is spoken", "THE DIAGNOSIS IS SPOKEN, IN PLAIN WORDS"),
+    ("rule 50g the locked-door offer",   "AT THE LOCKED DOOR, THE OFFER IS AUTOMATIC"),
+    ("rule 51f limits carry their side", "A LIMIT NAMES ITS APPROACH, AND EACH SIDE IS ITS OWN CLAIM"),
+    ("rule 52e verdict first",           "THE VERDICT OPENS THE REPLY"),
+    ("rule 62 point at real work",       "YOU MAY ONLY POINT AT WORK THAT HAPPENED"),
 ]
 
 
@@ -2561,6 +2605,14 @@ RULE_VERIFY = {
                       "spotlightBoard with the line+board keys, the .stepglow CSS, and "
                       "a turn-start clear -- and the when-to-use half (one per reply, "
                       "words still say the where) is prompt-covered"),
+    62: ("COVERED",   "you may only point at work that happened (build ex; from the "
+                      "2026-08-12 audits: 'the way we did a minute ago' for factoring "
+                      "that never happened). PART 3ab pins the check-the-board-and-"
+                      "notes demand, the rule-60 pointer, and the connecting-is-"
+                      "teaching guard; mathcheck structurally cannot see a false "
+                      "back-reference (no arithmetic in 'a minute ago'), so live "
+                      "replies are prompt-covered -- a natural lessonaudit scenario "
+                      "candidate"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -5761,6 +5813,258 @@ def part3z_reply_integrity():
           "talking about OTHER numbers used to excuse never reading the problem")
 
 
+# =============================================================================
+# PART 3ab -- THE SEVEN VERIFIED TEACHING DEFECTS (build ex, 2026-08-13)
+# =============================================================================
+# The last open items from the 2026-08-12 audit batch, each verified against the
+# transcripts before being built: a regrouping subtraction asked before one was ever
+# modelled (19e) · a story model that wrote "3 dollars + 8 tickets" (27c) · 0.82
+# corrected without the words "place value" (49g) · the locked Final Exam's retake
+# offered only when asked (50g) · bare "lim f(x)" and an "on both sides" caption
+# that was false on the left (51f) · a miss explained before "No -- it's 11" was
+# said (52e) · "the way we did a minute ago" for work that never happened (62).
+# WHAT THIS PART PROVES: each addition lives in the SHARED block exactly once,
+# reaches a built prompt, and keeps its load-bearing phrases -- including the
+# deliberate guard rails (52e must NOT override rule 22's ladder; 62 must NOT ban
+# connecting ideas; 51f names the true left-side behavior).
+def part3ab_seven_defects():
+    print("\nPART 3ab — the seven verified teaching defects (build ex)")
+    note = tutor.GRAPH_TOOL_NOTE
+    built = tutor.build_system_prompt(dict(STUDENT), course="calculus")
+
+    headlines = {
+        "19e": "A NEW MOVE INSIDE A FAMILIAR TOPIC COUNTS AS NEW",
+        "27c": "A STORY MODEL HOLDS ONE UNIT FROM ITS FIRST LINE TO ITS LAST",
+        "49g": "THE DIAGNOSIS IS SPOKEN, IN PLAIN WORDS, WHEN YOU CORRECT",
+        "50g": "AT THE LOCKED DOOR, THE OFFER IS AUTOMATIC",
+        "51f": "A LIMIT NAMES ITS APPROACH, AND EACH SIDE IS ITS OWN CLAIM",
+        "52e": "THE VERDICT OPENS THE REPLY -- THEN THE WHY",
+        "62":  "YOU MAY ONLY POINT AT WORK THAT HAPPENED",
+    }
+    for key, h in sorted(headlines.items()):
+        check(f"rule {key} lives in the shared block exactly once", note.count(h) == 1,
+              f"count in GRAPH_TOOL_NOTE = {note.count(h)} -- shared rules go in "
+              f"once, never per course")
+        check(f"rule {key} reaches a built prompt exactly once", built.count(h) == 1,
+              f"count in the built calculus prompt = {built.count(h)}")
+
+    anchors = [
+        # 19e -- the honest pre-ask check, and the moves that count
+        ("19e names the audit's move (regrouping) among the never-watched moves",
+         "regrouping or\n        borrowing" in note or "regrouping or borrowing" in note),
+        ("19e demands the demo BEFORE the ask",
+         "If not, show it before you ask it." in note),
+        # 27c -- the defect string itself, and the conversion demand
+        ("27c carries the real audit string (3 dollars + 8 tickets)",
+         '"3 dollars + 8 tickets = 11"' in note),
+        ("27c: unlike quantities never add",
+         "dollars never add\n        to tickets" in note
+         or "dollars never add to tickets" in note),
+        ("27c: a real relationship converts, spoken out loud",
+         "SAY\n        that conversion out loud" in note
+         or "SAY that conversion out loud" in note),
+        # 49g -- the naming demand, with rule 42 intact
+        ("49g demands the error KIND be named in words the student keeps",
+         "place-value slip" in note),
+        ("49g keeps rule 42 (the error, never the student)",
+         "name the\n        error, never the student" in note
+         or "name the error, never the student" in note),
+        # 50g -- unprompted, same-reply, with the plan
+        ("50g: the SAME reply that says locked offers the way through",
+         "the SAME reply that carries the news offers the way through" in note),
+        ("50g: never left to ask whether a key exists",
+         "or to ask you whether one exists" in note),
+        # 51f -- both catches, precisely
+        ("51f bans the bare limit",
+         'never a bare "lim f(x)"' in note),
+        ("51f states the true left-side behavior (MINUS infinity)",
+         "plunges to MINUS infinity" in note),
+        ("51f: both sides only after both sides are checked",
+         'say "on both sides" only when both sides have actually been\n'
+         "        checked" in note
+         or 'say "on both sides" only when both sides have actually been checked'
+         in note),
+        # 52e -- verdict first, ladder intact
+        ("52e opens with the verdict carrying the answer",
+         '"No -- it\'s 11. Here\'s\n        the why."' in note
+         or '"No -- it\'s 11. Here\'s the why."' in note),
+        ("52e deliberately preserves rule 22's ladder",
+         "This never overrides rule 22's ladder" in note),
+        # 62 -- the check, the pointer, and the not-a-ban guard
+        ("62 demands the board-or-notes check before a back-reference",
+         "is that work actually on the board this session" in note),
+        ("62 points at rule 60's spotlight for real work",
+         "rule\n        60's spotlight exists for exactly this" in note
+         or "rule 60's spotlight exists for exactly this" in note),
+        ("62 is NOT a ban on connecting ideas",
+         "connecting is teaching" in note),
+    ]
+    for name, cond in anchors:
+        check(name, cond, "a load-bearing phrase was dropped or reworded -- if the "
+                          "rewording is deliberate, update this anchor in the same "
+                          "commit")
+
+
+# =============================================================================
+# PART 3aa -- PLACEMENT NEVER PASSES A UNIT; THE FINAL GATE IS DERIVED (build ew)
+# =============================================================================
+# Jim's policy: "a student who places into the middle of a course should NOT get a
+# pass on those units just for answering a few placement questions right." The
+# 2026-08-13 investigation declared that policy already in force -- and it was NOT:
+# challenge.html posted one /api/check per unit with the assessment scores, and
+# record_check marks a unit mastered at >= 90%, so 5/5 on five placement questions
+# silently passed the unit and counted toward the Final Exam. The earlier read
+# checked the placement TABLE (inert, correctly) and missed the side-channel in the
+# page. These checks pin the policy on EVERY path, plus build ew's second fix: the
+# final-exam requirement is derived from the course's real unit list, never a
+# literal 9 that goes stale the day a course gains or loses a unit.
+def _code_only(src: str) -> str:
+    """Source with comment lines stripped, so a change note QUOTING an old literal
+    (to record why it was removed) can never trip a ban -- same reason PART 3w strips
+    notes and PART 3p strips HTML comments before reading copy."""
+    return "\n".join(ln for ln in src.splitlines()
+                     if not ln.lstrip().startswith("#"))
+
+
+def part3aa_placement_honesty():
+    print("\nPART 3aa — placement never passes a unit; the final gate is derived (build ew)")
+    import curriculum as _c
+    import prompts
+    here = os.path.dirname(os.path.abspath(__file__))
+    ch = open(os.path.join(here, "static", "challenge.html"), encoding="utf-8").read()
+    mn = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    st = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    pr = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    se = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+
+    # 1. THE POLICY, AT ITS ONLY KNOWN BREACH POINT: the assessment page may never
+    #    post a check. This is the line that let placement write mastery. The page's
+    #    change notes rightly QUOTE the removed call to record why it went -- so strip
+    #    HTML comments and // comment lines before the ban (PART 3p / 3w precedent).
+    ch_code = re.sub(r"<!--.*?-->", "", ch, flags=re.S)
+    ch_code = "\n".join(ln for ln in ch_code.splitlines()
+                        if not ln.lstrip().startswith("//"))
+    check("challenge.html never calls /api/check (placement must not write mastery)",
+          "/api/check" not in ch_code,
+          "the assessment is posting unit CHECKS again -- checks feed mastery at >= 90%, "
+          "so acing five placement questions would silently pass the unit")
+    check("challenge.html's postJSON helper stays gone",
+          "function postJSON" not in ch,
+          "its only caller was the per-unit check loop; a ready-made helper invites "
+          "the bug back")
+
+    # 2. The per-unit picture must still be KEPT -- inside the placement payload,
+    #    where it can never touch mastery.
+    check("the placement POST carries strengths (the dormant consumers light up)",
+          "strengths: strong.map(" in ch,
+          "dashboard chips + the tutor's 'Strengths:' prompt line read "
+          "placement.strengths; dropping it loses the assessment's value")
+    check("the placement POST carries the full per-unit results",
+          "units: results.map(" in ch,
+          "the per-unit picture must survive somewhere placement-scoped")
+    check("PlacementIn accepts strengths + units (the server keeps what the page sends)",
+          "strengths: list = []" in mn and "units: list = []" in mn,
+          "pydantic silently DROPS unknown fields -- without these the payload "
+          "arrives and evaporates")
+
+    # 3. THE HONEST SENTENCE: the result screen says out loud that Strong is a head
+    #    start, not a passed unit -- written AND spoken.
+    check("the result screen carries the honest sentence (#rHonest)",
+          'id="rHonest"' in ch and "a head start, not a passed unit" in ch,
+          "a placed student should never first learn at a locked door, months later, "
+          "that placement never passed a unit")
+    check("the honest sentence frames strong units' quizzes as the quick wins",
+          "quickest quizzes" in ch and "quick wins" in ch,
+          "honesty without the encouragement is just a warning label")
+
+    # 4. NO PATH from placement to mastery, server-side. post_placement's function
+    #    body must not touch check-recording; store.save_placement writes only the
+    #    placements table.
+    m = re.search(r"def post_placement\(.*?(?=\n@app|\ndef )", mn, re.S)
+    check("post_placement's body never records a check",
+          bool(m) and "record_check" not in m.group(0)
+          and "record_final_exam" not in m.group(0),
+          "the placement endpoint is writing mastery-bearing rows")
+    m2 = re.search(r"\ndef save_placement\(.*?(?=\ndef )", st, re.S)
+    check("store.save_placement touches only the placements table",
+          bool(m2) and "unit_checks" not in m2.group(0)
+          and '_upsert("placements"' in m2.group(0),
+          "save_placement must stay inert toward mastery")
+
+    # 5. THE DERIVED GATE: no "required": 9 literal in CODE (comment lines stripped --
+    #    the change notes rightly quote the old literal), and the derivation present.
+    mn_code = _code_only(mn)
+    check('no "required": 9 literal survives in main.py code',
+          '"required": 9' not in mn_code,
+          "the hard-coded gate is back; it breaks silently the day any course "
+          "gains or loses a unit")
+    check("_units_required derives from curriculum.units_for",
+          "def _units_required" in mn
+          and "curriculum.units_for(course)" in
+          (re.search(r"def _units_required\(.*?(?=\ndef |\n@app)", mn, re.S)
+           or re.match(r"", "")).group(0),
+          "the requirement must come from the course's real unit list")
+    mfes = re.search(r"def _final_exam_state\(.*?(?=\n@app|\ndef )", mn, re.S)
+    check("_final_exam_state uses the derived requirement",
+          bool(mfes) and "_units_required(course)" in mfes.group(0),
+          "the state dict is where every consumer reads the gate from")
+    check("FINAL_GATE_MESSAGE carries the derived count ({req}), not a nine",
+          "{req}" in mn and "of 9 so far" not in mn_code,
+          "the locked-door message would lie about the bar the day a course changes")
+
+    # 6. The functional proof, in-process: for every real course the derivation
+    #    equals the course's actual unit count. (main is imported by the sec drill
+    #    subprocess elsewhere; here the pure function is checked via a fresh import
+    #    guarded the same way.)
+    try:
+        import importlib
+        _main = importlib.import_module("main")
+        for course in sorted(_c.COURSES):
+            want = len(_c.units_for(course))
+            got = _main._units_required(course)
+            check(f"  _units_required({course!r}) == its real unit count ({want})",
+                  got == want, f"got {got}")
+        stx = _main._final_exam_state("no-such-student", "basic")
+        check("_final_exam_state.required is the derived count",
+              stx.get("required") == len(_c.units_for("basic")), f"got {stx}")
+        check("_final_exam_state: nobody is eligible with zero mastered units",
+              stx.get("eligible") is False, f"got {stx}")
+        gm = _main._final_gate_message("no-such-student", "basic", stx)
+        check("the gate message speaks the derived count",
+              f"of {len(_c.units_for('basic'))}" in gm, gm[:200])
+        pin = _main.PlacementIn(strengths=["Fractions"], units=[{"u": 1}])
+        check("PlacementIn round-trips strengths + units",
+              pin.strengths == ["Fractions"] and pin.units == [{"u": 1}]
+              and "strengths" in pin.model_dump(),
+              "the fields exist but do not survive model_dump into save_placement")
+    except Exception as exc:  # noqa: BLE001
+        bad("main.py importable for the placement/final functional checks", str(exc))
+
+    # 7. The SHARED final notes are count-neutral (they overlay ANY course whose
+    #    derived gate opens); the per-course "THE NINE UNITS" headers are each one
+    #    course's own factual text and deliberately untouched.
+    for name, note in (("FINAL_PREP_NOTE", prompts.FINAL_PREP_NOTE),
+                       ("FINAL_EXAM_NOTE", prompts.FINAL_EXAM_NOTE)):
+        check(f"{name} never counts to nine",
+              "NINE UNITS" not in note and "nine units" not in note
+              and "question 18" not in note,
+              "a shared overlay must stay true for a course of any size")
+        check(f"{name} still says the whole course is mastered",
+              "EVERY UNIT OF THIS COURSE" in note,
+              "the count-neutral wording lost the actual claim")
+
+    # 8. The lesson page reads the server's derived count instead of a literal.
+    check("session.html reads final.required for the course bar",
+          "parseInt(fin.required, 10)" in se,
+          "the label is hard-coding the gate again")
+    check("session.html reads st.required in the final overlay",
+          "parseInt(st.required, 10)" in se,
+          "the overlay is hard-coding the gate again")
+    check('no "of 9" label survives in session.html markup/script',
+          "of 9<" not in se and '" of 9 ' not in se and "of 9</b>" not in se,
+          "a hard-coded of-9 label crept back")
+
+
 def part4_live():
     print("\nPART 4 — live scenarios (a scripted difficult student)")
     if not os.environ.get("ANTHROPIC_API_KEY"):
@@ -5819,6 +6123,8 @@ def main():
     part3x_fraction_pie()
     part3y_diagnosis_and_symbols()
     part3z_reply_integrity()
+    part3aa_placement_honesty()
+    part3ab_seven_defects()
     if live:
         part4_live()
     else:

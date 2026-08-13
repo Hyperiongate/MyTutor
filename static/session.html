@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (ew) 2026-08-13 -- THE FINAL EXAM COUNT IS THE SERVER'S, NOT A LITERAL 9.
+    renderCourseBar() and openFinalOverlay() hard-coded ">= 9" / "of 9" / "All nine
+    units" / "18 questions". The server has always sent final.required and now DERIVES
+    it from the course's real unit list (main.py build ew) -- these two functions read
+    it (fallback 9 only if the server field is missing). The real gate stays
+    server-side; this page's numbers just stop pretending to know them. The 1..9 unit
+    map loop is untouched: it draws THIS page's course map from its own CURRICULUM
+    list, which is a different (page-content) concern.
     (ee) 2026-08-12 -- THE BOARD SPOTLIGHT (teaching upgrade, rule 60 / signaling).
     The [[highlight]] tag could only glow page furniture (tour stops: buttons, bars,
     panels) -- never the one place a student's eyes matter most while teaching: the
@@ -2351,18 +2359,22 @@
         const cu = (CURRICULUM || []).find(x => x.n === u);
         t.appendChild(seg(done ? "gold" : "", "Unit " + u + (cu ? ": " + cu.name : "") + (done ? " — mastered" : "")));
       }
-      const unlocked = masteredCount >= 9;
+      // build ew (2026-08-13): the unlock count comes from the SERVER's derived
+      // final.required (curriculum-true per course), never a literal 9. The real gate
+      // is server-side; this label just stops hard-coding what the server derives.
+      const fin = (SRV_PROGRESS && SRV_PROGRESS.final) || {};
+      const req = parseInt(fin.required, 10) || 9;
+      const unlocked = masteredCount >= req;
       const cap = document.createElement("span");
       cap.className = "pbcap" + (unlocked ? "" : " locked"); cap.textContent = "🎓";
-      cap.title = unlocked ? "The Final Exam is unlocked!" : "The Final Exam — unlocks when all nine units are gold";
+      cap.title = unlocked ? "The Final Exam is unlocked!" : "The Final Exam — unlocks when all " + req + " units are gold";
       cap.style.cursor = "pointer";
       cap.addEventListener("click", openFinalOverlay);
       t.appendChild(cap);
-      const fin = (SRV_PROGRESS && SRV_PROGRESS.final) || {};
       el("courseText").textContent = (fin.exam && fin.exam.passed)
         ? "🎓 Final Exam passed — course complete!"
-        : (unlocked ? "🎓 All nine units mastered — the Final Exam is unlocked!"
-                    : masteredCount + " of 9 units mastered — " + (9 - masteredCount) + " to the Final Exam");
+        : (unlocked ? "🎓 All " + req + " units mastered — the Final Exam is unlocked!"
+                    : masteredCount + " of " + req + " units mastered — " + (req - masteredCount) + " to the Final Exam");
       showBars(); el("courseBar").classList.add("show");
     }
 
@@ -2401,11 +2413,13 @@
       const st = finalState();
       const lead = el("foLead"), btns = el("foButtons");
       btns.innerHTML = "";
+      // build ew (2026-08-13): counts come from the server's derived final.required.
+      const foReq = parseInt(st.required, 10) || 9;
       if (!st.eligible) {
         el("foTitle").textContent = "The Final Exam";
         lead.innerHTML = "The <b>Final Exam preparation</b> and the <b>Final Exam</b> are only available to "
           + "students who have <b>mastered all the previous units</b> of the course.<br><br>"
-          + "You've mastered <b>" + (st.mastered_count || 0) + " of 9</b> units so far — every unit you "
+          + "You've mastered <b>" + (st.mastered_count || 0) + " of " + foReq + "</b> units so far — every unit you "
           + "master gets you one step closer. Keep going!";
       } else {
         const passed = st.exam && st.exam.passed;
@@ -2413,7 +2427,7 @@
         lead.innerHTML = passed
           ? "You passed on <b>" + String(st.exam.passed_at || "").slice(0, 10) + "</b> with a best score of <b>"
             + st.exam.best_pct + "%</b> — the 🏅 <b>Course Champion</b> medal is in your trophy case. You can always take a fresh exam to beat your score."
-          : "All nine units mastered — amazing work! The exam is <b>18 questions across the whole course, no hints, "
+          : "All " + foReq + " units mastered — amazing work! The exam is <b>two questions per unit across the whole course, no hints, "
             + "90% or better to pass</b> and earn the 🏅 <b>Course Champion</b> medal for your trophy case.<br><br>Want a warm-up first? The optional "
             + "<b>preparation session</b> walks through what's on it and reviews your weakest spots. It's not required.";
         if (passed) {

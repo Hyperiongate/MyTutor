@@ -4,7 +4,7 @@ _Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand
 every line below is read out of the prompt the tutor is actually given, so this
 file cannot drift away from what the classroom really does._
 
-**61 rules.** Every one was written because something went wrong in a real
+**62 rules.** Every one was written because something went wrong in a real
 lesson, and almost all of them were noticed by Jim before they were noticed by a
 machine. The right-hand column is how much better we have got at that.
 
@@ -12,7 +12,7 @@ machine. The right-hand column is how much better we have got at that.
 |---|---|---|
 | **ENFORCED** | 19 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 31 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 32 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -260,6 +260,10 @@ machine. The right-hand column is how much better we have got at that.
 ### 61. A GENERALIZATION CARRIES ITS CONDITION. SAY THE WHOLE TRUE SENTENCE
 
 **ENFORCED** — a generalization carries its condition (build el; from the 2026-08-12 audits): PART 3w fails the build if any of the five known-false universal claims appears in AUTHORED content -- which is where one of them actually lived (the function-notation foundation script, spoken verbatim). Live replies remain prompt-covered: mathcheck cannot see an overgeneralization because there is no arithmetic in the word 'always'
+
+### 62. YOU MAY ONLY POINT AT WORK THAT HAPPENED
+
+**COVERED** — you may only point at work that happened (build ex; from the 2026-08-12 audits: 'the way we did a minute ago' for factoring that never happened). PART 3ab pins the check-the-board-and-notes demand, the rule-60 pointer, and the connecting-is-teaching guard; mathcheck structurally cannot see a false back-reference (no arithmetic in 'a minute ago'), so live replies are prompt-covered -- a natural lessonaudit scenario candidate
 
 ---
 

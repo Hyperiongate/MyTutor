@@ -2,6 +2,42 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13ex-seven-defects-closed". BUILD STAMP ONLY here --
+#               the work is in prompts.py (rules 19e/27c/49g/50g/51f/52e + NEW RULE 62,
+#               closing all seven verified teaching defects from the 2026-08-12 audits)
+#               and ruletests.py (NEW PART 3ab + seven COVERAGE needles). RULES.md
+#               regenerated: 62 rules. Ships together with build ew below in one push.
+#   2026-08-13  APP_BUILD -> "2026-08-13ew-placement-is-honest". PLACEMENT NEVER PASSES A
+#               UNIT, AND THE FINAL EXAM GATE IS DERIVED, NOT HARD-CODED. Jim's policy:
+#               "a student who places into the middle of a course should NOT get a pass on
+#               the earlier units just for answering a few placement questions right."
+#               The 2026-08-13 status doc claimed that policy was already in force. IT WAS
+#               NOT: challenge.html's finish() posted one /api/check per unit with the
+#               placement per-unit scores, record_check marks a unit mastered at >= 90%,
+#               and _final_exam_state reads that same unit_checks table -- so 5/5 on a
+#               unit's five placement questions silently mastered the unit, and a student
+#               who aced the whole assessment could unlock the Final Exam without ever
+#               taking a Unit Quiz. The earlier investigation read the placement TABLE
+#               (which is indeed inert) and missed the side-channel in the page. FIXED at
+#               the source: challenge.html no longer posts /api/check at all; the per-unit
+#               results now ride INSIDE the placement payload (PlacementIn gains
+#               `strengths` + `units`, stored in the placements JSON blob -- no schema
+#               change), which also lights up two dormant consumers that always read
+#               placement.strengths and always got nothing: the dashboard's strengths
+#               chips and the tutor prompt's "Strengths:" line. NOTE ON OLD DATA: checks
+#               already seeded by past placements cannot be told apart from real quiz
+#               scores retroactively; dev-phase data, accepted and recorded here.
+#               SECOND FIX, same build: _final_exam_state returned "required": 9 and
+#               unlocked at nine mastered units REGARDLESS of course -- correct today only
+#               because all ten courses happen to have nine units. Now derived from
+#               curriculum.units_for(course) (fallback 9 if that ever errors), and the
+#               gate messages (FINAL_GATE_MESSAGE + _final_gate_message) carry the derived
+#               count instead of a literal "of 9" / "all nine". session_state's pre-DB
+#               fallback dict derives the same way. prompts.py's FINAL notes reworded
+#               count-neutral ("every unit of the course"). ruletests PART 3aa pins ALL of
+#               it: no /api/check in challenge.html, placement payload carries its units,
+#               the honest sentence on the result screen, no "required": 9 literal, the
+#               derivation present, and record_check unreachable from any placement path.
 #   2026-08-13  APP_BUILD -> "2026-08-13ev-he-speaks". THE FIRST TWO TALKING CLIPS ARE LIVE
 #               (build stamp only here; the assets are static/videos/cadabra/ and the work
 #               is in tutor-moments.js, tutor-face.js and landing.html). Jim recorded
@@ -2903,7 +2939,8 @@ class ChatRequest(BaseModel):
     unit: int = 0              # optional focus unit (from the dashboard "Work on it" link)
     course: str = "algebra1"   # which course this lesson session belongs to (multi-course)
     # 2026-08-07 FINAL EXAM: "" (normal lesson) | "prep" | "exam". The server RE-VERIFIES
-    # eligibility (all 9 units mastered) on every turn -- the client is never trusted.
+    # eligibility (every unit of the course mastered -- derived, build ew) on every
+    # turn -- the client is never trusted.
     final: str = ""
 
 
@@ -2952,6 +2989,15 @@ class PlacementIn(BaseModel):
     start_unit: int = 1
     start_unit_name: str = ""
     points: int = 0
+    # 2026-08-13 (build ew): the assessment's per-unit picture rides INSIDE the placement
+    # payload now, instead of masquerading as unit CHECKS (which fed mastery and could
+    # silently pass a unit -- the exact thing Jim's policy forbids). `strengths` is the
+    # competent units' names (the dashboard chips + the tutor prompt's "Strengths:" line
+    # both already read placement.strengths -- dormant until today); `units` is the full
+    # per-unit result list ({u, name, correct, total, pct, rating, competent}). Stored in
+    # the placements JSON blob -- no schema change, and nothing here touches mastery.
+    strengths: list = []
+    units: list = []
 
 
 class _CheckMissedMixin(BaseModel):
@@ -5974,9 +6020,27 @@ def library_lookup(q: str = "", course: str = "algebra1", code: str = ""):
 # =============================================================================
 FINAL_GATE_MESSAGE = (
     "The Final Exam preparation and the Final Exam are only available to students who "
-    "have mastered all the previous units of the course. You've mastered {n} of 9 so far "
+    "have mastered all the previous units of the course. You've mastered {n} of {req} so far "
     "-- every unit you master gets you one step closer. Keep going; I'll be right here "
     "when you're ready!")
+
+
+def _units_required(course: str) -> int:
+    """How many units this course's Final Exam requires -- ALWAYS derived from the
+    course's real unit list, never a literal.
+
+    2026-08-13 (build ew). The old code said `\"required\": 9` and `>= 9` -- correct for
+    every course today only by coincidence (all ten happen to have nine units). The day
+    any course gained or lost a unit, the exam would silently unlock early or never
+    unlock at all, and nothing would fail. Fallback 9 (today's universal truth) only if
+    curriculum itself errors, because a locked-forever exam is the worse failure."""
+    try:
+        n = len(curriculum.units_for(course))
+        if n > 0:
+            return n
+    except Exception as exc:  # noqa: BLE001
+        print(f"[final] units_required fell back for {course!r}: {exc}")
+    return 9
 
 
 def _final_gate_message(code: str, course: str, state: dict) -> str:
@@ -6010,10 +6074,11 @@ def _final_gate_message(code: str, course: str, state: dict) -> str:
                 close.append(f"Unit {unit}, {names[unit]} (best Unit Quiz so far: {best}%)")
             else:
                 untouched.append(f"Unit {unit}, {names[unit]}")
+        req = int(state.get("required") or _units_required(course))
         if not close and not untouched:
-            return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0))
-        msg = ("The Final Exam unlocks when all nine units are mastered -- 90% or better on "
-               f"each Unit Quiz. You've mastered {state.get('mastered_count', 0)} of 9.\n\n")
+            return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0), req=req)
+        msg = (f"The Final Exam unlocks when all {req} units are mastered -- 90% or better on "
+               f"each Unit Quiz. You've mastered {state.get('mastered_count', 0)} of {req}.\n\n")
         if close:
             msg += ("These you've already taken a run at, so they're the quickest to finish:\n  - "
                     + "\n  - ".join(close)
@@ -6025,7 +6090,8 @@ def _final_gate_message(code: str, course: str, state: dict) -> str:
         return msg + "Tell me where you'd like to start and I'll get us going."
     except Exception as exc:  # noqa: BLE001
         print(f"[final] gate message fell back: {exc}")
-        return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0))
+        return FINAL_GATE_MESSAGE.format(n=state.get("mastered_count", 0),
+                                         req=_units_required(course))
 
 
 def _final_exam_state(code: str, course: str) -> dict:
@@ -6045,11 +6111,12 @@ def _final_exam_state(code: str, course: str) -> dict:
             exam = store.get_final_exam(code, course) or {}
         except Exception as exc:  # noqa: BLE001
             print(f"[final] exam read failed: {exc}")
+    required = _units_required(course)   # build ew: derived, never a literal 9
     return {
         "mastered_units": mastered,
         "mastered_count": len(mastered),
-        "required": 9,
-        "eligible": len(mastered) >= 9,
+        "required": required,
+        "eligible": len(mastered) >= required,
         "exam": exam,
     }
 
@@ -6317,7 +6384,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13ev-he-speaks"
+APP_BUILD = "2026-08-13ex-seven-defects-closed"
 
 
 @app.get("/health")
@@ -6418,7 +6485,8 @@ def session_state(code: str, request: Request, course: str = "algebra1"):
     # blocks the lesson from loading.
     progress = {"mastered_units": [], "unit_quiz_best": {}, "topic_quizzes": {},
                 "today": {},
-                "final": {"eligible": False, "mastered_count": 0, "required": 9, "exam": {}}}
+                "final": {"eligible": False, "mastered_count": 0,
+                          "required": _units_required(course), "exam": {}}}
     if store.enabled():
         try:
             checks = (store.get_mastery(code, course) or {}).get("checks", {})
