@@ -488,6 +488,7 @@
   <script src="/static/site-nav.js" defer></script>
   <!-- Mr. Cadabra's robot face for the hero mock (2026-08-04) -->
   <script src="/static/tutor-face.js" defer></script>
+  <script src="/static/tutor-moments.js" defer></script>   <!-- build eu: his talking clips (dark until they exist) -->
 </head>
 <body>
 <nav><div class="wrap">
@@ -833,6 +834,16 @@
       var clip = null;
       hb.addEventListener('click', function(){
         hb.style.animation = 'none';        // build ak: the pulse has done its job — stop it
+        // BUILD eu: if his talking clip is on the server, MEETING him beats hearing a
+        // sample -- and this click is the user gesture that lets it play with sound. If
+        // the clip is not there (today), everything below is exactly as it always was.
+        if (window.TutorMoments && TutorMoments.available('site_welcome')){
+          hb.disabled = true;
+          TutorMoments.play('site_welcome').then(function(){
+            hb.disabled = false; hb.textContent = '🔊 Hear him teach';
+          });
+          return;
+        }
         if (clip){ try { clip.pause(); clip.currentTime = 0; } catch(e){} clip = null;
           hb.textContent = '🔊 Hear him teach'; return; }
         hb.disabled = true; hb.textContent = '🔊 …';
@@ -854,6 +865,24 @@
     }
     if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', wireHear);
     else wireHear();
+    // build eu: relabel the button once we KNOW the clip is there, so the promise on offer
+    // matches what the click actually does. This waits for window 'load' on purpose --
+    // tutor-moments.js is DEFERRED, so window.TutorMoments does not exist yet while this
+    // inline script is running (caught in test: the modal opened but the label never
+    // changed, because the check ran against an undefined global and silently did nothing).
+    window.addEventListener('load', function(){
+    try {
+      if (window.TutorMoments && TutorMoments.ready) {
+        TutorMoments.ready().then(function(){
+          var b = document.getElementById('hearBtn');
+          if (b && TutorMoments.available('site_welcome')) {
+            b.textContent = '▶ Meet Mr. Cadabra';
+            b.setAttribute('aria-label', 'Watch Mr. Cadabra introduce himself');
+          }
+        });
+      }
+    } catch(e){}
+    });
   })();
 
   function setCycle(c){

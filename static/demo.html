@@ -658,6 +658,7 @@
 </head>
 <body class="intro">
 <script src="/static/tutor-face.js"></script>
+<script src="/static/tutor-moments.js"></script>   <!-- build eu: his talking clips (dark until they exist) -->
 
 <!-- ===== FRONT DOOR ===== -->
 <div class="wrap" id="intro">
@@ -2406,7 +2407,20 @@
     sk.textContent='Skip the tour — take me to the levels →';
     sk.onclick=skipTour;
     answer.appendChild(sk);
-    sayThen(WELCOME_LINE, function(){ setTimeout(function(){ runTour(0); }, 400); });
+    // BUILD eu: when his demo-welcome clip exists, he SAYS hello himself instead of the
+    // synthesised WELCOME_LINE -- one voice, never two. The click on Start is the user
+    // gesture that lets it play with sound, and the tour begins the moment it finishes
+    // (or the instant the visitor skips it). With no clip on the server this is exactly
+    // the line it has always been.
+    var afterHello = function(){ setTimeout(function(){ runTour(0); }, 400); };
+    if (window.TutorMoments && TutorMoments.available('demo_welcome')) {
+      TutorMoments.play('demo_welcome').then(function(how){
+        if (how === 'played' || how === 'skipped') afterHello();
+        else sayThen(WELCOME_LINE, afterHello);      // clip failed to load -- speak it
+      });
+    } else {
+      sayThen(WELCOME_LINE, afterHello);
+    }
   }
   el('startBtn').onclick=startDemo;
   el('restart').onclick=function(){ location.reload(); };

@@ -5230,6 +5230,101 @@ def part3u_video_presence():
 
 
 # =============================================================================
+# PART 3u2 -- HE STEPS OUT AND TALKS (build eu, 2026-08-12) -- PHASE 2
+# =============================================================================
+# tutor-moments.js is the OTHER half of the video project: a few one-time clips in which
+# Mr. Cadabra really speaks, in his real voice. It is a separate file from tutor-face.js
+# on purpose -- these clips have SOUND, and the presence layer's "the corner never makes
+# a sound" guarantee is enforced by reading that file. Keeping them apart means that
+# guarantee stays absolute instead of becoming a special case.
+def part3u2_talking_moments():
+    print("\nPART 3u2 — the talking moments (phase 2)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        with open(os.path.join(here, "static", "tutor-moments.js"), encoding="utf-8") as fh:
+            tm = fh.read()
+    except OSError as exc:
+        bad("tutor-moments.js readable", str(exc)); return
+
+    check("a missing manifest is a NORMAL state",
+          "moments.json" in tm and 'done(false)' in tm and "available" in tm,
+          "the clips do not exist yet; the probe must 404 quietly and leave every page "
+          "exactly as it is today")
+    check("play() ALWAYS resolves -- a lesson can never be stranded",
+          tm.count('finish("unavailable")') >= 1 and 'finish("skipped")' in tm
+          and 'finish("played")' in tm and "setTimeout(function () { finish" in tm,
+          "a clip that stalls, 404s, or has no decodable encoding must still settle the "
+          "promise the caller is waiting on before it speaks")
+    check("only ONE moment can be on screen at a time",
+          "if (M.open) return" in tm,
+          "two of him talking over each other is the exact failure this whole design is "
+          "built to prevent")
+    check("the words exist as TEXT, not only as audio",
+          "clip.caption" in tm and "cap.textContent" in tm,
+          "a deaf child, a muted tab and a screen reader must all get the sentence")
+    check("it is a real dialog with a way out",
+          'setAttribute("role", "dialog")' in tm and '"Escape"' in tm
+          and "M.lastFocus" in tm,
+          "modal video with no Escape and no focus return is a trap")
+    check("a blocked autoplay offers a Play button instead of failing",
+          "p.catch(function ()" in tm and "▶ Play" in tm,
+          "autoplay WITH SOUND is only allowed off a gesture; when a browser refuses "
+          "anyway the visitor must still be able to start it")
+    check("the presence layer stays SILENT -- the talking clips live elsewhere",
+          not os.path.exists(os.path.join(here, "static", "tutor-face-talking.js")),
+          "sound must never migrate into tutor-face.js, whose muted guarantee is absolute")
+
+    # The two zero-collision callers. Both are user-initiated, and neither ever lets a
+    # canned clip and his live voice speak at the same time.
+    with open(os.path.join(here, "static", "landing.html"), encoding="utf-8") as fh:
+        lp = fh.read()
+    check("the landing hero offers to introduce him when the clip exists",
+          "tutor-moments.js" in lp and "TutorMoments.available('site_welcome')" in lp
+          and "Meet Mr. Cadabra" in lp,
+          "the first thing a homeschool parent sees is the best place he can be a person")
+    check("  and falls back to the audio sample when it does not",
+          "/api/demo-audio/71" in lp,
+          "with no clip on the server the button must behave exactly as it always has")
+    check("  the relabel waits for window load (tutor-moments.js is DEFERRED)",
+          "window.addEventListener('load'" in lp,
+          "checked against an undefined global the label silently never changes -- caught "
+          "in test once already")
+    with open(os.path.join(here, "static", "demo.html"), encoding="utf-8") as fh:
+        dp = fh.read()
+    check("the demo lets him say hello himself instead of the synthesised line",
+          "tutor-moments.js" in dp and "TutorMoments.available('demo_welcome')" in dp,
+          "one voice, never two -- the clip REPLACES WELCOME_LINE rather than joining it")
+    check("  the tour starts whether he is watched, skipped, or missing",
+          "if (how === 'played' || how === 'skipped') afterHello();" in dp
+          and "else sayThen(WELCOME_LINE, afterHello);" in dp,
+          "a visitor who hits Escape must land in the tour, not in a dead page")
+
+    # Validated the day the clips land; until then absence is correct.
+    man = os.path.join(here, "static", "videos", "cadabra", "moments.json")
+    if os.path.exists(man):
+        try:
+            import json as _json
+            with open(man, encoding="utf-8") as fh:
+                mm = _json.load(fh)
+            vdir = os.path.dirname(man)
+            names = []
+            for c in (mm.get("clips") or {}).values():
+                names += [c] if isinstance(c, str) else list(c.get("sources") or [])
+            missing = [n for n in names if not os.path.exists(os.path.join(vdir, n))]
+            check("every clip the moments manifest names exists", not missing,
+                  f"missing from static/videos/cadabra/: {missing}")
+            capless = [k for k, c in (mm.get("clips") or {}).items()
+                       if isinstance(c, dict) and not (c.get("caption") or "").strip()]
+            check("every clip carries its caption text", not capless,
+                  f"no caption for: {capless} -- the words must not live only in the audio")
+        except Exception as exc:  # noqa: BLE001
+            bad("moments.json is valid JSON", str(exc))
+    else:
+        print("       (moments.json not present yet -- phase-dark; the talking clips are "
+              "validated automatically once Jim's recordings land)")
+
+
+# =============================================================================
 # PART 3v -- ONE TRUE NAME PER COURSE (build ek, 2026-08-12)
 # =============================================================================
 # The bug this exists to prevent, in one sentence: curriculum.py keyed the two
@@ -5705,6 +5800,7 @@ def main():
     part3s_backups()
     part3t_teaching_upgrades()
     part3u_video_presence()
+    part3u2_talking_moments()
     part3v_course_identity()
     part3w_generalizations()
     part3x_fraction_pie()

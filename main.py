@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-12  APP_BUILD -> "2026-08-12eu-he-steps-out". PHASE 2 OF THE VIDEO PROJECT, THE
+#               CODE HALF (build stamp only here; the work is in the NEW
+#               static/tutor-moments.js plus landing.html and demo.html). Phase 1 is the
+#               silent corner presence and does not change. This is the other half: a few
+#               one-time clips in which Mr. Cadabra really speaks, in his real voice. It is
+#               a SEPARATE file from tutor-face.js deliberately -- these clips have sound,
+#               and the presence layer's "the corner never makes a sound" guarantee is
+#               enforced by a test that reads that file, so keeping them apart keeps the
+#               guarantee absolute. THE VOICE RULE: a clip and his live voice never talk at
+#               once -- play() returns a promise and every caller waits for it. Ships DARK:
+#               with no moments.json (today) every page behaves exactly as it does now; the
+#               day the recordings land the same callers light up. Wired at the two moments
+#               where NO live voice competes: the landing hero button ("Meet Mr. Cadabra")
+#               and the demo opener, where the clip replaces the synthesised WELCOME_LINE.
+#               The seven in-lesson moments wait for the voice-sequencing work. Guarded in
+#               PART 3u2.
 #   2026-08-12  APP_BUILD -> "2026-08-12et-two-intensities". THE RING HAD ALMOST NOTHING TO
 #               FIRE ON (build stamp only here; the work is in prompts.py,
 #               static/tutor-face.js and the three teaching pages). es shipped and Jim
@@ -6282,7 +6298,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12et-two-intensities"
+APP_BUILD = "2026-08-12eu-he-steps-out"
 
 
 @app.get("/health")
