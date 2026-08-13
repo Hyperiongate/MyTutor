@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13fe-audit-findings-closed". BUILD STAMP ONLY here
+#               -- the work lives in prompts.py (new rule 63, THE WORDS AND THE PICTURE
+#               ARE THE SAME FIGURE, plus amendments to rules 4/13/14/17/26/41/43 and
+#               four more corrected forms under rule 61), tutor.py (new
+#               triangle_side_conflict referee, rule 63c born ENFORCED),
+#               foundations.py (the basic "fraction" script loses its false "always";
+#               its voice clip re-renders once -- run the /admin pre-render),
+#               lessonaudit.py (patient read timeout + one transport retry after two
+#               lessons died mid-audit), and ruletests.py (PART 3ah + PART 3w growth +
+#               TRIANGLE_CASES). From the five 2026-08-13 lesson-audit runs: 19
+#               findings triaged, 16 closed, 3 rejected with reasons recorded in
+#               PART 3ah's header.
 #   2026-08-13  APP_BUILD -> "2026-08-13fd-showcase-ready". THE PUBLIC PAGES AND THE
 #               DEMO, MADE CURRENT FOR BETA TESTERS. Jim: "I'm gonna make a push for
 #               seeing if I can get some beta testers... take a look at the pages
@@ -6918,7 +6930,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13fd-showcase-ready"
+APP_BUILD = "2026-08-13fe-audit-findings-closed"
 
 
 @app.get("/health")

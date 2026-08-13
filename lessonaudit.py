@@ -2,6 +2,16 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fe -- THE TRANSPORT LEARNS PATIENCE. Two lessons in the
+#               2026-08-13 audit runs never completed: "could not reach OpenAI: The
+#               read operation timed out" -- a reasoning model can think past the old
+#               flat 120s while marking a full transcript, and one dropped read
+#               aborted the lesson outright. _openai() now uses a split timeout
+#               (connect 15s / read 300s / write 60s) and retries ONCE, quietly, on a
+#               pure transport error before giving up. Transport-only: a 4xx/5xx that
+#               was actually RECEIVED keeps its existing, message-reading handling
+#               (token-parameter swap, reasoning-budget retry, model-list diagnosis)
+#               untouched. The two aborted scenarios should be re-run after deploy.
 #   2026-08-11  BUILD dh -- three lessons from adjudicating the first FULL-CAST run
 #               (Audit_Findings_2026-08-11.md):
 #               (1) SCENARIOS CAN SEED A PROGRESS RECORD. The final-exam-locked finding
@@ -319,11 +329,32 @@ def _openai(messages, max_tokens=900, want_json=False, model=None, _retry=True):
             _TOKEN_PARAM: max_tokens}
     if want_json:
         body["response_format"] = {"type": "json_object"}
-    try:
-        r = httpx.post(OPENAI_URL, json=body, timeout=120.0,
-                       headers={"Authorization": f"Bearer {key}"})
-    except Exception as exc:  # noqa: BLE001
-        return None, f"could not reach OpenAI: {exc}"
+    # THE TRANSPORT GETS THE PATIENCE A REASONING MODEL NEEDS (2026-08-13, build fe).
+    # Two lessons in the 2026-08-13 runs DID NOT COMPLETE with "could not reach
+    # OpenAI: The read operation timed out" -- and both were scenarios Jim
+    # specifically wanted probed (function-notation, final-exam-locked). A reasoning
+    # model marking a full transcript can legitimately think past the old flat 120s,
+    # and a single dropped read aborted the whole lesson with no second chance. Now:
+    # a generous READ timeout (connecting still fails fast), and ONE quiet retry on
+    # a pure transport error before the lesson is declared incomplete. A transport
+    # retry is safe here in a way a 4xx retry would not be: nothing was received,
+    # so nothing can be double-counted.
+    last_exc = None
+    for _attempt in (1, 2):
+        try:
+            r = httpx.post(OPENAI_URL, json=body,
+                           timeout=httpx.Timeout(connect=15.0, read=300.0,
+                                                 write=60.0, pool=15.0),
+                           headers={"Authorization": f"Bearer {key}"})
+            last_exc = None
+            break
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if _attempt == 1:
+                print(f"[audit] transport error ({exc}); retrying once in 3s")
+                time.sleep(3)
+    if last_exc is not None:
+        return None, f"could not reach OpenAI after a retry: {last_exc}"
     if r.status_code == 200:
         try:
             choice = r.json()["choices"][0]

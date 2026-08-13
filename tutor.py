@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fe -- THE TRIANGLE-SLOT REFEREE (rule 63c, born ENFORCED). From
+#               the 2026-08-13 lesson audit's HIGH geometry finding: sides="6,?,10"
+#               with right="C" puts 6 in the hypotenuse's slot (sides= is AB, BC, CA;
+#               the hypotenuse skips the right-angle vertex, so right="C" -> AB, the
+#               FIRST slot) while the words said the hypotenuse was 10. Three of four
+#               triangles in one lesson were mis-slotted. New triangle_side_conflict()
+#               fires only on the geometric impossibility -- a numeric hypotenuse slot
+#               with some other numeric side >= it -- and joins the prose_board_conflict
+#               sweep after board_notation_conflict. "?" hypotenuses, algebraic sides,
+#               and right= values that name no vertex are never judged (fail open,
+#               like every referee). ruletests: TRIANGLE_CASES in PART 2 + PART 3ah.
 #   2026-08-12  BUILD eq -- TWO MECHANICAL GUARDS from the 2026-08-12 audits.
 #               (1) NEW malformed_tag_conflict, and it runs FIRST in the sweep: nothing
 #               in eight referees checked whether a tag was even well-formed. The audit
@@ -2107,6 +2118,77 @@ def board_notation_conflict(reply: str):
 
 
 # =============================================================================
+# THE TRIANGLE-SLOT CHECK (2026-08-13, build fe) -- rule 63(c) is born ENFORCED.
+# -----------------------------------------------------------------------------
+# The 2026-08-13 lesson audit (geometry-picture, HIGH): a lesson said "one leg is 6,
+# the hypotenuse is 10" while its tag read sides="6,?,10" right="C" -- and sides= is
+# AB, BC, CA by contract (geo-figures.js draws it exactly so), so with the right angle
+# at C the FIRST slot is the hypotenuse. The drawn hypotenuse said 6; every spoken
+# sentence said 10. Three of that lesson's four triangles were mis-slotted, which is
+# the worst kind of board bug: the words and the picture each perfectly plausible,
+# and a student who believes both learns that labels are decoration.
+# NARROW, like every referee: it fires ONLY when a [[triangle]] tag carries BOTH
+# right= (naming one of its vertices) and sides=, the hypotenuse slot holds a NUMBER,
+# and some other slot holds a number >= it -- a geometric impossibility, never a
+# style call. A pending "?" hypotenuse is always clean; algebraic side lengths are
+# never judged; a right= that names no vertex is not ours to guess about.
+_TRI_TAG = re.compile(r"\[\[\s*triangle\b([^\]]*)\]\]", re.I)
+_TRI_ATTR = re.compile(r'([A-Za-z_]\w*)\s*=\s*"([^"]*)"')
+
+
+def triangle_side_conflict(reply: str):
+    """Return a description of a right-triangle tag whose hypotenuse slot holds a
+    side that cannot be the hypotenuse, or "". Never raises: any unexpected input
+    yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        for m in _TRI_TAG.finditer(text):
+            attrs = {k.lower(): v for k, v in _TRI_ATTR.findall(m.group(1))}
+            right = (attrs.get("right") or "").strip()
+            sides_raw = (attrs.get("sides") or "").strip()
+            if not right or not sides_raw:
+                continue
+            v = [s.strip() for s in (attrs.get("v") or "A,B,C").split(",")]
+            sides = [s.strip() for s in sides_raw.split(",")]
+            if len(v) != 3 or len(sides) != 3:
+                continue
+            try:
+                ridx = [x.upper() for x in v].index(right.upper())
+            except ValueError:
+                continue          # right= names no vertex of this triangle: not ours
+            # slots are AB, BC, CA; the hypotenuse is the side that SKIPS the right-
+            # angle vertex: right at A -> BC (slot 1), at B -> CA (2), at C -> AB (0).
+            hyp = {0: 1, 1: 2, 2: 0}[ridx]
+
+            def _num(s):
+                try:
+                    return float(s)
+                except ValueError:
+                    return None
+
+            hv = _num(sides[hyp])
+            if hv is None:
+                continue          # a pending "?" (or algebraic) hypotenuse is fine
+            offenders = [sides[i] for i in range(3) if i != hyp
+                         and _num(sides[i]) is not None and _num(sides[i]) >= hv]
+            if offenders:
+                pair = v[hyp].upper() + v[(hyp + 1) % 3].upper()
+                return ("your [[triangle]] tag has the right angle at {r}, which makes "
+                        "{p} the hypotenuse -- the sides list is AB, BC, CA in that "
+                        "order -- but the {p} slot holds {h}, while another side is "
+                        "{o}. The hypotenuse is always the strictly longest side, so "
+                        "this drawing contradicts itself. Rule 63(c): put the "
+                        "hypotenuse's length (or its pending \"?\") in the {p} slot "
+                        "and the legs in theirs.").format(
+                            r=right.upper(), p=pair,
+                            h=sides[hyp], o=offenders[0])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[triangleslot] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE ANSWERED-QUESTION CHECK (2026-08-11, build dh) -- rule 17 moves COVERED -> ENFORCED.
 # -----------------------------------------------------------------------------
 # First full audit, twice in one run, two courses apart: a worked card said
@@ -2478,13 +2560,15 @@ def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    SEVEN checks, in order: a picture promised and never drawn (rule 7), a computation
-    asked with no pending line on the board (rule 15), a spoken score that disagrees with
-    the reply's own score tag (rule 45), the tutor answering its OWN question in the same
-    breath (rule 39b -- wait time), a question this reply's own board already answers
-    (rule 17, build dh), a board problem the spoken words never read aloud (rule 44,
-    build dh), then spoken numbers that disagree with the board's own written
-    conclusion (rule 18b)."""
+    NINE checks, in order: a malformed tag (build eq), a picture promised and never
+    drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
+    spoken score that disagrees with the reply's own score tag (rule 45), the tutor
+    answering its OWN question in the same breath (rule 39b -- wait time), a question
+    this reply's own board already answers (rule 17, build dh), a board problem the
+    spoken words never read aloud (rule 44, build dh), a board notation violation
+    (rules 27/15/54, builds dk/dl), a right triangle whose hypotenuse slot cannot be
+    the hypotenuse (rule 63c, build fe), then spoken numbers that disagree with the
+    board's own written conclusion (rule 18b)."""
     try:
         # build eq: FIRST -- if a tag cannot be parsed, every other referee below is
         # reading a board the student will never actually see.
@@ -2512,6 +2596,9 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         boardnote = board_notation_conflict(reply)
         if boardnote:
             return boardnote
+        triangle = triangle_side_conflict(reply)
+        if triangle:
+            return triangle
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

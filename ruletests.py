@@ -2,6 +2,24 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fe -- THE 2026-08-13 LESSON-AUDIT FINDINGS, CLOSED (NEW PART 3ah;
+#               PART 3w grows; PART 2 gains TRIANGLE_CASES). Five audit runs, 19
+#               findings, each read against its quoted transcript first. Real: the
+#               three HIGHs (the 4|4|4|2 sharing picture left standing; the triangle
+#               hypotenuse mis-slotted three times in one lesson; the wrong picture
+#               "fixed" in words only) plus thirteen more. New rule 63 (the words and
+#               the picture are the same figure) ships with a new referee,
+#               triangle_side_conflict -- born ENFORCED, swept in PART 2 against the
+#               audit's real tags and every foundation script. Rule 61's corrected
+#               list grows five -> nine and PART 3w bans the four new false forms
+#               from authored content (the fraction one really lived there, in the
+#               basic "fraction" foundation script -- same as el's function-notation
+#               case). REJECTED, with reasons recorded in PART 3ah's header: the
+#               rule-52 finding (52d decided this exact misread on 2026-08-11), the
+#               rule-47 finding (the two-unaided-rights bar was met and 47d's speech
+#               was delivered), and the rule-15 finding (a result-less [[column]] IS
+#               the pending question). lessonaudit.py transport hardened (read 300s +
+#               one transport retry) after two lessons died mid-audit; pinned here.
 #   2026-08-13  BUILD fd -- THE PICTURES AND THE PROSE (NEW PART 3ag). Every screenshot
 #               on the public site is a photograph of the DEMO -- that is why they can be
 #               trusted, and it is also why the copy drifts: the demo changes and the
@@ -1356,6 +1374,38 @@ BOARD_NOTATION_CASES = [
 ]
 
 
+# THE TRIANGLE-SLOT CASES (build fe, rule 63c). The three flagged tags are the 2026-08-13
+# audit's REAL tags, verbatim; the clean ones prove the narrowness promises: a correct
+# lesson, a pending "?" hypotenuse, algebraic sides, a missing right=, and a right= that
+# names no vertex are never judged.
+TRIANGLE_CASES = [
+    ("the audit's own first triangle is correct and stays clean",
+     '[[triangle v="A,B,C" right="C" sides="5,3,4" caption="the hypotenuse is the side opposite the right angle"]]', False),
+    ("the audit's mis-slotted missing-leg triangle (6 in the hypotenuse slot)",
+     '[[triangle v="A,B,C" right="C" sides="6,?,10" caption="one leg is 6, the hypotenuse is 10 -- the other leg is missing"]]', True),
+    ("the audit's finished triangle, still mis-slotted",
+     '[[triangle v="A,B,C" right="C" sides="6,8,10" caption="legs 6 and 8, hypotenuse 10 -- a right triangle!"]]', True),
+    ("the audit's missing-hypotenuse triangle: ? in a leg slot, legs in the wrong slots",
+     '[[triangle v="A,B,C" right="C" sides="5,12,?" caption="legs 5 and 12 -- the hypotenuse is missing this time"]]', True),
+    ("the correct missing-hypotenuse form: ? in the AB slot",
+     '[[triangle v="A,B,C" right="C" sides="?,5,12"]]', False),
+    ("right at B: the hypotenuse is CA, third slot, correctly the longest",
+     '[[triangle v="A,B,C" right="B" sides="3,4,5"]]', False),
+    ("right at B with the hypotenuse misplaced",
+     '[[triangle v="A,B,C" right="B" sides="13,12,5"]]', True),
+    ("no right= -- an oblique triangle is never judged",
+     '[[triangle v="A,B,C" sides="6,8,10"]]', False),
+    ("an algebraic hypotenuse slot is never judged",
+     '[[triangle v="A,B,C" right="C" sides="x,3,10"]]', False),
+    ("vertex labels default to A,B,C when v= is omitted",
+     '[[triangle right="C" sides="6,8,10"]]', True),
+    ("a right= that names no vertex of this triangle is not ours to guess about",
+     '[[triangle v="P,Q,R" right="C" sides="6,8,10"]]', False),
+    ("equality is still impossible: a 'hypotenuse' tied with a leg",
+     '[[triangle v="A,B,C" right="C" sides="5,5,4"]]', True),
+]
+
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -1415,6 +1465,14 @@ def part2_prose():
             check(f"board-notation: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in TRIANGLE_CASES:
+        got = tutor.triangle_side_conflict(reply)
+        check(f"triangle-slot: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"triangle-slot: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
     # THE SWEEP THAT MATTERS: the referees must be silent on every canonical script we own
     # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
     # and a false positive in either is a real model call wasted on correct teaching --
@@ -1428,10 +1486,11 @@ def part2_prose():
                 for _fn, _lbl in ((tutor.prose_self_answer_conflict, "self-answer"),
                                   (tutor.prose_answered_question_conflict, "answered-q"),
                                   (tutor.prose_unspoken_problem_conflict, "unspoken"),
-                                  (tutor.board_notation_conflict, "board-notation")):
+                                  (tutor.board_notation_conflict, "board-notation"),
+                                  (tutor.triangle_side_conflict, "triangle-slot")):
                     if _fn(_blob):
                         bad.append(f"{_lbl}: {_c}/{_it.get('term')}")
-        check(f"all four draft-level referees are silent on all "
+        check(f"all five draft-level referees are silent on all "
               f"{sum(len(v) for v in _F.FOUNDATIONS.values())} foundation scripts",
               not bad, f"false positives: {bad[:4]}")
     except Exception as _exc:  # noqa: BLE001
@@ -1471,6 +1530,7 @@ def part2_prose():
             tutor.prose_answered_question_conflict(junk)
             tutor.prose_unspoken_problem_conflict(junk)
             tutor.board_notation_conflict(junk)
+            tutor.triangle_side_conflict(junk)
         except Exception as exc:  # noqa: BLE001
             bad("prose: junk input never raises", f"{junk!r} -> {exc}")
             break
@@ -2492,7 +2552,16 @@ def part3g_misconceptions():
     # "if you need to raise it, you raise it" -- each raise gets its own change note;
     # this is that note). Still a tripwire: the lessonaudit two-sizes measurement is
     # still the right way to set this number from evidence someday.
-    CEILING = 175_000
+    # 2026-08-13 (build fe): RAISED 175,000 -> 180,000. Rule 63 plus the seven amended
+    # rules from the 2026-08-13 lesson-audit findings (~5.7k shared characters) took
+    # the largest prompt (algebra2) to 175,887. Raised deliberately rather than by
+    # trimming teaching, under Jim's standing authorization (2026-08-11, Four_Lens
+    # review: "if you need to raise it, you raise it" -- each raise gets its own
+    # change note; this is that note). Still a tripwire, not a licence, and the
+    # honest measurement -- lessonaudit at two prompt sizes, to find where
+    # rule-following actually degrades -- is STILL the right way to set this number,
+    # and still not done.
+    CEILING = 180_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
     # THE BUDGET, not just the total. A single number tells you that you are over and
@@ -2732,6 +2801,15 @@ RULE_VERIFY = {
                       "back-reference (no arithmetic in 'a minute ago'), so live "
                       "replies are prompt-covered -- a natural lessonaudit scenario "
                       "candidate"),
+    63: ("ENFORCED",  "the words and the picture are the same figure (build fe; from "
+                      "the 2026-08-13 audits): triangle_side_conflict rejects any "
+                      "right triangle whose hypotenuse slot cannot hold the longest "
+                      "side (sides= is AB, BC, CA; the hypotenuse skips the right-"
+                      "angle vertex), swept in PART 2 against the real audit tags "
+                      "and all foundation scripts. The one-name half (the circle "
+                      "called a curve) and the shares-picture half (4|4|4|2 for a "
+                      "sharing story) remain prompt-covered, pinned by PART 3ah -- "
+                      "both are natural lessonaudit scenario candidates"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -5640,6 +5718,10 @@ def part3w_generalizations():
         ("square root corrected", "when we SOLVE x squared = a for a positive a"),
         ("completing the square corrected", "when the coefficient of x squared is 1"),
         ("discriminant corrected", "REAL solutions, and whether complex ones"),
+        ("fraction meaning corrected (2026-08-13)", "ONE way we use fractions"),
+        ("order of operations corrected (2026-08-13)", "no grouping symbols, multiply before you add"),
+        ("failed limit corrected (2026-08-13)", "FINITE one-sided limits exist and disagree"),
+        ("plus-or-minus corrected (2026-08-13)", "both cases land\n          on the SAME single answer"),
         ("the do-not-overcorrect clause", "DO NOT OVERCORRECT INTO MUSH"),
     ):
         check(f"  rule 61: {label}", needle in note,
@@ -5659,6 +5741,15 @@ def part3w_generalizations():
          re.compile(r"always half the middle coefficient", re.I)),
         ("the discriminant counts ALL solutions",
          re.compile(r"discriminant to predict how many solutions", re.I)),
+        # ---- the four from the 2026-08-13 audits (build fe) ----
+        ("a fraction ALWAYS means pieces of one cut-up whole",
+         re.compile(r"fraction always means", re.I)),
+        ("multiplication before addition, with no grouping-symbol condition",
+         re.compile(r"then addition,? -- every time|then addition, every time", re.I)),
+        ("unmatched one-sided limits are always a jump",
+         re.compile(r"when they don'?t,? you'?ve got a jump", re.I)),
+        ("the plus-or-minus always yields two answers",
+         re.compile(r"means you (?:actually )?get two answers", re.I)),
     ]
     AUTHORED = ("prompts.py", "foundations.py", "notation.py", "curriculum.py")
     for fname in AUTHORED:
@@ -6081,6 +6172,130 @@ def part3ag_shots_match_copy():
                   for n in os.listdir(st) if n.endswith(".html")),
           "the math keyboard was retired in build ao; showing it advertises a product "
           "that no longer exists")
+
+
+
+
+# =============================================================================
+# PART 3ah -- THE 2026-08-13 LESSON-AUDIT FINDINGS, CLOSED (build fe)
+# =============================================================================
+# Five audit runs, 19 findings, every one read against the quoted transcript before
+# anything was changed. Sixteen were real (three HIGH); the closures live in rule 63
+# (new), rules 4/13/14/17/26/41/43 (amended), rule 61 (four more corrected forms, in
+# PART 3w), the fraction foundation script (its false "always", also PART 3w), the
+# triangle-slot referee (TRIANGLE_CASES, PART 2), and lessonaudit's transport (below).
+# THREE WERE REJECTED, recorded here so nobody re-litigates them:
+#   - "3.5 + 0.47 should be answered before coaching" -- rule 52(d) decided this on
+#     2026-08-11, against the SAME misread by an earlier critic: a handed computation
+#     is the lesson's work, not a rule-52 question.
+#   - "the percent quiz was cold" -- rule 47's bar (two unaided rights this session)
+#     was met on the transcript's own record, and 47(d)'s instrument-honesty speech
+#     was delivered nearly verbatim. The design held; the finding re-litigates it.
+#   - "the first column sum lacked an = ? line" -- a [[column]] with no result= IS
+#     the pending question on the board; demanding a duplicate horizontal line would
+#     clutter what rule 26(c) keeps short.
+def part3ah_audit_findings_fe():
+    print("\nPART 3ah — the 2026-08-13 audit findings closed (build fe)")
+    import prompts
+    here = os.path.dirname(os.path.abspath(__file__))
+    note = tutor.GRAPH_TOOL_NOTE
+    built = tutor.build_system_prompt(dict(STUDENT), course="geometry")
+
+    # ---- rule 63 exists, once, and reaches a built prompt ----
+    H = "63. THE WORDS AND THE PICTURE ARE THE SAME FIGURE."
+    check("rule 63 lives in the shared block exactly once", note.count(H) == 1,
+          f"count in GRAPH_TOOL_NOTE = {note.count(H)}")
+    check("rule 63 reaches a built prompt exactly once", built.count(H) == 1,
+          f"count in the built geometry prompt = {built.count(H)}")
+
+    # ---- the load-bearing phrases of every closure ----
+    anchors = [
+        # rule 63's three halves
+        ("63a: one figure, one name, the DRAWN figure's name",
+         "ONE FIGURE, ONE NAME -- AND IT IS THE DRAWN FIGURE'S NAME" in note),
+        ("63a carries the live catch (the circle called a curve)",
+         '"a sideways-opening' in note and '"that circle"' in note),
+        ("63b: a sharing story draws the SHARES",
+         "A SHARING STORY DRAWS THE SHARES" in note),
+        ("63b shows the right picture AND names the wrong one",
+         '"3 | 3 | 3 | 3"' in note and '"4 | 4 | 4 | 2"' in note),
+        ("63c: the sides list is a contract, AB, BC, CA",
+         "sides LIST IS A CONTRACT: AB, BC, CA, in that order" in note),
+        ("63c names the referee so the model knows it is watched",
+         "a referee now" in note),
+        # the amended rules
+        ("rule 4: a separate example announces itself",
+         "AND A SEPARATE EXAMPLE ANNOUNCES ITSELF" in note),
+        ("rule 13: ten percent IS one tenth, direction said",
+         "Ten percent IS one tenth" in note and "one place LEFT" in note),
+        ("rule 13: the square-root symbol names the NONNEGATIVE root",
+         "NONNEGATIVE root" in note),
+        ("rule 14: abbreviations are notation too (DNE, and i in a goals card)",
+         "ABBREVIATIONS ARE NOTATION TOO" in note
+         and '"DNE, short for does not exist"' in note),
+        ("rule 17: ask first, confirm after",
+         "COMES BEFORE YOU CONFIRM" in note),
+        ("rule 17: no escape hatch on a check",
+         "never bolt an escape hatch onto a check" in note),
+        ("rule 26: a wrong picture is a wrong line, and words cannot fix a drawing",
+         "AND A WRONG PICTURE IS A WRONG LINE" in note
+         and "Words cannot" in note and "fix a drawing" in note),
+        ("rule 41: the caption of a question-figure points without answering",
+         "WHEN THE FIGURE IS THE QUESTION, THE CAPTION POINTS WITHOUT ANSWERING" in note),
+        ("rule 41: what-to-notice never becomes what-to-answer",
+         "what-to-notice never\n    becomes what-to-answer" in note
+         or "what-to-notice never becomes what-to-answer" in note),
+        ("rule 43: a bare right answer shows NO method",
+         "A bare right answer shows you NO method" in note),
+    ]
+    for name, cond in anchors:
+        check(name, cond, "a load-bearing phrase was dropped or reworded -- if the "
+                          "rewording is deliberate, update this anchor in the same "
+                          "commit")
+
+    # ---- the geometry template teaches the hypotenuse slot where the tag is taught ----
+    check("the geometry [[triangle]] doc names the hypotenuse's slot",
+          'right="C" makes AB (the FIRST slot) the hypotenuse'
+          in prompts.GEOMETRY_SYSTEM_PROMPT_TEMPLATE,
+          "the tag's own documentation is where the convention must live")
+
+    # ---- the referee is wired, not just written ----
+    check("triangle_side_conflict exists and is swept by prose_board_conflict",
+          hasattr(tutor, "triangle_side_conflict")
+          and bool(tutor.prose_board_conflict(
+              '[[triangle v="A,B,C" right="C" sides="6,?,10"]]')),
+          "the referee must reach students through the combined sweep "
+          "(TRIANGLE_CASES in PART 2 carries the full case table)")
+
+    # ---- the fraction foundation script lost its false "always" ----
+    try:
+        import foundations as _F
+        frac = next(it for it in _F.FOUNDATIONS["basic"] if it.get("term") == "fraction")
+        check("the basic 'fraction' script says 'the way we use fractions today'",
+              "the way we use fractions today" in frac.get("say", ""),
+              "the corrected condition left the script")
+        check("  and 'always means' is gone from it",
+              "always means" not in frac.get("say", ""),
+              "the false universal is back -- PART 3w bans it everywhere too")
+    except Exception as exc:  # noqa: BLE001
+        bad("fraction foundation script", str(exc))
+
+    # ---- lessonaudit's transport: patient read, one quiet retry ----
+    la = open(os.path.join(here, "lessonaudit.py"), encoding="utf-8").read()
+    m = re.search(r"read\s*=\s*(\d+(?:\.\d+)?)", la)
+    check("lessonaudit gives the critic a patient read timeout (>= 300s)",
+          bool(m) and float(m.group(1)) >= 300.0,
+          "two 2026-08-13 lessons died at the old flat 120s: "
+          "'could not reach OpenAI: The read operation timed out'")
+    check("lessonaudit retries ONCE on a pure transport error",
+          "could not reach OpenAI after a retry" in la
+          and "retrying once in 3s" in la,
+          "one dropped read must not abort a whole lesson")
+    check("  the retry is transport-only (received errors keep their handlers)",
+          "switching token parameter" in la and "output limit was reached" in la,
+          "the 400-reading handlers must survive the transport change")
+
+
 
 
 # =============================================================================
@@ -6958,6 +7173,7 @@ def main():
     part3ae_classroom_locked()
     part3af_full_journey()
     part3ag_shots_match_copy()
+    part3ah_audit_findings_fe()
     if live:
         part4_live()
     else:

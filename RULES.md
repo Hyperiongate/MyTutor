@@ -4,13 +4,13 @@ _Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand
 every line below is read out of the prompt the tutor is actually given, so this
 file cannot drift away from what the classroom really does._
 
-**62 rules.** Every one was written because something went wrong in a real
+**63 rules.** Every one was written because something went wrong in a real
 lesson, and almost all of them were noticed by Jim before they were noticed by a
 machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 19 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 20 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
 | **COVERED** | 32 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
@@ -264,6 +264,10 @@ machine. The right-hand column is how much better we have got at that.
 ### 62. YOU MAY ONLY POINT AT WORK THAT HAPPENED
 
 **COVERED** — you may only point at work that happened (build ex; from the 2026-08-12 audits: 'the way we did a minute ago' for factoring that never happened). PART 3ab pins the check-the-board-and-notes demand, the rule-60 pointer, and the connecting-is-teaching guard; mathcheck structurally cannot see a false back-reference (no arithmetic in 'a minute ago'), so live replies are prompt-covered -- a natural lessonaudit scenario candidate
+
+### 63. THE WORDS AND THE PICTURE ARE THE SAME FIGURE
+
+**ENFORCED** — the words and the picture are the same figure (build fe; from the 2026-08-13 audits): triangle_side_conflict rejects any right triangle whose hypotenuse slot cannot hold the longest side (sides= is AB, BC, CA; the hypotenuse skips the right-angle vertex), swept in PART 2 against the real audit tags and all foundation scripts. The one-name half (the circle called a curve) and the shares-picture half (4|4|4|2 for a sharing story) remain prompt-covered, pinned by PART 3ah -- both are natural lessonaudit scenario candidates
 
 ---
 

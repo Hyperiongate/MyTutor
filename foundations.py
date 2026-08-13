@@ -2,6 +2,19 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fe -- THE FRACTION SCRIPT LOSES ITS FALSE "ALWAYS" (rule 61; the
+#               2026-08-13 lesson audit, fractions-lost, basic). The canonical basic
+#               "fraction" script said "a fraction ALWAYS means we cut something into
+#               fair, matching pieces" -- false as stated: fractions also name division,
+#               ratios, and numbers past one like 5/4. Same reasoning as the el-era
+#               function-notation fix: the say-string rule is "never edit casually",
+#               and a false sentence spoken verbatim to every young student is the
+#               least casual reason there is. New form carries its condition in the
+#               child's own register: "So the way we use fractions today: ...". ⚠️
+#               AUDIO: this script's cached clip is orphaned by the edit and re-renders
+#               once -- the foundation pre-render on /admin (already owed since el)
+#               pays it once, up front. ruletests PART 3w now bans the false form from
+#               all authored content, alongside the five from 2026-08-12.
 #   2026-08-12  BUILD em -- FIVE PIE BOARD LINES CORRECTED (the fraction pictures). The
 #               2026-08-12 audit: a board captioned "one whole, cut into four equal
 #               parts" drew TWO wedges, and the lesson then asked a beginner "how many
@@ -307,8 +320,8 @@ FOUNDATIONS = {
         {"term": "fraction", "say":
             "Here is what a **fraction** is. A fraction is a number that describes equal parts of one "
             "whole. The word equal matters: if I cut a cookie into two pieces and one piece is tiny, "
-            "those are not halves. So a fraction always means we cut something into fair, matching "
-            "pieces, and then we talk about some of those pieces.",
+            "those are not halves. So the way we use fractions today: we cut something into fair, "
+            "matching pieces, and then we talk about some of those pieces.",
          "board": ['[[pie parts="4" shaded="1" caption="one whole, cut into four equal parts — one of them is shaded"]]']},
         {"term": "denominator", "say":
             "Every fraction is written with two numbers, and each one has a job. The bottom number is "
