@@ -2,6 +2,30 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13fc-trial-on-admin". THE FULL-JOURNEY TRIAL MOVES
+#               TO THE DASHBOARD. Jim: "is it possible to build that into the admin
+#               dashboard? And maybe it could even ask a couple of questions like, what do
+#               you want to trial? Or maybe it just runs a trial like you just did, and it
+#               reports back to me." Yes: NEW POST /api/admin/course-trial (admin-key
+#               gated) + a panel on /admin with two questions -- which course, and how
+#               many opening units the student VALIDATES on the assessment -- one button,
+#               and a step-by-step report including the exact words the student is told at
+#               the locked Final Exam.
+#               ⚠️ ISOLATION IS THE WHOLE POINT AND IT IS NOT A DETAIL. The trial invents a
+#               parent, a child, a teacher and a class; run against the live database it
+#               would litter real data with fakes. So it runs as a SEPARATE PROCESS with
+#               DATABASE_URL and DATA_DIR pointed at a throwaway temp directory -- the
+#               store is a module-level singleton and there is no safe way to swap its
+#               engine underneath a live server. VERIFIED, not asserted: a browser drill
+#               counts rows in the "live" database before and after a dashboard run and
+#               they are identical.
+#               ⚠️ AND IT DECLINES WHEN MEMORY IS TIGHT. A second interpreter importing
+#               this app costs ~120 MB (measured); on Render's free 512 MB instance that
+#               is affordable but not free, so under 200 MB available it returns a plain
+#               explanation rather than risking the OOM killer taking the live site down
+#               mid-lesson. Also a 3-minute timeout: a wedged trial reports itself.
+#               Caught while building, by driving it rather than reading it: main.py never
+#               imported `sys`, so the first version 500'd on every call.
 #   2026-08-13  APP_BUILD -> "2026-08-13fb-full-journey". ⭐ A LIVE BUG FOUND BY WALKING
 #               A WHOLE COURSE. Jim asked for an end-to-end trial -- one student who
 #               validates the first three units on the Course Assessment, works the rest,
@@ -5700,12 +5724,102 @@ class PrewarmAdminIn(BaseModel):
     dry_run: bool = False   # count and price it without spending anything
 
 
+class CourseTrialIn(BaseModel):
+    key: str
+    course: str = "prealgebra"   # which level to walk
+    validate_units: int = 3      # how many opening units the student "validates" on the
+                                 # Course Assessment rather than actually passing
+
+
 class LessonAuditIn(BaseModel):
     key: str
     limit: int = 2          # scenarios THIS call -- a lesson takes a minute or two
     offset: int = 0         # where to start, so the cast can be walked in batches
     turns: int = 0          # 0 = the file's default
     dry_run: bool = False   # price it and spend nothing
+
+
+@app.post("/api/admin/course-trial")
+def admin_course_trial(body: CourseTrialIn):
+    """Run THE FULL-JOURNEY TRIAL from the dashboard and hand back the report.
+
+    2026-08-13 (build fc). Jim: "is it possible to build that into the admin dashboard?
+    And maybe it could even ask a couple of questions like, what do you want to trial? Or
+    maybe it just runs a trial like you just did, and it reports back to me."
+
+    It walks ONE student's whole life through the real app: sign up -> validate the first
+    N units on the Course Assessment -> work the rest -> meet the LOCKED Final Exam and
+    read what it says -> go back and pass the owed quizzes -> take the exam -> Course
+    Champion in the trophy case -> and the same picture on the parent AND teacher views.
+    On its first ever run it found a live bug (see course_trial.py's notes), which is the
+    argument for having it one click away instead of only on a laptop.
+
+    ⚠️ IT NEVER TOUCHES PRODUCTION DATA. course_trial.py runs as a SEPARATE PROCESS with
+    DATABASE_URL and DATA_DIR pointed at a throwaway temp directory, so the parent, child,
+    teacher and class it creates live and die there. That isolation is the whole reason
+    this is a subprocess rather than an in-process call -- the store is a module-level
+    singleton and there is no safe way to swap its engine underneath a live server.
+
+    ⚠️ AND IT REFUSES TO RUN IF THE BOX IS TIGHT. A second interpreter importing the app
+    costs ~120 MB; on Render's free 512 MB instance that is affordable but not free. If
+    less than MIN_TRIAL_MB is available we decline with a plain message rather than risk
+    the OOM killer taking the live web service down in the middle of someone's lesson."""
+    _require_admin(body.key)
+    trial = BASE_DIR / "course_trial.py"
+    if not trial.exists():
+        raise HTTPException(status_code=503, detail="course_trial.py is not on this deploy.")
+    course = (body.course or "prealgebra").strip()
+    if course not in curriculum.COURSES:
+        raise HTTPException(status_code=400, detail=f"'{course}' is not one of the courses.")
+    n_units = len(curriculum.units_for(course))
+    validate = max(1, min(int(body.validate_units or 3), n_units - 1))
+
+    # Memory guard -- an honest refusal beats an OOM-killed web service.
+    MIN_TRIAL_MB = 200
+    try:
+        with open("/proc/meminfo") as fh:
+            avail_kb = next(int(l.split()[1]) for l in fh if l.startswith("MemAvailable"))
+        avail_mb = avail_kb // 1024
+        if avail_mb < MIN_TRIAL_MB:
+            raise HTTPException(status_code=503, detail=(
+                f"Not enough free memory to run the trial right now ({avail_mb} MB free; "
+                f"it needs about {MIN_TRIAL_MB}). It runs in its own process so it can't "
+                f"touch real data, and that costs memory. Try again in a moment."))
+    except HTTPException:
+        raise
+    except Exception:  # noqa: BLE001 -- no /proc here: proceed rather than block
+        pass
+
+    import subprocess as _sp
+    import sys as _sys          # main.py does not import sys at module level
+    import tempfile as _tf
+    import json as _json
+    with _tf.TemporaryDirectory() as tmp:
+        env = dict(os.environ)
+        env["DATABASE_URL"] = "sqlite:///" + os.path.join(tmp, "trial.db")
+        env["DATA_DIR"] = tmp                 # keep its cache + files out of /var/data
+        env["WEEKLY_EMAIL"] = "off"
+        env["PYTHONPATH"] = str(BASE_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+        try:
+            r = _sp.run([_sys.executable, str(trial), "--json", "--course", course,
+                         "--validate", str(validate)],
+                        cwd=str(BASE_DIR), env=env, capture_output=True, text=True,
+                        timeout=180)
+        except _sp.TimeoutExpired:
+            raise HTTPException(status_code=504, detail=(
+                "The trial did not finish within three minutes. That is itself a finding "
+                "-- something in the journey is hanging."))
+    out = r.stdout or ""
+    marker = "<<<COURSE-TRIAL-JSON>>>"
+    if marker not in out:
+        raise HTTPException(status_code=500, detail=(
+            "The trial did not produce a report. Last output: " + (out + r.stderr)[-500:]))
+    try:
+        report = _json.loads(out.split(marker, 1)[1].strip())
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Unreadable trial report: {exc}")
+    report["exit_code"] = r.returncode
+    return report
 
 
 @app.post("/api/admin/lesson-audit")
@@ -6783,7 +6897,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13fb-full-journey"
+APP_BUILD = "2026-08-13fc-trial-on-admin"
 
 
 @app.get("/health")

@@ -239,6 +239,41 @@
        un-run for days while three handoff documents told him to run it. A control panel
        whose controls are instructions to use a tool he does not have is not a control
        panel. Both are buttons now, and each prices itself first, for free. -->
+  <!-- build fc: THE FULL-JOURNEY TRIAL. Jim: "is it possible to build that into the admin
+       dashboard... and maybe it could even ask a couple of questions like what do you want
+       to trial, or maybe it just runs a trial like you just did, and it reports back."
+       Two questions, one button, a readable report. It runs in a SEPARATE process against a
+       throwaway database, so it can never touch a real student. -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#127939; Full-journey trial</h2>
+      <span class="note">One made-up student, start to finish: validate the opening units,
+        work the rest, hit the locked Final Exam, go back and clear it, pass the exam, and
+        check the medal reaches the trophy case &mdash; and that the parent and teacher views
+        agree. Runs on a throwaway database; <b>your real students are never touched</b>.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div style="min-width:210px">
+        <label for="ctCourse">Which course?</label>
+        <select class="f" id="ctCourse"></select>
+      </div>
+      <div style="min-width:200px">
+        <label for="ctUnits">Units validated on the assessment</label>
+        <select class="f" id="ctUnits">
+          <option value="1">1 unit</option>
+          <option value="2">2 units</option>
+          <option value="3" selected>3 units &mdash; the first third</option>
+          <option value="4">4 units</option>
+          <option value="5">5 units &mdash; about half</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="ctRun" type="button">&#9654; Run the trial</button>
+    </div>
+    <div class="msg" id="ctMsg"></div>
+    <div id="ctOut" style="display:none;margin-top:14px"></div>
+    <p class="note" style="margin-top:12px">Takes a few seconds. Needs no API keys and spends
+      nothing &mdash; it stands the real app up on its own private database and makes real calls
+      to real endpoints. If it ever fails, it names the exact step that broke.</p>
+  </div></section>
+
   <section class="wrap"><div class="card">
     <div class="sechead"><h2>&#128300; Lesson audit</h2>
       <span class="note">Scripted students take real lessons; an independent model marks the
@@ -635,6 +670,66 @@
     }
     frDisarm();
     $("frGo").disabled = false;
+  });
+
+  // ---------- full-journey trial (build fc) ----------
+  // Jim asked for it on this page with "a couple of questions" and a report back. Two
+  // questions (course, how many units get validated), one button, and a step-by-step
+  // result he can read without knowing what any of it is called underneath.
+  var CT_COURSES = [
+    ["entry", "Entry-Level Math"], ["basic", "Basic Math"], ["prealgebra", "Pre-Algebra"],
+    ["algebra1", "Algebra I"], ["geometry", "Geometry"], ["algebra2", "Algebra II"],
+    ["precalc", "Trig / Pre-Calc"], ["calculus", "Calculus"],
+    ["diffeq", "Differential Equations"], ["probstat", "Probability & Statistics"],
+  ];
+  (function () {
+    var sel = $("ctCourse");
+    if (!sel) return;
+    CT_COURSES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c[0]; o.textContent = c[1];
+      if (c[0] === "prealgebra") o.selected = true;
+      sel.appendChild(o);
+    });
+  })();
+  function ctMsg(t, k) { var el = $("ctMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  $("ctRun").addEventListener("click", async function () {
+    var b = this;
+    b.disabled = true;
+    ctMsg("Walking a whole course… this takes a few seconds.", "ok");
+    $("ctOut").style.display = "none";
+    try {
+      var d = await api("/api/admin/course-trial", { method: "POST",
+        body: JSON.stringify({ key: KEY, course: $("ctCourse").value,
+                               validate_units: parseInt($("ctUnits").value, 10) || 3 }) });
+      var html = "";
+      html += '<div style="font-weight:800;font-size:16px;margin-bottom:6px">'
+            + (d.passed ? "✅ " : "❌ ") + esc(d.course_title)
+            + (d.passed ? " — the whole journey works, start to finish."
+                        : " — " + d.failures.length + " problem(s) found.") + "</div>";
+      html += '<div class="note" style="margin-bottom:12px">Validated units '
+            + (d.validated || []).join(", ") + " on the assessment; worked units "
+            + (d.worked || []).join(", ") + " the normal way.</div>";
+      (d.steps || []).forEach(function (s) {
+        html += '<div style="margin:10px 0 4px;font-weight:700">' + s.n + ". " + esc(s.title) + "</div>";
+        (s.checks || []).forEach(function (ck) {
+          html += '<div style="margin-left:14px;font-size:13.5px;color:'
+                + (ck.ok ? "#2b7a4b" : "#b3261e") + '">'
+                + (ck.ok ? "✓ " : "✗ ") + esc(ck.text) + "</div>";
+        });
+      });
+      if (d.gate_message) {
+        html += '<div style="margin:14px 0 4px;font-weight:700">What the student is told at the locked door</div>'
+              + '<pre style="white-space:pre-wrap;background:#fffdf5;border:1px solid #f0e3bd;'
+              + 'border-radius:10px;padding:12px;font-size:13px;line-height:1.5">'
+              + esc(d.gate_message) + "</pre>";
+      }
+      $("ctOut").innerHTML = html;
+      $("ctOut").style.display = "block";
+      ctMsg(d.passed ? "Trial passed." : "Trial FAILED — see the red lines below.",
+            d.passed ? "ok" : "err");
+    } catch (e) { ctMsg(e.message); }
+    b.disabled = false;
   });
 
   // ---------- lesson audit + voice pre-render (build cx) ----------

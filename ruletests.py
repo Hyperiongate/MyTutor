@@ -2,6 +2,18 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fc -- THE TRIAL ON THE DASHBOARD, GUARDED (PART 3af extended). The
+#               safety-critical property is ISOLATION: the trial invents a parent, a
+#               child, a teacher and a class, so it must run as a SEPARATE PROCESS with
+#               its own DATABASE_URL and DATA_DIR. PART 3af now pins that, plus the admin
+#               gate, the memory guard (a second interpreter costs ~120 MB; an OOM on a
+#               512 MB instance would take the live site down), the timeout, the course
+#               validation, --json/--validate, the JSON sentinel, and the panel wiring.
+#               Negative-tested twice: pointing the trial at the live database, and
+#               removing the memory guard, each fail the build. (The first attempt at the
+#               memory negative test mutated the ASSIGNMENT and not the COMPARISON, so it
+#               proved nothing -- worth remembering that a bad mutation reads exactly like
+#               a passing guard.)
 #   2026-08-13  BUILD fb -- THE FULL JOURNEY, END TO END (NEW PART 3af). Everything else
 #               in this battery checks a PART. This runs one student's whole life through
 #               the real app -- sign up, validate three units on the Course Assessment,
@@ -5951,6 +5963,58 @@ def part3af_full_journey():
     trial = os.path.join(here, "course_trial.py")
     check("course_trial.py ships with the app", os.path.exists(trial),
           "the journey trial is a tool Jim can run any time; it must live in the repo")
+
+    # --- build fc: the same trial, one click away on /admin -------------------
+    # The safety-critical property is ISOLATION. This trial invents a parent, a child, a
+    # teacher and a class; run against the live database it would litter real data with
+    # fakes. So it must run as a SEPARATE PROCESS with its own DATABASE_URL -- there is no
+    # safe way to swap the store's engine underneath a live server.
+    mep = re.search(r'@app\.post\("/api/admin/course-trial"\).*?(?=\n@app\.)', mn, re.S)
+    check("the /admin trial endpoint exists", bool(mep),
+          "Jim asked for this on the dashboard, with a couple of questions and a report")
+    if mep:
+        ep = mep.group(0)
+        check("  it is admin-key gated", "_require_admin(" in ep,
+              "it must sit behind the same key as every other tool on that page")
+        check("  ⭐ it runs in a SEPARATE PROCESS on a THROWAWAY database",
+              "_sp.run(" in ep and 'env["DATABASE_URL"] = "sqlite:///"' in ep
+              and "TemporaryDirectory()" in ep,
+              "in-process, or against the live DATABASE_URL, it would write a fake parent, "
+              "child, teacher and class into real data -- the one thing it must never do")
+        check("  it keeps its files out of the real data directory",
+              'env["DATA_DIR"] = tmp' in ep,
+              "otherwise its cache and files land in /var/data beside the real ones")
+        # \b so a renamed-out MIN_TRIAL_MB_DISABLED cannot satisfy this by substring.
+        check("  it refuses to run when memory is tight, rather than risk the service",
+              "MemAvailable" in ep and re.search(r"\bMIN_TRIAL_MB\b", ep)
+              and re.search(r"avail_mb\s*<\s*MIN_TRIAL_MB\b", ep),
+              "a second interpreter importing the app costs ~120 MB; on a 512 MB instance "
+              "an OOM would take the live site down in the middle of a lesson")
+        check("  it cannot hang the dashboard",
+              "timeout=180" in ep and "TimeoutExpired" in ep,
+              "a wedged trial must report itself, not spin forever")
+        check("  an unknown course is a clean 400",
+              "curriculum.COURSES" in ep,
+              "better a plain message than a confusing subprocess error")
+
+    tsrc = open(trial, encoding="utf-8").read() if os.path.exists(trial) else ""
+    check("the trial can report machine-readably (--json) for the dashboard",
+          "JSON_SENTINEL" in tsrc and '"--json"' in tsrc,
+          "the page needs structured steps, not ANSI terminal output")
+    check("  and the JSON is announced by a SENTINEL, not assumed to own stdout",
+          "COURSE-TRIAL-JSON" in tsrc,
+          "the app and the store print their own startup lines first -- parsing all of "
+          "stdout as JSON breaks the moment anything else logs")
+    check("the trial answers Jim's two questions (--course, --validate)",
+          '"--course"' in tsrc and '"--validate"' in tsrc,
+          "he asked it to 'ask a couple of questions' before running")
+
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("the dashboard has the trial panel, wired to the endpoint",
+          'id="ctRun"' in adm and "/api/admin/course-trial" in adm
+          and 'id="ctCourse"' in adm and 'id="ctUnits"' in adm,
+          "the whole point was that Jim can run it without a terminal")
+
     try:
         from fastapi.testclient import TestClient  # noqa: F401
     except Exception:  # noqa: BLE001

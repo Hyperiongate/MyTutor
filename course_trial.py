@@ -2,6 +2,11 @@
 # course_trial.py  --  THE FULL-JOURNEY TRIAL  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fc -- RUNNABLE FROM /admin. Gains --json (a machine-readable report
+#               for the dashboard, announced by a SENTINEL because the app and the store
+#               print their own startup lines to stdout first) and --validate N (how many
+#               opening units the student validates rather than passes). The human
+#               terminal output is unchanged.
 #   2026-08-13  BUILD fb -- NEW. Jim: "create a trial where you are a person that enters
 #               one of the levels of math, and you validate the first half of the
 #               course... Then you finish the rest of the course and look for prompts
@@ -47,24 +52,42 @@ import uuid
 
 COURSE = "prealgebra"          # override with --course <id>
 VALIDATED = [1, 2, 3]          # "the first half" — placed out of, NOT passed
-WORKED = [4, 5, 6, 7, 8, 9]    # done the normal way
+WORKED = [4, 5, 6, 7, 8, 9]    # done the normal way (recomputed once the course is known)
 
 FAILURES = []
 STEPS = []
+# build fc: --json makes the whole run machine-readable so the /admin dashboard can render
+# it. The human terminal output is unchanged; JSON mode simply stays quiet and collects.
+JSON_MODE = False
+# The app and the store print their own startup lines to stdout before we ever emit, so
+# the JSON is announced by a sentinel instead of being assumed to be the whole of stdout.
+JSON_SENTINEL = "<<<COURSE-TRIAL-JSON>>>"
+REPORT = {"course": "", "course_title": "", "steps": [], "gate_message": "", "passed": False,
+          "failures": []}
+
+
+def _emit(line=""):
+    if not JSON_MODE:
+        print(line)
 
 
 def step(n, msg):
     STEPS.append(f"{n}. {msg}")
-    print(f"\n\033[96m{n}. {msg}\033[0m")
+    REPORT["steps"].append({"n": n, "title": msg, "checks": []})
+    _emit(f"\n\033[96m{n}. {msg}\033[0m")
 
 
 def ok(msg):
-    print(f"   \033[92m✓\033[0m {msg}")
+    if REPORT["steps"]:
+        REPORT["steps"][-1]["checks"].append({"ok": True, "text": msg})
+    _emit(f"   \033[92m✓\033[0m {msg}")
 
 
 def bad(msg):
     FAILURES.append(msg)
-    print(f"   \033[91m✗ {msg}\033[0m")
+    if REPORT["steps"]:
+        REPORT["steps"][-1]["checks"].append({"ok": False, "text": msg})
+    _emit(f"   \033[91m✗ {msg}\033[0m")
 
 
 def want(cond, good, why):
@@ -72,11 +95,21 @@ def want(cond, good, why):
 
 
 def main():
-    global COURSE
+    global COURSE, JSON_MODE
+    JSON_MODE = "--json" in sys.argv
+    global VALIDATED, WORKED
     if "--course" in sys.argv:
         i = sys.argv.index("--course")
         if i + 1 < len(sys.argv):
             COURSE = sys.argv[i + 1].strip()
+    n_validate = len(VALIDATED)
+    if "--validate" in sys.argv:                     # build fc: how many units to validate
+        i = sys.argv.index("--validate")
+        if i + 1 < len(sys.argv):
+            try:
+                n_validate = max(1, int(sys.argv[i + 1]))
+            except ValueError:
+                pass
     tmp = tempfile.mkdtemp()
     os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(tmp, "trial.db")
     os.environ["WEEKLY_EMAIL"] = "off"
@@ -85,13 +118,24 @@ def main():
     import main, store, curriculum
     c = TestClient(main.app)
     if not store.enabled():
-        print("TRIAL-ERROR: no database"); return 1
+        _emit("TRIAL-ERROR: no database")
+        if JSON_MODE:
+            REPORT["failures"] = ["no database"]
+            print(JSON_SENTINEL + json.dumps(REPORT))
+        return 1
 
     units = curriculum.units_for(COURSE)
     unit_names = {int(u[0]): str(u[1]) for u in units}
     total_units = len(units)
+    # Validate the first N, work the rest. Always leave at least one to work, or there is
+    # no journey left to test.
+    n_validate = max(1, min(n_validate, total_units - 1))
+    VALIDATED = sorted(unit_names)[:n_validate]
+    WORKED = sorted(unit_names)[n_validate:]
     title = curriculum.course_title(COURSE)
-    print(f"\n{'=' * 74}\nTHE FULL-JOURNEY TRIAL — {title}\n{'=' * 74}")
+    REPORT["course"], REPORT["course_title"] = COURSE, title
+    REPORT["validated"], REPORT["worked"] = VALIDATED, WORKED
+    _emit(f"\n{'=' * 74}\nTHE FULL-JOURNEY TRIAL — {title}\n{'=' * 74}")
 
     # ---------------------------------------------------------------- 1. the family
     step(1, "A parent signs up and adds their child")
@@ -158,10 +202,11 @@ def main():
          "the server REFUSED to record a final exam score while locked",
          f"a locked student recorded a final exam: {body}")
     msg = body.get("detail") or ""
-    print(f"\n   \033[93m--- what Sam is told at the locked door ---\033[0m")
+    REPORT["gate_message"] = msg
+    _emit(f"\n   \033[93m--- what Sam is told at the locked door ---\033[0m")
     for line in msg.splitlines():
-        print(f"   \033[93m|\033[0m {line}")
-    print()
+        _emit(f"   \033[93m|\033[0m {line}")
+    _emit()
     named = [n for n in VALIDATED if unit_names[n].lower() in msg.lower()
              or f"Unit {n}" in msg]
     want(len(named) == len(VALIDATED),
@@ -245,6 +290,11 @@ def main():
          "THE TEACHER VIEW LEAKED THE STUDENT'S LOGIN CODE")
 
     # --------------------------------------------------------------- verdict
+    REPORT["failures"] = list(FAILURES)
+    REPORT["passed"] = not FAILURES
+    if JSON_MODE:
+        print(JSON_SENTINEL + json.dumps(REPORT))
+        return 1 if FAILURES else 0
     print(f"\n{'=' * 74}")
     if FAILURES:
         print(f"\033[91mTRIAL FAILED — {len(FAILURES)} problem(s)\033[0m")
