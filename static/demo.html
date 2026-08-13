@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <!--
+    (ez) 2026-08-13 -- TWO THINGS JIM FOUND BY WALKING THE DEMO HIMSELF.
+    (1) NO REPEATED DIALOGUE AFTER THE LESSON. He came through the teachers door, took
+    the walk-through, clicked "See a real lesson", worked the problem — and at the end
+    got the WALK-THROUGH's ending panel: the same title, the same buttons, and Mr.
+    Cadabra re-speaking the teachers outro line he had already heard, while offering him
+    "✏️ See a real lesson" seconds after he finished one. His words: "it repeats
+    something that was already seen... there shouldn't be a dialogue that goes along with
+    it that I've already heard." CAUSE, exactly: showEnd() speaks CONGRATS_LINE and then
+    calls showBalloons(true, TRUE) — that second argument means "we just finished a
+    lesson" — but showBalloons' first line hands any audience-door visitor to
+    showAudienceEnd(spoken) and DROPPED it. So the congratulations framing was thrown
+    away and the walkthrough's ending was served instead. FIX: the signal is passed
+    through; showAudienceEnd gains an `afterLesson` mode that keeps the congratulations
+    title, offers what comes NEXT (another level, or the walk-through again — never the
+    lesson just done), and SPEAKS NOTHING, because the congratulations line is still in
+    the air and one voice at a time is the whole rule.
+    (2) ONE WELCOME, NEVER TWO. The home page now plays his SITE welcome on the way in
+    (build ez there) and leaves a one-shot sessionStorage marker. startDemo reads AND
+    CLEARS it, and on a marked arrival skips this page's own demo_welcome entirely. A
+    visitor who arrives any other way — a link, an ad, a search result — still gets the
+    demo's own welcome, which is the line written for this exact moment.
+    Guarded by ruletests PART 3ad, negative-tested, and driven in a real browser.
     (ei) 2026-08-12 -- THE TEACHERS DOOR: ASSISTANT, NOT REPLACEMENT.
     Jim: a teacher sees three wins in this app -- it can help ME, it can help my
     STUDENTS, and it lets me teach INDIVIDUALLY (who needs more help, who can go
@@ -2161,19 +2183,42 @@
     students:   {title:"That's your dashboard",
                  sub:"Every gold unit and every trophy on it, you earn yourself. Here's what's next."}
   };
-  function showAudienceEnd(spoken){
+  // build ez: `afterLesson` is TRUE when this panel comes up because the visitor just
+  // FINISHED the real demo problem, rather than because a walkthrough ended.
+  // THE BUG IT FIXES (Jim, 2026-08-13, from his own run through the teachers door): after
+  // the lesson, showBalloons hands off to this function for any audience-door visitor --
+  // and it re-spoke AUD_OUTRO, the exact line he had already heard at the end of the
+  // walkthrough, re-showed the same panel, and offered him "See a real lesson" seconds
+  // after he had finished one. His words: "it repeats something that was already seen...
+  // there shouldn't be a dialogue that goes along with it that I've already heard."
+  // So after a lesson: the congratulations framing is KEPT, the panel offers what comes
+  // NEXT (never the thing just done), and NOTHING is spoken -- showEnd has just said the
+  // congratulations line out loud, and one voice at a time is the whole rule.
+  function showAudienceEnd(spoken, afterLesson){
     var e=AUD_END[AUDIENCE_KEY] || {title:"That's the walk-through", sub:"Here's what's next."};
     el('showViews').classList.remove('show');
-    el('balloonTitle').textContent=e.title;
-    el('balloonSub').textContent=e.sub;
+    el('balloonTitle').textContent = afterLesson
+      ? '🎉 Congratulations — that was a real lesson!'
+      : e.title;
+    el('balloonSub').textContent = afterLesson
+      ? 'That is exactly how a lesson runs, every day, at your student’s own level. Here’s what’s next.'
+      : e.sub;
     var row=el('balloonRow'); row.innerHTML='';
-    [['again','p','↻ Watch it again','the same walk-through from the top'],
-     ['lesson','s','✏️ See a real lesson','one real problem, at any level you pick']].forEach(function(b){
+    // After a lesson, "see a real lesson" is not an offer -- they just did it. Offer
+    // another LEVEL instead, and the walkthrough only as a second look.
+    var choices = afterLesson
+      ? [['another','s','↩ Try another level','a different problem, anywhere from counting to calculus'],
+         ['again','p','↻ See the walk-through again','the tour of the dashboards, from the top']]
+      : [['again','p','↻ Watch it again','the same walk-through from the top'],
+         ['lesson','s','✏️ See a real lesson','one real problem, at any level you pick']];
+    choices.forEach(function(b){
       var btn=document.createElement('button'); btn.className='balloon '+b[1]; btn.type='button';
       btn.innerHTML=b[2]+'<span>'+b[3]+'</span>';
       btn.onclick=function(){
         hideBalloons();
         if(b[0]==='again'){ startAudienceWalkthrough(AUDIENCE_KEY); }
+        else if(b[0]==='another'){ closeDash(); enterClassroomPicker();
+                                   el('goalText').textContent='Try another level'; }
         else { closeDash(); enterClassroomPicker(); }
       };
       row.appendChild(btn);
@@ -2184,6 +2229,8 @@
     go.style.display='inline-block'; go.style.padding='12px 18px'; go.style.margin='16px 6px 0';
     extra.appendChild(go);
     el('balloonLay').classList.add('show');
+    // ⛔ AFTER A LESSON, SAY NOTHING. The congratulations line is still in the air.
+    if(afterLesson) return;
     var line=AUD_OUTRO[AUDIENCE_KEY]||'';
     if(spoken && line){ lineDone=null; say(line); }
     else if(line){ bubble.textContent=line; }
@@ -2201,7 +2248,10 @@
     showPicker(true);
   }
   function showBalloons(spoken, keepCongrats){
-    if(audienceLocked()){ showAudienceEnd(spoken===true); return; }
+    // build ez: keepCongrats is TRUE only from showEnd(), i.e. the visitor just finished
+    // the real problem. Pass that through -- without it, an audience-door visitor got the
+    // WALKTHROUGH's ending after their lesson, dialogue and all.
+    if(audienceLocked()){ showAudienceEnd(spoken===true, keepCongrats===true); return; }
     // The bubbles live in a CENTERED overlay, and they are offered again at the end of
     // EVERY dashboard tour (Jim, build by) -- so the three views are always one tap away.
     el('showViews').classList.remove('show');
@@ -2413,6 +2463,19 @@
     // (or the instant the visitor skips it). With no clip on the server this is exactly
     // the line it has always been.
     var afterHello = function(){ setTimeout(function(){ runTour(0); }, 400); };
+    // build ez: NOBODY EVER HEARS TWO WELCOMES. The home page now plays his SITE welcome
+    // on the way in (Jim: "it starts the welcome clip, and then the demo starts") and
+    // leaves a one-shot marker behind. If it is here, he has just said hello -- skip this
+    // page's own opener entirely and go straight to the tour. Read-and-CLEAR, so a reload
+    // or a second visit in the same tab behaves normally. A visitor who arrived any other
+    // way (a link, an ad, a search result) still gets the demo's own welcome, which is the
+    // line written for this exact moment.
+    var justWelcomed = false;
+    try {
+      justWelcomed = sessionStorage.getItem('cadabra_welcomed') === '1';
+      if (justWelcomed) sessionStorage.removeItem('cadabra_welcomed');
+    } catch(e){}
+    if (justWelcomed) { afterHello(); return; }
     if (window.TutorMoments && TutorMoments.available('demo_welcome')) {
       TutorMoments.play('demo_welcome').then(function(how){
         if (how === 'played' || how === 'skipped') afterHello();

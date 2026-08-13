@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13ez-hear-him-teach". BUILD STAMP ONLY here -- the
+#               work is in static/landing.html, static/demo.html and ruletests.py (NEW
+#               PART 3ad). Three regressions Jim found by using the site: the hero's
+#               "Hear him teach" button had been hijacked by build eu to play the welcome
+#               CLIP instead of the teaching sample (and relabelled itself, so it no
+#               longer said what it did); the site welcome now plays on the way INTO the
+#               demo instead, with a one-shot marker so nobody ever hears two welcomes;
+#               and the after-lesson panel no longer replays the walkthrough dialogue a
+#               visitor has already heard.
 #   2026-08-13  APP_BUILD -> "2026-08-13ey-he-sequences". BUILD STAMP ONLY here -- the work
 #               is in static/session.html (the moment sequencer + the seven in-lesson
 #               moments), prompts.py (the NEW [[bye]] tag, lesson-only) and ruletests.py
@@ -6392,7 +6401,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13ey-he-sequences"
+APP_BUILD = "2026-08-13ez-hear-him-teach"
 
 
 @app.get("/health")

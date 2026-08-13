@@ -2,6 +2,32 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD ez -- A CLIP NEVER EATS SOMETHING BETTER (NEW PART 3ad). Three
+#               regressions Jim found by USING the site, all one species: the video work
+#               quietly took over something already doing a better job. (1) Build eu put
+#               the site-welcome clip on the hero's "Hear him teach" button and returned
+#               before the teaching sample -- so the button stopped teaching the day the
+#               clip went live, and relabelled itself to a greeting. (2) Two welcomes
+#               could stack once the home page started greeting visitors on the way into
+#               the demo. (3) After the real demo problem, an audience-door visitor got
+#               the WALKTHROUGH's ending -- re-speaking a line already heard and offering
+#               the lesson just finished. PART 3ad pins each one where it actually broke:
+#               no TutorMoments inside wireHear and the sample still reachable; every
+#               worded label on that button is about TEACHING; the marker is set before
+#               navigation, read BEFORE the demo's own welcome, and CLEARED; the
+#               after-lesson panel passes its signal through, speaks nothing, keeps the
+#               congratulations, and never re-offers the lesson. NEGATIVE-TESTED three
+#               ways (re-add the hijack / stop clearing the marker / drop the
+#               after-lesson argument -- each fails the build).
+#               ⚠️ TWO DELIBERATE REVERSALS IN PART 3u2, recorded rather than deleted:
+#               the checks that pinned build eu's hijack (the codec retire-and-retry on
+#               the teach button, and the relabel-on-window-load) are RE-POINTED at where
+#               the behaviour lives now -- the demo CTA -- because Jim reversed that
+#               design decision, not because the guards were wrong.
+#               Beyond the battery: driven in a real browser -- teach button fetched
+#               /api/demo-audio/71 and played it as audio with NO video; the demo click
+#               played the welcome then navigated; that arrival played no second welcome
+#               and cleared its marker; a direct /demo visit still got the demo welcome.
 #   2026-08-13  BUILD ey -- THE VOICE SEQUENCING, GUARDED (NEW PART 3ac). Mr. Cadabra's
 #               talking clips now play at the seven moments of a lesson, and one rule
 #               holds the design up: a canned clip and his LIVE voice never talk at once,
@@ -5373,21 +5399,29 @@ def part3u2_talking_moments():
     # canned clip and his live voice speak at the same time.
     with open(os.path.join(here, "static", "landing.html"), encoding="utf-8") as fh:
         lp = fh.read()
-    check("the landing hero offers to introduce him when the clip exists",
-          "tutor-moments.js" in lp and "TutorMoments.available('site_welcome')" in lp
-          and "Meet Mr. Cadabra" in lp,
-          "the first thing a homeschool parent sees is the best place he can be a person")
-    check("  and falls back to the audio sample when it does not",
+    # ⚠️ TWO DELIBERATE REVERSALS (build ez), recorded rather than silently deleted.
+    # Build eu put the site-welcome clip on the hero's "Hear him teach" BUTTON, and the
+    # two checks that used to live here pinned that decision: the codec retire-and-retry
+    # on that button, and the relabel-on-window-load. Jim reversed it on 2026-08-13 --
+    # "hear him teach" must hear him TEACH -- so the clip moved to the demo CTA, and both
+    # checks are re-pointed at where the behaviour actually lives now. PART 3ad owns the
+    # button's side of it (no clip in that handler, no greeting label).
+    check("the landing hero offers to introduce him ON THE WAY INTO THE DEMO",
+          "tutor-moments.js" in lp and "TutorMoments.play('site_welcome')" in lp
+          and "wireDemoWelcome" in lp,
+          "he greets a visitor who is heading into the demo -- never by eating the "
+          "teach button (build ez)")
+    check("  the teach button still has its audio sample, untouched",
           "/api/demo-audio/71" in lp,
-          "with no clip on the server the button must behave exactly as it always has")
-    check("  the landing button retires a clip it cannot play, on the same click",
-          "videoDead" in lp and "hb.click()" in lp,
-          "otherwise a visitor on an exotic browser presses a button that fails every "
-          "single time instead of hearing the sample they came for")
-    check("  the relabel waits for window load (tutor-moments.js is DEFERRED)",
-          "window.addEventListener('load'" in lp,
-          "checked against an undefined global the label silently never changes -- caught "
-          "in test once already")
+          "with or without a clip on the server, that button plays him TEACHING")
+    check("  an unplayable clip never traps a visitor on the front page",
+          re.search(r"TutorMoments\.play\('site_welcome'\)\.then\(once, once\)", lp)
+          is not None and "setTimeout(once, 30000)" in lp,
+          "the navigation must happen whether the clip plays, fails, or never settles -- "
+          "both promise arms AND a backstop (the ev codec lesson, moved to its new home)")
+    check("  a modified click (new tab) is left alone",
+          "ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button" in lp,
+          "hijacking a cmd-click to play a video steals a behaviour the visitor owns")
     with open(os.path.join(here, "static", "demo.html"), encoding="utf-8") as fh:
         dp = fh.read()
     check("the demo lets him say hello himself instead of the synthesised line",
@@ -5848,6 +5882,106 @@ def part3z_reply_integrity():
 
 
 # =============================================================================
+# PART 3ad -- A CLIP NEVER EATS SOMETHING BETTER (build ez, 2026-08-13)
+# =============================================================================
+# Three regressions Jim found by USING the site, all the same species: the video work
+# quietly took over something that was already doing a better job.
+#   1. Build eu made the hero's "Hear him teach" button play the site-welcome CLIP and
+#      `return` before ever reaching the teaching sample -- so the one button on the
+#      front page that promised to let you hear him TEACH stopped doing it the moment
+#      the clip went live, and relabelled itself so it no longer said what it did.
+#   2. Two welcomes could stack: the home page now plays his site welcome on the way
+#      into the demo, and the demo page opens with its own.
+#   3. After the real demo problem, an audience-door visitor got the WALKTHROUGH's
+#      ending panel -- re-speaking a line they had already heard and offering them the
+#      lesson they had just finished.
+# Each check below is written against the specific thing that broke.
+def part3ad_clip_never_eats():
+    print("\nPART 3ad — a clip never eats something better (build ez)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    la = open(os.path.join(here, "static", "landing.html"), encoding="utf-8").read()
+    dm = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+
+    # 1. THE TEACH BUTTON TEACHES. Slice its handler and prove no clip lives in it.
+    try:
+        wh = la[la.index("function wireHear("):]
+        wh = wh[:wh.index("\n    }")]
+    except ValueError:
+        wh = ""
+    check("landing has a readable wireHear()", bool(wh), "could not slice it")
+    check("the 'Hear him teach' button never plays a video clip",
+          "TutorMoments" not in wh,
+          "build eu put the site-welcome clip in this handler and returned before the "
+          "audio sample -- the button promised teaching and delivered a greeting")
+    check("the 'Hear him teach' button still reaches the teaching sample",
+          "/api/demo-audio/71" in wh,
+          "this is the whole job of the button: one line of his real voice teaching the "
+          "problem on the hero board")
+    # Precise on purpose, twice over. "Meet Mr. Cadabra" is legitimate marketing copy in
+    # the hero lede and the meta description, so only the BUTTON RELABEL (which carried
+    # the play triangle) is banned -- and the page's own change note QUOTES that relabel
+    # to record why it was removed, so HTML comments are stripped first. Same precedent
+    # as PART 3p, 3w and 3aa: a note explaining a fix must never trip the fix's guard.
+    la_code = re.sub(r"<!--.*?-->", "", la, flags=re.S)
+    check("the teach button is never relabelled to a greeting",
+          "▶ Meet Mr. Cadabra" not in la_code,
+          "a button must say what it does; eu relabelled this one to '▶ Meet Mr. "
+          "Cadabra' while the markup still promised 'Hear him teach'")
+    # Every label with WORDS in it must be about teaching. A wordless transient ("🔊 …"
+    # while the sample loads) promises nothing and is fine.
+    labels = set(re.findall(r"hb\.textContent\s*=\s*'([^']+)'", la))
+    worded = [t for t in labels if re.search(r"[A-Za-z]", t)]
+    check(f"every label this button wears is about TEACHING ({len(worded)} worded)",
+          bool(worded) and all(("Hear him teach" in t or "teaching" in t) for t in worded),
+          f"got {sorted(worded)} -- the button's own words are the promise it makes")
+
+    # 2. THE WELCOME NEVER DOUBLES UP. The home page hands off a one-shot marker and
+    #    the demo page reads AND CLEARS it before its own opener can run.
+    check("the demo CTA plays the site welcome on the way in",
+          "wireDemoWelcome" in la and "TutorMoments.play('site_welcome')" in la,
+          "Jim: 'it starts the welcome clip, and then the demo starts'")
+    check("the home page leaves the one-shot marker before navigating",
+          "sessionStorage.setItem('cadabra_welcomed', '1')" in la,
+          "without the marker the demo page cannot know he has just said hello")
+    check("the demo page reads the marker BEFORE its own welcome",
+          dm.index("cadabra_welcomed") < dm.index("TutorMoments.available('demo_welcome')"),
+          "the skip must be decided before the second clip can start")
+    check("the demo page CLEARS the marker (one arrival, not every reload)",
+          "sessionStorage.removeItem('cadabra_welcomed')" in dm,
+          "a marker that is never cleared silences the demo's own welcome forever")
+    check("a marked arrival skips the demo's own welcome entirely",
+          re.search(r"if \(justWelcomed\) \{ afterHello\(\); return; \}", dm) is not None,
+          "nobody may ever hear two welcome clips back to back")
+
+    # 3. AFTER A LESSON, NOTHING ALREADY HEARD IS REPLAYED.
+    try:
+        ae = dm[dm.index("function showAudienceEnd("):]
+        ae = ae[:ae.index("\n  // Stepping out of a walkthrough")]
+    except ValueError:
+        ae = ""
+    check("demo has a readable showAudienceEnd()", bool(ae), "could not slice it")
+    check("showAudienceEnd knows whether a lesson just finished",
+          "function showAudienceEnd(spoken, afterLesson)" in dm,
+          "without that flag the walkthrough's ending is served after a lesson")
+    check("showBalloons passes the just-finished-a-lesson signal through",
+          "showAudienceEnd(spoken===true, keepCongrats===true)" in dm,
+          "this single dropped argument is the whole bug Jim hit")
+    check("after a lesson the panel SPEAKS NOTHING",
+          "if(afterLesson) return;" in ae
+          and ae.index("if(afterLesson) return;") < ae.index("say(line)"),
+          "the congratulations line has just been spoken aloud; replaying the "
+          "walkthrough outro on top of it is the repeat Jim heard")
+    check("after a lesson the panel keeps the congratulations framing",
+          "Congratulations — that was a real lesson!" in ae,
+          "the win must stay on screen; the handoff used to throw it away")
+    check("after a lesson the panel does NOT re-offer the lesson just finished",
+          "'↩ Try another level'" in ae and re.search(
+              r"afterLesson\s*\?\s*\[\['another'", ae) is not None,
+          "offering 'See a real lesson' to somebody who has just seen one is the other "
+          "half of what Jim reported")
+
+
+# =============================================================================
 # PART 3ac -- THE VOICE SEQUENCING (build ey, 2026-08-13)
 # =============================================================================
 # Phase 2's second half: Mr. Cadabra's talking clips at the seven moments of a real
@@ -6305,6 +6439,7 @@ def main():
     part3aa_placement_honesty()
     part3ab_seven_defects()
     part3ac_voice_sequencing()
+    part3ad_clip_never_eats()
     if live:
         part4_live()
     else:

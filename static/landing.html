@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <!--
+  - 2026-08-13  (build ez) ⛔ "HEAR HIM TEACH" TEACHES AGAIN — A REGRESSION FROM BUILD eu,
+    FOUND BY JIM USING THE SITE. eu put his site-welcome CLIP on the hero button and
+    `return`ed before ever reaching the teaching sample, so the moment that clip went live
+    the one button on the front page promising to let you hear him TEACH stopped doing it
+    — and relabelled itself "▶ Meet Mr. Cadabra", so it no longer said what it did. Jim:
+    "you can click a button that says hear him teach, and that is something different. It
+    should go back to just him teaching that one problem." He is right, and it is the same
+    failure the whole video project has been guarding against elsewhere: a canned clip
+    REPLACING the real thing instead of standing beside it. The hijack and the relabel are
+    gone; the button plays /api/demo-audio/71 exactly as it did in build aj.
+    WHERE THE WELCOME WENT INSTEAD (Jim: "the site welcome clip should start when it says
+    see a demo... it starts the welcome clip, and then the demo starts"): every "try a
+    lesson / see a demo" link on this page now plays site_welcome on click and then
+    navigates — the click being the user gesture a clip with sound needs. NOBODY EVER
+    HEARS TWO: before navigating we set a one-shot sessionStorage marker, and demo.html
+    reads-and-clears it to skip its own opener. A visitor arriving at /demo any other way
+    still gets the demo's own welcome, which is the line written for that moment. Fails
+    open everywhere — no clip, dead codec, refused autoplay, no sessionStorage, or a
+    modified click (cmd/ctrl/shift/middle) and it is an ordinary link again; a 30s
+    backstop guarantees a clip that never settles cannot trap anyone on the front page.
+    Guarded by ruletests PART 3ad; proven in a browser (teach button → audio sample, no
+    video; demo click → welcome then navigation; arrival → no second welcome).
   - 2026-08-07  VOICE-FIRST CLASSROOM (build ao, Jim): student voice input is restored, so
     every "no microphone, ever" claim on this page is REPLACED with the true new story:
     your student TALKS with Mr. Cadabra — a real spoken back-and-forth. Privacy line that
@@ -832,23 +854,18 @@
       var hb = document.getElementById('hearBtn');
       if (!hb) return;
       var clip = null;
-      var videoDead = false;        // build ev: set if his clip turns out to be undecodable
       hb.addEventListener('click', function(){
         hb.style.animation = 'none';        // build ak: the pulse has done its job — stop it
-        // BUILD eu: if his talking clip is on the server, MEETING him beats hearing a
-        // sample -- and this click is the user gesture that lets it play with sound. If
-        // the clip is not there (today), everything below is exactly as it always was.
-        if (!videoDead && window.TutorMoments && TutorMoments.available('site_welcome')){
-          hb.disabled = true;
-          TutorMoments.play('site_welcome').then(function(how){
-            hb.disabled = false; hb.textContent = '🔊 Hear him teach';
-            // build ev: a browser that cannot decode the clip must not leave the visitor
-            // with a button that fails every time they press it. Retire the video for this
-            // visit and give them the audio sample they came for, on the SAME click.
-            if (how === 'unavailable'){ videoDead = true; hb.click(); }
-          });
-          return;
-        }
+        // ⛔ BUILD ez — DO NOT PUT A VIDEO BACK HERE. Build eu made this button play the
+        // site-welcome CLIP instead of the teaching sample, and `return` before ever
+        // reaching the audio below. Jim, 2026-08-13: "you can click a button that says
+        // hear him teach, and that is something different. It should go back to just him
+        // teaching that one problem." He is right, and it is the same failure the video
+        // work has been guarding against everywhere else: a canned clip REPLACING the
+        // real thing instead of standing beside it. Worse, the button relabelled itself
+        // to "Meet Mr. Cadabra", so it no longer said what it did. This button has ONE
+        // job -- one line of his real voice TEACHING the problem on the hero board. The
+        // welcome clip lives on the demo CTA (see wireDemoWelcome below).
         if (clip){ try { clip.pause(); clip.currentTime = 0; } catch(e){} clip = null;
           hb.textContent = '🔊 Hear him teach'; return; }
         hb.disabled = true; hb.textContent = '🔊 …';
@@ -870,24 +887,43 @@
     }
     if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', wireHear);
     else wireHear();
-    // build eu: relabel the button once we KNOW the clip is there, so the promise on offer
-    // matches what the click actually does. This waits for window 'load' on purpose --
-    // tutor-moments.js is DEFERRED, so window.TutorMoments does not exist yet while this
-    // inline script is running (caught in test: the modal opened but the label never
-    // changed, because the check ran against an undefined global and silently did nothing).
-    window.addEventListener('load', function(){
-    try {
-      if (window.TutorMoments && TutorMoments.ready) {
-        TutorMoments.ready().then(function(){
-          var b = document.getElementById('hearBtn');
-          if (b && TutorMoments.available('site_welcome')) {
-            b.textContent = '▶ Meet Mr. Cadabra';
-            b.setAttribute('aria-label', 'Watch Mr. Cadabra introduce himself');
-          }
+
+    // ---- build ez: HE SAYS HELLO ON THE WAY INTO THE DEMO ----------------------
+    // Jim, 2026-08-13: "the site welcome clip should start when it says see a demo.
+    // That's the button that you click, and it starts the welcome clip, and then the
+    // demo starts." So every "try a lesson / see a demo" button on this page plays his
+    // site-welcome clip FIRST, then navigates -- and the click itself is the user
+    // gesture that lets a clip with sound autoplay.
+    // ⚠️ NOBODY EVER HEARS TWO WELCOMES. The demo page opens with its OWN clip
+    // (demo_welcome, written for that moment). Before navigating we set a one-shot
+    // sessionStorage marker; demo.html reads it, skips its opener, and clears it. A
+    // visitor arriving at /demo any other way -- a link, an ad, a search result --
+    // still gets the demo's own welcome, which is the line written for them.
+    // Fails open in every direction: no clip, a dead codec, a refused autoplay, or no
+    // sessionStorage at all and the click is an ordinary link again.
+    function wireDemoWelcome(){
+      var links = document.querySelectorAll('a[href="/demo"], a[href^="/demo?"]');
+      Array.prototype.forEach.call(links, function(a){
+        a.addEventListener('click', function(ev){
+          if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;  // new tab: leave it alone
+          if (!(window.TutorMoments && TutorMoments.available('site_welcome'))) return;
+          ev.preventDefault();
+          var href = a.getAttribute('href');
+          var go = function(){
+            try { sessionStorage.setItem('cadabra_welcomed', '1'); } catch(e){}
+            window.location.href = href;
+          };
+          var moved = false;
+          var once = function(){ if (moved) return; moved = true; go(); };
+          try { TutorMoments.play('site_welcome').then(once, once); }
+          catch(e){ once(); }
+          // A clip that never settles must never trap a visitor on the front page.
+          setTimeout(once, 30000);
         });
-      }
-    } catch(e){}
-    });
+      });
+    }
+    if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', wireDemoWelcome);
+    else wireDemoWelcome();
   })();
 
   function setCycle(c){
