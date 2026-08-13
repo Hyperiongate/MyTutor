@@ -2,6 +2,21 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD ey -- THE [[bye]] TAG: THE FIRST MECHANICAL END-OF-SESSION SIGNAL.
+#               PROGRESS_TAGS_NOTE gains section 3 (lesson mode only, alongside the
+#               today/unit bars -- deliberately NOT the shared block, which practice and
+#               topic also receive and which have no bye handler). Until now a goodbye
+#               existed ONLY as prose, so the app could not tell a wrap-up turn from any
+#               other turn; the alternative was sniffing his words for "see you", which
+#               misfires on "see you next Tuesday we'll do fractions". The tag draws
+#               NOTHING and the student never hears it -- its whole job is to mark the
+#               turn rule 29(a) already requires, so the app can close the session warmly
+#               (build ey plays his goodbye clip AFTER that reply's live words).
+#               GUARD RAILS IN THE TEXT, because a tag that fires early would end sessions
+#               that were not ending: emitted ONLY when the student has clearly said they
+#               are going, never because a lesson merely feels finished or the hour is
+#               late, at most once a session, and it ends nothing by itself -- "one more"
+#               afterwards just carries on.
 #   2026-08-13  BUILD ex -- THE SEVEN VERIFIED TEACHING DEFECTS FROM THE 2026-08-12
 #               AUDITS, CLOSED IN ONE BUILD (all verified against the transcripts
 #               before this was written; ruletests PART 3ab pins every one):
@@ -4819,6 +4834,17 @@ bars, so never speak the tag contents as a list):
 
 If a nervous student asks "when is the next quiz?" or "how much is left?", point at the bars
 and answer plainly -- the whole point is that they never have to wonder.
+
+3) THE WRAP-UP MARK (lesson mode). When you give the one-turn wrap-up of rule 29(a) --
+   because the student CLEARLY said they are finished ("I have to stop", "gotta go",
+   "bye", "I'm done") -- add this hidden tag at the very end of that reply:
+       [[bye]]
+   It draws NOTHING and the student never hears it. It marks the turn as the session's
+   real ending so the app can close the session warmly. Rules unchanged: it does not end
+   anything by itself, it never shortens your wrap-up, and it is NEVER emitted just
+   because a lesson feels finished, a unit ended, or the hour is late -- ONLY when the
+   student has said they are going. At most once in a session, on that one reply. If
+   they say "actually, one more" afterwards, carry on as normal; nothing is locked.
 
 AFTER EVERY QUIZ -- TAG THE MISSES (rule 55a, lesson mode). When you emit [[quiz]],
 [[check]], or [[finalexam]] and any question was missed, add a missed attribute:

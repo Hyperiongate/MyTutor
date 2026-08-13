@@ -2,6 +2,33 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD ey -- THE VOICE SEQUENCING, GUARDED (NEW PART 3ac). Mr. Cadabra's
+#               talking clips now play at the seven moments of a lesson, and one rule
+#               holds the design up: a canned clip and his LIVE voice never talk at once,
+#               and a clip never REPLACES the personalised line (video cannot say a
+#               child's name; the live voice can). That failure is a TIMING failure --
+#               silent to every test that reads text, audible exactly once, in a real
+#               lesson, as two voices over each other. So PART 3ac asserts the sequence
+#               STRUCTURALLY: inside runTutor's own body the three statements must be
+#               await runPendingMoment("before") / await speak(clean) /
+#               await runPendingMoment("after"), in that order, all awaited, with speak()
+#               at the same nesting level so it can never become conditional on the clip.
+#               It also pins: every one of the seven moments reaches a REAL trigger and
+#               every trigger sits in the function that owns its event (the thumbs-up cost
+#               three builds to learn that a clip nothing can fire does not exist); the
+#               cadence table (earned moments always play, repeatable ones capped at one a
+#               day, so a clip stays a person and not a jingle); the goodbye plays AFTER
+#               his words while celebrations play before; the page still works DARK; and
+#               [[bye]] is taught in PROGRESS_TAGS_NOTE only, never the shared block.
+#               "bye" joins LESSON_ONLY and TAG_INLINE (attribute-free, draws nothing).
+#               NEGATIVE-TESTED four ways: dropping the await, making speak() conditional,
+#               unwiring a moment, and retuning a cadence each fail the build.
+#               BEYOND THE BATTERY, because these checks all read text: the real page was
+#               driven in a real browser with a stand-in clip and the media timeline was
+#               MEASURED -- clip ended 4867ms, voice started 4867ms (zero overlap); with
+#               the await removed, voice started 1807ms against a clip running to 4938ms
+#               (3.1s of overlap, caught). Dark path measured too: no moment video, voice
+#               unchanged, zero page errors.
 #   2026-08-13  BUILD ex -- THE SEVEN VERIFIED TEACHING DEFECTS, GUARDED (NEW PART
 #               3ab). The last open items from the 2026-08-12 audit batch: rule 19(e)
 #               a never-watched move is modelled before it is asked (the regrouping
@@ -1663,6 +1690,10 @@ TAG_INLINE = {
     # build et: [[nice]] is attribute-free -- a correct answer along the way, no tally,
     # no server call, just the quiet ring.
     "nice": set(),
+    # build ey: [[bye]] is attribute-free and draws NOTHING. It is the session's wrap-up
+    # mark (rule 29a) -- the only mechanical end-of-session signal there has ever been --
+    # and its whole effect is to queue the goodbye moment clip.
+    "bye": set(),
 }
 # a tag that draws a FIGURE needs at least one of these or it renders empty
 CONTENT_ATTRS = {
@@ -2101,7 +2132,10 @@ def part3e_page_parity():
     # 2026-08-12 (build ee): "highlight" LEFT this list on purpose -- rule 60 teaches
     # it in the shared block now, and all three pages draw it (the board spotlight;
     # PART 3t proves the implementation). Five lesson-only tags remain.
-    LESSON_ONLY = {"today", "todaydone", "unitplan", "goal", "finalexam"}
+    # build ey adds "bye": the session's wrap-up mark. Lesson-only by design -- it is
+    # taught in PROGRESS_TAGS_NOTE (never the shared block), and a practice or topic
+    # helper session has no "end of the school day" to mark.
+    LESSON_ONLY = {"today", "todaydone", "unitplan", "goal", "finalexam", "bye"}
     tags = {}
     for p in PAGES:
         try:
@@ -5814,6 +5848,151 @@ def part3z_reply_integrity():
 
 
 # =============================================================================
+# PART 3ac -- THE VOICE SEQUENCING (build ey, 2026-08-13)
+# =============================================================================
+# Phase 2's second half: Mr. Cadabra's talking clips at the seven moments of a real
+# lesson. ONE rule holds the whole design up, and it is the rule this part exists to
+# make unbreakable:
+#
+#   A CANNED CLIP AND HIS LIVE VOICE NEVER TALK AT ONCE, AND A CLIP NEVER REPLACES
+#   THE PERSONALISED LINE.
+#
+# Video cannot say a child's name; the live voice can. If a future edit drops an
+# await, or plays a clip instead of speaking, the failure is SILENT in every test that
+# reads text -- you only hear it, once, in a real lesson, as two voices over each
+# other. So the sequence is asserted structurally: the gate is awaited, it sits on the
+# correct side of speak(), and every moment reaches a real trigger.
+def part3ac_voice_sequencing():
+    print("\nPART 3ac — the voice sequencing (a clip never talks over his live voice)")
+    import prompts
+    here = os.path.dirname(os.path.abspath(__file__))
+    se = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    tm = open(os.path.join(here, "static", "tutor-moments.js"), encoding="utf-8").read()
+
+    MOMENTS = ["first_meeting", "welcome_back", "quiz_passed", "unit_gold",
+               "course_champion", "sprint_best", "goodbye"]
+
+    # 1. The page can actually play a clip at all.
+    check("session.html loads tutor-moments.js",
+          '/static/tutor-moments.js' in se,
+          "the lesson page cannot play a moment clip without the player")
+    check("the player is NOT deferred on the lesson page",
+          not re.search(r'<script[^>]*\bdefer\b[^>]*tutor-moments\.js', se),
+          "window.TutorMoments must exist when the page script runs -- the landing page "
+          "already paid for this lesson once")
+
+    # 2. THE SEQUENCE ITSELF, inside runTutor's own body: the before-gate, the live
+    #    voice, the after-gate, in that order, each awaited. This is the check that
+    #    would catch a dropped await -- the failure no text-reading test can see.
+    try:
+        body = se[se.index("async function runTutor("):]
+        body = body[:body.index("\n    // ---------- Text fallback")]
+    except ValueError:
+        body = ""
+    check("runTutor has a readable body", bool(body), "could not slice it")
+    seq = [ln.strip() for ln in body.splitlines()
+           if "runPendingMoment(" in ln or "await speak(clean)" in ln]
+    check("runTutor awaits the clip gate BEFORE speaking, and the after-gate follows",
+          [s.split("//")[0].strip() for s in seq] == ['await runPendingMoment("before");',
+                                                      "await speak(clean);",
+                                                      'await runPendingMoment("after");'],
+          f"got {seq!r} -- the gates and speak() must appear in exactly that order, all "
+          f"three awaited; a missing await is two voices talking over each other")
+    check("the gate is awaited everywhere it is used (never fired and forgotten)",
+          not re.search(r'(?<!await )(?<!\.)runPendingMoment\("(before|after)"\)(?!\s*\.then)', se),
+          "every runPendingMoment call must be awaited or explicitly chained with .then "
+          "(the sprint path) -- an un-awaited gate is exactly the overlap this forbids")
+
+    # 3. A clip must never REPLACE the personalised line: speak(clean) is unconditional.
+    #    Not nested in an if, not in an else of the clip's result.
+    sp = re.search(r'await runPendingMoment\("before"\);[^\n]*\n(\s*)await speak\(clean\);',
+                   body)
+    check("his live voice is not conditional on the clip",
+          bool(sp) and len(sp.group(1)) == 8,
+          "speak() must run at the same nesting level, whatever the clip did -- a canned "
+          "clip is an arrival, never a substitute for the line that says the child's name")
+
+    # 4. Every moment in the table reaches a real trigger, and every triggered moment is
+    #    in the table. A clip nothing can fire is a clip that does not exist (build er's
+    #    lesson, learned the expensive way with the thumbs-up).
+    table = set(re.findall(r"^\s{6}(\w+):\s*\{ when:", se, re.M))
+    check(f"the moment table carries all seven moments ({len(table)})",
+          table == set(MOMENTS),
+          f"missing={sorted(set(MOMENTS) - table)}, unexpected={sorted(table - set(MOMENTS))}")
+    queued = set(re.findall(r'queueMoment\("(\w+)"\)', se))
+    queued |= set(re.findall(r'\?\s*"(\w+)"\s*:\s*\(hasHistory\s*\?\s*"(\w+)"', se)[0]
+                  if re.findall(r'\?\s*"(\w+)"\s*:\s*\(hasHistory\s*\?\s*"(\w+)"', se) else [])
+    unreachable = sorted(set(MOMENTS) - queued)
+    check("every moment is wired to a real trigger", not unreachable,
+          f"{unreachable} can never fire -- a clip nothing can trigger is a clip that "
+          f"does not exist (the thumbs-up cost three builds to learn that)")
+
+    # 5. The triggers are the RIGHT ones -- each in the function that owns that event.
+    for fn, key in (("showQuiz", "quiz_passed"), ("showCheck", "unit_gold"),
+                    ("showFinalExam", "course_champion"), ("sprFinish", "sprint_best")):
+        body = re.search(r"(?:async )?function " + fn + r"\(.*?\n    \}", se, re.S)
+        check(f"  {key} fires from {fn}()",
+              bool(body) and f'queueMoment("{key}")' in body.group(0),
+              "the moment must be queued where the event actually happens")
+    check("  goodbye fires from the [[bye]] tag, not from sniffing his words",
+          re.search(r'name === "bye"\)\s*queueMoment\("goodbye"\)', se) is not None,
+          "detecting a farewell by reading prose would misfire on 'see you next Tuesday'")
+    check("  the arrival moments fire from the welcome click (a real user gesture)",
+          re.search(r'queueMoment\(firstTime \? "first_meeting"', se) is not None
+          and "await TutorMoments.ready()" in se,
+          "a clip with SOUND needs a gesture to autoplay, and the manifest probe must "
+          "have settled before available() is trusted")
+
+    # 6. Cadence: the rare EARNED moments always play; the repeatable ones are capped.
+    #    (A clip that plays five times in an afternoon stops being a person.)
+    for key, want in (("unit_gold", "always"), ("course_champion", "always"),
+                      ("first_meeting", "always"), ("quiz_passed", "daily"),
+                      ("sprint_best", "daily"), ("welcome_back", "daily"),
+                      ("goodbye", "daily")):
+        row = re.search(key + r":\s*\{[^}]*cadence:\s*\"(\w+)\"", se)
+        check(f"  {key} cadence is {want}", bool(row) and row.group(1) == want,
+              f"got {row.group(1) if row else 'no row'} -- earned moments always play; "
+              f"repeatable ones are capped at one a day so they stay special")
+    check("the goodbye plays AFTER his words; the celebrations before",
+          re.search(r'goodbye:\s*\{ when: "after"', se) is not None
+          and len(re.findall(r'when: "before"', se)) == 6,
+          "a send-off belongs last (his personal wrap-up, THEN the warm goodbye); "
+          "a celebration belongs first")
+
+    # 7. It must still work DARK -- today six of the seven clips do not exist yet.
+    check("queueMoment refuses to queue a clip that is not there",
+          re.search(r'if \(!\(window\.TutorMoments && TutorMoments\.available\(key\)\)\) return false',
+                    se) is not None,
+          "with no clip in the manifest the page must behave exactly as it did before")
+    check("the player still resolves on every failure path",
+          '"unavailable"' in tm and "sourcesFailed" in tm and "setTimeout(function () { finish" in tm,
+          "a clip that cannot play must hand the turn straight back -- nothing here may "
+          "strand a lesson")
+    check("a moment is spent even when skipped",
+          re.search(r'momentSpend\(p\.key\);\s*//', se) is not None,
+          "one offer a day, watched or not -- otherwise skipping re-offers it all day")
+
+    # 8. The corner presence keeps its promise while the card talks.
+    check("the corner is set idle while he speaks in the card",
+          re.search(r'setState\("idle"\);\s*//.*mime', se) is not None,
+          "the face never fakes speech (rule from build ej) -- and it must not sit on a "
+          "thinking glow while he is talking in the overlay")
+
+    # 9. The [[bye]] tag is taught ONLY in the lesson-only note, never the shared block.
+    check("[[bye]] is taught in PROGRESS_TAGS_NOTE",
+          "[[bye]]" in prompts.PROGRESS_TAGS_NOTE,
+          "the tutor cannot mark a wrap-up it was never told about")
+    check("[[bye]] is NOT in the shared block (practice/topic cannot draw it)",
+          "[[bye]]" not in tutor.GRAPH_TOOL_NOTE,
+          "the shared block reaches practice and topic, which have no bye handler")
+    for phrase in ("ONLY when the\n   student has said they are going",
+                   "It draws NOTHING"):
+        check(f"  the bye tag keeps its guard rail: {phrase.splitlines()[0][:40]}...",
+              phrase in prompts.PROGRESS_TAGS_NOTE,
+              "the tag must never fire because a lesson merely feels finished")
+
+
+# =============================================================================
 # PART 3ab -- THE SEVEN VERIFIED TEACHING DEFECTS (build ex, 2026-08-13)
 # =============================================================================
 # The last open items from the 2026-08-12 audit batch, each verified against the
@@ -6125,6 +6304,7 @@ def main():
     part3z_reply_integrity()
     part3aa_placement_honesty()
     part3ab_seven_defects()
+    part3ac_voice_sequencing()
     if live:
         part4_live()
     else:

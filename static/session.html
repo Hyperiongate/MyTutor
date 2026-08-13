@@ -1,5 +1,43 @@
 <!DOCTYPE html>
 <!--
+    (ey) 2026-08-13 -- THE VOICE SEQUENCING. Mr. Cadabra's talking clips now play at the
+    seven moments of a real lesson, and the rule the whole design hangs on is enforced
+    here: A CANNED CLIP AND HIS LIVE VOICE NEVER TALK AT ONCE, AND A CLIP NEVER REPLACES
+    THE PERSONALISED LINE. Video cannot say a child's name; the live voice can, so a clip
+    is an ARRIVAL, never a substitute.
+    HOW: tutor-moments.js is included (NOT deferred -- window.TutorMoments must exist when
+    this script runs; the landing page paid for that lesson once already). A MOMENTS table
+    declares, per moment, WHEN it plays (before his words, or after -- the goodbye goes
+    last), its CADENCE, and its RANK. handleTags() QUEUES at most one moment while the
+    reply renders, and runTutor plays it at exactly one gate:
+        await runPendingMoment("before");   // the celebration lands...
+        await speak(clean);                 // ...then he says what THEY did, by name
+        await runPendingMoment("after");    // ...and the send-off goes last
+    Those three lines ARE the voice rule. Both gates are awaited, so his live voice cannot
+    start until a clip has finished, and speak() is unconditional so a clip can never
+    replace the personalised line. ruletests PART 3ac pins the order structurally.
+    THE SEVEN: first_meeting / welcome_back (from the welcome-card CLICK -- a real user
+    gesture, which is what a clip with SOUND needs to autoplay; a student who clicked a
+    SPECIFIC door, a final exam or a quiz retake, is never met with a hello), quiz_passed
+    (showQuiz), unit_gold (showCheck), course_champion (showFinalExam), sprint_best
+    (sprFinish -- where sprSay must WAIT for the clip rather than talk over it), and
+    goodbye (the NEW [[bye]] tag: the first mechanical end-of-session signal this app has
+    ever had; detecting a farewell by reading his prose would misfire on "see you next
+    Tuesday").
+    CADENCE, a judgement call worth stating out loud: a clip that plays too often stops
+    being a person and becomes a jingle. Rare EARNED moments always play (a mastered unit,
+    a finished course, the first hello); moments that can repeat several times in an
+    afternoon are capped at ONE A DAY (localStorage, per student, with an in-page fallback
+    for private mode). To retune, change the table -- nothing else reads it.
+    SHIPS DARK: six of the seven clips do not exist yet. With no matching clip in
+    moments.json, available() is false, queueMoment never queues, both gates resolve
+    instantly, and this page behaves exactly as it did before. The day Jim's recordings
+    land, the same code lights up -- no flag, no coordination.
+    PROVEN IN A BROWSER, not asserted: driving the real page with a stand-in clip, the
+    clip ended at 4867ms and his voice started at 4867ms -- zero overlap; with the await
+    deliberately removed, his voice started at 1807ms against a clip running to 4938ms,
+    i.e. 3.1 seconds of two Mr. Cadabras talking at once. The dark path was measured too:
+    no moment video, voice unchanged, zero page errors.
     (ew) 2026-08-13 -- THE FINAL EXAM COUNT IS THE SERVER'S, NOT A LITERAL 9.
     renderCourseBar() and openFinalOverlay() hard-coded ">= 9" / "of 9" / "All nine
     units" / "18 questions". The server has always sent final.required and now DERIVES
@@ -1355,6 +1393,11 @@
   <script src="/static/geo-figures.js"></script>
   <script src="/static/math-figures.js"></script>
   <script src="/static/tutor-face.js"></script>
+  <!-- build ey: his TALKING clips. Deliberately NOT deferred -- window.TutorMoments must
+       exist by the time the page script runs, and the landing page already paid for that
+       lesson once (a deferred include left its button labelled wrong). Harmless when dark:
+       with no matching clip in moments.json the whole layer is a no-op. -->
+  <script src="/static/tutor-moments.js"></script>
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
@@ -2003,6 +2046,89 @@
       });
     }
 
+    // ============ MOMENT CLIPS — THE VOICE SEQUENCING (2026-08-13, build ey) ============
+    // Phase 2's second half. tutor-moments.js can PLAY one of Mr. Cadabra's talking clips;
+    // this is the part that decides WHEN, and it exists because of one hard rule:
+    //
+    //   A CANNED CLIP AND HIS LIVE VOICE MUST NEVER TALK AT ONCE, AND A CLIP NEVER
+    //   REPLACES THE PERSONALISED LINE.
+    //
+    // Video cannot say a child's name. The live voice can, and that is the half worth
+    // protecting -- so a clip is an ARRIVAL, never a substitute. Everything below is in
+    // service of that: a moment is QUEUED while a reply renders, and played at exactly one
+    // gate, with his live speech on the other side of an await.
+    //
+    // WHEN: most moments play BEFORE his words (the clip lands, then he says what THEY
+    // did -- with their name, their score, their unit). The goodbye plays AFTER, because a
+    // send-off belongs last; his personal wrap-up first, then the warm goodbye.
+    //
+    // CADENCE, and this is a judgement call worth stating: a clip that plays too often
+    // stops being a person and becomes a jingle. The rare EARNED moments always play --
+    // a mastered unit, a finished course, the first hello. The ones that can repeat
+    // several times in an afternoon (a topic quiz, a sprint best, arriving, leaving) are
+    // capped at ONE A DAY each. To change it, change the table -- nothing else reads these.
+    //
+    // SHIPS DARK: with no matching clip in moments.json, available() is false, queueMoment
+    // never queues, every gate resolves instantly, and this page behaves exactly as it did.
+    const MOMENTS = {
+      //  key                when       cadence   rank -- the bigger moment wins the turn
+      first_meeting:   { when: "before", cadence: "always", rank: 3 },
+      welcome_back:    { when: "before", cadence: "daily",  rank: 1 },
+      quiz_passed:     { when: "before", cadence: "daily",  rank: 2 },
+      unit_gold:       { when: "before", cadence: "always", rank: 4 },
+      course_champion: { when: "before", cadence: "always", rank: 5 },
+      sprint_best:     { when: "before", cadence: "daily",  rank: 2 },
+      goodbye:         { when: "after",  cadence: "daily",  rank: 1 },
+    };
+    let pendingMoment = null;              // at most one per turn
+    const momentSeenHere = new Set();      // fallback ledger when localStorage is unavailable
+
+    function momentToday() {
+      const d = new Date();
+      return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();   // local day, like the streak
+    }
+    function momentAllowed(key) {
+      const cfg = MOMENTS[key];
+      if (!cfg) return false;
+      if (cfg.cadence === "always") return true;
+      const stamp = key + "|" + momentToday();
+      try { return localStorage.getItem("cadabra.moment." + CODE + "." + key) !== momentToday(); }
+      catch (e) { return !momentSeenHere.has(stamp); }     // private mode: at least don't repeat today
+    }
+    function momentSpend(key) {
+      const cfg = MOMENTS[key];
+      if (!cfg || cfg.cadence === "always") return;
+      try { localStorage.setItem("cadabra.moment." + CODE + "." + key, momentToday()); }
+      catch (e) { momentSeenHere.add(key + "|" + momentToday()); }
+    }
+
+    // Queue a moment for THIS turn. The biggest one wins: a reply that passes a topic quiz
+    // AND masters the unit is a unit-gold moment, not a quiz moment -- the child should get
+    // the bigger celebration, and never two videos back to back.
+    function queueMoment(key) {
+      const cfg = MOMENTS[key];
+      if (!cfg) return false;                                        // unknown/"" -- nothing to do
+      if (!(window.TutorMoments && TutorMoments.available(key))) return false;   // dark
+      if (!momentAllowed(key)) return false;                         // already had this one today
+      if (pendingMoment && MOMENTS[pendingMoment.key].rank >= cfg.rank) return false;
+      pendingMoment = { key: key, when: cfg.when };
+      return true;
+    }
+
+    // THE GATE. Awaited by the caller, so his live voice cannot start until this settles.
+    // ALWAYS resolves -- a missing clip, a dead network, an undecodable codec, a skipped
+    // card: every one of them hands the turn straight back. Nothing here can strand a lesson.
+    async function runPendingMoment(phase) {
+      const p = pendingMoment;
+      if (!p || p.when !== phase) return "none";
+      pendingMoment = null;
+      momentSpend(p.key);            // spent whether they watch it or skip it: one offer a day
+      try { ttsAudio.pause(); } catch (e) {}   // belt and braces: no live line may still be running
+      setState("idle");              // the corner never mimes speech while he talks in the card
+      try { return await TutorMoments.play(p.key); }
+      catch (e) { return "unavailable"; }
+    }
+
     // ---------- Control tags ----------
     function parseAttrs(s) {
       const attrs = {}; const re = /(\w+)\s*=\s*("([^"]*)"|'([^']*)'|(\S+))/g; let m;
@@ -2244,6 +2370,11 @@
         else if (name === "goal" && attrs.text) showGoal(attrs.text);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
+        // build ey: the ONLY mechanical end-of-session signal. Before this, a goodbye
+        // existed solely as prose, and detecting one meant sniffing his words for
+        // "see you" -- which would misfire on "see you next Tuesday we'll do fractions".
+        // The tutor now marks its own wrap-up turn (rule 29a); the tag draws nothing.
+        else if (name === "bye") queueMoment("goodbye");
         else if (name === "today") showToday(attrs);
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
@@ -2472,6 +2603,7 @@
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const pct = Math.round(100 * correct / total);
       const passed = pct >= 90;
+      if (passed) queueMoment("course_champion");   // build ey -- the biggest moment in the app
       const host = feedBlock();
       host.innerHTML = '<div class="finalcard ' + (passed ? "pass" : "") + '">'
         + '<div class="fc-top">🎓 Final Exam — ' + COURSE_TITLE + '</div>'
@@ -2997,6 +3129,7 @@
       if (passed && unit >= 1 && unit <= 9) {
         LIVE_TOPIC_PASSES[unit] = (LIVE_TOPIC_PASSES[unit] || 0) + 1;
         renderUnitBar();
+        queueMoment("quiz_passed");     // build ey (capped at one a day -- topic quizzes are frequent)
       }
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
@@ -3015,6 +3148,7 @@
       // 2026-08-07: a mastered unit goes gold on the course bar (and 🏆 on the unit bar) live.
       if (passed && unit >= 1 && unit <= 9) {
         LIVE_MASTERED.add(unit);
+        queueMoment("unit_gold");       // build ey -- rare and earned, so it ALWAYS plays
         if (SRV_PROGRESS && SRV_PROGRESS.final) {
           const all = new Set(SRV_PROGRESS.mastered_units || []);
           LIVE_MASTERED.forEach(u => all.add(u));
@@ -3161,6 +3295,18 @@
       // 2026-08-06: voice restored. Typing courses on capable browsers keep the 🎙️ button
       // primary (with "Type instead" available); everyone else opens the type box.
       if (!canRecord) showComposer();
+      // build ey — THE ARRIVAL MOMENT. This runs inside the welcome-card CLICK, which is
+      // exactly the user gesture a clip with SOUND needs in order to autoplay, and it
+      // finishes before any live line is spoken. A student who clicked a SPECIFIC door
+      // (the Final Exam, a quiz retake) is never met with a hello: they came for that
+      // door, so we open it. Awaiting ready() removes the only race that matters here --
+      // the manifest probe starting at page load and this click arriving first.
+      if (!FINAL_MODE && !QUIZ_INTENT) {
+        if (window.TutorMoments && TutorMoments.ready) { try { await TutorMoments.ready(); } catch (e) {} }
+        const firstTime = FORCE_TOUR || (!hasHistory && !touredAnywhere);
+        queueMoment(firstTime ? "first_meeting" : (hasHistory ? "welcome_back" : ""));
+        await runPendingMoment("before");
+      }
       // 2026-08-07 FINAL EXAM MODES: prep/exam sessions skip the tour and the assessment
       // invitation entirely — the student clicked a very specific door; open it.
       if (FINAL_MODE) { busy = true; setPhase("busy"); kickoff(); return; }
@@ -3297,7 +3443,13 @@
         addBubble("tutor", clean); lastTutorText = clean;   // his words first (as a chat bubble)
         handleTags(reply);                                   // then his worked math, right below
         statusEl.textContent = tutorName + " is talking…";
-        await speak(clean);
+        // build ey — THE VOICE SEQUENCING, and it is these three lines. handleTags may have
+        // queued a moment (a passed quiz, a gold unit, a finished course, a goodbye). The
+        // clip plays on ONE side of his live voice or the other, and each gate is AWAITED,
+        // so a canned clip and his real voice can never be speaking at the same time.
+        await runPendingMoment("before");   // the celebration lands...
+        await speak(clean);                 // ...then he says what THEY did, by name
+        await runPendingMoment("after");    // ...and the send-off goes last, if this was goodbye
       } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
       finally {
         busy = false; statusEl.textContent = ""; setPhase("ready");
@@ -3435,12 +3587,18 @@
       if (imp > 0)        line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — you beat yourself by <b>" + imp + "</b>! That's the whole game.";
       else if (imp === 0) line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — you matched yourself exactly. Rock steady.";
       else                line = "Round A: <b>" + sprA.correct + "</b> · Round B: <b>" + sprB.correct + "</b> — your Round A was strong, and that's the score to chase tomorrow.";
-      if (SPR.best_b && sprB.correct > SPR.best_b) line += " And <b>" + sprB.correct + "</b> is a new personal best here!";
+      const newBest = !!(SPR.best_b && sprB.correct > SPR.best_b);
+      if (newBest) line += " And <b>" + sprB.correct + "</b> is a new personal best here!";
       line += " Did you spot the pattern in the problems? Keep it in your pocket — it'll show up in today's lesson.";
       el("sprDoneCopy").innerHTML = line;
       sprShow("sprDone", 1200);      // dv: the results panel too -- Jim must SEE his sprint
-      sprSay(imp > 0 ? "You beat yourself. That is the whole game. Well done!"
-                     : "Every sprint makes the next one faster. Well done!");
+      // build ey: a personal best earns the clip -- and sprSay() is fire-and-forget audio,
+      // so it must WAIT for the clip rather than talk over it. Same voice rule as a lesson
+      // turn, expressed with a .then because sprFinish is not async and need not become so.
+      const sprLine = imp > 0 ? "You beat yourself. That is the whole game. Well done!"
+                              : "Every sprint makes the next one faster. Well done!";
+      if (newBest && queueMoment("sprint_best")) runPendingMoment("before").then(() => sprSay(sprLine));
+      else sprSay(sprLine);
       fetch("/api/sprint/" + encodeURIComponent(CODE), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ course: COURSE, unit: SPR.unitNum, skill: SPR.skill,

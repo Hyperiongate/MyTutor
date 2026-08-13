@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13ey-he-sequences". BUILD STAMP ONLY here -- the work
+#               is in static/session.html (the moment sequencer + the seven in-lesson
+#               moments), prompts.py (the NEW [[bye]] tag, lesson-only) and ruletests.py
+#               (NEW PART 3ac + "bye" in LESSON_ONLY/TAG_INLINE). PHASE 2 OF THE VIDEO
+#               PROJECT IS NOW CODE-COMPLETE: a clip and his live voice can never talk at
+#               once, and a clip never replaces the personalised line. Ships DARK -- six of
+#               the seven clips are not recorded yet, so today this changes nothing a
+#               student can see; the day Jim's recordings land the same code lights up.
 #   2026-08-13  APP_BUILD -> "2026-08-13ex-seven-defects-closed". BUILD STAMP ONLY here --
 #               the work is in prompts.py (rules 19e/27c/49g/50g/51f/52e + NEW RULE 62,
 #               closing all seven verified teaching defects from the 2026-08-12 audits)
@@ -6384,7 +6392,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13ex-seven-defects-closed"
+APP_BUILD = "2026-08-13ey-he-sequences"
 
 
 @app.get("/health")
