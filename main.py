@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13fd-showcase-ready". THE PUBLIC PAGES AND THE
+#               DEMO, MADE CURRENT FOR BETA TESTERS. Jim: "I'm gonna make a push for
+#               seeing if I can get some beta testers... take a look at the pages
+#               itself. Take a look at the demos and update the demos that need to be
+#               updated. I want everything to be current, ready to go, showcase."
+#               No Python changed in this build except this line -- the work is in
+#               static/ -- but the build string is what tells Render, and Jim, that the
+#               site he is about to show strangers is the one he just looked at.
+#               WHAT CHANGED: all six product screenshots re-captured from the CURRENT
+#               demo (they dated from 2026-08-04, before Mr. Cadabra's real face and
+#               before all four demo doors were rewritten), and the marketing copy that
+#               had quietly drifted away from them corrected -- /homeschool said "3h 59m"
+#               in three places above a tile reading 2h 15m, /parents' weekly-email
+#               preview described a different child's quiz scores than the dashboard
+#               beside it, /teachers' alt text counted five students in a picture of six,
+#               and /students' alt text described four cards that were not in the frame.
+#               NEW ruletests PART 3ag reads those numbers OUT OF demo.html at test time,
+#               so the next time the demo's sample student changes, the battery fails the
+#               same day instead of leaving a visitor to spot the contradiction.
+#               Also driven, not read: every one of the ten demo levels, all four
+#               audience doors, and the whole Algebra I lesson to its ending. Clean.
 #   2026-08-13  APP_BUILD -> "2026-08-13fc-trial-on-admin". THE FULL-JOURNEY TRIAL MOVES
 #               TO THE DASHBOARD. Jim: "is it possible to build that into the admin
 #               dashboard? And maybe it could even ask a couple of questions like, what do
@@ -6897,7 +6918,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13fc-trial-on-admin"
+APP_BUILD = "2026-08-13fd-showcase-ready"
 
 
 @app.get("/health")

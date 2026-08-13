@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  BUILD fd -- THE PICTURES AND THE PROSE (NEW PART 3ag). Every screenshot
+#               on the public site is a photograph of the DEMO -- that is why they can be
+#               trusted, and it is also why the copy drifts: the demo changes and the
+#               marketing pages have no idea. Re-capturing the shots for the beta push
+#               found /homeschool claiming "3h 59m this week" in the paragraph, in the
+#               alt text AND in the weekly-email preview, directly above a tile reading
+#               2h 15m -- on the page whose whole promise is "a number you can put in an
+#               instructional-hours log with a straight face". PART 3ag now reads the
+#               numbers out of demo.html at test time and holds the copy to them: Maya's
+#               week, the tile's ALT text (the version no sighted proofreader ever sees),
+#               the heatmap's student count, and the Decimals scores in the email
+#               preview. It also weighs every shot file -- a blank whiteboard is a 40 KB
+#               PNG with a perfectly valid filename, which is exactly what the first
+#               re-capture produced. Negative-tested: each mutation fails it.
 #   2026-08-13  BUILD fc -- THE TRIAL ON THE DASHBOARD, GUARDED (PART 3af extended). The
 #               safety-critical property is ISOLATION: the trial invents a parent, a
 #               child, a teacher and a class, so it must run as a SEPARATE PROCESS with
@@ -5927,6 +5941,149 @@ def part3z_reply_integrity():
 
 
 # =============================================================================
+# PART 3ag -- THE PICTURES AND THE PROSE TELL THE SAME STORY (build fd, 2026-08-13)
+# =============================================================================
+# Jim, preparing to invite beta testers: "I want everything to be current, ready to
+# go, showcase, preparation."
+#
+# Every screenshot on the public site is a photograph of the DEMO. That is the whole
+# reason they can be trusted -- they are not mockups, they are the product. But it
+# also means the demo is the single source of truth for every number the marketing
+# copy quotes, and the copy has no idea when the demo changes underneath it. Today's
+# re-capture caught exactly that drift, on the page that can least afford it:
+#
+#   * /homeschool said "3h 59m this week" in the paragraph, in the alt text, and in the
+#     weekly-email preview -- directly above a freshly-captured tile reading 2h 15m.
+#     That is the page whose promise is "a number you can put in an instructional-hours
+#     log with a straight face."
+#   * /parents' email preview claimed "best check 72%" on Decimals beside a picture of
+#     Maya's dashboard showing two topic quizzes passed at 88% and 92%.
+#   * /teachers' alt text said "five students" over a heatmap of six.
+#
+# So: the numbers in the copy are read out of demo.html at test time. If the demo's
+# sample student ever changes again, this PART fails the same day instead of leaving a
+# visitor to spot the contradiction.
+def part3ag_shots_match_copy():
+    print("\nPART 3ag — the pictures and the prose tell the same story (build fd)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    st = os.path.join(here, "static")
+    demo = open(os.path.join(st, "demo.html"), encoding="utf-8").read()
+
+    def page(n):
+        return open(os.path.join(st, n), encoding="utf-8").read()
+
+    # ---- 1. every shot a page points at actually exists, and is a real picture ----
+    # A blank whiteboard is a 40 KB file; a real one is 400 KB+. The first capture in
+    # this build WAS blank (the voice was stubbed out, so the script never advanced and
+    # no step was ever drawn) and it looked perfectly fine as a filename.
+    refs = set()
+    for name in sorted(os.listdir(st)):
+        if not name.endswith(".html"):
+            continue
+        for s in re.findall(r'/static/shots/([A-Za-z0-9_.-]+\.png)', page(name)):
+            refs.add(s)
+    check("the site points at at least the six product shots", len(refs) >= 6,
+          f"only found {sorted(refs)}")
+    for s in sorted(refs):
+        p = os.path.join(st, "shots", s)
+        ok = os.path.exists(p)
+        size = os.path.getsize(p) if ok else 0
+        check(f"  shots/{s} exists and is a real screenshot", ok and size > 40000,
+              f"missing" if not ok else f"only {size} bytes -- a near-empty capture "
+              "(a blank whiteboard weighs about this much and still has a valid filename)")
+
+    # ---- 2. the hours: one student, one number, everywhere ----
+    # Read the demo's own "Time this week" tile rather than hard-coding it here, so this
+    # test keeps working the day the sample student's week changes.
+    m = re.search(r'<div class="tile"><b>([^<]+)</b><span>Time this week', demo)
+    check("the demo's student tile still names a weekly time", bool(m),
+          "the tile markup moved; this whole PART reads the demo for its numbers")
+    hours = m.group(1).strip() if m else ""
+    demo_times = set(re.findall(r"\b\d+h \d+m\b", demo))
+    pages = ("homeschool.html", "parents.html", "landing.html", "students.html",
+             "teachers.html", "index.html", "family.html", "pricing.html")
+    # MAYA specifically: she is the student in every screenshot, so any weekly time the
+    # copy gives HER has to be the one in the picture. Other sample children (the class
+    # email preview on /teachers invents an Ava and a Ben) are free to have their own
+    # weeks -- they are not photographed anywhere.
+    for name in pages:
+        body = re.sub(r"<!--.*?-->", "", page(name), flags=re.S)   # change notes are not copy
+        for block in re.findall(r"Maya(?:'s)?\b.{0,700}?</ul>", body, re.S):
+            wrong = sorted({h for h in re.findall(r"\b\d+h \d+m\b", block) if h != hours})
+            check(f"  {name}: Maya's week reads {hours}, the same as her picture",
+                  not wrong,
+                  f"says {wrong} where the screenshot on this page says {hours} -- a "
+                  "visitor reads the number and the picture together")
+    # The alt text under the tile picture is copy too -- it was one of the three places
+    # /homeschool said "3h 59m" over a picture of 2h 15m, and it is the one a sighted
+    # proofreader never sees.
+    for name in pages:
+        body = re.sub(r"<!--.*?-->", "", page(name), flags=re.S)
+        for tag in re.findall(r'<img[^>]*shots/timetile\.png[^>]*>', body):
+            alt = re.search(r'alt="([^"]*)"', tag)
+            wrong = sorted({h for h in re.findall(r"\b\d+h \d+m\b", alt.group(1) if alt else "")
+                            if h != hours})
+            check(f"  {name}: the tile picture's ALT text reads {hours} too", not wrong,
+                  f"alt says {wrong} -- alt text is the only version of this picture a "
+                  "blind visitor and every search engine ever get")
+    # Times that belong to a DIFFERENT sample child are fine (the class email preview on
+    # /teachers invents an Ava and a Ben, and nothing photographs them). Times that
+    # belong to nobody at all are a leftover, and that is what "3h 59m" was.
+    KNOWN_OTHERS = ("Ava", "Ben", "Sofia", "Priya", "Jonah", "Aiden")
+    for name in pages:
+        body = re.sub(r"<!--.*?-->", "", page(name), flags=re.S)
+        for mm in re.finditer(r"\b\d+h \d+m\b", body):
+            h = mm.group(0)
+            near = body[max(0, mm.start() - 120):mm.start()]
+            owned = any(w in near for w in KNOWN_OTHERS)
+            check(f"  {name}: {h} belongs to somebody -- the demo, or a named sample child",
+                  h in demo_times or owned,
+                  f"{h} matches no time in the demo and sits under no student's name, so "
+                  "no screenshot anywhere can back it up")
+
+    # ---- 3. the honest-hours paragraph spells out the SAME number it shows ----
+    hs = page("homeschool.html")
+    spelled = {"2h 15m": "two hours and fifteen minutes",
+               "3h 59m": "three hours and fifty-nine minutes"}.get(hours)
+    if spelled:
+        check("  /homeschool spells the hours out to match the tile above the log claim",
+              spelled in hs,
+              f'the paragraph must read "{spelled}" -- it is the sentence that promises '
+              "the number can go in an instructional-hours log with a straight face")
+
+    # ---- 4. the teacher shot's alt text counts the students in the picture ----
+    heat = re.search(r'id="tdHeat".*?</div>\s*</div>', demo, re.S)
+    rows = len(re.findall(r'<div class="hrow">', heat.group(0))) if heat else 0
+    words = {5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+    check("the demo heatmap still has a countable roster", rows in words,
+          f"found {rows} rows")
+    if rows in words:
+        alt = re.search(r'<img[^>]*shots/teacher\.png[^>]*alt="([^"]*)"', page("teachers.html"))
+        check(f"  /teachers' alt text says {words[rows]} students, matching the picture",
+              bool(alt) and f"{words[rows]} students" in alt.group(1),
+              f"the heatmap shows {rows} students; alt says "
+              f"{alt.group(1) if alt else '(no alt at all)'} -- alt text is what a "
+              "blind visitor and every search engine are told the picture contains")
+
+    # ---- 5. the weekly-email preview agrees with the dashboard beside it ----
+    # Maya's Decimals topic quizzes read 88% and 92% PASSED on the shot. A preview that
+    # says "best check 72%" is describing a different child.
+    for name in ("homeschool.html", "parents.html"):
+        body = re.sub(r"<!--.*?-->", "", page(name), flags=re.S)   # notes are not copy
+        check(f"  {name}'s weekly-email preview does not contradict her quiz results",
+              "best check 72%" not in body,
+              "the parent-view screenshot on this same page shows two Decimals topic "
+              "quizzes passed at 88% and 92%")
+
+    # ---- 6. nothing on the site claims a screenshot that was retired ----
+    check("no page still shows the retired math-keyboard screenshot",
+          not any('shots/keyboard.png' in re.sub(r"<!--.*?-->", "", page(n), flags=re.S)
+                  for n in os.listdir(st) if n.endswith(".html")),
+          "the math keyboard was retired in build ao; showing it advertises a product "
+          "that no longer exists")
+
+
+# =============================================================================
 # PART 3af -- THE FULL JOURNEY, END TO END (build fb, 2026-08-13)
 # =============================================================================
 # Jim's brief: "run to make sure from start to finish that this works outside of the
@@ -6800,6 +6957,7 @@ def main():
     part3ad_clip_never_eats()
     part3ae_classroom_locked()
     part3af_full_journey()
+    part3ag_shots_match_copy()
     if live:
         part4_live()
     else:
