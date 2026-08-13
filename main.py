@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-13  APP_BUILD -> "2026-08-13ev-he-speaks". THE FIRST TWO TALKING CLIPS ARE LIVE
+#               (build stamp only here; the assets are static/videos/cadabra/ and the work
+#               is in tutor-moments.js, tutor-face.js and landing.html). Jim recorded
+#               site_welcome and demo_welcome in ElevenLabs and generated them in HeyGen,
+#               portrait, same avatar. Post-produced to 540x960 H.264/AAC (1.35MB + 1.15MB)
+#               with a poster frame and moments.json carrying each clip's words as caption
+#               text. mp4 ONLY, deliberately: VP9/webm encoded LARGER than the mp4 here
+#               (1.53MB vs 1.15MB) and H.264 plays in every consumer browser; the player
+#               takes <source> lists so another encoding is a manifest edit, never a code
+#               change. ⚠️ A REAL BUG CAUGHT IN TESTING, and it was latent since build ep:
+#               a <video> whose every <source> fails does NOT fire an error event on the
+#               ELEMENT -- the spec routes those errors to the <source> tags and the element
+#               settles into networkState 3 in silence. Proven in this container's Chromium,
+#               which has no H.264: the demo card opened and the tour never started. Fixed
+#               in BOTH files (_sourcesFailed / sourcesFailed) -- which also repairs the
+#               presence layer, where an undecodable clip would have sat on a dead poster
+#               instead of tearing down to the robot. The landing button now also retires an
+#               unplayable clip and gives the visitor the audio sample on the same click.
+#               Guarded in PART 3u and 3u2.
 #   2026-08-12  APP_BUILD -> "2026-08-12eu-he-steps-out". PHASE 2 OF THE VIDEO PROJECT, THE
 #               CODE HALF (build stamp only here; the work is in the NEW
 #               static/tutor-moments.js plus landing.html and demo.html). Phase 1 is the
@@ -6298,7 +6317,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
 # Render actually redeployed the new code (if /health still shows an old build, the deploy
 # didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-12eu-he-steps-out"
+APP_BUILD = "2026-08-13ev-he-speaks"
 
 
 @app.get("/health")

@@ -96,6 +96,22 @@
     (document.head || document.documentElement).appendChild(el);
   }
 
+  /* All-sources-failed detection. The HTML spec routes a resource failure to each
+     <source> element, not to the <video>; only the .src form fires error on the element.
+     Both are wired here so a clip with no decodable encoding reports promptly instead of
+     hanging on a poster. cb may be called once. */
+  function sourcesFailed(vid, cb) {
+    var once = false;
+    function fire() { if (once) return; once = true; try { cb(); } catch (e) {} }
+    var srcs = vid.getElementsByTagName("source");
+    var total = srcs.length, failed = 0;
+    for (var i = 0; i < total; i++) {
+      srcs[i].onerror = function () { if (++failed >= total) fire(); };
+    }
+    vid.onerror = fire;                    // browsers that do fire it, and the .src form
+    if (!total) vid.onerror = fire;
+  }
+
   /* play(key) -> Promise<"played"|"skipped"|"unavailable">
      ALWAYS resolves. A missing clip, a dead network, a codec the browser cannot decode, a
      blocked autoplay the visitor then ignores -- every one of them settles the promise so
@@ -141,7 +157,12 @@
           vid.appendChild(s);
         }
         vid.onended = function () { finish("played"); };
-        vid.onerror = function () { finish("unavailable"); };   // no playable encoding
+        // A <video> that fails EVERY <source> does NOT fire an error event on the element
+        // itself -- the error events land on the individual <source> tags and the element
+        // just settles into networkState 3 (NO_SOURCE), silently, forever. Caught in test:
+        // in a browser with no H.264 the card opened and then sat there, and the demo tour
+        // never started. So we listen where the failure actually reports.
+        sourcesFailed(vid, function () { finish("unavailable"); });
         card.appendChild(vid);
 
         // The words exist as TEXT, not only as audio. A deaf child, a muted tab and a

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "built": "2026-08-12",
+  "note": "Mr. Cadabra's TALKING clips (build ev). These carry his real ElevenLabs voice and are NOT muted -- unlike presence.json's corner loops, which are silent forever. Sources are H.264/AAC mp4 only, deliberately: for these clips VP9/webm encoded LARGER than the mp4 at matched quality (1.53MB vs 1.15MB), and H.264 plays in every browser that ships to consumers. The player builds <source> lists, so adding an encoding later is a manifest edit, not a code change -- and a browser that cannot decode any listed source falls back to the page's existing behaviour, which is tested.",
+  "poster": "cadabra_moment_poster.jpg",
+  "clips": {
+    "site_welcome": {
+      "sources": ["cadabra_site_welcome.mp4"],
+      "caption": "Well, hello there — welcome to Mr. Cadabra's Classroom! I'm Mr. Cadabra. In my classroom we do math out loud, together, one step at a time — and nobody gets left behind. Have a look around, and when you're curious, come try a real lesson with me. I'll be right here."
+    },
+    "demo_welcome": {
+      "sources": ["cadabra_demo_welcome.mp4"],
+      "caption": "Welcome to my demo! In a moment I'll show you around the classroom, and then — if you're brave enough — I'll teach you a real lesson, any level you like, from counting all the way to calculus. Have fun. Let's go!"
+    }
+  }
+}

@@ -832,15 +832,20 @@
       var hb = document.getElementById('hearBtn');
       if (!hb) return;
       var clip = null;
+      var videoDead = false;        // build ev: set if his clip turns out to be undecodable
       hb.addEventListener('click', function(){
         hb.style.animation = 'none';        // build ak: the pulse has done its job — stop it
         // BUILD eu: if his talking clip is on the server, MEETING him beats hearing a
         // sample -- and this click is the user gesture that lets it play with sound. If
         // the clip is not there (today), everything below is exactly as it always was.
-        if (window.TutorMoments && TutorMoments.available('site_welcome')){
+        if (!videoDead && window.TutorMoments && TutorMoments.available('site_welcome')){
           hb.disabled = true;
-          TutorMoments.play('site_welcome').then(function(){
+          TutorMoments.play('site_welcome').then(function(how){
             hb.disabled = false; hb.textContent = '🔊 Hear him teach';
+            // build ev: a browser that cannot decode the clip must not leave the visitor
+            // with a button that fails every time they press it. Retire the video for this
+            // visit and give them the audio sample they came for, on the SAME click.
+            if (how === 'unavailable'){ videoDead = true; hb.click(); }
           });
           return;
         }

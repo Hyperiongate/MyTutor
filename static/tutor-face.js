@@ -2,6 +2,16 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-12  (build ev) A CODEC FAILURE WAS SILENT. Found while testing the Phase 2
+                 talking clips in this container's Chromium, which has no H.264: a <video>
+                 whose every <source> fails does NOT fire an error event on the element --
+                 the spec routes those errors to the individual <source> tags, and the
+                 element just settles into networkState 3 in silence. Build ep's note in
+                 this file asserted the opposite, and was wrong. Consequence here: with no
+                 decodable encoding the presence layer would sit on a dead poster forever
+                 instead of tearing down to the robot it is supposed to fall back to. New
+                 _sourcesFailed() wires BOTH paths, armed once at mount and re-armed for
+                 each clip's sources on every swap.
      2026-08-12  (build et) TWO INTENSITIES, BECAUSE THE RING HAD ALMOST NOTHING TO FIRE ON.
                  es shipped and Jim still saw nothing -- so I fired celebrate() by hand on
                  the live site and the ring drew perfectly. The fault was upstream: the
@@ -300,6 +310,20 @@
     } catch (e) { P.state = "off"; }
   }
 
+  // Shared with tutor-moments.js by design, not by import: a <video> whose every <source>
+  // fails fires error on the SOURCES, not on the element. Wire both or a codec failure is
+  // silent. Calls cb at most once.
+  function _sourcesFailed(vid, cb) {
+    var once = false;
+    function fire() { if (once) return; once = true; try { cb(); } catch (e) {} }
+    var srcs = vid.getElementsByTagName("source");
+    var total = srcs.length, failed = 0;
+    for (var i = 0; i < total; i++) {
+      srcs[i].onerror = function () { if (++failed >= total) fire(); };
+    }
+    vid.onerror = fire;
+  }
+
   function presenceMount(canvas, m) {
     var parent = canvas.parentNode;
     if (!parent) { P.state = "off"; return; }
@@ -339,9 +363,13 @@
       if (m.poster) v.poster = P.base + m.poster;
       v.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" +
                         "transition:opacity .35s ease;opacity:0;";
-      // The video's own error fires only after EVERY <source> has failed, which is the
-      // semantics we want: one missing encoding is fine, no playable encoding is not.
-      v.onerror = function () { presenceTeardown(); };   // no playable media -> robot
+      // ⚠️ build ev CORRECTION to the build ep note that stood here: the video's own error
+      // does NOT fire when every <source> fails. Per the HTML spec the failures land on the
+      // individual <source> elements and the <video> just settles into networkState 3
+      // (NO_SOURCE) in silence -- proven in this container's Chromium, which cannot decode
+      // H.264: only 'source-error' fired, never 'element-error'. So the presence could sit
+      // on a dead poster instead of tearing down to the robot. Both paths are wired now.
+      _sourcesFailed(v, presenceTeardown);               // no playable media -> robot
       host.appendChild(v);
       return v;
     }
@@ -381,6 +409,7 @@
       else if (/\.mp4$/i.test(files[fi])) srcEl.type = "video/mp4";
       v.appendChild(srcEl);
     }
+    _sourcesFailed(v, presenceTeardown);   // build ev: re-arm for THIS clip's sources
     v.load();
     var settled = false;
     v.oncanplay = function () {

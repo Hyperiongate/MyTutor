@@ -5151,6 +5151,10 @@ def part3u_video_presence():
           "getBoundingClientRect()" in tf and "S * 0.016" in tf,
           "the corner face is ~90px in a lesson and ~220px on the demo; fixed sizes throw "
           "dinner-plate sparkles at one of them")
+    check("  a presence clip with no decodable encoding tears down to the robot",
+          "_sourcesFailed(v, presenceTeardown)" in tf and tf.count("_sourcesFailed") >= 3,
+          "build ep asserted the <video> fires error when every <source> fails; it does "
+          "NOT -- without this the presence sits on a dead poster instead of falling back")
     check("  the presence host hides the robot behind a still frame",
           "background-image:url('" in tf and "m.poster" in tf,
           "two videos crossfading are both briefly semi-transparent -- with a transparent "
@@ -5270,6 +5274,11 @@ def part3u2_talking_moments():
           "p.catch(function ()" in tm and "▶ Play" in tm,
           "autoplay WITH SOUND is only allowed off a gesture; when a browser refuses "
           "anyway the visitor must still be able to start it")
+    check("a codec failure is NOT silent (all <source> tags failing is detected)",
+          "function sourcesFailed" in tm and "srcs[i].onerror" in tm,
+          "the HTML spec routes a resource failure to the <source> elements, NOT to the "
+          "<video>; wiring only vid.onerror leaves a card open forever in a browser that "
+          "cannot decode the clip -- observed, not theorised")
     check("the presence layer stays SILENT -- the talking clips live elsewhere",
           not os.path.exists(os.path.join(here, "static", "tutor-face-talking.js")),
           "sound must never migrate into tutor-face.js, whose muted guarantee is absolute")
@@ -5285,6 +5294,10 @@ def part3u2_talking_moments():
     check("  and falls back to the audio sample when it does not",
           "/api/demo-audio/71" in lp,
           "with no clip on the server the button must behave exactly as it always has")
+    check("  the landing button retires a clip it cannot play, on the same click",
+          "videoDead" in lp and "hb.click()" in lp,
+          "otherwise a visitor on an exotic browser presses a button that fails every "
+          "single time instead of hearing the sample they came for")
     check("  the relabel waits for window load (tutor-moments.js is DEFERRED)",
           "window.addEventListener('load'" in lp,
           "checked against an undefined global the label silently never changes -- caught "
