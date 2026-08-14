@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (ge) 2026-08-14 -- THE OPENER FOLDS TOO, AND ONE BOARD LINE STOPPED LYING. Jim, live in
+    Geometry unit 1: (1) "the introduction didn't collapse" -- the welcome and the goals card
+    stayed on screen through the lesson, because the fold only ever triggered on a FINISHED
+    problem and an opener never finishes one. wipeBoard() gains an optional label, and
+    foldOpenerOnce() folds the opener under "Today's plan" the first time real board work
+    starts. It cannot swallow the current turn, and it is silent when there is nothing to
+    fold. (2) The companion fix is in foundations.py (build ge): the "point" script's board
+    line was TEXT reading "A B C", which styleVars then coloured like algebra variables --
+    so when the tutor said "look at those three points on the board" there were none. It now
+    draws three real dots.
     (ga) 2026-08-14 -- THE VOICE SAID IT WRONG, THEN THE TURN DIED. Two fixes from Jim's
     2026-08-14 Render log. (1) GARBLED SPEECH: forSpeech() deleted **bold** markers and
     parentheses before handing text to the voice, so the log literally shows
@@ -2547,6 +2557,29 @@
     //     that case keeps the old divider, behaving exactly as it did before.
     // -------------------------------------------------------------------------------
     let CLOSED_PROBLEMS = 0;
+    // build ge (2026-08-14, Jim live in Geometry): "the introduction didn't collapse". The
+    // welcome and the "By the end you'll be able to" card are worth reading once and are
+    // clutter for the rest of the lesson, but nothing folded them, because no PROBLEM had
+    // finished -- [[mark]] and [[clear]] are the only triggers, and an opener earns neither.
+    // So the first time real board work begins, the opener folds itself away under "Today's
+    // plan", one click from coming back. Once per session, and it can never swallow the
+    // current turn: wipeBoard stops at lastTurnEl, and anything drawn AFTER the tutor's
+    // words this turn (a goals card in the very same reply) sits outside the fold already.
+    let OPENER_FOLDED = false;
+    function foldOpenerOnce() {
+      if (OPENER_FOLDED) return;
+      if (CLOSED_PROBLEMS) { OPENER_FOLDED = true; return; }   // a real fold already happened
+      // An OPENER is welcome words and a goals card -- never worked math. If a board ROW is
+      // already up, this is a problem in progress, not an opener, and it must be left alone
+      // for the rest of the session (that is what [[mark]] and [[clear]] are for).
+      if (feed.querySelector(".worklist .wrow")) { OPENER_FOLDED = true; return; }
+      // Only count it as done if it ACTUALLY folded something. The goals card is drawn in the
+      // same reply as the tutor's words, so on that turn there is nothing above him yet to
+      // fold; latching then would mean the opener never folds at all.
+      const before = feed.querySelectorAll(".probdone").length;
+      wipeBoard("Today's plan");
+      if (feed.querySelectorAll(".probdone").length > before) OPENER_FOLDED = true;
+    }
     // Set by [[mark]] (a finished problem); consumed the next time new board work starts.
     let PROBLEM_CLOSED = false;
     // Called from the two places a NEW board block is born. If the last problem was marked
@@ -2573,7 +2606,7 @@
       if (eq.length > 44) eq = eq.slice(0, 43) + "…";
       return eq;
     }
-    function wipeBoard() {
+    function wipeBoard(labelOverride) {
       curWork = null;
       PROBLEM_CLOSED = false;   // build fy: an explicit [[clear]] consumes the armed signal
       const kids = Array.from(feed.children);
@@ -2595,34 +2628,35 @@
         return n.classList.contains("mblock") || (n.querySelector && !!n.querySelector(".mblock"));
       });
       if (!seg.length || !hasMath) {                      // guard 2 above -- old behaviour
+        if (labelOverride) return;   // build ge: the opener fold is silent when there is nothing to fold
         const div = document.createElement("div"); div.className = "feeddiv"; div.textContent = "— new problem —";
         feed.appendChild(div); scrollFeed(); return;
       }
-      CLOSED_PROBLEMS++;
+      if (!labelOverride) CLOSED_PROBLEMS++;
       const wrap = document.createElement("div"); wrap.className = "probdone";
       const body = document.createElement("div"); body.className = "probbody";
       seg.forEach(function (n) { body.appendChild(n); });  // MOVES them; nothing is destroyed
-      const solved = !!body.querySelector(".worklist .wcheck");
-      const eq = problemLabel(body);
+      const solved = !labelOverride && !!body.querySelector(".worklist .wcheck");
+      const eq = labelOverride ? "" : problemLabel(body);
       const btn = document.createElement("button");
       btn.type = "button"; btn.className = "probsum";
       btn.setAttribute("aria-expanded", "false");
       const car = document.createElement("span"); car.className = "probcar"; car.textContent = "▸";
       const lab = document.createElement("span"); lab.className = "problab";
-      lab.textContent = "Problem " + CLOSED_PROBLEMS + (eq ? " — " : "");
+      lab.textContent = labelOverride || ("Problem " + CLOSED_PROBLEMS + (eq ? " — " : ""));
       const eqs = document.createElement("span"); eqs.className = "probeq"; eqs.textContent = eq;
       const tick = document.createElement("span"); tick.className = "probtick"; tick.textContent = solved ? "✓" : "";
       const hint = document.createElement("span"); hint.className = "probhint"; hint.textContent = "show";
       btn.appendChild(car); btn.appendChild(lab); btn.appendChild(eqs);
       btn.appendChild(tick); btn.appendChild(hint);
-      btn.setAttribute("aria-label", "Problem " + CLOSED_PROBLEMS + (eq ? ", " + eq : "") + ". Show the work.");
+      const _what = labelOverride || ("Problem " + CLOSED_PROBLEMS + (eq ? ", " + eq : ""));
+      btn.setAttribute("aria-label", _what + ". Show it.");
       btn.addEventListener("click", function () {
         const open = wrap.classList.toggle("open");
         btn.setAttribute("aria-expanded", open ? "true" : "false");
         car.textContent = open ? "▾" : "▸";
         hint.textContent = open ? "hide" : "show";
-        btn.setAttribute("aria-label", "Problem " + CLOSED_PROBLEMS + (eq ? ", " + eq : "") +
-                         (open ? ". Hide the work." : ". Show the work."));
+        btn.setAttribute("aria-label", _what + (open ? ". Hide it." : ". Show it."));
         scrollFeed();
       });
       wrap.appendChild(btn); wrap.appendChild(body);
@@ -3124,6 +3158,7 @@
     function getWorklist() {
       if (!curWork) {
         foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
+        foldOpenerOnce();        // build ge: and fold the welcome + goals once teaching starts
         clearHint();
         const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
         curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
@@ -3327,6 +3362,7 @@
     // card/solve). Resets the current worklist so a following [[step]] starts a new block.
     function feedBlock() {
       foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
+      foldOpenerOnce();        // build ge: a FIGURE starts the teaching just as a step does
       clearHint(); curWork = null;
       const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
     }

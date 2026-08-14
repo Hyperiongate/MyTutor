@@ -2,6 +2,14 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD ge -- THE "point" BOARD LINE NOW DRAWS POINTS. Jim, live in Geometry
+#               unit 1: the tutor said "take a look at those three points on the board" and
+#               the board showed the TEXT "A B C" -- and styleVars coloured B and C red as if
+#               they were algebra variables, so there were no points to look at. That is
+#               exactly the words-vs-board mismatch this whole thread started from, and build
+#               fz introduced it. The board now uses [[objects]] to draw three real filled
+#               dots with the letters in the caption. Only the board line changed; the `say`
+#               string is untouched, so its cached audio is NOT re-billed.
 #   2026-08-14  BUILD gc -- 95 NEW FOUNDATION SCRIPTS ACROSS THE OTHER NINE COURSES.
 #               Completes the red list that build fz started on geometry: every term the
 #               tutor already SAYS OUT LOUD inside these scripts with nothing anywhere
@@ -1163,7 +1171,7 @@ FOUNDATIONS = {
             "dot we draw is only there so your eye can find it. We give points capital letters so we can talk "
             "about them out loud. Everything else in geometry is built out of points: a line is made of them, "
             "and so is a circle.",
-         "board": ['[[write text="A          B          C     —  three points, three exact locations"]]']},
+         "board": ['[[objects emoji="⬤" groups="3" caption="A, B and C — three points, three exact locations"]]']},
         {"term": "line", "say":
             "A **line** is perfectly straight and it never ends. It keeps going in both directions forever, "
             "which is why we draw small arrows on the ends. A line has no thickness and no width, only "
