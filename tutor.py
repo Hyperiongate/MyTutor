@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gb -- THE FOUNDATION BLOCK IS NOW FILTERED TO THE LESSON'S UNIT.
+#               _foundation_block() gains unit= and passes it to foundations.prompt_block;
+#               build_system_prompt hands it the unit it already computed for the playbook,
+#               and the practice/topic builders hand it the unit they classify from the
+#               problem/topic text. Scripts from other units are NAMED, not quoted. This is
+#               what makes room for the ~120 foundation terms still owed on the other nine
+#               courses. Backward compatible in both directions: unit=None filters nothing,
+#               and an older foundations.py without the argument falls through the existing
+#               TypeError path and teaches unfiltered.
 #   2026-08-13  BUILD fe -- THE TRIANGLE-SLOT REFEREE (rule 63c, born ENFORCED). From
 #               the 2026-08-13 lesson audit's HIGH geometry finding: sides="6,?,10"
 #               with right="C" puts 6 in the hypotenuse's slot (sides= is AB, BC, CA;
@@ -1323,7 +1332,7 @@ def _notation_block(course: str) -> str:
         return ""
 
 
-def _foundation_block(course: str, heard=None, verbatim: bool = True) -> str:
+def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None) -> str:
     """This course's canonical foundation scripts (rules 36-40), or "" if none.
 
     `heard` is the list of terms this student was introduced to on an EARLIER visit
@@ -1333,8 +1342,13 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True) -> str:
     if foundations is None:
         return ""
     try:
-        return foundations.prompt_block(course, heard, verbatim)
+        return foundations.prompt_block(course, heard, verbatim, unit)
     except TypeError:
+        # An older foundations.py without `unit` (build gb) -- still teach, unfiltered.
+        try:
+            return foundations.prompt_block(course, heard, verbatim)
+        except TypeError:
+            pass
         # An older foundations.py without the `heard` argument: still teach.
         try:
             return foundations.prompt_block(course)
@@ -1373,7 +1387,8 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         mastery=mastery,
     ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
         course, (student or {}).get("foundations_heard"),
-        (student or {}).get("foundations_verbatim", True))
+        (student or {}).get("foundations_verbatim", True),
+        unit)   # build gb: only THIS unit's scripts carry their wording
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
@@ -2957,7 +2972,8 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
     """Fill the practice template with this student's name and their problem, for a course."""
     name = (student or {}).get("name", "the student")
     problem = (problem or "").strip() or "(The student hasn't stated the problem clearly yet -- ask them what it is.)"
-    playbook = _playbook(_unit_from_text(problem, course), course)
+    _u = _unit_from_text(problem, course)          # build gb: also filters the scripts
+    playbook = _playbook(_u, course)
     return GROUND_RULES + GRAPH_TOOL_NOTE + PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
@@ -2966,7 +2982,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
         subject=_subject(course),
         scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
     ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
-                      (student or {}).get("foundations_verbatim", True))
+                      (student or {}).get("foundations_verbatim", True), _u)
 
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
@@ -3014,7 +3030,8 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
     """Fill the topic template with this student's name and their chosen topic, for a course."""
     name = (student or {}).get("name", "the student")
     topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
-    playbook = _playbook(_unit_from_text(topic, course), course)
+    _u = _unit_from_text(topic, course)            # build gb: also filters the scripts
+    playbook = _playbook(_u, course)
     return GROUND_RULES + GRAPH_TOOL_NOTE + TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
         student_name=name,
@@ -3023,7 +3040,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
         subject=_subject(course),
         scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
     ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
-                      (student or {}).get("foundations_verbatim", True))
+                      (student or {}).get("foundations_verbatim", True), _u)
 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,

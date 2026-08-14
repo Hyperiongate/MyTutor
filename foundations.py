@@ -2,6 +2,34 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gc -- 95 NEW FOUNDATION SCRIPTS ACROSS THE OTHER NINE COURSES.
+#               Completes the red list that build fz started on geometry: every term the
+#               tutor already SAYS OUT LOUD inside these scripts with nothing anywhere
+#               defining it. Counts: entry 12, basic 4, prealgebra 9, algebra1 11,
+#               algebra2 17, precalc 16, probstat 12, calculus 6, diffeq 8.
+#               This only fits because build gb filters the block to the lesson's unit.
+#               Every script was machine-checked before landing: 40-90 spoken words, the
+#               term bolded exactly once, no symbols in the spoken text, no duplicate of
+#               an existing term, and every board figure RENDERED through the real
+#               math-figures.js / geo-figures.js to confirm it draws something. Two tag
+#               shapes that do not render were caught and corrected in the process:
+#               [[graph expr=]] (the grapher reads func=/lines=) and [[vector x= y=]]
+#               (it reads v=), both already recorded as fixed bugs elsewhere in this file.
+#               APPEND ONLY -- no existing say-string was touched, so no cached audio is
+#               re-billed. AUDIO: these 95 render once on the /admin foundation pre-render.
+#   2026-08-14  BUILD gb -- THE PROMPT NOW CARRIES ONLY THE UNIT BEING TAUGHT.
+#               prompt_block() gains unit=. Scripts belonging to other units are NAMED
+#               but their wording is left out, which is what makes room for the ~120
+#               foundation terms still owed across the other nine courses. Build fz left
+#               428 characters under the 180,000 ceiling; this returns the prompt to
+#               well below where it started. NOT the deferral build cn reversed: heard-
+#               ness flips mid-session and rebuilt the cache, the unit does not change
+#               for the whole of a lesson, so the prompt stays byte-identical turn to
+#               turn. cn's own note says this mechanism "becomes the right answer if the
+#               library ever grows to where it does not fit" -- it has. Fails open: no
+#               curriculum module, an unplaceable term, or any exception, and the script
+#               travels in full exactly as before. unit=None (the default) filters
+#               nothing, so every existing caller is unchanged.
 #   2026-08-14  BUILD fz -- 25 NEW GEOMETRY SCRIPTS (red-list coverage audit, batch 1 of 10).
 #               An audit compared the terms this file promises to introduce against the
 #               vocabulary curriculum.py already classifies lessons by. Geometry had 25 terms
@@ -333,6 +361,82 @@ FOUNDATIONS = {
             "then you skip-count. Three rows of four goes four, eight, twelve. That is where multiplying "
             "begins.",
          "board": ['[[write text="⭐⭐⭐⭐   ⭐⭐⭐⭐   ⭐⭐⭐⭐   =   3 rows of 4  =  12"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "clock", "say":
+            "A **clock** is a machine that shows you what time it is. Most have a round face with the numbers "
+            "one to twelve around the edge, and two hands that turn. The short hand points at the hour. The "
+            "long hand counts the minutes. Both hands always travel the same way around the face, past one, "
+            "then two, then three, and they never go backwards. Some show the time with digits instead of "
+            "hands, and the two kinds mean exactly the same thing.",
+         "board": ['[[card title="The two hands" items="short hand goes to the hour | long hand counts the minutes | both turn the same way"]]']},
+        {"term": "dime", "say":
+            "A **dime** is the small silver coin with the ridged edge, and it is worth ten cents. Ten pennies "
+            "are worth the same as one of them. Here is the part that fools almost everybody. It is smaller "
+            "than a nickel, but it is worth twice as much. The size of a coin never tells you its value. Only "
+            "which coin it is tells you that.",
+         "board": ['[[card title="Ten cents" items="dime = 10¢ | ten pennies = 10¢ | the dime is the smaller coin"]]']},
+        {"term": "dollars", "say":
+            "Money comes in coins and in paper bills, and bills are counted in **dollars**. One dollar is worth "
+            "one hundred cents, which is the same as ten dimes or four quarters. A five dollar bill is worth "
+            "the same as five one dollar bills. When we write an amount down, the dollar sign goes in front, "
+            "then the whole bills, then a dot, then the cents left over.",
+         "board": ['[[write text="$1  =  100¢  =  10 dimes  =  4 quarters"]]', '[[write text="$2.50   is   2 whole dollars and 50 cents"]]']},
+        {"term": "hour", "say":
+            "An **hour** is a chunk of time that lasts sixty minutes. It is about as long as a school lesson or "
+            "a long cartoon. On a clock face, the short hand tells you which one you are in right now, and the "
+            "long hand has to travel all the way around the face once to finish it. A whole day holds twenty "
+            "four of them.",
+         "board": ['[[write text="1 hour = 60 minutes     the long hand goes all the way around once"]]']},
+        {"term": "hundreds", "say":
+            "Numbers have places, and each place is worth ten times the one to its right. First ones, then "
+            "tens, then **hundreds**. One hundred is ten tens bundled together. Look at the number three "
+            "hundred forty two. That three is not worth three. It sits in the third spot from the right, so it "
+            "means three hundred. Same little digit, much bigger job, only because of where it sits.",
+         "board": ['[[write text="342   =   3 hundreds  +  4 tens  +  2 ones"]]']},
+        {"term": "inch", "say":
+            "An **inch** is a unit we use for measuring short lengths. It is about as long as the top part of "
+            "your thumb, from the tip to the first crease. Twelve of them make one foot. On a ruler, the "
+            "longest lines are the whole ones and the little lines in between cut each one into smaller pieces. "
+            "To measure, line the object up with the zero mark, then read the number at the far end.",
+         "board": ['[[write text="12 inches = 1 foot      start at 0, not at the edge"]]']},
+        {"term": "money", "say":
+            "**Money** is what we trade for the things we need and want. It comes in two kinds. Coins are "
+            "metal, and bills are paper. Every coin and every bill has an amount it is worth, and that amount "
+            "never changes. A worn out penny buys exactly as much as a shiny new one. Counting it up is just "
+            "adding those amounts together, and it is easiest to start with the biggest.",
+         "board": ['[[card title="Two kinds of money" items="coins: penny, nickel, dime, quarter | bills: 1, 5, 10, 20 dollars | the amount is what it is worth"]]']},
+        {"term": "nickel", "say":
+            "A **nickel** is the thick silver coin with the smooth edge, and it is worth five cents. Five "
+            "pennies are worth the same as one of them, so every time you see one you can count five. That "
+            "makes counting quick. Five, ten, fifteen, twenty. Watch out for one thing though. It is bigger "
+            "than a dime, and yet the dime is worth twice as much. With coins, size does not tell you value.",
+         "board": ['[[numberline min="0" max="25" points="5,10,15,20,25" caption="counting nickels — five cents in every jump"]]']},
+        {"term": "quarter", "say":
+            "A **quarter** is the big silver coin, and it is worth twenty five cents. Four of them make one "
+            "dollar, and that is exactly where the name comes from. The word means one of four equal parts. "
+            "Counting them goes twenty five, fifty, seventy five, one hundred. Two of them are fifty cents, "
+            "which is half a dollar. It is the biggest everyday coin and also the one worth the most.",
+         "board": ['[[pie parts="4" shaded="1" caption="one whole, cut into four equal parts"]]', '[[write text="25¢ + 25¢ + 25¢ + 25¢  =  $1"]]']},
+        {"term": "ruler", "say":
+            "A **ruler** is a straight measuring tool with marks along the edge. Those marks are not "
+            "decoration. They are a number line printed on a stick, and they begin at zero. To measure, put the "
+            "zero mark at one end of the object and read the number where the object stops. Beginners often "
+            "line things up with the plastic edge, or with the one, and that answer comes out wrong every time.",
+         "board": ['[[numberline min="0" max="12" points="0" caption="a ruler is a number line — the object starts at 0"]]']},
+        {"term": "shape", "say":
+            "A **shape** is the outline of something, the form it makes, whatever size or color it happens to "
+            "be. A triangle has three straight sides. A square has four straight sides, all the same length. A "
+            "circle has no straight sides at all, just one curve. What gives a name is the number of sides and "
+            "corners. Turning one sideways changes nothing. A triangle standing on its point is still a "
+            "triangle.",
+         "board": ['[[card title="Count the sides and corners" items="triangle: 3 straight sides | square: 4 equal sides | circle: no straight sides"]]']},
+        {"term": "time", "say":
+            "**Time** is how we measure when something happens and how long it lasts. We count it in seconds, "
+            "then minutes, then hours, then days. Sixty seconds make one minute, and sixty minutes make one "
+            "hour. Notice that those counts do not go up in tens the way our numbers usually do. They go up in "
+            "sixties. That is why reading a clock feels strange at first.",
+         "board": ['[[card title="How we count time" items="60 seconds = 1 minute | 60 minutes = 1 hour | 24 hours = 1 day"]]']},
     ],
     "basic": [
         {"term": "fraction", "say":
@@ -461,6 +565,35 @@ FOUNDATIONS = {
             "and that works because you are counting rows of squares. That is also why we say square feet "
             "or square centimetres, never plain feet.",
          "board": ['[[write text="rectangle 5 by 3:   5 × 3  =  15 square units"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "angle", "say":
+            "An **angle** is the amount of turn between two lines that meet at a corner. We measure that turn "
+            "in degrees. A square corner, like the corner of a book, is ninety degrees. Here is the thing that "
+            "trips people up. How long the two lines are does not matter at all. Stretch them out as far as you "
+            "like and the turn between them stays exactly the same.",
+         "board": ['[[angle deg="90" caption="a square corner — ninety degrees"]]', '[[angle deg="30" caption="a smaller turn — notice the opening, not the arms"]]']},
+        {"term": "composite", "say":
+            "A whole number is **composite** when it has more than two factors, meaning something other than "
+            "one and itself divides into it evenly. Twelve is one of them, because two, three, four and six all "
+            "fit inside it exactly. Nine is one too, since three goes into it three times. A whole number "
+            "bigger than one is either prime or it belongs in this group. One belongs in neither, because it "
+            "has only a single factor.",
+         "board": ['[[card title="Prime or composite" items="12: factors 1, 2, 3, 4, 6, 12 | 7: factors 1, 7 | 1: factor 1 only"]]']},
+        {"term": "hundredths", "say":
+            "The second place after the decimal point is the **hundredths** place. It means one whole has been "
+            "cut into one hundred equal pieces. Money shows it best. A penny is one of those pieces of a "
+            "dollar, and one hundred of them make the whole dollar. Watch the sizes carefully. Each piece here "
+            "is smaller than a tenth, because the same whole was cut into more parts. Ten of them make one "
+            "tenth.",
+         "board": ['[[write text="0.07  =  7/100          0.7  =  7/10"]]']},
+        {"term": "tenths", "say":
+            "The first place after the decimal point is the **tenths** place. It means the whole has been split "
+            "into ten equal pieces, and the digit sitting there counts how many of those pieces you have. So "
+            "zero point three is three of them, the same amount as three over ten. A dime is a good picture, "
+            "since ten dimes make a dollar. One warning: this is the largest of the places after the point, not "
+            "the smallest.",
+         "board": ['[[pie parts="10" shaded="3" caption="one whole, cut into ten equal parts"]]', '[[write text="0.3  =  3/10     first place after the point"]]']},
     ],
     "prealgebra": [
         {"term": "negative number", "say":
@@ -599,6 +732,69 @@ FOUNDATIONS = {
             "pieces in it. When you do combine like terms, the letter never changes. Only the number in "
             "front of it does.",
          "board": ['[[write text="3x + 5x = 8x        3x + 5y stays 3x + 5y"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "angle", "say":
+            "An **angle** is the amount of turn between two straight arms that meet at a shared corner point. "
+            "We measure that turn in degrees. A square corner is ninety degrees, and a perfectly straight "
+            "opening is one hundred and eighty. Here is the part almost everyone gets wrong at first. Drawing "
+            "the arms longer does not make the turn bigger. Only the opening between the arms counts, so a "
+            "narrow corner with very long arms is still small.",
+         "board": ['[[angle deg="40" caption="notice the opening, not how long the arms are drawn"]]']},
+        {"term": "composite", "say":
+            "The word **composite** describes a whole number bigger than one that can be divided evenly by "
+            "something other than one and itself. Twelve qualifies, because two, three, four and six all go in "
+            "exactly. Seven does not, because only one and seven go in, so seven is prime instead. Watch the "
+            "number one. It belongs to neither group, because it has just one factor, itself, and each group "
+            "needs more than that.",
+         "board": ['[[card title="count the factors" items="12 goes with 1, 2, 3, 4, 6, 12 | 7 goes with 1, 7 | 1 goes with just 1"]]']},
+        {"term": "equation", "say":
+            "An **equation** is a number sentence saying that two things are worth exactly the same amount. The "
+            "equals sign in the middle is a promise that the left side and the right side match, like a scale "
+            "sitting perfectly level. That is why, whenever you change one side, you must do the very same "
+            "thing to the other side. Something like three n plus two makes no such claim, so we call it an "
+            "expression, and there is nothing there to solve.",
+         "board": ['[[balance left="2x + 3" right="11" state="level" caption="whatever you do to one side, do to the other"]]']},
+        {"term": "hundredths", "say":
+            "The second place to the right of the decimal point counts **hundredths**, and one of them is a "
+            "whole cut into one hundred equal pieces. Money is the everyday version, because one cent is one "
+            "hundredth of a dollar. Here is the trap. Zero point seven and zero point zero seven look alike, "
+            "but they are nowhere near the same size. The first one is seventy cents. The second one is seven "
+            "cents, ten times smaller.",
+         "board": ['[[write text="0.7  =  70 cents           0.07  =  7 cents"]]']},
+        {"term": "multiple", "say":
+            "A **multiple** of a number is what you get by multiplying that number by a whole number. Three "
+            "times one is three, three times two is six, three times three is nine, so three, six and nine all "
+            "belong on the list for three. This is the idea students swap with factors. Factors are the same "
+            "size as your number or smaller, and there are only a few of them. Multiplying runs the other way, "
+            "so that list keeps climbing and never ends.",
+         "board": ['[[card title="the number 3" items="factors of 3: 1, 3 — only two of them | 3, 6, 9, 12, 15, 18 and on — no end"]]']},
+        {"term": "number line", "say":
+            "A **number line** is a straight road where every number has its own address. Zero is the marker we "
+            "count from, numbers grow as you travel right, and they shrink as you travel left. That is why "
+            "negative five sits further left than negative two, and is the smaller of the two, which surprises "
+            "people. The labelled marks are not the only homes. One half, two and a quarter, and every decimal "
+            "sit at exact spots in between.",
+         "board": ['[[numberline min="-6" max="6" points="-5,-2" caption="further left is always the smaller number"]]']},
+        {"term": "opposite", "say":
+            "The **opposite** of a number sits the same distance from zero, but on the other side. Five and "
+            "negative five are a pair, because both are five steps from zero. Add any number to its partner and "
+            "you always land on zero, which is the whole point of the idea. One warning. Taking it is not just "
+            "writing a minus sign in front of what you see, because the partner of negative three is positive "
+            "three.",
+         "board": ['[[numberline min="-6" max="6" points="-3,3" caption="same distance from zero, opposite sides"]]']},
+        {"term": "perimeter", "say":
+            "The **perimeter** of a shape is the distance all the way around its outside edge. Picture walking "
+            "the fence around a yard and counting your steps. You add every side, and no side gets skipped. "
+            "Area asks something different: how much grass is inside that fence, counted in squares. So this "
+            "measurement is given in plain feet or plain centimetres, never square feet.",
+         "board": ['[[write text="6 + 4 + 6 + 4      every side, all the way around"]]']},
+        {"term": "tenths", "say":
+            "The first place to the right of the decimal point counts **tenths**, which is one whole cut into "
+            "ten equal pieces. Zero point five is five of those pieces, the same amount as one half. Do not mix "
+            "this place up with the tens place, which sits on the other side of the point. Tens are far bigger "
+            "than one, while every one of these pieces is smaller than one.",
+         "board": ['[[pie parts="10" shaded="5" caption="one whole cut into ten equal pieces"]]']},
     ],
     "algebra1": [
         {"term": "variable", "say":
@@ -748,6 +944,83 @@ FOUNDATIONS = {
             "swimming accidents rise together, but the ice cream is not causing anything. Hot weather "
             "drives both. A strong pattern alone never proves one thing made the other happen.",
          "board": ['[[write text="strong pattern  ≠  one thing caused the other"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "decay", "say":
+            "We say an amount is in **decay** when it keeps getting multiplied by the same fraction below one, "
+            "over and over, so it drops quickly at first and then more and more slowly. A medicine that halves "
+            "every four hours behaves this way. Take care here. Losing ten units every hour is not that "
+            "pattern, it is steady subtraction. Repeated multiplying like this can never reach zero either, "
+            "only creep closer to it.",
+         "board": ['[[graph func="0.5^x" range="-2..6" caption="steep at first, then flattening, and never touching zero"]]']},
+        {"term": "expression", "say":
+            "An **expression** is a mathematical phrase built from numbers, letters and operations, with no "
+            "equals sign anywhere in it. Three x plus five is one. Since it claims nothing, there is nothing in "
+            "it to solve. You can tidy it up by combining like terms, or you can evaluate it by choosing a "
+            "value for x. An equation is the full sentence: two sides joined by an equals sign, and that is the "
+            "thing you solve.",
+         "board": ['[[write text="3x + 5   —   an expression, nothing to solve"]]']},
+        {"term": "line", "say":
+            "A **line** is a perfectly straight path that runs on forever in both directions. In algebra you "
+            "usually meet it as the graph of two quantities changing together at a steady rate, so the plotted "
+            "dots fall dead straight. That forever part matters, because a piece with two endpoints is called a "
+            "segment instead. Any two different points fix exactly one straight path, which is why plotting two "
+            "good points is enough to draw it.",
+         "board": ['[[graph func="2x + 1" caption="steady climb, no bends, running on both ways"]]']},
+        {"term": "mean", "say":
+            "The **mean** is the fair share average. Add all the values together, then split that total evenly "
+            "among however many values you had. Three friends holding three dollars, five dollars and ten "
+            "dollars have eighteen dollars between them, so six dollars each. It is not the middle value, which "
+            "we call the median, and not the most common value, which we call the mode. One very large value "
+            "drags this average toward itself.",
+         "board": ['[[card title="mean, median, mode" items="mean — add them up and share out | median — the middle one | mode — the most common one"]]']},
+        {"term": "mode", "say":
+            "The **mode** of a list is the value that turns up most often. In two, three, three, seven and "
+            "nine, it is three, because three appears twice while everything else appears once. Two cautions. "
+            "It is the value that repeats, not the number of times it repeated, and it is not the largest value "
+            "in the list. A list can also have two of them, and when nothing repeats we usually say there is "
+            "none.",
+         "board": ['[[dotplot data="2,3,3,7,9" caption="which value shows up more than once"]]']},
+        {"term": "parabola", "say":
+            "A **parabola** is the smooth U shaped curve you get when you graph a quadratic, one where the "
+            "highest power of x is two. It has exactly one turning point, called the vertex, and a mirror line "
+            "straight through that point, so the two arms match each other perfectly. Graphed this way, the "
+            "curve opens upward when the number in front of x squared is positive, and downward when that "
+            "number is negative.",
+         "board": ['[[graph func="x^2" range="-4..4" yrange="-2..16" caption="one turning point, and two arms that mirror each other"]]']},
+        {"term": "parallel", "say":
+            "Two straight paths on the same flat surface are **parallel** when they head in the same direction "
+            "and never meet, however far you follow them. For any two that are not vertical, this shows up as "
+            "equal slopes, since both climb at exactly the same rate. One condition is easy to forget. Their "
+            "starting heights must differ. Equal slopes with the same y intercept is not a pair at all, it is "
+            "one path written down twice.",
+         "board": ['[[graph lines="y=2x+1 ; y=2x-4" range="-4..4" caption="same slope, different starting height"]]']},
+        {"term": "rate of change", "say":
+            "A **rate of change** tells you how much one quantity moves for every single unit the other one "
+            "moves. Forty miles for each hour is one of these. On a straight graph it is the slope, the rise "
+            "divided by the run, so notice that it compares two changes rather than reporting just one. A "
+            "straight graph carries the same value the whole way along. On a curve it shifts, so there it has "
+            "to be measured across a chosen stretch.",
+         "board": ['[[write text="rise 6   over   run 2      6 up for every 2 across"]]']},
+        {"term": "scatter", "say":
+            "A **scatter** plot is a graph where every dot stands for one pair of measurements taken from the "
+            "same subject, such as one student's study hours beside that same student's test score. You are not "
+            "joining the dots up. You are reading the shape of the cloud they make. If the cloud slopes upward, "
+            "the two quantities tend to rise together, though that on its own does not prove one causes the "
+            "other.",
+         "board": ['[[scatter points="(1,2) (2,3.5) (3,5) (4,4.5) (5,7)" caption="each dot is one pair of measurements"]]']},
+        {"term": "square root", "say":
+            "The **square root** of a number is the number you multiply by itself to get it. Three times three "
+            "is nine, so nine gives you three. Here is the fine print people trip on. The radical sign asks "
+            "only for the positive one, so it hands back three and not negative three. Solving x squared equals "
+            "nine is a different question, and that one has two answers, three and negative three.",
+         "board": ['[[write text="√9 = 3          but          x² = 9  →  x = 3 or x = −3"]]']},
+        {"term": "vertex", "say":
+            "A **vertex** is a special corner point. On a shape with straight sides it is the place where two "
+            "of those sides meet. On a parabola it is the single turning point, where the curve stops heading "
+            "one way and starts heading the other. Whether that turning point is the lowest place or the "
+            "highest depends on which way the curve opens, so do not assume it is always a minimum.",
+         "board": ['[[graph func="x^2 - 4x + 1" range="-2..6" yrange="-4..6" caption="notice the one place where the curve turns around"]]']},
     ],
     "geometry": [
         {"term": "angle", "say":
@@ -1187,6 +1460,127 @@ FOUNDATIONS = {
             "compared fairly. And when the data follow a normal model, that bell shaped curve, a z-score "
             "also tells you roughly what fraction of everyone you are ahead of.",
          "board": ['[[write text="z = (value − mean) ÷ standard deviation"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "complex number", "say":
+            "A **complex number** has two parts joined together: an ordinary real part, and an imaginary part "
+            "built from i, the number whose square is negative one. Three plus two i is one of them. Here is "
+            "what trips people. Those two parts never merge into a single term. Three plus two i stays exactly "
+            "as it is written, because a real quantity and an imaginary one cannot be added into one. You "
+            "combine real with real, and imaginary with imaginary.",
+         "board": ['[[write text="3 + 2i        real part: 3        imaginary part: 2i"]]']},
+        {"term": "cosine", "say":
+            "In a right triangle, the **cosine** of an angle is the length of the side next to that angle, the "
+            "one that is not the hypotenuse, divided by the hypotenuse. It is a ratio, so it comes out as a "
+            "plain number with no units on it. Here is the trap. Writing this ratio in front of an angle does "
+            "not mean anything is being multiplied by that angle. It names an operation you perform on the "
+            "angle, the way a square root sign names one.",
+         "board": ['[[righttriangle adj="4" opp="3" theta="θ" caption="which leg sits next to θ, and which one is across from it"]]']},
+        {"term": "cube root", "say":
+            "The **cube root** of a number is the value you multiply by itself three times to get back to that "
+            "number. Two times two times two is eight, so eight gives you two. Notice one difference that "
+            "matters. Unlike the square root sign, this one is perfectly happy with a negative number "
+            "underneath, because negative two times negative two times negative two is negative eight. Nothing "
+            "is undefined there, and no imaginary unit is needed.",
+         "board": ['[[write text="∛8 = 2            ∛(−8) = −2"]]']},
+        {"term": "degree", "say":
+            "The **degree** of a polynomial in one variable is the highest power that variable is raised to. In "
+            "three x cubed minus five x plus two, it is three. Careful here. It is not how many terms the "
+            "expression has, and it is not the number sitting out in front. Look only at the exponents and take "
+            "the biggest one. That single number tells you a great deal before you do any work, including at "
+            "most how many times the graph can cross the horizontal axis.",
+         "board": ['[[write text="3x³ − 5x + 2        highest exponent: 3"]]']},
+        {"term": "factor", "say":
+            "A **factor** is one of the pieces that get multiplied together. Since x squared minus five x plus "
+            "six can be rewritten as x minus two, times x minus three, each of those two pieces is one of them. "
+            "Here is the confusion worth naming. A term is something you add, while this is something you "
+            "multiply. And it is a whole expression, not a value for x. The number two, which makes that "
+            "expression come out zero, is a related but different thing.",
+         "board": ['[[write text="x² − 5x + 6   =   (x − 2)(x − 3)"]]', '[[card title="factor, zero, root" items="factor — a piece it multiplies into | zero — an x that makes it 0 | root — the same x, named from the equation"]]']},
+        {"term": "hole", "say":
+            "A rational function has a **hole** at an x value when the same factor sits on the top and the "
+            "bottom, and cancelling clears it out of the bottom completely. That input was never allowed, "
+            "because it made the original denominator zero, so the graph is missing exactly one point there and "
+            "carries on as normal either side of it. Do not confuse this with a vertical asymptote. There the "
+            "curve races away without bound.",
+         "board": ['[[write text="(x² − 4) / (x − 2)  =  x + 2   for every x except 2"]]', '[[graph func="x+2" hole="2" range="-3..6" yrange="-2..9" caption="ordinary everywhere except one missing point"]]']},
+        {"term": "mean", "say":
+            "The **mean** is the average you get by adding up every value and then splitting the total evenly "
+            "among however many values there are. Think of it as the balance point of the data. Here is the "
+            "thing to watch for. One extreme value drags it, because every value pulls on that total. A single "
+            "enormous salary can lift the average of a whole office above what almost anybody there actually "
+            "earns, which is why the median is so often reported beside it.",
+         "board": ['[[dotplot data="4,5,5,6,20" caption="four values bunched, one far out"]]']},
+        {"term": "parabola", "say":
+            "A **parabola** is the curve you get when you graph a quadratic, a rule whose highest power is two. "
+            "It has exactly one turning point, and a mirror line running straight through it, so the two sides "
+            "match. Careful here. That mirror line is only the vertical axis in the simplest cases. Add an x "
+            "term and the whole curve slides sideways, mirror line and all, so never assume the turning point "
+            "sits on the vertical axis.",
+         "board": ['[[graph func="x^2-4x+1" range="-2..6" yrange="-4..6" caption="the mirror line here is not the vertical axis"]]']},
+        {"term": "rational equation", "say":
+            "A **rational equation** is an equation with the variable down in a denominator. You solve one by "
+            "multiplying every term by the common denominator, which clears the fractions, and then solving "
+            "whatever is left. Here is the step nobody may skip. Multiplying a denominator away can invent an "
+            "answer that never worked in the first place, so any answer that would make a denominator zero has "
+            "to be thrown out. Check each one in the original.",
+         "board": ['[[write text="1/x + 1/2 = 3/4     multiply by 4x      4 + 2x = 3x"]]']},
+        {"term": "rational function", "say":
+            "A **rational function** is one polynomial divided by another. The word comes from ratio, not from "
+            "being reasonable. Everything interesting on its graph happens where the bottom would be zero, "
+            "because dividing by zero is not allowed, so those inputs are missing from the domain. What you see "
+            "at such an input depends on the top as well. If that factor cancels right out of the bottom, you "
+            "get one missing point. If any of it is left down there, you get a vertical asymptote.",
+         "board": ['[[graph func="1/(x-2)" range="-4..8" yrange="-6..6" caption="watch the curve as x closes in on 2 from each side"]]']},
+        {"term": "roots", "say":
+            "The **roots** of an equation are the values of the variable that make the equation true. Set x "
+            "squared minus five x plus six equal to zero, and two and three are what you are hunting for. One "
+            "thing to keep straight. This same word also names the square root operation, which is a completely "
+            "different idea. Here it is a solution, and it earns the name from the equation you were handed, "
+            "not from any radical sign.",
+         "board": ['[[write text="x² − 5x + 6 = 0        solutions:  x = 2  and  x = 3"]]']},
+        {"term": "sine", "say":
+            "In a right triangle, the **sine** of an angle is the side across from that angle divided by the "
+            "hypotenuse. Here is the part that makes it so useful. It depends only on the angle, never on how "
+            "big the triangle is. Shrink the triangle to half its size and both of those lengths halve, so the "
+            "ratio is unchanged. And because the hypotenuse is always the longest side, this ratio can never "
+            "come out larger than one.",
+         "board": ['[[righttriangle adj="4" opp="3" theta="θ" caption="which side is across from θ, and which is the longest"]]']},
+        {"term": "square root", "say":
+            "The **square root** of a number is the value that, multiplied by itself, gives that number back. "
+            "Three times three is nine, so nine gives you three. Here is the fine point people miss. The "
+            "radical sign on its own asks for the positive value only, so it hands back three and not negative "
+            "three. It is when you solve an equation such as x squared equals nine that both three and negative "
+            "three are answers, and you write the plus or minus in yourself.",
+         "board": ['[[write text="√9 = 3          but          x² = 9   →   x = 3  or  x = −3"]]']},
+        {"term": "square root of a negative", "say":
+            "Ask for the **square root of a negative** and no real number can answer, because any real number "
+            "multiplied by itself comes out positive or zero. So we write the answer using i, the number whose "
+            "square is negative one. Negative nine under the sign becomes three i. Do that conversion first, "
+            "every time. If you multiply two of them while they are still sitting under the radical sign, the "
+            "usual rule breaks down and the sign of your answer comes out wrong.",
+         "board": ['[[write text="√(−9) = 3i          √(−4)·√(−9) = 2i · 3i = −6"]]']},
+        {"term": "standard deviation", "say":
+            "The **standard deviation** is one number telling you how far a typical value sits from the "
+            "average. Small, and the data huddle close together. Large, and they are spread widely apart. It is "
+            "measured in the same units as the data itself, so heights in inches give an answer in inches. "
+            "Careful here. It is not the gap between the smallest and the largest value, and a single far away "
+            "outlier can inflate it well past what most of the data are doing.",
+         "board": ['[[dotplot data="4,5,5,5,6" caption="bunched tightly: small standard deviation"]]']},
+        {"term": "trig", "say":
+            "Everybody shortens the name of this subject to **trig**. It is the branch of mathematics that "
+            "links the angles of a triangle to the lengths of its sides. Three ratios do almost all of the "
+            "work: sine, cosine and tangent, each one comparing two sides of a right triangle. Here is what "
+            "surprises people. It is not only about triangles. Those same ratios describe things that go round "
+            "and repeat, like a wave or a turning wheel, which is why they follow you well past this course.",
+         "board": ['[[card title="the three ratios" items="sine — opposite over hypotenuse | cosine — adjacent over hypotenuse | tangent — opposite over adjacent"]]']},
+        {"term": "zeros", "say":
+            "The **zeros** of a function are the input values that make its output come out zero. On a graph, "
+            "the real ones are exactly where the curve meets the horizontal axis. Two things to keep straight. "
+            "A zero is an x value, not a point on the curve and not a height. And a zero is a number, while a "
+            "factor such as x minus two is an expression. The factor is what you multiply by, and the number "
+            "two is the zero it hands you.",
+         "board": ['[[graph func="x^2-5x+6" range="-1..5" yrange="-3..7" caption="look at where the curve meets the horizontal axis"]]']},
     ],
     "precalc": [
         {"term": "function", "say":
@@ -1361,6 +1755,121 @@ FOUNDATIONS = {
             "everywhere else.",
          "board": ['[[write text="continuous at a:  f(a) exists,  limit exists,  and they are equal"]]',
                    '[[graph func="x^2" range="-4..4" yrange="-1..16" caption="smooth and unbroken: no lifting the pencil"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "approaches", "say":
+            "When we say a quantity **approaches** a number, we are describing a journey, not an arrival. The "
+            "values get as close to that number as you could ask for, and the question is where they are "
+            "headed, not whether they ever land. That distinction is the whole reason the word exists. The "
+            "function may do something completely different at the target value, or may not even be defined "
+            "there, and none of that changes where the values were heading.",
+         "board": ['[[graph func="x+2" hole="2" range="-2..6" yrange="-2..9" caption="nothing sits at x = 2, yet the values still head somewhere"]]']},
+        {"term": "compound", "say":
+            "In **compound** interest, the interest you earn is added to the balance, and from then on it earns "
+            "interest too. Simple interest pays only on the original amount, so it grows in a straight line. "
+            "Here the balance multiplies by the same factor each period, so the growth curves upward. One "
+            "detail decides the arithmetic: how many times a year the interest gets added. Divide the yearly "
+            "rate by that count, add one to it, and raise what you get to the total number of periods.",
+         "board": ['[[write text="A = P(1 + r/n)^(nt)        n = how many times a year interest is added"]]']},
+        {"term": "conic", "say":
+            "A **conic** section is any curve you get by slicing a double cone with a flat plane. Change the "
+            "tilt and you get a circle, an ellipse, a parabola or a hyperbola. They look like four unrelated "
+            "shapes, but they are one family, and each has an equation whose highest power is two. Here is a "
+            "trap worth naming now. A hyperbola is not two parabolas back to back. Its branches straighten out "
+            "toward asymptotes, which parabolas never do.",
+         "board": ['[[conic type="hyperbola" a="3" b="2" caption="the dashed guide lines the two branches straighten toward"]]']},
+        {"term": "continuous", "say":
+            "A function is **continuous** across an interval when its graph runs through that whole stretch "
+            "unbroken: no gaps, no missing points, no sudden jump to a new height. Here is the distinction "
+            "students blur. Unbroken does not have to be smooth. The absolute value graph has a sharp corner at "
+            "zero and it is still perfectly unbroken there, because your pencil never leaves the paper. Corners "
+            "are allowed. Breaks are not.",
+         "board": ['[[graph func="abs(x)" range="-4..4" yrange="-1..4" caption="a sharp corner, yet the pencil never leaves the paper"]]']},
+        {"term": "cosine", "say":
+            "On the unit circle, the **cosine** of an angle is the first coordinate of the point you reach when "
+            "you start at the far right and turn through that angle. The right triangle version only handled "
+            "angles smaller than a right angle. This one handles every angle, turning either way, past a full "
+            "revolution and beyond. It also explains the negative values: in the second and third quadrants the "
+            "point has simply crossed to the left of the vertical axis.",
+         "board": ['[[unitcircle angle="135" caption="read the first coordinate, and notice its sign out here"]]']},
+        {"term": "degree", "say":
+            "A **degree** is a unit for measuring angles, defined as one three hundred sixtieth of a full turn. "
+            "That count is a historical choice, not a mathematical one, and it is the whole reason radians "
+            "exist alongside it. A radian is defined by the circle itself, so calculus comes out clean in "
+            "radians and cluttered in the older unit. Careful here. A calculator gives different answers for "
+            "the same trig entry depending on which mode it is in, so check the mode before you trust a value.",
+         "board": ['[[write text="360° = 2π rad          90° = π/2 rad          1 rad ≈ 57.3°"]]']},
+        {"term": "foci", "say":
+            "The two special points that define an ellipse or a hyperbola are its **foci**, and a single one of "
+            "them is called a focus. For an ellipse, the distances from any point on the curve to the two of "
+            "them always add to the same total. For a hyperbola, it is the difference of those two distances "
+            "that stays constant. Careful here. Neither point ever sits on the curve, and neither one is the "
+            "centre. Both lie on the main axis, one either side of it.",
+         "board": ['[[conic type="ellipse" a="5" b="3" caption="two foci: distances to them always add to the same total"]]']},
+        {"term": "focus", "say":
+            "A parabola is built from one special point, called its **focus**, together with a line called the "
+            "directrix. Every point on the curve is exactly as far from that point as it is from that line, and "
+            "that single property generates the entire shape. It is why a satellite dish works: signals "
+            "arriving straight on all bounce to the same spot. Careful here. The point sits inside the curve, "
+            "along the axis of symmetry, and it never lies on the parabola itself.",
+         "board": ['[[write text="y = x²      focus: (0, ¼)      directrix:  y = −¼"]]']},
+        {"term": "logarithm", "say":
+            "A **logarithm** is the inverse of an exponential. It takes a number and hands back the power the "
+            "base had to be raised to in order to produce it. Because a positive base raised to any power stays "
+            "positive, only positive inputs are allowed, and that is exactly where the vertical asymptote comes "
+            "from. Here is the error to guard against. The log of a sum is not the sum of the logs. The laws "
+            "turn products into sums, never sums into sums.",
+         "board": ['[[write text="log(ab) = log a + log b          but          log(a + b) is NOT log a + log b"]]']},
+        {"term": "magnitude", "say":
+            "The **magnitude** of a vector is its length: how much of it there is, with the direction stripped "
+            "away. You find it by squaring each component, adding those, and taking the square root, which is "
+            "Pythagoras again. Two consequences catch people out. It is never negative, even when every "
+            "component is. And adding two vectors gives a length at most as big as the two lengths added, and "
+            "strictly smaller whenever they point different ways.",
+         "board": ['[[vector v="4,3" caption="the length comes from both components, not from either one alone"]]']},
+        {"term": "polynomial", "say":
+            "A **polynomial** is a sum of terms, each one a coefficient times the variable raised to a whole "
+            "number power. That restriction on the exponents is what gives the whole family its good behaviour: "
+            "no breaks, no corners, no asymptotes, just one smooth unbroken curve. The highest exponent caps "
+            "two things at once. A fifth power allows at most five crossings of the horizontal axis and at most "
+            "four turning points. Fractional or negative exponents put an expression in another family "
+            "entirely.",
+         "board": ['[[graph func="x^3-3x" range="-3..3" yrange="-4..4" caption="count the turning points against the highest exponent"]]']},
+        {"term": "range", "say":
+            "The **range** of a function is the complete collection of output values it actually produces as "
+            "the input runs over the whole domain. Domain is what goes in, this is what comes out. Two "
+            "warnings. In statistics the same word describes the largest value minus the smallest, a different "
+            "idea altogether. And this is what the rule really reaches, not what it is permitted to reach: x "
+            "squared has every real number available to it, yet never produces a negative one.",
+         "board": ['[[graph func="x^2" range="-4..4" yrange="-2..16" caption="how high and how low do the outputs actually get"]]']},
+        {"term": "sine", "say":
+            "On the unit circle, the **sine** of an angle is the second coordinate of the point you reach when "
+            "you start at the far right and turn through it. Let the angle keep growing and those heights trace "
+            "out the familiar wave. Here is the error worth killing now. This is not a quantity multiplied by "
+            "the angle, so it does not distribute over addition. The value for a sum of two angles is not the "
+            "two separate values added together. A separate identity handles that case.",
+         "board": ['[[graph func="sin(x)" range="-6.5..6.5" yrange="-2..2" caption="the height of the circle point, unrolled as the angle grows"]]']},
+        {"term": "stretch", "say":
+            "A **stretch** is a transformation that scales a graph rather than sliding it. Multiply the whole "
+            "output by three and every height triples, pulling the curve away from the horizontal axis. Now the "
+            "part almost everybody gets backwards. Multiplying the input by three does the opposite of what it "
+            "looks like: the graph is squeezed toward the vertical axis by a factor of three, because x now "
+            "only has to travel a third as far to give the same output.",
+         "board": ['[[graph func="x^2 ; (3*x)^2" range="-3..3" yrange="-1..9" caption="the input was tripled, and the curve got narrower, not wider"]]']},
+        {"term": "tangent", "say":
+            "The **tangent** of an angle is the sine divided by the cosine, which on a right triangle works out "
+            "as the opposite side over the adjacent one. Picture it as the slope of the line from the origin "
+            "out to your point on the unit circle. That is why it blows up: wherever the cosine is zero, the "
+            "division is impossible and the graph has a vertical asymptote. It also repeats twice as often as "
+            "sine, once every half turn.",
+         "board": ['[[graph func="tan(x)" range="-4.7..4.7" yrange="-6..6" caption="notice where the curve breaks, and how often the pattern repeats"]]']},
+        {"term": "verify", "say":
+            "To **verify** an identity is to show that its two sides are the same expression for every value "
+            "you are allowed to substitute. That last part is the whole job. Trying three angles and finding "
+            "they agree proves nothing, because a false statement can still survive a handful of test values. "
+            "So you never plug in numbers as evidence. You take one side alone and rewrite it, step by legal "
+            "step, until it turns into the other side.",
+         "board": ['[[write text="tan θ · cos θ  =  sin θ        rewrite the LEFT side alone until it becomes the right"]]']},
     ],
     "probstat": [
         {"term": "mean", "say":
@@ -1524,6 +2033,93 @@ FOUNDATIONS = {
             "dishonest answers, or a badly chosen sample. Those errors hide completely outside it.",
          "board": ['[[write text="52% ± 3%   →   plausible range 49% to 55%"]]',
                    '[[write text="covers random variation ONLY — never bias"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "bar chart", "say":
+            "A **bar chart** is a picture of separate groups. Each group gets its own bar, and the height of "
+            "that bar shows how many landed in it, or what share of the whole it took. Notice the gaps. The "
+            "groups are labels, not places on a number line, so you may reorder them any way you like and "
+            "nothing is lost. That is where the confusion lives. A histogram looks similar, but its bars touch, "
+            "and shuffling those would wreck the meaning.",
+         "board": ['[[bars data="cats:7 | dogs:5 | fish:3" caption="separate groups, so the bars stand apart"]]']},
+        {"term": "categorical", "say":
+            "Data is **categorical** when each value is a label naming which group something belongs to: "
+            "favorite color, brand of phone, blood type. Counting how many fall in each group makes sense, and "
+            "averaging the labels does not. Here is the trap. Digits do not make a value numerical. A zip code, "
+            "a jersey number, or an answer coded as one for yes and two for no is still a label wearing a "
+            "numeric costume.",
+         "board": ['[[card title="label, or number?" items="favorite color — a label | blood type — a label | zip code — a label written with digits"]]']},
+        {"term": "chance", "say":
+            "In statistics, **chance** means a number saying how often something happens when the same "
+            "situation is repeated over and over. It runs from zero, the number we give to something that "
+            "cannot happen, up to one, the number we give to something certain. Here is the trap. Two possible "
+            "outcomes do not automatically split evenly. Rain tomorrow and no rain are two outcomes, yet "
+            "counting outcomes only works when every outcome is equally likely, and the weather is not a fair "
+            "coin.",
+         "board": ['[[write text="0 = cannot happen       1/2 = as often as not       1 = certain"]]']},
+        {"term": "data", "say":
+            "In statistics, **data** means the recorded facts you actually collected, together with what each "
+            "value measures and who or what it came from. Heights, favorite colors, minutes spent reading, all "
+            "of it counts. Here is the trap. Numbers by themselves are not enough. A column of values with no "
+            "labels tells you nothing, because the same figure means one thing as a height in centimeters and "
+            "something else entirely as an age in years.",
+         "board": ['[[card title="a value needs its context" items="172 — meaningless on its own | 172 cm — one person\'s height | record who was measured, and in what units"]]']},
+        {"term": "experiment", "say":
+            "In statistics, an **experiment** is a study where the researcher actively imposes a treatment and "
+            "then compares what happens. You place people into groups, ideally at random, and you change one "
+            "thing on purpose. That deliberate assignment is what can earn a claim about cause. Here is the "
+            "trap. Asking people what they already do is an observational study instead. Watching and recording "
+            "never rules out the other differences between the groups, however many people you reach.",
+         "board": ['[[card title="two kinds of study" items="experiment — the researcher assigns the treatment | observational — the researcher only watches or asks | only the first can point at a cause"]]']},
+        {"term": "long run", "say":
+            "The **long run** is what a probability actually promises: not what happens next, but what settles "
+            "out over very many repeats. One in six for rolling a four does not mean one four in every six "
+            "rolls. Six rolls can easily hand you three fours, or none at all. Over thousands of rolls, though, "
+            "the share of fours creeps toward one sixth and stays near it. Here is the trap. A drought of fours "
+            "never makes one due. Dice keep no memory.",
+         "board": ['[[write text="6 rolls: almost anything can happen        6,000 rolls: the share of 4s settles near 1/6"]]']},
+        {"term": "population", "say":
+            "A **population** is every single member of the group your conclusion is meant to be about, and you "
+            "decide what it is before you collect anything: every registered voter in the state, every bolt off "
+            "a factory line, every patient with one diagnosis. A sample is the part of it you actually reach. "
+            "Here is the trap. It is set by your question, and it need not be people. Bolts, days, and phone "
+            "calls all qualify.",
+         "board": ['[[card title="who the conclusion is about" items="population — every member of the group you want to describe | sample — the part you actually measured"]]']},
+        {"term": "sampling variability", "say":
+            "The phrase **sampling variability** names a plain fact: two honest samples drawn from the same "
+            "group will not give the same answer. Poll a thousand people today, a thousand more tomorrow, both "
+            "done carefully, and the two results will differ a little. That wobble is expected, and a margin of "
+            "error exists to describe it. Here is the trap. This is not bias. Bias pushes every sample the same "
+            "wrong way, while this wobble lands on both sides of the truth.",
+         "board": ['[[dotplot data="48,49,50,50,51,52" caption="six careful polls of the same population"]]']},
+        {"term": "scatter", "say":
+            "A **scatter** plot shows two measurements taken from the same individual at once: one along the "
+            "horizontal axis, one up the vertical, and a single dot for each individual. It lets you see "
+            "whether the two travel together. Here is the trap. Every dot is a matched pair from one source, so "
+            "the two columns may never be sorted or shuffled on their own. Break the pairing and you invent a "
+            "relationship nobody ever measured.",
+         "board": ['[[scatter points="(1,2) (2,3.5) (3,5) (4,5.5) (5,7)" caption="each dot is one student: hours studied across, test score up"]]']},
+        {"term": "spread", "say":
+            "The word **spread** describes how far apart the values in a data set are, and it says nothing at "
+            "all about where the center sits. Two classes can share an identical average while one is bunched "
+            "tightly and the other holds both stars and strugglers. Range, interquartile range and standard "
+            "deviation each measure it a different way. Here is the trap. An average reported alone hides "
+            "whether everyone sat near it or almost nobody did.",
+         "board": ['[[dotplot data="4,5,5,5,6" caption="center 5: the values huddle around it"]]', '[[dotplot data="1,3,5,7,9" caption="center 5 again, and the values are flung far apart"]]']},
+        {"term": "stem", "say":
+            "In a **stem** and leaf plot, each value is split in two. The leading part is written once down the "
+            "left, and the final digit of every value sharing it sits beside it as a leaf. Sixty one, sixty "
+            "four and sixty seven all begin with six, so that six is written once and carries three leaves. "
+            "Here is the trap. Leaves are not tally marks. Each leaf is one real value, so the whole set can be "
+            "read straight back off the picture.",
+         "board": ['[[write text="61, 64, 67   becomes   6 | 1 4 7"]]']},
+        {"term": "survey", "say":
+            "A **survey** collects answers by asking a sample of people questions, then uses those answers to "
+            "describe the whole group. Nothing is imposed on anybody, which is why it can describe what is true "
+            "without showing what caused it. Here is the trap. Who answers matters more than how many answer. "
+            "Replies from volunteers can be wildly off even in the thousands, because the people who bother to "
+            "reply differ from the people who ignore you.",
+         "board": ['[[card title="what goes wrong when we ask" items="who replies — volunteers are not typical | how the question is worded | how many people refuse to answer"]]']},
     ],
     "calculus": [
         {"term": "derivative", "say":
@@ -1718,6 +2314,50 @@ FOUNDATIONS = {
             "different starting point gives a different curve.",
          "board": ['[[write text="slope field: at each point (x, y), draw a dash of slope y\' = f(x, y)"]]',
                    '[[card title="reading a slope field" items="dashes are directions, not curves | pick a start point | follow the flow"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "area under", "say":
+            "The phrase **area under** a curve names what a definite integral measures: the space between the "
+            "graph and the horizontal axis, across an interval. It is a total rather than a rate, and its units "
+            "come from multiplying the two axes together, so a graph of velocity against time totals up to a "
+            "change in position. Here is the trap. The integral counts space below the axis as negative, so it "
+            "reports a signed total, which can be smaller than the space you would paint.",
+         "board": ['[[card title="signed, not painted" items="above the axis — counts positive | below the axis — counts negative | to paint it instead, integrate the absolute value"]]']},
+        {"term": "continuous", "say":
+            "A function is **continuous** at a point when three things line up: it has a value there, it has a "
+            "limit there, and those two agree. Across an interval, the picture is a graph you could draw "
+            "without ever lifting your pencil. Here is the trap. Unbroken is not the same as smooth. The "
+            "absolute value graph has a sharp corner at zero, so it passes the pencil test yet has no "
+            "derivative there, because the two sides arrive with different slopes.",
+         "board": ['[[graph func="abs(x)" range="-3..3" yrange="-1..3" caption="unbroken all the way through, and still no single slope at the corner"]]']},
+        {"term": "differential equation", "say":
+            "A **differential equation** is a statement about a derivative rather than about a number. It tells "
+            "you the rate at which something changes, and it asks you to find the function that changes that "
+            "way. Growth whose rate is proportional to the amount present is the standard example. Here is the "
+            "trap. Solving one does not produce a number. It produces a family of functions carrying arbitrary "
+            "constants, and you test a candidate by substituting it, and its derivative, back in.",
+         "board": ['[[write text="dy/dt = k y        the rate depends on how much there is"]]']},
+        {"term": "displacement", "say":
+            "In motion problems, **displacement** is the change in position: where you finished, measured from "
+            "where you started, with nothing said about the route between. It carries a sign, so once you pick "
+            "which direction counts as positive, travel the other way subtracts, and a round trip back to the "
+            "door comes to zero. Here is the trap. It is not the total distance. Walk three blocks out and "
+            "three blocks back and you covered six blocks, yet your position changed by nothing.",
+         "board": ['[[card title="displacement vs total distance" items="displacement — where you ended up | total distance — how far you actually travelled"]]']},
+        {"term": "initial condition", "say":
+            "An **initial condition** is the starting fact that picks one curve out of a family. "
+            "Antidifferentiating leaves you an unknown constant, and one known value of the function pins that "
+            "constant down. Here is the trap. Apply the fact after you integrate, never before it, and do not "
+            "assume it lives at time zero. Any input where you know the output does the very same job, so read "
+            "the wording rather than the habit.",
+         "board": ['[[write text="y\' = 2x   gives   y = x² + C ;   y(0) = 3   pins   C = 3"]]']},
+        {"term": "total distance", "say":
+            "In motion problems, **total distance** is how far the object actually traveled, adding every "
+            "stretch of the trip no matter which way it pointed. For a moving object it is the integral of "
+            "speed, which is the absolute value of velocity, so it never decreases as time runs on. Here is the "
+            "trap. It is not displacement. Where the object turns around, split the trip at the turning point "
+            "and add the pieces, or the two directions cancel.",
+         "board": ['[[card title="one trip, two honest answers" items="3 m out, then 3 m back | displacement = 0 m | total distance = 6 m"]]']},
     ],
     "diffeq": [
         {"term": "differential equation", "say":
@@ -1941,6 +2581,65 @@ FOUNDATIONS = {
             "with it.",
          "board": ['[[write text="A·v = r·v  →  solution  x(t) = e^(rt)·v"]]',
                    '[[card title="what the eigenvalues say" items="all negative: solutions pulled in | any positive: pushed out | complex: spirals"]]']},
+        # --- build gc (2026-08-14): red-list additions for this course. See the
+        # change note at the top of this file. Appended, never edited.
+        {"term": "complementary", "say":
+            "For a linear equation carrying a forcing term on the right, the **complementary** part of the "
+            "answer is what you get by setting that right hand side to zero and solving. It carries the "
+            "arbitrary constants, while the particular piece added to it answers the forcing. Here is the trap. "
+            "Neither piece is the answer by itself, and the starting values are applied only after the two have "
+            "been added, never to one of them alone.",
+         "board": ['[[write text="y = y_c + y_p       y_c solves the equation with the right side set to 0"]]', '[[card title="assemble, THEN apply" items="set the right side to zero and solve | find a piece that produces the forcing | add them, and only then use the starting values"]]']},
+        {"term": "eigenvector", "say":
+            "An **eigenvector** is a direction a matrix refuses to turn. Multiply it by the matrix and what "
+            "comes back points along the very same line, only stretched or shrunk, and the stretching factor is "
+            "its eigenvalue. When that factor is a real number, the solution along this direction simply grows "
+            "or decays. Here is the trap. It names a direction, not a number, so any nonzero multiple of it is "
+            "the same one, and the number riding with it is the eigenvalue.",
+         "board": ['[[write text="A·v = r·v        the arrow v keeps its direction; r is only the stretch"]]']},
+        {"term": "inverse transform", "say":
+            "Once you have solved in the s domain, the **inverse transform** is the trip home: it takes a "
+            "function of s and hands back the function of time it came from. You do it by recognizing standard "
+            "pieces in a table, which usually means splitting into partial fractions first, and completing the "
+            "square when a quadratic will not factor. Here is the trap. You are reading the table backwards, so "
+            "reshape your expression to match an entry rather than hunting for a new rule.",
+         "board": ['[[write text="Y(s) = 1/(s² + 4)    gives    y(t) = (1/2) sin(2t)"]]']},
+        {"term": "natural frequency", "say":
+            "Every mass on a spring has one rhythm it prefers when nothing pushes it and nothing drains it, and "
+            "that rhythm is its **natural frequency**. It is set by the stiffness and the mass alone, never by "
+            "how hard you started the motion. Here is the trap. Size and rhythm are separate. Pulling the mass "
+            "twice as far gives bigger swings at the very same rate, and a little damping slows that rate only "
+            "slightly, while heavy damping stops the swinging altogether.",
+         "board": ['[[write text="m·y'' + k·y = 0        ω² = k/m        stiffer: faster        heavier: slower"]]']},
+        {"term": "predator", "say":
+            "In a two species model, the **predator** equation and the prey equation are locked together: the "
+            "hunters can grow only while there is enough to eat, and the hunted vanish faster the more hunters "
+            "there are. In the classic version the two numbers chase each other around a closed loop in the "
+            "phase plane, with the peak in hunters arriving after the peak in prey. Here is the trap. That loop "
+            "circles the resting point rather than settling into it.",
+         "board": ['[[write text="x\' = a·x − b·x·y        y\' = −c·y + d·x·y        (prey x, hunters y)"]]', '[[card title="reading the loop" items="prey rise first | the hunters follow | hunters overshoot and crash | prey recover, and it repeats"]]']},
+        {"term": "repeated root", "say":
+            "In a constant coefficient equation, when the characteristic equation hands you the same answer "
+            "twice, you have a **repeated root**, and the two solutions you were expecting have collapsed into "
+            "one. A single function cannot carry two arbitrary constants, so you build the partner by "
+            "multiplying that first solution by t. Here is the trap. Writing the same exponential down twice is "
+            "not a second solution. The extra factor of t is what keeps the pair independent.",
+         "board": ['[[write text="r = 3, twice        y = C₁e^(3t) + C₂ t e^(3t)"]]']},
+        {"term": "standard form", "say":
+            "Before computing an integrating factor, put a first order linear equation into **standard form**: "
+            "the derivative standing alone with a coefficient of one, the term carrying the unknown function "
+            "beside it, and everything else on the other side. Here is the trap. The recipe reads the "
+            "coefficient of that unknown function straight off this arrangement. Leave a factor still "
+            "multiplying the derivative and the coefficient you pick up is wrong, so every step after it is "
+            "wrong too.",
+         "board": ['[[write text="a(t)y\' + b(t)y = g(t)        becomes        y\' + p(t)y = q(t)"]]']},
+        {"term": "step size", "say":
+            "In a numerical method, the **step size** is how far along the horizontal axis you travel before "
+            "stopping to ask the equation for a fresh slope. Make it smaller and the broken line hugs the true "
+            "curve more closely, at the cost of more arithmetic. Here is the trap. Smaller is not endlessly "
+            "better. Rounding error piles up over the extra steps, so beyond some point the answer stops "
+            "improving and can quietly get worse.",
+         "board": ['[[write text="h = the step size        next y = y + h · f(t, y)"]]', '[[card title="choosing h" items="smaller h — closer to the true curve | smaller h — more steps, more rounding | too small — no gain left"]]']},
     ],
 }
 
@@ -2020,7 +2719,58 @@ def _canon(course):
     return _ALIASES.get(c, c)
 
 
-def prompt_block(course: str, heard=None, verbatim: bool = True) -> str:
+
+# -----------------------------------------------------------------------------
+# WHICH UNIT DOES A SCRIPT BELONG TO?  (2026-08-14, build gb)
+# The library outgrew the prompt. Every script for a course used to travel in EVERY
+# prompt, so a student on Geometry unit 1 carried the cone, cylinder and pyramid
+# introductions they will not meet for months -- 22,486 characters of geometry, of
+# which perhaps 5,000 could be used that day. Adding the 25 missing geometry terms
+# (build fz) left 428 characters under ruletests' 180,000 ceiling, and nine courses
+# were still owed roughly 120 more terms. Something had to give, and the honest place
+# was the part that was never needed rather than the teaching itself.
+#
+# WHY THIS IS NOT THE THING BUILD cn REVERSED. main.py's build cn note is emphatic
+# that a STABLE prompt beats a smaller one: deferring already-HEARD scripts saved
+# $0.0005 a turn and cost ~$0.24 every time the prompt shape flipped, and heard-ness
+# flips mid-session, twice per refresher. THE UNIT DOES NOT. It is fixed for the whole
+# of a lesson, so this filter produces a prompt that is byte-identical turn to turn --
+# exactly the property cn was protecting. cn's own note says the mechanism "becomes
+# the right answer if the library ever grows to where it does not fit." It has.
+#
+# The mapping comes from curriculum.py's classifier, which is already the curated,
+# per-unit vocabulary the app uses to decide which unit a lesson is in -- so this adds
+# no second source of truth to keep in step. It is computed once and cached.
+# FAILS OPEN EVERYWHERE: no curriculum module, an unclassifiable term, any exception
+# at all, and the script travels verbatim exactly as it does today.
+# -----------------------------------------------------------------------------
+try:
+    import curriculum as _curriculum
+except Exception:  # noqa: BLE001 -- filtering is an optimisation, never a dependency
+    _curriculum = None
+
+_UNIT_OF = {}
+
+
+def unit_of(course: str, term: str):
+    """The unit a foundation term belongs to, or None when it cannot be placed.
+    None means 'always carry it' -- an unplaceable term is never filtered out."""
+    key = (course or "", (term or "").lower())
+    if key in _UNIT_OF:
+        return _UNIT_OF[key]
+    u = None
+    if _curriculum is not None:
+        try:
+            u = _curriculum.classify_unit(term, course)[0]
+            if not isinstance(u, int) or u < 1:
+                u = None
+        except Exception:  # noqa: BLE001
+            u = None
+    _UNIT_OF[key] = u
+    return u
+
+
+def prompt_block(course: str, heard=None, verbatim: bool = True, unit=None) -> str:
     """The prompt section listing this course's canonical introductions.
 
     `heard` is the set/list of terms THIS student has already been introduced to
@@ -2038,10 +2788,29 @@ def prompt_block(course: str, heard=None, verbatim: bool = True) -> str:
     what he has taught them; only the wording is deferred, and only for terms he has
     already delivered.
 
+    `unit` (2026-08-14, build gb) is the unit THIS lesson is in. When it is given, only
+    the scripts belonging to that unit travel with their full wording; the rest are
+    NAMED so the tutor always knows what exists, and their text is left out. Unlike the
+    `verbatim` deferral above, the unit is FIXED for a whole lesson, so the prompt stays
+    byte-identical turn to turn and the cache is never rebuilt (see the note above
+    unit_of, and main.py's build cn note). Pass None -- the default -- and nothing is
+    filtered, which is exactly today's behaviour.
+
     Returns "" when a course has none, so the prompt never grows for nothing."""
     items = for_course(course)
     if not items:
         return ""
+    try:
+        unit = int(unit) if unit else None
+    except (TypeError, ValueError):
+        unit = None
+    deferred = []
+    if unit:
+        for f in items:
+            u = unit_of(course, f["term"])
+            if u is not None and u != unit:
+                deferred.append(normalize_term(f["term"]))
+    deferred = set(deferred)
     seen = {normalize_term(t) for t in (heard or []) if str(t or "").strip()}
     known = [f["term"] for f in items if normalize_term(f["term"]) in seen]
     lines = [
@@ -2088,8 +2857,23 @@ def prompt_block(course: str, heard=None, verbatim: bool = True) -> str:
             "below is genuinely new to them the first time it comes up.",
             "",
         ]
+    if deferred:
+        lines += [
+            "★ THIS LESSON IS IN UNIT " + str(unit) + ". The scripts written out in full below are",
+            "  the ones this unit teaches. These other terms have canonical scripts too, but they",
+            "  belong to OTHER units and their wording is not carried today:",
+            "    " + ", ".join(sorted(f["term"] for f in items
+                                      if normalize_term(f["term"]) in deferred)),
+            "  If one of them comes up in passing, say what it means in ONE plain sentence and",
+            "  move on -- do NOT attempt the canonical introduction from memory, and do NOT tag",
+            "  it with [[learned]]. Its full introduction belongs to the unit that owns it, and",
+            "  that unit will give the student the same careful words every other student gets.",
+            "",
+        ]
     for f in items:
         already = normalize_term(f["term"]) in seen
+        if normalize_term(f["term"]) in deferred:
+            continue          # named in the list above; the wording belongs to its own unit
         if already and not verbatim:
             # Rule 40: this one is OFFERED, not replayed. He needs the name to make the
             # offer; the wording comes back the moment the student accepts it.
