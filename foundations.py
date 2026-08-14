@@ -2,6 +2,24 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD fz -- 25 NEW GEOMETRY SCRIPTS (red-list coverage audit, batch 1 of 10).
+#               An audit compared the terms this file promises to introduce against the
+#               vocabulary curriculum.py already classifies lessons by. Geometry had 25 terms
+#               the tutor SAYS OUT LOUD inside these very scripts with nothing anywhere
+#               defining them. Jim found it live: the tutor used "right angle" without ever
+#               saying it means ninety degrees, and he had to stop and ask. Worse,
+#               "supplementary" had a script and "complementary" did not -- and one lesson
+#               teaches the pair in a single breath.
+#               ADDED: point, line, segment, right angle, degree, complementary, circle,
+#               diameter, chord, circumference, parallel, perpendicular, negative reciprocal,
+#               midpoint, translation, reflection, rotation, rigid motion, area, surface area,
+#               prism, cylinder, cone, pyramid, two-column proof.
+#               APPEND ONLY -- not one existing say-string was touched, so no cached audio is
+#               re-billed. Board lines reuse only tag forms already validated in this file.
+#               WHY THE LIST WAS SHORT: the original lists were authored from memory in one
+#               build (2026-08-09) and no selection rule was ever written down; nothing has
+#               ever cross-checked them against curriculum.py. Nine courses still to do.
+#               AUDIO: these 25 render once on the foundation pre-render in /admin.
 #   2026-08-13  BUILD fe -- THE FRACTION SCRIPT LOSES ITS FALSE "ALWAYS" (rule 61; the
 #               2026-08-13 lesson audit, fractions-lost, basic). The canonical basic
 #               "fraction" script said "a fraction ALWAYS means we cut something into
@@ -865,6 +883,157 @@ FOUNDATIONS = {
             "Probability promises nothing about your next roll. One out of six is what settles out over a "
             "great many rolls, not a schedule.",
          "board": ['[[pie parts="6" shaded="1" caption="six equal faces, and exactly one of them is the 4"]]']},
+        # --- build fz (2026-08-14): the red-list additions. See the change note at the
+        # top of this file. Appended, never edited, so no cached audio is re-billed.
+        {"term": "point", "say":
+            "A **point** is a single exact location. It has no width, no length and no thickness at all — the "
+            "dot we draw is only there so your eye can find it. We give points capital letters so we can talk "
+            "about them out loud. Everything else in geometry is built out of points: a line is made of them, "
+            "and so is a circle.",
+         "board": ['[[write text="A          B          C     —  three points, three exact locations"]]']},
+        {"term": "line", "say":
+            "A **line** is perfectly straight and it never ends. It keeps going in both directions forever, "
+            "which is why we draw small arrows on the ends. A line has no thickness and no width, only "
+            "direction and position. Two points are enough to fix exactly one line, and that is why we can name "
+            "a line by naming two points that sit on it.",
+         "board": ['[[write text="line AB:   ←———— A ———— B ————→   it never stops"]]']},
+        {"term": "segment", "say":
+            "A **segment** is the part of a line between two endpoints. Unlike a line, it stops. That is what "
+            "makes it something you can measure, because it has a definite length. Whenever we talk about the "
+            "side of a triangle, or the distance between two points, we are really talking about a segment "
+            "rather than a whole line.",
+         "board": ['[[write text="segment AB:   A ———————— B        length 5"]]']},
+        {"term": "right angle", "say":
+            "A **right angle** is an angle of exactly ninety degrees — a square corner, like the corner of a "
+            "page or a table. It is the angle every other angle gets compared to. An angle smaller than ninety "
+            "is called acute, and one larger than ninety is called obtuse. On a drawing we mark a right angle "
+            "with a small square instead of a curve.",
+         "board": ['[[angle deg="90" caption="a right angle — ninety degrees, marked with a small square"]]']},
+        {"term": "degree", "say":
+            "A **degree** is the unit we measure turning in. One full spin all the way around is divided into "
+            "three hundred sixty of them, so a single degree is a very small turn. A quarter turn is ninety "
+            "degrees, and a half turn, which lays you out flat in a straight line, is one hundred eighty. The "
+            "small raised circle written after a number means degrees.",
+         "board": ['[[angle deg="90" caption="90 degrees — a quarter of a full turn"]]']},
+        {"term": "complementary", "say":
+            "Two angles are **complementary** when their measures add to exactly ninety degrees, filling a "
+            "square corner between them. They do not have to be touching each other; only the total matters. It "
+            "is the ninety degree cousin of supplementary, which adds to one hundred eighty. If you know one "
+            "angle of a complementary pair, subtract it from ninety to get the other.",
+         "board": ['[[angle deg="90" split="30,60" caption="thirty and sixty fill a square corner — complementary"]]']},
+        {"term": "circle", "say":
+            "A **circle** is every point that sits exactly the same distance from one center point. That fixed "
+            "distance is the radius. Nothing about a circle is straight and it has no corners anywhere — it is "
+            "defined entirely by that one rule about distance. Move the center and the circle moves with it; "
+            "change the radius and it grows or shrinks.",
+         "board": ['[[circle r="5" caption="every point exactly the same distance from the center"]]']},
+        {"term": "diameter", "say":
+            "The **diameter** of a circle is the straight distance all the way across it, passing through the "
+            "center. It is the longest straight trip you can make inside a circle, and it is exactly twice the "
+            "radius. So if someone hands you a diameter you can halve it to get the radius, and if they hand "
+            "you a radius you can double it.",
+         "board": ['[[circle r="5" caption="the diameter goes straight through the center — twice the radius"]]']},
+        {"term": "chord", "say":
+            "A **chord** is a straight segment whose two endpoints both sit on a circle. It cuts across the "
+            "circle, but it does not have to pass through the middle. The diameter is the one special chord "
+            "that does pass through the center, and that makes it the longest chord a circle has. Every other "
+            "chord is shorter than the diameter.",
+         "board": ['[[circle r="5" caption="a chord joins two points on the circle; the longest one is the diameter"]]']},
+        {"term": "circumference", "say":
+            "The **circumference** is the distance all the way around a circle — its perimeter. Because it "
+            "curves the whole way, you cannot lay a straight ruler along it, so we get it from the diameter "
+            "instead. The trip around is a little more than three times the trip across. That number, a little "
+            "more than three, is what we call pi.",
+         "board": ['[[write text="circumference   =   a little more than 3 times the diameter"]]']},
+        {"term": "parallel", "say":
+            "Two lines are **parallel** when they run in exactly the same direction and never meet, no matter "
+            "how far you extend them. The gap between them stays the same the whole way along. On a drawing we "
+            "mark parallel lines with matching arrowheads. On a graph you can spot them instantly, because "
+            "parallel lines have equal slopes.",
+         "board": ['[[write text="parallel:   slope 2   and   slope 2      the gap never changes"]]']},
+        {"term": "perpendicular", "say":
+            "Two lines are **perpendicular** when they cross at a right angle — ninety degrees, a square "
+            "corner. The two edges meeting at the corner of a sheet of paper are perpendicular. On a graph "
+            "there is a neat test for it: two lines are perpendicular exactly when their slopes are negative "
+            "reciprocals of one another.",
+         "board": ['[[angle deg="90" caption="perpendicular lines meet at a square corner"]]']},
+        {"term": "negative reciprocal", "say":
+            "To find the **negative reciprocal** of a number, turn it upside down and then change its sign. The "
+            "negative reciprocal of two is negative one half. Multiply any number by its negative reciprocal "
+            "and the answer is negative one every time. This matters in geometry because two lines meet at a "
+            "right angle exactly when their slopes are negative reciprocals.",
+         "board": ['[[write text="2   and   −1/2         2 × (−1/2)  =  −1"]]']},
+        {"term": "midpoint", "say":
+            "The **midpoint** of a segment is the point exactly halfway along it, splitting the segment into "
+            "two pieces of equal length. On a coordinate grid you find it by averaging: average the two x "
+            "values, then average the two y values. Think of it as the balance point, because it sits the same "
+            "distance from each end.",
+         "board": ['[[write text="midpoint of (2, 3) and (8, 7)   =   (5, 5)"]]']},
+        {"term": "translation", "say":
+            "A **translation** slides a shape to a new place without turning it and without resizing it. Every "
+            "point moves the same distance in the same direction, so the shape that lands is identical to the "
+            "shape that left — same side lengths, same angles, facing the same way. The only thing that changed "
+            "is where it is.",
+         "board": ['[[write text="translation:   every point moves 4 right and 2 up"]]']},
+        {"term": "reflection", "say":
+            "A **reflection** flips a shape across a line, the way a mirror would. Every point finishes the "
+            "same distance from that line as it started, but on the opposite side. The shape keeps its size and "
+            "all of its angles, but its orientation reverses — whatever pointed left is now pointing right.",
+         "board": ['[[write text="reflection across the y-axis:   (3, 5)   →   (−3, 5)"]]']},
+        {"term": "rotation", "say":
+            "A **rotation** turns a shape around a fixed point by a given number of degrees. That center point "
+            "stays exactly where it is and everything else swings around it. Sizes and angles do not change; "
+            "only the direction the shape faces does. To describe one we say which way, clockwise or "
+            "counterclockwise, and by how many degrees.",
+         "board": ['[[write text="rotation 90 degrees about the origin:   (3, 5)   →   (−5, 3)"]]']},
+        {"term": "rigid motion", "say":
+            "A **rigid motion** is any move that changes where a shape is without changing the shape itself. "
+            "Translations, reflections and rotations are all rigid motions — slide, flip and turn. Lengths and "
+            "angles survive all three of them. That is exactly why they prove congruence: if a rigid motion "
+            "lands one figure right on top of another, the two are the same figure.",
+         "board": ['[[card title="the three rigid motions" items="translation — slide | reflection — flip | rotation — turn"]]']},
+        {"term": "area", "say":
+            "**Area** is how much flat surface a shape covers — the amount of room inside its boundary. We "
+            "count it in squares, like square inches or square centimeters, and that is why area is always "
+            "written in square units while length is not. A rectangle's area is its length times its width, "
+            "because that is how many unit squares fit inside it.",
+         "board": ['[[write text="rectangle 3 by 4:      area  =  12 square units"]]']},
+        {"term": "surface area", "say":
+            "**Surface area** is the total area of all the faces on the outside of a solid — how much wrapping "
+            "paper it would take to cover the thing exactly, with none left over. You find it by working out "
+            "the area of each face and adding them all up. It is measured in square units, because it is still "
+            "area even though the object is solid.",
+         "board": ['[[card title="a box 2 by 3 by 4" items="two faces 2 by 3 | two faces 2 by 4 | two faces 3 by 4 | add all six: 52 square units"]]']},
+        {"term": "prism", "say":
+            "A **prism** is a solid with two identical parallel ends and flat sides joining them up. Slice it "
+            "anywhere parallel to those ends and you get the very same shape every time. A cardboard box is a "
+            "rectangular prism. Its volume is the area of one end multiplied by how long the prism is from end "
+            "to end.",
+         "board": ['[[write text="prism volume   =   area of one end   times   length"]]']},
+        {"term": "cylinder", "say":
+            "A **cylinder** is a solid with two identical parallel circular ends joined by one curved surface, "
+            "like a tin can. It behaves just like a prism whose ends happen to be circles, so its volume is the "
+            "area of the circular end multiplied by the height. Slice it parallel to the ends and every slice "
+            "is the same circle.",
+         "board": ['[[write text="cylinder volume   =   area of the circle   times   height"]]']},
+        {"term": "cone", "say":
+            "A **cone** has one circular base and one sharp point, called the apex, with a curved surface "
+            "running between them. Unlike a cylinder, its slices get smaller as you move up toward the point. "
+            "Here is the surprising part worth remembering: a cone holds exactly one third of what a cylinder "
+            "with the same base and height holds.",
+         "board": ['[[write text="cone   =   one third of the cylinder with the same base and height"]]']},
+        {"term": "pyramid", "say":
+            "A **pyramid** has one flat base, often a square, and triangular faces that rise from every edge of "
+            "that base to meet at a single point above it. Like a cone it tapers to a point, and it follows the "
+            "same one third rule: a pyramid holds one third of what a prism with the same base and height "
+            "holds.",
+         "board": ['[[write text="pyramid   =   one third of the prism with the same base and height"]]']},
+        {"term": "two-column proof", "say":
+            "A **two-column proof** is a way of writing an argument so that every step can be checked by "
+            "someone else. The left column lists what you claim, one statement at a time. The right column "
+            "gives the reason that statement is allowed — a given fact, a definition, or a theorem you already "
+            "know. Nothing goes in the left column without a reason beside it.",
+         "board": ['[[card title="two-column proof" items="STATEMENT — what you claim | REASON — why it is allowed | every line needs both"]]']},
     ],
     "algebra2": [
         {"term": "exponent", "say":
