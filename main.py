@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  APP_BUILD -> "2026-08-14ge-foundation-coverage". The stamp had gone NINE builds
+#               stale (still reading fe from 2026-08-13) while fx, fy, fz, ga, gb, gc, gd
+#               and ge shipped, so /health -- whose only job is to answer "did Render take
+#               my change?" -- was answering wrongly. Jim hit this live: a board line he had
+#               just fixed still looked wrong, and the one instrument that should have told
+#               him whether the deploy had landed said "fe". Bumped, the comment widened
+#               from "the backend" to anything shipped, and ruletests PART 3ai now FAILS THE
+#               BUILD if any shipped file carries a change note dated later than the stamp.
+#               The work in this stamp: gb (the foundation block is filtered to the lesson's
+#               unit), fz + gc (120 new foundation scripts, 186 -> 306), fx + fy + ge (a
+#               finished problem and the opener fold away on the board), ga (the voice stops
+#               garbling parentheses; no gate can strand a student), gd (the missing-mark
+#               probe), and ge (the "point" script draws points instead of saying it does).
 #   2026-08-13  APP_BUILD -> "2026-08-13fe-audit-findings-closed". BUILD STAMP ONLY here
 #               -- the work lives in prompts.py (new rule 63, THE WORDS AND THE PICTURE
 #               ARE THE SAME FIGURE, plus amendments to rules 4/13/14/17/26/41/43 and
@@ -6927,10 +6940,17 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
     return read_placement(code.strip(), course)
 
 
-# Bump this string whenever the backend changes. It's shown at /health so we can CONFIRM
-# Render actually redeployed the new code (if /health still shows an old build, the deploy
-# didn't happen -- which would explain why prompt/whiteboard changes aren't taking effect).
-APP_BUILD = "2026-08-13fe-audit-findings-closed"
+# Bump this string whenever ANYTHING SHIPPED changes -- backend or the lesson pages. It is
+# shown at /health so we can CONFIRM Render actually redeployed (if /health still shows an
+# old build, the deploy did not happen -- which would explain why a prompt or whiteboard
+# change is not taking effect).
+# 2026-08-14: widened from "the backend" to "anything shipped", because a session.html-only
+# build is exactly the kind whose deploy you most want to confirm, and the old wording
+# excused leaving the stamp alone. And it is no longer a habit: ruletests PART 3ai FAILS THE
+# BUILD when any shipped file carries a dated change note newer than this stamp. It went
+# nine builds stale before that existed, and cost Jim part of a live debugging session --
+# he could not tell a stale deploy from a real bug, which is the one question this answers.
+APP_BUILD = "2026-08-14ge-foundation-coverage"
 
 
 @app.get("/health")

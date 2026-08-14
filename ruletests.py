@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD ge -- PART 3ai, THE DEPLOY STAMP. /health's APP_BUILD is how anyone
+#               confirms Render actually took a deploy, and it had gone NINE builds stale,
+#               so it was answering that question wrongly at the exact moment Jim needed it.
+#               PART 3ai now fails the build when any shipped file carries a dated change
+#               note newer than the stamp. Bumping it stops being a habit.
 #   2026-08-13  BUILD fe -- THE 2026-08-13 LESSON-AUDIT FINDINGS, CLOSED (NEW PART 3ah;
 #               PART 3w grows; PART 2 gains TRIANGLE_CASES). Five audit runs, 19
 #               findings, each read against its quoted transcript first. Real: the
@@ -7129,6 +7134,77 @@ def part4_live():
         check(f"live: {sc['name']}", passed, f"{sc['why']}\n        reply: {reply[:220]}")
 
 
+# =============================================================================
+# PART 3ai -- THE DEPLOY STAMP MUST MOVE WITH THE CODE
+# =============================================================================
+# /health reports APP_BUILD, and its entire job is to answer one question: "did Render
+# actually take my change?" On 2026-08-14 it answered wrongly. It still read
+# "2026-08-13fe-audit-findings-closed" nine builds later, because bumping it was a habit,
+# and habits lapse. Jim hit it live -- a board line he had just fixed still looked wrong,
+# and the instrument that should have told him whether the deploy had landed lied to him.
+# A stamp nobody can trust is worse than no stamp at all, because it is consulted in
+# exactly the moments when you are already confused.
+# So it stops being a habit: this fails the build when ANY shipped file carries a dated
+# change note NEWER than the date on the stamp. Both note styles are read -- "#   DATE"
+# in the Python modules and "    (xx) DATE --" at the top of the lesson pages.
+_STAMP_PY = ("main.py", "tutor.py", "prompts.py", "foundations.py", "store.py",
+             "curriculum.py", "misconceptions.py", "notation.py", "library.py",
+             "sprints.py", "pedagogy.py", "mathcheck.py")
+_STAMP_HTML = ("static/session.html", "static/practice.html", "static/topic.html",
+               "static/demo.html", "static/challenge.html", "static/dashboard.html")
+
+
+def part3ai_deploy_stamp():
+    print("\nPART 3ai — the /health build stamp moves with the code")
+    root = os.path.dirname(os.path.abspath(__file__))
+
+    def _read(rel):
+        p = os.path.join(root, rel)
+        if not os.path.exists(p):
+            return ""
+        try:
+            with open(p, encoding="utf-8") as fh:
+                return fh.read(200000)      # the change notes live at the top
+        except Exception:                   # noqa: BLE001 -- an unreadable file is not a failure
+            return ""
+
+    newest, where = "", ""
+    for rel in _STAMP_PY:
+        for d in re.findall(r"^#\s+(\d{4}-\d{2}-\d{2})\s", _read(rel), re.M):
+            if d > newest:
+                newest, where = d, rel
+    for rel in _STAMP_HTML:
+        for d in re.findall(r"^\s*\(\w{1,4}\)\s+(\d{4}-\d{2}-\d{2})\s", _read(rel), re.M):
+            if d > newest:
+                newest, where = d, rel
+
+    # NOTE: _read() stops at 200k because change notes live at the top -- but APP_BUILD
+    # sits ~6,900 lines into main.py, well past that. Read the whole file for the stamp.
+    try:
+        with open(os.path.join(root, "main.py"), encoding="utf-8") as fh:
+            src = fh.read()
+    except Exception:  # noqa: BLE001
+        src = ""
+    m = re.search(r'^APP_BUILD\s*=\s*"([^"]+)"', src, re.M)
+    check("main.py declares APP_BUILD", bool(m),
+          "the /health stamp is gone entirely -- nothing can confirm a deploy any more")
+    if not m:
+        return
+    stamp = m.group(1)
+    sd = re.match(r"(\d{4}-\d{2}-\d{2})", stamp)
+    check("APP_BUILD starts with a date", bool(sd),
+          f"APP_BUILD is {stamp!r}; it must begin YYYY-MM-DD so this check can read it")
+    if not sd:
+        return
+    print(f"       stamp {stamp}   newest change note {newest or '(none)'} in {where or '-'}")
+    check("APP_BUILD is not older than the newest shipped change note",
+          bool(newest) and sd.group(1) >= newest,
+          f"{where} carries a change note dated {newest} but APP_BUILD still says "
+          f"{sd.group(1)}. Bump APP_BUILD in main.py -- /health is how anyone confirms "
+          f"Render took the deploy, and a stale stamp answers that question WRONGLY. "
+          f"It went nine builds stale once already; that is what this check exists to stop.")
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -7174,6 +7250,7 @@ def main():
     part3af_full_journey()
     part3ag_shots_match_copy()
     part3ah_audit_findings_fe()
+    part3ai_deploy_stamp()
     if live:
         part4_live()
     else:
