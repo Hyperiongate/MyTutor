@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (fy) 2026-08-14 -- THE FOLD NOW HAS A TRIGGER IT CAN TRUST. Build fx made a finished
+    problem fold away on [[clear]], and in a live lesson it never fired: [[clear]] is taught
+    in the prompts as an instruction and NOTHING enforces it, so a turn that forgets it left
+    the old problem on screen. [[mark]] is the signal that can be trusted -- the prompts call
+    it REQUIRED, it records the student's score, and it means exactly "they FINISHED a
+    problem". So [[mark]] now ARMS the fold (at the END of the turn, so a reply that marks and
+    draws in the same breath still finishes drawing), and the fold FIRES on the next turn that
+    actually starts new board work -- foldIfProblemClosed() at the two chokepoints where a
+    board block is born, getWorklist() and feedBlock(). [[clear]] still works and still folds
+    immediately; it is now the second trigger rather than the only one. No prompt change, no
+    extra model call, no server change. Same in session.html, practice.html, topic.html.
     (fx) 2026-08-13 -- FINISHED PROBLEMS FOLD AWAY (Jim's design note "Narration/Board
     Sync and Board Lifecycle", option 1). [[clear]] used to drop a "-- new problem --"
     divider, so every solved problem stayed on screen and the board never read clean. It
@@ -1155,6 +1166,7 @@
     }
 
     function handleTags(text) {
+      let sawMark = false;                       // build fy -- see the note at the end of this function
       clearChoices();                            // stale answer buttons never survive a new turn
       clearSpot();                               // build ee: a stale board spotlight never survives a new turn either
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
@@ -1173,13 +1185,22 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); }   /* build er: a FINISHED problem earns the full celebration */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "clear") wipeBoard();
       }
+      // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
+      // [[clear]] is taught in the prompts but nothing enforces it, and a tutor turn that
+      // forgets it left the finished problem on screen for ever. [[mark]] is different: it
+      // is REQUIRED by the prompts, it is what records the student's score, and it means
+      // exactly one thing -- they FINISHED a problem. So it arms the fold. Armed HERE, at
+      // the end of the turn, so a reply that marks AND draws in the same breath still
+      // finishes its drawing; the fold can then only fire on a LATER turn, when new board
+      // work actually begins (see foldIfProblemClosed in getWorklist/feedBlock).
+      if (sawMark) PROBLEM_CLOSED = true;
       return stripTags(text);
     }
     function clearStage() { feed.innerHTML = '<div class="stage-hint" id="stageHint">Your work will appear here.</div>'; }
@@ -1209,6 +1230,16 @@
     //     that case keeps the old divider, behaving exactly as it did before.
     // -------------------------------------------------------------------------------
     let CLOSED_PROBLEMS = 0;
+    // Set by [[mark]] (a finished problem); consumed the next time new board work starts.
+    let PROBLEM_CLOSED = false;
+    // Called from the two places a NEW board block is born. If the last problem was marked
+    // finished, fold it away FIRST, so the new work lands on a clean board. Deterministic --
+    // it never inspects the tutor's words, only tags he is required to emit.
+    function foldIfProblemClosed() {
+      if (!PROBLEM_CLOSED) return;
+      PROBLEM_CLOSED = false;
+      wipeBoard();
+    }
     // The summary line's equation, read from the FIRST board row of the folded problem.
     function problemLabel(body) {
       let eq = "";
@@ -1227,6 +1258,7 @@
     }
     function wipeBoard() {
       curWork = null;
+      PROBLEM_CLOSED = false;   // build fy: an explicit [[clear]] consumes the armed signal
       const kids = Array.from(feed.children);
       // Fold everything since the last folded problem...
       let start = 0;
@@ -1555,6 +1587,7 @@
 
     function getWorklist() {
       if (!curWork) {
+        foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
         clearHint();
         const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
         curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
@@ -1737,6 +1770,7 @@
       feed.appendChild(div); scrollFeed(); return div;
     }
     function feedBlock() {
+      foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
       clearHint(); curWork = null;
       const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
     }
