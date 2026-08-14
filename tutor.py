@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gd -- THE MISSING-MARK PROBE (measurement only, no behaviour change).
+#               [[mark]] records that a student FINISHED a problem: their score, their
+#               accuracy, and since build fy the signal that folds the finished problem off
+#               the board. The prompt calls it REQUIRED in all ten courses and ruletests
+#               checks that the PROMPT SAYS SO -- but nothing has ever checked that the tutor
+#               emits one. Jim's 2026-08-14 Render log: an Algebra I lesson posted /api/mark
+#               three times; a Geometry lesson posted it ZERO times after handing the student
+#               "130 + ? = 180", hearing "fifty", and answering "exactly right".
+#               This prints [markcheck] when the previous turn left a pending "?" line, the
+#               student answered, and this reply settles it while recording neither [[mark]]
+#               nor [[nice]]. It does NOT regenerate and does NOT award the mark itself -- a
+#               net that guessed would inflate a child's recorded accuracy, and retired
+#               ensure_board is the standing lesson about nets that guess. Measure first.
 #   2026-08-14  BUILD gb -- THE FOUNDATION BLOCK IS NOW FILTERED TO THE LESSON'S UNIT.
 #               _foundation_block() gains unit= and passes it to foundations.prompt_block;
 #               build_system_prompt hands it the unit it already computed for the playbook,
@@ -2813,6 +2826,76 @@ def _last_user_text(msgs) -> str:
     return ""
 
 
+# -----------------------------------------------------------------------------
+# THE MISSING-MARK PROBE (2026-08-14, build gd) -- MEASUREMENT ONLY. It prints a line
+# and changes NOTHING about the reply the student sees.
+#
+# WHY IT EXISTS. [[mark]] is what records "the student finished a problem" -- their
+# score, their accuracy, and (since build fy) the signal that folds a finished problem
+# away on the board. The prompt calls it "REQUIRED, not optional" in all ten courses,
+# and ruletests checks that the PROMPT SAYS SO -- but nothing has ever checked that the
+# tutor actually emits one. On 2026-08-14 Jim's Render log showed the difference plainly:
+# an Algebra I lesson posted /api/mark three times and behaved perfectly, while a
+# Geometry lesson posted it ZERO times even though the student was handed
+# "130 + ? = 180", answered fifty, and was told "exactly right".
+#
+# WHY IT ONLY MEASURES. The obvious next step is a referee that regenerates the reply,
+# or a net that awards the mark itself. Both are premature and one is dangerous: a net
+# that guesses would inflate a child's recorded accuracy, which is worse than losing a
+# point. Retired ensure_board is the standing lesson here -- a net that guesses caused
+# more harm than the gap it filled. So this counts the gap first, on real lessons, and
+# the decision comes after the number does.
+#
+# DELIBERATELY NARROW, so a logged line means something: it fires only when the tutor's
+# PREVIOUS turn put a pending line on the board (a "?" standing in for the unknown --
+# the same signal rule 15 and prose_pending_question_conflict already use), the student
+# then said something, and THIS reply writes a settled line while recording neither
+# [[mark]] nor [[nice]]. Fails open everywhere.
+# -----------------------------------------------------------------------------
+def _last_assistant_text(messages) -> str:
+    """The tutor's own previous turn, from the ORIGINAL message list (never the
+    discarded drafts a referee retry appends)."""
+    try:
+        for m in reversed(list(messages or [])):
+            if m.get("role") == "assistant":
+                return str(m.get("content", ""))
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
+def _board_attr_strings(text):
+    """The attribute text of every board tag in this reply."""
+    try:
+        return [t[1] for t in re.findall(
+            r"\[\[\s*(" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+            str(text or ""), re.I)]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def missing_mark_probe(reply: str, messages) -> str:
+    """Describe a turn that looks like a finished problem carrying no [[mark]] and no
+    [[nice]], or "" when there is nothing to report. Never raises."""
+    try:
+        text = str(reply or "")
+        if re.search(r"\[\[\s*(mark|nice)\b", text, re.I):
+            return ""                       # something was recorded -- nothing to say
+        pending = [a for a in _board_attr_strings(_last_assistant_text(messages)) if "?" in a]
+        if not pending:
+            return ""                       # no problem was posed, so none was finished
+        if not [a for a in _board_attr_strings(text) if "?" not in a]:
+            return ""                       # still open -- they have not finished it yet
+        if not _last_user_text(messages).strip():
+            return ""                       # the student has not answered anything
+        return ('the previous turn left a pending line on the board ("%s") and this reply '
+                'writes a settled one while recording neither [[mark]] nor [[nice]] -- if '
+                'the student just finished that problem, the credit was not recorded'
+                % " ".join(pending[-1].split())[:70])
+    except Exception:  # noqa: BLE001 -- a probe must never affect a lesson
+        return ""
+
+
 def _create_verified(client, model, system_blocks, messages, log_prefix, meta=None):
     """One model call, refereed. Returns the verified reply with [[verify]] tags
     stripped, or "" if the model returned nothing (caller shows its fallback).
@@ -2858,6 +2941,15 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 continue
             if prose_detail:
                 print(f"[prosecheck]{log_prefix} UNRESOLVED -- passing through: {prose_detail}")
+            # build gd: MEASUREMENT ONLY -- see missing_mark_probe above. Never alters
+            # the reply, never costs a model call; it just counts a gap we cannot
+            # currently see. Runs on the ACCEPTED draft only.
+            try:
+                _mark_gap = missing_mark_probe(reply, messages)
+                if _mark_gap:
+                    print(f"[markcheck]{log_prefix} POSSIBLE MISSED MARK: {_mark_gap}")
+            except Exception as _exc:  # noqa: BLE001 -- a probe must never fail a turn
+                print(f"[markcheck]{log_prefix} probe crashed (ignored): {_exc}")
             status = verdict if verdict != "ok" else ("ok" if attempt == 1 else "fixed")
             if prose_detail:
                 status = "prose-unresolved"
