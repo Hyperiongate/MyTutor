@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <!--
+    (ga) 2026-08-14 -- THE VOICE SAID IT WRONG, THEN THE TURN DIED. Two fixes from Jim's
+    2026-08-14 Render log. (1) GARBLED SPEECH: forSpeech() deleted **bold** markers and
+    parentheses before handing text to the voice, so the log literally shows
+    "that's a right angle ." and "narrower a sharper turn , some are wider a lazier, more
+    open turn ." -- asides ran into the sentence and stranded spaces sat before the
+    punctuation, which the voice reads as hesitation. Bold pairs now vanish cleanly,
+    parentheses become commas so the pause survives, and a tidy-up pass removes the
+    leftovers. (2) THE FREEZE: a turn awaits an opening clip, the spoken reply and a
+    closing clip; sendToTutor's finally{} re-enables the mic, but a finally cannot run if
+    an await never settles -- and twice it did not (chat 200, speak 200, then no listening
+    state and no /api/transcribe, ever). New withDeadline() wraps every gate so the student
+    always gets control back; a deliberate pause does not burn the clock. Same in
+    session.html, practice.html and topic.html.
     (fy) 2026-08-14 -- THE FOLD NOW HAS A TRIGGER IT CAN TRUST. Build fx made a finished
     problem fold away on [[clear]], and in a live lesson it never fired: [[clear]] is taught
     in the prompts as an instruction and NOTHING enforces it, so a turn that forgets it left
@@ -1968,8 +1981,61 @@
         parts.push(cents + (cents === 1 ? " cent" : " cents"));
       return parts.join(" and ");
     }
+    // ---------------------------------------------------------------------------------
+    // NO GATE MAY EVER STRAND A STUDENT (build ga, 2026-08-14 -- Jim's live freeze).
+    // A turn awaits things in a row -- an opening clip, his spoken reply, a closing clip.
+    // Each is a Promise, and sendToTutor's finally{} is what re-enables the microphone.
+    // But a finally CANNOT RUN if an await never settles. On 2026-08-14 a Geometry turn
+    // and an Algebra I turn each spoke and then never handed the turn back: the server
+    // log shows /api/chat 200 and /api/speak 200, and then no listening state and no
+    // /api/transcribe ever again. The student sat in front of an unfinished question with
+    // no microphone, no buttons and no error message.
+    // speak() already carries a watchdog for its own internal stalls (2026-07-21). This is
+    // the same idea one level up, and it covers EVERY gate instead of one of them:
+    // whatever happens inside, the student gets control back.
+    // A deliberate pause does NOT burn the clock -- the deadline only advances while the
+    // turn is actually supposed to be running.
+    // ---------------------------------------------------------------------------------
+    function speechDeadline(text) {
+      const words = String(text || "").trim().split(/\s+/).filter(Boolean).length;
+      return Math.min(180000, 20000 + words * 700);   // ~700ms a word -- far slower than he ever talks
+    }
+    function stopAllSpeech() {
+      try { if (typeof ttsAudio !== "undefined" && ttsAudio) ttsAudio.pause(); } catch (e) {}
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    }
+    function withDeadline(makePromise, ms, label, onTimeout) {
+      return new Promise((resolve) => {
+        let done = false, waited = 0;
+        const tick = setInterval(() => {
+          if (done) { clearInterval(tick); return; }
+          if (paused) return;                      // a deliberate pause never burns the clock
+          waited += 500;
+          if (waited >= ms) finish(true);
+        }, 500);
+        function finish(timedOut) {
+          if (done) return;
+          done = true;
+          clearInterval(tick);
+          if (timedOut) {
+            try { if (onTimeout) onTimeout(); } catch (e) {}
+            try { console.warn("[turn] " + label + " never finished within " + ms +
+                               "ms -- handing the turn back to the student"); } catch (e) {}
+          }
+          resolve();
+        }
+        let p;
+        try { p = makePromise(); } catch (e) { finish(false); return; }
+        Promise.resolve(p).then(function () { finish(false); }, function () { finish(false); });
+      });
+    }
     function forSpeech(text) {
       return String(text)
+        // build ga (2026-08-14): **bold** used to become TWO SPACES, which stranded a space
+        // before whatever punctuation followed -- the log shows "that's a right angle ." going
+        // to the voice -- and the voice reads that gap as a hesitation. Pairs go first and
+        // leave nothing behind; a stray single asterisk still becomes a space, as before.
+        .replace(/\*\*/g, "")
         .replace(/\*+/g, " ")                                       // strip markdown *
         .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
         .replace(/(\d),(\d{3})\b/g, "$1$2")                            // 1,234 -> read whole
@@ -1980,7 +2046,12 @@
         .replace(/(\d)\s*:\s*(\d)/g, "$1 to $2")                       // 3:2 -> 3 to 2         // $1.85 -> 1 dollar and 85 cents
         .replace(/(\d)\.(\d+)/g, (m, a, b) => a + " point " + b.split("").join(" "))  // 3.75 -> 3 point 7 5
         .replace(/([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)/g, "$1 of $2")  // f(x) -> f of x
-        .replace(/[()]/g, " ")                                      // drop stray parentheses
+        // build ga (2026-08-14): parentheses used to be DELETED, so the screen's "narrower
+        // (a sharper turn), some are wider (a lazier, more open turn)" was SPOKEN as
+        // "narrower a sharper turn , some are wider a lazier, more open turn ." -- the aside
+        // ran straight into the sentence with no pause at all. A comma keeps the break the
+        // writer meant. f(x) is already handled on the line above, so this never touches it.
+        .replace(/\s*\(\s*/g, ", ").replace(/\s*\)\s*/g, ", ")
         .replace(/\s*=\s*/g, " equals ")
         .replace(/\s*\+\s*/g, " plus ")
         .replace(/(\d)\s*[-\u2212]\s*(\d)/g, "$1 minus $2")   // 2026-08-09: the board's
@@ -1999,6 +2070,13 @@
         .replace(/°/g, " degrees ")
         .replace(/\^/g, " to the power ")
         .replace(/√/g, " square root of ")
+        // build ga (2026-08-14): tidy what the substitutions above leave behind -- a space
+        // before punctuation, a comma butted against other punctuation, doubled commas, or a
+        // sentence that now opens with one. Without this the voice hesitates in odd places.
+        .replace(/\s+([,.;:!?])/g, "$1")
+        .replace(/([,;:])[,;:]+/g, "$1")
+        .replace(/,([.!?])/g, "$1")
+        .replace(/^[\s,;:]+/, "")
         .replace(/\s{2,}/g, " ")
         .trim();
     }
@@ -3464,7 +3542,7 @@
         if (window.TutorMoments && TutorMoments.ready) { try { await TutorMoments.ready(); } catch (e) {} }
         const firstTime = FORCE_TOUR || (!hasHistory && !touredAnywhere);
         queueMoment(firstTime ? "first_meeting" : (hasHistory ? "welcome_back" : ""));
-        await runPendingMoment("before");
+        await withDeadline(() => runPendingMoment("before"), 25000, "welcome clip");
       }
       // 2026-08-07 FINAL EXAM MODES: prep/exam sessions skip the tour and the assessment
       // invitation entirely — the student clicked a very specific door; open it.
@@ -3528,7 +3606,8 @@
     const readMs = (text) => Math.max(2600, String(text).trim().split(/\s+/).length * 360);
     async function sayTourLine(text) {
       addBubble("tutor", text); lastTutorText = text;
-      await Promise.all([ speak(text), delay(readMs(text)) ]);
+      await withDeadline(() => Promise.all([ speak(text), delay(readMs(text)) ]),
+                         speechDeadline(text) + readMs(text), "tour line", stopAllSpeech);
     }
     async function runTour() {
       setState("speaking"); statusEl.textContent = tutorName + " is talking…";
@@ -3606,9 +3685,9 @@
         // queued a moment (a passed quiz, a gold unit, a finished course, a goodbye). The
         // clip plays on ONE side of his live voice or the other, and each gate is AWAITED,
         // so a canned clip and his real voice can never be speaking at the same time.
-        await runPendingMoment("before");   // the celebration lands...
-        await speak(clean);                 // ...then he says what THEY did, by name
-        await runPendingMoment("after");    // ...and the send-off goes last, if this was goodbye
+        await withDeadline(() => runPendingMoment("before"), 25000, "opening clip");   // the celebration lands...
+        await withDeadline(() => speak(clean), speechDeadline(clean), "spoken reply", stopAllSpeech);
+        await withDeadline(() => runPendingMoment("after"), 25000, "closing clip");    // ...and the send-off goes last
       } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
       finally {
         busy = false; statusEl.textContent = ""; setPhase("ready");
