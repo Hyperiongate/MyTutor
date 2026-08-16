@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <!--
+    (gn) 2026-08-16 -- THE FORMULA STOPPED BEING WRITTEN TWO WAYS. Jim, live in Geometry:
+    "the a in the a squared is not bright, capital, bold, red. It's just a small a." The
+    board rendered "a squared plus B squared equals C squared" -- the most famous formula in
+    school mathematics, one quantity typeset two ways in a single sentence -- because
+    VAR_SKIP meant NEVER STYLE for a, i, f, g and h (a and i double as English words; f, g
+    and h as function names). Those five now EARN styling instead: varInMathContext() styles
+    them only in an unmistakably mathematical position -- squared/cubed, an exponent, beside
+    an operator with a real operand on the far side, or wearing a coefficient -- and never
+    when followed by an ordinary word, a prime, or a composition "o". "Pick a number" stays
+    prose; "a squared" and "3 + a = 5" become variables like the b and c beside them.
+    MEASURED, not assumed: swept over all 1,015 canonical foundation strings, 16 render
+    differently and every one is a formula that was previously inconsistent. The new
+    screencheck.py S1 fired on 5 canonical scripts BEFORE this change and on 0 after.
     (ge) 2026-08-14 -- THE OPENER FOLDS TOO, AND ONE BOARD LINE STOPPED LYING. Jim, live in
     Geometry unit 1: (1) "the introduction didn't collapse" -- the welcome and the goals card
     stayed on screen through the lesson, because the fold only ever triggered on a FINISHED
@@ -3061,7 +3074,39 @@
     // word (next, box, explain), NEVER a single-letter English word (a, I), and NEVER
     // a function name (the f in "f("). styleVars() HTML-escapes its input first, so it
     // is safe to inject with innerHTML. Variables render bold, CAPITAL, red (.mvar).
+    // 2026-08-16 (build gn, Jim live on Geometry: "the a in the a squared is not bright,
+    // capital, bold, red. It's just a small a"): VAR_SKIP used to mean NEVER STYLE, and it
+    // cost us the most famous formula in school mathematics. "a squared plus b squared
+    // equals c squared" reached the student as "a squared plus B squared equals C squared"
+    // -- one quantity written two ways inside a single sentence, and the child left to
+    // wonder whether the small a and the big B are the same kind of thing.
+    // These five letters really do double as English words ("a", "I") or function names
+    // (f, g, h), so they are still not styled ON SIGHT. They now have to EARN it by
+    // standing in an unmistakably mathematical position: squared/cubed, carrying an
+    // exponent, beside an arithmetic operator with a real operand on the far side, or
+    // wearing a coefficient. "Pick a number" stays prose. "a squared" and "3 + a = 5"
+    // become variables, exactly like the b and c standing next to them.
+    // Deliberately conservative: a skip-list letter followed by an ordinary WORD is never
+    // a variable, which is what keeps "3 - a few more" out of it.
+    // NOTE: machineSub() below keeps the plain VAR_SKIP test on purpose -- it substitutes a
+    // value into a function-machine rule ("2x+1"), a different job with its own risks.
     const VAR_SKIP = { a: 1, i: 1, f: 1, g: 1, h: 1 };  // a,i = English words; f,g,h = function names
+    const MV_POW  = /^\s*(?:squared\b|cubed\b|[²³^])/;                  // a squared, a^2
+    const MV_OPR  = /^\s*[-+=×*\/÷]\s*(?:\d|[A-Za-z](?![A-Za-z]))/;     // a + b, a = 5
+    const MV_PRE  = /(?:\d|[A-Za-z])\s*[-+=×*\/÷]\s*$|\(\s*$/;        // 3 + a, (a
+    const MV_WORD = /^\s+[A-Za-z]{2,}/;                                        // "a few", "a number"
+    // A PRIMED OR COMPOSED LETTER IS A FUNCTION NAME, NEVER A VARIABLE. Caught by sweeping
+    // the 1,015 canonical scripts: "(f o g)(x) = f(g(x))" and "(f''=0 alone proves nothing)"
+    // both sit just inside a parenthesis, which would otherwise read as mathematical.
+    const MV_FUNC = /^\s*(?:['\u2019\u2032]|o\s)/;                            // f', f'', f o g
+    function varInMathContext(before, after) {
+      if (MV_FUNC.test(after)) return false;
+      if (MV_POW.test(after)) return true;
+      if (MV_OPR.test(after)) return true;
+      if (/\d$/.test(before)) return true;                       // 2a, 3i -- a coefficient
+      if (MV_PRE.test(before) && !MV_WORD.test(after)) return true;
+      return false;
+    }
     function escapeHTML(s) {
       return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
@@ -3098,7 +3143,9 @@
             out += "×"; last = m.index + run.length; continue;
           }
         }
-        if (run.length === 1 && after !== "(" && before !== "'" && before !== "’" && !VAR_SKIP[run.toLowerCase()]) {
+        if (run.length === 1 && after !== "(" && before !== "'" && before !== "’"
+            && (!VAR_SKIP[run.toLowerCase()]
+                || varInMathContext(text.slice(0, m.index), text.slice(m.index + run.length)))) {
           out += '<span class="mvar">' + run.toUpperCase() + '</span>';
         } else { out += escapeHTML(run); }
         last = m.index + run.length;

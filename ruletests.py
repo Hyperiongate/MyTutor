@@ -7642,12 +7642,25 @@ def part3aj_screen_checks():
             check("screencheck seam: VAR_SKIP matches screencheck", live == mine,
                   f"session.html skips {live} but screencheck mirrors {mine} — S1 will "
                   f"miss letters it no longer knows about, or invent ones it does")
-        # The defect S1 exists to catch, stated as a fact about the renderer so that a
-        # fix to session.html is what turns this into a passing world.
         check("screencheck: styled variables are uppercased (the reason S1 exists)",
               'class="mvar">' in sess and "run.toUpperCase()" in sess,
               "session.html no longer uppercases styled variables — if that was the fix, "
               "S1's fixtures should be revisited rather than left asserting the old world")
+        # build gn: VAR_SKIP stopped meaning "never style" and started meaning "must earn
+        # it". If varInMathContext ever disappears, the five letters go back to being
+        # unstylable and "a squared plus B squared" returns -- so it is asserted here, on
+        # all three lesson pages, rather than trusted.
+        for page in ("session.html", "practice.html", "topic.html"):
+            p = os.path.join(root, "static", page)
+            if not os.path.exists(p):
+                bad(f"screencheck seam: {page} present", "file not found")
+                continue
+            with open(p, "r", encoding="utf-8") as fh:
+                txt = fh.read()
+            check(f"screencheck seam: {page} lets VAR_SKIP letters earn styling",
+                  "varInMathContext" in txt and "MV_POW" in txt,
+                  "the math-context test is gone — a, i, f, g and h can no longer be "
+                  "styled at all, which is the defect Jim found on 2026-08-16")
 
 
 # =============================================================================

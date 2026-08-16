@@ -224,7 +224,14 @@ def check_s1_mixed_variable_styling(snap):
             continue
         plain = strip_html(_MVAR_RE.sub(lambda m: "\x00" + m.group(1) + "\x00", html))
         welded = re.findall(r"\x00[A-Za-z]\x00([a-z])(?![A-Za-z])", plain)
-        text = plain.replace("\x00", "")
+        # A STYLED VARIABLE MUST NOT BE READABLE AS A BARE ONE. Earlier this line merely
+        # dropped the \x00 markers, which left the styled letter sitting in the text as an
+        # ordinary capital -- and the bare-letter patterns are case-insensitive, so a
+        # correctly-styled "A squared" matched the pattern for an unstyled "a squared" and
+        # S1 reported a defect in its own fix. Caught by sweeping the 1,015 canonical
+        # scripts through the real renderer; every hand-written fixture had passed.
+        # Styled letters are replaced by a non-letter sentinel so they can never match.
+        text = re.sub(r"\x00[A-Za-z]\x00", "§", plain)
         bare = []
         for letter in VAR_SKIP:
             if _BARE_MATH_RE[letter].search(text) or letter in welded:
