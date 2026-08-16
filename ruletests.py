@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gh -- A MISSING PACKAGE SKIPS, IT DOES NOT FAIL. Three checks failed
+#               (one with a raw traceback) when sqlalchemy or httpx was simply not installed
+#               on the machine running the battery. A battery that reports the ENVIRONMENT
+#               as broken code teaches you to shrug at red -- and on the day this was
+#               written, four genuine failures had been sitting unlooked-at, one of them a
+#               prompt 5,595 characters over the ceiling. New dep_gate() skips with the
+#               package name. Gated for THIRD-PARTY imports only: a missing module of our
+#               own is a broken repo, not an unprovisioned laptop, and still fails.
 #   2026-08-14  BUILD gg -- PART 3b AND 3d NOW GUARD THE CONTRACT BUILD gb CREATED. The old
 #               promise was "every script reaches every prompt, verbatim, always", and it
 #               was right until the library reached 306 scripts and the largest prompt hit
@@ -945,6 +953,41 @@ def bad(name, detail=""):
 
 def skip(name, why):
     SKIP.append(name); print(f"  \033[93mSKIP\033[0m  {name} ({why})")
+
+
+# -----------------------------------------------------------------------------
+# A MISSING PACKAGE IS NOT A BROKEN BUILD (2026-08-14, build gh)
+# Three checks used to FAIL -- one of them printing a raw Python traceback -- when
+# sqlalchemy or httpx simply was not installed on the machine running the battery.
+# That is worse than it sounds. A battery that reports the ENVIRONMENT as broken code
+# teaches you to shrug at red, and on the very day this was written four GENUINE
+# failures had been sitting in a run nobody had looked at, including a prompt 5,595
+# characters over the ceiling. "0 failed" has to mean something everywhere, or it
+# means nothing anywhere. A test that cannot run must say so in those words.
+# This gates only THIRD-PARTY imports. A missing module of OUR OWN is still a failure:
+# that is not an unprovisioned laptop, that is a broken repo.
+# -----------------------------------------------------------------------------
+OUR_MODULES = {"main", "tutor", "store", "prompts", "foundations", "curriculum",
+               "misconceptions", "notation", "library", "sprints", "pedagogy",
+               "mathcheck", "lessonaudit", "course_trial", "restore_backup"}
+
+
+def module_present(name):
+    """True when an importable dependency is actually installed here."""
+    try:
+        __import__(name)
+        return True
+    except Exception:  # noqa: BLE001 -- absent, or broken on this platform: same answer
+        return False
+
+
+def dep_gate(name, module, why=""):
+    """True if `module` is installed. Otherwise SKIP `name`, saying which package, and
+    return False so the caller can step over the check instead of failing it."""
+    if module_present(module):
+        return True
+    skip(name, f"{module} is not installed here" + (f" -- {why}" if why else ""))
+    return False
 
 
 def check(name, condition, detail=""):
@@ -3441,11 +3484,15 @@ def part3n_sprints():
                 "print('SPRINT-DRILL-OK')\n")
         env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp2, 's.db')}",
                    PYTHONPATH=here)
-        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
-                           capture_output=True, text=True)
-        check("record two sprints -> history reads back oldest-first with the best",
-              r.returncode == 0 and "SPRINT-DRILL-OK" in r.stdout,
-              (r.stdout + r.stderr)[-250:])
+        # build gh: the drill runs against a real sqlite database, so it needs
+        # SQLAlchemy. Without it this is an unprovisioned machine, not a broken build.
+        if dep_gate("record two sprints -> history reads back oldest-first with the best",
+                    "sqlalchemy", "the drill records to a real database"):
+            r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                               capture_output=True, text=True)
+            check("record two sprints -> history reads back oldest-first with the best",
+                  r.returncode == 0 and "SPRINT-DRILL-OK" in r.stdout,
+                  (r.stdout + r.stderr)[-250:])
 
 
 def part3l_lesson_auditor():
@@ -5214,6 +5261,11 @@ def part3s_backups():
             return subprocess.run([sys.executable, script, *args], cwd=here, env=env,
                                   capture_output=True, text=True)
 
+        # build gh: every step below seeds, exports and restores a real database.
+        # No SQLAlchemy means the drill cannot run at all -- say so, do not fail.
+        if not dep_gate("backup drill: seed + export", "sqlalchemy",
+                        "the drill seeds, exports and restores a real database"):
+            return
         # 1. seed a real database and snapshot it
         r = run(seed, f"sqlite:///{db1}", snap_json)
         if r.returncode != 0:
@@ -7208,7 +7260,15 @@ def part3aa_placement_honesty():
               and "strengths" in pin.model_dump(),
               "the fields exist but do not survive model_dump into save_placement")
     except Exception as exc:  # noqa: BLE001
-        bad("main.py importable for the placement/final functional checks", str(exc))
+        # build gh: importing main.py pulls the whole web stack (httpx, starlette...).
+        # A missing THIRD-PARTY package is an unprovisioned machine; a missing module of
+        # OUR OWN, or any other error, is a real failure and still fails.
+        _missing = (getattr(exc, "name", "") or "").split(".")[0]
+        if isinstance(exc, ImportError) and _missing and _missing not in OUR_MODULES:
+            skip("main.py importable for the placement/final functional checks",
+                 f"{_missing} is not installed here")
+        else:
+            bad("main.py importable for the placement/final functional checks", str(exc))
 
     # 7. The SHARED final notes are count-neutral (they overlay ANY course whose
     #    derived gate opens); the per-course "THE NINE UNITS" headers are each one

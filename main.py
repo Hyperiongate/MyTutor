@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  APP_BUILD -> "2026-08-14gi-termgap-probe". Carries gh (a missing package
+#               SKIPS instead of failing the battery) and gi (the term-gap probe: when a
+#               student has to ask what a word means and the tutor had just used it, one
+#               line is logged saying whether we HAVE a script that went undelivered or
+#               have none at all). Both are measurement; neither changes a lesson.
+#               _record_term_gap runs BEFORE the turn is appended to history, so the
+#               tutor's previous words -- the ones the student is reacting to -- are still
+#               the last thing in it. No reply changes, no model call, no student text.
 #   2026-08-14  APP_BUILD -> "2026-08-14ge-foundation-coverage". The stamp had gone NINE builds
 #               stale (still reading fe from 2026-08-13) while fx, fy, fz, ga, gb, gc, gd
 #               and ge shipped, so /health -- whose only job is to answer "did Render take
@@ -6950,7 +6958,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-14ge-foundation-coverage"
+APP_BUILD = "2026-08-14gi-termgap-probe"
 
 
 @app.get("/health")
@@ -7319,6 +7327,46 @@ def _record_learned(code: str, course: str, reply: str) -> None:
         print(f"[foundations] recording failed: {exc}")
 
 
+def _record_term_gap(code: str, course: str, message: str, history) -> None:
+    """build gi (2026-08-14): when a student has to ask what a word MEANS and the tutor
+    had just used it, that question is the most honest evidence we get that an
+    introduction was missing. Log it and nothing else -- no reply is changed, no model
+    call is made, and the student's own words are never written down: only the term,
+    the course, and which kind of gap it is.
+
+      [termgap] unintroduced -- we HAVE a script for this and the tutor used the word
+                without delivering it. A rule 36/40 violation, not new information.
+      [termgap] NO SCRIPT    -- nobody has written one. New teaching content: it needs
+                words and a voice clip, so a human decides, not a machine.
+
+    Jim's ask, after having to interrupt a Geometry lesson to find out that a right
+    angle is ninety degrees: "it should have said, I got a question about something I
+    was teaching that told me I wasn't being clear, and I'm gonna use that in future."
+    """
+    try:
+        if foundations is None or not message:
+            return
+        last_tutor = ""
+        for m in reversed(list(history or [])):
+            if m.get("role") == "assistant":
+                last_tutor = str(m.get("content", ""))
+                break
+        if not last_tutor:
+            return
+        heard = _foundations_heard(code, course) if code else []
+        term, kind = foundations.term_gap(course, message, last_tutor, heard)
+        if not term:
+            return
+        if kind == "no-script":
+            print(f"[termgap] NO SCRIPT [{course}] \"{term}\" -- a student had to ask what "
+                  f"it means and nothing in foundations.py defines it")
+        else:
+            print(f"[termgap] unintroduced [{course}] \"{term}\" -- we have a script for "
+                  f"this and the tutor used the word without delivering it (rule 36)")
+    except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
+        print(f"[termgap] probe failed (ignored): {exc}")
+
+
 def _bold_first_terms(reply: str, history) -> str:
     """Wrap the FIRST use of each key term in **bold** (rendered red by the app).
     Skips [[tags]], terms already used in an earlier tutor turn, and anything the
@@ -7600,6 +7648,9 @@ def chat(req: ChatRequest):
         save_session(code, session, req.course)
         return {"reply": reply}
 
+    # build gi: BEFORE this turn is appended, `history` still ends with the tutor's
+    # PREVIOUS words -- which is exactly what the student was reacting to.
+    _record_term_gap(code, req.course, message, history)
     reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course,
                                                     code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)

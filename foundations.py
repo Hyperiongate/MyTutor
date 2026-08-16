@@ -2,6 +2,16 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gi -- THE TERM-GAP PROBE (measurement only, no behaviour change).
+#               Jim's question after the "right angle" lesson: can it learn from a student
+#               having to ask? The weights cannot; the system can, and this collects the
+#               evidence. term_gap() reports when a student asks what a word MEANS and the
+#               tutor had just used that word, split the way Jim split it: "unintroduced"
+#               (we have a script and it was not delivered -- a rule violation, fixable
+#               automatically one day) and "no-script" (nobody wrote one -- new teaching
+#               content, real money, so a human decides). Logs the TERM and the course
+#               only, never the student's words. The build fz/gc audit could only find gaps
+#               derivable from the code; this finds the ones nobody predicted.
 #   2026-08-14  BUILD gf -- A HEARD SCRIPT IS NEVER UNIT-FILTERED. The first full ruletests
 #               run against build gb caught it: rule 40 OFFERS a term the student has met
 #               before and restores its exact wording the moment they accept -- and
@@ -2914,6 +2924,96 @@ def prompt_block(course: str, heard=None, verbatim: bool = True, unit=None) -> s
         lines.append("")
     lines.append("============================================================")
     return "\n".join(lines)
+
+
+# -----------------------------------------------------------------------------
+# THE TERM-GAP PROBE (2026-08-14, build gi) -- MEASUREMENT ONLY, IT CHANGES NOTHING.
+#
+# Jim, 2026-08-14, after a Geometry lesson where the tutor used "right angle" without
+# ever saying it means ninety degrees, and he had to stop and ask:
+#   "It should have been able to learn from that lesson. It should have said, alright,
+#    I got a question about something I was teaching that told me I wasn't being clear,
+#    and I'm gonna use that information in the future."
+#
+# The model's weights cannot learn from a lesson. The SYSTEM can, and this is the part
+# that collects the evidence: when a student has to ask what a word means, that question
+# is the most honest signal we will ever get that an introduction was missing.
+#
+# The audit that followed found 145 terms the tutor says out loud with nothing defining
+# them, and they have since been written -- but that audit could only find gaps we could
+# derive from the code. This finds the ones nobody predicted, from real lessons.
+#
+# TWO KINDS OF GAP, and they deserve different answers (Jim's own split):
+#   "unintroduced" -- we HAVE a script for this term and the tutor used it without
+#                     delivering it. That is a rule-36/40 violation, not new information.
+#                     It is the class that can eventually be fixed automatically.
+#   "no-script"    -- we have no script at all. That is new teaching content: it needs
+#                     words written and a voice clip rendered, so a human decides.
+#
+# WHY IT ONLY MEASURES. Nothing here alters a reply. The retired ensure_board is the
+# standing lesson about acting on a guess; and the second class costs real money and is
+# spoken verbatim to every student for ever, so it is Jim's call, not a machine's.
+#
+# PRIVACY: the student's words are never logged. Only the TERM, the course, and which
+# kind of gap it is -- the same rule the cost log follows (counts, never text).
+# -----------------------------------------------------------------------------
+_ASK_PATTERNS = (
+    re.compile(r"\bwhat(?:'s| is| are)\s+(?:an?\s+|the\s+)?([a-z][a-z \-']{1,28}?)\s*[?.!]*$", re.I),
+    re.compile(r"\bwhat does\s+(?:an?\s+|the\s+)?([a-z][a-z \-']{1,28}?)\s+mean", re.I),
+    re.compile(r"\bi\s+(?:do ?n'?t|dont|do not)\s+know what\s+(?:an?\s+|the\s+)?([a-z][a-z \-']{1,28}?)\s+(?:is|are|means)", re.I),
+    re.compile(r"\bwhat'?s?\s+(?:an?\s+|the\s+)?([a-z][a-z \-']{1,28}?)\s+again\b", re.I),
+)
+# Words that are the QUESTION, not the thing being asked about. "what is the answer"
+# is a student working, not a student stuck on vocabulary.
+_NOT_A_TERM = {
+    "it", "that", "this", "the answer", "answer", "next", "the next step", "next step",
+    "left", "right", "wrong", "going on", "happening", "up", "the point", "my score",
+    "the problem", "problem", "the question", "question", "you", "your name", "we doing",
+    "i doing", "the difference", "difference", "more", "less", "first", "last", "again",
+}
+
+
+def term_a_student_asked_about(message: str) -> str:
+    """The term a student is asking the meaning of, or "" if they are not asking one.
+    Deliberately narrow -- a false hit costs a misleading log line. Never raises."""
+    try:
+        text = " ".join(str(message or "").split())
+        if not text:
+            return ""
+        for pat in _ASK_PATTERNS:
+            m = pat.search(text)
+            if not m:
+                continue
+            term = " ".join(m.group(1).split()).strip(" .,?!'").lower()
+            if not term or term in _NOT_A_TERM or len(term) < 3:
+                continue
+            return term
+        return ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def term_gap(course: str, student_message: str, last_tutor_message: str = "",
+             heard=None):
+    """(term, kind) when a student had to ask what a word the tutor just used means,
+    else ("", ""). `kind` is "unintroduced" (we have a script and it was not given)
+    or "no-script" (nobody has written one). Never raises: any doubt returns nothing."""
+    try:
+        term = term_a_student_asked_about(student_message)
+        if not term:
+            return ("", "")
+        # It only counts as OUR gap if the tutor actually used the word. A student
+        # asking about something from school today is curiosity, not a defect.
+        if term not in " ".join(str(last_tutor_message or "").lower().split()):
+            return ("", "")
+        canon = known_term(course, term)
+        if not canon:
+            return (term, "no-script")
+        if normalize_term(canon) in {normalize_term(t) for t in (heard or [])}:
+            return ("", "")          # they were taught it; forgetting is what rule 40 is for
+        return (canon, "unintroduced")
+    except Exception:  # noqa: BLE001
+        return ("", "")
 
 
 REFRESH_RE = re.compile(
