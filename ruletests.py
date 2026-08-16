@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gj -- RULE 41 COVERAGE. Twelve checks holding the new caption referee
+#               to its job in both directions (it catches the audits' own bare pie and
+#               cookie pictures; it never fires on [[step]], [[write]], [[card]] or
+#               [[mark]]), that it is actually wired into prose_board_conflict, and that
+#               all 306 authored scripts already obey rule 41 so it can never fight them.
 #   2026-08-14  BUILD gh -- A MISSING PACKAGE SKIPS, IT DOES NOT FAIL. Three checks failed
 #               (one with a raw traceback) when sqlalchemy or httpx was simply not installed
 #               on the machine running the battery. A battery that reports the ENVIRONMENT
@@ -1892,6 +1897,40 @@ def part3b_foundations():
         check(f"notation [{c}]: the wrong reading is denied by name", bool(denies),
               "rule 48(b): say plainly that it is NOT f times x -- that guess is the "
               "single most common misreading in all of algebra")
+    # ---------------------------------------------------------------------------
+    # RULE 41 IS ENFORCED, NOT HOPED FOR (build gj, from the 2026-08-16 audits).
+    # Four figures were drawn with no caption at all -- a fractions pie and three
+    # cookie pictures -- in the two lessons aimed at the youngest, most confused
+    # students. Rule 41's own words say why that is not cosmetic: an uncaptioned
+    # picture "hands the student back the one piece of work the picture was supposed
+    # to do for them". The referee now regenerates it. These checks hold the referee
+    # to its job in BOTH directions, and hold the authored scripts to the same rule.
+    # ---------------------------------------------------------------------------
+    for _bare, _why in (('[[pie parts="4" shaded="1"]]', "the audit's own fractions pie"),
+                        ('[[objects emoji="X" groups="6"]]', "the audit's own cookie picture"),
+                        ('[[graph func="x^2"]]', "a graph"),
+                        ('[[pie parts="4" shaded="1" caption=""]]', "an EMPTY caption"),
+                        ('[[pie parts="4" shaded="1" caption="   "]]', "a blank caption")):
+        check(f"rule 41: an uncaptioned figure is caught -- {_why}",
+              bool(tutor.missing_caption_conflict("Look at this. " + _bare + " What do you see?")),
+              "a picture with no caption reached the student")
+    for _fine, _why in (('[[pie parts="4" shaded="3" caption="three fourths"]]', "a captioned pie"),
+                        ('[[step eq="3/4 + 1/4 = ?"]]', "[[step]] is not a picture"),
+                        ('[[write text="12 inches = 1 foot"]]', "[[write]] is not a picture"),
+                        ('[[card title="By the end" items="a | b"]]', "[[card]] is not a picture"),
+                        ('[[mark correct="1"]]', "[[mark]] is not a picture")):
+        check(f"rule 41: no false alarm -- {_why}",
+              not tutor.missing_caption_conflict("Here. " + _fine + " Good."),
+              "a good reply would be thrown away")
+    check("rule 41: the caption check is wired into the referee the tutor calls",
+          bool(tutor.prose_board_conflict(
+              'A fraction is equal parts. [[pie parts="4" shaded="1"]] Which one is yours?',
+              "i don't get fractions")),
+          "missing_caption_conflict exists but prose_board_conflict never calls it")
+    _capless = [(c2, f["term"], b) for c2 in COURSES for f in foundations.for_course(c2)
+                for b in f.get("board", []) if tutor.missing_caption_conflict(b)]
+    check("rule 41: every one of the canonical scripts already obeys it", not _capless,
+          f"these authored board lines would be regenerated for ever: {_capless[:4]}")
     # and the site must not promise the method we abandoned
     here = os.path.dirname(os.path.abspath(__file__))
     hits = []

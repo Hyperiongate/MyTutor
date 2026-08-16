@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gj-audit-findings". BUILD gj -- RULE 41 BECOMES A
+#               REFEREE, RULE 37 BECOMES A MEASUREMENT, from the 2026-08-16 lesson audits.
+#               (1) tutor.py gains the tenth referee: a figure drawn with NO caption is
+#               regenerated. Four were, in the two lessons aimed at the youngest students.
+#               (2) _record_unintroduced logs [rule37] when a term that HAS a canonical
+#               script is said for the first time without it -- "denominator" to a confused
+#               nine-year-old, the same defect as "right angle" in Geometry. It only logs:
+#               the visible half of rule 37 is already patched by _bold_first_terms, and
+#               whether a term was truly DEFINED cannot be checked mechanically, so a
+#               referee there would loop. Measure, then decide.
 #   2026-08-14  APP_BUILD -> "2026-08-14gi-termgap-probe". Carries gh (a missing package
 #               SKIPS instead of failing the battery) and gi (the term-gap probe: when a
 #               student has to ask what a word means and the tutor had just used it, one
@@ -6958,7 +6968,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-14gi-termgap-probe"
+APP_BUILD = "2026-08-16gj-audit-findings"
 
 
 @app.get("/health")
@@ -7400,6 +7410,55 @@ def _bold_first_terms(reply: str, history) -> str:
         return reply
 
 
+def _record_unintroduced(code: str, course: str, reply: str, history) -> None:
+    """build gj (2026-08-14): rule 37 says a mathematical word is DEFINED the moment it is
+    first said, never assumed. The 2026-08-16 audits caught the tutor saying "you kept the
+    denominator the same" to a confused nine-year-old -- and `denominator` is not a word we
+    hoped it would explain, it is a WRITTEN CANONICAL SCRIPT in Basic Math, with a voice
+    clip already paid for. The child got the word and not the meaning. It is the same
+    defect Jim hit himself in Geometry, where "right angle" was used without ever saying
+    ninety degrees.
+
+    This LOGS and does nothing else, and the reason is worth stating rather than assuming.
+    The observable half of rule 37 -- marking the term **like this** -- is already patched
+    up by _bold_first_terms below, so a referee demanding it would be arguing with a helper
+    that has already fixed it. The half that actually matters -- whether the term was
+    DEFINED -- cannot be verified mechanically, and a referee that cannot check its own fix
+    is a referee that loops. So this measures instead, and the rate decides what to do:
+    sharpen rule 37, or deliver the canonical script automatically. Both cost something.
+
+    Precision comes from reusing the two lists that already exist: KEY_TERMS is 63 curated
+    technical words with no ordinary-English collisions in it (no "point", no "mean", no
+    "area"), and `foundations` knows which of them have a script for THIS course.
+    """
+    try:
+        if foundations is None or not reply:
+            return
+        _strip = lambda t: _TAG_SPLIT_RE.sub(" ", str(t))
+        prior = " ".join(_strip(m.get("content", "")) for m in (history or [])
+                         if m.get("role") == "assistant").lower()
+        low = _strip(reply).lower()
+        heard = {t.lower() for t in (_foundations_heard(code, course) if code else [])}
+        for term in KEY_TERMS:
+            tl = term.lower()
+            if tl not in low or tl in prior:
+                continue                      # not said here, or already said earlier today
+            canon = foundations.known_term(course, term)
+            if not canon or canon.lower() in heard:
+                continue                      # no script to owe, or they have already had it
+            script = ""
+            for f in foundations.for_course(course):
+                if f["term"] == canon:
+                    script = f["say"]; break
+            if script and script[:60] in reply:
+                continue                      # he DID deliver the canonical introduction
+            print(f"[rule37] [{course}] \"{canon}\" was said for the first time with no "
+                  f"canonical introduction -- we have a written script and a voice clip "
+                  f"for it, and this student did not get them")
+    except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
+        print(f"[rule37] probe failed (ignored): {exc}")
+
+
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
@@ -7655,6 +7714,8 @@ def chat(req: ChatRequest):
                                                     code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)
     _record_today_bar(code, req.course, reply)
+    # build gj: measure rule 37 -- a term with a written script, used without it.
+    _record_unintroduced(code, req.course, reply, history)
 
     # Remember this exchange so the tutor recalls it next time.
     history.append({"role": "user", "content": message})

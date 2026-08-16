@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gj -- RULE 41 IS NOW A REFEREE (the tenth check). The 2026-08-16
+#               lesson audits found FOUR figures drawn with no caption -- a fractions pie
+#               and three cookie pictures -- in the two lessons aimed at the youngest and
+#               most confused students. Rule 41 is written absolutely ("use it, every
+#               time") and nothing enforced it. This is the cheapest referee there is: no
+#               model call to detect, no judgement, no argument -- a figure either carries
+#               a caption or it does not. All 306 canonical scripts already pass, so it
+#               never fights authored content; it only catches what the model improvises.
 #   2026-08-14  BUILD gf -- FILTERING IS NOT OPTIONAL (ruletests caught it). Build gb filters
 #               the foundation block to the lesson's unit, but when NO unit could be
 #               determined -- an unplaced student, or a practice problem the classifier
@@ -2602,11 +2610,60 @@ def prose_score_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# THE CAPTION CHECK (2026-08-14, build gj) -- rule 41, and the tenth referee.
+# -----------------------------------------------------------------------------
+# From the 2026-08-16 lesson audits: four figures drawn with no caption at all --
+# a fractions pie and three cookie pictures, in the two lessons aimed at the
+# youngest and most confused students. Rule 41 is not a preference, it is written
+# absolutely: "Every figure tag takes caption='...'. Use it, every time."
+#
+# Why it earns a regeneration rather than a shrug. Rule 41's own words: a picture
+# with no caption "hands the student back the one piece of work the picture was
+# supposed to do for them -- working out what they are meant to be looking at --
+# and a student who is already lost will look at the wrong part of it and feel
+# worse." Both audited lessons were exactly that student.
+#
+# This is the cheapest possible referee: no model call to detect, no judgement, no
+# false positives to argue about. A figure either carries a caption or it does not.
+# All 306 canonical foundation scripts already pass it, so it never fights the
+# authored content -- it only catches what the model improvises.
+# -----------------------------------------------------------------------------
+_FIGURE_TAGS = ("pie", "objects", "graph", "numberline", "bars", "histogram",
+                "dotplot", "boxplot", "scatter", "normal", "twoway", "tree",
+                "unitcircle", "righttriangle", "conic", "areamodel", "vector",
+                "triangle", "angle", "circle", "machine", "balance")
+_FIG_RE = re.compile(r"\[\[\s*(" + "|".join(_FIGURE_TAGS) + r")\b([^\]]*)\]\]", re.I)
+_CAPTION_RE = re.compile(r'\bcaption\s*=\s*"\s*([^"]*?)\s*"')
+
+
+def missing_caption_conflict(reply: str):
+    """Return a description of a picture drawn with no caption, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        for m in _FIG_RE.finditer(str(reply or "")):
+            cap = _CAPTION_RE.search(m.group(2))
+            if cap and cap.group(1).strip():
+                continue
+            kind = m.group(1).lower()
+            return ('you drew a picture -- [[{k} ...]] -- with no caption. Rule 41: EVERY '
+                    'figure carries caption="...", every time, and it names what to NOTICE '
+                    'rather than what the thing is ("both are four steps from zero", not "a '
+                    'number line"). A picture with no caption hands the student back the one '
+                    'job the picture was there to do for them, and a student who is already '
+                    'lost will look at the wrong part of it and feel worse. Add the caption '
+                    'and say its idea out loud too.').format(k=kind)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[caption] crashed (fail open): {exc}")
+        return ""
+
+
 def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    NINE checks, in order: a malformed tag (build eq), a picture promised and never
+    TEN checks, in order (build gj added the caption check second): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
     answering its OWN question in the same breath (rule 39b -- wait time), a question
@@ -2621,6 +2678,11 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         malformed = malformed_tag_conflict(reply)
         if malformed:
             return malformed
+        # build gj: second, because an uncaptioned picture is the cheapest defect to
+        # find and one of the most expensive to a lost student (rule 41).
+        caption = missing_caption_conflict(reply)
+        if caption:
+            return caption
         visual = prose_visual_conflict(reply, student_message)
         if visual:
             return visual
