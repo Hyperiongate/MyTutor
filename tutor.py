@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gl -- THE TUTOR MAY NOT BE SEEN CHANGING ITS MIND (eleventh referee).
+#               The one HIGH finding of the 2026-08-16 audits: "3/4 is smaller than 3/4...
+#               wait, let's just confirm..." -- a false comparison, then the grown-up
+#               visibly losing faith in their own sentence, all shipped to a child. The
+#               ACCURACY block always said "fix it BEFORE you say it"; nothing checked that
+#               the fixing happened in PRIVATE. Every course now also says "fix it SILENTLY"
+#               and this referee enforces it. Narrow on purpose: correcting the STUDENT is
+#               the job ("actually comes out to 3.45" passes); only the tutor retracting
+#               itself is caught.
 #   2026-08-16  BUILD gk -- A FRACTION IS ONLY "READ ALOUD" WHEN ITS HALVES ARE SAID
 #               TOGETHER. _pq_spoken_covers looked for the numerator anywhere and the
 #               denominator anywhere, independently, so the 2026-08-16 fractions audit
@@ -2689,11 +2698,72 @@ def missing_caption_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# THE SELF-CORRECTION CHECK (2026-08-16, build gl) -- the eleventh referee.
+# -----------------------------------------------------------------------------
+# The one HIGH finding in the 2026-08-16 audits, quoted exactly:
+#
+#     "3/4 is smaller than 3/4... wait, let's just confirm: 3 1/4 minus 1 3/4
+#      really is 1 1/2."
+#
+# Read what the child actually received. A false comparison, then the grown-up
+# visibly losing confidence in their own sentence, then a recovery -- all shipped.
+# The ACCURACY block has always said "fix it BEFORE you say it"; nothing checked
+# whether the fixing happened in private. Build gl adds the missing half of that
+# rule to every course ("fix it SILENTLY: never let the student watch you change
+# your mind") and this referee, which is what makes it true rather than hoped for.
+#
+# Why it matters more here than in most products: these students are with a tutor
+# because they are already unsure. A child who is lost does not read "wait, let me
+# check that" as diligence. They read it as the grown-up not knowing either, and
+# that is the moment a struggling student stops trusting the room.
+#
+# DELIBERATELY NARROW. Correcting the STUDENT is the job and must never be touched:
+# "actually comes out to 3.45", "not quite -- it's 11", "let's check that one" all
+# pass. This fires only on the tutor retracting ITSELF -- a trailing-off "... wait,",
+# a "hold on", "scratch that", "actually, no", "my mistake". Fails open.
+# -----------------------------------------------------------------------------
+_SELF_CORRECT = (
+    re.compile(r"\.\.\.\s*wait\b", re.I),
+    re.compile(r"\bwait,\s*(?:let'?s|let me|actually|no\b|hang on|i )", re.I),
+    re.compile(r"\b(?:hold on|hang on)\b[,\s]", re.I),
+    re.compile(r"\bscratch that\b", re.I),
+    re.compile(r"\blet me (?:re-?check|redo|try that again|start over)\b", re.I),
+    re.compile(r"\bignore (?:that|what i just)\b", re.I),
+    re.compile(r"\bactually,?\s*no\b", re.I),
+    re.compile(r"\b(?:my mistake|my bad|oops)\b", re.I),
+    re.compile(r"\bsorry,?\s*(?:i mean|that'?s wrong|let me)\b", re.I),
+    re.compile(r"\bthat'?s not right\b[^.?!]{0,20}\blet me\b", re.I),
+)
+
+
+def self_correction_conflict(reply: str):
+    """Return a description of the tutor visibly correcting ITSELF, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        for pat in _SELF_CORRECT:
+            m = pat.search(prose)
+            if not m:
+                continue
+            frag = " ".join(prose[max(0, m.start() - 45):m.end() + 25].split())
+            return ('you changed your mind out loud -- "...{f}...". Check it BEFORE you '
+                    'speak, then say the checked version ONCE. A student watching you '
+                    'retract your own sentence does not read it as care; a child who is '
+                    'already unsure reads it as the grown-up not knowing either, and that '
+                    'is the moment they stop trusting the room. Work it out, decide, and '
+                    'give them only the answer you have checked.').format(f=frag)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[selfcorrect] crashed (fail open): {exc}")
+        return ""
+
+
 def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TEN checks, in order (build gj added the caption check second): a malformed tag (build eq), a picture promised and never
+    ELEVEN checks, in order (gj added the caption check, gl the self-correction): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
     answering its OWN question in the same breath (rule 39b -- wait time), a question
@@ -2713,6 +2783,10 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         caption = missing_caption_conflict(reply)
         if caption:
             return caption
+        # build gl: third, and cheap -- the tutor must never be seen changing its mind.
+        selfcorrect = self_correction_conflict(reply)
+        if selfcorrect:
+            return selfcorrect
         visual = prose_visual_conflict(reply, student_message)
         if visual:
             return visual

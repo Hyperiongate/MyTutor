@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gl-audit-findings". Adds gl to gj/gk: the ACCURACY
+#               block in every course now also says "fix it SILENTLY -- never let the
+#               student watch you change your mind", and tutor.py's eleventh referee
+#               enforces it. From the audits' one HIGH: "3/4 is smaller than 3/4... wait,
+#               let's just confirm...", shipped to a nine-year-old.
 #   2026-08-16  APP_BUILD -> "2026-08-16gk-audit-findings". BUILD gk joins gj: rule 44's
 #               coverage test now requires a fraction's two halves to be SAID TOGETHER, so
 #               "three plus one really is four" no longer counts as having read "three
@@ -6972,7 +6977,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gk-audit-findings"
+APP_BUILD = "2026-08-16gl-audit-findings"
 
 
 @app.get("/health")

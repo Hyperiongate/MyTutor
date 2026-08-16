@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gl -- COVERAGE FOR THE ELEVENTH REFEREE. The new ACCURACY sentence is
+#               added to PART 1 so it must reach all ten courses, and fourteen checks hold
+#               the self-correction referee to its job in both directions -- it catches the
+#               audits' own HIGH verbatim, and it never fires on correcting the STUDENT.
 #   2026-08-16  BUILD gj -- RULE 41 COVERAGE. Twelve checks holding the new caption referee
 #               to its job in both directions (it catches the audits' own bare pie and
 #               cookie pictures; it never fires on [[step]], [[write]], [[card]] or
@@ -1050,6 +1054,9 @@ COVERAGE = [
     ("rule 42 no comparisons",           "NEVER COMPARE THIS STUDENT TO ANYONE BUT THIS STUDENT"),
     ("rule 43 no false perception",      "YOU PERCEIVE EXACTLY TWO THINGS"),
     ("rule 44 read the problem aloud",   "READ THE PROBLEM ALOUD, IN FULL, EVERY TIME"),
+    # build gl: the missing half of ACCURACY -- fix it before you speak, and fix it
+    # in PRIVATE. The 2026-08-16 HIGH was the tutor changing its mind in front of a child.
+    ("fix it SILENTLY (build gl)",       "never let the student watch you change your mind"),
     ("rule 45 the tally is arithmetic",  "THE TALLY IS ARITHMETIC, NOT JUDGMENT"),
     ("rule 46 one skill per question",   "A QUIZ QUESTION TESTS ONE SKILL"),
     ("rule 47 no cold quizzes",          "NO COLD QUIZZES"),
@@ -1965,6 +1972,43 @@ def part3b_foundations():
                 for b in f.get("board", []) if tutor.missing_caption_conflict(b)]
     check("rule 41: every one of the canonical scripts already obeys it", not _capless,
           f"these authored board lines would be regenerated for ever: {_capless[:4]}")
+
+    # ---------------------------------------------------------------------------
+    # THE TUTOR MAY NOT BE SEEN CHANGING ITS MIND (build gl). The 2026-08-16 HIGH,
+    # quoted: "3/4 is smaller than 3/4... wait, let's just confirm..." -- a false
+    # comparison, then the grown-up visibly losing faith in their own sentence, all
+    # shipped to a child who was already unsure. The FALSE cases are real turns from
+    # the same audits: correcting the STUDENT is the job and must stay untouched.
+    # ---------------------------------------------------------------------------
+    for _bad, _why in (
+            ("Nice. 3/4 is smaller than 3/4... wait, let's just confirm: it really is 1 1/2.",
+             "the 2026-08-16 HIGH, verbatim"),
+            ("Let me see \u2014 hold on, that isn't right.", "hold on"),
+            ("We get 12. Scratch that \u2014 it's 14.", "scratch that"),
+            ("So the answer is 20. Actually, no \u2014 it's 11.", "actually, no"),
+            ("That gives 9. My mistake, it gives 10.", "my mistake"),
+            ("The slope is 3 \u2014 let me recheck that.", "let me recheck")):
+        check(f"rule: the tutor never changes its mind out loud -- {_why}",
+              bool(tutor.self_correction_conflict(_bad)),
+              "a child watched the grown-up retract their own sentence")
+    for _fine, _why in (
+            ("Let's check that one \u2014 5.20 minus 1.75 actually comes out to 3.45, not 4.55.",
+             "correcting the STUDENT with 'actually'"),
+            ("Not quite \u2014 3 + 2 \u00d7 4 is actually 11, not 20.", "a 'not quite' correction"),
+            ("Let's check that one using pizza slices.", "'let's check that one'"),
+            ("I can't wait to show you the next one!", "'can't wait'"),
+            ("Wait until you see what happens with eighths.", "'wait until'"),
+            ("Good habit: double-check your work by adding it back.", "'double-check YOUR work'"),
+            ('[[write text="correction: 4.55 \u2192 3.45"]] The answer is 3.45.',
+             "a correction inside a TAG is not spoken")):
+        check(f"rule: correcting the student is untouched -- {_why}",
+              not tutor.self_correction_conflict(_fine),
+              "a good correction would be thrown away")
+    check("rule: the self-correction check is wired into the referee the tutor calls",
+          bool(tutor.prose_board_conflict(
+              "3/4 is smaller than 3/4... wait, let's just confirm: it really is 1 1/2.",
+              "1 1/2. Next.")),
+          "self_correction_conflict exists but prose_board_conflict never calls it")
     # and the site must not promise the method we abandoned
     here = os.path.dirname(os.path.abspath(__file__))
     hits = []
