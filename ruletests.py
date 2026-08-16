@@ -1411,6 +1411,40 @@ UNSPOKEN_CASES = [
      "What do you get?", False),
     ("no question asked at all -- a worked line narrated",
      'Here is the step written out. [[step eq="Q3: 12 ÷ 4 = 3"]] Nice and steady.', False),
+    # BUILD gk (2026-08-16) -- THE HALVES OF A FRACTION MUST BE SAID TOGETHER, and this
+    # block is quoted from the lesson that proved it. _pq_spoken_covers used to look for
+    # the numerator ANYWHERE and the denominator ANYWHERE, independently -- so a turn
+    # whose board read "3/4 + 1/4 = ?" and whose voice said "three plus one really is
+    # four" (about the NUMERATORS; it never reads the problem) scored as spoken, because
+    # a "three" and a "four" both existed somewhere in the sentence. A confused
+    # nine-year-old was then asked a question they had only ever seen written down.
+    # The FALSE cases below are real turns from the same audited lessons: they are what
+    # the tightened rule must never start flagging.
+    ("the 2026-08-16 miss: 'three plus one really is four' over 3/4 + 1/4",
+     "Good job adding the tops \u2014 three plus one really is four! "
+     '[[step eq="3/4 + 1/4 = ?"]] How many fourths do you have in all?', True),
+    ("the same turn read properly: 'three fourths plus one fourth'",
+     "The problem is three fourths plus one fourth. "
+     '[[step eq="3/4 + 1/4 = ?"]] What do you get?', False),
+    ("said as quarters", "Three quarters plus one quarter. "
+     '[[step eq="3/4 + 1/4 = ?"]] What do you get?', False),
+    ("said as 'three over four'", "Three over four plus one over four. "
+     '[[step eq="3/4 + 1/4 = ?"]] What do you get?', False),
+    ("the literal 3/4 spoken in the prose", "Our problem is 3/4 + 1/4. "
+     '[[step eq="3/4 + 1/4 = ?"]] What do you get?', False),
+    ("real turn: one half plus one third",
+     "what's one half plus one third? " '[[step eq="1/2 + 1/3 = ?"]]', False),
+    ("real turn: three fourths minus one fourth",
+     "what's three fourths minus one fourth? " '[[step eq="3/4 - 1/4 = ?"]]', False),
+    ("real turn: one fifth plus two fifths",
+     "what's one fifth plus two fifths? " '[[step eq="1/5 + 2/5 = ?"]]', False),
+    ("real turn: simplify eight twelfths",
+     "question one: simplify eight twelfths. " '[[step eq="8/12 = ?"]]', False),
+    ("real turn: a mixed number read aloud",
+     "three and one fourth minus one and three fourths. " '[[step eq="3 1/4 - 1 3/4 = ?"]]', False),
+    ("the same lesson's OTHER miss: the eighths problem never read",
+     "If you put those slices together, how many eighths do you have in all? "
+     '[[step eq="2/8 + 3/8 = ?"]]', True),
 ]
 
 

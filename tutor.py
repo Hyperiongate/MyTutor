@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gk -- A FRACTION IS ONLY "READ ALOUD" WHEN ITS HALVES ARE SAID
+#               TOGETHER. _pq_spoken_covers looked for the numerator anywhere and the
+#               denominator anywhere, independently, so the 2026-08-16 fractions audit
+#               walked through rule 44 untouched: board "3/4 + 1/4 = ?", words "three plus
+#               one really is four" -- about the NUMERATORS, never reading the problem --
+#               and the referee scored it as spoken because a "three" and a "four" existed
+#               somewhere. A confused nine-year-old was then asked a question they had only
+#               ever seen written. Now the two halves must be adjacent ("three fourths",
+#               "three over four", or the literal 3/4), which is the only form a listening
+#               student actually hears.
 #   2026-08-14  BUILD gj -- RULE 41 IS NOW A REFEREE (the tenth check). The 2026-08-16
 #               lesson audits found FOUR figures drawn with no caption -- a fractions pie
 #               and three cookie pictures -- in the two lessons aimed at the youngest and
@@ -2365,12 +2375,32 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
         frac = re.search(r"(\d+)\s*/\s*(\d+)", board_value or "")
         if frac:
             top, bot = int(frac.group(1)), int(frac.group(2))
-            top_said = (re.search(r"\b%d\b" % top, low)
-                        or (top in _EQ_NUMWORD and re.search(r"\b%s\b" % _EQ_NUMWORD[top], low)))
-            bot_said = (re.search(r"\b%d\b" % bot, low)
-                        or (bot in _EQ_DENOM_WORD and re.search(r"\b(?:%s)s?\b" % _EQ_DENOM_WORD[bot], low))
-                        or (bot in _EQ_NUMWORD and re.search(r"\b%s\b" % _EQ_NUMWORD[bot], low)))
-            return bool(top_said and bot_said)
+            # BUILD gk (2026-08-16) -- THE HALVES MUST BE SPOKEN TOGETHER.
+            # This used to look for the numerator ANYWHERE and the denominator ANYWHERE,
+            # independently. The 2026-08-16 fractions audit walked straight through it:
+            # the board said 3/4 + 1/4 = ? and the words said "three plus one really is
+            # four" -- which is about the NUMERATORS, and never reads the problem at all --
+            # yet "three" and "four" were both present, so the referee called it spoken and
+            # the child was asked a question they had only ever seen written down. That is
+            # precisely the failure rule 44 exists to stop, in the course whose students can
+            # least afford it. A fraction now only counts as read when its two halves are
+            # said TOGETHER -- "three fourths", "three over four", or the literal 3/4 --
+            # which is the only way a listening student actually hears the quantity.
+            if re.search(r"\b%d\s*/\s*%d\b" % (top, bot), low):
+                return True
+            tops = [re.escape(str(top))]
+            if top in _EQ_NUMWORD:
+                tops.append(re.escape(_EQ_NUMWORD[top]))
+            # NOTE: _EQ_DENOM_WORD values are already alternations ("half|halves",
+            # "fourth|quarter") -- group them, never escape them.
+            bots = [re.escape(str(bot))]
+            if bot in _EQ_DENOM_WORD:
+                bots.append("(?:%s)" % _EQ_DENOM_WORD[bot])
+            if bot in _EQ_NUMWORD:
+                bots.append(re.escape(_EQ_NUMWORD[bot]))
+            together = r"\b(?:%s)\b(?:\s+\w+){0,2}\s+(?:%s)s?\b" % (
+                "|".join(tops), "|".join(bots))
+            return bool(re.search(together, low))
         nums = [int(n) for n in re.findall(r"\b\d{1,4}\b", board_value or "")]
         if not nums:
             return True                      # nothing numeric to read aloud

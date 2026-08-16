@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gk-audit-findings". BUILD gk joins gj: rule 44's
+#               coverage test now requires a fraction's two halves to be SAID TOGETHER, so
+#               "three plus one really is four" no longer counts as having read "three
+#               fourths plus one fourth" aloud.
 #   2026-08-16  APP_BUILD -> "2026-08-16gj-audit-findings". BUILD gj -- RULE 41 BECOMES A
 #               REFEREE, RULE 37 BECOMES A MEASUREMENT, from the 2026-08-16 lesson audits.
 #               (1) tutor.py gains the tenth referee: a figure drawn with NO caption is
@@ -6968,7 +6972,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gj-audit-findings"
+APP_BUILD = "2026-08-16gk-audit-findings"
 
 
 @app.get("/health")
