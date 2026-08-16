@@ -45,6 +45,19 @@
 #               naming it, giving a script a unit nobody teaches, filtering a heard script,
 #               altering a quoted script's words, and dropping a heard script from the
 #               refresher turn are all still caught.
+#   2026-08-16  BUILD gn -- PART 3aj, THE SCREEN IS CHECKED TOO. Jim ran one Geometry
+#               lesson and found four defects by eye in the first turn -- a formula
+#               rendered "a squared plus B squared equals C squared", a triangle lettered
+#               on its CORNERS while the words named its LEGS, a rail saying Unit 1 under
+#               prose saying Unit 5, and a clipped header. Nothing we owned could have
+#               caught any of them: the referees read the reply, lessonaudit reads the
+#               transcript, and all four defects are born in the RENDER. PART 3aj runs
+#               screencheck.py's six screen checks -- 21 fixtures, both directions, all on
+#               real turns -- with no browser and no key, so they run on every push rather
+#               than when someone remembers. It also guards the two seams that would make
+#               the checker go SILENTLY blind: geo-figures.js's font metrics (17/800 for a
+#               vertex, 15/600 for a side -- the only way to tell a corner from a leg) and
+#               session.html's VAR_SKIP list.
 #   2026-08-14  BUILD gf -- PART 3ac READS THE DEADLINE WRAPPER. Build ga wrapped runTutor's
 #               three gates in withDeadline() so a gate that never settles cannot strand a
 #               student; PART 3ac read those three lines literally and started failing on
@@ -7502,6 +7515,94 @@ def part4_live():
 
 
 # =============================================================================
+# PART 3aj -- THE SCREEN IS CHECKED TOO
+# =============================================================================
+# 2026-08-16, build gn. Jim ran ONE Geometry lesson and found four defects by eye in the
+# first turn: "a squared plus B squared equals C squared", a triangle lettered on its
+# CORNERS while the words talked about its LEGS, a rail reading Unit 1 under prose saying
+# Unit 5, and a clipped header. Not one of them was catchable by anything we owned, and
+# the reason is structural: the twelve referees read the REPLY, lessonaudit reads the
+# TRANSCRIPT, and every one of those defects is born when session.html RENDERS that text.
+# Nothing was pointed at the screen. Jim: "we should have a universal way to catch these
+# things. Somebody should be checking this."
+#
+# screencheck.py is that checker, and it is deliberately built so its JUDGEMENT needs no
+# browser, no API key and no network -- only CAPTURING a fresh screen needs Playwright.
+# That is why this PART exists here rather than as another tool nobody runs: the six
+# checks run on every push, on any machine, for free. A check that skips is a wish.
+#
+# TWO SEAMS ARE GUARDED BELOW, and they matter more than the fixtures. screencheck reads
+# a figure's SVG by its FONT METRICS -- that is the only way to tell a corner label from
+# a side label -- and it mirrors session.html's VAR_SKIP list. Change either renderer and
+# the checker goes SILENTLY blind, which is the worst failure a checker has: it keeps
+# reporting "no findings" while the defect ships. When two features touch, walk the seam
+# (build fb).
+def part3aj_screen_checks():
+    print("\nPART 3aj — the screen auditor (screencheck.py)")
+    root = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import screencheck
+    except Exception as exc:  # a missing module of OUR OWN is a broken repo, not a laptop
+        bad("screencheck imports", f"{type(exc).__name__}: {exc}")
+        return
+
+    # ---- the six checks, each proved in BOTH directions on real turns ----
+    for name, expected, found in screencheck.fixture_results():
+        names = sorted({f.check for f in found})
+        if expected is None:
+            check(f"screencheck: {name}", not names,
+                  f"expected silence, got {names}")
+        else:
+            check(f"screencheck: {name}", expected in names,
+                  f"expected {expected!r}, got {names or 'nothing'}")
+
+    # ---- SEAM 1: geo-figures.js still labels by the metrics screencheck reads ----
+    geo_path = os.path.join(root, "static", "geo-figures.js")
+    if not os.path.exists(geo_path):
+        bad("screencheck seam: geo-figures.js present", "file not found")
+    else:
+        with open(geo_path, "r", encoding="utf-8") as fh:
+            geo = fh.read()
+        # triangle() emits txt(..., L[i], INK, 17, 800) for a vertex and
+        # txt(..., sides[i], INK, 15, 600) for a side length. S2 tells a corner from a
+        # leg by exactly those numbers and by nothing else.
+        vsize, vweight = screencheck.FIG_VERTEX_FONT
+        ssize, sweight = screencheck.FIG_SIDE_FONT
+        check("screencheck seam: vertex labels still 17/800",
+              f"INK, {vsize}, {vweight}" in geo,
+              f"geo-figures.js no longer emits vertex text at {vsize}/{vweight} — "
+              f"S2 (figure names what the words name) has gone BLIND")
+        check("screencheck seam: side labels still 15/600",
+              f"INK, {ssize}, {sweight}" in geo,
+              f"geo-figures.js no longer emits side text at {ssize}/{sweight} — "
+              f"S2 (figure names what the words name) has gone BLIND")
+
+    # ---- SEAM 2: session.html's VAR_SKIP is still the list screencheck mirrors ----
+    sess_path = os.path.join(root, "static", "session.html")
+    if not os.path.exists(sess_path):
+        bad("screencheck seam: session.html present", "file not found")
+    else:
+        with open(sess_path, "r", encoding="utf-8") as fh:
+            sess = fh.read()
+        m = re.search(r"const\s+VAR_SKIP\s*=\s*\{([^}]*)\}", sess)
+        if not m:
+            bad("screencheck seam: VAR_SKIP found in session.html",
+                "the variable-styling skip list moved or was renamed — S1 is now guessing")
+        else:
+            live = tuple(sorted(re.findall(r"([A-Za-z])\s*:", m.group(1))))
+            mine = tuple(sorted(screencheck.VAR_SKIP))
+            check("screencheck seam: VAR_SKIP matches screencheck", live == mine,
+                  f"session.html skips {live} but screencheck mirrors {mine} — S1 will "
+                  f"miss letters it no longer knows about, or invent ones it does")
+        # The defect S1 exists to catch, stated as a fact about the renderer so that a
+        # fix to session.html is what turns this into a passing world.
+        check("screencheck: styled variables are uppercased (the reason S1 exists)",
+              'class="mvar">' in sess and "run.toUpperCase()" in sess,
+              "session.html no longer uppercases styled variables — if that was the fix, "
+              "S1's fixtures should be revisited rather than left asserting the old world")
+
+
+# =============================================================================
 # PART 3ai -- THE DEPLOY STAMP MUST MOVE WITH THE CODE
 # =============================================================================
 # /health reports APP_BUILD, and its entire job is to answer one question: "did Render
@@ -7617,6 +7718,7 @@ def main():
     part3af_full_journey()
     part3ag_shots_match_copy()
     part3ah_audit_findings_fe()
+    part3aj_screen_checks()
     part3ai_deploy_stamp()
     if live:
         part4_live()
