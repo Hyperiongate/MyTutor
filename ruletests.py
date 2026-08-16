@@ -2,6 +2,23 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gg -- PART 3b AND 3d NOW GUARD THE CONTRACT BUILD gb CREATED. The old
+#               promise was "every script reaches every prompt, verbatim, always", and it
+#               was right until the library reached 306 scripts and the largest prompt hit
+#               185,595 against a 180,000 ceiling. gb carries the LESSON'S UNIT in full and
+#               NAMES the rest. These parts asserted the old promise and so failed on
+#               correct code -- the worst kind of test. They are not deleted, they are
+#               re-aimed, and they now guard three things instead of one: no term ever
+#               vanishes (in EVERY unit each term is quoted or at least named -- a term the
+#               tutor cannot see is one he will define from memory), every script is quoted
+#               verbatim in at least one unit, and a HEARD script is never filtered by unit
+#               (rule 40 must be able to restore its exact words, and "remind me" arrives in
+#               any unit). The audio-cache check now asks whether a QUOTED script's wording
+#               was altered, which is the thing the voice cache actually depends on.
+#               Each rewritten check was verified by mutation: deferring a term without
+#               naming it, giving a script a unit nobody teaches, filtering a heard script,
+#               altering a quoted script's words, and dropping a heard script from the
+#               refresher turn are all still caught.
 #   2026-08-14  BUILD gf -- PART 3ac READS THE DEADLINE WRAPPER. Build ga wrapped runTutor's
 #               three gates in withDeadline() so a gate that never settles cannot strand a
 #               student; PART 3ac read those three lines literally and started failing on
@@ -1737,10 +1754,54 @@ def part3b_foundations():
             check(f"foundations [{c}]", False, "no canonical introductions for this course")
             continue
         total += len(items)
-        prompt = tutor.build_system_prompt(dict(STUDENT), course=c)
-        missing = [f["term"] for f in items if f"--- {f['term'].upper()} ---" not in prompt]
-        check(f"foundations [{c}] ({len(items)} intros reach the prompt)", not missing,
-              f"missing: {missing}")
+        # ---------------------------------------------------------------------------
+        # THE CONTRACT CHANGED IN BUILD gb, AND THIS IS THE NEW ONE (build gg).
+        # It used to read: every script reaches every prompt, verbatim, always. That was
+        # true and worth guarding until the library grew to 306 scripts and the largest
+        # prompt hit 185,595 against a 180,000 ceiling. gb's answer was to carry the
+        # LESSON'S UNIT in full and NAME the rest, which is a real trade and deserves a
+        # real guard rather than a deleted test. The three promises now are:
+        #   (a) NOTHING EVER VANISHES -- in every single unit, every term is either
+        #       quoted in full or named in the deferred list. A term the tutor cannot
+        #       see is a term he will invent a definition for.
+        #   (b) EVERY SCRIPT IS QUOTED SOMEWHERE -- each one reaches at least one unit
+        #       verbatim. A script that no unit ever quotes is dead weight and, worse,
+        #       an introduction some student will never receive.
+        #   (c) A HEARD SCRIPT IS NEVER FILTERED -- rule 40 offers it and must be able
+        #       to restore its exact words, and "remind me" arrives in any unit.
+        # ---------------------------------------------------------------------------
+        def _quoted_and_named(prompt):
+            quoted = {m.strip().lower() for m in
+                      re.findall(r"^--- (.+?) ---", prompt, re.M)}
+            m = re.search(r"wording is not carried today:\n\s*(.+)", prompt)
+            named = {x.strip().lower() for x in m.group(1).split(",")} if m else set()
+            return quoted, named
+
+        per_unit = {u: tutor.build_system_prompt(dict(STUDENT, focus_unit=u), course=c)
+                    for u in range(1, 10)}
+        all_terms = {f["term"].lower() for f in items}
+        lost = set()
+        for u, prompt in per_unit.items():
+            q, n = _quoted_and_named(prompt)
+            lost |= {t for t in all_terms if t not in q and t not in n}
+        check(f"foundations [{c}] ({len(items)} intros): no term ever vanishes from the "
+              f"prompt", not lost,
+              f"in some unit the tutor can neither quote nor even SEE: {sorted(lost)} -- "
+              f"a term he cannot see is one he will define from memory instead")
+        never_quoted = [f["term"] for f in items
+                        if not any(f["say"] in p for p in per_unit.values())]
+        check(f"foundations [{c}]: every script is quoted verbatim in at least one unit",
+              not never_quoted,
+              f"no unit ever carries the wording of {never_quoted} -- those students get "
+              f"a paraphrase, or nothing")
+        heard_all = [f["term"] for f in items]
+        held = tutor.build_system_prompt(
+            dict(STUDENT, focus_unit=9, foundations_heard=heard_all), course=c)
+        unheld = [f["term"] for f in items if f["say"] not in held]
+        check(f"foundations [{c}]: a HEARD script is never filtered out by unit",
+              not unheld,
+              f"{unheld} were dropped from a unit-9 prompt even though the student has "
+              f"met them -- rule 40 could not restore words that are not there")
         for f in items:
             say = f["say"]
             # spoken aloud: no notation, no bare symbols (see tutor.py HOW YOU SPEAK)
@@ -2088,11 +2149,25 @@ def part3d_foundation_memory():
     check("the heard terms are marked on their own scripts",
           known.count("[already introduced -- ask first, rule 40]") == 2,
           f"marked {known.count('[already introduced -- ask first, rule 40]')} of 2")
+    # build gg: since build gb a prompt holds the lesson's unit plus anything heard, so
+    # "every script is in both prompts" stopped being the question. The question this check
+    # exists for never changed: wherever a script IS quoted, its wording must be
+    # character-for-character the authored text, because the voice cache is keyed on that
+    # text and one changed character re-bills the audio for every student on the platform.
+    def _quoted_terms(prompt):
+        return {m.strip().lower() for m in re.findall(r"^--- (.+?) ---", prompt, re.M)}
+
+    _bad = []
+    for _p, _label in ((fresh, "new student"), (known, "returning student")):
+        _q = _quoted_terms(_p)
+        for _f in foundations.for_course("basic"):
+            if _f["term"].lower() in _q and _f["say"] not in _p:
+                _bad.append(f"{_f['term']} ({_label})")
     check("the SCRIPTS themselves are byte-identical either way (the audio cache "
           "depends on it)",
-          all(f["say"] in fresh and f["say"] in known
-              for f in foundations.for_course("basic")),
-          "a script's wording changed between the two prompts")
+          not _bad,
+          f"a quoted script's wording was altered in the prompt: {_bad} -- the voice cache "
+          f"is keyed on that exact text, so one changed character re-bills every student")
     check("a returning student is told to ASK, not replay",
           "refresh your memory" in known, "the ask is missing")
     # a heard list full of nonsense must not break the block
@@ -2142,17 +2217,31 @@ def part3d_foundation_memory():
         dict(STUDENT, foundations_heard=heard, foundations_verbatim=False), course="algebra2")
     fresh = tutor.build_system_prompt(dict(STUDENT), course="algebra2")
     a2 = foundations.for_course("algebra2")
-    check("a brand-new student still gets every script verbatim",
-          all(f["say"] in fresh for f in a2), "a new student lost a script")
+    # build gg: "every script, always" was the pre-gb contract. A prompt now carries the
+    # lesson's unit plus everything heard, so these two ask the same question of the set
+    # that is actually promised: this unit's scripts, and anything the student has met.
+    def _promised(f, heard_list):
+        u = foundations.unit_of("algebra2", f["term"])
+        return f["term"] in heard_list or u is None or u == _U
+    _U = 1                      # STUDENT is unplaced, so the filter falls back to unit 1
+    check("a brand-new student still gets every script his unit teaches, verbatim",
+          all(f["say"] in fresh for f in a2 if _promised(f, [])),
+          "a new student lost a script his own unit is supposed to introduce")
     check("a returning student keeps UNHEARD scripts verbatim",
-          all(f["say"] in lean for f in a2 if f["term"] not in heard),
+          all(f["say"] in lean for f in a2
+              if f["term"] not in heard and _promised(f, heard)),
           "a script they have never met was deferred -- that is a teaching loss")
     check("heard scripts are still NAMED on an ordinary turn",
           all(f["term"].upper() in lean for f in a2 if f["term"] in heard),
           "he cannot offer a refresher for a term he cannot see")
+    # build gg: the promise is about the terms this student has MET -- those are the ones
+    # rule 40 offers, and the ones "remind me" can ask for. A term from another unit that
+    # they have never met is not a refresher candidate; it is named, and its unit will
+    # introduce it properly when they get there.
     check("asking for it restores the EXACT wording",
-          all(f["say"] in full for f in a2),
-          "the refresher turn is missing a script -- he would have to paraphrase")
+          all(f["say"] in full for f in a2 if f["term"] in heard),
+          "the refresher turn is missing a script the student HAS met -- he would have to "
+          "paraphrase, which drifts the shared wording and re-bills the audio")
     check("deferring actually saves something", len(lean) < len(full) - 2000,
           f"only {len(full) - len(lean)} chars")
     check("the default is to CARRY the words",
