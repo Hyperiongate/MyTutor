@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gf -- FILTERING IS NOT OPTIONAL (ruletests caught it). Build gb filters
+#               the foundation block to the lesson's unit, but when NO unit could be
+#               determined -- an unplaced student, or a practice problem the classifier
+#               cannot place -- it filtered nothing, and algebra2 came out at 185,595
+#               characters against the 180,000 ceiling. Every gb measurement passed an
+#               explicit unit, so every gb measurement missed it. There is now a fallback:
+#               a student with no placement is at the START of the course, so unit 1;
+#               practice and topic prefer the student's own placed unit first.
 #   2026-08-14  BUILD gd -- THE MISSING-MARK PROBE (measurement only, no behaviour change).
 #               [[mark]] records that a student FINISHED a problem: their score, their
 #               accuracy, and since build fy the signal that folds the finished problem off
@@ -1345,6 +1353,16 @@ def _notation_block(course: str) -> str:
         return ""
 
 
+# build gf (2026-08-14): FILTERING IS NOT OPTIONAL. ruletests caught this within an hour of
+# build gb shipping: when no unit can be determined -- an unplaced student, or a practice
+# problem the classifier cannot place -- unit was None, prompt_block filtered NOTHING, and
+# algebra2 came out at 185,595 characters against a 180,000 ceiling. Every measurement taken
+# during build gb passed an explicit unit, so every measurement missed it.
+# A student with no placement is at the START of the course, so unit 1 is the honest default
+# rather than a guess; practice and topic prefer the student's own placed unit and fall back
+# to the same 1. Nothing is ever lost by filtering: the other units' terms are still NAMED.
+_FILTER_UNIT_FALLBACK = 1
+
 def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None) -> str:
     """This course's canonical foundation scripts (rules 36-40), or "" if none.
 
@@ -1401,7 +1419,7 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
         course, (student or {}).get("foundations_heard"),
         (student or {}).get("foundations_verbatim", True),
-        unit)   # build gb: only THIS unit's scripts carry their wording
+        unit or _FILTER_UNIT_FALLBACK)   # build gb: only THIS unit's scripts carry their wording
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
@@ -3065,6 +3083,8 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
     name = (student or {}).get("name", "the student")
     problem = (problem or "").strip() or "(The student hasn't stated the problem clearly yet -- ask them what it is.)"
     _u = _unit_from_text(problem, course)          # build gb: also filters the scripts
+    # build gf: never leave the filter off -- fall back to their placed unit, then to 1.
+    _fu = _u or _unit_from_progress((student or {}).get("progress") or "") or _FILTER_UNIT_FALLBACK
     playbook = _playbook(_u, course)
     return GROUND_RULES + GRAPH_TOOL_NOTE + PRACTICE_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
@@ -3074,7 +3094,7 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
         subject=_subject(course),
         scope_block=PRACTICE_SCOPE.get(course or DEFAULT_COURSE, PRACTICE_SCOPE[DEFAULT_COURSE]),
     ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
-                      (student or {}).get("foundations_verbatim", True), _u)
+                      (student or {}).get("foundations_verbatim", True), _fu)
 
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
@@ -3123,6 +3143,8 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
     name = (student or {}).get("name", "the student")
     topic = (topic or "").strip() or "(The student hasn't named a topic yet -- ask them what they'd like to explore.)"
     _u = _unit_from_text(topic, course)            # build gb: also filters the scripts
+    # build gf: never leave the filter off -- fall back to their placed unit, then to 1.
+    _fu = _u or _unit_from_progress((student or {}).get("progress") or "") or _FILTER_UNIT_FALLBACK
     playbook = _playbook(_u, course)
     return GROUND_RULES + GRAPH_TOOL_NOTE + TOPIC_SYSTEM_PROMPT_TEMPLATE.format(
         tutor_name=TUTOR_NAME,
@@ -3132,7 +3154,7 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
         subject=_subject(course),
         scope_block=TOPIC_SCOPE.get(course or DEFAULT_COURSE, TOPIC_SCOPE[DEFAULT_COURSE]),
     ) + _notation_block(course) + _misconception_block(course) + _foundation_block(course, (student or {}).get("foundations_heard"),
-                      (student or {}).get("foundations_verbatim", True), _u)
+                      (student or {}).get("foundations_verbatim", True), _fu)
 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,

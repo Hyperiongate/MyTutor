@@ -2,6 +2,13 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gf -- A HEARD SCRIPT IS NEVER UNIT-FILTERED. The first full ruletests
+#               run against build gb caught it: rule 40 OFFERS a term the student has met
+#               before and restores its exact wording the moment they accept -- and
+#               "remind me what a radius is" can arrive in any unit. gb filtered those out
+#               with everything else, so the tutor could neither name the offer nor honour
+#               it, and would have paraphrased: drifted words and a re-billed voice clip.
+#               Heard scripts now always travel; only never-met terms are deferred.
 #   2026-08-14  BUILD ge -- THE "point" BOARD LINE NOW DRAWS POINTS. Jim, live in Geometry
 #               unit 1: the tutor said "take a look at those three points on the board" and
 #               the board showed the TEXT "A B C" -- and styleVars coloured B and C red as if
@@ -2812,14 +2819,23 @@ def prompt_block(course: str, heard=None, verbatim: bool = True, unit=None) -> s
         unit = int(unit) if unit else None
     except (TypeError, ValueError):
         unit = None
-    deferred = []
+    seen = {normalize_term(t) for t in (heard or []) if str(t or "").strip()}
+    # build gf (2026-08-14): A HEARD SCRIPT IS NEVER UNIT-FILTERED. ruletests caught this
+    # the first time the battery ran against build gb: rule 40 says a term this student has
+    # already met is OFFERED, and its exact wording is restored the moment they accept --
+    # "remind me what a radius is" can arrive in ANY unit. Filtering those out by unit meant
+    # the tutor could not name the offer and could not honour it, so he would have had to
+    # paraphrase, which drifts the words every student is supposed to share AND re-bills the
+    # audio. Heard scripts always travel; only terms this student has never met are deferred.
+    deferred = set()
     if unit:
         for f in items:
+            key = normalize_term(f["term"])
+            if key in seen:
+                continue
             u = unit_of(course, f["term"])
             if u is not None and u != unit:
-                deferred.append(normalize_term(f["term"]))
-    deferred = set(deferred)
-    seen = {normalize_term(t) for t in (heard or []) if str(t or "").strip()}
+                deferred.add(key)
     known = [f["term"] for f in items if normalize_term(f["term"]) in seen]
     lines = [
         "",

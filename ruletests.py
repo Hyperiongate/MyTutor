@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-14  BUILD gf -- PART 3ac READS THE DEADLINE WRAPPER. Build ga wrapped runTutor's
+#               three gates in withDeadline() so a gate that never settles cannot strand a
+#               student; PART 3ac read those three lines literally and started failing on
+#               correct code. It now normalises the wrapper away, asserts the SAME ordering
+#               and awaiting rules on what is left, and adds a check that all three gates
+#               still carry a deadline -- so neither rule can be dropped unnoticed.
 #   2026-08-14  BUILD ge -- PART 3ai, THE DEPLOY STAMP. /health's APP_BUILD is how anyone
 #               confirms Render actually took a deploy, and it had gone NINE builds stale,
 #               so it was answering that question wrongly at the exact moment Jim needed it.
@@ -6759,6 +6765,25 @@ def part3ac_voice_sequencing():
     except ValueError:
         body = ""
     check("runTutor has a readable body", bool(body), "could not slice it")
+    # build gf: build ga wrapped every gate in withDeadline() so a gate that never settles
+    # can no longer strand a student mid-lesson. These checks used to read the three lines
+    # LITERALLY, so the wrapper made the sequencing rule unverifiable -- the checks failed
+    # while the behaviour was fine, which is the worst kind of test. They now normalise the
+    # wrapper away and assert exactly the same invariants on what is left, and a new check
+    # below insists the wrapper is still there. Neither rule can be dropped unnoticed now.
+    def _raw_runtutor(src):
+        # the three gates INSIDE runTutor -- the welcome-card gate is a fourth, elsewhere
+        try:
+            b = src[src.index("async function runTutor("):]
+            return b[:b.index("\n    // ---------- Text fallback")]
+        except ValueError:
+            return ""
+
+    def _unwrap_deadline(src):
+        return re.sub(r'await withDeadline\(\(\) => (runPendingMoment\("(?:before|after)"\)'
+                      r'|speak\(clean\))[^;]*;', r'await \1;', src)
+    body = _unwrap_deadline(body)
+    se_seq = _unwrap_deadline(se)
     seq = [ln.strip() for ln in body.splitlines()
            if "runPendingMoment(" in ln or "await speak(clean)" in ln]
     check("runTutor awaits the clip gate BEFORE speaking, and the after-gate follows",
@@ -6768,9 +6793,17 @@ def part3ac_voice_sequencing():
           f"got {seq!r} -- the gates and speak() must appear in exactly that order, all "
           f"three awaited; a missing await is two voices talking over each other")
     check("the gate is awaited everywhere it is used (never fired and forgotten)",
-          not re.search(r'(?<!await )(?<!\.)runPendingMoment\("(before|after)"\)(?!\s*\.then)', se),
+          not re.search(r'(?<!await )(?<!\.)runPendingMoment\("(before|after)"\)(?!\s*\.then)', se_seq),
           "every runPendingMoment call must be awaited or explicitly chained with .then "
           "(the sprint path) -- an un-awaited gate is exactly the overlap this forbids")
+    # build gf: and the deadline itself must not be quietly removed. A gate that cannot
+    # time out is the 2026-08-14 freeze: chat 200, speak 200, then no microphone, ever.
+    check("every gate in runTutor carries a deadline (build ga)",
+          len(re.findall(r'await withDeadline\(\(\) => (?:runPendingMoment\("(?:before|after)"\)'
+                         r'|speak\(clean\))', _raw_runtutor(se))) == 3,
+          "the opening clip, the spoken reply and the closing clip must each be wrapped in "
+          "withDeadline() -- sendToTutor's finally{} cannot re-enable the microphone if an "
+          "await never settles, which is exactly how a student got stranded mid-question")
 
     # 3. A clip must never REPLACE the personalised line: speak(clean) is unconditional.
     #    Not nested in an if, not in an else of the clip's result.
