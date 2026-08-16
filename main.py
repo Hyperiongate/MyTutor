@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gn-screen-auditor". Carries gn on top of gm: the
+#               THIRTEENTH referee (triangle_letter_conflict, rule 63(d)) and the new
+#               offline screen auditor (screencheck.py + ruletests PART 3aj). Jim ran one
+#               Geometry lesson and found four defects by eye in the first turn; nothing we
+#               owned could have caught any of them, because every checker read the REPLY
+#               or the TRANSCRIPT and all four are born in the RENDER. gn points a checker
+#               at the SCREEN, and closes the one of the four that is pure teaching: a
+#               triangle whose words named sides a, b, c while the picture lettered only
+#               its corners. Rule text: prompts.py GEOMETRY [[triangle]] doc.
 #   2026-08-16  APP_BUILD -> "2026-08-16gm-audit-findings". Carries gm on top of gj/gk/gl:
 #               the TWELFTH referee, narrated_method_conflict. Rule 43 already forbade
 #               narrating a method onto a bare right answer -- it was written 2026-08-13
@@ -6988,7 +6997,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gm-audit-findings"
+APP_BUILD = "2026-08-16gn-screen-auditor"
 
 
 @app.get("/health")

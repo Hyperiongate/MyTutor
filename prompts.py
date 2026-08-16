@@ -2,6 +2,13 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gn -- THE GEOMETRY [[triangle]] DOC LEARNS TO LETTER ITS SIDES. Jim
+#               caught a figure whose words named sides a, b, c while v= put A, B, C on the
+#               CORNERS and sides= held bare numbers, so the theorem pointed at nothing.
+#               The doc now says: if your words name a side by letter, put the letter IN the
+#               side slot (sides="c = 3, a = ?, b = 4"); a side's letter is the lowercase of
+#               the vertex OPPOSITE it; and for the Pythagorean theorem put the right angle
+#               at C so the hypotenuse is c. Enforced by tutor.triangle_letter_conflict.
 #   2026-08-13  BUILD fe -- THE 2026-08-13 LESSON-AUDIT FINDINGS BECOME RULES (every one
 #               read against its quoted transcript before this was written; ruletests
 #               PART 3ah pins each anchor, PART 3w bans the new false universals):
@@ -748,6 +755,15 @@ play (a figure beats a paragraph):
       little square) -- the hypotenuse is then the side whose two letters SKIP that vertex, so
       right="C" makes AB (the FIRST slot) the hypotenuse: its length, or its "?", goes there; angles = the three angle measures at A, B, C; ticks = the sides to mark
       EQUAL (e.g. "AB,CA" puts a tick on each, showing they're congruent).
+      ⛔ IF YOUR WORDS NAME A SIDE BY LETTER, THE PICTURE MUST NAME IT TOO. The letters in v=
+      sit on the CORNERS. A figure with v="A,B,C" and sides="3,4,?" has NOTHING on it called
+      a, b or c -- so if you then say "a squared plus b squared equals c squared", the student
+      hunts for those letters and finds three corners. Put the letter IN the side slot:
+      sides="c = 3, a = ?, b = 4". A side's letter is the lowercase of the vertex OPPOSITE it
+      (side a is opposite vertex A) -- the convention every textbook uses; lettering a side any
+      other way teaches a false one. FOR THE PYTHAGOREAN THEOREM, PUT THE RIGHT ANGLE AT C:
+      the hypotenuse is then AB, its letter is c, and "a squared plus b squared equals c
+      squared" is exactly what the picture shows.
   - [[angle deg="50" label="ABC" caption="..."]]  a single angle of that many degrees; the middle
       letter of label is the vertex (it draws a right-angle square automatically at 90).
       deg goes up to 180 -- deg="180" IS a straight line, exactly what supplementary-angle

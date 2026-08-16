@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gn -- THE TRIANGLE-LETTER REFEREE (rule 63(d), born ENFORCED), the
+#               THIRTEENTH. Jim, from one live Geometry lesson: "a, b, and c are supposed
+#               to be legs of a right triangle, and instead they're shown as the angles. So
+#               when you say a squared plus b squared equals c squared, it makes no sense."
+#               v= letters the CORNERS and sides= letters the SIDES, so a tag reading
+#               v="A,B,C" sides="3,?,4" leaves nothing on the picture called a, b or c --
+#               and with the right angle at A the convention makes side a the HYPOTENUSE,
+#               the exact opposite of what the board said. Sibling of triangle_side_conflict
+#               (fe): same tag, same AB/BC/CA contract, wired immediately after it. Proved
+#               in both directions on 8 cases, silent on all 1,015 canonical foundation
+#               strings and on every existing 63c case.
 #   2026-08-16  BUILD gm -- NEVER CREDIT A METHOD THE STUDENT DID NOT SHOW (twelfth referee).
 #               Rule 43 already said this, in these words, written from a live catch on
 #               2026-08-13 -- and on 2026-08-16 the audits caught it again: the student typed
@@ -2271,6 +2282,110 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE TRIANGLE-LETTER CHECK (2026-08-16, build gn) -- rule 63(d), born ENFORCED.
+# -----------------------------------------------------------------------------
+# Jim ran one Geometry lesson and read the first turn out loud: "a, b, and c are supposed
+# to be legs of a right triangle, and instead they're shown as the angles. So when you say
+# a squared plus b squared equals c squared, it makes no sense. The most popular theorem
+# in all of math is wrong."
+#
+# The tag was [[triangle v="A,B,C" sides="3,?,4" right="A"]]. v= letters the CORNERS and
+# sides= letters the SIDES, so the picture had A, B, C on its vertices, 3/?/4 on its legs,
+# and nothing at all called a, b or c -- while the words leaned on exactly those three
+# letters. Worse than absent: under the convention every textbook uses, side a is the one
+# OPPOSITE vertex A, which in that figure (right angle at A) is the HYPOTENUSE. The board
+# said c was the hypotenuse and the picture said a was. A student who trusts both learns
+# that letters are decoration -- the same lesson the mis-slotted triangles taught in fe.
+#
+# This is the sibling of triangle_side_conflict() above: same tag, same AB/BC/CA contract,
+# and rule 63 again ("the words and the picture are the same figure"). geo-figures.js can
+# already carry the letters -- sides="c = 3, a = ?, b = 4" renders them on the legs -- so
+# this is a fixable turn, never a renderer limit.
+#
+# NARROW, in both of its halves:
+#   (a) STRANDED -- the prose names sides by single letter AND a triangle tag is present
+#       AND its sides= carries none of those letters AND its v= carries them as corners.
+#       All four must hold. A triangle whose words name no letters is never judged; a
+#       figure that letters its sides is never judged.
+#   (b) MISLETTERED -- a side slot IS lettered, but with a letter that is not the lowercase
+#       of the vertex opposite it. Judged only when v= names three distinct single letters,
+#       so P,Q,R triangles and word labels are left alone.
+_TRI_SIDE_LETTER = re.compile(r"(?<![A-Za-z])([a-z])(?![A-Za-z])\s*=")
+_TRI_PYTHAG = re.compile(
+    r"\ba\s*(?:²|\^2|squared)\s*(?:\+|plus)\s*b\s*(?:²|\^2|squared)\s*(?:=|equals)\s*"
+    r"c\s*(?:²|\^2|squared)", re.I)
+_TRI_NAMES_SIDE = re.compile(
+    r"\b(?:side|leg|legs|sides|hypotenuse)\s+(?:is\s+)?([a-z])(?![A-Za-z])"
+    r"|\b([a-z])\s*(?:²|\^2|squared)\b", re.I)
+
+
+def triangle_letter_conflict(reply: str):
+    """Return a description of a triangle whose words name sides by letter that the
+    picture does not carry (or carries against the convention), or "". Never raises:
+    any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _TAG_SPLIT_RE.sub(" ", text) if "_TAG_SPLIT_RE" in globals() else \
+            re.sub(r"\[\[[^\]]*\]\]", " ", text)
+        named = set()
+        if _TRI_PYTHAG.search(prose):
+            named.update(("a", "b", "c"))
+        for m in _TRI_NAMES_SIDE.finditer(prose):
+            letter = (m.group(1) or m.group(2) or "").lower()
+            if letter and letter not in ("a",) or (letter == "a" and m.group(2)):
+                named.add(letter)
+        named = {L for L in named if L.isalpha()}
+        if not named:
+            return ""
+        for m in _TRI_TAG.finditer(text):
+            attrs = {k.lower(): v for k, v in _TRI_ATTR.findall(m.group(1))}
+            sides_raw = (attrs.get("sides") or "").strip()
+            if not sides_raw:
+                continue
+            v = [s.strip() for s in (attrs.get("v") or "A,B,C").split(",")]
+            sides = [s.strip() for s in sides_raw.split(",")]
+            if len(v) != 3 or len(sides) != 3:
+                continue
+            lettered = {}
+            for i, slot in enumerate(sides):
+                lm = _TRI_SIDE_LETTER.search(slot)
+                if lm:
+                    lettered[i] = lm.group(1).lower()
+            corners = {x.strip().lower() for x in v if len(x.strip()) == 1}
+            # (a) the words name letters the picture puts only on the corners
+            if not lettered and (named & corners):
+                shown = ", ".join(s or "-" for s in sides)
+                return ("your words name side{plural} {n}, but your [[triangle]] tag puts "
+                        "{up} on the CORNERS (v=\"{v}\") and its sides hold {shown} -- so "
+                        "nothing in the picture is called {n}, and the student hunts for "
+                        "letters that are not there. Rule 63(d): letter the sides you talk "
+                        "about, e.g. sides=\"c = 3, a = ?, b = 4\". A side's letter is the "
+                        "lowercase of the vertex OPPOSITE it, so for the Pythagorean "
+                        "theorem put the right angle at C and the hypotenuse AB is c."
+                        ).format(plural="" if len(named) == 1 else "s",
+                                 n=", ".join(sorted(named)),
+                                 up=", ".join(sorted(named)).upper(),
+                                 v=",".join(v), shown=shown)
+            # (b) a lettered side that contradicts the opposite-vertex convention
+            if lettered and len(corners) == 3:
+                for i, letter in lettered.items():
+                    opposite = v[(i + 2) % 3].strip().lower()
+                    if letter != opposite:
+                        pair = v[i].upper() + v[(i + 1) % 3].upper()
+                        return ("your [[triangle]] tag letters side {pair} as \"{got}\", but "
+                                "{pair} is opposite vertex {opp} -- so by the convention "
+                                "every textbook uses it is side {want}. Rule 63(d): a side's "
+                                "letter is the lowercase of the vertex OPPOSITE it. Letter it "
+                                "{want}, or move the vertices."
+                                ).format(pair=pair, got=letter, opp=opposite.upper(),
+                                         want=opposite)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[triangleletter] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE ANSWERED-QUESTION CHECK (2026-08-11, build dh) -- rule 17 moves COVERED -> ENFORCED.
 # -----------------------------------------------------------------------------
 # First full audit, twice in one run, two courses apart: a worked card said
@@ -2913,6 +3028,11 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         triangle = triangle_side_conflict(reply)
         if triangle:
             return triangle
+        # build gn: THIRTEENTH -- immediately after its sibling, because both read the
+        # same [[triangle]] tag and the slot check is the cheaper of the two.
+        triletter = triangle_letter_conflict(reply)
+        if triletter:
+            return triletter
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}

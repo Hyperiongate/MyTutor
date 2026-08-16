@@ -1544,6 +1544,39 @@ TRIANGLE_CASES = [
      '[[triangle v="A,B,C" right="C" sides="5,5,4"]]', True),
 ]
 
+# THE TRIANGLE-LETTER CASES (2026-08-16, build gn) -- rule 63(d), born ENFORCED.
+# From Jim's own Geometry lesson: "a, b, and c are supposed to be legs of a right
+# triangle, and instead they're shown as the angles. So when you say a squared plus b
+# squared equals c squared, it makes no sense." The tag lettered the CORNERS and left the
+# sides as bare numbers, so the three letters the words leaned on appeared nowhere on the
+# picture. Both directions, and the clean cases are the shapes a correct lesson emits.
+LETTER_CASES = [
+    ("Jim's actual turn: the words name a, b, c and the picture letters the corners",
+     'The rule is that a squared plus b squared equals c squared for the two legs.'
+     '[[triangle v="A,B,C" sides="3,?,4" right="A" caption="legs 3 and 4"]]', True),
+    ("the same turn done right: the sides carry the letters",
+     'The rule is that a squared plus b squared equals c squared for the two legs.'
+     '[[triangle v="A,B,C" sides="c = 5, a = 3, b = 4" right="C" caption="a right triangle"]]',
+     False),
+    ("a mislettered side: AB lettered a, but AB is opposite vertex C",
+     'Here a squared plus b squared equals c squared.'
+     '[[triangle v="A,B,C" sides="a = 5, b = 3, c = 4" right="C" caption="x"]]', True),
+    ("the words name a side by letter on its own",
+     'Look at side c on the picture -- how long is it?'
+     '[[triangle v="A,B,C" sides="3,?,4" right="A" caption="x"]]', True),
+    ("words that name no letters are never judged",
+     'This triangle has legs 3 and 4. How long is the third side?'
+     '[[triangle v="A,B,C" sides="3,?,4" right="A" caption="legs 3 and 4"]]', False),
+    ("the theorem stated with no figure at all is never judged",
+     'Remember that a squared plus b squared equals c squared.', False),
+    ("P,Q,R vertices: no collision with a, b, c, and not ours to guess about",
+     'Here a squared plus b squared equals c squared.'
+     '[[triangle v="P,Q,R" sides="3,?,4" right="P" caption="x"]]', False),
+    ("a tag with no sides= has nothing to letter",
+     'Here a squared plus b squared equals c squared.'
+     '[[triangle v="A,B,C" right="A" caption="x"]]', False),
+]
+
 
 def part2_prose():
     print("\nPART 2 — the prose referee")
@@ -1612,6 +1645,21 @@ def part2_prose():
             check(f"triangle-slot: {name} (via prose_board_conflict)",
                   bool(tutor.prose_board_conflict(reply)),
                   "the combined referee let it through")
+    for name, reply, should_flag in LETTER_CASES:
+        got = tutor.triangle_letter_conflict(reply)
+        check(f"triangle-letter: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"triangle-letter: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
+    # The two triangle referees read the SAME tag, so each must stay silent on the other's
+    # case table -- otherwise a mis-slotted triangle reports a lettering complaint and the
+    # tutor is sent to fix the wrong thing.
+    for name, reply, _ in TRIANGLE_CASES:
+        check(f"triangle-letter stays out of the slot check: {name}",
+              not tutor.triangle_letter_conflict(reply),
+              "the lettering referee fired on a slot-only case")
     # THE SWEEP THAT MATTERS: the referees must be silent on every canonical script we own
     # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
     # and a false positive in either is a real model call wasted on correct teaching --
