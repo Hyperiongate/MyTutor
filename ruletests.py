@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gm -- RULE 43 GETS ITS ENFORCEMENT TESTED (18 new cases). Rule 43
+#               forbids narrating a method onto a bare right answer, and it was written on
+#               2026-08-13 from a live catch. On 2026-08-16 the audits caught the same
+#               defect again: the student typed "1 1/2. Next." and was told "that
+#               regrouping is exactly the move that trips people up". The new referee is
+#               held to its job in both directions here -- the 2026-08-16 case verbatim,
+#               rule 43's own two 2026-08-13 examples, and ten turns that MUST stay silent,
+#               including praising the answer (the remedy rule 43 actually asks for) and
+#               asking rule 59's "how did you get that?".
 #   2026-08-16  BUILD gl -- COVERAGE FOR THE ELEVENTH REFEREE. The new ACCURACY sentence is
 #               added to PART 1 so it must reach all ten courses, and fourteen checks hold
 #               the self-correction referee to its job in both directions -- it catches the
@@ -2009,6 +2018,65 @@ def part3b_foundations():
               "3/4 is smaller than 3/4... wait, let's just confirm: it really is 1 1/2.",
               "1 1/2. Next.")),
           "self_correction_conflict exists but prose_board_conflict never calls it")
+
+    # ---------------------------------------------------------------------------
+    # A METHOD THE STUDENT NEVER SHOWED IS NEVER CREDITED (build gm, rule 43).
+    # Rule 43 was written on 2026-08-13 from a live catch, in almost these words --
+    # "never narrate a method onto a bare right answer" -- and on 2026-08-16 the
+    # audits caught it again. The student typed, in full: "1 1/2. Next." The tutor
+    # replied: "that regrouping is exactly the move that trips people up, and you
+    # nailed it clean." No regrouping was ever shown to it. A rule written from a
+    # real incident that fails again in the same month is not a rule, it is a wish.
+    # The FALSE cases are the ones that make it safe to ship: praising the ANSWER is
+    # precisely what rule 43 asks for INSTEAD, and rule 59's "how did you get that?"
+    # is the correct move when the method matters -- neither may ever be punished.
+    # ---------------------------------------------------------------------------
+    for _bad, _said, _why in (
+            ("Yes -- that regrouping is exactly the move that trips people up, and you "
+             "nailed it clean.", "1 1/2. Next.", "the 2026-08-16 HIGH, verbatim"),
+            ("You borrowed across those columns perfectly.", "42",
+             "rule 43's own 2026-08-13 example"),
+            ("Nice work converting that in your head.", "3/4",
+             "rule 43's second 2026-08-13 example"),
+            ("The way you did that is really solid.", "12", "'the way you did that'"),
+            ("Your method there was spot on.", "x = 5",
+             "'x = 5' is an ANSWER written the way algebra writes answers"),
+            ("You factored that beautifully.", "6", "'you factored'"),
+            ("That approach is exactly the one I would use.", "yes",
+             "'that approach is' -- after a bare yes")):
+        check(f"rule 43: a method the student never showed is not credited -- {_why}",
+              bool(tutor.narrated_method_conflict(_bad, _said)),
+              "a child was praised for a step they never took")
+    for _fine, _said, _why in (
+            ("Exactly right -- three fourths.", "3/4",
+             "praising the ANSWER is rule 43's own remedy"),
+            ("Spot on. How did you get that?", "1 1/2. Next.",
+             "rule 59's question is never punished"),
+            ("You borrowed across those columns perfectly.",
+             "i borrowed from the 4 to make 12", "the student SHOWED the borrowing"),
+            ("Your method is exactly right.", "first i divided, then i multiplied",
+             "the student narrated the method themselves"),
+            ("The way you did that is really solid.", "5.20 - 1.75 = 3.45",
+             "an equals sign with two numbers is arithmetic on show"),
+            ("You simplified that cleanly.", "3 + 2 x 4 = 11", "operators on show"),
+            ("You regrouped there beautifully.",
+             "i wasn't sure so i took one from the whole number and made it six fourths",
+             "a long message that shows the work"),
+            ("That regrouping is exactly the move that trips people up.", "",
+             "no student message at all -- an opener, not a credit"),
+            ('[[write text="you regrouped"]] Exactly right.', "1 1/2",
+             "a credit inside a TAG is never spoken"),
+            ("Good. Now try this one.", "1 1/2. Next.", "no method claimed at all")):
+        check(f"rule 43: no false alarm -- {_why}",
+              not tutor.narrated_method_conflict(_fine, _said),
+              "a good reply would be thrown away")
+    _nm_live = tutor.prose_board_conflict(
+        "Yes -- that regrouping is exactly the move that trips people up, and you "
+        "nailed it clean.", "1 1/2. Next.")
+    check("rule 43: the narrated-method check is wired into the referee the tutor calls",
+          bool(_nm_live) and "never showed" in _nm_live,
+          "narrated_method_conflict exists but prose_board_conflict never reaches it "
+          f"(got: {_nm_live[:80]!r})")
     # and the site must not promise the method we abandoned
     here = os.path.dirname(os.path.abspath(__file__))
     hits = []

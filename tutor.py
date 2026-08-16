@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gm -- NEVER CREDIT A METHOD THE STUDENT DID NOT SHOW (twelfth referee).
+#               Rule 43 already said this, in these words, written from a live catch on
+#               2026-08-13 -- and on 2026-08-16 the audits caught it again: the student typed
+#               "1 1/2. Next." and the tutor replied "that regrouping is exactly the move
+#               that trips people up, and you nailed it clean." A rule written from a real
+#               incident that fails again the same month is a wish, not a rule; this is the
+#               enforcement. Narrow: it fires only when the student showed NO working AND the
+#               reply claims a NAMED procedure. Praising the answer is untouched, and a reply
+#               that ASKS "how did you get that?" is never flagged.
 #   2026-08-16  BUILD gl -- THE TUTOR MAY NOT BE SEEN CHANGING ITS MIND (eleventh referee).
 #               The one HIGH finding of the 2026-08-16 audits: "3/4 is smaller than 3/4...
 #               wait, let's just confirm..." -- a false comparison, then the grown-up
@@ -2759,11 +2768,100 @@ def self_correction_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# THE NARRATED-METHOD CHECK (2026-08-16, build gm) -- the twelfth referee.
+# -----------------------------------------------------------------------------
+# Rule 43 already says this, in these words, and it was written FROM A LIVE CATCH:
+#
+#     "A bare right answer shows you NO method: never narrate one onto it ('you
+#      borrowed across those columns perfectly', 'nice work converting that in your
+#      head' -- both said, 2026-08-13, to students who had typed only a number)."
+#
+# Three days later, 2026-08-16, the audits caught it again. The student typed, in
+# full: "1 1/2. Next." The tutor replied: "that regrouping is exactly the move that
+# trips people up, and you nailed it clean." No regrouping was ever shown to it.
+#
+# A rule written from a real incident, that then fails again in the same month, is
+# not a rule -- it is a wish. This is the enforcement.
+#
+# Why it is worth a regeneration. Rule 43's own reasoning: crediting an unperformed
+# step "teaches that the step is a word rather than an act". A child who is praised
+# for regrouping they did not do learns that producing the number is what earns the
+# praise -- which is the exact habit a tutor exists to break. And the parent reading
+# that transcript is being told something about their child that is not true.
+#
+# NARROW, and it errs toward silence. It fires only when BOTH hold: the student's
+# message shows no working at all (short, no operators, no method words), AND the
+# reply claims they performed a NAMED procedure. Praising the answer is untouched --
+# "exactly right, three fourths!" is exactly what rule 43 asks for instead. A reply
+# that ASKS how they did it (rule 59's question) is never flagged.
+# -----------------------------------------------------------------------------
+_NM_STUDENT_SHOWED_WORK = re.compile(
+    # What counts as the student SHOWING working. Two bugs were found writing this and
+    # both are worth remembering: a bare fraction ("1 1/2", "3/4") is an ANSWER, not
+    # working; and a bare "Next." is a student DEMANDING the next problem -- the very
+    # opposite of showing method -- yet an earlier version read it as the sequence word
+    # in "first, then, next" and fell silent on the exact case this referee exists for.
+    r"[+\u00d7\u00f7^]"          # a bare "=" is handled separately: see the note below
+    r"|\b(?:because|since|common denominator)\b"
+    r"|\bi (?:did|used|got|divided|multiplied|subtracted|added|borrowed|regrouped|"
+    r"flipped|cancell?ed|factored|carried|converted|substituted|simplified|split|took)\b"
+    r"|\b(?:first|then|so|and) i\b"
+    r"|\b(?:divided|multiplied|subtracted|added|borrowed|regrouped|flipped|cancell?ed|"
+    r"factored|carried|converted|substituted) (?:by|it|them|the|from)\b"
+    r"|\b(?:times|plus|minus|over)\b", re.I)
+_NM_CREDIT = (
+    re.compile(r"\byou (?:borrowed|regrouped|factored|cancell?ed|substituted|distributed|"
+               r"simplified|converted|flipped|cross-?multiplied|lined (?:it|them) up|"
+               r"carried|renamed|reduced)\b", re.I),
+    re.compile(r"\bthat (?:regrouping|borrowing|factoring|substitution|cancelling|"
+               r"canceling|conversion|method|approach|strategy|technique) (?:is|was)\b", re.I),
+    re.compile(r"\bthe way you (?:did|worked|handled|set|solved)\b", re.I),
+    re.compile(r"\byour (?:method|approach|working|reasoning|strategy) (?:is|was|there)\b", re.I),
+    re.compile(r"\bnice work (?:converting|borrowing|regrouping|factoring|simplifying)\b", re.I),
+)
+_NM_ASKS_HOW = re.compile(r"\bhow (?:did|d'?you|do you) (?:you )?(?:get|work|do|find)\b", re.I)
+
+
+def narrated_method_conflict(reply: str, student_message: str = ""):
+    """Return a description of a method credited to a student who never showed one,
+    or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        said = " ".join(str(student_message or "").split())
+        if not said:
+            return ""
+        if len(said.split()) > 12 or _NM_STUDENT_SHOWED_WORK.search(said):
+            return ""                      # they DID show working -- credit away
+        # An equals sign is only WORKING when there is a computation around it. "x = 5"
+        # is an answer written the way algebra writes answers; "5.20 - 1.75 = 3.45" is
+        # someone showing their arithmetic. Counting the numbers separates the two.
+        if "=" in said and len(re.findall(r"\d+(?:\.\d+)?", said)) >= 2:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        if _NM_ASKS_HOW.search(prose):
+            return ""                      # he asked rule 59's question: exactly right
+        for pat in _NM_CREDIT:
+            m = pat.search(prose)
+            if not m:
+                continue
+            return ('you credited a method the student never showed you -- "{c}" -- when all '
+                    'they sent was "{s}". Rule 43: you perceive exactly two things, their '
+                    'words and your own board, and a bare right answer shows you NO method. '
+                    'Crediting an unperformed step teaches that the step is a word rather '
+                    'than an act, and it tells their parent something untrue. Praise the '
+                    'ANSWER, and if the method matters, ask for it: "how did you get that?"'
+                    ).format(c=" ".join(prose[m.start():m.end() + 30].split()), s=said[:40])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[narrated] crashed (fail open): {exc}")
+        return ""
+
+
 def prose_board_conflict(reply: str, student_message: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    ELEVEN checks, in order (gj added the caption check, gl the self-correction): a malformed tag (build eq), a picture promised and never
+    TWELVE checks, in order (gj caption, gl self-correction, gm narrated method): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
     answering its OWN question in the same breath (rule 39b -- wait time), a question
@@ -2787,6 +2885,10 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         selfcorrect = self_correction_conflict(reply)
         if selfcorrect:
             return selfcorrect
+        # build gm: fourth -- never credit a method the student did not show (rule 43).
+        narrated = narrated_method_conflict(reply, student_message)
+        if narrated:
+            return narrated
         visual = prose_visual_conflict(reply, student_message)
         if visual:
             return visual

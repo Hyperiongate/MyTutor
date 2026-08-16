@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gm-audit-findings". Carries gm on top of gj/gk/gl:
+#               the TWELFTH referee, narrated_method_conflict. Rule 43 already forbade
+#               narrating a method onto a bare right answer -- it was written 2026-08-13
+#               from a live catch -- and the 2026-08-16 audits caught it again three days
+#               later: the student typed "1 1/2. Next." and the tutor answered "that
+#               regrouping is exactly the move that trips people up, and you nailed it
+#               clean." Crediting an unperformed step teaches a child that the step is a
+#               word rather than an act, and tells their parent something untrue. The
+#               referee fires only when the student showed NO working AND the reply credits
+#               a NAMED procedure; praising the answer, and asking rule 59's "how did you
+#               get that?", are both untouched.
 #   2026-08-16  APP_BUILD -> "2026-08-16gl-audit-findings". Adds gl to gj/gk: the ACCURACY
 #               block in every course now also says "fix it SILENTLY -- never let the
 #               student watch you change your mind", and tutor.py's eleventh referee
@@ -6977,7 +6988,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gl-audit-findings"
+APP_BUILD = "2026-08-16gm-audit-findings"
 
 
 @app.get("/health")
