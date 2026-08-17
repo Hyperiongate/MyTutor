@@ -7839,6 +7839,146 @@ def part3ai_deploy_stamp():
           f"It went nine builds stale once already; that is what this check exists to stop.")
 
 
+# =============================================================================
+# PART 3ak -- THE NIGHT WATCH (build go)
+# =============================================================================
+# 2026-08-16. Jim: "only AI is gonna be capable of governing AI... depending on me to fix
+# it or notice problems is only going to address some of those problems and probably just
+# the big ones." nightwatch.py is the part of this system that goes LOOKING, on a cadence,
+# instead of waiting for a human to notice. It rides main.py's existing heartbeat.
+#
+# What is checked here is everything that does NOT need an API key -- the rotation, the
+# ledger, the report, the email policy, the restart-safety, and above all the FAILURE
+# paths. That last group is the point: a governor is judged by what it does when the
+# critic returns garbage, a lesson explodes, or the key is missing. It must never confirm
+# a finding it could not verify, never end a night over one bad lesson, and never let a
+# silent cap read as "all clear".
+def part3ak_night_watch():
+    print("\nPART 3ak — the night watch (nightwatch.py)")
+    try:
+        import nightwatch as nw
+    except Exception as exc:  # our own module missing is a broken repo, not a laptop
+        bad("nightwatch imports", f"{type(exc).__name__}: {exc}")
+        return
+    import json as _json, tempfile as _tmp, datetime as _dt
+
+    # ---- the rotation: a small budget must still cover everything, in order ----
+    sc = [{"id": f"s{i}"} for i in range(10)]
+    check("night watch: the default budget covers every scenario",
+          {x["id"] for x in nw.pick_tonight(sc, 12, 0)} == {x["id"] for x in sc},
+          "a night at the default budget left a scenario unaudited")
+    d0 = [x["id"] for x in nw.pick_tonight(sc, 4, 0)]
+    d1 = [x["id"] for x in nw.pick_tonight(sc, 4, 1)]
+    check("night watch: a small budget walks forward instead of starving scenarios",
+          d0 != d1 and not (set(d0) & set(d1)), "two nights running audited the same lessons")
+    seen = set()
+    for day in range(3):
+        seen |= {x["id"] for x in nw.pick_tonight(sc, 4, day)}
+    check("night watch: three small nights still cover everything", seen == {x["id"] for x in sc},
+          "some scenario is never reached at a reduced budget")
+    check("night watch: the rotation is deterministic for a given day",
+          nw.pick_tonight(sc, 4, 7) == nw.pick_tonight(sc, 4, 7),
+          "'has this been covered?' must have an answer")
+    check("night watch: an empty scenario list is survivable",
+          nw.pick_tonight([], 5, 0) == [], "an empty list must not raise")
+
+    # ---- the ledger: only what is NEW ----
+    f1 = {"rule": 43, "quote": "that regrouping is exactly the move"}
+    f2 = {"rule": 43, "quote": "that  REGROUPING is exactly   the move"}
+    f3 = {"rule": 43, "quote": "a completely different sentence"}
+    check("night watch: one defect fingerprints the same despite case and spacing",
+          nw.fingerprint("geo", f1) == nw.fingerprint("geo", f2),
+          "the same defect would be re-reported every night")
+    check("night watch: a different quote is a different finding",
+          nw.fingerprint("geo", f1) != nw.fingerprint("geo", f3), "findings collapsed together")
+    check("night watch: the same quote in another scenario is a different finding",
+          nw.fingerprint("geo", f1) != nw.fingerprint("calc", f1), "scenarios collapsed together")
+    out, led = {"new": [], "recurring": 0}, {}
+    nw._record(out, led, {"id": "geo", "course": "geometry"}, f1)
+    nw._record(out, led, {"id": "geo", "course": "geometry"}, f2)
+    check("night watch: a repeat is COUNTED, not re-reported",
+          len(out["new"]) == 1 and out["recurring"] == 1,
+          "a nightly email that repeats itself is a nightly email nobody opens")
+
+    # ---- verification: NEVER confirm what could not be checked ----
+    tr = [("user", "hi"), ("assistant", "something")]
+    scn = {"id": "x", "course": "geometry"}
+    F = {"severity": "high", "rule": 63, "what": "w", "quote": "q", "why": "y"}
+    real, _why, err = nw.verify_finding(
+        lambda *a, **k: (_json.dumps({"real": True, "why": "confirmed"}), None), scn, tr, F)
+    check("night watch: a confirmed finding survives review", real is True and not err)
+    real, _why, err = nw.verify_finding(
+        lambda *a, **k: (_json.dumps({"real": False, "why": "taste"}), None), scn, tr, F)
+    check("night watch: a refuted finding is dropped", real is False and not err,
+          "an audit finding is an opinion (build fe)")
+    real, _why, err = nw.verify_finding(lambda *a, **k: ("not json at all", None), scn, tr, F)
+    check("night watch: an unreadable verdict is UNVERIFIED, never a silent confirm",
+          real is None and bool(err), "a garbled reviewer must not promote a finding")
+    real, _why, err = nw.verify_finding(lambda *a, **k: ("", "openai timed out"), scn, tr, F)
+    check("night watch: a transport error is UNVERIFIED, never a silent confirm",
+          real is None and bool(err), "a dead reviewer must not promote a finding")
+
+    # ---- the report must confess ----
+    res = {"ok": True, "ran": 12, "recurring": 3, "refuted": 5, "seconds": 61.0,
+           "new": [{"severity": "high", "scenario": "geo", "course": "geometry", "rule": 63,
+                    "what": "w", "quote": "q", "why": "y", "fix": "f", "verified": "v"}],
+           "skipped": ["quiz-eighty (time budget)"], "budget_stopped": True,
+           "unverified": [{"what": "u", "error": "e"}], "errors": [], "probes_run": ["termgap"]}
+    md = nw.report_markdown(res, "build-x")
+    check("night watch: the report names what it did NOT cover",
+          "did not cover" in md and "SKIPPED" in md, "a silent cap reads as 'all clear'")
+    check("night watch: the report admits when the budget cut it short",
+          "time budget stopped" in md, "an early stop must never look like a clean sweep")
+    check("night watch: unverified findings are shown as neither confirmed nor dismissed",
+          "COULD NOT VERIFY" in md, "they must not vanish")
+    check("night watch: the report ends with the closing statement",
+          md.strip().endswith("truncated.*"), "house rule")
+
+    # ---- the email policy: silence by default ----
+    check("night watch: a new confirmed finding emails Jim", nw.email_digest(res, "b") is not None)
+    quiet = dict(res, new=[], errors=[])
+    check("night watch: a quiet night sends NO email", nw.email_digest(quiet, "b") is None,
+          "a nightly 'nothing to report' trains the reader to ignore the one that matters")
+    check("night watch: a preflight failure DOES email",
+          nw.email_digest(dict(quiet, errors=["preflight failed: no key"]), "b") is not None,
+          "a watch that cannot run must say so, or its silence reads as all-clear")
+
+    # ---- restart safety: it asks the disk, not a variable ----
+    with _tmp.TemporaryDirectory() as d:
+        now = _dt.datetime(2026, 8, 17, 9, tzinfo=_dt.timezone.utc)
+        check("night watch: due at the run hour", nw.due(d, now))
+        check("night watch: not due before the run hour",
+              not nw.due(d, _dt.datetime(2026, 8, 17, 2, tzinfo=_dt.timezone.utc)))
+        nw.write_report(d, res, "b")
+        check("night watch: not due twice in one night (a redeploy cannot double-run)",
+              not nw.due(d, now), "restart-safety is read from disk, like the nightly snapshot")
+        check("night watch: due again tomorrow",
+              nw.due(d, _dt.datetime(2026, 8, 18, 9, tzinfo=_dt.timezone.utc)))
+        led_path = os.path.join(d, nw.LEDGER_NAME)
+        with open(led_path, "w", encoding="utf-8") as fh:
+            fh.write("{not json")
+        check("night watch: a corrupt ledger starts fresh instead of stopping the watch",
+              nw.load_ledger(d) == {}, "the watch must survive its own state file")
+
+    # ---- and it must be wired in, or none of the above ever runs ----
+    root = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(root, "main.py"), "r", encoding="utf-8") as fh:
+        m = fh.read()
+    check("night watch: main.py runs the pass on the heartbeat",
+          "_nightwatch_pass()" in m and "def _nightwatch_pass" in m,
+          "nightwatch.py exists but nothing calls it — the cadence is the whole point")
+    check("night watch: the pass is fenced like every other heartbeat pass",
+          "[nightwatch] loop error" in m,
+          "an unfenced pass could take down the weekly digests and the nightly snapshot")
+    check("night watch: it lends the probes its lessons, one turn at a time",
+          "_nightwatch_termgap" in m and "probe_hooks=" in m,
+          "the server-side probes would otherwise never see these lessons")
+    check("night watch: it can be switched off from Render without a deploy",
+          "NIGHTWATCH" in m or "nightwatch.enabled()" in m,
+          "a governor with no off switch is a liability")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -7885,6 +8025,7 @@ def main():
     part3ag_shots_match_copy()
     part3ah_audit_findings_fe()
     part3aj_screen_checks()
+    part3ak_night_watch()
     part3ai_deploy_stamp()
     if live:
         part4_live()

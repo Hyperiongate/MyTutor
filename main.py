@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16go-night-watch". THE GOVERNOR. Jim: "only AI is
+#               gonna be capable of governing AI... depending on me to fix it or notice
+#               problems is only going to address some of those problems and probably just
+#               the big ones. I need you to set up a system but you are able to catch the
+#               things that I cannot catch." Everything we owned was a RATCHET -- fourteen
+#               referees and ~4,000 checks, every one of them a thing a human found first.
+#               nightwatch.py goes LOOKING: ~12 lessons a night on a rotation, marked by
+#               the OpenAI critic, every finding then handed to an independent reviewer
+#               whose job is to REFUTE it, only NEW survivors reported, and an email only
+#               when there is something to say. It rides the existing heartbeat (no new
+#               Render service, nothing for Jim to configure) and is fenced so it can
+#               never touch a lesson. Switch: NIGHTWATCH=off.
 #   2026-08-16  APP_BUILD -> "2026-08-16gn2-case-is-meaning". CASE IS MEANING. Jim's next
 #               Geometry lesson read "A, B, C = corners (vertices)" over "a, b, c = sides
 #               (lengths)" and both lines rendered IDENTICALLY, because styleVarsCore
@@ -2808,6 +2820,14 @@ import os
 import re
 import secrets
 import threading
+
+# build go (2026-08-16) -- THE GOVERNOR. Imported defensively: nightwatch is offline
+# tooling, and a deploy where it is missing or broken must still teach children.
+try:
+    import nightwatch
+except Exception as _nw_exc:  # noqa: BLE001
+    nightwatch = None
+    print(f"[nightwatch] module unavailable, the night watch is off: {_nw_exc}")
 import time
 import uuid
 from collections import defaultdict, deque
@@ -5289,6 +5309,66 @@ def _digest_loop():
             _backup_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[backup] loop error: {exc}")
+        # build go: LAST on the heartbeat, and by far the longest -- the digests, the
+        # ops watch, the purge and the snapshot all matter more than the watch and must
+        # never queue behind it. Fenced like everything else here.
+        try:
+            _nightwatch_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[nightwatch] loop error: {exc}")
+
+
+# =============================================================================
+# THE NIGHT WATCH (2026-08-16, build go) -- AI GOVERNING AI, ON A CADENCE
+# -----------------------------------------------------------------------------
+# Jim: "only AI is gonna be capable of governing AI... depending on me to fix it or notice
+# problems is only going to address some of those problems and probably just the big ones."
+# Everything else we own is a RATCHET -- it makes a defect permanent-proof once a human has
+# found it. This is the part that goes looking. See nightwatch.py for the design; the four
+# rules that shape it are: every finding is challenged before Jim sees it, only NEW ones are
+# reported, it can never touch a lesson, and it always says what it did not cover.
+# It rides this heartbeat rather than a Render Cron Job on purpose: production was created
+# by hand and is not attached to render.yaml, so a background pass is the only form of
+# "nightly" that needs nothing from Jim but a push.
+def _nightwatch_termgap(scenario, transcript) -> None:
+    """Lend the [termgap] probe to the night watch, ONE TURN AT A TIME.
+    The probe's whole question is "was this word introduced BEFORE it was used?", so it
+    must see each tutor reply against the history that existed when it was written --
+    handing it the whole lesson as a single blob would make every term look introduced.
+    Wrapped: a probe never breaks the watch, exactly as it never breaks a lesson."""
+    history = []
+    for role, text in transcript:
+        if role == "assistant":
+            try:
+                _record_unintroduced("AUDIT", scenario.get("course", ""), text, list(history))
+            except Exception as exc:  # noqa: BLE001
+                print(f"[termgap] night-watch probe skipped: {exc}")
+        history.append({"role": "user" if role == "user" else "assistant", "content": text})
+
+
+def _nightwatch_pass() -> None:
+    if nightwatch is None or not nightwatch.enabled():
+        return
+    if not nightwatch.due(DATA_DIR):
+        return
+    print("[nightwatch] starting tonight's pass")
+    result = nightwatch.run_night(
+        DATA_DIR,
+        # The server-side probes live here, not in tutor.py, so the watch would be blind
+        # to them unless we lend them across. Anything omitted simply does not run, and
+        # the report names what it did not cover.
+        probe_hooks={"termgap": _nightwatch_termgap})
+    path = nightwatch.write_report(DATA_DIR, result, APP_BUILD)
+    print(f"[nightwatch] {result.get('ran', 0)} lessons \u00b7 "
+          f"{len(result.get('new', []))} new \u00b7 {result.get('recurring', 0)} known \u00b7 "
+          f"{result.get('refuted', 0)} refuted \u00b7 {result.get('seconds', 0)}s"
+          + (f" \u00b7 {path}" if path else ""))
+    digest = nightwatch.email_digest(result, APP_BUILD)
+    if digest:
+        subject, body = digest
+        # Not throttled away: a new confirmed teaching defect is exactly what Jim asked to
+        # be told about, and there is at most one of these a night.
+        _ops_alert("nightwatch", subject, body, throttle_minutes=0)
 
 
 USAGE_LOG_DAYS = int(os.environ.get("USAGE_LOG_DAYS", "180") or 180)
@@ -7006,7 +7086,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gn2-case-is-meaning"
+APP_BUILD = "2026-08-16go-night-watch"
 
 
 @app.get("/health")
