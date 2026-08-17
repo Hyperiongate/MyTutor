@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gv-invented-history". The third cause from the
+#               day's audit triage, and the biggest: seven claims about what had already
+#               happened that were untrue. Split on whether a referee can check them --
+#               gm's referee is widened to catch a TOTALITY claim ("start to finish on your
+#               own") over a fragment, and the false counts ("you've now watched this move
+#               twice", said twice and false both times) are PROBED rather than enforced,
+#               because a referee sees one reply and cannot count a conversation. The false
+#               count matters beyond its own untruth: it is what the tutor used to REFUSE a
+#               child who asked to be shown the square root of 169.
 #   2026-08-17  APP_BUILD -> "2026-08-17gu-cold-quiz". RULE 47 STOPS BEING A WISH. The
 #               second cause from the day's audit triage, and the most damning single find
 #               in it: the sentence "let's do it -- five questions, all on finding the
@@ -7243,7 +7252,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gu-cold-quiz"
+APP_BUILD = "2026-08-17gv-invented-history"
 
 
 @app.get("/health")

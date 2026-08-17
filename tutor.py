@@ -2,6 +2,27 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gv -- THE INVENTED HISTORY: one referee widened, one probe added.
+#               The day's audit found SEVEN claims about what had already happened that
+#               were untrue, and they split on whether a referee can CHECK them.
+#               ENFORCED: "you completed the square start to finish on your own", said to a
+#               student who answered two sub-steps of a procedure the tutor wrote every
+#               line of. gm's gates all let it through correctly by their own terms -- the
+#               student DID show working -- because gm asks "did they show A method?" and
+#               this sentence begs "did they do THE WHOLE THING?". narrated_method_conflict
+#               gains a TOTALITY branch that runs first: a totality phrase plus a NAMED
+#               procedure over a fragment. Warmth about a problem they did answer ("you
+#               solved it all by yourself", to an eight-year-old) is deliberately untouched.
+#               MEASURED: "you've now watched this move twice" (said twice, both false),
+#               "all three conversions under your belt", "your last score was 85%", "Unit 9
+#               is also still in progress". Every one is a claim about the whole
+#               conversation or about a record this function has never seen, so
+#               count_claim_probe LOGS and changes nothing. ⚠️ The false count is the ENGINE
+#               of the worst behaviour in the audit: a student asked "can you show me
+#               taking the square root of 169?" and was refused with "you've now watched
+#               this move twice". A child asking to be shown, turned down on invented
+#               evidence. Enforcement waits for the probe's data -- two diagnoses this week
+#               were guesses, and this one will not be a third.
 #   2026-08-17  BUILD gu -- THE COLD-QUIZ REFEREE (rule 47(d)), the SIXTEENTH, and it is
 #               six days late. Two lines, side by side:
 #                 2026-08-11 audit:  "let's do it -- five questions, all on finding the
@@ -2415,6 +2436,58 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE COUNT-CLAIM PROBE (2026-08-17, build gv) -- MEASUREMENT ONLY, on purpose.
+# -----------------------------------------------------------------------------
+# The day's audit turned up five claims about what has ALREADY HAPPENED that were simply
+# untrue, and they are the engine of a worse behaviour:
+#
+#   "You've now watched this move twice"        -- it was shown ONCE
+#   "You've watched this exact move twice now"  -- same false count, same lesson
+#   "all three conversions under your belt"     -- two were practised, one was watched
+#   "Unit 9 is also still in progress"          -- not in the student's record at all
+#   "your last score was eighty-five percent"   -- only a BEST score ever existed
+#
+# In the geometry lesson the false count was the JUSTIFICATION: the student asked "can you
+# show me taking the square root of 169?" and was refused with "you've now watched this
+# move twice -- let's flip it". A child asking to be shown was turned down on invented
+# evidence. That is the most corrosive thing in the whole audit.
+#
+# AND IT IS NOT ENFORCEABLE HERE, WHICH IS WHY THIS IS A PROBE. A referee sees one reply
+# and the student's last message; "twice" is a claim about the whole conversation, and
+# "the shakiest spot" is a claim about a record this function has never been shown. A
+# check that cannot verify its own fix is a check that loops (gj's lesson). So it counts
+# and logs, and enforcement waits for the data to say which shapes are worth catching.
+#
+# The honest thing to record: I already know the fix I would reach for -- pass the history
+# in and count. I am not doing it on a guess. Two diagnoses this week were guesses.
+_CC_CLAIM = re.compile(
+    # "you've" and "you have" both, and up to four words in between -- the two real
+    # examples were "You've now watched this move twice" and "You've watched this exact
+    # move twice now", which differ in exactly those two ways.
+    r"\byou(?:'ve|\s+have)\s+(?:now\s+)?(?:watched|seen|done|had)\b(?:\s+\S+){0,4}\s+"
+    r"(?:twice|three\s+times|four\s+times|\d+\s+times)\b"
+    r"|\b(?:that'?s|thats) (?:two|three|four|\d+) in a row\b"
+    r"|\ball (?:two|three|four|\d+) \w{3,20} under your belt\b"
+    r"|\byou'?ve (?:now )?got all (?:two|three|four|\d+)\b"
+    r"|\byour last score was\b"
+    r"|\b(?:the|your) (?:shakiest|weakest) (?:spot|skill|area)\b",
+    re.I)
+
+
+def count_claim_probe(reply: str, code: str = "", course: str = "") -> None:
+    """LOG a claim about what has already happened. Never enforces, never raises."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        for m in _CC_CLAIM.finditer(prose):
+            claim = " ".join(prose[max(0, m.start() - 30):m.end() + 30].split())
+            print(f"[countclaim] code={str(code)[:3]}*** course={course} -- the reply "
+                  f"asserts something about the past that nothing here can check: "
+                  f"...{claim}...")
+    except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
+        print(f"[countclaim] probe failed (ignored): {exc}")
+
+
+# =============================================================================
 # THE COLD-QUIZ CHECK (2026-08-17, build gu) -- rule 47(d), the SIXTEENTH referee.
 # -----------------------------------------------------------------------------
 # Read these two lines next to each other.
@@ -3326,6 +3399,36 @@ _NM_CREDIT = (
 )
 _NM_ASKS_HOW = re.compile(r"\bhow (?:did|d'?you|do you) (?:you )?(?:get|work|do|find)\b", re.I)
 
+# BUILD gv (2026-08-17) -- THE TOTALITY CLAIM, which walked straight past everything above.
+# From the day's audit (returning-student, algebra2). The tutor wrote every line of the
+# procedure and asked two sub-questions; the student answered them -- "It's (x + 4)², and
+# -16 + 10 is -6" -- and was told:
+#
+#     "Nice work -- you completed the square start to finish on your own."
+#
+# gm's gates all let this through, correctly by their own terms: the student DID show
+# working, so "credit away" fired. But the question gm asks is "did they show A method?",
+# and the question this sentence begs is "did they do THE WHOLE THING?" -- and they did
+# not. Answering two sub-steps of a procedure somebody else set up is not doing it start
+# to finish, and a student told otherwise learns that supplying the missing number IS the
+# procedure. That is rule 43's own harm, one scale up.
+#
+# NARROW, and narrower than it first looks. It requires a claim of TOTALITY attached to a
+# NAMED PROCEDURE. "You just solved your homework problem all by yourself!" -- said to an
+# eight-year-old who answered 4/4 -- is warm, arguable, and deliberately NOT caught: the
+# claim is about a problem they did answer, not about a multi-step procedure the tutor
+# performed for them.
+_NM_TOTALITY = re.compile(
+    r"\b(?:start to finish|from start to finish|(?:the|that|this) whole (?:thing|way|process)|"
+    r"all (?:on your own|by yourself)|entirely (?:on your own|by yourself)|"
+    r"completely on your own|without (?:any )?help from me|every step (?:of it )?yourself)\b",
+    re.I)
+_NM_PROCEDURE = re.compile(
+    r"\b(?:completed the square|completing the square|factored|factoring|regrouped|"
+    r"regrouping|borrowed|borrowing|distributed|distributing|simplified|simplifying|"
+    r"cross-?multiplied|long division|the quadratic formula|substituted|substitution|"
+    r"converted|conversion|solved (?:the|that) (?:equation|system))\b", re.I)
+
 
 def narrated_method_conflict(reply: str, student_message: str = ""):
     """Return a description of a method credited to a student who never showed one,
@@ -3334,6 +3437,22 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
         said = " ".join(str(student_message or "").split())
         if not said:
             return ""
+        # build gv: THE TOTALITY BRANCH RUNS FIRST, because it asks a different question.
+        # Everything below asks "did they show A method?"; this asks "did they do THE WHOLE
+        # PROCEDURE?" -- and a fragment cannot contain a whole procedure however much
+        # working it shows. Fires only when a totality phrase and a NAMED procedure appear
+        # together, so ordinary warmth ("you solved it all by yourself") is untouched.
+        prose_all = _spoken_only(str(reply or ""))
+        if (len(said.split()) <= 15 and _NM_TOTALITY.search(prose_all)
+                and _NM_PROCEDURE.search(prose_all)):
+            tm = _NM_TOTALITY.search(prose_all)
+            return ('you told the student they did it "{t}" -- but all they sent was "{s}", '
+                    "which is an answer to a step, not a whole procedure. You wrote the "
+                    "setup and every line of it. Rule 43: crediting work you performed "
+                    "teaches that supplying the missing number IS the procedure, and it "
+                    "tells their parent something untrue. Credit exactly what they did: "
+                    'name the pieces they supplied.').format(
+                        t=tm.group(0), s=said[:48])
         if len(said.split()) > 12 or _NM_STUDENT_SHOWED_WORK.search(said):
             return ""                      # they DID show working -- credit away
         # An equals sign is only WORKING when there is a computation around it. "x = 5"
@@ -3752,6 +3871,12 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 continue
             if prose_detail:
                 print(f"[prosecheck]{log_prefix} UNRESOLVED -- passing through: {prose_detail}")
+            # build gv: MEASUREMENT ONLY -- claims about what has already happened.
+            try:
+                count_claim_probe(reply, (meta or {}).get("code", ""),
+                                  (meta or {}).get("course", ""))
+            except Exception:  # noqa: BLE001
+                pass
             # build gd: MEASUREMENT ONLY -- see missing_mark_probe above. Never alters
             # the reply, never costs a model call; it just counts a gap we cannot
             # currently see. Runs on the ACCEPTED draft only.

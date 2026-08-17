@@ -8412,6 +8412,135 @@ def part3an_unit_follows_teaching():
 
 
 
+# =============================================================================
+# PART 3ao -- THE INVENTED HISTORY (build gv)
+# =============================================================================
+# 2026-08-17. The biggest cluster in the day's audit triage: SEVEN findings in which the
+# tutor stated something about what had already happened that was simply untrue. They
+# split cleanly, and the split is the whole design:
+#
+#   ENFORCEABLE -- "you completed the square start to finish on your own" said to a student
+#   who answered two sub-steps of a procedure the tutor wrote every line of. That is
+#   checkable against the student's own message, so gm's referee is widened to catch it.
+#
+#   NOT ENFORCEABLE HERE -- "you've now watched this move twice", "all three conversions
+#   under your belt", "your last score was eighty-five percent", "Unit 9 is also still in
+#   progress". Every one is a claim about the whole conversation or about a record this
+#   function has never been shown. A check that cannot verify its own fix loops (gj), so
+#   these are PROBED, and enforcement waits for the data.
+#
+# ⚠️ The false count is not a curiosity -- it is the ENGINE of the worst behaviour in the
+# audit. The student asked "can you show me taking the square root of 169?" and was
+# refused with "you've now watched this move twice -- let's flip it." A child asking to be
+# shown, turned down on invented evidence.
+def part3ao_invented_history():
+    print("\nPART 3ao — the invented history")
+
+    # ---- the totality branch: gm widened ----
+    TOTALITY_CASES = [
+        ("the audit turn: 'start to finish' over two sub-answers",
+         "Nice work -- you completed the square start to finish on your own.",
+         "It's (x + 4)^2, and -16 + 10 is -6.", True),
+        ("'that whole thing' over a fragment",
+         "You factored that whole thing yourself!", "x plus 4", True),
+        ("'all by yourself' attached to a named procedure",
+         "Great -- you did the long division all by yourself.", "24", True),
+        # ---- and what must NOT be caught ----
+        ("warmth about a PROBLEM they did answer is left alone",
+         "You just solved your homework problem all by yourself!", "4/4?", False),
+        ("totality is fine when they really did narrate the whole thing",
+         "You completed the square start to finish on your own.",
+         "First I took half of 8 which is 4, then I squared it to get 16, then I added "
+         "and subtracted 16 and simplified the constant to -6", False),
+        ("a procedure named without any totality claim",
+         "Nice factoring there.", "x plus 4", False),
+        ("a totality claim with no procedure named",
+         "You did that all by yourself!", "15", False),
+        # ---- gm's original behaviour must survive the widening ----
+        ("gm still fires on a credited method after a bare answer",
+         "That regrouping is exactly the move that trips people up.", "1 1/2. Next.", True),
+        ("gm still silent when the student showed their working",
+         "That regrouping is exactly the move.",
+         "I borrowed a ten from the 3 so it became 2 and 12", False),
+    ]
+    for name, reply, said, should_flag in TOTALITY_CASES:
+        got = tutor.narrated_method_conflict(reply, said)
+        check(f"totality: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"totality: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply, said)),
+                  "the combined referee let it through")
+
+    # ---- the probe: it must SEE the five real claims and stay quiet otherwise ----
+    import io as _io
+    import contextlib as _cl
+
+    def _logs(text):
+        buf = _io.StringIO()
+        with _cl.redirect_stdout(buf):
+            tutor.count_claim_probe(text, "2345", "geometry")
+        return bool(buf.getvalue().strip())
+
+    for text in ("You've now watched this move twice -- let's flip it.",
+                 "You've watched this exact move twice now.",
+                 "You have watched this exact move twice now.",
+                 "You've now got all three conversions under your belt.",
+                 "Since your last score was eighty-five percent, we'll sharpen the "
+                 "shakiest spot first.",
+                 "That's three in a row!"):
+        check(f"count-claim probe sees: {text[:44]!r}", _logs(text),
+              "this is one of the real 2026-08-17 claims — the probe must record it")
+    for text in ("Nice work -- that is correct.",
+                 "Want to try another one like it?",
+                 "You have seen a hole and a jump now, so let us try one more.",
+                 "Three in a row would be great -- want to go for it?",
+                 "You have done really well today."):
+        check(f"count-claim probe quiet on: {text[:44]!r}", not _logs(text),
+              "ordinary encouragement must not fill the log")
+
+    # ---- and it must MEASURE, never enforce ----
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              "r", encoding="utf-8") as fh:
+        src = fh.read()
+    check("count-claim: the probe is measurement only",
+          "MEASUREMENT ONLY" in src and "count_claim_probe" in src
+          and "Never enforces" in src,
+          "a check that cannot verify its own fix must not regenerate a lesson")
+    check("count-claim: the probe is not wired into the referee sweep",
+          "count_claim_probe" not in src.split("def prose_board_conflict")[1][:4000],
+          "it would be enforcing on a claim it cannot check")
+
+    # ---- silent on every canonical script, in both mechanisms ----
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        skip("invented history: canonical sweep", f"foundations unavailable: {exc}")
+        return
+    texts = []
+
+    def _walk(o):
+        if isinstance(o, str):
+            texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    for nm in dir(_F):
+        if not nm.startswith("_"):
+            _walk(getattr(_F, nm))
+    noise = sum(sum(1 for t in texts if tutor.narrated_method_conflict(t, m))
+                for m in ("4/4", "15", "x plus 4", "2/3", "yes", "24"))
+    check(f"totality: silent on {len(texts)} canonical scripts x 6 answers", noise == 0,
+          f"{noise} false alarms — correct teaching would be regenerated")
+    chatty = sum(1 for t in texts if _logs(t))
+    check(f"count-claim: quiet on all {len(texts)} canonical scripts", chatty == 0,
+          f"{chatty} scripts would log — a noisy probe is an ignored probe")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8462,6 +8591,7 @@ def main():
     part3al_openai_boundary()
     part3am_spoken_letter_and_sign()
     part3an_unit_follows_teaching()
+    part3ao_invented_history()
     part3ai_deploy_stamp()
     if live:
         part4_live()
