@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hi-atomic-counters". PHASE 3 BEGINS: counter
+#               arithmetic moved INTO the database (see store.py's hi note) -- best
+#               scores can no longer regress, a unit can no longer be silently
+#               un-mastered by overlapping submissions, minutes and attempt counts
+#               are exact under any concurrency. No main.py logic changed.
 #   2026-08-17  APP_BUILD -> "2026-08-17hh-one-grammar". PHASE 2 COMPLETE. NEW FILE
 #               tags.py is the single source of the [[tag]] grammar -- it had SEVEN
 #               independent declarations across tutor.py, ruletests.py and the page
@@ -7541,7 +7546,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hh-one-grammar"
+APP_BUILD = "2026-08-17hi-atomic-counters"
 
 
 @app.get("/health")

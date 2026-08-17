@@ -2,6 +2,31 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hi -- THE COUNTERS ARE ATOMIC (Phase 3 of the full-app review,
+#               "one owner per fact"). The store's universal write pattern was
+#               SELECT-in-Python-then-upsert -- a lost-update race whose worst case
+#               was ACADEMIC: two overlapping check submissions could write a stale
+#               max and make best_pct GO DOWN, silently un-mastering a unit and
+#               re-locking the Final Exam while topic_progress still said "mastered"
+#               (confidently wrong together, the unit-rail class in the gradebook).
+#               _upsert gained exprs= -- column -> (seed, build_fn) evaluated INSIDE
+#               the native ON CONFLICT, identical on Postgres and SQLite (bests use
+#               CASE, not GREATEST, because SQLite has no two-arg GREATEST). Five
+#               sites converted: record_minutes (+n), record_check (taken/correct/
+#               attempted counters + never-regress best), record_topic_quiz (count +
+#               best), record_topic (touches + keep-deeper-status via CASE on
+#               STATUS_RANK), _set_unit_status (upgrade-only, atomically). Reporting
+#               fields ("improved", attempt number) still use a read and are
+#               best-effort under concurrency BY DESIGN -- they flavour one
+#               congratulation line; the STORED data no longer depends on any read.
+#               DELIBERATELY DEFERRED: student_stats streaks (_get_stats_row/
+#               _save_stats) stay read-then-write -- the streak's day arithmetic
+#               belongs with the one-activity-clock work (Phase 3, later build), and
+#               its stakes are a display number, not mastery.
+#               PROVED on a real database: 200 threaded calls -> zero errors, minutes
+#               and counts EXACT, best = true max, deepest status kept, and the
+#               un-mastering interleave reconstructed and shown impossible.
+#               ruletests PART 3az re-proves a scaled version on every push.
 #   2026-08-17  BUILD ha -- EYES: THE system_events TABLE. Phase 1 of the full-app
 #               review. The review's meta-finding: fail-open was applied ~19 times with
 #               print-only reporting, so a crashed referee, a dead heartbeat and a healthy
@@ -1051,35 +1076,100 @@ def _loads(txt, default):
         return default
 
 
-def _upsert(table_name: str, pk: dict, values: dict):
+class _ExcludedShim:
+    """Stands in for ON CONFLICT's `excluded` row on exotic dialects (see _upsert's
+    fallback branch): attribute access returns the literal value this call tried to
+    insert, so the same expression builders work everywhere."""
+
+    def __init__(self, row):
+        self._row = row
+
+    def __getattr__(self, name):
+        from sqlalchemy import literal
+        return literal(self._row[name])
+
+
+def _upsert(table_name: str, pk: dict, values: dict, exprs: dict = None):
     """Insert-or-update a row keyed by the primary-key columns in `pk`.
 
     Uses the dialect's native ON CONFLICT so it's safe under concurrent workers,
     and works identically on PostgreSQL and SQLite.
+
+    build hi (2026-08-17, full-app review Phase 3 -- "one owner per fact"): `exprs`
+    moves the ARITHMETIC into the database. The store's universal write pattern was
+    SELECT-in-Python-then-upsert, which is a lost-update race whose worst case was
+    academic: two overlapping check submissions could write a stale max and make
+    best_pct GO DOWN -- silently un-mastering a unit and re-locking the Final Exam,
+    while topic_progress still said "mastered" (confidently wrong together).
+    `exprs` maps column -> (insert_value, build_fn) where build_fn(cur, excluded)
+    returns a SQL expression evaluated ATOMICALLY inside the upsert: `cur` is the
+    existing row's columns, `excluded` the incoming row's. `insert_value` seeds the
+    column when no row exists yet. Counters become `cur.col + n`, bests become
+    CASE-greater-of -- no read, no window, no stale write, on any worker count.
     """
     table = _tables[table_name]
+    exprs = exprs or {}
     row = dict(pk); row.update(values)
+    row.update({col: seed for col, (seed, _fn) in exprs.items()})
     dialect = _engine.dialect.name
     if dialect == "postgresql":
         from sqlalchemy.dialects.postgresql import insert as _insert
     elif dialect == "sqlite":
         from sqlalchemy.dialects.sqlite import insert as _insert
     else:
-        # Portable fallback: try update, else insert.
+        # Portable fallback: UPDATE with the same expressions (excluded shimmed to
+        # this call's literals), else INSERT. The one-statement UPDATE keeps the
+        # arithmetic atomic; only the update-vs-insert choice can race, and no
+        # supported deploy uses this branch (prod is Postgres, dev is SQLite).
         from sqlalchemy import update as _update, insert as _plain_insert
+        shim = _ExcludedShim(row)
+        upd_vals = dict(values)
+        upd_vals.update({col: fn(table.c, shim) for col, (_seed, fn) in exprs.items()})
         with _engine.begin() as conn:
             res = conn.execute(_update(table).where(
-                *[table.c[k] == v for k, v in pk.items()]).values(**values))
+                *[table.c[k] == v for k, v in pk.items()]).values(**upd_vals))
             if res.rowcount == 0:
                 conn.execute(_plain_insert(table).values(**row))
         return
     stmt = _insert(table).values(**row)
+    set_ = dict(values)
+    set_.update({col: fn(table.c, stmt.excluded) for col, (_seed, fn) in exprs.items()})
     stmt = stmt.on_conflict_do_update(
         index_elements=list(pk.keys()),
-        set_=values,
+        set_=set_,
     )
     with _engine.begin() as conn:
         conn.execute(stmt)
+
+
+def _sql_counter(colname, n):
+    """cur.<colname> + n with NULL treated as 0 -- the atomic counter."""
+    def build(cur, _x):
+        from sqlalchemy import func
+        return func.coalesce(getattr(cur, colname), 0) + int(n)
+    return build
+
+
+def _sql_best(colname, candidate):
+    """greater-of(cur.<colname>, candidate) via CASE -- portable to Postgres AND
+    SQLite (SQLite has no two-argument GREATEST). The atomic never-regress max."""
+    def build(cur, _x):
+        from sqlalchemy import case, func
+        current = func.coalesce(getattr(cur, colname), 0)
+        return case((current >= int(candidate), current), else_=int(candidate))
+    return build
+
+
+def _sql_deeper_status(colname, incoming):
+    """keep the deeper of cur.<colname> and `incoming` by STATUS_RANK, in SQL."""
+    def build(cur, _x):
+        from sqlalchemy import case
+        current = getattr(cur, colname)
+        rank_current = case(*[(current == k, v) for k, v in STATUS_RANK.items()],
+                            else_=0)
+        return case((rank_current >= STATUS_RANK.get(incoming, 0), current),
+                    else_=incoming)
+    return build
 
 
 # ---- sessions (conversation memory) ----------------------------------------
@@ -1167,21 +1257,14 @@ def record_topic(code: str, unit: int, unit_name: str = "", status: str = "explo
                  course: str = DEFAULT_COURSE) -> None:
     """Record that a student engaged with a unit of a course: +1 touch, and upgrade the
     status if the new engagement is deeper than what's already recorded."""
-    from sqlalchemy import select
-    t = _tables["topic_progress"]
-    with _engine.connect() as conn:
-        r = conn.execute(select(t.c.touches, t.c.status).where(
-            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
-    touches = (r[0] if r else 0) + 1
-    prev_status = r[1] if r else None
-    # keep the deeper of prev vs incoming
-    best = status
-    if prev_status and STATUS_RANK.get(prev_status, 0) >= STATUS_RANK.get(status, 0):
-        best = prev_status
-    _upsert("topic_progress", {"code": code, "course": course, "unit": unit}, {
-        "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""), "status": best,
-        "touches": touches, "last_touched": _now(),
-    })
+    # build hi: +1 touch and keep-the-deeper-status are computed atomically in the
+    # database -- the old read-then-write could lose a touch or downgrade a status
+    # when a lesson turn and a practice turn landed together.
+    _upsert("topic_progress", {"code": code, "course": course, "unit": unit},
+            {"unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""),
+             "last_touched": _now()},
+            exprs={"touches": (1, _sql_counter("touches", 1)),
+                   "status": (status, _sql_deeper_status("status", status))})
 
 
 # Minimal fallback names so a record without a name still stores one.
@@ -1213,16 +1296,12 @@ def record_minutes(code: str, course: str = DEFAULT_COURSE, day: str = "",
                    minutes_add: int = 1) -> None:
     """Add verified engaged minutes to this student's day. `day` is the student's
     local 'YYYY-MM-DD' (falls back to the server's date if not supplied)."""
-    from sqlalchemy import select
-    t = _tables["time_daily"]
     day = (day or "").strip() or _today()
-    with _engine.connect() as conn:
-        r = conn.execute(select(t.c.minutes).where(
-            (t.c.code == code) & (t.c.course == course) & (t.c.day == day))).first()
-    _upsert("time_daily", {"code": code, "course": course, "day": day}, {
-        "minutes": (r[0] if r and r[0] else 0) + int(minutes_add),
-        "updated_at": _now(),
-    })
+    # build hi: the minute count is added IN the database -- the old read-then-write
+    # lost minutes whenever two heartbeats overlapped, and a parent reads these.
+    _upsert("time_daily", {"code": code, "course": course, "day": day},
+            {"updated_at": _now()},
+            exprs={"minutes": (int(minutes_add), _sql_counter("minutes", minutes_add))})
 
 
 def get_time(code: str, days: int = 14) -> list:
@@ -1454,18 +1533,12 @@ def _save_stats(code: str, s: dict) -> None:
 def _set_unit_status(code: str, unit: int, status: str, unit_name: str = "",
                      course: str = DEFAULT_COURSE) -> None:
     """Upgrade a unit's topic_progress status (never downgrade), without touching touches."""
-    from sqlalchemy import select
-    t = _tables["topic_progress"]
-    with _engine.connect() as conn:
-        r = conn.execute(select(t.c.status).where(
-            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
-    prev = r[0] if r else None
-    if prev and STATUS_RANK.get(prev, 0) >= STATUS_RANK.get(status, 0):
-        return
-    _upsert("topic_progress", {"code": code, "course": course, "unit": unit}, {
-        "unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""),
-        "status": status, "last_touched": _now(),
-    })
+    # build hi: the upgrade-only rule runs INSIDE the upsert (CASE on STATUS_RANK),
+    # so a concurrent writer can never interleave a downgrade past the read.
+    _upsert("topic_progress", {"code": code, "course": course, "unit": unit},
+            {"unit_name": unit_name or UNIT_NAME_HINT.get(unit, ""),
+             "last_touched": _now()},
+            exprs={"status": (status, _sql_deeper_status("status", status))})
 
 
 # ---- scoring: the tally is arithmetic, never judgment -----------------------
@@ -1493,16 +1566,27 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
     pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     from sqlalchemy import select
     t = _tables["unit_checks"]
+    # build hi: ONE read, for the REPORTING fields only ("improved", attempt number).
+    # The stored data no longer depends on it: the counters and the best are computed
+    # atomically inside the upsert, so a stale read can no longer write a stale max --
+    # best_pct can never go down, and a unit can never be silently un-mastered by two
+    # overlapping submissions (the review's worst state-layer finding).
     with _engine.connect() as conn:
-        r = conn.execute(select(t.c.checks_taken, t.c.best_pct, t.c.correct, t.c.attempted).where(
+        r = conn.execute(select(t.c.checks_taken, t.c.best_pct).where(
             (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
-    checks_taken = (r[0] if r else 0) + 1
-    best_pct = max(pct, (r[1] if r else 0))
-    _upsert("unit_checks", {"code": code, "course": course, "unit": unit}, {
-        "checks_taken": checks_taken, "best_pct": best_pct, "last_pct": pct,
-        "correct": (r[2] if r else 0) + correct, "attempted": (r[3] if r else 0) + total,
-        "updated_at": _now(),
-    })
+    _upsert("unit_checks", {"code": code, "course": course, "unit": unit},
+            {"last_pct": pct, "updated_at": _now()},
+            exprs={"checks_taken": (1, _sql_counter("checks_taken", 1)),
+                   "best_pct": (pct, _sql_best("best_pct", pct)),
+                   "correct": (correct, _sql_counter("correct", correct)),
+                   "attempted": (total, _sql_counter("attempted", total))})
+    # Authoritative values come back OUT of the database (they may include a
+    # concurrent submission's work -- that is the point).
+    with _engine.connect() as conn:
+        r2 = conn.execute(select(t.c.checks_taken, t.c.best_pct).where(
+            (t.c.code == code) & (t.c.course == course) & (t.c.unit == unit))).first()
+    checks_taken = int(r2[0] or 0) if r2 else 1
+    best_pct = int(r2[1] or 0) if r2 else pct
     if pct >= PASS_PCT:
         _set_unit_status(code, unit, "mastered", unit_name, course)
     s = _get_stats_row(code)
@@ -1521,7 +1605,10 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
     # DATA, not from a promise in a prompt. Additive: nothing existing changes.
     return {"pct": pct, "best_pct": best_pct, "mastered": pct >= PASS_PCT,
             "unit_mastered": best_pct >= PASS_PCT,
-            "improved": pct > (r[1] if r else 0),
+            # `improved` compares against the pre-write read: a REPORTING nicety (it
+            # flavours one congratulation line), best-effort under concurrency by
+            # design. The STORED best above is atomic and can never regress.
+            "improved": pct > (int(r[1] or 0) if r else 0),
             "attempt": checks_taken}
 
 
@@ -1639,16 +1726,18 @@ def record_topic_quiz(code: str, unit: int, topic_name: str, correct: int, total
     pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     key = _topic_key(topic_name)
     t = _tables["topic_quizzes"]
-    with _engine.connect() as conn:
-        r = conn.execute(select(t.c.quizzes_taken, t.c.best_pct).where(
-            (t.c.code == code) & (t.c.course == course) &
-            (t.c.unit == int(unit)) & (t.c.topic_key == key))).first()
-    taken = (int(r[0]) if r and r[0] else 0) + 1
-    best = max(pct, int(r[1]) if r and r[1] else 0)
+    # build hi: count and best computed atomically in the database (see _upsert).
     _upsert("topic_quizzes",
             {"code": code, "course": course, "unit": int(unit), "topic_key": key},
             {"topic_name": (topic_name or "").strip()[:128], "topic_idx": int(topic_idx or 0),
-             "quizzes_taken": taken, "best_pct": best, "last_pct": pct, "updated_at": _now()})
+             "last_pct": pct, "updated_at": _now()},
+            exprs={"quizzes_taken": (1, _sql_counter("quizzes_taken", 1)),
+                   "best_pct": (pct, _sql_best("best_pct", pct))})
+    with _engine.connect() as conn:
+        r = conn.execute(select(t.c.best_pct).where(
+            (t.c.code == code) & (t.c.course == course) &
+            (t.c.unit == int(unit)) & (t.c.topic_key == key))).first()
+    best = int(r[0] or 0) if r else pct
     return {"pct": pct, "passed": pct >= QUIZ_PASS_PCT, "best_pct": best}
 
 

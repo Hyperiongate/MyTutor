@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hi -- PART 3az, THE COUNTERS ARE ATOMIC: source checks that the
+#               five converted store sites compute in the database, plus a REAL
+#               behavioural proof on every push -- a subprocess brings up store.py on
+#               a temp SQLite file, checks serial semantics (a bad retake never
+#               lowers the best; a status never downgrades), then hammers it with 40
+#               threaded writes and requires exact counts and a true max. A lesson
+#               from writing it: the first hammer expected "practiced" as the deepest
+#               status and FAILED -- because some hammer scores hit 95% and
+#               record_check itself upgraded the unit to "mastered". The data was
+#               right and the expectation was wrong; the assertion now says so.
 #   2026-08-17  BUILD hh -- ONE TAG GRAMMAR: TAG_HANDLER, TAG_INLINE, CONTENT_ATTRS
 #               and the live BOARD_TAG regex now DERIVE from tags.py -- the battery
 #               validates the contract, it no longer declares it (declaring it here
@@ -9986,6 +9996,122 @@ SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalys
 # numberline and areamodel). tags.py is now the single source; this part keeps the
 # derivations honest and the registry internally consistent.
 # =============================================================================
+# =============================================================================
+# PART 3az -- THE COUNTERS ARE ATOMIC (build hi)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 3 of the full-app review ("one owner per fact"). The store's
+# universal write pattern was SELECT-in-Python-then-upsert -- a lost-update race
+# whose worst case was academic: two overlapping check submissions could write a
+# stale max and make best_pct GO DOWN, silently un-mastering a unit and re-locking
+# the Final Exam while topic_progress still said "mastered". Build hi moved the
+# arithmetic INTO the upsert (counters as cur+n, bests as CASE-greater-of, statuses
+# as CASE-on-rank). This part proves it against a REAL database on every push:
+# a temp SQLite file, serial semantics first, then a threaded hammer -- exact
+# counts, never-regressing bests, never-downgrading statuses, or the build fails.
+# =============================================================================
+_HI_HAMMER = r"""
+import os, sys, json, threading, time, random
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init()
+assert store.enabled(), store.status()
+from sqlalchemy import select
+def read_check(code, unit):
+    t = store._tables["unit_checks"]
+    with store._engine.connect() as conn:
+        r = conn.execute(select(t.c.checks_taken, t.c.best_pct, t.c.attempted).where(
+            (t.c.code == code) & (t.c.course == "algebra1") & (t.c.unit == unit))).first()
+    return {"taken": r[0], "best": r[1], "att": r[2]} if r else {}
+ok = True
+r1 = store.record_check("T1", 3, 19, 20, "U3", "algebra1")
+r2 = store.record_check("T1", 3, 12, 20, "U3", "algebra1")
+ok &= r2["best_pct"] == 95 and r2["unit_mastered"] and (r1["attempt"], r2["attempt"]) == (1, 2)
+store.record_topic("T1", 3, "U3", "mastered", "algebra1")
+store.record_topic("T1", 3, "U3", "explored", "algebra1")
+rows = [r for r in store.get_topics("T1", "algebra1") if r.get("unit") == 3]
+ok &= bool(rows) and rows[0]["status"] == "mastered"
+q2 = store.record_topic_quiz("T1", 3, "Adding Fractions", 4, 10, "algebra1", 1)
+ok &= store.record_topic_quiz("T1", 3, "Adding Fractions", 9, 10, "algebra1", 1)["best_pct"] == 90
+N_T, N_C = 4, 10
+barrier = threading.Barrier(N_T); errors = []
+def worker(i):
+    barrier.wait()
+    for k in range(N_C):
+        for attempt in range(6):
+            try:
+                store.record_minutes("H1", "algebra1", "2026-08-17", 1)
+                store.record_check("H1", 7, 10 + (i + k) % 10, 20, "U7", "algebra1")
+                store.record_topic("H1", 7, "U7", "learning", "algebra1")
+                break
+            except Exception as e:
+                if "locked" in str(e).lower() and attempt < 5:
+                    time.sleep(0.05 * (attempt + 1)); continue
+                errors.append(str(e)[:80]); break
+ts = [threading.Thread(target=worker, args=(i,)) for i in range(N_T)]
+[t.start() for t in ts]; [t.join() for t in ts]
+total = N_T * N_C
+t = store._tables["time_daily"]
+with store._engine.connect() as conn:
+    minutes = conn.execute(select(t.c.minutes).where(
+        (t.c.code == "H1") & (t.c.course == "algebra1")
+        & (t.c.day == "2026-08-17"))).scalar() or 0
+c7 = read_check("H1", 7)
+ok &= not errors and minutes == total and c7.get("taken") == total
+ok &= c7.get("best") == 95 and c7.get("att") == total * 20
+print(json.dumps({"ok": bool(ok), "minutes": minutes, "c7": c7,
+                  "errors": errors[:2]}))
+"""
+
+
+def part3az_atomic_counters():
+    print("\nPART 3az — the counters are atomic (build hi)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+
+    # 1. THE PATTERN IS GONE from the five converted sites: they pass exprs= and no
+    # longer read before writing the arithmetic.
+    for fn, needle in [("record_minutes", '_sql_counter("minutes"'),
+                       ("record_check", '_sql_best("best_pct"'),
+                       ("record_topic_quiz", '_sql_counter("quizzes_taken"'),
+                       ("record_topic", '_sql_deeper_status("status"'),
+                       ("_set_unit_status", '_sql_deeper_status("status"')]:
+        check(f"{fn} computes in the database", needle in ssrc,
+              f"{fn} lost its atomic expression -- the read-then-write race is back "
+              f"and best scores can regress again")
+    check("the helpers exist",
+          all(n in ssrc for n in ("def _sql_counter", "def _sql_best",
+                                  "def _sql_deeper_status", "exprs: dict = None")),
+          "the atomic machinery left _upsert")
+
+    # 2. THE BEHAVIOURAL PROOF, against a real database, every push.
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("atomic-counter hammer", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hammer.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HI_HAMMER)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hi.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("atomic-counter hammer ran",
+                (res.stderr or res.stdout).strip()[:300])
+            return
+        check("40 threaded writes land exactly (minutes, checks, attempts) and the "
+              "best never regresses",
+              verdict.get("ok") is True,
+              f"{verdict} -- a lost update or a regressed best on a REAL database")
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10284,6 +10410,7 @@ def main():
     part3aw_one_copy()
     part3ax_one_pipeline()
     part3ay_one_grammar()
+    part3az_atomic_counters()
     part3ai_deploy_stamp()
     if live:
         part4_live()
