@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gr-heard-and-honoured". TWO WAYS TO IGNORE WHAT A
+#               CHILD ACTUALLY SAID, both from one Geometry lesson of Jim's.
+#               (1) THE SPOKEN LETTER. Asked which side was the hypotenuse, he said the
+#               letter "c"; ElevenLabs returned the Spanish "si"/"CSI"; the tutor told him
+#               he was WRONG and demanded a letter. We were sending no language hint at all.
+#               Now: language_code (STT_LANGUAGE, default "eng") with a retry WITHOUT the
+#               hint on a 422, so a parameter can never silently break the microphone; plus
+#               a server-side spoken-letter map applied only when the page says a letter was
+#               the expected answer. That corrects OUR transcription, which is a different
+#               act from changing the student's answer.
+#               (2) THE SIGNED ANSWER -- NEW RULE 64 + the FIFTEENTH referee. He answered
+#               "minus five" to "what times itself gives twenty five?" and was told "That is
+#               correct", after which the reply taught on using 5. Both halves are wrong:
+#               (-5)(-5) really is 25 but a LENGTH IS NEVER NEGATIVE, so "correct" was
+#               untrue; and swapping his number for a different one without saying so
+#               teaches a child that the minus sign is decoration -- the exact misconception
+#               a squaring lesson exists to prevent. answer_sign_conflict fires only when the
+#               reply affirms a signed answer, uses the unsigned magnitude, and never
+#               mentions the sign; the right response ("both 5 and -5 square to 25, but a
+#               length can't be negative") passes.
 #   2026-08-17  APP_BUILD -> "2026-08-17gq-openai-boundary". A PROMISE BECOMES A TEST.
 #               Jim turned on OpenAI's "share inputs and outputs" for a DEDICATED AUDIT
 #               PROJECT, which makes the night watch essentially free and lifts the budget
@@ -7185,7 +7205,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gq-openai-boundary"
+APP_BUILD = "2026-08-17gr-heard-and-honoured"
 
 
 @app.get("/health")
@@ -8521,6 +8541,42 @@ def _evict_tts_cache() -> None:
 # mistake it for a real cue (e.g. "[outro jingle]" once made Mr. Cadabra wrap up a whole topic
 # after one question). So we scrub bracketed/parenthesized non-speech captions, and if nothing
 # real remains, return "" -- which the UI treats as "I didn't catch that, try again."
+# build gr (2026-08-17): the language hint for speech-to-text. Empty string = let
+# ElevenLabs auto-detect (the old behaviour, which heard an English "c" as Spanish "si").
+STT_LANGUAGE = os.environ.get("STT_LANGUAGE", "eng").strip()
+
+# THE SPOKEN LETTER (build gr). When a child says a single letter aloud, every engine on
+# earth returns the WORD that sounds like it -- "see" for c, "bee" for b, "ex" for x. Jim's
+# came back as the Spanish "si". This maps the name of a letter back to the letter, and it
+# is deliberately applied ONLY when the whole utterance is that one word, because "see" in
+# a sentence is a verb and "a" is an article. A short standalone word, spoken in answer to
+# a question, is the letter.
+# NOT included on purpose: "oh" (o), "eye"/"I" (i), "you" (u), "are" (r) and "why" (y) --
+# each is a plausible whole utterance from a child in its own right ("oh!", "you?"), and
+# turning an interjection into a variable would invent an answer they never gave, which is
+# the very thing rule 64 forbids.
+_SPOKEN_LETTER = {
+    "see": "c", "sea": "c", "cee": "c", "si": "c", "s\u00ed": "c", "csi": "c",
+    "bee": "b", "be": "b", "dee": "d", "ee": "e", "eff": "f", "gee": "g",
+    "jay": "j", "kay": "k", "el": "l", "ell": "l", "em": "m", "en": "n",
+    "pee": "p", "cue": "q", "queue": "q", "ess": "s", "tee": "t", "tea": "t",
+    "vee": "v", "zee": "z", "zed": "z", "ex": "x", "eks": "x",
+}
+
+
+def spoken_letter(text: str) -> str:
+    """The letter a one-word utterance names, or "". Never raises."""
+    try:
+        t = re.sub(r"[^A-Za-z\u00c0-\u017f]", "", str(text or "")).strip().lower()
+        if not t:
+            return ""
+        if len(t) == 1 and t.isalpha():
+            return t                       # already a bare letter
+        return _SPOKEN_LETTER.get(t, "")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def _clean_transcript(text: str) -> str:
     t = (text or "").strip()
     if not t:
@@ -8535,7 +8591,7 @@ def _clean_transcript(text: str) -> str:
 
 
 @app.post("/api/transcribe")
-async def transcribe(audio: UploadFile = File(...), code: str = ""):
+async def transcribe(audio: UploadFile = File(...), code: str = "", expect: str = ""):
     """
     Transcribe the student's recorded audio with ElevenLabs Speech-to-Text (Scribe).
     Browser records the audio (works in every modern browser) and posts it here;
@@ -8569,17 +8625,52 @@ async def transcribe(audio: UploadFile = File(...), code: str = ""):
             return {"text": ""}
         files = {"file": (audio.filename or "speech.webm", content,
                           audio.content_type or "audio/webm")}
+        # 2026-08-17 (build gr, Jim live in Geometry): he was asked which side was the
+        # hypotenuse, said the letter "c", and Scribe transcribed it as the SPANISH "si"
+        # / "CSI". The tutor then told him he was wrong and demanded a letter -- a student
+        # marked incorrect for a machine's mistake, which is about the most corrosive thing
+        # this app can do to a child's confidence.
+        # We were sending NO language hint at all, so auto-detection was free to hear a
+        # single English letter as another language. `language_code` is a documented
+        # optional parameter (ISO 639-1 or 639-3). Env-tunable, and blank disables it.
+        payload = {"model_id": ELEVEN_STT_MODEL}
+        if STT_LANGUAGE:
+            payload["language_code"] = STT_LANGUAGE
         with httpx.Client(timeout=60.0) as client:
             r = client.post(
                 "https://api.elevenlabs.io/v1/speech-to-text",
                 headers={"xi-api-key": ELEVEN_API_KEY},
-                data={"model_id": ELEVEN_STT_MODEL},
+                data=payload,
                 files=files,
             )
+            # A LANGUAGE HINT MUST NEVER COST US VOICE INPUT. If the parameter is ever
+            # rejected, retry once without it: a slightly worse transcript beats a student
+            # whose microphone silently stopped working.
+            if r.status_code == 422 and "language_code" in payload:
+                print(f"[transcribe] language_code={STT_LANGUAGE!r} rejected -- retrying "
+                      f"without the hint")
+                r = client.post(
+                    "https://api.elevenlabs.io/v1/speech-to-text",
+                    headers={"xi-api-key": ELEVEN_API_KEY},
+                    data={"model_id": ELEVEN_STT_MODEL},
+                    files=files,
+                )
         if r.status_code != 200:
             print(f"[transcribe] ElevenLabs {r.status_code}: {r.text[:200]}")
             return {"text": ""}
-        return {"text": _clean_transcript((r.json() or {}).get("text", ""))}
+        said = _clean_transcript((r.json() or {}).get("text", ""))
+        # THE SPOKEN LETTER (build gr). The page sets expect=letter only when the tutor's
+        # last line actually asked for one, so the context does the disambiguating and a
+        # "see" inside ordinary speech is never touched. Note what this is and is not: it
+        # corrects OUR transcription of what the student said -- it does not trade their
+        # answer for a different one, which rule 64 forbids and which is precisely what the
+        # tutor did to Jim when it heard "minus five" and taught on with 5.
+        if expect.strip().lower() == "letter":
+            letter = spoken_letter(said)
+            if letter and letter != said.strip().lower():
+                print(f"[sttletter] heard {said!r} where a letter was expected -> {letter!r}")
+                return {"text": letter, "heard": said}
+        return {"text": said}
     except HTTPException:
         # The 413 "too large" refusal (build ec) is a real answer -- it must reach the
         # caller, not be swallowed by the catch-all below that turns errors into "".

@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gr -- THE SIGNED-ANSWER REFEREE (rule 64), the FIFTEENTH. Jim
+#               answered "minus five" to "what times itself gives twenty five?" and the
+#               tutor said "That is correct", then taught on using 5. Two failures: the
+#               affirmation was untrue (a length is never negative) and the reply used a
+#               number the student never gave. mathcheck cannot see it -- every number in
+#               that reply is arithmetically sound. answer_sign_conflict needs all three:
+#               an explicitly signed student answer, an affirmation, and the unsigned
+#               magnitude used WITHOUT the sign ever being mentioned. 14 cases both ways;
+#               0 false alarms on 1,015 canonical scripts x 7 signed utterances. Two bugs
+#               in its own patterns were found by running the real exchange rather than
+#               trusting them: a lookahead that rejected "5." at a sentence end, and a bare
+#               "exactly"/"correct" that matched ordinary prose ("exactly one output").
 #   2026-08-16  BUILD gn -- THE UNIT-CLAIM REFEREE (rule 0's recap clause), the FOURTEENTH,
 #               and the first that judges a reply against a fact from OUTSIDE it. Jim read
 #               his rail saying Unit 1 under an opener saying Unit 5 and asked which was
@@ -2313,6 +2325,116 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE SILENTLY-CHANGED-ANSWER CHECK (2026-08-17, build gr) -- the FIFTEENTH referee.
+# -----------------------------------------------------------------------------
+# Jim, live in Geometry, 2026-08-17, with the exact exchange:
+#
+#   TUTOR:   3 squared plus 4 squared is 25, so c squared must be 25.
+#            What times itself gives you twenty five?
+#   JIM:     minus five
+#   TUTOR:   That is correct.       ...and then carried on as though he had said 5.
+#
+# TWO errors in one reply, and the second is the worse one.
+#
+# (1) "That is correct" is FALSE. (-5)(-5) = 25 is sound arithmetic, but c is the length of
+#     a side. A length is never negative. The tutor affirmed something untrue.
+# (2) IT THEN USED A NUMBER THE STUDENT NEVER SAID. It silently swapped -5 for 5 and taught
+#     on. The student is left believing their answer was accepted as given -- and a child who
+#     is told "correct" and then watches a different number appear learns that the sign is
+#     decoration, which is the exact misconception this lesson exists to prevent.
+#
+# Error (2) is the general defect and the one worth enforcing: A REPLY MAY NOT AFFIRM AN
+# ANSWER AND THEN WORK FROM A DIFFERENT ONE. It is the mirror of rule 43 (never credit a
+# method the student did not show) one level down: never credit a NUMBER they did not give.
+# mathcheck cannot catch it, because every number in the reply is arithmetically true.
+#
+# NARROW -- three conditions, all required:
+#   (a) the student's message carries an explicitly SIGNED number ("minus five", "-5")
+#   (b) the reply AFFIRMS ("that is correct", "exactly right", "yes")
+#   (c) the reply then treats the unsigned value as the answer AND NEVER MENTIONS THE SIGN
+# The third clause is what keeps the correct teaching response clean: "both 5 and -5 square
+# to 25, but a length can't be negative, so c = 5" affirms, uses 5, and ADDRESSES the sign --
+# and must pass, because that is the reply we want.
+# AFFIRMATION, and it has to be an affirmation OF AN ANSWER. An early draft accepted a bare
+# "exactly" and a bare "correct" anywhere in the reply, and it fired on FOUR canonical
+# scripts -- "terms with exactly the same letter part", "worth twenty five cents". Ordinary
+# prose is full of both words. So the loose ones must OPEN a sentence (which is how a tutor
+# actually affirms: "Correct. c = 5."), while the unambiguous phrases may appear anywhere.
+_SC_AFFIRM = re.compile(
+    r"\b(?:that'?s (?:right|correct|it)|that is (?:right|correct)|exactly right|"
+    r"you'?ve got it|you got it|well done|nice work|spot on|bang on)\b"
+    # ...and a sentence-opening affirmation must STAND ALONE. "Exactly one output" is an
+    # adverb, not applause -- it fired on the function script until the lookahead was added.
+    r"|(?:^|[.!?\u2014]\s*|--\s*)(?:correct|exactly|perfect|yes|yep|right)"
+    r"(?=\s*[.,!;:\u2014]|\s*$)",
+    re.I)
+# The student said a negative: "-5", "minus five", "negative five".
+_SC_STUDENT_NEG = re.compile(
+    r"(?:(?:^|\s)-\s*(\d+(?:\.\d+)?))|"
+    r"\b(?:minus|negative)\s+(\d+(?:\.\d+)?|" + _PR_NUMWORD + r")\b", re.I)
+# The reply talks about the sign at all -- any of these means it did NOT ignore it.
+_SC_ADDRESSES_SIGN = re.compile(
+    r"\bnegative\b|\bminus\b|\bpositive\b|\bboth\b|\bsign\b|\btwo (?:answers|roots|values)\b|"
+    r"\bcan'?t be\b|\bcannot be\b|\bnever negative\b|\blength\b.{0,24}\bpositive\b|"
+    r"-\s*\d", re.I)
+
+
+def answer_sign_conflict(reply: str, student_message: str = ""):
+    """Return a description of a reply that affirmed a signed answer and then worked from
+    the unsigned one without ever mentioning the sign, or "". Never raises (fail open)."""
+    try:
+        said = str(student_message or "")
+        m = _SC_STUDENT_NEG.search(said)
+        if not m:
+            return ""
+        magnitude = next((g for g in m.groups() if g), "")
+        if not magnitude:
+            return ""
+        text = str(reply or "")
+        prose = re.sub(r"\[\[[^\]]*\]\]", " ", text)
+        if not _SC_AFFIRM.search(prose):
+            return ""                    # it did not affirm -- correcting is the job
+        if _SC_ADDRESSES_SIGN.search(text):
+            return ""                    # it engaged with the sign: exactly what we want
+        # Does the reply use the UNSIGNED value as the settled answer? The student may have
+        # SAID a word ("minus five") while the board WRITES a digit ("c = 5"), which is the
+        # founding case -- so both forms are searched. Two bugs lived here and both were
+        # found by running the real exchange rather than trusting the pattern:
+        #   - the old lookahead (?![\d.]) rejected "5." at the end of a sentence, so the
+        #     plainest possible reply ("Correct. c = 5.") slipped straight through;
+        #   - "five" was never mapped to "5", so the spoken form never matched the written.
+        mag = str(magnitude).lower()
+        forms = set()
+        digits = mag if mag.replace(".", "").isdigit() else ""
+        if digits:
+            forms.add(digits)
+            for w, n in list(_PR_ONES.items()) + list(_PR_TENS.items()):
+                if str(n) == digits:
+                    forms.add(w)
+        else:
+            n = _PR_ONES.get(mag, _PR_TENS.get(mag))
+            forms.add(mag)
+            if n is not None:
+                forms.add(str(n))
+        pattern = "|".join(re.escape(f) for f in sorted(forms, key=len, reverse=True))
+        # (?!\.?\d) allows "5." (a sentence ending) while still refusing "5.2" (a decimal).
+        if re.search(r"(?<![\d.-])(?:" + pattern + r")(?!\.?\d)", text, re.I):
+            return ("the student answered a NEGATIVE number ({neg}) and your reply says it is "
+                    "correct, then goes on using {pos} -- a number they never gave. Two things "
+                    "are wrong: {neg} times itself does give the right product, but it cannot "
+                    "be a length, so \"correct\" is untrue; and swapping their number for a "
+                    "different one without saying so teaches them the sign is decoration. "
+                    "Say what is true of BOTH values, then say why the context rules one out "
+                    "-- e.g. \"both {pos} and {neg} square to it, but a length is never "
+                    "negative, so it is {pos}.\"").format(neg="-" + str(magnitude),
+                                                           pos=str(magnitude))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[answersign] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE UNIT-CLAIM CHECK (2026-08-16, build gn) -- rule 0's recap clause, born ENFORCED.
 # -----------------------------------------------------------------------------
 # Jim, live in Geometry: "it says where we start in unit five. And when I look at the
@@ -3126,6 +3248,10 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         triletter = triangle_letter_conflict(reply)
         if triletter:
             return triletter
+        # build gr: FIFTEENTH -- it reads the student's own message, which is already here.
+        answersign = answer_sign_conflict(reply, student_message)
+        if answersign:
+            return answersign
         # build gn: FOURTEENTH -- and the only referee that needs a fact from OUTSIDE the
         # reply, so it is wired here, after everything the reply can be judged against on
         # its own. Silent whenever the caller does not know the unit.

@@ -1041,6 +1041,7 @@ def check(name, condition, detail=""):
 # that rule in the shared blocks. When you write a new shared rule, add it here.
 COVERAGE = [
     ("rule 0  opening sequence",        "THE OPENING SEQUENCE"),
+    ("rule 64 never trade the number",  "NEVER TRADE THE STUDENT'S NUMBER"),
     ("rule 1  placement honesty",       "PLACEMENT HONESTY"),
     ("rule 4  say it -> write it",      "SAY IT -> WRITE IT"),
     ("rule 4  sub-step lines",          "ANSWERED SUB-STEP GETS ITS OWN LINE"),
@@ -3263,6 +3264,18 @@ RULE_VERIFY = {
                       "called a curve) and the shares-picture half (4|4|4|2 for a "
                       "sharing story) remain prompt-covered, pinned by PART 3ah -- "
                       "both are natural lessonaudit scenario candidates"),
+    64: ("ENFORCED",  "never trade the student's number for a different one, and a length "
+                      "is never negative (build gr; from Jim's 2026-08-17 Geometry lesson, "
+                      "where 'minus five' was answered with 'That is correct' and the reply "
+                      "then taught on using 5). answer_sign_conflict is the FIFTEENTH "
+                      "referee: it fires only when the student gave an explicitly signed "
+                      "number, the reply AFFIRMS it, the reply then uses the unsigned "
+                      "magnitude, and the reply never mentions the sign at all -- so the "
+                      "correct teaching response ('both 5 and -5 square to 25, but a length "
+                      "is never negative') passes. 14 cases both directions; 0 false alarms "
+                      "across 1,015 canonical scripts x 7 signed utterances. The (a) half -- "
+                      "that an answer can be arithmetically right and contextually "
+                      "impossible -- is prompt-covered in all ten courses via PART 1")
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -8131,6 +8144,120 @@ def part3al_openai_boundary():
 
 
 
+# =============================================================================
+# PART 3am -- THE SPOKEN LETTER, AND THE SIGNED ANSWER (build gr)
+# =============================================================================
+# 2026-08-17, both from one Geometry lesson Jim ran.
+#
+# (1) He was asked which side was the hypotenuse, SAID THE LETTER "c", and ElevenLabs
+#     returned the Spanish "si" / "CSI". The tutor told him he was wrong and demanded a
+#     letter. A student marked incorrect for a machine's mistake is about the most
+#     corrosive thing this app can do to a child's confidence, and we were sending NO
+#     language hint at all.
+# (2) He answered "minus five" to "what times itself gives twenty five?" and was told
+#     "That is correct" -- then the reply taught on using 5. See rule 64 / referee 15.
+def part3am_spoken_letter_and_sign():
+    print("\nPART 3am — the spoken letter, and the signed answer")
+    root = os.path.dirname(os.path.abspath(__file__))
+    import main as _m
+
+    # ---- the letter map: fires on a bare letter-name, silent on ordinary words ----
+    for said, want in (("c", "c"), ("see", "c"), ("sea", "c"), ("si", "c"), ("CSI", "c"),
+                       ("Tea.", "t"), ("bee", "b"), ("ex", "x"), ("zed", "z")):
+        check(f"spoken letter: {said!r} reads as {want!r}", _m.spoken_letter(said) == want,
+              f"got {_m.spoken_letter(said)!r}")
+    for said in ("five", "yes", "no", "the hypotenuse", "oh", "you", "are", "why", "eye", ""):
+        check(f"spoken letter: {said!r} is left alone", not _m.spoken_letter(said),
+              f"{said!r} became {_m.spoken_letter(said)!r} — a plausible whole utterance "
+              f"must never be turned into a variable the student never said (rule 64)")
+
+    # ---- the language hint, and the promise that it can never cost us voice input ----
+    with open(os.path.join(root, "main.py"), "r", encoding="utf-8") as fh:
+        m = fh.read()
+    check("spoken letter: a language hint is sent to speech-to-text",
+          "language_code" in m and "STT_LANGUAGE" in m,
+          "with no hint, auto-detection heard an English letter as Spanish")
+    check("spoken letter: a rejected hint retries WITHOUT it",
+          "retrying" in m and "422" in m,
+          "a language hint must never be able to silently break the microphone")
+    check("spoken letter: the map lives ONLY on the server",
+          "_SPOKEN_LETTER" in m,
+          "one copy, or the client and server will drift")
+    for page in ("session.html", "practice.html", "topic.html"):
+        with open(os.path.join(root, "static", page), "r", encoding="utf-8") as fh:
+            txt = fh.read()
+        check(f"spoken letter: {page} sends the letter context",
+              "expectsALetter" in txt and "expect=letter" in txt,
+              "without the context the server would rewrite words in ordinary speech")
+        check(f"spoken letter: {page} asks only on an explicit letter question",
+              "which\\s+(?:side|letter" in txt or "which\s+(?:side|letter" in txt,
+              "the gate must be narrow — any question would be too broad")
+
+    # ---- referee 15, both directions, on the exact exchange ----
+    SIGN_CASES = [
+        ("Jim's exact turn: affirmed, then taught on with 5",
+         "That is correct! So c = 5, and the hypotenuse is 5 units long.", "minus five", True),
+        ("a bare 'Correct.' opening the reply", "Correct. c = 5.", "-5", True),
+        ("the spoken word against the written digit", "That is right. c = 5.",
+         "negative five", True),
+        ("the RIGHT teaching response passes",
+         "Good thinking -- both 5 and -5 square to 25. But a length is never negative, "
+         "so c = 5.", "minus five", False),
+        ("correcting instead of affirming passes",
+         "Not quite -- a side length cannot be negative, so it is 5.", "minus five", False),
+        ("merely mentioning the sign passes",
+         "Yes, and negative five works arithmetically too.", "minus five", False),
+        ("a positive answer is not this referee's business",
+         "That is correct! c = 5.", "five", False),
+        ("a negative the reply KEEPS is fine", "Exactly right, -5 degrees.", "minus five", False),
+        ("no affirmation, nothing to judge", "Let us look at the board again.",
+         "minus five", False),
+        ("affirmed but the magnitude never appears",
+         "That is correct. Now try the next one.", "minus five", False),
+        ("a decimal is not the settled answer", "Correct. It comes to 5.2 exactly.",
+         "minus 5", False),
+        ("'exactly' as an adverb is not applause",
+         "A function gives back exactly one output. Exactly one is the point.",
+         "minus one", False),
+    ]
+    for name, reply, said, should_flag in SIGN_CASES:
+        got = tutor.answer_sign_conflict(reply, said)
+        check(f"answer-sign: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"answer-sign: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply, said)),
+                  "the combined referee let it through")
+
+    # ---- and it must be SILENT on every canonical script, for every signed utterance ----
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        skip("answer-sign: canonical sweep", f"foundations unavailable: {exc}")
+        return
+    texts = []
+
+    def _walk(o):
+        if isinstance(o, str):
+            texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    for nm in dir(_F):
+        if not nm.startswith("_"):
+            _walk(getattr(_F, nm))
+    noise = 0
+    for said in ("minus five", "-5", "negative three", "minus one", "-12",
+                 "negative two", "minus ten"):
+        noise += sum(1 for t in texts if tutor.answer_sign_conflict(t, said))
+    check(f"answer-sign: silent on all {len(texts)} canonical scripts x 7 signed answers",
+          noise == 0, f"{noise} false alarms — correct teaching would be regenerated")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8179,6 +8306,7 @@ def main():
     part3aj_screen_checks()
     part3ak_night_watch()
     part3al_openai_boundary()
+    part3am_spoken_letter_and_sign()
     part3ai_deploy_stamp()
     if live:
         part4_live()

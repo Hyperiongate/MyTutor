@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (gr) 2026-08-17 -- THE SPOKEN LETTER. Jim was asked which side was the hypotenuse, said
+    the letter "c" out loud, and ElevenLabs transcribed it as the Spanish "si" / "CSI" --
+    whereupon the tutor told him he was wrong and demanded a letter. A student marked
+    incorrect for a machine's mistake. /api/transcribe now sends a language hint and owns a
+    spoken-letter map ("see"/"sea"/"si"/"CSI" -> c); this page supplies the CONTEXT via
+    expectsALetter(lastTutorText), so the rewrite happens only when the tutor actually asked
+    for a letter and a "see" in ordinary speech is never touched. Deliberately excluded from
+    the map: oh, eye/I, you, are, why -- each is a plausible whole utterance from a child,
+    and inventing a variable they never said is what rule 64 forbids.
+
     (gp3) 2026-08-17 -- THE PROBE LEARNS TO SAMPLE TWICE. Jim's first [voicehead] output
     read "ctx=running" on all five clips and it was reported to him as "the graph was never
     suspended, so the resume race never fired" -- which was WRONG, and would have sent the
@@ -2036,6 +2046,15 @@
     // 2026-08-03 (Jim: "I have to scroll to see what he's saying"): the tap-to-answer buttons
     // shrink the transcript from below; re-pin on ANY size change of the transcript itself.
     if (window.ResizeObserver) new ResizeObserver(() => scrollFeed()).observe(feed);
+    // build gr (2026-08-17): did the tutor just ask for a LETTER? Narrow on purpose --
+    // only an explicit ask counts, so a normal question never turns a word into a variable.
+    function expectsALetter(t) {
+      const s = String(t || "");
+      if (s.indexOf("?") < 0) return false;
+      return /\bwhich\s+(?:side|letter|one|vertex|corner|angle)\b/i.test(s)
+          || /\bwhat\s+letter\b/i.test(s)
+          || /\bname\s+(?:the\s+)?(?:side|letter|vertex|angle)\b/i.test(s);
+    }
     function addBubble(role, text) {
       clearHint();
       const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
@@ -2180,7 +2199,13 @@
     async function transcribe(blob) {
       try {
         const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE), { method: "POST", body: fd });
+        // build gr: tell the server when a LETTER is the expected answer. Jim said the
+        // letter "c" and Scribe returned the Spanish "si"; the tutor then told him he was
+        // wrong and demanded a letter. The server owns the letter map (one copy, no drift);
+        // this only supplies the context, read from the tutor's own last line.
+        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE)
+                                + (expectsALetter(lastTutorText) ? "&expect=letter" : ""),
+                                { method: "POST", body: fd });
         const data = await res.json();
         return (data.text || "").trim();
       } catch (e) { return ""; }
