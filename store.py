@@ -2,6 +2,22 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hk -- NO EXCHANGE CAN BE LOST. NEW update_history(code, course,
+#               fn, cap): the chat path's only history writer, a COMPARE-AND-SWAP
+#               transform. The old shape -- read blob, run a multi-second model call,
+#               write the whole blob back -- was last-writer-wins with a race window
+#               the width of the model's latency; a double-submit or second tab
+#               silently deleted a full exchange. CAS chosen over a row lock ON
+#               EVIDENCE: the first version used SELECT..FOR UPDATE and was correct on
+#               Postgres but SILENTLY WRONG on SQLite (pysqlite's legacy isolation
+#               begins the transaction at the first WRITE, so the read ran outside it
+#               -- the hammer lost 200 of 240 appends with ZERO errors). CAS has no
+#               dialect trap: UPDATE..WHERE history = exactly-what-we-read, loop on
+#               rowcount 0. fn must be pure (it may run again on retry). The insert
+#               race (two first turns for a brand-new student) retries into the CAS
+#               path. Exhausting retries RAISES -- dropping an exchange silently is
+#               the disease, not an acceptable fallback. Proved: 240/240 threaded
+#               appends, pairs adjacent; ruletests PART 3bb re-proves on every push.
 #   2026-08-17  BUILD hi -- THE COUNTERS ARE ATOMIC (Phase 3 of the full-app review,
 #               "one owner per fact"). The store's universal write pattern was
 #               SELECT-in-Python-then-upsert -- a lost-update race whose worst case
@@ -1214,6 +1230,67 @@ def save_session(code: str, session: dict, course: str = DEFAULT_COURSE) -> None
         "updated_at": _now(),
     }
     _upsert("sessions", {"code": code, "course": course}, values)
+
+
+def update_history(code: str, course: str, fn, cap: int = None) -> list:
+    """Atomically transform this student's conversation history (2026-08-17, build hk
+    -- full-app review Phase 3). The old pattern was: read the blob at the top of
+    /api/chat, run a MULTI-SECOND model call, then write the whole blob back --
+    last-writer-wins with a race window the width of the model's latency. A
+    double-submit, a second tab, or an opener racing a typed message silently deleted
+    a full exchange, and the tutor then "forgot" a turn the student remembers.
+
+    IMPLEMENTATION IS COMPARE-AND-SWAP, NOT A ROW LOCK, deliberately. The first
+    version used SELECT ... FOR UPDATE inside a transaction -- correct on Postgres,
+    and SILENTLY WRONG on SQLite: pysqlite's legacy isolation only begins the
+    transaction at the first WRITE, so the read ran outside it and the hammer test
+    lost 200 of 240 appends with zero errors. CAS has no such dialect trap: read the
+    blob, transform, then UPDATE ... WHERE history = <exactly what we read>; if
+    another writer landed first, rowcount is 0 and we loop against the fresh value.
+    Correct by construction on both dialects; contention per student is one write
+    every few seconds, so the loop settles immediately in practice.
+
+    `fn(history) -> history` must be pure and fast (list in, list out; no I/O) --
+    it may run more than once on a retry. Preserves the row's summary column.
+    Exhausting the retry budget RAISES: an exchange must never vanish silently,
+    which is the whole point of this function. Returns the history as written."""
+    import time as _t, random as _rnd
+    from sqlalchemy import select, update, insert
+    t = _tables["sessions"]
+    for attempt in range(24):
+        with _engine.connect() as conn:
+            r = conn.execute(select(t.c.history).where(
+                (t.c.code == code) & (t.c.course == course))).first()
+        old_payload = r[0] if r else None
+        hist = _loads(old_payload, []) if r else []
+        new = list(fn(list(hist)) or [])
+        if cap and len(new) > int(cap):
+            new = new[-int(cap):]
+        payload = json.dumps(new, ensure_ascii=False)
+        try:
+            with _engine.begin() as conn:
+                if r is not None:
+                    guard = (t.c.history.is_(None) if old_payload is None
+                             else (t.c.history == old_payload))
+                    res = conn.execute(update(t).where(
+                        (t.c.code == code) & (t.c.course == course) & guard
+                    ).values(history=payload, updated_at=_now()))
+                    if res.rowcount == 1:
+                        return new
+                else:
+                    conn.execute(insert(t).values(
+                        code=code, course=course, history=payload,
+                        updated_at=_now()))
+                    return new
+        except Exception as exc:  # noqa: BLE001
+            low = str(exc).lower()
+            if not ("unique" in low or "duplicate" in low or "locked" in low
+                    or "integrity" in type(exc).__name__.lower()):
+                raise
+        _t.sleep(0.01 * (attempt + 1) + _rnd.random() * 0.02)
+    raise RuntimeError(
+        f"update_history: could not land after 24 attempts for {code}/{course} -- "
+        f"refusing to drop a student's exchange silently")
 
 
 # ---- placements ------------------------------------------------------------

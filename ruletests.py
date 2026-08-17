@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hk -- PART 3bb, NO EXCHANGE CAN BE LOST: wiring checks (CAS
+#               writer exists; both chat-path writes go through mutate_history; no
+#               whole-blob save remains in the handler) plus the threaded hammer on a
+#               real database every push -- 96 appends land exactly, pairs adjacent,
+#               the two-first-turns insert race is safe, the 60-message cap holds.
+#               The hammer EARNED its keep before it ever entered the battery: it
+#               caught the row-lock version silently losing 200 of 240 appends on
+#               SQLite (pysqlite begins transactions at the first WRITE, so the
+#               locked read wasn't) -- zero errors, pure data loss. The CAS rewrite
+#               exists because of that run.
 #   2026-08-17  BUILD hj -- PART 3ba, ONE OWNER FOR "WHICH UNIT": wiring checks (the
 #               resolver exists; prompt, referee, tracker and probe consume its
 #               result; the placement note expires) plus the six-case priority table
@@ -10117,6 +10127,109 @@ print(json.dumps({"ok": all(got[k] == want[k] for k in want),
 """
 
 
+# =============================================================================
+# PART 3bb -- NO EXCHANGE CAN BE LOST (build hk)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 3. Conversation history was read at the top of /api/chat, a
+# multi-second model call ran, then the WHOLE blob was written back -- last-writer-
+# wins with a race window the width of the model's latency. A double-submit or a
+# second tab silently deleted a full exchange, and the tutor "forgot" a turn the
+# student remembers. store.update_history is now the only chat-path writer: a
+# compare-and-swap transform (NOT a row lock -- pysqlite's legacy isolation begins
+# the transaction at the first WRITE, so a FOR-UPDATE read silently ran outside it
+# and the first hammer lost 200 of 240 appends with zero errors; CAS has no dialect
+# trap). Proved here on a real database, every push.
+# =============================================================================
+_HK_HISTORY = r"""
+import os, sys, json, threading, time
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled()
+def pair(tag, i):
+    return [{"role": "user", "content": tag + "-u" + str(i)},
+            {"role": "assistant", "content": tag + "-a" + str(i)}]
+store.update_history("R1", "algebra1", lambda h: h + pair("A", 1))
+store.update_history("R1", "algebra1", lambda h: h + pair("B", 1))
+seq_ok = [m["content"] for m in store.get_session("R1", "algebra1")["history"]] \
+         == ["A-u1", "A-a1", "B-u1", "B-a1"]
+N_T, N_C = 4, 12
+barrier = threading.Barrier(N_T); errors = []
+def worker(i):
+    barrier.wait()
+    for k in range(N_C):
+        try:
+            store.update_history("H1", "algebra1", lambda h: h + pair("w" + str(i), k))
+        except Exception as e:
+            errors.append(str(e)[:80])
+ts = [threading.Thread(target=worker, args=(i,)) for i in range(N_T)]
+[t.start() for t in ts]; [t.join() for t in ts]
+h = store.get_session("H1", "algebra1")["history"]
+pairs_ok = all(h[j]["content"].replace("-u", "-a") == h[j + 1]["content"]
+               for j in range(0, len(h), 2))
+b = threading.Barrier(2); e2 = []
+def first(i):
+    b.wait()
+    try: store.update_history("NEW1", "algebra1", lambda h: h + pair("f" + str(i), 0))
+    except Exception as e: e2.append(str(e)[:80])
+t1 = threading.Thread(target=first, args=(1,)); t2 = threading.Thread(target=first, args=(2,))
+t1.start(); t2.start(); t1.join(); t2.join()
+newh = store.get_session("NEW1", "algebra1")["history"]
+store.update_history("CAP", "algebra1",
+                     lambda h: h + [{"role": "user", "content": str(i)} for i in range(99)],
+                     cap=60)
+print(json.dumps({"ok": bool(seq_ok and not errors and len(h) == N_T * N_C * 2
+                             and pairs_ok and not e2 and len(newh) == 4
+                             and len(store.get_session("CAP", "algebra1")["history"]) == 60),
+                  "n": len(h), "pairs": pairs_ok, "new": len(newh),
+                  "errors": errors[:2] + e2[:2]}))
+"""
+
+
+def part3bb_no_lost_exchange():
+    print("\nPART 3bb — no exchange can be lost (build hk)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("store.update_history exists and is CAS",
+          "def update_history(" in open(os.path.join(here, "store.py"), encoding="utf-8").read()
+          and "rowcount == 1" in open(os.path.join(here, "store.py"), encoding="utf-8").read(),
+          "the atomic history transform is gone -- the model-latency race is back")
+    check("the chat path appends via mutate_history",
+          "mutate_history(code, req.course, lambda h: h + _exchange)" in msrc,
+          "the whole-blob overwrite is back in /api/chat")
+    check("the opener writes via mutate_history",
+          msrc.count("mutate_history(code, req.course,") >= 2,
+          "an opener racing a typed first message can erase it again")
+    check("no chat-path whole-blob save remains",
+          'session["history"] = history\n    save_session(' not in msrc
+          and 'session["history"] = history\n        save_session(' not in msrc,
+          "a save_session(whole blob) crept back into the chat handler")
+
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("history CAS hammer", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hist.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HK_HISTORY)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hk.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("history CAS hammer ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("96 threaded appends land exactly, pairs adjacent, insert-race safe, "
+              "cap enforced", verdict.get("ok") is True,
+              f"{verdict} -- an exchange was lost or torn on a REAL database")
+
+
 def part3ba_one_unit_owner():
     print("\nPART 3ba — one owner for the student's unit (build hj)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10526,6 +10639,7 @@ def main():
     part3ay_one_grammar()
     part3az_atomic_counters()
     part3ba_one_unit_owner()
+    part3bb_no_lost_exchange()
     part3ai_deploy_stamp()
     if live:
         part4_live()

@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hk-no-lost-turns". THE HISTORY RACE IS CLOSED.
+#               NEW mutate_history(code, course, fn) is the only way the chat path
+#               writes conversation history: both the main turn and the opener now
+#               APPEND/TRANSFORM atomically via store.update_history (CAS -- see
+#               store.py's hk note for why not a row lock: the lock version was
+#               silently wrong on SQLite and the hammer caught it losing 200 of 240
+#               appends with zero errors). The opener's junk-strip is re-applied to
+#               the FRESH history inside the transform (idempotent), so an opener
+#               racing a typed first message can no longer erase it. The file
+#               fallback does its read-transform-write under _sessions_lock.
+#               save_session remains for WHOLE-session writes (resets, imports) only.
 #   2026-08-17  APP_BUILD -> "2026-08-17hj-one-unit-owner". THE DEEPEST CUT OF PHASE 3.
 #               "Which unit is this student in" had FIVE competing answers reconciled
 #               ad hoc by four consumers -- the unit-rail bug's whole family. NEW
@@ -3380,6 +3391,27 @@ def _bounded_history(session: dict) -> dict:
     except Exception as exc:  # noqa: BLE001
         print(f"[session] history trim skipped: {exc}")
     return session
+
+
+def mutate_history(code: str, course: str, fn) -> None:
+    """build hk: THE ONLY WAY THE CHAT PATH WRITES HISTORY. `fn(history) -> history`
+    is applied atomically (store.update_history: one transaction, row-locked on
+    Postgres) so two overlapping turns can no longer erase each other -- the
+    lost-update race whose window was the model's multi-second latency. The file
+    fallback does its read-transform-write under _sessions_lock, which makes it
+    equally race-free in the single-process deploy that fallback exists for.
+    save_session below remains for WHOLE-session writes (resets, imports); new
+    chat-path code must use this instead."""
+    if store.enabled():
+        store.update_history(code, course, fn, cap=MAX_STORED_MESSAGES)
+        return
+    with _sessions_lock:
+        all_sessions = _read_all_sessions()
+        sess = all_sessions.get(_ck(code, course), {"history": []})
+        sess = dict(sess)
+        sess["history"] = list(fn(list(sess.get("history") or [])) or [])
+        all_sessions[_ck(code, course)] = _bounded_history(sess)
+        _write_all_sessions(all_sessions)
 
 
 def save_session(code: str, session: dict, course: str = "algebra1") -> None:
@@ -7645,7 +7677,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hj-one-unit-owner"
+APP_BUILD = "2026-08-17hk-no-lost-turns"
 
 
 @app.get("/health")
@@ -8547,9 +8579,15 @@ def chat(req: ChatRequest):
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         _record_learned(code, req.course, reply)
         _record_today_bar(code, req.course, reply)
-        history.append({"role": "assistant", "content": reply})
-        session["history"] = history
-        save_session(code, session, req.course)
+        # build hk: the junk-strip is re-applied to the FRESH history inside the
+        # atomic transform (idempotent), then the opener's reply is appended -- so an
+        # opener racing a typed first message can no longer erase it.
+        _opener_reply = {"role": "assistant", "content": reply}
+        mutate_history(code, req.course, lambda h: [
+            m for m in h
+            if not (m.get("role") == "user"
+                    and str(m.get("content", "")).strip().lower() in junk)
+        ] + [_opener_reply])
         return {"reply": reply}
 
     # build gi: BEFORE this turn is appended, `history` still ends with the tutor's
@@ -8562,11 +8600,13 @@ def chat(req: ChatRequest):
     # build gj: measure rule 37 -- a term with a written script, used without it.
     _record_unintroduced(code, req.course, reply, history)
 
-    # Remember this exchange so the tutor recalls it next time.
-    history.append({"role": "user", "content": message})
-    history.append({"role": "assistant", "content": reply})
-    session["history"] = history
-    save_session(code, session, req.course)
+    # Remember this exchange so the tutor recalls it next time. build hk: appended
+    # ATOMICALLY -- the fresh history is re-read under a row lock inside the store, so
+    # a concurrent turn's exchange (two tabs, a double-submit, a retry) survives
+    # beside this one instead of being overwritten by whichever save landed last.
+    _exchange = [{"role": "user", "content": message},
+                 {"role": "assistant", "content": reply}]
+    mutate_history(code, req.course, lambda h: h + _exchange)
 
     # Real tracking: the COURSE now teaches all 9 units starting at the student's
     # placed unit, so course activity counts as "learning" whatever unit they're on.
