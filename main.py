@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gu-cold-quiz". RULE 47 STOPS BEING A WISH. The
+#               second cause from the day's audit triage, and the most damning single find
+#               in it: the sentence "let's do it -- five questions, all on finding the
+#               percent of a number" was caught on 2026-08-11, rule 47(d) was WRITTEN from
+#               it, and the tutor produced it again WORD FOR WORD on 2026-08-17 -- because
+#               rule 47 was COVERED and nothing watched it. A child was told that two
+#               warm-up problems qualified them for a unit quiz on a unit never taught, and
+#               a five-question instrument wore the Unit Quiz's name into their record.
+#               cold_quiz_conflict (the sixteenth referee) enforces 47(d)'s own bar; rule 47
+#               moves COVERED -> ENFORCED.
 #   2026-08-17  APP_BUILD -> "2026-08-17gt-board-shapes". THE FIRST AUDIT FINDINGS CLOSED.
 #               Five lesson-audit runs (ten lessons, 27 findings, 6 HIGH) were triaged
 #               against their own transcripts -- 24 hold, 1 rejected with its reason, 2 weak
@@ -7233,7 +7243,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gt-board-shapes"
+APP_BUILD = "2026-08-17gu-cold-quiz"
 
 
 @app.get("/health")

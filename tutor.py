@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gu -- THE COLD-QUIZ REFEREE (rule 47(d)), the SIXTEENTH, and it is
+#               six days late. Two lines, side by side:
+#                 2026-08-11 audit:  "let's do it -- five questions, all on finding the
+#                                     percent of a number"
+#                 2026-08-17 audit:  "Let's do it - five questions, all on finding the
+#                                     percent of a number."
+#               WORD FOR WORD. Rule 47(d) was written FROM the first one; it fixes the
+#               instrument at TEN questions and forbids a smaller one wearing the Unit
+#               Quiz's name into a child's record. The tutor said it again unchanged
+#               because rule 47 was COVERED and nothing watched it. gm's lesson, twice
+#               over: a rule written from a real incident that fails again is a wish.
+#               Enforceable precisely BECAUSE 47(d) already fixed the number and already
+#               sanctioned the smaller instrument on one condition -- that the tutor says
+#               which one it is. So the check is the rule: a quiz is starting, the stated
+#               count is not ten, and the reply never names the instrument. 11 cases both
+#               directions; 0 false alarms on 1,015 canonical scripts. Note the negative
+#               lookahead in _CQ_NAMED -- 47(d)'s remedy REQUIRES mentioning the unit quiz
+#               ("the Unit 7 quiz also covers..."), so a bare mention test would have
+#               rejected the very sentence the rule asks for.
 #   2026-08-17  BUILD gt -- BOARD NOTATION LEARNS THREE MORE SHAPES, and the way they were
 #               found is the point. Five lesson-audit runs (ten lessons, 27 findings) turned
 #               up three malformed board lines that board_notation_conflict ALREADY EXISTED
@@ -2396,6 +2415,90 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE COLD-QUIZ CHECK (2026-08-17, build gu) -- rule 47(d), the SIXTEENTH referee.
+# -----------------------------------------------------------------------------
+# Read these two lines next to each other.
+#
+#   2026-08-11, the first full audit:   "let's do it -- five questions, all on finding
+#                                        the percent of a number"
+#   2026-08-17, six days later:         "Let's do it - five questions, all on finding
+#                                        the percent of a number."
+#
+# WORD FOR WORD. Rule 47(d) was WRITTEN from the first one. It says in as many words that
+# "Unit Quiz" may only introduce the real thing -- ten questions across the unit's topics
+# -- and that a smaller instrument must never wear the bigger one's name into a child's
+# record. The tutor produced the offending sentence again, unchanged, because rule 47 was
+# COVERED and nothing watched it.
+#
+# This is gm's lesson for the second time: A RULE WRITTEN FROM A REAL INCIDENT THAT FAILS
+# AGAIN IS NOT A RULE, IT IS A WISH. Rule 47 stops being a wish here.
+#
+# What makes it enforceable is that 47(d) already fixed the number -- TEN -- and already
+# sanctioned the smaller instrument on one condition: that the tutor SAYS which instrument
+# it is ("this is the percent-of-a-number quiz; the Unit 7 quiz also covers increase and
+# decrease, which we haven't met yet"). So the check IS the rule:
+#
+#   a quiz is STARTING, with a stated count that is not ten, and the reply never says
+#   which instrument this is.
+#
+# A ten-question unit quiz passes. A five-question topic quiz that NAMES itself passes --
+# that is 47(d)'s own remedy. Only the unnamed, undersized one fires.
+_CQ_START = re.compile(
+    r"\bno hints from me\b|\bjust show me what you'?ve got\b|\bhere'?s (?:your )?(?:the )?first "
+    r"question\b|\bquestion (?:one|1)\b|\blet'?s do it\b.{0,80}\bquestions?\b|"
+    r"\bstarting (?:the|your) quiz\b", re.I)
+_CQ_COUNT = re.compile(
+    r"\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d{1,2})\s+questions?\b",
+    re.I)
+# The reply says WHICH instrument this is -- 47(d)'s sanctioned form.
+# NOTE the negative lookahead. 47(d)'s remedy REQUIRES mentioning the unit quiz -- "the
+# Unit 7 quiz also covers increase and decrease, which we haven't met yet" -- so a bare
+# "mentions the unit quiz" test would reject the very sentence the rule asks for. What is
+# forbidden is CLAIMING to be it: "this is the real Unit 7 Quiz" while handing over five
+# questions. So "this is the <thing> quiz" counts as naming a smaller instrument only when
+# <thing> is not a unit.
+_CQ_NAMED = re.compile(
+    r"\btopic quiz\b|\bnot the unit quiz\b|\bthis is the (?!.{0,20}\bunit\b).{0,40}quiz\b|"
+    r"\bunit \d+ quiz also covers\b|\bpractice check\b|\bwarm[- ]?up quiz\b|"
+    r"\bquick check\b|\bnot the real\b", re.I)
+_CQ_UNITNAME = re.compile(r"\b(?:the )?(?:real )?unit(?: \d+)? quiz\b", re.I)
+_CQ_WORDNUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+               "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12}
+
+
+def cold_quiz_conflict(reply: str):
+    """Return a description of an undersized quiz wearing the Unit Quiz's clothes, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = re.sub(r"\[\[[^\]]*\]\]", " ", text)
+        starting = bool(_CQ_START.search(prose))
+        names_unit_quiz = bool(_CQ_UNITNAME.search(prose))
+        if not (starting or names_unit_quiz):
+            return ""
+        m = _CQ_COUNT.search(prose)
+        if not m:
+            return ""                      # no count claimed -- nothing to measure
+        tok = m.group(1).lower()
+        count = _CQ_WORDNUM.get(tok) or (int(tok) if tok.isdigit() else None)
+        if count is None or count == 10:
+            return ""                      # the real instrument, correctly sized
+        if _CQ_NAMED.search(prose):
+            return ""                      # a smaller quiz that SAYS what it is: allowed
+        return ("you are starting a quiz of {n} question{s} without saying which instrument "
+                "it is. Rule 47(d): the words \"Unit Quiz\" may only introduce the real "
+                "thing -- TEN questions across the whole unit's topics -- and a smaller "
+                "instrument must never wear the bigger one's name into a child's record. "
+                "This exact sentence was caught on 2026-08-11 and the rule was written from "
+                "it. Either give the real ten-question unit quiz, or name what this actually "
+                "is: \"this is the <topic> quiz -- the Unit N quiz also covers <the rest>, "
+                "which we haven't met yet.\"").format(n=count, s="" if count == 1 else "s")
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[coldquiz] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE SILENTLY-CHANGED-ANSWER CHECK (2026-08-17, build gr) -- the FIFTEENTH referee.
 # -----------------------------------------------------------------------------
 # Jim, live in Geometry, 2026-08-17, with the exact exchange:
@@ -3319,6 +3422,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         triletter = triangle_letter_conflict(reply)
         if triletter:
             return triletter
+        # build gu: SIXTEENTH -- rule 47(d), whose founding sentence reappeared verbatim
+        # six days after the rule was written from it.
+        coldquiz = cold_quiz_conflict(reply)
+        if coldquiz:
+            return coldquiz
         # build gr: FIFTEENTH -- it reads the student's own message, which is already here.
         answersign = answer_sign_conflict(reply, student_message)
         if answersign:

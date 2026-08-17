@@ -1648,6 +1648,42 @@ UNIT_CLAIM_CASES = [
      'Nice work today.[[unitplan unit="5" topics="a | b"]]', 1, False),
 ]
 
+# THE COLD-QUIZ CASES (2026-08-17, build gu) -- rule 47(d), born ENFORCED, six days late.
+# The founding sentence is quoted twice below ON PURPOSE, because it was SAID twice:
+# once in the 2026-08-11 audit that rule 47(d) was written from, and again, word for word,
+# in the 2026-08-17 audit -- because the rule was COVERED and nothing watched it.
+# A rule written from a real incident that fails again is not a rule, it is a wish (gm).
+# The clean cases include 47(d)'s OWN sanctioned remedy: a five-question topic quiz is
+# fine, provided the tutor says which instrument it is.
+COLD_QUIZ_CASES = [
+    ("the 2026-08-17 sentence, verbatim",
+     "Let's do it - five questions, all on finding the percent of a number. No hints from "
+     "me here, just show me what you've got.", True),
+    ("the 2026-08-11 sentence that rule 47(d) was written from, verbatim",
+     "let's do it -- five questions, all on finding the percent of a number", True),
+    ("undersized while calling itself the Unit Quiz",
+     "This is the real Unit 7 Quiz - five questions on percents.", True),
+    ("undersized, named as the unit quiz, no start words",
+     "This is the Unit 4 Quiz - six questions.", True),
+    # ---- and the forms 47(d) explicitly ALLOWS ----
+    ("the real instrument, correctly sized at ten",
+     "This is the real Unit 4 Quiz - ten questions covering everything in fractions. "
+     "No hints from me once we start.", False),
+    ("47(d)'s own remedy: a smaller quiz that names itself",
+     "This is the percent-of-a-number quiz - five questions. The Unit 7 quiz also covers "
+     "increase and decrease, which we have not met yet.", False),
+    ("a topic quiz named as a topic quiz",
+     "Time for the comparing-fractions topic quiz - five questions. No hints from me.", False),
+    ("a labelled practice check", "Here is a quick check, three questions - a practice "
+     "check, not the unit quiz.", False),
+    ("a quiz that claims no count at all",
+     "Let us do it. No hints from me here, just show me what you have got.", False),
+    ("no quiz in the reply at all",
+     "Nice work. Want to try one more problem together?", False),
+    ("prose that merely mentions questions",
+     "Good questions like that are how you learn. Let us try five problems together.", False),
+]
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -1730,6 +1766,14 @@ def part2_prose():
         check(f"triangle-letter stays out of the slot check: {name}",
               not tutor.triangle_letter_conflict(reply),
               "the lettering referee fired on a slot-only case")
+    for name, reply, should_flag in COLD_QUIZ_CASES:
+        got = tutor.cold_quiz_conflict(reply)
+        check(f"cold-quiz: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"cold-quiz: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the combined referee let it through")
     for name, reply, unit, should_flag in UNIT_CLAIM_CASES:
         got = tutor.unit_claim_conflict(reply, unit)
         check(f"unit-claim: {name}", bool(got) == should_flag,
@@ -3237,7 +3281,18 @@ RULE_VERIFY = {
                       "counts, and numbers elsewhere in the prose no longer exempt it)"),
     45: ("ENFORCED",  "prose_score_conflict regenerates a spoken score that fights its own tag"),
     46: ("COVERED",   "a quiz question tests one skill"),
-    47: ("COVERED",   "no cold quizzes"),
+    47: ("ENFORCED",  "no cold quizzes -- and 47(d) specifically, born enforced six days "
+                      "late (build gu). The sentence 'let's do it -- five questions, all on "
+                      "finding the percent of a number' was caught in the 2026-08-11 audit, "
+                      "rule 47(d) was WRITTEN from it, and the tutor produced it again WORD "
+                      "FOR WORD on 2026-08-17 because nothing watched the rule. "
+                      "cold_quiz_conflict fires when a quiz is starting, the stated count is "
+                      "not TEN, and the reply never says which instrument it is -- so 47(d)'s "
+                      "own remedy (a five-question topic quiz that names itself) passes. "
+                      "11 cases both directions, 0 false alarms on 1,015 canonical scripts. "
+                      "The (a)-(c) halves -- two unaided right answers before any quiz -- "
+                      "remain prompt-covered: a referee cannot count what happened in "
+                      "earlier turns"),
     48: ("ENFORCED",  "PART 3b/3f fail a course that writes notation it never reads aloud"),
     49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
     50: ("COVERED",   "chase an unfinished unit; PART 3k proves the bar is reachable"),
