@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hg -- ONE REPLY PIPELINE (Phase 2's backend half). The three
+#               reply getters were hand-copied variants of one sequence -- key check,
+#               model, history trim, client, _create_verified, fallback, post-nets,
+#               graceful catch-all -- and the copies had already cost real coverage
+#               twice: practice/topic ran for weeks with the fourteenth referee
+#               silently disarmed (re-armed in hb), and only lessons ran the TODAY
+#               net. NEW _reply_pipeline() is the single sequence; the getters are
+#               thin CONFIGURATIONS naming exactly what differs per lane: the prompt
+#               builder (passed as a CALLABLE so a prompt crash still degrades to the
+#               friendly message inside the try, never a 500 at a child), the
+#               referee's unit, the log tag, the telemetry name, the turn-note
+#               (lesson only, build cm) and the post-net (TODAY bar, lesson only).
+#               Every future referee/net/probe now lands in every lane by
+#               construction. Verified: the no-key path returns the identical message
+#               on all three lanes; one _create_verified call site; no getter builds
+#               its own client; ruletests PART 3ax guards all of it (mutation-tested:
+#               an eagerly-built prompt escaping the try is caught).
 #   2026-08-17  BUILD hb -- THE FOURTEENTH REFEREE IS RE-ARMED ON PRACTICE AND TOPIC.
 #               The full-app review found unit_claim_conflict silently DISARMED in both
 #               side-trip modes since build gn: they passed no "unit" in meta, and the
@@ -4338,20 +4355,31 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     return mathcheck.strip_verify_tags(reply)
 
 
-def get_tutor_reply(student: dict, history: list, user_message: str,
-                    course: str = DEFAULT_COURSE, code: str = "",
-                    turn_note: str = "") -> str:
-    """
-    Ask Claude for the tutor's next reply.
+def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
+                    meta: dict, where: str, label: str,
+                    turn_note: str = "", post=None) -> str:
+    """THE reply pipeline -- ONE copy (2026-08-17, build hg; full-app review Class B,
+    backend half). get_tutor_reply, get_practice_reply and get_topic_reply used to be
+    three hand-copied variants of this exact sequence, and they had ALREADY drifted
+    twice in ways that mattered: practice/topic shipped for weeks with the fourteenth
+    referee silently disarmed (no "unit" in meta -- re-armed in build hb), and only
+    the lesson lane ran ensure_today_tag. Every future stage -- a new referee, a new
+    net, a new probe -- used to need wiring three times, with ~1/3 odds per lane of
+    being missed. Now there is one sequence, and the getters are CONFIGURATIONS.
 
-    student       -- the student record (name, progress, ...)
-    history       -- prior conversation as a list of {"role","content"} dicts
-                     where role is "user" (the student) or "assistant" (tutor)
-    user_message  -- what the student just said
-
-    Returns the tutor's reply as plain text. On a configuration or API problem
-    it returns a friendly, human-readable message instead of crashing, so the
-    app keeps running and the tester sees a clear explanation.
+    prompt_fn  -- zero-arg callable building the system prompt. A CALLABLE on purpose:
+                  the prompt must be built INSIDE the try below, so a prompt-builder
+                  crash still yields the friendly message (as it always did), never a
+                  raw 500 to a child.
+    log_tag    -- " [lesson]" / " [practice]" / " [topic]" for the server log lines.
+    meta       -- code/course/mode plus the referee's expected "unit" (build gn/hb).
+    where      -- the telemetry name for a fail-open ("get_tutor_reply", ...).
+    label      -- the log-line prefix ("tutor", "practice", "topic").
+    turn_note  -- appended to THIS turn's user message, never the system prompt
+                  (build cm: the system prompt is one cached block; a note about this
+                  turn belongs beside this turn's message, where nothing is cached).
+    post       -- optional finishing net run on the verified reply, INSIDE the try:
+                  a net that crashes must degrade to the friendly message too.
     """
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
@@ -4362,13 +4390,6 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
     model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
 
     messages = _trim_history(list(history or []))
-    # PER-TURN NOTES RIDE WITH THE STUDENT'S MESSAGE, NOT THE SYSTEM PROMPT
-    # (2026-08-10, build cm). The system prompt is ONE cached block. Anything that
-    # changes it changes the cache prefix, so a note appended into it re-bills every
-    # token from that point on -- the build-ck misconception hint sat 63,629 characters
-    # in, which threw away ~16k tokens of cache on the exact turns it fired. A note is
-    # about THIS turn, so it belongs beside THIS turn's message, where nothing is cached
-    # anyway. The system prompt is now byte-identical from turn to turn.
     messages.append({"role": "user",
                      "content": (user_message + turn_note) if turn_note else user_message})
 
@@ -4378,24 +4399,44 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
         # see _create_verified above. Same model, same prompt, same max_tokens.
         reply = _create_verified(
             client, model,
-            _cacheable_system(build_system_prompt(student, course)),
-            messages, " [lesson]",
-            meta={"code": code, "course": course, "mode": "lesson",
-                  # build gn: the unit the SERVER puts this student in, so the fourteenth
-                  # referee can catch a reply that claims a different one. Derived exactly
-                  # as build_system_prompt derives it, from the same two inputs.
-                  "unit": _lesson_unit(student)},
+            _cacheable_system(prompt_fn()),
+            messages, log_tag, meta=meta,
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
-        # build bo: deterministic TODAY-bar net (lesson mode only) -- see ensure_today_tag.
-        return ensure_today_tag(ensure_board(reply, user_message, history), history,
-                                today_live=bool((student or {}).get("today_live")))
+        return post(reply) if post else reply
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.
-        print(f"[tutor] Claude API error: {exc}")
-        _event("failopen", "get_tutor_reply", str(exc), code, course)
+        print(f"[{label}] Claude API error: {exc}")
+        _event("failopen", where, str(exc),
+               (meta or {}).get("code", ""), (meta or {}).get("course", ""))
         return ("(I'm having trouble thinking right now -- give me a moment and "
                 "try again.)")
+
+
+def get_tutor_reply(student: dict, history: list, user_message: str,
+                    course: str = DEFAULT_COURSE, code: str = "",
+                    turn_note: str = "") -> str:
+    """Ask Claude for the tutor's next reply in a LESSON. One of three thin
+    configurations of _reply_pipeline above (build hg) -- the lane-specific facts
+    are the prompt, the referee's unit, the turn-note, and the TODAY-bar net.
+
+    PER-TURN NOTES RIDE WITH THE STUDENT'S MESSAGE, NOT THE SYSTEM PROMPT
+    (2026-08-10, build cm): the system prompt is ONE cached block; anything appended
+    to it re-bills every token from that point on. A note is about THIS turn, so it
+    belongs beside this turn's message, where nothing is cached anyway."""
+    return _reply_pipeline(
+        # build gn: the referee's "unit" is derived exactly as build_system_prompt
+        # derives it, from the same two inputs, so referee and prompt cannot disagree.
+        lambda: build_system_prompt(student, course),
+        history, user_message, " [lesson]",
+        meta={"code": code, "course": course, "mode": "lesson",
+              "unit": _lesson_unit(student)},
+        where="get_tutor_reply", label="tutor", turn_note=turn_note,
+        # build bo: deterministic TODAY-bar net -- LESSON MODE ONLY (the drift the
+        # review found: only this lane ever ran it, now that fact is legible here).
+        post=lambda reply: ensure_today_tag(
+            ensure_board(reply, user_message, history), history,
+            today_live=bool((student or {}).get("today_live"))))
 
 
 def _subject(course: str) -> str:
@@ -4457,55 +4498,22 @@ def build_practice_prompt(student: dict, problem: str, course: str = DEFAULT_COU
 
 def get_practice_reply(student: dict, problem: str, history: list, user_message: str,
                        course: str = DEFAULT_COURSE, code: str = "") -> str:
-    """
-    Ask Claude for the coach's next reply in a PRACTICE session.
+    """Ask Claude for the coach's next reply in a PRACTICE session. A thin
+    configuration of _reply_pipeline (build hg). Practice history is held by the
+    browser and passed in each request -- a homework problem is a one-off.
 
-    student       -- the student record (name, ...)
-    problem       -- the specific problem the student is stuck on (their words)
-    history       -- prior practice conversation [{"role","content"}, ...]
-    user_message  -- what the student just said (or the problem, on the first turn)
-
-    Practice history is held by the browser and passed in each request, so nothing
-    is persisted server-side -- a homework problem is a one-off. Returns plain text,
-    with a friendly message (never a stack trace) on any error.
-    """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        return ("(Setup needed: I can't reach my brain yet. Please add the "
-                "ANTHROPIC_API_KEY environment variable in Render, then reload "
-                "this page.)")
-
-    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
-
-    messages = _trim_history(list(history or []))
-    messages.append({"role": "user", "content": user_message})
-
-    try:
-        client = Anthropic(api_key=api_key)
-        # MATH VERIFIER (2026-08-03): generated AND refereed -- see _create_verified.
-        reply = _create_verified(
-            client, model,
-            _cacheable_system(build_practice_prompt(student, problem, course)),
-            messages, " [practice]",
-            # build hb: RE-ARM THE FOURTEENTH REFEREE ON THIS PATH. The full-app review
-            # found unit_claim_conflict silently disarmed in practice and topic mode --
-            # they passed no "unit", and the referee stays mute without one. The honest
-            # unit here is NOT the student's placed unit (a practice problem is a side
-            # trip and may come from any unit -- arming it with the placed unit would
-            # fire on correct teaching). It is the unit of the PROBLEM, which is exactly
-            # what build_practice_prompt already used to choose the playbook -- so the
-            # referee and the prompt cannot disagree, the build-gn property. Returns
-            # None for an unclassifiable problem, and the referee then stays silent
-            # rather than guessing.
-            meta={"code": code, "course": course, "mode": "practice",
-                  "unit": _unit_from_text(problem, course)},
-        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
-        return ensure_board(reply, user_message, history)
-    except Exception as exc:  # noqa: BLE001
-        print(f"[practice] Claude API error: {exc}")
-        _event("failopen", "get_practice_reply", str(exc), code, course)
-        return ("(I'm having trouble thinking right now -- give me a moment and "
-                "try again.)")
+    build hb: the fourteenth referee is armed with the unit of the PROBLEM -- the
+    same value build_practice_prompt uses for the playbook, so referee and prompt
+    cannot disagree (the gn property). None for an unclassifiable problem, and the
+    referee then stays silent rather than guessing. NEVER the placed unit: a side
+    trip may come from any unit, and the placed unit would fire on correct teaching."""
+    return _reply_pipeline(
+        lambda: build_practice_prompt(student, problem, course),
+        history, user_message, " [practice]",
+        meta={"code": code, "course": course, "mode": "practice",
+              "unit": _unit_from_text(problem, course)},
+        where="get_practice_reply", label="practice",
+        post=lambda reply: ensure_board(reply, user_message, history))
 
 
 def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) -> str:
@@ -4529,44 +4537,19 @@ def build_topic_prompt(student: dict, topic: str, course: str = DEFAULT_COURSE) 
 
 def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
                     course: str = DEFAULT_COURSE, code: str = "") -> str:
-    """
-    Ask Claude for the tutor's next reply in a TOPIC mini-lesson.
+    """Ask Claude for the guide's next reply in a TOPIC exploration. A thin
+    configuration of _reply_pipeline (build hg).
 
-    Same shape as get_practice_reply: topic history is held by the browser and passed
-    in each request, so nothing is persisted here. Returns plain text, with a friendly
-    message (never a stack trace) on any error.
-    """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        return ("(Setup needed: I can't reach my brain yet. Please add the "
-                "ANTHROPIC_API_KEY environment variable in Render, then reload "
-                "this page.)")
-
-    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
-
-    messages = _trim_history(list(history or []))
-    messages.append({"role": "user", "content": user_message})
-
-    try:
-        client = Anthropic(api_key=api_key)
-        # MATH VERIFIER (2026-08-03): generated AND refereed -- see _create_verified.
-        reply = _create_verified(
-            client, model,
-            _cacheable_system(build_topic_prompt(student, topic, course)),
-            messages, " [topic]",
-            # build hb: re-armed the same way practice mode is, from the unit of the
-            # TOPIC the student chose -- the same value build_topic_prompt used for the
-            # playbook. None when the topic cannot be classified, and the referee then
-            # stays silent rather than guessing.
-            meta={"code": code, "course": course, "mode": "topic",
-                  "unit": _unit_from_text(topic, course)},
-        ) or "(Sorry, I lost my train of thought. Could you say that again?)"
-        return ensure_board(reply, user_message, history)
-    except Exception as exc:  # noqa: BLE001
-        print(f"[topic] Claude API error: {exc}")
-        _event("failopen", "get_topic_reply", str(exc), code, course)
-        return ("(I'm having trouble thinking right now -- give me a moment and "
-                "try again.)")
+    build hb: the fourteenth referee is armed with the unit of the TOPIC the student
+    chose -- the same value build_topic_prompt uses for the playbook. None when the
+    topic cannot be classified; the referee then stays silent rather than guessing."""
+    return _reply_pipeline(
+        lambda: build_topic_prompt(student, topic, course),
+        history, user_message, " [topic]",
+        meta={"code": code, "course": course, "mode": "topic",
+              "unit": _unit_from_text(topic, course)},
+        where="get_topic_reply", label="topic",
+        post=lambda reply: ensure_board(reply, user_message, history))
 
 
 # I did no harm and this file is not truncated.

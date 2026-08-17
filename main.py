@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hg-one-pipeline". PHASE 2, BACKEND HALF: the
+#               three reply getters in tutor.py became thin configurations of ONE
+#               _reply_pipeline (see tutor.py's hg note). No main.py logic changed --
+#               this bump exists so /health can answer "did Render take it?".
 #   2026-08-17  APP_BUILD -> "2026-08-17hf-one-microphone". PHASE 2, PART FIVE -- the
 #               LAST triplicated frontend cluster, and the one where build gz's two
 #               live voice-answer defects were born. Unlike voice.js/board.js this was
@@ -7527,7 +7531,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hf-one-microphone"
+APP_BUILD = "2026-08-17hg-one-pipeline"
 
 
 @app.get("/health")

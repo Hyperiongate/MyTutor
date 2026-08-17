@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hg -- ONE REPLY PIPELINE: new PART 3ax (pipeline exists, exactly
+#               one _create_verified call site, no lane-private Anthropic clients, all
+#               three getters route through it, TODAY net stays lesson-only, prompts
+#               stay CALLABLES so they build inside the try). PART 3at's failopen
+#               needle and PART 3av's meta needles updated to the one-pipeline form.
+#               A lesson from installing it: the last function in a file needs an
+#               end-of-file boundary in body-extraction regexes, or its check reads an
+#               empty body and fails on healthy code.
 #   2026-08-17  BUILD hf -- ONE MICROPHONE: PART 3aw gains mic.js (functions + state,
 #               including micTypeHint, the per-page wording knob); the gr spoken-letter
 #               client checks (expectsALetter + expect=letter, the narrow gate) are
@@ -9421,7 +9429,12 @@ def part3at_eyes():
             ('_event("pass_through", "mathcheck"', "an unresolved-math pass-through is invisible again"),
             ('_event("probe", "countclaim"', "the countclaim probe stopped counting"),
             ('_event("probe", "markcheck"', "the markcheck probe stopped counting"),
-            ('_event("failopen", "get_tutor_reply"', "the teaching path's catch-all is dark again"),
+            # build hg: the catch-all lives ONCE in _reply_pipeline; the getters pass
+            # their names via where=. Both halves checked, so neither can vanish.
+            ('_event("failopen", where', "the unified pipeline's catch-all is dark again"),
+            ('where="get_tutor_reply"', "the lesson lane lost its telemetry name"),
+            ('where="get_practice_reply"', "the practice lane lost its telemetry name"),
+            ('where="get_topic_reply"', "the topic lane lost its telemetry name"),
             ('_event("promptsize"', "the ceiling alarms stopped counting")]:
         check(f"tutor wiring: {needle[:40]}...", needle in tutor_src, why)
     check("tutor.subsystems() reports the defensive imports",
@@ -9849,15 +9862,17 @@ def part3av_unit_referee_rearmed():
     # 1. THE WIRING. Both getters must pass a unit, and it must come from the same
     # derivation their prompt builder uses -- never from the student's placed unit.
     for mode, arg in (("practice", "problem"), ("topic", "topic")):
-        needle = f'"mode": "{mode}",\n                  "unit": _unit_from_text({arg}, course)'
+        # build hg: the getters are thin configurations of _reply_pipeline; the meta
+        # dict sits at the call, one indent shallower than before.
+        needle = f'"mode": "{mode}",\n              "unit": _unit_from_text({arg}, course)'
         check(f"{mode} mode arms the unit referee from the {arg}'s own unit",
               needle in tsrc,
               f"get_{mode}_reply no longer passes a unit derived from the {arg} -- the "
               f"referee is disarmed again, or (worse) armed with the placed unit, which "
               f"fires on correct teaching")
     check("neither side-trip mode arms the referee from the PLACED unit",
-          '"mode": "practice",\n                  "unit": _lesson_unit(' not in tsrc
-          and '"mode": "topic",\n                  "unit": _lesson_unit(' not in tsrc,
+          '"mode": "practice",\n              "unit": _lesson_unit(' not in tsrc
+          and '"mode": "topic",\n              "unit": _lesson_unit(' not in tsrc,
           "a practice problem may come from any unit; the placed unit would make this "
           "referee fire on correct teaching and regenerate good replies")
 
@@ -9961,6 +9976,61 @@ SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalys
                                 "stickBottom", "GRAPH_COLORS", "SPOT_MS"],
                    "mic.js": ["mediaStream", "mediaRecorder", "sendOnStop", "recTimer",
                               "micTypeHint"]}
+
+
+# =============================================================================
+# PART 3ax -- ONE REPLY PIPELINE (build hg)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 2's backend half. The three reply getters were hand-copied
+# variants of one sequence, and the copies had already cost real coverage twice:
+# practice/topic ran for weeks with the fourteenth referee silently disarmed (no
+# "unit" in meta -- found by the review, re-armed in hb), and only the lesson lane
+# ever ran ensure_today_tag. Every new referee/net/probe needed wiring three times,
+# ~1/3 odds per lane of being missed. _reply_pipeline is now the ONE sequence; the
+# getters are configurations. This part keeps it that way.
+# =============================================================================
+def part3ax_one_pipeline():
+    print("\nPART 3ax — one reply pipeline (build hg)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    check("_reply_pipeline exists", "def _reply_pipeline(" in tsrc,
+          "the unified pipeline is gone -- three hand-copied lanes are next")
+    # Exactly ONE live call of _create_verified (in the pipeline). More means a lane
+    # has broken away and will drift; fewer means nothing is refereed at all.
+    calls = len(re.findall(r"reply = _create_verified\(", tsrc))
+    check(f"_create_verified has exactly one call site ({calls})", calls == 1,
+          "a getter is calling the verifier directly again -- that lane's future "
+          "referees, nets and probes will need separate wiring, and will miss it")
+    # The teaching lanes build no Anthropic client of their own: pipeline + the
+    # assessment writer + the retired board net (kept dead, build gn) = 3.
+    clients = tsrc.count("Anthropic(api_key")
+    check(f"no getter constructs its own client ({clients} total)", clients == 3,
+          "a fourth Anthropic(...) appeared -- some path is bypassing the pipeline "
+          "and every referee in it")
+    for fn in ("get_tutor_reply", "get_practice_reply", "get_topic_reply"):
+        # get_topic_reply is the LAST function in the file, so the body must be
+        # bounded by next-def OR end-of-file -- with only next-def, the last
+        # lane's check reads an empty body and fails on healthy code.
+        body_m = re.search(r"def " + fn + r"\([\s\S]*?(?=\ndef |\Z)", tsrc)
+        body = body_m.group(0) if body_m else ""
+        check(f"{fn} goes through the pipeline", "_reply_pipeline(" in body,
+              "this lane broke away from the unified sequence")
+        check(f"{fn} does not call the verifier directly",
+              "_create_verified(" not in body,
+              "direct verifier calls are how the lanes drifted apart before")
+    # The lane-specific facts stay legible and correct:
+    check("only the lesson lane runs the TODAY-bar net",
+          tsrc.count("post=lambda reply: ensure_today_tag(") == 1,
+          "either the net vanished from lessons or a side-trip lane gained a bar "
+          "it has no UI for")
+    check("prompt building stays INSIDE the pipeline's try (a callable, not a string)",
+          "lambda: build_system_prompt(student, course)" in tsrc
+          and "lambda: build_practice_prompt(student, problem, course)" in tsrc
+          and "lambda: build_topic_prompt(student, topic, course)" in tsrc,
+          "a prompt built eagerly at the call site escapes the try -- a prompt-builder "
+          "crash would 500 at a child instead of degrading to the friendly message")
 
 
 def part3aw_one_copy():
@@ -10141,6 +10211,7 @@ def main():
     part3au_undeclared_identifiers()
     part3av_unit_referee_rearmed()
     part3aw_one_copy()
+    part3ax_one_pipeline()
     part3ai_deploy_stamp()
     if live:
         part4_live()
