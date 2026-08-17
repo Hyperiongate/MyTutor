@@ -2,6 +2,13 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD ha -- THE MORNING REPORT READS THE TELEMETRY. A new section in
+#               report_markdown reads store.event_stats(7) (the system_events table
+#               build ha added): referee crashes, browser errors, replies shipped with
+#               a known finding, fail-opens -- with the named offenders. The governor
+#               now sees the same health counters /admin does, so a dead check reaches
+#               Jim's inbox instead of waiting to be noticed. Fully wrapped: no store,
+#               no section, never a failed report.
 #   2026-08-16  NEW -- BUILD go. Jim, after a day in which every defect we fixed had been
 #               found by him personally, clicking through a lesson:
 #
@@ -372,6 +379,35 @@ def report_markdown(result, build="") -> str:
                   + f" — {t.get('what')}",
                   f"  - reviewer: _{t.get('reviewer') or '(no reason given)'}_"]
         L += [""]
+
+    # THE WEEK'S TELEMETRY (build ha -- EYES). The governor reads the same
+    # system_events table /admin does, so a crashed referee or a browser error spike
+    # arrives in the morning report instead of waiting for someone to open a dashboard.
+    # Wrapped completely: a watch with no store access still writes its report.
+    try:
+        import store as _store
+        ev = _store.event_stats(7)
+        counts = ev.get("counts") or {}
+        def _tot(kind):
+            return sum((counts.get(kind) or {}).values())
+        crashes, cerr = _tot("referee_crash"), _tot("clienterror")
+        passed, fails = _tot("pass_through"), _tot("failopen")
+        L += ["## The week's telemetry (system_events, 7 days)", "",
+              f"- referee crashes: **{crashes}**" + (" ← should be zero" if crashes else ""),
+              f"- browser errors reported: **{cerr}**" + (" ← should be zero" if cerr else ""),
+              f"- replies shipped WITH a known finding: **{passed}**"
+              + (" ← should be zero" if passed else ""),
+              f"- teaching-path fail-opens (friendly-message turns): **{fails}**",
+              f"- referee fires: {_tot('referee_fire')} · probe observations: "
+              f"{_tot('probe')} · prompt-size events: {_tot('promptsize')}", ""]
+        alarm = []
+        for kind in ("referee_crash", "clienterror", "pass_through"):
+            for nm, n in sorted((counts.get(kind) or {}).items(), key=lambda kv: -kv[1])[:5]:
+                alarm.append(f"  - {kind} · {nm}: {n}×")
+        if alarm:
+            L += ["  The named offenders:"] + alarm + [""]
+    except Exception as _exc:  # noqa: BLE001
+        L += ["## The week's telemetry", "", f"- (unavailable: {_exc})", ""]
 
     # WHAT WE DID NOT DO. A silent cap reads as "all clear".
     L += ["## What this run did not cover", ""]

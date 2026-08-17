@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (ha) 2026-08-17 -- THE TELEMETRY CARD (EYES, Phase 1 of the full-app review). New
+    card reading /api/admin/events: referee crashes, client errors (from the new
+    browser beacon), pass-throughs, teaching fail-opens, referee fires, probe
+    observations and prompt-size events, 7d/30d, plus the newest alarming events with
+    their names and details. The review's meta-finding was that all of these were
+    print-only -- a dead check and a healthy check looked identical everywhere.
+
     (gz) 2026-08-17 -- THE SHIPPED-UNRESOLVED COUNT IS VISIBLE. store.py used to fold
     "prose-unresolved" (a reply that went to a student WITH a known, unresolved referee
     finding) into verify_none, so this dashboard counted the worst outcome as "no tag".
@@ -69,7 +76,9 @@
     brand-mark.svg, clean vector; favicon updated too). Brand spots only; the robot face
     still represents Mr. Cadabra himself where he speaks.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
-  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>
+  <!-- build ha: error beacon FIRST, so it hears every later script's failure -->
+  <script src="/static/client-log.js"></script>. Pure add-on; nothing else changed.
   - 2026-08-03  NEW PAGE: JIM'S CENTRAL ADMIN DASHBOARD (/admin). One password-
                 protected place for everything Jim used to hunt across pages for:
                   * live status numbers -- signups, subscriptions + estimated
@@ -141,6 +150,10 @@
   .tile .tlab{font-size:13.5px;color:var(--muted);font-weight:700;margin-top:4px}
   .tile .tsub{font-size:12px;color:var(--muted);margin-top:4px}
   .tile.good .tval{color:#177a52}.tile.warn .tval{color:#8a5a12}.tile.bad .tval{color:#b3402e}
+  /* build ha: the telemetry card's recent-events list */
+  table.mini{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  table.mini th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
+  table.mini td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
   label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
   input.f{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
   input.f:focus{outline:none;border-color:var(--purple)}
@@ -363,6 +376,19 @@
     <p class="note" style="margin-top:12px">It never touches a live lesson &mdash; it teaches an
       audit student in the background. Turn it off with <b>NIGHTWATCH=off</b> in Render.
       The rendered <i>screen</i> is checked separately, by <b>screencheck.py</b>, on every push.</p>
+  </div></section>
+
+  <!-- Telemetry (build ha -- EYES, Phase 1 of the 2026-08-17 full-app review) -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#129658; Telemetry</h2>
+      <span class="note">the app watching itself &mdash; a dead check is a visible zero here</span></div>
+    <div class="note" id="tmLine">reading events&hellip;</div>
+    <div id="tmTiles" style="margin-top:10px"></div>
+    <div id="tmRecent" style="margin-top:12px"></div>
+    <p class="note" style="margin-top:12px">Referee <b>fires</b> are the checks working; referee
+      <b>crashes</b>, <b>client errors</b> and <b>pass-throughs</b> (a reply shipped WITH a known
+      finding) should be zero &mdash; each one is a real event with its name and detail below.
+      Rows age out after EVENTS_DAYS (default 90).</p>
   </div></section>
 
   <!-- Quick links -->
@@ -789,6 +815,49 @@
   function pwMsg(t, k) { var el = $("pwMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
   function bkMsg(t, k) { var el = $("bkMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
 
+  // ---------- telemetry (build ha) ----------
+  function tmCount(stats, kind) {
+    var m = (stats.counts || {})[kind] || {}, n = 0;
+    for (var k in m) n += m[k]; return n;
+  }
+  async function tmStatus() {
+    try {
+      var d = await api("/api/admin/events");
+      var s7 = d.stats7 || {counts: {}, total: 0}, s30 = d.stats30 || {counts: {}, total: 0};
+      var crashes = tmCount(s7, "referee_crash"), cerr = tmCount(s7, "clienterror");
+      var passed = tmCount(s7, "pass_through"), fails = tmCount(s7, "failopen");
+      var fires = tmCount(s7, "referee_fire"), probes = tmCount(s7, "probe");
+      var psize = tmCount(s7, "promptsize");
+      $("tmLine").textContent = s7.total + " events in 7 days (" + s30.total + " in 30)";
+      $("tmTiles").innerHTML = tiles([
+        { l: "Referee crashes (7d)", v: crashes, cls: crashes ? "bad" : "good",
+          s: "a crashed check protects nobody" },
+        { l: "Client errors (7d)", v: cerr, cls: cerr ? "bad" : "good",
+          s: "from the browser beacon" },
+        { l: "Shipped w/ finding (7d)", v: passed, cls: passed ? "bad" : "good",
+          s: "pass-throughs" },
+        { l: "Teaching fail-opens (7d)", v: fails, cls: fails ? "warn" : "good",
+          s: "friendly-message turns" },
+        { l: "Referee fires (7d)", v: fires, s: "checks doing their job" },
+        { l: "Probe observations (7d)", v: probes,
+          s: "countclaim / markcheck / unitdrift / termgap / rule37" },
+        { l: "Prompt-size events (7d)", v: psize, s: "deferrals + over-ceiling" }
+      ]);
+      var rec = d.recent || [];
+      if (rec.length) {
+        var rows = rec.slice(0, 20).map(function (r) {
+          return "<tr><td>" + (r.at || "").replace("T", " ").slice(0, 16) + "</td><td>" +
+                 r.kind + "</td><td>" + r.name + "</td><td>" +
+                 String(r.detail || "").slice(0, 140).replace(/</g, "&lt;") + "</td></tr>";
+        }).join("");
+        $("tmRecent").innerHTML = '<table class="mini"><tr><th>when (UTC)</th><th>kind</th>' +
+          "<th>name</th><th>detail</th></tr>" + rows + "</table>";
+      } else {
+        $("tmRecent").innerHTML = "";
+      }
+    } catch (e) { $("tmLine").textContent = "could not read telemetry: " + e.message; }
+  }
+
   // ---------- night watch (build gp) ----------
   function nwMsg(t, kind) { var e = $("nwMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
   async function nwStatus() {
@@ -986,7 +1055,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); nwStatus(); } catch (e) {}   // build dj: the Backups card's nightly status
+      try { bkStatus(); nwStatus(); tmStatus(); } catch (e) {}   // build dj backups + gp night watch + ha telemetry
       var now = new Date();
       $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
     } catch (e) {

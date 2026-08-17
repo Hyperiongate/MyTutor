@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD ha -- PART 3at, EYES: THE APP MUST WATCH ITSELF. Pins every piece
+#               of the telemetry build: the store layer answers safely with the DB off
+#               (record_event/event_stats/recent_events/last_event_at/purge), every one
+#               of tutor.py's ~19 crash handlers carries its _event call, the referee
+#               sweep counts fires by name, the pass-throughs/probes/promptsize/catch-
+#               alls are wired, /api/client-error + its flood guard exist, /health
+#               reports subsystems + ops ages, the heartbeat/backup/nightwatch stamp
+#               themselves, telemetry is purged, client-log.js is present AND the
+#               FIRST script on every teaching page (a script that loads before the
+#               beacon can crash unheard), the /admin card and the night watch's
+#               morning section read the counts. PAGE_PARITY gains the beacon needle.
 #   2026-08-17  BUILD gz -- PHASE 0 OF THE FULL-APP REVIEW. Four fixes, four sets of
 #               checks, three parts touched:
 #               PART 3h: the ceiling now has ONE definition (tutor.PROMPT_CEILING --
@@ -2913,6 +2924,9 @@ PAGE_PARITY = [
     # at page level AND assigned where the tutor's words are rendered.
     ("lastTutorText is declared at page level (gz)", 'let lastTutorText = ""'),
     ("lastTutorText is assigned when the tutor speaks (gz)", "lastTutorText = clean"),
+    # build ha: the error beacon must load on every teaching page -- and FIRST, so it
+    # is listening before any later script can throw (checked separately below).
+    ("the client error beacon is loaded (ha)", "/static/client-log.js"),
 ]
 
 # Lesson-page-only wiring (the today bar exists only there).
@@ -9183,6 +9197,118 @@ def part3as_phase0():
           "the most important number on the card lost its tile")
 
 
+# =============================================================================
+# PART 3at -- EYES (build ha): THE APP MUST WATCH ITSELF
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 1 of the full-app review. The meta-finding behind "5 of 6 audit
+# causes were a check that failed to fire": fail-open everywhere, observed nowhere.
+# These checks pin every piece of the telemetry build so it cannot silently rot:
+# the store layer, the tutor wiring, the endpoints, the beacon, the dashboards.
+# =============================================================================
+def part3at_eyes():
+    print("\nPART 3at — eyes: the app must watch itself (build ha)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    def _read(name):
+        with open(os.path.join(here, name), encoding="utf-8") as fh:
+            return fh.read()
+    main_src = _read("main.py")
+    tutor_src = _read("tutor.py")
+    nw_src = _read("nightwatch.py")
+    admin_src = _read(os.path.join("static", "admin.html"))
+
+    # 1. THE STORE LAYER. record_event must never raise -- prove it with the DB off
+    # (the battery's normal state), and prove the whole query surface answers.
+    try:
+        import store as _st
+        _st.record_event("selftest", "battery", "this row is never written (DB off)")
+        check("record_event never raises (DB off)", True, "")
+        stats = _st.event_stats(7)
+        check("event_stats answers with the DB off",
+              isinstance(stats, dict) and "counts" in stats and "total" in stats,
+              f"got {type(stats)}")
+        check("recent_events answers with the DB off",
+              _st.recent_events(hours=1, limit=5) == [], "should be an empty list")
+        check("last_event_at answers with the DB off",
+              _st.last_event_at("ops_pass", "heartbeat") is None, "should be None")
+        check("purge_system_events answers with the DB off",
+              _st.purge_system_events(90) == 0, "should be 0")
+    except Exception as exc:  # noqa: BLE001
+        bad("the events store layer is callable", str(exc))
+    check("the system_events table is defined",
+          '_tables["system_events"]' in _read("store.py"),
+          "the telemetry table is gone from store.py")
+
+    # 2. THE TUTOR WIRING. Every crash handler counts itself; the sweep counts fires.
+    import re as _re
+    crash_prints = len(_re.findall(r'crashed \(fail open\)', tutor_src))
+    crash_events = len(_re.findall(r'_event\("referee_crash"', tutor_src))
+    check(f"every tutor crash handler counts itself ({crash_events}/{crash_prints})",
+          crash_events >= crash_prints and crash_prints >= 19,
+          "a fail-open handler lost its _event call -- that check can die invisibly "
+          "again (the gl referee corrupted scripts for FOUR BUILDS unreported)")
+    fire_events = len(_re.findall(r'_event\("referee_fire"', tutor_src))
+    check(f"the referee sweep counts its fires ({fire_events} sites)",
+          fire_events >= 19,
+          "prose_board_conflict no longer records which referee fired")
+    for needle, why in [
+            ('_event("pass_through", "prosecheck"', "a shipped-with-finding reply is invisible again"),
+            ('_event("pass_through", "mathcheck"', "an unresolved-math pass-through is invisible again"),
+            ('_event("probe", "countclaim"', "the countclaim probe stopped counting"),
+            ('_event("probe", "markcheck"', "the markcheck probe stopped counting"),
+            ('_event("failopen", "get_tutor_reply"', "the teaching path's catch-all is dark again"),
+            ('_event("promptsize"', "the ceiling alarms stopped counting")]:
+        check(f"tutor wiring: {needle[:40]}...", needle in tutor_src, why)
+    check("tutor.subsystems() reports the defensive imports",
+          "def subsystems()" in tutor_src and hasattr(tutor, "subsystems")
+          and all(isinstance(v, bool) for v in tutor.subsystems().values()),
+          "/health's degradation report lost its source")
+
+    # 3. THE SERVER. Endpoint, health fields, heartbeat stamps, probe wiring, purge.
+    for needle, why in [
+            ('@app.post("/api/client-error")', "the browser is a black box again"),
+            ('_rate_limit("cerr:"', "the beacon endpoint lost its flood guard"),
+            ('"subsystems": subsystems', "/health no longer reports degradation"),
+            ('"ops": ops', "/health no longer reports ops ages"),
+            ('store.record_event("ops_pass", "heartbeat")', "the heartbeat no longer stamps itself"),
+            ('store.record_event("ops_pass", "backup"', "backups no longer stamp themselves"),
+            ('store.record_event("ops_pass", "nightwatch"', "the night watch no longer stamps itself"),
+            ('store.record_event("probe", "unitdrift"', "the unitdrift probe stopped counting"),
+            ('store.record_event("probe", "termgap"', "the termgap probe stopped counting"),
+            ('store.record_event("probe", "rule37"', "the rule37 probe stopped counting"),
+            ('store.purge_system_events(EVENTS_DAYS)', "telemetry can grow forever again"),
+            ('@app.get("/api/admin/events")', "the telemetry card lost its feed")]:
+        check(f"main wiring: {needle[:44]}...", needle in main_src, why)
+
+    # 4. THE BEACON FILE. Present, self-contained, defensive, and loaded FIRST.
+    cl = _read(os.path.join("static", "client-log.js"))
+    for needle, why in [
+            ('addEventListener("error"', "window errors are no longer captured"),
+            ('addEventListener("unhandledrejection"', "promise failures are no longer captured"),
+            ("navigator.sendBeacon", "reports no longer survive page unload"),
+            ("MAX_REPORTS", "the flood cap is gone")]:
+        check(f"client-log.js: {needle[:36]}...", needle in cl, why)
+    # All ten app pages carry it, and on each it is the FIRST script -- a script that
+    # loads before the beacon can crash unheard. (PAGE_PARITY already guards presence
+    # on the three teaching pages; this guards the rest, and the ordering everywhere.)
+    APP_PAGES = ("session.html", "topic.html", "practice.html", "demo.html",
+                 "challenge.html", "dashboard.html", "family.html", "teacher.html",
+                 "admin.html", "records.html")
+    for page in APP_PAGES:
+        src = _read(os.path.join("static", page))
+        first = src.find("<script")
+        check(f"{page}: the beacon is present and FIRST",
+              first >= 0 and "client-log.js" in src[first:first + 200],
+              "missing, or a script loads before it and can crash unheard")
+
+    # 5. THE DASHBOARDS. /admin card and the night watch's morning section.
+    check("admin.html has the telemetry card",
+          'id="tmTiles"' in admin_src and "/api/admin/events" in admin_src,
+          "the counts have nowhere to be seen")
+    check("nightwatch's report includes the week's telemetry",
+          "The week's telemetry" in nw_src and "event_stats(7)" in nw_src,
+          "a dead check no longer reaches the morning report")
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -9238,6 +9364,7 @@ def main():
     part3aq_refused_demonstration()
     part3ar_rule_spoken_as_law()
     part3as_phase0()
+    part3at_eyes()
     part3ai_deploy_stamp()
     if live:
         part4_live()

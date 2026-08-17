@@ -2,6 +2,29 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17ha-eyes". PHASE 1 OF THE FULL-APP REVIEW: THE
+#               APP WATCHES ITSELF. The review's meta-finding: fail-open everywhere,
+#               observed nowhere -- ~19 print-only crash handlers, probes printing to
+#               logs nobody aggregates, a browser with zero error reporting, and a
+#               teaching path whose failures can never reach store.record_error. Now:
+#               (1) store.system_events + record_event/event_stats/recent_events/
+#               last_event_at/purge_system_events (see store.py ha note);
+#               (2) tutor.py counts every referee FIRE and CRASH by name, every
+#               pass-through, every probe hit, both promptsize alarms, and the three
+#               teaching-path catch-alls (see tutor.py ha note);
+#               (3) NEW POST /api/client-error -- static/client-log.js (loaded FIRST on
+#               the ten app pages) beacons window.onerror/unhandledrejection here;
+#               rate-limited per IP, hard caps, silently drops floods;
+#               (4) /health now reports SUBSYSTEMS (which defensive imports loaded --
+#               a broken mathcheck.py is a visible False instead of a silent
+#               unverified tutor) and OPS AGES (seconds since the last heartbeat /
+#               backup / night-watch pass -- a dead ops thread is a growing number);
+#               (5) the heartbeat, backup, nightwatch and purge passes stamp
+#               system_events; the purge pass also ages out telemetry (EVENTS_DAYS,
+#               default 90);
+#               (6) NEW GET /api/admin/events feeds the /admin Telemetry card;
+#               nightwatch's morning report gains "The week's telemetry" with named
+#               offenders. Probes ([unitdrift], [termgap], [rule37]) count themselves.
 #   2026-08-17  APP_BUILD -> "2026-08-17gz-stop-the-bleeding". PHASE 0 OF THE FULL-APP
 #               REVIEW (six independent review passes over every file; findings and the
 #               six-classes attack plan live in the project doc Full_App_Review_2026-08-17).
@@ -5484,6 +5507,12 @@ def _digest_loop():
     never stop the other."""
     while True:
         time.sleep(1800)          # sleep FIRST: never race the module import at boot
+        # build ha: the heartbeat stamps itself so /health can report its AGE. A loop
+        # that dies between ticks used to be invisible; now it is a growing number.
+        try:
+            store.record_event("ops_pass", "heartbeat")
+        except Exception:  # noqa: BLE001 -- the stamp must never stop the passes
+            pass
         try:
             _weekly_digest_pass()
         except Exception as exc:  # noqa: BLE001
@@ -5562,6 +5591,9 @@ def _nightwatch_pass() -> None:
           f"{len(result.get('new', []))} new \u00b7 {result.get('recurring', 0)} known \u00b7 "
           f"{result.get('refuted', 0)} refuted \u00b7 {result.get('seconds', 0)}s"
           + (f" \u00b7 {path}" if path else ""))
+    store.record_event("ops_pass", "nightwatch",
+                       f"{result.get('ran', 0)} lessons, {len(result.get('new', []))} new, "
+                       f"{result.get('refuted', 0)} refuted, {result.get('seconds', 0)}s")
     digest = nightwatch.email_digest(result, APP_BUILD)
     if digest:
         subject, body = digest
@@ -5571,6 +5603,7 @@ def _nightwatch_pass() -> None:
 
 
 USAGE_LOG_DAYS = int(os.environ.get("USAGE_LOG_DAYS", "180") or 180)
+EVENTS_DAYS = int(os.environ.get("EVENTS_DAYS", "90") or 90)   # build ha: telemetry retention
 _last_usage_purge = [0.0]
 
 
@@ -5616,6 +5649,8 @@ def _backup_pass() -> None:
     os.replace(tmp, _BACKUP_DIR / name)              # atomic: never a half-written snapshot
     print(f"[backup] wrote {name} ({len(counts)} tables, {sum(counts.values())} rows, "
           f"{len(blob):,} bytes)")
+    store.record_event("ops_pass", "backup",
+                       f"{name}: {sum(counts.values())} rows, {len(blob)} bytes")
     for p in sorted(_BACKUP_DIR.glob("backup-*.json.gz"))[:-BACKUP_KEEP]:
         try:
             p.unlink()
@@ -5637,6 +5672,11 @@ def _usage_purge_pass() -> None:
     removed = store.purge_usage_log(USAGE_LOG_DAYS)
     if removed:
         print(f"[usage] purged {removed} rows older than {USAGE_LOG_DAYS} days")
+    # build ha: the telemetry table obeys the same discipline -- it can never grow
+    # forever. Counts only, so nothing about a student is lost when rows age out.
+    removed_ev = store.purge_system_events(EVENTS_DAYS)
+    if removed_ev:
+        print(f"[events] purged {removed_ev} rows older than {EVENTS_DAYS} days")
 
 
 _digest_thread_started = False
@@ -6079,6 +6119,23 @@ def admin_backup_status(key: str = "",
 # file on the persistent disk that nothing served, so the only readable output was a
 # one-line count in the Render log. A governor whose reports are hard to reach is a
 # governor that gets ignored -- go's own header says so, and go proved it in twelve hours.
+@app.get("/api/admin/events")
+def admin_events(key: str = "",
+                 x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """build ha: the telemetry card's feed. 7- and 30-day event counts grouped
+    kind -> name -> count, plus the newest alarming events (crashes, client errors,
+    pass-throughs) so a spike has faces, not just a number."""
+    _require_admin(x_admin_key or key)
+    return {
+        "ok": True,
+        "stats7": store.event_stats(7),
+        "stats30": store.event_stats(30),
+        "recent": store.recent_events(hours=168, limit=50,
+                                      kinds=["referee_crash", "clienterror",
+                                             "pass_through", "failopen", "promptsize"]),
+    }
+
+
 @app.get("/api/admin/nightwatch/status")
 def admin_nightwatch_status(key: str = "",
                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -7325,20 +7382,83 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gz-stop-the-bleeding"
+APP_BUILD = "2026-08-17ha-eyes"
 
 
 @app.get("/health")
 def health():
     """Simple check that the service is up (handy for Render). Includes the active
-    student-facing model and DB status so you can confirm both at a glance."""
+    student-facing model and DB status so you can confirm both at a glance.
+
+    build ha (2026-08-17): DEGRADATION IS REPORTED, NOT SWALLOWED. `subsystems` says
+    which defensive imports actually loaded (False = that capability silently off --
+    a broken mathcheck.py used to ship an unverified tutor indistinguishable from a
+    healthy one). `ops` gives the AGE in seconds of the last heartbeat / backup /
+    night-watch pass (null = never recorded or DB off) -- a dead ops thread becomes
+    a number you can alarm on instead of a silence. Booleans and ages only: nothing
+    here leaks content or secrets."""
+    subsystems = {"misconceptions": misconceptions is not None,
+                  "foundations": foundations is not None,
+                  "sprints": sprints is not None,
+                  "nightwatch": nightwatch is not None}
+    try:
+        subsystems.update(tutor.subsystems())
+    except Exception as exc:  # noqa: BLE001
+        print(f"[health] tutor.subsystems failed: {exc}")
+    ops = {}
+    try:
+        from datetime import datetime as _hdt, timezone as _htz
+        for nm in ("heartbeat", "backup", "nightwatch"):
+            ts = store.last_event_at("ops_pass", nm)
+            if ts is not None and ts.tzinfo is None:
+                ts = ts.replace(tzinfo=_htz.utc)
+            ops[nm + "_age_s"] = (int((_hdt.now(_htz.utc) - ts).total_seconds())
+                                  if ts else None)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[health] ops ages failed: {exc}")
+        ops = {"heartbeat_age_s": None, "backup_age_s": None, "nightwatch_age_s": None}
     return {
         "status": "ok",
         "build": APP_BUILD,
         "students_loaded": len(STUDENTS),
         "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
         "storage": store.status(),
+        "subsystems": subsystems,
+        "ops": ops,
     }
+
+
+class ClientErrorIn(BaseModel):
+    page: str = ""
+    message: str = ""
+    stack: str = ""
+    url: str = ""
+
+
+@app.post("/api/client-error")
+def client_error(body: ClientErrorIn, request: Request):
+    """build ha (2026-08-17): THE BROWSER STOPS BEING A BLACK BOX. The full-app review
+    found ~70 empty catch blocks and zero client->server error reporting -- two
+    JavaScript defects (undeclared variables killing every spoken answer on /topic and
+    /practice) fired on every use, invisibly, until a human review read the source.
+    static/client-log.js beacons window.onerror / unhandledrejection here.
+    Deliberately unauthenticated (errors happen on the login page too), so it is
+    strictly bounded instead: per-IP rate limit, hard field caps, counts-and-messages
+    only, and the standard purge. Never returns an error to the page -- an error
+    reporter that errors is noise."""
+    try:
+        _rate_limit("cerr:" + _client_ip(request), limit=10, window_seconds=300,
+                    what="error reports")
+    except HTTPException:
+        return {"ok": True}     # silently drop the flood; never punish the page
+    page = re.sub(r"[^A-Za-z0-9_./-]", "", str(body.page or ""))[:80]
+    msg = " ".join(str(body.message or "").split())[:300]
+    stack = " ".join(str(body.stack or "").split())[:400]
+    url = str(body.url or "")[:120]
+    print(f"[clienterror] {page or url}: {msg}")
+    store.record_event("clienterror", page or url or "unknown",
+                       msg + ((" | " + stack) if stack else ""))
+    return {"ok": True}
 
 
 @app.post("/api/login")
@@ -7713,6 +7833,9 @@ def _probe_unit_drift(code: str, course: str, reply: str, declared, tracked) -> 
             print(f"[unitdrift] code={code[:3]}*** course={course} declared={declared} "
                   f"classified={classified} tracked={tracked} -- the tutor, the content and "
                   f"the tracker disagree about which unit this lesson is in")
+            store.record_event("probe", "unitdrift",
+                               f"declared={declared} classified={classified} "
+                               f"tracked={tracked}", code, course)
     except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
         print(f"[unitdrift] probe failed (ignored): {exc}")
 
@@ -7793,6 +7916,7 @@ def _record_term_gap(code: str, course: str, message: str, history) -> None:
         else:
             print(f"[termgap] unintroduced [{course}] \"{term}\" -- we have a script for "
                   f"this and the tutor used the word without delivering it (rule 36)")
+        store.record_event("probe", "termgap", f"{kind}: {term}", code, course)
     except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
         print(f"[termgap] probe failed (ignored): {exc}")
 
@@ -7875,6 +7999,7 @@ def _record_unintroduced(code: str, course: str, reply: str, history) -> None:
             print(f"[rule37] [{course}] \"{canon}\" was said for the first time with no "
                   f"canonical introduction -- we have a written script and a voice clip "
                   f"for it, and this student did not get them")
+            store.record_event("probe", "rule37", canon, course=course)
     except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
         print(f"[rule37] probe failed (ignored): {exc}")
 

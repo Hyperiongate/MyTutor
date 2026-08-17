@@ -68,7 +68,9 @@
     "do I add a child first?" answers itself.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  NAV: added the shared /static/site-nav.js include -> a "College level math" dropdown (Calculus, Differential Equations) in the top nav. Pure add-on.
-  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>
+  <!-- build ha: error beacon FIRST, so it hears every later script's failure -->
+  <script src="/static/client-log.js"></script>. Pure add-on; nothing else changed.
   - 2026-08-03  FAMILY PLAN — ONE PLAN COVERS UP TO 2 CHILDREN. The plan card now reads the
     server's per-child "covered" flag (never recomputes coverage from the seat count, so the
     display can't drift from real access), the subscribe totals bill by PAIRS of children

@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD ha -- EYES: THE system_events TABLE. Phase 1 of the full-app
+#               review. The review's meta-finding: fail-open was applied ~19 times with
+#               print-only reporting, so a crashed referee, a dead heartbeat and a healthy
+#               system all looked identical -- which is exactly why "5 of 6 audit causes
+#               were a check that failed to fire". New table system_events + record_event
+#               (never raises, no-ops when the DB is off), event_stats (kind->name->count
+#               for /admin and the night watch), recent_events (the telemetry card's
+#               list), last_event_at (powers /health's heartbeat/backup/nightwatch AGES),
+#               purge_system_events (rides the heartbeat purge pass, default 90 days).
+#               Tally only: short details, never conversation text, never secrets.
 #   2026-08-17  BUILD gz -- THE WORST VERIFY STATUS IS NO LONGER INVISIBLE. usage_stats()
 #               groups usage_log.verify_status into verify_* keys, but any status not in
 #               its init dict fell into verify_none -- and the statuses that fell were
@@ -854,6 +864,27 @@ def init():
             Column("tts_cache_hit", Integer, default=0), # 1 = served from disk cache ($0)
             Column("attempts", Integer, default=1),      # model calls this turn (verifier retries)
             Column("verify_status", String(16), default=""),  # ok|fixed|unresolved|unverifiable|none
+            Column("created_at", DateTime(timezone=True), index=True),
+        )
+        # SYSTEM EVENTS (2026-08-17, build ha -- "EYES"): the app's own health, counted.
+        # One row per noteworthy internal event: a referee FIRING or CRASHING, a reply
+        # passed through with a known finding, a probe observation, a prompt-size
+        # deferral, an ops heartbeat pass, a browser error reported by /api/client-error.
+        # COUNTS AND SHORT DETAILS ONLY -- never conversation text, never secrets.
+        # This is the answer to the 2026-08-17 full-app review's meta-finding: the
+        # codebase applied fail-open ~19 times with print-only reporting, so a dead
+        # check and a healthy check looked identical ("5 of 6 audit causes were a check
+        # that failed to fire"). Fail-open is only safe when failures are COUNTED.
+        _tables["system_events"] = Table(
+            "system_events", _meta,
+            Column("id", String(64), primary_key=True),
+            Column("kind", String(24), index=True),   # referee_fire | referee_crash | pass_through
+                                                      # | probe | failopen | promptsize | ops_pass
+                                                      # | clienterror
+            Column("name", String(80), index=True),   # which referee / probe / pass / page
+            Column("detail", Text),                   # short and truncated
+            Column("code", String(64)),               # student code when known ('' otherwise)
+            Column("course", String(32)),
             Column("created_at", DateTime(timezone=True), index=True),
         )
         _meta.create_all(_engine)
@@ -2800,6 +2831,109 @@ def record_error(where: str, what: str) -> None:
                 what=(what or "")[:4000]))
     except Exception as exc:  # noqa: BLE001
         print(f"[error-log] could not record error: {exc}")
+
+
+def record_event(kind: str, name: str, detail: str = "", code: str = "",
+                 course: str = "") -> None:
+    """Count one internal health event (build ha -- see the system_events table note).
+    Best-effort by design: NEVER raises, never slows a lesson, silently no-ops when the
+    DB is off (the caller's print() still reaches the Render log either way). Keep
+    `detail` short and free of conversation text -- this table is a tally, not a
+    transcript."""
+    if not _ENABLED:
+        return
+    try:
+        import uuid as _uuid
+        t = _tables["system_events"]
+        with _engine.begin() as conn:
+            conn.execute(t.insert().values(
+                id=_uuid.uuid4().hex, kind=str(kind or "")[:24], name=str(name or "")[:80],
+                detail=str(detail or "")[:1000], code=str(code or "")[:64],
+                course=str(course or "")[:32], created_at=_now()))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] could not record {kind}/{name}: {_redact(str(exc))}")
+
+
+def event_stats(days: int = 7) -> dict:
+    """Event counts for /admin and the night watch, grouped kind -> name -> count.
+    All-zeros when the DB is off; any query error is swallowed (never 500s)."""
+    out = {"days": int(days), "total": 0, "counts": {}}
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func
+    try:
+        t = _tables["system_events"]
+        cutoff = _now() - _dt.timedelta(days=int(days))
+        with _engine.connect() as conn:
+            for kind, name, n in conn.execute(
+                    select(t.c.kind, t.c.name, func.count())
+                    .where(t.c.created_at >= cutoff)
+                    .group_by(t.c.kind, t.c.name)).fetchall():
+                out["counts"].setdefault(kind or "", {})[name or ""] = int(n or 0)
+                out["total"] += int(n or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] stats failed: {_redact(str(exc))}")
+    return out
+
+
+def recent_events(hours: int = 168, limit: int = 50, kinds=None) -> list:
+    """Newest-first events in the window for the /admin telemetry card. `kinds` is an
+    optional list to filter to (e.g. the alarming ones). Empty list on any failure."""
+    if not _ENABLED:
+        return []
+    from sqlalchemy import select
+    try:
+        t = _tables["system_events"]
+        cutoff = _now() - _dt.timedelta(hours=int(hours))
+        q = select(t.c.kind, t.c.name, t.c.detail, t.c.code, t.c.course, t.c.created_at
+                   ).where(t.c.created_at >= cutoff)
+        if kinds:
+            q = q.where(t.c.kind.in_(list(kinds)))
+        q = q.order_by(t.c.created_at.desc()).limit(max(1, min(int(limit), 200)))
+        with _engine.connect() as conn:
+            rows = conn.execute(q).fetchall()
+        return [{"kind": r[0], "name": r[1], "detail": r[2], "code": r[3],
+                 "course": r[4], "at": (r[5].isoformat() if r[5] else "")} for r in rows]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] recent failed: {_redact(str(exc))}")
+        return []
+
+
+def last_event_at(kind: str, name: str = ""):
+    """The newest created_at for an event kind (optionally a specific name), or None.
+    Powers /health's ops ages: 'when did the heartbeat / backup / night watch last
+    run?' -- a dead ops thread becomes a visible number instead of a silence."""
+    if not _ENABLED:
+        return None
+    from sqlalchemy import select, func
+    try:
+        t = _tables["system_events"]
+        q = select(func.max(t.c.created_at)).where(t.c.kind == str(kind or "")[:24])
+        if name:
+            q = q.where(t.c.name == str(name or "")[:80])
+        with _engine.connect() as conn:
+            return conn.execute(q).scalar()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] last_event_at failed: {_redact(str(exc))}")
+        return None
+
+
+def purge_system_events(days: int = 90) -> int:
+    """Delete events older than `days`. Returns how many went. Never raises. Rides the
+    same heartbeat purge pass as the usage log (main._usage_purge_pass)."""
+    from sqlalchemy import delete
+    try:
+        d = int(days or 0)
+        if d <= 0 or not _ENABLED:
+            return 0
+        cutoff = _now() - _dt.timedelta(days=d)
+        t = _tables["system_events"]
+        with _engine.begin() as conn:
+            res = conn.execute(delete(t).where(t.c.created_at < cutoff))
+        return int(res.rowcount or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] purge failed: {_redact(str(exc))}")
+        return 0
 
 
 def recent_errors(hours: int = 24, limit: int = 50) -> list:

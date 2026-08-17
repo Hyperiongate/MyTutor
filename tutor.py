@@ -2,6 +2,21 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD ha -- EYES (Phase 1 of the full-app review). The review's
+#               meta-finding: this file applied fail-open ~19 times with print-only
+#               reporting, so a crashed referee and a healthy one emitted identical
+#               signals -- store.record_error was unreachable from the teaching path
+#               because get_tutor_reply converts every exception to a friendly string.
+#               A referee here once corrupted authored foundation scripts for FOUR
+#               BUILDS unreported (gl -> gw). Now: a tiny _event() helper writes one
+#               row to store.system_events (never raises, no-ops when the store is
+#               off) and EVERYTHING counts itself -- every referee FIRE (all 19 paths
+#               in prose_board_conflict, by name), every referee CRASH (all 19 fail-open
+#               handlers + mathcheck's), every PASS-THROUGH (a reply shipped with a
+#               known finding, mathcheck or prosecheck), every probe observation
+#               (countclaim, markcheck), both [promptsize] alarms, and the three
+#               teaching-path catch-alls (failopen). A dead check is now a visible
+#               zero on /admin instead of a silence.
 #   2026-08-17  BUILD gz -- THE PROMPT CEILING IS ENFORCED WHERE THE PROMPT IS BUILT.
 #               Full-app review, Phase 0. The 180,000-char ceiling lived only in a
 #               ruletests measurement taken with a FRESH student; a returning student who
@@ -1459,6 +1474,29 @@ except Exception as _exc:  # noqa: BLE001
     store = None
     print(f"[tutor] store unavailable -- usage logging off: {_exc}")
 
+
+def subsystems() -> dict:
+    """Which of this module's defensive imports actually loaded (build ha). False means
+    that capability is silently OFF on this deploy -- a broken mathcheck.py used to ship
+    an unverified tutor indistinguishable from a healthy one. /health reports this."""
+    return {"mathcheck": mathcheck is not None, "store": store is not None,
+            "foundations": foundations is not None, "pedagogy": pedagogy is not None,
+            "curriculum": curriculum is not None, "notation": notation is not None,
+            "misconceptions_playbook": misconceptions is not None}
+
+
+def _event(kind: str, name: str, detail: str = "", code: str = "", course: str = "") -> None:
+    """Count one health event (build ha -- EYES). The 2026-08-17 review's meta-finding:
+    ~19 fail-open handlers reported crashes to stdout only, so a dead referee and a
+    healthy one looked identical. Every referee FIRE, every referee CRASH, every
+    pass-through and probe observation now writes one row to store.system_events.
+    Never raises, never slows a turn, no-ops when the store is off."""
+    try:
+        if store is not None:
+            store.record_event(kind, name, str(detail or "")[:300], code, course)
+    except Exception:  # noqa: BLE001 -- telemetry must never harm a lesson
+        pass
+
 # The default course. Until the course picker (Phase 3 UI) supplies a course, everything
 # resolves to Algebra I, so single-course behavior is exactly as before.
 DEFAULT_COURSE = "algebra1"
@@ -1669,12 +1707,16 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
         print(f"[promptsize] {course}: {len(prompt):,} chars exceeds the "
               f"{PROMPT_CEILING:,} ceiling -- deferring heard-script wording "
               f"(build cl mechanism) -> {len(slim):,} chars")
+        _event("promptsize", "deferred", f"{course}: {len(prompt)} -> {len(slim)}",
+               course=course)
         prompt = slim
     if len(prompt) > PROMPT_CEILING:
         # Still over (or a refresher turn deliberately carrying the words): say so
         # LOUDLY every time. A silent overflow is how this shipped twice before.
         print(f"[promptsize] OVER CEILING: {course}: {len(prompt):,} chars "
               f"(ceiling {PROMPT_CEILING:,}; force_verbatim={force_verbatim})")
+        _event("promptsize", "over-ceiling",
+               f"{course}: {len(prompt)} (force_verbatim={force_verbatim})", course=course)
     return prompt
 
 
@@ -2109,6 +2151,7 @@ def prose_visual_conflict(reply: str, student_message: str = ""):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[viscHeck] crashed (fail open): {exc}")
+        _event("referee_crash", "viscHeck", str(exc))
         return ""
 
 
@@ -2274,6 +2317,7 @@ def prose_pending_question_conflict(reply: str):
                 '(rule 6).').format(q=asked)
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[pendcheck] crashed (fail open): {exc}")
+        _event("referee_crash", "pendcheck", str(exc))
         return ""
 
 
@@ -2376,6 +2420,7 @@ def prose_self_answer_conflict(reply: str):
                 ).format(q=" ".join(asked.split())[:70], t=" ".join(tail.split())[:60])
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[selfanswer] crashed (fail open): {exc}")
+        _event("referee_crash", "selfanswer", str(exc))
         return ""
 
 
@@ -2467,6 +2512,7 @@ def fraction_rule_unconditioned(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[frac61] crashed (fail open): {exc}")
+        _event("referee_crash", "frac61", str(exc))
         return ""
 
 
@@ -2564,6 +2610,7 @@ def board_notation_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[boardnote] crashed (fail open): {exc}")
+        _event("referee_crash", "boardnote", str(exc))
         return ""
 
 
@@ -2635,6 +2682,7 @@ def triangle_side_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[triangleslot] crashed (fail open): {exc}")
+        _event("referee_crash", "triangleslot", str(exc))
         return ""
 
 
@@ -2715,6 +2763,7 @@ def refused_demonstration_conflict(reply: str, student_message: str = ""):
                 'to "please show me".').format(s=said[:60])
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[refusedshow] crashed (fail open): {exc}")
+        _event("referee_crash", "refusedshow", str(exc))
         return ""
 
 
@@ -2766,6 +2815,7 @@ def count_claim_probe(reply: str, code: str = "", course: str = "") -> None:
             print(f"[countclaim] code={str(code)[:3]}*** course={course} -- the reply "
                   f"asserts something about the past that nothing here can check: "
                   f"...{claim}...")
+            _event("probe", "countclaim", claim, code, course)
     except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
         print(f"[countclaim] probe failed (ignored): {exc}")
 
@@ -2851,6 +2901,7 @@ def cold_quiz_conflict(reply: str):
                 "which we haven't met yet.\"").format(n=count, s="" if count == 1 else "s")
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[coldquiz] crashed (fail open): {exc}")
+        _event("referee_crash", "coldquiz", str(exc))
         return ""
 
 
@@ -2961,6 +3012,7 @@ def answer_sign_conflict(reply: str, student_message: str = ""):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[answersign] crashed (fail open): {exc}")
+        _event("referee_crash", "answersign", str(exc))
         return ""
 
 
@@ -3023,6 +3075,7 @@ def unit_claim_conflict(reply: str, expected_unit=None):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[unitclaim] crashed (fail open): {exc}")
+        _event("referee_crash", "unitclaim", str(exc))
         return ""
 
 
@@ -3127,6 +3180,7 @@ def triangle_letter_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[triangleletter] crashed (fail open): {exc}")
+        _event("referee_crash", "triangleletter", str(exc))
         return ""
 
 
@@ -3206,6 +3260,7 @@ def prose_answered_question_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[answeredq] crashed (fail open): {exc}")
+        _event("referee_crash", "answeredq", str(exc))
         return ""
 
 
@@ -3363,6 +3418,7 @@ def prose_unspoken_problem_conflict(reply: str):
                 "says it, then ask.").format(p=pend[0][:70])
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[unspoken] crashed (fail open): {exc}")
+        _event("referee_crash", "unspoken", str(exc))
         return ""
 
 
@@ -3471,6 +3527,7 @@ def malformed_tag_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[malformed-tag] crashed (fail open): {exc}")
+        _event("referee_crash", "malformed-tag", str(exc))
         return ""
 
 
@@ -3540,6 +3597,7 @@ def prose_score_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[scorecheck] crashed (fail open): {exc}")
+        _event("referee_crash", "scorecheck", str(exc))
         return ""
 
 
@@ -3589,6 +3647,7 @@ def missing_caption_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[caption] crashed (fail open): {exc}")
+        _event("referee_crash", "caption", str(exc))
         return ""
 
 
@@ -3656,6 +3715,7 @@ def self_correction_conflict(reply: str):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[selfcorrect] crashed (fail open): {exc}")
+        _event("referee_crash", "selfcorrect", str(exc))
         return ""
 
 
@@ -3791,6 +3851,7 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[narrated] crashed (fail open): {exc}")
+        _event("referee_crash", "narrated", str(exc))
         return ""
 
 
@@ -3812,71 +3873,89 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         # reading a board the student will never actually see.
         malformed = malformed_tag_conflict(reply)
         if malformed:
+            _event("referee_fire", "malformed-tag", malformed)
             return malformed
         # build gj: second, because an uncaptioned picture is the cheapest defect to
         # find and one of the most expensive to a lost student (rule 41).
         caption = missing_caption_conflict(reply)
         if caption:
+            _event("referee_fire", "caption", caption)
             return caption
         # build gl: third, and cheap -- the tutor must never be seen changing its mind.
         selfcorrect = self_correction_conflict(reply)
         if selfcorrect:
+            _event("referee_fire", "selfcorrect", selfcorrect)
             return selfcorrect
         # build gm: fourth -- never credit a method the student did not show (rule 43).
         narrated = narrated_method_conflict(reply, student_message)
         if narrated:
+            _event("referee_fire", "narrated", narrated)
             return narrated
         visual = prose_visual_conflict(reply, student_message)
         if visual:
+            _event("referee_fire", "vischeck", visual)
             return visual
         pending = prose_pending_question_conflict(reply)
         if pending:
+            _event("referee_fire", "pendcheck", pending)
             return pending
         score = prose_score_conflict(reply)
         if score:
+            _event("referee_fire", "scorecheck", score)
             return score
         selfans = prose_self_answer_conflict(reply)
         if selfans:
+            _event("referee_fire", "selfanswer", selfans)
             return selfans
         answered = prose_answered_question_conflict(reply)
         if answered:
+            _event("referee_fire", "answeredq", answered)
             return answered
         unspoken = prose_unspoken_problem_conflict(reply)
         if unspoken:
+            _event("referee_fire", "unspoken", unspoken)
             return unspoken
         boardnote = board_notation_conflict(reply)
         if boardnote:
+            _event("referee_fire", "boardnote", boardnote)
             return boardnote
         triangle = triangle_side_conflict(reply)
         if triangle:
+            _event("referee_fire", "triangleslot", triangle)
             return triangle
         # build gn: THIRTEENTH -- immediately after its sibling, because both read the
         # same [[triangle]] tag and the slot check is the cheaper of the two.
         triletter = triangle_letter_conflict(reply)
         if triletter:
+            _event("referee_fire", "triangleletter", triletter)
             return triletter
         # build gy: EIGHTEENTH -- the like-denominator rule spoken as a universal (rule 61).
         frac61 = fraction_rule_unconditioned(reply)
         if frac61:
+            _event("referee_fire", "frac61", frac61)
             return frac61
         # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
         refused = refused_demonstration_conflict(reply, student_message)
         if refused:
+            _event("referee_fire", "refusedshow", refused)
             return refused
         # build gu: SIXTEENTH -- rule 47(d), whose founding sentence reappeared verbatim
         # six days after the rule was written from it.
         coldquiz = cold_quiz_conflict(reply)
         if coldquiz:
+            _event("referee_fire", "coldquiz", coldquiz)
             return coldquiz
         # build gr: FIFTEENTH -- it reads the student's own message, which is already here.
         answersign = answer_sign_conflict(reply, student_message)
         if answersign:
+            _event("referee_fire", "answersign", answersign)
             return answersign
         # build gn: FOURTEENTH -- and the only referee that needs a fact from OUTSIDE the
         # reply, so it is wired here, after everything the reply can be judged against on
         # its own. Silent whenever the caller does not know the unit.
         unitclaim = unit_claim_conflict(reply, expected_unit)
         if unitclaim:
+            _event("referee_fire", "unitclaim", unitclaim)
             return unitclaim
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
@@ -3918,15 +3997,18 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
                 # 5. an operand of the same line is fair to mention in passing
                 if claimed in _pr_numbers_in(operands):
                     continue
-                return ('your spoken words say "{c} {lab}", but your own board line for '
+                _d18 = ('your spoken words say "{c} {lab}", but your own board line for '
                         '"{lab}" concludes {r}. Rule 18(b): the numbers you SAY must match '
                         'the numbers you WRITE.').format(
                             c=(int(claimed) if float(claimed).is_integer() else claimed),
                             lab=label,
                             r=(int(result) if float(result).is_integer() else result))
+                _event("referee_fire", "prose-numbers", _d18)
+                return _d18
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[prosecheck] crashed (fail open): {exc}")
+        _event("referee_crash", "prosecheck", str(exc))
         return ""
 
 
@@ -4176,6 +4258,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             verdict, detail = mathcheck.verify_reply(reply)
         except Exception as exc:  # noqa: BLE001 -- referee crash = fail open
             print(f"[mathcheck]{log_prefix} checker crashed (fail open): {exc}")
+            _event("referee_crash", "mathcheck", str(exc),
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             verdict, detail = "unverifiable", str(exc)
         if verdict != "wrong":
             if verdict == "unverifiable":
@@ -4193,6 +4277,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 continue
             if prose_detail:
                 print(f"[prosecheck]{log_prefix} UNRESOLVED -- passing through: {prose_detail}")
+                _event("pass_through", "prosecheck", prose_detail,
+                       (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             # build gv: MEASUREMENT ONLY -- claims about what has already happened.
             try:
                 count_claim_probe(reply, (meta or {}).get("code", ""),
@@ -4206,6 +4292,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 _mark_gap = missing_mark_probe(reply, messages)
                 if _mark_gap:
                     print(f"[markcheck]{log_prefix} POSSIBLE MISSED MARK: {_mark_gap}")
+                    _event("probe", "markcheck", _mark_gap,
+                           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             except Exception as _exc:  # noqa: BLE001 -- a probe must never fail a turn
                 print(f"[markcheck]{log_prefix} probe crashed (ignored): {_exc}")
             status = verdict if verdict != "ok" else ("ok" if attempt == 1 else "fixed")
@@ -4221,6 +4309,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     # means the CHECKER mis-read an unusual claim -- so pass the last draft through
     # (fail open) rather than brick the lesson, and log loudly for the developer.
     print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
+    _event("pass_through", "mathcheck", str(detail),
+           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
     _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "unresolved")
     return mathcheck.strip_verify_tags(reply)
 
@@ -4280,6 +4370,7 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.
         print(f"[tutor] Claude API error: {exc}")
+        _event("failopen", "get_tutor_reply", str(exc), code, course)
         return ("(I'm having trouble thinking right now -- give me a moment and "
                 "try again.)")
 
@@ -4378,6 +4469,7 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[practice] Claude API error: {exc}")
+        _event("failopen", "get_practice_reply", str(exc), code, course)
         return ("(I'm having trouble thinking right now -- give me a moment and "
                 "try again.)")
 
@@ -4433,6 +4525,7 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
         print(f"[topic] Claude API error: {exc}")
+        _event("failopen", "get_topic_reply", str(exc), code, course)
         return ("(I'm having trouble thinking right now -- give me a moment and "
                 "try again.)")
 
