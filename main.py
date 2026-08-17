@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hl-small-cuts". THE SMALL CUTS OF PHASE 3
+#               (this file: one of the three -- the returning-student check).
+#               _has_any_history's FILE-fallback branch parsed session keys with
+#               "-" while every writer builds them with "::" -- so with the DB off,
+#               EVERY returning student was greeted as brand new (and codes
+#               containing "-" mis-split). The branch now parses "::" exactly like
+#               _ck builds it. Both login sites (student + beta) now compute
+#               "returning" as bool(session history) OR _has_any_history(code), so
+#               a student whose current-course session is empty but who has history
+#               in another course is still greeted as returning. store.py carries
+#               the other two cuts (atomic streak, quiz identity) -- see its hl note.
 #   2026-08-17  APP_BUILD -> "2026-08-17hk-no-lost-turns". THE HISTORY RACE IS CLOSED.
 #               NEW mutate_history(code, course, fn) is the only way the chat path
 #               writes conversation history: both the main turn and the opener now
@@ -7677,7 +7688,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hk-no-lost-turns"
+APP_BUILD = "2026-08-17hl-small-cuts"
 
 
 @app.get("/health")
@@ -7800,7 +7811,10 @@ def login(req: LoginRequest, request: Request):
             "ok": True,
             "code": bcode,
             "name": store.get_beta_code(code).get("label") or "Beta tester",
-            "returning": bool(session.get("history")),
+            # build hl (review F15): "returning" means returning to ANY course -- a
+            # student whose only history is Geometry no longer gets the first-time
+            # tour because the default-course session happened to be empty.
+            "returning": bool(session.get("history")) or _has_any_history(bcode),
             "placed": bool(placement),
             "tutor_name": tutor.TUTOR_NAME,
             "beta": True,
@@ -7816,7 +7830,8 @@ def login(req: LoginRequest, request: Request):
         "ok": True,
         "code": code,
         "name": student.get("name"),
-        "returning": bool(session.get("history")),
+        # build hl (review F15): any course counts -- see the beta branch above.
+        "returning": bool(session.get("history")) or _has_any_history(code),
         "placed": bool(placement),
         "tutor_name": tutor.TUTOR_NAME,
     }
@@ -7912,11 +7927,17 @@ def _has_any_history(code: str, courses=None) -> bool:
             return store.has_any_history(code, courses)
         allx = _read_all_sessions()
         for key, sess in allx.items():
-            if not ((key == code or key.startswith(code + "|")) and (sess or {}).get("history")):
+            # build hl (review F7): this branch searched for "CODE|course" keys while
+            # _ck() -- the ONE writer of these keys -- writes "CODE::course". Written
+            # one way, searched another: the same fact encoded independently in two
+            # places, latent only because production runs the DB, and armed the moment
+            # the DB fallback fires. The parse now mirrors _ck exactly.
+            if not ((key == code or key.startswith(code + "::"))
+                    and (sess or {}).get("history")):
                 continue
             if courses:
-                # JSON keys are "CODE" (the default course) or "CODE|course".
-                kcourse = key.split("|", 1)[1] if "|" in key else curriculum.DEFAULT_COURSE
+                # _ck keys are "CODE" (the default course) or "CODE::course".
+                kcourse = key.split("::", 1)[1] if "::" in key else curriculum.DEFAULT_COURSE
                 if kcourse not in courses:
                     continue
             return True

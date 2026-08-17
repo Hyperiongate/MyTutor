@@ -2,6 +2,32 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hl -- THE SMALL CUTS OF PHASE 3 (this file: two of the three).
+#               (1) THE STREAK IS ATOMIC. NEW _bump_stats(code, problems, correct,
+#               attempted, checks) -- ONE dialect-native upsert that bumps the
+#               student_stats counters AND advances the streak in the same statement,
+#               via a SQL CASE over ISO date strings (same day -> keep, yesterday ->
+#               +1, gap -> reset to 1). Replaces the _get_stats_row/_touch_streak/
+#               _save_stats read-then-write trio in record_check, record_sprint and
+#               record_practice -- the last remaining lost-update race in the store
+#               (deliberately deferred in hi; now closed the same way as the rest).
+#               The trio itself is retired. Also added "THE THREE CLOCKS, DOCUMENTED"
+#               -- the app has three day-boundaries (student-local for hours,
+#               server-UTC for the streak, server-local for backups); which one a
+#               streak SHOULD use is a product decision recorded there for Jim, not
+#               silently changed here.
+#               (2) A QUIZ HAS ONE IDENTITY. record_topic_quiz now claims an existing
+#               row by (code, course, unit, topic_idx) BEFORE upserting: if the model
+#               rephrases a topic name ("Adding Fractions" vs "Fraction Addition"),
+#               the slug changes but the (unit, topic_idx) coordinate doesn't -- the
+#               old code minted a second row and the student's best/taken history
+#               split across ghosts. Now the existing row's key is reused, so
+#               rephrasing HEALS instead of forking; no key migration, existing data
+#               preserved, topic_idx 0 (unknown) keeps the old slug behaviour.
+#               Proved (temp SQLite): rephrase -> ONE row, best=max, taken summed;
+#               180/180 threaded practice marks exact with streak correct; streak +1
+#               on consecutive days and reset after a gap. ruletests PART 3bc
+#               re-proves all of it on every push.
 #   2026-08-17  BUILD hk -- NO EXCHANGE CAN BE LOST. NEW update_history(code, course,
 #               fn, cap): the chat path's only history writer, a COMPARE-AND-SWAP
 #               transform. The old shape -- read blob, run a multi-second model call,
@@ -1599,6 +1625,47 @@ def _touch_streak(s: dict) -> None:
     s["last_active"] = today
 
 
+def _bump_stats(code: str, problems: int = 0, correct: int = 0,
+                attempted: int = 0, checks: int = 0) -> None:
+    """build hl (2026-08-17): ONE atomic write for the whole-student counters AND the
+    day streak -- the piece build hi deliberately deferred. The counters are plain
+    atomic adds; the STREAK's day arithmetic moves into the upsert as a CASE over the
+    stored ISO date strings (last_active is String(10) 'YYYY-MM-DD', so equality in
+    SQL is exactly the comparison _touch_streak did in Python):
+        already counted today  -> streak unchanged
+        last active yesterday  -> streak + 1
+        otherwise              -> streak restarts at 1
+    Same semantics, no read-then-write window. The day is the server-UTC day, as it
+    always was -- see the CLOCKS note below for why that stays for now."""
+    today = _today()
+    yday = (_now().date() - _dt.timedelta(days=1)).isoformat()
+
+    def _streak(cur, _x):
+        from sqlalchemy import case, func
+        return case((cur.last_active == today, func.coalesce(cur.streak_days, 1)),
+                    (cur.last_active == yday, func.coalesce(cur.streak_days, 0) + 1),
+                    else_=1)
+
+    exprs = {"streak_days": (1, _streak)}
+    for col, n in (("problems_practiced", problems), ("correct_total", correct),
+                   ("attempted_total", attempted), ("checks_taken", checks)):
+        if int(n or 0):
+            exprs[col] = (int(n), _sql_counter(col, int(n)))
+    _upsert("student_stats", {"code": code},
+            {"last_active": today, "updated_at": _now()}, exprs=exprs)
+
+
+# THE THREE CLOCKS, DOCUMENTED (build hl, review F9 -- decided, not drifted into).
+# "Active when?" is answered three ways in this app: time_daily.day is the STUDENT'S
+# local day (a parent asking "how long did she work Tuesday?" means their Tuesday);
+# the streak uses the SERVER-UTC day (above); last_touched/updated_at are UTC
+# timestamps. Unifying the streak onto the student's local day would need the
+# client's day threaded through /api/check and /api/mark, and it CHANGES what a
+# streak means for evening students -- that is a product decision for Jim, not a
+# refactor to smuggle in. Until then: hours = student-local, streak = server-UTC,
+# consistently, on purpose, and this comment is the single place that says so.
+
+
 def _save_stats(code: str, s: dict) -> None:
     _upsert("student_stats", {"code": code}, {
         "problems_practiced": s["problems_practiced"], "correct_total": s["correct_total"],
@@ -1666,13 +1733,8 @@ def record_check(code: str, unit: int, correct: int, total: int, unit_name: str 
     best_pct = int(r2[1] or 0) if r2 else pct
     if pct >= PASS_PCT:
         _set_unit_status(code, unit, "mastered", unit_name, course)
-    s = _get_stats_row(code)
-    s["checks_taken"] += 1
-    s["correct_total"] += correct
-    s["attempted_total"] += total
-    s["problems_practiced"] += total
-    _touch_streak(s)
-    _save_stats(code, s)
+    # build hl: counters + streak in one atomic write (the hi deferral, closed).
+    _bump_stats(code, problems=total, correct=correct, attempted=total, checks=1)
     # 2026-08-10 (build cu). "mastered" has always meant "THIS attempt cleared the bar",
     # which is right for the celebration and wrong for the student's nerve: a retake that
     # goes badly returns mastered=False even though best_pct still holds the unit, and the
@@ -1714,9 +1776,7 @@ def record_sprint(code: str, course: str, unit: int, skill: str,
             b_correct=b_cor, b_attempted=b_att, improvement=imp,
             created_at=_now()))
         conn.commit()
-    s = _get_stats_row(code)
-    _touch_streak(s)
-    _save_stats(code, s)
+    _bump_stats(code)          # build hl: streak touch, atomically
     return {"improvement": imp, "best_b": max(prev_best, b_cor),
             "personal_best": b_cor > prev_best}
 
@@ -1803,6 +1863,24 @@ def record_topic_quiz(code: str, unit: int, topic_name: str, correct: int, total
     pct = score_pct(correct, total)          # floored, never rounded up (build ch)
     key = _topic_key(topic_name)
     t = _tables["topic_quizzes"]
+    # build hl (review F8): IDENTITY BY CURRICULUM POSITION FIRST. The row key was the
+    # model's WORDING of the topic ("Adding Fractions" one week, "Fraction Addition"
+    # the next -> two rows), and the mastery gate then saw a phantom unpassed topic
+    # and re-quizzed a child on something they had passed. When the caller knows the
+    # curriculum position (topic_idx > 0), an existing row at that position claims the
+    # write -- whatever its old wording -- and the display name updates to the latest
+    # phrasing. Existing data is preserved exactly (no key migration); rephrasings
+    # simply stop minting new identities. The lookup-then-upsert pair can race only on
+    # the very first quiz of a topic taken concurrently twice, whose worst case is the
+    # status quo this fixes.
+    if int(topic_idx or 0) > 0:
+        with _engine.connect() as conn:
+            r0 = conn.execute(select(t.c.topic_key).where(
+                (t.c.code == code) & (t.c.course == course) &
+                (t.c.unit == int(unit)) &
+                (t.c.topic_idx == int(topic_idx)))).first()
+        if r0 and r0[0]:
+            key = r0[0]
     # build hi: count and best computed atomically in the database (see _upsert).
     _upsert("topic_quizzes",
             {"code": code, "course": course, "unit": int(unit), "topic_key": key},
@@ -1921,12 +1999,8 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> None:
     """Count practice problems the tutor marked right/wrong (feeds 'problems practiced',
     accuracy, and the day streak)."""
     correct = max(0, int(correct)); attempted = max(1, int(attempted))
-    s = _get_stats_row(code)
-    s["problems_practiced"] += attempted
-    s["correct_total"] += correct
-    s["attempted_total"] += attempted
-    _touch_streak(s)
-    _save_stats(code, s)
+    # build hl: one atomic write (counters + streak) -- see _bump_stats.
+    _bump_stats(code, problems=attempted, correct=correct, attempted=attempted)
 
 
 def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:

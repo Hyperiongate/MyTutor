@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hl -- PART 3bc, THE SMALL CUTS OF PHASE 3: wiring checks (the
+#               file-fallback history probe parses "::" like _ck builds it and both
+#               login sites OR it into "returning"; record_topic_quiz claims an
+#               existing row by (code, course, unit, topic_idx); the three practice
+#               writers all bump stats through the one atomic _bump_stats and the
+#               read-then-write streak trio is gone; THE THREE CLOCKS decision block
+#               exists) plus _HL_PROOF, a behavioural subprocess on a temp SQLite
+#               database every push: a rephrased topic quiz HEALS into one row
+#               (best=max, taken summed, latest name kept); 80 threaded practice
+#               marks land exactly with zero errors; the streak +1s on a
+#               yesterday-active student and resets after a gap.
 #   2026-08-17  BUILD hk -- PART 3bb, NO EXCHANGE CAN BE LOST: wiring checks (CAS
 #               writer exists; both chat-path writes go through mutate_history; no
 #               whole-blob save remains in the handler) plus the threaded hammer on a
@@ -10186,6 +10197,123 @@ print(json.dumps({"ok": bool(seq_ok and not errors and len(h) == N_T * N_C * 2
 """
 
 
+# =============================================================================
+# PART 3bc -- THE SMALL CUTS OF PHASE 3 (build hl)
+# -----------------------------------------------------------------------------
+# 2026-08-17. Three remainders, each proved: (1) the file-key mismatch -- _ck()
+# writes "CODE::course" while _has_any_history searched "CODE|course"; written one
+# way, searched another, latent until the DB fallback fires. (2) topic-quiz identity
+# healed by curriculum position -- the model's WORDING was the row key, so a
+# rephrase minted a phantom unpassed topic and a child got re-quizzed on something
+# they had passed. (3) the hi deferral closed -- student_stats counters AND the day
+# streak now land in one atomic write, with the streak's day arithmetic as SQL CASE
+# over the stored ISO dates (same semantics as _touch_streak, no window).
+# =============================================================================
+_HL_PROOF = r"""
+import os, sys, json, threading, datetime
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled()
+store.record_topic_quiz("Q1", 3, "Adding Fractions", 9, 10, "algebra1", topic_idx=2)
+store.record_topic_quiz("Q1", 3, "Fraction Addition", 4, 10, "algebra1", topic_idx=2)
+rows = [r for r in store.get_topic_quizzes("Q1", "algebra1") if r["unit"] == 3]
+heal = (len(rows) == 1 and rows[0]["best_pct"] == 90 and rows[0]["quizzes_taken"] == 2
+        and rows[0]["topic_name"] == "Fraction Addition")
+N_T, N_C = 4, 10
+barrier = threading.Barrier(N_T); errors = []
+def worker(i):
+    barrier.wait()
+    for k in range(N_C):
+        try: store.record_practice("S1", correct=1, attempted=2)
+        except Exception as e: errors.append(str(e)[:60])
+ts = [threading.Thread(target=worker, args=(i,)) for i in range(N_T)]
+[t.start() for t in ts]; [t.join() for t in ts]
+m = store.get_mastery("S1", "algebra1")["stats"]
+stats_ok = (not errors and m["problems_practiced"] == N_T * N_C * 2
+            and m.get("streak_days") == 1)
+from sqlalchemy import update
+t = store._tables["student_stats"]
+yday = (store._now().date() - datetime.timedelta(days=1)).isoformat()
+with store._engine.begin() as c:
+    c.execute(update(t).where(t.c.code == "S1").values(last_active=yday, streak_days=4))
+store.record_practice("S1", 1, 1)
+plus1 = store.get_mastery("S1", "algebra1")["stats"]["streak_days"] == 5
+gap = (store._now().date() - datetime.timedelta(days=3)).isoformat()
+with store._engine.begin() as c:
+    c.execute(update(t).where(t.c.code == "S1").values(last_active=gap, streak_days=9))
+store.record_practice("S1", 1, 1)
+reset = store.get_mastery("S1", "algebra1")["stats"]["streak_days"] == 1
+print(json.dumps({"ok": bool(heal and stats_ok and plus1 and reset),
+                  "heal": heal, "stats": stats_ok, "plus1": plus1, "reset": reset,
+                  "errors": errors[:2]}))
+"""
+
+
+def part3bc_small_cuts():
+    print("\nPART 3bc — the small cuts of phase 3 (build hl)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+
+    # (1) the key encoding has ONE writer and its readers mirror it
+    check("_has_any_history parses the keys _ck actually writes",
+          'key.startswith(code + "::")' in msrc
+          and 'key.startswith(code + "|")' not in msrc,
+          'written "CODE::course", searched "CODE|course" -- the same fact encoded '
+          'independently twice, armed the moment the DB fallback fires')
+    check("login's `returning` counts ANY course",
+          msrc.count("or _has_any_history(") >= 2,
+          "a student whose only history is Geometry gets the first-time tour again")
+
+    # (2) quiz identity by curriculum position
+    check("record_topic_quiz claims the row at the same topic_idx",
+          "t.c.topic_idx == int(topic_idx)" in ssrc,
+          "the model's wording is the row key again -- a rephrase mints a phantom "
+          "unpassed topic and a child gets re-quizzed on a pass")
+
+    # (3) the hi deferral is closed
+    check("_bump_stats exists and computes the streak in SQL",
+          "def _bump_stats(" in ssrc and "cur.last_active == today" in ssrc,
+          "the stats/streak write is read-then-write again")
+    for fn in ("record_check", "record_practice", "record_sprint"):
+        seg = ssrc[ssrc.index(f"def {fn}("):]
+        seg = seg[:seg.index("\ndef ")]
+        check(f"{fn} writes stats via _bump_stats",
+              "_bump_stats(" in seg and "_touch_streak(" not in seg,
+              "this writer went back to the racy trio")
+    check("the three clocks are documented as a DECISION",
+          "THE THREE CLOCKS, DOCUMENTED" in ssrc,
+          "the hours/streak day-boundary difference is drifting again instead of "
+          "being chosen on purpose")
+
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("hl behavioural proof", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hl.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HL_PROOF)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hl.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("hl behavioural proof ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("rephrased quiz heals to one row; 80 threaded marks exact; streak "
+              "+1-on-yesterday and resets-on-gap",
+              verdict.get("ok") is True,
+              f"{verdict} -- on a REAL database")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10640,6 +10768,7 @@ def main():
     part3az_atomic_counters()
     part3ba_one_unit_owner()
     part3bb_no_lost_exchange()
+    part3bc_small_cuts()
     part3ai_deploy_stamp()
     if live:
         part4_live()
