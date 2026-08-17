@@ -2,6 +2,33 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gz-stop-the-bleeding". PHASE 0 OF THE FULL-APP
+#               REVIEW (six independent review passes over every file; findings and the
+#               six-classes attack plan live in the project doc Full_App_Review_2026-08-17).
+#               Four surgical fixes, each with its battery check:
+#               (1) VOICE ANSWERS WERE DEAD ON topic.html AND practice.html. Both pages
+#               used lastTutorText (the build-gr expect=letter hint) without ever
+#               declaring or assigning it -- a ReferenceError inside transcribe() on
+#               EVERY spoken answer, swallowed by its catch, so both pages told the
+#               student "I didn't quite catch that" and blamed their audio. The fix that
+#               was hand-copied between pages left its state behind: the exact
+#               copy-divergence class the review names. Both pages also read the
+#               undeclared `started` in their visibilitychange handlers (ReferenceError
+#               on every return to the tab; keep-alive never restarted -- the bl/cb
+#               "first word swallowed" symptom, still alive on two pages). They now use
+#               the page-level audioWarmed they already maintain.
+#               (2) THE PROMPT CEILING IS ENFORCED AT RUNTIME (see tutor.py gz note):
+#               all-heard students overflowed 180K on every course, silently. On
+#               refresher turns this file sets foundations_force_verbatim (from
+#               foundations.wants_refresher) so rule 40's exact-words promise holds.
+#               (3) THE HEARTBEAT ALWAYS BEATS: WEEKLY_EMAIL=off used to return early
+#               from _start_digest_thread -- one misnamed flag silently disabling the
+#               nightly BACKUP, the cost watchdog, the usage purge and the night watch.
+#               The flag now gates only the email, inside _weekly_digest_pass.
+#               (4) store.py's /admin verifier breakdown no longer buckets
+#               "prose-unresolved" (a reply that SHIPPED with a known unresolved referee
+#               finding) and "empty" into verify_none -- they are their own counts, and
+#               admin.html displays the caught-by-referee number honestly.
 #   2026-08-17  APP_BUILD -> "2026-08-17gy-audit-closed". ALL SIX CAUSES FROM THE DAY'S
 #               AUDIT ARE CLOSED. Five lesson-audit runs, ten lessons, 27 findings, triaged
 #               against their own transcripts (24 held, 1 rejected with its reason, 2 weak)
@@ -5393,12 +5420,22 @@ def admin_digest_test(key: str = "", email: str = "", to: str = "",
             "sent_to": sent_to, "error": err}
 
 
+def _weekly_email_off() -> bool:
+    """True when the WEEKLY_EMAIL env flag disables the weekly parent email. Gates ONLY
+    the email (build gz) -- the heartbeat thread and every other pass run regardless."""
+    return os.environ.get("WEEKLY_EMAIL", "on").strip().lower() in ("off", "0", "false", "no")
+
+
 def _weekly_digest_pass(force: bool = False) -> dict:
     """One send pass: every parent who is due gets this week's email. Returns
     counts for the log. `force` ignores the Friday window (admin/testing only --
-    the 3-day resend guard still applies)."""
+    the 3-day resend guard still applies). build gz: the WEEKLY_EMAIL flag is
+    honoured HERE (email only), not at the heartbeat -- `force` overrides it so
+    the admin test endpoint still works while the flag is off."""
     from datetime import datetime, timezone
     out = {"checked": 0, "sent": 0, "skipped": 0, "failed": 0}
+    if not force and _weekly_email_off():
+        return out
     if not (store.enabled() and _smtp_configured()):
         return out
     now = datetime.now(timezone.utc)
@@ -5606,12 +5643,19 @@ _digest_thread_started = False
 
 
 def _start_digest_thread() -> None:
+    # build gz (2026-08-17): THE HEARTBEAT ALWAYS BEATS. This thread is not "the weekly
+    # email" -- it is the app's entire ops plane: the nightly DB snapshot, the cost
+    # watchdog, the usage purge AND the night watch all ride it. The old WEEKLY_EMAIL
+    # early-return here meant one misnamed flag silently disabled BACKUPS and the AI
+    # governor -- found by the 2026-08-17 full-app review ("the app cannot see its own
+    # failures" class). The flag now lives inside _weekly_digest_pass, where it gates
+    # exactly what its name promises: the email, and nothing else.
     global _digest_thread_started
     if _digest_thread_started:
         return
-    if os.environ.get("WEEKLY_EMAIL", "on").strip().lower() in ("off", "0", "false", "no"):
-        print("[digest] WEEKLY_EMAIL=off -- weekly parent email scheduler disabled")
-        return
+    if _weekly_email_off():
+        print("[digest] WEEKLY_EMAIL=off -- weekly parent email disabled "
+              "(heartbeat still runs: backups, cost watch, purge, night watch)")
     _digest_thread_started = True
     threading.Thread(target=_digest_loop, daemon=True, name="weekly-digest").start()
 
@@ -7281,7 +7325,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gy-audit-closed"
+APP_BUILD = "2026-08-17gz-stop-the-bleeding"
 
 
 @app.get("/health")
@@ -7965,6 +8009,26 @@ def chat(req: ChatRequest):
     # wants_refresher) because it becomes the right answer if the library ever grows to
     # where it does not fit, or if the cache lifetime changes. It is dormant, not gone.
     student_context["foundations_verbatim"] = True
+    # build gz (2026-08-17): THE DORMANT MECHANISM'S DAY CAME. tutor.py now enforces
+    # PROMPT_CEILING at assembly time, and for the student whose heard scripts push the
+    # prompt over it (all-heard students overflow on every course -- measured), the heard
+    # WORDING is deferred: exactly the cl mechanism the note above kept "dormant, not
+    # gone". Rule 40's contract is that the exact words come back the moment the student
+    # asks -- so this turn-level flag tells tutor.py "carry the words no matter what",
+    # set when the student asks for a refresher outright or accepts the offer the tutor
+    # just made. foundations.wants_refresher fails OPEN (True): when unsure, carry the
+    # words. Students under the ceiling see a byte-identical prompt -- cn's cache
+    # arithmetic still wins for them and nothing changes.
+    try:
+        _last_tutor_text = next((str((m or {}).get("content") or "")
+                                 for m in reversed(history)
+                                 if (m or {}).get("role") == "assistant"), "")
+        student_context["foundations_force_verbatim"] = bool(
+            foundations is not None
+            and foundations.wants_refresher(message, _last_tutor_text))
+    except Exception as exc:  # noqa: BLE001 -- never fail a turn over this
+        print(f"[foundations] wants_refresher failed ({exc}) -- carrying the words")
+        student_context["foundations_force_verbatim"] = True
     # build cg: does the TODAY bar genuinely exist right now? The net in tutor.py used to
     # infer that from history, which is wrong the moment the page reloads.
     try:

@@ -1,5 +1,19 @@
 <!DOCTYPE html>
 <!--
+    (gz) 2026-08-17 -- THE gr FIX FINALLY WORKS ON THIS PAGE. Build gr's expect=letter
+    hint reads expectsALetter(lastTutorText) inside transcribe() -- but lastTutorText was
+    session.html's page-level variable and was NEVER declared or assigned here, so that
+    read threw a ReferenceError, transcribe()'s catch returned "", and EVERY spoken answer
+    on this page was silently discarded as "I didn't quite catch that". Same class, second
+    instance: the visibilitychange handler read session.html's undeclared `started`, so
+    keep-alive never restarted after a tab switch (the "first word swallowed" family).
+    Fixed: lastTutorText is declared page-level and assigned where the tutor's words are
+    rendered; the handler now uses this page's own audioWarmed flag. Found by the
+    2026-08-17 full-app review (cross-page copy-divergence class); ruletests PAGE_PARITY
+    now guards both so a teaching page can never again use state it does not own.
+
+-->
+<!--
     (gr) 2026-08-17 -- THE SPOKEN LETTER. Jim was asked which side was the hypotenuse, said
     the letter "c" out loud, and ElevenLabs transcribed it as the Spanish "si" / "CSI" --
     whereupon the tutor told him he was wrong and demanded a letter. A student marked
@@ -860,6 +874,12 @@
 
     let problem = "";
     let history = [];              // client-held practice conversation [{role,content}]
+    // build gz (2026-08-17): this page used lastTutorText (the build-gr expect=letter
+    // hint in transcribe()) WITHOUT ever declaring or assigning it -- the fix was
+    // hand-copied from session.html and its state was left behind. Reading an
+    // undeclared identifier throws, transcribe()'s catch returned "", and EVERY
+    // spoken answer on this page was discarded with "I didn't quite catch that".
+    let lastTutorText = "";
     let busy = false;
     let phase = "idle";            // idle | ready | recording | busy
     let elevenEnabled = false;
@@ -956,7 +976,11 @@
     }
     function stopKeepAlive() { try { if (keepAlive) keepAlive.pause(); } catch (e) {} }
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stopKeepAlive(); else if (started) startKeepAlive();
+      // build gz: `started` was session.html's page-level variable and was never
+      // declared here -- this line threw on every return to the tab and keep-alive
+      // never restarted (the "first word swallowed" class). audioWarmed is the
+      // page-level flag THIS page maintains; it means exactly "audio unlocked".
+      if (document.hidden) stopKeepAlive(); else if (audioWarmed) startKeepAlive();
     });
     // How long the output has been silent -- a long gap earns a longer lead (below).
     let lastAudioAt = 0;
@@ -2231,7 +2255,7 @@
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         const clean = stripTags(reply);
-        addBubble("tutor", clean);           // his words first (chat bubble)
+        addBubble("tutor", clean); lastTutorText = clean;   // his words first (chat bubble; gz: remember them for expect=letter)
         handleTags(reply);                   // then his worked math, right below
         history.push({ role: "assistant", content: clean });
         statusEl.textContent = "Mr. Cadabra is talking…";

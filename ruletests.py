@@ -2,6 +2,25 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gz -- PHASE 0 OF THE FULL-APP REVIEW. Four fixes, four sets of
+#               checks, three parts touched:
+#               PART 3h: the ceiling now has ONE definition (tutor.PROMPT_CEILING --
+#               this file used to own a private CEILING while the serving path checked
+#               nothing, which is how all-heard students shipped at 186,890-194,284
+#               chars on every course, over the ceiling, silently). New worst-case
+#               checks: the all-heard prompt must FIT (gz defers heard wording), every
+#               heard script must still be OFFERED by name (rule 40), and a refresher
+#               turn (foundations_force_verbatim) must restore the full wording.
+#               PART 3e: two new parity needles -- lastTutorText declared AND assigned
+#               on every teaching page (topic/practice used it undeclared: a
+#               ReferenceError on every spoken answer, "I didn't quite catch that" on
+#               two of three pages) -- plus keep-alive resume checks: topic/practice
+#               read their own audioWarmed, never session.html's `started`.
+#               PART 3as (new): the ops heartbeat is never gated by WEEKLY_EMAIL (the
+#               old early-return silently disabled backups + the night watch); the
+#               refresher wiring exists in main.py; store.usage_stats reports
+#               verify_prose-unresolved / verify_empty; admin.html shows the
+#               shipped-unresolved tile.
 #   2026-08-17  BUILD gy -- PART 3ar, A RULE SPOKEN AS A LAW. The sixth and last cause
 #               from the day's audit triage, and the one where the DISCRIMINATOR mattered
 #               more than the detector. Rule 54's banned list gains the rest of the classic
@@ -2198,13 +2217,29 @@ def part3b_foundations():
               f"no unit ever carries the wording of {never_quoted} -- those students get "
               f"a paraphrase, or nothing")
         heard_all = [f["term"] for f in items]
-        held = tutor.build_system_prompt(
-            dict(STUDENT, focus_unit=9, foundations_heard=heard_all), course=c)
-        unheld = [f["term"] for f in items if f["say"] not in held]
+        # build gz (2026-08-17): through build_system_prompt an all-heard student can now
+        # exceed the ceiling, and the heard WORDING is deferred on ordinary turns (PART 3h
+        # proves the deferred shape fits, names every term, and that a refresher turn
+        # restores the wording). The gf invariant lives one layer down -- the UNIT filter
+        # must never drop a heard script -- so test it where the unit filter is, without
+        # the ceiling logic in the way:
+        block9 = foundations.prompt_block(c, heard_all, True, 9)
+        unheld = [f["term"] for f in items if f["say"] not in block9]
         check(f"foundations [{c}]: a HEARD script is never filtered out by unit",
               not unheld,
-              f"{unheld} were dropped from a unit-9 prompt even though the student has "
+              f"{unheld} were dropped from a unit-9 block even though the student has "
               f"met them -- rule 40 could not restore words that are not there")
+        # And end to end: a refresher turn (foundations_force_verbatim, the flag main.py
+        # sets from wants_refresher) must carry EVERY heard script even at unit 9, ceiling
+        # or no ceiling -- this is rule 40's exact-words promise surviving build gz.
+        held = tutor.build_system_prompt(
+            dict(STUDENT, focus_unit=9, foundations_heard=heard_all,
+                 foundations_force_verbatim=True), course=c)
+        unrestored = [f["term"] for f in items if f["say"] not in held]
+        check(f"foundations [{c}]: a refresher turn carries every heard script (gz)",
+              not unrestored,
+              f"{unrestored} missing from a forced-verbatim unit-9 prompt -- the exact "
+              f"words rule 40 promises are gone on the one turn that needs them")
         for f in items:
             say = f["say"]
             # spoken aloud: no notation, no bare symbols (see tutor.py HOW YOU SPEAK)
@@ -2744,8 +2779,14 @@ def part3d_foundation_memory():
     # than the characters it saves (see main.py). The mechanism is still tested, because
     # it is the right answer if the library ever outgrows the window.
     heard = [d["term"] for d in foundations.for_course("algebra2")][:12]
+    # build gz (2026-08-17): the RESTORE leg is what main.py actually does on a refresher
+    # turn now -- it sets foundations_force_verbatim (from wants_refresher), because a
+    # plain verbatim=True can be auto-deferred by the ceiling guard when the heard block
+    # pushes the prompt over PROMPT_CEILING (12 heard algebra2 terms do exactly that).
+    # One over-budget turn is the accepted price of rule 40's exact-words promise.
     full = tutor.build_system_prompt(
-        dict(STUDENT, foundations_heard=heard, foundations_verbatim=True), course="algebra2")
+        dict(STUDENT, foundations_heard=heard, foundations_verbatim=True,
+             foundations_force_verbatim=True), course="algebra2")
     lean = tutor.build_system_prompt(
         dict(STUDENT, foundations_heard=heard, foundations_verbatim=False), course="algebra2")
     fresh = tutor.build_system_prompt(dict(STUDENT), course="algebra2")
@@ -2865,6 +2906,13 @@ PAGE_PARITY = [
     ("control tags are stripped before speaking", "function stripTags"),
     ("the geometry figures are loaded",           "/static/geo-figures.js"),
     ("the math figures are loaded",               "/static/math-figures.js"),
+    # build gz (2026-08-17): the gr expect=letter fix was hand-copied into topic and
+    # practice WITHOUT the state it reads -- lastTutorText was never declared there, so
+    # transcribe() threw on every spoken answer and both pages blamed the student's
+    # audio ("I didn't quite catch that"). A page that reads it must OWN it: declared
+    # at page level AND assigned where the tutor's words are rendered.
+    ("lastTutorText is declared at page level (gz)", 'let lastTutorText = ""'),
+    ("lastTutorText is assigned when the tutor speaks (gz)", "lastTutorText = clean"),
 ]
 
 # Lesson-page-only wiring (the today bar exists only there).
@@ -2895,6 +2943,27 @@ def part3e_page_parity():
     relapsed = [p for p in PAGES if "canRecord = !IS_ELEM" in src[p]]
     check("no page ever re-excludes elementary from the mic (dr)", not relapsed,
           f"{relapsed} would silently mute the students least able to type")
+
+    # build gz (2026-08-17): A PAGE MAY ONLY USE STATE IT OWNS. topic and practice read
+    # session.html's page-level `started` in their visibilitychange handlers -- a
+    # ReferenceError on every return to the tab, so keep-alive never restarted (the
+    # "first word swallowed" family, bl/cb/gn, alive on two pages after three fixes).
+    # They must use their OWN audioWarmed flag; session.html keeps its own `started`
+    # (declared there, works there).
+    for p in ("topic.html", "practice.html"):
+        check(f"{p}: keep-alive resume reads the page's own audioWarmed (gz)",
+              "else if (audioWarmed) startKeepAlive()" in src[p],
+              "the visibilitychange handler no longer resumes keep-alive -- the first "
+              "words after a tab switch will hit a powered-down audio device again")
+        check(f"{p}: keep-alive resume never reads the undeclared `started` (gz)",
+              "else if (started) startKeepAlive()" not in src[p],
+              "`started` is session.html's page-level variable and does not exist "
+              "here -- this line throws on every return to the tab")
+    check("session.html: keep-alive resume still guarded by its own `started` (gz)",
+          "else if (started) startKeepAlive()" in src["session.html"]
+          and "let started = false" in src["session.html"],
+          "session.html's page-level `started` or its handler changed -- if this moved "
+          "to another flag, update this check WITH the reason")
     check("the prompt tells the tutor elementary students may TALK (dr)",
           "tap, talk," in tutor.GRAPH_TOOL_NOTE
           and "EXTRA" in tutor.GRAPH_TOOL_NOTE
@@ -3194,7 +3263,21 @@ def part3g_misconceptions():
     # honest measurement -- lessonaudit at two prompt sizes, to find where
     # rule-following actually degrades -- is STILL the right way to set this number,
     # and still not done.
-    CEILING = 180_000
+    # 2026-08-17 (build gz): THE CEILING HAS ONE DEFINITION, AND IT LIVES IN tutor.py.
+    # This test measured a FRESH student and passed while an all-heard returning student
+    # assembled to 186,890-194,284 chars on every course in production (build gf made
+    # heard scripts exempt from unit filtering; build cn made them always travel
+    # verbatim; nobody re-measured the worst case). Second shipping of that miss class.
+    # Now: tutor.PROMPT_CEILING is the single source (the serving path checks it on
+    # every assembly and defers heard wording when over), and THIS part measures the
+    # worst-case student shape too -- see the all-heard checks below.
+    CEILING = getattr(tutor, "PROMPT_CEILING", None)
+    check("the prompt ceiling has ONE definition (tutor.PROMPT_CEILING)",
+          isinstance(CEILING, int) and CEILING > 0,
+          "tutor.PROMPT_CEILING is missing -- the runtime guard is gone, and this test "
+          "would be measuring against a number the serving path no longer knows")
+    if not isinstance(CEILING, int):
+        CEILING = 180_000
     sizes = {c: len(tutor.build_system_prompt(dict(STUDENT), course=c)) for c in COURSES}
     biggest = max(sizes, key=sizes.get)
     # THE BUDGET, not just the total. A single number tells you that you are over and
@@ -3228,6 +3311,55 @@ def part3g_misconceptions():
           f"honest options are: consolidate overlapping RULES, defer another block the "
           f"way build cl defers heard scripts, or raise this deliberately with a reason "
           f"written down. Do not raise it silently.")
+
+    # -------------------------------------------------------------------------
+    # 2026-08-17 (build gz): THE WORST-CASE STUDENT, not just the fresh one.
+    # A returning student who has heard EVERY foundation script is the heaviest
+    # prompt this app can build (heard scripts always travel verbatim since cn and
+    # are never unit-filtered since gf). That shape overflowed the ceiling on all
+    # four measured courses and nothing noticed, because this part only ever
+    # measured a fresh student. Three checks:
+    #   1. the all-heard prompt fits (the gz auto-deferral working end to end);
+    #   2. the deferred shape still OFFERS every heard script by name (rule 40's
+    #      contract: named always, wording on request);
+    #   3. a refresher turn (foundations_force_verbatim) really does restore the
+    #      full wording -- over-ceiling is permitted for that one turn, silence
+    #      about a broken restore is not.
+    # -------------------------------------------------------------------------
+    try:
+        import foundations as _fnd
+        heavy_courses = [c for c in COURSES if _fnd.for_course(c)]
+    except Exception as exc:  # noqa: BLE001
+        heavy_courses = []
+        bad("all-heard measurement ran", f"foundations unavailable: {exc}")
+    for c in heavy_courses:
+        items = _fnd.for_course(c)
+        terms = [f["term"] for f in items]
+        heavy = dict(STUDENT); heavy["foundations_heard"] = terms
+        p_heavy = tutor.build_system_prompt(heavy, course=c)
+        check(f"all-heard {c} prompt fits under the ceiling ({len(p_heavy):,} chars)",
+              len(p_heavy) <= CEILING,
+              f"{len(p_heavy):,} > {CEILING:,} -- the gz deferral did not engage or did "
+              f"not save enough. This is the exact shape that shipped over-ceiling "
+              f"silently twice (gf, and pre-gz).")
+        named = [t for t in terms if str(t).lower() in p_heavy.lower()]
+        check(f"all-heard {c}: every heard script is still OFFERED by name "
+              f"({len(named)}/{len(terms)})",
+              len(named) == len(terms),
+              f"missing from the prompt entirely: "
+              f"{[t for t in terms if str(t).lower() not in p_heavy.lower()][:5]} -- "
+              f"rule 40 cannot offer a refresher for a term the tutor cannot see")
+        # The refresher turn must carry EVERY heard script's exact wording -- for an
+        # under-ceiling course nothing was deferred and this passes trivially; for an
+        # over-ceiling course this is the restore promise doing its job.
+        forced = dict(heavy); forced["foundations_force_verbatim"] = True
+        p_forced = tutor.build_system_prompt(forced, course=c)
+        missing_say = [f["term"] for f in items if f["say"] not in p_forced]
+        check(f"all-heard {c}: a refresher turn restores the full wording",
+              not missing_say,
+              f"{missing_say[:5]} missing from the forced-verbatim prompt -- it promises "
+              f"'the exact script is restored the moment they ask' and that promise is "
+              f"now false")
 
 
 # =============================================================================
@@ -8972,6 +9104,85 @@ def part3ar_rule_spoken_as_law():
 
 
 
+# =============================================================================
+# PART 3as -- PHASE 0 OF THE FULL-APP REVIEW (build gz)
+# -----------------------------------------------------------------------------
+# 2026-08-17. Six independent review passes over every file found six CLASSES of
+# problem (see the project doc Full_App_Review_2026-08-17). Build gz closes the
+# bleeding edges; each fix ships with its check, per the standing rules:
+#   1. the heartbeat is never gated by the weekly-email flag (backups, cost watch,
+#      purge and night watch all ride that one thread);
+#   2. refresher turns force the heard-script wording back into the prompt, so the
+#      gz ceiling deferral can never break rule 40's exact-words promise;
+#   3. the /admin verifier breakdown counts "prose-unresolved" (a reply that SHIPPED
+#      with a known unresolved referee finding) and "empty" as their own numbers
+#      instead of folding them into verify_none.
+# The page fixes (lastTutorText, audioWarmed) are guarded in PART 3e, where the
+# page-parity checks live; the ceiling fix is guarded in PART 3h, where the scale
+# checks live.
+# =============================================================================
+def part3as_phase0():
+    print("\nPART 3as — phase 0 of the full-app review (build gz)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        main_src = fh.read()
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        admin_src = fh.read()
+
+    # 1. THE HEARTBEAT ALWAYS BEATS. The WEEKLY_EMAIL gate must live inside the email
+    # pass, never at the thread start -- the old early-return silently disabled the
+    # nightly backup, the cost watchdog, the usage purge and the night watch.
+    m = re.search(r"def _start_digest_thread\(\).*?(?=\ndef |\n@)", main_src, re.S)
+    check("_start_digest_thread exists", bool(m), "the ops heartbeat starter is gone")
+    if m:
+        body = m.group(0)
+        # The ONLY return STATEMENT allowed in the starter is the already-started guard
+        # (comments may mention the word; count real statements only). A second return
+        # means some flag can stop the thread from ever starting again.
+        returns = re.findall(r"^\s+return\b", body, re.M)
+        check("the heartbeat starter has exactly one return (the already-started guard)",
+              len(returns) == 1 and "if _digest_thread_started:" in body,
+              "an extra early return is back in _start_digest_thread -- a flag can "
+              "silently disable BACKUPS, the cost watch and the night watch again")
+        check("the heartbeat starter still starts the thread",
+              "threading.Thread(target=_digest_loop" in body,
+              "_digest_loop is no longer started")
+    m2 = re.search(r"def _weekly_digest_pass\(.*?\n(?:    .*\n|\n)*", main_src)
+    check("the WEEKLY_EMAIL flag gates the email pass itself",
+          "_weekly_email_off()" in (m2.group(0) if m2 else "")
+          and "def _weekly_email_off" in main_src,
+          "_weekly_digest_pass no longer honours WEEKLY_EMAIL -- the flag would do "
+          "nothing at all now")
+
+    # 2. THE REFRESHER PROMISE SURVIVES THE CEILING. main.py must compute
+    # foundations_force_verbatim from wants_refresher on every chat turn, and
+    # tutor.build_system_prompt must honour it (behavioural check in PART 3h).
+    check("main.py wires foundations_force_verbatim from wants_refresher",
+          "foundations_force_verbatim" in main_src
+          and "wants_refresher(" in main_src,
+          "the gz deferral can now strand an over-ceiling student without the exact "
+          "words rule 40 promises -- the wiring is gone")
+
+    # 3. THE WORST VERIFY STATUS IS VISIBLE. store.usage_stats must carry the two
+    # keys (DB off in the battery returns the init dict, which is exactly what we
+    # want to inspect), and admin.html must count prose-unresolved.
+    try:
+        import store as _st
+        stats = _st.usage_stats(7)
+        for k in ("verify_prose-unresolved", "verify_empty"):
+            check(f"usage_stats reports {k}", k in stats,
+                  "it folds back into verify_none -- shipped-unresolved replies become "
+                  "invisible on /admin again")
+    except Exception as exc:  # noqa: BLE001
+        bad("store.usage_stats inspectable", str(exc))
+    check("admin.html counts prose-unresolved turns",
+          'verify_prose-unresolved' in admin_src,
+          "the dashboard no longer reads the count store.py now reports")
+    check("admin.html shows the shipped-unresolved tile",
+          "Shipped unresolved" in admin_src,
+          "the most important number on the card lost its tile")
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -9026,6 +9237,7 @@ def main():
     part3ap_bare_demand_and_decimals()
     part3aq_refused_demonstration()
     part3ar_rule_spoken_as_law()
+    part3as_phase0()
     part3ai_deploy_stamp()
     if live:
         part4_live()

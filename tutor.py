@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gz -- THE PROMPT CEILING IS ENFORCED WHERE THE PROMPT IS BUILT.
+#               Full-app review, Phase 0. The 180,000-char ceiling lived only in a
+#               ruletests measurement taken with a FRESH student; a returning student who
+#               had heard every foundation script assembled to 186,890-194,284 chars ON
+#               EVERY COURSE (measured in a clean container against this exact code) and
+#               nothing at runtime noticed. Second shipping of this miss class (gf's
+#               185,595 was the first). Now: PROMPT_CEILING is defined HERE (ruletests
+#               imports it -- one definition, per the review's "facts without owners"
+#               class); build_system_prompt checks every assembly; an over-ceiling prompt
+#               is reassembled with heard-script wording DEFERRED -- the cl mechanism cn
+#               kept dormant for exactly this day ("it becomes the right answer if the
+#               library ever grows to where it does not fit"). Refresher turns carry the
+#               words regardless (foundations_force_verbatim, set by main.py from
+#               foundations.wants_refresher) so rule 40's promise -- the exact script is
+#               restored the moment they ask -- stays true. Under-ceiling students get a
+#               byte-identical prompt to before: the cache stays warm, nothing changes.
+#               Every remaining overflow prints [promptsize] OVER CEILING, loudly.
 #   2026-08-17  BUILD gy -- A RULE SPOKEN AS A LAW: rule 54 widened, rule 61's fraction
 #               case born enforced (the EIGHTEENTH referee). The last of the six causes
 #               from the day's audit triage.
@@ -1582,8 +1599,27 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
         return ""
 
 
+# THE PROMPT CEILING HAS ONE DEFINITION (2026-08-17, build gz). It used to live only in
+# ruletests.py, measured against a FRESH test student -- and a returning student who had
+# heard every foundation script assembled to 186,890-194,284 characters on every course,
+# over the ceiling, silently, in production. (Second occurrence of this miss class: build
+# gf shipped 185,595 the same way.) The number now lives HERE, the serving path checks it
+# on every assembly, and ruletests imports it instead of declaring its own copy.
+PROMPT_CEILING = 180_000
+
+
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
-    """Fill the right course's lesson template with this student's name + remembered progress."""
+    """Fill the right course's lesson template with this student's name + remembered progress.
+
+    build gz (2026-08-17): THE CEILING IS ENFORCED AT ASSEMBLY TIME. If the finished
+    prompt exceeds PROMPT_CEILING, it is reassembled with the heard-script wording
+    DEFERRED -- the exact mechanism build cl built and build cn kept dormant with the
+    words "it becomes the right answer if the library ever grows to where it does not
+    fit." It has (all four courses overflow for an all-heard student), so for those
+    students only, heard scripts are OFFERED by name and their wording is restored the
+    moment they accept (main.py sets foundations_force_verbatim on refresher turns via
+    foundations.wants_refresher). Students under the ceiling see a byte-identical prompt
+    to yesterday's -- nothing changes for them, and the cache stays warm."""
     name = (student or {}).get("name", "the student")
     progress = (student or {}).get("progress") or ""
     progress = progress.strip()
@@ -1601,23 +1637,44 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
     playbook = _playbook(unit, course)
     mastery = (student or {}).get("mastery_note") or "(No mastery data yet -- begin at their placed level.)"
     template = LESSON_TEMPLATES.get(course or DEFAULT_COURSE, SYSTEM_PROMPT_TEMPLATE)
-    prompt = GROUND_RULES + GRAPH_TOOL_NOTE + template.format(
-        tutor_name=TUTOR_NAME,
-        student_name=name,
-        progress=progress,
-        playbook=playbook,
-        mastery=mastery,
-    ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
-        course, (student or {}).get("foundations_heard"),
-        (student or {}).get("foundations_verbatim", True),
-        unit or _FILTER_UNIT_FALLBACK)   # build gb: only THIS unit's scripts carry their wording
+    heard = (student or {}).get("foundations_heard")
+    verbatim = (student or {}).get("foundations_verbatim", True)
+    # A refresher turn ("remind me what a radius is" / accepting the rule-40 offer) must
+    # carry the exact words even for an over-ceiling student -- one over-budget turn is
+    # the price of the promise "the exact script is restored the moment they ask".
+    force_verbatim = bool((student or {}).get("foundations_force_verbatim"))
     # FINAL EXAM MODES (2026-08-07): main.py sets student["final_mode"] ONLY after verifying
     # server-side that all nine units are mastered -- never trust the client for this.
     final_mode = (student or {}).get("final_mode") or ""
-    if final_mode == "prep":
-        prompt += FINAL_PREP_NOTE
-    elif final_mode == "exam":
-        prompt += FINAL_EXAM_NOTE
+
+    def _assemble(carry_heard_wording: bool) -> str:
+        p = GROUND_RULES + GRAPH_TOOL_NOTE + template.format(
+            tutor_name=TUTOR_NAME,
+            student_name=name,
+            progress=progress,
+            playbook=playbook,
+            mastery=mastery,
+        ) + SESSION_OPENER_RULES + PROGRESS_TAGS_NOTE + _notation_block(course) + _misconception_block(course) + _foundation_block(
+            course, heard, carry_heard_wording,
+            unit or _FILTER_UNIT_FALLBACK)   # build gb: only THIS unit's scripts carry their wording
+        if final_mode == "prep":
+            p += FINAL_PREP_NOTE
+        elif final_mode == "exam":
+            p += FINAL_EXAM_NOTE
+        return p
+
+    prompt = _assemble(verbatim)
+    if len(prompt) > PROMPT_CEILING and verbatim and not force_verbatim and heard:
+        slim = _assemble(False)
+        print(f"[promptsize] {course}: {len(prompt):,} chars exceeds the "
+              f"{PROMPT_CEILING:,} ceiling -- deferring heard-script wording "
+              f"(build cl mechanism) -> {len(slim):,} chars")
+        prompt = slim
+    if len(prompt) > PROMPT_CEILING:
+        # Still over (or a refresher turn deliberately carrying the words): say so
+        # LOUDLY every time. A silent overflow is how this shipped twice before.
+        print(f"[promptsize] OVER CEILING: {course}: {len(prompt):,} chars "
+              f"(ceiling {PROMPT_CEILING:,}; force_verbatim={force_verbatim})")
     return prompt
 
 

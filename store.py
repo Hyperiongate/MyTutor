@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gz -- THE WORST VERIFY STATUS IS NO LONGER INVISIBLE. usage_stats()
+#               groups usage_log.verify_status into verify_* keys, but any status not in
+#               its init dict fell into verify_none -- and the statuses that fell were
+#               "prose-unresolved" (a reply that SHIPPED to a student carrying a known,
+#               unresolved referee finding -- the single most important number on the
+#               dashboard) and "empty" (the model returned nothing twice). Both were
+#               indistinguishable from ordinary untagged turns. Found by the 2026-08-17
+#               full-app review ("the app cannot see its own failures" class). They are
+#               now their own keys; admin.html counts prose-unresolved among checked and
+#               caught turns.
 #   2026-08-13  BUILD fa -- TEACHER ACCOUNTS (security finding F2). NEW tables `teachers`,
 #               `teacher_tokens` and `teacher_resets`, deliberately MIRRORING the parent
 #               tables rather than reusing them: a parent row carries Stripe and
@@ -2973,6 +2983,11 @@ def usage_stats(days: int = 7) -> dict:
            "retries": 0, "brain_students": 0,
            "verify_ok": 0, "verify_fixed": 0, "verify_unresolved": 0,
            "verify_unverifiable": 0, "verify_none": 0,
+           # build gz: these two used to fall through into verify_none, hiding the
+           # replies that shipped WITH an unresolved referee finding ("prose-unresolved"
+           # -- tutor.py sets it when a contradiction survives all three attempts) and
+           # the turns where the model returned nothing twice ("empty").
+           "verify_prose-unresolved": 0, "verify_empty": 0,
            "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0}
     if not _ENABLED:
         return out

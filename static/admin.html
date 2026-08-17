@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (gz) 2026-08-17 -- THE SHIPPED-UNRESOLVED COUNT IS VISIBLE. store.py used to fold
+    "prose-unresolved" (a reply that went to a student WITH a known, unresolved referee
+    finding) into verify_none, so this dashboard counted the worst outcome as "no tag".
+    The Cost & verifier card now includes those turns in checked/caught and shows a
+    dedicated "Shipped unresolved" tile that goes red when the count is nonzero.
+    Full-app review 2026-08-17, "the app cannot see its own failures" class.
+
     (gp) 2026-08-17 -- NEW NIGHT WATCH CARD. Build go shipped the governor and served its
     findings nowhere: a markdown file on the persistent disk, and a one-line count in the
     Render log. This card reads the last 30 nights, shows the REFUTED SHARE as the health
@@ -485,8 +492,12 @@
     // Raw counts are always real (from the usage log). DOLLARS appear only when the
     // price env vars are set in Render -- we never invent a cost.
     var u7 = payload.usage7 || {}, u30 = payload.usage30 || {};
-    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + (u7.verify_unverifiable || 0);
-    var caught7 = (u7.verify_fixed || 0) + (u7.verify_unresolved || 0);
+    // build gz (2026-08-17): "prose-unresolved" = a reply that SHIPPED to a student
+    // carrying a known, unresolved referee finding. store.py used to fold it into
+    // verify_none, so the most important number on this card silently read as zero.
+    var shipped7 = (u7["verify_prose-unresolved"] || 0);
+    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + (u7.verify_unverifiable || 0) + shipped7;
+    var caught7 = (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + shipped7;
     var ttsTotal7 = (u7.tts_chars_generated || 0) + (u7.tts_chars_cached || 0);
     var ttsFreePct = ttsTotal7 ? Math.round(100 * (u7.tts_chars_cached || 0) / ttsTotal7) : 0;
     var perStudent = (u7.total_usd !== null && u7.total_usd !== undefined && u7.brain_students)
@@ -503,7 +514,9 @@
       { l: "Cost / student (7d)", v: perStudent, s: num(u7.brain_students) + " students used the brain" },
       { l: "Math checks", v: num(checked7), s: "turns with a checkable claim (7d)" },
       { l: "Errors caught & fixed", v: num(caught7), cls: caught7 ? "warn" : "good",
-        s: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "% verified right first try" : "no checked turns yet" }
+        s: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "% verified right first try" : "no checked turns yet" },
+      { l: "Shipped unresolved", v: num(shipped7), cls: shipped7 ? "bad" : "good",
+        s: shipped7 ? "replies sent WITH a known referee finding (7d) — read the [prosecheck] log lines" : "no reply shipped with a known finding (7d)" }
     ]));
 
     html += section("🎟️ Beta program", "Your passes at a glance (full generator below).", tiles([
