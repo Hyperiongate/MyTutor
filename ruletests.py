@@ -8047,6 +8047,90 @@ def part3ak_night_watch():
 
 
 
+# =============================================================================
+# PART 3al -- THE OPENAI BOUNDARY (build gq)
+# =============================================================================
+# 2026-08-17. Jim enabled OpenAI's "share inputs and outputs" on a DEDICATED AUDIT
+# PROJECT, in exchange for the free daily token allowance that makes the night watch
+# essentially free and lifts the budget ceiling off its coverage.
+#
+# That bargain is safe for exactly one reason: OPENAI IS NOT IN THE TEACHING PATH. Every
+# transcript OpenAI marks is a synthetic lesson between an AI student persona and the
+# tutor -- no child's words have ever been sent to it. The moment that stops being true,
+# real children's conversation lands in a project where sharing is switched ON, and it
+# goes into a training set.
+#
+# TWO PROMISES DEPEND ON THIS, and neither is enforced by anything else:
+#   1. static/privacy.html names exactly THREE processors -- Anthropic, ElevenLabs,
+#      Render -- and says "We do not send student data to anyone else, and we never sell
+#      or rent it -- to anyone, ever."
+#   2. The audit project has data sharing ENABLED.
+# So an OpenAI call added to a reply path would silently make the privacy policy false AND
+# feed a minor's lesson into model training. That is not a bug anyone would notice in a
+# lesson; it is a bug you notice in a deposition.
+#
+# A rule that nothing watches is a wish. This watches it.
+_TEACHING_MODULES = ("tutor.py", "mathcheck.py", "sprints.py", "pedagogy.py",
+                     "foundations.py", "prompts.py", "curriculum.py", "misconceptions.py")
+
+
+def part3al_openai_boundary():
+    print("\nPART 3al — OpenAI stays out of the teaching path")
+    root = os.path.dirname(os.path.abspath(__file__))
+
+    def _read(rel):
+        p = os.path.join(root, rel)
+        if not os.path.exists(p):
+            return None
+        with open(p, "r", encoding="utf-8") as fh:
+            return fh.read()
+
+    # 1) THE TEACHING BRAIN NEVER CALLS OPENAI. tutor.py is where a reply is generated and
+    #    refereed; a fallback bolted in here is the single likeliest way this boundary
+    #    breaks (see the "substitute teacher" idea in the project notes -- it would need a
+    #    privacy-policy change and a NON-sharing project before it could ship).
+    for mod in _TEACHING_MODULES:
+        src = _read(mod)
+        if src is None:
+            continue
+        hits = [ln for ln in src.splitlines()
+                if "openai" in ln.lower() and not ln.strip().startswith("#")]
+        check(f"openai boundary: {mod} never calls OpenAI", not hits,
+              f"{mod} references OpenAI in live code: {hits[:2]} — a student's words would "
+              f"reach a project where data sharing is ENABLED, and static/privacy.html "
+              f"promises exactly three processors, none of them OpenAI")
+
+    # 2) Only the AUDIT tooling talks to the OpenAI API at all.
+    for mod in ("lessonaudit.py", "nightwatch.py"):
+        if _read(mod) is None:
+            bad(f"openai boundary: {mod} present", "audit tooling missing from the repo")
+    for mod in _TEACHING_MODULES + ("store.py", "notation.py", "library.py"):
+        src = _read(mod)
+        if src and "api.openai.com" in src:
+            bad(f"openai boundary: {mod} must not reach api.openai.com",
+                "only the offline auditor may call OpenAI")
+        elif src:
+            ok(f"openai boundary: {mod} does not reach api.openai.com")
+
+    # 3) The privacy policy still names the three processors it names. If a fourth is ever
+    #    added to the product, THIS CHECK IS THE REMINDER that the policy is the thing to
+    #    update first -- not a comment somebody hopes will be read.
+    priv = _read(os.path.join("static", "privacy.html"))
+    if priv is None:
+        bad("openai boundary: privacy.html present", "file not found")
+    else:
+        low = priv.lower()
+        for who in ("anthropic", "elevenlabs", "render"):
+            check(f"openai boundary: privacy.html still names {who}", who in low,
+                  "the processor list changed — if a provider was added or removed, the "
+                  "policy text and this check must move together")
+        check("openai boundary: privacy.html does not claim OpenAI as a processor",
+              "openai" not in low,
+              "if OpenAI now processes STUDENT data, the policy must say so and this "
+              "whole boundary needs re-thinking; if it does not, the mention is wrong")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8094,6 +8178,7 @@ def main():
     part3ah_audit_findings_fe()
     part3aj_screen_checks()
     part3ak_night_watch()
+    part3al_openai_boundary()
     part3ai_deploy_stamp()
     if live:
         part4_live()

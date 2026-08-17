@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gq-openai-boundary". A PROMISE BECOMES A TEST.
+#               Jim turned on OpenAI's "share inputs and outputs" for a DEDICATED AUDIT
+#               PROJECT, which makes the night watch essentially free and lifts the budget
+#               ceiling off its coverage. That bargain is safe for exactly one reason:
+#               OpenAI is not in the teaching path. Every transcript it marks is a
+#               synthetic lesson between an AI student persona and the tutor; no child's
+#               words have ever been sent to it. The day that stops being true, a minor's
+#               conversation lands in a project where sharing is ON -- and static/
+#               privacy.html promises exactly three processors (Anthropic, ElevenLabs,
+#               Render) and says "we do not send student data to anyone else... to anyone,
+#               ever." So the boundary now has a guard: PART 3al fails the build if any
+#               teaching module so much as references OpenAI, and names the privacy promise
+#               in its failure text. Proved by mutation -- bolting a substitute-teacher
+#               fallback into tutor.py fails two checks immediately.
+#               ⚠️ THE SUBSTITUTE TEACHER CANNOT SHIP WITHOUT A PRIVACY-POLICY CHANGE AND A
+#               SEPARATE NON-SHARING PROJECT. That was underweighted when it was first
+#               discussed; it is a policy question before it is an engineering one.
 #   2026-08-17  APP_BUILD -> "2026-08-17gp3-voice-closed". THE FIRST WORD IS FIXED, and the
 #               probe that proved it needed fixing too. Jim, on the gn build: "Better -- I
 #               hear the whole greeting now." Three builds tried this (bl and cb padded the
@@ -7168,7 +7185,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gp3-voice-closed"
+APP_BUILD = "2026-08-17gq-openai-boundary"
 
 
 @app.get("/health")
