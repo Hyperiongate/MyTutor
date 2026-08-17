@@ -2,6 +2,28 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gw -- THE BARE ANSWER-DEMAND, THE DECIMAL, AND A REFEREE THAT HAD
+#               BEEN FIGHTING US. Three fixes from one thread of the day's audit.
+#               (1) The decimal-alignment lesson raised a rule 15 and a rule 44 finding
+#               that turned out to be ONE defect: board [[step eq="2.6 + 1.35"]] with no
+#               "?", prose "...add column by column. What do you get?". Rule 15's referee
+#               needs the numbers to be IN the asking sentence; rule 44's referee only
+#               inspects board values containing "?". THE MISSING "?" HID THE PROBLEM FROM
+#               BOTH AT ONCE. A bare demand for an answer now counts as an ask when the
+#               board is holding a real computation for it to be about.
+#               (2) Underneath it, gk's fraction bug wearing a decimal point: the
+#               digit-scatter fallback found the "1" of 1.35 inside the word "one" in
+#               "let's try ONE with a similar setup" and called the problem spoken. A
+#               decimal now counts as read only when its whole part is said beside "point"
+#               -- or "dollars", because "three dollars and ninety seven cents" IS reading
+#               3.97 aloud.
+#               (3) ⭐ NOT FROM THE AUDIT AT ALL -- the canonical sweep found it. gl's
+#               self-correction referee read "hold on" as the tutor changing its mind, and
+#               TWO foundation scripts say "so hold on to this" / "the one to hold on to".
+#               It has been REGENERATING AUTHORED CONTENT. A referee that fights the
+#               foundation library is worse than no referee: it burns a model call and can
+#               cost the student the good draft (dg). "hold on TO something" is a teaching
+#               instruction, not a wobble.
 #   2026-08-17  BUILD gv -- THE INVENTED HISTORY: one referee widened, one probe added.
 #               The day's audit found SEVEN claims about what had already happened that
 #               were untrue, and they split on whether a referee can CHECK them.
@@ -2091,6 +2113,14 @@ def _pq_numeric_tokens(sentence: str) -> int:
     return n
 
 
+# build gw: a demand for AN ANSWER, with no numbers in it. Deliberately not "what do you
+# think?" or "does that make sense?" -- those are invitations, not computations.
+_PQ_BARE_DEMAND = re.compile(
+    r"\bwhat (?:do|did) you get\b|\bwhat'?s the (?:answer|total|sum|result)\b|"
+    r"\bwhat does (?:that|it) (?:come to|equal|make)\b|\bhow much (?:is )?(?:that|it)\b|"
+    r"\bwhat'?s it come to\b|\bwhat do you get when you\b", re.I)
+
+
 def prose_pending_question_conflict(reply: str):
     """Return a description of a computation asked with nothing on the board, or "".
     Never raises: any unexpected input yields "" (fail open)."""
@@ -2109,6 +2139,29 @@ def prose_pending_question_conflict(reply: str):
                     or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
                     or _PQ_SYMBOL_EXPR.search(sent)):
                 asks.append(sent)
+        # BUILD gw (2026-08-17) -- THE BARE ANSWER-DEMAND, which walked past everything
+        # above. From the day's decimal-alignment audit, twice:
+        #     board:  [[step eq="2.6 + 1.35"]]        (no "?" anywhere)
+        #     prose:  "...then add column by column. What do you get?"
+        # Every gate above needs the NUMBERS to be in the asking sentence -- two of them,
+        # or one with an operator. "What do you get?" has none, so `asks` came back empty
+        # and rule 15 never looked. And because the board line carries no "?" either, rule
+        # 44's referee skipped it too: THE MISSING "?" MADE THE PROBLEM INVISIBLE TO BOTH.
+        # That is why the audit's rule-15 and rule-44 findings here are one defect wearing
+        # two numbers.
+        # So: a bare demand for an answer counts as an ask, PROVIDED the board is holding a
+        # real computation for it to be about. Narrow on both sides -- the phrase must be an
+        # answer-demand ("what do you get", not "what do you think"), and the board must
+        # carry an operator with a number.
+        if not asks and _PQ_BARE_DEMAND.search(prose):
+            for tag in re.findall(r"\[\[\s*(?:" + "|".join(_PQ_BOARD_TAGS) + r")\b([^\]]*)\]\]",
+                                  text, re.I):
+                for val in re.findall(r'"([^"]*)"', tag):
+                    if re.search(r"[+\-\u2212\u00d7x*/\u00f7]", val) and re.search(r"\d", val):
+                        asks.append(_PQ_BARE_DEMAND.search(prose).group(0))
+                        break
+                if asks:
+                    break
         if not asks:
             return ""
         # Does the board carry a PENDING line -- a "?" standing in for the unknown?
@@ -2996,6 +3049,31 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
             together = r"\b(?:%s)\b(?:\s+\w+){0,2}\s+(?:%s)s?\b" % (
                 "|".join(tops), "|".join(bots))
             return bool(re.search(together, low))
+        # BUILD gw (2026-08-17) -- THE DECIMAL MUST BE SPOKEN AS A QUANTITY, and this is
+        # gk's fraction bug wearing a decimal point. The board said "2.6 + 1.35" and the
+        # words said "Let's try ONE with a similar setup" -- and the digit-scatter fallback
+        # below found the "1" of 1.35 inside the word "one", called the problem spoken, and
+        # handed a listening student a problem they had only ever seen written down.
+        # A decimal now only counts as read when its whole part is said next to "point"
+        # (or "dollars", since money is a legitimate reading: "three dollars and ninety
+        # seven cents" IS reading 3.97 aloud) -- or when the literal appears in the prose.
+        decs = re.findall(r"\d+\.\d+", board_value or "")
+        if decs:
+            for d in decs:
+                if re.search(r"(?<![\d.])" + re.escape(d) + r"(?![\d])", low):
+                    return True
+                whole = d.split(".")[0]
+                forms = [re.escape(whole)]
+                try:
+                    w = _EQ_NUMWORD.get(int(whole))
+                    if w:
+                        forms.append(re.escape(w))
+                except (TypeError, ValueError):
+                    pass
+                if re.search(r"\b(?:%s)\b(?:\s+\w+){0,2}\s+(?:point|dollars?)\b"
+                             % "|".join(forms), low):
+                    return True
+            return False        # a decimal problem, never read as a decimal
         nums = [int(n) for n in re.findall(r"\b\d{1,4}\b", board_value or "")]
         if not nums:
             return True                      # nothing numeric to read aloud
@@ -3312,7 +3390,13 @@ def missing_caption_conflict(reply: str):
 _SELF_CORRECT = (
     re.compile(r"\.\.\.\s*wait\b", re.I),
     re.compile(r"\bwait,\s*(?:let'?s|let me|actually|no\b|hang on|i )", re.I),
-    re.compile(r"\b(?:hold on|hang on)\b[,\s]", re.I),
+    # build gw (2026-08-17): "...to". Found by sweeping the canonical scripts, where TWO
+    # of them say "so hold on to this" and "the word common is the one to hold on to" --
+    # meaning gl has been REGENERATING authored content every time the tutor tried to
+    # deliver those scripts. A referee that fights the foundation library is worse than no
+    # referee: it burns a model call and can cost the student the good draft (build dg).
+    # "hold on" is a self-correction; "hold on TO something" is a teaching instruction.
+    re.compile(r"\b(?:hold on|hang on)\b(?!\s+to\b)[,\s]", re.I),
     re.compile(r"\bscratch that\b", re.I),
     re.compile(r"\blet me (?:re-?check|redo|try that again|start over)\b", re.I),
     re.compile(r"\bignore (?:that|what i just)\b", re.I),

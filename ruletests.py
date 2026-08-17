@@ -8541,6 +8541,125 @@ def part3ao_invented_history():
 
 
 
+# =============================================================================
+# PART 3ap -- THE BARE ANSWER-DEMAND, THE DECIMAL, AND A REFEREE THAT FOUGHT US (build gw)
+# =============================================================================
+# 2026-08-17, three fixes from one thread of the day's audit.
+#
+# The decimal-alignment lesson produced two findings, a rule 15 and a rule 44, and they
+# turned out to be ONE defect wearing two numbers:
+#     board:  [[step eq="2.6 + 1.35"]]      (no "?" anywhere)
+#     prose:  "...then add column by column. What do you get?"
+# Rule 15's referee needs the NUMBERS to be in the asking sentence -- "What do you get?"
+# has none. Rule 44's referee only inspects board values containing "?" -- this one has
+# none either. THE MISSING "?" MADE THE PROBLEM INVISIBLE TO BOTH REFEREES AT ONCE.
+#
+# And underneath that sat gk's fraction bug wearing a decimal point: the digit-scatter
+# fallback found the "1" of 1.35 inside the word "one" in "let's try ONE with a similar
+# setup", and called the problem spoken.
+#
+# ⭐ The third fix was not in the audit at all -- the canonical sweep found it. gl's
+# self-correction referee reads "hold on" as the tutor changing its mind, and TWO
+# foundation scripts say "so hold on to this" and "the one to hold on to". It has been
+# regenerating authored content. A referee that fights the foundation library is worse
+# than no referee: it burns a model call and can cost the student the good draft (dg).
+def part3ap_bare_demand_and_decimals():
+    print("\nPART 3ap — the bare answer-demand, the decimal, and gl vs the scripts")
+
+    # ---- the two real turns from the audit ----
+    turn1 = ('Let us line those up carefully. [[step eq="3.5 + 0.47"]] '
+             '[[column op="+" terms="3.50 | 0.47"]] '
+             'Add it column by column, right to left: what do you get?')
+    turn2 = 'Same idea as before. [[step eq="2.6 + 1.35"]] What do you get?'
+    for name, reply in (("decimal-alignment turn 1", turn1),
+                        ("decimal-alignment turn 2", turn2)):
+        check(f"bare-demand: {name} is caught", bool(tutor.prose_board_conflict(reply)),
+              "a bare 'what do you get?' over a board with no pending line slipped BOTH "
+              "rule 15 and rule 44 -- the missing '?' hid the problem from each")
+
+    CLEAN = [
+        ("read aloud with a pending line",
+         'Let us add three point five and zero point four seven. '
+         '[[step eq="3.5 + 0.47 = ?"]] What do you get?'),
+        ("a properly numbered ask", 'What is three plus eight? [[step eq="3 + 8 = ?"]]'),
+        ("an offer is not a computation", "Nice work today. Want to try another one?"),
+        ("money IS a reading of a decimal",
+         'That is three dollars and ninety seven cents. [[step eq="3.97 + 1.00 = ?"]] '
+         'What do you get?'),
+        ("a bare demand with no board maths at all",
+         "Have a think about it. What do you get?"),
+    ]
+    for name, reply in CLEAN:
+        check(f"bare-demand: {name} stays clean", not tutor.prose_board_conflict(reply),
+              f"got: {tutor.prose_board_conflict(reply)[:90]}")
+
+    # ---- the decimal must be spoken as a QUANTITY (gk's rule, one notation over) ----
+    DEC = [
+        ("'try one with a similar setup' does NOT read 1.35",
+         "Let us try one with a similar setup, different-length decimals again.",
+         "2.6 + 1.35 = ?", False),
+        ("spoken as a decimal", "What is two point six plus one point three five?",
+         "2.6 + 1.35 = ?", True),
+        ("the literal in the prose", "Look at 2.6 + 1.35 on the board.",
+         "2.6 + 1.35 = ?", True),
+        ("money is a legitimate reading", "That is three dollars and ninety seven cents.",
+         "3.97 = ?", True),
+        ("whole numbers keep the old behaviour", "What is three plus eight?",
+         "3 + 8 = ?", True),
+        ("gk's fractions are still enforced", "three plus one really is four",
+         "3/4 + 1/4 = ?", False),
+        ("gk's fractions still pass when read together",
+         "what is three fourths plus one fourth", "3/4 + 1/4 = ?", True),
+    ]
+    for name, prose, board, covers in DEC:
+        check(f"decimal: {name}", tutor._pq_spoken_covers(prose, board) == covers,
+              f"expected covers={covers}")
+
+    # ---- gl must stop fighting the foundation library ----
+    for name, text, should_flag in (
+            ("'so hold on to this' is a foundation script, not a wobble",
+             "Students mix those two up constantly, so hold on to this.", False),
+            ("'the one to hold on to' likewise",
+             "The word common is the one to hold on to.", False),
+            ("a real self-correction still fires",
+             "Wait, hold on -- let me recheck that.", True),
+            ("'hold on,' still fires", "hold on, that is not right", True),
+            ("'hang on to that idea' passes", "hang on to that idea for later", False)):
+        got = tutor.self_correction_conflict(text)
+        check(f"self-correction: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+
+    # ---- and the sweep that found it in the first place ----
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        skip("bare-demand: canonical sweep", f"foundations unavailable: {exc}")
+        return
+    texts = []
+
+    def _walk(o):
+        if isinstance(o, str):
+            texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    for nm in dir(_F):
+        if not nm.startswith("_"):
+            _walk(getattr(_F, nm))
+    noisy = sum(1 for t in texts if tutor.self_correction_conflict(t))
+    check(f"self-correction: silent on all {len(texts)} canonical scripts", noisy == 0,
+          f"{noisy} authored scripts would be regenerated on delivery")
+    for fn, label in ((tutor.prose_pending_question_conflict, "rule 15"),
+                      (tutor.prose_unspoken_problem_conflict, "rule 44")):
+        n = sum(1 for t in texts if fn(t))
+        check(f"{label}: silent on all {len(texts)} canonical scripts", n == 0,
+              f"{n} false alarms")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8592,6 +8711,7 @@ def main():
     part3am_spoken_letter_and_sign()
     part3an_unit_follows_teaching()
     part3ao_invented_history()
+    part3ap_bare_demand_and_decimals()
     part3ai_deploy_stamp()
     if live:
         part4_live()

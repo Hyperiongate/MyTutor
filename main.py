@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gw-bare-demand". The fourth cause from the day's
+#               triage, and it came apart into three. The rule-15 and rule-44 findings on
+#               the decimal lesson were ONE defect: a board line with no "?" is invisible to
+#               BOTH referees at once, so "What do you get?" over "2.6 + 1.35" slipped
+#               through twice. Under it sat gk's fraction bug in decimal clothing -- the
+#               "1" of 1.35 found inside the word "one". And the canonical sweep, run to
+#               prove the fixes harmless, turned up a THIRD thing nobody had reported: gl's
+#               self-correction referee has been regenerating two foundation scripts every
+#               time the tutor tried to deliver them, because they say "hold on to this".
 #   2026-08-17  APP_BUILD -> "2026-08-17gv-invented-history". The third cause from the
 #               day's audit triage, and the biggest: seven claims about what had already
 #               happened that were untrue. Split on whether a referee can check them --
@@ -7252,7 +7261,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gv-invented-history"
+APP_BUILD = "2026-08-17gw-bare-demand"
 
 
 @app.get("/health")
