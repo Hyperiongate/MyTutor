@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hc -- ONE COPY: PART 3aw, and three existing parts repointed at
+#               the single source. The spoken-text transforms and the board/variable
+#               renderer moved out of the three teaching pages into
+#               static/speech-text.js and static/board-text.js. Consequences here:
+#               PART 3aw (new) fails the build if a page re-inlines a shared function,
+#               drops an include, or loads it after its own script -- proved by
+#               re-inlining styleVarsCore into topic.html and watching it fail.
+#               PART 3 ran the forSpeech cases three times, once per copy, because
+#               there were three copies; it now runs them ONCE against the module and
+#               asserts each page LOADS it. The gn2/screencheck seam checks read
+#               board-text.js instead of session.html -- one table to match, not three
+#               that can drift. PAGE_PARITY guards the INCLUDES now, not the inline
+#               text. PART 3au learned to read globals supplied by <script src> files,
+#               so the sweep does not howl at the very refactor it exists to protect.
 #   2026-08-17  BUILD hb -- THE NET: PART 3au (the undeclared-identifier sweep) and
 #               PART 3av (the fourteenth referee, re-armed). Phase 2 of the full-app
 #               review puts this net up BEFORE the shared-module extraction goes in.
@@ -2060,24 +2074,42 @@ def part3_speech():
         harness = os.path.join(tmp, "h.js")
         with open(harness, "w") as fh:
             fh.write(_JS_HARNESS)
+        # build hc (2026-08-17): these transforms were three hand-synced copies, one per
+        # teaching page, and this battery ran the same cases against each of them --
+        # which is what you must do when there are three copies. There is now ONE copy
+        # in static/speech-text.js, so the cases run once, against it. What is asserted
+        # PER PAGE instead is that the page actually loads it: a page that quietly
+        # dropped the include would lose every one of these guarantees silently, and
+        # that -- a page missing what its siblings have -- is the exact defect class
+        # build gz shipped and PART 3au now sweeps for.
+        mod = os.path.join(here, "static", "speech-text.js")
+        if not os.path.exists(mod):
+            bad("forSpeech", "static/speech-text.js is missing -- the shared spoken-text "
+                             "module is gone and every page's voice reads raw notation")
+        else:
+            jsf = os.path.join(tmp, "speech-text.js")
+            with open(jsf, "w", encoding="utf-8") as fh:
+                with open(mod, encoding="utf-8") as src:
+                    fh.write(src.read())
+            res = subprocess.run(["node", harness, jsf, json.dumps(SPEECH_CASES)],
+                                 capture_output=True, text=True)
+            if res.returncode != 0:
+                bad("forSpeech [shared module]", res.stderr.strip()[:200])
+            else:
+                rows = json.loads(res.stdout)
+                failures = [f'"{i}" -> "{o}"' for i, o, good in rows if not good]
+                check(f"forSpeech [shared module] ({len(rows)} cases)", not failures,
+                      "; ".join(failures)[:300])
         for page in ("session", "practice", "topic"):
             path = os.path.join(here, "static", f"{page}.html")
             if not os.path.exists(path):
                 skip(f"forSpeech [{page}]", "page not found"); continue
             with open(path, encoding="utf-8") as fh:
                 html = fh.read()
-            blocks = re.findall(r"<script>(.*?)</script>", html, re.S)
-            jsf = os.path.join(tmp, f"{page}.js")
-            with open(jsf, "w", encoding="utf-8") as fh:
-                fh.write(blocks[0])
-            res = subprocess.run(["node", harness, jsf, json.dumps(SPEECH_CASES)],
-                                 capture_output=True, text=True)
-            if res.returncode != 0:
-                bad(f"forSpeech [{page}]", res.stderr.strip()[:200]); continue
-            rows = json.loads(res.stdout)
-            failures = [f'"{i}" -> "{o}"' for i, o, good in rows if not good]
-            check(f"forSpeech [{page}] ({len(rows)} cases)", not failures,
-                  "; ".join(failures)[:300])
+            check(f"forSpeech [{page}] loads the shared module",
+                  "/static/speech-text.js" in html,
+                  "this page no longer loads speech-text.js -- forSpeech is undefined "
+                  "here and the voice will read raw notation aloud")
 
 
 # =============================================================================
@@ -2931,7 +2963,11 @@ PAGE_PARITY = [
     ("fitRow() shrinks an oversized line",        "function fitRow(row)"),
     ("[[step]] lines are fitted",                 "fitRow(wl.appendChild(eqRow(eq)))"),
     ("[[write]] lines are fitted",                "fitRow(wl.appendChild(eqRow(ln)))"),
-    ("forSpeech() exists",                        "function forSpeech"),
+    # build hc: forSpeech moved to /static/speech-text.js. What every teaching page must
+    # now have is the INCLUDE -- checking for the inline text here would force the very
+    # duplication this build removed.
+    ("the shared spoken-text module is loaded (hc)", "/static/speech-text.js"),
+    ("the shared board-text module is loaded (hc)",  "/static/board-text.js"),
     ("control tags are stripped before speaking", "function stripTags"),
     ("the geometry figures are loaded",           "/static/geo-figures.js"),
     ("the math figures are loaded",               "/static/math-figures.js"),
@@ -8085,16 +8121,21 @@ def part3aj_screen_checks():
               f"geo-figures.js no longer emits side text at {ssize}/{sweight} — "
               f"S2 (figure names what the words name) has gone BLIND")
 
-    # ---- SEAM 2: session.html's VAR_SKIP is still the list screencheck mirrors ----
-    sess_path = os.path.join(root, "static", "session.html")
+    # ---- SEAM 2: the VAR_NEEDS_CONTEXT table screencheck mirrors ----
+    # build hc (2026-08-17): this table used to be read out of session.html, because it
+    # lived there -- in triplicate, one copy per teaching page. It now lives ONCE in
+    # static/board-text.js and all three pages load it, so this seam reads the single
+    # source. That is the point of the extraction: there is one table to match, not
+    # three that could drift apart between pushes.
+    sess_path = os.path.join(root, "static", "board-text.js")
     if not os.path.exists(sess_path):
-        bad("screencheck seam: session.html present", "file not found")
+        bad("screencheck seam: board-text.js present", "file not found")
     else:
         with open(sess_path, "r", encoding="utf-8") as fh:
             sess = fh.read()
         m = re.search(r"const\s+VAR_NEEDS_CONTEXT\s*=\s*\{([^}]*)\}", sess)
         if not m:
-            bad("screencheck seam: VAR_NEEDS_CONTEXT found in session.html",
+            bad("screencheck seam: VAR_NEEDS_CONTEXT found in board-text.js",
                 "the variable-styling table moved or was renamed — S1 is now guessing")
         else:
             # The page's table is CASE-SENSITIVE (gn2); screencheck matches case-
@@ -8102,7 +8143,7 @@ def part3aj_screen_checks():
             live = tuple(sorted({c.lower() for c in re.findall(r"([A-Za-z])\s*:", m.group(1))}))
             mine = tuple(sorted(set(screencheck.VAR_SKIP)))
             check("screencheck seam: VAR_NEEDS_CONTEXT matches screencheck", live == mine,
-                  f"session.html needs context for {live} but screencheck mirrors {mine} — "
+                  f"board-text.js needs context for {live} but screencheck mirrors {mine} — "
                   f"S1 will miss letters it no longer knows about, or invent ones it does")
         # build gn2 -- REVERSED. This used to assert that styled variables are UPPERCASED.
         # Jim's second Geometry lesson killed that design: the board read "A, B, C =
@@ -8113,12 +8154,32 @@ def part3aj_screen_checks():
         # that teaches the difference.
         check("screencheck: styled variables keep their case (gn2)",
               'class="mvar">' in sess and "run.toUpperCase()" not in sess,
-              "session.html is uppercasing styled variables again — 'a, b, c = sides' will "
+              "board-text.js is uppercasing styled variables again — 'a, b, c = sides' will "
               "render identically to 'A, B, C = corners' and the distinction is destroyed")
         # build gn: VAR_SKIP stopped meaning "never style" and started meaning "must earn
         # it". If varInMathContext ever disappears, the five letters go back to being
         # unstylable and "a squared plus B squared" returns -- so it is asserted here, on
         # all three lesson pages, rather than trusted.
+        # build gn: VAR_SKIP stopped meaning "never style" and started meaning "must
+        # earn it". If varInMathContext ever disappears, those letters go back to being
+        # unstylable and "a squared plus B squared" returns.
+        # build hc: asserted ONCE, against the shared module -- the three pages used to
+        # each carry their own copy of this logic, which is exactly the arrangement that
+        # let a fix reach one page and not the others.
+        check("screencheck seam: context letters can earn styling (shared module)",
+              "varInMathContext" in sess and "MV_POW" in sess,
+              "the math-context test is gone from board-text.js — a, i, f, g and h can "
+              "no longer be styled at all, which is the defect Jim found on 2026-08-16")
+        check("gn2: a styled variable renders exactly as written (shared module)",
+              "run.toUpperCase()" not in sess,
+              "uppercasing is back — 'a, b, c = sides' and 'A, B, C = corners' will "
+              "render identically")
+        check("gn2: the variable table stays case-sensitive (shared module)",
+              "VAR_NEEDS_CONTEXT" in sess and "run.toLowerCase()" not in sess,
+              "the table is case-insensitive again — capital A can no longer be a "
+              "label (P(A), vertex A) distinct from the article 'a'")
+        # And every teaching page must actually LOAD that single source -- a page that
+        # quietly stopped including it would lose all three guarantees above silently.
         for page in ("session.html", "practice.html", "topic.html"):
             p = os.path.join(root, "static", page)
             if not os.path.exists(p):
@@ -8126,20 +8187,10 @@ def part3aj_screen_checks():
                 continue
             with open(p, "r", encoding="utf-8") as fh:
                 txt = fh.read()
-            check(f"screencheck seam: {page} lets context letters earn styling",
-                  "varInMathContext" in txt and "MV_POW" in txt,
-                  "the math-context test is gone — a, i, f, g and h can no longer be "
-                  "styled at all, which is the defect Jim found on 2026-08-16")
-            # gn2: the two halves of the case fix, asserted per page. Losing either one
-            # re-breaks the lesson that TEACHES uppercase-vs-lowercase.
-            check(f"gn2: {page} renders a styled variable exactly as written",
-                  "run.toUpperCase()" not in txt,
-                  "uppercasing is back — 'a, b, c = sides' and 'A, B, C = corners' will "
-                  "render identically")
-            check(f"gn2: {page} keeps the variable table case-sensitive",
-                  "VAR_NEEDS_CONTEXT" in txt and "run.toLowerCase()" not in txt,
-                  "the table is case-insensitive again — capital A can no longer be a "
-                  "label (P(A), vertex A) distinct from the article 'a'")
+            check(f"screencheck seam: {page} loads the shared board-text module (hc)",
+                  "/static/board-text.js" in txt,
+                  "this page no longer loads the one copy of the variable renderer — "
+                  "styleVars is undefined here and the board will not render")
             # build gn -- THE HEAD OF THE CLIP. Jim has now reported "his first word is cut
             # off" three times (bl, cb, gn). The first two fixes padded the FRONT of the
             # clip with more silence; this one removed the flat 300ms race that let a clip
@@ -9599,13 +9650,36 @@ _JS_WINDOW_GLOBALS = {
 }
 
 
+def _js_shared_globals(page_path, raw_html):
+    """Top-level names supplied to this page by its own <script src="/static/*.js">
+    includes. build hc moved the spoken-text and board/variable transforms into shared
+    files; without this, every call site would look like an undeclared identifier and
+    the sweep would howl at exactly the refactor it exists to protect."""
+    import os as _os
+    names, here = set(), _os.path.dirname(_os.path.abspath(page_path))
+    root = _os.path.dirname(here) if _os.path.basename(here) == "static" else here
+    for m in re.finditer(r'<script[^>]*\bsrc="(/static/[^"]+\.js)"', raw_html):
+        f = _os.path.join(root, m.group(1).lstrip("/"))
+        if not _os.path.exists(f):
+            continue
+        js = _js_strip(open(f, encoding="utf-8").read())
+        pairs = _js_braces(js)
+        names |= _js_page_level(js, pairs, max_depth=0)
+        for mm in re.finditer(r"\bfunction\s+([A-Za-z_$][\w$]*)", js):
+            if _js_depth_at(pairs, mm.start()) == 0:
+                names.add(mm.group(1))
+    return names
+
+
 def js_scope_audit(paths):
     pages, risky = {}, set()
     for p in paths:
-        js = _js_strip(_js_scripts(open(p, encoding="utf-8").read()))
+        raw = open(p, encoding="utf-8").read()
+        js = _js_strip(_js_scripts(raw))
         pairs = _js_braces(js)
-        pages[p] = (js, pairs, _js_page_level(js, pairs))
-        risky |= pages[p][2]
+        declared = _js_page_level(js, pairs) | _js_shared_globals(p, raw)
+        pages[p] = (js, pairs, declared)
+        risky |= _js_page_level(js, pairs)
     risky -= _JS_WINDOW_GLOBALS
     findings = {}
     for p in paths:
@@ -9736,6 +9810,90 @@ def part3av_unit_referee_rearmed():
         bad("the unit-claim canonical sweep ran", str(exc))
 
 
+# =============================================================================
+# PART 3aw -- ONE COPY, AND IT STAYS ONE COPY (build hc)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 2 of the full-app review. The spoken-text transforms and the
+# board/variable renderer existed as THREE hand-synced copies -- one each in
+# session.html, topic.html and practice.html -- and that arrangement is not a tidiness
+# problem, it is a defect generator: build gz shipped two live defects that existed
+# only because a fix reached one copy and not its siblings, and build gn2's "case is
+# meaning" fix had to be hand-copied three times to land.
+#
+# They are now ONE file each. This part exists so they stay that way. A future edit
+# that pastes styleVarsCore back into a page to "just fix this one thing" is the
+# beginning of the next gz, and it fails the build here instead.
+#
+# The extraction itself was proved equivalent, not assumed: the 974-string canonical
+# corpus (949 authored foundation strings + 25 adversarial cases aimed at exactly what
+# these transforms decide -- case, signs, money, fractions, function names) was pushed
+# through forSpeech, styleVars and machineSub in a real browser on all three pages,
+# before and after. 2,922 outputs per page, ZERO differences, zero page errors.
+# =============================================================================
+SHARED_JS_MODULES = {
+    "speech-text.js": ["forSpeech", "moneyWords", "mixedWords", "fracWords"],
+    "board-text.js": ["styleVars", "styleVarsCore", "varInMathContext", "escapeHTML",
+                      "machineSub"],
+}
+SHARED_JS_CONSTS = {"board-text.js": ["VAR_NEEDS_CONTEXT", "MV_POW", "MV_NOUN"],
+                    "speech-text.js": ["FRAC_WORDS"]}
+
+
+def part3aw_one_copy():
+    print("\nPART 3aw — one copy, and it stays one copy (build hc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    pages = ("session.html", "topic.html", "practice.html")
+
+    for mod, fns in SHARED_JS_MODULES.items():
+        path = os.path.join(here, "static", mod)
+        if not os.path.exists(path):
+            bad(f"static/{mod} exists", "the shared module is gone -- every page that "
+                                        "loads it now has undefined functions")
+            continue
+        with open(path, encoding="utf-8") as fh:
+            src = fh.read()
+        for fn in fns:
+            check(f"{mod} defines {fn}()", f"function {fn}" in src,
+                  "it moved or was renamed -- the pages call it by this name")
+        for const in SHARED_JS_CONSTS.get(mod, []):
+            check(f"{mod} still owns {const}", const in src,
+                  "the table the renderer depends on is gone")
+        check(f"{mod} is a CLASSIC script (no export/import)",
+              "export " not in src and "import " not in src,
+              "it became a module -- classic scripts are what keep these as globals, "
+              "which is what lets every existing call site work unchanged")
+        check(f"{mod} ends with the truncation statement",
+              "I did no harm and this file is not truncated" in src,
+              "the standing rule for every file in this repo")
+
+    # NO PAGE MAY RE-INLINE ANY OF IT. This is the check that keeps the cure from
+    # being undone one convenient paste at a time.
+    for page in pages:
+        path = os.path.join(here, "static", page)
+        if not os.path.exists(path):
+            bad(f"{page} exists", "missing from static/"); continue
+        with open(path, encoding="utf-8") as fh:
+            html = fh.read()
+        inline = "\n".join(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>",
+                                      html, re.S))
+        for mod, fns in SHARED_JS_MODULES.items():
+            check(f"{page} loads /static/{mod}", f"/static/{mod}" in html,
+                  f"without it, {fns[0]}() is undefined on this page")
+            relapsed = [fn for fn in fns if f"function {fn}" in inline]
+            check(f"{page} does NOT re-inline {mod}'s functions", not relapsed,
+                  f"{relapsed} were pasted back into this page. Two copies means the "
+                  f"next fix lands in one of them -- that is exactly how build gz's two "
+                  f"live defects were born. Edit static/{mod} instead.")
+        # The include must come BEFORE the inline script that calls into it.
+        first_inline = html.find("<script>")
+        for mod in SHARED_JS_MODULES:
+            at = html.find(f"/static/{mod}")
+            check(f"{page} loads {mod} before its own script runs",
+                  at >= 0 and (first_inline < 0 or at < first_inline),
+                  "the include comes after the page's inline code, so the functions are "
+                  "undefined at the moment the page first uses them")
+
+
 def part3au_undeclared_identifiers():
     print("\nPART 3au — the undeclared-identifier sweep (build hb)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -9850,6 +10008,7 @@ def main():
     part3at_eyes()
     part3au_undeclared_identifiers()
     part3av_unit_referee_rearmed()
+    part3aw_one_copy()
     part3ai_deploy_stamp()
     if live:
         part4_live()

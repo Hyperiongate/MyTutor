@@ -2,6 +2,42 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hc-one-copy". PHASE 2 OF THE FULL-APP REVIEW,
+#               PART TWO: THE EXTRACTION. The review's Class B -- "one renderer, five
+#               hand-synced copies" -- is the whack-a-mole GENERATOR: ~2,400 duplicated
+#               lines across session/topic/practice, where build gz's two live defects
+#               existed only because a fix reached one copy and not its siblings, and
+#               build gn2's "case is meaning" fix had to be hand-copied three times.
+#               TWO NEW SHARED FILES, extracted VERBATIM (not one character of logic
+#               changed in the move):
+#                 static/speech-text.js -- FRAC_WORDS, fracWords, mixedWords, moneyWords,
+#                   forSpeech: what a string should SOUND like.
+#                 static/board-text.js  -- VAR_NEEDS_CONTEXT, the MV_* tables,
+#                   varInMathContext, escapeHTML, styleVars, styleVarsCore, machineSub:
+#                   what the student SEES, including the gn2 case rules.
+#               Both are CLASSIC scripts on purpose, so the functions stay globals and
+#               EVERY EXISTING CALL SITE WORKS UNCHANGED -- the pages lost code, not
+#               behaviour. Loaded in <head> before any inline script.
+#               SCOPE WAS CHOSEN BY EVIDENCE, NOT AMBITION. Only functions that are
+#               byte-identical across all three pages AND depend on nothing but the
+#               browser were moved. The voice CONTROL functions sitting right beside
+#               forSpeech (speechDeadline, stopAllSpeech, withDeadline) were left in the
+#               pages: they read page state (`paused`, `ttsAudio`), and extracting them
+#               would have thrown a ReferenceError on the first pause. They belong to a
+#               later voice.js that moves that state with them.
+#               PROVED EQUIVALENT, NOT ASSUMED: the 974-string corpus (949 authored
+#               foundation strings + 25 adversarial cases aimed at case, signs, money,
+#               fractions and function names) pushed through forSpeech, styleVars and
+#               machineSub in a REAL BROWSER, before and after, on all three pages --
+#               2,922 outputs each, ZERO differences, zero page errors. Then screencheck
+#               drove all three pages: S1-S7, 0 findings.
+#               GUARDED: ruletests PART 3aw fails the build if any page re-inlines a
+#               shared function, drops an include, or loads it after its own script
+#               (verified by re-inlining styleVarsCore into topic.html: caught). PART 3
+#               now runs the forSpeech cases ONCE against the module and asserts each
+#               page LOADS it; the gn2 seam checks read the single source instead of
+#               three copies; PART 3au learned to read <script src> globals so the
+#               sweep does not howl at the refactor it exists to protect.
 #   2026-08-17  APP_BUILD -> "2026-08-17hb-the-net". PHASE 2 OF THE FULL-APP REVIEW,
 #               PART ONE: THE NET GOES UP BEFORE THE EXTRACTION GOES IN. Phase 2's real
 #               move is collapsing ~2,400 duplicated frontend lines into shared modules;
@@ -7416,7 +7452,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hb-the-net"
+APP_BUILD = "2026-08-17hc-one-copy"
 
 
 @app.get("/health")
