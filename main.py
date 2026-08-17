@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  APP_BUILD -> "2026-08-16gn2-case-is-meaning". CASE IS MEANING. Jim's next
+#               Geometry lesson read "A, B, C = corners (vertices)" over "a, b, c = sides
+#               (lengths)" and both lines rendered IDENTICALLY, because styleVarsCore
+#               forced every styled variable to a capital -- the one line whose job was to
+#               separate the two cases destroyed the distinction it taught. A styled letter
+#               now renders exactly as written, and the table that decides which letters
+#               need context is case-sensitive. session.html / practice.html / topic.html,
+#               plus lessonaudit's discipline check 4, which had told the critic that case
+#               mixing was invisible to the student. It no longer is.
 #   2026-08-16  APP_BUILD -> "2026-08-16gn-screen-auditor". Carries gn on top of gm: the
 #               THIRTEENTH referee (triangle_letter_conflict, rule 63(d)) and the new
 #               offline screen auditor (screencheck.py + ruletests PART 3aj). Jim ran one
@@ -6997,7 +7006,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16gn-screen-auditor"
+APP_BUILD = "2026-08-16gn2-case-is-meaning"
 
 
 @app.get("/health")

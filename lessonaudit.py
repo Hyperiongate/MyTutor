@@ -282,10 +282,14 @@ human time to reject):
    them. If your suggested fix already appears in the transcript, you have no finding.
 3. Mathematics that is correct under standard conventions is never a finding, however
    surprising it looks.
-4. THE BOARD'S CASE CONVENTION: the student's screen renders every single-letter
-   variable as a red CAPITAL letter, whatever the case inside the tag -- so
-   "x^2 - 3X - 10" displays perfectly consistently. Case mixing inside a tag is
-   invisible to the student and is NOT a finding.
+4. THE BOARD'S CASE CONVENTION (REVERSED 2026-08-16, build gn2 -- read this carefully
+   if you remember the old rule): the student's screen now renders every single-letter
+   variable EXACTLY AS WRITTEN, in bold red. It used to force a CAPITAL, which made
+   tag-level case mixing invisible and therefore not a finding. That is no longer true.
+   CASE IS NOW VISIBLE AND CASE IS MEANING: side a is opposite vertex A, the
+   antiderivative of f is F, P(A) is an event where p is a probability. So "x^2 - 3X - 10"
+   IS a finding now, and so is any figure whose words say a, b, c while the picture says
+   A, B, C. Judge case as a student would.
 5. DECIDED DESIGNS ARE NOT FINDINGS. Two you will be tempted by: (a) the check-in
    "...or should I show it a different way?" is REQUIRED wording (the rules ban the
    bare "does that make sense?" and mandate exactly this escape-hatch form -- flag only

@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <!--
+    (gn2) 2026-08-16 -- CASE IS MEANING. Jim, on the very lesson that teaches this: the
+    board read "A, B, C = corners (vertices)" over "a, b, c = sides (lengths)" and BOTH
+    LINES RENDERED IDENTICALLY, because styleVarsCore forced every styled variable to a
+    CAPITAL. The one line whose whole job was to separate uppercase from lowercase
+    destroyed the distinction it was teaching -- and the figure beside it, correctly
+    labelled a=3, b=4, c=?, then disagreed with the words above it (rule 63, caused by us).
+    Two changes. (1) A styled letter renders EXACTLY AS WRITTEN and keeps its bold red;
+    the 2026-07-22 note that introduced the capital wanted variables to POP, and was
+    written when this app taught Algebra I alone. It became false the day Geometry
+    shipped: side a is opposite vertex A, the antiderivative of f is F, P(A) is an event
+    where p is a probability. (2) The blacklist became a CASE-SENSITIVE question -- which
+    letters double as English or as function names? a/A/I and f/F/g/G/h/H -- and those
+    earn styling from context (squared, an operator, a letter list, a measurement noun).
+    MEASURED against all 1,015 canonical scripts: 218 strings differ by CASE ALONE and 49
+    gain or lose a letter, every one of them a formula that was previously inconsistent.
+    Four regressions were found by that sweep and fixed before shipping: the article in
+    "A **fact family** is..." (the **term** split hides the following word), f and g
+    painted red through the function-notation lessons, the g and o of "(f o g)", and
+    "the highest point a thrown ball reaches".
     (gn) 2026-08-16 -- THE FORMULA STOPPED BEING WRITTEN TWO WAYS. Jim, live in Geometry:
     "the a in the a squared is not bright, capital, bold, red. It's just a small a." The
     board rendered "a squared plus B squared equals C squared" -- the most famous formula in
@@ -1613,37 +1632,76 @@
     // word (next, box, explain), NEVER a single-letter English word (a, I), and NEVER
     // a function name (the f in "f("). styleVars() HTML-escapes its input first, so it
     // is safe to inject with innerHTML. Variables render bold, CAPITAL, red (.mvar).
-    // 2026-08-16 (build gn, Jim live on Geometry: "the a in the a squared is not bright,
-    // capital, bold, red. It's just a small a"): VAR_SKIP used to mean NEVER STYLE, and it
-    // cost us the most famous formula in school mathematics. "a squared plus b squared
-    // equals c squared" reached the student as "a squared plus B squared equals C squared"
-    // -- one quantity written two ways inside a single sentence, and the child left to
-    // wonder whether the small a and the big B are the same kind of thing.
-    // These five letters really do double as English words ("a", "I") or function names
-    // (f, g, h), so they are still not styled ON SIGHT. They now have to EARN it by
-    // standing in an unmistakably mathematical position: squared/cubed, carrying an
-    // exponent, beside an arithmetic operator with a real operand on the far side, or
-    // wearing a coefficient. "Pick a number" stays prose. "a squared" and "3 + a = 5"
-    // become variables, exactly like the b and c standing next to them.
-    // Deliberately conservative: a skip-list letter followed by an ordinary WORD is never
-    // a variable, which is what keeps "3 - a few more" out of it.
-    // NOTE: machineSub() below keeps the plain VAR_SKIP test on purpose -- it substitutes a
-    // value into a function-machine rule ("2x+1"), a different job with its own risks.
-    const VAR_SKIP = { a: 1, i: 1, f: 1, g: 1, h: 1 };  // a,i = English words; f,g,h = function names
+    // 2026-08-16 (build gn/gn2). TWO defects from Jim's Geometry lessons, one week apart
+    // in the same file, and the second one overturned the first fix's assumption.
+    //
+    // gn: VAR_SKIP meant NEVER STYLE for a, i, f, g, h, so "a squared plus b squared
+    // equals c squared" reached the child as "a squared plus B squared equals C squared".
+    //
+    // gn2: the board then read "A, B, C = corners (vertices) / a, b, c = sides (lengths)"
+    // -- and BOTH lines rendered identically, because styleVarsCore forced a CAPITAL. The
+    // one line whose entire job was to separate uppercase from lowercase destroyed the
+    // distinction it was teaching. CASE IS MEANING IN MATHEMATICS: side a is opposite
+    // vertex A, the antiderivative of f is F, P(A) is an event where p is a probability.
+    //
+    // So the model is no longer a blacklist of letters. It is: WHICH LETTERS DOUBLE AS
+    // ENGLISH? Only three, and case is what decides:
+    //   "a"  the article        -- needs mathematical context to be a variable
+    //   "A"  sentence-opening article ("A triangle has...") -- English only when it
+    //        introduces a WORD; P(A), vertex A, "opposite A." are all labels
+    //   "I"  the pronoun        -- same test; "I = 5" is a variable, "I think" is not
+    // f, g and h were on the old list as FUNCTION NAMES, and that job is done properly
+    // by the "(" guard and MV_FUNC below -- so "the height h" and "f is F" now style,
+    // while f(x), f'' and (f o g) do not.
+    // CASE-SENSITIVE, on purpose. "a"/"A"/"I" double as English; f, g and h double as
+    // FUNCTION NAMES, and the app has whole lessons whose point is "the letter is only a
+    // name" -- painting that f the same red as a variable blurs exactly the distinction
+    // being taught, which is the gn2 defect one course over. They earn styling the same
+    // way: beside an operator, after a measurement noun ("the height h"), in a letter
+    // list. (Caught by the corpus sweep: an early gn2 draft styled f and g right through
+    // the function-notation scripts.)
+    const VAR_NEEDS_CONTEXT = { a: 1, A: 1, I: 1, f: 1, F: 1, g: 1, G: 1, h: 1, H: 1 };
     const MV_POW  = /^\s*(?:squared\b|cubed\b|[²³^])/;                  // a squared, a^2
     const MV_OPR  = /^\s*[-+=×*\/÷]\s*(?:\d|[A-Za-z](?![A-Za-z]))/;     // a + b, a = 5
     const MV_PRE  = /(?:\d|[A-Za-z])\s*[-+=×*\/÷]\s*$|\(\s*$/;        // 3 + a, (a
-    const MV_WORD = /^\s+[A-Za-z]{2,}/;                                        // "a few", "a number"
-    // A PRIMED OR COMPOSED LETTER IS A FUNCTION NAME, NEVER A VARIABLE. Caught by sweeping
-    // the 1,015 canonical scripts: "(f o g)(x) = f(g(x))" and "(f''=0 alone proves nothing)"
-    // both sit just inside a parenthesis, which would otherwise read as mathematical.
+    const MV_WORD = /^\s+[A-Za-z]{2,}/;                                        // "a few", "A triangle"
     const MV_FUNC = /^\s*(?:['\u2019\u2032]|o\s)/;                            // f', f'', f o g
-    function varInMathContext(before, after) {
-      if (MV_FUNC.test(after)) return false;
-      if (MV_POW.test(after)) return true;
-      if (MV_OPR.test(after)) return true;
-      if (/\d$/.test(before)) return true;                       // 2a, 3i -- a coefficient
-      if (MV_PRE.test(before) && !MV_WORD.test(after)) return true;
+    // ...and the OTHER two letters of a composition: the g in "(f o g)", and the little
+    // "o" itself, which is an operator rather than a variable. Found by sweeping the
+    // canonical scripts, where "(f o g)(x) = f(g(x))" is the only string that has them.
+    const MV_COMPOSE_BEFORE = /[A-Za-z]\s+o\s+$/;                              // the g in f o g
+    const MV_IS_COMPOSE_OP  = /[A-Za-z]\s+$/;                                   // the o in f o g
+    const MV_LIST_AFTER  = /^\s*,\s*[A-Za-z](?![A-Za-z])/;                    // "a, b"
+    const MV_LIST_BEFORE = /(?:^|[^A-Za-z])[A-Za-z]\s*,\s*$/;                 // "b, a"
+    const MV_LABEL_FOLLOW = /^\s+(?:is|was|are|were|equals|measures|and|or)\b/i;
+    const MV_NOUN = /\b(?:side|leg|vertex|corner|point|angle|line|segment|ray|variable|letter|height|base|width|length|radius|diameter|area|perimeter|hypotenuse)\s+$/i;
+    function varInMathContext(before, after, run) {
+      if (MV_POW.test(after) || MV_OPR.test(after)) return true;   // a squared, a = 5
+      if (/\d$/.test(before)) return true;                         // 2a, 3i -- a coefficient
+      if (MV_PRE.test(before) && !MV_WORD.test(after)) return true; // 3 + a, (a
+      if (MV_LIST_AFTER.test(after) || MV_LIST_BEFORE.test(before)) return true;  // a, b, c
+      // A letter keeps company: "side a", "corner A", "vertex B", "the height h and the
+      // base b". But a math noun alone is NOT enough for the lowercase article -- the
+      // corpus turned up "the highest point a thrown ball reaches", where "point" is
+      // English and "a" is an article. So after a noun the letter must either END the
+      // phrase (punctuation, an operator, nothing) or be followed by a word that only
+      // ever FOLLOWS a label: "side a is...", "the height h and...".
+      if (MV_NOUN.test(before) && (!MV_WORD.test(after) || MV_LABEL_FOLLOW.test(after))) return true;
+      // Capital A and I are English only when they INTRODUCE a word. Everywhere else --
+      // P(A), "opposite A.", "A = 5" -- they are labels. Lowercase "a" never gets this,
+      // because "a number", "a go", "a hint" are all the article.
+      // The "after" text stops at a **key term** boundary, because styleVars() splits the
+      // sentence on those markers before this runs. So "A **fact family** is..." arrives
+      // here as the fragment "A " -- an article with NOTHING after it, which used to look
+      // exactly like a standalone label and painted the article red on 300+ canonical
+      // scripts. An empty tail is UNKNOWN, not evidence: only decide A/I is a label when
+      // something real follows it. "corner A" at a fragment end is still caught above by
+      // MV_NOUN. (Found by the 1,015-string corpus sweep; every fixture had passed.)
+      // A and I ONLY. This is the capital-label case -- P(A), "opposite A.", "vertex A" --
+      // and it must not extend to f, g and h: "the rule called f, and 7 comes back" is a
+      // function name, comma or no comma. (An earlier gn2 draft let f/g/h through here
+      // and painted them red across the function-notation scripts.)
+      if ((run === "A" || run === "I") && after.trim() !== "" && !MV_WORD.test(after)) return true;
       return false;
     }
     function escapeHTML(s) {
@@ -1683,9 +1741,24 @@
           }
         }
         if (run.length === 1 && after !== "(" && before !== "'" && before !== "’"
-            && (!VAR_SKIP[run.toLowerCase()]
-                || varInMathContext(text.slice(0, m.index), text.slice(m.index + run.length)))) {
-          out += '<span class="mvar">' + run.toUpperCase() + '</span>';
+            && !MV_FUNC.test(text.slice(m.index + run.length))
+            && !MV_COMPOSE_BEFORE.test(text.slice(0, m.index))
+            && !(run === "o" && MV_IS_COMPOSE_OP.test(text.slice(0, m.index))
+                 && /^\s+[A-Za-z](?![A-Za-z])/.test(text.slice(m.index + run.length)))
+            && (!VAR_NEEDS_CONTEXT[run]
+                || varInMathContext(text.slice(0, m.index),
+                                    text.slice(m.index + run.length), run))) {
+          // 2026-08-16 (build gn2, Jim live in Geometry, the lesson that TEACHES this):
+          // the board read "A, B, C = corners (vertices) / a, B, C = sides (lengths)".
+          // The one line whose entire job is to separate uppercase from lowercase had
+          // both rendered the same, because this call destroyed the case. CASE IS
+          // MEANING IN MATHEMATICS -- side a is opposite vertex A, the antiderivative of
+          // f is F, P(A) is an event and p is a probability. The 2026-07-22 note that
+          // introduced the capital wanted variables to POP, and that was written when
+          // this app taught Algebra I and nothing else; it became false the day Geometry
+          // shipped. The letter now renders EXACTLY AS WRITTEN and keeps the bold red
+          // that made it pop. Do not put toUpperCase back.
+          out += '<span class="mvar">' + escapeHTML(run) + '</span>';
         } else { out += escapeHTML(run); }
         last = m.index + run.length;
       }
@@ -1701,7 +1774,7 @@
       let s = String(rule).replace(/(\d)\s*([A-Za-z])/g, "$1 × $2");      // 2x -> 2 × x
       s = s.replace(/[A-Za-z]+/g, (run, idx, whole) => {
         const after = whole[idx + run.length] || "";
-        if (run.length === 1 && after !== "(" && !VAR_SKIP[run.toLowerCase()]) return String(val);
+        if (run.length === 1 && after !== "(" && !VAR_NEEDS_CONTEXT[run]) return String(val);
         return run;
       });
       return s.replace(/\s*\+\s*/g, " + ").replace(/\s{2,}/g, " ").trim();

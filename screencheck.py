@@ -38,15 +38,27 @@
 #                 S5  the caption doesn't answer -- a caption that spoils the open question
 #                 S6  nothing is clipped        -- measured at capture time
 #
-#               S1's root cause, recorded so nobody re-derives it: session.html line ~3064,
+#               S1's root cause, recorded so nobody re-derives it: session.html had
 #                   const VAR_SKIP = { a: 1, i: 1, f: 1, g: 1, h: 1 };
-#               Every OTHER single letter renders as <span class="mvar">B</span> -- bold,
-#               red, and UPPERCASED. "a" is skipped so we never paint the English word "a"
-#               red, and "h" so "f/g/h" read as function names. The cost is that the two
-#               most common formulas in school mathematics render wrong: a^2 + b^2 = c^2
-#               becomes "a + B = C", and the triangle area (1/2)bh becomes "(1/2)Bh".
-#               THIS FILE DOES NOT FIX THAT -- it makes it impossible to ship again unseen.
-#               Build gn ships the detector; the remedy is Jim's call (see the report).
+#               meaning NEVER STYLE, while every other single letter rendered as a bold red
+#               UPPERCASE <span class="mvar">. So "a squared plus b squared equals c
+#               squared" reached the child as "a squared plus B squared equals C squared".
+#
+#               ⚠️ A CORRECTION TO AN EARLIER DRAFT OF THIS NOTE, left in as a warning: it
+#               claimed the triangle-area formula "(1/2)bh" rendered as "(1/2)Bh". IT DOES
+#               NOT -- "bh" is a two-letter run and styleVarsCore never touches it. The
+#               claim was reasoned instead of run. Extracting the real function and calling
+#               it took one command and showed the true form of the defect is "the base b
+#               times the height h". RUN THE RENDERER; DO NOT DEDUCE IT.
+#
+#   2026-08-16  BUILD gn2 -- and then Jim's next lesson overturned the fix's assumption.
+#               The board read "A, B, C = corners (vertices)" over "a, b, c = sides
+#               (lengths)" and BOTH LINES RENDERED THE SAME, because the renderer forced a
+#               capital. CASE IS MEANING: side a is opposite vertex A. session.html now
+#               renders a styled letter exactly as written, and its table is CASE-SENSITIVE
+#               (VAR_NEEDS_CONTEXT). S1 is unchanged -- it asks whether a formula is styled
+#               two ways, which is true regardless of case -- but the seam it mirrors moved,
+#               so PART 3aj now compares the lower-cased sets.
 #
 #               ⚠️ S2 READS geo-figures.js BY ITS FONT METRICS. That renderer labels
 #               vertices at font-size 17 / weight 800 and sides at 15 / weight 600, and
@@ -77,7 +89,10 @@ FIG_VERTEX_FONT = ("17", "800")     # corner labels: A, B, C
 FIG_SIDE_FONT   = ("15", "600")     # side labels:   3, 4, ?  (or "a = 3")
 FIG_ANGLE_FONT  = ("13", "700")     # angle measures: 30°, 60°
 
-# The session.html contract S1 depends on: letters excluded from variable styling.
+# The session.html contract S1 depends on. Build gn2 renamed it VAR_NEEDS_CONTEXT and made
+# it CASE-SENSITIVE (a/A/I are English, f/F/g/G/h/H are function names) -- these are those
+# letters folded to lowercase, which is all S1 needs, since its bare-letter patterns are
+# case-insensitive. ruletests PART 3aj asserts the two stay in step.
 VAR_SKIP = ("a", "i", "f", "g", "h")
 
 SEV_HIGH, SEV_MED, SEV_LOW = "HIGH", "MEDIUM", "LOW"

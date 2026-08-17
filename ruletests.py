@@ -7696,20 +7696,29 @@ def part3aj_screen_checks():
     else:
         with open(sess_path, "r", encoding="utf-8") as fh:
             sess = fh.read()
-        m = re.search(r"const\s+VAR_SKIP\s*=\s*\{([^}]*)\}", sess)
+        m = re.search(r"const\s+VAR_NEEDS_CONTEXT\s*=\s*\{([^}]*)\}", sess)
         if not m:
-            bad("screencheck seam: VAR_SKIP found in session.html",
-                "the variable-styling skip list moved or was renamed — S1 is now guessing")
+            bad("screencheck seam: VAR_NEEDS_CONTEXT found in session.html",
+                "the variable-styling table moved or was renamed — S1 is now guessing")
         else:
-            live = tuple(sorted(re.findall(r"([A-Za-z])\s*:", m.group(1))))
-            mine = tuple(sorted(screencheck.VAR_SKIP))
-            check("screencheck seam: VAR_SKIP matches screencheck", live == mine,
-                  f"session.html skips {live} but screencheck mirrors {mine} — S1 will "
-                  f"miss letters it no longer knows about, or invent ones it does")
-        check("screencheck: styled variables are uppercased (the reason S1 exists)",
-              'class="mvar">' in sess and "run.toUpperCase()" in sess,
-              "session.html no longer uppercases styled variables — if that was the fix, "
-              "S1's fixtures should be revisited rather than left asserting the old world")
+            # The page's table is CASE-SENSITIVE (gn2); screencheck matches case-
+            # insensitively, so compare the lower-cased sets.
+            live = tuple(sorted({c.lower() for c in re.findall(r"([A-Za-z])\s*:", m.group(1))}))
+            mine = tuple(sorted(set(screencheck.VAR_SKIP)))
+            check("screencheck seam: VAR_NEEDS_CONTEXT matches screencheck", live == mine,
+                  f"session.html needs context for {live} but screencheck mirrors {mine} — "
+                  f"S1 will miss letters it no longer knows about, or invent ones it does")
+        # build gn2 -- REVERSED. This used to assert that styled variables are UPPERCASED.
+        # Jim's second Geometry lesson killed that design: the board read "A, B, C =
+        # corners (vertices) / a, b, c = sides (lengths)" and both lines rendered
+        # identically, because the renderer forced a capital. CASE IS MEANING -- side a is
+        # opposite vertex A, the antiderivative of f is F. The letter now renders exactly
+        # as written, and putting toUpperCase back would silently re-break the one lesson
+        # that teaches the difference.
+        check("screencheck: styled variables keep their case (gn2)",
+              'class="mvar">' in sess and "run.toUpperCase()" not in sess,
+              "session.html is uppercasing styled variables again — 'a, b, c = sides' will "
+              "render identically to 'A, B, C = corners' and the distinction is destroyed")
         # build gn: VAR_SKIP stopped meaning "never style" and started meaning "must earn
         # it". If varInMathContext ever disappears, the five letters go back to being
         # unstylable and "a squared plus B squared" returns -- so it is asserted here, on
@@ -7721,10 +7730,20 @@ def part3aj_screen_checks():
                 continue
             with open(p, "r", encoding="utf-8") as fh:
                 txt = fh.read()
-            check(f"screencheck seam: {page} lets VAR_SKIP letters earn styling",
+            check(f"screencheck seam: {page} lets context letters earn styling",
                   "varInMathContext" in txt and "MV_POW" in txt,
                   "the math-context test is gone — a, i, f, g and h can no longer be "
                   "styled at all, which is the defect Jim found on 2026-08-16")
+            # gn2: the two halves of the case fix, asserted per page. Losing either one
+            # re-breaks the lesson that TEACHES uppercase-vs-lowercase.
+            check(f"gn2: {page} renders a styled variable exactly as written",
+                  "run.toUpperCase()" not in txt,
+                  "uppercasing is back — 'a, b, c = sides' and 'A, B, C = corners' will "
+                  "render identically")
+            check(f"gn2: {page} keeps the variable table case-sensitive",
+                  "VAR_NEEDS_CONTEXT" in txt and "run.toLowerCase()" not in txt,
+                  "the table is case-insensitive again — capital A can no longer be a "
+                  "label (P(A), vertex A) distinct from the article 'a'")
             # build gn -- THE HEAD OF THE CLIP. Jim has now reported "his first word is cut
             # off" three times (bl, cb, gn). The first two fixes padded the FRONT of the
             # clip with more silence; this one removed the flat 300ms race that let a clip
