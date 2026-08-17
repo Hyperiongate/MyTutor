@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gn -- THE UNIT-CLAIM REFEREE (rule 0's recap clause), the FOURTEENTH,
+#               and the first that judges a reply against a fact from OUTSIDE it. Jim read
+#               his rail saying Unit 1 under an opener saying Unit 5 and asked which was
+#               broken. The RAIL was right: Maya's record says "New to this course... start
+#               at the beginning", nothing was mastered, and the next quiz was a Unit 1
+#               topic -- "Two days ago we started Unit 5: Right Triangles" was invented,
+#               two-day shared past and all. A child cannot correct a grown-up's memory;
+#               told they spent a lesson on the Pythagorean theorem, they conclude they
+#               forgot it. _lesson_unit() derives the unit from exactly the two inputs
+#               build_system_prompt uses, so prompt and referee cannot drift, and the
+#               referee stands SILENT when neither input says. 9 cases both directions,
+#               0 false alarms on 1,015 canonical strings.
 #   2026-08-16  BUILD gn -- THE TRIANGLE-LETTER REFEREE (rule 63(d), born ENFORCED), the
 #               THIRTEENTH. Jim, from one live Geometry lesson: "a, b, and c are supposed
 #               to be legs of a right triangle, and instead they're shown as the angles. So
@@ -1499,6 +1511,25 @@ def _unit_from_progress(progress) -> "int | None":
         return None
 
 
+def _lesson_unit(student) -> "int | None":
+    """The unit the SERVER puts this student in: an explicit focus unit, else the unit in
+    their progress note. build_system_prompt derives the teaching playbook from exactly
+    these two inputs, so the referee and the prompt can never disagree about where the
+    student is (build gn). Returns None when neither says -- and the referee then stays
+    silent rather than guessing."""
+    try:
+        focus = (student or {}).get("focus_unit")
+        try:
+            focus = int(focus) if focus else None
+        except (TypeError, ValueError):
+            focus = None
+        if focus and 1 <= focus <= 9:
+            return focus
+        return _unit_from_progress((student or {}).get("progress") or "")
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _unit_from_text(text, course: str = DEFAULT_COURSE) -> "int | None":
     """Classify a free-text problem/topic to a unit WITHIN a course (practice + topic modes)."""
     try:
@@ -2282,6 +2313,68 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE UNIT-CLAIM CHECK (2026-08-16, build gn) -- rule 0's recap clause, born ENFORCED.
+# -----------------------------------------------------------------------------
+# Jim, live in Geometry: "it says where we start in unit five. And when I look at the
+# tracking up on the top, it says unit one. Shouldn't it say unit five if we're working
+# on unit five?"
+#
+# The rail was RIGHT and the tutor was wrong, which is the opposite of how it looked.
+# Maya's record reads "New to this course... start at the beginning of this course";
+# there was no placement past Unit 1, nothing mastered, and the next quiz on the rail was
+# a Unit 1 topic. Nothing anywhere said Unit 5. The opener -- "Two days ago we started
+# Unit 5: Right Triangles, and we were right in the middle of the Pythagorean theorem" --
+# was INVENTED, complete with a shared past two days deep.
+#
+# That is worse than a mismatched progress bar. A child cannot correct a grown-up's
+# memory: told they spent a lesson on the Pythagorean theorem, they conclude they have
+# forgotten it. And the transcript tells their parent something that never happened --
+# the same defect rule 43 closed in gm, one level up.
+#
+# NARROW. It fires only when the reply CLAIMS the student is (or was) working in a unit,
+# and that number differs from the unit the server put them in. Reference in passing is
+# untouched -- "that's a Unit 7 idea", "we'll get to Unit 5 later" -- because naming a
+# unit is not the same as claiming to have been in it. Silent when the caller does not
+# know the unit, which is the honest default: this referee never guesses.
+_UNIT_CLAIM_RE = re.compile(
+    r"\b(?:we|you)\s+(?:were|are|have been|was)?\s*(?:just\s+)?"
+    r"(?:started|starting|working on|in the middle of|partway through|part way through|"
+    r"picking up|carrying on|continuing|left off (?:in|on)|up to|in)\s+"
+    r"(?:the\s+)?(?:middle\s+of\s+)?(?:the\s+)?unit\s+(\d+)"
+    r"|\bwelcome back to\s+unit\s+(\d+)"
+    r"|\bwe\s+started\s+unit\s+(\d+)",
+    re.I)
+
+
+def unit_claim_conflict(reply: str, expected_unit=None):
+    """Return a description of a reply that claims a unit the student is not in, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        try:
+            expected = int(expected_unit or 0)
+        except (TypeError, ValueError):
+            return ""
+        if not (1 <= expected <= 9):
+            return ""          # the caller does not know -- never guess
+        prose = re.sub(r"\[\[[^\]]*\]\]", " ", str(reply or ""))
+        for m in _UNIT_CLAIM_RE.finditer(prose):
+            claimed_raw = next((g for g in m.groups() if g), None)
+            if not claimed_raw:
+                continue
+            claimed = int(claimed_raw)
+            if claimed != expected:
+                return ("your reply tells the student they are (or were) working in Unit "
+                        "{c}, but this student's notes put them in Unit {e}. Nothing you "
+                        "were given says Unit {c}. Rule 0: a recap is a memory, not a "
+                        "guess -- never invent a shared past. Welcome them back without "
+                        "naming a place, or name Unit {e}.").format(c=claimed, e=expected)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[unitclaim] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE TRIANGLE-LETTER CHECK (2026-08-16, build gn) -- rule 63(d), born ENFORCED.
 # -----------------------------------------------------------------------------
 # Jim ran one Geometry lesson and read the first turn out loud: "a, b, and c are supposed
@@ -2972,7 +3065,7 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
         return ""
 
 
-def prose_board_conflict(reply: str, student_message: str = ""):
+def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
@@ -3033,6 +3126,12 @@ def prose_board_conflict(reply: str, student_message: str = ""):
         triletter = triangle_letter_conflict(reply)
         if triletter:
             return triletter
+        # build gn: FOURTEENTH -- and the only referee that needs a fact from OUTSIDE the
+        # reply, so it is wired here, after everything the reply can be judged against on
+        # its own. Silent whenever the caller does not know the unit.
+        unitclaim = unit_claim_conflict(reply, expected_unit)
+        if unitclaim:
+            return unitclaim
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
@@ -3338,7 +3437,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # THE PROSE REFEREE (2026-08-09): the tags are sound -- now check that the
             # SPOKEN words agree with them (see prose_board_conflict above). Same
             # treatment as a failed math check: the student never saw this draft.
-            prose_detail = prose_board_conflict(reply, _last_user_text(msgs))
+            prose_detail = prose_board_conflict(reply, _last_user_text(msgs),
+                                                expected_unit=(meta or {}).get("unit"))
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
@@ -3415,7 +3515,11 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
             client, model,
             _cacheable_system(build_system_prompt(student, course)),
             messages, " [lesson]",
-            meta={"code": code, "course": course, "mode": "lesson"},
+            meta={"code": code, "course": course, "mode": "lesson",
+                  # build gn: the unit the SERVER puts this student in, so the fourteenth
+                  # referee can catch a reply that claims a different one. Derived exactly
+                  # as build_system_prompt derives it, from the same two inputs.
+                  "unit": _lesson_unit(student)},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         # build bo: deterministic TODAY-bar net (lesson mode only) -- see ensure_today_tag.
         return ensure_today_tag(ensure_board(reply, user_message, history), history,

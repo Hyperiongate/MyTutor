@@ -2,6 +2,12 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-16  BUILD gn -- RULE 0 GAINS ITS RECAP CLAUSE. "A recap is a memory, not a
+#               guess." The tutor may say it was in the middle of a unit or topic ONLY if
+#               the notes or this conversation say so; with nothing to go on it welcomes
+#               the student back WITHOUT naming a place. From Jim's 2026-08-16 lesson,
+#               where a brand-new Geometry student was told "two days ago we started Unit
+#               5: Right Triangles". Enforced by tutor.unit_claim_conflict.
 #   2026-08-16  BUILD gn -- THE GEOMETRY [[triangle]] DOC LEARNS TO LETTER ITS SIDES. Jim
 #               caught a figure whose words named sides a, b, c while v= put A, B, C on the
 #               CORNERS and sides= held bare numbers, so the theorem pointed at nothing.
@@ -4873,6 +4879,14 @@ SESSION_OPENER_RULES = """
        them -- just a warm one-liner. If they're returning, welcome them back by name with a
        one-sentence recap of where you left off. NEVER say "great to meet you" to a student
        your notes show you have met before.
+       ⛔ A RECAP IS A MEMORY, NOT A GUESS. Say you were "in the middle of" a unit, a topic or
+       a lesson ONLY if it is in the notes you were given or in this conversation. Never
+       invent a shared past -- not a unit number, not a topic, not "two days ago". If the
+       notes do not tell you where you left off, welcome them back WITHOUT naming a place:
+       "Welcome back, Maya -- let's pick up where we left off." A child who is told you were
+       working on something you never worked on cannot correct you, and learns that the
+       lesson's memory of them is fiction. WHEN YOU NAME A UNIT, IT MUST BE THE UNIT THE
+       NOTES PUT THEM IN.
    (b) TODAY'S TOPIC. One sentence: "Today we're going to work on <topic>."
    (c) TODAY'S GOAL. Speak it -- "By the end of today you'll be able to ..." -- AND show it:
        the [[goal text="..."]] banner, then the short

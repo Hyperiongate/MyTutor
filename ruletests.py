@@ -45,6 +45,15 @@
 #               naming it, giving a script a unit nobody teaches, filtering a heard script,
 #               altering a quoted script's words, and dropping a heard script from the
 #               refresher turn are all still caught.
+#   2026-08-16  BUILD gn -- PART 3aj (the screen auditor), LETTER_CASES (rule 63(d), the
+#               thirteenth referee) and UNIT_CLAIM_CASES (rule 0's recap clause, the
+#               fourteenth). All three come from ONE Geometry lesson Jim ran by hand.
+#               The unit one is the one worth re-reading: it LOOKED like a broken progress
+#               rail and was the opposite -- the rail was right and the tutor had invented
+#               "two days ago we started Unit 5" for a student whose record says "New to
+#               this course". A referee that judges a reply against a fact from OUTSIDE it
+#               is new here, so it is tested three ways: fires on the wrong unit, silent on
+#               the right one, and silent whenever the unit is unknown.
 #   2026-08-16  BUILD gn -- PART 3aj, THE SCREEN IS CHECKED TOO. Jim ran one Geometry
 #               lesson and found four defects by eye in the first turn -- a formula
 #               rendered "a squared plus B squared equals C squared", a triangle lettered
@@ -1578,6 +1587,35 @@ LETTER_CASES = [
 ]
 
 
+# THE UNIT-CLAIM CASES (2026-08-16, build gn) -- rule 0's recap clause, born ENFORCED.
+# Jim: "it says where we start in unit five. And when I look at the tracking up on the top,
+# it says unit one." The RAIL was right. Maya's record reads "New to this course... start at
+# the beginning", nothing was mastered, and the next quiz was a Unit 1 topic -- the opener's
+# "Two days ago we started Unit 5" was invented, shared past and all. Both directions, and
+# the clean cases are the ones that make this referee safe to run on every turn: naming a
+# unit is not the same as claiming to have been in it.
+UNIT_CLAIM_CASES = [
+    ("the invented Unit 5 opener, against a Unit 1 student",
+     "Hey Maya, welcome back! Two days ago we started Unit 5: Right Triangles, and we were "
+     "right in the middle of the Pythagorean theorem.", 1, True),
+    ("the same opener when the student really IS in Unit 5",
+     "Hey Maya, welcome back! Two days ago we started Unit 5: Right Triangles.", 5, False),
+    ("welcome back to the wrong unit", "Welcome back to Unit 6!", 1, True),
+    ("welcome back to the right unit", "Welcome back to Unit 1!", 1, False),
+    ("claiming today's work is in the wrong unit",
+     "We are working on Unit 4 today.", 2, True),
+    ("a recap that names no place at all",
+     "Hey Maya, welcome back! Let's pick up where we left off.", 1, False),
+    ("naming a LATER unit in passing is not a claim",
+     "That's a Unit 7 idea -- we'll get there later.", 1, False),
+    ("a forward reference is not a claim",
+     "We'll get to Unit 5 later this term.", 1, False),
+    ("the caller does not know the unit: the referee never guesses",
+     "Two days ago we started Unit 5.", None, False),
+    ("a unit named inside a tag is not spoken prose",
+     'Nice work today.[[unitplan unit="5" topics="a | b"]]', 1, False),
+]
+
 def part2_prose():
     print("\nPART 2 — the prose referee")
     for name, reply, should_flag in PROSE_CASES:
@@ -1660,6 +1698,32 @@ def part2_prose():
         check(f"triangle-letter stays out of the slot check: {name}",
               not tutor.triangle_letter_conflict(reply),
               "the lettering referee fired on a slot-only case")
+    for name, reply, unit, should_flag in UNIT_CLAIM_CASES:
+        got = tutor.unit_claim_conflict(reply, unit)
+        check(f"unit-claim: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"unit-claim: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply, "", expected_unit=unit)),
+                  "the combined referee let it through")
+    # The unit referee is the only one that takes a fact from OUTSIDE the reply, so the
+    # sweep must be SILENT when that fact is missing -- otherwise every practice and topic
+    # turn (which never carry a unit) would be judged against a number nobody supplied.
+    for name, reply, _unit, _flag in UNIT_CLAIM_CASES:
+        check(f"unit-claim is silent with no unit given: {name}",
+              not tutor.unit_claim_conflict(reply, None),
+              "the referee guessed instead of standing down")
+    # And _lesson_unit must read the same two inputs build_system_prompt reads, or the
+    # referee will judge replies against a unit the prompt never saw.
+    check("unit-claim: _lesson_unit prefers an explicit focus unit",
+          tutor._lesson_unit({"focus_unit": 5, "progress": "Unit 2 work"}) == 5,
+          "a focused session must be judged against the unit it focused on")
+    check("unit-claim: _lesson_unit falls back to the progress note",
+          tutor._lesson_unit({"progress": "... should start around Unit 3 (Fractions)"}) == 3,
+          "the placement note is the other input build_system_prompt uses")
+    check("unit-claim: _lesson_unit returns None when nothing says",
+          tutor._lesson_unit({"progress": "New to this course."}) is None,
+          "an unplaced student must yield None so the referee stands down")
     # THE SWEEP THAT MATTERS: the referees must be silent on every canonical script we own
     # and every line the demo speaks. Those are the two corpora of known-good tutor prose,
     # and a false positive in either is a real model call wasted on correct teaching --
