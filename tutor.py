@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hh -- THE TAG GRAMMAR HAS ONE SOURCE (tags.py; the last Phase 2
+#               build). FIGURE_TAGS, _BOARD_TAGS and _PQ_BOARD_TAGS now DERIVE from
+#               the registry; the rule-18b sweep's inline step|write|solve regex
+#               became _STEP_TAG_RE, compiled once from tags.STEP_TAGS; and
+#               _FIGURE_TAGS -- which turned out to be a LITERAL RE-DECLARATION of
+#               FIGURE_TAGS, the same 22 members re-typed by hand in a different
+#               order in the same file -- is now simply FIGURE_TAGS. The tags import
+#               is deliberately NOT defensive: tags.py is pure data, and "the
+#               referees silently forgot what a tag is" must stop a deploy at boot,
+#               not degrade in the dark. ruletests PART 3ay guards the derivations.
 #   2026-08-17  BUILD hg -- ONE REPLY PIPELINE (Phase 2's backend half). The three
 #               reply getters were hand-copied variants of one sequence -- key check,
 #               model, history trim, client, _create_verified, fallback, post-nets,
@@ -2054,16 +2064,13 @@ def _pr_numbers_in(text: str) -> set:
 # Tags that put a PICTURE on the board. Kept as a constant (tutor.py must not read
 # static files at request time); ruletests.py PART 3c asserts this list still matches
 # session.html's handleTags(), so it cannot silently drift out of date.
-FIGURE_TAGS = (
-    "graph", "numberline", "bars", "histogram", "dotplot", "boxplot", "scatter",
-    "normal", "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
-    "areamodel", "vector", "triangle", "angle", "circle", "objects", "machine",
-    "balance",
-)
+# build hh: THE TAG GRAMMAR HAS ONE SOURCE -- tags.py. This import is deliberately
+# NOT defensive: tags.py is pure data with no logic, and "the referees silently
+# forgot what a tag is" must stop the deploy at boot, not degrade in the dark.
+import tags as _tagreg
+FIGURE_TAGS = tuple(_tagreg.FIGURE_TAGS)
 # Every tag that puts ANYTHING on the board, picture or writing.
-_BOARD_TAGS = FIGURE_TAGS + ("write", "step", "solve", "column", "card", "check",
-                             "quiz", "goal", "today", "unitplan", "finalexam",
-                             "choices", "highlight")
+_BOARD_TAGS = tuple(_tagreg.BOARD_TAGS)
 
 # Nouns the board can DRAW. Bare "triangle"/"circle" are deliberately absent: they
 # appear in ordinary mathematical prose far too often to judge from one sentence.
@@ -2224,8 +2231,12 @@ _PQ_OPERATOR = (r"\b(?:plus|minus|times|multiplied by|divided by|add|adds|added|
 # arithmetic.)
 _PQ_SYMBOL_EXPR = re.compile(r"\d\s*[+×÷]\s*\d|\d\s+[\-*/]\s+\d")
 # tags whose text can carry the pending "?" line rule 15 asks for
-_PQ_BOARD_TAGS = ("step", "write", "solve", "column", "card", "graph", "numberline",
-                  "objects", "balance", "machine", "areamodel", "choices")
+_PQ_BOARD_TAGS = tuple(_tagreg.PENDING_BOARD_TAGS)   # build hh: one source (tags.py)
+# The equation-carrying tags the rule-18b sweep reads labelled conclusions from,
+# compiled once from the registry (build hh -- this was an inline hand-typed
+# step|write|solve in the hot path).
+_STEP_TAG_RE = re.compile(
+    r"\[\[\s*(?:" + "|".join(_tagreg.STEP_TAGS) + r")\b([^\]]*)\]\]", re.I)
 
 # BUILD dg (2026-08-11): TWO FALSE-POSITIVE CLASSES, FOUND IN THE FIRST FULL AUDIT'S
 # RENDER LOGS. This referee killed good drafts a dozen times in forty minutes, and one
@@ -3660,10 +3671,11 @@ def prose_score_conflict(reply: str):
 # All 306 canonical foundation scripts already pass it, so it never fights the
 # authored content -- it only catches what the model improvises.
 # -----------------------------------------------------------------------------
-_FIGURE_TAGS = ("pie", "objects", "graph", "numberline", "bars", "histogram",
-                "dotplot", "boxplot", "scatter", "normal", "twoway", "tree",
-                "unitcircle", "righttriangle", "conic", "areamodel", "vector",
-                "triangle", "angle", "circle", "machine", "balance")
+# build hh: this was a LITERAL RE-DECLARATION of FIGURE_TAGS -- the same 22 members,
+# re-typed by hand in a different order, in the same file. The exact drift class
+# tags.py exists to kill: one edit to one list and the caption referee and the visual
+# referee would have quietly disagreed about what counts as a figure.
+_FIGURE_TAGS = FIGURE_TAGS
 _FIG_RE = re.compile(r"\[\[\s*(" + "|".join(_FIGURE_TAGS) + r")\b([^\]]*)\]\]", re.I)
 _CAPTION_RE = re.compile(r'\bcaption\s*=\s*"\s*([^"]*?)\s*"')
 
@@ -4000,7 +4012,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
-        for tag in re.findall(r"\[\[\s*(?:step|write|solve)\b([^\]]*)\]\]", text, re.I):
+        for tag in _STEP_TAG_RE.findall(text):
             for val in re.findall(r'"([^"]*)"', tag):
                 m = _PR_BOARD_LINE.match(val.strip())
                 if not m:

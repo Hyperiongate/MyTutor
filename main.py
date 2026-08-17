@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hh-one-grammar". PHASE 2 COMPLETE. NEW FILE
+#               tags.py is the single source of the [[tag]] grammar -- it had SEVEN
+#               independent declarations across tutor.py, ruletests.py and the page
+#               dispatchers, and one had already drifted (the live BOARD_TAG regex
+#               was missing numberline and areamodel, so teaching with either counted
+#               as "no board" in --live checks; fixed by derivation). tutor.py and
+#               ruletests.py derive their sets; the page dispatchers stay
+#               page-specific BY DESIGN and the battery cross-checks them against the
+#               registry (mutation-verified: an unregistered [[sparkle]] pasted into
+#               topic.html fails the build). No main.py logic changed.
 #   2026-08-17  APP_BUILD -> "2026-08-17hg-one-pipeline". PHASE 2, BACKEND HALF: the
 #               three reply getters in tutor.py became thin configurations of ONE
 #               _reply_pipeline (see tutor.py's hg note). No main.py logic changed --
@@ -7531,7 +7541,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hg-one-pipeline"
+APP_BUILD = "2026-08-17hh-one-grammar"
 
 
 @app.get("/health")

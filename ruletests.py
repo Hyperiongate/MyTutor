@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hh -- ONE TAG GRAMMAR: TAG_HANDLER, TAG_INLINE, CONTENT_ATTRS
+#               and the live BOARD_TAG regex now DERIVE from tags.py -- the battery
+#               validates the contract, it no longer declares it (declaring it here
+#               meant the checker and the checked could drift in step and notice
+#               nothing). New PART 3ay: registry internal consistency (with the
+#               balance/machine/objects dedicated-renderer overlap PINNED, not
+#               forbidden -- my first draft of that invariant was wrong and the data
+#               was right), the derivations in tutor.py and this file, and every
+#               page dispatcher's tag set checked against the registry
+#               (mutation-verified with an unregistered [[sparkle]]).
 #   2026-08-17  BUILD hg -- ONE REPLY PIPELINE: new PART 3ax (pipeline exists, exactly
 #               one _create_verified call site, no lane-private Anthropic clients, all
 #               three getters route through it, TODAY net stays lesson-only, prompts
@@ -2151,7 +2161,11 @@ def part3_speech():
 # =============================================================================
 # Each scenario: a short history, then one student turn. The assertion is MECHANICAL.
 # `history` is [(role, text), ...] where role is "user" or "assistant".
-BOARD_TAG = re.compile(r"\[\[\s*(step|write|solve|column|card|graph|objects|choices|balance|machine)\b", re.I)
+# build hh: derived from the registry. The hand-typed list this replaces had
+# DRIFTED -- numberline and areamodel were missing, so a live-scenario reply that
+# taught with either counted as "no board content".
+import tags as _tagreg
+BOARD_TAG = re.compile(r"\[\[\s*(" + "|".join(_tagreg.PENDING_BOARD_TAGS) + r")\b", re.I)
 HUMAN_CLAIMS = re.compile(r"\b(i am|i'm) a (real )?(human|person|man|guy|teacher named)\b", re.I)
 
 
@@ -2556,38 +2570,13 @@ def part3b_foundations():
 
 # tag name -> the session.html function that consumes its attributes. Figure tags
 # are resolved from the JS modules instead and are deliberately absent here.
-TAG_HANDLER = {
-    "balance": "showBalance", "card": "showCard", "machine": "showMachine",
-    "step": "showStep", "column": "showColumn", "write": "showWrite",
-    "solve": "showSolve", "check": "showCheck", "quiz": "showQuiz",
-    "today": "showToday", "todaydone": "markTodayDone", "unitplan": "showUnitPlan",
-    "finalexam": "showFinalExam", "choices": "showChoices", "objects": "showObjects",
-}
-# tags whose attributes are read inline in handleTags itself (no show* function)
-TAG_INLINE = {
-    "goal": {"text"}, "highlight": {"id"}, "clear": set(),
-    "mark": {"correct", "attempted"},
-    # build et: [[nice]] is attribute-free -- a correct answer along the way, no tally,
-    # no server call, just the quiet ring.
-    "nice": set(),
-    # build ey: [[bye]] is attribute-free and draws NOTHING. It is the session's wrap-up
-    # mark (rule 29a) -- the only mechanical end-of-session signal there has ever been --
-    # and its whole effect is to queue the goodbye moment clip.
-    "bye": set(),
-}
+# build hh: THE TABLES LIVE IN tags.py NOW -- the battery validates the contract, it
+# no longer declares it. (Declaring it here meant the checker and the checked could
+# drift in step and notice nothing.)
+TAG_HANDLER = dict(_tagreg.TAG_HANDLER)
+TAG_INLINE = {k: set(v) for k, v in _tagreg.TAG_INLINE.items()}
 # a tag that draws a FIGURE needs at least one of these or it renders empty
-CONTENT_ATTRS = {
-    "graph": {"func", "fn", "functions", "lines", "parabola", "parabolas", "points"},
-    # build em: "parts" is the EQUAL-PARTS fraction form ([[pie parts="4" shaded="3"]]),
-    # which carries its content in parts/shaded rather than data/sectors.
-    "pie": {"data", "sectors", "parts"}, "bars": {"data"},
-    "histogram": {"data", "values"}, "dotplot": {"data", "values"},
-    "boxplot": {"data", "values", "five"}, "scatter": {"points"},
-    "twoway": {"data"}, "tree": {"stage1", "stage2", "a", "b"},
-    "vector": {"v", "vectors"}, "conic": {"type"}, "areamodel": {"rows", "cols"},
-    "objects": {"n", "groups"}, "card": {"items", "id"},
-    "write": {"text", "lines"}, "solve": {"start", "top"},
-}
+CONTENT_ATTRS = {k: set(v) for k, v in _tagreg.CONTENT_ATTRS.items()}
 
 
 def _js_fn_attrs(src, header_re):
@@ -9989,6 +9978,88 @@ SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalys
 # ~1/3 odds per lane of being missed. _reply_pipeline is now the ONE sequence; the
 # getters are configurations. This part keeps it that way.
 # =============================================================================
+# =============================================================================
+# PART 3ay -- ONE TAG GRAMMAR (build hh)
+# -----------------------------------------------------------------------------
+# 2026-08-17, the last Phase 2 build. The [[tag]] grammar had SEVEN independent
+# declarations, and one had already drifted (the live BOARD_TAG regex was missing
+# numberline and areamodel). tags.py is now the single source; this part keeps the
+# derivations honest and the registry internally consistent.
+# =============================================================================
+def part3ay_one_grammar():
+    print("\nPART 3ay — one tag grammar (build hh)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tags as T
+
+    # 1. INTERNAL CONSISTENCY of the registry itself.
+    check("every figure tag is a board tag", set(T.FIGURE_TAGS) <= set(T.BOARD_TAGS),
+          f"orphans: {set(T.FIGURE_TAGS) - set(T.BOARD_TAGS)}")
+    check("every step tag is a pending-board tag", set(T.STEP_TAGS) <= set(T.PENDING_BOARD_TAGS),
+          f"orphans: {set(T.STEP_TAGS) - set(T.PENDING_BOARD_TAGS)}")
+    check("every pending-board tag is a board tag",
+          set(T.PENDING_BOARD_TAGS) <= set(T.BOARD_TAGS),
+          f"orphans: {set(T.PENDING_BOARD_TAGS) - set(T.BOARD_TAGS)}")
+    check("no tag is declared twice within a set",
+          all(len(x) == len(set(x)) for x in (T.FIGURE_TAGS, T.BOARD_TAGS,
+                                              T.PENDING_BOARD_TAGS, T.STEP_TAGS)),
+          "a duplicate member means two edits raced")
+    # balance, machine and objects are FIGURES (the caption and visual referees must
+    # treat them as pictures) that happen to have DEDICATED renderers instead of
+    # routing through showFig/showGeo. That exact overlap is legitimate and pinned;
+    # any NEW overlap is a tag about to be rendered two ways.
+    check("the handler/figure overlap is exactly the three dedicated-renderer figures",
+          set(T.TAG_HANDLER) & set(T.FIGURE_TAGS) == {"balance", "machine", "objects"},
+          f"got {sorted(set(T.TAG_HANDLER) & set(T.FIGURE_TAGS))} -- a new overlap "
+          f"means a tag is about to be drawn twice, or a figure lost its referee "
+          f"coverage; decide which list owns it and pin the answer here")
+    check("every CONTENT_ATTRS key is a known tag",
+          set(T.CONTENT_ATTRS) <= set(T.BOARD_TAGS) | set(T.TAG_HANDLER),
+          f"unknown: {set(T.CONTENT_ATTRS) - set(T.BOARD_TAGS) - set(T.TAG_HANDLER)}")
+
+    # 2. THE DERIVATIONS. tutor.py and this file must READ the registry, never
+    # re-declare it -- a literal tuple typed beside the import is how _FIGURE_TAGS
+    # became a 22-member re-declaration of FIGURE_TAGS in the same file.
+    check("tutor.FIGURE_TAGS is the registry's", tuple(tutor.FIGURE_TAGS) == tuple(T.FIGURE_TAGS),
+          "tutor re-declared the figure list -- the caption and visual referees can "
+          "now disagree with the battery about what counts as a figure")
+    check("tutor's board set is the registry's", tuple(tutor._BOARD_TAGS) == tuple(T.BOARD_TAGS),
+          "tutor re-declared the board list")
+    check("tutor's pending set is the registry's",
+          tuple(tutor._PQ_BOARD_TAGS) == tuple(T.PENDING_BOARD_TAGS),
+          "tutor re-declared the pending list")
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("tutor.py contains no hand-typed figure list",
+          '"unitcircle", "righttriangle"' not in tsrc,
+          "a literal figure tuple is back in tutor.py -- delete it and derive from tags.py")
+    with open(os.path.join(here, "ruletests.py"), encoding="utf-8") as fh:
+        rsrc = fh.read()
+    check("this battery derives its tables from the registry",
+          "TAG_HANDLER = dict(_tagreg.TAG_HANDLER)" in rsrc
+          and 'BOARD_TAG = re.compile(r"\\[\\[\\s*(" + "|".join(_tagreg.PENDING_BOARD_TAGS)' in rsrc,
+          "the checker declared its own copy of the contract again -- checker and "
+          "checked can drift in step and notice nothing")
+
+    # 3. THE PAGES. Every tag a page dispatcher handles must be registered -- a tag
+    # added to a page without registering it here is invisible to every referee.
+    known = set(T.BOARD_TAGS) | set(T.TAG_HANDLER) | set(T.TAG_INLINE)
+    for page in ("session.html", "practice.html", "topic.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            psrc = fh.read()
+        i = psrc.find("function handleTags(")
+        if i < 0:
+            bad(f"{page}: handleTags found", "the dispatcher is gone"); continue
+        ht = psrc[i:]
+        ht = ht[:ht.find("\n    function ")] if "\n    function " in ht else ht[:6000]
+        dispatched = set(re.findall(r'name === "([\w-]+)"', ht))
+        for arr in re.findall(r'\[((?:"[\w-]+",?\s*)+)\]\.indexOf\(name\)', ht):
+            dispatched |= set(re.findall(r'"([\w-]+)"', arr))
+        unregistered = sorted(dispatched - known)
+        check(f"{page}: every dispatched tag is in the registry", not unregistered,
+              f"{unregistered} are rendered by this page but unknown to tags.py -- "
+              f"every referee and every battery check is blind to them")
+
+
 def part3ax_one_pipeline():
     print("\nPART 3ax — one reply pipeline (build hg)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10212,6 +10283,7 @@ def main():
     part3av_unit_referee_rearmed()
     part3aw_one_copy()
     part3ax_one_pipeline()
+    part3ay_one_grammar()
     part3ai_deploy_stamp()
     if live:
         part4_live()
