@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17he-one-board". PHASE 2, PART FOUR: THE
+#               WHITEBOARD BECOMES ONE COPY -- static/board.js. The 34 top-level
+#               display functions (every [[step]]/[[write]]/[[solve]] row, the graph,
+#               figures, balance, machine, objects, choices, the bubble feed, the
+#               spotlight; choiceBtn rides nested inside showChoices as it always did)
+#               plus their pure state (lastTurnEl, spotTimer, choicesRow, autoScroll,
+#               stickBottom) and constants (GRAPH_COLORS, SPOT_MS) moved out of the
+#               three teaching pages. Measured before the move: byte-identical after
+#               comment normalisation on all three -- zero divergence, which after
+#               build gz is luck, not safety.
+#               DELIBERATELY NOT MOVED: DOM refs (feed, composer -- board.js loads in
+#               <head>, before the DOM exists) and the page-specific dispatchers
+#               (handleTags, wipeBoard, feedBlock, getWorklist, clearStage): which
+#               tags a page supports is configuration, not copy-paste.
+#               PROVED, not assumed: a ten-tag corpus (step, write, solve, column,
+#               graph, triangle, balance, machine, objects, choices, card) rendered
+#               in a REAL BROWSER before and after, on all three pages -- 30 turns,
+#               every board drawn, bubble AND board HTML byte-identical, ZERO
+#               differences. Battery: PART 3aw gains board.js (functions + state);
+#               the board-tag contract, the showColumn guarantees, the fitting checks
+#               and the spotlight checks now read the SINGLE copy, while per-page
+#               checks keep what pages still own (CSS, the clearSpot CALLS).
 #   2026-08-17  APP_BUILD -> "2026-08-17hd-one-voice". PHASE 2, PART THREE: THE VOICE
 #               PIPELINE BECOMES ONE COPY -- static/voice.js. Harder than hc because
 #               this cluster OWNS STATE: 13 page-level variables (ttsAudio, audioCtx/
@@ -7480,7 +7502,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hd-one-voice"
+APP_BUILD = "2026-08-17he-one-board"
 
 
 @app.get("/health")

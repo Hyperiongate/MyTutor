@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD he -- ONE BOARD: PART 3aw gains board.js (19 named functions +
+#               its state/constants table); PAGE_PARITY's fitRow needles became "the
+#               page loads /static/board.js" plus fitting checks asserted once against
+#               the module; the board-tag CONTRACT (_board_contract) reads renderers
+#               from board.js AND the page, so it survives functions living in either;
+#               showColumn's byte-identical-on-three-pages check became "exists once,
+#               with its guarantees" (the stronger property -- one copy CANNOT drift);
+#               the spotlight checks split honestly: existence/keys once against the
+#               module, CSS and the clearSpot CALLS still per page, because a glow
+#               never outlives its moment only if THIS page's turn code clears it.
 #   2026-08-17  BUILD hd -- ONE VOICE: the gn/gp3 head-of-clip guarantees (no flat 300ms
 #               kick, wait for "running", never freeze past the ceiling, ctx0 in the
 #               probe, [voicehead] carried) moved from three per-page assertions to ONE
@@ -2591,6 +2601,9 @@ def _board_contract(here):
         "math": os.path.join(here, "static", "math-figures.js"),
         "geo": os.path.join(here, "static", "geo-figures.js"),
         "page": os.path.join(here, "static", "session.html"),
+        # build he: the show* renderers moved to the shared board module. handleTags
+        # (the dispatcher, page-specific by design) still lives in the page.
+        "board": os.path.join(here, "static", "board.js"),
     }
     for k, p in paths.items():
         if not os.path.exists(p):
@@ -2601,10 +2614,15 @@ def _board_contract(here):
         geo_src = fh.read()
     with open(paths["page"], encoding="utf-8") as fh:
         page_src = fh.read()
+    with open(paths["board"], encoding="utf-8") as fh:
+        board_src = fh.read()
 
     math_fns = _js_fn_attrs(math_src, r"\n  function (\w+)\((a)\)\s*\{")
     geo_fns = _js_fn_attrs(geo_src, r"\n  function (\w+)\((a)\)\s*\{")
-    page_fns = _js_fn_attrs(page_src, r"function (show\w+|markTodayDone)\((\w+)\)\s*\{")
+    # build he: renderers come from board.js AND the page (markTodayDone and any
+    # page-only show* stay in the page); searching both keeps this true in either home.
+    page_fns = _js_fn_attrs(page_src + "\n" + board_src,
+                            r"function (show\w+|markTodayDone)\((\w+)\)\s*\{")
 
     # only the renderers the modules actually EXPORT count as tags
     math_exports = set(re.findall(r"(\w+): \1,", math_src[math_src.index("window.MathFigures"):]))
@@ -2970,9 +2988,10 @@ PAGE_PARITY = [
     # creeps back into canRecord, the youngest students silently lose their voice.
     ("the mic excludes no course (dr)", "const canRecord = !!(navigator.mediaDevices"),
     ("board lines never wrap (audit #1 item 11)", "white-space: nowrap"),
-    ("fitRow() shrinks an oversized line",        "function fitRow(row)"),
-    ("[[step]] lines are fitted",                 "fitRow(wl.appendChild(eqRow(eq)))"),
-    ("[[write]] lines are fitted",                "fitRow(wl.appendChild(eqRow(ln)))"),
+    # build he: fitRow and the show* renderers that call it moved to /static/board.js
+    # (one copy). What each page must carry is the INCLUDE; the fitting behaviour is
+    # asserted once, against the module, in part3e below.
+    ("the shared board module is loaded (he)",    "/static/board.js"),
     # build hc: forSpeech moved to /static/speech-text.js. What every teaching page must
     # now have is the INCLUDE -- checking for the inline text here would force the very
     # duplication this build removed.
@@ -3012,6 +3031,18 @@ def part3e_page_parity():
     for label, needle in PAGE_PARITY:
         missing = [p for p in PAGES if needle not in src[p]]
         check(f"all three pages: {label}", not missing, f"missing from: {missing}")
+    # build he: the fitting machinery, asserted once against its single copy.
+    bpath = os.path.join(here, "static", "board.js")
+    if not os.path.exists(bpath):
+        bad("static/board.js present", "the shared board module is missing")
+    else:
+        with open(bpath, encoding="utf-8") as fh:
+            bsrc = fh.read()
+        for label, needle in (("fitRow() shrinks an oversized line", "function fitRow(row)"),
+                              ("[[step]] lines are fitted", "fitRow(wl.appendChild(eqRow(eq)))"),
+                              ("[[write]] lines are fitted", "fitRow(wl.appendChild(eqRow(ln)))")):
+            check(f"board.js: {label}", needle in bsrc,
+                  "the audit-#1-item-11 fitting is gone from the ONE copy every page uses")
     for label, needle in SESSION_ONLY_PARITY:
         check(f"session.html: {label}", needle in src["session.html"],
               f"{needle!r} is gone -- a reload would lose the bar again")
@@ -5876,24 +5907,24 @@ console.log(JSON.stringify(out));
 def part3r_batch_d_figures():
     print("\nPART 3r — the figures the audit could not draw (build di)")
     here = os.path.dirname(os.path.abspath(__file__))
-    # (1) the three showColumn bodies must be BYTE-IDENTICAL -- the build-bk drift class
-    bodies = {}
-    for page in ("session", "practice", "topic"):
-        try:
-            with open(os.path.join(here, "static", f"{page}.html"), encoding="utf-8") as fh:
-                m = re.search(r"function showColumn\(a\) \{[\s\S]*?\n    \}", fh.read())
-            bodies[page] = m.group(0) if m else ""
-        except OSError:
-            bodies[page] = ""
-    check("showColumn is byte-identical on all three teaching pages",
-          bool(bodies.get("session")) and len(set(bodies.values())) == 1,
-          "the pages have drifted -- the build-bk bug class")
+    # (1) build he: showColumn lives ONCE, in board.js -- the byte-identical check
+    # (build bk's drift class) is now the stronger property "there is only one copy",
+    # which PART 3aw enforces. The behavioural guarantees read the single source.
+    body = ""
+    try:
+        with open(os.path.join(here, "static", "board.js"), encoding="utf-8") as fh:
+            m = re.search(r"function showColumn\(a\) \{[\s\S]*?\n\}", fh.read())
+        body = m.group(0) if m else ""
+    except OSError:
+        pass
+    check("showColumn exists in the shared board module",
+          bool(body), "board.js lost showColumn -- no page can draw column math")
     check("align='last' NEVER completes the wrong layout",
-          "res && !wrongAlign" in bodies.get("session", ""),
+          "res && !wrongAlign" in body,
           "a result row in the deliberately-wrong lineup would complete a wrong sum "
           "on our board (rules 13 and 26)")
     check("the wrong lineup carries its built-in badge",
-          '"cwarn"' in bodies.get("session", ""), "the badge div is missing")
+          '"cwarn"' in body, "the badge div is missing")
     for page in ("session", "practice", "topic"):
         with open(os.path.join(here, "static", f"{page}.html"), encoding="utf-8") as fh:
             css = fh.read()
@@ -6162,24 +6193,35 @@ def part3t_teaching_upgrades():
         except OSError as exc:
             bad(f"{page}: readable", str(exc))
             continue
-        check(f"{page}: spotlightBoard exists", "function spotlightBoard" in src,
-              "the board spotlight function is gone")
-        check(f"{page}: handles the line key", 'key === "line"' in src,
-              '[[highlight id="line"]] would silently no-op')
-        check(f"{page}: handles the board key", 'key === "board"' in src,
-              '[[highlight id="board"]] would silently no-op')
+        # build he: spotlightBoard/clearSpot moved to board.js (one copy) -- their
+        # EXISTENCE and key handling are asserted once against the module below.
+        # What each page must still own: the include (3aw), the CSS (styling is
+        # page-scoped), and the CALLS -- a glow never outlives its moment only if
+        # THIS page's turn code actually clears it.
         check(f"{page}: .stepglow style present", ".stepglow {" in src,
               "the glow class has no styling -- an invisible cue")
         check(f"{page}: the glow pulses", "stepglowpulse" in src,
               "the pulse animation is gone (reduced-motion users get the still "
               "glow via the dz rule; everyone else should see it breathe)")
         check(f"{page}: a stale spotlight is cleared at turn start",
-              src.count("clearSpot()") >= 2,
-              "clearSpot must be CALLED (not just defined) so a glow never outlives "
-              "its moment")
+              src.count("clearSpot()") >= 1,
+              "clearSpot must be CALLED by this page's turn code (it is defined in "
+              "board.js) so a glow never outlives its moment")
         check(f"{page}: reduced-motion rule still present",
               "prefers-reduced-motion" in src,
               "the dz accessibility rule must survive this build")
+    bsrc = ""
+    try:
+        with open(os.path.join(here, "static", "board.js"), encoding="utf-8") as fh:
+            bsrc = fh.read()
+    except OSError:
+        pass
+    check("board.js: spotlightBoard exists (one copy)", "function spotlightBoard" in bsrc,
+          "the board spotlight function is gone from the shared module")
+    check("board.js: handles the line key", 'key === "line"' in bsrc,
+          '[[highlight id="line"]] would silently no-op on every page at once')
+    check("board.js: handles the board key", 'key === "board"' in bsrc,
+          '[[highlight id="board"]] would silently no-op on every page at once')
     # session only: the opening tour must still work for non-board ids
     with open(os.path.join(here, "static", "session.html"), encoding="utf-8") as fh:
         ssrc = fh.read()
@@ -9872,6 +9914,12 @@ SHARED_JS_MODULES = {
     "voice.js": ["speak", "browserSpeak", "pickVoice", "ensureAudioGraph",
                  "silentWavUri", "startKeepAlive", "stopKeepAlive", "warmUpAudio",
                  "stopAllSpeech", "withDeadline", "speechDeadline"],
+    # build he: the whiteboard display, WITH its state. choiceBtn is not listed --
+    # it lives nested inside showChoices, as it does on every page it came from.
+    "board.js": ["showStep", "showWrite", "showSolve", "showColumn", "showGraph",
+                 "showFig", "showGeo", "showBalance", "showMachine", "showObjects",
+                 "showChoices", "clearChoices", "eqRow", "opRow", "fitRow",
+                 "parseAttrs", "spotlightBoard", "addBubble", "scrollFeed"],
 }
 SHARED_JS_CONSTS = {"board-text.js": ["VAR_NEEDS_CONTEXT", "MV_POW", "MV_NOUN"],
                     "speech-text.js": ["FRAC_WORDS"],
@@ -9883,7 +9931,9 @@ SHARED_JS_CONSTS = {"board-text.js": ["VAR_NEEDS_CONTEXT", "MV_POW", "MV_NOUN"],
 SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalyser",
                                 "ttsAudio", "keepAlive", "audioWarmed", "lastAudioAt",
                                 "paused", "elevenEnabled", "maleVoice",
-                                "firstClipOfSession", "firstSpeakLead"]}
+                                "firstClipOfSession", "firstSpeakLead"],
+                   "board.js": ["lastTurnEl", "spotTimer", "choicesRow", "autoScroll",
+                                "stickBottom", "GRAPH_COLORS", "SPOT_MS"]}
 
 
 def part3aw_one_copy():
