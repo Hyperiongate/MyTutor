@@ -1042,6 +1042,7 @@ def check(name, condition, detail=""):
 COVERAGE = [
     ("rule 0  opening sequence",        "THE OPENING SEQUENCE"),
     ("rule 64 never trade the number",  "NEVER TRADE THE STUDENT'S NUMBER"),
+    ("rule 65 show them when asked",     "WHEN A STUDENT ASKS TO BE SHOWN"),
     ("rule 1  placement honesty",       "PLACEMENT HONESTY"),
     ("rule 4  say it -> write it",      "SAY IT -> WRITE IT"),
     ("rule 4  sub-step lines",          "ANSWERED SUB-STEP GETS ITS OWN LINE"),
@@ -3362,6 +3363,19 @@ RULE_VERIFY = {
                       "across 1,015 canonical scripts x 7 signed utterances. The (a) half -- "
                       "that an answer can be arithmetically right and contextually "
                       "impossible -- is prompt-covered in all ten courses via PART 1"),
+    65: ("ENFORCED",  "when a student asks to be shown, show them (build gx; from the "
+                      "2026-08-17 audit, where it happened TWICE in one geometry lesson -- "
+                      "'can you show me taking the square root of 169?' answered with "
+                      "'you've now watched this move twice, let's flip it', and a brand-new "
+                      "triangle). refused_demonstration_conflict is the SEVENTEENTH referee "
+                      "and needs all three: the student asked to be shown, NOTHING in the "
+                      "reply is worked out, and the work is handed straight back. The "
+                      "discriminator came out of the lesson itself -- the compliant replies "
+                      "in that same transcript all carry a COMPLETED board line, the "
+                      "refusals only pending ones. 7 cases both directions; 0 false alarms "
+                      "on 1,015 canonical scripts x 6 phrasings of the request. 65(d) -- "
+                      "never justify the refusal with a COUNT -- is measured by build gv's "
+                      "[countclaim] probe, since a referee cannot count a conversation"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -8660,6 +8674,97 @@ def part3ap_bare_demand_and_decimals():
 
 
 
+# =============================================================================
+# PART 3aq -- A REQUEST TO BE SHOWN, REFUSED (rule 65, build gx)
+# =============================================================================
+# 2026-08-17. The worst thing in the day's audit, and it happened twice in one lesson:
+#     STUDENT: "Can you show me taking the square root of 169?"
+#     TUTOR:   "You've now watched this move twice -- let's flip it. Here's a new triangle:"
+#     STUDENT: "Can you show me 8 squared and 15 squared first?"
+#     TUTOR:   "You've watched this exact move twice now... Let's see you try it."
+# Both counts were false -- the move had been shown ONCE. A child who asked for help was
+# refused, and told they should already know it, on evidence the tutor invented.
+#
+# THE DISCRIMINATOR CAME OUT OF THE SAME TRANSCRIPT, which is why it can be trusted: when
+# that student asked the same kind of question earlier, the tutor answered properly and
+# the reply carried COMPLETED board lines ("5^2 = 25", "12^2 = 144"). The refusals carry
+# only pending ones. Nothing worked out + the job handed back = a refusal.
+def part3aq_refused_demonstration():
+    print("\nPART 3aq — a request to be shown, refused")
+    CASES = [
+        ("the audit's first refusal: sqrt of 169 -> a brand-new triangle",
+         "You've now watched this move twice -- let's flip it. Here's a new triangle:\n"
+         '[[triangle v="A,B,C" sides="a = 8, b = 15, c = ?" right="C" caption="find c"]]\n'
+         '[[step eq="8^2 + 15^2 = ?"]]\nWhat is 8 squared plus 15 squared?',
+         "Can you show me taking the square root of 169?", True),
+        ("the audit's second refusal: 8 and 15 squared -> 'you try it'",
+         "You've watched this exact move twice now. Let's see you try it.\n"
+         '[[step eq="8^2 = ?"]]\n[[step eq="15^2 = ?"]]',
+         "Can you show me 8 squared and 15 squared first?", True),
+        # ---- the SAME lesson, done right: these must stay clean ----
+        ("the compliant reply from that same transcript",
+         "Here's five squared and twelve squared worked out:\n"
+         '[[step eq="5^2 = 25"]]\n[[step eq="12^2 = 144"]]\n[[step eq="25 + 144 = ?"]]\n'
+         "So what does twenty-five plus one hundred forty-four equal?",
+         "Can you show me 5 squared and 12 squared worked out?", False),
+        ("the square root, shown properly",
+         "Sure -- the square root sign asks what number times itself gives this.\n"
+         '[[step eq="c^2 = 100"]]\n[[step eq="c = sqrt(100)"]]\n[[step eq="c = 10"]]\n'
+         "Want to try the next one?",
+         "Can you show me taking the square root to get c?", False),
+        ("no request to be shown, so handing work back is fine",
+         'Your turn -- what is 8 squared? [[step eq="8^2 = ?"]]', "ok", False),
+        ("a fair clarifying question is not a refusal",
+         "Happy to! Which would help more -- the fraction way or the decimal way?",
+         "Can you show me another example?", False),
+        ("shown with a worked line and no hand-back",
+         'Of course. [[step eq="3 x 5 = 15"]] Fifteen candies in those three groups.',
+         "show me 3 times 5", False),
+        # ---- the two shapes the canonical sweep caught in an early draft ----
+        ("a card TITLE ending in '?' is a heading, not a pending problem",
+         '[[card title="Quantitative?" items="height: yes | zip code: NO, it is a label"]]',
+         "can you show me", False),
+        ("a '?' beside the VARIABLE x is not a pending computation",
+         '[[write text="what is it approaching, as x gets close?"]]',
+         "can you show me", False),
+    ]
+    for name, reply, said, should_flag in CASES:
+        got = tutor.refused_demonstration_conflict(reply, said)
+        check(f"refused-show: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"refused-show: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(reply, said)),
+                  "the combined referee let it through")
+
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        skip("refused-show: canonical sweep", f"foundations unavailable: {exc}")
+        return
+    texts = []
+
+    def _walk(o):
+        if isinstance(o, str):
+            texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    for nm in dir(_F):
+        if not nm.startswith("_"):
+            _walk(getattr(_F, nm))
+    noise = sum(sum(1 for t in texts if tutor.refused_demonstration_conflict(t, m))
+                for m in ("can you show me", "show me how", "walk me through it",
+                          "Can you show me 5 squared?", "can we do that one first",
+                          "can I see it"))
+    check(f"refused-show: silent on {len(texts)} canonical scripts x 6 phrasings",
+          noise == 0, f"{noise} false alarms -- correct teaching would be regenerated")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8712,6 +8817,7 @@ def main():
     part3an_unit_follows_teaching()
     part3ao_invented_history()
     part3ap_bare_demand_and_decimals()
+    part3aq_refused_demonstration()
     part3ai_deploy_stamp()
     if live:
         part4_live()

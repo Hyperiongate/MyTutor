@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gx-show-them". NEW RULE 65 + the SEVENTEENTH
+#               referee, closing the fifth cause from the day's triage and the worst single
+#               thing in it: a child asked to be shown the square root of 169 and was told
+#               "you've now watched this move twice -- let's flip it", then handed a new
+#               triangle. It happened again two turns later. Both counts were false. Nothing
+#               in the rulebook had ever said "when a student asks to be shown, show them" --
+#               it does now, in all ten courses, and the referee needs all three conditions:
+#               they asked, nothing was worked out, and the job went straight back to them.
 #   2026-08-17  APP_BUILD -> "2026-08-17gw-bare-demand". The fourth cause from the day's
 #               triage, and it came apart into three. The rule-15 and rule-44 findings on
 #               the decimal lesson were ONE defect: a board line with no "?" is invisible to
@@ -7261,7 +7269,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gw-bare-demand"
+APP_BUILD = "2026-08-17gx-show-them"
 
 
 @app.get("/health")

@@ -2,6 +2,27 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gx -- THE REFUSED-DEMONSTRATION REFEREE (rule 65), the SEVENTEENTH,
+#               and the worst thing the day's audit found. Twice in one geometry lesson a
+#               child asked to be SHOWN and was turned down:
+#                 "Can you show me taking the square root of 169?"
+#                   -> "You've now watched this move twice -- let's flip it." (new triangle)
+#                 "Can you show me 8 squared and 15 squared first?"
+#                   -> "You've watched this exact move twice now... let's see you try it."
+#               Both counts were FALSE; the move had been shown once. So the refusal rested
+#               on invented evidence, and the child was told they should already know it --
+#               which they cannot correct, because they cannot see the transcript.
+#               A student saying "show me" is handing over the exact information a tutor
+#               spends a lesson trying to get: they are not ready alone. Withdrawing the
+#               scaffold is right when their WORK says so, never as the answer to this.
+#               THE DISCRIMINATOR CAME OUT OF THE LESSON ITSELF, which is why it can be
+#               trusted: earlier in the same transcript the same student asked the same kind
+#               of question and was answered properly -- and every compliant reply carries a
+#               COMPLETED board line ("5^2 = 25"), while the refusals carry only pending
+#               ones. All three conditions required: asked to be shown, nothing worked out,
+#               work handed back. 0 false alarms on 1,015 scripts x 6 phrasings -- after the
+#               sweep caught two over-broad conditions in an early draft (a card TITLE
+#               ending in "?", and the VARIABLE x read as a multiplication sign).
 #   2026-08-17  BUILD gw -- THE BARE ANSWER-DEMAND, THE DECIMAL, AND A REFEREE THAT HAD
 #               BEEN FIGHTING US. Three fixes from one thread of the day's audit.
 #               (1) The decimal-alignment lesson raised a rule 15 and a rule 44 finding
@@ -2489,6 +2510,86 @@ def triangle_side_conflict(reply: str):
 
 
 # =============================================================================
+# THE REFUSED-DEMONSTRATION CHECK (2026-08-17, build gx) -- rule 65, the SEVENTEENTH.
+# -----------------------------------------------------------------------------
+# The worst thing in the 2026-08-17 audit, and it happened twice in one lesson:
+#
+#   STUDENT: "Can you show me taking the square root of 169?"
+#   TUTOR:   "You've now watched this move twice -- let's flip it. Here's a new triangle:"
+#
+#   STUDENT: "Can you show me 8 squared and 15 squared first?"
+#   TUTOR:   "You've watched this exact move twice now... Let's see you try it."
+#            [[step eq="8^2 = ?"]] [[step eq="15^2 = ?"]]
+#
+# Both counts were FALSE -- the move had been shown once. So a child who asked for help
+# was refused, and told they should already know it, on evidence the tutor invented.
+# (The false count itself is build gv's probe; this referee is about the refusal.)
+#
+# A student saying "show me" is handing over the exact information a tutor spends a whole
+# lesson trying to get: they are not ready to do it alone. Withdrawing the scaffold is
+# right when their WORK says so. It is never right as the answer to this question.
+#
+# THE DISCRIMINATOR CAME OUT OF THE LESSON ITSELF. Earlier in the same transcript the same
+# student asked the same kind of question and was answered properly:
+#     "Here's five squared and twelve squared worked out:"
+#     [[step eq="5^2 = 25"]]  [[step eq="12^2 = 144"]]
+# The compliant replies contain a COMPLETED line. The refusals contain only PENDING ones.
+# So: they asked to be shown, nothing in the reply is worked out, and the work is handed
+# straight back. All three, or it does not fire.
+_RD_ASKS = re.compile(
+    r"\b(?:can|could|will|would) you (?:please )?(?:show|walk|do|work)\b"
+    r"|\bshow me\b|\bwalk me through\b|\bcan (?:you|we) do (?:that|this|it|the)\b"
+    r"|\bdo (?:that|this|it) one first\b|\bcan i see\b", re.I)
+# A line that is WORKED OUT: an "=" followed by something that is not a bare "?".
+_RD_COMPLETED = re.compile(r"=\s*(?!\s*\?)[^\s=?][^=?]*$")
+_RD_HANDS_BACK = re.compile(
+    r"\byour turn\b|\bgive it a (?:shot|go|try)\b|\blet'?s see you try\b|\byou try\b|"
+    r"\blet'?s flip it\b|\bsee if you can\b|\bhave a go\b|\bwhat do you get\b|"
+    r"\byou'?ve got this\b|\bshow me what you\b", re.I)
+
+
+def refused_demonstration_conflict(reply: str, student_message: str = ""):
+    """Return a description of a reply that refused a request to be shown, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        said = " ".join(str(student_message or "").split())
+        if not said or not _RD_ASKS.search(said):
+            return ""
+        text = str(reply or "")
+        # Did anything actually get WORKED OUT on the board?
+        for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+            for val in re.findall(r'"([^"]*)"', tag):
+                v = " ".join(val.split())
+                if "=" in v and _RD_COMPLETED.search(v):
+                    return ""              # something was shown -- that is the job done
+        prose = _spoken_only(text)
+        # A PENDING COMPUTATION, not merely a question mark. An early version treated any
+        # "?" in any tag as "the work was handed back", and the canonical sweep caught it
+        # firing on card TITLES -- [[card title="Quantitative?"]], [[write text="what is it
+        # approaching, as x gets close?"]]. A title that ends in a question mark is a
+        # heading, not a problem waiting for the student.
+        # NOTE the operator class deliberately omits a bare "x": it is the multiplication
+        # sign AND the commonest variable in the app, and including it made
+        # [[write text="what is it approaching, as x gets close?"]] look like a pending
+        # computation. The true multiplication sign is here.
+        pending = any(("?" in val and re.search(r"[=+\-\u2212\u00d7*/\u00f7^]", val))
+                      for tag in re.findall(r"\[\[[^\]]*\]\]", text)
+                      for val in re.findall(r'"([^"]*)"', tag))
+        if not (pending or _RD_HANDS_BACK.search(prose)):
+            return ""                      # not a hand-back; may be a fair clarification
+        return ('the student asked to be SHOWN -- "{s}" -- and this reply works nothing out '
+                "and hands the job straight back to them. Rule 65: a request to be shown is "
+                "not a negotiation, it is the student telling you in the plainest words they "
+                "have that they are not ready to do it alone. Show the thing they asked for, "
+                "in full, with the value on the board -- then offer them the next one. "
+                "Fading the scaffold is right when their WORK says so, never as the answer "
+                'to "please show me".').format(s=said[:60])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[refusedshow] crashed (fail open): {exc}")
+        return ""
+
+
+# =============================================================================
 # THE COUNT-CLAIM PROBE (2026-08-17, build gv) -- MEASUREMENT ONLY, on purpose.
 # -----------------------------------------------------------------------------
 # The day's audit turned up five claims about what has ALREADY HAPPENED that were simply
@@ -3625,6 +3726,10 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         triletter = triangle_letter_conflict(reply)
         if triletter:
             return triletter
+        # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
+        refused = refused_demonstration_conflict(reply, student_message)
+        if refused:
+            return refused
         # build gu: SIXTEENTH -- rule 47(d), whose founding sentence reappeared verbatim
         # six days after the rule was written from it.
         coldquiz = cold_quiz_conflict(reply)
