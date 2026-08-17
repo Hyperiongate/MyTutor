@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gt-board-shapes". THE FIRST AUDIT FINDINGS CLOSED.
+#               Five lesson-audit runs (ten lessons, 27 findings, 6 HIGH) were triaged
+#               against their own transcripts -- 24 hold, 1 rejected with its reason, 2 weak
+#               -- and they collapse into SIX causes, FIVE of which are places a referee we
+#               already owned failed to fire (see Audit_Triage_2026-08-17.md). This build
+#               closes the cheapest and most complete of them: board_notation_conflict now
+#               knows an arrow after an equals sign, a question stuffed into an equation, and
+#               a tautology. No judgement is needed for any of the three, which is exactly
+#               why missing them mattered.
 #   2026-08-17  APP_BUILD -> "2026-08-17gs-unit-follows-teaching". THE UNIT FOLLOWS WHAT IS
 #               BEING TAUGHT. Jim reported the same symptom twice -- "it still says unit one
 #               on the top when we are talking about unit five" -- and BOTH earlier diagnoses
@@ -7224,7 +7233,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gs-unit-follows-teaching"
+APP_BUILD = "2026-08-17gt-board-shapes"
 
 
 @app.get("/health")

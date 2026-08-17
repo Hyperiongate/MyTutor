@@ -2,6 +2,25 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gt -- BOARD NOTATION LEARNS THREE MORE SHAPES, and the way they were
+#               found is the point. Five lesson-audit runs (ten lessons, 27 findings) turned
+#               up three malformed board lines that board_notation_conflict ALREADY EXISTED
+#               to catch and walked straight past:
+#                 [[step eq="1 + 2 = 3 -> 3/4"]]        an arrow AFTER the equals sign, so
+#                                                       the line asserts 3 -> 3/4 and a child
+#                                                       can read "three equals three fourths"
+#                 [[step eq="12: which digit is the ones? = ?"]]   a QUESTION inside an
+#                                                       equation tag -- not maths at all
+#                 [[step eq="(x+4)^2 = (x+4)^2"]]       a TAUTOLOGY where the factoring
+#                                                       belonged; it records no step
+#               None of the three needs judgement, which is what makes the miss instructive:
+#               the audit's real product was not the bad turns, it was THE SHAPE OF OUR OWN
+#               BLINDNESS. Scoped to eq= deliberately -- a [[write text]] may carry an arrow
+#               ("f(x) <- say it out loud") and a [[step check]] may repeat a value ("6 = 6,
+#               so the limit is 6"); only an eq= claims to BE an equation.
+#               Verified against 76 real board lines from those same five transcripts: it
+#               fires on exactly the three the auditor flagged and is silent on the other
+#               73. 0 false alarms across 1,015 canonical scripts.
 #   2026-08-17  BUILD gr -- THE SIGNED-ANSWER REFEREE (rule 64), the FIFTEENTH. Jim
 #               answered "minus five" to "what times itself gives twenty five?" and the
 #               tutor said "That is correct", then taught on using 5. Two failures: the
@@ -2229,6 +2248,58 @@ def board_notation_conflict(reply: str):
                             'number equals. Rule 15: the "?" marks a value to COMPUTE. '
                             'Write the true equation alone ("a^2 + 64 = 100"), then the '
                             'pending step as its own line ("a^2 = ?").').format(v=v)
+        # build gt (2026-08-17), from the day's lesson audit: THREE MORE WAYS A BOARD LINE
+        # CAN BE MALFORMED, all found in one sweep and all decidable without judgement.
+        # This referee already existed and missed every one of them, which is the finding
+        # that matters -- the audit's real product was not the bad turns, it was the shape
+        # of our own blindness.
+        # SCOPED TO eq= ON PURPOSE. A [[write text=...]] is free-form board prose and may
+        # legitimately carry an arrow ("f(x) <- say it out loud"), and a [[step check=...]]
+        # is a verdict that may legitimately repeat a value ("6 = 6, so the limit is 6").
+        # An eq= claims to be an EQUATION, and these three shapes are not equations.
+        for tag in re.findall(r"\[\[[^\]]*\]\]", text):
+            for val in re.findall(r'\beq\s*=\s*"([^"]*)"', tag):
+                v = " ".join(val.split())
+                short = v[:60]
+                # (1) AN ARROW AFTER AN EQUALS SIGN. From the fractions lesson:
+                #     [[step eq="1 + 2 = 3 -> 3/4"]] -- as written this asserts 3 -> 3/4,
+                #     and a child may simply read "three equals three fourths".
+                #     A limit's own arrow ("lim x->2") is NOT this: it binds tight to its
+                #     variable and comes BEFORE the equals sign, so both are required --
+                #     whitespace on each side of the arrow, and an "=" earlier in the line.
+                am = re.search(r"=\s.*?\s(\u2192|\u21d2|->|=>)\s", v)
+                if am:
+                    return ('the board writes "{v}" -- an arrow after an equals sign. As '
+                            "written that line claims the value BEFORE the arrow equals "
+                            "the thing after it, so a student can read it as \"3 equals "
+                            "three fourths\". Rule 15: one line, one true statement. Split "
+                            "it into the two steps you actually mean, each of which is true "
+                            "on its own.").format(v=short)
+                # (2) A QUESTION STUFFED INTO AN EQUATION. From the place-value lesson:
+                #     [[step eq="12: which digit is the ones? = ?"]] -- not an equation at
+                #     all. ("Question 1: 3/6 = ?" is a LABEL, not an interrogative, and
+                #     stays clean.)
+                qm = re.search(r"\b(which|what|how many|how much|why|who|where)\b", v, re.I)
+                if qm and "?" in v:
+                    return ('the board writes "{v}" -- a QUESTION inside an equation tag. '
+                            "That is not a mathematical statement, and the student is left "
+                            "reading a sentence where a computation should be. Rule 4: ask "
+                            "the question in your WORDS, and put the thing to be computed "
+                            'on the board as an equation with a pending "?" -- or use a '
+                            "card if it is genuinely a text prompt.").format(v=short)
+                # (3) A TAUTOLOGY. From the quadratics lesson:
+                #     [[step eq="(x+4)^2 = (x+4)^2"]] where the FACTORING belonged.
+                #     A line that says a thing equals itself records no step and teaches
+                #     nothing; adjacent sides are compared so "A = B = B" is caught too.
+                parts = [" ".join(x.split()) for x in v.split("=")]
+                for a, b in zip(parts, parts[1:]):
+                    if a and a == b:
+                        return ('the board writes "{v}" -- a line that says something '
+                                "equals ITSELF. It records no step: whatever move the "
+                                "student just made, this does not show it. Write the real "
+                                "relationship instead (the expression on one side, what it "
+                                "became on the other).").format(v=short)
+
         # rule 54(b), build dl: teaching a key-word-to-operation shortcut, in prose or
         # on the board. The words that get banned are story CUES only (see above).
         m = _KW_SHORTCUT.search(_spoken_only(text))

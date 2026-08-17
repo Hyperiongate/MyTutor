@@ -1520,6 +1520,37 @@ BOARD_NOTATION_CASES = [
     ("a compare story taught by TYPE, the rule-54 way",
      "Maria has 5 more apples than Tom. Before any arithmetic: what KIND of story is "
      'this? [[card title="Compare" items="bigger amount: ? | smaller amount: 3 | difference: 5"]]', False),
+
+    # BUILD gt (2026-08-17) -- THREE MORE MALFORMED SHAPES, from the day's five audit runs.
+    # This referee ALREADY EXISTED and missed all three, which is the finding that matters:
+    # the audit's real product was not the bad turns, it was the shape of our own blindness.
+    # Every "clean" case below is a REAL board line from those same five transcripts -- 76
+    # were swept and exactly these three fired, no more and no fewer.
+    ("gt: an arrow after the equals sign (the fractions lesson)",
+     '[[step eq="1 + 2 = 3 \u2192 3/4"]]', True),
+    ("gt: the same with an ASCII arrow",
+     '[[step eq="1 + 2 = 3 -> 3/4"]]', True),
+    ("gt: a question stuffed into an equation (the place-value lesson)",
+     '[[step eq="12: which digit is the ones? = ?"]]', True),
+    ("gt: a tautology where the factoring belonged (the quadratics lesson)",
+     '[[step eq="(x+4)^2 = (x+4)^2"]]', True),
+    ("gt: a tautology at the end of a chain",
+     '[[step eq="y = x^2 + 8x + 16 = x^2 + 8x + 16"]]', True),
+    # ---- and the real lines from those same lessons that must stay clean ----
+    ("gt: a limit's own arrow binds tight and precedes the =",
+     '[[step eq="lim x\u21922\u207b (x+1) = 3"]]', False),
+    ("gt: an arrow in free board prose is not an equation",
+     '[[write text="f(x)   \u2190  say it out loud: f of x"]]', False),
+    ("gt: a check= verdict may legitimately repeat a value",
+     '[[step check="6 = 6, so lim x\u21923 f(x) = 6"]]', False),
+    ("gt: 'Question 1:' is a label, not an interrogative",
+     '[[step eq="Question 1: 3/6 = ?"]]', False),
+    ("gt: a column label is fine", '[[step eq="ones: 3 + 0 = ?"]]', False),
+    ("gt: a genuine chain of equals", '[[step eq="3 + 2 \u00d7 4 = 3 + 8 = 11"]]', False),
+    ("gt: an ordinary pending step", '[[step eq="8^2 + 15^2 = ?"]]', False),
+    ("gt: a substitution line", '[[step eq="f(-2) = 3(-2) - 2"]]', False),
+    ("gt: a plain true line", '[[step eq="25 + 144 = 169"]]', False),
+    ("gt: completing the square, mid-work", '[[step eq="y = (x^2 - 6x + 9) - 9 + 5"]]', False)
 ]
 
 
