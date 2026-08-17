@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hj -- THE UNIT ARRIVES AS A FIELD. build_system_prompt and
+#               _lesson_unit (the fourteenth referee) now read
+#               student["current_unit"] -- the value main._resolve_unit derived ONCE
+#               -- before any older path. The regex-the-prose fallback
+#               (_unit_from_progress) survives only for callers that predate the
+#               field (nightwatch drives get_tutor_reply directly with synthetic
+#               students); when the field is present, no prose is parsed at all.
+#               Referee and prompt still cannot disagree -- same field, one owner.
 #   2026-08-17  BUILD hh -- THE TAG GRAMMAR HAS ONE SOURCE (tags.py; the last Phase 2
 #               build). FIGURE_TAGS, _BOARD_TAGS and _PQ_BOARD_TAGS now DERIVE from
 #               the registry; the rule-18b sweep's inline step|write|solve regex
@@ -1711,12 +1719,24 @@ def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
                     "this student. Begin with the first-meeting flow.)")
     # Phase B: prefer a chosen FOCUS unit (from the dashboard "Work on it" link) for the
     # teaching playbook; otherwise detect it from the placement note in progress.
-    focus = (student or {}).get("focus_unit")
+    # build hj: the server resolves "which unit" ONCE (main._resolve_unit) and passes
+    # it as a FIELD. The regex-the-prose path below survives only as a fallback for
+    # callers that predate the field (nightwatch drives this function directly with
+    # synthetic students) -- when current_unit is present, no prose is ever parsed.
+    unit = None
     try:
-        focus = int(focus) if focus else None
+        cu = int((student or {}).get("current_unit") or 0)
+        if 1 <= cu <= 9:
+            unit = cu
     except (TypeError, ValueError):
-        focus = None
-    unit = focus if (focus and 1 <= focus <= 9) else _unit_from_progress(progress)
+        unit = None
+    if unit is None:
+        focus = (student or {}).get("focus_unit")
+        try:
+            focus = int(focus) if focus else None
+        except (TypeError, ValueError):
+            focus = None
+        unit = focus if (focus and 1 <= focus <= 9) else _unit_from_progress(progress)
     playbook = _playbook(unit, course)
     mastery = (student or {}).get("mastery_note") or "(No mastery data yet -- begin at their placed level.)"
     template = LESSON_TEMPLATES.get(course or DEFAULT_COURSE, SYSTEM_PROMPT_TEMPLATE)
@@ -1794,6 +1814,12 @@ def _lesson_unit(student) -> "int | None":
     student is (build gn). Returns None when neither says -- and the referee then stays
     silent rather than guessing."""
     try:
+        # build hj: the resolved field first -- the SAME value build_system_prompt
+        # used, so the referee and the prompt still cannot disagree (the gn property,
+        # now via one server-side derivation instead of one shared regex).
+        cu = int((student or {}).get("current_unit") or 0)
+        if 1 <= cu <= 9:
+            return cu
         focus = (student or {}).get("focus_unit")
         try:
             focus = int(focus) if focus else None

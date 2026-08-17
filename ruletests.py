@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hj -- PART 3ba, ONE OWNER FOR "WHICH UNIT": wiring checks (the
+#               resolver exists; prompt, referee, tracker and probe consume its
+#               result; the placement note expires) plus the six-case priority table
+#               proved against a real database on every push. The gs link checks
+#               repointed: the focus guard is now the resolver's SOURCE, not a raw
+#               number re-test. The priority test caught a real design error before
+#               it shipped: the first progression walk started at unit 1 and sent a
+#               placed-at-3 student backward the moment they mastered unit 3 -- the
+#               placement is a FLOOR, and the walk now starts there.
 #   2026-08-17  BUILD hi -- PART 3az, THE COUNTERS ARE ATOMIC: source checks that the
 #               five converted store sites compute in the database, plus a REAL
 #               behavioural proof on every push -- a subprocess brings up store.py on
@@ -8812,15 +8821,18 @@ def part3an_unit_follows_teaching():
 
     with open(os.path.join(root, "main.py"), "r", encoding="utf-8") as fh:
         m = fh.read()
-    # ---- link 1: the DECLARED unit is what gets tracked, not the placement unit ----
+    # ---- link 1: the DECLARED unit outranks the resolved default when tracking ----
+    # build hj: the focus guard became `unit_source != "focus"` -- the resolver owns
+    # the focus decision now, and the declaration check reads its SOURCE instead of
+    # re-testing the raw number. Same gs semantics, one owner.
     check("unit: the tutor's declaration outranks placement when tracking",
           "declared = _declared_unit(reply)" in m
-          and "if declared and not (1 <= focus_unit <= 9)" in m,
+          and 'if declared and unit_source != "focus"' in m,
           "activity would go on being filed under the unit the student was PLACED in, so "
           "the tracker would keep agreeing with a stale rail")
     # ---- link 2: an explicit focus still wins, because that is the student choosing ----
     check("unit: an explicit focus unit still outranks the declaration",
-          "not (1 <= focus_unit <= 9)" in m,
+          'unit_source != "focus"' in m and 'return int(focus_unit), "focus"' in m,
           "a student who clicked 'work on unit 4' must not be overridden by the tutor")
     # ---- link 3: the server serves the unit the lesson is actually in ----
     check("unit: /api/session reports current_unit",
@@ -10064,6 +10076,108 @@ print(json.dumps({"ok": bool(ok), "minutes": minutes, "c7": c7,
 """
 
 
+# =============================================================================
+# PART 3ba -- ONE OWNER FOR "WHICH UNIT" (build hj)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 3. "Which unit is this student in" had FIVE competing answers
+# reconciled ad hoc by four consumers -- the unit-rail bug's family (Jim, twice:
+# "it still says unit one when we are talking about unit five"). main._resolve_unit
+# is now the one derivation; the prompt's playbook, the fourteenth referee, the
+# tracker and the placement note all consume its RESULT. The priority table is
+# proved against a REAL database on every push, including the two cases that were
+# actually broken before hj: placement outranking progression forever (a mastered
+# placement unit now advances), and the gs declaration evaporating at the next
+# opener (a tracked unit now persists across sessions).
+# =============================================================================
+_HJ_RESOLVE = r"""
+import os, sys, json, time
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled()
+import main
+P3 = {"start_unit": 3, "level_title": "Level 3"}
+got = {}
+got["a"] = tuple(main._resolve_unit("R1", "algebra1", P3, 0))
+store.record_check("R2", 3, 19, 20, "U3", "algebra1")
+got["b"] = tuple(main._resolve_unit("R2", "algebra1", P3, 0))
+store.record_check("R3", 1, 19, 20, "U1", "algebra1"); time.sleep(0.02)
+store.record_topic("R3", 5, "U5", "learning", "algebra1")
+got["c"] = tuple(main._resolve_unit("R3", "algebra1", P3, 0))
+store.record_check("R4", 2, 19, 20, "U2", "algebra1"); time.sleep(0.02)
+store.record_topic("R4", 2, "U2", "mastered", "algebra1")
+got["d"] = tuple(main._resolve_unit("R4", "algebra1", P3, 0))
+got["e"] = tuple(main._resolve_unit("R3", "algebra1", P3, 7))
+got["f"] = tuple(main._resolve_unit("R9", "algebra1", {}, 0))
+want = {"a": (3, "placement"), "b": (4, "progression"), "c": (5, "tracked"),
+        "d": (3, "progression"), "e": (7, "focus"), "f": (1, "default")}
+print(json.dumps({"ok": all(got[k] == want[k] for k in want),
+                  "got": {k: list(v) for k, v in got.items()}}))
+"""
+
+
+def part3ba_one_unit_owner():
+    print("\nPART 3ba — one owner for the student's unit (build hj)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    # 1. THE WIRING: one resolver, and every consumer reads its result.
+    check("main._resolve_unit exists", "def _resolve_unit(" in msrc,
+          "the single derivation is gone -- five ad-hoc answers are next")
+    check("the chat handler resolves once and passes the FIELD",
+          'student_context["current_unit"] = resolved_unit' in msrc,
+          "the prompt is back to regex-reading the unit out of prose")
+    check("the tracker consumes the resolved value",
+          "course_unit = resolved_unit" in msrc,
+          "the tracker re-derives its own answer again -- placement can outrank "
+          "progression forever on tagless turns (the pre-gs bug, review F4c)")
+    check("the placement note EXPIRES once deeper truth exists",
+          'if placement and unit_source in ("placement", "default")' in msrc,
+          "the stale sentence rides every prompt forever again, and the prose regex "
+          "has something wrong to find")
+    check("the prompt consumes the field",
+          '(student or {}).get("current_unit")' in tsrc,
+          "build_system_prompt no longer reads the resolved unit")
+    check("the referee consumes the same field",
+          tsrc.count('(student or {}).get("current_unit")') >= 2,
+          "_lesson_unit lost the field -- the referee and the prompt can disagree "
+          "about the unit again")
+    check("the drift probe sees the resolved answer",
+          "resolved=resolved_unit" in msrc,
+          "the probe cannot say which source answered")
+
+    # 2. THE PRIORITY TABLE, on a real database, every push.
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("resolve_unit priority table", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "resolve.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HJ_RESOLVE)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hj.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("resolve_unit priority table ran",
+                (res.stderr or res.stdout).strip()[:300])
+            return
+        check("the six-case priority table holds (focus > tracked > progression-"
+              "from-floor > placement > default)",
+              verdict.get("ok") is True,
+              f"{verdict.get('got')} -- a consumer is reading a different truth than "
+              f"the resolver produces")
+
+
 def part3az_atomic_counters():
     print("\nPART 3az — the counters are atomic (build hi)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10411,6 +10525,7 @@ def main():
     part3ax_one_pipeline()
     part3ay_one_grammar()
     part3az_atomic_counters()
+    part3ba_one_unit_owner()
     part3ai_deploy_stamp()
     if live:
         part4_live()

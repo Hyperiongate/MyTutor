@@ -2,6 +2,32 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hj-one-unit-owner". THE DEEPEST CUT OF PHASE 3.
+#               "Which unit is this student in" had FIVE competing answers reconciled
+#               ad hoc by four consumers -- the unit-rail bug's whole family. NEW
+#               main._resolve_unit(code, course, placement, focus) is the ONE
+#               derivation, with a named priority: focus > tracked (the most recently
+#               touched UNMASTERED unit -- so build gs's [[unitplan]] authority now
+#               PERSISTS across sessions instead of evaporating at the next opener) >
+#               progression-from-the-placement-FLOOR (a placed-at-3 student advances
+#               to 4 on mastering 3, never "back" to units the Challenge cleared --
+#               the first draft walked from 1 and the priority-table test caught it
+#               before it ever ran) > placement (brand-new students only) > 1.
+#               CONSUMERS: student_context["current_unit"] feeds build_system_prompt's
+#               playbook + foundation filter AND _lesson_unit (the fourteenth referee)
+#               -- same field, so they still cannot disagree; the tracker files under
+#               the resolved value (killing review F4c: placement outranked
+#               progression on every tagless turn, forever); the drift probe logs
+#               resolved+source as its fourth signal.
+#               THE PLACEMENT NOTE EXPIRES (review F4a): the "should start around
+#               Unit N" sentence -- which tutor.py regex-read back OUT of the prose to
+#               pick the playbook -- now rides only while placement is genuinely the
+#               best answer. After that, the field carries the truth as data.
+#               gs PRESERVED: an explicit [[unitplan]] declaration still outranks
+#               everything except the student's own focus for the tracking write.
+#               PROVED on a real database (ruletests PART 3ba, every push): the
+#               six-case priority table, including the two cases that were actually
+#               broken -- mastered-placement-advances and tracked-persists.
 #   2026-08-17  APP_BUILD -> "2026-08-17hi-atomic-counters". PHASE 3 BEGINS: counter
 #               arithmetic moved INTO the database (see store.py's hi note) -- best
 #               scores can no longer regress, a unit can no longer be silently
@@ -3391,6 +3417,79 @@ def _track_topic(code: str, unit, name: str, status: str, course: str = "algebra
         store.record_topic(code, unit, name, status, course=course)
     except Exception as exc:  # noqa: BLE001
         print(f"[track] record_topic failed (ignored): {exc}")
+
+
+def _resolve_unit(code: str, course: str, placement: dict, focus_unit: int):
+    """ONE OWNER for "which unit is this student in" (2026-08-17, build hj -- full-app
+    review Phase 3, and the completion of build gs).
+
+    The review counted FIVE competing answers to this question, reconciled ad hoc by
+    four consumers -- and the unit-rail bug (Jim, twice: "it still says unit one when
+    we are talking about unit five") was this fact expressed through one of them. gs
+    fixed the tracker for one turn; the NEXT session still re-derived from placement,
+    because nothing carried the truth forward. This function is now the derivation,
+    and everything downstream -- the prompt's playbook, the fourteenth referee, the
+    tracker, the placement note -- consumes its RESULT as a field.
+
+    Priority, most intentional first, each one named so the drift probe can say which
+    source answered:
+      focus       -- the student clicked "Work on it" (or the parent's standing steer,
+                     resolved upstream): their explicit intent, always wins.
+      tracked     -- the most recently touched UNMASTERED unit. This is what the
+                     lesson is actually in: gs made the tutor's own [[unitplan]] the
+                     tracking authority, so the declaration persists here across
+                     sessions instead of evaporating at the next opener. A mastered
+                     unit deliberately does NOT pin (progression must advance past a
+                     finished unit even if its celebration was the last touch).
+      progression -- the first unit whose best check score is below the bar: where
+                     the course itself says they are.
+      placement   -- where the Challenge placed them: meaningful ONLY while nothing
+                     deeper exists (a brand-new student). The old code let this
+                     outrank progression forever -- a number that never moves steering
+                     lessons that do.
+      default     -- Unit 1.
+    Returns (unit, source). Never raises: any storage surprise degrades toward
+    placement/default, never toward an exception in a child's turn."""
+    if 1 <= int(focus_unit or 0) <= 9:
+        return int(focus_unit), "focus"
+    # THE PLACEMENT IS A FLOOR, not a pin. A student placed at Unit 3 was placed PAST
+    # units 1-2 -- progression walks upward FROM the floor, so mastering unit 3 moves
+    # them to 4, never "back" to units the Challenge already cleared. (The first
+    # version of this function walked from 1 and sent a placed-at-3 student to Unit 1
+    # the moment they mastered their placement unit -- caught by the priority-table
+    # test before it ever ran.)
+    try:
+        floor = int((placement or {}).get("start_unit") or 1)
+    except (TypeError, ValueError):
+        floor = 1
+    floor = floor if 1 <= floor <= 9 else 1
+    mastered = set()
+    try:
+        if store.enabled():
+            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            mastered = {u for u in range(1, 10)
+                        if int((checks.get(u) or {}).get("best_pct") or 0) >= store.PASS_PCT}
+            rows = sorted((r for r in (store.get_topics(code, course) or [])
+                           if r.get("last_touched") and 1 <= int(r.get("unit") or 0) <= 9),
+                          key=lambda r: str(r.get("last_touched")), reverse=True)
+            for r in rows:
+                u = int(r["unit"])
+                if u not in mastered:
+                    return u, "tracked"
+            for u in range(floor, 10):
+                if u not in mastered:
+                    if rows or mastered:          # the course has real history
+                        return u, "progression"
+                    break
+    except Exception as exc:  # noqa: BLE001 -- resolution must never break a turn
+        print(f"[resolve_unit] degraded to placement: {exc}")
+    try:
+        su = int((placement or {}).get("start_unit") or 0)
+        if 1 <= su <= 9:
+            return su, "placement"
+    except (TypeError, ValueError):
+        pass
+    return 1, "default"
 
 
 def _resolve_focus(code: str, course: str, req_unit: int):
@@ -7546,7 +7645,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hi-atomic-counters"
+APP_BUILD = "2026-08-17hj-one-unit-owner"
 
 
 @app.get("/health")
@@ -7978,7 +8077,8 @@ def _declared_unit(reply: str):
         return None
 
 
-def _probe_unit_drift(code: str, course: str, reply: str, declared, tracked) -> None:
+def _probe_unit_drift(code: str, course: str, reply: str, declared, tracked,
+                      resolved=None, source="") -> None:
     """MEASUREMENT ONLY (build gs). Three answers to "which unit is this?" now exist: what
     the tutor DECLARED, what the content CLASSIFIES as, and what we TRACKED. Log it when
     they disagree, because Jim reported this symptom twice and both diagnoses were guesses
@@ -7995,11 +8095,13 @@ def _probe_unit_drift(code: str, course: str, reply: str, declared, tracked) -> 
         vals = {v for v in (declared, classified, tracked) if v}
         if len(vals) > 1:
             print(f"[unitdrift] code={code[:3]}*** course={course} declared={declared} "
-                  f"classified={classified} tracked={tracked} -- the tutor, the content and "
-                  f"the tracker disagree about which unit this lesson is in")
+                  f"classified={classified} tracked={tracked} resolved={resolved}"
+                  f"({source}) -- the tutor, the content and the tracker disagree "
+                  f"about which unit this lesson is in")
             store.record_event("probe", "unitdrift",
                                f"declared={declared} classified={classified} "
-                               f"tracked={tracked}", code, course)
+                               f"tracked={tracked} resolved={resolved}({source})",
+                               code, course)
     except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
         print(f"[unitdrift] probe failed (ignored): {exc}")
 
@@ -8207,14 +8309,6 @@ def chat(req: ChatRequest):
     if final_mode:
         student_context["final_mode"] = final_mode   # tutor.py appends the matching note
     placement = read_placement(code, req.course)
-    if placement:
-        note = (" [Placement result from the Challenge: this student tested as "
-                f"'{placement.get('level_title', '')}' and should start around "
-                f"Unit {placement.get('start_unit')} "
-                f"({placement.get('start_unit_name', '')}). Strengths: "
-                f"{', '.join(placement.get('strengths', [])) or 'building foundations'}. "
-                "Meet them at that level -- don't start below it unless they struggle.]")
-        student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
 
     # Phase B -- MASTERY STEERING: tell the tutor what they've mastered vs. still need, and
     # (from the dashboard "Work on it" link) which unit to focus on today.
@@ -8232,6 +8326,28 @@ def chat(req: ChatRequest):
         student_context["mastery_note"] = mnote
     if 1 <= focus_unit <= 9:
         student_context["focus_unit"] = focus_unit
+
+    # build hj: ONE OWNER FOR THE UNIT. Resolved once, consumed everywhere as a FIELD
+    # -- the prompt's playbook and foundation filter, the fourteenth referee, and the
+    # tracker all read this instead of re-deriving their own answers (the unit-rail
+    # class: five sources, confidently wrong together).
+    resolved_unit, unit_source = _resolve_unit(code, req.course, placement, focus_unit)
+    student_context["current_unit"] = resolved_unit
+    # THE PLACEMENT NOTE EXPIRES (review F4a). It used to be appended to the progress
+    # prose every turn forever -- and tutor.py regex-read "Unit N" back OUT of that
+    # prose to pick the teaching playbook, so a student eight units past their
+    # placement could get Unit 1's playbook with the referee calibrated to the same
+    # stale number. The note now rides only while placement is genuinely the best
+    # answer (a brand-new student); after that, current_unit carries the truth as
+    # data and the sentence is retired.
+    if placement and unit_source in ("placement", "default"):
+        note = (" [Placement result from the Challenge: this student tested as "
+                f"'{placement.get('level_title', '')}' and should start around "
+                f"Unit {placement.get('start_unit')} "
+                f"({placement.get('start_unit_name', '')}). Strengths: "
+                f"{', '.join(placement.get('strengths', [])) or 'building foundations'}. "
+                "Meet them at that level -- don't start below it unless they struggle.]")
+        student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
 
     # REWARDS AWARENESS (2026-07-30): if the student earned an award in the last 48h, tell the
     # tutor so he can congratulate them ONCE, by name, for what they DID. Wrapped: never breaks a turn.
@@ -8459,33 +8575,19 @@ def chat(req: ChatRequest):
     # made fresh elementary students SKIP Unit 1 entirely: the first turn logged "learning
     # Unit 2", the mastery note then steered the tutor there, and Counting & Number Sense
     # was never taught.
-    course_unit = 1
-    try:
-        su = int((placement or {}).get("start_unit") or 0)
-        if 1 <= su <= 9:
-            course_unit = su
-        elif store.enabled():
-            checks = (store.get_mastery(code, req.course) or {}).get("checks", {})
-            for u in range(1, 10):
-                if int((checks.get(u) or {}).get("best_pct") or 0) < store.PASS_PCT:
-                    course_unit = u
-                    break
-    except (TypeError, ValueError):
-        course_unit = 1
-    except Exception as exc:  # noqa: BLE001 -- a tracking miss must never break the turn
-        print(f"[track] unplaced-unit lookup failed: {exc}")
-        course_unit = 1
-    if 1 <= focus_unit <= 9:
-        course_unit = focus_unit        # a focused session counts toward THAT unit
-    # build gs: THE TUTOR'S OWN DECLARATION OUTRANKS PLACEMENT. Everything above derives the
-    # unit from where the student was PLACED, which never moves -- so a lesson that has
-    # walked on to right triangles was being filed under Unit 1, and the tracker then agreed
-    # with the stale rail. An explicit focus (a dashboard link) still wins, because that is
-    # the student choosing; otherwise what the tutor says it is teaching is the truth.
+    # build hj: the tracker consumes the SAME resolved unit the prompt and the referee
+    # were given -- the derivation this block used to re-do by hand let placement
+    # outrank progression forever on any turn without a [[unitplan]] tag (the pre-gs
+    # bug, quietly re-emerging every tagless turn; review finding F4c).
+    course_unit = resolved_unit
+    # build gs, preserved: THE TUTOR'S OWN DECLARATION OUTRANKS EVERYTHING except an
+    # explicit focus -- what the tutor says it is teaching is the truth for THIS turn,
+    # and (completing gs) it persists into the next resolution via topic_progress.
     declared = _declared_unit(reply)
-    if declared and not (1 <= focus_unit <= 9):
+    if declared and unit_source != "focus":
         course_unit = declared
-    _probe_unit_drift(code, req.course, reply, declared, course_unit)
+    _probe_unit_drift(code, req.course, reply, declared, course_unit,
+                      resolved=resolved_unit, source=unit_source)
     _track_topic(code, course_unit, curriculum.unit_name(req.course, course_unit),
                  "learning", req.course)
 
