@@ -2,6 +2,16 @@
 # screencheck.py  --  THE SCREEN AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hb -- THE AUDITOR STOPS WATCHING ONE PAGE IN FIVE. capture_render
+#               gained page_name= and a PAGE_PROFILES table (endpoint + how to get past
+#               the entry screen); it now drives session.html, topic.html AND
+#               practice.html, which are three hand-synced copies of one renderer. The
+#               full-app review found the cost of the old coverage: build gz's two live
+#               defects lived in the two pages this file could not see. --page picks one
+#               or 'all'. demo.html and challenge.html are NAMED in UNCOVERED_PAGES
+#               rather than silently skipped -- they are separate reimplementations, not
+#               forks, and need their own harness. Verified by driving all three pages
+#               with a real corpus: 2 turns each, S1-S7 judged, 0 findings.
 #   2026-08-16  NEW -- BUILD gn. Jim ran one Geometry lesson and found four defects by
 #               eye in the first turn: a formula rendered "a squared plus B squared
 #               equals C squared", a triangle whose letters sat on the CORNERS while the
@@ -609,12 +619,62 @@ DEFAULT_SESSION_STATE = {
 }
 
 
+# THE FIVE RENDERER COPIES, AND WHICH ONES THIS CAN DRIVE (2026-08-17, build hb).
+# The full-app review counted the damage: session.html, topic.html and practice.html are
+# three hand-synced copies of one renderer (~2,400 duplicated lines), and this auditor
+# drove exactly ONE of them -- so any S1-S7 defect reborn in a sibling was unwatched.
+# That is not hypothetical: build gz found TWO live defects living in the two pages this
+# file could not see.
+#
+# Each profile is only what actually DIFFERS: which endpoint the page posts a turn to,
+# and how you get past its entry screen. Everything downstream -- the snapshot, the
+# board, the bubbles, the console capture -- is identical because addBubble() and the
+# board renderer are byte-identical copies across the three (which is the disease this
+# coverage exists to watch while Phase 2 cures it).
+#
+# demo.html and challenge.html are deliberately NOT here: they are not forks of this
+# renderer but separate reimplementations with their own board and voice stacks, so
+# they need their own harness, not a profile. Named rather than silently omitted --
+# a bounded sweep that does not say what it skipped reads as "all clear".
+PAGE_PROFILES = {
+    "session.html": {
+        "api": "**/api/chat",
+        # The welcome overlay; already handled leniently since a build may not show it.
+        "enter": [("click", "#welcomeGo", None)],
+        "warmup": False,
+    },
+    "topic.html": {
+        "api": "**/api/topic",
+        # Students TYPE a topic, then Go -- and that click runs the FIRST tutor turn,
+        # so this page needs a throwaway opener reply before the real corpus starts.
+        "enter": [("fill", "#topicInput", "slope"), ("click", "#entryGo", None)],
+        "warmup": True,
+    },
+    "practice.html": {
+        "api": "**/api/practice",
+        "enter": [("fill", "#problemInput", "2x + 3 = 11"), ("click", "#entryGo", None)],
+        "warmup": True,
+    },
+}
+CAPTURE_PAGES = tuple(PAGE_PROFILES)
+UNCOVERED_PAGES = ("demo.html", "challenge.html")   # separate stacks; see the note above
+
+
 def capture_render(replies, course="geometry", static_dir=None, port=8731,
-                   session_state=None, shots_dir=None, viewport=(1280, 900)):
-    """Push KNOWN tutor replies through the real session.html renderer and snapshot each
+                   session_state=None, shots_dir=None, viewport=(1280, 900),
+                   page_name="session.html"):
+    """Push KNOWN tutor replies through a real teaching-page renderer and snapshot each
     one. No API key, no network, no cost -- and every rendering defect is reproducible
-    to the pixel. Requires Playwright; callers check playwright_available() first."""
+    to the pixel. Requires Playwright; callers check playwright_available() first.
+
+    build hb: `page_name` selects which of the three teaching pages to drive (see
+    PAGE_PROFILES). It used to be session.html and nothing else."""
     from playwright.sync_api import sync_playwright
+
+    if page_name not in PAGE_PROFILES:
+        raise ValueError("screencheck cannot drive %r -- known pages: %s"
+                         % (page_name, ", ".join(CAPTURE_PAGES)))
+    profile = PAGE_PROFILES[page_name]
 
     static_dir = static_dir or os.path.join(HERE, "static")
     root = os.path.dirname(os.path.abspath(static_dir))
@@ -632,7 +692,7 @@ def capture_render(replies, course="geometry", static_dir=None, port=8731,
                                                            "text": str(e)[:400]}))
             page.route("**/api/session/**", lambda r: r.fulfill(
                 status=200, content_type="application/json", body=json.dumps(state)))
-            page.route("**/api/chat", lambda r: r.fulfill(
+            page.route(profile["api"], lambda r: r.fulfill(
                 status=200, content_type="application/json",
                 body=json.dumps({"reply": pending["reply"]})))
             for stub in ("**/api/voice-status**", "**/api/transcribe**", "**/api/sprint/**"):
@@ -640,14 +700,34 @@ def capture_render(replies, course="geometry", static_dir=None, port=8731,
                     status=200, content_type="application/json", body="{}"))
             page.route("**/api/speak**", lambda r: r.fulfill(
                 status=200, content_type="audio/mpeg", body=b""))
-            page.goto("http://127.0.0.1:%d/%s/session.html?code=SCREENCHECK&course=%s"
-                      % (port, os.path.basename(static_dir), course), wait_until="load")
+            page.goto("http://127.0.0.1:%d/%s/%s?code=SCREENCHECK&course=%s"
+                      % (port, os.path.basename(static_dir), page_name, course),
+                      wait_until="load")
             page.wait_for_timeout(1200)
-            try:
-                page.click("#welcomeGo", timeout=5000)
-            except Exception:
-                pass
+            # A page that opens its first tutor turn from the entry screen (topic,
+            # practice) must have a reply waiting, or the opener renders the empty
+            # string and every later turn is off by one.
+            if profile.get("warmup"):
+                pending["reply"] = "Good — let's take a look at that together."
+            for step in profile["enter"]:
+                action, selector, value = step
+                try:
+                    if action == "fill":
+                        page.fill(selector, value, timeout=5000)
+                    else:
+                        page.click(selector, timeout=5000)
+                except Exception:
+                    pass          # an entry step a given build does not show is fine
             page.wait_for_timeout(500)
+            if profile.get("warmup"):
+                # Let the opener's bubble land so the per-turn counts below start clean.
+                try:
+                    page.wait_for_function(
+                        "() => document.querySelectorAll('.bubble.tutor').length > 0",
+                        timeout=30000)
+                except Exception:
+                    pass
+                page.wait_for_timeout(1200)
             page.evaluate("() => { const c = document.querySelector('.composer');"
                           " if (c) c.classList.add('show'); }")
             for i, item in enumerate(replies, 1):
@@ -927,6 +1007,9 @@ def main(argv=None):
                     help="run every check against its fixtures, both directions (no browser)")
     ap.add_argument("--render", metavar="CORPUS.json",
                     help="push known replies through the real renderer (needs playwright)")
+    ap.add_argument("--page", default="session.html", choices=list(CAPTURE_PAGES) + ["all"],
+                    help="which teaching page to drive with --render (default session.html; "
+                         "'all' drives every page this module can drive -- build hb)")
     ap.add_argument("--live", metavar="BASE_URL",
                     help="drive a real lesson on a running site (needs playwright + a code)")
     ap.add_argument("--code", default="", help="student code for --live")
@@ -949,8 +1032,26 @@ def main(argv=None):
         return 2
 
     if args.render:
-        snaps = capture_render(_load_corpus(args.render), course=args.course,
-                               static_dir=args.static, shots_dir=args.shots)
+        corpus = _load_corpus(args.render)
+        pages = CAPTURE_PAGES if args.page == "all" else (args.page,)
+        snaps = []
+        for i, pg in enumerate(pages):
+            shots = (os.path.join(args.shots, pg.replace(".html", ""))
+                     if args.shots and len(pages) > 1 else args.shots)
+            got = capture_render(corpus, course=args.course, static_dir=args.static,
+                                 shots_dir=shots, port=8731 + i, page_name=pg)
+            for sn in got:
+                # Attribute every finding to the page it came from -- three pages'
+                # findings in one report are unreadable otherwise.
+                try:
+                    sn.name = "%s · %s" % (pg, getattr(sn, "name", ""))
+                except Exception:  # noqa: BLE001
+                    pass
+            snaps += got
+        if args.page == "all":
+            print("# screencheck drove: %s" % ", ".join(pages))
+            print("# NOT covered (separate stacks, not forks of this renderer): %s"
+                  % ", ".join(UNCOVERED_PAGES))
     else:
         if not args.code:
             print("--live needs --code (use a dedicated audit student: it writes real turns)")

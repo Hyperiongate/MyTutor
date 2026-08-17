@@ -49,9 +49,7 @@
   - 2026-08-03  FIRST-WORDS: the first spoken clip of a session requests /api/speak with lead=3
     (~1.1s leading silence) so a sleeping audio output eats silence, not his first words.
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
-  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>
-  <!-- build ha: error beacon FIRST, so it hears every later script's failure -->
-  <script src="/static/client-log.js"></script>. Pure add-on; nothing else changed.
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
                 /static/app-nav.js -- labeled pill links (🏠 Home · 🎓 My lesson · 📊 Progress ·
                 🔄 Switch course · ✉️ Contact) injected into the top bar, context-aware per page,
@@ -131,6 +129,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — Course Assessment</title>

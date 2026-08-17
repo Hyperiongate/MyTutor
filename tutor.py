@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hb -- THE FOURTEENTH REFEREE IS RE-ARMED ON PRACTICE AND TOPIC.
+#               The full-app review found unit_claim_conflict silently DISARMED in both
+#               side-trip modes since build gn: they passed no "unit" in meta, and the
+#               referee stays mute without one -- so "welcome back to Unit 7" was caught
+#               in a lesson and unguarded on two thirds of the teaching surface.
+#               WHICH unit it is armed with matters more than the arming. NOT the
+#               student's placed unit: a practice problem is a side trip and may come
+#               from any unit, so that would fire on correct teaching and regenerate
+#               good replies. It is the unit of the PROBLEM (or topic) -- exactly what
+#               build_practice_prompt / build_topic_prompt already use to pick the
+#               playbook, so the referee and the prompt cannot disagree (the gn
+#               property). Unclassifiable text yields None and the referee stays silent.
+#               WITH IT, _UNIT_CLAIM_RE WIDENED FOR CONTRACTIONS: "you're in the middle
+#               of Unit 7" walked past the pattern while "you are ..." was caught -- an
+#               apostrophe was the entire difference. Now we're/you're/you've/been.
+#               Verified both directions (6 must-fire, 6 must-stay-silent) and swept
+#               over all 1,014 canonical foundation strings x 9 units: 0 false alarms.
+#               ruletests PART 3av.
 #   2026-08-17  BUILD ha -- EYES (Phase 1 of the full-app review). The review's
 #               meta-finding: this file applied fail-open ~19 times with print-only
 #               reporting, so a crashed referee and a healthy one emitted identical
@@ -3040,8 +3058,13 @@ def answer_sign_conflict(reply: str, student_message: str = ""):
 # untouched -- "that's a Unit 7 idea", "we'll get to Unit 5 later" -- because naming a
 # unit is not the same as claiming to have been in it. Silent when the caller does not
 # know the unit, which is the honest default: this referee never guesses.
+# build hb (2026-08-17): CONTRACTIONS COUNT. Re-arming this referee on practice and
+# topic mode meant testing it with the phrasings a tutor actually uses, and "you're in
+# the middle of Unit 7" walked straight past it while "you are in the middle of Unit 7"
+# was caught -- the apostrophe was the whole difference. Widened to accept we're/you're
+# (and we've/you've). Swept over all 1,015 canonical foundation strings: 0 false alarms.
 _UNIT_CLAIM_RE = re.compile(
-    r"\b(?:we|you)\s+(?:were|are|have been|was)?\s*(?:just\s+)?"
+    r"\b(?:we|you)(?:'re|'ve)?\s+(?:were|are|have been|has been|been|was)?\s*(?:just\s+)?"
     r"(?:started|starting|working on|in the middle of|partway through|part way through|"
     r"picking up|carrying on|continuing|left off (?:in|on)|up to|in)\s+"
     r"(?:the\s+)?(?:middle\s+of\s+)?(?:the\s+)?unit\s+(\d+)"
@@ -4464,7 +4487,18 @@ def get_practice_reply(student: dict, problem: str, history: list, user_message:
             client, model,
             _cacheable_system(build_practice_prompt(student, problem, course)),
             messages, " [practice]",
-            meta={"code": code, "course": course, "mode": "practice"},
+            # build hb: RE-ARM THE FOURTEENTH REFEREE ON THIS PATH. The full-app review
+            # found unit_claim_conflict silently disarmed in practice and topic mode --
+            # they passed no "unit", and the referee stays mute without one. The honest
+            # unit here is NOT the student's placed unit (a practice problem is a side
+            # trip and may come from any unit -- arming it with the placed unit would
+            # fire on correct teaching). It is the unit of the PROBLEM, which is exactly
+            # what build_practice_prompt already used to choose the playbook -- so the
+            # referee and the prompt cannot disagree, the build-gn property. Returns
+            # None for an unclassifiable problem, and the referee then stays silent
+            # rather than guessing.
+            meta={"code": code, "course": course, "mode": "practice",
+                  "unit": _unit_from_text(problem, course)},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001
@@ -4520,7 +4554,12 @@ def get_topic_reply(student: dict, topic: str, history: list, user_message: str,
             client, model,
             _cacheable_system(build_topic_prompt(student, topic, course)),
             messages, " [topic]",
-            meta={"code": code, "course": course, "mode": "topic"},
+            # build hb: re-armed the same way practice mode is, from the unit of the
+            # TOPIC the student chose -- the same value build_topic_prompt used for the
+            # playbook. None when the topic cannot be classified, and the referee then
+            # stays silent rather than guessing.
+            meta={"code": code, "course": course, "mode": "topic",
+                  "unit": _unit_from_text(topic, course)},
         ) or "(Sorry, I lost my train of thought. Could you say that again?)"
         return ensure_board(reply, user_message, history)
     except Exception as exc:  # noqa: BLE001

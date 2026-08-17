@@ -2,6 +2,40 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hb-the-net". PHASE 2 OF THE FULL-APP REVIEW,
+#               PART ONE: THE NET GOES UP BEFORE THE EXTRACTION GOES IN. Phase 2's real
+#               move is collapsing ~2,400 duplicated frontend lines into shared modules;
+#               this build first makes the class of defect that refactor risks MECHANICAL
+#               to catch, and fixes a defect build ha introduced.
+#               ⚠️ (1) BUILD ha CORRUPTED EIGHT OF THE TEN APP PAGES, AND hb FIXES IT.
+#               ha inserted the client-log.js include after the first literal "<head>" in
+#               each file -- which on eight pages is a "<head>" MENTIONED INSIDE the
+#               change-note comment at the top. The include landed inside that comment,
+#               and the comment note shipped with it ("-->") CLOSED the comment early,
+#               spilling the rest of the change-note prose into the live document.
+#               session.html rendered ONE body child instead of nineteen. ha's own check
+#               passed the whole time, because it searched the RAW source for "<script"
+#               and found the commented one. Caught by DRIVING the pages in a real
+#               browser. ha was never pushed, so this never reached a student -- but it
+#               would have. The include now goes after the first <head> OUTSIDE any
+#               comment, on all ten pages, verified in a browser (body children 3-19, no
+#               stray prose, beacon live and first).
+#               (2) ruletests PART 3au -- THE UNDECLARED-IDENTIFIER SWEEP. Pure stdlib,
+#               no node/npm/pip, so it runs for everyone on every push. Catches build
+#               gz's exact class (a fix hand-copied between pages without the state it
+#               reads) including the hard half: declared in an inner scope, read at page
+#               level. Silent on all 13 shipped pages; fires on both gz defects
+#               reintroduced verbatim; fires on 5 injected mutations across 4 pages; and
+#               it SELF-TESTS every run, so an analyzer that goes blind cannot look like
+#               a clean codebase.
+#               (3) PART 3at's beacon checks now read COMMENT-STRIPPED source and assert
+#               no bare prose before <head> -- the check that actually catches (1). The
+#               two obvious checks (balanced delimiters, comment-stripping) both pass on
+#               the broken file; this one fails it with 18,681 characters of evidence.
+#               (4) THE UNIT REFEREE IS RE-ARMED ON PRACTICE AND TOPIC (see tutor.py) --
+#               ruletests PART 3av, both directions + the canonical sweep.
+#               (5) screencheck now drives all THREE teaching pages, not one (see its
+#               own note); demo/challenge are NAMED as uncovered rather than skipped.
 #   2026-08-17  APP_BUILD -> "2026-08-17ha-eyes". PHASE 1 OF THE FULL-APP REVIEW: THE
 #               APP WATCHES ITSELF. The review's meta-finding: fail-open everywhere,
 #               observed nowhere -- ~19 print-only crash handlers, probes printing to
@@ -7382,7 +7416,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17ha-eyes"
+APP_BUILD = "2026-08-17hb-the-net"
 
 
 @app.get("/health")

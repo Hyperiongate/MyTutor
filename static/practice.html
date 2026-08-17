@@ -235,9 +235,7 @@
     tapping. A tap sends the answer exactly like typing it; buttons disable on tap and clear
     at the start of every tutor turn. Typing stays available as a backup. CSS is injected by
     the choices code itself (mtChoicesCSS), so no page styles were touched. Additive only.
-  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>
-  <!-- build ha: error beacon FIRST, so it hears every later script's failure -->
-  <script src="/static/client-log.js"></script>. Pure add-on; nothing else changed.
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-08-01  KEY TERMS BOLD+RED (Jim): **term** from the tutor renders as a red bold
                 .kterm span (first-use vocabulary emphasis); asterisks never show raw and
                 the voice never reads them (forSpeech already strips them).
@@ -334,6 +332,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — Practice</title>

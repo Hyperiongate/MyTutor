@@ -2,6 +2,24 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hb -- THE NET: PART 3au (the undeclared-identifier sweep) and
+#               PART 3av (the fourteenth referee, re-armed). Phase 2 of the full-app
+#               review puts this net up BEFORE the shared-module extraction goes in.
+#               PART 3au is the answer to build gz's two live defects -- a fix
+#               hand-copied between pages without the state it reads, which no layer we
+#               owned could see. Pure stdlib (no node, no npm, no pip: a check that
+#               skips is a wish). It narrows the universe to identifiers that are
+#               PAGE-LEVEL STATE on a sibling page, then does real brace-scope analysis
+#               on just those -- a full JS scope analysis in regex produces noise, and a
+#               checker that cries wolf gets ignored. Silent on all 13 shipped pages;
+#               fires on both gz defects reintroduced verbatim, with the right diagnosis
+#               for each half of the class; fires on 5 mutations injected into 4 pages.
+#               It also SELF-TESTS on every run: an analyzer that has gone blind reports
+#               exactly what a clean codebase reports.
+#               PART 3at's beacon checks were REWRITTEN after they passed while build ha
+#               had corrupted eight pages -- they read the raw source and found a
+#               COMMENTED "<script". They now read comment-stripped source and assert no
+#               bare prose before <head>, plus new screencheck page-coverage checks.
 #   2026-08-17  BUILD ha -- PART 3at, EYES: THE APP MUST WATCH ITSELF. Pins every piece
 #               of the telemetry build: the store layer answers safely with the DB off
 #               (record_event/event_stats/recent_events/last_event_at/purge), every one
@@ -9287,18 +9305,55 @@ def part3at_eyes():
             ("navigator.sendBeacon", "reports no longer survive page unload"),
             ("MAX_REPORTS", "the flood cap is gone")]:
         check(f"client-log.js: {needle[:36]}...", needle in cl, why)
-    # All ten app pages carry it, and on each it is the FIRST script -- a script that
-    # loads before the beacon can crash unheard. (PAGE_PARITY already guards presence
-    # on the three teaching pages; this guards the rest, and the ordering everywhere.)
+    # All ten app pages carry it, and on each it is the FIRST LIVE script -- a script
+    # that loads before the beacon can crash unheard. (PAGE_PARITY guards presence on
+    # the three teaching pages; this guards the rest, and the ordering everywhere.)
+    #
+    # ⚠️ 2026-08-17, build hb -- WHY THIS CHECK LOOKS AT COMMENT-STRIPPED SOURCE.
+    # The first version of this check searched the RAW source for "<script" and read the
+    # 200 characters after it. Build ha's own include had been inserted after the first
+    # literal "<head>" in each file -- which on EIGHT of the ten pages is a "<head>"
+    # mentioned inside the change-note comment at the top. So the include landed inside
+    # a comment, and the comment note that came with it ("-->") CLOSED that comment
+    # early, spilling the rest of the change-note prose into the live document. The
+    # pages' DOM was wrecked (session.html rendered ONE body child instead of 19) and
+    # this check passed anyway, because the first "<script" it found was the commented
+    # one. A check that reads text the browser never executes is not checking the page.
+    # Found by driving the real pages in a browser, not by reading them. Now: comments
+    # are stripped first, so the check sees what the BROWSER sees.
     APP_PAGES = ("session.html", "topic.html", "practice.html", "demo.html",
                  "challenge.html", "dashboard.html", "family.html", "teacher.html",
                  "admin.html", "records.html")
     for page in APP_PAGES:
         src = _read(os.path.join("static", page))
-        first = src.find("<script")
-        check(f"{page}: the beacon is present and FIRST",
-              first >= 0 and "client-log.js" in src[first:first + 200],
-              "missing, or a script loads before it and can crash unheard")
+        live = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+        check(f"{page}: the beacon is live (not stranded in a comment)",
+              "client-log.js" in live,
+              "the include exists only inside an HTML comment -- the browser never "
+              "loads it, and every client error stays invisible")
+        first = live.find("<script")
+        check(f"{page}: the beacon is the FIRST live script",
+              first >= 0 and "client-log.js" in live[first:first + 200],
+              "a script loads before the beacon and can crash unheard")
+        # AND the page must have no bare prose before <head>. This is the check that
+        # actually catches build ha's mistake, and the two obvious ones do not:
+        # counting delimiters passes (the bad insert added one "<!--" AND one "-->"),
+        # and comment-stripping passes (the injected "-->" closed the outer comment, so
+        # the include really was outside a comment -- along with 18,681 characters of
+        # change-note prose that the browser then rendered into the document). A
+        # well-formed page has NOTHING but tags and whitespace before <head>; a comment
+        # broken anywhere above <head> dumps its remaining prose exactly here.
+        live_pre = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+        mhead = re.search(r"<head\b", live_pre, re.I)
+        stray = ""
+        if mhead:
+            pre = re.sub(r"<!DOCTYPE[^>]*>", " ", live_pre[:mhead.start()], flags=re.I)
+            stray = " ".join(re.sub(r"<[^>]*>", " ", pre).split())
+        check(f"{page}: no stray prose before <head>",
+              mhead is not None and not stray,
+              f"{len(stray)} characters of text are outside every tag and every comment "
+              f"before <head> -- a change-note comment is broken and the browser is "
+              f"rendering its prose into the page: {stray[:120]!r}")
 
     # 5. THE DASHBOARDS. /admin card and the night watch's morning section.
     check("admin.html has the telemetry card",
@@ -9307,6 +9362,434 @@ def part3at_eyes():
     check("nightwatch's report includes the week's telemetry",
           "The week's telemetry" in nw_src and "event_stats(7)" in nw_src,
           "a dead check no longer reaches the morning report")
+
+    # build hb: the screen auditor must cover every page it CAN cover, and must name
+    # the ones it cannot. It drove 1 of 5 renderer copies while gz's two live defects
+    # sat in two of the other four.
+    try:
+        import screencheck as _sc
+        check("screencheck drives all three teaching pages (hb)",
+              set(_sc.CAPTURE_PAGES) == {"session.html", "topic.html", "practice.html"},
+              f"it drives {getattr(_sc, 'CAPTURE_PAGES', None)} -- a renderer copy nobody "
+              f"audits is where the next gz-class defect lives")
+        check("screencheck NAMES the pages it does not cover (hb)",
+              set(getattr(_sc, "UNCOVERED_PAGES", ())) == {"demo.html", "challenge.html"},
+              "a bounded sweep that does not say what it skipped reads as 'all clear'")
+        for _pg in _sc.CAPTURE_PAGES:
+            prof = _sc.PAGE_PROFILES[_pg]
+            check(f"screencheck knows how to drive {_pg}",
+                  bool(prof.get("api")) and isinstance(prof.get("enter"), list),
+                  "its profile is incomplete -- capture will hang or snapshot an entry screen")
+    except Exception as exc:  # noqa: BLE001
+        bad("screencheck's page coverage is inspectable", str(exc))
+
+
+# =============================================================================
+# PART 3au -- THE UNDECLARED-IDENTIFIER SWEEP (build hb)
+# -----------------------------------------------------------------------------
+# 2026-08-17, Phase 2 of the full-app review, and the NET that goes up before the
+# shared-module extraction goes in.
+#
+# WHY THIS EXISTS. Build gz fixed two live defects that were the same mistake twice:
+# a fix hand-copied from session.html into topic.html and practice.html WITHOUT the
+# page state it reads.
+#   * `lastTutorText` -- used by build gr's expect=letter hint, declared only in
+#     session.html. A ReferenceError inside transcribe() on EVERY spoken answer, eaten
+#     by its catch, so both pages told the student "I didn't quite catch that" and
+#     blamed their microphone.
+#   * `started` -- read by the visibilitychange handler, declared at page level only in
+#     session.html (topic/practice had one inside speak()'s closure). Threw on every
+#     return to the tab, so keep-alive never restarted -- the "first word swallowed"
+#     symptom, still alive on two pages after THREE fixes to it.
+# Neither was catchable by anything we owned: the battery reads Python, screencheck
+# reads session.html only, the referees read the reply text. A human reading source
+# found them. This part makes that class mechanical.
+#
+# WHAT IT CHECKS. For every identifier that is PAGE-LEVEL STATE on any sibling page,
+# every use of that name on every page must be in scope at that point -- declared at
+# page level here, or inside an enclosing function/block/parameter list. Narrowing the
+# universe to sibling page-level names is deliberate: it is exactly the copy-divergence
+# class, and it keeps the checker honest (a full JS scope analysis in regex produces
+# noise, and a checker that cries wolf gets ignored -- see the gl referee that fought
+# the foundation scripts).
+#
+# VERIFIED IN BOTH DIRECTIONS, the standing rule, with REAL cases:
+#   silent on all 13 shipped pages (5 lesson-like + 8 others);
+#   fires on the two real gz defects, reintroduced verbatim, with the right diagnosis
+#     ("never declared on this page" / "declared only inside a function");
+#   fires on 5 mutations of the class injected into 4 different pages.
+# Pure stdlib -- no node, no npm, no pip. It runs on every push, for everyone, always.
+# A check that skips is a wish.
+# =============================================================================
+_JS_RE_OK_BEFORE = set("(,=:[!&|?{};+-*%~^<>") | {"return", "typeof", "instanceof", "case",
+                                                "in", "of", "do", "else", "yield", "await", "new"}
+
+def _js_scripts(src):
+    return "\n;\n".join(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", src, re.S))
+
+def _js_strip(js):
+    """Blank comments, string bodies and regex literals, PRESERVING length and newlines.
+
+    Two things here are not optional, both learned by watching this detector lie:
+      * REGEX LITERALS. One unblanked /(?:a|b)/ carries parens, braces and words that
+        corrupt every offset and scope computed after it.
+      * NESTED TEMPLATE LITERALS. `<b>${rows.map(r => `<i>${r.n}</i>`).join("")}</b>`
+        is everywhere in these pages. A scanner that just runs to the next backtick
+        stops inside the INNER template and spills its HTML into the token stream as
+        fake identifiers. So: template TEXT is blanked, while ${...} EXPRESSIONS are
+        kept -- they are real code, and a variable used only there is really used.
+    """
+    out = list(js); n = len(js)
+    def blank(a, b):
+        for k in range(a, min(b, n)):
+            if out[k] != "\n": out[k] = " "
+    def prev_tok(pos):
+        k = pos - 1
+        while k >= 0 and js[k] in " \t\n": k -= 1
+        if k < 0: return "{"
+        if js[k].isalnum() or js[k] in "_$":
+            j = k
+            while j >= 0 and (js[j].isalnum() or js[j] in "_$"): j -= 1
+            return js[j+1:k+1]
+        return js[k]
+
+    def scan_template(i):
+        """i points at the opening backtick. Returns the index just past the closer."""
+        blank(i, i + 1); j = i + 1
+        while j < n:
+            c = js[j]
+            if c == "\\": blank(j, j + 2); j += 2; continue
+            if c == "`": blank(j, j + 1); return j + 1
+            if c == "$" and j + 1 < n and js[j+1] == "{":
+                blank(j, j + 1)                      # blank the '$', keep the braces
+                j = scan_code(j + 2, stop_at_brace=True)
+                continue
+            blank(j, j + 1); j += 1
+        return j
+
+    def scan_code(i, stop_at_brace=False):
+        """Normal code. With stop_at_brace, returns just past the matching '}'."""
+        depth = 0; j = i
+        while j < n:
+            c = js[j]
+            if c == "/" and j+1 < n and js[j+1] == "*":
+                k = js.find("*/", j+2); k = n if k < 0 else k+2; blank(j, k); j = k; continue
+            if c == "/" and j+1 < n and js[j+1] == "/":
+                k = js.find("\n", j); k = n if k < 0 else k; blank(j, k); j = k; continue
+            if c == "`": j = scan_template(j); continue
+            if c in "\"'":
+                k = j + 1
+                while k < n:
+                    if js[k] == "\\": k += 2; continue
+                    if js[k] == c or js[k] == "\n": break
+                    k += 1
+                blank(j, min(k + 1, n)); j = k + 1; continue
+            if c == "/" and prev_tok(j) in _JS_RE_OK_BEFORE:
+                k = j + 1; ok = False
+                while k < n:
+                    ch = js[k]
+                    if ch == "\\": k += 2; continue
+                    if ch == "\n": break
+                    if ch == "[":
+                        k += 1
+                        while k < n and js[k] not in "]\n":
+                            k += 2 if js[k] == "\\" else 1
+                        k += 1; continue
+                    if ch == "/": ok = True; break
+                    k += 1
+                if ok:
+                    k += 1
+                    while k < n and js[k] in "gimsuyd": k += 1
+                    blank(j, k); j = k; continue
+            if stop_at_brace:
+                if c == "{": depth += 1
+                elif c == "}":
+                    if depth == 0: return j + 1
+                    depth -= 1
+            j += 1
+        return j
+
+    scan_code(0)
+    return "".join(out)
+
+
+def _js_braces(js):
+    stack, pairs = [], []
+    for i, c in enumerate(js):
+        if c == "{": stack.append(i)
+        elif c == "}" and stack: pairs.append((stack.pop(), i))
+    return pairs
+
+def _js_depth_at(pairs, pos):
+    return sum(1 for a, b in pairs if a < pos < b)
+
+def _js_page_level(js, pairs, max_depth=1):
+    return {m.group(1) for m in re.finditer(r"\b(?:let|const|var)\s+([A-Za-z_$][\w$]*)", js)
+            if _js_depth_at(pairs, m.start()) <= max_depth}
+
+def _js_inner_scope(pairs, pos):
+    inner = None
+    for a, b in pairs:
+        if a < pos < b and (inner is None or a > inner[0]): inner = (a, b)
+    return inner
+
+def _js_body_after(pairs, pos):
+    body = None
+    for a, b in pairs:
+        if a >= pos and (body is None or a < body[0]): body = (a, b)
+    return body
+
+def _js_decl_scopes(js, pairs, name):
+    esc = re.escape(name); scopes = []
+    for pat in (r"\b(?:let|const|var)\s+(?:[A-Za-z_$][\w$]*\s*(?:=\s*[^;\n,]*)?,\s*)*" + esc + r"\b",
+                r"\bfunction\s*\*?\s*" + esc + r"\b",
+                r"\bclass\s+" + esc + r"\b",
+                r"\bfor\s*\(\s*(?:let|const|var)\s+" + esc + r"\b",
+                r"\b(?:let|const|var)\s*\{[^{}]*\b" + esc + r"\b[^{}]*\}\s*=",
+                r"\b(?:let|const|var)\s*\[[^\[\]]*\b" + esc + r"\b[^\[\]]*\]\s*="):
+        for m in re.finditer(pat, js):
+            scopes.append(_js_inner_scope(pairs, m.start()) or (0, len(js)))
+    # parameters (function decls, expressions, methods and arrows) scope to the body
+    # A parameter is in scope from its own declaration site (the opening paren) through
+    # the end of the body -- not just inside the braces. Without that, the parameter name
+    # in the signature reads as an out-of-scope use of itself.
+    for m in re.finditer(r"\(([^()]*)\)\s*(?:=>\s*)?\{", js):
+        params = [re.sub(r"[^\w$].*$", "", p.strip().lstrip(". ")) for p in m.group(1).split(",")]
+        if name in params:
+            b = _js_body_after(pairs, m.end() - 1)
+            if b: scopes.append((m.start(), b[1]))
+    for m in re.finditer(r"(?<![\w$.)])" + esc + r"\s*=>\s*\{", js):
+        b = _js_body_after(pairs, m.end() - 1)
+        if b: scopes.append((m.start(), b[1]))
+    for m in re.finditer(r"\bcatch\s*\(\s*" + esc + r"\s*\)\s*\{", js):
+        b = _js_body_after(pairs, m.end() - 1)
+        if b: scopes.append((m.start(), b[1]))
+    # Parenless arrow parameter: x => expr   (no body braces at all)
+    for m in re.finditer(r"(?<![\w$.)])" + esc + r"\s*=>", js):
+        inner = _js_inner_scope(pairs, m.start()) or (0, len(js))
+        scopes.append((m.start(), inner[1]))
+    # Parameters of an arrow with an expression body: (a, b) => expr
+    for m in re.finditer(r"\(([^()]*)\)\s*=>", js):
+        params = [re.sub(r"[^\w$].*$", "", p.strip().lstrip(". ")) for p in m.group(1).split(",")]
+        if name in params:
+            inner = _js_inner_scope(pairs, m.start()) or (0, len(js))
+            scopes.append((m.start(), inner[1]))
+    return scopes
+
+def _js_uses(js, name):
+    hits = []
+    for m in re.finditer(r"(?<![\w$.])" + re.escape(name) + r"(?![\w$])", js):
+        if re.match(r"\s*:", js[m.end():m.end()+2]): continue
+        if re.search(r"(?:let|const|var|function|class)\s*$", js[:m.start()]): continue
+        hits.append(m.start())
+    return hits
+
+# Names that also exist on `window`. A page-level `let history = []` on the lesson
+# pages collides with window.history, which /family, /teacher, /admin and /community
+# legitimately use as the browser API -- so these names cannot be swept by the
+# cross-page rule without crying wolf. Found by running the sweep over all 13 pages
+# rather than the 3 it was written for: the corpus, not the fixture, again.
+# The cost of the exclusion is small and the smell is real: shadowing a browser global
+# with page state is the thing to avoid in the first place.
+_JS_WINDOW_GLOBALS = {
+    "history", "name", "status", "location", "length", "top", "parent", "self",
+    "frames", "closed", "origin", "event", "screen", "external", "toolbar", "menubar",
+    "scrollbars", "personalbar", "locationbar", "statusbar", "opener", "frameElement",
+    "customElements", "crypto", "caches", "speechSynthesis", "onerror", "onload",
+}
+
+
+def js_scope_audit(paths):
+    pages, risky = {}, set()
+    for p in paths:
+        js = _js_strip(_js_scripts(open(p, encoding="utf-8").read()))
+        pairs = _js_braces(js)
+        pages[p] = (js, pairs, _js_page_level(js, pairs))
+        risky |= pages[p][2]
+    risky -= _JS_WINDOW_GLOBALS
+    findings = {}
+    for p in paths:
+        js, pairs, mine = pages[p]
+        out = []
+        for name in sorted(risky - mine):
+            scopes = _js_decl_scopes(js, pairs, name)
+            for pos in _js_uses(js, name):
+                if not any(a <= pos <= b for a, b in scopes):
+                    out.append((name, js[:pos].count("\n") + 1,
+                                "never declared on this page" if not scopes
+                                else "declared only inside a function"))
+                    break
+        findings[p] = out
+    return findings
+
+# The pages this sweep guards. The five lesson-like pages are the ones that share a
+# renderer; the rest are included because the class is a COPY class and copies spread.
+JS_SWEPT_PAGES = ("session.html", "topic.html", "practice.html", "demo.html",
+                  "challenge.html", "dashboard.html", "family.html", "teacher.html",
+                  "admin.html", "records.html", "community.html", "beta.html",
+                  "index.html")
+
+
+# =============================================================================
+# PART 3av -- THE FOURTEENTH REFEREE, RE-ARMED (build hb)
+# -----------------------------------------------------------------------------
+# 2026-08-17. The full-app review found unit_claim_conflict silently DISARMED in
+# practice and topic mode: those getters passed no "unit" in meta, and the referee
+# stays mute without one. So a side-trip lesson could invent a shared past ("welcome
+# back to Unit 7") with nothing watching, while the same sentence in a lesson was
+# caught. Two thirds of the teaching surface, unguarded, since build gn.
+#
+# THE UNIT IT IS ARMED WITH MATTERS MORE THAN THE ARMING. The student's PLACED unit is
+# the wrong answer here -- a practice problem is a side trip and may come from any
+# unit, so arming with the placed unit would fire on correct teaching and regenerate
+# good replies. The right answer is the unit of the PROBLEM (or topic), which is
+# exactly what build_practice_prompt / build_topic_prompt already use to choose the
+# playbook. Same input, same value: the referee and the prompt cannot disagree, which
+# is the property build gn established. Unclassifiable text yields None, and the
+# referee then stays silent rather than guessing.
+#
+# Widened here too: "you're in the middle of Unit 7" walked straight past the pattern
+# while "you are ..." was caught -- an apostrophe was the entire difference. Found by
+# testing the re-armed referee with phrasings a tutor actually uses.
+# =============================================================================
+UNIT_CLAIM_MUST_FIRE = [
+    "Welcome back to Unit 7 — let's keep going.",
+    "We were working on Unit 7 last time, so let's continue.",
+    "You're in the middle of Unit 7, so this fits right in.",     # hb: contraction
+    "We're working on Unit 7 right now.",                          # hb: contraction
+    "You've been working on Unit 7.",                              # hb: contraction + been
+    "We started Unit 7 yesterday.",
+]
+UNIT_CLAIM_MUST_STAY_SILENT = [
+    "Let's solve this step by step. First, subtract 3 from both sides.",
+    "This problem uses the distributive property.",
+    "Unit 7 covers systems of equations.",       # a statement ABOUT a unit is not a claim
+    "There are 9 units in this course.",
+    "Nice work — that's the right answer.",
+]
+
+
+def part3av_unit_referee_rearmed():
+    print("\nPART 3av — the fourteenth referee, re-armed on practice and topic (build hb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    # 1. THE WIRING. Both getters must pass a unit, and it must come from the same
+    # derivation their prompt builder uses -- never from the student's placed unit.
+    for mode, arg in (("practice", "problem"), ("topic", "topic")):
+        needle = f'"mode": "{mode}",\n                  "unit": _unit_from_text({arg}, course)'
+        check(f"{mode} mode arms the unit referee from the {arg}'s own unit",
+              needle in tsrc,
+              f"get_{mode}_reply no longer passes a unit derived from the {arg} -- the "
+              f"referee is disarmed again, or (worse) armed with the placed unit, which "
+              f"fires on correct teaching")
+    check("neither side-trip mode arms the referee from the PLACED unit",
+          '"mode": "practice",\n                  "unit": _lesson_unit(' not in tsrc
+          and '"mode": "topic",\n                  "unit": _lesson_unit(' not in tsrc,
+          "a practice problem may come from any unit; the placed unit would make this "
+          "referee fire on correct teaching and regenerate good replies")
+
+    # 2. BOTH DIRECTIONS, with the value the wiring actually produces.
+    u = tutor._unit_from_text("2x + 3 = 11", "algebra1")
+    check("a practice problem classifies to a unit at all", isinstance(u, int) and 1 <= u <= 9,
+          f"got {u!r} -- if the classifier stops answering, the referee silently disarms")
+    if isinstance(u, int) and 1 <= u <= 9:
+        other = 7 if u != 7 else 3
+        for line in UNIT_CLAIM_MUST_FIRE:
+            fired = bool(tutor.unit_claim_conflict(line.replace("Unit 7", f"Unit {other}"), u))
+            check(f"  fires: {line[:52]}", fired,
+                  "an invented shared past goes to the student unchallenged")
+        for line in UNIT_CLAIM_MUST_STAY_SILENT:
+            quiet = not tutor.unit_claim_conflict(line, u)
+            check(f"  silent: {line[:52]}", quiet, "false alarm -- this regenerates good teaching")
+        # The right unit named correctly must never fire.
+        check("  silent: the CORRECT unit, named plainly",
+              not tutor.unit_claim_conflict(f"Welcome back to Unit {u} — let's keep going.", u),
+              "the referee fires on a true statement")
+    # 3. Unknown unit = silence, always. This is what keeps side trips safe.
+    check("silent whenever the caller does not know the unit",
+          all(not tutor.unit_claim_conflict(l, None) for l in UNIT_CLAIM_MUST_FIRE)
+          and not tutor.unit_claim_conflict(UNIT_CLAIM_MUST_FIRE[0], 0),
+          "the referee is guessing -- an unclassifiable problem must never be judged")
+
+    # 4. THE CANONICAL SWEEP. Standing rule: every widened detector is swept over all
+    # authored foundation strings before it ships.
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        alarms = sum(1 for t in texts for e in range(1, 10)
+                     if tutor.unit_claim_conflict(t, e))
+        check(f"unit-claim: silent on all {len(texts)} canonical scripts x 9 units",
+              alarms == 0,
+              f"{alarms} false alarm(s) -- the widened pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the unit-claim canonical sweep ran", str(exc))
+
+
+def part3au_undeclared_identifiers():
+    print("\nPART 3au — the undeclared-identifier sweep (build hb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    paths, missing = [], []
+    for name in JS_SWEPT_PAGES:
+        p = os.path.join(here, "static", name)
+        (paths if os.path.exists(p) else missing).append(p)
+    check("every swept page exists", not missing, f"missing: {missing}")
+    if not paths:
+        bad("the sweep had pages to read", "no pages found"); return
+    try:
+        findings = js_scope_audit(paths)
+    except Exception as exc:  # noqa: BLE001
+        bad("the undeclared-identifier sweep ran", f"{type(exc).__name__}: {exc}")
+        return
+    total = 0
+    for p in paths:
+        out = findings.get(p, [])
+        total += len(out)
+        detail = "; ".join(f"{nm} — {why} (script line {ln})" for nm, ln, why in out)
+        check(f"{os.path.basename(p)}: no identifier is used out of scope",
+              not out,
+              detail + "  ← this is the build-gz class: a fix copied between pages "
+                       "without the state it reads. The browser throws, a catch eats "
+                       "it, and the student gets blamed for the failure.")
+    print(f"       swept {len(paths)} pages · {total} finding(s)")
+
+    # THE DETECTOR MUST STILL FIRE. A sweep that has gone silent because the analyzer
+    # broke looks exactly like a clean codebase -- the review's whole meta-finding.
+    # So: reintroduce build gz's two real defects into a COPY of topic.html in memory
+    # and require both to be caught, every run.
+    import tempfile as _tf
+    try:
+        tp = os.path.join(here, "static", "topic.html")
+        src = open(tp, encoding="utf-8").read()
+        bugged = src.replace('    let lastTutorText = "";\n', "", 1) \
+                    .replace("else if (audioWarmed) startKeepAlive();",
+                             "else if (started) startKeepAlive();", 1)
+        with _tf.TemporaryDirectory() as d:
+            dst = os.path.join(d, "topic_bugged.html")
+            with open(dst, "w", encoding="utf-8") as fh:
+                fh.write(bugged)
+            got = js_scope_audit([os.path.join(here, "static", "session.html"), dst])
+            names = {nm for nm, _ln, _w in got.get(dst, [])}
+        check("self-test: the sweep still catches gz's lastTutorText defect",
+              "lastTutorText" in names,
+              f"the analyzer went blind -- it reported {sorted(names)} for a file that "
+              f"definitely has the defect")
+        check("self-test: the sweep still catches gz's inner-scope `started` defect",
+              "started" in names,
+              f"the inner-scope half of the class is no longer detected; reported "
+              f"{sorted(names)}")
+    except Exception as exc:  # noqa: BLE001
+        bad("the sweep's self-test ran", f"{type(exc).__name__}: {exc}")
 
 
 def main():
@@ -9365,6 +9848,8 @@ def main():
     part3ar_rule_spoken_as_law()
     part3as_phase0()
     part3at_eyes()
+    part3au_undeclared_identifiers()
+    part3av_unit_referee_rearmed()
     part3ai_deploy_stamp()
     if live:
         part4_live()

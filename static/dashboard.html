@@ -52,9 +52,7 @@
                 at common widths -- visible in every product screenshot as "UNITS MASTERE...". Tiles
                 that contain a ring now pad the label away from it (pure CSS, one rule).
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
-  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>
-  <!-- build ha: error beacon FIRST, so it hears every later script's failure -->
-  <script src="/static/client-log.js"></script>. Pure add-on; nothing else changed.
+  - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-08-01  "HOW AM I DOING?" (Jim: honest narrative assessments). New button under the
                 page title -> GET /api/assessment: one warm paragraph written by the tutor
                 brain from REAL recorded facts (units, checks, accuracy, streak, engaged
@@ -144,6 +142,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — My Progress</title>
