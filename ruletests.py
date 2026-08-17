@@ -3275,7 +3275,7 @@ RULE_VERIFY = {
                       "is never negative') passes. 14 cases both directions; 0 false alarms "
                       "across 1,015 canonical scripts x 7 signed utterances. The (a) half -- "
                       "that an answer can be arithmetically right and contextually "
-                      "impossible -- is prompt-covered in all ten courses via PART 1")
+                      "impossible -- is prompt-covered in all ten courses via PART 1"),
 }
 _TIER_ORDER = ("ENFORCED", "EXERCISED", "COVERED", "UNVERIFIED")
 
@@ -8258,6 +8258,74 @@ def part3am_spoken_letter_and_sign():
 
 
 
+# =============================================================================
+# PART 3an -- THE UNIT FOLLOWS THE TEACHING (build gs)
+# =============================================================================
+# Jim, 2026-08-16 and again 2026-08-17: "it still says unit one on the top when we are
+# talking about unit five." The first diagnosis was that the RAIL was right and the tutor
+# was inventing Unit 5; Jim overruled it and he was right. The real defect: the rail was
+# seeded from placement.start_unit -- where the student was PLACED, a number that never
+# moves -- the tutor chose its own topic, and NOTHING RECONCILED THEM. Worse, _track_topic
+# filed activity under the placement unit too, so the store agreed with the stale rail and
+# the whole system was confidently wrong together. That is why nothing caught it.
+#
+# Jim's ruling: THE UNIT FOLLOWS WHAT IS BEING TAUGHT. This asserts the whole chain, because
+# it is a chain -- break any link and the symptom returns looking like a display bug.
+def part3an_unit_follows_teaching():
+    print("\nPART 3an — the unit follows what is being taught")
+    root = os.path.dirname(os.path.abspath(__file__))
+    import main as _m
+
+    # ---- the declaration is read out of the tutor's own tag ----
+    for reply, want in (('[[unitplan unit="5" topics="a | b"]]', 5),
+                        ('[[unitplan topics="a" unit=5]]', 5),
+                        ('words [[unitplan unit="9"]] words', 9),
+                        ('[[today items="x"]]', None),
+                        ('[[unitplan unit="12"]]', None),
+                        ('[[unitplan unit="0"]]', None),
+                        ('', None)):
+        got = _m._declared_unit(reply)
+        check(f"unit: declaration in {reply[:34]!r} reads as {want}", got == want,
+              f"got {got}")
+
+    with open(os.path.join(root, "main.py"), "r", encoding="utf-8") as fh:
+        m = fh.read()
+    # ---- link 1: the DECLARED unit is what gets tracked, not the placement unit ----
+    check("unit: the tutor's declaration outranks placement when tracking",
+          "declared = _declared_unit(reply)" in m
+          and "if declared and not (1 <= focus_unit <= 9)" in m,
+          "activity would go on being filed under the unit the student was PLACED in, so "
+          "the tracker would keep agreeing with a stale rail")
+    # ---- link 2: an explicit focus still wins, because that is the student choosing ----
+    check("unit: an explicit focus unit still outranks the declaration",
+          "not (1 <= focus_unit <= 9)" in m,
+          "a student who clicked 'work on unit 4' must not be overridden by the tutor")
+    # ---- link 3: the server serves the unit the lesson is actually in ----
+    check("unit: /api/session reports current_unit",
+          'progress["current_unit"]' in m and "get_topics(code, course)" in m,
+          "a resumed session would fall back to placement and show the wrong unit again")
+    check("unit: current_unit is the most recently TAUGHT unit",
+          "last_touched" in m and "reverse=True" in m,
+          "without ordering by recency this is just another guess")
+    # ---- link 4: the page prefers it over placement ----
+    with open(os.path.join(root, "static", "session.html"), "r", encoding="utf-8") as fh:
+        sess = fh.read()
+    check("unit: the rail prefers the taught unit over the placed unit",
+          "SRV_PROGRESS.current_unit" in sess and "if (taught >= 1 && taught <= 9)" in sess,
+          "the server would report the right unit and the rail would still show placement")
+    check("unit: FOCUS_UNIT is still checked first in the rail",
+          "FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9" in sess,
+          "the student's own choice must stay top of the order")
+    # ---- link 5: the probe that will tell us whether the DECLARATION is honest ----
+    check("unit: the [unitdrift] probe compares all three answers",
+          "_probe_unit_drift" in m and "classify_unit" in m and "[unitdrift]" in m,
+          "two diagnoses of this symptom have been guesses; the third needs data")
+    check("unit: the drift probe measures and never enforces",
+          "MEASUREMENT ONLY" in m and "never enforces" in m.lower(),
+          "a check that cannot verify its own fix must not regenerate a lesson")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8307,6 +8375,7 @@ def main():
     part3ak_night_watch()
     part3al_openai_boundary()
     part3am_spoken_letter_and_sign()
+    part3an_unit_follows_teaching()
     part3ai_deploy_stamp()
     if live:
         part4_live()

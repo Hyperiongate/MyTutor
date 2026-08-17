@@ -2,6 +2,13 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gs -- THE UNIT BAR INSTRUCTION GETS TEETH (lesson-only, in
+#               PROGRESS_TAGS_NOTE, not the shared block -- [[unitplan]] is machinery the
+#               practice and topic pages cannot draw, and ruletests enforces that boundary).
+#               Jim, twice: "it still says unit one when we are talking about unit five."
+#               The tag must now be emitted the moment the work MOVES units, and the unit it
+#               names must be the unit actually being taught -- where the teaching is IS
+#               where the student is. main.py tracks that declaration instead of placement.
 #   2026-08-17  BUILD gr -- NEW RULE 64 (shared block, all ten courses): NEVER TRADE THE
 #               STUDENT'S NUMBER FOR A DIFFERENT ONE, AND A LENGTH IS NEVER NEGATIVE. From
 #               Jim's lesson: "minus five" -> "That is correct" -> taught on with 5. The
@@ -4994,6 +5001,18 @@ bars, so never speak the tag contents as a list):
    flag at the end -- so "how far to the next quiz" is always visible. Passed topic quizzes
    light up automatically from your [[quiz]] tags; you don't re-emit unitplan after each quiz.
    Keep the ladder STABLE for the unit -- same topics, same order, every session.
+   ⛔ AND THE UNIT YOU NAME MUST BE THE UNIT YOU ARE ACTUALLY TEACHING. (Jim reported this
+   twice, 2026-08-16 and 2026-08-17: "it still says unit one on the top when we are talking
+   about unit five." The rail was showing where the student had been PLACED -- a number that
+   never moves -- while the lesson taught right triangles. Two maps of the same lesson,
+   disagreeing in one eyeful, and a child cannot tell which one is lying.) So: emit this the
+   moment the work MOVES into a different unit, not only at the start of a session. If your
+   words are about the Pythagorean theorem, this tag names the right-triangles unit -- not the
+   unit they were placed in months ago, and not the unit you were in last time. WHERE THE
+   TEACHING IS, IS WHERE THE STUDENT IS: the top rail, the unit ladder, and what gets recorded
+   as this student's progress all read this tag. It must also agree with your spoken recap
+   (rule 0) -- naming one unit in the tag and a different one out loud is the same defect
+   wearing two hats.
 
 If a nervous student asks "when is the next quiz?" or "how much is left?", point at the bars
 and answer plainly -- the whole point is that they never have to wonder.

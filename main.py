@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gs-unit-follows-teaching". THE UNIT FOLLOWS WHAT IS
+#               BEING TAUGHT. Jim reported the same symptom twice -- "it still says unit one
+#               on the top when we are talking about unit five" -- and BOTH earlier diagnoses
+#               were guesses, including one of mine that blamed the tutor and cleared the
+#               rail. The real defect: the rail was seeded from placement.start_unit, where
+#               the student was PLACED, a number that never moves; the tutor chose its own
+#               topic; and NOTHING RECONCILED THEM. Worse, _track_topic filed activity under
+#               that same placement unit, so the store agreed with the stale rail and the
+#               whole system was confidently wrong together -- which is exactly why no check
+#               ever caught it. Jim's ruling: the unit follows the teaching. So the tutor's
+#               own [[unitplan unit="N"]] is now the authority (an explicit focus the student
+#               clicked still wins), it is what _track_topic records, /api/session serves it
+#               back as progress.current_unit, and session.html's rail prefers it over
+#               placement. PART 3an asserts every link of that chain, because breaking any
+#               one of them brings the symptom back looking like a display bug.
+#               ⚠️ The half that CANNOT be enforced yet -- whether the declared unit matches
+#               the content -- is measured by the new [unitdrift] probe, which logs when the
+#               declaration, curriculum.classify_unit and the tracked unit disagree. Two
+#               diagnoses of this symptom have been guesses; the third gets data first.
 #   2026-08-17  APP_BUILD -> "2026-08-17gr-heard-and-honoured". TWO WAYS TO IGNORE WHAT A
 #               CHILD ACTUALLY SAID, both from one Geometry lesson of Jim's.
 #               (1) THE SPOKEN LETTER. Asked which side was the hypotenuse, he said the
@@ -7205,7 +7224,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gr-heard-and-honoured"
+APP_BUILD = "2026-08-17gs-unit-follows-teaching"
 
 
 @app.get("/health")
@@ -7323,6 +7342,18 @@ def session_state(code: str, request: Request, course: str = "algebra1"):
                      "passed": q["best_pct"] >= store.QUIZ_PASS_PCT})
             # build cg: today's goal bar, so a reload/resume shows all THREE bars.
             progress["today"] = store.get_today_goals(code, course) or {}
+            # build gs: THE UNIT THE LESSON IS ACTUALLY IN, for the rail. The most recently
+            # touched unit is the one being taught -- and now that _track_topic files
+            # activity under the tutor's own declaration rather than under placement, this
+            # is a true answer instead of an echo of the placement number.
+            try:
+                rows = [r for r in (store.get_topics(code, course) or [])
+                        if r.get("unit") and r.get("last_touched")]
+                if rows:
+                    rows.sort(key=lambda r: str(r.get("last_touched")), reverse=True)
+                    progress["current_unit"] = int(rows[0]["unit"])
+            except Exception as exc:  # noqa: BLE001 -- the rail is never worth a 500
+                print(f"[session] current-unit lookup failed: {exc}")
             fstate = _final_exam_state(code, course)
             progress["final"] = {"eligible": fstate["eligible"],
                                  "mastered_count": fstate["mastered_count"],
@@ -7534,6 +7565,57 @@ _TAG_SPLIT_RE = re.compile(r"(\[\[[^\]]*\]\])")
 # page load, where the bar it is protecting no longer exists.
 # So we store what the tutor wrote. Same shape as the other two bars: the page renders
 # it at load, and a later [[today]] simply replaces it.
+# THE UNIT THE TUTOR IS ACTUALLY TEACHING (2026-08-17, build gs)
+# -----------------------------------------------------------------------------
+# Jim, twice: "it still says unit one on the top when we are talking about unit five."
+# On 2026-08-16 this was diagnosed backwards -- the rail was called correct and the tutor
+# accused of inventing Unit 5. Jim overruled that, and he was right: the real defect is
+# that NOTHING RECONCILES THE TWO. The rail was seeded from placement.start_unit (Unit 1,
+# where she was PLACED, a number that never moves), the tutor chose its own topic, and the
+# two could drift apart forever. Worse, _track_topic recorded activity against the
+# PLACEMENT unit too -- so the store agreed with the rail and the whole system was
+# confidently wrong together, which is why nothing caught it.
+# Jim's ruling (2026-08-17): THE UNIT FOLLOWS WHAT IS BEING TAUGHT. The tutor already has
+# a way to say so -- [[unitplan unit="N"]] -- so that declaration becomes the authority,
+# it is what gets tracked, and the rail reads it back on a resume.
+_UNITPLAN_TAG_RE = re.compile(r'\[\[\s*unitplan\b[^\]]*?unit\s*=\s*"?(\d{1,2})"?[^\]]*\]\]', re.I)
+
+
+def _declared_unit(reply: str):
+    """The unit this reply says it is teaching ([[unitplan unit="N"]]), or None."""
+    try:
+        m = _UNITPLAN_TAG_RE.search(str(reply or ""))
+        if not m:
+            return None
+        n = int(m.group(1))
+        return n if 1 <= n <= 9 else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _probe_unit_drift(code: str, course: str, reply: str, declared, tracked) -> None:
+    """MEASUREMENT ONLY (build gs). Three answers to "which unit is this?" now exist: what
+    the tutor DECLARED, what the content CLASSIFIES as, and what we TRACKED. Log it when
+    they disagree, because Jim reported this symptom twice and both diagnoses were guesses
+    about which source was lying. Never enforces, never raises -- the honest move when you
+    do not yet know which signal to trust (a referee that cannot check its own fix loops)."""
+    try:
+        classified = None
+        if curriculum is not None:
+            try:
+                text = re.sub(r"\[\[[^\]]*\]\]", " ", str(reply or ""))[:1200]
+                classified, _name = curriculum.classify_unit(text, course)
+            except Exception:  # noqa: BLE001
+                classified = None
+        vals = {v for v in (declared, classified, tracked) if v}
+        if len(vals) > 1:
+            print(f"[unitdrift] code={code[:3]}*** course={course} declared={declared} "
+                  f"classified={classified} tracked={tracked} -- the tutor, the content and "
+                  f"the tracker disagree about which unit this lesson is in")
+    except Exception as exc:  # noqa: BLE001 -- a probe must never affect a lesson
+        print(f"[unitdrift] probe failed (ignored): {exc}")
+
+
 _TODAY_TAG_RE = re.compile(r'\[\[\s*today\b[^\]]*?items\s*=\s*"([^"]{1,400})"[^\]]*\]\]', re.I)
 _TODAYDONE_TAG_RE = re.compile(r'\[\[\s*todaydone\b[^\]]*?n\s*=\s*"?(\d{1,2})"?[^\]]*\]\]', re.I)
 
@@ -7985,6 +8067,15 @@ def chat(req: ChatRequest):
         course_unit = 1
     if 1 <= focus_unit <= 9:
         course_unit = focus_unit        # a focused session counts toward THAT unit
+    # build gs: THE TUTOR'S OWN DECLARATION OUTRANKS PLACEMENT. Everything above derives the
+    # unit from where the student was PLACED, which never moves -- so a lesson that has
+    # walked on to right triangles was being filed under Unit 1, and the tracker then agreed
+    # with the stale rail. An explicit focus (a dashboard link) still wins, because that is
+    # the student choosing; otherwise what the tutor says it is teaching is the truth.
+    declared = _declared_unit(reply)
+    if declared and not (1 <= focus_unit <= 9):
+        course_unit = declared
+    _probe_unit_drift(code, req.course, reply, declared, course_unit)
     _track_topic(code, course_unit, curriculum.unit_name(req.course, course_unit),
                  "learning", req.course)
 

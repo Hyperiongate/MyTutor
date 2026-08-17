@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (gs) 2026-08-17 -- THE RAIL FOLLOWS THE TEACHING. Jim, twice: "it still says unit one on
+    the top when we are talking about unit five." The unit bar was seeded from
+    placement.start_unit -- where the student was PLACED, a number that never moves -- so a
+    lesson that had walked on to right triangles sat under a rail insisting on Unit 1, and
+    nothing reconciled the two. The server now reports progress.current_unit (the most
+    recently taught unit, filed from the tutor's own [[unitplan]] rather than from
+    placement) and this page prefers it. Order of authority, unchanged at the top: the focus
+    unit the STUDENT clicked, then where the teaching actually is, then where they were placed.
+
     (gr) 2026-08-17 -- THE SPOKEN LETTER. Jim was asked which side was the hypotenuse, said
     the letter "c" out loud, and ElevenLabs transcribed it as the Spanish "si" / "CSI" --
     whereupon the tutor told him he was wrong and demanded a letter. A student marked
@@ -4167,6 +4176,16 @@
           renderTodayBar();
         }
         if (SRV_PROGRESS && !UNIT_PLAN.unit) {
+          // build gs (2026-08-17, Jim twice: "it still says unit one when we are talking
+          // about unit five"): the rail used to be seeded from placement.start_unit -- where
+          // the student was PLACED, a number that never moves. So a lesson that had walked
+          // on to right triangles sat under a rail insisting on Unit 1, and nothing
+          // reconciled them. The server now reports the unit the lesson is actually IN
+          // (the most recently taught one, filed from the tutor's own [[unitplan]]), and
+          // that outranks placement here. Order of authority: an explicit focus the student
+          // clicked, then where the teaching actually is, then where they were placed.
+          const taught = parseInt((SRV_PROGRESS && SRV_PROGRESS.current_unit) || 0, 10);
+          if (taught >= 1 && taught <= 9) currentUnit = taught;
           const startUnit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
           const cu = (CURRICULUM || []).find(x => x.n === startUnit);
           if (cu && cu.topics && cu.topics.length) {
