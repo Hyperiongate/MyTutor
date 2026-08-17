@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hd -- ONE VOICE: the gn/gp3 head-of-clip guarantees (no flat 300ms
+#               kick, wait for "running", never freeze past the ceiling, ctx0 in the
+#               probe, [voicehead] carried) moved from three per-page assertions to ONE
+#               assertion against static/voice.js -- plus a new guard that warmUpAudio
+#               wakes the keep-alive (build cb, unified by hd: topic/practice had
+#               silently lost it, the review's F9). PART 3aw gains voice.js AND a state
+#               table: a page that re-DECLARES moved state (audioWarmed, ttsAudio, ...)
+#               is a parse-time SyntaxError that kills its whole script, so the battery
+#               fails it first. Mutation-verified: re-inlined speak() and a re-declared
+#               audioWarmed both caught.
 #   2026-08-17  BUILD hc -- ONE COPY: PART 3aw, and three existing parts repointed at
 #               the single source. The spoken-text transforms and the board/variable
 #               renderer moved out of the three teaching pages into
@@ -8191,35 +8201,59 @@ def part3aj_screen_checks():
                   "/static/board-text.js" in txt,
                   "this page no longer loads the one copy of the variable renderer — "
                   "styleVars is undefined here and the board will not render")
-            # build gn -- THE HEAD OF THE CLIP. Jim has now reported "his first word is cut
-            # off" three times (bl, cb, gn). The first two fixes padded the FRONT of the
-            # clip with more silence; this one removed the flat 300ms race that let a clip
-            # start playing into a still-suspended (silent) audio graph. Asserted at source
-            # on all three lesson pages, because a regression here is inaudible in every
-            # test we own and audible to every child.
-            check(f"voice: {page} never starts a clip on a flat 300ms timer",
-                  "setTimeout(kick, 300)" not in txt,
-                  "the flat 300ms kick is back — a suspended graph will swallow the first "
-                  "word again (build gn)")
-            check(f"voice: {page} waits for the audio graph to be running",
-                  'audioCtx.state === "running"' in txt and "RESUME_CEILING" in txt,
-                  "speak() no longer waits for the context to reach 'running' before "
-                  "starting the clip — that race is what ate 'Hey' in Jim's 2026-08-16 lesson")
-            check(f"voice: {page} still starts past the ceiling (never freezes)",
-                  "starting anyway" in txt,
-                  "the escape hatch is gone — a context that never resumes would now hang "
+            # build hd: the voice pipeline moved to /static/voice.js -- one copy, its
+            # state with it. Each page must LOAD it (the gn/gp3 guarantees are asserted
+            # once, against the module, just below this loop).
+            check(f"voice: {page} loads the shared voice module (hd)",
+                  "/static/voice.js" in txt,
+                  "this page no longer loads voice.js — speak() is undefined here and "
+                  "the tutor is mute on this page")
+            check(f"voice: {page} does not re-inline speak() (hd)",
+                  "function speak(" not in txt,
+                  "a second copy of speak() is back in this page — the next voice fix "
+                  "will land in one copy and not the other, which is builds bl/cb/gn's "
+                  "whole history repeating")
+
+        # build gn -- THE HEAD OF THE CLIP. Jim reported "his first word is cut off"
+        # three times (bl, cb, gn); the first two fixes padded the clip, the third found
+        # the cause (a flat 300ms timer racing a suspended audio graph). Build gp3 added
+        # ctx0 so the probe can tell "the race fired and was handled" from "it never
+        # fired". These guarantees are now asserted ONCE, against the single copy in
+        # voice.js -- which is the point of build hd: one place to fix, one to audit.
+        vpath = os.path.join(root, "static", "voice.js")
+        if not os.path.exists(vpath):
+            bad("voice: static/voice.js present", "the shared voice module is missing "
+                "-- every teaching page's tutor is mute")
+        else:
+            with open(vpath, "r", encoding="utf-8") as fh:
+                vtxt = fh.read()
+            check("voice: no clip starts on a flat 300ms timer (shared module)",
+                  "setTimeout(kick, 300)" not in vtxt,
+                  "the flat 300ms kick is back — a suspended graph will swallow the "
+                  "first word again (build gn)")
+            check("voice: speak() waits for the audio graph to be running (shared module)",
+                  'audioCtx.state === "running"' in vtxt and "RESUME_CEILING" in vtxt,
+                  "speak() no longer waits for 'running' before starting the clip — that "
+                  "race is what ate 'Hey' in Jim's 2026-08-16 lesson")
+            check("voice: still starts past the ceiling, never freezes (shared module)",
+                  "starting anyway" in vtxt,
+                  "the escape hatch is gone — a context that never resumes would hang "
                   "the turn, which is worse than a clipped word")
-            # build gp3: the probe must log the state BEFORE the wait as well as after.
-            # With only the after-state, "ctx=running" was misread as "the race never
-            # fired" -- when guaranteeing exactly that state is what the fix does.
-            check(f"voice: {page} probe records the graph state BEFORE the wait",
-                  "ctxAtRequest" in txt and "ctx0=" in txt,
-                  "without ctx0 the probe cannot say whether the resume race actually "
-                  "fired, only that it was handled — the two look identical")
-            check(f"voice: {page} carries the [voicehead] probe",
-                  "[voicehead] started after" in txt,
-                  "the head-of-clip probe is gone — the next report of a swallowed first "
-                  "word would again be diagnosed by reasoning instead of measurement")
+            check("voice: the probe records the graph state BEFORE the wait (shared module)",
+                  "ctxAtRequest" in vtxt and "ctx0=" in vtxt,
+                  "without ctx0 the probe cannot tell whether the resume race fired, "
+                  "only that it was handled — the two look identical (gp3's lesson)")
+            check("voice: the [voicehead] probe is carried (shared module)",
+                  "[voicehead] started after" in vtxt,
+                  "the head-of-clip probe is gone — the next swallowed first word would "
+                  "be diagnosed by reasoning instead of measurement")
+            # build hd's one deliberate behaviour change, guarded: warm-up starts the
+            # keep-alive (build cb) -- the F9 divergence must never reopen.
+            check("voice: warmUpAudio wakes the keep-alive (cb, unified by hd)",
+                  "startKeepAlive" in vtxt.split("function warmUpAudio", 1)[1][:600]
+                  if "function warmUpAudio" in vtxt else False,
+                  "warm-up no longer starts the keep-alive — topic/practice first words "
+                  "can hit a powered-down device again (the review's F9 finding)")
 
 
 # =============================================================================
@@ -9834,9 +9868,22 @@ SHARED_JS_MODULES = {
     "speech-text.js": ["forSpeech", "moneyWords", "mixedWords", "fracWords"],
     "board-text.js": ["styleVars", "styleVarsCore", "varInMathContext", "escapeHTML",
                       "machineSub"],
+    # build hd: the voice pipeline, WITH its state (see SHARED_JS_STATE below).
+    "voice.js": ["speak", "browserSpeak", "pickVoice", "ensureAudioGraph",
+                 "silentWavUri", "startKeepAlive", "stopKeepAlive", "warmUpAudio",
+                 "stopAllSpeech", "withDeadline", "speechDeadline"],
 }
 SHARED_JS_CONSTS = {"board-text.js": ["VAR_NEEDS_CONTEXT", "MV_POW", "MV_NOUN"],
-                    "speech-text.js": ["FRAC_WORDS"]}
+                    "speech-text.js": ["FRAC_WORDS"],
+                    "voice.js": ["ttsAudio"]}
+# build hd: state that moved into voice.js. A page that re-declares one of these at top
+# level is not a style problem -- it is a SyntaxError that kills the page's entire
+# script, because a duplicate top-level let/const throws at parse time. Checked here so
+# the mistake fails the battery instead of a child's lesson.
+SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalyser",
+                                "ttsAudio", "keepAlive", "audioWarmed", "lastAudioAt",
+                                "paused", "elevenEnabled", "maleVoice",
+                                "firstClipOfSession", "firstSpeakLead"]}
 
 
 def part3aw_one_copy():
@@ -9884,6 +9931,14 @@ def part3aw_one_copy():
                   f"{relapsed} were pasted back into this page. Two copies means the "
                   f"next fix lands in one of them -- that is exactly how build gz's two "
                   f"live defects were born. Edit static/{mod} instead.")
+        for mod, names in SHARED_JS_STATE.items():
+            redecl = [nm for nm in names
+                      if re.search(r"\b(?:let|const|var)\s+(?:[^;\n]*?,\s*)?" + nm
+                                   + r"\b", inline)]
+            check(f"{page} does NOT re-declare {mod}'s state", not redecl,
+                  f"{redecl} re-declared at page level -- a duplicate top-level let is a "
+                  f"SyntaxError that kills this page's ENTIRE script at parse time. The "
+                  f"state lives in static/{mod}; assign to it, never re-declare it.")
         # The include must come BEFORE the inline script that calls into it.
         first_inline = html.find("<script>")
         for mod in SHARED_JS_MODULES:

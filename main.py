@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hd-one-voice". PHASE 2, PART THREE: THE VOICE
+#               PIPELINE BECOMES ONE COPY -- static/voice.js. Harder than hc because
+#               this cluster OWNS STATE: 13 page-level variables (ttsAudio, audioCtx/
+#               analyser/timeData/usingAnalyser, keepAlive, audioWarmed, lastAudioAt,
+#               paused, elevenEnabled, maleVoice, firstClipOfSession, firstSpeakLead)
+#               moved WITH the 11 functions (speak, browserSpeak, pickVoice,
+#               ensureAudioGraph, silentWavUri, start/stopKeepAlive, warmUpAudio,
+#               stopAllSpeech, withDeadline, speechDeadline). Pages' declarations were
+#               REMOVED -- a duplicate top-level let is a SyntaxError, so a relapse dies
+#               at parse time, and PART 3aw now checks for re-declaration too.
+#               ONE DELIBERATE BEHAVIOUR CHANGE (review finding F9): the three
+#               warmUpAudio copies had diverged -- session started the keep-alive at the
+#               opening tap (build cb's "wake the output device early") and topic/
+#               practice did NOT, so their first words could still hit a powered-down
+#               device after all three voice fixes (bl, cb, gn). voice.js carries
+#               session's variant: the cb cure now applies on every page. Everything
+#               else moved VERBATIM, comments included (the gn resume race, the gp3
+#               ctx0 probe -- each was a real child's cut-off first word).
+#               AMBIENT CONTRACT, verified before the move: voice.js reaches for exactly
+#               three names it does not define -- CODE, forSpeech (speech-text.js loads
+#               first), setState (each page's UI hook) -- all present on all three pages.
+#               PROVED: all three pages parse; booted in a real browser with ZERO page
+#               errors; functions defined, warmUpAudio contains the keep-alive wake on
+#               every page, and cross-script state is readable AND writable from page
+#               code; nine speaking turns driven through screencheck (S1-S7 + console):
+#               0 findings. Battery: the gn/gp3 voice guarantees are asserted once
+#               against the module; pages are checked for the include, for re-inlining,
+#               and for state re-declaration (mutation-verified: all three fire).
 #   2026-08-17  APP_BUILD -> "2026-08-17hc-one-copy". PHASE 2 OF THE FULL-APP REVIEW,
 #               PART TWO: THE EXTRACTION. The review's Class B -- "one renderer, five
 #               hand-synced copies" -- is the whack-a-mole GENERATOR: ~2,400 duplicated
@@ -7452,7 +7480,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hc-one-copy"
+APP_BUILD = "2026-08-17hd-one-voice"
 
 
 @app.get("/health")
