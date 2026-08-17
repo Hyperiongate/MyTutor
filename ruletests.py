@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD hf -- ONE MICROPHONE: PART 3aw gains mic.js (functions + state,
+#               including micTypeHint, the per-page wording knob); the gr spoken-letter
+#               client checks (expectsALetter + expect=letter, the narrow gate) are
+#               asserted once against mic.js, with each page checked for the include.
+#               The mic was where build gz's two live defects were born -- the module
+#               plus these guards is the blanket answer.
 #   2026-08-17  BUILD he -- ONE BOARD: PART 3aw gains board.js (19 named functions +
 #               its state/constants table); PAGE_PARITY's fitRow needles became "the
 #               page loads /static/board.js" plus fitting checks asserted once against
@@ -8677,15 +8683,30 @@ def part3am_spoken_letter_and_sign():
     check("spoken letter: the map lives ONLY on the server",
           "_SPOKEN_LETTER" in m,
           "one copy, or the client and server will drift")
-    for page in ("session.html", "practice.html", "topic.html"):
-        with open(os.path.join(root, "static", page), "r", encoding="utf-8") as fh:
-            txt = fh.read()
-        check(f"spoken letter: {page} sends the letter context",
-              "expectsALetter" in txt and "expect=letter" in txt,
+    # build hf: the client half of the gr fix (expectsALetter + expect=letter) moved to
+    # the ONE mic.js copy -- which is where the gz defects said it always belonged: both
+    # live voice-answer bugs were exactly this code hand-copied without its state.
+    # Asserted once against the module; each page is checked for the include (PART 3aw
+    # owns the deeper no-re-inline guarantees).
+    mpath = os.path.join(root, "static", "mic.js")
+    if not os.path.exists(mpath):
+        bad("spoken letter: static/mic.js present",
+            "the shared mic module is gone -- no page can hear a student at all")
+    else:
+        with open(mpath, "r", encoding="utf-8") as fh:
+            mic_src = fh.read()
+        check("spoken letter: the mic module sends the letter context",
+              "expectsALetter" in mic_src and "expect=letter" in mic_src,
               "without the context the server would rewrite words in ordinary speech")
-        check(f"spoken letter: {page} asks only on an explicit letter question",
-              "which\\s+(?:side|letter" in txt or "which\s+(?:side|letter" in txt,
+        check("spoken letter: it asks only on an explicit letter question",
+              "which\\s+(?:side|letter" in mic_src or "which\s+(?:side|letter" in mic_src,
               "the gate must be narrow — any question would be too broad")
+        for page in ("session.html", "practice.html", "topic.html"):
+            with open(os.path.join(root, "static", page), "r", encoding="utf-8") as fh:
+                txt = fh.read()
+            check(f"spoken letter: {page} loads the mic module",
+                  "/static/mic.js" in txt,
+                  "this page cannot record or transcribe anything — the mic is gone")
 
     # ---- referee 15, both directions, on the exact exchange ----
     SIGN_CASES = [
@@ -9920,6 +9941,10 @@ SHARED_JS_MODULES = {
                  "showFig", "showGeo", "showBalance", "showMachine", "showObjects",
                  "showChoices", "clearChoices", "eqRow", "opRow", "fitRow",
                  "parseAttrs", "spotlightBoard", "addBubble", "scrollFeed"],
+    # build hf: the microphone -- the RECONCILED copy (the three had diverged; see
+    # mic.js's header for the named divergences and the F10 fix).
+    "mic.js": ["startRecording", "stopRecording", "onRecordingStop", "transcribe",
+               "releaseMic", "expectsALetter"],
 }
 SHARED_JS_CONSTS = {"board-text.js": ["VAR_NEEDS_CONTEXT", "MV_POW", "MV_NOUN"],
                     "speech-text.js": ["FRAC_WORDS"],
@@ -9933,7 +9958,9 @@ SHARED_JS_STATE = {"voice.js": ["audioCtx", "analyser", "timeData", "usingAnalys
                                 "paused", "elevenEnabled", "maleVoice",
                                 "firstClipOfSession", "firstSpeakLead"],
                    "board.js": ["lastTurnEl", "spotTimer", "choicesRow", "autoScroll",
-                                "stickBottom", "GRAPH_COLORS", "SPOT_MS"]}
+                                "stickBottom", "GRAPH_COLORS", "SPOT_MS"],
+                   "mic.js": ["mediaStream", "mediaRecorder", "sendOnStop", "recTimer",
+                              "micTypeHint"]}
 
 
 def part3aw_one_copy():

@@ -794,6 +794,7 @@
   <script src="/static/board-text.js"></script>   <!-- build hc: ONE copy of the board/variable renderer -->
   <script src="/static/voice.js"></script>        <!-- build hd: ONE copy of the voice pipeline + its state -->
   <script src="/static/board.js"></script>        <!-- build he: ONE copy of the whiteboard display + its state -->
+  <script src="/static/mic.js"></script>          <!-- build hf: ONE copy of the microphone + its state -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — Session</title>
@@ -2660,15 +2661,14 @@
     // take vertical space BELOW the transcript, which shrinks it -- a MutationObserver can't
     // see that, so re-pin on ANY size change of the transcript itself.
     if (window.ResizeObserver) new ResizeObserver(() => scrollFeed()).observe(feed);
-    // build gr (2026-08-17): did the tutor just ask for a LETTER? Narrow on purpose --
-    // only an explicit ask counts, so a normal question never turns a word into a variable.
-    function expectsALetter(t) {
-      const s = String(t || "");
-      if (s.indexOf("?") < 0) return false;
-      return /\bwhich\s+(?:side|letter|one|vertex|corner|angle)\b/i.test(s)
-          || /\bwhat\s+letter\b/i.test(s)
-          || /\bname\s+(?:the\s+)?(?:side|letter|vertex|angle)\b/i.test(s);
-    }
+    // build hf (2026-08-17): THE MICROPHONE MOVED TO /static/mic.js -- releaseMic,
+    // startRecording, stopRecording, onRecordingStop, transcribe, expectsALetter,
+    // and the mic state line. The three copies had DIVERGED (hint wording, the gr
+    // transcribe split, and the F10 conflation of 'server down' with 'you
+    // mumbled'); mic.js reconciles them -- micTypeHint carries this page's own
+    // wording. Do NOT re-inline or re-declare: PART 3aw fails the build.
+    micTypeHint = "tap \u201cType my answer\u201d";   // build hf: this page has that button
+
 
     // A FRESH math block appended to the feed -- used by the FIGURES (balance/graph/machine/
     // card/solve). Resets the current worklist so a following [[step]] starts a new block.
@@ -2785,7 +2785,6 @@
     // buttons stay exactly as they were, so tap, talk, and type are all first-class.
     const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
       && (typeof MediaRecorder !== "undefined");
-    let mediaStream = null, mediaRecorder = null, chunks = [], sendOnStop = true, recTimer = null;
 
     // ---------- Turn / button state ----------
     function setPhase(p) {
@@ -2812,58 +2811,11 @@
       }
     }
 
-    function releaseMic() { if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {} mediaStream = null; } }
 
-    async function startRecording() {
-      if (phase !== "ready" || !canRecord || paused) return;
-      ensureAudioGraph();
-      try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) {
-        hint.textContent = "I need microphone access to hear you. Click the address-bar mic/lock icon, allow the microphone, then tap again — or tap “Type my answer”.";
-        return;
-      }
-      chunks = []; sendOnStop = true;
-      try { mediaRecorder = new MediaRecorder(mediaStream); }
-      catch (e) {
-        try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: "audio/webm" }); }
-        catch (_) { hint.textContent = "Recording isn't supported here — tap “Type my answer”."; releaseMic(); return; }
-      }
-      mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
-      mediaRecorder.onstop = onRecordingStop;
-      mediaRecorder.start();
-      setPhase("recording");
-      recTimer = setTimeout(() => stopRecording(true), 30000);   // 30s safety cap
-    }
-    function stopRecording(send) {
-      clearTimeout(recTimer);
-      sendOnStop = send;
-      try { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); } catch (e) {}
-    }
-    async function onRecordingStop() {
-      releaseMic();
-      if (!sendOnStop) { setPhase("ready"); return; }
-      const blob = new Blob(chunks, { type: (chunks[0] && chunks[0].type) || "audio/webm" });
-      if (!blob.size) { setPhase("ready"); hint.textContent = "I didn't catch anything — tap and try again."; return; }
-      // Transcribe on the server.
-      phase = "busy"; talkBtn.disabled = true; talkBtn.classList.remove("ready", "recording"); talkLabel.textContent = "…";
-      setState("thinking"); statusEl.textContent = "Got it — one sec…"; live.textContent = "";
-      try {
-        const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-        // build gr: tell the server when a LETTER is the expected answer. Jim said the
-        // letter "c" and Scribe returned the Spanish "si"; the tutor then told him he was
-        // wrong and demanded a letter. The server owns the letter map (one copy, no drift);
-        // this only supplies the context, read from the tutor's own last line.
-        const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE)
-                                + (expectsALetter(lastTutorText) ? "&expect=letter" : ""),
-                                { method: "POST", body: fd });
-        const data = await res.json();
-        const text = (data.text || "").trim();
-        if (text) { sendToTutor(text); }
-        else { setPhase("ready"); setState("idle"); hint.textContent = "I didn't quite catch that — tap and try again."; }
-      } catch (e) {
-        setPhase("ready"); setState("idle"); hint.textContent = "Sorry, I couldn't hear that — tap and try again.";
-      }
-    }
+
+
+
+
 
     talkBtn.addEventListener("click", () => {
       if (phase === "ready") startRecording();

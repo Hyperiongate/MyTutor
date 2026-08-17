@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17hf-one-microphone". PHASE 2, PART FIVE -- the
+#               LAST triplicated frontend cluster, and the one where build gz's two
+#               live voice-answer defects were born. Unlike voice.js/board.js this was
+#               NOT a verbatim move: the three mic copies had genuinely DIVERGED.
+#               Named, and reconciled in static/mic.js:
+#               (1) hint wording -- session says 'tap "Type my answer"' (it has that
+#               button), topic/practice say "just type your answer below" (always-on
+#               type bar). A page-config variable (micTypeHint) carries each page's
+#               phrase; every string each page could show before is byte-identical
+#               after (asserted statically, page by page).
+#               (2) structure -- topic/practice had transcribe() split out (gr),
+#               session inlined it. The split wins, everywhere.
+#               (3) THE F10 CONFLATION, fixed -- the one deliberate change. On topic/
+#               practice a TRANSPORT failure and an empty transcript both returned ""
+#               and both read to a child as "I didn't quite catch that -- tap and try
+#               again": our outage, their blame, on every retry. transcribe() now
+#               returns {ok, text}; a failed request says honestly "I couldn't reach
+#               the classroom just now -- give it a second and tap again."
+#               PROVED with a real fake-device microphone (Chromium fake audio +
+#               granted permission): record -> stop -> transcribe -> the text arrives
+#               in the page's tutor sender, on ALL THREE pages, zero page errors; the
+#               silence path and the server-500 path each show their own message.
+#               This end-to-end mic test had never existed for this app.
+#               PART 3aw gains mic.js (6 functions + 5 state names, micTypeHint
+#               included); the gr spoken-letter client checks read the single copy.
 #   2026-08-17  APP_BUILD -> "2026-08-17he-one-board". PHASE 2, PART FOUR: THE
 #               WHITEBOARD BECOMES ONE COPY -- static/board.js. The 34 top-level
 #               display functions (every [[step]]/[[write]]/[[solve]] row, the graph,
@@ -7502,7 +7527,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17he-one-board"
+APP_BUILD = "2026-08-17hf-one-microphone"
 
 
 @app.get("/health")
