@@ -13,6 +13,17 @@
     MEASURED, not assumed: swept over all 1,015 canonical foundation strings, 16 render
     differently and every one is a formula that was previously inconsistent. The new
     screencheck.py S1 fired on 5 canonical scripts BEFORE this change and on 0 after.
+    (gn) 2026-08-16 -- THE FIRST WORD, THIRD ATTEMPT: THE RESUME RACE. Jim: "this talking
+    actually starts in the middle of the M of Maya. So you don't hear 'hey'." ttsAudio is
+    routed through audioCtx, so speak() resumed a suspended graph but ALSO started the clip
+    after a flat 300ms so a stuck resume could not hold up the turn -- meaning his words
+    could begin playing into a still-SILENT graph, and the safety valve paid for its
+    guarantee with the head of the clip. It now waits for the context to actually reach
+    "running" (polled, ceiling 1500ms) before starting, and starts anyway past the ceiling
+    (the 5s watchdog and withDeadline remain the real guarantees). Builds bl and cb both
+    padded the FRONT of the clip with more silence and Jim reported the same defect again;
+    this one attacks the mechanism. Shipped WITH a [voicehead] console probe that reports
+    where the audio truly began, because three fixes have now been reasoned, not measured.
     (ga) 2026-08-14 -- THE VOICE SAID IT WRONG, THEN THE TURN DIED. Two fixes from Jim's
     2026-08-14 Render log. (1) GARBLED SPEECH: forSpeech() deleted **bold** markers and
     parentheses before handing text to the voice, so the log literally shows
@@ -917,6 +928,7 @@
 
     // ---------- Audio graph ----------
     let firstSpeakLead = true;   // first clip of a session gets extra leading silence (see /api/speak lead=)
+    let firstClipOfSession = true;   // build gn: reported by the [voicehead] probe, nothing else
     const ttsAudio = new Audio(); ttsAudio.crossOrigin = "anonymous";
     let audioCtx = null, analyser = null, timeData = null, usingAnalyser = false;
     function ensureAudioGraph() {
@@ -1163,7 +1175,24 @@
         ensureAudioGraph();
         let started = false, doneCalled = false, lastProgress = Date.now(), watchdog = null;
         const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); resolve(); };
-        const onPlaying = () => { started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now(); };
+        // build gn -- THE HEAD-OF-CLIP PROBE. Three separate builds have now tried to stop
+        // the first word being swallowed (bl: lead silence; cb: the keep-alive loop; gn:
+        // the resume race), and each was reasoned rather than measured. This says, in the
+        // browser console, exactly where the audio actually began: how long the element
+        // took to start, what the graph's state was, and how much leading silence was
+        // asked for. Costs nothing, changes nothing, and ends the guessing.
+        let clipAskedAt = 0, clipLead = -1;
+        const onPlaying = () => {
+          started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now();
+          try {
+            console.log("[voicehead] started after " + (Date.now() - clipAskedAt) + "ms" +
+                        " | lead=" + clipLead +
+                        " | ctx=" + (audioCtx ? audioCtx.state : "none") +
+                        " | currentTime=" + (ttsAudio.currentTime || 0).toFixed(3) +
+                        " | first=" + firstClipOfSession);
+          } catch (e) {}
+          firstClipOfSession = false;
+        };
         const onProgress = () => { lastProgress = Date.now(); lastAudioAt = Date.now(); };
         const onEnded = () => { lastAudioAt = Date.now(); finish(); };
         const onError = () => { cleanup(); if (!started) browserSpeak(text, resolve); else finish(); };
@@ -1192,15 +1221,46 @@
           const quietMs = lastAudioAt ? (Date.now() - lastAudioAt) : 1e9;
           const lead = (firstSpeakLead || quietMs > 2500) ? 3 : (quietMs > 900 ? 2 : 1);
           startKeepAlive();
+          clipAskedAt = Date.now(); clipLead = lead;      // build gn: for the [voicehead] probe
           ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + "&lead=" + lead; firstSpeakLead = false;
           const p = ttsAudio.play();
           if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
         };
+        // 2026-08-16 (build gn, Jim live: "this talking actually starts in the middle of
+        // the M of Maya. So you don't hear 'hey'"): THE RESUME RACE, fixed.
+        // The old code resumed a suspended graph and ALSO called startClip() after a flat
+        // 300ms, so that a stuck resume could never hold up the turn. But ttsAudio is
+        // routed through audioCtx by ensureAudioGraph(), so audio started while the
+        // context is still suspended plays into a SILENT graph -- the safety valve bought
+        // its guarantee with the head of the clip, which is exactly the symptom. And this
+        // fires precisely when Jim hit it: the first live line after the welcome-back
+        // video, with the graph freshly idle.
+        // The guarantee is kept and the trade is not: we now WAIT for the context to
+        // actually reach "running" (polled, up to RESUME_CEILING), and only then start.
+        // If it never gets there we still start -- a silent head beats a frozen lesson --
+        // but the 5s watchdog below already falls back to the browser voice, and the
+        // withDeadline() wrapper around speak() is the outer guarantee. Note the ceiling
+        // is generous on purpose: padding the front of the clip with more silence has been
+        // tried twice (builds bl and cb) and Jim reported the same defect again, so this
+        // one attacks the mechanism instead of adding another cushion.
+        const RESUME_CEILING = 1500;
+        let kicked = false;
+        const kick = () => { if (!kicked && !doneCalled) { kicked = true; startClip(); } };
         if (audioCtx && audioCtx.state === "suspended") {
-          let kicked = false; const kick = () => { if (!kicked) { kicked = true; startClip(); } };
-          try { audioCtx.resume().then(kick, kick); } catch (e) { kick(); }
-          setTimeout(kick, 300);
-        } else startClip();
+          const deadline = Date.now() + RESUME_CEILING;
+          const tryStart = () => {
+            if (kicked || doneCalled) return;
+            if (!audioCtx || audioCtx.state === "running") { kick(); return; }
+            if (Date.now() >= deadline) {
+              try { console.warn("[voicehead] context still " + (audioCtx && audioCtx.state) +
+                                 " after " + RESUME_CEILING + "ms -- starting anyway"); } catch (e) {}
+              kick(); return;
+            }
+            setTimeout(tryStart, 50);
+          };
+          try { audioCtx.resume().then(tryStart, tryStart); } catch (e) { kick(); }
+          setTimeout(tryStart, 50);
+        } else kick();
         watchdog = setInterval(() => {
           if (doneCalled) { clearInterval(watchdog); watchdog = null; return; }
           if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused

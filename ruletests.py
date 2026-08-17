@@ -7661,6 +7661,28 @@ def part3aj_screen_checks():
                   "varInMathContext" in txt and "MV_POW" in txt,
                   "the math-context test is gone — a, i, f, g and h can no longer be "
                   "styled at all, which is the defect Jim found on 2026-08-16")
+            # build gn -- THE HEAD OF THE CLIP. Jim has now reported "his first word is cut
+            # off" three times (bl, cb, gn). The first two fixes padded the FRONT of the
+            # clip with more silence; this one removed the flat 300ms race that let a clip
+            # start playing into a still-suspended (silent) audio graph. Asserted at source
+            # on all three lesson pages, because a regression here is inaudible in every
+            # test we own and audible to every child.
+            check(f"voice: {page} never starts a clip on a flat 300ms timer",
+                  "setTimeout(kick, 300)" not in txt,
+                  "the flat 300ms kick is back — a suspended graph will swallow the first "
+                  "word again (build gn)")
+            check(f"voice: {page} waits for the audio graph to be running",
+                  'audioCtx.state === "running"' in txt and "RESUME_CEILING" in txt,
+                  "speak() no longer waits for the context to reach 'running' before "
+                  "starting the clip — that race is what ate 'Hey' in Jim's 2026-08-16 lesson")
+            check(f"voice: {page} still starts past the ceiling (never freezes)",
+                  "starting anyway" in txt,
+                  "the escape hatch is gone — a context that never resumes would now hang "
+                  "the turn, which is worse than a clipped word")
+            check(f"voice: {page} carries the [voicehead] probe",
+                  "[voicehead] started after" in txt,
+                  "the head-of-clip probe is gone — the next report of a swallowed first "
+                  "word would again be diagnosed by reasoning instead of measurement")
 
 
 # =============================================================================
