@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gp3-voice-closed". THE FIRST WORD IS FIXED, and the
+#               probe that proved it needed fixing too. Jim, on the gn build: "Better -- I
+#               hear the whole greeting now." Three builds tried this (bl and cb padded the
+#               front of the clip; gn removed the flat 300ms race that let a clip start into
+#               a still-suspended audio graph) and the third one was right. But his console
+#               showed "ctx=running" on every clip and that was reported back to him as
+#               "the race never fired" -- WRONG, and it would have sent the next fix chasing
+#               the MP3 decoder. The probe samples the graph when audio STARTS, and forcing
+#               that state to "running" is exactly what the fix does. A probe that reads
+#               state only AFTER a fix has acted cannot say whether the fix was needed. It
+#               now logs ctx0 (what we found) beside ctx (what we started into), so the next
+#               report of a clipped word arrives with the evidence already in it.
 #   2026-08-17  APP_BUILD -> "2026-08-17gp2-console-watch". A LANDMINE, FOUND IN A CONSOLE
 #               PASTE. Jim sent the [voicehead] output from a live Geometry lesson, and
 #               under the lines we were reading sat a Content-Security-Policy violation on
@@ -7156,7 +7168,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gp2-console-watch"
+APP_BUILD = "2026-08-17gp3-voice-closed"
 
 
 @app.get("/health")

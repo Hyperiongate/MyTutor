@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (gp3) 2026-08-17 -- THE PROBE LEARNS TO SAMPLE TWICE. Jim's first [voicehead] output
+    read "ctx=running" on all five clips and it was reported to him as "the graph was never
+    suspended, so the resume race never fired" -- which was WRONG, and would have sent the
+    next fix chasing the MP3 decoder. The probe samples the graph when the audio STARTS,
+    and making that state "running" is precisely what the gn fix does; a probe that reads
+    state only AFTER a fix has acted cannot tell you whether the fix was needed. It now
+    logs ctx0 (what we found) alongside ctx (what we started into). Jim confirmed the same
+    lesson: "Better -- I hear the whole greeting now." The clipping is fixed, three builds
+    and one honest instrument later.
     (gn2) 2026-08-16 -- CASE IS MEANING. Jim, on the very lesson that teaches this: the
     board read "A, B, C = corners (vertices)" over "a, b, c = sides (lengths)" and BOTH
     LINES RENDERED IDENTICALLY, because styleVarsCore forced every styled variable to a
@@ -2168,11 +2177,20 @@
         // took to start, what the graph's state was, and how much leading silence was
         // asked for. Costs nothing, changes nothing, and ends the guessing.
         let clipAskedAt = 0, clipLead = -1;
+        // 2026-08-17 (build gp3): the state of the graph WHEN THE CLIP WAS ASKED FOR, which
+        // is a different question from its state when the audio starts. The gn probe logged
+        // only the latter and it was misread as "the graph was never suspended, so the
+        // resume race never fired" -- when in fact the fix's whole job is to GUARANTEE the
+        // state is "running" by then. A probe that samples only AFTER a fix has acted cannot
+        // tell you whether the fix was needed. Both are now logged: ctx0 is what we found,
+        // ctx is what we started into.
+        const ctxAtRequest = audioCtx ? audioCtx.state : "none";
         const onPlaying = () => {
           started = true; usingAnalyser = !!analyser; setState("speaking"); lastProgress = Date.now();
           try {
             console.log("[voicehead] started after " + (Date.now() - clipAskedAt) + "ms" +
                         " | lead=" + clipLead +
+                        " | ctx0=" + ctxAtRequest +
                         " | ctx=" + (audioCtx ? audioCtx.state : "none") +
                         " | currentTime=" + (ttsAudio.currentTime || 0).toFixed(3) +
                         " | first=" + firstClipOfSession);

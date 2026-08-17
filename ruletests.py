@@ -7778,6 +7778,13 @@ def part3aj_screen_checks():
                   "starting anyway" in txt,
                   "the escape hatch is gone — a context that never resumes would now hang "
                   "the turn, which is worse than a clipped word")
+            # build gp3: the probe must log the state BEFORE the wait as well as after.
+            # With only the after-state, "ctx=running" was misread as "the race never
+            # fired" -- when guaranteeing exactly that state is what the fix does.
+            check(f"voice: {page} probe records the graph state BEFORE the wait",
+                  "ctxAtRequest" in txt and "ctx0=" in txt,
+                  "without ctx0 the probe cannot say whether the resume race actually "
+                  "fired, only that it was handled — the two look identical")
             check(f"voice: {page} carries the [voicehead] probe",
                   "[voicehead] started after" in txt,
                   "the head-of-clip probe is gone — the next report of a swallowed first "
