@@ -120,12 +120,14 @@ class Snapshot(object):
         self.board_html  = d.get("board_html", "") or ""    # the whiteboard, as rendered
         self.rail        = dict(d.get("rail") or {})        # unit_label / unit_text / course_text
         self.overflow    = list(d.get("overflow") or [])    # [{el, scroll, client}] measured
+        self.console     = list(d.get("console") or [])     # [{level, text}] captured
         self.png         = d.get("png", "")
 
     def to_dict(self):
         return {"turn": self.turn, "name": self.name, "reply_raw": self.reply_raw,
                 "bubble_html": self.bubble_html, "board_html": self.board_html,
-                "rail": self.rail, "overflow": self.overflow, "png": self.png}
+                "rail": self.rail, "overflow": self.overflow,
+                "console": self.console, "png": self.png}
 
     @property
     def screen_html(self):
@@ -415,6 +417,45 @@ def check_s6_nothing_is_clipped(snap):
     return out
 
 
+_CSP_RE = re.compile(r"content security policy|violates the following", re.I)
+
+
+def check_s7_the_console_is_clean(snap):
+    """S7 -- the page complained and nobody was listening. Added 2026-08-17 (build gp2)
+    after Jim pasted a lesson's console output and it contained, under the line we were
+    actually looking for, a Content-Security-Policy violation on every silent-WAV data:
+    URI the voice uses. Nothing was broken -- that header ships report-only -- but the
+    policy is documented as something we intend to ENFORCE, and on that day the audio
+    warm-up and the keep-alive loop both stop loading. Those are the two mechanisms that
+    protect the first syllable of every sentence the tutor speaks.
+
+    Neither of us was looking for it. The checker was already driving a browser, and
+    reading what the page says about itself costs nothing -- so now it does. This is the
+    cheapest instance of Jim's thesis in the whole codebase: a class of defect found
+    because something was watching, not because someone suspected it.
+
+    Two kinds are reported, and ONLY two, so a chatty page cannot bury them:
+      - an uncaught JavaScript error (level "pageerror") -- always a defect
+      - a CSP violation -- harmless today, a regression the day the policy is enforced
+    Ordinary console.log noise, including our own [voicehead] probe, is ignored."""
+    out = []
+    for entry in snap.console:
+        level = str((entry or {}).get("level") or "").lower()
+        text = str((entry or {}).get("text") or "")
+        if level == "pageerror":
+            out.append(Finding(
+                "S7 the console is clean", SEV_HIGH, snap.turn,
+                "An uncaught JavaScript error fired while this turn rendered: "
+                + text[:150], text[:220]))
+        elif _CSP_RE.search(text):
+            out.append(Finding(
+                "S7 the console is clean", SEV_MED, snap.turn,
+                "A Content-Security-Policy violation was logged. It is report-only today, "
+                "so nothing broke -- but this will BREAK the moment the policy is enforced: "
+                + text[:120], text[:220]))
+    return out
+
+
 CHECKS = [
     check_s1_mixed_variable_styling,
     check_s2_figure_names_what_the_words_name,
@@ -422,6 +463,7 @@ CHECKS = [
     check_s4_every_figure_is_captioned,
     check_s5_caption_does_not_answer,
     check_s6_nothing_is_clipped,
+    check_s7_the_console_is_clean,
 ]
 
 
@@ -509,17 +551,51 @@ def playwright_available():
         return False
 
 
-def _serve_static(static_dir, port):
-    import functools, http.server, socketserver, threading
-    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=static_dir)
+def real_csp(root=None):
+    """The Content-Security-Policy this app actually ships, read OUT OF main.py.
 
-    class Quiet(http.server.SimpleHTTPRequestHandler):
-        pass
+    2026-08-17 (build gp2). S7 caught a CSP violation only because Jim pasted his console
+    into a chat -- the local harness served no CSP header at all, so the violation could
+    not happen here and the check sat silent on the one defect it was written for. A test
+    rig that is missing the header under test is a test rig that proves nothing.
+
+    Reading the live string out of main.py rather than copying it means this can never
+    drift out of step with production: change the policy there and the harness changes
+    with it, on the next run, with no seam to remember."""
+    try:
+        path = os.path.join(root or HERE, "main.py")
+        with open(path, "r", encoding="utf-8") as fh:
+            src = fh.read()
+        m = re.search(r"_CSP_REPORT_ONLY\s*=\s*\((.*?)\n\)", src, re.S)
+        if not m:
+            return ""
+        # The literal is a run of adjacent quoted strings with comments between them.
+        return "".join(re.findall(r'"([^"]*)"', m.group(1)))
+    except Exception:  # noqa: BLE001 -- no header is survivable; a crash here is not
+        return ""
+
+
+def _serve_static(static_dir, port, csp=""):
+    import functools, http.server, socketserver, threading
+
+    class Handler(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *a, **kw):
+            super().__init__(*a, directory=static_dir, **kw)
+
+        def end_headers(self):
+            # Serve the REAL policy, so a data: URI that production would flag is flagged
+            # here too -- for free, with no key and no network.
+            if csp:
+                self.send_header("Content-Security-Policy-Report-Only", csp)
+            super().end_headers()
+
+        def log_message(self, *a):        # the harness is not a web server log
+            pass
 
     class Server(socketserver.TCPServer):
         allow_reuse_address = True
 
-    srv = Server(("127.0.0.1", port), handler)
+    srv = Server(("127.0.0.1", port), Handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return srv
 
@@ -544,12 +620,16 @@ def capture_render(replies, course="geometry", static_dir=None, port=8731,
     root = os.path.dirname(os.path.abspath(static_dir))
     state = dict(DEFAULT_SESSION_STATE)
     state.update(session_state or {})
-    srv = _serve_static(root, port)
+    srv = _serve_static(root, port, csp=real_csp(root))
     snaps, pending = [], {"reply": ""}
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(args=["--no-sandbox"])
             page = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+            console = []
+            page.on("console", lambda m: console.append({"level": m.type, "text": m.text}))
+            page.on("pageerror", lambda e: console.append({"level": "pageerror",
+                                                           "text": str(e)[:400]}))
             page.route("**/api/session/**", lambda r: r.fulfill(
                 status=200, content_type="application/json", body=json.dumps(state)))
             page.route("**/api/chat", lambda r: r.fulfill(
@@ -587,6 +667,10 @@ def capture_render(replies, course="geometry", static_dir=None, port=8731,
                 page.wait_for_timeout(2200)
                 data = page.evaluate(SNAPSHOT_JS)
                 data["overflow"] = page.evaluate(OVERFLOW_JS)
+                # Only THIS turn's console lines, so a violation is attributed to the turn
+                # that caused it rather than to every turn after it.
+                data["console"] = console[:]
+                del console[:]
                 data["turn"], data["name"] = i, name
                 data["reply_raw"] = pending["reply"]
                 if shots_dir:
@@ -612,6 +696,9 @@ def capture_live(base_url, code, course="geometry", turns=None, shots_dir=None,
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--no-sandbox"])
         page = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+        console = []
+        page.on("console", lambda m: console.append({"level": m.type, "text": m.text}))
+        page.on("pageerror", lambda e: console.append({"level": "pageerror", "text": str(e)[:400]}))
         page.goto("%s/session?code=%s&course=%s" % (base_url.rstrip("/"), code, course),
                   wait_until="load")
         page.wait_for_timeout(1500)
@@ -628,6 +715,8 @@ def capture_live(base_url, code, course="geometry", turns=None, shots_dir=None,
             page.wait_for_timeout(4000)
             data = page.evaluate(SNAPSHOT_JS)
             data["overflow"] = page.evaluate(OVERFLOW_JS)
+            data["console"] = console[:]
+            del console[:]
             data["turn"], data["name"] = i, "live turn %d" % i
             if shots_dir:
                 os.makedirs(shots_dir, exist_ok=True)
@@ -743,6 +832,20 @@ FIXTURES = [
     ("S5 silent when nothing was asked", None,
      {"turn": 1, "bubble_html": "That missing side is the hypotenuse.",
       "board_html": _JIM_TRIANGLE_SVG}),
+    # ---- S7: fires / silent (the text is Jim's real console line, 2026-08-17) ----
+    ("S7 fires on the CSP violation from Jim's own lesson", "S7 the console is clean",
+     {"turn": 1, "console": [{"level": "warning", "text":
+      "Loading media from 'data:audio/wav;base64,UklGRmQ...' violates the following "
+      "Content Security Policy directive: \"default-src 'self'\". Note that 'media-src' "
+      "was not explicitly set, so 'default-src' is used as a fallback."}]}),
+    ("S7 fires on an uncaught JavaScript error", "S7 the console is clean",
+     {"turn": 1, "console": [{"level": "pageerror", "text": "TypeError: x is not a function"}]}),
+    ("S7 ignores our own [voicehead] probe and ordinary logs", None,
+     {"turn": 1, "console": [
+      {"level": "log", "text": "[voicehead] started after 467ms | lead=3 | ctx=running"},
+      {"level": "info", "text": "plausible loaded"},
+      {"level": "log", "text": "[terms] bolding skipped: nothing to do"}]}),
+    ("S7 silent when the console said nothing at all", None, {"turn": 1, "console": []}),
     # ---- S6: fires / silent ----
     ("S6 fires on a clipped rail", "S6 nothing is clipped",
      {"turn": 1, "overflow": [{"el": "#courseBar", "scroll": 1490, "client": 1280,

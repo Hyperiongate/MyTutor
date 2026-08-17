@@ -222,7 +222,7 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
     says so rather than implying coverage we do not have."""
     started = time.time()
     out = {"ok": False, "ran": 0, "skipped": [], "new": [], "recurring": 0,
-           "unverified": [], "refuted": 0, "errors": [], "seconds": 0.0,
+           "unverified": [], "refuted": 0, "refuted_list": [], "errors": [], "seconds": 0.0,
            "budget_stopped": False, "probes_run": sorted((probe_hooks or {}).keys())}
     try:
         import lessonaudit
@@ -285,7 +285,19 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
                 elif real:
                     _record(out, ledger, sc, f, verified_note=why)
                 else:
+                    # 2026-08-17 (build gp): RECORD WHAT WAS THROWN AWAY, not just how
+                    # much. The first real night refuted 16 of 22 findings, and a bare
+                    # count cannot be audited -- 73% looks identical whether it is healthy
+                    # skepticism or a reviewer that has started killing real defects. The
+                    # refuted list is what makes the health metric falsifiable. It is in
+                    # the report and NEVER in the email: this is calibration material, not
+                    # something to wake Jim for.
                     out["refuted"] += 1
+                    out["refuted_list"].append({"scenario": sc["id"],
+                                                "severity": f.get("severity"),
+                                                "rule": f.get("rule"),
+                                                "what": f.get("what"),
+                                                "reviewer": why})
         except Exception as exc:  # noqa: BLE001 -- one bad lesson never ends the night
             out["errors"].append(f"{sc['id']}: {type(exc).__name__}: {exc}")
             print(f"[nightwatch] {sc['id']} crashed: {traceback.format_exc()[:800]}")
@@ -345,6 +357,21 @@ def report_markdown(result, build="") -> str:
                 L += [f"_Reviewer: {f['verified']}_", ""]
     else:
         L += ["No new confirmed findings tonight.", ""]
+
+    # WHAT THE REVIEWER THREW AWAY. This section is how the reviewer gets audited: if a
+    # dismissal here reads wrong to a human, the reviewer prompt is the thing to fix, not
+    # the critic. Without it the refute rate is a number with nothing behind it.
+    thrown = result.get("refuted_list") or []
+    if thrown:
+        L += [f"## What the reviewer threw away ({len(thrown)})", "",
+              "_Read a few of these. If any of them look like REAL defects, the reviewer is "
+              "too aggressive and the refute rate is hiding things._", ""]
+        for t in thrown:
+            L += [f"- **{t.get('scenario')}**"
+                  + (f" (rule {t['rule']})" if t.get("rule") else "")
+                  + f" — {t.get('what')}",
+                  f"  - reviewer: _{t.get('reviewer') or '(no reason given)'}_"]
+        L += [""]
 
     # WHAT WE DID NOT DO. A silent cap reads as "all clear".
     L += ["## What this run did not cover", ""]
@@ -422,5 +449,79 @@ def due(data_dir, now=None) -> bool:
     if now.hour < RUN_HOUR_UTC:
         return False
     return last_run_day(data_dir) != now.strftime("%Y-%m-%d")
+
+# =============================================================================
+# PART 7 -- THE FACE (2026-08-17, build gp)
+# =============================================================================
+# Written the morning after go shipped, because go had a hole in it: the watch wrote its
+# findings to a markdown file on Render's persistent disk and NOTHING EXPOSED IT. The log
+# carried a one-line count; the actual findings -- the whole product of the run -- were
+# unreadable without shell access Jim does not have.
+#
+# A GOVERNOR WHOSE REPORTS ARE HARD TO REACH IS A GOVERNOR THAT GETS IGNORED, which is the
+# exact failure mode go's own header warns about. Twelve hours is a short time to prove
+# your own warning right.
+def summary(data_dir) -> dict:
+    """Everything the /admin card needs. Never raises."""
+    out = {"ok": True, "enabled": enabled(), "hour_utc": RUN_HOUR_UTC,
+           "lessons": LESSONS_PER_NIGHT, "turns": TURNS_PER_LESSON,
+           "verify": VERIFY_FINDINGS, "reports": [], "last": "", "open_findings": 0,
+           "recurring_worst": [], "health": None, "note": "",
+           "max_minutes": MAX_MINUTES, "last_minutes": None, "near_ceiling": False}
+    try:
+        d = os.path.join(str(data_dir), REPORT_DIR_NAME)
+        names = sorted((f[:-3] for f in os.listdir(d) if f.endswith(".md")), reverse=True)
+        out["reports"] = names[:KEEP_REPORTS]
+        out["last"] = names[0] if names else ""
+    except Exception:  # noqa: BLE001 -- no reports yet is a normal state, not an error
+        pass
+    try:
+        led = load_ledger(data_dir)
+        out["open_findings"] = len(led)
+        # The findings that keep coming back are the ones worth Jim's morning: a defect
+        # seen eight nights running is not a fluke and is not being fixed.
+        worst = sorted(led.values(), key=lambda v: -int(v.get("seen", 1)))[:5]
+        out["recurring_worst"] = [{"seen": v.get("seen"), "scenario": v.get("scenario"),
+                                  "rule": v.get("rule"), "what": v.get("what"),
+                                  "first": v.get("first"), "last": v.get("last")}
+                                  for v in worst if int(v.get("seen", 1)) > 1]
+    except Exception as exc:  # noqa: BLE001
+        out["note"] = f"ledger unreadable: {exc}"
+    # THE HEALTH METRIC. Jim's own instruction for week one: judge the watch by what it
+    # THROWS AWAY. Refutes nothing -> the reviewer is too soft and the reports will bloat.
+    # Refutes everything -> the critic or the reviewer is miscalibrated. It is parsed back
+    # out of last night's report rather than stored twice, so it can never disagree with it.
+    try:
+        text = read_report(data_dir, out["last"]) if out["last"] else ""
+        mt = re.search(r"\u00b7 ([\d.]+)s\s*$", text, re.M)
+        if mt:
+            out["last_minutes"] = round(float(mt.group(1)) / 60.0, 1)
+            # A run that is already using most of its window will start truncating the
+            # rotation as findings accumulate, and losing coverage quietly is the one
+            # thing this system must not do.
+            out["near_ceiling"] = out["last_minutes"] >= 0.8 * MAX_MINUTES
+        m = re.search(r"\*\*(\d+) new confirmed\*\* .* (\d+) refuted", text)
+        if m:
+            new, refuted = int(m.group(1)), int(m.group(2))
+            total = new + refuted
+            out["health"] = {"new": new, "refuted": refuted,
+                             "refuted_pct": round(100.0 * refuted / total) if total else None}
+    except Exception:  # noqa: BLE001
+        pass
+    return out
+
+
+def read_report(data_dir, date_name: str) -> str:
+    """One night's report by its YYYY-MM-DD name. Returns "" if there is no such report.
+    The name is validated as a date, so this can never read outside the report folder."""
+    try:
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(date_name or "")):
+            return ""
+        path = os.path.join(str(data_dir), REPORT_DIR_NAME, f"{date_name}.md")
+        with open(path, "r", encoding="utf-8") as fh:
+            return fh.read()
+    except Exception:  # noqa: BLE001
+        return ""
+
 
 # I did no harm and this file is not truncated.

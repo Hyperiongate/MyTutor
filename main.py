@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gp2-console-watch". A LANDMINE, FOUND IN A CONSOLE
+#               PASTE. Jim sent the [voicehead] output from a live Geometry lesson, and
+#               under the lines we were reading sat a Content-Security-Policy violation on
+#               every silent-WAV data: URI the voice uses. Nothing was broken -- that header
+#               ships report-only -- but it is documented as something we intend to ENFORCE,
+#               and on that day silentWavUri() stops loading. That one function is BOTH the
+#               audio warm-up and the keep-alive loop: the two mechanisms protecting the
+#               first syllable of every sentence the tutor speaks. The voice would regress
+#               and nobody would connect it to a security header. Fixed with one CSP
+#               directive (media-src 'self' data:), and then made un-miss-able: screencheck
+#               gained S7 (the console is clean) and its harness now serves the REAL policy
+#               read out of this file, so the rig can finally reproduce the defect it was
+#               written to catch. Proved both ways -- S7 fires twice with media-src removed
+#               and is silent with it present.
+#   2026-08-17  APP_BUILD -> "2026-08-17gp-nightwatch-card". THE GOVERNOR GETS A FACE, and
+#               its reviewer becomes auditable. Build go ran for the first time overnight --
+#               12 lessons, 6 new confirmed, 16 refuted, 38.5 minutes -- and exposed two
+#               holes in itself within twelve hours. (1) The findings were written to a
+#               markdown file on the persistent disk and served NOWHERE: the only readable
+#               output was a one-line count in the Render log. A governor whose reports are
+#               hard to reach is a governor that gets ignored, which go's own header warns
+#               about. New: GET /api/admin/nightwatch/status + /report, and a Night watch
+#               card on /admin that reads the last 30 nights. (2) The report COUNTED what
+#               the reviewer refuted without NAMING it -- so a 73% refute rate could not be
+#               told apart from a reviewer quietly killing real defects. The report now
+#               lists every dismissal with the reviewer's reason, and says how to judge
+#               them. The card also warns when a run is near its time ceiling, because
+#               losing rotation coverage silently is the one thing this must never do.
 #   2026-08-16  APP_BUILD -> "2026-08-16go-night-watch". THE GOVERNOR. Jim: "only AI is
 #               gonna be capable of governing AI... depending on me to fix it or notice
 #               problems is only going to address some of those problems and probably just
@@ -3381,6 +3409,15 @@ _CSP_REPORT_ONLY = (
     "style-src 'self' 'unsafe-inline'; "
     "img-src 'self' data:; "
     "font-src 'self' data:; "
+    # 2026-08-17 (build gp2, found in Jim's console during a live Geometry lesson): every
+    # silent-WAV data: URI was logging a CSP violation, because media-src was never set and
+    # so fell back to default-src 'self'. Report-only today, which is why nothing broke --
+    # but this header is documented as something we intend to FLIP TO ENFORCING, and on
+    # that day silentWavUri() would stop loading. That single function is BOTH the audio
+    # warm-up and the keep-alive loop: the two mechanisms that protect the first syllable
+    # of every sentence the tutor speaks. The voice would regress and nobody would connect
+    # it to a security header. A landmine defused for the cost of one line.
+    "media-src 'self' data:; "
     "connect-src 'self' https://plausible.io; "
     "frame-ancestors 'self'; "
     "base-uri 'self'; "
@@ -5866,6 +5903,39 @@ def admin_backup_status(key: str = "",
             "dir": str(_BACKUP_DIR), "snapshots": snaps}
 
 
+# =============================================================================
+# THE NIGHT WATCH CARD (2026-08-17, build gp)
+# -----------------------------------------------------------------------------
+# go shipped the governor and forgot to give it a face: the findings went to a markdown
+# file on the persistent disk that nothing served, so the only readable output was a
+# one-line count in the Render log. A governor whose reports are hard to reach is a
+# governor that gets ignored -- go's own header says so, and go proved it in twelve hours.
+@app.get("/api/admin/nightwatch/status")
+def admin_nightwatch_status(key: str = "",
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """Last night's counts, the refuted ratio (the health metric), the findings that keep
+    coming back, and which nights are readable. Feeds the /admin Night watch card."""
+    _require_admin(x_admin_key or key)
+    if nightwatch is None:
+        return {"ok": False, "enabled": False, "reports": [], "last": "",
+                "note": "nightwatch.py is not deployed on this build"}
+    return nightwatch.summary(DATA_DIR)
+
+
+@app.get("/api/admin/nightwatch/report")
+def admin_nightwatch_report(date: str = "", key: str = "",
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """One night's full report as markdown text. `date` is YYYY-MM-DD and is validated as
+    a date inside nightwatch.read_report, so no path can be traversed from here."""
+    _require_admin(x_admin_key or key)
+    if nightwatch is None:
+        raise HTTPException(status_code=404, detail="nightwatch.py is not deployed")
+    text = nightwatch.read_report(DATA_DIR, date)
+    if not text:
+        raise HTTPException(status_code=404, detail=f"no night-watch report for {date!r}")
+    return {"ok": True, "date": date, "markdown": text}
+
+
 @app.get("/api/admin/backup")
 def admin_backup_download(key: str = "",
                           x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -7086,7 +7156,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-16go-night-watch"
+APP_BUILD = "2026-08-17gp2-console-watch"
 
 
 @app.get("/health")

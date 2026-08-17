@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    (gp) 2026-08-17 -- NEW NIGHT WATCH CARD. Build go shipped the governor and served its
+    findings nowhere: a markdown file on the persistent disk, and a one-line count in the
+    Render log. This card reads the last 30 nights, shows the REFUTED SHARE as the health
+    number (near 0% = the reviewer is too soft; near 100% = miscalibrated), lists the
+    findings that keep coming back, and warns when a run is close to its time ceiling.
+    First real night, 2026-08-17: 12 lessons, 6 new confirmed, 16 refuted, 38.5 minutes.
+
   - 2026-08-11  THE LAST KEY-CARRYING LINK IS GONE (build dn). Build dg's one documented
     residual -- the forum-moderation quick-link opened /community?mod=<key> -- is closed:
     community.html now reads the key from the SAME sessionStorage stash this page fills
@@ -322,6 +329,33 @@
     <p class="note" style="margin-top:12px">Restoring is a deliberate, offline act: the repo's
       <b>restore_backup.py</b> walks you through it, and <b>RECOVERY.md</b> is the full drill.
       There is no restore button here on purpose.</p>
+  </div></section>
+
+  <!-- 2026-08-17 (build gp). Jim: "only AI is gonna be capable of governing AI...
+       depending on me to fix it or notice problems is only going to address some of those
+       problems and probably just the big ones." nightwatch.py audits ~12 lessons a night
+       and every finding is challenged by an independent reviewer before it reaches here.
+       This card exists because build go wrote those findings to a file on the disk and
+       served them nowhere -- a governor whose reports are hard to reach gets ignored. -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#127765; Night watch</h2>
+      <span class="note">Every night it teaches about a dozen lessons to itself, marks them, and
+        throws away every finding that cannot survive a second opinion. What is left is below.
+        <b>Watch the refuted share:</b> near 0% means the reviewer is too soft and this list will
+        bloat; near 100% means it is miscalibrated. Somewhere in between is a working conscience.</span></div>
+    <div class="note" id="nwLine">reading last night&hellip;</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <select id="nwPick" class="btn" style="max-width:220px"></select>
+      <button class="btn btn-primary" id="nwRead" type="button">&#128196; Read that night's report</button>
+    </div>
+    <div class="msg" id="nwMsg"></div>
+    <pre id="nwReport" style="display:none;white-space:pre-wrap;background:#0f172a;color:#e6edf7;
+         padding:14px;border-radius:10px;margin-top:12px;font-size:12.5px;line-height:1.5;
+         max-height:520px;overflow:auto"></pre>
+    <div id="nwRepeat" style="margin-top:12px"></div>
+    <p class="note" style="margin-top:12px">It never touches a live lesson &mdash; it teaches an
+      audit student in the background. Turn it off with <b>NIGHTWATCH=off</b> in Render.
+      The rendered <i>screen</i> is checked separately, by <b>screencheck.py</b>, on every push.</p>
   </div></section>
 
   <!-- Quick links -->
@@ -742,6 +776,74 @@
   function pwMsg(t, k) { var el = $("pwMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
   function bkMsg(t, k) { var el = $("bkMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
 
+  // ---------- night watch (build gp) ----------
+  function nwMsg(t, kind) { var e = $("nwMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
+  async function nwStatus() {
+    try {
+      var d = await api("/api/admin/nightwatch/status");
+      if (!d.enabled && !(d.reports || []).length) {
+        $("nwLine").textContent = d.note || "the night watch is switched off (NIGHTWATCH=off)";
+        return;
+      }
+      var bits = [];
+      if (d.last) {
+        bits.push("last run " + d.last);
+        if (d.health) {
+          var pct = (d.health.refuted_pct === null || d.health.refuted_pct === undefined)
+                    ? "\u2014" : d.health.refuted_pct + "%";
+          bits.push(d.health.new + " new confirmed, " + d.health.refuted + " refuted (" + pct + " thrown away)");
+        }
+      } else {
+        bits.push("no report yet \u2014 the first writes after " + d.hour_utc + ":00 UTC");
+      }
+      bits.push(d.open_findings + " finding(s) on the books");
+      if (d.last_minutes) {
+        bits.push(d.last_minutes + " min of " + d.max_minutes + " allowed");
+      }
+      bits.push(d.lessons + " lessons \u00d7 " + d.turns + " turns a night");
+      // A run using most of its window will start silently dropping lessons from the
+      // rotation as findings accumulate. Losing coverage quietly is the one thing this
+      // system must never do, so it is said out loud on the card.
+      if (d.near_ceiling) {
+        bits.push("\u26a0\ufe0f close to the time ceiling \u2014 raise NIGHTWATCH_MAX_MINUTES before it starts skipping lessons");
+      }
+      if (!d.verify) bits.push("\u26a0\ufe0f second-opinion review is OFF");
+      if (!d.enabled) bits.push("\u26a0\ufe0f switched off \u2014 these are old reports");
+      $("nwLine").textContent = bits.join(" \u00b7 ");
+      var pick = $("nwPick"); pick.innerHTML = "";
+      (d.reports || []).forEach(function (n) {
+        var o = document.createElement("option"); o.value = n; o.textContent = n; pick.appendChild(o);
+      });
+      if (!(d.reports || []).length) { pick.disabled = true; $("nwRead").disabled = true; }
+      // The findings that keep coming back are the ones worth a morning: a defect seen
+      // eight nights running is not a fluke, and it is not being fixed.
+      var rep = $("nwRepeat"); rep.innerHTML = "";
+      if ((d.recurring_worst || []).length) {
+        var h = document.createElement("div"); h.className = "note";
+        h.innerHTML = "<b>Keeps coming back</b> \u2014 reported once, still happening:";
+        rep.appendChild(h);
+        var ul = document.createElement("ul"); ul.style.margin = "6px 0 0 18px";
+        d.recurring_worst.forEach(function (f) {
+          var li = document.createElement("li"); li.className = "note";
+          li.textContent = f.seen + " nights \u00b7 " + f.scenario
+            + (f.rule ? " \u00b7 rule " + f.rule : "") + " \u2014 " + (f.what || "");
+          ul.appendChild(li);
+        });
+        rep.appendChild(ul);
+      }
+    } catch (e) { $("nwLine").textContent = "could not read the night watch: " + e.message; }
+  }
+  $("nwRead").addEventListener("click", async function () {
+    var when = $("nwPick").value;
+    if (!when) { nwMsg("There are no reports to read yet."); return; }
+    nwMsg("Opening " + when + "\u2026", "ok");
+    try {
+      var d = await api("/api/admin/nightwatch/report?date=" + encodeURIComponent(when));
+      var pre = $("nwReport"); pre.textContent = d.markdown || "(empty report)";
+      pre.style.display = "block"; nwMsg("");
+    } catch (e) { nwMsg(e.message); }
+  });
+
   // ---------- backups (build dj) ----------
   // The download goes through fetch so the admin key rides in the header (build dg
   // discipline: the key never appears in a URL), then a blob link hands the file to
@@ -871,7 +973,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); } catch (e) {}   // build dj: the Backups card's nightly status
+      try { bkStatus(); nwStatus(); } catch (e) {}   // build dj: the Backups card's nightly status
       var now = new Date();
       $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
     } catch (e) {

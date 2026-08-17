@@ -7668,6 +7668,22 @@ def part3aj_screen_checks():
             check(f"screencheck: {name}", expected in names,
                   f"expected {expected!r}, got {names or 'nothing'}")
 
+    # ---- SEAM 3 (build gp2): the harness must serve the REAL policy ----
+    # S7 exists because a CSP violation was logging on every silent-WAV the voice uses --
+    # found only because Jim pasted his console into a chat. The local harness served NO
+    # CSP header, so the one defect S7 was written for could not occur in the rig that was
+    # meant to catch it. It now reads the live policy out of main.py, which is also why
+    # this cannot drift: change the header there and the harness follows.
+    csp = screencheck.real_csp(root)
+    check("screencheck seam: the harness can read the real CSP out of main.py",
+          bool(csp) and "default-src" in csp,
+          "the render harness would serve no policy, and S7 could never fire locally")
+    check("screencheck seam: media-src allows the data: URIs the voice needs",
+          "media-src" in csp and "data:" in csp.split("media-src")[1][:40],
+          "the audio warm-up and the keep-alive loop are silent-WAV data: URIs; without "
+          "media-src they violate default-src, and they BREAK the day the policy is "
+          "enforced -- taking the head of every spoken sentence with them")
+
     # ---- SEAM 1: geo-figures.js still labels by the metrics screencheck reads ----
     geo_path = os.path.join(root, "static", "geo-figures.js")
     if not os.path.exists(geo_path):
@@ -7973,6 +7989,51 @@ def part3ak_night_watch():
     check("night watch: it lends the probes its lessons, one turn at a time",
           "_nightwatch_termgap" in m and "probe_hooks=" in m,
           "the server-side probes would otherwise never see these lessons")
+    # build gp -- THE FACE, and the auditability of the reviewer. The first real night
+    # (2026-08-17) refuted 16 of 22 findings, and the report counted them without naming
+    # them: a refute rate nobody can check is not a metric. These assert that the report
+    # shows its work and that the card can reach it.
+    # These numbers are THE FIRST REAL NIGHT, 2026-08-17: 12 lessons, 6 new confirmed,
+    # 16 refuted, 2310.4s. Kept literal so the checks double as a record of what a healthy
+    # run actually looked like the first time this thing ran unattended.
+    res2 = dict(res, seconds=2310.4, refuted=16, ran=12,
+                new=(res["new"] * 6),
+                refuted_list=[{"scenario": "i-dont-know", "severity": "low",
+                               "rule": 39, "what": "explained before asking",
+                               "reviewer": "foundation-first is deliberate"}])
+    md2 = nw.report_markdown(res2, "b")
+    check("night watch: the report NAMES what the reviewer threw away",
+          "threw away" in md2 and "foundation-first is deliberate" in md2,
+          "a refute count with nothing behind it cannot be audited")
+    check("night watch: and tells the reader how to judge those dismissals",
+          "too aggressive" in md2, "the reader needs to know what a bad dismissal looks like")
+    with _tmp.TemporaryDirectory() as d:
+        nw.write_report(d, res2, "b")
+        su = nw.summary(d)
+        check("night watch: the card reads last night's runtime",
+              su.get("last_minutes") == 38.5, f"got {su.get('last_minutes')}")
+        check("night watch: and warns when a run is near its time ceiling",
+              su.get("near_ceiling") is True,
+              "a run that starts skipping lessons must say so, not lose coverage quietly")
+        check("night watch: the card computes the refuted share",
+              (su.get("health") or {}).get("refuted_pct") == 73, str(su.get("health")))
+        check("night watch: a report is readable back by its date",
+              nw.read_report(d, su["last"]).startswith("# Night watch"))
+        check("night watch: a bogus date cannot traverse out of the report folder",
+              nw.read_report(d, "../../etc/passwd") == ""
+              and nw.read_report(d, "2026-13-99") != "# nope",
+              "the date is validated as a date")
+    with open(os.path.join(root, "static", "admin.html"), "r", encoding="utf-8") as fh:
+        adm = fh.read()
+    check("night watch: /admin has a card that reads the reports",
+          "nwStatus" in adm and "/api/admin/nightwatch/report" in adm,
+          "the findings would only be reachable by shell on Render's disk")
+    check("night watch: both admin endpoints exist and are key-guarded",
+          '@app.get("/api/admin/nightwatch/status")' in m
+          and '@app.get("/api/admin/nightwatch/report")' in m
+          and m.count("_require_admin(x_admin_key or key)") >= 2,
+          "an unguarded endpoint would expose lesson transcripts")
+
     check("night watch: it can be switched off from Render without a deploy",
           "NIGHTWATCH" in m or "nightwatch.enabled()" in m,
           "a governor with no off switch is a liability")
