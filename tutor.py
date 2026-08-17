@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gy -- A RULE SPOKEN AS A LAW: rule 54 widened, rule 61's fraction
+#               case born enforced (the EIGHTEENTH referee). The last of the six causes
+#               from the day's audit triage.
+#               RULE 54: "'of' means multiply" (the percents lesson). The banned list was
+#               story-cue words only, and "of" belongs there by that list's own logic --
+#               "sum" and "difference" NAME their operations and rule 37 requires teaching
+#               them, while "of" merely CORRELATES inside one problem type. A child taught
+#               it as a rule applies it to "3 out of 4". Added with it: the rest of the
+#               classic bad mnemonic ("is means equals, of means times"), plus per and each.
+#               RULE 61: "the bottom number never changes, we just add the top numbers" (the
+#               fractions lesson). Rule 61 is generally UNENFORCEABLE -- "always" and "never"
+#               are frequently true, including in rule 64's own "a length is never negative".
+#               What makes this case decidable is that THE SAME LESSON SAYS IT CORRECTLY
+#               THREE TIMES ("since the denominators match", "same-bottom-number fractions",
+#               "since the slices are the same size"). The tutor knows the condition and
+#               drops it, so the check is only: is the condition in the sentence? 0 false
+#               alarms across 1,015 canonical scripts, which is the test that matters --
+#               the fraction library states this rule many times over.
 #   2026-08-17  BUILD gx -- THE REFUSED-DEMONSTRATION REFEREE (rule 65), the SEVENTEENTH,
 #               and the worst thing the day's audit found. Twice in one geometry lesson a
 #               child asked to be SHOWN and was turned down:
@@ -2333,12 +2351,66 @@ _BN_CHAIN = re.compile(r"=\s*-?\d+(?:\.\d+)?\s*=\s*\?")
 # requires teaching them. The trap the guide warns about is narrative cue words that
 # merely CORRELATE with an operation ("altogether", "left", "more") being taught as if
 # they decided it.
+# BUILD gy (2026-08-17): "of" JOINS THE LIST, and it belongs there by this list's own
+# logic. From the day's audit, in the percents lesson: "We turned 20% into 0.20, then
+# multiplied -- 'of' means multiply." That is not vocabulary the way "sum" and "difference"
+# are (those words NAME their operations, and rule 37 requires teaching them). "of" merely
+# CORRELATES with multiplication inside one problem type, and a student who learns it as a
+# rule applies it to "3 out of 4" and "what fraction of the class", mechanically and wrong.
+# Added with it: the rest of the classic bad mnemonic -- "is means equals, of means times",
+# plus "per" and "each", which correlate with division and multiplication respectively and
+# decide neither.
 _KW_SHORTCUT = re.compile(
     r"\b(?:altogether|all together|in all|in total|left(?:\s+over)?|remain(?:s|ing)?|"
-    r"fewer|more)\b[\"'”’)]?\s*"
+    r"fewer|more|of|per|each|and|is)\b[\"'”’)]?\s*"
     r"(?:always\s+|usually\s+|just\s+)?means?\s+(?:you\s+|to\s+|we\s+)?"
     r"(?:add(?:ing|ition)?|plus|subtract(?:ing|ion)?|minus|take\s+away|"
-    r"multipl(?:y|ying|ication)|times|divid(?:e|ing)|division)\b", re.I)
+    r"multipl(?:y|ying|ication)|times|divid(?:e|ing)|division|equals?)\b", re.I)
+
+# BUILD gy -- RULE 61, THE FRACTION CASE. From the same audit, the fractions lesson:
+#     "So one fourth plus two fourths makes three fourths -- the bottom number never
+#      changes, we just add the top numbers."
+# For unlike denominators the bottom number DOES change, so as spoken that is a false
+# sentence, and it is the single most-documented misconception in fraction arithmetic.
+# What makes this enforceable where rule 61 generally is not: THE SAME LESSON SAYS IT
+# CORRECTLY THREE TIMES -- "Since the bottom numbers, the denominators, match...",
+# "same-bottom-number fractions...", "kept the bottom number three since the slices are
+# the same size". The tutor knows the condition and drops it. So the check is simply:
+# is the condition in the sentence or not?
+_R61_FRAC_CLAIM = re.compile(
+    r"\b(?:the\s+)?(?:bottom(?:\s+number)?|denominator)s?\b[^.!?]{0,40}?"
+    r"\b(?:never\s+chang|does\s*n[o']?t\s+chang|always\s+stays?|stays?\s+the\s+same|"
+    r"doesn'?t\s+move)\w*"
+    r"|\bjust\s+add\s+(?:up\s+)?the\s+top(?:\s+numbers?)?\b"
+    r"|\byou\s+(?:only\s+)?add\s+the\s+(?:top|numerator)s?\b", re.I)
+_R61_FRAC_CONDITION = re.compile(
+    r"\bsame\b|\bmatch(?:es|ing)?\b|\balike\b|\bequal\b|\blike\s+denominator|"
+    r"\bwhen\s+the\s+bottom|\bif\s+the\s+bottom|\bboth\s+.{0,20}\bfourths?\b|"
+    r"\bsame[- ]size\b|\bsame[- ]bottom", re.I)
+
+
+def fraction_rule_unconditioned(reply: str):
+    """Return a description of the like-denominator rule spoken as a universal law, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        for sent in re.split(r"(?<=[.!?])\s+", prose):
+            m = _R61_FRAC_CLAIM.search(sent)
+            if not m:
+                continue
+            if _R61_FRAC_CONDITION.search(sent):
+                continue                   # the condition is right there: correct teaching
+            return ('you say "{q}" with no condition attached. For fractions with DIFFERENT '
+                    "bottom numbers that sentence is false -- the denominator changes, and a "
+                    "child who believes it forever will add thirds to fourths by adding the "
+                    "tops. Rule 61: say the whole true sentence, and the condition costs six "
+                    'words -- "when the bottom numbers are the SAME, keep that bottom number '
+                    'and add the top numbers."').format(
+                        q=" ".join(sent[max(0, m.start() - 20):m.end() + 20].split())[:70])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[frac61] crashed (fail open): {exc}")
+        return ""
 
 
 def board_notation_conflict(reply: str):
@@ -3726,6 +3798,10 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         triletter = triangle_letter_conflict(reply)
         if triletter:
             return triletter
+        # build gy: EIGHTEENTH -- the like-denominator rule spoken as a universal (rule 61).
+        frac61 = fraction_rule_unconditioned(reply)
+        if frac61:
+            return frac61
         # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
         refused = refused_demonstration_conflict(reply, student_message)
         if refused:

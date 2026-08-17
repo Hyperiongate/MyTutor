@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  APP_BUILD -> "2026-08-17gy-audit-closed". ALL SIX CAUSES FROM THE DAY'S
+#               AUDIT ARE CLOSED. Five lesson-audit runs, ten lessons, 27 findings, triaged
+#               against their own transcripts (24 held, 1 rejected with its reason, 2 weak)
+#               and collapsed into six causes -- FIVE of which were places a referee we
+#               already owned failed to fire. Builds gt (board shapes), gu (rule 47's cold
+#               quiz, whose founding sentence had reappeared VERBATIM six days after the
+#               rule was written from it), gv (invented history), gw (the bare answer-demand
+#               and the decimal), gx (rule 65, show them when asked) and gy (a rule spoken
+#               as a law) close them. FOUR new referees (15-18), two new rules (64, 65),
+#               three rules moved COVERED -> ENFORCED (47, 54, and rule 61's fraction case),
+#               and one referee that had been REGENERATING TWO FOUNDATION SCRIPTS since it
+#               shipped -- found not by any audit but by the canonical sweep.
 #   2026-08-17  APP_BUILD -> "2026-08-17gx-show-them". NEW RULE 65 + the SEVENTEENTH
 #               referee, closing the fifth cause from the day's triage and the worst single
 #               thing in it: a child asked to be shown the square root of 169 and was told
@@ -7269,7 +7281,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17gx-show-them"
+APP_BUILD = "2026-08-17gy-audit-closed"
 
 
 @app.get("/health")

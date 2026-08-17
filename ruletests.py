@@ -2,6 +2,131 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-17  BUILD gy -- PART 3ar, A RULE SPOKEN AS A LAW. The sixth and last cause
+#               from the day's audit triage, and the one where the DISCRIMINATOR mattered
+#               more than the detector. Rule 54's banned list gains the rest of the classic
+#               bad mnemonic ("is means equals, of means times") plus of/per/each, without
+#               touching vocabulary -- "sum means addition" NAMES an operation and rule 37
+#               requires teaching it; "of means multiply" merely CORRELATES inside one
+#               problem type, and a child applies it to "3 out of 4". Rule 61's fraction
+#               case is born ENFORCED as the eighteenth referee, and it is only decidable
+#               because the same lesson states the condition correctly three times -- so
+#               the check is not "is this claim true?" but "is the condition in the
+#               sentence?". 16 cases both directions plus the 1,015-string canonical sweep,
+#               which is the test that matters here: the fraction library states this rule
+#               many times over and 0 of those statements fire. Rule 54 COVERED -> ENFORCED.
+#   2026-08-17  BUILD gx -- PART 3aq, A REQUEST TO BE SHOWN, REFUSED (rule 65, the
+#               seventeenth referee). The referee needs all three conditions together --
+#               they asked to be shown, nothing was worked out, and the job went straight
+#               back to them -- so the cases prove each one alone is silent. Rule 65's own
+#               remedy (working it, then handing over a NEW one) must pass, or the rule
+#               would be unfollowable.
+#   2026-08-17  BUILD gw -- PART 3ap, THE BARE ANSWER-DEMAND, THE DECIMAL, AND A REFEREE
+#               THAT FOUGHT US. Two audit findings turned out to be ONE defect: a board
+#               line with no "?" is invisible to rule 15's and rule 44's checks at once, so
+#               "What do you get?" over "2.6 + 1.35" slipped past both. Under it sat gk's
+#               fraction bug in decimal clothing -- the "1" of 1.35 found inside the word
+#               "one". ⭐ And the canonical sweep, run only to prove those fixes harmless,
+#               found a THIRD thing nobody had reported: gl's self-correction referee had
+#               been REGENERATING TWO FOUNDATION SCRIPTS since it shipped, because they say
+#               "hold on to this". No audit found that. The corpus did.
+#   2026-08-17  BUILD gv -- PART 3ao, THE INVENTED HISTORY. Seven claims about what had
+#               already happened that were untrue, split on whether a referee can check
+#               them: gm's narrated-method referee gains a TOTALITY branch (a "start to
+#               finish on your own" claim over a fragment) and is tested there both ways,
+#               while the false COUNTS ("you've now watched this move twice", said twice
+#               and false both times) get the [countclaim] PROBE instead -- a referee sees
+#               one reply and cannot count a conversation. Measure when you cannot verify.
+#   2026-08-17  BUILD gu -- COLD_QUIZ_CASES: RULE 47 STOPS BEING A WISH (the sixteenth
+#               referee). ⭐ The most damning find in the day's triage and the clearest
+#               argument this battery exists: the sentence "let's do it -- five questions,
+#               all on finding the percent of a number" was caught on 2026-08-11, rule
+#               47(d) was WRITTEN from it, and the tutor produced it again WORD FOR WORD on
+#               2026-08-17 -- because rule 47 was COVERED and nothing watched it. The cases
+#               include 47(d)'s own sanctioned remedy, which the first draft of the
+#               detector rejected. Rule 47 COVERED -> ENFORCED.
+#   2026-08-17  BUILD gt -- THREE MORE MALFORMED BOARD SHAPES (BOARD_NOTATION_CASES): an
+#               arrow after an equals sign, a question stuffed inside an equation, and a
+#               tautology. No judgement is required for any of the three, which is exactly
+#               why missing them mattered. Scoped to eq= so a caption may still ask.
+#   2026-08-17  BUILD gs -- PART 3an, THE UNIT FOLLOWS THE TEACHING. Jim reported the same
+#               symptom twice ("it still says unit one when we are talking about unit
+#               five") and BOTH earlier diagnoses were guesses. The chain is now asserted
+#               link by link -- the tutor's [[unitplan]] declaration is the authority, an
+#               explicit clicked focus still wins, _track_topic records the declaration and
+#               not placement, /api/session serves it as progress.current_unit, and the
+#               rail prefers it -- because breaking ANY one link brings the symptom back
+#               looking like a display bug. The half that cannot be enforced (does the
+#               declared unit match the content?) is left to the [unitdrift] probe.
+#   2026-08-17  BUILD gr -- PART 3am, THE SPOKEN LETTER AND THE SIGNED ANSWER. Two ways to
+#               ignore what a child actually said, both from one Geometry lesson of Jim's.
+#               The transcription half is guarded at the seam: a language hint is sent, and
+#               a 422 RETRIES WITHOUT IT, so a parameter can never silently break the
+#               microphone; the spoken-letter map applies only when a letter was expected.
+#               The signed half is rule 64 and the fifteenth referee -- it fires only when
+#               the reply affirms a signed answer, then uses the unsigned magnitude, and
+#               never mentions the sign, so the right answer ("both 5 and -5 square to 25,
+#               but a length can't be negative") passes.
+#   2026-08-17  BUILD gq -- PART 3al, THE OPENAI BOUNDARY: A PROMISE BECOMES A TEST. Sharing
+#               is ON in the dedicated audit project, which is safe for exactly one reason
+#               -- OpenAI is not in the teaching path, and every transcript it marks is
+#               synthetic. static/privacy.html promises three processors and says "to
+#               anyone, ever." So the build now FAILS if any teaching module so much as
+#               references OpenAI, and the failure text names the privacy promise. Proved
+#               by mutation: bolting a substitute-teacher fallback into tutor.py fails two
+#               checks immediately.
+#   2026-08-17  BUILD gp2 -- PART 3aj GAINS S7 (THE CONSOLE IS CLEAN) AND THE REAL POLICY.
+#               A CSP violation on every silent-WAV data: URI sat under the console lines
+#               we were reading. Nothing was broken -- the header ships report-only -- but
+#               silentWavUri() is BOTH the audio warm-up and the keep-alive, so on the day
+#               that header is enforced the voice regresses and nobody connects it to a
+#               security header. The harness now reads the REAL policy out of main.py, so
+#               the rig can reproduce the defect it was written to catch. Both ways: S7
+#               fires twice with media-src removed, silent with it present.
+#   2026-08-17  BUILD gp -- PART 3ak COVERS THE GOVERNOR'S FACE. go's first live night
+#               exposed two holes: the report was served nowhere but a one-line log count,
+#               and it COUNTED refutations without NAMING them -- so a reviewer quietly
+#               killing real defects looked identical to a healthy one. The status/report
+#               endpoints, the 30-night /admin card, the named dismissals and the
+#               near-ceiling warning are all held here. Losing rotation coverage silently
+#               is the one thing this must never do.
+#   2026-08-16  BUILD go -- PART 3ak, THE NIGHT WATCH. Everything that does NOT need an API
+#               key: the rotation, the ledger, the report, the email policy, restart-safety
+#               and above all the FAILURE paths. A governor is judged by what it does when
+#               the critic returns garbage, a lesson explodes, or the key is missing -- it
+#               must never confirm a finding it could not verify, never end a night over
+#               one bad lesson, and never let a silent cap read as "all clear".
+#   2026-08-16  BUILD gn2 -- CASE IS MEANING, AT THE SEAM. The lesson that TEACHES
+#               uppercase-vs-lowercase rendered its two lines identically. PART 3aj's seam
+#               check follows the renderer from VAR_SKIP to the CASE-SENSITIVE
+#               VAR_NEEDS_CONTEXT table, so the checker cannot go blind when that list
+#               moves. ⭐ The four regressions in the draft renderer (the article in "A
+#               **fact family** is", f and g through function-notation lessons, "(f o g)",
+#               "the highest point a thrown ball reaches") were caught by the 1,015-string
+#               canonical sweep and by NO hand-written fixture. Fixtures prove the logic;
+#               only a real corpus proves the premise.
+#   2026-08-16  BUILD gn -- PART 3aj (the screen auditor), LETTER_CASES (rule 63(d), the
+#               thirteenth referee) and UNIT_CLAIM_CASES (rule 0's recap clause, the
+#               fourteenth). All three come from ONE Geometry lesson Jim ran by hand.
+#               The unit one is the one worth re-reading: it LOOKED like a broken progress
+#               rail and was the opposite -- the rail was right and the tutor had invented
+#               "two days ago we started Unit 5" for a student whose record says "New to
+#               this course". A referee that judges a reply against a fact from OUTSIDE it
+#               is new here, so it is tested three ways: fires on the wrong unit, silent on
+#               the right one, and silent whenever the unit is unknown.
+#   2026-08-16  BUILD gn -- PART 3aj, THE SCREEN IS CHECKED TOO. Jim ran one Geometry
+#               lesson and found four defects by eye in the first turn -- a formula
+#               rendered "a squared plus B squared equals C squared", a triangle lettered
+#               on its CORNERS while the words named its LEGS, a rail saying Unit 1 under
+#               prose saying Unit 5, and a clipped header. Nothing we owned could have
+#               caught any of them: the referees read the reply, lessonaudit reads the
+#               transcript, and all four defects are born in the RENDER. PART 3aj runs
+#               screencheck.py's six screen checks -- 21 fixtures, both directions, all on
+#               real turns -- with no browser and no key, so they run on every push rather
+#               than when someone remembers. It also guards the two seams that would make
+#               the checker go SILENTLY blind: geo-figures.js's font metrics (17/800 for a
+#               vertex, 15/600 for a side -- the only way to tell a corner from a leg) and
+#               session.html's VAR_SKIP list.
 #   2026-08-16  BUILD gm -- RULE 43 GETS ITS ENFORCEMENT TESTED (18 new cases). Rule 43
 #               forbids narrating a method onto a bare right answer, and it was written on
 #               2026-08-13 from a live catch. On 2026-08-16 the audits caught the same
@@ -45,28 +170,6 @@
 #               naming it, giving a script a unit nobody teaches, filtering a heard script,
 #               altering a quoted script's words, and dropping a heard script from the
 #               refresher turn are all still caught.
-#   2026-08-16  BUILD gn -- PART 3aj (the screen auditor), LETTER_CASES (rule 63(d), the
-#               thirteenth referee) and UNIT_CLAIM_CASES (rule 0's recap clause, the
-#               fourteenth). All three come from ONE Geometry lesson Jim ran by hand.
-#               The unit one is the one worth re-reading: it LOOKED like a broken progress
-#               rail and was the opposite -- the rail was right and the tutor had invented
-#               "two days ago we started Unit 5" for a student whose record says "New to
-#               this course". A referee that judges a reply against a fact from OUTSIDE it
-#               is new here, so it is tested three ways: fires on the wrong unit, silent on
-#               the right one, and silent whenever the unit is unknown.
-#   2026-08-16  BUILD gn -- PART 3aj, THE SCREEN IS CHECKED TOO. Jim ran one Geometry
-#               lesson and found four defects by eye in the first turn -- a formula
-#               rendered "a squared plus B squared equals C squared", a triangle lettered
-#               on its CORNERS while the words named its LEGS, a rail saying Unit 1 under
-#               prose saying Unit 5, and a clipped header. Nothing we owned could have
-#               caught any of them: the referees read the reply, lessonaudit reads the
-#               transcript, and all four defects are born in the RENDER. PART 3aj runs
-#               screencheck.py's six screen checks -- 21 fixtures, both directions, all on
-#               real turns -- with no browser and no key, so they run on every push rather
-#               than when someone remembers. It also guards the two seams that would make
-#               the checker go SILENTLY blind: geo-figures.js's font metrics (17/800 for a
-#               vertex, 15/600 for a side -- the only way to tell a corner from a leg) and
-#               session.html's VAR_SKIP list.
 #   2026-08-14  BUILD gf -- PART 3ac READS THE DEADLINE WRAPPER. Build ga wrapped runTutor's
 #               three gates in withDeadline() so a gate that never settles cannot strand a
 #               student; PART 3ac read those three lines literally and started failing on
@@ -8765,6 +8868,110 @@ def part3aq_refused_demonstration():
 
 
 
+# =============================================================================
+# PART 3ar -- THE RULE SPOKEN AS A LAW (build gy)
+# =============================================================================
+# 2026-08-17, the sixth and last cause from the day's audit triage. Two shapes.
+#
+# RULE 54 -- "'of' means multiply", from the percents lesson. The banned list was STORY-CUE
+# words only, and "of" belongs there by that list's own logic: "sum" and "difference" NAME
+# their operations (vocabulary, which rule 37 requires teaching), while "of" merely
+# CORRELATES with multiplication inside one problem type. A child who learns it as a rule
+# applies it to "3 out of 4". Added with it: the rest of the classic bad mnemonic ("is
+# means equals, of means times"), plus "per" and "each".
+#
+# RULE 61 -- "the bottom number never changes, we just add the top numbers", from the
+# fractions lesson. False for unlike denominators, and the most documented misconception in
+# fraction arithmetic. Rule 61 is generally unenforceable -- "always" and "never" are often
+# TRUE ("a length is never negative", rule 64). What makes THIS case decidable is that the
+# same lesson says it correctly three separate times. The tutor knows the condition and
+# drops it, so the check is only: is the condition in the sentence or not?
+def part3ar_rule_spoken_as_law():
+    print("\nPART 3ar — a rule spoken as a law")
+
+    KW = [
+        ("the audit sentence: 'of' means multiply",
+         "We turned 20% into 0.20, then multiplied -- 'of' means multiply.", True),
+        ("the classic bad mnemonic, both halves",
+         "Remember: is means equals, and of means times.", True),
+        ("per means divide", "The word per means divide.", True),
+        ("each means multiply", "each means multiply", True),
+        ("the original story cues still fire", "altogether means add", True),
+        # ---- vocabulary is NOT a shortcut, and must stay legal ----
+        ("'sum' names its operation (rule 37 requires teaching it)",
+         "The word sum means addition -- that is its name.", False),
+        ("'difference' likewise", "Difference means subtraction.", False),
+        ("talking ABOUT a cue word stays legal",
+         "The word altogether tells us the story combines things.", False),
+        ("honest notation reading stays legal",
+         "The fraction bar means divide.", False),
+    ]
+    for name, text, should_flag in KW:
+        got = tutor.board_notation_conflict(text)
+        check(f"keyword-shortcut: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+
+    F61 = [
+        ("the audit sentence, unconditioned",
+         "So one fourth plus two fourths makes three fourths -- the bottom number never "
+         "changes, we just add the top numbers.", True),
+        ("'you only add the numerators', unconditioned",
+         "For these, you only add the numerators.", True),
+        # ---- the SAME lesson said it correctly three times: all must stay clean ----
+        ("the same lesson, said right (the denominators match)",
+         "Since the bottom numbers, the denominators, match, they stay the same -- just "
+         "like before.", False),
+        ("the same lesson, said right (same-bottom-number)",
+         "Three in a row -- same-bottom-number fractions add up the top numbers and keep "
+         "the bottom the same, every time.", False),
+        ("the same lesson, said right (the slices are the same size)",
+         "You added the top numbers, one plus one is two, and kept the bottom number three "
+         "since the slices are the same size.", False),
+        ("the condition stated up front",
+         "When the bottom numbers are the same, we keep that bottom number and add the top "
+         "numbers.", False),
+        ("ordinary fraction prose", "The denominator tells you how many equal pieces the "
+         "whole was cut into.", False),
+    ]
+    for name, text, should_flag in F61:
+        got = tutor.fraction_rule_unconditioned(text)
+        check(f"rule-61 fractions: {name}", bool(got) == should_flag,
+              f"expected flag={should_flag}, got: {got or '(clean)'}")
+        if should_flag:
+            check(f"rule-61 fractions: {name} (via prose_board_conflict)",
+                  bool(tutor.prose_board_conflict(text)),
+                  "the combined referee let it through")
+
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        skip("rule-spoken-as-law: canonical sweep", f"foundations unavailable: {exc}")
+        return
+    texts = []
+
+    def _walk(o):
+        if isinstance(o, str):
+            texts.append(o)
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    for nm in dir(_F):
+        if not nm.startswith("_"):
+            _walk(getattr(_F, nm))
+    # The fraction library is large and says the like-denominator rule many times. If the
+    # condition test is wrong, THIS is where it shows.
+    n61 = sum(1 for t in texts if tutor.fraction_rule_unconditioned(t))
+    check(f"rule-61 fractions: silent on all {len(texts)} canonical scripts", n61 == 0,
+          f"{n61} authored scripts would be regenerated -- the condition test is too strict")
+    nkw = sum(1 for t in texts if tutor.board_notation_conflict(t))
+    check(f"keyword-shortcut: silent on all {len(texts)} canonical scripts", nkw == 0,
+          f"{nkw} false alarms from the widened list")
+
+
+
 def main():
     if "--rules" in sys.argv:
         print("wrote", write_rules_index(os.path.join(
@@ -8818,6 +9025,7 @@ def main():
     part3ao_invented_history()
     part3ap_bare_demand_and_decimals()
     part3aq_refused_demonstration()
+    part3ar_rule_spoken_as_law()
     part3ai_deploy_stamp()
     if live:
         part4_live()
