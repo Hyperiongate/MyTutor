@@ -289,6 +289,14 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build il) THE TODAY BAR MAKES REAL CALLS. Jim's ruling: today =
+                progress AND honest work-time. [[todaydone]] may now carry
+                kind="worked" (a tick the SERVER earned from ~15 engaged minutes on
+                the time clock, vs a completed result); markTodayDone upgrades
+                worked->completed and never downgrades; renderTodayBar draws worked
+                segments with the new .pbseg.worked look (softer fill, dashed edge)
+                and per-segment tooltips; the server restore path applies the new
+                worked list from SRV_PROGRESS.today.
     2026-08-18  (build ik) THE TOUR RUNS ONCE, AND IT CAN BE SKIPPED. Jim's live
                 catch: tour -> placement -> return, and the whole introduction
                 played again ("toured" was inferred from lesson history, which the
@@ -1222,6 +1230,9 @@
     .pbar .pbseg.done { background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-color: transparent; }
     .pbar .pbseg.gold { background: linear-gradient(90deg, #f2c14e, #e8a71c); border-color: transparent; }
+    /* build il: a tick EARNED by honest work-time (kind="worked") — filled, but
+       softer than a completed one, with a dashed edge that says "work went in". */
+    .pbar .pbseg.worked { background: linear-gradient(90deg, #a9c1f4, #c4b3ee); border: 1px dashed var(--accent); }
     .pbar .pbmark { flex: 0 0 auto; font-size: 11px; line-height: 1; opacity: .85; }
     .pbar .pbmark.done { opacity: 1; }
     .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
@@ -2381,13 +2392,24 @@
       renderTodayBar();
     }
     function markTodayDone(a) {
+      // build il (Jim's ruling: today = progress AND honest work-time): the tag may
+      // carry kind="worked" -- a tick EARNED by ~15 engaged minutes of real work,
+      // marked by the SERVER from the time clock. A completed tick (no kind, or
+      // kind="completed") always upgrades a worked one; nothing ever un-ticks.
       const n = parseInt(a.n, 10) || 0;
-      if (n >= 1 && n <= TODAY_DONE.length) { TODAY_DONE[n - 1] = true; renderTodayBar(); }
+      if (n >= 1 && n <= TODAY_DONE.length) {
+        const worked = String(a.kind || "").toLowerCase() === "worked";
+        if (!(worked && TODAY_DONE[n - 1] === true)) TODAY_DONE[n - 1] = worked ? "worked" : true;
+        renderTodayBar();
+      }
     }
     function renderTodayBar() {
       if (!TODAY_ITEMS.length) return;
       const t = el("todayTrack"); t.innerHTML = "";
-      TODAY_ITEMS.forEach((item, i) => t.appendChild(seg(TODAY_DONE[i] ? "done" : "", item)));
+      TODAY_ITEMS.forEach((item, i) => t.appendChild(seg(
+        TODAY_DONE[i] === "worked" ? "worked" : (TODAY_DONE[i] ? "done" : ""),
+        item + (TODAY_DONE[i] === "worked" ? " — real work went into this one!"
+               : (TODAY_DONE[i] ? " — finished!" : "")))));
       const done = TODAY_DONE.filter(Boolean).length;
       el("todayText").textContent = done >= TODAY_ITEMS.length
         ? "🎉 All of today's goals — done!"
@@ -3277,9 +3299,12 @@
             && !TODAY_ITEMS.length) {
           TODAY_ITEMS = SRV_PROGRESS.today.items.slice(0, 8);
           TODAY_DONE = TODAY_ITEMS.map(() => false);
+          // build il: worked-ticks (earned by engaged time) restore with their own look.
+          const _worked = {};
+          (SRV_PROGRESS.today.worked || []).forEach(n => { _worked[parseInt(n, 10)] = true; });
           (SRV_PROGRESS.today.done || []).forEach(n => {
             const i = parseInt(n, 10) - 1;
-            if (i >= 0 && i < TODAY_DONE.length) TODAY_DONE[i] = true;
+            if (i >= 0 && i < TODAY_DONE.length) TODAY_DONE[i] = _worked[i + 1] ? "worked" : true;
           });
           renderTodayBar();
         }

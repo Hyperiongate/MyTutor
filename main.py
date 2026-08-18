@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18il-today-earns-its-bar". BUILD il -- THE
+#               TODAY BAR MAKES REAL CALLS (Jim's design ruling, same night as his
+#               catch: quiz + whole unit completed, Today bar never moved). "Today
+#               = how much time did they spend working AND how much progress did
+#               they make; the app needs to make some type of call." The bar's
+#               advance was model-judgment (wish-tier); the SERVER now makes both
+#               calls from facts it holds: _today_match_tick (a recorded quiz/check
+#               whose name matches an unfinished item -> COMPLETED tick, called from
+#               build hu's writer) and _today_time_tick (every ~15 engaged minutes
+#               on the time clock -> a WORKED tick on the first unfinished item,
+#               called from the minute beat -- the struggling-hour principle).
+#               _ensure_today_ticks appends [[todaydone n kind]] for any server tick
+#               the page hasn't seen (net pattern, both chat paths, and the
+#               augmented reply is what history remembers). store.today_goals grows
+#               the worked notion ("3w" entries, back-compatible); /api/session's
+#               today payload carries it; session.html renders worked segments
+#               distinctly; prompts teach 10-15-minute item sizing and
+#               trust-the-server. Completed outranks worked; nothing un-ticks.
+#               PART 3cc.
 #   2026-08-18  APP_BUILD -> "2026-08-18ik-tour-once". BUILD ik -- THE TOUR RUNS
 #               ONCE, AND IT CAN BE SKIPPED. Jim's live catch as a brand-new
 #               student: tour -> placement test -> "start you in unit two, ready?"
@@ -5038,6 +5057,9 @@ def heartbeat(req: HeartbeatRequest):
     except Exception as exc:  # noqa: BLE001
         print(f"[time] record_minutes failed: {exc}")
         return {"ok": True, "counted": False}
+    # build il: honest engaged time earns today-bar ticks (Jim's struggling-hour
+    # principle) -- checked on the same beat that just counted the minute.
+    _today_time_tick(code, (req.course or "algebra1").strip())
     return {"ok": True, "counted": True}
 
 
@@ -8237,6 +8259,8 @@ def _record_result_tags(code: str, course: str, reply: str,
                                        curriculum.unit_name(course, unit), course)
                     _keep_misses(code, course, unit, 0, "check", missed, correct, total)
                 _ledger_mark(code, course, "check", unit, 0, pct)
+                # build il: a recorded check may complete a today item (the server's call)
+                _today_match_tick(code, course, curriculum.unit_name(course, unit))
             elif kind == "quiz":
                 unit = int(float(attrs.get("unit") or 0))
                 if not (1 <= unit <= 9):
@@ -8248,6 +8272,9 @@ def _record_result_tags(code: str, course: str, reply: str,
                                             topic_idx=topic)
                     _keep_misses(code, course, unit, topic, "quiz", missed, correct, total)
                 _ledger_mark(code, course, "quiz", unit, topic, pct)
+                # build il: a recorded quiz may complete a today item (the server's call)
+                _today_match_tick(code, course,
+                                  name or curriculum.unit_name(course, unit))
             elif kind == "finalexam":
                 if not final_allowed:
                     # a final tag outside an exam turn is itself a finding
@@ -8460,7 +8487,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18ik-tour-once"
+APP_BUILD = "2026-08-18il-today-earns-its-bar"
 
 
 @app.get("/health")
@@ -8963,6 +8990,117 @@ def _record_today_bar(code: str, course: str, reply: str) -> None:
         print(f"[today] recording failed: {exc}")
 
 
+# =============================================================================
+# THE TODAY BAR MAKES REAL CALLS (2026-08-18, build il -- Jim's design ruling).
+# -----------------------------------------------------------------------------
+# Jim, after a session where he finished a QUIZ and a whole UNIT while the Today
+# bar sat empty: "today needs to be a combination of how much time did they spend
+# working and how much progress did they make... a struggling hour is a good
+# day's work; a two-minute completion is not... the app needs to make some type
+# of call." The bar's ADVANCE used to be pure model judgment ([[todaydone]] --
+# wish-tier, sitting beside unit progress that build hu promoted to machinery).
+# Now the SERVER makes both calls Jim named, from facts it already holds:
+#   COMPLETION -- when build hu's writer records a quiz/check result, the result's
+#     name is matched against the plan's unfinished items (word overlap, stopwords
+#     out); a clear match ticks that item as COMPLETED.
+#   HONEST WORK-TIME -- the engaged-minutes clock (time_daily; idle never counts)
+#     earns a WORKED tick: every ~15 engaged minutes today entitles the day to one
+#     more tick, applied to the first unfinished item. A struggling hour fills the
+#     bar; a two-minute whiz-through lights one segment and leaves the rest.
+# Ticks reach the page deterministically: _ensure_today_ticks appends a
+# [[todaydone n kind]] tag for any server-marked tick the page hasn't seen (the
+# same net pattern as ensure_today_tag). The model's own [[todaydone]] stays
+# welcome -- the server merely guarantees the bar can never sit frozen through a
+# day of real work again. Completed outranks worked; nothing ever un-ticks.
+# =============================================================================
+_TODAY_TICK_MINUTES = 15          # one earned tick per this many engaged minutes
+_TODAY_MATCH_STOP = {"the", "a", "an", "and", "or", "of", "to", "our", "your", "with",
+                     "on", "in", "for", "one", "two", "three", "quiz", "check", "try",
+                     "own", "problems", "problem", "practice", "finish", "start",
+                     "more", "new", "next", "first", "second", "unit", "topic"}
+
+
+def _today_words(text: str) -> set:
+    return {w for w in re.findall(r"[a-z]{3,}", str(text or "").lower())
+            if w not in _TODAY_MATCH_STOP}
+
+
+def _today_match_tick(code: str, course: str, name: str) -> None:
+    """A result named `name` was just RECORDED -- if it clearly matches one
+    unfinished today item, tick that item as COMPLETED. Never raises."""
+    try:
+        if not store.enabled() or not code or not name:
+            return
+        goals = store.get_today_goals(code, course)
+        items = goals.get("items") or []
+        if not items:
+            return
+        completed = set(goals.get("done") or []) - set(goals.get("worked") or [])
+        rwords = _today_words(name)
+        if not rwords:
+            return
+        best, best_overlap = 0, 0
+        for i, item in enumerate(items, start=1):
+            if i in completed:
+                continue
+            overlap = len(rwords & _today_words(item))
+            if overlap > best_overlap:
+                best, best_overlap = i, overlap
+        if best and best_overlap >= 1:
+            store.save_today_goals(code, course, done=[best])
+    except Exception as exc:  # noqa: BLE001 -- a bar is never worth failing a turn
+        print(f"[today] match-tick failed: {exc}")
+
+
+def _today_time_tick(code: str, course: str) -> None:
+    """Every ~{_TODAY_TICK_MINUTES} engaged minutes today earns the day one more
+    tick (kind WORKED) on the first unfinished item -- Jim's struggling-hour
+    principle. Called from the minute beat. Never raises."""
+    try:
+        if not store.enabled() or not code:
+            return
+        goals = store.get_today_goals(code, course)
+        items = goals.get("items") or []
+        done = set(goals.get("done") or [])
+        if not items or len(done) >= len(items):
+            return
+        today = store._today()
+        minutes = sum(r["minutes"] for r in store.get_time(code, days=2)
+                      if r["day"] == today and r["course"] == course)
+        if minutes >= _TODAY_TICK_MINUTES * (len(done) + 1):
+            nxt = next((i for i in range(1, len(items) + 1) if i not in done), 0)
+            if nxt:
+                store.save_today_goals(code, course, worked=[nxt])
+    except Exception as exc:  # noqa: BLE001
+        print(f"[today] time-tick failed: {exc}")
+
+
+def _ensure_today_ticks(code: str, course: str, history, reply: str) -> str:
+    """Append a [[todaydone]] tag for every server-marked tick the page has not
+    been shown yet -- the deterministic net that keeps the bar honest across the
+    whole conversation. Never raises; on any doubt the reply passes untouched."""
+    try:
+        if not store.enabled() or not code or not reply:
+            return reply
+        goals = store.get_today_goals(code, course)
+        done = goals.get("done") or []
+        if not done:
+            return reply
+        seen_text = " ".join(str(m.get("content", "")) for m in (history or [])
+                             if m.get("role") == "assistant") + " " + reply
+        shown = {int(n) for n in _TODAYDONE_TAG_RE.findall(seen_text)}
+        worked = set(goals.get("worked") or [])
+        extra = ""
+        for n in done:
+            if n not in shown:
+                kind = "worked" if n in worked else "completed"
+                extra += ' [[todaydone n="%d" kind="%s"]]' % (n, kind)
+        return (reply.rstrip() + extra) if extra else reply
+    except Exception as exc:  # noqa: BLE001
+        print(f"[today] tick net failed: {exc}")
+        return reply
+
+
 def _foundations_heard(code: str, course: str) -> list:
     """The canonical terms this student has already been introduced to in this course."""
     try:
@@ -9438,8 +9576,11 @@ def chat(req: ChatRequest):
                 "that unit from where their mastery actually stands.)")
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         _record_learned(code, req.course, reply)
-        _record_today_bar(code, req.course, reply)
         _record_result_tags(code, req.course, reply)   # build hu: openers can carry tags too
+        # build il: recording first, then the tick net -- so a result that just
+        # completed a today item reaches the page in this same reply.
+        reply = _ensure_today_ticks(code, req.course, history, reply)
+        _record_today_bar(code, req.course, reply)
         # build hk: the junk-strip is re-applied to the FRESH history inside the
         # atomic transform (idempotent), then the opener's reply is appended -- so an
         # opener racing a typed first message can no longer erase it.
@@ -9457,10 +9598,14 @@ def chat(req: ChatRequest):
     reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course,
                                                     code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)
-    _record_today_bar(code, req.course, reply)
     # build hu (Class E): the SERVER records the reply's own result tags -- the
     # client's POST is only an echo now (see the note above post_final).
     _record_result_tags(code, req.course, reply, final_allowed=(final_mode == "exam"))
+    # build il: recording first, then the tick net -- a result that just completed
+    # a today item (or work-time earned since last turn) reaches the page in THIS
+    # reply's tags, and the augmented reply is what history remembers below.
+    reply = _ensure_today_ticks(code, req.course, history, reply)
+    _record_today_bar(code, req.course, reply)
     # build gj: measure rule 37 -- a term with a written script, used without it.
     _record_unintroduced(code, req.course, reply, history)
 

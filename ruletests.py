@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD il -- PART 3cc, THE TODAY BAR MAKES REAL CALLS: pins the two
+#               server calls and their wiring (match-tick in the quiz AND check
+#               recording branches; time-tick on the minute beat; the injection net
+#               on BOTH chat paths after recording), the page's two-kinds rendering
+#               with the upgrade guard, the prompt's sizing + trust-the-server
+#               words, and a full live drill (completion match, the 15-minute
+#               worked tick, net idempotence, upgrade-not-downgrade, old-row
+#               compatibility).
 #   2026-08-18  BUILD ik -- PART 3cb, THE TOUR RUNS ONCE: pins the tours_seen store
 #               fact (+ reset-cascade membership), the record-before-model-call
 #               ordering on __tour_done__, the OR into /api/session's toured flag,
@@ -12529,6 +12537,103 @@ def part3cb_tour_once():
               verdict.get("ok") is True, f"{verdict}")
 
 
+# =============================================================================
+# PART 3cc -- THE TODAY BAR MAKES REAL CALLS (build il)
+# -----------------------------------------------------------------------------
+# Jim's design ruling, the same night as his catch (quiz + whole unit completed,
+# Today bar never moved): "today = how much time did they spend working AND how
+# much progress did they make... the app needs to make some type of call." The
+# bar's advance was wish-tier model judgment; the server now makes both calls
+# from facts it holds. This drill runs the WHOLE mechanism on a live store.
+# =============================================================================
+_IL_DRILL = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+import store, main
+ok = {}
+store.save_today_goals("0000", "basic",
+                       items=["fractions warmup", "comparing decimals quiz", "money problems"])
+main._today_match_tick("0000", "basic", "comparing decimals")
+g = store.get_today_goals("0000", "basic")
+ok["completion_match_ticks"] = g["done"] == [2] and g["worked"] == []
+main._today_match_tick("0000", "basic", "graphing parabolas")
+ok["no_match_stays_quiet"] = store.get_today_goals("0000", "basic")["done"] == [2]
+for _ in range(16): store.record_minutes("0000", "basic")
+main._today_time_tick("0000", "basic")
+ok["16min_with_1_tick_no_tick"] = store.get_today_goals("0000", "basic")["done"] == [2]
+for _ in range(15): store.record_minutes("0000", "basic")
+main._today_time_tick("0000", "basic")
+g = store.get_today_goals("0000", "basic")
+ok["31min_earns_worked_tick"] = g["done"] == [1, 2] and g["worked"] == [1]
+r = main._ensure_today_ticks("0000", "basic", [], "Great work today!")
+ok["net_injects_both_kinds"] = ('[[todaydone n="1" kind="worked"]]' in r
+                               and '[[todaydone n="2" kind="completed"]]' in r)
+hist = [{"role": "assistant", "content": r}]
+ok["net_idempotent"] = "todaydone" not in main._ensure_today_ticks("0000", "basic", hist, "Next!")
+main._today_match_tick("0000", "basic", "fractions")
+g = store.get_today_goals("0000", "basic")
+ok["completion_upgrades_worked"] = g["done"] == [1, 2] and g["worked"] == []
+main._today_time_tick("9999", "basic"); main._today_match_tick("9999", "basic", "anything")
+ok["no_plan_all_silent"] = main._ensure_today_ticks("9999", "basic", [], "hi") == "hi"
+store._upsert("today_goals", {"code": "1111", "course": "basic", "day": store._today()},
+              {"items": "a|b", "done": "2", "updated_at": store._now()})
+g = store.get_today_goals("1111", "basic")
+ok["old_rows_parse_unchanged"] = g["done"] == [2] and g["worked"] == []
+ok["ok"] = all(v is True for v in ok.values())
+print(json.dumps(ok))
+"""
+
+
+def part3cc_today_calls():
+    print("\nPART 3cc — the today bar makes real calls (build il)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    hsrc = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("both server calls exist and are wired to their fact sources",
+          "def _today_match_tick(" in msrc and "def _today_time_tick(" in msrc
+          and msrc.count("_today_match_tick(code, course,") >= 2      # quiz AND check branches
+          and "_today_time_tick(code, (req.course" in msrc,           # the minute beat
+          "the bar's advance is a wish again -- Jim's catch ships forever")
+    check("the tick net runs on BOTH chat paths, after recording",
+          msrc.count("reply = _ensure_today_ticks(code, req.course, history, reply)") == 2,
+          "a server tick exists that no page will ever see")
+    check("the page renders worked ticks distinctly and never downgrades",
+          'kind="worked"' in hsrc.lower() or '"worked"' in hsrc,
+          "the two kinds Jim chose collapsed back into one")
+    check("  ...with the worked style and the upgrade guard",
+          ".pbseg.worked" in hsrc and 'TODAY_DONE[n - 1] === true' in hsrc,
+          "a completed star can be downgraded by a time tick")
+    check("the prompt teaches sizing and trust-the-server",
+          "SIZE THE PLAN LIKE A REAL DAY" in psrc
+          and "THE SERVER MAKES CALLS TOO" in psrc,
+          "the model fights the bar or pads the plan with two-minute trivia")
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("il live drill", "sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "il.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_IL_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "il.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("il live drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("completion-match, the 15-minute worked tick, the injection net, "
+              "upgrade-not-downgrade, and old-row compatibility all hold live",
+              verdict.get("ok") is True, f"{verdict}")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13013,6 +13118,7 @@ def main():
     part3bz_repeat_question()
     part3ca_back_reference()
     part3cb_tour_once()
+    part3cc_today_calls()
     part3ai_deploy_stamp()
     if live:
         part4_live()

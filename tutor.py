@@ -1838,7 +1838,13 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # trimmed to duck a tripwire, and each raise gets its own dated note (this is it).
 # Jim's queued two-prompt-sizes run remains the evidence that should set this
 # number properly.
-PROMPT_CEILING = 184_000
+# 2026-08-18 (build il): RAISED 184,000 -> 186,000. The Today-bar ruling's teaching
+# text (item sizing + trust-the-server, Jim's own design) measured the all-heard
+# algebra2 prompt at 184,797. This is TEACHING, not referee bookkeeping, so the
+# hr discipline applies: raise deliberately with a dated note, never trim. The
+# experiment's SMALL result is already in (7 findings); the LARGE result, when Jim
+# delivers it, is the evidence that should finally set this number.
+PROMPT_CEILING = 186_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:

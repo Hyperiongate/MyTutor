@@ -2,6 +2,13 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD il -- THE TODAY BAR'S WORKED TICKS. today_goals grows Jim's
+#               "honest work-time counts" notion: done entries may now be "3w"
+#               (a WORKED tick, earned by engaged minutes) beside plain "3"
+#               (COMPLETED). get_today_goals returns the new "worked" list; old
+#               plain-int rows parse unchanged; save_today_goals(worked=[...])
+#               merges with completed-outranks-worked (a finish upgrades the tick,
+#               time never downgrades it). Same column, no migration.
 #   2026-08-18  BUILD ik -- THE TOUR IS A RECORDED FACT. Jim's live catch: tour ->
 #               placement -> return, and the whole introduction played again,
 #               because "toured" was INFERRED from lesson history and the tour
@@ -1553,7 +1560,11 @@ def purge_usage_log(days: int = 180) -> int:
 # The TODAY bar's contents, so it survives a page reload the way the UNIT and COURSE
 # bars already do. Scoped to one day: yesterday's goals are never shown as today's.
 def get_today_goals(code: str, course: str, day: str = "") -> dict:
-    """{"day","items":[...],"done":[1-based ints]} for that day, or {} if none.
+    """{"day","items":[...],"done":[1-based ints],"worked":[subset of done]} for that
+    day, or {} if none. `worked` (build il, Jim's ruling: "how much time did they
+    spend working AND how much progress did they make") marks ticks earned by
+    sustained honest work-time rather than a completed result -- stored as "3w"
+    entries in the same done column, so old plain-int rows parse unchanged.
     Returns {} on any storage problem -- this must never block a lesson from loading."""
     from sqlalchemy import select
     try:
@@ -1570,23 +1581,32 @@ def get_today_goals(code: str, course: str, day: str = "") -> dict:
         items = [x.strip() for x in str(r[0] or "").split("|") if x.strip()]
         if not items:
             return {}
-        done = []
+        done, worked = [], []
         for piece in str(r[1] or "").split(","):
-            piece = piece.strip()
+            piece = piece.strip().lower()
+            is_worked = piece.endswith("w")
+            if is_worked:
+                piece = piece[:-1]
             if piece.isdigit() and 1 <= int(piece) <= len(items):
                 done.append(int(piece))
-        return {"day": d, "items": items, "done": sorted(set(done))}
+                if is_worked:
+                    worked.append(int(piece))
+        return {"day": d, "items": items, "done": sorted(set(done)),
+                "worked": sorted(set(worked))}
     except Exception as exc:  # noqa: BLE001
         print(f"[today] read failed for {code}/{course}: {exc}")
         return {}
 
 
-def save_today_goals(code: str, course: str, items=None, done=None, day: str = "") -> bool:
+def save_today_goals(code: str, course: str, items=None, done=None, day: str = "",
+                     worked=None) -> bool:
     """Record today's goal list and/or which of them are finished.
 
-    `items` replaces the list (a new [[today]] tag = a new plan). `done` is MERGED with
-    whatever is already marked, because [[todaydone]] arrives one at a time and a later
-    turn must never un-tick an earlier win. Either may be omitted. Never raises."""
+    `items` replaces the list (a new [[today]] tag = a new plan). `done` (completed)
+    and `worked` (build il: earned by sustained honest work-time) are MERGED with
+    whatever is already marked, because ticks arrive one at a time and a later turn
+    must never un-tick an earlier win. A COMPLETED tick outranks a worked one for the
+    same item (a finish upgrades the star; time never downgrades it). Never raises."""
     try:
         d = (day or "").strip() or _today()
         if not code or not course:
@@ -1597,12 +1617,22 @@ def save_today_goals(code: str, course: str, items=None, done=None, day: str = "
             return False
         if items and current.get("items") and list(items) != current.get("items"):
             merged_done = sorted(set(int(x) for x in (done or [])))     # new plan, fresh ticks
+            merged_worked = sorted(set(int(x) for x in (worked or [])))
         else:
             merged_done = sorted(set(list(current.get("done") or [])
-                                     + [int(x) for x in (done or [])]))
+                                     + [int(x) for x in (done or [])]
+                                     + [int(x) for x in (worked or [])]))
+            prior_worked = set(current.get("worked") or [])
+            prior_completed = set(current.get("done") or []) - prior_worked
+            newly_completed = set(int(x) for x in (done or []))
+            merged_worked = sorted((prior_worked | set(int(x) for x in (worked or [])))
+                                   - prior_completed - newly_completed)
         merged_done = [n for n in merged_done if 1 <= n <= len(new_items)]
+        merged_worked = [n for n in merged_worked if n in merged_done]
         _upsert("today_goals", {"code": code, "course": course, "day": d},
-                {"items": "|".join(new_items), "done": ",".join(str(n) for n in merged_done),
+                {"items": "|".join(new_items),
+                 "done": ",".join(str(n) + ("w" if n in merged_worked else "")
+                                  for n in merged_done),
                  "updated_at": _now()})
         return True
     except Exception as exc:  # noqa: BLE001
