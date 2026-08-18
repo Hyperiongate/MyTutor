@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS id/ie/if -- PARTs 3bu/3bv/3bw, the promotion batch (the
+#               audit's Tier A): rule 42 comparisons (kindness form included; own-
+#               work comparisons exempt), rule 60(c) one spotlight (tour stops
+#               exempt), rule 16 substitution-rewrites (both 2026-08-07 catches
+#               verbatim; quoted VALUES judged, never the attr syntax's '='), and
+#               the Ground Rules' STAY IN ROLE leak shapes (math "rules" and the
+#               math "not allowed" untouched). Four-referee canonical sweep;
+#               RULE_VERIFY 16/42/60 -> ENFORCED. COVERED count 30 -> 27.
 #   2026-08-18  BUILDS ia/ib/ic -- PARTs 3br/3bs/3bt, the quiz-honesty trio from one
 #               live quiz run: 3br (rule 47e -- the untaught acute/right/obtuse
 #               choice, verbatim, plus the taught / teach-in-reply / no-history
@@ -3751,7 +3759,11 @@ RULE_VERIFY = {
     13: ("ENFORCED",  "mathcheck re-computes the claim with SymPy"),
     14: ("COVERED",   "define every notation on first use (see also rule 48, ENFORCED)"),
     15: ("ENFORCED",  "prose_pending_question_conflict regenerates a question with no board line"),
-    16: ("COVERED",   "a substitution question re-writes its equation"),
+    16: ("ENFORCED",  "a substitution question re-writes its equation (build ie, the "
+                      "27th referee, from both 2026-08-07 live catches): "
+                      "substitution_rewrite_conflict rejects a plug-in/check ask -- "
+                      "or the spoken phrase 'the original equation' -- when the reply "
+                      "writes no REAL equation (a bare 'x = 4' is not one). PART 3bv"),
     17: ("ENFORCED",  "prose_answered_question_conflict: a question the reply's own board "
                       "already answers is regenerated (build dh)"),
     18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board"),
@@ -3781,7 +3793,12 @@ RULE_VERIFY = {
     39: ("ENFORCED",   "talk less, check in often, make the check failable"),
     40: ("EXERCISED", "ask before repeating an introduction"),
     41: ("ENFORCED",  "PART 3c fails any figure shipped without a caption"),
-    42: ("COVERED",   "never compare this student to anyone but this student"),
+    42: ("ENFORCED",  "never compare this student to anyone but this student (build "
+                      "id, the 25th referee): student_compare_conflict rejects 'most "
+                      "kids', 'other students', age norms, classmates, averages, "
+                      "grade levels and percentiles -- the kind-sounding comfort "
+                      "form included, per the rule's own text. Comparisons to the "
+                      "student's OWN earlier work pass untouched. PART 3bu"),
     43: ("COVERED",   "you perceive exactly two things"),
     44: ("ENFORCED",  "prose_unspoken_problem_conflict: a board problem the spoken words "
                       "never read is regenerated (build dh; sharpened in eq after six "
@@ -3843,11 +3860,14 @@ RULE_VERIFY = {
                       "foundation script, spoken verbatim). Live replies remain prompt-"
                       "covered: mathcheck cannot see an overgeneralization because there "
                       "is no arithmetic in the word 'always'"),
-    60: ("COVERED",   "the board spotlight (build ee): the MECHANISM is machine-checked "
+    60: ("ENFORCED",  "the board spotlight (build ee): the MECHANISM is machine-checked "
                       "-- PART 3t asserts all three teaching pages implement "
                       "spotlightBoard with the line+board keys, the .stepglow CSS, and "
-                      "a turn-start clear -- and the when-to-use half (one per reply, "
-                      "words still say the where) is prompt-covered"),
+                      "a turn-start clear. 60(c)'s one-per-reply half is ENFORCED "
+                      "(build id, the 26th referee): spotlight_count_conflict rejects "
+                      "a second line/board spotlight; the tour's page stops stay "
+                      "exempt (PART 3bu). The when-to-USE judgment stays "
+                      "prompt-covered"),
     62: ("COVERED",   "you may only point at work that happened (build ex; from the "
                       "2026-08-12 audits: 'the way we did a minute ago' for factoring "
                       "that never happened). PART 3ab pins the check-the-board-and-"
@@ -11971,6 +11991,160 @@ def part3bt_angle_on_board():
           "supplements lost their picture")
 
 
+# =============================================================================
+# PARTs 3bu / 3bv / 3bw -- THE PROMOTION BATCH (builds id/ie/if)
+# -----------------------------------------------------------------------------
+# 2026-08-18 night. Jim: "we're still in whack-a-mole mode." The promotion audit
+# (project doc Promotion_Audit_30_Covered_Rules_2026-08-18.md) sorted the thirty
+# words-only rules; these are its Tier A -- promotable with nothing but the reply
+# in hand. Rules 42, 60(c), 16 and 4 stop being wishes here.
+# =============================================================================
+def part3bu_compare_and_spots():
+    print("\nPART 3bu — never compared, one spotlight (build id, rules 42 + 60c)")
+    import tutor
+    for name, s in (
+        ("the kindness form", "Don't worry — most kids find this hard at first."),
+        ("praise against others", "You're doing better than other students I work with."),
+        ("age norm", "Kids your age usually take longer on this."),
+        ("percentile + grade level", "That puts you in the 80th percentile for your grade level."),
+        ("classmates", "Your classmates would struggle with this one."),
+    ):
+        check(f"  42 fires: {name}", bool(tutor.student_compare_conflict(s)),
+              "a student is being measured against a room they cannot see")
+    for name, s in (
+        ("their OWN earlier work (rule 42a)",
+         "Three weeks ago this exact kind of problem stopped you, and you just did two in a row."),
+        ("their own best score", "You beat your own best score from last week!"),
+        ("comparing METHODS, not students",
+         "Let's compare the two methods side by side on the board."),
+        ("people-in-general normalizing",
+         "Many people find fractions tricky at first — let's take it slow."),
+    ):
+        check(f"  42 silent: {name}", not tutor.student_compare_conflict(s),
+              "false alarm -- this regenerates good teaching")
+    check("  42 fires via the sweep",
+          "Rule 42" in str(tutor.prose_board_conflict(
+              "Don't worry — most kids find this hard at first.")),
+          "the referee exists but the sweep never calls it")
+    check("  60c fires: two teaching spotlights",
+          bool(tutor.spotlight_count_conflict(
+              'Look here. [[highlight id="line"]] And here! [[highlight id="board"]]')),
+          "a board where everything glows is back")
+    check("  60c silent: one spotlight",
+          not tutor.spotlight_count_conflict('Look here. [[highlight id="line"]]'),
+          "the normal single spotlight is being punished")
+    check("  60c silent: spotlight plus its own clear",
+          not tutor.spotlight_count_conflict(
+              '[[highlight id="line"]] ... [[highlight id="none"]]'),
+          "id=none is the CLEAR, not a second light")
+    check("  60c silent: the opening tour's page stops (exempt by the rule)",
+          not tutor.spotlight_count_conflict(
+              '[[highlight id="signup-card"]] then [[highlight id="videos"]]'),
+          "the tour is allowed several stops -- the rule's own parenthesis")
+
+
+def part3bv_substitution_rewrite():
+    print("\nPART 3bv — a substitution ask writes its equation (build ie, rule 16)")
+    import tutor
+    check("  fires: live catch 1 (plug-in ask, board shows only a bare value)",
+          bool(tutor.substitution_rewrite_conflict(
+              'Now plug 4 back into the equation. What do you get? [[write text="x = 4"]]')),
+          "the 2026-08-07 catch ships again -- the equation exists only in the words")
+    check("  fires: live catch 2 (speaks 'the original equation', shows no equation)",
+          bool(tutor.substitution_rewrite_conflict(
+              'Plug five back into the original equation on the board. '
+              '[[write text="Check: 5(5) - 3"]]')),
+          "the phrase 'the original equation' is spoken over a board that lacks it")
+    check("  fires: the ask with no board tags at all",
+          bool(tutor.substitution_rewrite_conflict(
+              "Substitute 3 in for x and tell me what you get.")),
+          "an invisible equation is an unanswerable question")
+    check("  silent: the full equation IS written in the same reply",
+          not tutor.substitution_rewrite_conflict(
+              'Now plug 4 back into the equation. [[write text="2x + 5 = 13"]] '
+              '[[write text="x = 4"]] What do you get?'),
+          "the rule's own prescribed fix is being rejected"),
+    check("  silent: a step tag carries the equation",
+          not tutor.substitution_rewrite_conflict(
+              'Substitute u = x + 1 to simplify. [[step eq="u + 3 = 7"]]'),
+          "false alarm on the compliant shape")
+    check("  silent: no substitution ask anywhere",
+          not tutor.substitution_rewrite_conflict(
+              "Great — now try the next problem on your own."),
+          "the referee fires without its trigger")
+    # The sweep rejects this draft either way -- rule 15's pending-line referee
+    # legitimately reaches it FIRST (the same reply violates both rules), so the
+    # wiring is pinned in source and the sweep is asserted to fire at all.
+    check("  the sweep rejects the draft (rule 15 or 16 -- both are violated)",
+          bool(tutor.prose_board_conflict(
+              'Now plug 4 back into the equation. What do you get? [[write text="x = 4"]]')),
+          "the vulnerable draft passes the whole sweep")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        check("  and the referee is wired into the sweep",
+              "substitution_rewrite_conflict(reply)" in fh.read(),
+              "the referee exists but prose_board_conflict never calls it")
+
+
+def part3bw_stay_in_role():
+    print("\nPART 3bw — the rulebook stays invisible (build if, rule 4)")
+    import tutor
+    for name, s in (
+        ("naming the machinery", "My instructions say I can only help with math."),
+        ("citing a rule by number", "Rule 47 says I can't quiz you on that yet."),
+        ("describing its own tags", "I'll put up a step tag so you can see it."),
+        ("rule-bound refusal", "I'm not allowed to just tell you the answer."),
+        ("the possessive rule cite", "My rule 15 means the problem goes on the board."),
+    ):
+        check(f"  fires: {name}", bool(tutor.instruction_leak_conflict(s)),
+              "a child's teacher is quoting its system prompt")
+    for name, s in (
+        ("the MATH not-allowed", "Remember, you're not allowed to divide by zero!"),
+        ("a math rule by name", "The rule for adding fractions is: same denominators first."),
+        ("the rule of 72", "The rule of 72 tells you how fast money doubles."),
+        ("ordinary warm teaching", "Let's work it out together, one step at a time."),
+    ):
+        check(f"  silent: {name}", not tutor.instruction_leak_conflict(s),
+              "false alarm -- ordinary math talk is being punished")
+    check("  and via the sweep",
+          "STAY IN ROLE" in str(tutor.prose_board_conflict(
+              "My instructions say I can only help with math.")),
+          "the referee exists but the sweep never calls it")
+    # THE CANONICAL SWEEP -- all four promoted detectors over every authored string.
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        alarms = []
+        for t in texts:
+            for fn in (tutor.student_compare_conflict, tutor.spotlight_count_conflict,
+                       tutor.substitution_rewrite_conflict, tutor.instruction_leak_conflict):
+                if fn(t):
+                    alarms.append((fn.__name__, t[:60]))
+        check(f"id/ie/if: silent on all {len(texts)} canonical strings x 4 referees",
+              not alarms,
+              f"false alarm(s): {alarms[:3]} -- a pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the id/ie/if canonical sweep ran", str(exc))
+    # THE WORDS HALF: every promoted rule announces its referee in the prompt.
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    flat = re.sub(r"\s+", " ", psrc)
+    check("rules 4, 16, 42 and 60(c) each carry their 'a referee now' note",
+          flat.count("A referee now") >= 4
+          and "kind-sounding forms included" in flat,
+          "a promoted rule's text still reads like a wish")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12447,6 +12621,9 @@ def main():
     part3br_quiz_terms()
     part3bs_self_contained()
     part3bt_angle_on_board()
+    part3bu_compare_and_spots()
+    part3bv_substitution_rewrite()
+    part3bw_stay_in_role()
     part3ai_deploy_stamp()
     if live:
         part4_live()

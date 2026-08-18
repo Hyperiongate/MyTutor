@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 24 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 27 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 30 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 27 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -79,7 +79,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION -- IN THAT SAME REPLY
 
-**COVERED** — a substitution question re-writes its equation
+**ENFORCED** — a substitution question re-writes its equation (build ie, the 27th referee, from both 2026-08-07 live catches): substitution_rewrite_conflict rejects a plug-in/check ask -- or the spoken phrase 'the original equation' -- when the reply writes no REAL equation (a bare 'x = 4' is not one). PART 3bv
 
 ### 17. NEVER ANSWER YOUR OWN QUESTION IN THE SAME BREATH
 
@@ -183,7 +183,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 42. NEVER COMPARE THIS STUDENT TO ANYONE BUT THIS STUDENT
 
-**COVERED** — never compare this student to anyone but this student
+**ENFORCED** — never compare this student to anyone but this student (build id, the 25th referee): student_compare_conflict rejects 'most kids', 'other students', age norms, classmates, averages, grade levels and percentiles -- the kind-sounding comfort form included, per the rule's own text. Comparisons to the student's OWN earlier work pass untouched. PART 3bu
 
 ### 43. YOU PERCEIVE EXACTLY TWO THINGS, AND YOU NEVER PRETEND OTHERWISE
 
@@ -255,7 +255,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 60. POINT WITH LIGHT WHEN WHERE-TO-LOOK IS THE LESSON: THE BOARD SPOTLIGHT
 
-**COVERED** — the board spotlight (build ee): the MECHANISM is machine-checked -- PART 3t asserts all three teaching pages implement spotlightBoard with the line+board keys, the .stepglow CSS, and a turn-start clear -- and the when-to-use half (one per reply, words still say the where) is prompt-covered
+**ENFORCED** — the board spotlight (build ee): the MECHANISM is machine-checked -- PART 3t asserts all three teaching pages implement spotlightBoard with the line+board keys, the .stepglow CSS, and a turn-start clear. 60(c)'s one-per-reply half is ENFORCED (build id, the 26th referee): spotlight_count_conflict rejects a second line/board spotlight; the tour's page stops stay exempt (PART 3bu). The when-to-USE judgment stays prompt-covered
 
 ### 61. A GENERALIZATION CARRIES ITS CONDITION. SAY THE WHOLE TRUE SENTENCE
 

@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18if-stay-in-role". BUILDS id + ie + if, THE
+#               PROMOTION BATCH -- the answer to Jim's "we're still in whack-a-mole
+#               mode": the promotion audit showed every recent live miss came from
+#               the thirty rules held by prompt words alone, so its Tier A (the four
+#               promotable with nothing but the reply in hand) stops being wishes
+#               tonight. Referees 25-28 in tutor.py: comparisons to other students
+#               (rule 42 -- "most kids find this hard" included), a second board
+#               spotlight (rule 60c), a substitution/check ask that writes no real
+#               equation (rule 16, both 2026-08-07 live catches), and instruction
+#               leaks ("my instructions", "rule 47 says", "step tag", "I'm not
+#               allowed" -- the Ground Rules' STAY IN ROLE). Ledger: 16/42/60 ->
+#               ENFORCED; the sweep is TWENTY-EIGHT. ALL CODE IS IN tutor.py /
+#               prompts.py; this file only carries the stamp. PARTs 3bu-3bw.
 #   2026-08-18  APP_BUILD -> "2026-08-18ic-quiz-honesty". BUILDS ia + ib + ic, the
 #               QUIZ-HONESTY TRIO -- four catches from ONE live quiz run of Jim's,
 #               closed the same evening. ia (rule 47e, the TWENTY-THIRD referee):
@@ -8406,7 +8419,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18ic-quiz-honesty"
+APP_BUILD = "2026-08-18if-stay-in-role"
 
 
 @app.get("/health")
