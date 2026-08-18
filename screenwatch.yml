@@ -1,0 +1,75 @@
+# =============================================================================
+# screenwatch.yml  --  THE GOVERNOR'S EYES ON PRODUCTION  --  Hyperion Shift LLC
+# -----------------------------------------------------------------------------
+# CHANGE NOTES (keep newest at top):
+#   2026-08-18  NEW FILE (build hw, Phase 5's last queued eye). The screen auditor
+#               (screencheck.py, build gn) has judged rendered screens in every
+#               battery run since it was written -- against FIXTURES. The one thing
+#               still missing from "somebody should be checking this" was a nightly
+#               look at the REAL site: Render has no browser, so the capture could
+#               never live on the heartbeat. GitHub's runners DO have one. This
+#               workflow drives a real three-turn lesson on mrcadabra.com every
+#               night with a dedicated audit student, judges the rendered screens
+#               with the same six checks the battery runs, uploads the report and
+#               the screenshots as artifacts, and FAILS the run when there are
+#               findings -- which lands in Jim's inbox via GitHub's own
+#               notification, no new service and no new key beyond one repo secret.
+#
+#               ⚠️ JIM'S ONE-TIME SETUP: create a dedicated audit student (e.g. a
+#               child named "Screen Watch" on /family -- it writes real turns and
+#               spends a few model calls per night, so never use a real student's
+#               code), then add its login code as the repo secret SCREENWATCH_CODE
+#               (GitHub -> Settings -> Secrets and variables -> Actions).
+#
+#               Cost per night: one three-turn lesson (~3 model calls + a little
+#               TTS). The run refuses loudly if the secret is missing.
+# =============================================================================
+name: screenwatch
+
+on:
+  schedule:
+    - cron: "30 9 * * *"        # nightly 09:30 UTC (~1:30am Pacific), after the night watch
+  workflow_dispatch: {}          # and on demand, from the Actions tab
+
+jobs:
+  screenwatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the one thing the judge itself never needs
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Drive a real lesson and judge the screen
+        env:
+          SCREENWATCH_CODE: ${{ secrets.SCREENWATCH_CODE }}
+        run: |
+          if [ -z "$SCREENWATCH_CODE" ]; then
+            echo "::error::Set the SCREENWATCH_CODE repo secret — a DEDICATED audit student's login code (it writes real turns; never a real student)."
+            exit 2
+          fi
+          python screencheck.py --live https://mrcadabra.com \
+            --code "$SCREENWATCH_CODE" --course geometry \
+            --shots screenwatch-shots --out screenwatch-report.md
+
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenwatch-${{ github.run_id }}
+          path: |
+            screenwatch-report.md
+            screenwatch-shots/
+          retention-days: 30
+          if-no-files-found: ignore
+
+# A failing run = the screen auditor found something on the LIVE site (or the site
+# was unreachable). Open the run's artifact for the report and the screenshots.
+# I did no harm and this file is not truncated.

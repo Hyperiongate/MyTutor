@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hw-screen-watch". THE GOVERNOR'S EYES ON
+#               PRODUCTION (the last queued piece of Phase 1's "give the governor
+#               eyes"). NEW .github/workflows/screenwatch.yml: GitHub's runners have
+#               the browser Render lacks, so every night at 09:30 UTC one drives a
+#               real three-turn lesson on mrcadabra.com with a dedicated audit
+#               student and judges the rendered screens with screencheck's six
+#               checks; findings FAIL the run (GitHub notifies Jim), report +
+#               screenshots kept as artifacts. ⚠️ JIM'S ONE-TIME SETUP: create a
+#               dedicated audit student and add its code as the SCREENWATCH_CODE
+#               repo secret. PART 3bn pins the workflow. This file only carries the
+#               stamp.
 #   2026-08-18  (decision record, no code change -- APP_BUILD stays hv) JIM'S RULING:
 #               BOOKMARK LOGIN STAYS. Page-nav links keep carrying ?code= on purpose;
 #               the hs note's "parked product decision" is decided. See _code_dep's
@@ -8336,7 +8347,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hv-one-backend-loudly"
+APP_BUILD = "2026-08-18hw-screen-watch"
 
 
 @app.get("/health")

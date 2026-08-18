@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hw -- PART 3bn, THE GOVERNOR'S EYES ON PRODUCTION: pins the
+#               new nightly GitHub Actions screen audit (.github/workflows/
+#               screenwatch.yml) -- cadence + dispatch, the live screencheck
+#               invocation against mrcadabra.com, the secret-not-committed audit
+#               code with a loud missing-secret failure, kept artifacts, a bounded
+#               run, and CLI agreement between the workflow and screencheck.py.
 #   2026-08-18  BUILD hv -- PART 3bm, ONE STORAGE BACKEND, LOUDLY: a real restore
 #               drill proves token tables are withheld (a signed-in token dies with
 #               the restore), a family deleted AFTER the snapshot stays forgotten
@@ -11534,6 +11540,50 @@ def part3bm_one_backend_loudly():
               f"{got['dev']} -- dev boxes cannot work offline anymore")
 
 
+# =============================================================================
+# PART 3bn -- THE GOVERNOR'S EYES ON PRODUCTION (build hw)
+# -----------------------------------------------------------------------------
+# 2026-08-18. The last queued piece of "give the governor eyes": the screen
+# auditor's checks have run against fixtures on every push since build gn, but
+# nothing ever looked at the REAL site nightly -- Render has no browser. The
+# GitHub Actions workflow does (its runners do), driving a live three-turn lesson
+# and failing the run on findings so GitHub itself notifies Jim. These checks pin
+# the workflow's load-bearing pieces so it cannot silently rot in the repo.
+# =============================================================================
+def part3bn_screenwatch():
+    print("\nPART 3bn — the governor's eyes on production (build hw)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    wf = os.path.join(here, ".github", "workflows", "screenwatch.yml")
+    if not os.path.exists(wf):
+        rootcopy = os.path.exists(os.path.join(here, "screenwatch.yml"))
+        bad("screenwatch workflow exists",
+            "screenwatch.yml is at the repo ROOT -- move it into .github\\workflows\\ "
+            "(create the two folders; the remote bridge is not allowed to write "
+            "there, on purpose)" if rootcopy else
+            ".github/workflows/screenwatch.yml is gone -- the nightly production "
+            "screen audit no longer runs")
+        return
+    with open(wf, encoding="utf-8") as fh:
+        src = fh.read()
+    check("it runs nightly and on demand",
+          "cron:" in src and "workflow_dispatch" in src,
+          "the cadence is gone -- a manual screen audit is another wish")
+    check("it drives the LIVE site with the real auditor",
+          "screencheck.py --live https://mrcadabra.com" in src,
+          "the workflow no longer points the auditor at production")
+    check("the audit student comes from a secret, never the repo",
+          "secrets.SCREENWATCH_CODE" in src and 'if [ -z "$SCREENWATCH_CODE" ]' in src,
+          "a login code is committed, or a missing secret fails silently")
+    check("the evidence is kept and the run is bounded",
+          "upload-artifact" in src and "if: always()" in src
+          and "timeout-minutes:" in src,
+          "a finding with no report/screenshot cannot be adjudicated")
+    check("screencheck --live still takes the arguments the workflow sends",
+          all(s in open(os.path.join(here, "screencheck.py"), encoding="utf-8").read()
+              for s in ('"--live"', '"--code"', '"--shots"', '"--out"')),
+          "the workflow and the auditor's CLI have drifted apart")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12003,6 +12053,7 @@ def main():
     part3bk_bounded_and_split()
     part3bl_server_records_results()
     part3bm_one_backend_loudly()
+    part3bn_screenwatch()
     part3ai_deploy_stamp()
     if live:
         part4_live()
