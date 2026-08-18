@@ -289,6 +289,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build ik) THE TOUR RUNS ONCE, AND IT CAN BE SKIPPED. Jim's live
+                catch: tour -> placement -> return, and the whole introduction
+                played again ("toured" was inferred from lesson history, which the
+                tour never writes -- the server now RECORDS __tour_done__ in the
+                new tours_seen table and ORs it into /api/session's toured flag).
+                This file's half: a "Skip the intro" button, visible only during
+                the tour; skipping races the current line (stopAllSpeech + a skip
+                promise), then hands off through the SAME __tour_done__ /
+                __tour_done_declined__ path -- so a skipped tour is a SEEN tour,
+                and the assessment invitation is never lost.
     2026-08-18  (build ht, Phase 5) THE TURN CANNOT HANG: the chat fetch carries a 90s
                 abort over the server's new ~60s upstream timeout; a timeout lands as
                 a warm try-again BUBBLE (the old status-line error was cleared by
@@ -1394,6 +1404,10 @@
           <div class="status" id="status">&nbsp;</div>
         </div>
       </div>
+      <!-- build ik (2026-08-18): visible ONLY while the opening tour is playing.
+           Skipping counts as finishing -- it hands off through the same
+           __tour_done__ path, so the server records the tour as seen. -->
+      <button id="tourSkip" type="button" style="display:none;position:fixed;right:18px;bottom:18px;z-index:60;padding:10px 16px;border-radius:999px;border:1px solid #cfcfe8;background:#fff;color:#4a4a68;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(40,40,80,.12)">Skip the intro &#9656;</button>
 
       <!-- NAV ORDER (2026-08-07 build bf, Jim's exact sequence): Curriculum → Course
            assessment → Progress dashboard → Practice a problem → Explore a topic (NEW —
@@ -2932,21 +2946,40 @@
       // word — the course bar is real, today/unit are labeled previews the lesson will
       // fill in. (bi showed the previews only during the "bars" stop.)
       showBarsPreview();
-      await sayTourLine(COURSE_OPENER);
-      for (const step of TOUR_STEPS) {
-        highlightEl(step.id);
-        await sayTourLine(step.text);
+      // build ik (2026-08-18, Jim: "it gets a little boring" the second time): a
+      // visible SKIP button for the whole tour. Skipping counts as FINISHING — the
+      // handoff below still runs, still sends __tour_done__ (or the declined form),
+      // and the server records the tour as seen either way. The race makes the skip
+      // land mid-sentence instead of waiting out the current line's read time.
+      let skipped = false, skipResolve;
+      const skipWait = new Promise(function (r) { skipResolve = r; });
+      const sk = el("tourSkip");
+      if (sk) {
+        sk.style.display = "";
+        sk.onclick = function () {
+          skipped = true; sk.disabled = true;
+          try { stopAllSpeech(); } catch (e) {}
+          try { skipResolve(); } catch (e) {}
+        };
       }
+      const tourLine = (t) => Promise.race([sayTourLine(t), skipWait]);
+      await tourLine(COURSE_OPENER);
+      for (const step of TOUR_STEPS) {
+        if (skipped) break;
+        highlightEl(step.id);
+        await tourLine(step.text);
+      }
+      if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
       clearHighlight();
       // 2026-08-05: a first-timer with no placement gets the assessment invitation
       // right here, at the moment of maximum orientation. Choosing "skip" continues
       // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.
       if (!isPlaced) {
-        await sayTourLine("Okay — that's the grand tour!");
+        if (!skipped) await sayTourLine("Okay — that's the grand tour!");
         offerAssessment(() => runTutor("__tour_done_declined__"));
         return;
       }
-      await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
+      if (!skipped) await sayTourLine("Okay — that's the grand tour! Now let's get into the fun part.");
       await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
 

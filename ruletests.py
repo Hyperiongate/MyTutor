@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ik -- PART 3cb, THE TOUR RUNS ONCE: pins the tours_seen store
+#               fact (+ reset-cascade membership), the record-before-model-call
+#               ordering on __tour_done__, the OR into /api/session's toured flag,
+#               the skip button's same-path handoff, and a live store drill
+#               (record/read/idempotence/isolation/reset hygiene on real sqlite).
 #   2026-08-18  BUILDS ih/ii/ij -- PARTs 3by/3bz/3ca, the Tier-B remainder: rule 14
 #               runtime (new board notation read aloud; first-time-only and
 #               read-aloud exemptions), rule 22 (verbatim re-ask; six-word floor,
@@ -12437,6 +12442,93 @@ def part3ca_back_reference():
         bad("the ih/ii/ij canonical sweep ran", str(exc))
 
 
+# =============================================================================
+# PART 3cb -- THE TOUR RUNS ONCE, AND IT CAN BE SKIPPED (build ik)
+# -----------------------------------------------------------------------------
+# 2026-08-18 night, Jim as a brand-new student: tour -> placement -> "ready?" ->
+# yes -> the whole introduction played AGAIN. "toured" was INFERRED from lesson
+# history, which the tour never writes. Now it is a RECORDED fact. These pins hold
+# the store fact, the record-before-model-call ordering, the OR into the session
+# flag, the reset hygiene, and the skip button's same-path handoff.
+# =============================================================================
+_IK_DRILL = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+import store, main
+ok = {}
+ok["starts_unseen"] = store.tour_seen("0000", "typing") is False
+ok["records"] = store.record_tour_seen("0000", "typing") is True
+ok["seen_after"] = store.tour_seen("0000", "typing") is True
+ok["idempotent"] = store.record_tour_seen("0000", "typing") is True and store.tour_seen("0000", "typing") is True
+ok["groups_separate"] = store.tour_seen("0000", "elem") is False
+ok["students_separate"] = store.tour_seen("1234", "typing") is False
+ok["group_key_elem"] = main._tour_group_key("entry") == "elem" and main._tour_group_key("basic") == "elem"
+ok["group_key_typing"] = main._tour_group_key("geometry") == "typing" and main._tour_group_key("algebra1") == "typing"
+# A reset student is a NEW student: the cascade must clear the fact.
+try:
+    store.reset_student_data("0000")
+    ok["reset_clears"] = store.tour_seen("0000", "typing") is False
+except Exception as exc:
+    ok["reset_clears"] = "reset failed: %s" % exc
+ok["ok"] = all(v is True for v in ok.values())
+print(json.dumps(ok))
+"""
+
+
+def part3cb_tour_once():
+    print("\nPART 3cb — the tour runs once, and it can be skipped (build ik)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    hsrc = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("the tour-seen fact has a home and joins the reset cascade",
+          '"tours_seen"' in ssrc and '("tours_seen", "code")' in ssrc
+          and "def record_tour_seen(" in ssrc and "def tour_seen(" in ssrc,
+          "the fact is inferred again -- tour -> placement -> return replays the intro")
+    check("the fact is recorded when the tour ends, BEFORE any model call",
+          "if after_tour:" in msrc
+          and "store.record_tour_seen(code, _tour_group_key(req.course))" in msrc
+          and msrc.index("store.record_tour_seen") < msrc.index("assess_declined ="),
+          "a slow or failed opener costs the student a second sit-through")
+    check("the session flag counts the recorded fact OR the old history inference",
+          "or store.tour_seen(code, _tour_group_key(course))" in msrc,
+          "the recorded fact exists but the page never hears about it")
+    check("the page has the skip button, shown only during the tour",
+          'id="tourSkip"' in hsrc and 'sk.style.display = ""' in hsrc
+          and 'sk.style.display = "none"' in hsrc,
+          "Jim asked for the skip and it is gone")
+    check("skipping hands off through the SAME tour-done path (a skipped tour is a "
+          "seen tour)",
+          "skipWait" in hsrc and "Promise.race" in hsrc
+          and 'runTutor("__tour_done__")' in hsrc
+          and 'runTutor("__tour_done_declined__")' in hsrc,
+          "a skipped tour is not recorded -- the replay bug returns for skippers")
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("ik store drill", "sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "ik.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_IK_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "ik.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("ik store drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("record / read / idempotence / group+student isolation / reset "
+              "hygiene all hold on a live store",
+              verdict.get("ok") is True, f"{verdict}")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12920,6 +13012,7 @@ def main():
     part3by_notation_intro()
     part3bz_repeat_question()
     part3ca_back_reference()
+    part3cb_tour_once()
     part3ai_deploy_stamp()
     if live:
         part4_live()

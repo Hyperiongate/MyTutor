@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18ik-tour-once". BUILD ik -- THE TOUR RUNS
+#               ONCE, AND IT CAN BE SKIPPED. Jim's live catch as a brand-new
+#               student: tour -> placement test -> "start you in unit two, ready?"
+#               -> yes -> THE WHOLE INTRODUCTION PLAYED AGAIN. Cause: "toured" was
+#               INFERRED (_has_any_history over the classroom group) and the tour
+#               writes no history, so his exact path re-armed it. Now the tour is a
+#               RECORDED FACT: when __tour_done__/__tour_done_declined__ arrives,
+#               store.record_tour_seen(code, _tour_group_key(course)) writes the
+#               new tours_seen row BEFORE any model call (a slow opener can never
+#               cost a second sit-through), and /api/session's "toured" ORs the
+#               recorded fact with the old history inference (pre-ik students never
+#               re-tour; a store outage degrades to the old behavior, never worse).
+#               tours_seen joins _STUDENT_CODE_TABLES (a reset student is a new
+#               student). session.html adds the "Skip the intro" button -- skipping
+#               hands off through the SAME __tour_done__ path, so a skipped tour is
+#               a seen tour. PART 3cb. (Jim's second catch tonight -- the Today bar
+#               showing no progress while a unit completed -- is DIAGNOSED, design
+#               conversation queued: the bar's advance is model-judgment, wish-tier;
+#               see Session_Summary / the ix-design queue item.)
 #   2026-08-18  APP_BUILD -> "2026-08-18ij-work-that-happened". BUILDS ih + ii + ij,
 #               THE TIER-B REMAINDER -- referees 30-32 close out the promotion
 #               audit's practical list: new board notation is read aloud (rule 14) ·
@@ -8441,7 +8460,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18ij-work-that-happened"
+APP_BUILD = "2026-08-18ik-tour-once"
 
 
 @app.get("/health")
@@ -8657,7 +8676,14 @@ def session_state(request: Request, code: str = Depends(_code_dep), course: str 
         # now once per student PER CLASSROOM TYPE. The elementary classroom (entry/basic,
         # tap-to-answer) is a genuinely different experience from the typing classroom, so
         # history in one group no longer suppresses the other group's first-time tour.
-        "toured": _has_any_history(code, _tour_group(course)),
+        # build ik (2026-08-18, Jim's live catch: tour -> placement -> return, and
+        # the introduction played AGAIN): "toured" is no longer only an inference
+        # from lesson history -- the tour writes none, so his exact path re-armed
+        # it. The RECORDED fact (store.tour_seen, written the moment __tour_done__
+        # arrives) now counts too. History still counts (pre-ik students never
+        # re-tour), and a store outage degrades to the old inference, never worse.
+        "toured": (_has_any_history(code, _tour_group(course))
+                   or store.tour_seen(code, _tour_group_key(course))),
     }
 
 
@@ -8670,6 +8696,11 @@ def _tour_group(course: str):
     if course in _ELEM_COURSES:
         return _ELEM_COURSES
     return tuple(c for c in curriculum.COURSE_ORDER if c not in _ELEM_COURSES)
+
+
+def _tour_group_key(course: str) -> str:
+    """The tours_seen row key for this course's classroom type (build ik)."""
+    return "elem" if course in _ELEM_COURSES else "typing"
 
 
 def _has_any_history(code: str, courses=None) -> bool:
@@ -9278,6 +9309,14 @@ def chat(req: ChatRequest):
     if message in ("__open__", "__tour_done__", "__open_declined__", "__tour_done_declined__",
                    "__open_fresh__", "__unit_quiz__"):
         after_tour = message.startswith("__tour_done")
+        # build ik: the tour just ended (watched OR skipped -- both arrive as
+        # __tour_done...) -- write the fact down BEFORE any model call, so a failed
+        # or slow opener can never cost the student a second sit-through.
+        if after_tour:
+            try:
+                store.record_tour_seen(code, _tour_group_key(req.course))
+            except Exception as exc:  # noqa: BLE001 -- never fail a turn over this
+                print(f"[tour] record failed (ignored): {exc}")
         # 2026-08-07 (build at): "_declined" = the student JUST answered the on-screen
         # assessment-invitation card with "Not right now" -- the tutor must respect it.
         assess_declined = message.endswith("_declined__")

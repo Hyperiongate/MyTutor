@@ -2,6 +2,15 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ik -- THE TOUR IS A RECORDED FACT. Jim's live catch: tour ->
+#               placement -> return, and the whole introduction played again,
+#               because "toured" was INFERRED from lesson history and the tour
+#               writes none. NEW tours_seen table (code + tgroup "elem"/"typing" +
+#               seen_at) with record_tour_seen()/tour_seen(); joins
+#               _STUDENT_CODE_TABLES on day one (a reset student is a new student
+#               and gets the introduction again). main.py records it when
+#               __tour_done__/__tour_done_declined__ arrives and ORs it into the
+#               /api/session "toured" flag.
 #   2026-08-18  BUILD hv -- ONE STORAGE BACKEND, LOUDLY (Phase 5, review Class E).
 #               (1) NEW degraded(): True when DATABASE_URL is SET but unreachable --
 #               the state that used to silently fork every write onto un-backed-up
@@ -841,6 +850,21 @@ def init():
         # Eureka structure, rule-42-safe because it only ever compares the student to
         # the student. Brand-new table -> create_all builds it; no migration.
         # JOINS _STUDENT_CODE_TABLES on day one (standing rule).
+        # TOURS SEEN (2026-08-18, build ik -- Jim's live catch: tour -> placement ->
+        # return, and the whole introduction played AGAIN). The tour decision used to
+        # be INFERRED ("does this student have lesson history?"), and the tour itself
+        # never wrote history -- so his exact path re-armed it. Watching the tour is
+        # now a RECORDED FACT: the page already tells the server the tour ended
+        # (__tour_done__ / __tour_done_declined__); the server now writes it down.
+        # One row per student per classroom type ("elem" tap-courses vs "typing").
+        # Brand-new table -> create_all builds it; no migration; joins
+        # _STUDENT_CODE_TABLES on day one (standing rule).
+        _tables["tours_seen"] = Table(
+            "tours_seen", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("tgroup", String(16), primary_key=True),   # "elem" | "typing"
+            Column("seen_at", DateTime(timezone=True)),
+        )
         _tables["sprints"] = Table(
             "sprints", _meta,
             Column("id", Integer, primary_key=True, autoincrement=True),
@@ -1631,6 +1655,41 @@ def record_foundation_heard(code: str, course: str, term: str) -> bool:
         return True
     except Exception as exc:  # noqa: BLE001
         print(f"[foundations] write failed for {code}/{course}/{key}: {exc}")
+        return False
+
+
+# ---- the tour-seen fact (2026-08-18, build ik) ------------------------------
+def record_tour_seen(code: str, tgroup: str) -> bool:
+    """Remember that this student has watched the opening tour for this classroom
+    type ("elem" | "typing"). Idempotent; returns True if written. Never raises."""
+    code = str(code or "").strip()
+    tgroup = str(tgroup or "").strip().lower()[:16]
+    if not code or not tgroup or not enabled():
+        return False
+    try:
+        _upsert("tours_seen", {"code": code, "tgroup": tgroup}, {"seen_at": _now()})
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tour] write failed for {code}/{tgroup}: {exc}")
+        return False
+
+
+def tour_seen(code: str, tgroup: str) -> bool:
+    """Has this student watched this classroom type's tour? False on any doubt --
+    the worst case of a wrong False is one repeated tour, never a lost one."""
+    try:
+        if not code or not tgroup or not enabled():
+            return False
+        from sqlalchemy import select   # local import, this file's idiom
+        t = _tables["tours_seen"]
+        with _engine.connect() as conn:
+            row = conn.execute(
+                select(t.c.code).where(t.c.code == str(code).strip(),
+                                       t.c.tgroup == str(tgroup).strip().lower()[:16])
+            ).first()
+        return bool(row)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tour] read failed for {code}/{tgroup}: {exc}")
         return False
 
 
@@ -2692,6 +2751,9 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-09 (build cg): today's goal bar, same rule -- a reset student must not
     # open the lesson to yesterday's goals already ticked off.
     ("today_goals", "code"),
+    # 2026-08-18 (build ik): the tour-seen fact, same rule -- a reset student is a
+    # new student and gets the introduction again.
+    ("tours_seen", "code"),
     # 2026-08-11 (build dd): sprint history, same rule -- a reset student starts with a
     # clean personal-best slate.
     ("sprints", "code"),
