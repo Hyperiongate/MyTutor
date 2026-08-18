@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hr -- PART 3bi, THE STORY KEEPS ONE UNIT: 10 fixtures in both
+#               directions (incl. the nightwatch catch verbatim and its suggested
+#               fix, the resolving shopping story, the two-facts "and", money-only
+#               and objects-only traps); canonical sweep; wiring checks (clause in
+#               the prompt, referee in the sweep, RULE_VERIFY[32] -> ENFORCED for
+#               the caught shape, honestly scoped). RULES.md regenerated.
 #   2026-08-18  BUILD hq -- PART 3bh, THE TWO-PROMPT-SIZES EXPERIMENT IS RUNNABLE:
 #               the --prompt-size lever exists and threads through; the large
 #               student is all-heard + forced-verbatim and assembles the genuine
@@ -3702,7 +3708,9 @@ RULE_VERIFY = {
     29: ("EXERCISED", "how a session ends"),
     30: ("EXERCISED", "off-topic and personal questions"),
     31: ("EXERCISED", "when something bigger than math shows up"),
-    32: ("COVERED",   "story problems survive a sanity check"),
+    32: ("ENFORCED",  "story_units_conflict regenerates a story that adds money to "
+                      "grouped objects (the 32b one-unit clause's caught shape, build "
+                      "hr); the broader sanity clauses remain prompt-covered"),
     33: ("COVERED",   "difficulty moves one notch"),
     34: ("COVERED",   "keep old skills sharp"),
     35: ("EXERCISED", "a failed quiz is never re-given on the spot"),
@@ -10881,6 +10889,85 @@ def part3bh_two_prompt_sizes():
           "re-verify before believing it (and the experiment still applies)")
 
 
+# =============================================================================
+# PART 3bi -- THE STORY KEEPS ONE UNIT (build hr)
+# -----------------------------------------------------------------------------
+# 2026-08-18. The night watch's FIRST confirmed catch after Phase 4 went live
+# (08:44 UTC report): 4 + 3 × 2 modeled as "4 dollars, plus 3 bags of 2 candies
+# each" -- dollars added to candies, the numbers as decoration. Closed the standing
+# way: the rule gains the clause (32b), the caught shape gains a referee (the
+# twenty-first, rule-27 precedent: narrow enforcement, words cover the class), and
+# both ship with their checks in the same build.
+# =============================================================================
+STORY_UNITS_CASES = [
+    ("THE NIGHTWATCH CATCH, verbatim",
+     "Let's picture it: you have 4 dollars, plus 3 bags of 2 candies each.", True),
+    ("the same shape with different nouns",
+     "Start with 5 cents, plus 2 boxes of 6 stickers each -- what do we get?", True),
+    ("number words instead of digits",
+     "You have four dollars, plus three bags of two candies each.", True),
+    # -------- and the other direction: everything here must stay silent --------
+    ("one unit throughout -- the suggested fix itself",
+     "Let's picture it: you have 4 loose candies, plus 3 bags of 2 candies each.",
+     False),
+    ("a shopping story where the groups resolve to money",
+     "You have 4 dollars, plus 3 bags of 2 candies that cost 1 dollar each.", False),
+    ("money plus money",
+     "The ticket costs 4 dollars plus 40 cents in tax.", False),
+    ("listing two facts is not adding them",
+     "You have 4 dollars and 3 bags of 5 candies. Each candy sells for a dime.",
+     False),
+    ("groups of objects with no money anywhere",
+     "You have 4 apples, plus 3 baskets of 2 apples each.", False),
+    ("money in one sentence, groups in another",
+     "You brought 4 dollars today. Now picture 3 bags of 2 candies each.", False),
+    ("ordinary teaching mentions money alone",
+     "A movie ticket costs 12 dollars -- is that a sensible price?", False),
+]
+
+
+def part3bi_story_units():
+    print("\nPART 3bi — the story keeps one unit (build hr)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    for name, reply, should_flag in STORY_UNITS_CASES:
+        got = bool(tutor.story_units_conflict(reply))
+        check(f"story units: {name} -> {'fires' if should_flag else 'silent'}",
+              got == should_flag,
+              "a story adds money to objects and the numbers become decoration"
+              if should_flag else
+              "an honest story was vetoed -- the referee is crying wolf")
+
+    # The canonical sweep: no foundation script may trip the new referee.
+    import foundations
+    fired = []
+    for c in COURSES:
+        for f in foundations.for_course(c):
+            if tutor.story_units_conflict(f["say"]):
+                fired.append((c, f["term"]))
+    check("the canonical corpus is silent under the story-units referee "
+          f"({sum(len(foundations.for_course(c)) for c in COURSES)} scripts)",
+          not fired, f"false fires on: {fired[:4]}")
+
+    # THE WIRING: the clause reaches the prompt, the sweep runs the referee, the
+    # ledger tells the truth about what is enforced.
+    check("rule 32 carries the one-unit clause",
+          "THE STORY KEEPS ONE UNIT" in tutor.GRAPH_TOOL_NOTE
+          and "ONE kind of quantity throughout" in tutor.GRAPH_TOOL_NOTE,
+          "the words are gone -- the referee enforces a rule the model was never told")
+    check("the sweep runs the twenty-first referee",
+          "storyunits = story_units_conflict(reply)" in tsrc,
+          "story_units_conflict exists but nothing calls it -- a rule nothing "
+          "watches is a wish")
+    check("the ledger names the enforced shape honestly",
+          RULE_VERIFY.get(32, ("", ""))[0] == "ENFORCED"
+          and "story_units_conflict" in RULE_VERIFY.get(32, ("", ""))[1],
+          "RULE_VERIFY still calls rule 32 merely COVERED (or claims more than the "
+          "narrow shape)")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -11345,6 +11432,7 @@ def main():
     part3bf_record_claims()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
+    part3bi_story_units()
     part3ai_deploy_stamp()
     if live:
         part4_live()

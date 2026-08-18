@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 23 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 24 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 31 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 30 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -143,7 +143,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 32. YOUR STORY PROBLEMS MUST SURVIVE A SANITY CHECK
 
-**COVERED** — story problems survive a sanity check
+**ENFORCED** — story_units_conflict regenerates a story that adds money to grouped objects (the 32b one-unit clause's caught shape, build hr); the broader sanity clauses remain prompt-covered
 
 ### 33. DIFFICULTY MOVES ONE NOTCH AT A TIME
 

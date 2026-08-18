@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hr -- THE TWENTY-FIRST REFEREE: THE STORY-UNITS CHECK. The
+#               night watch's first confirmed catch on the live Phase-4 build
+#               (08:44 UTC report): 4 + 3 × 2 modeled as "4 dollars, plus 3 bags of
+#               2 candies each" -- dollars added to candies, the numbers as
+#               decoration. NEW story_units_conflict(reply): fires when one sentence
+#               adds a money amount to grouped NON-money objects with no price
+#               resolution ("...that cost 1 dollar each" stays a fine shopping
+#               story; "and" merely lists facts and never fires). The rule-27
+#               precedent: narrow enforcement of the caught shape, while rule 32's
+#               new one-unit clause (prompts.py) covers the class in words.
 #   2026-08-18  BUILD ho -- THE TWENTIETH REFEREE: THE RECORD-CLAIM CHECK (the
 #               count-claim probe's promotion; Phase 4, Class D). The audit's most
 #               corrosive shape -- a child refused a demonstration on the invented
@@ -1724,7 +1734,16 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # over the ceiling, silently, in production. (Second occurrence of this miss class: build
 # gf shipped 185,595 the same way.) The number now lives HERE, the serving path checks it
 # on every assembly, and ruletests imports it instead of declaring its own copy.
-PROMPT_CEILING = 180_000
+# 2026-08-18 (build hr): RAISED 180,000 -> 181,000. Rule 32(b) (the one-unit story
+# clause, written from the night watch's first confirmed catch) rides the shared rules
+# block into every course, and the all-heard algebra2 DEFERRED prompt tripped the wire
+# at 180,176. Raised deliberately rather than by trimming teaching, under Jim's standing
+# authorization (2026-08-11, Four_Lens_Review: "if you need to raise it, you raise it"
+# -- each raise gets its own change note; this is that note). Still a tripwire, not a
+# licence -- and the honest measurement now EXISTS: build hq's two-prompt-sizes
+# experiment (lessonaudit --prompt-size) is queued for Jim to run, and its result
+# should set this number from evidence.
+PROMPT_CEILING = 181_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -3248,6 +3267,68 @@ def unitplan_conflict(reply: str, allowed_units=None):
 
 
 # =============================================================================
+# THE STORY-UNITS CHECK (2026-08-18, build hr) -- the TWENTY-FIRST referee.
+# -----------------------------------------------------------------------------
+# The night watch's FIRST confirmed catch on the Phase-4 build (2026-08-18 08:44 UTC
+# report, order-of-operations, prealgebra): the tutor modeled 4 + 3 × 2 as
+#
+#   "Let's picture it: you have 4 dollars, plus 3 bags of 2 candies each."
+#
+# A child cannot put dollars and candies in one pile, so the addition in the story is
+# not the addition in the expression -- the numbers become decoration (rule 32's new
+# one-unit clause, written from this catch).
+#
+# NARROW, the rule-27 precedent (enforce the caught shape; the words cover the class):
+# fires only when ONE SENTENCE contains (a) a money amount, (b) an additive joiner
+# immediately before a count of grouped NON-money objects ("plus 3 bags of 2
+# candies"), and (c) no sign that the groups resolve to money ("...that cost 2
+# dollars each" is a fine shopping story -- everything becomes money). Judged per
+# sentence on the SPOKEN prose only. Fail open, canonical-swept, both directions.
+_SU_MONEY = re.compile(
+    r"(?:\$\s*\d|\b(?:\d+|" + _PR_NUMWORD + r")\s+(?:dollars?|cents?|bucks?)\b)", re.I)
+# The joiner is "plus"/"add" ONLY -- "and" merely lists two facts ("you have 4
+# dollars and 3 bags of candy; each candy sells for a dime" is a fine story whose
+# money resolution lives in the NEXT sentence), and a referee that fires on it
+# would veto honest shopping problems. Narrow means narrow.
+_SU_OBJ_GROUP = re.compile(
+    r"\b(?:plus|add(?:s|ed|ing)?)\s+(?:\d+|" + _PR_NUMWORD + r")\s+"
+    r"(?:bags?|boxes?|groups?|packs?|piles?|stacks?|rows?|baskets?|sets?|trays?)\s+of\s+"
+    r"(?:\d+|" + _PR_NUMWORD + r")\s+(?!dollars?\b|cents?\b|bucks?\b)([a-z]+)", re.I)
+_SU_RESOLVES = re.compile(
+    r"\b(?:cost|costs|costing|worth|pay|pays|paid|spend|spends|spent|price|priced|at|for)\b"
+    r"[^.!?]{0,24}?(?:\$|\bdollars?\b|\bcents?\b|\bbucks?\b)"
+    r"|(?:\$|\bdollars?\b|\bcents?\b|\bbucks?\b)\s*(?:each|apiece|per)\b", re.I)
+
+
+def story_units_conflict(reply: str):
+    """Return a description of a story that adds money to grouped objects, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        for sent in _vis_sentences(prose):
+            m = _SU_OBJ_GROUP.search(sent)
+            if not m:
+                continue
+            if not _SU_MONEY.search(sent):
+                continue
+            if _SU_RESOLVES.search(sent):
+                continue          # the groups become money -- a fine shopping story
+            thing = m.group(1)
+            return ('your story adds a MONEY amount to "{t}" -- two kinds of thing '
+                    "that cannot go in one pile, so the addition in the story is not "
+                    "the addition in the expression and the numbers become "
+                    "decoration. Rule 32(b): a story that models an expression keeps "
+                    "ONE kind of quantity throughout. Retell it with a single unit "
+                    '(all {t}, or all money), e.g. "you have 4 loose candies, plus '
+                    '3 bags of 2 candies each."').format(t=thing[:24])
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[storyunits] crashed (fail open): {exc}")
+        _event("referee_crash", "storyunits", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE RECORD-CLAIM CHECK (2026-08-18, build ho) -- the TWENTIETH referee.
 # -----------------------------------------------------------------------------
 # The count-claim probe's promotion (build gv measured; Phase 4 enforces). The audit's
@@ -4169,8 +4250,9 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    NINETEEN referees ride this sweep (build hm added the nineteenth, the unitplan
-    check; the original twelve are listed below, the rest are named at their call
+    TWENTY-ONE referees ride this sweep (hm added the unitplan check, ho the
+    record-claim check, hr the story-units check; the original twelve are listed
+    below, the rest are named at their call
     sites): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
@@ -4246,6 +4328,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if frac61:
             _event("referee_fire", "frac61", frac61)
             return frac61
+        # build hr: TWENTY-FIRST -- a story that adds money to objects (rule 32b,
+        # written from the night watch's first confirmed catch). Reads only the
+        # reply's own prose, so it rides here with the other reply-only checks.
+        storyunits = story_units_conflict(reply)
+        if storyunits:
+            _event("referee_fire", "storyunits", storyunits)
+            return storyunits
         # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
         refused = refused_demonstration_conflict(reply, student_message)
         if refused:

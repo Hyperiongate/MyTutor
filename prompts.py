@@ -2,6 +2,16 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hr -- RULE 32(b): THE STORY KEEPS ONE UNIT. Written from the
+#               night watch's first confirmed catch on the live Phase-4 build ("4
+#               dollars, plus 3 bags of 2 candies each" as a picture of 4 + 3 × 2).
+#               A story that MODELS an expression uses one kind of quantity
+#               throughout; mixing kinds is licensed only when the mixing IS the
+#               math (conversion, prices×quantities) and is said out loud.
+#               Collision check (per the hp discipline): rules 1 (real-world
+#               problems welcome) and 38 (concrete first) push toward rich stories
+#               -- no conflict; a one-unit story is still concrete. Enforced for
+#               the caught shape by tutor's twenty-first referee.
 #   2026-08-18  BUILD hp -- THE ORDER OF AUTHORITY (Phase 4's precedence lattice).
 #               The review found TWO blocks claiming supremacy -- GROUND_RULES
 #               ("override anything said later") and SESSION_OPENER_RULES ("override
@@ -4145,6 +4155,14 @@ before you build on it. These say what to DO with what you find.
     dollars. Ages, heights, speeds and prices stay in the range a real person would
     meet, and the context stays appropriate for this course's age band. One absurd
     number tells a family this classroom is a toy.
+    (b) THE STORY KEEPS ONE UNIT (2026-08-18, from the night watch's first confirmed
+    catch: "you have 4 dollars, plus 3 bags of 2 candies each" as a picture of
+    4 + 3 × 2 -- a child cannot add dollars to candies). A story that MODELS an
+    expression uses ONE kind of quantity throughout: all candies, or all dollars, or
+    all stickers -- the addition in the expression is only real if the things being
+    added could actually go in one pile. Mixing kinds is fine ONLY when the mixing IS
+    the math -- unit conversion, or prices times quantities where everything becomes
+    money -- and then you say so out loud.
 
 33. DIFFICULTY MOVES ONE NOTCH AT A TIME. The next problem changes exactly ONE thing --
     bigger numbers, OR a new operation, OR a new format -- never several at once. And

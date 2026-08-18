@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hr-one-unit-stories". THE NIGHTWATCH'S FIRST
+#               CATCH, CLOSED THE STANDING WAY: rule 32(b) (prompts.py -- a story
+#               that models an expression keeps ONE unit) + the twenty-first
+#               referee (tutor.story_units_conflict, the caught money-plus-objects
+#               shape) + PART 3bi. The governor found it at 1:44am; the fix ships
+#               with its check the same morning. This file only carries the stamp.
 #   2026-08-18  APP_BUILD -> "2026-08-18hq-two-prompt-sizes". THE DEGRADATION
 #               EXPERIMENT IS RUNNABLE (lessonaudit.py --prompt-size small|large;
 #               see its hq note). nightwatch unpacks run_scenario's new 4th return
@@ -7959,7 +7965,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hq-two-prompt-sizes"
+APP_BUILD = "2026-08-18hr-one-unit-stories"
 
 
 @app.get("/health")
