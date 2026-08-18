@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS ih/ii/ij -- REFEREES 30-32, THE TIER-B REMAINDER. ih:
+#               notation_intro_conflict (rule 14's runtime half) -- a reply whose
+#               BOARD tags carry a symbol new to this conversation (√, π, ^, |x|,
+#               f(x)) while the prose never reads it aloud is rejected; stored
+#               history keeps tags, so `heard` genuinely knows which symbols the
+#               student has met. ii: repeat_question_conflict (rule 22) -- a
+#               question of six words or more re-asked WORD FOR WORD from the
+#               previous tutor turn is rejected; _create_verified now also extracts
+#               prev_tutor from the ORIGINAL messages. ij: back_reference_conflict
+#               (rule 62's caught shape) -- "the <X> we did a minute ago/earlier"
+#               when <X> appears nowhere in the conversation; generic tokens and
+#               real work exempt. Rule 19 (worked-example-first) deliberately
+#               DEFERRED -- the audit judged it too fuzzy for an honest pattern.
+#               PARTs 3by/3bz/3ca.
 #   2026-08-18  BUILD ig -- THE TWENTY-NINTH REFEREE: THE QUIZ VOCABULARY GATE
 #               (rule 37's quiz-facing half; the promotion audit's Tier-B
 #               flagship). ia generalized from three hardcoded words to the whole
@@ -3676,6 +3690,175 @@ def quiz_vocab_conflict(reply: str, heard=None, terms_known=None, course: str = 
 
 
 # =============================================================================
+# THE TIER-B REMAINDER (2026-08-18 night, builds ih/ii/ij) -- referees 30-32.
+# -----------------------------------------------------------------------------
+# The promotion audit's last practical promotions, all fed by facts the server
+# already holds. Rule 19 (worked-example-first) is DEFERRED on purpose -- the
+# audit judged it the fuzziest, and a referee that guesses does harm.
+# =============================================================================
+
+# BUILD ih -- RULE 14, THE NOTATION-INTRODUCTION CHECK (the THIRTIETH referee).
+# "Define every notation the first time it appears." Rule 48 (ENFORCED at the
+# course-content tier) makes the authored scripts read their symbols aloud; this
+# is the RUNTIME half: a reply whose BOARD tags carry a notation this
+# conversation has never seen, while the spoken prose never reads or names it,
+# is rejected. Stored history keeps the tags (only [[verify]] is stripped), so
+# `heard` genuinely knows which symbols the student has met. Each notation pairs
+# a board-symbol pattern with its spoken forms; the exemptions are the point:
+#   - the symbol appeared in ANY earlier turn -> known, silent (rule 14's own
+#     scope is the FIRST time)
+#   - the prose reads it aloud in any accepted wording -> silent (that IS the fix)
+#   - no heard supplied -> silent (a referee that cannot know must not guess).
+_NOTATIONS = (
+    ("the square-root sign", re.compile(r"√|\bsqrt\b", re.I),
+     re.compile(r"square\s+root|\broot\b", re.I)),
+    ("pi", re.compile(r"π"), re.compile(r"\bpi\b", re.I)),
+    ("an exponent", re.compile(r"\^"),
+     re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I)),
+    ("absolute-value bars", re.compile(r"\|[^|\[\]]{1,12}\|"),
+     re.compile(r"absolute\s+value", re.I)),
+    ("function notation", re.compile(r"\b[fgh]\s*\(\s*[a-z]\s*\)"),
+     re.compile(r"\b[fgh]\s+of\s+[a-z]\b", re.I)),
+)
+_NOTE_TAG_VALS = re.compile(r'\[\[[^\]]*?"([^"]*)"[^\]]*\]\]')
+
+
+def notation_intro_conflict(reply: str, heard=None):
+    """Return a description of board notation new to this conversation that the
+    spoken words never read aloud, or "". Silent when `heard` is None.
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        if heard is None:
+            return ""
+        text = str(reply or "")
+        vals = " ".join(_NOTE_TAG_VALS.findall(text))
+        if not vals:
+            return ""
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""    # a tags-only FRAGMENT (foundation strings) is not a reply
+        base = str(heard)
+        for name, sym, spoken in _NOTATIONS:
+            if not sym.search(vals):
+                continue                    # this notation isn't on the board
+            if sym.search(base):
+                continue                    # the student has met it before
+            # The reading can live in the prose OR on the board itself -- the
+            # authored f(x) script writes 'say it out loud: "f of x"' INSIDE the
+            # tag, and that IS the introduction (the canonical sweep's catch).
+            if spoken.search(prose) or spoken.search(vals):
+                continue                    # the reply reads it aloud -- the fix itself
+            return ("your board writes {n} for the FIRST time in this conversation "
+                    "and your spoken words never read or name it. Rule 14: define "
+                    "every notation the first time it appears -- assume the student "
+                    "knows NONE of it. Say the words a person says for it, in this "
+                    "same reply, the moment the symbol lands on the board (rule 48 "
+                    "has the wording patterns).").format(n=name)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[notation] crashed (fail open): {exc}")
+        _event("referee_crash", "notation", str(exc))
+        return ""
+
+
+# BUILD ii -- RULE 22, THE REPEAT-QUESTION CHECK (the THIRTY-FIRST referee).
+# "Never ask the same thing the same way twice." A student who did not answer
+# the first time will not answer the identical second ask -- the ladder (rule 24)
+# exists for exactly this moment, and a verbatim re-ask reads as a broken robot.
+# NARROW: the reply's question sentence, normalized (lowercased, punctuation
+# stripped), EXACTLY matches a question sentence of the PREVIOUS tutor turn, and
+# it is at least six words long (short universal asks -- "ready?", "what do you
+# think?" -- must never fire). Fed `prev_tutor` (the last assistant message of
+# the turn's ORIGINAL history) by _create_verified.
+_RQ_MIN_WORDS = 6
+
+
+def _rq_questions(text: str) -> set:
+    out = set()
+    for sent in _vis_sentences(_spoken_only(str(text or ""))):
+        if "?" not in sent:
+            continue
+        norm = " ".join(re.sub(r"[^a-z0-9\s]", " ", sent.lower()).split())
+        if len(norm.split()) >= _RQ_MIN_WORDS:
+            out.add(norm)
+    return out
+
+
+def repeat_question_conflict(reply: str, prev_tutor=None):
+    """Return a description of a question re-asked word for word, or "".
+    Silent when `prev_tutor` is None. Never raises (fail open)."""
+    try:
+        if prev_tutor is None:
+            return ""
+        repeated = _rq_questions(reply) & _rq_questions(prev_tutor)
+        if not repeated:
+            return ""
+        q = sorted(repeated)[0][:70]
+        return ('you are asking "{q}" WORD FOR WORD again -- the student just heard '
+                "exactly that and did not answer it. Rule 22: never ask the same "
+                "thing the same way twice. Re-phrase it, make it smaller, or step "
+                "down the ladder (rule 24): show the next piece and ask about THAT."
+                ).format(q=q)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[repeatq] crashed (fail open): {exc}")
+        _event("referee_crash", "repeatq", str(exc))
+        return ""
+
+
+# BUILD ij -- RULE 62, THE BACK-REFERENCE CHECK (the THIRTY-SECOND referee).
+# "You may only point at work that happened." The 2026-08-12 audits' shape: "the
+# way we did a minute ago" for factoring that never happened -- a false memory
+# spoken with total confidence, teaching the student to distrust their own.
+# NARROW: "the <X> we did ... a minute ago/earlier/before" (and the "we did with
+# the <X>" form) where <X> never appears anywhere in the conversation. GENERIC
+# tokens are exempt -- "the problems we did earlier" is unverifiable but benign
+# in any conversation that contained problems; the harm class is a SPECIFIC
+# named move that never happened. Silent when `heard` is None.
+_BR_PATTERNS = (
+    re.compile(r"\bthe\s+(\w+)\s+we\s+(?:did|worked|solved|practiced)\b[^.?!]{0,30}?"
+               r"\b(?:a\s+minute\s+ago|a\s+moment\s+ago|earlier|before|last\s+time)\b", re.I),
+    re.compile(r"\bwe\s+did\s+with\s+(?:the\s+)?(\w+)\b[^.?!]{0,20}?"
+               r"\b(?:a\s+minute\s+ago|a\s+moment\s+ago|earlier|before|last\s+time)\b", re.I),
+)
+_BR_GENERIC = {"problem", "problems", "work", "one", "ones", "math", "practice",
+               "question", "questions", "stuff", "exercise", "exercises",
+               "example", "examples", "warmup", "lesson", "steps", "step",
+               "thing", "things", "it", "them"}
+
+
+def back_reference_conflict(reply: str, heard=None):
+    """Return a description of a pointed back-reference to work the conversation
+    never held, or "". Silent when `heard` is None. Never raises (fail open)."""
+    try:
+        if heard is None:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        base = str(heard).lower()
+        for rx in _BR_PATTERNS:
+            for m in rx.finditer(prose):
+                tok = m.group(1).lower()
+                if tok in _BR_GENERIC:
+                    continue
+                stem = tok[:-1] if tok.endswith("s") else tok
+                if re.search(r"\b" + re.escape(tok) + r"\b", base) or \
+                   re.search(r"\b" + re.escape(stem), base):
+                    continue               # the work is real -- point at it proudly
+                said = " ".join(m.group(0).split())[:60]
+                return ('you say "{s}" but nothing about "{t}" has happened anywhere '
+                        "in this conversation. Rule 62: you may only point at work "
+                        "that HAPPENED -- a confident memory of a lesson that never "
+                        "took place teaches the student to distrust their own. If "
+                        "the connection is worth making, make the work real first, "
+                        "or introduce the idea plainly as something new."
+                        ).format(s=said, t=tok)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[backref] crashed (fail open): {exc}")
+        _event("referee_crash", "backref", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE PROMOTION BATCH (2026-08-18 night, builds id/ie/if) -- referees 25-28.
 # -----------------------------------------------------------------------------
 # Jim, after the quiz-honesty evening: "to me, we're still in whack-a-mole mode."
@@ -4779,11 +4962,11 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
 
 def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
                          allowed_units=None, record=None, heard=None,
-                         terms_known=None, course: str = ""):
+                         terms_known=None, course: str = "", prev_tutor=None):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWENTY-NINE referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-TWO referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -4903,6 +5086,22 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if quizvocab:
             _event("referee_fire", "quizvocab", quizvocab)
             return quizvocab
+        # builds ih/ii/ij: referees THIRTY through THIRTY-TWO -- the Tier-B
+        # remainder. Notation new to the conversation must be read aloud (14);
+        # a question is never re-asked word for word (22); a back-reference
+        # points only at work the conversation actually held (62).
+        notation = notation_intro_conflict(reply, heard)
+        if notation:
+            _event("referee_fire", "notation", notation)
+            return notation
+        repeatq = repeat_question_conflict(reply, prev_tutor)
+        if repeatq:
+            _event("referee_fire", "repeatq", repeatq)
+            return repeatq
+        backref = back_reference_conflict(reply, heard)
+        if backref:
+            _event("referee_fire", "backref", backref)
+            return backref
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
@@ -5244,6 +5443,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     # very vocabulary it is checking for, and the regeneration would escape.
     heard = " ".join(m.get("content", "") for m in (messages or [])
                      if isinstance(m, dict) and isinstance(m.get("content"), str)).lower()
+    # build ii: the PREVIOUS tutor turn, for the repeat-question referee (rule 22)
+    # -- also from the ORIGINAL messages, for the same reason as heard.
+    prev_tutor = ""
+    for _m in reversed(list(messages or [])):
+        if isinstance(_m, dict) and _m.get("role") == "assistant" \
+                and isinstance(_m.get("content"), str):
+            prev_tutor = _m["content"]
+            break
     reply = ""
     tokens = {}
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
@@ -5282,7 +5489,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                                                 record=(meta or {}).get("record"),
                                                 heard=heard,
                                                 terms_known=(meta or {}).get("terms_known"),
-                                                course=(meta or {}).get("course", ""))
+                                                course=(meta or {}).get("course", ""),
+                                                prev_tutor=prev_tutor)
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")

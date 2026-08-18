@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18ij-work-that-happened". BUILDS ih + ii + ij,
+#               THE TIER-B REMAINDER -- referees 30-32 close out the promotion
+#               audit's practical list: new board notation is read aloud (rule 14) ·
+#               a question is never re-asked word for word (rule 22, fed the
+#               previous tutor turn) · a back-reference points only at work this
+#               conversation actually held (rule 62, the 2026-08-12 audits' own
+#               false-factoring shape). Rule 19 stays deferred by the audit's
+#               judgment. Ledger: 14/22/62 -> ENFORCED; the sweep is THIRTY-TWO;
+#               ENFORCED rules 31 of 65. ALL CODE IS IN tutor.py / prompts.py; this
+#               file only carries the stamp. PARTs 3by/3bz/3ca.
 #   2026-08-18  APP_BUILD -> "2026-08-18ig-quiz-vocab-gate". BUILD ig, THE QUIZ
 #               VOCABULARY GATE (rule 37's quiz-facing half; the promotion audit's
 #               Tier-B flagship). ia generalized to the whole course glossary: a
@@ -8431,7 +8441,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18ig-quiz-vocab-gate"
+APP_BUILD = "2026-08-18ij-work-that-happened"
 
 
 @app.get("/health")

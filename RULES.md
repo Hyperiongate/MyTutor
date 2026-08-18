@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 28 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 31 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 26 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 23 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -71,7 +71,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 14. DEFINE EVERY NOTATION THE FIRST TIME IT APPEARS
 
-**COVERED** — define every notation on first use (see also rule 48, ENFORCED)
+**ENFORCED** — define every notation on first use (build ih, the 30th referee): notation_intro_conflict rejects a reply whose BOARD tags carry a symbol new to this conversation (√, π, ^, |x|, f(x)) while the prose never reads it aloud; silent without heard. Rule 48 (also ENFORCED) owns the course-content tier. PART 3by
 
 ### 15. A QUESTION MUST BE COMPLETE ON SCREEN BEFORE YOU ASK IT
 
@@ -103,7 +103,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 22. THE ESCALATION LADDER -- NEVER ASK THE SAME THING THE SAME WAY TWICE
 
-**COVERED** — the escalation ladder
+**ENFORCED** — the escalation ladder -- the never-the-same-way-twice half (build ii, the 31st referee): repeat_question_conflict rejects a question (six words or longer) re-asked WORD FOR WORD from the previous tutor turn (prev_tutor, from the turn's ORIGINAL messages). The ladder's judgment half stays prompt-covered. PART 3bz
 
 ### 23. EQUIVALENT ANSWERS ARE CORRECT ANSWERS
 
@@ -263,7 +263,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 62. YOU MAY ONLY POINT AT WORK THAT HAPPENED
 
-**COVERED** — you may only point at work that happened (build ex; from the 2026-08-12 audits: 'the way we did a minute ago' for factoring that never happened). PART 3ab pins the check-the-board-and-notes demand, the rule-60 pointer, and the connecting-is-teaching guard; mathcheck structurally cannot see a false back-reference (no arithmetic in 'a minute ago'), so live replies are prompt-covered -- a natural lessonaudit scenario candidate
+**ENFORCED** — you may only point at work that happened (build ex words; build ij, the 32nd referee, promotes the caught shape): back_reference_conflict rejects 'the <X> we did a minute ago/earlier' when <X> appears nowhere in the conversation (heard); generic tokens ('the problems we did earlier') are exempt -- the harm class is a SPECIFIC named move that never happened, the 2026-08-12 audits' own catch. Broader back-reference judgment stays prompt-covered. PART 3ca
 
 ### 63. THE WORDS AND THE PICTURE ARE THE SAME FIGURE
 

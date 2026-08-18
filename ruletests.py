@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS ih/ii/ij -- PARTs 3by/3bz/3ca, the Tier-B remainder: rule 14
+#               runtime (new board notation read aloud; first-time-only and
+#               read-aloud exemptions), rule 22 (verbatim re-ask; six-word floor,
+#               ladder re-phrases pass; prev_tutor plumbing pinned), rule 62 (the
+#               audits' false-factoring shape; real work and generic tokens
+#               exempt). Three-referee canonical sweep on empty history.
+#               RULE_VERIFY 14/22/62 -> ENFORCED. Rule 19 stays deferred.
 #   2026-08-18  BUILD ig -- PART 3bx, THE QUIZ VOCABULARY GATE (rule 37's
 #               quiz-facing half, the Tier-B flagship): fire + every exemption
 #               (delivered scripts, heard, teach-then-ask, teaching replies, one
@@ -3764,7 +3771,12 @@ RULE_VERIFY = {
     11: ("ENFORCED",  "a tag in the wrong syntax fails to parse and is caught"),
     12: ("ENFORCED",  "strip_verify_tags + the pages' stripTags remove it before the student"),
     13: ("ENFORCED",  "mathcheck re-computes the claim with SymPy"),
-    14: ("COVERED",   "define every notation on first use (see also rule 48, ENFORCED)"),
+    14: ("ENFORCED",  "define every notation on first use (build ih, the 30th "
+                      "referee): notation_intro_conflict rejects a reply whose BOARD "
+                      "tags carry a symbol new to this conversation (√, π, ^, |x|, "
+                      "f(x)) while the prose never reads it aloud; silent without "
+                      "heard. Rule 48 (also ENFORCED) owns the course-content tier. "
+                      "PART 3by"),
     15: ("ENFORCED",  "prose_pending_question_conflict regenerates a question with no board line"),
     16: ("ENFORCED",  "a substitution question re-writes its equation (build ie, the "
                       "27th referee, from both 2026-08-07 live catches): "
@@ -3777,7 +3789,12 @@ RULE_VERIFY = {
     19: ("COVERED",   "worked example first"),
     20: ("COVERED",   "partially right is not wrong"),
     21: ("EXERCISED", "'I don't know' triggers a smaller step"),
-    22: ("COVERED",   "the escalation ladder"),
+    22: ("ENFORCED",  "the escalation ladder -- the never-the-same-way-twice half "
+                      "(build ii, the 31st referee): repeat_question_conflict "
+                      "rejects a question (six words or longer) re-asked WORD FOR "
+                      "WORD from the previous tutor turn (prev_tutor, from the "
+                      "turn's ORIGINAL messages). The ladder's judgment half stays "
+                      "prompt-covered. PART 3bz"),
     23: ("EXERCISED", "equivalent answers are correct"),
     24: ("COVERED",   "leaps, self-corrections, 'just tell me'"),
     25: ("COVERED",   "when the student says you are wrong"),
@@ -3885,14 +3902,14 @@ RULE_VERIFY = {
                       "a second line/board spotlight; the tour's page stops stay "
                       "exempt (PART 3bu). The when-to-USE judgment stays "
                       "prompt-covered"),
-    62: ("COVERED",   "you may only point at work that happened (build ex; from the "
-                      "2026-08-12 audits: 'the way we did a minute ago' for factoring "
-                      "that never happened). PART 3ab pins the check-the-board-and-"
-                      "notes demand, the rule-60 pointer, and the connecting-is-"
-                      "teaching guard; mathcheck structurally cannot see a false "
-                      "back-reference (no arithmetic in 'a minute ago'), so live "
-                      "replies are prompt-covered -- a natural lessonaudit scenario "
-                      "candidate"),
+    62: ("ENFORCED",  "you may only point at work that happened (build ex words; "
+                      "build ij, the 32nd referee, promotes the caught shape): "
+                      "back_reference_conflict rejects 'the <X> we did a minute "
+                      "ago/earlier' when <X> appears nowhere in the conversation "
+                      "(heard); generic tokens ('the problems we did earlier') are "
+                      "exempt -- the harm class is a SPECIFIC named move that never "
+                      "happened, the 2026-08-12 audits' own catch. Broader "
+                      "back-reference judgment stays prompt-covered. PART 3ca"),
     63: ("ENFORCED",  "the words and the picture are the same figure (build fe; from "
                       "the 2026-08-13 audits): triangle_side_conflict rejects any "
                       "right triangle whose hypotenuse slot cannot hold the longest "
@@ -12272,6 +12289,154 @@ def part3bx_quiz_vocab():
         bad("the quiz-vocab canonical sweep ran", str(exc))
 
 
+# =============================================================================
+# PARTs 3by / 3bz / 3ca -- THE TIER-B REMAINDER (builds ih/ii/ij)
+# -----------------------------------------------------------------------------
+# 2026-08-18 night, the audit's last practical promotions: rule 14's runtime half
+# (board notation new to the conversation is read aloud), rule 22's verbatim
+# re-ask, and rule 62's caught back-reference shape. Rule 19 stays deferred by
+# the audit's own judgment.
+# =============================================================================
+_NI_H = "welcome back! today we keep working on areas of squares."
+
+
+def part3by_notation_intro():
+    print("\nPART 3by — new notation is read aloud (build ih, rule 14)")
+    import tutor
+    check("  fires: a first-ever exponent the words never read",
+          bool(tutor.notation_intro_conflict(
+              'The area is side times side. [[step eq="A = s^2"]] What is A when '
+              "s is 3?", _NI_H)),
+          "a child is staring at a symbol nobody has ever named")
+    check("  fires: a first-ever root sign the words never read",
+          bool(tutor.notation_intro_conflict(
+              'Here is the rule. [[write text="√25 = 5"]] What number is that?',
+              _NI_H)),
+          "same defect, second symbol")
+    check("  silent: the reply reads the symbol aloud (the fix itself)",
+          not tutor.notation_intro_conflict(
+              'We write that as s squared — the little raised two. '
+              '[[step eq="A = s^2"]] What is A when s is 3?', _NI_H),
+          "rule 14's own prescribed reply is being rejected")
+    check("  silent: the conversation has seen the symbol before",
+          not tutor.notation_intro_conflict(
+              'Back to our formula. [[step eq="A = s^2"]] What is A when s is 3?',
+              _NI_H + ' earlier board: [[step eq="c^2 = 25"]] we read that as c '
+              "squared."),
+          "rule 14 is about the FIRST time -- later uses are rule 48(d)'s judgment")
+    check("  silent: no board tags at all",
+          not tutor.notation_intro_conflict(
+              "The area is side times side. What do you think comes next?", _NI_H),
+          "prose alone can never write board notation")
+    check("  silent: no heard supplied",
+          not tutor.notation_intro_conflict(
+              'The area is side times side. [[step eq="A = s^2"]]', None),
+          "a referee that cannot know is guessing")
+    check("  and via the sweep",
+          "Rule 14" in str(tutor.prose_board_conflict(
+              'New idea. [[step eq="A = s^2"]] What is A when s is 3?',
+              heard=_NI_H)),
+          "the referee exists but the sweep never calls it")
+
+
+def part3bz_repeat_question():
+    print("\nPART 3bz — never the same question the same way twice (build ii, rule 22)")
+    import tutor
+    PREV = ("Nice work. Now look at the triangle. What do you get when you "
+            "substitute four in for x?")
+    check("  fires: the verbatim re-ask",
+          bool(tutor.repeat_question_conflict(
+              "Take your time. What do you get when you substitute four in for x?",
+              PREV)),
+          "the student is trapped in a loop with a broken-sounding robot")
+    check("  silent: a re-phrase or a smaller step (the ladder)",
+          not tutor.repeat_question_conflict(
+              "Let me make it smaller: what is two times four?", PREV),
+          "the rule's own remedy is being rejected")
+    check("  silent: short universal asks never fire",
+          not tutor.repeat_question_conflict(
+              "Ready to try one?", "Are you ready? Ready to try one?"),
+          "'ready?' repeated across turns is warmth, not a loop")
+    check("  silent: no previous tutor turn supplied",
+          not tutor.repeat_question_conflict(
+              "What do you get when you substitute four in for x?", None),
+          "a referee that cannot know is guessing")
+    check("  and via the sweep (prev_tutor plumbed from the ORIGINAL messages)",
+          "Rule 22" in str(tutor.prose_board_conflict(
+              "Take your time. What do you get when you substitute four in for x?",
+              prev_tutor=PREV, heard="x"))
+          and "prev_tutor = " in
+          open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "tutor.py"), encoding="utf-8").read(),
+          "the referee exists but the pipeline never feeds it the previous turn")
+
+
+def part3ca_back_reference():
+    print("\nPART 3ca — point only at work that happened (build ij, rule 62)")
+    import tutor
+    H = ("today we solved two equations together. 2x + 5 = 13 and x = 4. nice "
+         "work on those problems.")
+    check("  fires: the 2026-08-12 audits' own shape (factoring that never was)",
+          bool(tutor.back_reference_conflict(
+              "This works just like the factoring we did a minute ago.", H)),
+          "a confident memory of a lesson that never happened ships again")
+    check("  silent: the earlier work is REAL",
+          not tutor.back_reference_conflict(
+              "This works just like the equations we solved earlier.", H),
+          "connecting to real work is teaching -- rule 62(c) protects it")
+    check("  silent: generic tokens are exempt",
+          not tutor.back_reference_conflict(
+              "Remember the problems we did earlier? Same idea.", H),
+          "'the problems we did' is benign in any lesson that held problems")
+    check("  silent: no back-reference at all",
+          not tutor.back_reference_conflict(
+              "Let's try factoring — it's new today, and it's fun.", H),
+          "introducing a topic plainly is the rule's own alternative")
+    check("  silent: no heard supplied",
+          not tutor.back_reference_conflict(
+              "Just like the factoring we did a minute ago.", None),
+          "a referee that cannot know is guessing")
+    check("  and via the sweep",
+          "Rule 62" in str(tutor.prose_board_conflict(
+              "This works just like the factoring we did a minute ago.", heard=H)),
+          "the referee exists but the sweep never calls it")
+    # THE WORDS HALF + THE CANONICAL SWEEP for all three new detectors, armed on
+    # empty history/previous-turn (the hardest setting).
+    here = os.path.dirname(os.path.abspath(__file__))
+    flat = re.sub(r"\s+", " ",
+                  open(os.path.join(here, "prompts.py"), encoding="utf-8").read())
+    check("rules 14, 22 and 62 each announce their referee",
+          "while the words never read or name it" in flat
+          and "re-asked word for word" in flat
+          and "a pointed back-reference to work this conversation never held" in flat,
+          "a promoted rule's text still reads like a wish")
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        alarms = []
+        for t in texts:
+            for fn, arg in ((tutor.notation_intro_conflict, ""),
+                            (tutor.repeat_question_conflict, ""),
+                            (tutor.back_reference_conflict, "")):
+                if fn(t, arg):
+                    alarms.append((fn.__name__, t[:60]))
+        check(f"ih/ii/ij: silent on all {len(texts)} canonical strings x 3 referees "
+              "(empty history — the hardest setting)",
+              not alarms,
+              f"false alarm(s): {alarms[:3]} -- a pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the ih/ii/ij canonical sweep ran", str(exc))
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12752,6 +12917,9 @@ def main():
     part3bv_substitution_rewrite()
     part3bw_stay_in_role()
     part3bx_quiz_vocab()
+    part3by_notation_intro()
+    part3bz_repeat_question()
+    part3ca_back_reference()
     part3ai_deploy_stamp()
     if live:
         part4_live()
