@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18ic-quiz-honesty". BUILDS ia + ib + ic, the
+#               QUIZ-HONESTY TRIO -- four catches from ONE live quiz run of Jim's,
+#               closed the same evening. ia (rule 47e, the TWENTY-THIRD referee):
+#               tutor.quiz_term_conflict rejects an acute/right/obtuse quiz choice
+#               this conversation never taught; the first referee fed the
+#               conversation's own text (tutor._create_verified computes `heard`
+#               from the ORIGINAL messages -- never the retry list -- so a rejected
+#               draft cannot teach the checker its own vocabulary). ib (rule 47g,
+#               the TWENTY-FOURTH): tutor.question_self_contained_conflict rejects a
+#               numbered quiz question that states "the vertex ... at Y" and then
+#               asks "what is the vertex". ic (rule 47f, words): an angle question
+#               draws its angle -- a complement question's picture IS the split
+#               right angle ([[angle deg="90" split="62"]]). The fourth catch (the
+#               new question's figure appearing while the previous answer is still
+#               being narrated) is the KNOWN narration/board timing limitation --
+#               tags render on arrival, the voice reads linearly; 47(e)'s
+#               teach-in-its-own-turn discipline is the mitigation, and a true
+#               narration-synced board reveal stays on the queue as its own build.
+#               ALL CODE IS IN tutor.py / prompts.py; this file only carries the
+#               stamp. PARTs 3br/3bs/3bt; RULES.md regenerated.
 #   2026-08-18  APP_BUILD -> "2026-08-18hz-promised-comparison". THE TWENTY-SECOND
 #               REFEREE. Jim's live catch: "here's our angle again, fifty degrees,
 #               next to a right angle for comparison" -- over a board holding ONLY
@@ -8386,7 +8406,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hz-promised-comparison"
+APP_BUILD = "2026-08-18ic-quiz-honesty"
 
 
 @app.get("/health")

@@ -2,6 +2,16 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS ia/ib/ic -- RULE 47 GROWS THREE QUIZ-HONESTY CLAUSES, all from
+#               ONE live quiz run of Jim's (four catches in five questions): (e) THE
+#               QUIZ ASKS ONLY WHAT WAS TAUGHT (question one asked acute/right/obtuse
+#               untaught, and the restarted quiz asked it again -- teach the missing
+#               term in its OWN turn, then quiz; enforced by tutor's twenty-third
+#               referee); (f) AN ANGLE QUESTION DRAWS ITS ANGLE (angle M's complement
+#               was asked with no picture -- the split right angle IS the complement
+#               picture); (g) THE QUESTION MUST NOT CONTAIN ITS ANSWER ("with the
+#               vertex at Y... what is the vertex?" -- enforced by the twenty-fourth
+#               referee).
 #   2026-08-18  BUILD hz -- RULE 63(e): A COMPARISON YOU SPEAK IS A COMPARISON YOU
 #               DRAW. Jim's live catch: "here's our angle again, fifty degrees, next
 #               to a right angle for comparison" over a board holding ONLY the fifty.
@@ -4471,6 +4481,29 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         quiz also covers increase and decrease, and conversions, which we haven't met
         yet" -- and never let a smaller instrument wear the bigger one's name into
         their record.
+    (e) THE QUIZ ASKS ONLY WHAT WAS TAUGHT (Jim's live catch, 2026-08-18: quiz
+        question one was "is one hundred ten degrees acute, right, or obtuse?" and
+        the student had to answer "we haven't covered that" -- and the RESTARTED quiz
+        asked the same untaught choice again). Before a question uses a term --
+        acute, obtuse, complement, supplement, congruent -- YOUR OWN earlier turns
+        must have taught it. When a quiz misfires this way, do not restart the quiz:
+        STOP, teach the missing idea in its own turn (and this rule's two-unaided-
+        rights bar applies from there), and only then quiz it. Defining a term inside
+        the question ("its complement -- the angle that adds with it to make ninety
+        degrees") is teaching, not quizzing, and is always fine. A referee now
+        rejects an acute/right/obtuse choice built on words you never said.
+    (f) AN ANGLE QUESTION DRAWS ITS ANGLE. The student answers what they can SEE.
+        "Angle M measures sixty-two degrees -- what is its complement?" draws
+        [[angle deg="90" split="62"]] -- the 62° piece inside the right angle, and
+        the "?" piece IS the complement being asked for; a supplement question draws
+        [[angle deg="180" split="N"]] the same way. A named angle in a quiz question
+        appears on the board, never only in words.
+    (g) THE QUESTION MUST NOT CONTAIN ITS ANSWER (Jim's live catch, same quiz:
+        "here's angle X Y Z with the vertex at Y. What is the vertex of this
+        angle?"). In a no-hints quiz, say the figure's NAME and let the picture and
+        caption carry it -- "here's angle X Y Z -- what is the vertex?" is a real
+        question; naming the vertex first turns it into an echo. A referee now
+        rejects a vertex question that states its own answer.
 
 48. TEACH THE STUDENT HOW TO *SAY* THE SYMBOL, NOT JUST WHAT IT MEANS.
     Rule 14 says define every notation the first time it appears. This is its missing

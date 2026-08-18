@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS ia/ib/ic -- PARTs 3br/3bs/3bt, the quiz-honesty trio from one
+#               live quiz run: 3br (rule 47e -- the untaught acute/right/obtuse
+#               choice, verbatim, plus the taught / teach-in-reply / no-history
+#               exemptions, the heard-from-ORIGINAL-messages plumbing pin, and the
+#               sweep wiring); 3bs (rule 47g -- the vertex question that contains
+#               its answer, the say-it-back exemption, and the ia+ib canonical
+#               sweep with ia armed on empty history); 3bt (rule 47f words -- an
+#               angle question draws its angle; complement = the split right angle).
 #   2026-08-18  BUILD hz -- PART 3bq, THE PROMISED COMPARISON (rule 63e): fixtures
 #               both directions (Jim's live catch verbatim; the honest deg="90"
 #               split="50" fix; the question-alone and deferral exemptions), the
@@ -3792,7 +3800,14 @@ RULE_VERIFY = {
                       "11 cases both directions, 0 false alarms on 1,015 canonical scripts. "
                       "The (a)-(c) halves -- two unaided right answers before any quiz -- "
                       "remain prompt-covered: a referee cannot count what happened in "
-                      "earlier turns"),
+                      "earlier turns. 47(e) (build ia, from Jim's 2026-08-18 live quiz):"
+                      " quiz_term_conflict, the TWENTY-THIRD referee, rejects an "
+                      "acute/right/obtuse choice the conversation never taught -- the "
+                      "first referee fed the conversation's own text (PART 3br). 47(g) "
+                      "(build ib, same run): question_self_contained_conflict, the "
+                      "TWENTY-FOURTH, rejects a numbered vertex question that states "
+                      "its own answer (PART 3bs). 47(f) -- an angle question draws its "
+                      "angle -- is prompt-covered, pinned by PART 3bt"),
     48: ("ENFORCED",  "PART 3b/3f fail a course that writes notation it never reads aloud"),
     49: ("ENFORCED",  "PART 3g + the just-in-time matcher"),
     50: ("COVERED",   "chase an unfinished unit; PART 3k proves the bar is reachable"),
@@ -11787,6 +11802,175 @@ def part3bq_angle_compare():
           "find the next wrong picture")
 
 
+# =============================================================================
+# PART 3br -- THE QUIZ ASKS ONLY WHAT WAS TAUGHT (build ia, rule 47e)
+# -----------------------------------------------------------------------------
+# 2026-08-18, Jim's live quiz run, catch #1 of four: quiz question one offered
+# "acute, right, or obtuse" untaught (the student: "I don't know. We haven't
+# covered that"), and the RESTARTED quiz asked the same untaught choice again.
+# quiz_term_conflict is the TWENTY-THIRD referee and the first fed the
+# conversation's own text (`heard`); these pins hold the fire shapes, the
+# exemptions (taught earlier, taught in-reply, no history), and the plumbing that
+# keeps a rejected draft from teaching the checker its own vocabulary.
+# =============================================================================
+_QT_H_BARE = ("welcome back! let's keep working on naming angles. an angle has two "
+              "rays and a vertex.")
+_QT_H_TAUGHT = (_QT_H_BARE + " an angle smaller than ninety degrees is called acute. "
+                "a right angle is exactly ninety degrees. an angle bigger than ninety "
+                "degrees is called obtuse.")
+_QT_Q1 = ("Let's do it — five questions. No hints from me on these. Question 1: "
+          "Here's an angle of one hundred ten degrees between rays P, Q, and R, with "
+          "the vertex at Q. Is one hundred ten degrees acute, right, or obtuse? "
+          '[[angle deg="110" label="PQR" caption="angle P Q R, one hundred ten degrees"]]')
+_QT_RESTART = ("Right — one hundred ten is more than ninety, so it's obtuse. That one "
+               "doesn't count against you since I hadn't taught it yet — let's restart "
+               "the quiz fresh, five new questions. Question 1: Here's angle D E F, "
+               "measuring thirty degrees, vertex at E. Is this angle acute, right, or "
+               "obtuse?")
+_QT_TEACHES = ("An angle under ninety degrees is acute, exactly ninety is a right "
+               "angle, and over ninety is obtuse. Question 1: Is this angle acute, "
+               'right, or obtuse? [[angle deg="30" label="DEF" caption="angle D E F"]]')
+
+
+def part3br_quiz_terms():
+    print("\nPART 3br — the quiz asks only what was taught (build ia, rule 47e)")
+    import tutor
+    check("  fires: the live catch (acute/right/obtuse, never taught)",
+          bool(tutor.quiz_term_conflict(_QT_Q1, _QT_H_BARE)),
+          "the caught shape ships again -- a child is quizzed on words nobody said")
+    check("  fires: the RESTARTED quiz with the terms still untaught",
+          bool(tutor.quiz_term_conflict(_QT_RESTART, _QT_H_BARE)),
+          "the restart repeats the exact miss the tutor just apologized for")
+    check("  silent: the terms were taught in earlier turns",
+          not tutor.quiz_term_conflict(_QT_Q1, _QT_H_TAUGHT),
+          "false alarm -- a fair quiz is being regenerated")
+    check("  silent: the reply teaches the terms, then asks",
+          not tutor.quiz_term_conflict(_QT_TEACHES, _QT_H_BARE),
+          "teach-then-quiz in one reply is the fix 47(e) prescribes -- it must pass")
+    check("  silent: no history handed in (battery / nightwatch / direct calls)",
+          not tutor.quiz_term_conflict(_QT_Q1, None)
+          and not tutor.prose_board_conflict(
+              'Question 1: Is this angle acute, right, or obtuse? '
+              '[[angle deg="110" label="PQR" caption="angle P Q R"]]'),
+          "a referee that cannot know is guessing")
+    check("  silent: a teaching sentence lists the terms with no question",
+          not tutor.quiz_term_conflict(
+              "An angle can be acute, right, or obtuse — let me show you each one.",
+              _QT_H_BARE),
+          "the lesson that FIXES the gap is being rejected")
+    # The wiring: heard reaches the referee through the sweep.
+    fired = tutor.prose_board_conflict(
+        'Question 1: Is this angle acute, right, or obtuse? '
+        '[[angle deg="110" label="PQR" caption="angle P Q R"]]',
+        heard=_QT_H_BARE)
+    check("  and via the sweep, with heard passed",
+          "47(e)" in str(fired),
+          f"prose_board_conflict never calls the quiz-term referee (got: {str(fired)[:80]})")
+    # The plumbing that must not regress: _create_verified computes heard from the
+    # ORIGINAL messages, not the retried msgs list.
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("heard is computed from the ORIGINAL messages and passed to the sweep",
+          "for m in (messages or [])" in tsrc and "heard=heard" in tsrc,
+          "a rejected draft plus its nudge can now teach the checker its own "
+          "vocabulary and the regeneration escapes")
+    check("rule 47(e) is written into the prompt",
+          "THE QUIZ ASKS ONLY WHAT WAS TAUGHT" in
+          open(os.path.join(here, "prompts.py"), encoding="utf-8").read(),
+          "the referee enforces a rule the prompt never states")
+
+
+# =============================================================================
+# PART 3bs -- THE QUESTION MUST NOT CONTAIN ITS ANSWER (build ib, rule 47g)
+# -----------------------------------------------------------------------------
+# Same live quiz run, catch #4: "Question 5: Here's angle X Y Z with the vertex at
+# Y. What is the vertex of this angle?" question_self_contained_conflict is the
+# TWENTY-FOURTH referee -- numbered quiz questions only, so rule 47's say-it-back
+# teaching move stays legal outside a quiz.
+# =============================================================================
+def part3bs_self_contained():
+    print("\nPART 3bs — the question must not contain its answer (build ib, rule 47g)")
+    import tutor
+    JIM_Q5 = ("Question 5: Here's angle X Y Z with the vertex at Y. What is the "
+              "vertex of this angle — the middle letter, where the two rays meet? "
+              '[[angle deg="90" label="XYZ" caption="angle X Y Z"]]')
+    check("  fires: the live catch (vertex stated, then asked)",
+          bool(tutor.question_self_contained_conflict(JIM_Q5)),
+          "the caught shape ships again -- a right answer that proves nothing")
+    check("  and via the sweep",
+          "47(g)" in str(tutor.prose_board_conflict(JIM_Q5)),
+          "the referee exists but prose_board_conflict never calls it")
+    check("  silent: the same question with the answer left out",
+          not tutor.question_self_contained_conflict(
+              "Question 5: Here's angle X Y Z. What is the vertex of this angle — "
+              "the middle letter, where the two rays meet? "
+              '[[angle deg="90" label="XYZ" caption="angle X Y Z"]]'),
+          "the FIXED question is being rejected")
+    check("  silent: say-it-back teaching outside a numbered quiz",
+          not tutor.question_self_contained_conflict(
+              "The vertex is at Y — that's where the two rays meet. Say it back to "
+              "me: what is the vertex?"),
+          "rule 47's own say-it-back move is being punished")
+    check("  silent: a vertex stated with no vertex question",
+          not tutor.question_self_contained_conflict(
+              "Question 2: Here's angle D E F with the vertex at E. Is this angle "
+              "acute, right, or obtuse?"),
+          "stating the vertex while asking something ELSE is normal and fine")
+    check("rule 47(g) is written into the prompt",
+          "THE QUESTION MUST NOT CONTAIN ITS ANSWER" in
+          open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "prompts.py"), encoding="utf-8").read(),
+          "the referee enforces a rule the prompt never states")
+    # THE CANONICAL SWEEP -- both new reply-only detectors over every authored string.
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        alarms = sum(1 for t in texts
+                     if tutor.question_self_contained_conflict(t)
+                     or tutor.quiz_term_conflict(t, ""))
+        check(f"ia+ib: silent on all {len(texts)} canonical strings "
+              "(ia armed with EMPTY history — the hardest setting)",
+              alarms == 0,
+              f"{alarms} false alarm(s) -- a pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the ia/ib canonical sweep ran", str(exc))
+
+
+# =============================================================================
+# PART 3bt -- AN ANGLE QUESTION DRAWS ITS ANGLE (build ic, rule 47f -- words)
+# -----------------------------------------------------------------------------
+# Same live quiz run, catch #3: "Angle M measures sixty-two degrees — what is its
+# complement?" went out with only the arithmetic line, no picture. Words-tier for
+# now (the split right angle IS the complement picture, taught in the prompt);
+# these pins keep the words from quietly vanishing.
+# =============================================================================
+def part3bt_angle_on_board():
+    print("\nPART 3bt — an angle question draws its angle (build ic, rule 47f)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    check("rule 47(f) is written into the prompt",
+          "AN ANGLE QUESTION DRAWS ITS ANGLE" in psrc,
+          "the words-half of catch #3 is gone")
+    check("the complement picture is taught concretely",
+          'deg="90" split="62"' in psrc,
+          "the rule bans without showing the move -- the model will keep "
+          "writing bare arithmetic lines")
+    check("the supplement picture is taught concretely",
+          'deg="180" split=' in psrc,
+          "supplements lost their picture")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12260,6 +12444,9 @@ def main():
     part3bo_beta_key()
     part3bp_voice_retry()
     part3bq_angle_compare()
+    part3br_quiz_terms()
+    part3bs_self_contained()
+    part3bt_angle_on_board()
     part3ai_deploy_stamp()
     if live:
         part4_live()

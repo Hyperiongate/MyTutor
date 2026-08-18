@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILDS ia + ib -- THE TWENTY-THIRD AND TWENTY-FOURTH REFEREES, both
+#               from ONE live quiz run of Jim's. ia: quiz_term_conflict (rule 47e) --
+#               a question offering the acute/right/obtuse choice when the
+#               conversation never taught those words is rejected. First referee fed
+#               the conversation itself: _create_verified now computes `heard` (the
+#               ORIGINAL messages' text, never the retry msgs -- a rejected draft
+#               plus its nudge must not teach the checker its own vocabulary) and
+#               prose_board_conflict passes it down; silent when the caller cannot
+#               know. The reply's own prose outside the question counts as heard, so
+#               teach-then-quiz in one reply stays legal. ib:
+#               question_self_contained_conflict (rule 47g) -- a NUMBERED quiz
+#               question ("Question 5:") that states "the vertex ... at Y" and then
+#               asks "what is the vertex" is rejected; outside a numbered quiz the
+#               shape stays legal (rule 47's say-it-back move). PARTs 3br/3bs.
 #   2026-08-18  BUILD hz -- THE TWENTY-SECOND REFEREE: THE PROMISED COMPARISON.
 #               Jim's live catch (geometry, angle sizes): "Here's our angle again,
 #               fifty degrees, next to a right angle for comparison" -- and the board
@@ -1774,7 +1788,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # licence -- and the honest measurement now EXISTS: build hq's two-prompt-sizes
 # experiment (lessonaudit --prompt-size) is queued for Jim to run, and its result
 # should set this number from evidence.
-PROMPT_CEILING = 181_000
+# 2026-08-18 (builds hz/ia/ib/ic): RAISED 181,000 -> 184,000. One day of live
+# catches wrote rule 63(d)/(e) and rule 47(e)/(f)/(g) plus their figure teaching
+# into the shared rules block, and the all-heard algebra2 deferred prompt measured
+# 182,828. Same authorization, same discipline as the hr raise: teaching is never
+# trimmed to duck a tripwire, and each raise gets its own dated note (this is it).
+# Jim's queued two-prompt-sizes run remains the evidence that should set this
+# number properly.
+PROMPT_CEILING = 184_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -3430,6 +3451,118 @@ def angle_compare_conflict(reply: str):
 
 
 # =============================================================================
+# THE QUIZ-TERM CHECK (2026-08-18, build ia) -- the TWENTY-THIRD referee.
+# -----------------------------------------------------------------------------
+# Jim's live quiz run, catch #1 of four: quiz question one was "is one hundred ten
+# degrees acute, right, or obtuse?" -- and the student's only honest answer was
+# "I don't know. We haven't covered that." Worse, the tutor then ADMITTED it ("I
+# hadn't taught it yet"), restarted the quiz, and asked the SAME untaught choice
+# again. The term-gap probe (build gi) could only log the miss after the student
+# was hit; nothing could stop the question going out, because "what was taught"
+# lives in the conversation history and no referee could see it.
+#
+# Now one can. _create_verified computes `heard` -- the lowercased text of the
+# turn's ORIGINAL messages (both sides of the conversation as the model saw it,
+# NOT including retry nudges, which would let a rejected draft teach the checker
+# its own vocabulary) -- and hands it down the sweep. Rule 47(e) carries the words.
+#
+# NARROW, per the rule-27/hr/hz precedents -- the caught shape only:
+#   FIRES on a QUESTION sentence offering the acute/obtuse classification choice
+#   ("is this angle acute, right, or obtuse?") when an offered term was never
+#   heard: "acute"/"obtuse" as words, the "right" option as "right angle" (bare
+#   "right" is ordinary prose). The reply's OWN prose outside the question counts
+#   as heard -- a reply that teaches the terms and then asks is doing its job, and
+#   defining a term inside a LATER lesson stays legal.
+#   SILENT when the caller passes no history (battery fixtures, nightwatch panels,
+#   direct calls) -- a referee that cannot know must not guess.
+# =============================================================================
+_QT_CHOICE_TERMS = re.compile(r"\b(acute|obtuse)\b", re.I)
+
+
+def quiz_term_conflict(reply: str, heard=None):
+    """Return a description of a quiz choice built on terms the conversation never
+    taught, or "". Silent when `heard` is None. Never raises (fail open)."""
+    try:
+        if heard is None:
+            return ""
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        for sent in _vis_sentences(prose):
+            if "?" not in sent:
+                continue                    # teaching sentences may list the terms freely
+            terms = {t.lower() for t in _QT_CHOICE_TERMS.findall(sent)}
+            if not ({"acute", "obtuse"} <= terms):
+                continue                    # not the classification-choice shape
+            if re.search(r"\bright\b", sent, re.I):
+                terms.add("right")
+            base = (str(heard) + " " + prose.replace(sent, " ")).lower()
+            missing = []
+            for t in sorted(terms):
+                needle = "right angle" if t == "right" else t
+                if needle not in base:
+                    missing.append(needle)
+            if missing:
+                miss = ", ".join('"' + m + '"' for m in missing)
+                return ("your quiz question offers the choice acute / right / obtuse, "
+                        "but this conversation has never said {m} -- the student's only "
+                        "honest answer is \"we haven't covered that\", and that miss "
+                        "lands on their record. Rule 47(e): THE QUIZ ASKS ONLY WHAT WAS "
+                        "TAUGHT. Stop the quiz, teach the missing idea in its own turn "
+                        "(with the pictures -- an [[angle]] under ninety, at ninety, "
+                        "over ninety), get two unaided rights, and only then quiz it."
+                        ).format(m=miss)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[quizterm] crashed (fail open): {exc}")
+        _event("referee_crash", "quizterm", str(exc))
+        return ""
+
+
+# =============================================================================
+# THE SELF-CONTAINED QUESTION CHECK (2026-08-18, build ib) -- the TWENTY-FOURTH.
+# -----------------------------------------------------------------------------
+# Jim's live quiz run, catch #4: "Here's angle X Y Z with the vertex at Y. What is
+# the vertex of this angle -- the middle letter, where the two rays meet?" The
+# question states its own answer and then asks it. Neither sibling could see it:
+# the self-answer referee (rule 39b) looks for an answer AFTER the question, and
+# the board-answers-it referee (rule 17) reads tags, not prose. Rule 47(g) carries
+# the words.
+#
+# NARROW -- the caught shape, in a QUIZ only: the reply is a numbered quiz question
+# ("Question 3:" and kin), it states "the vertex ... at <letter>", and it then asks
+# "what is the vertex". OUTSIDE a quiz this exact shape is often good teaching --
+# rule 47's own say-it-back move ("the vertex is at Y -- say it back: what's the
+# vertex?") must stay legal -- which is why the Question-N marker is required.
+# =============================================================================
+_QSC_QUIZ = re.compile(r"\bquestion\s+(?:one|two|three|four|five|\d+)\s*[:.,]", re.I)
+_QSC_STATE = re.compile(r"\bvertex\s+(?:is\s+)?at\s+([A-Za-z])\b", re.I)
+_QSC_ASK = re.compile(r"\bwhat(?:'s|\s+is)\s+the\s+vertex\b", re.I)
+
+
+def question_self_contained_conflict(reply: str):
+    """Return a description of a quiz question that states its own answer, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        if not _QSC_QUIZ.search(prose):
+            return ""                      # not a numbered quiz question
+        stated = _QSC_STATE.search(prose)
+        if not (stated and _QSC_ASK.search(prose)):
+            return ""
+        return ('your quiz question says the vertex is at {v} and then asks "what is '
+                "the vertex?\" -- the answer is inside the question, so a right answer "
+                "proves nothing and the tally becomes fiction. Rule 47(g): THE QUESTION "
+                "MUST NOT CONTAIN ITS ANSWER. Say the figure's NAME and let the picture "
+                "and caption carry it -- \"here's angle X Y Z -- what is the vertex?\" "
+                "is the same question with the answer left for the student."
+                ).format(v=stated.group(1).upper())
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[selfquiz] crashed (fail open): {exc}")
+        _event("referee_crash", "selfquiz", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE RECORD-CLAIM CHECK (2026-08-18, build ho) -- the TWENTIETH referee.
 # -----------------------------------------------------------------------------
 # The count-claim probe's promotion (build gv measured; Phase 4 enforces). The audit's
@@ -4347,13 +4480,15 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
 
 
 def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
-                         allowed_units=None, record=None):
+                         allowed_units=None, record=None, heard=None):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWENTY-TWO referees ride this sweep (hm added the unitplan check, ho the
+    TWENTY-FOUR referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
-    check; the original twelve are listed below, the rest are named at their call
+    check, ia the quiz-term check -- fed `heard`, the turn's original conversation
+    text, by _create_verified -- and ib the self-contained-question check; the
+    original twelve are listed below, the rest are named at their call
     sites): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
@@ -4444,6 +4579,21 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if anglecompare:
             _event("referee_fire", "anglecompare", anglecompare)
             return anglecompare
+        # build ib: TWENTY-FOURTH -- a numbered quiz question that states its own
+        # answer (rule 47g, from the same live quiz run as ia). Reply-only, so it
+        # rides here.
+        selfquiz = question_self_contained_conflict(reply)
+        if selfquiz:
+            _event("referee_fire", "selfquiz", selfquiz)
+            return selfquiz
+        # build ia: TWENTY-THIRD -- a quiz choice built on terms this conversation
+        # never taught (rule 47e). The only referee fed the conversation's own text
+        # (`heard`, from _create_verified's ORIGINAL messages); silent when the
+        # caller cannot know.
+        quizterm = quiz_term_conflict(reply, heard)
+        if quizterm:
+            _event("referee_fire", "quizterm", quizterm)
+            return quizterm
         # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
         refused = refused_demonstration_conflict(reply, student_message)
         if refused:
@@ -4760,6 +4910,12 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     `meta` ({code, course, mode}) attributes the turn's usage to a student for the
     cost log -- counts only, never text."""
     msgs = list(messages)
+    # build ia: what this conversation has actually SAID, for the quiz-term referee
+    # (rule 47e). Computed from the ORIGINAL messages, never from the retried msgs
+    # list -- a rejected draft plus its nudge would otherwise teach the checker the
+    # very vocabulary it is checking for, and the regeneration would escape.
+    heard = " ".join(m.get("content", "") for m in (messages or [])
+                     if isinstance(m, dict) and isinstance(m.get("content"), str)).lower()
     reply = ""
     tokens = {}
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
@@ -4795,7 +4951,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             prose_detail = prose_board_conflict(reply, _last_user_text(msgs),
                                                 expected_unit=(meta or {}).get("unit"),
                                                 allowed_units=(meta or {}).get("allowed_units"),
-                                                record=(meta or {}).get("record"))
+                                                record=(meta or {}).get("record"),
+                                                heard=heard)
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
