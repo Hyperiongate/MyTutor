@@ -2,6 +2,57 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hq -- PART 3bh, THE TWO-PROMPT-SIZES EXPERIMENT IS RUNNABLE:
+#               the --prompt-size lever exists and threads through; the large
+#               student is all-heard + forced-verbatim and assembles the genuine
+#               over-ceiling worst case (both sizes built in-process, free);
+#               nightwatch survives run_scenario's new 4-member return; the report
+#               states how to read the comparison. The live halves need keys and
+#               run on Render -- what the battery can prove without keys, it now
+#               proves on every push.
+#   2026-08-18  BUILD hp -- PART 3bg, THE ORDER OF AUTHORITY: exactly one absolute
+#               supremacy claim (GROUND_RULES); the five-level lattice present with
+#               its tiebreakers and the audited cross-pulls named by number (65 over
+#               fading, 64 over 23); the opener block re-scoped to level 3; the
+#               lattice provably rides GROUND_RULES into all three lanes; and
+#               RULES.md is regenerated to a temp file and byte-compared on EVERY
+#               push -- it was two builds stale with nothing checking it, and now
+#               a stale copy fails the build (run `python ruletests.py --rules`).
+#   2026-08-18  BUILD ho -- PART 3bf, THE RECORD-CLAIM REFEREE (the count-claim
+#               probe's promotion). RECORD_CLAIM_CASES: 19 transcript-shaped
+#               fixtures in both directions, including the audit's own shapes (the
+#               watch-count refusal, the phantom "Unit 9 in progress", the invented
+#               "last score") and the traps that must stay silent (true scores, true
+#               mastery, future conditionals, in-reply results, no-record lanes);
+#               the canonical corpus swept with a full record; wiring checks pin
+#               _claim_record -> meta["record"] -> the sweep, and the whole-reply
+#               result-tag exemption.
+#   2026-08-18  BUILD hn -- PART 3be, THE STREAK LIVES ON CALIFORNIA TIME (Jim's
+#               THREE CLOCKS ruling): wiring checks (_bump_stats reads
+#               _streak_today/_streak_now; default zone America/Los_Angeles; the
+#               decision recorded in the CLOCKS note; tzdata in requirements) plus
+#               a subprocess proof that STREAK_TZ genuinely steers the calendar
+#               (UTC+14 vs UTC-12 never share a date) and that a bogus zone falls
+#               back to the UTC day without crashing the import. PART 3bc's streak
+#               proof now computes yesterday/gap on the STREAK'S clock -- computed
+#               from UTC it was wrong for the ~7 hours a day the calendars disagree.
+#   2026-08-18  BUILD hm -- PART 3bd, THE HONEST OPENER AND THE VALIDATED DECLARATION
+#               (Phase 4 of the full-app review begins -- Class D). UNITPLAN_CASES
+#               exercises the NINETEENTH referee (tutor.unitplan_conflict) in both
+#               directions on transcript-shaped replies, incl. the phantom-Unit-5
+#               shape; the canonical corpus (all foundation scripts, every course)
+#               is swept for false fires; wiring checks pin the one grammar source
+#               (tags.UNITPLAN_UNIT_PATTERN), the meta arming, the filing gate
+#               (_accept_declared_unit + the "unitplan_rejected" telemetry), the
+#               code-branched opener (no-record forbids a recap; returning states
+#               facts from the server; the gap refresher reads the record), and rule
+#               0's new precedence (THE NOTES WIN). _HM_PROOF drives the allowed-set
+#               table, the filing gate, the rejection telemetry and the opener
+#               has-record decision on a REAL temp SQLite database on every push.
+#               ALSO: the nightwatch restart-safety block now pins the clock in BOTH
+#               places it is read (write_report gained now=), because the hardcoded
+#               2026-08-17 version went red the day the calendar rolled past it --
+#               a test that pins the clock must pin it everywhere the code reads it.
 #   2026-08-17  BUILD hl -- PART 3bc, THE SMALL CUTS OF PHASE 3: wiring checks (the
 #               file-fallback history probe parses "::" like _ck builds it and both
 #               login sites OR it into "returning"; record_topic_quiz claims an
@@ -8518,15 +8569,19 @@ def part3ak_night_watch():
 
     # ---- restart safety: it asks the disk, not a variable ----
     with _tmp.TemporaryDirectory() as d:
-        now = _dt.datetime(2026, 8, 17, 9, tzinfo=_dt.timezone.utc)
+        # The clock is PINNED and handed to BOTH due() and write_report() (hm): the report's
+        # date-stamped filename IS the ledger due() reads, so a test that pins one clock but
+        # lets the other run free goes red the day after it is written — which is exactly
+        # what happened on 2026-08-18 to the hardcoded-date version of this block.
+        now = _dt.datetime(2026, 8, 17, nw.RUN_HOUR_UTC + 1, tzinfo=_dt.timezone.utc)
         check("night watch: due at the run hour", nw.due(d, now))
         check("night watch: not due before the run hour",
-              not nw.due(d, _dt.datetime(2026, 8, 17, 2, tzinfo=_dt.timezone.utc)))
-        nw.write_report(d, res, "b")
+              not nw.due(d, now.replace(hour=nw.RUN_HOUR_UTC - 1)))
+        nw.write_report(d, res, "b", now=now)
         check("night watch: not due twice in one night (a redeploy cannot double-run)",
               not nw.due(d, now), "restart-safety is read from disk, like the nightly snapshot")
         check("night watch: due again tomorrow",
-              nw.due(d, _dt.datetime(2026, 8, 18, 9, tzinfo=_dt.timezone.utc)))
+              nw.due(d, now + _dt.timedelta(days=1)))
         led_path = os.path.join(d, nw.LEDGER_NAME)
         with open(led_path, "w", encoding="utf-8") as fh:
             fh.write("{not json")
@@ -8844,16 +8899,21 @@ def part3an_unit_follows_teaching():
         m = fh.read()
     # ---- link 1: the DECLARED unit outranks the resolved default when tracking ----
     # build hj: the focus guard became `unit_source != "focus"` -- the resolver owns
-    # the focus decision now, and the declaration check reads its SOURCE instead of
-    # re-testing the raw number. Same gs semantics, one owner.
+    # the focus decision. build hm: the declaration now files through the gate
+    # (_accept_declared_unit), which preserves BOTH gs semantics (an accepted
+    # declaration outranks the resolved unit; focus outranks the declaration) while
+    # refusing a declaration the record cannot justify. Same behaviour for every
+    # honest declaration, one gate for the dishonest ones.
     check("unit: the tutor's declaration outranks placement when tracking",
           "declared = _declared_unit(reply)" in m
-          and 'if declared and unit_source != "focus"' in m,
+          and "course_unit, _up_verdict = _accept_declared_unit(" in m
+          and 'return int(declared), "accepted"' in m,
           "activity would go on being filed under the unit the student was PLACED in, so "
           "the tracker would keep agreeing with a stale rail")
     # ---- link 2: an explicit focus still wins, because that is the student choosing ----
     check("unit: an explicit focus unit still outranks the declaration",
-          'unit_source != "focus"' in m and 'return int(focus_unit), "focus"' in m,
+          'if unit_source == "focus":\n            return resolved_unit, "focus-wins"' in m
+          and 'return int(focus_unit), "focus"' in m,
           "a student who clicked 'work on unit 4' must not be overridden by the tutor")
     # ---- link 3: the server serves the unit the lesson is actually in ----
     check("unit: /api/session reports current_unit",
@@ -10234,12 +10294,15 @@ stats_ok = (not errors and m["problems_practiced"] == N_T * N_C * 2
             and m.get("streak_days") == 1)
 from sqlalchemy import update
 t = store._tables["student_stats"]
-yday = (store._now().date() - datetime.timedelta(days=1)).isoformat()
+# build hn: yesterday/gap are computed on the STREAK'S clock (California Pacific),
+# the same calendar _bump_stats compares against -- computing them from UTC made
+# this proof wrong for the ~7 hours a day the two calendars disagree.
+yday = (store._streak_now().date() - datetime.timedelta(days=1)).isoformat()
 with store._engine.begin() as c:
     c.execute(update(t).where(t.c.code == "S1").values(last_active=yday, streak_days=4))
 store.record_practice("S1", 1, 1)
 plus1 = store.get_mastery("S1", "algebra1")["stats"]["streak_days"] == 5
-gap = (store._now().date() - datetime.timedelta(days=3)).isoformat()
+gap = (store._streak_now().date() - datetime.timedelta(days=3)).isoformat()
 with store._engine.begin() as c:
     c.execute(update(t).where(t.c.code == "S1").values(last_active=gap, streak_days=9))
 store.record_practice("S1", 1, 1)
@@ -10314,6 +10377,510 @@ def part3bc_small_cuts():
               f"{verdict} -- on a REAL database")
 
 
+# =============================================================================
+# PART 3bd -- THE HONEST OPENER AND THE VALIDATED DECLARATION (build hm)
+# -----------------------------------------------------------------------------
+# 2026-08-18, Phase 4 of the full-app review begins (Class D: the model's word
+# becomes truth, unvalidated). Two mechanisms closed in one build:
+#   (1) THE OPENER NO LONGER DEMANDS WHAT THE RECORD CANNOT SUPPORT. The server
+#       decides has-record (assistant history / touched / mastered -- placement
+#       alone is not a lesson record); a no-record opener FORBIDS a recap; a
+#       returning student's recap FACTS are stated by the server from the store,
+#       and the note says outright that when conversation and record disagree,
+#       the record wins (history demoted to style).
+#   (2) [[unitplan]] IS VETOED LIKE ARITHMETIC. main._unit_allowed_set computes
+#       the units the record can justify; the NINETEENTH referee regenerates a
+#       draft declaring anything else; _accept_declared_unit re-checks at filing
+#       (referees fail open) and a surviving invention writes a system_events row
+#       instead of a topic_progress row -- the likeliest phantom-Unit-5 mechanism,
+#       dead at both ends.
+# =============================================================================
+# The referee, in both directions, with transcript-shaped replies. (name, reply,
+# allowed, should_flag). The phantom case is the audit's own shape: a warm recap
+# plus a unit bar for a unit nothing supports.
+UNITPLAN_CASES = [
+    ("the resolved unit is declared",
+     'Today we\'re in decimals! [[unitplan unit="3" topics="comparing | adding"]]',
+     (2, 3, 4), False),
+    ("THE PHANTOM: a unit from nowhere",
+     'Welcome back! We were right in the middle of Unit 5. '
+     '[[unitplan unit="5" topics="graphs | slopes"]]',
+     (1, 2), True),
+    ("revisiting a mastered unit",
+     'Let\'s review! [[unitplan unit="2" topics="place value | rounding"]]',
+     (2, 3, 4), False),
+    ("the student asked for it (main folded it into the set)",
+     'Sure, let\'s jump ahead! [[unitplan unit="7" topics="area | volume"]]',
+     (3, 7), False),
+    ("progression advance",
+     'Unit 3 is mastered -- onward! [[unitplan unit="4" topics="ratios | rates"]]',
+     (2, 3, 4), False),
+    ("no unitplan tag at all",
+     'Nice work! [[step title="Add" steps="2+3=5"]] What do you get?',
+     (3,), False),
+    ("the caller does not know (practice/topic lanes)",
+     'Onward! [[unitplan unit="5" topics="x | y"]]', None, False),
+    ("empty allowed set stays silent",
+     'Onward! [[unitplan unit="5" topics="x | y"]]', (), False),
+    ("out-of-range declaration is not judged",
+     'Hmm. [[unitplan unit="0" topics="x"]]', (1, 2), False),
+    ("unparseable unit is not judged",
+     'Hmm. [[unitplan unit="banana" topics="x"]]', (1, 2), False),
+]
+
+_HM_PROOF = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled()
+import main
+ok = {}
+# --- the allowed set, from a real record -------------------------------------
+store.record_check("M1", 2, 19, 20, "U2", "algebra1")       # mastered unit 2 (95%)
+store.record_topic("M1", 5, "U5", "learning", "algebra1")   # touched unit 5
+a = set(main._unit_allowed_set("M1", "algebra1", 3, 0, ""))
+ok["allowed_core"] = {2, 3, 5}.issubset(a) and 4 in a       # 4 = next unmastered after 3
+ok["allowed_no_ghost"] = 7 not in a and 9 not in a
+ok["allowed_msg"] = 7 in set(main._unit_allowed_set("M1", "algebra1", 3, 0,
+                                                    "can we try unit 7 today?"))
+ok["allowed_focus"] = 6 in set(main._unit_allowed_set("M1", "algebra1", 3, 6, ""))
+ok["allowed_db_off_shape"] = set(main._unit_allowed_set("NOBODY", "algebra1", 1, 0, "")) >= {1}
+# --- the filing gate ----------------------------------------------------------
+ok["file_none"] = main._accept_declared_unit(None, 3, "tracked", (2, 3, 4, 5)) == (3, "none")
+ok["file_focus"] = main._accept_declared_unit(5, 6, "focus", (2, 3, 4, 5, 6)) == (6, "focus-wins")
+ok["file_ok"] = main._accept_declared_unit(5, 3, "tracked", (2, 3, 4, 5)) == (5, "accepted")
+ok["file_reject"] = main._accept_declared_unit(8, 3, "tracked", (2, 3, 4, 5),
+                                               "M1", "algebra1") == (3, "rejected")
+evs = store.recent_events(hours=1, limit=50)
+ok["reject_writes_event"] = any(e.get("kind") == "unitplan_rejected" for e in evs)
+# --- the opener decides has-record from the record ----------------------------
+hr, note = main._opener_record_note("NEW9", "algebra1", 1, [])
+ok["opener_new"] = (hr is False and note == "")
+hist = [{"role": "assistant", "content": "welcome back!"}]
+hr2, note2 = main._opener_record_note("NEW9", "algebra1", 4, hist)
+ok["opener_hist"] = hr2 is True and "Unit 4" in note2 and "RECORD WINS" in note2
+hr3, note3 = main._opener_record_note("M1", "algebra1", 5, [])
+ok["opener_store"] = hr3 is True and "Unit 5" in note3 and "mastered: Unit 2" in note3
+# a user-only history (junk survivor) is NOT a record of lessons together
+hr4, _n4 = main._opener_record_note("NEW9", "algebra1", 1,
+                                    [{"role": "user", "content": "hi"}])
+ok["opener_user_only"] = hr4 is False
+print(json.dumps({"ok": all(ok.values()),
+                  "detail": {k: bool(v) for k, v in ok.items()}}))
+"""
+
+
+def part3bd_truth_opener():
+    print("\nPART 3bd — the honest opener and the validated declaration (build hm)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    with open(os.path.join(here, "nightwatch.py"), encoding="utf-8") as fh:
+        nwsrc = fh.read()
+
+    # (1) THE REFEREE, in both directions, on transcript-shaped replies.
+    for name, reply, allowed, should_flag in UNITPLAN_CASES:
+        got = bool(tutor.unitplan_conflict(reply, allowed))
+        check(f"unitplan referee: {name} -> {'fires' if should_flag else 'silent'}",
+              got == should_flag,
+              "a declaration the record cannot justify becomes the rail's truth on "
+              "the next resume" if should_flag else
+              "a legitimate declaration was vetoed -- the referee is crying wolf")
+
+    # The canonical sweep: no foundation script may trip the new referee.
+    import foundations
+    fired = []
+    for c in COURSES:
+        for f in foundations.for_course(c):
+            if tutor.unitplan_conflict(f["say"], (1,)):
+                fired.append((c, f["term"]))
+    check("the canonical corpus is silent under the unitplan referee "
+          f"({sum(len(foundations.for_course(c)) for c in COURSES)} scripts)",
+          not fired, f"false fires on: {fired[:4]}")
+
+    # (2) THE WIRING: one grammar source, referee armed, filing gated.
+    import tags as _T
+    check("the unitplan pattern has ONE source (tags.py)",
+          hasattr(_T, "UNITPLAN_UNIT_PATTERN")
+          and "tags.UNITPLAN_UNIT_PATTERN" in msrc
+          and "_tagreg.UNITPLAN_UNIT_PATTERN" in tsrc,
+          "two hand-typed copies of the same regex -- the Class-B disease")
+    check("the sweep runs the nineteenth referee",
+          "unitplan = unitplan_conflict(reply, allowed_units)" in tsrc,
+          "unitplan_conflict exists but nothing calls it -- a rule nothing watches "
+          "is a wish")
+    check("the lesson lane arms it via meta",
+          '"allowed_units": (student or {}).get("allowed_units")' in tsrc
+          and 'allowed_units=(meta or {}).get("allowed_units")' in tsrc,
+          "the referee never receives the record's answer -- silent forever")
+    check("the chat path computes the allowed set",
+          'student_context["allowed_units"] = _unit_allowed_set(' in msrc,
+          "the set is never built -- the referee is disarmed on the only lane that "
+          "files declarations")
+    check("filing goes through the gate",
+          "course_unit, _up_verdict = _accept_declared_unit(" in msrc
+          and 'if declared and unit_source != "focus":\n        course_unit = declared'
+          not in msrc,
+          "the unconditional gs filing is back -- one hallucinated tag writes a real "
+          "topic_progress row")
+    check("a rejected declaration is telemetry, not truth",
+          '"unitplan_rejected"' in msrc,
+          "a surviving invention vanishes instead of becoming a chart")
+
+    # (3) THE OPENER branches in code and the record outranks the conversation.
+    check("the no-record opener forbids a recap",
+          "THE SERVER RECORD SHOWS NO PRIOR LESSONS" in msrc
+          and "do NOT recap" in msrc,
+          "an empty record still demands a recap -- compliance requires invention")
+    check("the returning opener states the facts from the server",
+          "You HAVE met before." in msrc and "def _opener_record_note(" in msrc,
+          "the model is deciding whether you have met -- from the history it wrote")
+    check("the gap refresher reads the record, not the conversation",
+          "name the unit the SERVER RECORD above puts you two in" in msrc
+          and "use your notes and the recent conversation" not in msrc,
+          "the refresher still treats stored model prose as memory")
+    check("rule 0 no longer licenses the conversation as a fact source",
+          "or in this conversation" not in psrc and "THE NOTES WIN" in psrc,
+          "an invented recap stored in history still counts as memory next session")
+    check("the unit-bar words tell the model what the machinery enforces",
+          "THE UNIT YOU DECLARE MUST BE ONE THE RECORD SUPPORTS" in psrc,
+          "the referee fires with no warning in the prompt -- wasted regenerations")
+
+    # (4) The nightwatch clock stays pinnable (the 2026-08-18 date-rollover lesson:
+    # a test that pins the clock must pin it EVERYWHERE the code reads it).
+    check("write_report accepts a pinned clock",
+          'def write_report(data_dir, result, build="", now=None)' in nwsrc,
+          "the restart-safety checks go red again the day after they are written")
+
+    # (5) THE BEHAVIOURAL PROOF on a real database, every push.
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("hm behavioural proof", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hm.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HM_PROOF)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hm.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("hm behavioural proof ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("allowed-set table, filing gate, rejection telemetry and opener "
+              "has-record decision all hold on a REAL database",
+              verdict.get("ok") is True, f"{verdict}")
+
+
+# =============================================================================
+# PART 3be -- THE STREAK LIVES ON CALIFORNIA TIME (build hn)
+# -----------------------------------------------------------------------------
+# 2026-08-18, Jim's ruling on THE THREE CLOCKS: "use California Pacific Time."
+# The streak's day-strings now come from _streak_today()/_streak_now() (STREAK_TZ,
+# default America/Los_Angeles); the atomic SQL CASE is untouched. Proved here:
+# the env knob genuinely steers the calendar (two zones 26 hours apart can never
+# share a date), a bogus zone falls back to UTC without crashing the import, and
+# PART 3bc's streak proof now runs on the same clock the code compares against.
+# =============================================================================
+_HN_CLOCK = r"""
+import os, sys, json, datetime
+sys.path.insert(0, sys.argv[1])
+os.environ["STREAK_TZ"] = sys.argv[2]
+import store
+print(json.dumps({"today": store._streak_today(), "tz": store.STREAK_TZ_NAME,
+                  "utc": datetime.datetime.now(datetime.timezone.utc).date().isoformat()}))
+"""
+
+
+def part3be_streak_clock():
+    print("\nPART 3be — the streak lives on California time (build hn)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    with open(os.path.join(here, "requirements.txt"), encoding="utf-8") as fh:
+        req = fh.read()
+
+    check("the streak writer reads the streak's clock",
+          "today = _streak_today()" in ssrc
+          and "yday = (_streak_now().date()" in ssrc,
+          "_bump_stats is back on the server-UTC day -- an 8pm California practice "
+          "is 'tomorrow' again and evening streaks break")
+    check("the default zone is Jim's ruling",
+          'os.environ.get("STREAK_TZ", "America/Los_Angeles")' in ssrc,
+          "the THREE CLOCKS decision silently changed")
+    check("the decision is recorded where the clocks are documented",
+          "AND THE STREAK'S CLOCK DECIDED" in ssrc and "use California Pacific Time" in ssrc,
+          "the day-boundary is drifting again instead of being chosen on purpose")
+    check("tzdata rides requirements (Windows has no IANA database)",
+          "tzdata==" in req,
+          "the battery box or a dev box silently falls back to UTC")
+    check("the retired trio warns its reviver about the clock",
+          "it must read _streak_today()" in ssrc,
+          "a revived _touch_streak would advance the streak on the wrong calendar")
+
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hn.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HN_CLOCK)
+        got = {}
+        for label, tz in (("east", "Pacific/Kiritimati"),   # UTC+14
+                          ("west", "Etc/GMT+12"),           # UTC-12 (POSIX sign)
+                          ("bogus", "Definitely/Nowhere")):
+            res = subprocess.run([sys.executable, script, here, tz],
+                                 capture_output=True, text=True, timeout=120)
+            line = (res.stdout.strip().splitlines() or [""])[-1]
+            try:
+                got[label] = _json.loads(line)
+            except Exception:  # noqa: BLE001
+                bad(f"streak clock subprocess ({label}) ran",
+                    (res.stderr or res.stdout).strip()[:200])
+                return
+        check("STREAK_TZ genuinely steers the calendar (zones 26h apart never share "
+              "a date)", got["east"]["today"] != got["west"]["today"],
+              f"east={got['east']} west={got['west']} -- the env knob is decorative")
+        check("an unknown zone falls back to the UTC day without crashing the import",
+              got["bogus"]["today"] == got["bogus"]["utc"],
+              f"{got['bogus']} -- the fallback is not the pre-hn behaviour")
+
+
+# =============================================================================
+# PART 3bf -- THE RECORD-CLAIM REFEREE (build ho)
+# -----------------------------------------------------------------------------
+# 2026-08-18, the count-claim probe's promotion (Phase 4, Class D). The audit's
+# most corrosive finding -- a child refused a demonstration on "you've now watched
+# this move twice", an invented count -- plus false past-scores and false unit
+# states, all vetoed against the record the server actually holds. Fixtures below
+# include the audit's own transcript shapes, in both directions; the canonical
+# corpus is swept with a full record to prove no false fires on real teaching.
+# =============================================================================
+_RC_RECORD = {"best": {3: 80}, "last": {3: 75}, "quiz_pcts": [90],
+              "mastered": [2], "touched": [2, 3]}
+RECORD_CLAIM_CASES = [
+    ("THE AUDIT SHAPE: a refusal justified by an invented watch-count",
+     "Great question! But you've now watched this move twice -- let's flip it and "
+     "have you try.", _RC_RECORD, True),
+    ("the audit's second wording",
+     "You've watched this exact move twice now.", _RC_RECORD, True),
+    ("the invented collection count",
+     "That's all three conversions under your belt!", _RC_RECORD, True),
+    ("a unit in progress that the record has never seen",
+     "Unit 9 is also still in progress.", _RC_RECORD, True),
+    ("a last score the record does not hold (number words)",
+     "Your last score was eighty-five percent.", _RC_RECORD, True),
+    ("mastery the record does not hold",
+     "You've already mastered Unit 4!", _RC_RECORD, True),
+    ("a unit declared finished that never was",
+     "Unit 5 is finished.", _RC_RECORD, True),
+    ("a remembered score from nowhere",
+     "You got 95% on that quiz, remember?", _RC_RECORD, True),
+    # -------- and the other direction: everything here must stay silent --------
+    ("no record, no judgment (practice/topic lanes)",
+     "You've now watched this move twice -- let's flip it.", None, False),
+    ("the recorded best, stated truly",
+     "Your best score was 80%.", _RC_RECORD, False),
+    ("the recorded last, stated truly",
+     "Your last score was 75%.", _RC_RECORD, False),
+    ("the recorded quiz best, stated truly",
+     "You scored 90% on the comparing decimals quiz.", _RC_RECORD, False),
+    ("a unit genuinely in progress",
+     "Unit 3 is still in progress.", _RC_RECORD, False),
+    ("mastery the record holds",
+     "You've mastered Unit 2 -- that's real work.", _RC_RECORD, False),
+    ("a future conditional is a plan, not a claim",
+     "Once you've mastered Unit 4, the Final Exam unlocks.", _RC_RECORD, False),
+    ("an in-reply result belongs to rule 45's referee, not this one",
+     'Wow -- you got 60% on the fractions quiz! Let\'s look at the two we missed. '
+     '[[quiz unit="3" topic="fractions" score="60" correct="3" total="5"]]',
+     _RC_RECORD, False),
+    ("beating your best is an invitation, and the best is real",
+     "Let's try to beat your best of 80%!", _RC_RECORD, False),
+    ("ordinary teaching says none of these things",
+     "The numerator counts the parts -- let's shade three of the four parts.",
+     _RC_RECORD, False),
+    ("having seen an idea is not a count",
+     "You've seen how regrouping works, so let's go one step deeper.",
+     _RC_RECORD, False),
+]
+
+
+def part3bf_record_claims():
+    print("\nPART 3bf — the record-claim referee (build ho)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    for name, reply, record, should_flag in RECORD_CLAIM_CASES:
+        got = bool(tutor.record_claim_conflict(reply, record))
+        check(f"record referee: {name} -> {'fires' if should_flag else 'silent'}",
+              got == should_flag,
+              "a child can be refused, praised or placed on invented evidence"
+              if should_flag else
+              "a truthful reply was vetoed -- the referee is crying wolf")
+
+    # The canonical sweep: real teaching, full record, zero fires.
+    import foundations
+    fired = []
+    for c in COURSES:
+        for f in foundations.for_course(c):
+            if tutor.record_claim_conflict(f["say"], _RC_RECORD):
+                fired.append((c, f["term"]))
+    check("the canonical corpus is silent under the record referee "
+          f"({sum(len(foundations.for_course(c)) for c in COURSES)} scripts)",
+          not fired, f"false fires on: {fired[:4]}")
+
+    # THE WIRING: record built server-side, armed through meta, swept in order.
+    check("main builds the claim record from the store",
+          "def _claim_record(" in msrc
+          and 'student_context["claim_record"] = _claim_record(' in msrc,
+          "the twentieth referee never receives the record -- silent forever")
+    check("the lesson lane arms it via meta",
+          '"record": (student or {}).get("claim_record")' in tsrc
+          and 'record=(meta or {}).get("record")' in tsrc,
+          "the record referee is disarmed on the only lane that has a record")
+    check("the sweep runs the twentieth referee",
+          "recordclaim = record_claim_conflict(reply, record)" in tsrc,
+          "record_claim_conflict exists but nothing calls it -- a rule nothing "
+          "watches is a wish")
+    check("a result reply is exempt as a WHOLE (the record lags the announcement)",
+          "if _RC_RESULT_TAG.search(str(reply or \"\")):" in tsrc,
+          "the referee vetoes every honest quiz celebration -- the record has not "
+          "caught up with the result being announced")
+
+
+# =============================================================================
+# PART 3bg -- THE ORDER OF AUTHORITY (build hp)
+# -----------------------------------------------------------------------------
+# 2026-08-18, Phase 4's precedence lattice. Two blocks used to claim supremacy at
+# once (GROUND_RULES "override anything said later"; SESSION_OPENER_RULES "override
+# anything above"), so collisions were resolved by whichever claim the model felt
+# like weighting -- and several audited "violations" were one rule obeyed against
+# another. Now exactly ONE block is absolute, the five levels are stated, the known
+# cross-pulls are named by number, and RULES.md can no longer go quietly stale.
+# =============================================================================
+def part3bg_order_of_authority():
+    print("\nPART 3bg — the order of authority (build hp)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    g = tutor.GROUND_RULES
+    check("exactly ONE block claims absolute supremacy",
+          g.count("THESE OVERRIDE ANYTHING SAID LATER") == 1
+          and "OVERRIDE ANYTHING ABOVE" not in tutor.SESSION_OPENER_RULES,
+          "two supremacy claims again -- every collision is a coin flip")
+    check("the lattice exists and names its five levels",
+          "WHEN INSTRUCTIONS COLLIDE" in g
+          and all(s in g for s in ("1. THE GROUND RULES", "2. THE SERVER'S FACTS",
+                                   "3. SESSION MECHANICS", "4. THE TEACHING RULES",
+                                   "5. STYLE")),
+          "the order of authority is gone -- collisions are unresolvable again")
+    check("specific-beats-general and the (SYSTEM:) note's rank are stated",
+          "more SPECIFIC instruction wins" in g and "(SYSTEM:) note about this very turn" in g,
+          "within-level collisions have no tiebreaker")
+    check("the audited cross-pulls are named by number",
+          "rule 65 over 6/17/38c" in g and "(64 over 23)" in g,
+          "the two collisions the audit actually caught are unstated again")
+    check("the opener block is re-scoped to level 3",
+          "LEVEL 3 OF THE ORDER OF AUTHORITY" in tutor.SESSION_OPENER_RULES
+          and "never the Ground Rules" in tutor.SESSION_OPENER_RULES,
+          "the opener claims the whole prompt again")
+    check("the lattice rides GROUND_RULES into every lane",
+          tsrc.count("GROUND_RULES + GRAPH_TOOL_NOTE") >= 3,
+          "a lane assembles its prompt without the ground block -- the lattice "
+          "does not reach it")
+
+    # RULES.md CAN NO LONGER GO QUIETLY STALE (the review: "two builds stale and
+    # nothing checks it"). Regenerate to a temp file and require byte equality.
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as d:
+        fresh = os.path.join(d, "RULES.md")
+        write_rules_index(fresh)
+        with open(fresh, encoding="utf-8") as fh:
+            want = fh.read()
+        try:
+            with open(os.path.join(here, "RULES.md"), encoding="utf-8") as fh:
+                got = fh.read()
+        except OSError:
+            got = ""
+        check("RULES.md matches the prompt it documents (run `python ruletests.py "
+              "--rules` after any rule change)",
+              got == want,
+              "RULES.md has drifted from the actual prompt -- regenerate it")
+
+
+# =============================================================================
+# PART 3bh -- THE TWO-PROMPT-SIZES EXPERIMENT IS RUNNABLE (build hq)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Named in this file's own PROMPT_CEILING comments since 2026-08-11 as
+# "still the right way to set this number, and still not done." The live halves
+# (teaching + marking) need keys and run on Render; what the battery CAN prove, it
+# does: the lever exists, the large student genuinely assembles the over-ceiling
+# worst case, the measurement is honest, and nightwatch survived the return change.
+# =============================================================================
+def part3bh_two_prompt_sizes():
+    print("\nPART 3bh — the two-prompt-sizes experiment is runnable (build hq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import lessonaudit
+    except Exception as exc:  # noqa: BLE001
+        bad("lessonaudit imports", str(exc)[:200])
+        return
+    with open(os.path.join(here, "lessonaudit.py"), encoding="utf-8") as fh:
+        lsrc = fh.read()
+    with open(os.path.join(here, "nightwatch.py"), encoding="utf-8") as fh:
+        nwsrc = fh.read()
+
+    check("the CLI lever exists",
+          '"--prompt-size"' in lsrc and 'prompt_size=prompt_size' in lsrc,
+          "the experiment cannot be invoked -- still not done")
+    check("the report carries the experiment's interpretation",
+          "TWO-PROMPT-SIZES EXPERIMENT" in lsrc and "PROMPT_CEILING" in lsrc,
+          "two reports with no stated comparison is two piles of findings")
+    check("nightwatch unpacks the new return shape",
+          "transcript, err, fallbacks, _pchars = lessonaudit.run_scenario" in nwsrc,
+          "the governor crashes on its first lesson tonight")
+
+    # The measured halves, in-process and free: the same scenario at both sizes.
+    sc = next((s for s in lessonaudit.SCENARIOS if s["course"] == "algebra1"),
+              lessonaudit.SCENARIOS[0])
+    small_student = lessonaudit.audit_student(sc, "normal")
+    large_student = lessonaudit.audit_student(sc, "large")
+    check("the large student is all-heard and FORCED verbatim",
+          large_student.get("foundations_heard")
+          and large_student.get("foundations_force_verbatim") is True
+          and not small_student.get("foundations_heard"),
+          "the lever moves nothing -- both runs teach the same prompt")
+    p_small = tutor.build_system_prompt(dict(small_student), sc["course"])
+    p_large = tutor.build_system_prompt(dict(large_student), sc["course"])
+    check("the two sizes are genuinely two sizes "
+          f"(small {len(p_small):,} / large {len(p_large):,})",
+          # ≥10K chars apart: algebra1 measures ~173K fresh vs ~190K all-heard
+          # today; the margin is a tripwire against the lever silently dying,
+          # not a pin on today's exact sizes.
+          len(p_large) >= len(p_small) + 10_000,
+          "the all-heard worst case no longer differs -- the experiment would "
+          "compare a prompt against itself")
+    check("the large size is the over-ceiling shape gz measured "
+          f"(ceiling {tutor.PROMPT_CEILING:,})",
+          len(p_large) > tutor.PROMPT_CEILING,
+          "the worst case has shrunk under the ceiling -- good news if true, but "
+          "re-verify before believing it (and the experiment still applies)")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -10373,7 +10940,11 @@ def part3ba_one_unit_owner():
           'student_context["current_unit"] = resolved_unit' in msrc,
           "the prompt is back to regex-reading the unit out of prose")
     check("the tracker consumes the resolved value",
-          "course_unit = resolved_unit" in msrc,
+          # build hm: the resolved unit now reaches the tracker THROUGH the filing
+          # gate -- _accept_declared_unit returns it untouched on every verdict
+          # except an "accepted" declaration (the gs authority, preserved).
+          "course_unit, _up_verdict = _accept_declared_unit(" in msrc
+          and "declared, resolved_unit, unit_source," in msrc,
           "the tracker re-derives its own answer again -- placement can outrank "
           "progression forever on tagless turns (the pre-gs bug, review F4c)")
     check("the placement note EXPIRES once deeper truth exists",
@@ -10769,6 +11340,11 @@ def main():
     part3ba_one_unit_owner()
     part3bb_no_lost_exchange()
     part3bc_small_cuts()
+    part3bd_truth_opener()
+    part3be_streak_clock()
+    part3bf_record_claims()
+    part3bg_order_of_authority()
+    part3bh_two_prompt_sizes()
     part3ai_deploy_stamp()
     if live:
         part4_live()

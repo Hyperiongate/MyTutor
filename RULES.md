@@ -4,15 +4,15 @@ _Generated from `tutor.py` by `python ruletests.py --rules`. Do not edit by hand
 every line below is read out of the prompt the tutor is actually given, so this
 file cannot drift away from what the classroom really does._
 
-**63 rules.** Every one was written because something went wrong in a real
+**65 rules.** Every one was written because something went wrong in a real
 lesson, and almost all of them were noticed by Jim before they were noticed by a
 machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 20 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 23 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 32 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 31 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -203,7 +203,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 47. NO COLD QUIZZES
 
-**COVERED** — no cold quizzes
+**ENFORCED** — no cold quizzes -- and 47(d) specifically, born enforced six days late (build gu). The sentence 'let's do it -- five questions, all on finding the percent of a number' was caught in the 2026-08-11 audit, rule 47(d) was WRITTEN from it, and the tutor produced it again WORD FOR WORD on 2026-08-17 because nothing watched the rule. cold_quiz_conflict fires when a quiz is starting, the stated count is not TEN, and the reply never says which instrument it is -- so 47(d)'s own remedy (a five-question topic quiz that names itself) passes. 11 cases both directions, 0 false alarms on 1,015 canonical scripts. The (a)-(c) halves -- two unaided right answers before any quiz -- remain prompt-covered: a referee cannot count what happened in earlier turns
 
 ### 48. TEACH THE STUDENT HOW TO *SAY* THE SYMBOL, NOT JUST WHAT IT MEANS
 
@@ -268,6 +268,14 @@ machine. The right-hand column is how much better we have got at that.
 ### 63. THE WORDS AND THE PICTURE ARE THE SAME FIGURE
 
 **ENFORCED** — the words and the picture are the same figure (build fe; from the 2026-08-13 audits): triangle_side_conflict rejects any right triangle whose hypotenuse slot cannot hold the longest side (sides= is AB, BC, CA; the hypotenuse skips the right-angle vertex), swept in PART 2 against the real audit tags and all foundation scripts. The one-name half (the circle called a curve) and the shares-picture half (4|4|4|2 for a sharing story) remain prompt-covered, pinned by PART 3ah -- both are natural lessonaudit scenario candidates
+
+### 64. NEVER TRADE THE STUDENT'S NUMBER FOR A DIFFERENT ONE. AND A LENGTH IS NEVER NEGATIVE
+
+**ENFORCED** — never trade the student's number for a different one, and a length is never negative (build gr; from Jim's 2026-08-17 Geometry lesson, where 'minus five' was answered with 'That is correct' and the reply then taught on using 5). answer_sign_conflict is the FIFTEENTH referee: it fires only when the student gave an explicitly signed number, the reply AFFIRMS it, the reply then uses the unsigned magnitude, and the reply never mentions the sign at all -- so the correct teaching response ('both 5 and -5 square to 25, but a length is never negative') passes. 14 cases both directions; 0 false alarms across 1,015 canonical scripts x 7 signed utterances. The (a) half -- that an answer can be arithmetically right and contextually impossible -- is prompt-covered in all ten courses via PART 1
+
+### 65. WHEN A STUDENT ASKS TO BE SHOWN, SHOW THEM. THE ASKING IS THE ANSWER
+
+**ENFORCED** — when a student asks to be shown, show them (build gx; from the 2026-08-17 audit, where it happened TWICE in one geometry lesson -- 'can you show me taking the square root of 169?' answered with 'you've now watched this move twice, let's flip it', and a brand-new triangle). refused_demonstration_conflict is the SEVENTEENTH referee and needs all three: the student asked to be shown, NOTHING in the reply is worked out, and the work is handed straight back. The discriminator came out of the lesson itself -- the compliant replies in that same transcript all carry a COMPLETED board line, the refusals only pending ones. 7 cases both directions; 0 false alarms on 1,015 canonical scripts x 6 phrasings of the request. 65(d) -- never justify the refusal with a COUNT -- is measured by build gv's [countclaim] probe, since a referee cannot count a conversation
 
 ---
 

@@ -2,6 +2,20 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hq -- THE TWO-PROMPT-SIZES EXPERIMENT IS RUNNABLE (Phase 4;
+#               named in ruletests' own comments as "still the right way to set this
+#               number, and still not done" since 2026-08-11). NEW --prompt-size
+#               small|large: "large" teaches the SAME scenarios with an all-heard
+#               student whose heard wording is FORCED verbatim (audit_student, new,
+#               extracted) -- the worst-case shape gz measured over the 180K ceiling.
+#               run_scenario measures the prompt it actually taught with and returns
+#               it (4th member; nightwatch updated); the report carries the size and
+#               the experiment's interpretation note; --dry-run now prints BOTH
+#               measured sizes per scenario for free (building a prompt needs no
+#               key). THE EXPERIMENT: run the batch twice, small then large, same
+#               --limit; compare findings; where degradation begins is what should
+#               set PROMPT_CEILING -- from evidence, not a guess. Needs keys, so it
+#               runs on Render (or a keyed box), not the battery.
 #   2026-08-13  BUILD fe -- THE TRANSPORT LEARNS PATIENCE. Two lessons in the
 #               2026-08-13 audit runs never completed: "could not reach OpenAI: The
 #               read operation timed out" -- a reasoning model can think past the old
@@ -538,14 +552,47 @@ def _is_fallback(reply: str) -> bool:
     return any(m in low for m in FALLBACK_MARKERS)
 
 
-def run_scenario(sc, turns=TURNS):
-    """Play one lesson. Returns (transcript, error, fallbacks). Transcript is
-    [(role, text), ...]; fallbacks counts tutor turns that came back as an apology."""
+def audit_student(sc, prompt_size="normal"):
+    """The synthetic student a scenario teaches (build hq: extracted so the
+    two-prompt-sizes experiment and the battery build the SAME student).
+
+    prompt_size is the experiment's one lever:
+      "normal"/"small" -- the fresh student every audit has always used.
+      "large"          -- an ALL-HEARD student whose heard wording is FORCED to
+                          travel verbatim: the worst-case production shape build gz
+                          measured OVER the 180K ceiling on every course. Same
+                          scenarios, same turns, same critic -- only the prompt
+                          size differs, which is exactly the comparison the
+                          degradation experiment needs."""
+    student = {"name": "Audit Student", "code": "AUDIT",
+               "progress": sc.get("progress") or f"Working in unit {sc.get('unit', 1)}."}
+    if prompt_size == "large":
+        try:
+            import foundations
+            student["foundations_heard"] = [f["term"]
+                                            for f in foundations.for_course(sc["course"])]
+        except Exception as exc:  # noqa: BLE001 -- an unseedable student must be loud
+            print(f"[audit] could not seed the all-heard student: {exc}")
+        student["foundations_verbatim"] = True
+        student["foundations_force_verbatim"] = True
+    return student
+
+
+def run_scenario(sc, turns=TURNS, prompt_size="normal"):
+    """Play one lesson. Returns (transcript, error, fallbacks, prompt_chars).
+    Transcript is [(role, text), ...]; fallbacks counts tutor turns that came back
+    as an apology; prompt_chars is the measured system-prompt size this lesson
+    actually taught with (build hq: the experiment reports what it measured, never
+    what it assumed)."""
     # build dh: a scenario may seed a full progress record (mastery state, open units,
     # best scores) -- the harness calls the tutor directly, so anything main.py would
     # normally load onto the student must arrive through the scenario itself.
-    student = {"name": "Audit Student", "code": "AUDIT",
-               "progress": sc.get("progress") or f"Working in unit {sc.get('unit', 1)}."}
+    student = audit_student(sc, prompt_size)
+    try:
+        prompt_chars = len(tutor.build_system_prompt(dict(student), sc["course"]))
+    except Exception as exc:  # noqa: BLE001 -- measurement must never stop a lesson
+        print(f"[audit] could not measure the prompt: {exc}")
+        prompt_chars = 0
     transcript = [("user", sc["opening"])]
     history = []
     fallbacks = 0
@@ -567,7 +614,8 @@ def run_scenario(sc, turns=TURNS):
                 else:
                     fallbacks += 1
         except Exception as exc:  # noqa: BLE001
-            return transcript, f"tutor call failed on turn {i + 1}: {exc}", fallbacks
+            return (transcript, f"tutor call failed on turn {i + 1}: {exc}",
+                    fallbacks, prompt_chars)
         transcript.append(("assistant", reply))
         history.append({"role": "user", "content": transcript[-2][1]})
         history.append({"role": "assistant", "content": reply})
@@ -575,11 +623,11 @@ def run_scenario(sc, turns=TURNS):
             break
         say, err = _student_turn(sc, transcript)
         if err:
-            return transcript, err, fallbacks
+            return transcript, err, fallbacks, prompt_chars
         if not say:
             break
         transcript.append(("user", say))
-    return transcript, None, fallbacks
+    return transcript, None, fallbacks, prompt_chars
 
 
 def critique(sc, transcript):
@@ -609,7 +657,7 @@ def critique(sc, transcript):
 # =============================================================================
 # THE RUN
 # =============================================================================
-def dry_run(limit=None, offset=0, turns=TURNS, probe=True):
+def dry_run(limit=None, offset=0, turns=TURNS, probe=True, prompt_size="normal"):
     """Price the job, and prove the key -- without teaching a single lesson.
 
     2026-08-10 (build da): this used to be pure arithmetic and could therefore tell you a
@@ -620,8 +668,23 @@ def dry_run(limit=None, offset=0, turns=TURNS, probe=True):
     claude = len(picked) * turns * EST_CLAUDE_PER_TURN
     # per scenario: (turns-1) student turns, each small, plus one big critique
     openai_k = len(picked) * (((turns - 1) * 1.2) + 22)
+    # build hq: the MEASURING half of the two-prompt-sizes experiment is free --
+    # building a prompt needs no key. The dry run reports both sizes per scenario
+    # so Jim can see the gap before spending anything.
+    sizes = []
+    for s in picked:
+        row = {"id": s["id"]}
+        for label in ("normal", "large"):
+            try:
+                row[label] = len(tutor.build_system_prompt(
+                    dict(audit_student(s, label)), s["course"]))
+            except Exception as exc:  # noqa: BLE001
+                row[label] = f"unmeasurable: {exc}"
+        sizes.append(row)
     return {
         "ok": True, "dry_run": True,
+        "prompt_size": prompt_size,
+        "prompt_sizes_measured": sizes,
         "scenarios": [{"id": s["id"], "course": s["course"], "exposes": s["exposes"]}
                       for s in picked],
         "turns_each": turns,
@@ -639,9 +702,12 @@ def dry_run(limit=None, offset=0, turns=TURNS, probe=True):
     }
 
 
-def audit(limit=None, offset=0, turns=TURNS):
+def audit(limit=None, offset=0, turns=TURNS, prompt_size="normal"):
     """Run the batch and mark it. Returns a plain dict -- no printing, so the endpoint
-    and the command line can both use it."""
+    and the command line can both use it. build hq: `prompt_size` runs the SAME batch
+    at the fresh-student prompt ("normal"/"small") or the all-heard worst case
+    ("large") -- the two-prompt-sizes degradation experiment is two invocations of
+    this function and a comparison of their findings."""
     picked = SCENARIOS[offset:offset + limit] if limit else SCENARIOS[offset:]
     started = time.time()
     # FAIL FAST AND CHEAP. One tiny call proves the key, the model and the token parameter
@@ -657,10 +723,10 @@ def audit(limit=None, offset=0, turns=TURNS):
     results = []
     for sc in picked:
         t0 = time.time()
-        transcript, err, fallbacks = run_scenario(sc, turns)
+        transcript, err, fallbacks, prompt_chars = run_scenario(sc, turns, prompt_size)
         row = {"id": sc["id"], "course": sc["course"], "exposes": sc["exposes"],
                "turns": len(transcript), "seconds": round(time.time() - t0, 1),
-               "fallbacks": fallbacks,
+               "fallbacks": fallbacks, "prompt_chars": prompt_chars,
                "transcript": [{"who": r, "text": t} for r, t in transcript]}
         if err:
             row["error"] = err
@@ -711,7 +777,10 @@ def audit(limit=None, offset=0, turns=TURNS):
     if stumbles:
         summary += (f" The tutor stumbled {stumbles} time(s) across the batch "
                     f"(graceful-failure turns -- see the reliability finding).")
+    if prompt_size == "large":
+        summary += " PROMPT SIZE: LARGE (all-heard worst case) -- compare against a normal run."
     return {"ok": True, "dry_run": False, "model": AUDIT_MODEL,
+            "prompt_size": prompt_size,
             "scenarios_run": len(results), "lessons_marked": marked,
             "did_not_complete": failed, "findings": total, "high": high,
             "tutor_stumbles": stumbles,
@@ -725,12 +794,20 @@ def report_markdown(run):
     from datetime import datetime, timezone
     when = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     fails = run.get("did_not_complete", 0)
+    psize = run.get("prompt_size", "normal")
     out = [f"# Lesson audit — {when}", "",
            f"_Model: {run.get('model')} · {run.get('lessons_marked', run.get('scenarios_run'))} "
            f"lesson(s) marked · {run.get('findings')} findings ({run.get('high')} high)"
            + (f" · ⚠️ {fails} DID NOT COMPLETE" if fails else "")
+           + (f" · PROMPT SIZE: {psize.upper()}" if psize != "normal" else "")
            + f" · {run.get('seconds')}s_", "",
            f"**{run.get('summary', '')}**", "",]
+    if psize != "normal":
+        out += ["> THE TWO-PROMPT-SIZES EXPERIMENT (build hq): this run taught with the "
+                "all-heard worst-case prompt. Compare its findings against a `--prompt-size "
+                "small` run of the SAME scenarios: materially more (or more serious) "
+                "findings here is MEASURED degradation, and the size where it begins is "
+                "what should set PROMPT_CEILING -- from evidence, not a guess.", ""]
     if run.get("preflight_error"):
         out += [f"> The OpenAI side never answered, so no lesson was taught: "
                 f"`{run['preflight_error']}`", ""]
@@ -740,7 +817,9 @@ def report_markdown(run):
            "becomes a rule AND a test in the same commit.", ""]
     for r in run.get("results", []):
         out.append(f"## {r['id']}  ·  {r['course']}")
-        out.append(f"_Guards: {r['exposes']}_")
+        out.append(f"_Guards: {r['exposes']}"
+                   + (f" · prompt {r['prompt_chars']:,} chars" if r.get("prompt_chars")
+                      else "") + "_")
         if r.get("error"):
             out += ["", f"**Did not complete:** {r['error']}", ""]
             continue
@@ -778,8 +857,21 @@ def main():
     limit = int(opt("--limit", 0)) or None
     offset = int(opt("--offset", 0))
     turns = int(opt("--turns", TURNS))
+    # build hq: THE TWO-PROMPT-SIZES EXPERIMENT. Run the same batch twice --
+    #   python lessonaudit.py --limit 4 --prompt-size small
+    #   python lessonaudit.py --limit 4 --prompt-size large
+    # -- and compare the two reports' findings. "large" teaches with the all-heard
+    # worst-case prompt (the shape gz measured over the ceiling); "small" is the
+    # fresh student. More/worse findings at large = measured degradation, and THAT
+    # number (not a guess) is what should set PROMPT_CEILING.
+    prompt_size = (opt("--prompt-size", "normal") or "normal").strip().lower()
+    if prompt_size == "small":
+        prompt_size = "normal"
+    if prompt_size not in ("normal", "large"):
+        print(f"--prompt-size must be small|normal|large, not {prompt_size!r}")
+        return 2
     if "--dry-run" in args:
-        d = dry_run(limit, offset, turns)
+        d = dry_run(limit, offset, turns, prompt_size=prompt_size)
         print(f"\nLESSON AUDIT — DRY RUN (nothing is spent)\n")
         print(f"  model             {d['model']}")
         print(f"  OPENAI_API_KEY    {'present' if d['have_openai_key'] else 'MISSING'}")
@@ -791,12 +883,21 @@ def main():
             print("\n  what this key can actually reach:")
             for m in d["models"]:
                 print(f"    {'YES' if m['ok'] else 'no '}  {m['model']:<12} {m['why'][:80]}")
+        if d.get("prompt_sizes_measured"):
+            print("\n  the two prompt sizes, measured (free -- no key needed):")
+            for row in d["prompt_sizes_measured"]:
+                print(f"    {row['id']:<20} normal {row['normal']:>10,}   "
+                      f"large {row['large']:>10,}"
+                      if isinstance(row.get("normal"), int)
+                      and isinstance(row.get("large"), int)
+                      else f"    {row['id']:<20} {row}")
         print(f"\n  estimated cost    ${d['estimated_cost_usd']}")
         print(f"  {d['estimate_note']}\n")
         return 0
-    run = audit(limit, offset, turns)
+    run = audit(limit, offset, turns, prompt_size=prompt_size)
     md = report_markdown(run)
-    path = os.path.join(HERE, "lesson_audit_report.md")
+    path = os.path.join(HERE, "lesson_audit_report.md" if prompt_size == "normal"
+                        else f"lesson_audit_report_{prompt_size}.md")
     try:
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(md)

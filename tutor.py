@@ -2,6 +2,34 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ho -- THE TWENTIETH REFEREE: THE RECORD-CLAIM CHECK (the
+#               count-claim probe's promotion; Phase 4, Class D). The audit's most
+#               corrosive shape -- a child refused a demonstration on the invented
+#               evidence "you've now watched this move twice" -- is now vetoed like
+#               arithmetic. NEW record_claim_conflict(reply, record): SCORE claims
+#               must name a score the record holds (exempt when the reply carries
+#               its own [[quiz]]/[[check]]/[[finalexam]] tag -- rule 45's referee
+#               owns in-reply results); "you've mastered Unit N" / "Unit N is in
+#               progress" are checked against the record's mastered/touched sets
+#               (future conditionals exempt); WATCH-COUNT claims are refused
+#               outright -- no record stores per-event counts, so the number can
+#               never be a memory (rule 65d's principle, enforced). Armed via
+#               meta["record"] (main._claim_record, lesson lane); silent where the
+#               caller cannot know; fail open, canonical-swept, tested in both
+#               directions on the audit's own transcript shapes.
+#   2026-08-18  BUILD hm -- THE NINETEENTH REFEREE: THE UNITPLAN CHECK (Phase 4 of the
+#               full-app review begins -- Class D, the model's word becoming truth).
+#               A hallucinated [[unitplan unit="N"]] used to sail through the sweep,
+#               get filed into topic_progress by main.py, and come back as the rail's
+#               truth on the next resume (the likeliest phantom-Unit-5 mechanism).
+#               New unitplan_conflict(reply, allowed_units): the server computes which
+#               units the RECORD can justify (main._unit_allowed_set -- resolved,
+#               focus, touched, mastered, next-in-progression, or asked-for-by-the-
+#               student THIS turn) and a declaration outside that set is regenerated,
+#               exactly as [[verify]]/SymPy vetoes arithmetic. Wired via
+#               meta["allowed_units"] (lesson lane only; silent where the caller
+#               cannot know). The pattern for reading the tag's unit now lives in
+#               tags.UNITPLAN_UNIT_PATTERN -- one grammar source, two consumers.
 #   2026-08-17  BUILD hj -- THE UNIT ARRIVES AS A FIELD. build_system_prompt and
 #               _lesson_unit (the fourteenth referee) now read
 #               student["current_unit"] -- the value main._resolve_unit derived ONCE
@@ -3157,6 +3185,209 @@ def unit_claim_conflict(reply: str, expected_unit=None):
 
 
 # =============================================================================
+# THE UNITPLAN CHECK (2026-08-18, build hm) -- the NINETEENTH referee, Phase 4's first.
+# -----------------------------------------------------------------------------
+# The full-app review's Class D, in its purest form: a single hallucinated
+# [[unitplan unit="5"]] writes a real topic_progress row (main.py files the declaration
+# -- Jim's 2026-08-17 ruling, THE UNIT FOLLOWS THE TEACHING), and that row becomes the
+# rail's current unit on the next resume. The model's word became durable truth with no
+# validation anywhere -- the likeliest mechanism of the phantom-Unit-5 mystery.
+#
+# The fix is the [[verify]] pattern extended to unit identity: the SERVER holds the
+# record, so the server says which units a declaration could honestly name. main.py
+# computes that set per turn (_unit_allowed_set: the resolved unit, the focus unit,
+# every unit the record shows touched or mastered, the next unmastered unit after the
+# resolved one -- a legitimate mid-session advance -- plus any unit the student's OWN
+# message just asked for). A declaration outside the set is a memory the record does
+# not hold: the draft is regenerated, and the student never sees it. main.py keeps a
+# belt-and-suspenders re-check at filing time (fail-open pass-throughs exist), so a
+# surviving invention still cannot become a topic_progress row.
+#
+# SILENT when the caller passes no allowed set (practice/topic lanes, nightwatch's
+# synthetic students, an unresolvable store) -- a referee that cannot know must not
+# guess (the gn property). Fail open on any crash, like every referee.
+_UNITPLAN_RE = re.compile(_tagreg.UNITPLAN_UNIT_PATTERN, re.I)
+
+
+def unitplan_conflict(reply: str, allowed_units=None):
+    """Return a description of a [[unitplan]] declaring a unit the record cannot
+    justify, or "". Silent when allowed_units is empty/None. Never raises."""
+    try:
+        allowed = set()
+        for u in (allowed_units or ()):
+            try:
+                u = int(u)
+            except (TypeError, ValueError):
+                continue
+            if 1 <= u <= 9:
+                allowed.add(u)
+        if not allowed:
+            return ""          # the caller does not know -- never guess
+        for m in _UNITPLAN_RE.finditer(str(reply or "")):
+            try:
+                declared = int(m.group(1))
+            except (TypeError, ValueError):
+                continue
+            if not (1 <= declared <= 9):
+                continue
+            if declared not in allowed:
+                return ("your [[unitplan]] tag declares Unit {c}, but nothing in this "
+                        "student's record supports being in Unit {c} -- not their "
+                        "resolved unit, not a unit they have touched or mastered, not "
+                        "the next unit in their progression, and they did not ask for "
+                        "it. The unit bar you draw becomes this student's RECORDED "
+                        "progress. Rule 0: a recap is a memory, not a guess. Teach and "
+                        "declare the unit the record puts them in (their notes name "
+                        "it), or the unit the student themselves just asked for."
+                        ).format(c=declared)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[unitplanref] crashed (fail open): {exc}")
+        _event("referee_crash", "unitplanref", str(exc))
+        return ""
+
+
+# =============================================================================
+# THE RECORD-CLAIM CHECK (2026-08-18, build ho) -- the TWENTIETH referee.
+# -----------------------------------------------------------------------------
+# The count-claim probe's promotion (build gv measured; Phase 4 enforces). The audit's
+# most corrosive finding: a child asked "can you show me taking the square root of
+# 169?" and was REFUSED on invented evidence -- "you've now watched this move twice."
+# The probe logged five such claims about the past in one day's audit: false watch
+# counts, "all three conversions under your belt", "Unit 9 is also still in
+# progress" (not in the record at all), "your last score was eighty-five percent"
+# (only a BEST ever existed).
+#
+# The [[verify]] pattern, extended to the past: the SERVER holds the record
+# (main._claim_record hands this referee a compact copy), so claims the record can
+# check are checked, and counts the record CANNOT hold are refused outright:
+#
+#   SCORE claims  ("your last/best score was N%", "you got N% on the ... quiz")
+#       -> N must be a score the record actually holds (unit checks' best/last,
+#          topic-quiz bests). EXEMPT when the reply itself carries a [[quiz]]/
+#          [[check]]/[[finalexam]] tag: an in-reply result is rule 45's referee's
+#          job (prose_score_conflict), not a claim about the past.
+#   UNIT-STATE claims ("you've mastered Unit N", "Unit N is still in progress")
+#       -> checked against the record's mastered/touched sets. Future conditionals
+#          ("once you've mastered Unit 4...") are exempt.
+#   WATCH-COUNT claims ("you've watched this move twice", "all three ... under
+#       your belt") -> ALWAYS refused: the record stores no per-event counts, so
+#       no such number can ever be a memory -- and rule 65(d) already bans
+#       justifying a refusal with a count. The regeneration nudge tells the model
+#       to make its point without the invented number.
+#
+# SILENT when the caller passes no record (practice/topic lanes, nightwatch's
+# synthetic students, the DB off) -- a referee that cannot know must not guess.
+# Fail open on any crash, like every referee.
+_RC_NUM = r"(\d{1,3}|" + _PR_NUMWORD + r")\s*(?:%|percent)"
+_RC_SCORE_PATTERNS = (
+    ("last", re.compile(r"\byour\s+(?:last|previous)\s+(?:quiz\s+|check\s+|test\s+)?score\s+(?:was|is)\s+" + _RC_NUM, re.I)),
+    ("best", re.compile(r"\byour\s+(?:personal\s+)?best(?:\s+score)?\s+(?:was|is|of)\s+" + _RC_NUM, re.I)),
+    ("got",  re.compile(r"\byou\s+(?:got|scored|earned)\s+" + _RC_NUM + r"\s+on\s+(?:the|your|that|it)\b", re.I)),
+)
+_RC_MASTERED_YOU = re.compile(r"\byou(?:'ve|\s+have)\s+(?:already\s+)?mastered\s+unit\s+(\d)\b", re.I)
+_RC_MASTERED_UNIT = re.compile(r"\bunit\s+(\d)\s+is\s+(?:already\s+)?(?:mastered|complete|finished)\b", re.I)
+_RC_INPROGRESS = re.compile(
+    r"\bunit\s+(\d)\s+is\s+(?:(?:also|still)\s+){0,2}in\s+progress\b", re.I)
+_RC_FUTURE = re.compile(r"\b(?:once|when|after|if|until)\s*$", re.I)
+_RC_WATCHED = re.compile(
+    r"\byou(?:'ve|\s+have)\s+(?:now\s+|already\s+|just\s+)?(?:watched|seen)\b(?:\s+\S+){0,4}?\s+"
+    r"(?:once|twice|(?:two|three|four|five|\d+)\s+times)\b"
+    r"|\ball\s+(?:two|three|four|five|\d+)\s+\w{3,20}\s+under\s+your\s+belt\b", re.I)
+_RC_RESULT_TAG = re.compile(r"\[\[\s*(?:quiz|check|finalexam)\b", re.I)
+
+
+def _rc_value(raw) -> "float | None":
+    """'85' -> 85.0, 'eighty-five' -> 85.0, junk -> None."""
+    s = str(raw or "").strip()
+    if re.match(r"^\d{1,3}$", s):
+        return float(s)
+    v = _pr_word_value(s)
+    return float(v) if v is not None else None
+
+
+def record_claim_conflict(reply: str, record=None):
+    """Return a description of a claim about the past that the student's record
+    cannot support, or "". Silent when `record` is None. Never raises."""
+    try:
+        if not isinstance(record, dict):
+            return ""          # the caller does not know -- never guess
+        # A reply announcing a RESULT ([[quiz]]/[[check]]/[[finalexam]]) is exempt
+        # from the WHOLE sweep: the new result is not yet in the record (recording
+        # follows the reply), and the in-reply numbers are rule 45's referee's job.
+        if _RC_RESULT_TAG.search(str(reply or "")):
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        # WATCH COUNTS: no record anywhere stores these -- the number is always invented.
+        m = _RC_WATCHED.search(prose)
+        if m:
+            said = " ".join(m.group(0).split())
+            return ('your reply tells the student "{s}" -- a COUNT of past events. '
+                    "Nothing in this student's record stores how many times anything "
+                    "was watched, seen or collected, so that number cannot be a "
+                    "memory; and rule 65(d) forbids justifying anything to a student "
+                    "with a count. Make your point without the invented number -- "
+                    '"we\'ve worked on this before" is honest; "twice" is not.'
+                    ).format(s=said[:80])
+        # UNIT-STATE claims, against the record's own sets.
+        mastered = {int(u) for u in (record.get("mastered") or ())}
+        touched = {int(u) for u in (record.get("touched") or ())} | mastered
+        for pat in (_RC_MASTERED_YOU, _RC_MASTERED_UNIT):
+            for m in pat.finditer(prose):
+                if _RC_FUTURE.search(prose[max(0, m.start() - 12):m.start()]):
+                    continue               # "once you've mastered Unit 4..." is a plan
+                u = int(m.group(1))
+                if u not in mastered:
+                    return ("your reply says Unit {u} is mastered, but the record "
+                            "shows {have}. Rule 0: a recap is a memory, not a guess "
+                            "-- praise what the record actually holds, or say "
+                            "nothing about mastery.").format(
+                                u=u, have=("mastered units " + ", ".join(
+                                    str(x) for x in sorted(mastered))
+                                    if mastered else "NO mastered units yet"))
+        for m in _RC_INPROGRESS.finditer(prose):
+            u = int(m.group(1))
+            if u not in touched:
+                return ("your reply says Unit {u} is in progress, but this student's "
+                        "record shows no work in Unit {u} at all{have}. Rule 0: never "
+                        "invent a shared past -- speak only of units the record "
+                        "shows.").format(
+                            u=u, have=(" (their record shows units " + ", ".join(
+                                str(x) for x in sorted(touched)) + ")"
+                                if touched else ""))
+        # SCORE claims, against every percentage the record actually holds.
+        known_last = {float(v) for v in (record.get("last") or {}).values()}
+        known_best = {float(v) for v in (record.get("best") or {}).values()}
+        known_quiz = {float(v) for v in (record.get("quiz_pcts") or ())}
+        known_by_kind = {
+            "last": known_last | known_best | known_quiz,
+            "best": known_best | known_quiz,
+            "got":  known_last | known_best | known_quiz,
+        }
+        any_known = known_last | known_best | known_quiz
+        for kind, pat in _RC_SCORE_PATTERNS:
+            for m in pat.finditer(prose):
+                val = _rc_value(m.group(1))
+                if val is None:
+                    continue
+                if val not in known_by_kind[kind]:
+                    return ("your reply tells the student a past score of "
+                            "{v:.0f}%, but the record holds {have}. Rule 45's "
+                            "principle reaches the past too: a number you SAY "
+                            "about their record must BE in their record. State "
+                            "a recorded score, or encourage them without "
+                            "inventing one.").format(
+                                v=val, have=("these scores: " + ", ".join(
+                                    f"{int(x)}%" for x in sorted(any_known))
+                                    if any_known else "NO recorded scores yet"))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[recordclaim] crashed (fail open): {exc}")
+        _event("referee_crash", "recordclaim", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE TRIANGLE-LETTER CHECK (2026-08-16, build gn) -- rule 63(d), born ENFORCED.
 # -----------------------------------------------------------------------------
 # Jim ran one Geometry lesson and read the first turn out loud: "a, b, and c are supposed
@@ -3933,11 +4164,14 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
         return ""
 
 
-def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None):
+def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
+                         allowed_units=None, record=None):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWELVE checks, in order (gj caption, gl self-correction, gm narrated method): a malformed tag (build eq), a picture promised and never
+    NINETEEN referees ride this sweep (build hm added the nineteenth, the unitplan
+    check; the original twelve are listed below, the rest are named at their call
+    sites): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
     answering its OWN question in the same breath (rule 39b -- wait time), a question
@@ -4035,6 +4269,21 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if unitclaim:
             _event("referee_fire", "unitclaim", unitclaim)
             return unitclaim
+        # build hm: NINETEENTH -- its sibling in every way: the second referee fed a
+        # fact from outside the reply (the record's allowed units, main._unit_allowed_set),
+        # judging the TAG where unitclaim judges the PROSE. Silent when the caller does
+        # not know (practice/topic lanes, nightwatch's synthetic students).
+        unitplan = unitplan_conflict(reply, allowed_units)
+        if unitplan:
+            _event("referee_fire", "unitplanref", unitplan)
+            return unitplan
+        # build ho: TWENTIETH -- claims about the past, judged by the record that
+        # actually holds the past (the count-claim probe's promotion). Silent when
+        # the caller passes no record.
+        recordclaim = record_claim_conflict(reply, record)
+        if recordclaim:
+            _event("referee_fire", "recordclaim", recordclaim)
+            return recordclaim
         text = str(reply or "")
         # 1. the board's labeled conclusions, from this reply's own tags
         labeled = {}
@@ -4346,7 +4595,9 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # SPOKEN words agree with them (see prose_board_conflict above). Same
             # treatment as a failed math check: the student never saw this draft.
             prose_detail = prose_board_conflict(reply, _last_user_text(msgs),
-                                                expected_unit=(meta or {}).get("unit"))
+                                                expected_unit=(meta or {}).get("unit"),
+                                                allowed_units=(meta or {}).get("allowed_units"),
+                                                record=(meta or {}).get("record"))
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
@@ -4468,7 +4719,14 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
         lambda: build_system_prompt(student, course),
         history, user_message, " [lesson]",
         meta={"code": code, "course": course, "mode": "lesson",
-              "unit": _lesson_unit(student)},
+              "unit": _lesson_unit(student),
+              # build hm: the record's allowed [[unitplan]] units, resolved by
+              # main._unit_allowed_set from the SAME store facts the prompt was
+              # built on. None/absent = the nineteenth referee stays silent.
+              "allowed_units": (student or {}).get("allowed_units"),
+              # build ho: the compact score/state record (main._claim_record) for
+              # the twentieth referee. None/absent = it stays silent.
+              "record": (student or {}).get("claim_record")},
         where="get_tutor_reply", label="tutor", turn_note=turn_note,
         # build bo: deterministic TODAY-bar net -- LESSON MODE ONLY (the drift the
         # review found: only this lane ever ran it, now that fact is legible here).

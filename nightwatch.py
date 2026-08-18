@@ -2,6 +2,16 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hq -- run_scenario's return grew a fourth member (the measured
+#               prompt size, for the two-prompt-sizes experiment); the watch unpacks
+#               and ignores it. No behaviour change here.
+#   2026-08-18  BUILD hm -- write_report() takes an optional `now` so the restart-safety
+#               battery checks are hermetic. The old test hardcoded 2026-08-17 as
+#               "tonight" while write_report stamped the file with the REAL date; the
+#               moment the calendar rolled past the day the test was written, both
+#               restart-safety checks failed on a healthy build. Production behavior
+#               unchanged (callers omit `now`). Lesson: a test that pins the clock must
+#               pin it EVERYWHERE the code reads it.
 #   2026-08-17  BUILD ha -- THE MORNING REPORT READS THE TELEMETRY. A new section in
 #               report_markdown reads store.event_stats(7) (the system_events table
 #               build ha added): referee crashes, browser errors, replies shipped with
@@ -254,7 +264,10 @@ def run_night(data_dir, lessons=None, turns=None, probe_hooks=None, now=None):
             out["skipped"].append(f"{sc['id']} (time budget of {MAX_MINUTES} min reached)")
             continue
         try:
-            transcript, err, fallbacks = lessonaudit.run_scenario(sc, turns)
+            # build hq: run_scenario now also returns the measured prompt size
+            # (the two-prompt-sizes experiment); the watch teaches at the normal
+            # size and does not use the measurement.
+            transcript, err, fallbacks, _pchars = lessonaudit.run_scenario(sc, turns)
             if err:
                 out["errors"].append(f"{sc['id']}: {err}")
                 continue
@@ -444,12 +457,16 @@ def email_digest(result, build="") -> "tuple[str, str] | None":
     return subject, report_markdown(result, build)
 
 
-def write_report(data_dir, result, build="") -> str:
-    """Write tonight's report and prune old ones. Returns the path, or ""."""
+def write_report(data_dir, result, build="", now=None) -> str:
+    """Write tonight's report and prune old ones. Returns the path, or "".
+
+    `now` exists so tests can pin the clock (the report's date-stamped filename IS the
+    restart-safety ledger `due()` reads); production callers omit it and get the real clock.
+    """
     try:
         d = os.path.join(str(data_dir), REPORT_DIR_NAME)
         os.makedirs(d, exist_ok=True)
-        name = datetime.now(timezone.utc).strftime("%Y-%m-%d") + ".md"
+        name = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%d") + ".md"
         path = os.path.join(d, name)
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(report_markdown(result, build))

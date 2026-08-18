@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hn -- THE STREAK LIVES ON CALIFORNIA TIME (Jim's ruling on THE
+#               THREE CLOCKS, 2026-08-18: "use California Pacific Time"). The streak's
+#               day boundary was the SERVER-UTC day, so a student practicing at 8pm in
+#               California was already "tomorrow" to the streak -- practice every
+#               evening and the streak could still break. NEW _streak_now()/
+#               _streak_today(): the streak's "today" and "yesterday" are computed in
+#               STREAK_TZ (env, default America/Los_Angeles) and fed to _bump_stats'
+#               same atomic SQL CASE -- the arithmetic is unchanged, only the calendar
+#               the day-strings come from moved. zoneinfo + the tzdata package (added
+#               to requirements so Windows dev boxes have the IANA database too);
+#               if the zone cannot load, it falls back to UTC LOUDLY (one boot print)
+#               -- the old behaviour, never a crash. Hours tiles stay student-local,
+#               backups stay server-local; the CLOCKS note below records the decision.
 #   2026-08-17  BUILD hl -- THE SMALL CUTS OF PHASE 3 (this file: two of the three).
 #               (1) THE STREAK IS ATOMIC. NEW _bump_stats(code, problems, correct,
 #               attempted, checks) -- ONE dialect-native upsert that bumps the
@@ -1598,6 +1611,30 @@ def _today() -> str:
     return _now().date().isoformat()
 
 
+# THE STREAK'S CLOCK (build hn, 2026-08-18 -- Jim's ruling on THE THREE CLOCKS).
+# The streak asks "did you come back the next day?" in the CALENDAR OF THE STUDENT'S
+# EVENING, which for this beta is California: STREAK_TZ, default America/Los_Angeles.
+# Resolved ONCE at import; a box without the IANA database (the reason tzdata is in
+# requirements.txt) falls back to UTC -- the pre-hn behaviour -- and says so loudly.
+STREAK_TZ_NAME = os.environ.get("STREAK_TZ", "America/Los_Angeles")
+try:
+    from zoneinfo import ZoneInfo as _ZoneInfo
+    _STREAK_TZ = _ZoneInfo(STREAK_TZ_NAME)
+except Exception as _tz_exc:  # noqa: BLE001 -- a missing zone must never stop boot
+    print(f"[streak] timezone {STREAK_TZ_NAME!r} unavailable ({_tz_exc}) -- "
+          "streak days fall back to UTC (install tzdata to fix)")
+    _STREAK_TZ = _dt.timezone.utc
+
+
+def _streak_now() -> "_dt.datetime":
+    """The wall clock the STREAK lives on (see THE THREE CLOCKS below)."""
+    return _dt.datetime.now(_STREAK_TZ)
+
+
+def _streak_today() -> str:
+    return _streak_now().date().isoformat()
+
+
 def _get_stats_row(code: str) -> dict:
     from sqlalchemy import select
     t = _tables["student_stats"]
@@ -1615,7 +1652,10 @@ def _get_stats_row(code: str) -> dict:
 
 
 def _touch_streak(s: dict) -> None:
-    """Update streak_days + last_active for activity happening TODAY (in-place)."""
+    """RETIRED (build hl): no writer calls this -- _bump_stats owns the streak
+    atomically. Kept only so old imports/exports keep their shape. ⚠️ If you ever
+    revive it, it must read _streak_today()/_streak_now() (build hn: the streak
+    lives on California time), NOT _today()/_now()."""
     today = _today()
     last = s.get("last_active")
     if last == today:
@@ -1635,10 +1675,12 @@ def _bump_stats(code: str, problems: int = 0, correct: int = 0,
         already counted today  -> streak unchanged
         last active yesterday  -> streak + 1
         otherwise              -> streak restarts at 1
-    Same semantics, no read-then-write window. The day is the server-UTC day, as it
-    always was -- see the CLOCKS note below for why that stays for now."""
-    today = _today()
-    yday = (_now().date() - _dt.timedelta(days=1)).isoformat()
+    Same semantics, no read-then-write window. build hn: the day-strings come from
+    the STREAK'S clock (_streak_today, California Pacific by Jim's 2026-08-18 ruling)
+    -- the SQL CASE arithmetic is untouched, only the calendar moved. See THE THREE
+    CLOCKS below."""
+    today = _streak_today()
+    yday = (_streak_now().date() - _dt.timedelta(days=1)).isoformat()
 
     def _streak(cur, _x):
         from sqlalchemy import case, func
@@ -1655,15 +1697,19 @@ def _bump_stats(code: str, problems: int = 0, correct: int = 0,
             {"last_active": today, "updated_at": _now()}, exprs=exprs)
 
 
-# THE THREE CLOCKS, DOCUMENTED (build hl, review F9 -- decided, not drifted into).
-# "Active when?" is answered three ways in this app: time_daily.day is the STUDENT'S
-# local day (a parent asking "how long did she work Tuesday?" means their Tuesday);
-# the streak uses the SERVER-UTC day (above); last_touched/updated_at are UTC
-# timestamps. Unifying the streak onto the student's local day would need the
-# client's day threaded through /api/check and /api/mark, and it CHANGES what a
-# streak means for evening students -- that is a product decision for Jim, not a
-# refactor to smuggle in. Until then: hours = student-local, streak = server-UTC,
-# consistently, on purpose, and this comment is the single place that says so.
+# THE THREE CLOCKS, DOCUMENTED (build hl, review F9) -- AND THE STREAK'S CLOCK DECIDED
+# (build hn, 2026-08-18). Jim's ruling: "use California Pacific Time." So:
+#   hours tiles  -- the STUDENT'S local day (a parent asking "how long did she work
+#                   Tuesday?" means their Tuesday); the client sends the day.
+#   the streak   -- the CALIFORNIA day (STREAK_TZ, default America/Los_Angeles,
+#                   DST-correct via zoneinfo). A kid practicing at 8pm in California
+#                   is practicing TODAY, not tomorrow. Server-UTC was the old
+#                   behaviour and remains the loud fallback if the zone cannot load.
+#   backups etc. -- server clocks (last_touched/updated_at stay UTC timestamps).
+# If the beta ever spans time zones, the honest next step is the client's day threaded
+# through /api/check and /api/mark (the hours tiles already do this) -- that is a
+# LATER product decision; STREAK_TZ makes today's decision explicit and steerable.
+# This comment remains the single place that says which clock is which, on purpose.
 
 
 def _save_stats(code: str, s: dict) -> None:

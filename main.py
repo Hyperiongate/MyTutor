@@ -2,6 +2,60 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hq-two-prompt-sizes". THE DEGRADATION
+#               EXPERIMENT IS RUNNABLE (lessonaudit.py --prompt-size small|large;
+#               see its hq note). nightwatch unpacks run_scenario's new 4th return
+#               member; this file only carries the build stamp.
+#   2026-08-18  APP_BUILD -> "2026-08-18hp-order-of-authority". THE PRECEDENCE
+#               LATTICE (Phase 4). The words changed in prompts.py (WHEN INSTRUCTIONS
+#               COLLIDE -- five levels, one supremacy claim, the audited cross-pulls
+#               named); RULES.md regenerated and now battery-guarded against
+#               staleness; this file only carries the build stamp.
+#   2026-08-18  APP_BUILD -> "2026-08-18ho-record-referee". THE RECORD-CLAIM REFEREE
+#               (the count-claim probe's promotion; Phase 4, Class D). NEW
+#               _claim_record(code, course): the compact past-facts record (unit-check
+#               best/last, topic-quiz bests, mastered, touched) built from the store
+#               each lesson turn and handed to tutor's TWENTIETH referee via
+#               student_context["claim_record"] -> meta["record"]. False score
+#               claims, false mastery/in-progress claims and invented watch-counts
+#               (the audit's "you've now watched this move twice" refusal) are now
+#               regenerated before a student sees them. The referee's engine and
+#               patterns live in tutor.py (see its ho note).
+#   2026-08-18  APP_BUILD -> "2026-08-18hn-streak-clock". THE STREAK LIVES ON
+#               CALIFORNIA TIME -- Jim's ruling on THE THREE CLOCKS ("use California
+#               Pacific Time"). The change itself is in store.py (_streak_now/
+#               _streak_today feeding _bump_stats' unchanged SQL CASE; STREAK_TZ env,
+#               default America/Los_Angeles; loud UTC fallback) with tzdata added to
+#               requirements.txt; this file only carries the build stamp.
+#   2026-08-18  APP_BUILD -> "2026-08-18hm-honest-opener". PHASE 4 OF THE FULL-APP
+#               REVIEW BEGINS (Class D: the model's word becoming truth, unvalidated).
+#               THREE CUTS IN THIS FILE:
+#               (1) THE OPENER IS BRANCHED IN CODE. The old opener note told the model
+#               "if you have met before... give a SHORT recap" and let IT decide from
+#               history -- so an empty record made compliance require invention, the
+#               invented recap was stored in history, and every later opener replayed
+#               it as memory (the review's likeliest phantom-Unit-5 origin). NEW
+#               _opener_record_note(): the SERVER decides has-record from the store
+#               (assistant history / touched / mastered -- placement alone is not a
+#               record of lessons), the no-record opener now FORBIDS a recap, and a
+#               returning student's recap FACTS are stated by the server from the
+#               record (resolved unit + name, mastered units, last-active). History
+#               is thereby demoted to STYLE: the note says outright that when the
+#               conversation and the record disagree, the record wins. The gap-days
+#               refresher now names the record's unit (the old text pointed the model
+#               at its own stored prose), and only fires when a record exists.
+#               (2) [[unitplan]] IS VALIDATED BEFORE IT FILES. NEW _unit_allowed_set
+#               (resolved + focus + touched + mastered + next-in-progression + the
+#               unit the student's own message just asked for) rides student_context
+#               into tutor's meta, arming the NINETEENTH referee (unitplan_conflict:
+#               a declaration outside the set is regenerated before the student sees
+#               it); NEW _accept_declared_unit re-checks at filing time (referees
+#               fail open), so a surviving hallucinated declaration writes a
+#               system_events row ("unitplan_rejected") instead of a topic_progress
+#               row. Jim's gs ruling (THE UNIT FOLLOWS THE TEACHING) still holds --
+#               for any teaching the record can justify.
+#               (3) The [[unitplan]] unit pattern now compiles from
+#               tags.UNITPLAN_UNIT_PATTERN (one grammar source, two consumers).
 #   2026-08-17  APP_BUILD -> "2026-08-17hl-small-cuts". THE SMALL CUTS OF PHASE 3
 #               (this file: one of the three -- the returning-student check).
 #               _has_any_history's FILE-fallback branch parsed session keys with
@@ -3257,6 +3311,7 @@ from pydantic import BaseModel
 import tutor
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
+import tags     # build hm: the tag grammar's one source (hard import, loud at boot)
 import library  # 2026-08-07: the "Look it up" reference library (seeds + generate-once)
 try:
     # 2026-08-10 (build ck): the misconception catalogue, used to recognise a known
@@ -3535,6 +3590,125 @@ def _resolve_unit(code: str, course: str, placement: dict, focus_unit: int):
     return 1, "default"
 
 
+def _message_names_unit(message: str, course: str, unit: int) -> bool:
+    """Did the student's OWN message just ask for this unit? True on an explicit
+    "unit N" or when the message classifies to that unit's content ("can we do the
+    pythagorean theorem?"). Conservative: classify_unit returns (None, None) on no
+    match, and a failure here is simply False -- never an exception in a turn."""
+    try:
+        text = str(message or "")
+        if not text or text.startswith("__"):
+            return False
+        if re.search(r"\bunit\s+0*{}\b".format(int(unit)), text, re.I):
+            return True
+        u, _name = curriculum.classify_unit(text, course)
+        return u == int(unit)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _unit_allowed_set(code: str, course: str, resolved_unit: int, focus_unit: int = 0,
+                      message: str = "") -> tuple:
+    """BUILD hm (2026-08-18, Phase 4 -- Class D): every unit this turn's [[unitplan]]
+    declaration could HONESTLY name, from facts the server actually holds:
+
+      resolved     -- the unit _resolve_unit put them in (always allowed);
+      focus        -- their explicit click / the parent's steer;
+      touched      -- any unit with a topic_progress row (revisits are legitimate);
+      mastered     -- any unit already mastered (reviewing it is legitimate);
+      progression  -- the next unmastered unit after the resolved one (a legitimate
+                      mid-session advance when a unit is finished);
+      asked-for    -- a unit the student's OWN message just requested.
+
+    The nineteenth referee (tutor.unitplan_conflict) regenerates a draft declaring
+    anything else, and _accept_declared_unit refuses to file it. Never raises; a
+    storage surprise degrades toward the smaller honest set, never an exception."""
+    allowed = set()
+    for u in (resolved_unit, focus_unit):
+        try:
+            u = int(u or 0)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= u <= 9:
+            allowed.add(u)
+    try:
+        if store.enabled():
+            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            mastered = {u for u in range(1, 10)
+                        if int((checks.get(u) or {}).get("best_pct") or 0) >= store.PASS_PCT}
+            allowed |= mastered
+            for r in (store.get_topics(code, course) or []):
+                try:
+                    u = int(r.get("unit") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if 1 <= u <= 9:
+                    allowed.add(u)
+            for q in (store.get_topic_quizzes(code, course) or []):
+                try:
+                    u = int(q.get("unit") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if 1 <= u <= 9:
+                    allowed.add(u)
+            try:
+                start = int(resolved_unit or 0)
+            except (TypeError, ValueError):
+                start = 0
+            if 1 <= start <= 9:
+                for u in range(start + 1, 10):
+                    if u not in mastered:
+                        allowed.add(u)      # the next step, if this one finishes today
+                        break
+    except Exception as exc:  # noqa: BLE001 -- the referee degrades, the turn never breaks
+        print(f"[unitplan] allowed-set degraded to resolved/focus: {exc}")
+    for u in range(1, 10):
+        if u not in allowed and _message_names_unit(message, course, u):
+            allowed.add(u)
+    if not allowed:
+        allowed.add(1)
+    return tuple(sorted(allowed))
+
+
+def _accept_declared_unit(declared, resolved_unit: int, unit_source: str,
+                          allowed, code: str = "", course: str = ""):
+    """BUILD hm: the FILING gate for the tutor's [[unitplan]] declaration -- Jim's
+    gs ruling (THE UNIT FOLLOWS THE TEACHING) now holds only when the record could
+    justify the teaching. Returns (course_unit, verdict):
+
+      verdict "none"       -- no declaration; track the resolved unit.
+      verdict "focus-wins" -- an explicit focus outranks the declaration (unchanged
+                              since gs: the student's click is the deeper intent).
+      verdict "accepted"   -- the declaration is in the allowed set; it files, and
+                              (via topic_progress) persists into the next resolution.
+      verdict "rejected"   -- the record cannot justify it. The resolved unit files
+                              instead and the rejection writes a system_events row --
+                              a surviving hallucination becomes a chart, never a fact.
+
+    Belt AND suspenders with the nineteenth referee: the referee regenerates these
+    drafts in the pipeline, but every referee fails open, so the filing gate re-checks
+    what actually shipped. Never raises."""
+    try:
+        if not declared:
+            return resolved_unit, "none"
+        if unit_source == "focus":
+            return resolved_unit, "focus-wins"
+        if int(declared) in set(int(u) for u in (allowed or ())):
+            return int(declared), "accepted"
+        print(f"[unitplan] REJECTED declaration: code={str(code)[:3]}*** course={course} "
+              f"declared={declared} resolved={resolved_unit} allowed={list(allowed or ())}")
+        try:
+            store.record_event("unitplan_rejected", "filing",
+                               f"declared={declared} resolved={resolved_unit} "
+                               f"allowed={list(allowed or ())}", code, course)
+        except Exception:  # noqa: BLE001
+            pass
+        return resolved_unit, "rejected"
+    except Exception as exc:  # noqa: BLE001 -- filing must never break a turn
+        print(f"[unitplan] accept check crashed (filing resolved): {exc}")
+        return resolved_unit, "error"
+
+
 def _resolve_focus(code: str, course: str, req_unit: int):
     """(focus_unit, steered) for this turn (build ea). Order of authority:
     1. the student's own explicit focus (a dashboard link) -- always wins;
@@ -3638,6 +3812,103 @@ def _mastery_note(code: str, focus_unit: int = 0, course: str = "algebra1",
             note += (f" TODAY the student chose to work on Unit {fu} "
                      f"({curriculum.unit_name(course, fu)}) -- center this session there.")
     return note
+
+
+def _claim_record(code: str, course: str):
+    """BUILD ho (2026-08-18, Phase 4 -- Class D): the compact record the twentieth
+    referee (tutor.record_claim_conflict) judges past-claims against. Everything in
+    it is a fact the server holds:
+        best / last  -- unit-check percentages, keyed by unit
+        quiz_pcts    -- topic-quiz best percentages (sorted, de-duplicated)
+        mastered     -- units at/over the bar
+        touched      -- units with any topic_progress row
+    Returns None when the DB is off or anything surprises -- the referee then stays
+    silent rather than guessing (the gn property). Never raises."""
+    if not store.enabled():
+        return None
+    try:
+        checks = (store.get_mastery(code, course) or {}).get("checks", {})
+        best, last, mastered = {}, {}, []
+        for u in range(1, 10):
+            c = checks.get(u) or {}
+            if int(c.get("checks_taken") or 0) or int(c.get("best_pct") or 0):
+                best[u] = int(c.get("best_pct") or 0)
+                last[u] = int(c.get("last_pct") or 0)
+            if int(c.get("best_pct") or 0) >= store.PASS_PCT:
+                mastered.append(u)
+        touched = sorted({int(r.get("unit")) for r in (store.get_topics(code, course) or [])
+                          if str(r.get("unit") or "").isdigit()
+                          and 1 <= int(r.get("unit")) <= 9})
+        quiz_pcts = sorted({int(q.get("best_pct") or 0)
+                            for q in (store.get_topic_quizzes(code, course) or [])})
+        return {"best": best, "last": last, "quiz_pcts": quiz_pcts,
+                "mastered": mastered, "touched": touched}
+    except Exception as exc:  # noqa: BLE001 -- a silent referee beats a broken turn
+        print(f"[claimrecord] degraded to None: {exc}")
+        return None
+
+
+def _opener_record_note(code: str, course: str, resolved_unit: int, history) -> tuple:
+    """BUILD hm (2026-08-18, Phase 4 -- Class D's opener half): (has_record, note).
+
+    The opener used to hand the model an UNCONDITIONAL demand for a recap ("give a
+    SHORT recap of where you two are") and let the model decide from history whether
+    you had met -- so when the record was empty, compliance REQUIRED invention, the
+    invented recap was stored verbatim in history, and every later opener replayed it
+    as memory (the review's most plausible phantom-Unit-5 origin). The server holds
+    the record; the server now decides.
+
+    has_record -- True only if something REAL exists: a stored assistant turn in this
+    course's history, a touched unit, or a mastered unit. Placement alone is NOT a
+    record of lessons together (rule 0's placement-honesty clause already governs it).
+
+    note -- when has_record, the recap FACTS stated by the server from the store:
+    the resolved unit (the same value the prompt's playbook and the referees were
+    given), mastered units, last-active date. History is thereby demoted to STYLE:
+    the note says in so many words that when the conversation and the record
+    disagree, the record wins. Never raises; a store surprise degrades toward
+    "less claimed", never toward an exception in a child's opener."""
+    hist_real = False
+    try:
+        hist_real = any((m or {}).get("role") == "assistant" for m in (history or []))
+    except Exception:  # noqa: BLE001
+        hist_real = False
+    touched, mastered, last_active = [], [], ""
+    try:
+        if store.enabled():
+            rows = store.get_topics(code, course) or []
+            touched = sorted({int(r.get("unit")) for r in rows
+                              if str(r.get("unit") or "").isdigit()
+                              and 1 <= int(r.get("unit")) <= 9})
+            checks = (store.get_mastery(code, course) or {}).get("checks", {})
+            mastered = sorted(u for u in range(1, 10)
+                              if int((checks.get(u) or {}).get("best_pct") or 0)
+                              >= store.PASS_PCT)
+            la = (store.get_course_activity(code).get(course) or {}).get("last_active")
+            last_active = str(la or "")[:10]
+    except Exception as exc:  # noqa: BLE001 -- claim less, never break the opener
+        print(f"[opener] record note degraded: {exc}")
+    has_record = bool(hist_real or touched or mastered)
+    if not has_record:
+        return False, ""
+    try:
+        uname = curriculum.unit_name(course, resolved_unit) or ""
+    except Exception:  # noqa: BLE001
+        uname = ""
+    bits = ["you two are working in Unit {}{}".format(
+        resolved_unit, " ({})".format(uname) if uname else "")]
+    if mastered:
+        bits.append("already mastered: Unit " + ", Unit ".join(str(u) for u in mastered))
+    if last_active:
+        bits.append("last session in this course: " + last_active)
+    note = (" SERVER RECORD FOR YOUR RECAP -- progress FACTS come from HERE and from "
+            "the mastery notes above; the conversation below refreshes tone and recent "
+            "wording only, and if it seems to remember a unit or topic this record does "
+            "not show, THE RECORD WINS: " + "; ".join(bits) + ". When you name a unit, "
+            "name THAT one. If you are unsure exactly what you were doing last time, "
+            "say less, never more: welcome them back and start from what the record "
+            "shows.")
+    return True, note
 
 
 def save_placement(code: str, result: dict, course: str = "algebra1") -> None:
@@ -7688,7 +7959,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-17hl-small-cuts"
+APP_BUILD = "2026-08-18hq-two-prompt-sizes"
 
 
 @app.get("/health")
@@ -8115,7 +8386,9 @@ _TAG_SPLIT_RE = re.compile(r"(\[\[[^\]]*\]\])")
 # Jim's ruling (2026-08-17): THE UNIT FOLLOWS WHAT IS BEING TAUGHT. The tutor already has
 # a way to say so -- [[unitplan unit="N"]] -- so that declaration becomes the authority,
 # it is what gets tracked, and the rail reads it back on a resume.
-_UNITPLAN_TAG_RE = re.compile(r'\[\[\s*unitplan\b[^\]]*?unit\s*=\s*"?(\d{1,2})"?[^\]]*\]\]', re.I)
+# build hm: the pattern lives in tags.py (one grammar source; tutor.py's nineteenth
+# referee compiles the same string).
+_UNITPLAN_TAG_RE = re.compile(tags.UNITPLAN_UNIT_PATTERN, re.I)
 
 
 def _declared_unit(reply: str):
@@ -8386,6 +8659,18 @@ def chat(req: ChatRequest):
     # class: five sources, confidently wrong together).
     resolved_unit, unit_source = _resolve_unit(code, req.course, placement, focus_unit)
     student_context["current_unit"] = resolved_unit
+    # build hm (Phase 4, Class D): the units this turn's [[unitplan]] could honestly
+    # declare -- computed from the SAME store facts the prompt was built on, handed to
+    # the nineteenth referee (tutor.unitplan_conflict) via meta, and re-checked at
+    # filing time by _accept_declared_unit below. The model's word about "which unit"
+    # is now vetoed by the server that holds the record, exactly as [[verify]]/SymPy
+    # vetoes its arithmetic.
+    student_context["allowed_units"] = _unit_allowed_set(
+        code, req.course, resolved_unit, focus_unit, message)
+    # build ho (Phase 4, Class D): the compact past-facts record for the twentieth
+    # referee -- claims about scores, mastery and units-in-progress are judged by
+    # the record that actually holds the past. None (DB off) = referee silent.
+    student_context["claim_record"] = _claim_record(code, req.course)
     # THE PLACEMENT NOTE EXPIRES (review F4a). It used to be appended to the progress
     # prose every turn forever -- and tutor.py regex-read "Unit N" back OUT of that
     # prose to pick the teaching playbook, so a student eight units past their
@@ -8520,6 +8805,7 @@ def chat(req: ChatRequest):
                 "__unit_quiz__")
         history = [m for m in history if not (
             m.get("role") == "user" and str(m.get("content", "")).strip().lower() in junk)]
+        _has_record, _record_note = False, ""    # build hm: set on the non-tour branch
         if after_tour:
             # 2026-08-01 (Jim: "after the tour he restates his name as if I just logged in"):
             # the guided screen tour JUST ended, and the tour already introduced Mr. Cadabra
@@ -8531,12 +8817,32 @@ def chat(req: ChatRequest):
                 "big idea of this course, today's goal + the goals card, and your first question. "
                 "The student did NOT type anything; this is NOT an interruption.)")
         else:
-            opener_note = (
-                "(SYSTEM: The student just OPENED the lesson — they did NOT type anything, and this "
-                "is NOT an interruption. If you have met before, warmly greet them back by name and "
-                "give a SHORT recap of where you two are and what's next, then invite them to keep "
-                "going. If this is your first meeting, begin the first-meeting flow. Do NOT scold "
-                "them, do NOT tell them to focus, and do NOT act annoyed.)")
+            # build hm (Phase 4, Class D): THE SERVER DECIDES WHETHER YOU HAVE MET.
+            # The old note said "If you have met before... recap; if this is your
+            # first meeting..." and left the choice -- and the recap's facts -- to
+            # the model. When the record was empty, compliance required invention,
+            # and the invented recap was then STORED in history and replayed by
+            # every later opener as memory. Now the branch happens in code, and a
+            # returning student's recap facts are stated BY the server FROM the
+            # record (history is style, not truth).
+            _has_record, _record_note = _opener_record_note(
+                code, req.course, resolved_unit, history)
+            if _has_record:
+                opener_note = (
+                    "(SYSTEM: The student just OPENED the lesson — they did NOT type anything, and this "
+                    "is NOT an interruption. You HAVE met before. Warmly greet them back by name and "
+                    "give a SHORT recap of where you two are and what's next, then invite them to keep "
+                    "going." + _record_note + " Do NOT scold "
+                    "them, do NOT tell them to focus, and do NOT act annoyed.)")
+            else:
+                opener_note = (
+                    "(SYSTEM: The student just OPENED the lesson — they did NOT type anything, and this "
+                    "is NOT an interruption. THE SERVER RECORD SHOWS NO PRIOR LESSONS together in this "
+                    "course and no stored conversation: this IS your first meeting here, whatever the "
+                    "conversation may appear to suggest. Begin the first-meeting flow. Do NOT welcome "
+                    "them 'back', do NOT recap, and do NOT reference or invent any past session "
+                    "together. Do NOT scold "
+                    "them, do NOT tell them to focus, and do NOT act annoyed.)")
         # 2026-08-11 (build dw, Jim live: "welcome back, we were looking at this chart,
         # ready to keep going?" after DAYS away): the opener now knows the gap. A day
         # or more since the last session in this course -> a real refresher, not a
@@ -8551,17 +8857,22 @@ def chat(req: ChatRequest):
                                        - _dt.date.fromisoformat(str(la)[:10])).days)
         except Exception as exc:  # noqa: BLE001
             print(f"[opener] gap check failed (ignored): {exc}")
-        if gap_days >= 1 and not (after_tour or fresh_start):
+        if gap_days >= 1 and not (after_tour or fresh_start) and _has_record:
+            # build hm: the refresher's FACTS come from the server record note above
+            # (the unit is named there); the conversation supplies tone and recent
+            # wording, never facts. The old text invited the model to treat its own
+            # stored prose as memory -- exactly the disease.
             opener_note += (
                 f" (ALSO: it has been {gap_days} day{'s' if gap_days != 1 else ''} since "
                 "your last session together in this course. Do NOT open with a bare "
                 "'ready to keep going?'. Give a REAL refresher first, warmly and briefly "
-                "(3-4 sentences): name the unit and topic you two were in, remind them in "
-                "plain words what you were working on and what they had already figured "
-                "out or nailed (use your notes and the recent conversation), put the key "
-                "thing back on the board if it helps, THEN ask one gentle memory-jog "
-                "question before moving forward. Memory fades in a few days -- back up a "
-                "little; it should feel like a friend catching you up, never a test.)")
+                "(3-4 sentences): name the unit the SERVER RECORD above puts you two in "
+                "-- never any other -- remind them in plain words what that unit has "
+                "been about and what the mastery notes show they had already figured "
+                "out or nailed, put the key thing back on the board if it helps, THEN "
+                "ask one gentle memory-jog question before moving forward. Memory fades "
+                "in a few days -- back up a little; it should feel like a friend "
+                "catching you up, never a test.)")
         # 2026-08-11 (build dw, Jim live: "it's only showing two bars"): the server KNOWS
         # when the TODAY bar is empty. When it is, the opener's standing instruction to
         # emit [[today items]] becomes a per-turn order it cannot miss.
@@ -8640,13 +8951,18 @@ def chat(req: ChatRequest):
     # were given -- the derivation this block used to re-do by hand let placement
     # outrank progression forever on any turn without a [[unitplan]] tag (the pre-gs
     # bug, quietly re-emerging every tagless turn; review finding F4c).
-    course_unit = resolved_unit
     # build gs, preserved: THE TUTOR'S OWN DECLARATION OUTRANKS EVERYTHING except an
     # explicit focus -- what the tutor says it is teaching is the truth for THIS turn,
     # and (completing gs) it persists into the next resolution via topic_progress.
+    # build hm (Phase 4, Class D): ...but only a declaration the RECORD can justify.
+    # A hallucinated [[unitplan unit="5"]] used to file a real topic_progress row here
+    # and return as the rail's truth on the next resume -- the likeliest phantom-Unit-5
+    # mechanism. The nineteenth referee already regenerates such drafts upstream;
+    # because every referee fails open, the filing gate re-checks what shipped.
     declared = _declared_unit(reply)
-    if declared and unit_source != "focus":
-        course_unit = declared
+    course_unit, _up_verdict = _accept_declared_unit(
+        declared, resolved_unit, unit_source,
+        student_context.get("allowed_units"), code, req.course)
     _probe_unit_drift(code, req.course, reply, declared, course_unit,
                       resolved=resolved_unit, source=unit_source)
     _track_topic(code, course_unit, curriculum.unit_name(req.course, course_unit),

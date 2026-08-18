@@ -1,6 +1,12 @@
 # =============================================================================
 # requirements.txt  --  Math Tutor MVP  --  Hyperion Shift LLC
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  Added tzdata (pinned 2025.2) for build hn: the streak's day boundary
+#               now lives on America/Los_Angeles (Jim's THREE CLOCKS ruling), via
+#               zoneinfo. Linux ships the IANA database; Windows dev boxes (where the
+#               battery also runs) do not -- tzdata is the pure-Python copy, so the
+#               same zone resolves everywhere. Without it store.py falls back to UTC
+#               loudly rather than crashing.
 #   2026-08-03  Added sympy (pinned 1.14.0, the version the math verifier was dry-run
 #               tested against) for mathcheck.py: the engine that re-does the tutor's
 #               math before any reply reaches a student. Pure-Python (pulls only mpmath),
@@ -41,4 +47,5 @@ SQLAlchemy==2.0.34
 psycopg2-binary==2.9.9
 stripe==15.4.0
 sympy==1.14.0
+tzdata==2025.2
 # I did no harm and this file is not truncated.

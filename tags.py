@@ -2,6 +2,11 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hm -- UNITPLAN_UNIT_PATTERN: the one regex source for reading the
+#               unit out of a [[unitplan]] tag. main.py (filing) and tutor.py (the new
+#               unitplan referee) BOTH need it, and two hand-typed copies of the same
+#               pattern is the Class-B disease this file exists to end. Pure data still:
+#               it is a pattern STRING; each consumer compiles it itself.
 #   2026-08-17  NEW FILE (build hh -- the last Phase 2 build of the full-app review).
 #               The [[tag]] grammar is the app's central contract -- the tutor writes
 #               tags, the referees read them, the battery validates them, the pages
@@ -82,6 +87,12 @@ TAG_INLINE = {
     # ever been -- and its whole effect is to queue the goodbye moment clip.
     "bye": set(),
 }
+
+# ---- UNITPLAN: the one pattern for reading the declared unit out of the tag ------
+# (build hm) main.py files the declaration into topic_progress; tutor.py's unitplan
+# referee vetoes a declaration the record cannot justify. Both compile THIS string, so
+# "which unit does this tag declare" has exactly one definition.
+UNITPLAN_UNIT_PATTERN = r'\[\[\s*unitplan\b[^\]]*?unit\s*=\s*"?(\d{1,2})"?[^\]]*\]\]'
 
 # ---- CONTENT ATTRS: a figure tag needs at least one of these or it renders empty -
 CONTENT_ATTRS = {
