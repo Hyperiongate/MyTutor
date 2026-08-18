@@ -193,6 +193,8 @@
   topic.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: postJSON sends
+                X-Student-Code and the quiz/check/mark URLs say /me.
     2026-08-11  BUILD di -- [[column]] gains align="last" (first full audit, finding
                 S-9): a DELIBERATELY-WRONG last-digit lineup, amber with a built-in
                 "wrong way" badge, so the tutor can SHOW why the misconception fails
@@ -1082,7 +1084,7 @@
         else if (name === "solve") showSolve(attrs);
         else if (name === "check") showCheck(attrs);
         else if (name === "quiz") showQuiz(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
@@ -1282,7 +1284,8 @@
 
     // ---- Quick-check result + silent progress marks (Phase A2) ----
     function postJSON(url, body) {
-      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); } catch (e) {}
+      // build hs (Phase 5): the credential rides the X-Student-Code header; URLs say /me.
+      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE }, body: JSON.stringify(body) }); } catch (e) {}
     }
 
     // [[quiz unit="2" topic="3" name="Make-a-ten" correct="3" total="4"]] (2026-08-04) --
@@ -1295,7 +1298,7 @@
       const passed = Math.round(100 * correct / total) >= 80;
       const tname = String(a.name || "").slice(0, 80);
       const safe = tname.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      if (unit >= 1 && unit <= 9) postJSON("/api/quiz/" + encodeURIComponent(CODE),
+      if (unit >= 1 && unit <= 9) postJSON("/api/quiz/me",
         { unit, topic: parseInt(a.topic, 10) || 0, name: tname, correct, total, course: COURSE });
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
@@ -1309,7 +1312,7 @@
       const correct = Math.max(0, parseInt(a.correct, 10) || 0);
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const passed = Math.round(100 * correct / total) >= 90;   // MASTERY BAR (2026-08-04): 90, matching store.PASS_PCT
-      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE), { unit, correct, total, course: COURSE });
+      if (unit >= 1 && unit <= 9) postJSON("/api/check/me", { unit, correct, total, course: COURSE });
       const host = feedBlock();
       host.innerHTML = '<div class="checkcard ' + (passed ? "pass" : "keep") + '">'
         + '<div class="ck-top">Unit Quiz</div>'

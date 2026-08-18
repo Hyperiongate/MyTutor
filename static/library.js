@@ -1,6 +1,8 @@
 /* =============================================================================
  * library.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/library is
+ *               called with the X-Student-Code header instead of &code=.
  *   2026-08-07  CONTEXT CHOICES FIRST (build aw, Jim: "students often don't know exactly
  *               what they're looking up"). Opening the overlay now shows CHIP CHOICES drawn
  *               from what's being taught RIGHT NOW on this page -- the red key terms Mr.
@@ -173,9 +175,11 @@
       var t1 = setTimeout(function () { status.textContent = waitLines[1]; }, 1600);
       var t2 = setTimeout(function () { status.textContent = waitLines[2]; }, 4000);
       try {
+        // build hs (Phase 5): the credential rides the X-Student-Code header, never
+        // the URL (the search words stay -- they are not a credential).
         var res = await fetch("/api/library?q=" + encodeURIComponent(query) +
-                              "&course=" + encodeURIComponent(COURSE) +
-                              "&code=" + encodeURIComponent(CODE));
+                              "&course=" + encodeURIComponent(COURSE),
+                              { headers: { "X-Student-Code": CODE } });
         var data = await res.json();
         clearTimeout(t1); clearTimeout(t2);
         status.classList.remove("show");

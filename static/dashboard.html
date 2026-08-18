@@ -31,6 +31,11 @@
   dashboard.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: every API call
+                (topics/time/awards/misses/sprints/courses/assessment) sends
+                X-Student-Code with /me paths. Page-nav links (?code=) unchanged --
+                a parked product decision. Plausible no longer loads here (Jim's
+                ruling; the guard lives in analytics.js).
     2026-08-11  SPRINT RECORD CARD (build dm). WWC guide 26 rec 6 says track fluency
                 progress AND SHOW it -- the sprints table has recorded every one-minute
                 round since build dd and nothing displayed the growth. New hidden-until-
@@ -502,9 +507,10 @@
         card.innerHTML = '<div class="who">✍️ One moment…</div>Looking over the real progress and putting it into words.';
         try {
           const aud = parentish ? "parent" : "student";
-          const res = await fetch("/api/assessment/" + encodeURIComponent(params.get("code") || "") +
-                                  "?course=" + encodeURIComponent(params.get("course") || "algebra1") +
-                                  "&audience=" + aud);
+          const res = await fetch("/api/assessment/me?course="
+                                  + encodeURIComponent(params.get("course") || "algebra1")
+                                  + "&audience=" + aud,
+                                  { headers: { "X-Student-Code": params.get("code") || "" } });
           const data = await res.json();
           if (!res.ok) throw new Error(data.detail || "Couldn't fetch the assessment.");
           const who = parentish ? "An honest read on their progress" : "Mr. Cadabra's honest read";
@@ -584,7 +590,8 @@
     (async () => {
       let data;
       try {
-        const res = await fetch("/api/topics/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
+        const res = await fetch("/api/topics/me?course=" + encodeURIComponent(COURSE),
+                                { headers: { "X-Student-Code": CODE } });
         if (!res.ok) { location.href = "/login"; return; }
         data = await res.json();
       } catch (e) { el("offnote").style.display = "block"; return; }
@@ -617,7 +624,7 @@
       // calendar. If the fetch fails or tracking is off, the tile says so — never invents time.
       let timeToday = null, timeWeek = null;
       try {
-        const tr = await fetch("/api/time/" + encodeURIComponent(CODE));
+        const tr = await fetch("/api/time/me", { headers: { "X-Student-Code": CODE } });
         if (tr.ok) {
           const td = await tr.json();
           if (td.tracking) {
@@ -657,7 +664,7 @@
 
       // ----- TROPHY CASE (2026-07-30): trophies + effort awards + badge counts, all real -----
       try {
-        const ar = await fetch("/api/awards/" + encodeURIComponent(CODE));
+        const ar = await fetch("/api/awards/me", { headers: { "X-Student-Code": CODE } });
         if (ar.ok) {
           const aw = await ar.json();
           if (aw.tracking) {
@@ -817,7 +824,8 @@
         // 2026-08-11 (build du, parent lens item 6): the question every parent asks --
         // "what did she struggle with?" -- answered with the ACTUAL problems (rule 55's
         // rows). A bonus line: any failure leaves the box exactly as it was.
-        fetch("/api/misses/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE))
+        fetch("/api/misses/me?course=" + encodeURIComponent(COURSE),
+              { headers: { "X-Student-Code": CODE } })
           .then(r => r.ok ? r.json() : null).then(d => {
             const rows = (d && d.misses) || [];
             if (!rows.length) return;
@@ -845,8 +853,8 @@
     // anything, so an empty card would only nag).
     async function loadSprints() {
       try {
-        const res = await fetch("/api/sprints/" + encodeURIComponent(CODE) +
-                                "?course=" + encodeURIComponent(COURSE));
+        const res = await fetch("/api/sprints/me?course=" + encodeURIComponent(COURSE),
+                                { headers: { "X-Student-Code": CODE } });
         if (!res.ok) return;
         const d = await res.json();
         const hist = (d && d.history) || [];
@@ -896,8 +904,8 @@
     // ----- 2026-08-11 (build dt, rule 55): the missed-problems review card -----------
     async function loadMisses() {
       try {
-        const res = await fetch("/api/misses/" + encodeURIComponent(CODE) +
-                                "?course=" + encodeURIComponent(COURSE));
+        const res = await fetch("/api/misses/me?course=" + encodeURIComponent(COURSE),
+                                { headers: { "X-Student-Code": CODE } });
         if (!res.ok) return;
         const d = await res.json();
         const rows = (d && d.misses) || [];
@@ -921,7 +929,7 @@
     // ----- MY COURSES strip: the student's whole picture, not just the course they walked in with -----
     async function loadMyCourses() {
       try {
-        const res = await fetch("/api/courses/" + encodeURIComponent(CODE));
+        const res = await fetch("/api/courses/me", { headers: { "X-Student-Code": CODE } });
         if (!res.ok) return;
         const d = await res.json();
         const list = (d && d.courses) || [];

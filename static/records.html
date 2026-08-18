@@ -4,6 +4,9 @@
   records.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/records/me +
+                X-Student-Code header. (This page never carried analytics; the new
+                analytics.js guard covers it anyway if that ever changes.)
     2026-08-11  (build dq) A parent landing here BARE (no ?code=) used to get developer
                 instructions ("Add ?code=STUDENT-CODE to the address"). Now the message
                 speaks parent: open it from your family page, where every child has a
@@ -146,7 +149,8 @@
   el("range").addEventListener("change", load);
 
   function load() {
-    fetch("/api/records/" + encodeURIComponent(CODE) + "?days=" + encodeURIComponent(el("range").value))
+    fetch("/api/records/me?days=" + encodeURIComponent(el("range").value),
+          { headers: { "X-Student-Code": CODE } })
       .then(r => { if (!r.ok) throw new Error("That student code was not found."); return r.json(); })
       .then(render).catch(e => fail(e.message || "Could not load records."));
   }

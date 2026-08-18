@@ -4,6 +4,8 @@
   family.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: the assessment call
+    sends the child's code in X-Student-Code with an /me path.
   - 2026-08-11  THE PACING STEER (build ea -- Four-Lens homeschool item 3). The Manage
     panel gains "Steer their lessons": pick Unit 1-9, Set the plan -> Mr. Cadabra
     centers the child's next sessions there (course resolved server-side to where the
@@ -625,8 +627,10 @@
     var top = "";
     if (overview) (overview.students || []).forEach(function (s) { if (s.code === code && s.top_course) top = s.top_course; });
     try {
-      var out = await api("/api/assessment/" + encodeURIComponent(code) +
-                          "?audience=parent" + (top ? "&course=" + encodeURIComponent(top) : ""));
+      // build hs (Phase 5): the child's code rides the X-Student-Code header, never the URL.
+      var out = await api("/api/assessment/me?audience=parent"
+                          + (top ? "&course=" + encodeURIComponent(top) : ""),
+                          { headers: { "X-Student-Code": code } });
       box.textContent = out.text || "Nothing to report yet — a session or two and there will be.";
     } catch (e) {
       box.textContent = (e.status === 429)

@@ -2,6 +2,9 @@
    mic.js  --  THE STUDENT'S MICROPHONE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/transcribe
+                 is called with the X-Student-Code header instead of ?code= --
+                 request lines land in HTTP logs we do not control.
      2026-08-17  NEW FILE (build hf -- Phase 2 of the full-app review, the last
                  frontend cluster). Unlike voice.js and board.js this one was NOT a
                  verbatim move, because the three copies had genuinely DIVERGED --
@@ -77,9 +80,12 @@ function stopRecording(send) {
 async function transcribe(blob) {
   try {
     const fd = new FormData(); fd.append("audio", blob, "speech.webm");
-    const res = await fetch("/api/transcribe?code=" + encodeURIComponent(CODE)
-                            + (expectsALetter(lastTutorText) ? "&expect=letter" : ""),
-                            { method: "POST", body: fd });
+    // build hs (Phase 5): the credential rides the X-Student-Code header, never the
+    // URL -- request lines land in HTTP logs we do not control.
+    const res = await fetch("/api/transcribe"
+                            + (expectsALetter(lastTutorText) ? "?expect=letter" : ""),
+                            { method: "POST", body: fd,
+                              headers: { "X-Student-Code": CODE } });
     if (!res.ok) return { ok: false, text: "" };
     const data = await res.json();
     return { ok: true, text: (data.text || "").trim() };

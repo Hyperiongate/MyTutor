@@ -2,6 +2,13 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-18  (build hs, Phase 5) THE SPOKEN LINE AND THE LOGIN CODE LEAVE THE URL.
+                 startClip no longer builds /api/speak?text=...&code=... (a child's
+                 words + their credential in every HTTP log): it POSTs
+                 /api/speak-prep {code, text, lead} and streams the clip by opaque
+                 ticket (/api/speak?t=...). Same cache, same leading silence, same
+                 watchdogs; a failed prep falls back to the browser voice through
+                 the same paths a failed clip always used.
      2026-08-17  NEW FILE (build hd -- Phase 2 of the full-app review). The speech
                  pipeline -- warm-up, the audio graph, the keep-alive, the gn resume
                  race fix, the watchdog, the browser-voice fallback -- existed as
@@ -214,9 +221,26 @@ function speak(text) {
       const lead = (firstSpeakLead || quietMs > 2500) ? 3 : (quietMs > 900 ? 2 : 1);
       startKeepAlive();
       clipAskedAt = Date.now(); clipLead = lead;      // build gn: for the [voicehead] probe
-      ttsAudio.src = "/api/speak?text=" + encodeURIComponent(forSpeech(text)) + "&code=" + encodeURIComponent(CODE) + "&lead=" + lead; firstSpeakLead = false;
-      const p = ttsAudio.play();
-      if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
+      firstSpeakLead = false;
+      // build hs (2026-08-18, Phase 5): THE SPOKEN LINE AND THE LOGIN CODE LEAVE THE
+      // URL. The old src carried ?text=...&code=... -- a child's lesson line (usually
+      // with their first name) plus their credential, written into every HTTP log on
+      // the way. We now POST /api/speak-prep and the audio element streams by opaque
+      // ticket; the clip, the server cache and the leading silence are unchanged. A
+      // failed prep falls back to the browser voice through the SAME paths that
+      // already guarded a failed clip, and the 5s watchdog stays the outer guarantee.
+      fetch("/api/speak-prep", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: CODE, text: forSpeech(text), lead: lead })
+      }).then((r) => { if (!r.ok) throw new Error("prep " + r.status); return r.json(); })
+        .then((d) => {
+          if (doneCalled) return;
+          if (!d || !d.t || d.voice === false) { cleanup(); browserSpeak(text, resolve); return; }
+          ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);
+          const p = ttsAudio.play();
+          if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
+        })
+        .catch(() => { if (!started && !doneCalled) { cleanup(); browserSpeak(text, resolve); } });
     };
     // 2026-08-16 (build gn, Jim live: "this talking actually starts in the middle of
     // the M of Maya. So you don't hear 'hey'"): THE RESUME RACE, fixed.

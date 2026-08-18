@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hs -- PART 3bj, THE CREDENTIAL LEAVES THE URL (Phase 5 begins):
+#               a live TestClient drill proves all 10 GET routes and the POST family
+#               in BOTH forms (header+/me and legacy path), bare-'me' rejection, the
+#               speak ticket lifecycle (mint -> stream -> bogus 410 -> legacy alive
+#               -> 401 on a bad code), and library's header form; source ratchets
+#               (concatenation-shaped, comment-proof) fail the build if any page
+#               reverts to building an API URL with the code or the spoken line;
+#               analytics.js's KID_PAGES guard is pinned (Jim's Plausible ruling).
 #   2026-08-18  BUILD hr -- PART 3bi, THE STORY KEEPS ONE UNIT: 10 fixtures in both
 #               directions (incl. the nightwatch catch verbatim and its suggested
 #               fix, the resolving shopping story, the two-facts "and", money-only
@@ -10968,6 +10976,160 @@ def part3bi_story_units():
           "narrow shape)")
 
 
+# =============================================================================
+# PART 3bj -- THE CREDENTIAL LEAVES THE URL (build hs, Phase 5 begins)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Review Class F: the student CODE -- the entire login -- travelled in
+# request lines (/api/xxx/{code}, /api/speak?code=), and request lines are written
+# to plaintext HTTP logs on infrastructure we do not control; /api/speak's query
+# also carried the SPOKEN LINE, i.e. a child's lesson with their first name in it.
+# Now: every student-gated route resolves its code through _code_dep (X-Student-Code
+# header preferred, path form kept for stale cached pages); the voice path mints an
+# opaque ticket (POST /api/speak-prep -> GET /api/speak?t=) because an <audio src>
+# cannot send headers; transcribe/library take the header; every shipped page sends
+# the header form. ALSO Jim's Plausible ruling: analytics.js refuses to load on the
+# student surfaces. Proved live (subprocess + TestClient + temp sqlite) and by
+# source ratchets that would catch any site quietly reverting.
+# =============================================================================
+_HS_DRILL = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+os.environ.pop("ANTHROPIC_API_KEY", None)
+os.environ.pop("ELEVENLABS_API_KEY", None)
+sys.path.insert(0, sys.argv[2])
+from fastapi.testclient import TestClient
+import main
+c = TestClient(main.app)
+H = {"X-Student-Code": "1234"}
+ok = {}
+GETS = ["/api/awards/me", "/api/time/me", "/api/topics/me?course=algebra1",
+        "/api/courses/me", "/api/sprints/me?course=prealgebra",
+        "/api/sprint/me?course=prealgebra&unit=1", "/api/records/me",
+        "/api/misses/me?course=algebra1", "/api/placement/me?course=algebra1",
+        "/api/session/me?course=algebra1"]
+for u in GETS:
+    rh = c.get(u, headers=H)                       # the new form: header + 'me'
+    rl = c.get(u.replace("/me", "/1234"))          # the legacy form still works
+    rb = c.get(u)                                  # 'me' with NO header = no code
+    ok[u] = (rh.status_code == 200 and rl.status_code == 200
+             and rb.status_code in (401, 404))
+# the POST family (the client record calls)
+rm = c.post("/api/mark/me", json={"correct": 1, "attempted": 1}, headers=H)
+rq = c.post("/api/quiz/me", json={"unit": 1, "topic": 1, "name": "counting",
+                                  "correct": 4, "total": 5, "course": "algebra1"},
+            headers=H)
+rc = c.post("/api/check/me", json={"unit": 1, "correct": 4, "total": 5,
+                                   "course": "algebra1"}, headers=H)
+rb2 = c.post("/api/check/me", json={"unit": 1, "correct": 4, "total": 5,
+                                    "course": "algebra1"})
+ok["posts"] = (rm.status_code == 200 and rq.status_code == 200
+               and rc.status_code == 200 and rb2.status_code in (401, 404))
+# the voice ticket: mint -> stream (204 with no key) -> bogus ticket 410 -> legacy alive
+rp = c.post("/api/speak-prep", json={"code": "1234", "text": "Hello there!", "lead": 1})
+tick = (rp.json() or {}).get("t") if rp.status_code == 200 else None
+ok["prep"] = bool(tick) and (rp.json() or {}).get("voice") is False
+ok["ticket_stream"] = bool(tick) and c.get("/api/speak?t=" + tick).status_code == 204
+ok["bogus_ticket"] = c.get("/api/speak?t=NOSUCHTICKET").status_code == 410
+ok["legacy_speak"] = c.get("/api/speak?text=hi&code=1234").status_code == 204
+ok["prep_needs_login"] = c.post("/api/speak-prep",
+                                json={"code": "zzz", "text": "hi"}).status_code == 401
+# library: header form accepted, bare form rejected
+ok["library"] = (c.get("/api/library?q=zzz&course=algebra1", headers=H).status_code != 404
+                 and c.get("/api/library?q=zzz&course=algebra1").status_code == 404)
+print(json.dumps({"ok": all(ok.values()),
+                  "detail": {k: bool(v) for k, v in ok.items()}}))
+"""
+
+
+def part3bj_credential_leaves_url():
+    print("\nPART 3bj — the credential leaves the URL (build hs)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    # THE SERVER SIDE, wired.
+    check("one code dependency exists and every {code} route uses it",
+          "def _code_dep(" in msrc and msrc.count("Depends(_code_dep)") == 17,
+          f"found {msrc.count('Depends(_code_dep)')} of 17 -- a route resolves its "
+          "own code again and the header form silently dies there")
+    check("the voice path has its ticket mint",
+          '@app.post("/api/speak-prep")' in msrc and "_SPEAK_TICKETS" in msrc,
+          "an <audio src> cannot send headers -- without the ticket, the code and "
+          "the child's spoken line ride the URL")
+    check("transcribe and library prefer the header",
+          msrc.count('alias="X-Student-Code"') >= 2,
+          "the mic/library calls leak the credential again")
+    check("the billing log line is masked",
+          '[billing] {_be[:2]}***@' in msrc.replace("f\"", "\"") or "_be[:2]" in msrc,
+          "a parent's email prints to logs verbatim")
+
+    # THE CLIENT SIDE, ratcheted -- concatenation-shaped patterns that cannot hide
+    # in a comment.
+    import glob as _glob
+    bad_sites = []
+    conc = re.compile(
+        r'/api/(?:topics|session|courses|awards|time|records|misses|sprints|sprint|'
+        r'final|check|quiz|mark|placement|assessment)/"\s*\+\s*encodeURIComponent'
+        r'|speak\?text="\s*\+\s*encodeURIComponent'
+        r'|transcribe\?code='
+        r'|/api/library\?[^"]*code="\s*\+')
+    for fpath in sorted(_glob.glob(os.path.join(here, "static", "*.html"))
+                        + sorted(_glob.glob(os.path.join(here, "static", "*.js")))):
+        with open(fpath, encoding="utf-8") as fh:
+            src = fh.read()
+        if conc.search(src):
+            bad_sites.append(os.path.basename(fpath))
+    check("no page builds an API URL with the code or the spoken line in it",
+          not bad_sites, f"reverted sites: {bad_sites}")
+    for fname, needle in (("voice.js", '"/api/speak-prep"'),
+                          ("mic.js", '"X-Student-Code": CODE'),
+                          ("library.js", '"X-Student-Code": CODE'),
+                          ("session.html", '"X-Student-Code": CODE'),
+                          ("dashboard.html", '"X-Student-Code": CODE'),
+                          ("challenge.html", '"/api/speak-prep"')):
+        with open(os.path.join(here, "static", fname), encoding="utf-8") as fh:
+            check(f"{fname} sends the new form", needle in fh.read(),
+                  "this surface reverted to the URL form")
+
+    # JIM'S PLAUSIBLE RULING (2026-08-18): no fourth party on children's pages.
+    with open(os.path.join(here, "static", "analytics.js"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    check("analytics.js guards the student surfaces",
+          "KID_PAGES" in asrc
+          and all(p in asrc for p in ('"session"', '"topic"', '"practice"',
+                                      '"challenge"', '"dashboard"', '"records"',
+                                      '"home"'))
+          and "isKidPage" in asrc and "return;" in asrc,
+          "Plausible loads on a child's lesson page again -- the privacy promise "
+          "names exactly three processors")
+
+    # THE LIVE DRILL: every route in both forms, the ticket lifecycle, the gates.
+    try:
+        import httpx  # noqa: F401
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("hs live drill", "httpx/sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hs.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HS_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hs.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("hs live drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("header form, legacy form, bare-form rejection, ticket lifecycle and "
+              "login gates all hold on a live app",
+              verdict.get("ok") is True, f"{verdict}")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -11433,6 +11595,7 @@ def main():
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
+    part3bj_credential_leaves_url()
     part3ai_deploy_stamp()
     if live:
         part4_live()

@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hs-credential-leaves-url". PHASE 5 (THE BETA
+#               GATE) BEGINS -- review Class F. The student CODE is the login, and it
+#               travelled in request lines that plaintext HTTP logs record (Render's
+#               edge, uvicorn's access log); /api/speak's query also carried the
+#               SPOKEN LINE -- a child's lesson, usually with their first name.
+#               (1) NEW _code_dep: all 17 /api/xxx/{code} routes resolve their code
+#               through one dependency -- X-Student-Code header preferred, path form
+#               kept for stale cached pages; every shipped page now sends the header
+#               with 'me' in the path (the dg admin-key precedent, applied to the
+#               student credential).
+#               (2) NEW POST /api/speak-prep -> GET /api/speak?t=<opaque ticket>:
+#               an <audio src> cannot send headers, so the voice path mints an
+#               in-memory TTL ticket carrying {code, text, lead}; the clip still
+#               STREAMS with the same cache and leading silence. Tickets are not
+#               single-use (<audio> legitimately re-requests); a restart invalidates
+#               them and pages fall back to the browser voice via existing paths.
+#               Legacy ?text=&code= stays for stale pages. /api/transcribe and
+#               /api/library gained the header form (mic.js/library.js send it).
+#               (3) The [billing] log line masks the parent's email.
+#               (4) analytics.js: JIM'S RULING 2026-08-18 -- no fourth party on
+#               children's pages; the tracker refuses to load on student surfaces.
+#               ⚠️ PARKED PRODUCT DECISION (not code): page-NAVIGATION links
+#               (/session?code=...) still carry the code -- they are how young
+#               students log in from a family bookmark. Moving login to a
+#               cookie/session is Jim's call, recorded in the Phase 5 notes.
 #   2026-08-18  APP_BUILD -> "2026-08-18hr-one-unit-stories". THE NIGHTWATCH'S FIRST
 #               CATCH, CLOSED THE STANDING WAY: rule 32(b) (prompts.py -- a story
 #               that models an expression keeps ONE unit) + the twenty-first
@@ -3309,7 +3334,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -4402,6 +4427,28 @@ def _require_student(code: str) -> dict:
     return student
 
 
+def _code_dep(code: str, request: Request) -> str:
+    """BUILD hs (2026-08-18, Phase 5 -- THE CREDENTIAL LEAVES THE URL, review Class F).
+    The student CODE is the login; a code in a URL is a password in a request line,
+    and request lines are written to plaintext HTTP logs we do not control (Render's
+    edge, uvicorn's access log). Every student-gated {code} route now resolves its
+    code through THIS dependency: the X-Student-Code HEADER is preferred (the pages
+    send the placeholder 'me' in the path), and the old path form still works so a
+    stale cached page keeps functioning across the deploy -- it is the PAGES that
+    stopped putting the credential in the URL, the server merely stopped requiring
+    them to. (The dg precedent: the admin key made this exact move to X-Admin-Key.)
+    Page-NAVIGATION links (/session?code=...) are a separate, parked product
+    decision -- they are how young students log in from a family bookmark."""
+    try:
+        h = (request.headers.get("X-Student-Code") or "").strip()
+    except Exception:  # noqa: BLE001
+        h = ""
+    if h:
+        return h
+    c = (code or "").strip()
+    return "" if c.lower() in ("me", "-") else c
+
+
 @app.get("/")
 def home():
     """FRONT DOOR (changed 2026-07-30): the marketing/landing page. A parent visiting
@@ -4634,7 +4681,7 @@ AWARD_DEFS = {
 
 
 @app.get("/api/awards/{code}")
-def awards_state(code: str, request: Request):
+def awards_state(request: Request, code: str = Depends(_code_dep)):
     """The student's trophy case: course trophies, per-course merit-badge counts, and
     effort awards (persisted once earned). Honest {tracking:false} when the DB is off."""
     _read_guard(request, code)            # F1: throttle read-by-code enumeration
@@ -4788,7 +4835,7 @@ def heartbeat(req: HeartbeatRequest):
 
 
 @app.get("/api/time/{code}")
-def time_summary(code: str, request: Request, days: int = 14):
+def time_summary(request: Request, code: str = Depends(_code_dep), days: int = 14):
     """Recent engaged time for the dashboard: per-day totals (newest first) with a
     per-course split. The CLIENT computes 'today' / 'this week' against the days
     it recorded, so the student's local calendar stays authoritative."""
@@ -4812,7 +4859,7 @@ def time_summary(code: str, request: Request, days: int = 14):
 
 
 @app.get("/api/topics/{code}")
-def topics_state(code: str, request: Request, course: str = "algebra1"):
+def topics_state(request: Request, code: str = Depends(_code_dep), course: str = "algebra1"):
     """
     REAL, honest per-topic progress for the dashboard: all of the CHOSEN COURSE's units with
     the student's actual engagement (explored / learning / practiced) or 'not-started'.
@@ -7320,7 +7367,11 @@ def _apply_subscription(sub: dict) -> None:
         quantity = 0
     store.update_parent(parent["id"], sub_status=status, sub_plan=plan,
                         sub_quantity=quantity, sub_period_end=period_end)
-    print(f"[billing] {parent['email']}: {status} x{quantity} ({plan})")
+    # build hs: the log line carries a MASKED address -- a parent's email is PII and
+    # these logs live on infrastructure we do not control (review Class F).
+    _be = str(parent.get("email") or "")
+    print(f"[billing] {_be[:2]}***@{_be.split('@')[-1] if '@' in _be else '?'}: "
+          f"{status} x{quantity} ({plan})")
 
 
 @app.post("/api/stripe/webhook")
@@ -7476,7 +7527,7 @@ def forum_moderate(body: ForumModIn,
 
 
 @app.get("/api/courses/{code}")
-def student_courses(code: str, request: Request):
+def student_courses(request: Request, code: str = Depends(_code_dep)):
     """EVERY course this student has actually worked in, with units mastered/started -- for the
     dashboard's "My courses" strip. Returns courses with REAL activity only, in ladder order, so
     a student sees their whole picture at a glance and can switch with one click. When tracking is
@@ -7510,7 +7561,7 @@ def student_courses(code: str, request: Request):
 
 
 @app.post("/api/placement/{code}")
-def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
+def post_placement(body: PlacementIn, code: str = Depends(_code_dep), course: str = "algebra1"):
     """Save the result of Mr. Cadabra's Challenge for this student, for THIS course."""
     _student_or_404(code)
     save_placement(code.strip(), body.model_dump(), course)
@@ -7529,9 +7580,13 @@ def post_placement(code: str, body: PlacementIn, course: str = "algebra1"):
 # Basic Math and tersely in Algebra II.
 # =============================================================================
 @app.get("/api/library")
-def library_lookup(q: str = "", course: str = "algebra1", code: str = ""):
+def library_lookup(q: str = "", course: str = "algebra1", code: str = "",
+                   x_student_code: str = Header(default="", alias="X-Student-Code")):
     """Serve one reference article for a student's search. Students only; the
-    generation path is rate-limited separately (it spends model money)."""
+    generation path is rate-limited separately (it spends model money).
+    build hs: the code prefers the X-Student-Code header (library.js sends it that
+    way now); the query form remains for stale cached pages."""
+    code = (x_student_code or code or "").strip()
     _student_or_404(code)
     code = code.strip()
     q = (q or "").strip()[:160]
@@ -7696,7 +7751,7 @@ def _final_exam_state(code: str, course: str) -> dict:
 
 
 @app.get("/api/sprints/{code}")
-def api_sprint_record(code: str, request: Request, course: str = "prealgebra"):
+def api_sprint_record(request: Request, code: str = Depends(_code_dep), course: str = "prealgebra"):
     """The student's whole sprint history for one course, oldest first -- the
     dashboard's '⚡ Your sprint record' card (2026-08-11, build dm). WWC guide 26
     rec. 6 says track progress AND SHOW it; the data has recorded since build dd and
@@ -7718,7 +7773,7 @@ def api_sprint_record(code: str, request: Request, course: str = "prealgebra"):
 
 
 @app.get("/api/sprint/{code}")
-def get_sprint(code: str, request: Request, course: str = "prealgebra", unit: int = 1):
+def get_sprint(request: Request, code: str = Depends(_code_dep), course: str = "prealgebra", unit: int = 1):
     """The day's fluency sprint for this student+course+unit, or {available:false}.
 
     2026-08-11 (build dd). WWC guide 26 recommendation 6 (STRONG): "regularly include
@@ -7752,7 +7807,7 @@ def get_sprint(code: str, request: Request, course: str = "prealgebra", unit: in
 
 
 @app.post("/api/sprint/{code}")
-def post_sprint(code: str, body: SprintResultIn):
+def post_sprint(body: SprintResultIn, code: str = Depends(_code_dep)):
     """Record a finished sprint. Counts are re-clamped in store.record_sprint (correct
     <= attempted <= 30) so the dashboards this feeds stay honest. Returns the
     celebration facts: improvement, best_b, personal_best -- all self-referential."""
@@ -7771,7 +7826,7 @@ def post_sprint(code: str, body: SprintResultIn):
 
 
 @app.post("/api/final/{code}")
-def post_final(code: str, body: FinalIn):
+def post_final(body: FinalIn, code: str = Depends(_code_dep)):
     """Record a FINAL EXAM score ([[finalexam]] tag). Server-side gate: the score only
     records for an eligible student. Same contract style as /api/check."""
     _student_or_404(code)
@@ -7794,7 +7849,7 @@ def post_final(code: str, body: FinalIn):
 
 
 @app.post("/api/check/{code}")
-def post_check(code: str, body: CheckIn):
+def post_check(body: CheckIn, code: str = Depends(_code_dep)):
     """PHASE A: record an end-of-unit CHECK score for this student (feeds mastery). No-op
     (tracking:false) when the DB is off; never raises to the caller."""
     _student_or_404(code)
@@ -7814,7 +7869,7 @@ def post_check(code: str, body: CheckIn):
 
 
 @app.get("/api/records/{code}")
-def records_report(code: str, request: Request, days: int = 90):
+def records_report(request: Request, code: str = Depends(_code_dep), days: int = 90):
     """Everything the printable homeschool records report needs (2026-08-04), in one
     call: the full-range hours log, per-course unit progress (statuses, topic quizzes,
     Unit Quiz best, mastered at 90%), placement titles, and dated awards. Read-only;
@@ -7886,7 +7941,7 @@ def records_report(code: str, request: Request, days: int = 90):
 
 
 @app.post("/api/quiz/{code}")
-def post_quiz(code: str, body: QuizIn):
+def post_quiz(body: QuizIn, code: str = Depends(_code_dep)):
     """Record a mid-unit TOPIC QUIZ score (2026-08-04). Same contract style as
     /api/check: no-op (tracking:false) when the DB is off; never raises."""
     _student_or_404(code)
@@ -7907,7 +7962,7 @@ def post_quiz(code: str, body: QuizIn):
 
 
 @app.get("/api/misses/{code}")
-def get_misses_api(code: str, request: Request, course: str = ""):
+def get_misses_api(request: Request, code: str = Depends(_code_dep), course: str = ""):
     """The student's recent missed problems (build dt) for the dashboard's review
     card: newest first, with unit names attached. Student-gated like every
     per-student read; honest {tracking:false} when the DB is off."""
@@ -7932,7 +7987,7 @@ def get_misses_api(code: str, request: Request, course: str = ""):
 
 
 @app.post("/api/mark/{code}")
-def post_mark(code: str, body: MarkIn):
+def post_mark(body: MarkIn, code: str = Depends(_code_dep)):
     """PHASE A: count a practice problem the tutor marked right/wrong (problems practiced +
     accuracy + streak). No-op when the DB is off; never raises to the caller."""
     _student_or_404(code)
@@ -7948,7 +8003,7 @@ def post_mark(code: str, body: MarkIn):
 
 
 @app.get("/api/placement/{code}")
-def get_placement(code: str, request: Request, course: str = "algebra1"):
+def get_placement(request: Request, code: str = Depends(_code_dep), course: str = "algebra1"):
     """Return this student's saved placement result for a course (or {})."""
     _read_guard(request, code)            # F1: throttle read-by-code enumeration
     _student_or_404(code)
@@ -7965,7 +8020,7 @@ def get_placement(code: str, request: Request, course: str = "algebra1"):
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hr-one-unit-stories"
+APP_BUILD = "2026-08-18hs-credential-leaves-url"
 
 
 @app.get("/health")
@@ -8115,7 +8170,7 @@ def login(req: LoginRequest, request: Request):
 
 
 @app.get("/api/session/{code}")
-def session_state(code: str, request: Request, course: str = "algebra1"):
+def session_state(request: Request, code: str = Depends(_code_dep), course: str = "algebra1"):
     """
     Return the student's info, remembered conversation (for resume), and their
     placement -- ALL scoped to the given course. The hub/session page uses `placed`
@@ -8295,7 +8350,7 @@ def _assessment_facts(code: str, student: dict, course: str) -> str:
 
 
 @app.get("/api/assessment/{code}")
-def assessment(code: str, request: Request, course: str = "algebra1",
+def assessment(request: Request, code: str = Depends(_code_dep), course: str = "algebra1",
                audience: str = "student"):
     """A warm, honest narrative assessment -- student voice or parent voice."""
     _read_guard(request, code)            # F1: throttle read-by-code enumeration
@@ -9079,8 +9134,71 @@ def _tts_cache_path(text: str) -> Path:
     return _TTS_CACHE_DIR / (key + ".mp3")
 
 
+# BUILD hs (2026-08-18, Phase 5): THE SPOKEN LINE LEAVES THE URL TOO. An <audio src>
+# cannot send headers, so /api/speak was the one place the credential COULD NOT move
+# to X-Student-Code -- and worse, the TEXT (a child's lesson, usually carrying their
+# first name) rode the same query string into every HTTP log. The pages now POST
+# /api/speak-prep {code, text, lead} and get back an opaque one-use-style ticket id;
+# the audio element streams GET /api/speak?t=<id> exactly as before (same caching,
+# same leading silence, same low-latency stream). Tickets live in memory with a short
+# TTL -- a restart invalidates them and the page simply mints a fresh one; they are
+# NOT single-use because <audio> legitimately re-requests (ranges, replays, retries).
+# The legacy ?text=&code= form still works so a stale cached page keeps its voice
+# across the deploy; the shipped pages no longer send it.
+_SPEAK_TICKETS: "dict[str, tuple]" = {}
+_SPEAK_TICKETS_LOCK = threading.Lock()
+_SPEAK_TICKET_TTL = 900        # seconds -- a clip is fetched within moments of minting
+_SPEAK_TICKET_CAP = 4000       # entries -- far above any real classroom's burst
+
+
+class SpeakPrepIn(BaseModel):
+    code: str = ""
+    text: str = ""
+    lead: int = 0
+
+
+@app.post("/api/speak-prep")
+def speak_prep(req: SpeakPrepIn):
+    """Mint an utterance ticket (build hs -- see the note above). Same gate and rate
+    limit as /api/speak itself: this is the endpoint that now spends the budget."""
+    code = (req.code or "").strip()
+    _require_student(code)
+    _rate_limit("speak:" + code, limit=60, window_seconds=300, what="voice requests")
+    text = (req.text or "").strip()
+    if len(text) > MAX_SPEAK_CHARS:
+        raise HTTPException(status_code=413, detail="That text is too long to speak.")
+    if not text:
+        raise HTTPException(status_code=400, detail="Nothing to speak.")
+    t = secrets.token_urlsafe(16)
+    now = time.time()
+    with _SPEAK_TICKETS_LOCK:
+        if len(_SPEAK_TICKETS) >= _SPEAK_TICKET_CAP:
+            expired = [k for k, v in _SPEAK_TICKETS.items() if v[3] <= now]
+            for k in expired:
+                _SPEAK_TICKETS.pop(k, None)
+            while len(_SPEAK_TICKETS) >= _SPEAK_TICKET_CAP:
+                _SPEAK_TICKETS.pop(next(iter(_SPEAK_TICKETS)), None)   # oldest-in first
+        _SPEAK_TICKETS[t] = (code, text,
+                             max(0, min(int(req.lead or 0), 4)), now + _SPEAK_TICKET_TTL)
+    return {"t": t, "voice": bool(ELEVEN_API_KEY)}
+
+
 @app.get("/api/speak")
-def speak(text: str = "", code: str = "", lead: int = 0):
+def speak(text: str = "", code: str = "", lead: int = 0, t: str = ""):
+    if t:
+        with _SPEAK_TICKETS_LOCK:
+            tk = _SPEAK_TICKETS.get(t.strip())
+        if not tk or tk[3] <= time.time():
+            # 410: the page's voice engine mints a fresh ticket and retries once.
+            raise HTTPException(status_code=410, detail="That voice ticket expired.")
+        code, text, lead = tk[0], tk[1], tk[2]
+        if not text or not ELEVEN_API_KEY:
+            return Response(status_code=204)
+        return _tts_stream_response(text, lead, code=code, mode="speak")
+    return _speak_legacy(text, code, lead)
+
+
+def _speak_legacy(text: str = "", code: str = "", lead: int = 0):
     """
     STREAM the tutor's words as a natural ElevenLabs voice (low latency): audio
     starts playing in the browser before the whole clip is generated. The browser
@@ -9577,7 +9695,8 @@ def _clean_transcript(text: str) -> str:
 
 
 @app.post("/api/transcribe")
-async def transcribe(audio: UploadFile = File(...), code: str = "", expect: str = ""):
+async def transcribe(audio: UploadFile = File(...), code: str = "", expect: str = "",
+                     x_student_code: str = Header(default="", alias="X-Student-Code")):
     """
     Transcribe the student's recorded audio with ElevenLabs Speech-to-Text (Scribe).
     Browser records the audio (works in every modern browser) and posts it here;
@@ -9593,6 +9712,9 @@ async def transcribe(audio: UploadFile = File(...), code: str = "", expect: str 
     memory in this request, goes to ElevenLabs for transcription, and is discarded when
     the request ends -- never written to disk, never stored, only the text survives.
     """
+    # build hs: the code prefers the X-Student-Code header (mic.js sends it that
+    # way now); the query form remains for stale cached pages.
+    code = (x_student_code or code or "").strip()
     _require_student(code)
     _rate_limit("stt:" + code.strip(), limit=20, window_seconds=300, what="voice uploads")
     if not ELEVEN_API_KEY:

@@ -289,6 +289,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: sprint/session/
+                final/quiz/check/mark calls send X-Student-Code with /me paths; the
+                sprint narrator uses the speak-prep ticket (see voice.js). Page-nav
+                links (?code=) unchanged -- a parked product decision.
     2026-08-11  BUILD di -- [[column]] gains align="last" (first full audit, finding
                 S-9): a DELIBERATELY-WRONG last-digit lineup, amber with a built-in
                 "wrong way" badge, so the tutor can SHOW why the misconception fails
@@ -2194,7 +2198,7 @@
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/" + encodeURIComponent(CODE), { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
@@ -2553,7 +2557,7 @@
         + '</div>';
       scrollFeed();
       try {
-        const res = await postJSON("/api/final/" + encodeURIComponent(CODE),
+        const res = await postJSON("/api/final/me",
           { correct, total, course: COURSE, missed: parseMissed(a.missed) });
         // Refresh the local final state so the overlay + course bar tell the truth immediately.
         if (SRV_PROGRESS && SRV_PROGRESS.final) {
@@ -2681,7 +2685,10 @@
 
     // ---- Quick-check result + silent progress marks (Phase A2) ----
     function postJSON(url, body) {
-      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); } catch (e) {}
+      // build hs (Phase 5): every record call carries the credential in the
+      // X-Student-Code header -- the URLs say /me, so the code never rides a
+      // request line into an HTTP log.
+      try { fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE }, body: JSON.stringify(body) }); } catch (e) {}
     }
     // [[check unit="2" correct="4" total="5"]] -- records the score AND shows a result card.
 
@@ -2707,7 +2714,7 @@
       const passed = Math.round(100 * correct / total) >= 80;
       const tname = String(a.name || "").slice(0, 80);
       const safe = tname.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      if (unit >= 1 && unit <= 9) postJSON("/api/quiz/" + encodeURIComponent(CODE),
+      if (unit >= 1 && unit <= 9) postJSON("/api/quiz/me",
         { unit, topic: parseInt(a.topic, 10) || 0, name: tname, correct, total, course: COURSE,
           missed: parseMissed(a.missed) });
       // 2026-08-07: light the unit bar's next rung the moment a topic quiz is passed.
@@ -2728,7 +2735,7 @@
       const correct = Math.max(0, parseInt(a.correct, 10) || 0);
       const total = Math.max(1, parseInt(a.total, 10) || 1);
       const passed = Math.round(100 * correct / total) >= 90;   // MASTERY BAR (2026-08-04): 90, matching store.PASS_PCT
-      if (unit >= 1 && unit <= 9) postJSON("/api/check/" + encodeURIComponent(CODE),
+      if (unit >= 1 && unit <= 9) postJSON("/api/check/me",
         { unit, correct, total, course: COURSE, missed: parseMissed(a.missed) });
       // 2026-08-07: a mastered unit goes gold on the course bar (and 🏆 on the unit bar) live.
       if (passed && unit >= 1 && unit <= 9) {
@@ -3022,9 +3029,19 @@
     let SPR = null, sprRound = "", sprIdx = 0, sprTimer = null, sprLeft = 60;
     let sprA = { correct: 0, attempted: 0 }, sprB = { correct: 0, attempted: 0 };
     function sprSay(text) {
-      try { new Audio("/api/speak?text=" + encodeURIComponent(text) +
-                      "&code=" + encodeURIComponent(CODE)).play().catch(function () {}); }
-      catch (e) {}
+      // build hs: prep-then-ticket, so neither the line nor the code rides the URL
+      // (see voice.js). Still fire-and-forget: a sprint must work silent.
+      try {
+        fetch("/api/speak-prep", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, text: text, lead: 0 })
+        }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.t && d.voice !== false) {
+              new Audio("/api/speak?t=" + encodeURIComponent(d.t)).play().catch(function () {});
+            }
+          }).catch(function () {});
+      } catch (e) {}
     }
     function sprShow(panel, shieldMs) {
       ["sprIntro", "sprRun", "sprBreak", "sprDone"].forEach(function (id) {
@@ -3052,8 +3069,8 @@
     async function maybeOfferSprint() {
       try {
         const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
-        const r = await fetch("/api/sprint/" + encodeURIComponent(CODE) +
-                              "?course=" + encodeURIComponent(COURSE) + "&unit=" + unit);
+        const r = await fetch("/api/sprint/me?course=" + encodeURIComponent(COURSE) +
+                              "&unit=" + unit, { headers: { "X-Student-Code": CODE } });
         if (!r.ok) return;
         const d = await r.json();
         if (!d.available || d.done_today || el("sprintOffer")) return;   // once a day, once a card
@@ -3143,8 +3160,8 @@
                               : "Every sprint makes the next one faster. Well done!";
       if (newBest && queueMoment("sprint_best")) runPendingMoment("before").then(() => sprSay(sprLine));
       else sprSay(sprLine);
-      fetch("/api/sprint/" + encodeURIComponent(CODE), {
-        method: "POST", headers: { "Content-Type": "application/json" },
+      fetch("/api/sprint/me", {
+        method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE },
         body: JSON.stringify({ course: COURSE, unit: SPR.unitNum, skill: SPR.skill,
           a_correct: sprA.correct, a_attempted: sprA.attempted,
           b_correct: sprB.correct, b_attempted: sprB.attempted }),
@@ -3174,7 +3191,8 @@
         if (tip) tip.innerHTML = '<span class="ic">🎙️</span><span>When it\'s your turn, <b>tap the mic and say your answer out loud</b> — Mr. Cadabra and you will talk back and forth. Rather not talk? Tap the big <b>“Type my answer”</b> button. Turn your sound on so you can hear him.</span>';
       }
       try {
-        const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
+        const res = await fetch("/api/session/me?course=" + encodeURIComponent(COURSE),
+                                { headers: { "X-Student-Code": CODE } });
         if (!res.ok) { window.location.href = "/login"; return; }
         const data = await res.json();
         isPlaced = !!data.placed;      // 2026-08-05: page state (drives the assessment invitation)
@@ -3311,8 +3329,8 @@
     async function startRequestedSprint() {
       try {
         const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : currentUnit;
-        const r = await fetch("/api/sprint/" + encodeURIComponent(CODE) +
-                              "?course=" + encodeURIComponent(COURSE) + "&unit=" + unit);
+        const r = await fetch("/api/sprint/me?course=" + encodeURIComponent(COURSE) +
+                              "&unit=" + unit, { headers: { "X-Student-Code": CODE } });
         if (!r.ok) return;                       // fails soft: the lesson simply proceeds
         const d = await r.json();
         if (!d.available) return;

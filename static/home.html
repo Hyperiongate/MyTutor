@@ -4,6 +4,9 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/session calls
+    send X-Student-Code with /me paths. Plausible no longer loads here (student
+    surface; the guard lives in analytics.js).
   - 2026-08-03  REBRAND (Jim): all visible "MyTutor" text is now "Mr. Cadabra's Classroom" (titles, meta/OG, nav brand, body copy, footers). "Hyperion Shift LLC" remains ONLY on the legal pages (privacy/terms), where the legal entity must be named. Historical change notes untouched.
   - 2026-08-03  ANALYTICS: added Plausible (privacy-friendly, cookieless) shared include in <head>. Pure add-on; nothing else changed.
     2026-07-30  APP NAV (Jim: back-navigation + Contact on every top bar): included the new shared
@@ -286,7 +289,7 @@
       // Still greet by name if we can.
       (async () => {
         try {
-          const res = await fetch("/api/session/" + encodeURIComponent(CODE));
+          const res = await fetch("/api/session/me", { headers: { "X-Student-Code": CODE } });
           if (res.ok) { const d = await res.json(); if (d.name) el("hello").textContent = "Hi, " + d.name + "!"; }
         } catch (e) {}
       })();
@@ -313,7 +316,8 @@
       // Course Assessment lives on the "📋 Course assessment" chip, taken whenever the student wants.
       (async () => {
         try {
-          const res = await fetch("/api/session/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE));
+          const res = await fetch("/api/session/me?course=" + encodeURIComponent(COURSE),
+                                  { headers: { "X-Student-Code": CODE } });
           if (!res.ok) { location.href = "/login"; return; }
           const data = await res.json();
           if (data.name) el("hello").textContent = "Hi, " + data.name + "!";

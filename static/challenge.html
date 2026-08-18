@@ -4,6 +4,10 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: say() uses the
+                speak-prep ticket (line + code out of the URL) and the placement
+                POST sends X-Student-Code with an /me path. Plausible no longer
+                loads here (student surface; guard in analytics.js).
     2026-08-13  (build ew) PLACEMENT NEVER PASSES A UNIT + THE HONEST SENTENCE. finish()
                 used to post one /api/check per unit with the assessment scores -- and
                 checks feed MASTERY (>= 90% marks the unit mastered and counts toward
@@ -1113,8 +1117,19 @@
     function say(text, spoken) {
       el("say").textContent = text;
       const line = spoken || text;
-      if (elevenOn) { try { ttsAudio.pause(); } catch(e){} ttsAudio.src = "/api/speak?text=" + encodeURIComponent(line) + "&code=" + encodeURIComponent(CODE) + (firstSpeakLead ? "&lead=3" : ""); firstSpeakLead = false;
-        const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line)); }
+      if (elevenOn) { try { ttsAudio.pause(); } catch(e){}
+        // build hs: prep-then-ticket -- the line and the code leave the URL (see voice.js).
+        const _lead = firstSpeakLead ? 3 : 0; firstSpeakLead = false;
+        fetch("/api/speak-prep", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, text: line, lead: _lead })
+        }).then((r) => { if (!r.ok) throw new Error("prep " + r.status); return r.json(); })
+          .then((d) => {
+            if (!d || !d.t || d.voice === false) { browserSay(line); return; }
+            ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);
+            const p = ttsAudio.play(); if (p && p.catch) p.catch(()=>browserSay(line));
+          })
+          .catch(()=>browserSay(line)); }
       else browserSay(line);
     }
     function browserSay(line){ if(!window.speechSynthesis) return; try { speechSynthesis.cancel();
@@ -1265,8 +1280,8 @@
       // strengths chips and the tutor's prompt already look for it, and where it can
       // never touch mastery.
       try {
-        fetch("/api/placement/" + encodeURIComponent(CODE) + "?course=" + encodeURIComponent(COURSE), {
-          method: "POST", headers: { "Content-Type": "application/json" },
+        fetch("/api/placement/me?course=" + encodeURIComponent(COURSE), {
+          method: "POST", headers: { "Content-Type": "application/json", "X-Student-Code": CODE },
           body: JSON.stringify({ level: firstUnit, level_title: "Course assessment",
             start_unit: firstUnit, start_unit_name: UNIT_NAMES[firstUnit] || "", points: points,
             strengths: strong.map(r => r.name),
