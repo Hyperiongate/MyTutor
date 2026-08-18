@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hy-voice-asks-twice". THE VOICE ASKS TWICE.
+#               Jim heard the seam live: he pushed hx while touring the dashboard and
+#               one line came out in the mechanical browser voice before the warm
+#               voice returned. Cause: speak tickets are server memory (_SPEAK_TICKETS),
+#               so a deploy's instance switchover wipes them and can kill one in-flight
+#               prep/clip; voice.js then fell back to the browser voice immediately
+#               (sound over silence -- right, but audible). voice.js now re-asks for a
+#               fresh prep ONCE (~700ms) before falling back; {voice:false} is still
+#               believed immediately and the 5s watchdog stays the outer guarantee.
+#               ALL CODE IS IN static/voice.js; this file only carries the stamp.
+#               PART 3bp pins the shape; proved in a real Chromium drive (first prep
+#               killed -> second prep -> the warm clip plays; voice:false -> exactly
+#               one ask).
 #   2026-08-18  APP_BUILD -> "2026-08-18hx-beta-key-leaves-url". THE WEAKEST PAGE,
 #               DIAGNOSED AND FIXED (Phase 5's last named page). /beta's pass
 #               generator opened via ?admin=<FORUM_MOD_KEY> -- the GENERAL ADMIN KEY
@@ -8362,7 +8375,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hx-beta-key-leaves-url"
+APP_BUILD = "2026-08-18hy-voice-asks-twice"
 
 
 @app.get("/health")

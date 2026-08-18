@@ -2,6 +2,19 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-18  (build hy) THE VOICE ASKS TWICE. Jim heard it live: he pushed a build
+                 while touring the dashboard and ONE line (the tracking bars) came out
+                 in the mechanical browser voice before the warm voice returned. The
+                 cause was the deploy itself: speak tickets live in the server's
+                 memory, so an instance switchover wipes them and can kill one
+                 in-flight prep or clip. The old contract went STRAIGHT to the browser
+                 voice (sound over silence -- right, but audible). Now a failed
+                 prep/clip that has NOT started playback re-asks for a fresh prep
+                 ONCE (~700ms later, which usually lands on the new instance) before
+                 falling back. Single retry by design; a server that ANSWERS
+                 {voice:false} is believed immediately (that is an answer, not an
+                 outage); the 5s watchdog and withDeadline stay the outer guarantees,
+                 unchanged. PART 3bp pins the shape.
      2026-08-18  (build hs, Phase 5) THE SPOKEN LINE AND THE LOGIN CODE LEAVE THE URL.
                  startClip no longer builds /api/speak?text=...&code=... (a child's
                  words + their credential in every HTTP log): it POSTs
@@ -194,7 +207,28 @@ function speak(text) {
     };
     const onProgress = () => { lastProgress = Date.now(); lastAudioAt = Date.now(); };   // fires ~4x/sec while audio actually advances
     const onEnded = () => { lastAudioAt = Date.now(); finish(); };
-    const onError = () => { cleanup(); if (!started) browserSpeak(text, resolve); else finish(); };
+    const onError = () => { if (!started) failedClip("element error"); else finish(); };
+    // build hy (2026-08-18, Jim live: one dashboard-tour line went mechanical mid-
+    // deploy): A FAILED CLIP ASKS ONCE MORE. Tickets are server memory; a deploy
+    // wipes them and can kill one in-flight prep. One fresh prep (~700ms later)
+    // usually lands on the new instance and the student never hears the seam.
+    // ONE retry only -- the 5s no-start watchdog below stays the outer guarantee.
+    // Guards: never after playback has started, never after the turn resolved, and
+    // a server that ANSWERS {voice:false} goes straight to fallToBrowser (that is
+    // an authoritative no, not a transient failure -- retrying it would just add
+    // latency to every clip of a voiceless deploy).
+    let retryLeft = 1;
+    const fallToBrowser = () => { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); };
+    const failedClip = (why) => {
+      if (started || doneCalled) return;
+      if (retryLeft > 0) {
+        retryLeft -= 1;
+        try { console.warn("[voice] clip failed (" + why + ") -- asking once more before the browser voice"); } catch (e) {}
+        setTimeout(() => { if (!started && !doneCalled) startClip(); }, 700);
+        return;
+      }
+      fallToBrowser();
+    };
     function cleanup() {
       if (watchdog) { clearInterval(watchdog); watchdog = null; }
       ttsAudio.removeEventListener("playing", onPlaying);
@@ -226,21 +260,22 @@ function speak(text) {
       // URL. The old src carried ?text=...&code=... -- a child's lesson line (usually
       // with their first name) plus their credential, written into every HTTP log on
       // the way. We now POST /api/speak-prep and the audio element streams by opaque
-      // ticket; the clip, the server cache and the leading silence are unchanged. A
-      // failed prep falls back to the browser voice through the SAME paths that
-      // already guarded a failed clip, and the 5s watchdog stays the outer guarantee.
+      // ticket; the clip, the server cache and the leading silence are unchanged.
+      // build hy: a failed prep/clip goes through failedClip (one fresh ask, then the
+      // browser voice); the 5s watchdog stays the outer guarantee.
       fetch("/api/speak-prep", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: CODE, text: forSpeech(text), lead: lead })
       }).then((r) => { if (!r.ok) throw new Error("prep " + r.status); return r.json(); })
         .then((d) => {
           if (doneCalled) return;
-          if (!d || !d.t || d.voice === false) { cleanup(); browserSpeak(text, resolve); return; }
+          if (d && d.voice === false) { fallToBrowser(); return; }   // an answer, not an outage
+          if (!d || !d.t) { failedClip("empty prep"); return; }
           ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);
           const p = ttsAudio.play();
-          if (p && p.catch) p.catch(() => { if (!started) { cleanup(); browserSpeak(text, resolve); } });
+          if (p && p.catch) p.catch(() => { if (!started) failedClip("play rejected"); });
         })
-        .catch(() => { if (!started && !doneCalled) { cleanup(); browserSpeak(text, resolve); } });
+        .catch(() => { failedClip("prep failed"); });
     };
     // 2026-08-16 (build gn, Jim live: "this talking actually starts in the middle of
     // the M of Maya. So you don't hear 'hey'"): THE RESUME RACE, fixed.
@@ -288,7 +323,9 @@ function speak(text) {
       if (paused) { lastProgress = Date.now(); return; }   // hold the turn while paused
       const idle = Date.now() - lastProgress;
       if (!started) {
-        if (idle > 5000) { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); }
+        // build hy: the outer guarantee is UNCHANGED -- 5s with no playback (even
+        // counting a retry in flight) still ends in the browser voice, never a hang.
+        if (idle > 5000) fallToBrowser();
         return;
       }
       const a = ttsAudio;

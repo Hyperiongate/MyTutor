@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hy -- PART 3bp, THE VOICE ASKS TWICE: pins voice.js's new
+#               single retry of a failed speak-prep/clip (the mid-deploy mechanical-
+#               voice blip Jim heard live), the immediate fallback on an
+#               authoritative {voice:false}, the started/doneCalled guards, and the
+#               unchanged 5s no-start watchdog.
 #   2026-08-18  BUILD hx -- PART 3bo, THE BETA PAGE'S KEY LEAVES THE URL: pins the
 #               sessionStorage + scrubbed-address-bar + header pattern on beta.html
 #               (the credential-in-URL class's third sighting), the server-side
@@ -11628,6 +11633,47 @@ def part3bo_beta_key():
           "a pass with no door: the page never said where to enter the code")
 
 
+# =============================================================================
+# PART 3bp -- THE VOICE ASKS TWICE (build hy)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Jim heard it live: he pushed hx while touring the dashboard and one
+# line played in the mechanical browser voice before the warm voice returned. The
+# deploy itself is the cause -- speak tickets are server memory, an instance
+# switchover wipes them and can kill one in-flight prep. voice.js now re-asks for
+# a fresh prep ONCE before falling back to the browser voice; an authoritative
+# {voice:false} is still believed immediately, and the 5s no-start watchdog stays
+# the outer guarantee. These pins keep all three properties from quietly reverting.
+# =============================================================================
+def part3bp_voice_retry():
+    print("\nPART 3bp — the voice asks twice before going mechanical (build hy)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "static", "voice.js"), encoding="utf-8") as fh:
+        vsrc = fh.read()
+    check("a failed clip re-asks before the browser voice",
+          "let retryLeft = 1;" in vsrc and "const failedClip" in vsrc
+          and 'failedClip("prep failed")' in vsrc
+          and 'failedClip("element error")' in vsrc
+          and 'failedClip("play rejected")' in vsrc,
+          "the mid-deploy seam is audible again: one dead ticket goes straight "
+          "to the mechanical voice")
+    check("exactly one retry, then the fallback",
+          vsrc.count("let retryLeft") == 1 and "retryLeft -= 1" in vsrc
+          and "const fallToBrowser" in vsrc and "fallToBrowser();" in vsrc,
+          "either the retry is gone or it can loop -- both are wrong")
+    check("a server that ANSWERS voice:false is believed immediately",
+          re.search(r"d\.voice === false\)\s*\{\s*fallToBrowser\(\);", vsrc)
+          is not None,
+          "the page retries an authoritative no -- a voiceless deploy would add "
+          "latency to every clip for nothing")
+    check("the retry never fires after playback started or the turn ended",
+          "if (started || doneCalled) return;" in vsrc
+          and "if (!started && !doneCalled) startClip()" in vsrc,
+          "a late retry could restart audio over a finished or playing turn")
+    check("the 5s no-start watchdog is still the outer guarantee",
+          "idle > 5000" in vsrc,
+          "the watchdog is gone -- a hung retry now strands the student")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12099,6 +12145,7 @@ def main():
     part3bm_one_backend_loudly()
     part3bn_screenwatch()
     part3bo_beta_key()
+    part3bp_voice_retry()
     part3ai_deploy_stamp()
     if live:
         part4_live()
