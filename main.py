@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  (decision record, no code change -- APP_BUILD stays hv) JIM'S RULING:
+#               BOOKMARK LOGIN STAYS. Page-nav links keep carrying ?code= on purpose;
+#               the hs note's "parked product decision" is decided. See _code_dep's
+#               docstring for the ruling and the compensating controls. Jim also
+#               confirmed DATA_EXPORT_KEY and FAMILY_RESET_KEY are set in Render env.
 #   2026-08-18  APP_BUILD -> "2026-08-18hv-one-backend-loudly" (Phase 5, Classes E+F).
 #               (1) LOUD DEGRADED MODE: a CONFIGURED-but-unreachable database no
 #               longer silently forks persistence onto stranded local files. NEW
@@ -4515,8 +4520,13 @@ def _code_dep(code: str, request: Request) -> str:
     stale cached page keeps functioning across the deploy -- it is the PAGES that
     stopped putting the credential in the URL, the server merely stopped requiring
     them to. (The dg precedent: the admin key made this exact move to X-Admin-Key.)
-    Page-NAVIGATION links (/session?code=...) are a separate, parked product
-    decision -- they are how young students log in from a family bookmark."""
+    Page-NAVIGATION links (/session?code=...) still carry the code BY JIM'S RULING
+    (2026-08-18, same day: "Do not kill the bookmark login") -- a family bookmark
+    is how a young student signs in, and that convenience is the product. The
+    compensating controls are real: API calls never carry the code (this
+    dependency), the read-guard throttles code enumeration, and a parent can mint
+    a new code in one tap if one leaks (build dy). Do not "fix" this without a
+    NEW ruling from Jim."""
     try:
         h = (request.headers.get("X-Student-Code") or "").strip()
     except Exception:  # noqa: BLE001
