@@ -2,6 +2,14 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ht -- THE UPSTREAM CALL IS BOUNDED (Phase 5, review Class F).
+#               Every Anthropic client is now constructed with
+#               timeout=ANTHROPIC_TIMEOUT_S (env, default 60s) and max_retries=1 --
+#               the SDK default was ~600s with 2 retries, so a hung upstream could
+#               freeze a child for ten minutes while the page said "thinking". A
+#               slow-but-working reply still lands; a hung one becomes the friendly
+#               try-again message; the pages' own 90s fetch abort (same build) is
+#               the outer guarantee.
 #   2026-08-18  BUILD hr -- THE TWENTY-FIRST REFEREE: THE STORY-UNITS CHECK. The
 #               night watch's first confirmed catch on the live Phase-4 build
 #               (08:44 UTC report): 4 + 3 × 2 modeled as "4 dollars, plus 3 bags of
@@ -1633,6 +1641,15 @@ from prompts import (  # noqa: E402
 # is used).
 DEFAULT_MODEL = "claude-sonnet-5"
 
+# BUILD ht (2026-08-18, Phase 5 -- review Class F): THE UPSTREAM CALL IS BOUNDED.
+# The SDK's default timeout is ~10 minutes, and a hung upstream used to freeze a
+# child for all of it -- the page just said "thinking". Every Anthropic client is
+# now built with this timeout and ONE transport retry; a slow-but-working reply
+# still lands (real replies take seconds), a HUNG one becomes the friendly
+# try-again message in under two minutes, and the pages' own fetch abort (same
+# build) is the outer guarantee. Env-tunable without a deploy.
+ANTHROPIC_TIMEOUT_S = float(os.environ.get("ANTHROPIC_TIMEOUT_S", "60") or 60)
+
 # How many past messages we replay to the model each request. Keeps the "tutor
 # remembers" feeling while bounding token cost (one message = one turn).
 MAX_HISTORY_MESSAGES = 30
@@ -1961,7 +1978,7 @@ def board_tag_for(tutor_message: str, user_message: str = "", history=None) -> s
             "Student just said: " + (user_message or "(nothing)") + "\n"
             "Tutor just said (out loud): " + tutor_message + "\n\n"
             "Output the ONE whiteboard tag for the math being worked right now, or NONE.")
-    client = Anthropic(api_key=api_key)
+    client = Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)
     resp = client.messages.create(model=model, max_tokens=220, system=BOARD_TAG_SYSTEM,
                                   messages=[{"role": "user", "content": user}])
     out = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip()
@@ -4772,7 +4789,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
                      "content": (user_message + turn_note) if turn_note else user_message})
 
     try:
-        client = Anthropic(api_key=api_key)
+        client = Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)
         # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here --
         # see _create_verified above. Same model, same prompt, same max_tokens.
         reply = _create_verified(
@@ -4845,7 +4862,7 @@ def get_assessment(facts: str, audience: str = "student", code: str = "",
     model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
     system = ASSESSMENT_SYSTEM_PARENT if audience == "parent" else ASSESSMENT_SYSTEM_STUDENT
     try:
-        client = Anthropic(api_key=api_key)
+        client = Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)
         response = client.messages.create(
             model=model, max_tokens=400,
             system=_cacheable_system(system),

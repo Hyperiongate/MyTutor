@@ -289,6 +289,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-18  (build ht, Phase 5) THE TURN CANNOT HANG: the chat fetch carries a 90s
+                abort over the server's new ~60s upstream timeout; a timeout lands as
+                a warm try-again BUBBLE (the old status-line error was cleared by
+                finally before anyone saw it).
     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: sprint/session/
                 final/quiz/check/mark calls send X-Student-Code with /me paths; the
                 sprint narrator uses the speak-prep ticket (see voice.js). Page-nav
@@ -2982,9 +2986,16 @@
     }
     async function runTutor(message) {
       setState("thinking"); statusEl.textContent = tutorName + " is thinking…";
+      // build ht (Phase 5): THE TURN CANNOT HANG. A stuck upstream used to freeze
+      // this page for the SDK's ~10-minute default; the server now times out at
+      // ~60s and this 90s abort is the outer guarantee -- the child gets a warm
+      // try-again bubble and a live input, never a frozen "thinking".
+      const ctl = new AbortController();
+      const abortTimer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, 90000);
       try {
         const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE, final: FINAL_MODE }) });
+          body: JSON.stringify({ code: CODE, message, unit: FOCUS_UNIT, course: COURSE, final: FINAL_MODE }),
+          signal: ctl.signal });
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
@@ -3001,8 +3012,16 @@
         await withDeadline(() => runPendingMoment("before"), 25000, "opening clip");   // the celebration lands...
         await withDeadline(() => speak(clean), speechDeadline(clean), "spoken reply", stopAllSpeech);
         await withDeadline(() => runPendingMoment("after"), 25000, "closing clip");    // ...and the send-off goes last
-      } catch (e) { statusEl.textContent = "I couldn't reach the server."; }
+      } catch (e) {
+        // build ht: the message lands as a BUBBLE (the status line is cleared by
+        // finally, so the old flash-and-vanish text was never really seen).
+        const msg = (e && e.name === "AbortError")
+          ? "That one took me too long to think through — say it again (or tap send) and I'll pick right up where we were."
+          : "I couldn't reach the server just now — give it a moment and try again.";
+        addBubble("tutor", msg); lastTutorText = msg;
+      }
       finally {
+        clearTimeout(abortTimer);
         busy = false; statusEl.textContent = ""; setPhase("ready");
         // build bl: if the voice never started (server error, or a voiceless fallback
         // that resolves without a state change), don't leave the thinking flag up.

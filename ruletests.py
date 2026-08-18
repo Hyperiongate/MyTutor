@@ -2,6 +2,29 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hv -- PART 3bm, ONE STORAGE BACKEND, LOUDLY: a real restore
+#               drill proves token tables are withheld (a signed-in token dies with
+#               the restore), a family deleted AFTER the snapshot stays forgotten
+#               (deletions ledger re-applied), and post-reset work OLDER deletions
+#               would wrongly erase survives; a dead configured DB gates the chat
+#               lane with the warm maintenance message while ALLOW_FILE_FALLBACK
+#               lifts the gate on dev boxes; source pins for the loud backup pass
+#               and the automated off-site email copy.
+#   2026-08-18  BUILD hu -- PART 3bl, THE SERVER RECORDS THE RESULTS (Class E's
+#               flagship): live drill proves the tag records exactly once, the echo
+#               deduplicates (checks_taken/quizzes_taken never double), a MINTED
+#               result 409s with a "client_result_rejected" system_events row and
+#               leaves no trace in mastery, a [[finalexam]] outside an exam turn
+#               records nothing, and the misses ride the tag server-side. The
+#               missed-pipeline drill and the hs POST family moved to the new truth
+#               path; course_trial.py follows the honest flow end to end (and now
+#               proves the minted-final 409 as part of the journey).
+#   2026-08-18  BUILD ht -- PART 3bk, BOUNDED AND SPLIT: every Anthropic client
+#               constructed with the 60s timeout (counted, all sites); the three
+#               teaching pages carry the 90s abort + warm bubble; _require_admin's
+#               tiers proved LIVE (unset graver key -> 503 fail-closed; right key
+#               opens; the general key and a wrong key are refused at the graver
+#               doors); admin.html's graverKey() flow pinned.
 #   2026-08-18  BUILD hs -- PART 3bj, THE CREDENTIAL LEAVES THE URL (Phase 5 begins):
 #               a live TestClient drill proves all 10 GET routes and the POST family
 #               in BOTH forms (header+/me and legacy path), bare-'me' rejection, the
@@ -5609,12 +5632,16 @@ def part3p_marketing_claims():
                     "from fastapi.testclient import TestClient\n"
                     "import main, store\n"
                     "c = TestClient(main.app)\n"
-                    "# 4 reported, only 2 actually missed -> exactly 2 may be stored\n"
+                    "# 4 reported, only 2 actually missed -> exactly 2 may be stored.\n"
+                    "# build hu: misses ride the model's own tag SERVER-SIDE now; the\n"
+                    "# client POST is only the deduplicated echo.\n"
+                    "main._record_result_tags('1234', 'prealgebra',\n"
+                    "    '[[quiz unit=\"3\" topic=\"1\" name=\"Adding fractions\" '\n"
+                    "    'correct=\"3\" total=\"5\" missed=\"2/5 + 1/5 => 3/10 | '\n"
+                    "    '1/2 + 1/4 => 2/6 | fake 3 => x | fake 4 => y\"]]')\n"
                     "r = c.post('/api/quiz/1234', json={'unit': 3, 'topic': 1,\n"
                     "    'name': 'Adding fractions', 'correct': 3, 'total': 5,\n"
-                    "    'course': 'prealgebra', 'missed': [\n"
-                    "    {'q': '2/5 + 1/5', 'a': '3/10'}, {'q': '1/2 + 1/4', 'a': '2/6'},\n"
-                    "    {'q': 'fake 3', 'a': 'x'}, {'q': 'fake 4', 'a': 'y'}]})\n"
+                    "    'course': 'prealgebra'})\n"
                     "assert r.status_code == 200 and r.json()['ok'], r.text\n"
                     "d = c.get('/api/misses/1234?course=prealgebra').json()\n"
                     "assert d['ok'] and len(d['misses']) == 2, d\n"
@@ -5625,9 +5652,9 @@ def part3p_marketing_claims():
                     "assert 'RECENT MISSED PROBLEMS (rule 55)' in note, note[-300:]\n"
                     "assert '2/5 + 1/5' in note and 'revisit exactly ONE' in note\n"
                     "# a perfect score stores nothing, whatever the tag claims\n"
-                    "c.post('/api/quiz/1234', json={'unit': 3, 'topic': 2, 'name': 'x',\n"
-                    "    'correct': 5, 'total': 5, 'course': 'prealgebra',\n"
-                    "    'missed': [{'q': 'phantom', 'a': 'z'}]})\n"
+                    "main._record_result_tags('1234', 'prealgebra',\n"
+                    "    '[[quiz unit=\"3\" topic=\"2\" name=\"x\" correct=\"5\" '\n"
+                    "    'total=\"5\" missed=\"phantom => z\"]]')\n"
                     "d = c.get('/api/misses/1234?course=prealgebra').json()\n"
                     "assert len(d['misses']) == 2 and 'phantom' not in str(d), d\n"
                     "# the sweep keeps the newest 200\n"
@@ -11014,7 +11041,11 @@ for u in GETS:
     rb = c.get(u)                                  # 'me' with NO header = no code
     ok[u] = (rh.status_code == 200 and rl.status_code == 200
              and rb.status_code in (401, 404))
-# the POST family (the client record calls)
+# the POST family (the client record calls). build hu: quiz/check POSTs are echo
+# gates now, so the server must see the tags first -- exactly as a real turn does.
+main._record_result_tags("1234", "algebra1",
+    '[[quiz unit="1" topic="1" name="counting" correct="4" total="5"]] '
+    '[[check unit="1" correct="4" total="5"]]')
 rm = c.post("/api/mark/me", json={"correct": 1, "attempted": 1}, headers=H)
 rq = c.post("/api/quiz/me", json={"unit": 1, "topic": 1, "name": "counting",
                                   "correct": 4, "total": 5, "course": "algebra1"},
@@ -11128,6 +11159,379 @@ def part3bj_credential_leaves_url():
         check("header form, legacy form, bare-form rejection, ticket lifecycle and "
               "login gates all hold on a live app",
               verdict.get("ok") is True, f"{verdict}")
+
+
+# =============================================================================
+# PART 3bk -- BOUNDED AND SPLIT (build ht, Phase 5)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Two Class-F closures: (1) THE TURN CANNOT HANG -- the Anthropic SDK's
+# ~600s default timeout let a hung upstream freeze a child for ten minutes; every
+# client is now built with ANTHROPIC_TIMEOUT_S (60s) and one retry, and the three
+# teaching pages carry a 90s fetch abort with a warm try-again bubble. (2) THE
+# GOD-KEY IS SPLIT -- the full-DB snapshot demands DATA_EXPORT_KEY and destructive
+# resets demand FAMILY_RESET_KEY; graver tiers never fall back to the general key
+# and FAIL CLOSED (a 503 naming the env var) when unset. Proved live below.
+# =============================================================================
+_HT_DRILL = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+os.environ["FORUM_MOD_KEY"] = "general-key"
+os.environ.pop("DATA_EXPORT_KEY", None)
+os.environ.pop("FAMILY_RESET_KEY", None)
+sys.path.insert(0, sys.argv[2])
+from fastapi.testclient import TestClient
+import main
+c = TestClient(main.app)
+G = {"X-Admin-Key": "general-key"}
+ok = {}
+# the general key still runs the panel...
+ok["general_alive"] = c.get("/api/admin/stats", headers=G).status_code == 200
+# ...but the graver powers FAIL CLOSED while their keys are unset -- and the
+# general key is NOT a fallback.
+ok["export_closed"] = c.get("/api/admin/backup", headers=G).status_code == 503
+ok["reset_closed"] = c.post("/api/admin/student-reset",
+                            json={"key": "general-key", "code": "1234"}).status_code == 503
+# set the graver keys: right key works, general key is refused, wrong key is refused
+os.environ["DATA_EXPORT_KEY"] = "export-key"
+os.environ["FAMILY_RESET_KEY"] = "reset-key"
+ok["export_right"] = c.get("/api/admin/backup",
+                           headers={"X-Admin-Key": "export-key"}).status_code == 200
+ok["export_general_refused"] = c.get("/api/admin/backup", headers=G).status_code == 401
+ok["export_wrong"] = c.get("/api/admin/backup",
+                           headers={"X-Admin-Key": "nope"}).status_code == 401
+r = c.post("/api/admin/student-reset", json={"key": "reset-key", "code": "1234"})
+ok["reset_right_key_accepted"] = r.status_code in (200, 404)   # auth passed; 404 = no data yet
+ok["reset_general_refused"] = c.post("/api/admin/student-reset",
+                                     json={"key": "general-key", "code": "1234"}).status_code == 401
+print(json.dumps({"ok": all(ok.values()), "detail": {k: bool(v) for k, v in ok.items()}}))
+"""
+
+
+def part3bk_bounded_and_split():
+    print("\nPART 3bk — bounded and split (build ht)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+
+    # (1) the upstream call is bounded, at EVERY construction site
+    n_clients = tsrc.count("Anthropic(api_key=api_key")
+    n_bounded = tsrc.count("Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)")
+    check(f"every Anthropic client is bounded ({n_bounded}/{n_clients})",
+          n_clients >= 3 and n_bounded == n_clients,
+          "an unbounded client can freeze a child for the SDK's ten-minute default")
+    check("the timeout has one env-tunable definition",
+          'ANTHROPIC_TIMEOUT_S = float(os.environ.get("ANTHROPIC_TIMEOUT_S"' in tsrc,
+          "the bound is hardcoded or gone")
+    for page in ("session.html", "topic.html", "practice.html"):
+        with open(os.path.join(here, "static", page), encoding="utf-8") as fh:
+            psrc = fh.read()
+        check(f"{page} aborts a hung turn and lands a warm bubble",
+              "signal: ctl.signal" in psrc and 'e.name === "AbortError"' in psrc
+              and "clearTimeout(abortTimer)" in psrc,
+              "the page can hang on a dead connection again")
+
+    # (2) the god-key is split, in code and in the panel
+    check("_require_admin is tiered and graver tiers fail closed",
+          'tier="export"' in msrc and 'tier="reset"' in msrc
+          and "DATA_EXPORT_KEY" in msrc and "FAMILY_RESET_KEY" in msrc
+          and "status_code=503" in msrc,
+          "the god-key is back -- one leaked moderation key exports or erases "
+          "everything")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    check("the panel asks for the graver keys and forgets a wrong one",
+          "function graverKey(" in asrc
+          and 'graverKey("export", "DATA_EXPORT_KEY")' in asrc
+          and asrc.count('graverKey("reset", "FAMILY_RESET_KEY")') == 2
+          and 'sessionStorage.removeItem("mt_reset_key")' in asrc
+          and 'sessionStorage.removeItem("mt_export_key")' in asrc,
+          "the panel still sends the general key to the graver doors")
+
+    try:
+        import httpx  # noqa: F401
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("ht live drill", "httpx/sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "ht.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HT_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "ht.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("ht live drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("fail-closed when unset; right key opens; general and wrong keys "
+              "refused -- on a live app",
+              verdict.get("ok") is True, f"{verdict}")
+
+
+# =============================================================================
+# PART 3bl -- THE SERVER RECORDS THE RESULTS (build hu, Phase 5 -- Class E)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Mastery was CLIENT-WRITTEN: the browser parsed the model's result
+# tags and POSTed scores the server accepted on format alone -- anyone holding a
+# code could mint mastery and unlock the Final. Now the server records the tags
+# from the reply it just generated, and the client POSTs are echo-gated: a match
+# deduplicates, a mint gets 409 + telemetry. Proved live below: the tag records
+# exactly once (the echo does NOT double-count), the mint is refused and leaves
+# no trace in mastery, and the rejection writes its system_events row.
+# =============================================================================
+_HU_DRILL = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+from fastapi.testclient import TestClient
+import main, store
+c = TestClient(main.app)
+H = {"X-Student-Code": "1234"}
+ok = {}
+# 1. the SERVER records a check tag from a reply it generated...
+main._record_result_tags("1234", "algebra1",
+    'You got 4 of 5! [[check unit="2" correct="4" total="5" '
+    'missed="7+8 => 14"]] Nice work.')
+m = store.get_mastery("1234", "algebra1")["checks"]
+ok["tag_recorded"] = int((m.get(2) or {}).get("best_pct") or 0) == 80
+# ...and the page's echo deduplicates instead of double-counting
+r = c.post("/api/check/me", json={"unit": 2, "correct": 4, "total": 5,
+                                  "course": "algebra1"}, headers=H)
+m2 = store.get_mastery("1234", "algebra1")["checks"]
+ok["echo_dedup"] = (r.status_code == 200 and (r.json() or {}).get("recorded") == "server"
+                    and int((m2.get(2) or {}).get("checks_taken") or 0) == 1)
+# 2. a MINTED result is refused and leaves no trace
+r = c.post("/api/check/me", json={"unit": 9, "correct": 5, "total": 5,
+                                  "course": "algebra1"}, headers=H)
+m3 = store.get_mastery("1234", "algebra1")["checks"]
+ok["mint_refused"] = r.status_code == 409 and not (m3.get(9) or {})
+ok["mint_telemetry"] = any(e.get("kind") == "client_result_rejected"
+                           for e in store.recent_events(hours=1, limit=50))
+# 3. the quiz tag: recorded once, echo deduped, mint refused
+main._record_result_tags("1234", "algebra1",
+    'Quiz done! [[quiz unit="3" topic="1" name="counting" correct="4" total="5"]]')
+q = [x for x in store.get_topic_quizzes("1234", "algebra1") if x["unit"] == 3]
+ok["quiz_tag_recorded"] = len(q) == 1 and q[0]["best_pct"] == 80
+r = c.post("/api/quiz/me", json={"unit": 3, "topic": 1, "name": "counting",
+                                 "correct": 4, "total": 5, "course": "algebra1"},
+           headers=H)
+q2 = [x for x in store.get_topic_quizzes("1234", "algebra1") if x["unit"] == 3]
+ok["quiz_echo_dedup"] = r.status_code == 200 and q2[0]["quizzes_taken"] == 1
+ok["quiz_mint_refused"] = c.post("/api/quiz/me",
+    json={"unit": 7, "topic": 1, "name": "ghost", "correct": 5, "total": 5,
+          "course": "algebra1"}, headers=H).status_code == 409
+# 4. a final tag outside an exam turn records NOTHING (but writes telemetry);
+#    a minted final POST is refused
+main._record_result_tags("1234", "algebra1",
+    'Done! [[finalexam correct="18" total="18"]]', final_allowed=False)
+ok["final_needs_exam_turn"] = c.post("/api/final/me",
+    json={"correct": 18, "total": 18, "course": "algebra1"},
+    headers=H).status_code == 409
+# 5. the misses rode the tag in (rule 55's pipeline, now server-fed)
+ok["misses_from_tag"] = any("7+8" in str(x.get("question") or "")
+                            for x in store.get_misses("1234", "algebra1", limit=5))
+print(json.dumps({"ok": all(ok.values()), "detail": {k: bool(v) for k, v in ok.items()}}))
+"""
+
+
+def part3bl_server_records_results():
+    print("\nPART 3bl — the server records the results (build hu)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("the server parses result tags on every reply lane and the opener",
+          msrc.count("_record_result_tags(") >= 5,   # def + 4 call sites
+          "a lane ships results only the client can record -- minting is back there")
+    check("the exam gate rides the chat turn",
+          'final_allowed=(final_mode == "exam")' in msrc,
+          "a hallucinated [[finalexam]] outside an exam turn records a real final")
+    check("the client endpoints are echo gates",
+          msrc.count("_ledger_match(") >= 3 and "_reject_client_result(" in msrc
+          and '"client_result_rejected"' in msrc,
+          "the POSTs accept format-only again -- anyone with a code mints mastery")
+
+    try:
+        import httpx  # noqa: F401
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("hu live drill", "httpx/sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hu.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HU_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hu.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("hu live drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("tag records once; echo dedups; mint 409s with telemetry and no trace; "
+              "final needs the exam turn; misses ride the tag",
+              verdict.get("ok") is True, f"{verdict}")
+
+
+# =============================================================================
+# PART 3bm -- ONE STORAGE BACKEND, LOUDLY (build hv, Phase 5 -- Classes E & F)
+# -----------------------------------------------------------------------------
+# 2026-08-18. Four closures: (1) a CONFIGURED-but-unreachable database no longer
+# silently forks persistence onto stranded local files -- the teaching lanes answer
+# with a warm maintenance message (ALLOW_FILE_FALLBACK marks a dev box) and Jim's
+# inbox hears about it; (2) a restore never resurrects a revoked credential (token
+# tables are withheld); (3) THE DELETIONS LEDGER -- a deletion newer than the
+# snapshot is re-applied after the restore, so a family that asked to be forgotten
+# stays forgotten, while a deletion OLDER than the snapshot is skipped so legit
+# post-reset data survives; (4) the backup pass can no longer die silently, and the
+# off-site copy is automated (weekly snapshot email riding the heartbeat).
+# =============================================================================
+_HV_DRILL = r"""
+import os, sys, json, time
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+sys.path.insert(0, sys.argv[2])
+from fastapi.testclient import TestClient
+import main, store
+c = TestClient(main.app)
+ok = {}
+# --- a family with data, a signed-in token, and a snapshot ---------------------
+tok = c.post("/api/parent/signup", json={"email": "hv@example.com",
+             "password": "drill-pass-1"}).json()["token"]
+kid = c.post("/api/parent/students", json={"token": tok, "name": "Ledger"}).json()
+code = kid["students"][-1]["code"] if kid.get("students") else kid.get("code")
+main._record_result_tags(code, "algebra1", '[[check unit="1" correct="10" total="10"]]')
+# an OLD deletion (before the snapshot): reset a pilot code, then give it NEW data
+store.reset_student_data("1234")
+time.sleep(1.2)
+main._record_result_tags("1234", "algebra1", '[[check unit="2" correct="10" total="10"]]')
+time.sleep(1.2)
+snap = store.export_all()
+# --- after the snapshot: the family asks to be forgotten -----------------------
+p = store.get_parent_by_email("hv@example.com")
+store.delete_parent_cascade(p["id"])
+# --- restore the snapshot ------------------------------------------------------
+res = store.import_all(snap)
+ok["tokens_withheld"] = "parent_tokens" in (res.get("withheld") or [])
+ok["token_dead"] = c.post("/api/parent/students",
+                          json={"token": tok, "name": "Ghost"}).status_code in (401, 403)
+ok["family_stays_forgotten"] = (store.get_parent_by_email("hv@example.com") is None
+                                and res.get("deletions_reapplied", 0) >= 1)
+m = store.get_mastery(code, "algebra1")["checks"] if code else {}
+ok["child_data_stays_gone"] = not (m.get(1) or {})
+# the OLD deletion is NOT re-applied: 1234's post-reset unit-2 work survives
+m2 = store.get_mastery("1234", "algebra1")["checks"]
+ok["post_reset_work_survives"] = int((m2.get(2) or {}).get("best_pct") or 0) == 100
+print(json.dumps({"ok": all(ok.values()), "detail": {k: bool(v) for k, v in ok.items()}}))
+"""
+
+_HV_DEGRADED = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "postgresql+psycopg2://nouser:nopass@127.0.0.1:9/nodb"
+os.environ.setdefault("WEEKLY_EMAIL", "off")
+os.environ.pop("ANTHROPIC_API_KEY", None)
+mode = sys.argv[2]
+if mode == "dev":
+    os.environ["ALLOW_FILE_FALLBACK"] = "1"
+else:
+    os.environ.pop("ALLOW_FILE_FALLBACK", None)
+sys.path.insert(0, sys.argv[1])
+from fastapi.testclient import TestClient
+import main, store
+c = TestClient(main.app)
+r = c.post("/api/chat", json={"code": "1234", "message": "hi", "course": "algebra1"})
+body = r.json()
+print(json.dumps({"degraded_flag": bool(store.degraded()),
+                  "gated": bool(body.get("degraded")),
+                  "reply_warm": "looked after" in str(body.get("reply") or "")}))
+"""
+
+
+def part3bm_one_backend_loudly():
+    print("\nPART 3bm — one storage backend, loudly (build hv)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+
+    check("the degraded state exists and the teaching lanes consult it",
+          "def degraded()" in ssrc and msrc.count("_degraded_reply()") >= 3
+          and "ALLOW_FILE_FALLBACK" in msrc,
+          "a configured-but-dead DB silently forks onto stranded files again")
+    check("the deletions ledger exists and both erasure paths write it",
+          '_tables["deletions"]' in ssrc and ssrc.count("record_deletion(") >= 3,
+          "a restore can resurrect a family that asked to be forgotten")
+    check("the restore withholds credentials and re-applies the ledger",
+          '"parent_tokens", "parent_resets", "teacher_tokens", "teacher_resets"' in ssrc
+          and "deletions_reapplied" in ssrc,
+          "a restore resurrects revoked tokens or undoes deletions")
+    check("the backup pass fails LOUDLY and refreshes its marker on skip",
+          '"ops_fail", "backup"' in msrc and "backup-failed" in msrc
+          and "marker refreshed after deploy" in msrc,
+          "backup_age null goes back to having two innocent readings and no alarm")
+    check("the off-site copy is automated on the heartbeat",
+          "def _offsite_backup_pass" in msrc and "_offsite_backup_pass()" in msrc
+          and 'attachment=(name, blob)' in msrc
+          and '"offsite"' in msrc,
+          "the off-site copy is a manual habit again")
+
+    try:
+        import httpx  # noqa: F401
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("hv live drills", "httpx/sqlalchemy not installed here")
+        return
+    import tempfile as _tf, json as _json
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "hv.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_HV_DRILL)
+        res = subprocess.run([sys.executable, script,
+                              os.path.join(d, "hv.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            verdict = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("hv restore drill ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("tokens withheld; the forgotten family stays forgotten; post-reset "
+              "work survives an older deletion -- on a real restore",
+              verdict.get("ok") is True, f"{verdict}")
+        # the degraded gate, both modes
+        script2 = os.path.join(d, "hvdeg.py")
+        with open(script2, "w", encoding="utf-8") as fh:
+            fh.write(_HV_DEGRADED)
+        got = {}
+        for mode in ("prod", "dev"):
+            r2 = subprocess.run([sys.executable, script2, here, mode],
+                                capture_output=True, text=True, timeout=300)
+            line2 = (r2.stdout.strip().splitlines() or [""])[-1]
+            try:
+                got[mode] = _json.loads(line2)
+            except Exception:  # noqa: BLE001
+                bad(f"hv degraded drill ({mode}) ran",
+                    (r2.stderr or r2.stdout).strip()[:300])
+                return
+        check("a dead configured DB gates the teaching lane with the warm message",
+              got["prod"]["degraded_flag"] and got["prod"]["gated"]
+              and got["prod"]["reply_warm"],
+              f"{got['prod']} -- the silent file fork is back")
+        check("ALLOW_FILE_FALLBACK marks a dev box and lifts the gate",
+              got["dev"]["degraded_flag"] and not got["dev"]["gated"],
+              f"{got['dev']} -- dev boxes cannot work offline anymore")
 
 
 def part3bb_no_lost_exchange():
@@ -11596,6 +12000,9 @@ def main():
     part3bh_two_prompt_sizes()
     part3bi_story_units()
     part3bj_credential_leaves_url()
+    part3bk_bounded_and_split()
+    part3bl_server_records_results()
+    part3bm_one_backend_loudly()
     part3ai_deploy_stamp()
     if live:
         part4_live()

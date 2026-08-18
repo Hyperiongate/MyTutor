@@ -69,6 +69,11 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-18  (build ht, Phase 5) THE GOD-KEY IS SPLIT: the backup download asks for
+    DATA_EXPORT_KEY and the student/family resets ask for FAMILY_RESET_KEY (new
+    graverKey() helper -- prompted once per tab, cached like the main key, cleared
+    on a 401). The general admin key still runs everything else. Set both new keys
+    in Render env; the server fails those actions CLOSED until they exist.
   - 2026-08-04  MASTERY = 90% (Jim): every visible "80%" mastery caption on this page is now
     90%, matching the raised store.PASS_PCT bar.
   - 2026-08-04  OFFICIAL LOGO (from Jim's brand deck): the purple orb brand dot is now the real
@@ -431,6 +436,24 @@
   function keyMsg(text, kind) { var el = $("keyMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
   function gMsg(text, kind) { var el = $("gMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
 
+  // BUILD ht (Phase 5): THE GOD-KEY IS SPLIT. The general admin key still runs the
+  // panel, but the two graver powers demand their OWN keys from Render env:
+  //   backup download  -> DATA_EXPORT_KEY   (the snapshot holds every family's data)
+  //   student/family reset -> FAMILY_RESET_KEY (destructive)
+  // Asked for once per tab and kept in sessionStorage like the main key; a wrong or
+  // missing key simply errors with the server's message. A leaked moderation key can
+  // no longer export or erase anything.
+  function graverKey(which, label) {
+    var k = "";
+    try { k = (sessionStorage.getItem("mt_" + which + "_key") || "").trim(); } catch (e) {}
+    if (!k) {
+      k = (window.prompt("This action needs the " + label + " (a separate key set in "
+                         + "Render env — build ht split it from the admin key):") || "").trim();
+      if (k) { try { sessionStorage.setItem("mt_" + which + "_key", k); } catch (e) {} }
+    }
+    return k;
+  }
+
   async function api(path, opts) {
     opts = opts || {};
     // BUILD dg: the admin key travels in a HEADER on every call, never in the URL.
@@ -701,11 +724,12 @@
     $("srGo").disabled = true; srMsg("");
     try {
       var out = await api("/api/admin/student-reset", { method: "POST",
-        body: JSON.stringify({ key: KEY, code: code }) });
+        body: JSON.stringify({ key: graverKey("reset", "FAMILY_RESET_KEY"), code: code }) });
       srMsg("Done — " + out.code + " is a clean slate (" + (out.rows_removed || 0) +
         " records removed). Sign in with it and it starts brand new.", "ok");
       $("srCode").value = "";
     } catch (e) {
+      if (e && e.status === 401) { try { sessionStorage.removeItem("mt_reset_key"); } catch (e2) {} }
       srMsg(e.message);
     }
     $("srGo").disabled = false; srDisarm();
@@ -731,13 +755,14 @@
     $("frGo").disabled = true; frMsg("");
     try {
       var out = await api("/api/admin/parent-reset", { method: "POST",
-        body: JSON.stringify({ key: KEY, email: email }) });
+        body: JSON.stringify({ key: graverKey("reset", "FAMILY_RESET_KEY"), email: email }) });
       try { localStorage.removeItem("mt_parent_token"); } catch (e) {}   // sign this browser out too
       var kids = out.children_removed || 0;
       frMsg("Done — " + out.email + " is a clean slate (" + kids + " child" + (kids === 1 ? "" : "ren") +
         " removed), and this browser has been signed out. Open the Family portal and create the account fresh.", "ok");
       $("frEmail").value = "";
     } catch (e) {
+      if (e && e.status === 401) { try { sessionStorage.removeItem("mt_reset_key"); } catch (e2) {} }
       frMsg(e.message);
     }
     frDisarm();
@@ -945,8 +970,14 @@
   $("bkDownload").addEventListener("click", async function () {
     var b = this; b.disabled = true; bkMsg("Building a fresh snapshot…", "ok");
     try {
-      var r = await fetch("/api/admin/backup", { headers: { "X-Admin-Key": KEY } });
-      if (!r.ok) { throw new Error(r.status === 401 ? "That key didn't work." : "Backup failed (" + r.status + ")."); }
+      var r = await fetch("/api/admin/backup",
+                          { headers: { "X-Admin-Key": graverKey("export", "DATA_EXPORT_KEY") } });
+      if (!r.ok) {
+        if (r.status === 503) { var d503 = {}; try { d503 = await r.json(); } catch (e) {}
+          throw new Error((d503 && d503.detail) || "DATA_EXPORT_KEY is not set in Render yet."); }
+        try { sessionStorage.removeItem("mt_export_key"); } catch (e) {}   // wrong key: re-ask next time
+        throw new Error(r.status === 401 ? "That key didn't work." : "Backup failed (" + r.status + ").");
+      }
       var blob = await r.blob();
       var cd = r.headers.get("Content-Disposition") || "";
       var m = cd.match(/filename="([^"]+)"/);

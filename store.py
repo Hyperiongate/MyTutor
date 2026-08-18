@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hv -- ONE STORAGE BACKEND, LOUDLY (Phase 5, review Class E).
+#               (1) NEW degraded(): True when DATABASE_URL is SET but unreachable --
+#               the state that used to silently fork every write onto un-backed-up
+#               files; main.py now gates the teaching lanes on it (status() reports
+#               it too). (2) NEW deletions ledger (table + record_deletion):
+#               delete_parent_cascade and reset_student_data write one row per
+#               deliberate erasure. (3) import_all: token tables (parent_tokens,
+#               parent_resets, teacher_tokens, teacher_resets) are WITHHELD from
+#               every restore -- a revoked credential stays revoked -- and the
+#               deletions ledger is RE-APPLIED after the restore for deletions
+#               NEWER than the snapshot (older ones are skipped on purpose: the
+#               snapshot's data is legitimately post-deletion). Proved end-to-end
+#               by PART 3bm on a real database.
 #   2026-08-18  BUILD hn -- THE STREAK LIVES ON CALIFORNIA TIME (Jim's ruling on THE
 #               THREE CLOCKS, 2026-08-18: "use California Pacific Time"). The streak's
 #               day boundary was the SERVER-UTC day, so a student practicing at 8pm in
@@ -967,6 +980,19 @@ def init():
             Column("course", String(32)),
             Column("created_at", DateTime(timezone=True), index=True),
         )
+        # BUILD hv (2026-08-18, Phase 5 -- review Class E): THE DELETIONS LEDGER.
+        # A restore used to resurrect deleted students and reset codes -- a family
+        # that asked to be forgotten came back with the next snapshot. Every
+        # deliberate deletion/reset now writes a row here, and import_all re-applies
+        # the ledger AFTER restoring, so a snapshot from before a deletion can never
+        # undo it.
+        _tables["deletions"] = Table(
+            "deletions", _meta,
+            Column("id", String(64), primary_key=True),
+            Column("kind", String(16), index=True),   # "parent" | "student"
+            Column("key", String(200), index=True),   # parent email (lower) | student code
+            Column("deleted_at", DateTime(timezone=True)),
+        )
         _meta.create_all(_engine)
         # Give the per-unit tables a `course` dimension if they predate the multi-course
         # work (additive; preserves all existing rows as 'algebra1'). No-ops once migrated.
@@ -996,6 +1022,15 @@ def init():
 
 def enabled() -> bool:
     return _ENABLED
+
+
+def degraded() -> bool:
+    """BUILD hv (review Class E): True when a database was CONFIGURED and could not
+    be reached -- the state that used to silently fork all persistence onto
+    un-backed-up local files for the life of the process. main.py gates the
+    teaching lanes on this (loudly) unless ALLOW_FILE_FALLBACK says dev-mode.
+    An UNSET DATABASE_URL is not degraded -- file mode is then a choice."""
+    return bool(DATABASE_URL) and not _ENABLED
 
 
 # ---- multi-course migration (Phase 2) --------------------------------------
@@ -2683,6 +2718,13 @@ def delete_parent_cascade(parent_id: str) -> dict:
     pid = (parent_id or "").strip()
     if not pid:
         return {"ok": False, "reason": "no parent_id", "deleted": {}, "student_codes": []}
+    # build hv: read the email BEFORE deleting, for the deletions ledger below.
+    _email = ""
+    try:
+        _prow = get_parent(pid)
+        _email = str((_prow or {}).get("email") or "")
+    except Exception:  # noqa: BLE001
+        _email = ""
     acc = _tables["accounts"]
     deleted: dict = {}
     with _engine.begin() as conn:
@@ -2711,6 +2753,11 @@ def delete_parent_cascade(parent_id: str) -> dict:
         p = _tables["parents"]
         res = conn.execute(delete(p).where(p.c.id == pid))
         deleted["parents"] = deleted.get("parents", 0) + int(res.rowcount or 0)
+    # build hv: THE DELETIONS LEDGER -- a later restore must not resurrect them.
+    if _email:
+        record_deletion("parent", _email)
+    for _c in codes:
+        record_deletion("student", _c)
     return {"ok": True, "deleted": deleted, "student_codes": codes}
 
 
@@ -3095,6 +3142,9 @@ def reset_student_data(code: str) -> dict:
                 continue
             r = conn.execute(delete(t).where(t.c[col] == c))
             deleted[tname] = int(r.rowcount or 0)
+    # build hv: a reset is a deliberate erasure -- the ledger keeps a restore from
+    # quietly undoing it (Start Fresh must stay fresh across a snapshot restore).
+    record_deletion("student", c)
     return {"ok": True, "deleted": deleted}
 
 
@@ -3117,6 +3167,21 @@ def record_error(where: str, what: str) -> None:
                 what=(what or "")[:4000]))
     except Exception as exc:  # noqa: BLE001
         print(f"[error-log] could not record error: {exc}")
+
+
+def record_deletion(kind: str, key: str) -> None:
+    """BUILD hv: one ledger row per deliberate deletion/reset. Never raises."""
+    if not _ENABLED:
+        return
+    try:
+        import uuid as _uuid
+        t = _tables["deletions"]
+        with _engine.begin() as conn:
+            conn.execute(t.insert().values(
+                id=_uuid.uuid4().hex, kind=(kind or "")[:16],
+                key=(key or "").strip().lower()[:200], deleted_at=_now()))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[deletions] ledger write failed (ignored): {exc}")
 
 
 def record_event(kind: str, name: str, detail: str = "", code: str = "",
@@ -3361,6 +3426,7 @@ def status() -> dict:
         "dialect": (_engine.dialect.name if _engine else None),
         "configured": bool(DATABASE_URL),
         "reason": (None if _ENABLED else _INIT_ERROR),
+        "degraded": degraded(),   # build hv: configured-but-unreachable, the loud state
     }
 
 
@@ -3600,8 +3666,18 @@ def import_all(payload: dict, wipe: bool = True) -> dict:
     whole restore back, so a half-restored database cannot exist. Snapshot tables the
     current schema does not know are SKIPPED (named in the result); snapshot columns a
     table no longer has are dropped row-by-row, so a snapshot from an older build
-    restores into a newer schema. Returns {"restored": {table: rows}, "skipped": [...]}.
-    Called ONLY by restore_backup.py -- never expose this over HTTP."""
+    restores into a newer schema.
+    BUILD hv (2026-08-18, Phase 5 -- review Class E), two new honesty rules:
+      * TOKEN-FREE: parent/teacher sign-in tokens and reset links are WITHHELD --
+        a restore must never resurrect a revoked credential. Everyone signs in
+        fresh after a restore; nothing else is lost.
+      * THE DELETIONS LEDGER IS RE-APPLIED: deletions recorded AFTER the snapshot
+        was taken are re-executed after the restore, so a family that asked to be
+        forgotten cannot come back with a snapshot from before they left. (A
+        deletion OLDER than the snapshot is skipped on purpose: the snapshot's
+        data is post-deletion, legitimately new.)
+    Returns {"restored": {...}, "skipped": [...], "withheld": [...],
+    "deletions_reapplied": n}. Called ONLY by restore_backup.py -- never HTTP."""
     if not _ENABLED:
         raise RuntimeError("database is not enabled -- nowhere to restore")
     if not isinstance(payload, dict) or "tables" not in payload:
@@ -3610,13 +3686,33 @@ def import_all(payload: dict, wipe: bool = True) -> dict:
     if fmt != BACKUP_FORMAT:
         raise ValueError(f"unknown backup format {fmt!r} (this build reads format {BACKUP_FORMAT})")
     import datetime as _dt
-    from sqlalchemy import Date as _Date, DateTime as _DateTime
-    restored, skipped = {}, []
+    from sqlalchemy import Date as _Date, DateTime as _DateTime, select as _select
+    WITHHELD = ("parent_tokens", "parent_resets", "teacher_tokens", "teacher_resets")
+    # the CURRENT ledger, captured before any wipe -- it outranks the snapshot's
+    pre_ledger = []
+    try:
+        t = _tables.get("deletions")
+        if t is not None:
+            with _engine.connect() as cx0:
+                pre_ledger = [dict(r._mapping) for r in cx0.execute(_select(t))]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[restore] could not read the deletions ledger: {exc}")
+    try:
+        snap_at = _dt.datetime.strptime(str(payload.get("created_utc") or ""),
+                                        "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        snap_at = None
+    restored, skipped, withheld = {}, [], []
     with _engine.begin() as cx:                      # one transaction for the WHOLE restore
         for name, rows in payload["tables"].items():
             t = _tables.get(name)
             if t is None:
                 skipped.append(name)
+                continue
+            if name in WITHHELD:
+                withheld.append(name)
+                if wipe:
+                    cx.execute(t.delete())            # revoked credentials stay revoked
                 continue
             if wipe:
                 cx.execute(t.delete())
@@ -3644,7 +3740,48 @@ def import_all(payload: dict, wipe: bool = True) -> dict:
             if fixed:
                 cx.execute(t.insert(), fixed)
             restored[name] = len(fixed)
-    return {"restored": restored, "skipped": skipped}
+    # build hv: merge the pre-restore ledger back in (it outranks the snapshot's),
+    # then re-apply every deletion NEWER than the snapshot.
+    reapplied = 0
+    try:
+        t = _tables.get("deletions")
+        if t is not None and pre_ledger:
+            with _engine.begin() as cx2:
+                have = {r[0] for r in cx2.execute(_select(t.c.id))}
+                fresh = [r for r in pre_ledger if r.get("id") not in have]
+                if fresh:
+                    cx2.execute(t.insert(), fresh)
+        ledger = []
+        if t is not None:
+            with _engine.connect() as cx3:
+                ledger = [dict(r._mapping) for r in cx3.execute(_select(t))]
+        for row in ledger:
+            when = row.get("deleted_at")
+            if isinstance(when, str):
+                try:
+                    when = _dt.datetime.fromisoformat(when)
+                except ValueError:
+                    when = None
+            if when is not None and when.tzinfo is not None:
+                when = when.replace(tzinfo=None)
+            if snap_at is not None and when is not None and when <= snap_at:
+                continue                              # the snapshot is already clean of it
+            kind, key = str(row.get("kind") or ""), str(row.get("key") or "")
+            try:
+                if kind == "student" and key:
+                    reset_student_data(key)
+                    reapplied += 1
+                elif kind == "parent" and key:
+                    p = get_parent_by_email(key)
+                    if p:
+                        delete_parent_cascade(p["id"])
+                    reapplied += 1
+            except Exception as exc:  # noqa: BLE001
+                print(f"[restore] could not re-apply deletion {kind}:{key}: {exc}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[restore] deletions re-apply pass failed: {exc}")
+    return {"restored": restored, "skipped": skipped, "withheld": withheld,
+            "deletions_reapplied": reapplied}
 
 
 # I did no harm and this file is not truncated.

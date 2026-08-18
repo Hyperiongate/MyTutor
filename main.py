@@ -2,6 +2,52 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hv-one-backend-loudly" (Phase 5, Classes E+F).
+#               (1) LOUD DEGRADED MODE: a CONFIGURED-but-unreachable database no
+#               longer silently forks persistence onto stranded local files. NEW
+#               _degraded_reply() gates the three teaching lanes with a warm
+#               maintenance message + throttled ops email; ALLOW_FILE_FALLBACK=1
+#               marks a dev box and lifts the gate; /health storage gains
+#               "degraded". (2) THE BACKUP CANNOT DIE SILENTLY: the pass is fenced
+#               with ops_fail telemetry + an alert email, and a skip refreshes the
+#               ops_pass marker so /health's backup age means "age of the newest
+#               snapshot" (the backup-age-null mystery had two innocent readings;
+#               now it has one, and a real failure reaches Jim's inbox). (3) THE
+#               OFF-SITE COPY IS AUTOMATED: every OFFSITE_BACKUP_DAYS (default 7)
+#               the freshest snapshot is EMAILED to ALERT_EMAIL as an attachment
+#               (_send_email grew attachment support), size-capped with a loud
+#               alert, restart-safe via ops_pass rows, visible in /health ops.
+#               (4) store.py: the DELETIONS LEDGER + token-free restores -- see its
+#               own hv note.
+#   2026-08-18  APP_BUILD -> "2026-08-18hu-server-records-results" (Phase 5, Class E's
+#               flagship). MASTERY IS NO LONGER CLIENT-WRITTEN. NEW
+#               _record_result_tags(): the server parses [[check]]/[[quiz]]/
+#               [[finalexam]] out of the reply it JUST generated (all three lanes +
+#               the opener) and records the scores itself -- record_check /
+#               record_topic_quiz / record_final_exam (final still gate-checked, and
+#               a final tag outside an exam turn writes telemetry instead). The
+#               client POST endpoints became ECHO GATES: a POST matching what the
+#               server recorded (in-memory TTL ledger, keyed code/course/kind/unit/
+#               topic/pct) deduplicates to {recorded:"server"}; a POST the server
+#               never saw the model emit gets 409 + a "client_result_rejected"
+#               system_events row -- minted mastery becomes telemetry, not truth.
+#               Stale cached pages keep working across the deploy (their echoes
+#               match). No page changes needed. Sprints remain client-counted (they
+#               never gate anything, by design) -- named here, not silently skipped.
+#   2026-08-18  APP_BUILD -> "2026-08-18ht-bounded-and-split" (Phase 5, two cuts):
+#               (1) THE GOD-KEY IS SPLIT. _require_admin gained tiers: FORUM_MOD_KEY
+#               stays the general panel/moderation/beta key; the FULL DB snapshot
+#               download demands DATA_EXPORT_KEY; destructive student/family resets
+#               demand FAMILY_RESET_KEY. Graver tiers never fall back to the general
+#               key and FAIL CLOSED (503 naming the env var) until Jim sets the two
+#               new keys in Render. admin.html prompts for the graver keys and
+#               forgets a wrong one on 401.
+#               (2) THE TURN CANNOT HANG. tutor.py bounds every Anthropic call
+#               (ANTHROPIC_TIMEOUT_S, default 60s, max_retries=1); session/topic/
+#               practice add a 90s fetch abort with a warm try-again bubble.
+#               ⚠️ JIM'S DEPLOY STEP: add DATA_EXPORT_KEY and FAMILY_RESET_KEY (two
+#               long random values) in Render env, or backup download and resets
+#               stay disabled (on purpose).
 #   2026-08-18  APP_BUILD -> "2026-08-18hs-credential-leaves-url". PHASE 5 (THE BETA
 #               GATE) BEGINS -- review Class F. The student CODE is the login, and it
 #               travelled in request lines that plaintext HTTP logs record (Render's
@@ -3370,6 +3416,18 @@ except Exception as _exc:  # noqa: BLE001
 # DB can't be reached), store.enabled() stays False and we use the JSON-file storage
 # below, exactly as before -- so the current app is unaffected until a DB is added.
 store.init()
+# BUILD hv (2026-08-18, Phase 5 -- review Class E): a CONFIGURED database that
+# cannot be reached is a LOUD event now, not a silent fork onto un-backed-up
+# files. The teaching lanes refuse to write stranded state (see _degraded_reply)
+# unless ALLOW_FILE_FALLBACK says this is a dev box, and Jim's inbox hears about
+# it (throttled) the moment the app boots degraded.
+ALLOW_FILE_FALLBACK = (os.environ.get("ALLOW_FILE_FALLBACK", "").strip().lower()
+                       in ("1", "true", "yes", "on"))
+if store.degraded():
+    print("[store] ⚠️  DEGRADED: DATABASE_URL is set but the database is unreachable. "
+          + ("ALLOW_FILE_FALLBACK is on (dev): file mode allowed." if ALLOW_FILE_FALLBACK
+             else "Teaching lanes will answer with the maintenance message until the "
+                  "DB returns (set ALLOW_FILE_FALLBACK=1 only on a dev box)."))
 
 # ---- ElevenLabs voice config (all optional; empty key -> browser voice) -----
 # Set these in Render (NOT in code). If ELEVENLABS_API_KEY is missing, the app
@@ -4417,6 +4475,26 @@ def _client_ip(request: Request) -> str:
         idx = len(fwd) - hops                 # the entry just inside our trusted proxy hops
         return fwd[idx] if idx >= 0 else fwd[0]
     return request.client.host if request.client else "unknown"
+
+
+def _degraded_reply():
+    """BUILD hv: the answer a teaching lane gives while the database is CONFIGURED
+    but unreachable (store.degraded()). The old behaviour silently forked every
+    write onto local files that no backup covers and no reconnect reclaims -- a
+    student practiced into a void and the record called them absent. Honest beats
+    silent: a warm pause message, a system print, and Jim's inbox (throttled).
+    Returns None when healthy (or when ALLOW_FILE_FALLBACK marks a dev box)."""
+    if not store.degraded() or ALLOW_FILE_FALLBACK:
+        return None
+    print("[store] degraded: teaching turn answered with the maintenance message")
+    _ops_alert("db-degraded", "Database unreachable — teaching paused",
+               "DATABASE_URL is set but the database cannot be reached; students are "
+               "seeing the maintenance message. Check the Render database, then "
+               "/health storage.degraded.")
+    return {"reply": ("(One moment — my classroom notebook is being looked after, "
+                      "and I never teach without it, so nothing you do gets lost. "
+                      "Please try again in a few minutes!)"),
+            "degraded": True}
 
 
 def _require_student(code: str) -> dict:
@@ -5647,10 +5725,12 @@ def _smtp_configured() -> bool:
                 and os.environ.get("SMTP_PASS"))
 
 
-def _send_email(to_addr: str, subject: str, body: str) -> str:
+def _send_email(to_addr: str, subject: str, body: str, attachment=None) -> str:
     """Send one plain-text email. Returns "" on success or the exact failure text
     on error; never raises (a mail hiccup must never 500 an API call). Secrets
-    come from env only, and the failure text NEVER includes them."""
+    come from env only, and the failure text NEVER includes them.
+    build hv: optional `attachment=(filename, bytes)` -- the weekly off-site
+    backup rides this; everything else keeps the plain-text path unchanged."""
     if not _smtp_configured():
         return "SMTP env vars not set (need SMTP_HOST, SMTP_USER, SMTP_PASS)"
     import smtplib
@@ -5660,7 +5740,17 @@ def _send_email(to_addr: str, subject: str, body: str) -> str:
     port = int(os.environ.get("SMTP_PORT", "465") or 465)
     user = os.environ["SMTP_USER"]
     from_addr = os.environ.get("SMTP_FROM", user)
-    msg = MIMEText(body, "plain", "utf-8")
+    if attachment:
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.application import MIMEApplication
+        fname, payload = attachment
+        msg = MIMEMultipart()
+        msg.attach(MIMEText(body, "plain", "utf-8"))
+        part = MIMEApplication(payload, Name=fname)
+        part["Content-Disposition"] = f'attachment; filename="{fname}"'
+        msg.attach(part)
+    else:
+        msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
     msg["From"] = formataddr(("Mr. Cadabra's Classroom", from_addr))
     msg["To"] = to_addr
@@ -6167,6 +6257,11 @@ def _digest_loop():
             _backup_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[backup] loop error: {exc}")
+        # build hv: the weekly OFF-SITE copy rides the same heartbeat, same fence.
+        try:
+            _offsite_backup_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[offsite] loop error: {exc}")
         # build go: LAST on the heartbeat, and by far the longest -- the digests, the
         # ops watch, the purge and the snapshot all matter more than the watch and must
         # never queue behind it. Fenced like everything else here.
@@ -6263,15 +6358,36 @@ def _backup_blob() -> tuple[bytes, dict]:
 
 def _backup_pass() -> None:
     """Write today's snapshot if a day has passed since the newest one on disk.
-    Called from the 30-minute heartbeat; silent and harmless when the DB is off."""
+    Called from the 30-minute heartbeat; silent and harmless when the DB is off.
+    build hv: a FAILURE inside this pass now writes an ops_fail system_events row
+    and emails Jim (throttled) -- /health showed backup_age null on a healthy
+    Starter-plan deploy and nothing could say why, which is Class A's disease
+    wearing an ops hat. Also: when the pass SKIPS because today's snapshot already
+    exists, it still refreshes the ops_pass marker, so /health's backup age means
+    "age of the newest snapshot", not "age of the last WRITE" -- the null had two
+    innocent readings and now has one."""
     if not store.enabled() or BACKUP_KEEP <= 0:
         return
-    _BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    existing = sorted(_BACKUP_DIR.glob("backup-*.json.gz"))
-    if existing:
-        newest = max(p.stat().st_mtime for p in existing)
-        if time.time() - newest < 24 * 3600 - 300:   # 5-min grace so the slot can't drift
-            return
+    try:
+        _BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+        existing = sorted(_BACKUP_DIR.glob("backup-*.json.gz"))
+        if existing:
+            newest = max(p.stat().st_mtime for p in existing)
+            if time.time() - newest < 24 * 3600 - 300:   # 5-min grace so the slot can't drift
+                if not store.last_event_at("ops_pass", "backup"):
+                    store.record_event("ops_pass", "backup",
+                                       "snapshot current (marker refreshed after deploy)")
+                return
+        _backup_write()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[backup] PASS FAILED: {exc}")
+        store.record_event("ops_fail", "backup", str(exc)[:300])
+        _ops_alert("backup-failed", "Nightly backup FAILED",
+                   f"The snapshot pass raised: {exc}\nCheck DATA_DIR and the disk on "
+                   "Render; /health ops.backup_age_s stays stale until this heals.")
+
+
+def _backup_write() -> None:
     blob, counts = _backup_blob()
     name = "backup-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ".json.gz"
     tmp = _BACKUP_DIR / (name + ".tmp")
@@ -6287,6 +6403,60 @@ def _backup_pass() -> None:
             print(f"[backup] rotated out {p.name}")
         except OSError as exc:
             print(f"[backup] rotation could not remove {p.name}: {exc}")
+
+
+OFFSITE_BACKUP_DAYS = int(os.environ.get("OFFSITE_BACKUP_DAYS", "7") or 7)   # 0 = off
+
+
+def _offsite_backup_pass() -> None:
+    """BUILD hv (Phase 5 -- review Class F): THE OFF-SITE COPY IS AUTOMATED. The
+    nightly snapshot lands on the same Render disk as the database's machine; the
+    off-site copy used to be Jim remembering to click /admin's download button.
+    Now, every OFFSITE_BACKUP_DAYS days, the freshest snapshot is EMAILED to
+    ALERT_EMAIL -- an inbox is off this machine, which is the whole point, and it
+    needs no new service or credential. Restart-safe (asks the DB when one last
+    went out); size-capped with a loud alert instead of a silent skip; every
+    outcome is an ops_pass/ops_fail row /health can age."""
+    if not store.enabled() or OFFSITE_BACKUP_DAYS <= 0:
+        return
+    try:
+        from datetime import datetime as _odt, timezone as _otz
+        last = store.last_event_at("ops_pass", "offsite")
+        if last is not None:
+            if last.tzinfo is None:
+                last = last.replace(tzinfo=_otz.utc)
+            if ((_odt.now(_otz.utc) - last).total_seconds()
+                    < OFFSITE_BACKUP_DAYS * 86400 - 300):
+                return
+        to_addr = (os.environ.get("ALERT_EMAIL", "").strip()
+                   or os.environ.get("SMTP_USER", "").strip())
+        if not to_addr or not _smtp_configured():
+            return          # unconfigured email is already reported by the alert path
+        blob, counts = _backup_blob()
+        rows = sum(counts.values())
+        if len(blob) > 15_000_000:
+            _ops_alert("offsite-too-big", "Off-site backup too large to email",
+                       f"This week's snapshot is {len(blob):,} bytes -- too big for an "
+                       "email attachment. Download it from /admin and store it off-site; "
+                       "a real off-site target (S3/B2) is the next step at this size.")
+            return
+        name = "mrcadabra-backup-" + time.strftime("%Y%m%d", time.gmtime()) + ".json.gz"
+        err = _send_email(
+            to_addr, f"Weekly off-site backup — {rows} rows",
+            "Attached is this week's full database snapshot (gzipped JSON).\n\n"
+            "Keep a few of these somewhere safe -- they are the copy that survives "
+            "losing Render itself. Restore with restore_backup.py (see RECOVERY.md).\n\n"
+            "— the ops heartbeat",
+            attachment=(name, blob))
+        if err:
+            store.record_event("ops_fail", "offsite", err[:300])
+            _ops_alert("offsite-failed", "Off-site backup email FAILED", err[:500])
+        else:
+            print(f"[offsite] emailed {name} ({rows} rows, {len(blob):,} bytes) to inbox")
+            store.record_event("ops_pass", "offsite", f"{rows} rows, {len(blob)} bytes")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[offsite] pass failed: {exc}")
+        store.record_event("ops_fail", "offsite", str(exc)[:300])
 
 
 def _usage_purge_pass() -> None:
@@ -6598,9 +6768,29 @@ class BetaRevokeIn(BaseModel):
     code: str
 
 
-def _require_admin(key: str) -> None:
-    admin = os.environ.get("FORUM_MOD_KEY", "").strip()
-    if not admin or not hmac.compare_digest((key or "").strip(), admin):
+def _require_admin(key: str, tier: str = "general") -> None:
+    """BUILD ht (2026-08-18, Phase 5): THE GOD-KEY IS SPLIT (review Class F). One
+    shared key used to gate forum moderation, the FULL database export (including
+    parent password hashes) and destructive family resets -- so a leaked moderation
+    key could exfiltrate or erase everything. Now:
+      tier="general" -> FORUM_MOD_KEY    (admin panel, moderation, beta codes,
+                                          diagnostics -- everything read-mostly)
+      tier="export"  -> DATA_EXPORT_KEY  (the full DB snapshot download)
+      tier="reset"   -> FAMILY_RESET_KEY (destructive student/family resets)
+    A graver tier NEVER falls back to the general key, and an UNSET graver key is
+    FAIL-CLOSED with a 503 that says exactly which env var to add in Render --
+    silence is how the last two key problems shipped. Constant-time compare, as
+    since build dg."""
+    envname = {"general": "FORUM_MOD_KEY", "export": "DATA_EXPORT_KEY",
+               "reset": "FAMILY_RESET_KEY"}.get(tier, "FORUM_MOD_KEY")
+    admin = os.environ.get(envname, "").strip()
+    if not admin:
+        if tier == "general":
+            raise HTTPException(status_code=401, detail="Not authorized.")
+        raise HTTPException(status_code=503, detail=(
+            f"This action is disabled until {envname} is set in Render "
+            "(build ht split it from the general admin key on purpose)."))
+    if not hmac.compare_digest((key or "").strip(), admin):
         raise HTTPException(status_code=401, detail="Not authorized.")
 
 
@@ -6798,8 +6988,10 @@ def admin_backup_download(key: str = "",
     """A FRESH full snapshot, streamed as a download -- not a file from the disk, so
     what Jim saves is the database as of this click. This is the offsite copy: the
     nightly file protects against deploys and app mistakes; this one protects against
-    losing Render itself."""
-    _require_admin(x_admin_key or key)
+    losing Render itself.
+    build ht: EXPORT tier -- this download contains every family's data including
+    parent password hashes, so it demands DATA_EXPORT_KEY, never the general key."""
+    _require_admin(x_admin_key or key, tier="export")
     _require_db()
     blob, counts = _backup_blob()
     fname = "mrcadabra-backup-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ".json.gz"
@@ -7073,7 +7265,7 @@ def admin_student_reset(body: StudentResetAdminIn):
     re-created on next login). Admin-key protected; 404 for a code that isn't a known
     student, so a typo can never silently 'succeed'."""
     _require_db()
-    _require_admin(body.key)
+    _require_admin(body.key, tier="reset")   # build ht: destructive -- FAMILY_RESET_KEY
     code = (body.code or "").strip()
     if not _lookup_student(code):
         raise HTTPException(status_code=404, detail=(
@@ -7092,7 +7284,7 @@ def admin_parent_reset(body: ParentResetAdminIn):
     email is free to sign up from scratch. Admin-key protected. Returns a summary
     of what was removed. 404 (harmless) if no account exists for that email."""
     _require_db()
-    _require_admin(body.key)
+    _require_admin(body.key, tier="reset")   # build ht: destructive -- FAMILY_RESET_KEY
     email = (body.email or "").strip().lower()
     if not _EMAIL_RE.match(email):
         raise HTTPException(status_code=400, detail="That doesn't look like an email address.")
@@ -7825,6 +8017,129 @@ def post_sprint(body: SprintResultIn, code: str = Depends(_code_dep)):
         return {"ok": False, "tracking": True}
 
 
+# =============================================================================
+# BUILD hu (2026-08-18, Phase 5 -- review Class E): FACTS ENTER THE DATABASE
+# THROUGH THE SERVER. Mastery used to be CLIENT-WRITTEN: the browser parsed the
+# model's [[check]]/[[quiz]]/[[finalexam]] tags and POSTed the scores, and the
+# server accepted them with format-only validation -- anyone holding a student code
+# could mint mastery, unlock the Final, and stamp the printable record.
+# Now the SERVER parses the same tags from the reply it just generated (it saw them
+# first) and records the results itself. The client POSTs remain as ECHOES:
+#   - an echo matching what the server just recorded  -> deduplicated, {recorded:
+#     "server"} (stale cached pages keep working across the deploy; nothing double-
+#     counts);
+#   - a result the server never saw the model emit    -> 409 + a system_events row
+#     ("client_result_rejected") -- minted mastery becomes telemetry, not truth.
+# The echo ledger is in-memory with a TTL (single-process app); a restart between
+# reply and echo rejects the echo harmlessly -- the server-side write already
+# happened. Sprints remain client-counted for now (they never gate anything, by
+# design) -- named in the Phase 5 notes, not silently skipped.
+# =============================================================================
+_RESULT_TAG_RE = re.compile(r"\[\[\s*(check|quiz|finalexam)\b([^\]]*?)\]\]", re.I)
+_RESULT_ATTR_RE = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+_RESULT_LEDGER: dict = {}
+_RESULT_LEDGER_LOCK = threading.Lock()
+_RESULT_LEDGER_TTL = 900
+
+
+def _result_pct(correct, total) -> int:
+    c = max(0, int(correct or 0)); t = max(1, int(total or 1))
+    return (c * 100) // t
+
+
+def _ledger_mark(code, course, kind, unit, topic, pct) -> None:
+    with _RESULT_LEDGER_LOCK:
+        if len(_RESULT_LEDGER) > 4000:
+            now = time.time()
+            for k in [k for k, v in _RESULT_LEDGER.items() if v[1] <= now]:
+                _RESULT_LEDGER.pop(k, None)
+        _RESULT_LEDGER[(code, course, kind, int(unit or 0), int(topic or 0), int(pct))] = \
+            (int(pct), time.time() + _RESULT_LEDGER_TTL)
+
+
+def _ledger_match(code, course, kind, unit, topic, pct) -> bool:
+    with _RESULT_LEDGER_LOCK:
+        v = _RESULT_LEDGER.get((code, course, kind, int(unit or 0), int(topic or 0), int(pct)))
+    return bool(v and v[1] > time.time())
+
+
+def _parse_missed_attr(raw) -> list:
+    """The tag's missed="question => their answer | ..." into [{q, a}] -- the same
+    parse the pages do, clamped downstream by _keep_misses."""
+    out = []
+    try:
+        for part in str(raw or "").split("|"):
+            if "=>" in part:
+                q, _, a = part.partition("=>")
+                if q.strip():
+                    out.append({"q": q.strip()[:200], "a": a.strip()[:80]})
+    except Exception:  # noqa: BLE001
+        return []
+    return out
+
+
+def _record_result_tags(code: str, course: str, reply: str,
+                        final_allowed: bool = False) -> None:
+    """Parse the model's result tags out of the reply the server JUST generated and
+    record them server-side (build hu). Never raises -- a recording surprise must
+    not cost the turn; the client echo and its 409 telemetry remain the net."""
+    try:
+        code = (code or "").strip()
+        if not code or not reply:
+            return
+        for m in _RESULT_TAG_RE.finditer(str(reply)):
+            kind = m.group(1).lower()
+            attrs = dict(_RESULT_ATTR_RE.findall(m.group(2)))
+            correct = max(0, int(float(attrs.get("correct") or 0)))
+            total = max(1, int(float(attrs.get("total") or 1)))
+            missed = _parse_missed_attr(attrs.get("missed"))
+            pct = _result_pct(correct, total)
+            if kind == "check":
+                unit = int(float(attrs.get("unit") or 0))
+                if not (1 <= unit <= 9):
+                    continue
+                if store.enabled():
+                    store.record_check(code, unit, correct, total,
+                                       curriculum.unit_name(course, unit), course)
+                    _keep_misses(code, course, unit, 0, "check", missed, correct, total)
+                _ledger_mark(code, course, "check", unit, 0, pct)
+            elif kind == "quiz":
+                unit = int(float(attrs.get("unit") or 0))
+                if not (1 <= unit <= 9):
+                    continue
+                topic = int(float(attrs.get("topic") or 0))
+                name = str(attrs.get("name") or "").strip()[:80]
+                if store.enabled():
+                    store.record_topic_quiz(code, unit, name, correct, total, course,
+                                            topic_idx=topic)
+                    _keep_misses(code, course, unit, topic, "quiz", missed, correct, total)
+                _ledger_mark(code, course, "quiz", unit, topic, pct)
+            elif kind == "finalexam":
+                if not final_allowed:
+                    # a final tag outside an exam turn is itself a finding
+                    store.record_event("client_result_rejected", "final-tag-no-exam",
+                                       f"{correct}/{total}", code, course)
+                    continue
+                if store.enabled():
+                    state = _final_exam_state(code, course)
+                    if state["eligible"]:
+                        store.record_final_exam(code, correct, total, course)
+                        _keep_misses(code, course, 0, 0, "final", missed, correct, total)
+                        _ledger_mark(code, course, "final", 0, 0, pct)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[results] server-side recording failed (client echo remains): {exc}")
+
+
+def _reject_client_result(code, course, kind, detail):
+    try:
+        store.record_event("client_result_rejected", kind, detail, code, course)
+    except Exception:  # noqa: BLE001
+        pass
+    raise HTTPException(status_code=409, detail=(
+        "That result didn't come from a lesson this server taught, so it wasn't "
+        "recorded."))
+
+
 @app.post("/api/final/{code}")
 def post_final(body: FinalIn, code: str = Depends(_code_dep)):
     """Record a FINAL EXAM score ([[finalexam]] tag). Server-side gate: the score only
@@ -7833,19 +8148,14 @@ def post_final(body: FinalIn, code: str = Depends(_code_dep)):
     code = code.strip()
     if not store.enabled():
         return {"ok": False, "tracking": False}
-    try:
-        course = body.course if body.course in curriculum.COURSES else "algebra1"
-        state = _final_exam_state(code, course)
-        if not state["eligible"]:
-            return {"ok": False, "tracking": True, "locked": True,
-                    "detail": _final_gate_message(code, course, state)}
-        res = store.record_final_exam(code, int(body.correct), int(body.total), course)
-        _keep_misses(code, course, 0, 0, "final",
-                     getattr(body, "missed", []), body.correct, body.total)
-        return {"ok": True, "tracking": True, **res}
-    except Exception as exc:  # noqa: BLE001
-        print(f"[final] record_final_exam failed: {exc}")
-        return {"ok": False, "tracking": True}
+    # build hu: the exam turn's [[finalexam]] tag was recorded (and gate-checked)
+    # server-side in /api/chat; this POST is an echo or a mint.
+    course = body.course if body.course in curriculum.COURSES else "algebra1"
+    if not _ledger_match(code, course, "final", 0, 0,
+                         _result_pct(body.correct, body.total)):
+        _reject_client_result(code, course, "final",
+                              f"{body.correct}/{body.total}")
+    return {"ok": True, "tracking": True, "recorded": "server"}
 
 
 @app.post("/api/check/{code}")
@@ -7856,16 +8166,14 @@ def post_check(body: CheckIn, code: str = Depends(_code_dep)):
     code = code.strip()
     if not store.enabled():
         return {"ok": False, "tracking": False}
-    try:
-        course = getattr(body, "course", None) or "algebra1"
-        name = curriculum.unit_name(course, int(body.unit))
-        res = store.record_check(code, int(body.unit), int(body.correct), int(body.total), name, course)
-        _keep_misses(code, course, body.unit, 0, "check",
-                     body.missed, body.correct, body.total)
-        return {"ok": True, "tracking": True, **res}
-    except Exception as exc:  # noqa: BLE001
-        print(f"[check] record_check failed: {exc}")
-        return {"ok": False, "tracking": True}
+    # build hu: the server already recorded this from the model's own tag; the POST
+    # is an echo. Match -> dedup; no match -> the score was minted client-side.
+    course = getattr(body, "course", None) or "algebra1"
+    if not _ledger_match(code, course, "check", int(body.unit), 0,
+                         _result_pct(body.correct, body.total)):
+        _reject_client_result(code, course, "check",
+                              f"unit={body.unit} {body.correct}/{body.total}")
+    return {"ok": True, "tracking": True, "recorded": "server"}
 
 
 @app.get("/api/records/{code}")
@@ -7948,17 +8256,15 @@ def post_quiz(body: QuizIn, code: str = Depends(_code_dep)):
     code = code.strip()
     if not store.enabled():
         return {"ok": False, "tracking": False}
-    try:
-        course = body.course if body.course in curriculum.COURSES else "algebra1"
-        res = store.record_topic_quiz(code, int(body.unit), (body.name or "").strip(),
-                                      int(body.correct), int(body.total), course,
-                                      topic_idx=int(body.topic or 0))
-        _keep_misses(code, course, body.unit, body.topic, "quiz",
-                     body.missed, body.correct, body.total)
-        return {"ok": True, "tracking": True, **res}
-    except Exception as exc:  # noqa: BLE001
-        print(f"[quiz] record_topic_quiz failed: {exc}")
-        return {"ok": False, "tracking": True}
+    # build hu: echo of the server-recorded tag, or a minted score (see the note
+    # above post_final).
+    course = body.course if body.course in curriculum.COURSES else "algebra1"
+    if not _ledger_match(code, course, "quiz", int(body.unit), int(body.topic or 0),
+                         _result_pct(body.correct, body.total)):
+        _reject_client_result(code, course, "quiz",
+                              f"unit={body.unit} topic={body.topic} "
+                              f"{body.correct}/{body.total}")
+    return {"ok": True, "tracking": True, "recorded": "server"}
 
 
 @app.get("/api/misses/{code}")
@@ -8020,7 +8326,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hs-credential-leaves-url"
+APP_BUILD = "2026-08-18hv-one-backend-loudly"
 
 
 @app.get("/health")
@@ -8046,7 +8352,7 @@ def health():
     ops = {}
     try:
         from datetime import datetime as _hdt, timezone as _htz
-        for nm in ("heartbeat", "backup", "nightwatch"):
+        for nm in ("heartbeat", "backup", "nightwatch", "offsite"):
             ts = store.last_event_at("ops_pass", nm)
             if ts is not None and ts.tzinfo is None:
                 ts = ts.replace(tzinfo=_htz.utc)
@@ -8660,6 +8966,9 @@ def _record_unintroduced(code: str, course: str, reply: str, history) -> None:
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
+    _deg = _degraded_reply()          # build hv: no teaching into a stranded file fork
+    if _deg:
+        return _deg
     student = _student_or_404(req.code)
     code = req.code.strip()
     # Paid Anthropic call behind this -- cap the pace per code (40 turns / 5 min is
@@ -8972,6 +9281,7 @@ def chat(req: ChatRequest):
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         _record_learned(code, req.course, reply)
         _record_today_bar(code, req.course, reply)
+        _record_result_tags(code, req.course, reply)   # build hu: openers can carry tags too
         # build hk: the junk-strip is re-applied to the FRESH history inside the
         # atomic transform (idempotent), then the opener's reply is appended -- so an
         # opener racing a typed first message can no longer erase it.
@@ -8990,6 +9300,9 @@ def chat(req: ChatRequest):
                                                     code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)
     _record_today_bar(code, req.course, reply)
+    # build hu (Class E): the SERVER records the reply's own result tags -- the
+    # client's POST is only an echo now (see the note above post_final).
+    _record_result_tags(code, req.course, reply, final_allowed=(final_mode == "exam"))
     # build gj: measure rule 37 -- a term with a written script, used without it.
     _record_unintroduced(code, req.course, reply, history)
 
@@ -9042,6 +9355,9 @@ def practice(req: PracticeRequest):
     `history` each turn, so nothing is persisted here -- a homework problem is a
     one-off. We validate the code so only real students can use it.
     """
+    _deg = _degraded_reply()          # build hv: no teaching into a stranded file fork
+    if _deg:
+        return _deg
     student = _student_or_404(req.code)
     _rate_limit("brain:" + req.code.strip(), limit=40, window_seconds=300, what="messages")
 
@@ -9066,6 +9382,7 @@ def practice(req: PracticeRequest):
     student["foundations_heard"] = _foundations_heard(req.code.strip(), req.course)
     reply = _bold_first_terms(tutor.get_practice_reply(student, req.problem, safe_history, message, req.course, code=req.code.strip()), req.history)
     _record_learned(req.code.strip(), req.course, reply)
+    _record_result_tags(req.code.strip(), req.course, reply)   # build hu (Class E)
 
     # Real tracking: classify the problem to a unit WITHIN this course, count "practiced".
     unit, name = curriculum.classify_unit(req.problem or message, req.course)
@@ -9096,6 +9413,9 @@ def topic(req: TopicRequest):
     persisted. (Real per-topic tracking lands in the next phase, once durable
     storage is on.)
     """
+    _deg = _degraded_reply()          # build hv: no teaching into a stranded file fork
+    if _deg:
+        return _deg
     student = _student_or_404(req.code)
     _rate_limit("brain:" + req.code.strip(), limit=40, window_seconds=300, what="messages")
     message = (req.message or "").strip()
@@ -9104,6 +9424,7 @@ def topic(req: TopicRequest):
     student["foundations_heard"] = _foundations_heard(req.code.strip(), req.course)
     reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course, code=req.code.strip()), req.history)
     _record_learned(req.code.strip(), req.course, reply)
+    _record_result_tags(req.code.strip(), req.course, reply)   # build hu (Class E)
 
     # Real tracking: classify the chosen topic to a unit WITHIN this course, count "explored".
     unit, name = curriculum.classify_unit(req.topic or message, req.course)

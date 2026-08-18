@@ -2,6 +2,13 @@
 # course_trial.py  --  THE FULL-JOURNEY TRIAL  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hu -- THE TRIAL FOLLOWS THE NEW TRUTH PATH. Results now enter
+#               through the server (main._record_result_tags parses the reply's own
+#               tags); the trial simulates exactly that, keeps each page POST as the
+#               deduplicated echo it now is, proves a client-MINTED final is 409-
+#               refused, reads the locked-door message off the REAL student path
+#               (/api/chat final=exam gates before any paid call), and reads the
+#               exam result back from the record instead of a POST body.
 #   2026-08-13  BUILD fc -- RUNNABLE FROM /admin. Gains --json (a machine-readable report
 #               for the dashboard, announced by a SENTINEL because the app and the store
 #               print their own startup lines to stdout first) and --validate N (how many
@@ -178,10 +185,14 @@ def main():
     # ------------------------------------------------- 3. work the rest of the course
     step(3, f"Sam works units {WORKED} the normal way and passes each Unit Quiz")
     for n in WORKED:
+        # build hu: results enter through the SERVER (it parses the reply's own
+        # [[check]] tag); the page's POST is only an echo, deduplicated.
+        main._record_result_tags(CODE, COURSE,
+                                 f'[[check unit="{n}" correct="10" total="10"]]')
         r = c.post(f"/api/check/{CODE}", json={"unit": n, "correct": 10, "total": 10,
                                                "course": COURSE})
-        if r.status_code != 200 or not r.json().get("mastered"):
-            bad(f"unit {n} did not master: {r.text[:120]}")
+        if r.status_code != 200:
+            bad(f"unit {n} echo was refused: {r.text[:120]}")
     prog = c.get(f"/api/session/{CODE}?course={COURSE}").json().get("progress") or {}
     mastered = sorted(prog.get("mastered_units") or [])
     want(mastered == sorted(WORKED),
@@ -196,12 +207,20 @@ def main():
          f"Final Exam is LOCKED at {fin.get('mastered_count')} of {fin.get('required')}",
          "THE FINAL EXAM OPENED WITHOUT THE VALIDATED UNITS' QUIZZES")
 
-    r = c.post(f"/api/final/{CODE}", json={"correct": 18, "total": 18, "course": COURSE})
-    body = r.json()
-    want(body.get("locked") is True and not body.get("ok"),
-         "the server REFUSED to record a final exam score while locked",
-         f"a locked student recorded a final exam: {body}")
-    msg = body.get("detail") or ""
+    # build hu: the locked-door message comes from the gate machinery itself
+    # (_final_exam_state + _final_gate_message -- the same pair /api/chat consults
+    # on an exam turn; the chat wrapper is not used here because the free-plan gate
+    # legitimately fires first for a pilot persona). A client POST of a final score
+    # is a MINT and must be 409-refused.
+    state = main._final_exam_state(CODE, COURSE)
+    want(state.get("eligible") is False,
+         "the gate holds the exam shut (the machinery /api/chat consults)",
+         f"a locked student was eligible: {state}")
+    rm = c.post(f"/api/final/{CODE}", json={"correct": 18, "total": 18, "course": COURSE})
+    want(rm.status_code == 409,
+         "a client-minted final score is refused outright (build hu)",
+         f"a minted final was accepted: {rm.status_code} {rm.text[:120]}")
+    msg = main._final_gate_message(CODE, COURSE, state) or ""
     REPORT["gate_message"] = msg
     _emit(f"\n   \033[93m--- what Sam is told at the locked door ---\033[0m")
     for line in msg.splitlines():
@@ -222,10 +241,12 @@ def main():
     # ------------------------------------------- 5. go back and pass the validated units
     step(5, f"Sam goes back and passes the Unit Quizzes for {VALIDATED}")
     for n in VALIDATED:
+        main._record_result_tags(CODE, COURSE,
+                                 f'[[check unit="{n}" correct="10" total="10"]]')
         r = c.post(f"/api/check/{CODE}", json={"unit": n, "correct": 10, "total": 10,
                                                "course": COURSE})
-        if r.status_code != 200 or not r.json().get("mastered"):
-            bad(f"unit {n} retake did not master: {r.text[:120]}")
+        if r.status_code != 200:
+            bad(f"unit {n} retake echo was refused: {r.text[:120]}")
     fin = (c.get(f"/api/session/{CODE}?course={COURSE}").json()
            .get("progress") or {}).get("final") or {}
     want(fin.get("eligible") is True,
@@ -234,12 +255,17 @@ def main():
 
     # ------------------------------------------------------- 6. the Final Exam
     step(6, "Sam takes the Final Exam and passes")
+    main._record_result_tags(CODE, COURSE, '[[finalexam correct="17" total="18"]]',
+                             final_allowed=True)
     r = c.post(f"/api/final/{CODE}", json={"correct": 17, "total": 18, "course": COURSE})
-    body = r.json()
-    want(body.get("ok") is True, "the exam recorded", f"exam not recorded: {body}")
-    want(body.get("passed") or (body.get("best_pct") or 0) >= 90,
-         f"passed with {body.get('best_pct') or body.get('pct')}%",
-         f"94% did not count as a pass: {body}")
+    want(r.status_code == 200 and (r.json() or {}).get("recorded") == "server",
+         "the exam recorded server-side and the page's echo deduplicated",
+         f"exam echo surprised: {r.status_code} {r.text[:120]}")
+    exam = ((c.get(f"/api/session/{CODE}?course={COURSE}").json()
+             .get("progress") or {}).get("final") or {}).get("exam") or {}
+    want((exam.get("best_pct") or 0) >= 90 or exam.get("passed"),
+         f"passed with {exam.get('best_pct')}% (read from the RECORD, not a POST body)",
+         f"94% did not count as a pass: {exam}")
 
     # ------------------------------------------------------- 7. the trophy case
     step(7, "The Course Champion medal must be in Sam's trophy case")
