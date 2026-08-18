@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18im-stray-word-refuses". BUILD im -- the
+#               lessonaudit CLI refuses stray words loudly instead of silently
+#               running the default (Jim's 13-minute loss: `prompt-size large`
+#               without the dashes ran the DEFAULT size and reported it as the
+#               experiment; the two same-config runs it accidentally produced did
+#               measure run-to-run noise: 7 vs 6 findings on identical settings).
+#               ALL CODE IS IN lessonaudit.py; this file only carries the stamp.
 #   2026-08-18  APP_BUILD -> "2026-08-18il-today-earns-its-bar". BUILD il -- THE
 #               TODAY BAR MAKES REAL CALLS (Jim's design ruling, same night as his
 #               catch: quiz + whole unit completed, Today bar never moved). "Today
@@ -8487,7 +8494,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18il-today-earns-its-bar"
+APP_BUILD = "2026-08-18im-stray-word-refuses"
 
 
 @app.get("/health")

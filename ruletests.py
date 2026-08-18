@@ -10994,6 +10994,18 @@ def part3bh_two_prompt_sizes():
     with open(os.path.join(here, "nightwatch.py"), encoding="utf-8") as fh:
         nwsrc = fh.read()
 
+    # build im (Jim's 13-minute loss: `prompt-size large`, dashes forgotten, ran
+    # the DEFAULT size silently and reported it as the experiment): a stray word
+    # on the command line now refuses LOUDLY before a cent is spent. Proved by
+    # actually running the CLI with the exact mistake.
+    res = subprocess.run([sys.executable, os.path.join(here, "lessonaudit.py"),
+                          "prompt-size", "large", "--limit", "1"],
+                         capture_output=True, text=True, timeout=120)
+    check("a mistyped flag REFUSES the run instead of silently running the default",
+          res.returncode == 2 and "REFUSING TO RUN" in res.stdout
+          and "prompt-size" in res.stdout,
+          f"exit={res.returncode}: the 13-minute silent-wrong-run class is back")
+
     check("the CLI lever exists",
           '"--prompt-size"' in lsrc and 'prompt_size=prompt_size' in lsrc,
           "the experiment cannot be invoked -- still not done")

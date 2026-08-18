@@ -2,6 +2,13 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD im -- A STRAY WORD REFUSES THE RUN. Jim typed `prompt-size
+#               large` (dashes forgotten); the old flag reader silently ignored the
+#               strays and ran the DEFAULT size for 13 minutes, reporting it as the
+#               experiment. Every command-line word must now be a known flag or its
+#               value, or the run refuses loudly (exit 2, with the likely-missing
+#               '--' named) before anything is spent. Battery-proved by running the
+#               CLI with the exact mistake (PART 3bh).
 #   2026-08-18  BUILD hq -- THE TWO-PROMPT-SIZES EXPERIMENT IS RUNNABLE (Phase 4;
 #               named in ruletests' own comments as "still the right way to set this
 #               number, and still not done" since 2026-08-11). NEW --prompt-size
@@ -846,6 +853,32 @@ def report_markdown(run):
 
 def main():
     args = sys.argv[1:]
+
+    # build im (2026-08-18, Jim's 13-minute loss): the old reader looked for known
+    # flag strings and SILENTLY IGNORED everything else -- so `prompt-size large`
+    # (dashes forgotten) ran the DEFAULT size for 13 minutes and reported it as if
+    # it were the experiment. A tool that quietly does the wrong thing is the exact
+    # class this project exists to kill: every word on the command line must now be
+    # a known flag or a known flag's value, or the run refuses LOUDLY before
+    # spending a cent.
+    _VALUED = ("--limit", "--offset", "--turns", "--prompt-size")
+    _BARE = ("--dry-run",)
+    _claimed = set()
+    for _f in _VALUED:
+        if _f in args:
+            _i = args.index(_f)
+            _claimed.add(_i)
+            if _i + 1 < len(args):
+                _claimed.add(_i + 1)
+    for _f in _BARE:
+        if _f in args:
+            _claimed.add(args.index(_f))
+    _stray = [a for i, a in enumerate(args) if i not in _claimed]
+    if _stray:
+        print("REFUSING TO RUN -- I don't recognize: " + " ".join(repr(s) for s in _stray))
+        print("(Did a '--' go missing? e.g. --prompt-size large, never 'prompt-size large'.)")
+        print("Known flags: " + " ".join(_VALUED + _BARE))
+        return 2
 
     def opt(name, default=None):
         if name in args:
