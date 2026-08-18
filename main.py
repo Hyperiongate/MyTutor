@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18ig-quiz-vocab-gate". BUILD ig, THE QUIZ
+#               VOCABULARY GATE (rule 37's quiz-facing half; the promotion audit's
+#               Tier-B flagship). ia generalized to the whole course glossary: a
+#               numbered quiz question offering a choice between glossary terms
+#               the student was never taught is rejected by tutor's TWENTY-NINTH
+#               referee. This file's part: student_context["terms_known"] =
+#               _foundations_heard(code, course) -- the [[learned]]-tracked
+#               delivered-scripts list, durable across sessions and history caps
+#               -- handed to the sweep via meta. Built conservatively (zero
+#               [termgap] calibration data; Jim checked the Render log: none yet
+#               -- the probe keeps counting either way, and the events table holds
+#               90 days). PART 3bx.
 #   2026-08-18  APP_BUILD -> "2026-08-18if-stay-in-role". BUILDS id + ie + if, THE
 #               PROMOTION BATCH -- the answer to Jim's "we're still in whack-a-mole
 #               mode": the promotion audit showed every recent live miss came from
@@ -8419,7 +8431,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18if-stay-in-role"
+APP_BUILD = "2026-08-18ig-quiz-vocab-gate"
 
 
 @app.get("/health")
@@ -9134,6 +9146,10 @@ def chat(req: ChatRequest):
     # referee -- claims about scores, mastery and units-in-progress are judged by
     # the record that actually holds the past. None (DB off) = referee silent.
     student_context["claim_record"] = _claim_record(code, req.course)
+    # build ig: the delivered-scripts list for the twenty-ninth referee (the quiz
+    # vocabulary gate) -- durable across sessions and history caps, unlike the
+    # conversation text. The referee needs BOTH this and `heard` to speak.
+    student_context["terms_known"] = _foundations_heard(code, req.course)
     # THE PLACEMENT NOTE EXPIRES (review F4a). It used to be appended to the progress
     # prose every turn forever -- and tutor.py regex-read "Unit N" back OUT of that
     # prose to pick the teaching playbook, so a student eight units past their

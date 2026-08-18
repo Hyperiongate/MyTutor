@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ig -- THE TWENTY-NINTH REFEREE: THE QUIZ VOCABULARY GATE
+#               (rule 37's quiz-facing half; the promotion audit's Tier-B
+#               flagship). ia generalized from three hardcoded words to the whole
+#               course glossary: quiz_vocab_conflict rejects a NUMBERED quiz
+#               question offering a choice between foundations glossary terms the
+#               student was never DELIVERED (terms_known -- the store's
+#               [[learned]]-tracked scripts via main._foundations_heard, durable
+#               across sessions and history caps) nor HEARD (conversation) nor
+#               taught in this reply. Built conservatively with ZERO [termgap]
+#               calibration data (Jim checked: the log has none yet): choice shape
+#               only, numbered questions only, silent unless BOTH facts supplied;
+#               the what-is-the-<term> shape is deferred on purpose. get_tutor_reply
+#               meta gains "terms_known"; the sweep signature gains
+#               terms_known/course. PART 3bx.
 #   2026-08-18  BUILDS id/ie/if -- THE PROMOTION BATCH: REFEREES 25-28, from the
 #               promotion audit's Tier A (Jim: "we're still in whack-a-mole mode";
 #               the audit showed every recent miss came from the thirty rules held
@@ -3578,6 +3592,90 @@ def question_self_contained_conflict(reply: str):
 
 
 # =============================================================================
+# THE QUIZ-VOCABULARY GATE (2026-08-18, build ig) -- the TWENTY-NINTH referee.
+# -----------------------------------------------------------------------------
+# The promotion audit's Tier-B flagship: rule 37's QUIZ-FACING half, and the
+# generalization of ia from three hardcoded words to the course's whole glossary.
+# ia caught "is it acute, right, or obtuse?" untaught; this catches "are these
+# lines parallel or perpendicular?", "is this a translation or a reflection?" --
+# any numbered quiz question offering a CHOICE between glossary terms the student
+# has neither been taught (the store's delivered-scripts fact) nor even heard
+# (the conversation).
+#
+# DELIBERATELY CONSERVATIVE -- built with ZERO [termgap] calibration data (Jim
+# checked the Render log: none yet), so it takes only the shape we have watched
+# fail live:
+#   - NUMBERED quiz questions only ("Question 3:", the ia/ib precedent) -- a
+#     TEACHING reply is free to introduce any term; introducing is its job.
+#   - the CHOICE shape only: the question offers two or more distinct glossary
+#     terms around an "or". The what-is-the-<term> shape is deferred on purpose:
+#     its legitimate form defines the term inside the question ("what is its
+#     complement -- the angle that adds to ninety?") and no cheap pattern can
+#     split those honestly yet.
+#   - a term counts as KNOWN from any of three sources: the store's delivered
+#     scripts (terms_known, main._foundations_heard -- durable across sessions
+#     and history caps), the conversation's own text (heard), or this reply's
+#     prose outside the question (teach-then-ask stays legal, as in ia).
+#   - SILENT unless the caller supplies BOTH facts (heard AND terms_known) --
+#     a referee that cannot know must not guess. Rule 37's TEACHING half stays
+#     prompt-covered and probed ([termgap]); revisit when the probe has data.
+# =============================================================================
+
+
+def quiz_vocab_conflict(reply: str, heard=None, terms_known=None, course: str = ""):
+    """Return a description of a numbered quiz question offering a choice between
+    glossary terms the student has never been taught or heard, or "". Silent
+    unless both `heard` and `terms_known` are supplied. Never raises."""
+    try:
+        if heard is None or terms_known is None or not course:
+            return ""
+        try:
+            import foundations as _fnd
+        except Exception:  # noqa: BLE001
+            return ""
+        terms = _fnd.terms_for_course(course)
+        if not terms:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        if not _QSC_QUIZ.search(prose):
+            return ""                      # not a numbered quiz question
+        known = {_fnd.normalize_term(t) for t in (terms_known or [])}
+        base_heard = str(heard).lower()
+        for sent in _vis_sentences(prose):
+            if "?" not in sent or not re.search(r"\bor\b", sent, re.I):
+                continue
+            low = sent.lower()
+            offered = [t for t in terms
+                       if re.search(r"\b" + re.escape(t.lower()) + r"\b", low)]
+            if len(set(offered)) < 2:
+                continue                   # not a choice BETWEEN terms
+            outside = prose.replace(sent, " ").lower()
+            missing = []
+            for t in sorted(set(offered)):
+                tl = t.lower()
+                if (_fnd.normalize_term(t) in known
+                        or re.search(r"\b" + re.escape(tl) + r"\b", base_heard)
+                        or re.search(r"\b" + re.escape(tl) + r"\b", outside)):
+                    continue
+                missing.append(t)
+            if missing:
+                miss = ", ".join('"' + m + '"' for m in missing)
+                return ("your quiz question offers a choice between glossary terms, "
+                        "but this student has never been taught or even heard {m} -- "
+                        "their only honest answer is \"we haven't covered that\", and "
+                        "the miss lands on their record. Rule 37 + rule 47(e): "
+                        "vocabulary is taught, never assumed, and THE QUIZ ASKS ONLY "
+                        "WHAT WAS TAUGHT. Stop the quiz, teach the missing term in "
+                        "its own turn (deliver its foundation script), get two "
+                        "unaided rights, and only then quiz it.").format(m=miss)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[quizvocab] crashed (fail open): {exc}")
+        _event("referee_crash", "quizvocab", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE PROMOTION BATCH (2026-08-18 night, builds id/ie/if) -- referees 25-28.
 # -----------------------------------------------------------------------------
 # Jim, after the quiz-honesty evening: "to me, we're still in whack-a-mole mode."
@@ -4680,11 +4778,12 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
 
 
 def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
-                         allowed_units=None, record=None, heard=None):
+                         allowed_units=None, record=None, heard=None,
+                         terms_known=None, course: str = ""):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWENTY-EIGHT referees ride this sweep (hm added the unitplan check, ho the
+    TWENTY-NINE referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -4796,6 +4895,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if quizterm:
             _event("referee_fire", "quizterm", quizterm)
             return quizterm
+        # build ig: TWENTY-NINTH -- ia generalized to the whole course glossary
+        # (rule 37's quiz-facing half). Fed BOTH server facts: the conversation
+        # (heard) and the store's delivered-scripts list (terms_known); silent
+        # unless both are supplied.
+        quizvocab = quiz_vocab_conflict(reply, heard, terms_known, course)
+        if quizvocab:
+            _event("referee_fire", "quizvocab", quizvocab)
+            return quizvocab
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
@@ -5173,7 +5280,9 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                                                 expected_unit=(meta or {}).get("unit"),
                                                 allowed_units=(meta or {}).get("allowed_units"),
                                                 record=(meta or {}).get("record"),
-                                                heard=heard)
+                                                heard=heard,
+                                                terms_known=(meta or {}).get("terms_known"),
+                                                course=(meta or {}).get("course", ""))
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
@@ -5302,7 +5411,11 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
               "allowed_units": (student or {}).get("allowed_units"),
               # build ho: the compact score/state record (main._claim_record) for
               # the twentieth referee. None/absent = it stays silent.
-              "record": (student or {}).get("claim_record")},
+              "record": (student or {}).get("claim_record"),
+              # build ig: the store's delivered-scripts list
+              # (main._foundations_heard) for the twenty-ninth referee (the quiz
+              # vocabulary gate). None/absent = it stays silent.
+              "terms_known": (student or {}).get("terms_known")},
         where="get_tutor_reply", label="tutor", turn_note=turn_note,
         # build bo: deterministic TODAY-bar net -- LESSON MODE ONLY (the drift the
         # review found: only this lane ever ran it, now that fact is legible here).

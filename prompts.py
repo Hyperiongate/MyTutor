@@ -2,6 +2,11 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ig -- RULE 37 GAINS ITS REFEREE NOTE (the quiz vocabulary
+#               gate): a numbered quiz question offering a choice between key terms
+#               the student was never taught or heard is now rejected -- "teaching
+#               may introduce a word; a quiz may not." Enforced by tutor's
+#               twenty-ninth referee, fed the store's delivered-scripts fact.
 #   2026-08-18  BUILDS id/ie/if (the promotion batch) -- FOUR WISHES BECOME WATCHED.
 #               From the promotion audit (Jim: "we're still in whack-a-mole mode"):
 #               every recent live miss came from rules held by words alone. Rule 42
@@ -4276,7 +4281,9 @@ ground is laid, and guidance fades as the student gains expertise, never before.
     consistently from then on (rule 28). A student who nods along at an undefined word
     is lost one sentence later and usually will not say so. When in doubt, define it;
     the cost of over-explaining is five seconds, the cost of under-explaining is the
-    whole lesson.
+    whole lesson. A referee now rejects a numbered quiz question that offers a choice
+    between key terms this student has never been taught or heard -- teaching may
+    introduce a word; a quiz may not.
 
 38. CONCRETE, THEN PICTURE, THEN SYMBOLS -- AND GUIDANCE FADES AS THEY GET IT.
     (a) Introduce a new idea with something REAL first (cookies, money, a ruler, a

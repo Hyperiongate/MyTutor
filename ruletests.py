@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD ig -- PART 3bx, THE QUIZ VOCABULARY GATE (rule 37's
+#               quiz-facing half, the Tier-B flagship): fire + every exemption
+#               (delivered scripts, heard, teach-then-ask, teaching replies, one
+#               term, missing facts), the names-only-the-missing-term pin, the
+#               main->meta->sweep plumbing pins, and the 4-course canonical sweep
+#               on empty history. RULE_VERIFY[37] -> ENFORCED (teaching half stays
+#               covered + probed).
 #   2026-08-18  BUILDS id/ie/if -- PARTs 3bu/3bv/3bw, the promotion batch (the
 #               audit's Tier A): rule 42 comparisons (kindness form included; own-
 #               work comparisons exempt), rule 60(c) one spotlight (tour stops
@@ -3788,7 +3795,17 @@ RULE_VERIFY = {
     34: ("COVERED",   "keep old skills sharp"),
     35: ("EXERCISED", "a failed quiz is never re-given on the spot"),
     36: ("EXERCISED", "teach the thing before you ask about it"),
-    37: ("COVERED",   "vocabulary is taught, never assumed"),
+    37: ("ENFORCED",  "vocabulary is taught, never assumed -- the QUIZ-FACING half "
+                      "(build ig, the 29th referee, the Tier-B flagship): "
+                      "quiz_vocab_conflict rejects a numbered quiz question offering "
+                      "a choice between course-glossary terms the student was never "
+                      "delivered (store fact, main._foundations_heard) nor heard "
+                      "(conversation) nor taught in-reply; silent unless BOTH facts "
+                      "are supplied. Built conservatively with zero [termgap] data "
+                      "-- the choice shape only; the what-is-the-term shape is "
+                      "deferred (its legitimate form defines the term in-question). "
+                      "The TEACHING half stays prompt-covered + probed ([termgap]); "
+                      "revisit when the probe has data. PART 3bx"),
     38: ("COVERED",   "concrete, then picture, then symbols"),
     39: ("ENFORCED",   "talk less, check in often, make the check failable"),
     40: ("EXERCISED", "ask before repeating an introduction"),
@@ -12145,6 +12162,116 @@ def part3bw_stay_in_role():
           "a promoted rule's text still reads like a wish")
 
 
+# =============================================================================
+# PART 3bx -- THE QUIZ VOCABULARY GATE (build ig, rule 37's quiz-facing half)
+# -----------------------------------------------------------------------------
+# 2026-08-18 night, the Tier-B flagship: ia generalized from three hardcoded
+# words to the whole course glossary, fed BOTH server facts (heard + the store's
+# delivered-scripts list). Built conservatively with ZERO [termgap] calibration
+# data -- numbered quiz questions, choice shape only; silent unless both facts
+# supplied. These pins hold the fire shape, every exemption, and the plumbing.
+# =============================================================================
+_QV_H = "let's keep working on shapes today. here is a triangle on the board."
+_QV_Q = ('Question 2: Are these two lines parallel or perpendicular? '
+         '[[graph lines="y=2x+1;y=2x+4" caption="two lines on the grid — how do '
+         'they sit?"]]')
+
+
+def part3bx_quiz_vocab():
+    print("\nPART 3bx — the quiz vocabulary gate (build ig, rule 37)")
+    import tutor
+    got = tutor.quiz_vocab_conflict(_QV_Q, _QV_H, [], "geometry")
+    check("  fires: a choice between two glossary terms never taught or heard",
+          bool(got) and "parallel" in got and "perpendicular" in got,
+          "the general form of the obtuse catch ships again")
+    check("  and via the sweep, with both facts passed",
+          "Rule 37" in str(tutor.prose_board_conflict(
+              _QV_Q, heard=_QV_H, terms_known=[], course="geometry")),
+          "the referee exists but the sweep never passes it the facts")
+    check("  names ONLY the missing term when one is known",
+          "reflection" in str(tutor.quiz_vocab_conflict(
+              "Question 4: Is this a rotation or reflection?",
+              _QV_H, ["rotation"], "geometry"))
+          and '"rotation"' not in str(tutor.quiz_vocab_conflict(
+              "Question 4: Is this a rotation or reflection?",
+              _QV_H, ["rotation"], "geometry")),
+          "a taught term is reported as missing -- the nudge would teach wrongly")
+    check("  silent: the scripts were delivered (store fact)",
+          not tutor.quiz_vocab_conflict(
+              "Question 2: Are these two lines parallel or perpendicular?",
+              _QV_H, ["parallel", "perpendicular"], "geometry"),
+          "a fair quiz is being regenerated")
+    check("  silent: the terms were heard in conversation",
+          not tutor.quiz_vocab_conflict(
+              "Question 2: Are these two lines parallel or perpendicular?",
+              _QV_H + " parallel lines never meet, and perpendicular lines cross "
+              "at a right angle.", [], "geometry"),
+          "conversation teaching is being ignored")
+    check("  silent: taught in the same reply, outside the question",
+          not tutor.quiz_vocab_conflict(
+              "Parallel lines never meet; perpendicular lines cross at right "
+              "angles. Question 2: Are these two lines parallel or perpendicular?",
+              _QV_H, [], "geometry"),
+          "teach-then-ask is the prescribed fix -- it must pass")
+    check("  silent: a TEACHING reply may introduce any term (no Question marker)",
+          not tutor.quiz_vocab_conflict(
+              "Today we meet two new words: lines can be parallel or "
+              "perpendicular. Which do you think these are?",
+              _QV_H, [], "geometry"),
+          "introducing vocabulary is the lesson's job -- rule 37's teaching half")
+    check("  silent: one glossary term is not a choice between terms",
+          not tutor.quiz_vocab_conflict(
+              "Question 3: Which is longer, this line or that one?",
+              _QV_H, [], "geometry"),
+          "an ordinary question with one math word is being punished")
+    check("  silent unless BOTH facts are supplied",
+          not tutor.quiz_vocab_conflict(_QV_Q, None, [], "geometry")
+          and not tutor.quiz_vocab_conflict(_QV_Q, _QV_H, None, "geometry")
+          and not tutor.quiz_vocab_conflict(_QV_Q, _QV_H, [], ""),
+          "a referee that cannot know is guessing")
+    # The plumbing: main hands the store fact to the sweep via meta.
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("main supplies terms_known from the delivered-scripts store fact",
+          'student_context["terms_known"] = _foundations_heard(code, req.course)'
+          in msrc,
+          "the referee is wired but starved -- it will never speak in production")
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("get_tutor_reply forwards terms_known and the sweep passes both facts",
+          '"terms_known": (student or {}).get("terms_known")' in tsrc
+          and "terms_known=(meta or {}).get(\"terms_known\")" in tsrc,
+          "the fact is computed and then dropped on the floor")
+    check("rule 37's text announces the referee",
+          "teaching may\n    introduce a word; a quiz may not" in
+          open(os.path.join(here, "prompts.py"), encoding="utf-8").read(),
+          "the promoted rule still reads like a wish")
+    # THE CANONICAL SWEEP -- armed on the hardest setting (empty history, no
+    # delivered scripts) over every authored string.
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        courses = ("geometry", "prealgebra", "algebra1", "algebra2")
+        alarms = sum(1 for t in texts for c in courses
+                     if tutor.quiz_vocab_conflict(t, "", [], c))
+        check(f"quiz-vocab: silent on all {len(texts)} canonical strings x "
+              f"{len(courses)} courses (empty history — the hardest setting)",
+              alarms == 0,
+              f"{alarms} false alarm(s) -- the pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the quiz-vocab canonical sweep ran", str(exc))
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12624,6 +12751,7 @@ def main():
     part3bu_compare_and_spots()
     part3bv_substitution_rewrite()
     part3bw_stay_in_role()
+    part3bx_quiz_vocab()
     part3ai_deploy_stamp()
     if live:
         part4_live()

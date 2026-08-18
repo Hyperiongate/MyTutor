@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 27 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 28 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 27 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 26 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -163,7 +163,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 37. VOCABULARY IS TAUGHT, NEVER ASSUMED
 
-**COVERED** — vocabulary is taught, never assumed
+**ENFORCED** — vocabulary is taught, never assumed -- the QUIZ-FACING half (build ig, the 29th referee, the Tier-B flagship): quiz_vocab_conflict rejects a numbered quiz question offering a choice between course-glossary terms the student was never delivered (store fact, main._foundations_heard) nor heard (conversation) nor taught in-reply; silent unless BOTH facts are supplied. Built conservatively with zero [termgap] data -- the choice shape only; the what-is-the-term shape is deferred (its legitimate form defines the term in-question). The TEACHING half stays prompt-covered + probed ([termgap]); revisit when the probe has data. PART 3bx
 
 ### 38. CONCRETE, THEN PICTURE, THEN SYMBOLS -- AND GUIDANCE FADES AS THEY GET IT
 
