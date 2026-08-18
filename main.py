@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hx-beta-key-leaves-url". THE WEAKEST PAGE,
+#               DIAGNOSED AND FIXED (Phase 5's last named page). /beta's pass
+#               generator opened via ?admin=<FORUM_MOD_KEY> -- the GENERAL ADMIN KEY
+#               in a URL, the credential-in-URL class's third sighting. beta.html now
+#               uses /admin's exact pattern (legacy link honoured once, sessionStorage,
+#               address bar scrubbed, X-Admin-Key header everywhere, wrong key
+#               forgotten); the three beta POSTs here accept the header (body.key
+#               stays for stale pages, now optional so header-only calls validate).
+#               Plus one content fix: the page now tells a tester WHERE to enter
+#               their pass (sign in at /login). PART 3bo pins all of it.
 #   2026-08-18  APP_BUILD -> "2026-08-18hw-screen-watch". THE GOVERNOR'S EYES ON
 #               PRODUCTION (the last queued piece of Phase 1's "give the governor
 #               eyes"). NEW .github/workflows/screenwatch.yml: GitHub's runners have
@@ -6778,14 +6788,14 @@ def parent_student_attach(body: ParentChildIn, request: Request):
 # =============================================================================
 
 class BetaCreateIn(BaseModel):
-    key: str
+    key: str = ""              # build hx: legacy body form; the header is preferred
     label: str = ""            # who this pass is for (shows only to Jim)
     uses: int = 5
     hours: int = 2
 
 
 class BetaRevokeIn(BaseModel):
-    key: str
+    key: str = ""              # build hx: legacy body form; the header is preferred
     code: str
 
 
@@ -6825,9 +6835,12 @@ def _new_beta_code() -> str:
 
 
 @app.post("/api/beta/create")
-def beta_create(body: BetaCreateIn):
+def beta_create(body: BetaCreateIn,
+                x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    # build hx: the header is preferred (the key never rides a URL or a stored
+    # request body); body.key stays accepted for any stale cached page.
     _require_db()
-    _require_admin(body.key)
+    _require_admin(x_admin_key or body.key)
     code = _new_beta_code()
     store.create_beta_code(code, body.label, body.uses, body.hours)
     return {"ok": True, "code": code, "codes": store.list_beta_codes()}
@@ -6845,22 +6858,24 @@ def beta_list(key: str = "",
 
 
 @app.post("/api/beta/revoke")
-def beta_revoke(body: BetaRevokeIn):
+def beta_revoke(body: BetaRevokeIn,
+                x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     _require_db()
-    _require_admin(body.key)
+    _require_admin(x_admin_key or body.key)   # build hx: header preferred
     if not store.revoke_beta_code(body.code):
         raise HTTPException(status_code=404, detail="No pass with that code.")
     return {"ok": True, "codes": store.list_beta_codes()}
 
 
 @app.post("/api/beta/delete")
-def beta_delete(body: BetaRevokeIn):
+def beta_delete(body: BetaRevokeIn,
+                x_admin_key: str = Header(default="", alias="X-Admin-Key")):
     """2026-08-07 (build bb, Jim): fully DELETE a beta pass -- the pass row AND every
     scrap of student data recorded under that code (sessions, progress, quizzes, stats,
     time, awards, final exams, account). Revoke only disables the code and leaves the
     data; this is the true 'this tester never happened' button. Admin-key protected."""
     _require_db()
-    _require_admin(body.key)
+    _require_admin(x_admin_key or body.key)   # build hx: header preferred
     res = store.delete_beta_cascade(body.code)
     if not res.get("existed"):
         raise HTTPException(status_code=404, detail="No pass with that code.")
@@ -8347,7 +8362,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hw-screen-watch"
+APP_BUILD = "2026-08-18hx-beta-key-leaves-url"
 
 
 @app.get("/health")

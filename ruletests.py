@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hx -- PART 3bo, THE BETA PAGE'S KEY LEAVES THE URL: pins the
+#               sessionStorage + scrubbed-address-bar + header pattern on beta.html
+#               (the credential-in-URL class's third sighting), the server-side
+#               header acceptance on all three beta POSTs, the forget-on-wrong-key
+#               behaviour, and the new "sign in at /login with your pass" line.
 #   2026-08-18  BUILD hw -- PART 3bn, THE GOVERNOR'S EYES ON PRODUCTION: pins the
 #               new nightly GitHub Actions screen audit (.github/workflows/
 #               screenwatch.yml) -- cadence + dispatch, the live screencheck
@@ -11584,6 +11589,45 @@ def part3bn_screenwatch():
           "the workflow and the auditor's CLI have drifted apart")
 
 
+# =============================================================================
+# PART 3bo -- THE BETA PAGE'S KEY LEAVES THE URL (build hx)
+# -----------------------------------------------------------------------------
+# 2026-08-18. The review's "weakest page", diagnosed: /beta?admin=<FORUM_MOD_KEY>
+# put the GENERAL ADMIN KEY in a URL (browser history + every HTTP log), and the
+# page then re-sent it in query strings and bodies -- the credential-in-URL class,
+# third sighting (dg killed it on /admin, hs killed it for student codes). Now the
+# key lives in sessionStorage, the address bar is scrubbed, and every call is a
+# header. The server's beta endpoints accept the header; the legacy body form
+# stays for stale pages.
+# =============================================================================
+def part3bo_beta_key():
+    print("\nPART 3bo — the beta page's key leaves the URL (build hx)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "static", "beta.html"), encoding="utf-8") as fh:
+        bsrc = fh.read()
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("the page scrubs a legacy ?admin= link and stores the key like /admin",
+          'sessionStorage.getItem("mt_admin_key")' in bsrc
+          and "history.replaceState" in bsrc and 'params.delete("admin")' in bsrc,
+          "the admin key rides the address bar into history and logs again")
+    check("every beta call sends the header, none carries the key",
+          '"X-Admin-Key": KEY' in bsrc
+          and "list?key=" not in bsrc
+          and "JSON.stringify({ key: KEY" not in bsrc,
+          "the key is back in a query string or a request body")
+    check("a wrong key is forgotten, not retried forever",
+          'sessionStorage.removeItem("mt_admin_key")' in bsrc,
+          "one mistyped key wedges the page until the tab closes")
+    check("the server's beta endpoints accept the header",
+          msrc.count("_require_admin(x_admin_key or body.key)") >= 3,
+          "the page sends a header the server ignores -- everything 401s")
+    check("the tester is told WHERE to use the pass",
+          '<a href="/login"' in bsrc,
+          "a pass with no door: the page never said where to enter the code")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12054,6 +12098,7 @@ def main():
     part3bl_server_records_results()
     part3bm_one_backend_loudly()
     part3bn_screenwatch()
+    part3bo_beta_key()
     part3ai_deploy_stamp()
     if live:
         part4_live()

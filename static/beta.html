@@ -9,6 +9,14 @@
   beta.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-18  (build hx, Phase 5) THE KEY LEAVES THE URL — the review's "weakest
+    page", diagnosed: the pass generator opened via /beta?admin=<FORUM_MOD_KEY> and
+    sent the key in query strings and bodies, the exact credential-in-URL class dg/dn
+    killed on /admin and hs killed for student codes. Now: a legacy ?admin= link is
+    honoured once, stored in sessionStorage (same slot as /admin), scrubbed from the
+    address bar immediately, and every call sends X-Admin-Key; a wrong key is
+    forgotten and the page stays a normal public pitch. Also: step 2 now SAYS where a
+    tester enters their pass (sign in at /login), which the page never mentioned.
   - 2026-08-06  NAV: "How it works" -> "Home" (build al, Jim: the old link scrolled cold
     visitors straight past the hero to the four-steps section; the first nav item should
     open the TOP of the landing page). The hero's "See how it works" button still scrolls
@@ -167,9 +175,11 @@
   <div class="card step">
     <div class="n">2</div>
     <h2>Get your pass</h2>
-    <p>Your pass is a code like <b>TRY-MAPLE42</b>, good for <b>5 sign-ins</b>. Each sign-in opens
-    about a <b>2-hour session</b> of full access. Use them across different days — your progress is
-    saved between sessions — or even share one sign-in with another family.</p>
+    <p>Your pass is a code like <b>TRY-MAPLE42</b>, good for <b>5 sign-ins</b>. Just
+    <a href="/login" style="color:var(--purple);font-weight:700">sign in</a> with it, the same
+    way a student enters their code. Each sign-in opens about a <b>2-hour session</b> of full
+    access. Use them across different days — your progress is saved between sessions — or even
+    share one sign-in with another family.</p>
   </div>
   <div class="card step">
     <div class="n">3</div>
@@ -229,8 +239,26 @@
 <script>
 (function () {
   "use strict";
+  // BUILD hx (2026-08-18, Phase 5): THE KEY LEAVES THIS PAGE'S URL. The generator
+  // used to open via /beta?admin=<FORUM_MOD_KEY> and send the key in query strings
+  // and bodies -- the exact credential-in-URL class builds dg/dn killed on /admin
+  // and build hs killed for student codes, still alive here. Now: a legacy
+  // ?admin= link is honoured ONCE (stored in sessionStorage, exactly like
+  // /admin's key), the address bar is scrubbed immediately, and every API call
+  // sends the key in the X-Admin-Key HEADER. Public visitors: pitch only.
   var params = new URLSearchParams(window.location.search);
-  var KEY = (params.get("admin") || "").trim();
+  var KEY = "";
+  try { KEY = (sessionStorage.getItem("mt_admin_key") || "").trim(); } catch (e) {}
+  var legacy = (params.get("admin") || "").trim();
+  if (legacy) {
+    KEY = legacy;
+    try { sessionStorage.setItem("mt_admin_key", KEY); } catch (e) {}
+    try {
+      params.delete("admin");
+      var qs = params.toString();
+      history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
+    } catch (e) {}
+  }
   if (!KEY) return;                       // public visitors: pitch only, nothing else runs
 
   function $(id) { return document.getElementById(id); }
@@ -239,7 +267,9 @@
 
   async function api(path, opts) {
     opts = opts || {};
-    opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    // build hx: the key travels in a HEADER on every call, never in a URL or body.
+    opts.headers = Object.assign({ "Content-Type": "application/json",
+                                   "X-Admin-Key": KEY }, opts.headers || {});
     var r = await fetch(path, opts);
     var data = {};
     try { data = await r.json(); } catch (e) {}
@@ -280,7 +310,7 @@
           return;
         }
         try { renderTable((await api(isDel ? "/api/beta/delete" : "/api/beta/revoke", { method: "POST",
-          body: JSON.stringify({ key: KEY, code: b.getAttribute("data-c") }) })).codes);
+          body: JSON.stringify({ code: b.getAttribute("data-c") }) })).codes);
           if (isDel) msg("Pass deleted — the code and every bit of its test data are gone.", "ok"); }
         catch (e) { msg(e.message); }
       });
@@ -291,7 +321,7 @@
     $("gGo").disabled = true; msg("");
     try {
       var out = await api("/api/beta/create", { method: "POST",
-        body: JSON.stringify({ key: KEY, label: $("gLabel").value,
+        body: JSON.stringify({ label: $("gLabel").value,
           uses: parseInt($("gUses").value, 10) || 5,
           hours: parseInt($("gHours").value, 10) || 2 }) });
       $("newPass").style.display = "";
@@ -310,11 +340,14 @@
     else done();
   });
 
-  // Verify the key server-side before revealing anything.
-  api("/api/beta/list?key=" + encodeURIComponent(KEY)).then(function (out) {
+  // Verify the key server-side before revealing anything (header, never the URL).
+  api("/api/beta/list").then(function (out) {
     $("adminPanel").style.display = "";
     renderTable(out.codes);
-  }).catch(function () { /* wrong key: stay a normal public page */ });
+  }).catch(function () {
+    // wrong key: forget it and stay a normal public page
+    try { sessionStorage.removeItem("mt_admin_key"); } catch (e) {}
+  });
 })();
 </script>
 </body>
