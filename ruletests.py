@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hz -- PART 3bq, THE PROMISED COMPARISON (rule 63e): fixtures
+#               both directions (Jim's live catch verbatim; the honest deg="90"
+#               split="50" fix; the question-alone and deferral exemptions), the
+#               sweep wiring, the canonical sweep, and the prompt's words half
+#               (rule 63e body + the [[angle]] compare move). RULE_VERIFY[63]
+#               extended.
 #   2026-08-18  BUILD hy -- PART 3bp, THE VOICE ASKS TWICE: pins voice.js's new
 #               single retry of a failed speak-prep/clip (the mid-deploy mechanical-
 #               voice blip Jim heard live), the immediate fallback on an
@@ -3843,7 +3849,10 @@ RULE_VERIFY = {
                       "and all foundation scripts. The one-name half (the circle "
                       "called a curve) and the shares-picture half (4|4|4|2 for a "
                       "sharing story) remain prompt-covered, pinned by PART 3ah -- "
-                      "both are natural lessonaudit scenario candidates"),
+                      "both are natural lessonaudit scenario candidates. 63(e) "
+                      "(build hz, from Jim's live catch): angle_compare_conflict, "
+                      "the TWENTY-SECOND referee, rejects a spoken right-angle "
+                      "comparison over a board with no right angle drawn -- PART 3bq"),
     64: ("ENFORCED",  "never trade the student's number for a different one, and a length "
                       "is never negative (build gr; from Jim's 2026-08-17 Geometry lesson, "
                       "where 'minus five' was answered with 'That is correct' and the reply "
@@ -11674,6 +11683,110 @@ def part3bp_voice_retry():
           "the watchdog is gone -- a hung retry now strands the student")
 
 
+# =============================================================================
+# PART 3bq -- THE PROMISED COMPARISON (build hz, rule 63e)
+# -----------------------------------------------------------------------------
+# 2026-08-18, Jim's live catch: "Here's our angle again, fifty degrees, next to a
+# right angle for comparison" -- spoken over a board holding ONLY the fifty-degree
+# angle. A figure WAS drawn, so the promised-picture referee stayed quiet, and the
+# figure-content referees only read triangles. angle_compare_conflict is the
+# TWENTY-SECOND referee: a spoken right-angle comparison must have a deg="90"
+# [[angle]] tag in the same reply (alone, or holding the compared piece via split),
+# and the comparison QUESTION alone never fires. Both directions, the wiring, and
+# the canonical sweep, per the standing rules.
+# =============================================================================
+ANGLE_COMPARE_MUST_FIRE = (
+    # Jim's exact catch, verbatim prose shape.
+    ('the live catch itself',
+     'Nice — angle ZYX and angle XYZ are the same angle, just named from opposite '
+     'ends. Here\'s our angle again, fifty degrees, next to a right angle for '
+     'comparison: Compared to a right angle of ninety degrees, is fifty degrees '
+     'bigger, smaller, or about the same? '
+     '[[angle deg="50" label="XYZ" caption="angle X Y Z, fifty degrees"]]'),
+    ('beside a ninety-degree angle',
+     'I\'ve put your angle beside a ninety-degree angle so you can see the '
+     'difference. [[angle deg="50" label="ABC" caption="fifty degrees"]]'),
+    ('a right angle "for comparison" that is not drawn',
+     'Here is a right angle for comparison. '
+     '[[angle deg="50" label="ABC" caption="fifty degrees"]]'),
+    ('side by side with the right angle',
+     'Look at it side by side with the right angle. '
+     '[[angle deg="50" label="ABC" caption="fifty degrees"]]'),
+    ('the claim with NO figure at all',
+     'Here\'s our angle again, next to a right angle for comparison — which looks '
+     'bigger to you?'),
+)
+ANGLE_COMPARE_MUST_STAY_SILENT = (
+    ('the honest fix: the piece drawn INSIDE the right angle',
+     'Here\'s our angle again, fifty degrees, next to a right angle for comparison. '
+     '[[angle deg="90" split="50" label="XYZ" caption="fifty degrees inside a right '
+     'angle — forty left over"]]'),
+    ('the comparison QUESTION alone (no picture claim)',
+     'Compared to a right angle of ninety degrees, is fifty degrees bigger, smaller, '
+     'or about the same? [[angle deg="50" label="XYZ" caption="angle X Y Z, fifty '
+     'degrees"]]'),
+    ('a deferral is a promise about later, not a claim about now',
+     'Next time I\'ll draw it next to a right angle so you can compare. What do you '
+     'think so far?'),
+    ('a right angle plainly drawn and named',
+     'A right angle is ninety degrees — here it is. '
+     '[[angle deg="90" label="PQR" caption="a right angle, ninety degrees"]]'),
+    ('an ordinary angle reply with no comparison claim',
+     'Great work — the angle measures fifty degrees. '
+     '[[angle deg="50" label="XYZ" caption="fifty degrees"]]'),
+)
+
+
+def part3bq_angle_compare():
+    print("\nPART 3bq — the promised comparison (build hz, rule 63e)")
+    import tutor
+    for name, reply in ANGLE_COMPARE_MUST_FIRE:
+        got = tutor.angle_compare_conflict(reply)
+        check(f"  fires: {name}", bool(got),
+              "the caught shape ships again -- the student compares against a "
+              "picture that is not there")
+        if got:
+            check(f"  and via the sweep: {name}",
+                  bool(tutor.prose_board_conflict(reply)),
+                  "the referee exists but prose_board_conflict never calls it -- "
+                  "a rule that nothing watches is a wish")
+    for name, reply in ANGLE_COMPARE_MUST_STAY_SILENT:
+        check(f"  silent: {name}", not tutor.angle_compare_conflict(reply),
+              "false alarm -- this regenerates good teaching")
+    # THE CANONICAL SWEEP. Standing rule: every new detector is swept over all
+    # authored foundation strings before it ships.
+    try:
+        import foundations as _F
+        texts = []
+        def _walk(o):
+            if isinstance(o, str): texts.append(o)
+            elif isinstance(o, dict):
+                for v in o.values(): _walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o: _walk(v)
+        for nm in dir(_F):
+            if not nm.startswith("_"): _walk(getattr(_F, nm))
+        texts = [t for t in texts if isinstance(t, str) and len(t) > 3]
+        alarms = sum(1 for t in texts if tutor.angle_compare_conflict(t))
+        check(f"angle-compare: silent on all {len(texts)} canonical strings",
+              alarms == 0,
+              f"{alarms} false alarm(s) -- the pattern fights authored content")
+    except Exception as exc:  # noqa: BLE001
+        bad("the angle-compare canonical sweep ran", str(exc))
+    # THE WORDS HALF: rule 63(e) and the [[angle]] compare move are in the prompt.
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "prompts.py"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    check("rule 63(e) is written into the rule body",
+          "A COMPARISON YOU SPEAK IS A COMPARISON YOU DRAW" in psrc,
+          "the referee enforces a rule the prompt never states")
+    check("the [[angle]] bullet teaches the honest compare move",
+          'TO COMPARE an angle with a right angle' in psrc
+          and 'deg="90" split="50"' in psrc,
+          "the model is told what NOT to do but not what TO do -- it will just "
+          "find the next wrong picture")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12146,6 +12259,7 @@ def main():
     part3bn_screenwatch()
     part3bo_beta_key()
     part3bp_voice_retry()
+    part3bq_angle_compare()
     part3ai_deploy_stamp()
     if live:
         part4_live()

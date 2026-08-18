@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hz -- THE TWENTY-SECOND REFEREE: THE PROMISED COMPARISON.
+#               Jim's live catch (geometry, angle sizes): "Here's our angle again,
+#               fifty degrees, next to a right angle for comparison" -- and the board
+#               showed ONLY the fifty. The promised-picture referee stayed quiet
+#               because a figure WAS drawn; the content referees only know triangles.
+#               NEW angle_compare_conflict(reply): fires when the prose places the
+#               angle next to / beside / alongside a right angle (or says "right
+#               angle ... for comparison") and no [[angle]] tag in the reply carries
+#               deg="90". A bare comparison QUESTION ("compared to ninety, is fifty
+#               bigger?") never fires -- asking needs no second picture; claiming one
+#               is on the board does. The fix it teaches: draw the piece INSIDE the
+#               right angle ([[angle deg="90" split="50"]]) or drop the claim. Rule
+#               63(e) carries the words (prompts.py); fail open; both directions +
+#               canonical sweep in PART 3bq.
 #   2026-08-18  BUILD ht -- THE UPSTREAM CALL IS BOUNDED (Phase 5, review Class F).
 #               Every Anthropic client is now constructed with
 #               timeout=ANTHROPIC_TIMEOUT_S (env, default 60s) and max_retries=1 --
@@ -3346,6 +3360,76 @@ def story_units_conflict(reply: str):
 
 
 # =============================================================================
+# THE PROMISED-COMPARISON CHECK (2026-08-18, build hz) -- the TWENTY-SECOND referee.
+# -----------------------------------------------------------------------------
+# Jim's live catch, geometry: "Here's our angle again, fifty degrees, next to a
+# right angle for comparison" -- spoken over a board holding ONLY the fifty-degree
+# angle. Every existing watcher was honestly blind to it: the promised-picture
+# referee stays quiet because a figure WAS drawn; the two figure-content referees
+# only read [[triangle]] tags; the screen auditor judges layout, not claims. The
+# prompt's "YOUR PICTURE MUST MATCH YOUR WORDS" was a wish (a rule that nothing
+# watches is a wish), so the caught shape becomes a referee, narrow on purpose
+# like rule 27's and hr's precedents:
+#
+#   FIRES when a sentence puts the angle NEXT TO / BESIDE / ALONGSIDE / SIDE BY
+#   SIDE WITH a right angle (or claims "right angle ... for comparison") and no
+#   [[angle]] tag in the reply carries deg="90". The board draws ONE figure per
+#   tag, so the only honest ways to keep that sentence are [[angle deg="90"
+#   split="50"]] (the piece drawn INSIDE the right angle -- the better teaching
+#   picture anyway) or a plain 90-degree angle.
+#
+#   NEVER fires on the comparison QUESTION alone ("compared to a right angle of
+#   ninety degrees, is fifty bigger, smaller, or about the same?") -- asking a
+#   student to compare against a remembered right angle needs no second picture;
+#   only CLAIMING one is on the board does. Deferrals ("next time I'll draw them
+#   side by side") ride the same _VIS_DEFER exemption as the promised-picture
+#   referee. Fail open, like every referee.
+# =============================================================================
+_AC_RIGHT = r"(?:right\s+angle|ninety[-\s]?degree(?:s)?(?:\s+angle)?|90\s*(?:°|degrees?)(?:\s+angle)?)"
+_AC_JUXTA = re.compile(
+    r"\b(?:next\s+to|beside|alongside|side\s+by\s+side\s+with|on\s+top\s+of)\s+"
+    r"(?:a|the|our|this|that)?\s*" + _AC_RIGHT, re.I)
+_AC_FORCOMP = re.compile(_AC_RIGHT + r"(?:\s+\S+){0,3}?\s+for\s+(?:a\s+|the\s+)?comparison\b", re.I)
+_AC_ANGLE_TAG = re.compile(r"\[\[\s*angle\b([^\]]*)\]\]", re.I)
+_AC_DEG = re.compile(r'\bdeg\s*=\s*"?\s*(\d{1,3})', re.I)
+
+
+def angle_compare_conflict(reply: str):
+    """Return a description of a spoken right-angle comparison the reply's own
+    figure does not show, or "". Never raises: any unexpected input yields ""
+    (fail open)."""
+    try:
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        claimed = ""
+        for sent in _vis_sentences(prose):
+            if _VIS_DEFER.search(sent):
+                continue                    # "next time I'll draw them side by side"
+            m = _AC_JUXTA.search(sent) or _AC_FORCOMP.search(sent)
+            if m:
+                claimed = " ".join(m.group(0).split())[:70]
+                break
+        if not claimed:
+            return ""
+        for attrs in _AC_ANGLE_TAG.findall(text):
+            dm = _AC_DEG.search(attrs)
+            if dm and dm.group(1) == "90":
+                return ""                   # a right angle IS drawn (alone or holding the split piece)
+        return ('you say "{c}" but no right angle is anywhere in this reply\'s '
+                "figure -- the student is told to compare against a picture that is "
+                "not there. Rule 63(e): a comparison you SPEAK is a comparison you "
+                "DRAW. The board draws one figure per tag, so draw the piece INSIDE "
+                'the right angle -- [[angle deg="90" split="50"]] shows fifty '
+                "degrees sitting inside ninety with forty left over -- or drop the "
+                "claim and just ask the comparison question, which needs no second "
+                "picture.").format(c=claimed)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[anglecompare] crashed (fail open): {exc}")
+        _event("referee_crash", "anglecompare", str(exc))
+        return ""
+
+
+# =============================================================================
 # THE RECORD-CLAIM CHECK (2026-08-18, build ho) -- the TWENTIETH referee.
 # -----------------------------------------------------------------------------
 # The count-claim probe's promotion (build gv measured; Phase 4 enforces). The audit's
@@ -4267,9 +4351,9 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    TWENTY-ONE referees ride this sweep (hm added the unitplan check, ho the
-    record-claim check, hr the story-units check; the original twelve are listed
-    below, the rest are named at their call
+    TWENTY-TWO referees ride this sweep (hm added the unitplan check, ho the
+    record-claim check, hr the story-units check, hz the promised-comparison
+    check; the original twelve are listed below, the rest are named at their call
     sites): a malformed tag (build eq), a picture promised and never
     drawn (rule 7), a computation asked with no pending line on the board (rule 15), a
     spoken score that disagrees with the reply's own score tag (rule 45), the tutor
@@ -4352,6 +4436,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if storyunits:
             _event("referee_fire", "storyunits", storyunits)
             return storyunits
+        # build hz: TWENTY-SECOND -- a right-angle comparison spoken over a board
+        # that holds no right angle (rule 63e, written from Jim's live catch).
+        # Reads only the reply's own prose and tags, so it rides here with the
+        # other reply-only checks.
+        anglecompare = angle_compare_conflict(reply)
+        if anglecompare:
+            _event("referee_fire", "anglecompare", anglecompare)
+            return anglecompare
         # build gx: SEVENTEENTH -- a request to be shown, refused (rule 65).
         refused = refused_demonstration_conflict(reply, student_message)
         if refused:

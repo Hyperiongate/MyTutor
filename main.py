@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  APP_BUILD -> "2026-08-18hz-promised-comparison". THE TWENTY-SECOND
+#               REFEREE. Jim's live catch: "here's our angle again, fifty degrees,
+#               next to a right angle for comparison" -- over a board holding ONLY
+#               the fifty-degree angle. A figure WAS drawn, so the promised-picture
+#               referee stayed quiet; the content referees only read triangles.
+#               NEW tutor.angle_compare_conflict (rule 63e): a spoken right-angle
+#               comparison must have deg="90" in an [[angle]] tag of the same reply
+#               (the honest move is split -- the piece drawn INSIDE the right
+#               angle); the comparison QUESTION alone never fires. Rule 63 gains
+#               (d) and (e) in prompts.py; PART 3bq; RULES.md regenerated. ALL CODE
+#               IS IN tutor.py / prompts.py; this file only carries the stamp.
 #   2026-08-18  APP_BUILD -> "2026-08-18hy-voice-asks-twice". THE VOICE ASKS TWICE.
 #               Jim heard the seam live: he pushed hx while touring the dashboard and
 #               one line came out in the mechanical browser voice before the warm
@@ -8375,7 +8386,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18hy-voice-asks-twice"
+APP_BUILD = "2026-08-18hz-promised-comparison"
 
 
 @app.get("/health")

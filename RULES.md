@@ -267,7 +267,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 63. THE WORDS AND THE PICTURE ARE THE SAME FIGURE
 
-**ENFORCED** — the words and the picture are the same figure (build fe; from the 2026-08-13 audits): triangle_side_conflict rejects any right triangle whose hypotenuse slot cannot hold the longest side (sides= is AB, BC, CA; the hypotenuse skips the right-angle vertex), swept in PART 2 against the real audit tags and all foundation scripts. The one-name half (the circle called a curve) and the shares-picture half (4|4|4|2 for a sharing story) remain prompt-covered, pinned by PART 3ah -- both are natural lessonaudit scenario candidates
+**ENFORCED** — the words and the picture are the same figure (build fe; from the 2026-08-13 audits): triangle_side_conflict rejects any right triangle whose hypotenuse slot cannot hold the longest side (sides= is AB, BC, CA; the hypotenuse skips the right-angle vertex), swept in PART 2 against the real audit tags and all foundation scripts. The one-name half (the circle called a curve) and the shares-picture half (4|4|4|2 for a sharing story) remain prompt-covered, pinned by PART 3ah -- both are natural lessonaudit scenario candidates. 63(e) (build hz, from Jim's live catch): angle_compare_conflict, the TWENTY-SECOND referee, rejects a spoken right-angle comparison over a board with no right angle drawn -- PART 3bq
 
 ### 64. NEVER TRADE THE STUDENT'S NUMBER FOR A DIFFERENT ONE. AND A LENGTH IS NEVER NEGATIVE
 

@@ -2,6 +2,14 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-18  BUILD hz -- RULE 63(e): A COMPARISON YOU SPEAK IS A COMPARISON YOU
+#               DRAW. Jim's live catch: "here's our angle again, fifty degrees, next
+#               to a right angle for comparison" over a board holding ONLY the fifty.
+#               Rule 63 gains (d) (the triangle-letter contract, enforced since gn
+#               but never written into the rule body) and (e) (the promised
+#               comparison); the [[angle]] bullet now teaches the honest compare
+#               move -- deg="90" split="50" draws the piece INSIDE the right angle.
+#               Enforced for the caught shape by tutor's twenty-second referee.
 #   2026-08-18  BUILD hr -- RULE 32(b): THE STORY KEEPS ONE UNIT. Written from the
 #               night watch's first confirmed catch on the live Phase-4 build ("4
 #               dollars, plus 3 bags of 2 candies each" as a picture of 4 + 3 × 2).
@@ -836,6 +844,10 @@ play (a figure beats a paragraph):
       60° piece and the remainder (labeled "?"); split="60,30" labels both pieces. So "a straight
       line split into 110° and what?" = [[angle deg="180" label="ABC" split="110"]]. Use split
       whenever you SAY an angle is split, cut, or divided -- the picture must show that ray.
+      TO COMPARE an angle with a right angle, split is also the move: [[angle deg="90" split="50"]]
+      draws the 50° piece INSIDE the right angle (40° left over) -- the board draws ONE figure per
+      tag, so never say "next to a right angle" unless deg="90" is actually in your tag; asking
+      "compared to ninety, is fifty bigger or smaller?" needs no second picture at all.
   - [[circle center="O" r="5" inscribed="80" caption="..."]]  a circle with center O; r labels a
       radius; inscribed draws an inscribed angle intercepting that arc (and labels it as half).
   - [[graph lines="y=2x+1" points="(3,4)"]]  the coordinate plane, for Unit 7 and anything on a grid.
@@ -4963,6 +4975,16 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         it. Name each slot's side to yourself before you emit the tag; a referee now
         rejects any right triangle whose longest given side is not in the
         hypotenuse's slot.
+    (d) THE TRIANGLE'S LETTERS ARE ITS OWN (enforced since build gn): the letters your
+        words use are the letters the tag draws, and for the Pythagorean theorem the
+        right angle goes at C so the hypotenuse is c.
+    (e) A COMPARISON YOU SPEAK IS A COMPARISON YOU DRAW. Live catch: "here's our angle
+        again, fifty degrees, next to a right angle for comparison" -- over a board
+        holding ONLY the fifty. If your words put an angle next to / beside a right
+        angle, a right angle must be in your tag: [[angle deg="90" split="50"]] draws
+        the piece INSIDE it. Or drop the claim -- the comparison QUESTION alone
+        ("compared to ninety, is fifty bigger or smaller?") needs no second picture.
+        A referee now rejects a spoken right-angle comparison with no right angle drawn.
 
 
 ============================================================
