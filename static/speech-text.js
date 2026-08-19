@@ -2,6 +2,23 @@
    speech-text.js  --  WHAT THE TUTOR SAYS OUT LOUD  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-19  SPEAK THE PRIMES (build ip, Jim in Differential Equations: "it is
+                 pronouncing y-double-prime as 'yuh' ... sometimes 'y', sometimes
+                 'y prime', y double prime is calling it 'u' ... it's wrong in several
+                 different ways on different occasions"). Root cause: forSpeech had NO
+                 rule for prime marks at all, so ′ ″ ‴ (and ASCII y', y'', y") reached
+                 the TTS engine raw and the engine improvised a different guess every
+                 time -- which is exactly why the mistake was inconsistent. Now y′ is
+                 spoken "y prime", y″ "y double prime", y‴ "y triple prime", y⁗
+                 "y quadruple prime", on any letter, in unicode OR ASCII (y'' and y"
+                 included, plus smart-quote forms). Guards keep English intact: the
+                 ASCII forms only fire on a STANDALONE letter (so "that's", "y'all",
+                 "students'" and a closing quote after a word -- vertex" -- are never
+                 touched). f′(x) chains with the existing f(x)->"f of x" rule and comes
+                 out "f prime of x". Longest mark first, so ‴ is never read as ″ + ′.
+                 Digit-attached primes (45°30′ arc-minutes, 5′10″ feet-and-inches) are
+                 deliberately NOT converted -- "prime" would be wrong there; that
+                 notation gets its own rule when a course actually speaks it.
      2026-08-17  NEW FILE (build hc -- Phase 2 of the full-app review). These
                  transforms were THREE hand-synced copies, one each in session.html,
                  topic.html and practice.html. Identical today is not identical
@@ -60,6 +77,23 @@ function forSpeech(text) {
     // leave nothing behind; a stray single asterisk still becomes a space, as before.
     .replace(/\*\*/g, "")
     .replace(/\*+/g, " ")                                       // strip markdown *
+    // build ip (2026-08-19): derivatives are SAID, not improvised. Unicode prime marks
+    // are unambiguous -- convert them on any letter, longest mark first so y‴ is never
+    // read as y″ + ′. (Digit-attached primes -- 45°30′, 5′10″ -- are left alone: those
+    // mean arc-minutes and feet, and "prime" would be a new wrong answer.)
+    .replace(/([A-Za-z])\s*⁗/g, "$1 quadruple prime")
+    .replace(/([A-Za-z])\s*(?:‴|′′′)/g, "$1 triple prime")
+    .replace(/([A-Za-z])\s*(?:″|′′)/g, "$1 double prime")
+    .replace(/([A-Za-z])\s*′/g, "$1 prime")
+    // ASCII and smart-quote spellings of the same marks (the model often writes y'' and
+    // Jim's own dictation writes y"). These are ambiguous in English, so they only fire
+    // on a STANDALONE letter (nothing alphanumeric before it, so "students'" and the x
+    // at the end of vertex" never match), never when a letter follows (so "y'all" and
+    // "that's" stay words), and never right after a quote mark (so the quoted letter
+    // "y" is not read as a derivative). Same longest-first order as above.
+    .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:'''|’’’)(?!['’A-Za-z])/g, "$1$2 triple prime")
+    .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])(?:''|’’|["”])(?!['’A-Za-z])/g, "$1$2 double prime")
+    .replace(/(^|[^A-Za-z0-9"“'‘’])([A-Za-z])['’](?!['’A-Za-z])/g, "$1$2 prime")
     .replace(/\$\s*(\d+)(?:\.(\d{1,2}))?/g, moneyWords)
     .replace(/(\d),(\d{3})\b/g, "$1$2")                            // 1,234 -> read whole
     .replace(/(^|[(=+\u00d7\u00f7*])\s*[-\u2212](\d)/g, "$1 negative $2")   // VALUE negatives

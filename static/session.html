@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <!--
+    (iq) 2026-08-19 -- THE BOARD GETS ITS ROOM BACK. Jim, in Differential Equations: "today's
+    goals and the bars up top ... need to be collapsed into two smaller things that you could
+    click on ... gives us more room for the board." The goal banner and the three-bar block
+    no longer sit open above the whiteboard. Two small chips -- "🎯 Today's Goal" and
+    "📊 Today's Progress" -- appear once there is content behind them; a click pops the panel
+    open, another click tucks it away. DO-NO-HARM SHAPE: #goalBar and #pbars are the SAME
+    elements and every render path (showGoal, showToday, renderTodayBar, renderUnitBar,
+    renderCourseBar, showBarsPreview, the [[todaydone]] ticks, the il worked segments) is
+    untouched -- a new .open class simply gates visibility on top of .show. The progress chip
+    carries a live "n/m" goals count; both chips pulse once when something changes behind a
+    CLOSED panel, so a tick is never invisible. THE TOUR STILL SHOWS REAL BARS: runTour pops
+    the progress panel open for the whole walk-through (build bj's three-maps ruling holds
+    DURING the tour) and tucks it back at the end; a model-driven [[highlight id="bars"]]
+    outside the tour opens it for the glow and the next turn's clearHighlight closes it
+    again unless the student had opened it themselves (the curriculum-stop pattern). The
+    tour's "bars" line now tells the student where the bars live afterward.
+    COMPANION, same sitting (build ir, in board.js): every new tutor bubble is placed at the
+    TOP of the visible board -- history is above (scroll up), his work fills in below.
+
     (gs) 2026-08-17 -- THE RAIL FOLLOWS THE TEACHING. Jim, twice: "it still says unit one on
     the top when we are talking about unit five." The unit bar was seeded from
     placement.start_unit -- where the student was PLACED, a number that never moves -- so a
@@ -1210,12 +1229,40 @@
     .composer button { font-size: 15px; padding: 10px 15px; background: var(--accent); color: #fff;
       border: none; border-radius: 11px; cursor: pointer; }
 
-    /* Today's goal banner (set once at the start of a lesson) */
+    /* ===== 2026-08-19 (build iq, Jim: "today's goals and the bars up top ... need to be
+       collapsed into two smaller things that you could click on ... gives us more room
+       for the board"). The banner and the three-bar block no longer sit open on the
+       board. Two small CHIPS -- "Today's Goal" and "Today's Progress" -- appear once
+       there is content behind them; clicking a chip pops its panel open, clicking again
+       tucks it away. The panels are the SAME elements as before (#goalBar, #pbars --
+       every render path untouched); an .open class now gates their visibility on top of
+       .show. The progress chip carries a live "n/m" count and both chips pulse once when
+       something changes while they're closed, so a tick is never invisible. The tour
+       still shows the real bars: runTour pops the progress panel open for the walk-through
+       and tucks it back afterward. */
+    .chiprow { display: flex; gap: 8px; margin: 4px 24px 2px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+      font-weight: 800; color: var(--ink); background: var(--panel);
+      border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 13px;
+      cursor: pointer; line-height: 1; font-family: inherit;
+      box-shadow: 0 3px 10px rgba(20,30,45,.07); }
+    .chip[hidden] { display: none; }
+    .chip.on { background: linear-gradient(90deg, rgba(91,91,214,.14), rgba(20,184,166,.14));
+      border-color: var(--accent); }
+    .chip .chipct { font-weight: 900; color: var(--accent); }
+    .chip .chipcaret { font-size: 9px; opacity: .6; }
+    .chip.pulse { animation: chippulse .9s ease-in-out 2; }
+    @keyframes chippulse { 0%, 100% { transform: scale(1); box-shadow: 0 3px 10px rgba(20,30,45,.07); }
+      50% { transform: scale(1.07); box-shadow: 0 4px 16px rgba(91,91,214,.35); } }
+    @media (max-width: 900px) { .chiprow { margin: 4px 12px 2px; } }
+
+    /* Today's goal banner (set once at the start of a lesson).
+       build iq: needs BOTH .show (there is a goal) and .open (its chip was clicked). */
     .goalbar { display: none; align-items: center; gap: 10px; margin: 0 24px 2px; padding: 10px 16px;
       border-radius: 14px; font-size: 15px; line-height: 1.3;
       background: linear-gradient(90deg, rgba(91,91,214,.12), rgba(20,184,166,.12));
       border: 1px solid var(--line); }
-    .goalbar.show { display: flex; }
+    .goalbar.show.open { display: flex; }
     .goalbar .gi { font-size: 18px; flex: 0 0 auto; }
     .goalbar .gl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px;
       letter-spacing: .05em; flex: 0 0 auto; }
@@ -1229,7 +1276,8 @@
     .pbars { display: none; flex-direction: column; gap: 6px; margin: 6px 24px 4px;
       background: linear-gradient(90deg, #def4e4, #cdeeda); border-radius: 12px;
       padding: 8px 14px; border: 1px solid #b4e0c4; box-shadow: 0 4px 14px rgba(30,70,45,.10); }
-    .pbars.show { display: flex; }
+    /* build iq: needs BOTH .show (there is content) and .open (its chip was clicked). */
+    .pbars.show.open { display: flex; }
     .pbar { display: none; align-items: center; gap: 8px; font-size: 11.5px; }
     .pbar.show { display: flex; }
     .pbar .pbl { flex: 0 0 52px; text-align: right; color: #17202b; font-weight: 800;
@@ -1460,6 +1508,13 @@
         <div class="title" id="courseTitle">Mr. Cadabra's Classroom</div>
         <div class="spacer"></div>
         <a id="homeLink" href="#">☰ Menu</a>
+      </div>
+
+      <!-- build iq (2026-08-19): the goal banner and progress bars live behind these two
+           small chips now -- click to pop open, click again to tuck away. More board. -->
+      <div class="chiprow" id="chipRow">
+        <button class="chip" id="goalChip" type="button" hidden aria-expanded="false">🎯 Today's Goal <span class="chipcaret">▼</span></button>
+        <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Today's Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
       </div>
 
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
@@ -2139,6 +2194,11 @@
     // when the tour moves on — left open, it pushed Mr. Cadabra below the fold and the
     // student couldn't see him glowing for the rest of the walk.
     let tourOpenedCurriculum = false;
+    // build iq (2026-08-19): the bars live behind a chip now. A model-driven
+    // [[highlight id="bars"]] outside the tour pops the panel open so the glow has
+    // something to land on, and the NEXT turn's clearHighlight tucks it back --
+    // unless the student had it open themselves (same pattern as the curriculum).
+    let highlightOpenedBars = false;
     function clearHighlight() {
       clearSpot();   // build ee: a stale board spotlight never survives into a new turn
       document.querySelectorAll(".tourglow").forEach(n => n.classList.remove("tourglow"));
@@ -2147,6 +2207,10 @@
       if (tourOpenedCurriculum) {
         tourOpenedCurriculum = false;
         curriculumList.style.display = "none"; curriculumBtn.classList.remove("open");
+      }
+      if (highlightOpenedBars) {
+        highlightOpenedBars = false;
+        setPanelOpen("pbars", false);
       }
       // 2026-08-07 (build bj): the bars preview is NO LONGER cleared here — it stays up
       // for the whole tour and is REPLACED by the real bars when the lesson fills them
@@ -2173,7 +2237,14 @@
       // 2026-08-07 (build bj): the previews are already up for the whole tour (runTour
       // shows them at the start); this call is a harmless no-op then, but still matters
       // for a model-driven [[highlight id="bars"]] outside the scripted tour.
-      if (key === "bars") showBarsPreview();
+      if (key === "bars") {
+        showBarsPreview();
+        // build iq: pop the panel open so the glow points at real bars, not a chip.
+        if (!el("pbars").classList.contains("open")) {
+          setPanelOpen("pbars", true);
+          highlightOpenedBars = true;
+        }
+      }
       nodes.forEach(n => n.classList.add("tourglow"));
       try { nodes[0].scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
       // pin the bouncing "look here" tag over the GROUP (after the scroll settles)
@@ -2376,8 +2447,39 @@
       if (stop < kids.length) feed.insertBefore(wrap, kids[stop]); else feed.appendChild(wrap);
       scrollFeed();
     }
+    // ===== build iq (2026-08-19): the chips that guard the goal banner and the bars.
+    // A chip appears the first time its panel has real content (.show), pulses once
+    // when something changes behind a CLOSED panel, and toggles .open on click. The
+    // panels themselves and every render path below are unchanged.
+    function chipFor(panelId) { return el(panelId === "goalBar" ? "goalChip" : "progChip"); }
+    function setPanelOpen(panelId, open) {
+      const p = el(panelId), c = chipFor(panelId);
+      if (!p || !c) return;
+      p.classList.toggle("open", !!open);
+      c.classList.toggle("on", !!open);
+      c.setAttribute("aria-expanded", open ? "true" : "false");
+      c.querySelectorAll(".chipcaret").forEach(x => { x.textContent = open ? "▲" : "▼"; });
+    }
+    function revealChip(panelId) { const c = chipFor(panelId); if (c && c.hidden) c.hidden = false; }
+    function chipPulse(panelId) {
+      const p = el(panelId), c = chipFor(panelId);
+      if (!p || !c || c.hidden || p.classList.contains("open")) return;   // open = already visible
+      c.classList.remove("pulse"); void c.offsetWidth;                    // restart the animation
+      c.classList.add("pulse");
+    }
+    el("goalChip").addEventListener("click", () => setPanelOpen("goalBar", !el("goalBar").classList.contains("open")));
+    el("progChip").addEventListener("click", () => setPanelOpen("pbars", !el("pbars").classList.contains("open")));
+
     // Today's goal banner (the tutor sets it once at the start via [[goal text="..."]]).
-    function showGoal(text) { el("goalText").textContent = String(text || "").trim(); el("goalBar").classList.add("show"); }
+    function showGoal(text) {
+      el("goalText").textContent = String(text || "").trim();
+      el("goalBar").classList.add("show");
+      // build iq: the banner no longer opens itself -- its chip appears (with the goal
+      // as a hover title) and pulses so a fresh goal is never invisible.
+      revealChip("goalBar");
+      el("goalChip").title = String(text || "").trim();
+      chipPulse("goalBar");
+    }
 
     // ===== PROGRESS BARS (2026-08-07, Jim: the student should always SEE where they are) =====
     // TODAY: segments = the opener's goals ([[today items]]); the tutor lights them with
@@ -2392,7 +2494,7 @@
     function splitItems(s) { return String(s || "").split("|").map(x => x.trim()).filter(Boolean).slice(0, 8); }
     function seg(cls, tip) { const d = document.createElement("div"); d.className = "pbseg" + (cls ? " " + cls : ""); if (tip) d.title = tip; return d; }
     function mark(txt, done, tip) { const s = document.createElement("span"); s.className = "pbmark" + (done ? " done" : ""); s.textContent = txt; if (tip) s.title = tip; return s; }
-    function showBars() { el("pbars").classList.add("show"); }
+    function showBars() { el("pbars").classList.add("show"); revealChip("pbars"); }
 
     function showToday(a) {
       const items = splitItems(a.items);
@@ -2411,6 +2513,7 @@
         const worked = String(a.kind || "").toLowerCase() === "worked";
         if (!(worked && TODAY_DONE[n - 1] === true)) TODAY_DONE[n - 1] = worked ? "worked" : true;
         renderTodayBar();
+        chipPulse("pbars");   // build iq: a tick behind a closed panel still gets noticed
       }
     }
     function renderTodayBar() {
@@ -2424,6 +2527,8 @@
       el("todayText").textContent = done >= TODAY_ITEMS.length
         ? "🎉 All of today's goals — done!"
         : done + " of " + TODAY_ITEMS.length + " goals done";
+      // build iq: the closed chip still tells the score at a glance.
+      el("progChipCt").textContent = done + "/" + TODAY_ITEMS.length;
       // build bj: this render REPLACES any tour-preview placeholder — drop the flag.
       const bar = el("todayBar"); delete bar.dataset.preview;
       showBars(); bar.classList.add("show");
@@ -2953,7 +3058,7 @@
       { id: "library",
         text: "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here." },
       { id: "bars",
-        text: "Now look at those thin bars up top — they're your maps, and they never lie. The top one is TODAY: it fills in as you nail each of today's goals. The middle one is your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. The bottom one is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam." },
+        text: "Now look at those thin bars up top — they're your maps, and they never lie. The top one is TODAY: it fills in as you nail each of today's goals. The middle one is your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. The bottom one is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour they tuck themselves away behind the little Today's Progress button, so the whole board is yours — tap it any time to peek at your maps." },
       { id: "tutor",
         text: "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
@@ -2977,7 +3082,11 @@
       // 2026-08-07 (build bj, Jim): all THREE bars are on screen from the tour's first
       // word — the course bar is real, today/unit are labeled previews the lesson will
       // fill in. (bi showed the previews only during the "bars" stop.)
+      // build iq (2026-08-19): the bars live behind a chip now, so the tour pops the
+      // panel open for the whole walk-through (bj's ruling still holds DURING the tour)
+      // and tucks it back at the end -- the student leaves the tour with a full board.
       showBarsPreview();
+      setPanelOpen("pbars", true);
       // build ik (2026-08-18, Jim: "it gets a little boring" the second time): a
       // visible SKIP button for the whole tour. Skipping counts as FINISHING — the
       // handoff below still runs, still sends __tour_done__ (or the declined form),
@@ -3003,6 +3112,7 @@
       }
       if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
       clearHighlight();
+      setPanelOpen("pbars", false);   // build iq: the tour is over -- give the board back
       // 2026-08-05: a first-timer with no placement gets the assessment invitation
       // right here, at the moment of maximum orientation. Choosing "skip" continues
       // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.

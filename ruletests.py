@@ -2288,6 +2288,23 @@ SPEECH_CASES = [
     ("2 1/2 cups", "2 and one half", None),
     ("1,234 students", "1234", "1,234"),
     ("f(x) = 2x + 3", "f of x", None),
+    # build ip (2026-08-19, Jim in Differential Equations: y″ spoken as "yuh", y′
+    # sometimes "y" -- inconsistently wrong because forSpeech had NO prime rule and
+    # the TTS engine improvised). Primes are now SAID: unicode and ASCII forms, on
+    # any standalone letter, longest mark first; English apostrophes and quoted
+    # words must never be touched.
+    ("y′ = 3y", "y prime equals 3y", None),
+    ("y″ + y = 0", "y double prime plus y equals 0", None),
+    ("y‴ − y′ = 0", "y triple prime minus y prime", None),
+    ("y'' + y = 0", "y double prime plus y equals 0", None),
+    ("y' = 3y", "y prime equals 3y", None),
+    ('y" + y = 0', "y double prime plus y equals 0", None),
+    ("y''' - y = 0", "y triple prime minus y", None),
+    ("f′(x) = 2x", "f prime of x equals 2x", None),
+    ("that's how y'all say it", "y'all", "prime"),
+    ('the word "vertex" matters', 'the word "vertex" matters', "prime"),
+    ('call it "y" for now', 'call it "y" for now', "prime"),
+    ("the students' answers", "the students' answers", "prime"),
 ]
 _JS_HARNESS = r"""
 const fs=require("fs");
@@ -12662,6 +12679,45 @@ def part3cc_today_calls():
               verdict.get("ok") is True, f"{verdict}")
 
 
+def part3cd_board_room():
+    # builds iq + ir (2026-08-19, Jim in Differential Equations): "today's goals and
+    # the bars up top ... collapsed into two smaller things that you could click on"
+    # and "every time Mr. Cadabra speaks, he starts speaking in a bubble that is
+    # placed at the top of the visible board." iq puts the goal banner and progress
+    # bars behind two chips; ir anchors every new tutor turn at the visible top.
+    print("\nPART 3cd — the board gets its room back (builds iq + ir)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    hsrc = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    bsrc = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    check("the two chips exist",
+          'id="goalChip"' in hsrc and 'id="progChip"' in hsrc and 'id="chipRow"' in hsrc,
+          "the collapse Jim asked for is gone -- the banner and bars squat on the board again")
+    check("the panels open ONLY by chip (.show alone no longer displays them)",
+          ".goalbar.show.open" in hsrc and ".pbars.show.open" in hsrc
+          and ".goalbar.show {" not in hsrc and ".pbars.show {" not in hsrc,
+          "a .show without .open leaks a panel open and the board loses its room")
+    check("the tour still shows real bars -- opens the panel, tucks it back after",
+          'setPanelOpen("pbars", true)' in hsrc and 'setPanelOpen("pbars", false)' in hsrc,
+          "the tour's bars stop glows a tiny chip instead of the three maps")
+    check("a closed panel still tells: chip reveal, pulse, and the n/m count",
+          "revealChip(" in hsrc and "chipPulse(" in hsrc and "progChipCt" in hsrc,
+          "a tick behind a closed panel becomes invisible progress")
+    check("the tour's bars line says where the bars live afterward",
+          "Today's Progress button" in hsrc,
+          "the bars vanish after the tour and the student was never told where")
+    check("every tutor turn anchors at the visible top (ax's taller-than-window "
+          "condition is gone)",
+          "Math.max(0, turnTop - 6)" in bsrc
+          and "feed.scrollHeight - turnTop > feed.clientHeight" not in bsrc,
+          "short turns pin to the bottom again -- Jim's eyes go back to hunting the bottom edge")
+    check("the spacer lets short turns reach the top, rides last, and never loops "
+          "the observer",
+          "function feedPadEl" in bsrc
+          and "if (p.nextSibling) feed.appendChild(p);" in bsrc
+          and 'pad.style.height = "0px"' in bsrc,
+          "either short turns can't reach the top or the MutationObserver spins forever")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13147,6 +13203,7 @@ def main():
     part3ca_back_reference()
     part3cb_tour_once()
     part3cc_today_calls()
+    part3cd_board_room()
     part3ai_deploy_stamp()
     if live:
         part4_live()

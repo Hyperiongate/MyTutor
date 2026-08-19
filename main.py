@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19ir-turn-starts-at-the-top". BUILDS iq + ir --
+#               Jim's board-room pair, same sitting as ip. iq: the TODAY'S GOAL banner
+#               and the three progress bars collapse into two small clickable chips
+#               ("Today's Goal" / "Today's Progress") that pop open on click -- the
+#               panels are the same elements, every render path untouched, the tour
+#               still opens the real bars and tucks them back after. ir: every new
+#               tutor bubble is placed at the TOP of the visible board (build ax did
+#               this only for window-tall turns); history is above, board work fills
+#               in below, via a self-shrinking spacer so short turns can reach the
+#               top. ALL CODE IS IN static/session.html (iq) and static/board.js
+#               (ir, shared by session/topic/practice); this file only carries the
+#               stamp. Pinned in ruletests PART 3cd.
+#   2026-08-19  APP_BUILD -> "2026-08-19ip-speak-the-primes". BUILD ip -- derivatives
+#               are SAID, not improvised (Jim in Differential Equations: y″ spoken as
+#               "yuh", y′ sometimes "y" -- inconsistently wrong, because forSpeech had
+#               NO rule for prime marks and the TTS engine guessed differently every
+#               time). forSpeech now converts ′ ″ ‴ ⁗ and the ASCII/smart-quote forms
+#               (y', y'', y") to "prime / double prime / triple prime / quadruple
+#               prime" on any standalone letter, with guards so "y'all", "that's",
+#               possessives and quoted words are never touched; f′(x) chains to
+#               "f prime of x". Twelve new pins in ruletests PART 3. ALL CODE IS IN
+#               static/speech-text.js; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19io-anecdote-diet". BUILD io -- the approved
 #               consolidation's Batch 1: every dated citation stripped from the
 #               rulebook's prose (stories live in change notes and build records;
@@ -8509,7 +8531,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19io-anecdote-diet"
+APP_BUILD = "2026-08-19ir-turn-starts-at-the-top"
 
 
 @app.get("/health")

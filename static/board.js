@@ -2,6 +2,26 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-19  EVERY TUTOR TURN STARTS AT THE TOP OF THE BOARD (build ir, Jim:
+                 "I constantly need to scroll ... what's showing up on the board is
+                 at the bottom. Every time Mr. Cadabra speaks, he starts speaking in
+                 a bubble that is placed at the top of the visible board -- if I want
+                 what came before, I scroll UP"). Build ax anchored a turn's start at
+                 the top ONLY when the turn was taller than the window; short turns
+                 still pinned to the bottom, which is exactly the eyes-down hunt Jim
+                 described. Now a NEW TUTOR BUBBLE is ALWAYS placed at the visible
+                 top of the feed: history is above (scroll up), and the turn's board
+                 work fills in below it as it arrives. The mechanics: a short turn
+                 near the end of the transcript physically CANNOT sit at the top
+                 (scrollTop clamps at scrollHeight - clientHeight), so a zero-height
+                 spacer (#feedPad) rides as the feed's LAST child and grows just
+                 enough blank to let the turn reach the top -- shrinking again as
+                 real board work replaces it, and collapsing to zero whenever the
+                 view pins to the bottom (student/system bubbles). The spacer is
+                 re-appended only when something landed after it, so the childList
+                 MutationObserver never loops. Student-scrolled-away behavior is
+                 untouched (stickBottom still rules). Applies to session, topic and
+                 practice alike -- one copy, all three boards.
      2026-08-17  NEW FILE (build he -- Phase 2 of the full-app review). All 34
                  top-level board-display functions -- every [[step]]/[[write]]/
                  [[solve]] row, the graph, the figures, the balance, the machine,
@@ -39,9 +59,9 @@ const SPOT_MS = 6000;
 
 // 2026-08-07 (build ax, Jim: "the whiteboard disappears below and I have to scroll
 // constantly"): FOLLOW THE TURN, not just the bottom. Every new tutor turn re-engages
-// following (even if the student had scrolled up to read history), and if the turn is
-// TALLER than the window we show its START (his words + the board under them) instead
-// of pinning to the bottom, which used to shove the bubble off the top of the screen.
+// following (even if the student had scrolled up to read history).
+// 2026-08-19 (build ir): the turn's START now sits at the visible top for EVERY tutor
+// turn, not just window-tall ones -- see scrollFeed and feedPadEl below.
 let lastTurnEl = null;   // the bubble that starts the current tutor turn (null = pin bottom)
 
 let spotTimer = null;
@@ -545,14 +565,42 @@ function showSolve(a) {
 // bubble; the worked-math blocks append right after the tutor's words on that turn.
 function clearHint() { const h = feed.querySelector(".stage-hint"); if (h) h.remove(); }
 
+// build ir (2026-08-19): the blank that lets a SHORT new turn sit at the visible top.
+// Lives as the feed's LAST child (re-appended only when content landed after it, so
+// the childList observer can't loop on our own housekeeping); height is set by
+// scrollFeed each pass and is zero whenever the view pins to the bottom.
+function feedPadEl() {
+  let p = document.getElementById("feedPad");
+  if (!p) {
+    p = document.createElement("div"); p.id = "feedPad";
+    p.style.flex = "0 0 auto"; p.style.height = "0px";
+    p.setAttribute("aria-hidden", "true");
+    feed.appendChild(p);
+  }
+  if (p.nextSibling) feed.appendChild(p);   // keep the blank BELOW the newest work
+  return p;
+}
+
 function scrollFeed() {
   requestAnimationFrame(() => {
     if (!stickBottom) return;
-    let target = feed.scrollHeight;
     if (lastTurnEl && lastTurnEl.isConnected) {
+      // build ir (2026-08-19, Jim's ruling): a tutor turn ALWAYS starts at the top of
+      // the visible board -- history above (scroll up), his board work filling in
+      // below. (Build ax did this only for turns taller than the window; short turns
+      // pinned bottom, and Jim's eyes had to hunt the bottom edge every time.)
+      const pad = feedPadEl();
       const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
-      if (feed.scrollHeight - turnTop > feed.clientHeight) target = Math.max(0, turnTop - 6);
+      const natural = feed.scrollHeight - pad.offsetHeight;    // real content, without the blank
+      const extra = Math.max(0, Math.round(turnTop + feed.clientHeight - natural));
+      if (Math.abs(pad.offsetHeight - extra) > 1) pad.style.height = extra + "px";
+      const target = Math.max(0, turnTop - 6);
+      if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
+      return;
     }
+    const pad = document.getElementById("feedPad");
+    if (pad && pad.offsetHeight) pad.style.height = "0px";     // pin-bottom mode: no blank
+    const target = feed.scrollHeight;
     if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
   });
 }
