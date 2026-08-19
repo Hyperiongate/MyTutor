@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jg-draw-the-move-whole". BUILD jg -- REFEREE
+#               35. Jim, solving 3(x-2)=2x+5: "it put a bubble between those, and the
+#               original equation was out of sight up high... it feels like it doesn't
+#               understand what is on the screen." THE PROMPT CAUSED IT -- five places
+#               said "because the board STACKS, you never re-state the whole solution",
+#               which was TRUE when the worklist was one permanent visible column and
+#               became FALSE once turns scroll (build ir anchors each new bubble at the
+#               TOP, pushing earlier lines off screen). All five rewritten; rule 15(a)
+#               -- which reaches ALL TEN courses -- now says the referents must be in
+#               THIS VERY REPLY, not "earlier", names the live catch, points at
+#               [[solve]] for redrawing a whole chain, and requires a CHECK to be ONE
+#               line. orphan_step_conflict rejects an op drawn over a line the reply
+#               never wrote. Prompt headroom is now TIGHT (algebra2 184,552/186,000):
+#               consolidation Batch 2 is the next thing that buys room. PART 3cm.
 #   2026-08-19  APP_BUILD -> "2026-08-19jf-resume-or-not". BUILD jf -- the ONE clip
 #               in this whole voice investigation that ever started mid-audio logged
 #               currentTime=18.207 after an 8-minute gap, and setPaused() resuming a
@@ -8693,7 +8707,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jf-resume-or-not"
+APP_BUILD = "2026-08-19jg-draw-the-move-whole"
 
 
 @app.get("/health")

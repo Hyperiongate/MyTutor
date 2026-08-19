@@ -13307,6 +13307,65 @@ def part3cl_readable_axes():
           len(o["nlBig"]) <= 13, f"{o['nlBig']}")
 
 
+def part3cm_orphan_step():
+    # build jg (2026-08-19, Jim solving 3(x-2)=2x+5 live): "instead of taking the
+    # original 3x - 6 = 2x + 5, then showing taking 2x from each side and then showing
+    # gives us x - 6 = 5, it actually put a bubble between those, and the original
+    # equation was out of sight up high... it feels like it doesn't understand what is
+    # on the screen." THE PROMPT CAUSED IT: five places said "because the board STACKS,
+    # you never re-state the whole solution", true when the worklist was one permanent
+    # visible column and FALSE once turns scroll -- and build ir now anchors each new
+    # bubble at the top, pushing earlier lines off screen entirely.
+    print("\nPART 3cm — an operation is never drawn over an invisible line (build jg)")
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    check("  fires: Jim's own turn -- an op with nothing under it",
+          bool(tutor.orphan_step_conflict(
+              'Good instinct. [[step op="- 2x" eq="x - 6 = 5"]] What next?')),
+          "an operation still hangs over an equation the student cannot see")
+    check("  silent: the line being acted on is written first",
+          not tutor.orphan_step_conflict(
+              'Here it is. [[step eq="3x - 6 = 2x + 5"]] '
+              '[[step op="- 2x" eq="x - 6 = 5"]] Now what?'),
+          "the fix itself is being rejected")
+    check("  silent: [[solve]] carries its own start",
+          not tutor.orphan_step_conflict(
+              '[[solve start="3x - 6 = 2x + 5" steps="subtract 2x : x - 6 = 5"]]'),
+          "the redraw tool is being rejected")
+    check("  silent: a plain equation with no operation",
+          not tutor.orphan_step_conflict('[[step eq="3x - 6 = 2x + 5"]] What should we do?'),
+          "ordinary board lines are being rejected")
+    check("  silent: nothing on the board at all",
+          not tutor.orphan_step_conflict("Nice work! Ready for another?"),
+          "a talking turn is being rejected")
+    check("  and via the sweep",
+          "Rule 15" in str(tutor.prose_board_conflict(
+              'Good instinct. [[step op="- 2x" eq="x - 6 = 5"]] What next?')),
+          "the referee exists but the sweep never calls it")
+    # THE ROOT CAUSE: the stale premise must be gone from every course, and the
+    # corrected rule must reach every course (rule 15 is the authority; the tag-doc
+    # pointer rides along where [[step op]] is documented).
+    stale, missing = [], []
+    for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+              "precalc", "probstat", "calculus", "diffeq"):
+        p = tutor.build_system_prompt(dict(STUDENT), course=c)
+        if "never re-state the whole solution" in p:
+            stale.append(c)
+        if "SO A MOVE IS DRAWN WHOLE" not in p:
+            missing.append(c)
+    check("the stale 'never re-state' premise is gone from ALL ten courses",
+          not stale,
+          f"still in: {stale} -- those courses will keep drawing ops over invisible lines")
+    check("rule 15(a) now reaches ALL ten courses",
+          not missing, f"missing in: {missing}")
+    # build jg trimmed the anecdote out of the rule prose (the build-io diet: stories
+    # live in change notes and build records). The PRESCRIPTIONS are what must survive.
+    check("rule 15(a) says THIS reply, draws the move whole, and keeps a check to one line",
+          "VERY REPLY" in flat and "SO A MOVE IS DRAWN WHOLE" in flat
+          and "hangs over nothing" in flat and "A CHECK IS ONE LINE" in flat,
+          "the rule lost a prescription and will drift back to op-over-nothing")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13803,6 +13862,7 @@ def main():
     part3cj_column_redraws()
     part3ck_spoken_length()
     part3cl_readable_axes()
+    part3cm_orphan_step()
     part3ai_deploy_stamp()
     if live:
         part4_live()

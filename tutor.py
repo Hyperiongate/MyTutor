@@ -2,6 +2,17 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD jg -- REFEREE 35, THE ORPHAN STEP. Jim, solving 3(x-2)=2x+5:
+#               "it actually put a bubble between those, and the original equation was
+#               out of sight up high... it feels like it doesn't understand what is on
+#               the screen." THE PROMPT CAUSED IT -- five places said "because the
+#               board STACKS, you never re-state the whole solution", which was true
+#               when the worklist was one permanent visible column and became FALSE
+#               once turns scroll (and build ir anchors each new bubble at the top,
+#               pushing earlier lines off-screen entirely). orphan_step_conflict
+#               rejects a reply that draws an operation with no line in that SAME reply
+#               to operate on. The five prompt sites now teach the opposite: write the
+#               line you are acting on, then the op, then the result, together.
 #   2026-08-19  BUILD jd -- REFEREE 34, THE SPOKEN-LENGTH CEILING. Jim's [voiceclip]
 #               probe measured a live turn at 126 spoken words = FORTY-SIX SECONDS of
 #               unbroken speech at a child ("Mr. Cadabra is very slow today"), on a
@@ -4024,6 +4035,51 @@ def back_reference_conflict(reply: str, heard=None):
         return ""
 
 
+# BUILD jg -- RULE 15(a), THE ORPHAN-STEP CHECK (the THIRTY-FIFTH referee).
+# 2026-08-19, Jim solving 3(x-2) = 2x+5 live: "instead of taking the original 3x - 6
+# = 2x + 5, then showing taking 2x from each side and then showing gives us x - 6 =
+# 5, it actually put a bubble between those, and the original equation was out of
+# sight up high... it feels like it doesn't understand what is on the screen."
+# THE PROMPT CAUSED IT. Five places told the model "because the board STACKS, you
+# never re-state the whole solution -- just add the newest line." That was true when
+# the worklist was one permanent column you could always see. It stopped being true
+# when turns scroll -- and build ir, which anchors each new bubble at the TOP of the
+# board, pushed every earlier line off-screen. So the tutor was faithfully drawing
+# "- 2x  - 2x" over a result, with the equation it acted on nowhere on screen.
+# NARROW: fires only when a reply applies an operation ([[step op="..."]]) without
+# ANY earlier line in that same reply establishing what it is operating ON. One extra
+# board line fixes it, and the student sees from-line, operation and result together
+# the way it looks on paper.
+_OP_STEP = re.compile(r'\[\[\s*step\b[^\]]*\bop\s*=\s*"[^"]*"[^\]]*\]\]', re.I)
+_FROM_LINE = re.compile(
+    r'\[\[\s*(?:step|write)\b[^\]]*\b(?:eq|text|lines|result|line)\s*=\s*"[^"]*=[^"]*"', re.I)
+_SOLVE_START = re.compile(r'\[\[\s*solve\b[^\]]*\bstart\s*=', re.I)
+
+
+def orphan_step_conflict(reply: str):
+    """Return a description of an operation drawn over an equation this reply never
+    showed, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        m = _OP_STEP.search(text)
+        if not m:
+            return ""
+        before = text[:m.start()]
+        if _FROM_LINE.search(before) or _SOLVE_START.search(before):
+            return ""            # the line being acted on is right there -- good
+        return ("your board applies an operation -- the op line over both sides -- but "
+                "THIS reply never wrote the equation it is operating ON, so the student "
+                "is looking at a move with nothing under it. Earlier turns have scrolled "
+                "away; only what you draw in THIS reply is on screen. Rule 15: write the "
+                "line you are acting on FIRST, then the operation, then the result, "
+                "together, the way it looks on paper -- e.g. [[step eq=\"3x - 6 = 2x + "
+                "5\"]] then [[step op=\"- 2x\" eq=\"x - 6 = 5\"]].")
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[orphanstep] crashed (fail open): {exc}")
+        _event("referee_crash", "orphanstep", str(exc))
+        return ""
+
+
 # BUILD jd -- RULE 19(c), THE SPOKEN-LENGTH CEILING (the THIRTY-FOURTH referee).
 # 2026-08-19, measured from Jim's own [voiceclip] probe on a live lesson: a single
 # turn came back as 126 spoken words -- FORTY-SIX SECONDS of unbroken speech at a
@@ -5289,7 +5345,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THIRTY-FOUR referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-FIVE referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -5438,6 +5494,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if toolong:
             _event("referee_fire", "spokenlen", toolong)
             return toolong
+        # build jg: THIRTY-FIFTH -- an operation drawn over an equation this reply
+        # never showed (rule 15a). Reply-only; from Jim's live solve.
+        orphan = orphan_step_conflict(reply)
+        if orphan:
+            _event("referee_fire", "orphanstep", orphan)
+            return orphan
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
