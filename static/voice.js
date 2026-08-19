@@ -2,6 +2,19 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-19  BUILD jb -- THE CLIP PROBE (?voiceprobe=1). Jim reported the first
+                 words missing for a FOURTH time. This session ruled the delivery path
+                 out by measurement, not argument: leading silence decodes to ~1,254ms
+                 in Chrome's own decoder, the silence-to-voice seam is lossless (2,000ms
+                 tone -> 2,012ms), [voicehead] reports currentTime=0.000 into a running
+                 graph every clip, forSpeech preserves the opening words, and
+                 stopAllSpeech has a single call site. The bubble text and the spoken
+                 text are the same string, and Jim confirms the missing words ARE in the
+                 bubble. One link was never measured: what ElevenLabs renders. probeClip
+                 decodes the served bytes and reports real leading silence, real voice
+                 duration, and the duration that many words SHOULD take -- so a short
+                 render is unmistakable. Gated (a second, cache-hit fetch), never blocks
+                 playback, fails silent.
      2026-08-18  (build hy) THE VOICE ASKS TWICE. Jim heard it live: he pushed a build
                  while touring the dashboard and ONE line (the tracking bars) came out
                  in the mechanical browser voice before the warm voice returned. The
@@ -171,6 +184,52 @@ function browserSpeak(text, done) {
   } catch (e) { finish(); }
 }
 
+// ---------------------------------------------------------------------------------
+// BUILD jb (2026-08-19) -- THE CLIP PROBE. Jim, a fourth time: the first words are
+// missing. This session PROVED the delivery path innocent, with measurements rather
+// than reasoning: the leading silence really is ~1,254ms (decoded in Chrome itself),
+// the silence-to-voice seam is lossless (a 2,000ms tone came back 2,012ms), the
+// [voicehead] probe reports currentTime=0.000 into a running graph on every clip,
+// forSpeech leaves the opening words intact, and stopAllSpeech has one call site (the
+// tour's Skip button). Bubble text and spoken text are the SAME string. That leaves
+// exactly one unmeasured link: what ElevenLabs actually renders.
+// So this measures the CLIP. It decodes the very bytes the element is playing and
+// reports how much leading silence really arrived, how much VOICE arrived, and how
+// long the voice should have been for that many words. A render that is short at the
+// head shows up instantly as voice<<expected with silence at ~1250ms.
+// GATED, because it costs a second fetch of the clip: add ?voiceprobe=1 (or
+// &voiceprobe=1) to the session URL. That fetch is a server CACHE HIT -- it never
+// spends ElevenLabs money. Never blocks playback, never throws, fails silent.
+const VOICE_PROBE = /[?&]voiceprobe=1/.test(location.search);
+
+function probeClip(url, text) {
+  if (!VOICE_PROBE) return;
+  try {
+    fetch(url)
+      .then(function (r) { return r.arrayBuffer(); })
+      .then(function (bytes) {
+        const C = new (window.AudioContext || window.webkitAudioContext)();
+        return C.decodeAudioData(bytes).then(function (ab) {
+          const ch = ab.getChannelData(0);
+          let onset = -1;
+          for (let i = 0; i < ch.length; i++) {
+            if (Math.abs(ch[i]) > 0.015) { onset = i; break; }
+          }
+          const ms = function (n) { return (n / ab.sampleRate * 1000).toFixed(0); };
+          const words = String(text || "").trim().split(/\s+/).filter(Boolean).length;
+          console.log("[voiceclip] total=" + (ab.duration * 1000).toFixed(0) + "ms"
+            + " | silence=" + (onset < 0 ? "ENTIRELY SILENT" : ms(onset) + "ms")
+            + " | voice=" + (onset < 0 ? "0" : ms(ab.length - onset)) + "ms"
+            + " | words=" + words
+            + " | expected voice~" + Math.round(words / 2.6 * 1000) + "ms"
+            + " | text starts: " + JSON.stringify(String(text || "").slice(0, 44)));
+          try { C.close(); } catch (e) {}
+        });
+      })
+      .catch(function () {});
+  } catch (e) {}
+}
+
 function speak(text) {
   return new Promise((resolve) => {
     if (!text) { resolve(); return; }
@@ -272,6 +331,7 @@ function speak(text) {
           if (d && d.voice === false) { fallToBrowser(); return; }   // an answer, not an outage
           if (!d || !d.t) { failedClip("empty prep"); return; }
           ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);
+          probeClip(ttsAudio.src, text);   // build jb: measures the clip, never blocks it
           const p = ttsAudio.play();
           if (p && p.catch) p.catch(() => { if (!started) failedClip("play rejected"); });
         })

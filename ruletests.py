@@ -13079,6 +13079,32 @@ def part3ch_teach_before_ask():
           "; ".join(offenders)[:300])
 
 
+def part3ci_clip_probe():
+    # build jb (2026-08-19): Jim's FOURTH report of missing first words. Everything
+    # in the delivery path was measured innocent this session, so the probe now aims
+    # at the only unmeasured link -- what ElevenLabs actually renders. These pins keep
+    # the probe honest: gated (it costs a second fetch), non-blocking, and it must
+    # report the three numbers that make a short render obvious.
+    print("\nPART 3ci — the clip probe (build jb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    v = open(os.path.join(here, "static", "voice.js"), encoding="utf-8").read()
+    check("the probe exists and is GATED behind ?voiceprobe=1",
+          "function probeClip(" in v and "voiceprobe=1" in v
+          and "const VOICE_PROBE" in v,
+          "an ungated probe doubles every student's audio bandwidth forever")
+    check("it reports leading silence, voice length, and the expected length",
+          "silence=" in v and "voice=" in v and "expected voice~" in v,
+          "without all three numbers a short render cannot be told from a long pause")
+    check("it can never block or break playback",
+          ("probeClip(ttsAudio.src, text);   // build jb: measures the clip, never "
+           "blocks it\n          const p = ttsAudio.play();") in v
+          and ".catch(function () {});" in v,
+          "a diagnostic that can stall or throw is worse than the defect it hunts")
+    check("the head-of-clip probe from build gn is still there beside it",
+          "[voicehead]" in v and "currentTime=" in v,
+          "the two probes answer different questions -- losing gn's leaves a blind spot")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13571,6 +13597,7 @@ def main():
     part3cf_pluggable_brain()
     part3cg_nightwatch_five()
     part3ch_teach_before_ask()
+    part3ci_clip_probe()
     part3ai_deploy_stamp()
     if live:
         part4_live()

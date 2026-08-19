@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jb-measure-the-clip". BUILD jb -- Jim's
+#               FOURTH report of missing first words. This session ruled the whole
+#               delivery path innocent BY MEASUREMENT: the lead silence decodes to
+#               ~1,254ms in Chrome's own decoder, the silence-to-voice seam is
+#               lossless (a 2,000ms tone came back 2,012ms), his [voicehead] lines
+#               show currentTime=0.000 into a running graph on every clip, forSpeech
+#               preserves the opening words, stopAllSpeech has ONE call site, and he
+#               confirms the missing words ARE in the chat bubble -- and bubble text
+#               and spoken text are the same string. ONE link was never measured:
+#               what ElevenLabs renders. probeClip (?voiceprobe=1, cache-hit fetch,
+#               non-blocking, fails silent) decodes the served bytes and reports the
+#               real leading silence, the real voice duration, and what that many
+#               words SHOULD take -- so a short render is unmistakable. NO behaviour
+#               change: this build only ends the guessing, exactly as gn's probe was
+#               meant to. Pinned in ruletests PART 3ci. ALL CODE IS IN
+#               static/voice.js; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19ja-teach-before-you-ask". BUILD ja -- Jim,
 #               watching a live entry-level lesson: "it's starting off by asking a
 #               question right away... somehow there needs to be more teaching
@@ -8619,7 +8635,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19ja-teach-before-you-ask"
+APP_BUILD = "2026-08-19jb-measure-the-clip"
 
 
 @app.get("/health")
