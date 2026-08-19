@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jf-resume-or-not". BUILD jf -- the ONE clip
+#               in this whole voice investigation that ever started mid-audio logged
+#               currentTime=18.207 after an 8-minute gap, and setPaused() resuming a
+#               half-played clip produces exactly that line -- as does a spontaneous
+#               restart, which would drop a child's sentence. Opposite diagnoses,
+#               identical log. Jim could not recall pressing Pause, so the probe now
+#               reports viaResume=true/false: each page stamps lastResumeAt the
+#               instant a RESUME asks for playback. Measurement, not memory -- the
+#               standing lesson of this whole hunt. ALL CODE IS IN static/voice.js +
+#               the three pages' setPaused; this file only carries the stamp. 3ci.
 #   2026-08-19  APP_BUILD -> "2026-08-19je-readable-axes". BUILD je -- Jim, on a live
 #               statistics lesson: "the number line in this diagram is ridiculous.
 #               There is no way that you can read it, and there's plenty of room on
@@ -8683,7 +8693,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19je-readable-axes"
+APP_BUILD = "2026-08-19jf-resume-or-not"
 
 
 @app.get("/health")

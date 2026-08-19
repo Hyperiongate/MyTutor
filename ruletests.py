@@ -13106,6 +13106,20 @@ def part3ci_clip_probe():
     check("the head-of-clip probe from build gn is still there beside it",
           "[voicehead]" in v and "currentTime=" in v,
           "the two probes answer different questions -- losing gn's leaves a blind spot")
+    # build jf: a RESUME and a spontaneous mid-clip start log identically
+    # (currentTime > 0) and mean opposite things -- one is the Pause button working,
+    # the other drops a child's sentence. The probe now says which, and every page
+    # that can resume must stamp it or that page's log lies.
+    check("the probe distinguishes a resume from a spontaneous mid-clip start",
+          "viaResume=" in v and "let lastResumeAt = 0;" in v,
+          "a mid-clip start is undiagnosable again -- exactly the ambiguity that "
+          "stalled the 18.207 reading")
+    here2 = os.path.dirname(os.path.abspath(__file__))
+    for page in ("session", "topic", "practice"):
+        src = open(os.path.join(here2, "static", f"{page}.html"), encoding="utf-8").read()
+        check(f"  {page}.html stamps lastResumeAt when it resumes",
+              "lastResumeAt = Date.now();" in src,
+              "this page's resumes will be reported as spontaneous mid-clip starts")
 
 
 def part3cj_column_redraws():

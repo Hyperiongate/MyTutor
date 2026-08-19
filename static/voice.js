@@ -93,7 +93,14 @@ let elevenEnabled = false;     // natural voice available?
 // ---------- Speak: stream ElevenLabs, else browser voice ----------
 let maleVoice = null;
 
-let paused = false;   // toggled by each page's own pause button; a deliberate pause never burns the withDeadline clock
+let paused = false;
+// build jf (2026-08-19): set by each page's setPaused() the instant a RESUME asks
+// for playback. The ONLY clip that has ever started mid-audio in this whole
+// investigation logged currentTime=18.207 after an 8-minute gap, and Jim could not
+// remember whether he had pressed Pause. A resume and a spontaneous mid-clip start
+// look identical in the log; they are opposite diagnoses -- one is the feature
+// working, the other drops a child's sentence. Now the probe says which.
+let lastResumeAt = 0;   // toggled by each page's own pause button; a deliberate pause never burns the withDeadline clock
 
 // ---------- THE PIPELINE ----------
 
@@ -260,6 +267,7 @@ function speak(text) {
                     " | ctx0=" + ctxAtRequest +
                     " | ctx=" + (audioCtx ? audioCtx.state : "none") +
                     " | currentTime=" + (ttsAudio.currentTime || 0).toFixed(3) +
+                    " | viaResume=" + ((Date.now() - lastResumeAt) < 4000) +
                     " | first=" + firstClipOfSession);
       } catch (e) {}
       firstClipOfSession = false;
