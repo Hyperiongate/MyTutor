@@ -12945,6 +12945,36 @@ def part3cf_pluggable_brain():
           "a typo'd lineup would silently run the default and report it as the experiment")
 
 
+def part3cg_nightwatch_five():
+    # build ix (2026-08-19): the night watch's FIVE confirmed findings (its first
+    # run on the iv build), closed at the rulebook -- the standing promotion path:
+    # make the rule words exact first; the watch re-checks nightly, and a repeat
+    # earns a referee. Flat pins so no clause can silently vanish in a later diet.
+    print("\nPART 3cg — the night watch's five, closed in the rulebook (build ix)")
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    check("rule 13(b): a definition states its FULL general form, then narrows",
+          "A DEFINITION IS STATED IN ITS FULL GENERAL FORM, THEN NARROWED TO THE BOARD" in flat
+          and "with a not zero" in flat,
+          "standard form loses its leading coefficient again")
+    check("  ...and a quadratic is degree two, not 'has an x-squared term'",
+          "HIGHEST power of x is 2" in flat,
+          "x⁴ + x² becomes a quadratic again")
+    check('rule 14: "another name for y" only AFTER y = f(x) is on the board',
+          'Never write "f(x) is just another name for y" onto a board where y has not been defined' in flat
+          and '"**f(x)** is just another name for y:' not in flat,
+          "the prompt itself teaches the undefined-y board line the watch caught")
+    check("rule 32(c): money you HAVE is not a COST",
+          "MONEY YOU HAVE IS NOT A COST" in flat
+          and "delivery fee" in flat,
+          "the pocket-money story models the wrong expression again")
+    check("rule 61(c) grew the hole-rule entry (nine -> ten)",
+          "THE TEN THAT WERE CAUGHT" in flat
+          and "THE NINE THAT WERE CAUGHT" not in flat
+          and "a cancelled zero is a hole only when the fully SIMPLIFIED expression is defined" in flat,
+          "every cancelled-factor zero becomes a hole again -- (x-1)/(x-1)² disagrees")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13435,6 +13465,7 @@ def main():
     part3cd_board_room()
     part3ce_tapped_answer()
     part3cf_pluggable_brain()
+    part3cg_nightwatch_five()
     part3ai_deploy_stamp()
     if live:
         part4_live()

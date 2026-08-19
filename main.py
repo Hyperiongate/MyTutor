@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19ix-nightwatch-five-closed". BUILD ix --
+#               the night watch's first run on the iv build confirmed FIVE
+#               findings (2 definition-precision, the pocket-money story, the
+#               overgeneralized hole rule, and the undefined-y board line that
+#               our OWN rule 14 wording was teaching). All five closed at the
+#               rulebook: rule 13 gains (b) FULL-GENERAL-FORM DEFINITIONS,
+#               rule 14's function-notation example now defines y FIRST,
+#               rule 32 gains (c) MONEY YOU HAVE IS NOT A COST, rule 61's
+#               caught-in-real-lessons list grows to TEN with the qualified
+#               hole rule. Words first, per the promotion discipline -- the
+#               watch re-checks nightly and a repeat earns a referee. Pinned in
+#               ruletests PART 3cg; RULES.md regenerated. ALL CODE IS IN
+#               prompts.py / ruletests.py; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19iw-spoken-fraction-counts". BUILD iw --
 #               two catches from Jim's FIRST Opus audit run: (1) referee 33
 #               false-fired on a tapped "3/4" answered back as "three fourths"
@@ -8564,7 +8577,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19iw-spoken-fraction-counts"
+APP_BUILD = "2026-08-19ix-nightwatch-five-closed"
 
 
 @app.get("/health")
