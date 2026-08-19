@@ -617,6 +617,16 @@
     .colmath .cip { text-align:right; opacity:0; animation: stepin .4s ease forwards; }
     .colmath .cfp { text-align:left; opacity:0; animation: stepin .4s ease forwards; }
     .colmath .cres { color:#0e9f6e; }
+    /* build jc (2026-08-19): the carry row above the columns, the answer digits as
+       they get written, and the RED that marks whatever is new THIS step. .dig keeps
+       the PARENT font-size on purpose, so 1ch is a true digit width and a carry sits
+       exactly over its column; the inner <i> is what renders small. */
+    .colmath .dig { display:inline-block; width:1ch; text-align:center; }
+    .colmath .dig > i { font-style:normal; }
+    .colmath .ccarry { line-height:0.62; height:0.62em; color:#6b7280; }
+    .colmath .ccarry .dig > i { font-size:0.42em; }
+    .colmath .cpart { color:#0e9f6e; }
+    .colmath .cnew > i { color:#e0392b; }
     .colmath .crule { grid-column:1 / -1; border-top:3px solid var(--ink); height:0; margin:6px 0 4px; }
     .colmath .ccap { grid-column:1 / -1; text-align:center; font-size:15px; font-weight:600; color:var(--muted); margin-top:10px; }
     /* build di (audit S-9): the DELIBERATELY-WRONG last-digit lineup -- amber, dashed

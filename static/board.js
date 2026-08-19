@@ -2,6 +2,18 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-19  BUILD jc -- THE COLUMN REDRAWS ITSELF, NEW MARKS IN RED (Jim, live on
+                 a five-digit addition: "as you complete steps, what you just did
+                 disappears off the top of the screen... it would be better if they
+                 restated what it looked like... the three underneath the eight and
+                 five in red, and the one carried above the tens column in red").
+                 [[column]] gains carries="1_" and partial="43" -- both RIGHT-ALIGNED
+                 to the ones column, "_" for a blank -- so the tutor re-emits the same
+                 problem each step and the board redraws it whole. The page DIFFS the
+                 new state against the last render of that same problem and reds only
+                 what changed, so the model states the state and cannot get the
+                 highlighting wrong. result= (the green final answer) and align="last"
+                 (build di's deliberately-wrong lineup) are untouched.
      2026-08-19  EVERY TUTOR TURN STARTS AT THE TOP OF THE BOARD (build ir, Jim:
                  "I constantly need to scroll ... what's showing up on the board is
                  at the bottom. Every time Mr. Cadabra speaks, he starts speaking in
@@ -494,6 +506,28 @@ function colOp(op) {
   return "+";
 }
 
+// build jc (2026-08-19, Jim watching a live column-addition lesson): THE COLUMN
+// REDRAWS ITSELF, AND THE NEW MARKS ARE RED. "As you complete steps, what you just
+// did disappears off the top of the screen... it would be better if they restated
+// what it looked like -- the three underneath the eight and five in red, and the one
+// carried above the tens column in red -- so we could see the original problem with
+// the progress we made." Before this, a demonstration emitted one [[step]] line per
+// stage ("ones: 4 + 7 = 11", "write 1, carry 1") and the PROBLEM scrolled away, so the
+// student was reading a transcript of arithmetic instead of watching a sum being
+// worked. Now the tutor re-emits the SAME [[column]] each step with the marks made so
+// far -- carries="1_" (right-aligned above the columns) and partial="43" (the answer
+// digits written so far) -- and the board redraws the whole problem in place.
+// WHAT IS NEW IS RED, and the page works that out ITSELF by diffing against the last
+// render of this same problem, so the model only has to state the current state and
+// cannot get the highlighting wrong. Blanks are "_", "." or a space; both strings are
+// RIGHT-ALIGNED to the ones column, so a carry above the tens is just "1_".
+let _colState = {};
+
+function _colDigits(s) {
+  return String(s == null ? "" : s).split("")
+    .map(function (c) { return (c === "_" || c === "." || c === " ") ? "" : c; });
+}
+
 function showColumn(a) {
   const terms = String(a.terms || a.nums || a.lines || "").split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean);
   if (!terms.length) return;
@@ -509,6 +543,34 @@ function showColumn(a) {
   const wrongAlign = String(a.align || "").trim().toLowerCase() === "last";
   const stage = feedBlock();
   const box = document.createElement("div"); box.className = "colmath pop" + (wrongAlign ? " colwrong" : "");
+
+  // build jc: the carry row and the partial-answer row, with new marks in red.
+  const carries = String(a.carries || a.carry || "");
+  const partial = String(a.partial || a.sofar || "");
+  const key = op + "||" + terms.join("|");
+  const prev = (!wrongAlign && _colState[key]) ? _colState[key] : { carries: "", partial: "" };
+  const addDigitRow = (rowCls, nowStr, wasStr) => {
+    const now = _colDigits(nowStr), was = _colDigits(wasStr);
+    const cop = document.createElement("div"); cop.className = "cop";
+    const mid = document.createElement("div"); mid.className = "cip " + rowCls;
+    const offset = now.length - was.length;          // both rows are right-aligned
+    now.forEach((d, i2) => {
+      const sp = document.createElement("span"); sp.className = "dig";
+      if (d) {
+        const k = i2 - offset;
+        const before = (k >= 0 && k < was.length) ? was[k] : "";
+        if (before !== d) sp.classList.add("cnew");  // THIS is what turns it red
+        const inner = document.createElement("i"); inner.textContent = d;
+        sp.appendChild(inner);
+      }
+      mid.appendChild(sp);
+    });
+    const cfp = document.createElement("div"); cfp.className = "cfp";
+    box.appendChild(cop); box.appendChild(mid); box.appendChild(cfp);
+  };
+
+  if (carries && !wrongAlign) addDigitRow("ccarry", carries, prev.carries);
+
   const addRow = (num, showOp, resClass) => {
     const rc = resClass ? " cres" : "";
     const parts = wrongAlign ? { ip: String(num), fp: "" } : splitNum(num);
@@ -522,11 +584,15 @@ function showColumn(a) {
   const rule = document.createElement("div"); rule.className = "crule"; box.appendChild(rule);
   const res = String(a.result || a.sum || a.answer || a.total || "").trim();
   if (res && !wrongAlign) addRow(res, false, true);   // never complete the wrong layout
+  else if (partial && !wrongAlign) addDigitRow("cpart", partial, prev.partial);
   if (wrongAlign) { const w = document.createElement("div"); w.className = "cwarn"; w.textContent = "\u26a0 lined up by the LAST digit \u2014 the wrong way"; box.appendChild(w); }
   if (a.caption || a.cap) { const c = document.createElement("div"); c.className = "ccap"; c.textContent = (a.caption || a.cap); box.appendChild(c); }
+  if (!wrongAlign && (carries || partial)) {
+    if (Object.keys(_colState).length > 24) _colState = {};   // never grows without bound
+    _colState[key] = { carries: carries, partial: partial };
+  }
   stage.appendChild(box); scrollFeed();
 }
-
 // [[write lines="2X + 1 = 15 | X = 7" caption="..."]] -- legacy catch-all. It now
 // APPENDS its line(s) to the same persistent worklist (so it STACKS instead of
 // replacing the board). Prefer [[step]]; this is kept so older behavior still works.

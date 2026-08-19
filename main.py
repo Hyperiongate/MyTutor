@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jc-the-column-redraws". BUILD jc -- Jim,
+#               watching a five-digit carrying lesson: "as you complete steps, what
+#               you just did disappears off the top of the screen... it would be
+#               better if they restated what it looked like -- the three underneath
+#               the eight and five in red, and the one carried above the tens column
+#               in red." [[column]] gains carries="1_" and partial="43" (both
+#               RIGHT-ALIGNED to the ones column, "_" = empty), so the tutor re-emits
+#               the same problem after each place and the board REDRAWS IT WHOLE. The
+#               page diffs against the last render of that problem and reds only what
+#               changed -- the model states where the work stands and cannot get the
+#               highlighting wrong. Verified by rendering the real sequence in
+#               Chromium: carries land 0px off their columns. Also rule 13(c), his
+#               second catch the same lesson: ONE TEST KEEPS ONE WORDING ("greater
+#               than nine" and "ten or bigger" are one rule to us and two to a child
+#               learning to carry). ALL CODE IS IN static/board.js + the three pages'
+#               CSS + prompts.py; this file only carries the stamp. Pinned PART 3cj.
 #   2026-08-19  APP_BUILD -> "2026-08-19jb-measure-the-clip". BUILD jb -- Jim's
 #               FOURTH report of missing first words. This session ruled the whole
 #               delivery path innocent BY MEASUREMENT: the lead silence decodes to
@@ -8635,7 +8651,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jb-measure-the-clip"
+APP_BUILD = "2026-08-19jc-the-column-redraws"
 
 
 @app.get("/health")

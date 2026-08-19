@@ -13105,6 +13105,77 @@ def part3ci_clip_probe():
           "the two probes answer different questions -- losing gn's leaves a blind spot")
 
 
+def part3cj_column_redraws():
+    # build jc (2026-08-19, Jim watching a five-digit carrying lesson): "as you
+    # complete steps, what you just did disappears off the top of the screen... it
+    # would be better if they restated what it looked like -- the three underneath
+    # the eight and five in red, and the one carried above the tens column in red."
+    # Plus his second catch in the same lesson: "greater than nine" and "ten or
+    # bigger" used as if a beginner knows they are the same test.
+    print("\nPART 3cj — the column redraws itself, new marks in red (build jc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    b = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    check("showColumn accepts carries and a partial answer",
+          "a.carries || a.carry" in b and "a.partial || a.sofar" in b,
+          "the board can only show a finished sum again -- the problem scrolls away "
+          "mid-demonstration, which is exactly Jim's catch")
+    check("the PAGE decides what is new by diffing the last render (the model cannot "
+          "get the highlighting wrong)",
+          "_colState" in b and 'sp.classList.add("cnew")' in b
+          and "before !== d" in b,
+          "highlighting became something the model has to declare -- it will drift")
+    check("blanks are _ . or space, and both rows are right-aligned",
+          'c === "_" || c === "." || c === " "' in b
+          and "now.length - was.length" in b,
+          "a carry can no longer be placed over its own column")
+    check("the state map can never grow without bound",
+          "Object.keys(_colState).length > 24" in b,
+          "a long session leaks board state forever")
+    check("build di's deliberately-wrong lineup is untouched",
+          'align || ""' in b and "colwrong" in b and "never complete the wrong layout" in b,
+          "the wrong-way demo was collateral damage")
+    for page in ("session", "topic", "practice"):
+        css = open(os.path.join(here, "static", f"{page}.html"), encoding="utf-8").read()
+        check(f"  {page}.html styles the carry row, the partial answer and the red",
+              ".colmath .ccarry" in css and ".colmath .cpart" in css
+              and ".colmath .cnew > i" in css and ".colmath .dig { display:inline-block; width:1ch" in css,
+              "one board renders the carries differently from its siblings -- the "
+              "per-copy drift class gz exists to kill")
+    # The tag documentation lives per COURSE (GRAPH_TOOL_NOTE is the rulebook), so
+    # this is checked in BUILT prompts. Only the courses that actually WORK column
+    # arithmetic need the redrawing form -- a course that teaches it as a tool shows
+    # a real worked example ([[column op="+" ... result="..."]]). Algebra I and up
+    # mention [[column]] ONLY inside build di's wrong-lineup contrast demo
+    # (align="last"), a single picture that is never worked step by step, so they are
+    # deliberately not required to carry the extra teaching (and algebra2 has barely
+    # 3.8K of prompt headroom -- see build ja's note).
+    import tutor as _t
+    teaches, missing = [], []
+    for _c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+               "precalc", "probstat", "calculus", "diffeq"):
+        _p = _t.build_system_prompt(dict(STUDENT), course=_c)
+        works_columns = any(('[[column op=' in ln and 'result=' in ln
+                             and 'align="last"' not in ln)
+                            for ln in _p.splitlines())
+        if not works_columns:
+            continue
+        teaches.append(_c)
+        if ("WORK IT COLUMN BY COLUMN AND THE BOARD REDRAWS ITSELF" not in _p
+                or 'carries="11_" partial="43"' not in _p):
+            missing.append(_c)
+    check(f"every course that WORKS column arithmetic teaches the redrawing form "
+          f"({len(teaches)}: {', '.join(teaches)})",
+          len(teaches) >= 3 and not missing,
+          f"missing in: {missing} -- those boards still scroll the problem out of "
+          "sight mid-demonstration, which is Jim's catch unfixed")
+    check("rule 13(c): one test keeps one wording (Jim's greater-than-nine catch)",
+          "SAY A TEST THE SAME WAY EVERY TIME YOU SAY IT" in flat
+          and "ten or bigger" in flat and "greater than nine" in flat,
+          "a beginner meets two rules where the teacher meant one")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13598,6 +13669,7 @@ def main():
     part3cg_nightwatch_five()
     part3ch_teach_before_ask()
     part3ci_clip_probe()
+    part3cj_column_redraws()
     part3ai_deploy_stamp()
     if live:
         part4_live()
