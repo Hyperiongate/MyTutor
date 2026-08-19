@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19io-anecdote-diet". BUILD io -- the approved
+#               consolidation's Batch 1: every dated citation stripped from the
+#               rulebook's prose (stories live in change notes and build records;
+#               principles, prescriptions and teaching examples intact).
+#               GRAPH_TOOL_NOTE 105,253 -> 101,407. Battery 4,776 green with ONE
+#               deliberate anchor update (49f). ALL CODE IS IN prompts.py /
+#               ruletests.py; this file only carries the stamp. Next: the merge
+#               clusters (Batches 2-3), per the proposal doc.
+#   2026-08-19  APP_BUILD -> "2026-08-19in-glow-not-geometry". BUILD in -- the
+#               session tour stops pointing with layout words (Jim on a phone: the
+#               sidebar stacks below the chat, so "over on the left" pointed at
+#               nothing). Glow-anchored wording throughout; welcome card fixed;
+#               pinned in PART 3cb. ALL CODE IS IN static/session.html; this file
+#               only carries the stamp. (demo.html's identical phrases are
+#               pre-rendered clips -- queued, needs a re-render pass.)
 #   2026-08-18  APP_BUILD -> "2026-08-18im-stray-word-refuses". BUILD im -- the
 #               lessonaudit CLI refuses stray words loudly instead of silently
 #               running the default (Jim's 13-minute loss: `prompt-size large`
@@ -8494,7 +8509,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-18im-stray-word-refuses"
+APP_BUILD = "2026-08-19io-anecdote-diet"
 
 
 @app.get("/health")

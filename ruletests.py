@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILDS in + io -- in: PART 3cb gains the glow-is-the-pointer pin (no
+#               tour line may point with layout geometry). io (the anecdote diet,
+#               batch 1): rule 49(f)'s date pin replaced with a prescription anchor
+#               -- the ONE deliberate pin change; every other pin survived the diet
+#               untouched, which is the proof the diet cut only scaffolding.
 #   2026-08-18  BUILD il -- PART 3cc, THE TODAY BAR MAKES REAL CALLS: pins the two
 #               server calls and their wiring (match-tick in the quiz AND check
 #               recording branches; time-tick on the minute beat; the injection net
@@ -7070,7 +7075,11 @@ def part3y_diagnosis_and_symbols():
     for label, needle in (
         ("their stated rule is EVIDENCE, not a hypothesis",
          "WHEN THEY TELL YOU THEIR RULE, THAT IS NOT A HYPOTHESIS"),
-        ("the live catch is recorded with its date", "Live catch, 2026-08-12"),
+        # build io (the anecdote diet, from the prompt-size experiment's verdict):
+        # the dated story moved to the build records; the anchor now holds the
+        # PRESCRIPTION the story taught, which is what a student actually needs.
+        ("the catalogue never overrides a student's own spoken rule",
+         "never answer a catalogued\n        mistake while the student's own spoken rule survives"),
         ("the move: say it back, name when it IS true, show where it breaks",
          "say exactly WHEN it is true and when it is not"),
     ):
@@ -12525,6 +12534,13 @@ def part3cb_tour_once():
           and 'runTutor("__tour_done__")' in hsrc
           and 'runTutor("__tour_done_declined__")' in hsrc,
           "a skipped tour is not recorded -- the replay bug returns for skippers")
+    # build in (Jim on a phone: the sidebar stacks BELOW the chat, so "over on the
+    # left" pointed at nothing): the tour's pointer is the GLOW, never the layout.
+    tour_block = hsrc[hsrc.index("const TOUR_STEPS"):hsrc.index("const delay")]
+    check("no tour line points with layout geometry (the glow is the pointer)",
+          not re.search(r"on the left|right below it|right under it|in the corner",
+                        tour_block, re.I),
+          "a phone student is told to look where nothing is")
     try:
         import sqlalchemy  # noqa: F401
     except Exception:  # noqa: BLE001

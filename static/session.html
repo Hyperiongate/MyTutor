@@ -289,6 +289,16 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-08-19  (build in) THE GLOW IS THE POINTER, NEVER THE GEOMETRY. Jim on a
+                phone: the sidebar stacks below the chat, so the tour's "over on
+                the left" pointed at nothing. All layout-directional tour language
+                ("on the left", "right below it", "right under it", "up here in
+                the corner") replaced with glow-anchored wording -- the highlight
+                already moves BEFORE each line, so the glow is the true pointer on
+                every screen size. The welcome card's "on the left" -> "in the
+                sidebar". (demo.html's tour has the same phrases but those are
+                PRE-RENDERED voice clips -- queued separately; changing them means
+                re-rendering audio.) Battery pin added in PART 3cb.
     2026-08-18  (build il) THE TODAY BAR MAKES REAL CALLS. Jim's ruling: today =
                 progress AND honest work-time. [[todaydone]] may now carry
                 kind="worked" (a tick the SERVER earned from ~15 engaged minutes on
@@ -1494,7 +1504,7 @@
       <ul>
         <li><span class="ic">🔊</span><span>Your tutor <b>talks you through it out loud</b> and draws on the board as you go — so <b>turn your speakers or headphones on</b>.</span></li>
         <li id="welcomeAnswerTip"><span class="ic">⌨️</span><span>When it's your turn, <b>type your answer</b> below and press Enter ⏎.</span></li>
-        <li><span class="ic">📋</span><span>Your lesson plan is on the left, and your <b>Progress dashboard</b> is one click away.</span></li>
+        <li><span class="ic">📋</span><span>Your lesson plan is in the sidebar, and your <b>Progress dashboard</b> is one click away.</span></li>
       </ul>
       <button class="welcome-go" id="welcomeGo">Let's get started ▶</button>
       <a id="welcomeChallenge" href="#" style="display:inline-block; margin-top:12px; font-size:13px; color:var(--muted); text-decoration:underline;">…or take the full course assessment to map your strengths 📋</a>
@@ -2929,15 +2939,15 @@
     // no more doubling up ("two more helpers..." covered practice + assessment in one breath).
     const TOUR_STEPS = [
       { id: "curriculum",
-        text: "See the glowing spot? Over on the left is your Curriculum — everything we'll learn in " + COURSE_TITLE + ", laid out in nine units. Click any unit to see exactly what's inside it." },
+        text: "See the glowing spot? That's your Curriculum — everything we'll learn in " + COURSE_TITLE + ", laid out in nine units. Click any unit to see exactly what's inside it." },
       { id: "assess",
-        text: "Right below it, the Course Assessment. Whenever you're ready, it finds your strengths and builds a recommended path that's just for you. It's totally optional — and it's always waiting right there." },
+        text: "Now the glow has moved to the Course Assessment. Whenever you're ready, it finds your strengths and builds a recommended path that's just for you. It's totally optional — and it's always waiting right there." },
       { id: "dashboard",
         text: "Next, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "practice",
         text: "Then Practice a problem — for when you're stuck on one specific problem, from homework or anywhere. Bring it to me there and we'll work through it together." },
       { id: "topic",
-        text: "Right under it, Explore a topic. Curious about just one thing — fractions, slope, anything? Open it, name your topic, and we'll dig into exactly that." },
+        text: "Now glowing: Explore a topic. Curious about just one thing — fractions, slope, anything? Open it, name your topic, and we'll dig into exactly that." },
       { id: "final",
         text: "And the Final Exam — that's the top of the mountain. It unlocks once you've mastered all nine units, and passing it makes you a Course Champion. Something to look forward to!" },
       { id: "library",
@@ -2945,7 +2955,7 @@
       { id: "bars",
         text: "Now look at those thin bars up top — they're your maps, and they never lie. The top one is TODAY: it fills in as you nail each of today's goals. The middle one is your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. The bottom one is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam." },
       { id: "tutor",
-        text: "And up here in the corner — that's me, Mr. Cadabra! The big board in the middle of the screen is mine too: that's where I'll draw every step as we go." },
+        text: "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
         text: IS_ELEM
           ? (canRecord
