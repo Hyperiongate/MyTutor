@@ -2,6 +2,21 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19je-readable-axes". BUILD je -- Jim, on a live
+#               statistics lesson: "the number line in this diagram is ridiculous.
+#               There is no way that you can read it, and there's plenty of room on
+#               the whiteboard to have a bigger number line." A dot plot of homework
+#               minutes 20..90 printed a LABEL FOR EVERY INTEGER -- 71 numbers in
+#               420px -- an unbroken smear of digits. [[dotplot]] AND [[numberline]]
+#               both looped `t++` and labelled every step, so any wide range was
+#               unreadable (a 0..100 number line drew 101 labels). Now fitStep picks a
+#               human tick (1, 2, 2.5, 5, 10, 20 ...) and WIDENS it until neighbouring
+#               labels measurably cannot touch; whole-number data never gets 3.25-style
+#               ticks; both figures grew (680 / 660px) and the dot plot's HEIGHT now
+#               follows its tallest stack instead of a fixed 200px of mostly blank
+#               board. Verified by rendering 8 ranges in Chromium: ZERO overlapping
+#               label pairs, and -10..10 still keeps every whole number. ALL CODE IS IN
+#               static/math-figures.js; this file only carries the stamp. PART 3cl.
 #   2026-08-19  APP_BUILD -> "2026-08-19jd-one-beat-per-turn". BUILD jd -- REFEREE
 #               34, measured straight off Jim's [voiceclip] probe: a live turn came
 #               back at 126 spoken words = FORTY-SIX SECONDS of unbroken speech at a
@@ -8668,7 +8683,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jd-one-beat-per-turn"
+APP_BUILD = "2026-08-19je-readable-axes"
 
 
 @app.get("/health")

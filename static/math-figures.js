@@ -408,6 +408,71 @@
   }
 
   // ================= STATISTICS & PROBABILITY FIGURES (Stage 2) =================
+  // build je (2026-08-19, Jim: "the number line in this diagram is ridiculous, there
+  // is no way that you can read it"). A dot plot of homework minutes 20..90 printed a
+  // LABEL FOR EVERY INTEGER -- 71 numbers in 420px, about 6px each -- which rendered
+  // as one unbroken smear of digits. Both the dot plot and the number line used
+  // `for (t = min; t <= max; t++)` and labelled every step, so ANY wide range was
+  // unreadable. niceStep picks a human tick size (1, 2, 2.5, 5, 10, 20, 25, 50 ...)
+  // from how much room a label actually needs, so the axis is labelled the way a
+  // person would label it and the ticks in between stay unlabelled.
+  // intOnly: the quantity being plotted is whole (counts, minutes, scores), so a
+  // tick of 0.25 would be a lie about the data -- clamp to whole-number steps.
+  // (Caught in the build je render check: a dot plot of 3,4,4,5,6 was about to be
+  // labelled 3, 3.25, 3.5, 3.75 ...)
+  function niceStep(span, plotW, minPx, intOnly) {
+    if (!(span > 0)) return 1;
+    var maxTicks = Math.max(2, Math.floor(plotW / (minPx || 40)));
+    var raw = span / maxTicks;
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var mults = [1, 2, 2.5, 5, 10];
+    var step = 10 * mag;
+    for (var i = 0; i < mults.length; i++) {
+      if (mults[i] * mag >= raw) { step = mults[i] * mag; break; }
+    }
+    if (intOnly) step = Math.max(1, Math.round(step));
+    return step;
+  }
+  // The next nice step up (1 -> 2 -> 2.5 -> 5 -> 10 -> 20 ...), always larger.
+  function nextNiceStep(step, intOnly) {
+    var mag = Math.pow(10, Math.floor(Math.log(step * 1.0000001) / Math.LN10));
+    var m = step / mag, nxt;
+    if (m < 1.5) nxt = 2 * mag; else if (m < 2.25) nxt = 2.5 * mag;
+    else if (m < 3.5) nxt = 5 * mag; else nxt = 10 * mag;
+    if (intOnly) nxt = Math.max(1, Math.round(nxt));
+    return nxt > step ? nxt : step * 2;
+  }
+  // A step whose labels genuinely FIT: widen until no two NEIGHBOURING labels can
+  // touch, measured from their real character counts. This is what stops both the
+  // 71-number smear and a "0, 0.05, 0.1 ..." line whose labels overlap -- while
+  // still keeping every whole number on the classic -10..10 line, where they fit.
+  function fitStep(min, max, plotW, fontPx, intOnly) {
+    var span = max - min; if (!(span > 0)) return 1;
+    var step = niceStep(span, plotW, 30, intOnly);
+    var charPx = fontPx * 0.62, gap = 10;
+    for (var guard = 0; guard < 14; guard++) {
+      var prevW = 0, worst = 0, ok = true;
+      for (var t = firstTick(min, step); t <= max + 1e-9; t += step) {
+        var w = String(trimnum(t)).length;
+        if (prevW) { worst = Math.max(worst, (prevW + w) / 2 * charPx + gap); }
+        prevW = w;
+      }
+      var havePx = step / span * plotW;
+      if (!worst || havePx >= worst) { ok = true; break; }
+      step = nextNiceStep(step, intOnly);
+      ok = false;
+    }
+    return step;
+  }
+  function allWhole(nums) {
+    for (var i = 0; i < nums.length; i++) {
+      if (!isFinite(nums[i]) || Math.abs(nums[i] - Math.round(nums[i])) > 1e-9) return false;
+    }
+    return true;
+  }
+  // First multiple of `step` at or above `min` -- so labels land on round numbers.
+  function firstTick(min, step) { return Math.ceil(min / step - 1e-9) * step; }
+
   function svgOpen(w, h, maxw) {
     return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '" style="width:100%;max-width:' + (maxw || 400) + 'px;height:auto;display:block;margin:6px auto;">';
   }
@@ -471,13 +536,35 @@
   function dotplot(a) {
     var vals = parseNums(a.values || a.data); if (!vals.length) return "";
     var min = Math.floor(Math.min.apply(null, vals)), max = Math.ceil(Math.max.apply(null, vals)); if (max === min) max = min + 1;
-    var W = 420, H = 200, left = 22, right = W - 22, axisY = H - 34, plotW = right - left;
+    // build je: WIDER, and labelled at a readable spacing. Jim, live: "there's
+    // plenty of room on the whiteboard to have a bigger number line."
+    // build je: HEIGHT FOLLOWS THE DATA. The canvas used to be a fixed 200px tall
+    // whatever was plotted, so a plot two dots deep sat under ~150px of blank board.
+    // Size it to the tallest stack instead.
+    var tallest = 1, seen = {};
+    vals.forEach(function (v) { seen[v] = (seen[v] || 0) + 1; if (seen[v] > tallest) tallest = seen[v]; });
+    var H = 38 + 11 + tallest * 14 + 18;
+    var W = 680, left = 30, right = W - 30, axisY = H - 38, plotW = right - left;
     var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
-    var s = svgOpen(W, H, 420);
+    var s = svgOpen(W, H, 680);
     s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#9aa7b6" stroke-width="1.5"/>';
-    for (var t = min; t <= max; t++) { var x = mapX(t); s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>'; s += tspan(x, axisY + 17, String(t), "#8890a0", 10, 500); }
+    var step = fitStep(min, max, plotW, 13, allWhole(vals));
+    // unlabelled minor ticks, but only while they stay far enough apart to read as
+    // a ruler instead of a grey band
+    var minor = step / 5, minorPx = minor / (max - min) * plotW;
+    if (minorPx >= 5) {
+      for (var mt = firstTick(min, minor); mt <= max + 1e-9; mt += minor) {
+        var mx = mapX(mt);
+        s += '<line x1="' + mx + '" y1="' + axisY + '" x2="' + mx + '" y2="' + (axisY + 4) + '" stroke="#c8d0da"/>';
+      }
+    }
+    for (var t = firstTick(min, step); t <= max + 1e-9; t += step) {
+      var x = mapX(t);
+      s += '<line x1="' + x + '" y1="' + axisY + '" x2="' + x + '" y2="' + (axisY + 8) + '" stroke="#9aa7b6" stroke-width="1.5"/>';
+      s += tspan(x, axisY + 24, String(trimnum(t)), "#66707e", 13, 600);
+    }
     var counts = {};
-    vals.slice().sort(function (p, q) { return p - q; }).forEach(function (v) { var n = counts[v] || 0; counts[v] = n + 1; s += '<circle cx="' + mapX(v) + '" cy="' + (axisY - 9 - n * 12) + '" r="4.5" fill="' + COLORS[0] + '"/>'; });
+    vals.slice().sort(function (p, q) { return p - q; }).forEach(function (v) { var n = counts[v] || 0; counts[v] = n + 1; s += '<circle cx="' + mapX(v) + '" cy="' + (axisY - 11 - n * 14) + '" r="5.5" fill="' + COLORS[0] + '"/>'; });
     return s + "</svg>";
   }
 
@@ -765,9 +852,10 @@
   function numberline(a) {
     var rng = parseRange(a.range); var min = rng ? rng[0] : num(a.min, -10), max = rng ? rng[1] : num(a.max, 10);
     if (max <= min) { min = -10; max = 10; }
-    var W = 440, H = 110, left = 24, right = W - 24, axisY = 58, plotW = right - left;
+    // build je: wider, so a long range is legible (see niceStep above).
+    var W = 660, H = 120, left = 30, right = W - 30, axisY = 62, plotW = right - left;
     var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
-    var s = svgOpen(W, H, 440);
+    var s = svgOpen(W, H, 660);
     var ineq = String(a.ineq || a.inequality || "").match(/(>=|<=|>|<)\s*(-?\d*\.?\d+)/);
     if (ineq) {
       var op = ineq[1], val = parseFloat(ineq[2]), right2 = (op === ">" || op === ">="), closed = (op === ">=" || op === "<=");
@@ -778,7 +866,22 @@
       s += tspan(xv, axisY - 14, "x " + op + " " + trimnum(val), "#5b5bd6", 12, 700);
     }
     s += '<line x1="' + left + '" y1="' + axisY + '" x2="' + right + '" y2="' + axisY + '" stroke="#26263a" stroke-width="1.6"/>';
-    for (var t = Math.ceil(min); t <= max; t++) { var x = mapX(t); s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>'; s += tspan(x, axisY + 18, String(t), "#8890a0", 10, 500); }
+    // build je: label at a readable spacing -- every integer while they fit (the
+    // common -10..10 line is unchanged), thinning to 2s / 5s / 10s as the range grows.
+    var nstep = fitStep(min, max, plotW, 12,
+                        allWhole([min, max]) && (max - min) >= 2);
+    var nminor = nstep / (nstep >= 2 ? 2 : 1), nminorPx = nminor / (max - min) * plotW;
+    if (nminorPx >= 6 && nminor < nstep) {
+      for (var nmt = firstTick(min, nminor); nmt <= max + 1e-9; nmt += nminor) {
+        var nmx = mapX(nmt);
+        s += '<line x1="' + nmx + '" y1="' + (axisY - 3) + '" x2="' + nmx + '" y2="' + (axisY + 3) + '" stroke="#c8d0da"/>';
+      }
+    }
+    for (var t = firstTick(min, nstep); t <= max + 1e-9; t += nstep) {
+      var x = mapX(t);
+      s += '<line x1="' + x + '" y1="' + (axisY - 5) + '" x2="' + x + '" y2="' + (axisY + 5) + '" stroke="#9aa7b6"/>';
+      s += tspan(x, axisY + 20, String(trimnum(t)), "#66707e", 12, 600);
+    }
     parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#e0392b"/>'; });
     parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>'; });
     return s + "</svg>";

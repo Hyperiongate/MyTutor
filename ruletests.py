@@ -13217,6 +13217,82 @@ def part3ck_spoken_length():
           "greetings and recaps take the teaching licence again")
 
 
+_JE_FIGS = r"""
+global.window = {};
+require(process.argv[2]);
+const MF = global.window.MathFigures;
+const labels = s => (s.match(/<text[^>]*>([^<]*)<\/text>/g) || [])
+  .map(t => t.replace(/<[^>]*>/g, ""));
+const o = {};
+o.jim      = labels(MF.dotplot({values:"20,25,25,30,35,40,90"}));
+o.smallInt = labels(MF.dotplot({values:"3,4,4,5,6"}));
+o.huge     = labels(MF.dotplot({values:"0,120,340,355,900,1000"}));
+o.nl100    = labels(MF.numberline({min:"0",max:"100"}));
+o.nl10     = labels(MF.numberline({min:"-10",max:"10"}));
+o.nlFrac   = labels(MF.numberline({min:"0",max:"1"}));
+o.nlBig    = labels(MF.numberline({min:"-1000",max:"1000"}));
+console.log(JSON.stringify(o));
+"""
+
+
+def part3cl_readable_axes():
+    # build je (2026-08-19, Jim on a live probability/statistics lesson): "the number
+    # line in this diagram is ridiculous. There is no way that you can read it, and
+    # there's plenty of room on the whiteboard to have a bigger number line." A dot
+    # plot of homework minutes 20..90 printed a LABEL FOR EVERY INTEGER -- 71 numbers
+    # in 420px -- one unbroken smear of digits. Both dotplot and numberline used
+    # `for (t = min; t <= max; t++)` with a label every step, so ANY wide range was
+    # unreadable. Fixed by fitStep, which widens the tick until neighbouring labels
+    # genuinely cannot touch.
+    print("\nPART 3cl — axis labels a person can read (build je)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("the label-every-integer loops are GONE from both figures",
+          "for (var t = min; t <= max; t++)" not in mf
+          and "for (var t = Math.ceil(min); t <= max; t++)" not in mf,
+          "an axis is labelling every integer again -- a wide range renders as a smear")
+    check("the tick chooser and its neighbour-fit check exist",
+          "function niceStep(" in mf and "function fitStep(" in mf
+          and "function allWhole(" in mf,
+          "the readable-axis machinery is gone")
+    check("both figures are given the room Jim asked for",
+          "var W = 680" in mf and "var W = 660" in mf,
+          "the figures shrank back to 420/440px on a wide whiteboard")
+    try:
+        subprocess.run(["node", "--version"], capture_output=True, check=True)
+    except Exception:  # noqa: BLE001
+        skip("je figure batteries", "node not available")
+        return
+    import json as _json, tempfile as _tf
+    with _tf.TemporaryDirectory() as d:
+        h = os.path.join(d, "figs.js")
+        with open(h, "w", encoding="utf-8") as fh:
+            fh.write(_JE_FIGS)
+        res = subprocess.run(
+            ["node", h, os.path.join(here, "static", "math-figures.js")],
+            capture_output=True, text=True, timeout=120)
+        if res.returncode != 0:
+            bad("je figures render headlessly", (res.stderr or "")[:300]); return
+        o = _json.loads(res.stdout)
+    check(f"Jim's own dot plot is readable ({len(o['jim'])} labels, was 71)",
+          len(o["jim"]) <= 20 and o["jim"][0] == "20" and o["jim"][-1] == "90",
+          f"{len(o['jim'])} labels: {o['jim'][:8]}")
+    check("a whole-number dot plot never gets fractional ticks",
+          all("." not in x for x in o["smallInt"]) and o["smallInt"] == ["3", "4", "5", "6"],
+          f"got {o['smallInt']} -- 3.25 minutes is a lie about the data")
+    check("a huge range stays readable",
+          len(o["huge"]) <= 15, f"{len(o['huge'])} labels")
+    check("the classic -10..10 line KEEPS every whole number (it fits)",
+          len(o["nl10"]) == 21 and o["nl10"][0] == "-10",
+          f"got {len(o['nl10'])} labels -- children counting lost their integers")
+    check(f"a 0..100 line is readable ({len(o['nl100'])} labels, was 101)",
+          len(o["nl100"]) <= 25, f"{len(o['nl100'])} labels")
+    check("a 0..1 fraction line does not collide",
+          len(o["nlFrac"]) <= 12, f"{o['nlFrac']}")
+    check("a -1000..1000 line does not collide",
+          len(o["nlBig"]) <= 13, f"{o['nlBig']}")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13712,6 +13788,7 @@ def main():
     part3ci_clip_probe()
     part3cj_column_redraws()
     part3ck_spoken_length()
+    part3cl_readable_axes()
     part3ai_deploy_stamp()
     if live:
         part4_live()
