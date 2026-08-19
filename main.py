@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19iy-request-is-not-an-answer". BUILD iy --
+#               two catches from the arm-1 rerun log: referee 33 now enforces
+#               only QUANTITATIVE taps (a "Quiz me!" button is a request, not an
+#               answer to parrot), and the rule-14 nudge NAMES the exact board
+#               line that carries the unread symbol (3-for-3 unresolved even
+#               with the ready sentence = the model cannot find the accused
+#               line; now it is quoted, and the server log shows it too). ALL
+#               CODE IS IN tutor.py / ruletests.py; this file only carries the
+#               stamp. NOTE: pushed AFTER the three-arm test completed, so the
+#               arms stayed comparable.
 #   2026-08-19  APP_BUILD -> "2026-08-19ix-nightwatch-five-closed". BUILD ix --
 #               the night watch's first run on the iv build confirmed FIVE
 #               findings (2 definition-precision, the pocket-money story, the
@@ -8577,7 +8587,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19ix-nightwatch-five-closed"
+APP_BUILD = "2026-08-19iy-request-is-not-an-answer"
 
 
 @app.get("/health")

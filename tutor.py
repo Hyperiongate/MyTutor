@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD iy -- TWO CATCHES FROM THE ARM-1 RERUN. (1) Referee 33
+#               demanded the tutor "say 'Quiz me!' back and tell them whether it
+#               is right" -- a REQUEST button is not a graded answer; the referee
+#               now enforces only QUANTITATIVE taps (the option contains a
+#               digit). (2) The rule-14 absolute-value nudge went unresolved
+#               3-for-3 even WITH the quoted ready sentence -- so the nudge now
+#               NAMES THE LINE THAT DOES IT (the exact board value), which both
+#               points the model at the accused line and finally shows us, in
+#               the server log, what keeps writing bars nobody reads aloud.
 #   2026-08-19  BUILD iw -- THE TAPPED FRACTION IS SPOKEN (caught LIVE by Jim's
 #               very first Opus audit run, same night referee 33 shipped): the
 #               audit student answered "3/4", the reply said "three fourths"
@@ -3859,13 +3868,23 @@ def notation_intro_conflict(reply: str, heard=None):
             # build it: PRESCRIPTIVE. Five straight unresolved retries proved
             # that describing the defect is not enough -- quote the exact kind
             # of sentence the reply must add, adapted to this problem's numbers.
+            # build iy: NAME THE LINE. Even the quoted sentence went unresolved
+            # 3-for-3 in the next audit run, which means the model is not
+            # finding WHICH board line is accused -- so the message now quotes
+            # it, and the server log finally shows us what keeps writing bars.
+            culprit = ""
+            for v in _NOTE_TAG_VALS.findall(text):
+                if sym.search(v):
+                    culprit = " ".join(v.split())[:80]
+                    break
             return ("your board writes {n} for the FIRST time in this conversation "
-                    "and your spoken words never read or name it. Rule 14: define "
-                    "every notation the first time it appears -- assume the student "
-                    "knows NONE of it. ADD ONE SPOKEN SENTENCE to this same reply, "
-                    "right where the symbol lands, shaped exactly like this "
-                    "(adapt the numbers to YOUR board): {f} Keep everything else "
-                    "about your reply the same.").format(n=name, f=fix)
+                    "and your spoken words never read or name it. THE LINE THAT "
+                    "DOES IT: \"{c}\". Rule 14: define every notation the first "
+                    "time it appears -- assume the student knows NONE of it. ADD "
+                    "ONE SPOKEN SENTENCE to this same reply, right where that "
+                    "line lands, shaped exactly like this (adapt the numbers to "
+                    "YOUR board): {f} Keep everything else about your reply the "
+                    "same.").format(n=name, c=culprit, f=fix)
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[notation] crashed (fail open): {exc}")
@@ -4057,6 +4076,14 @@ def tapped_answer_conflict(reply: str, student_message: str = "", prev_tutor=Non
             return ""
         if "not sure" in msg.lower():
             return ""              # the honest button asks for help, not a grade
+        # build iy (caught live in Jim's arm-1 run: the referee demanded the
+        # tutor "say 'Quiz me!' back and tell them whether it is right"): not
+        # every button is an ANSWER. "Quiz me!" / "Keep practicing" are REQUESTS
+        # -- the right response is to DO the thing, not to echo it. Only a
+        # QUANTITATIVE tap (the option itself contains a digit: "32", "3/4",
+        # "2 tens") is a graded answer this referee may demand engagement with.
+        if not re.search(r"\d", msg):
+            return ""              # a wordy button is a request, not an answer
         if msg.lower() not in {o.lower() for o in opts}:
             return ""              # typed/spoken answers are the model's judgment
         text = str(reply or "")

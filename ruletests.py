@@ -12852,6 +12852,18 @@ def part3ce_tapped_answer():
     check("  fires: a tapped fraction genuinely ignored",
           "Rule 18" in tutor.tapped_answer_conflict(BAD, "3/4", PREV3),
           "the fraction fix opened a hole the thread-jump can walk through")
+    # build iy (caught live in Jim's arm-1 run): "Quiz me!" is a REQUEST button,
+    # not a graded answer -- the right response is to start the quiz, never to
+    # parrot the button back. Only a quantitative tap is enforced.
+    PREV4 = 'Ready for more? [[choices options="Quiz me! | Keep practicing"]]'
+    check('  silent: "Quiz me!" is a request, not an answer (build iy)',
+          not tutor.tapped_answer_conflict(
+              "Wonderful -- quiz time! Question 1...", "Quiz me!", PREV4),
+          "the referee demands the tutor parrot a button instead of doing the thing")
+    check('  silent: "Keep practicing" too',
+          not tutor.tapped_answer_conflict(
+              "Let's keep going with a fresh one.", "Keep practicing", PREV4),
+          "a wordy request button is being graded like a number")
     flatp = re.sub(r"\s+", " ", open(os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "prompts.py"),
         encoding="utf-8").read())
@@ -12864,6 +12876,10 @@ def part3ce_tapped_answer():
     check("the rule-14 nudge is PRESCRIPTIVE: it quotes the sentence to add",
           "ADD ONE SPOKEN SENTENCE" in msg and "ABSOLUTE VALUE" in msg,
           "five-for-five unresolved retries say a described defect stays unfixed")
+    check("  ...and NAMES the offending board line (build iy)",
+          "THE LINE THAT DOES IT" in msg and "|−5| = ?" in msg,
+          "the model is told a symbol is unread but never told WHERE -- and the "
+          "server log cannot show us what keeps writing the bars")
 
 
 def part3cf_pluggable_brain():
