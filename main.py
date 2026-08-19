@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19iw-spoken-fraction-counts". BUILD iw --
+#               two catches from Jim's FIRST Opus audit run: (1) referee 33
+#               false-fired on a tapped "3/4" answered back as "three fourths"
+#               (fraction options now match their spoken forms); (2) the audit's
+#               report filename ignored CLAUDE_MODEL, so the opus arm overwrote
+#               the sonnet arm's report (lineup + filename now carry resolved
+#               models). ALL CODE IS IN tutor.py / lessonaudit.py /
+#               ruletests.py; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19iv-second-pair-of-eyes". BUILDS iu + iv --
 #               Jim's A/B ruling (challenger: gpt-5.6). iu: the tutor brain is
 #               pluggable (TUTOR_PROVIDER env; _OpenAIBrain adapter; default
@@ -8556,7 +8564,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19iv-second-pair-of-eyes"
+APP_BUILD = "2026-08-19iw-spoken-fraction-counts"
 
 
 @app.get("/health")

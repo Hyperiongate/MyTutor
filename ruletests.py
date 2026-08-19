@@ -12826,6 +12826,32 @@ def part3ce_tapped_answer():
           "Rule 18" in str(tutor.prose_board_conflict(
               BAD, "32", prev_tutor=PREV)),
           "the referee exists but the sweep never calls it")
+    # build iw (2026-08-19, caught LIVE in Jim's first Opus audit run): the
+    # student tapped "3/4", the reply said it back as "three fourths", and the
+    # referee objected THREE TIMES -- a false fire that burned two retries on a
+    # correct reply. A fraction option now matches its spoken forms.
+    PREV3 = 'Which is bigger? [[choices options="3/4 | 1/2"]]'
+    check("  silent: a tapped fraction engaged as 'three fourths' (build iw)",
+          not tutor.tapped_answer_conflict(
+              "Three fourths -- exactly right! The pieces are the same size, and "
+              "three beats one.", "3/4", PREV3),
+          "the spoken form of a tapped fraction is rejected -- the Opus-run false "
+          "fire is back")
+    check("  silent: 'three quarters' counts too",
+          not tutor.tapped_answer_conflict(
+              "Three quarters it is -- nicely done!", "3/4", PREV3),
+          "a legitimate reading of 3/4 is rejected")
+    check("  silent: 'three over four' counts too",
+          not tutor.tapped_answer_conflict(
+              "Right -- three over four is the bigger one.", "3/4", PREV3),
+          "a legitimate reading of 3/4 is rejected")
+    check("  silent: the literal 3/4",
+          not tutor.tapped_answer_conflict(
+              'Yes! 3/4 is right. [[mark ok="1"]]', "3/4", PREV3),
+          "the written form of a tapped fraction is rejected")
+    check("  fires: a tapped fraction genuinely ignored",
+          "Rule 18" in tutor.tapped_answer_conflict(BAD, "3/4", PREV3),
+          "the fraction fix opened a hole the thread-jump can walk through")
     flatp = re.sub(r"\s+", " ", open(os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "prompts.py"),
         encoding="utf-8").read())
@@ -12906,6 +12932,11 @@ def part3cf_pluggable_brain():
           and "def _anthropic_judge(" in asrc
           and "_judge(msgs, max_tokens=2000, want_json=True)" in asrc,
           "the A/B cannot be run as measured arms")
+    check("the lineup names RESOLVED models and each arm keeps its own report "
+          "(build iw -- the opus run overwrote the sonnet report)",
+          'lineup = f"brain={brain}:{brain_model}' in asrc
+          and 'suffix += f"_{brain_model}"' in asrc,
+          "two arms of the experiment write the same file and one truth is lost")
     res = subprocess.run([sys.executable, os.path.join(here, "lessonaudit.py"),
                           "--brain", "klingon", "--dry-run"],
                          capture_output=True, text=True, timeout=120)

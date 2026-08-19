@@ -1009,7 +1009,20 @@ def main():
     # defeating a guard the privacy policy depends on. See
     # OpenAI_Data_Sharing_Decision_2026-08-17.md before touching it.
     os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
-    lineup = f"brain={brain} · live-critic={live_critic} · judge={judge}"
+    # build iw (2026-08-19, caught in Jim's first Opus run): the lineup names the
+    # RESOLVED MODELS, not just the vendors -- CLAUDE_MODEL=claude-opus-5 is an
+    # arm of the experiment and must be visible in the log line, the report, and
+    # the report's FILENAME (the opus run overwrote the sonnet run's report
+    # because the suffix only read the flags).
+    brain_model = ((os.environ.get("CLAUDE_MODEL") or "claude-sonnet-5")
+                   if brain == "anthropic"
+                   else (os.environ.get("OPENAI_TUTOR_MODEL") or "gpt-5.6"))
+    lc_label = live_critic
+    if live_critic != "off":
+        lc_model = (os.environ.get("LIVE_CRITIC_MODEL")
+                    or ("claude-sonnet-5" if live_critic == "anthropic" else "gpt-5.6"))
+        lc_label = f"{live_critic}:{lc_model}"
+    lineup = f"brain={brain}:{brain_model} · live-critic={lc_label} · judge={judge}"
     print(f"[audit] lineup: {lineup}")
     if "--dry-run" in args:
         d = dry_run(limit, offset, turns, prompt_size=prompt_size)
@@ -1042,8 +1055,10 @@ def main():
     suffix = "" if prompt_size == "normal" else f"_{prompt_size}"
     if brain != "anthropic":
         suffix += f"_{brain}-brain"
+    if brain_model not in ("claude-sonnet-5", "gpt-5.6"):
+        suffix += f"_{brain_model}"          # a non-default model IS a distinct arm
     if live_critic != "off":
-        suffix += f"_critic-{live_critic}"
+        suffix += f"_critic-{lc_label.replace(':', '-')}"
     if judge != "openai":
         suffix += f"_judge-{judge}"
     path = os.path.join(HERE, f"lesson_audit_report{suffix}.md")

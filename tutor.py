@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD iw -- THE TAPPED FRACTION IS SPOKEN (caught LIVE by Jim's
+#               very first Opus audit run, same night referee 33 shipped): the
+#               audit student answered "3/4", the reply said "three fourths"
+#               back, and tapped_answer_conflict objected three times -- a FALSE
+#               fire that burned two retries on a correct reply and handicapped
+#               that arm's score. _ta_option_pattern now gives a pure-fraction
+#               option its spoken forms: "three fourths", "three quarters",
+#               "three over four", and the literal. (The gk lesson a third time:
+#               a fraction's spoken form is its ordinal, not its digits.)
+#               Companion in lessonaudit.py: the lineup line and the report
+#               FILENAME carry the resolved models (CLAUDE_MODEL=claude-opus-5
+#               is an arm, and it overwrote the sonnet arm's report).
 #   2026-08-19  BUILDS iu/iv -- THE BRAIN IS PLUGGABLE + THE LIVE CRITIC SEAT
 #               (Jim's A/B ruling; challenger model his explicit call: gpt-5.6).
 #               iu: TUTOR_PROVIDER=anthropic (default, byte-identical)|openai picks
@@ -3982,7 +3994,28 @@ _TA_SEP = r"[\s\-,]{1,3}"
 def _ta_option_pattern(opt):
     """A compiled pattern matching this choice option spoken OR written --
     digits accept their word forms ('32' matches 'thirty-two', '2 tens'
-    matches 'two tens'). None when the option holds nothing judgeable."""
+    matches 'two tens'). None when the option holds nothing judgeable.
+    build iw (2026-08-19, caught by Jim's first Opus audit run): a FRACTION
+    option ("3/4") must also match the way a person SAYS it -- "three fourths",
+    "three quarters", "three over four" -- or the referee objects to a correct
+    reply and burns two retries on it (the gk lesson, again: the spoken form of
+    a fraction is its ordinal, not its digits)."""
+    m = re.fullmatch(r"\s*(\d+)\s*/\s*(\d+)\s*", str(opt or ""))
+    if m:
+        top, bot = int(m.group(1)), int(m.group(2))
+        tops = [re.escape(m.group(1))]
+        if top in _EQ_NUMWORD:
+            tops.append(_EQ_NUMWORD[top])
+        bots = [r"over\s+(?:%s)" % "|".join(
+            [re.escape(m.group(2))] + ([_EQ_NUMWORD[bot]] if bot in _EQ_NUMWORD else []))]
+        if bot in _EQ_DENOM_WORD:
+            bots.append(r"(?:%s)s?" % _EQ_DENOM_WORD[bot])
+        if bot in _EQ_NUMWORD:
+            bots.append(_EQ_NUMWORD[bot] + r"ths?")
+        return re.compile(
+            r"\b%s\s*/\s*%s\b|\b(?:%s)(?:\s+\w+){0,2}\s+(?:%s)\b"
+            % (re.escape(m.group(1)), re.escape(m.group(2)),
+               "|".join(tops), "|".join(bots)), re.I)
     toks = re.findall(r"[A-Za-z]+|\d+", str(opt or ""))
     if not toks:
         return None
