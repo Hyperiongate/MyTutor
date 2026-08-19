@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jd-one-beat-per-turn". BUILD jd -- REFEREE
+#               34, measured straight off Jim's [voiceclip] probe: a live turn came
+#               back at 126 spoken words = FORTY-SIX SECONDS of unbroken speech at a
+#               child ("Mr. Cadabra is very slow today"), and it was a WELCOME-BACK
+#               opener that taught nothing new. That is build ja's bill -- ja lifted
+#               the 1-3 sentence cap so a new idea could be taught properly, Jim ruled
+#               "long, but IN BEATS", and nothing bounded a turn. Now rule 19(c) gives
+#               a number (about 80 spoken words a beat, never past 110, one beat per
+#               turn ending on a continue-check) and scopes the exemption to TEACHING
+#               SOMETHING NEW -- greetings, recaps and reactions stay at 1-3 sentences.
+#               spoken_length_conflict enforces it on the SPOKEN prose only, so a
+#               tag-heavy turn is never punished for what it draws. RULE_VERIFY[19]
+#               COVERED -> ENFORCED. ALSO SETTLED TONIGHT: the [voiceclip] numbers
+#               (silence 1263ms as designed, voice at 168-184 wpm) prove the clips are
+#               COMPLETE -- the missing-first-words hunt is not a truncation. ALL CODE
+#               IS IN tutor.py / prompts.py / ruletests.py (PART 3ck); this file only
+#               carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19jc-the-column-redraws". BUILD jc -- Jim,
 #               watching a five-digit carrying lesson: "as you complete steps, what
 #               you just did disappears off the top of the screen... it would be
@@ -8651,7 +8668,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jc-the-column-redraws"
+APP_BUILD = "2026-08-19jd-one-beat-per-turn"
 
 
 @app.get("/health")

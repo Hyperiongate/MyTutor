@@ -10,9 +10,9 @@ machine. The right-hand column is how much better we have got at that.
 
 | how it is verified | rules | what that means |
 |---|---|---|
-| **ENFORCED** | 31 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
+| **ENFORCED** | 32 | a machine catches the violation in a real reply — a referee rewrites the draft, or an audit fails the build |
 | **EXERCISED** | 10 | a scripted student plays against the real prompt and the behaviour is asserted (`ruletests.py --live`) |
-| **COVERED** | 23 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
+| **COVERED** | 22 | the rule's text provably reaches all ten courses — proves he was *told*, not that he does it |
 | **UNVERIFIED** | 1 | the rule exists and nothing checks it |
 
 ---
@@ -91,7 +91,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 19. TEACH IT BEFORE YOU ASK IT -- "I DO, THEN YOU DO"
 
-**COVERED** — teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm
+**ENFORCED** — teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm
 
 ### 20. PARTIALLY RIGHT IS NOT WRONG
 

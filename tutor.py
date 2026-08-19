@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD jd -- REFEREE 34, THE SPOKEN-LENGTH CEILING. Jim's [voiceclip]
+#               probe measured a live turn at 126 spoken words = FORTY-SIX SECONDS of
+#               unbroken speech at a child ("Mr. Cadabra is very slow today"), on a
+#               welcome-back opener that taught nothing new. That is build ja's bill:
+#               ja lifted the 1-3 sentence cap so a new idea could be taught properly,
+#               Jim ruled "long, but IN BEATS", and the rule bounded nothing -- so the
+#               permission leaked into every turn. spoken_length_conflict rejects a
+#               reply whose SPOKEN prose (tags excluded -- a turn is never punished for
+#               what it draws) runs past _SPOKEN_WORD_CEILING=110, and tells it to land
+#               one beat, board it, and end on a continue-check. A word count is
+#               objective, which is what makes this refereeable where rule 19's shape
+#               is not; the ceiling sits ABOVE the ~80-word teaching guidance so a
+#               generous demonstration never trips it.
 #   2026-08-19  BUILD iz -- THE PHANTOM FOUND, AND THE CRITIC HELD TO JSON.
 #               (1) iy's line-naming exposed why the "absolute-value unresolved"
 #               nudge could never be satisfied: the referee was reading the PIPE
@@ -4011,6 +4024,47 @@ def back_reference_conflict(reply: str, heard=None):
         return ""
 
 
+# BUILD jd -- RULE 19(c), THE SPOKEN-LENGTH CEILING (the THIRTY-FOURTH referee).
+# 2026-08-19, measured from Jim's own [voiceclip] probe on a live lesson: a single
+# turn came back as 126 spoken words -- FORTY-SIX SECONDS of unbroken speech at a
+# child -- and his verdict was "Mr. Cadabra is very slow today". This is build ja's
+# bill. ja lifted the "1-3 short sentences" cap so a new idea could actually be
+# taught, and Jim's ruling was explicit: long, but IN BEATS. The rule said "beats"
+# and bounded nothing, so the model took the permission everywhere -- the 46-second
+# turn was a welcome-back opener, not a demonstration of anything new.
+# A word count is objective, which is exactly what makes this refereeable where rule
+# 19's shape is not. The ceiling is deliberately ABOVE the teaching guidance (~80
+# words a beat) so a generous demonstration never trips it and only a genuine
+# monologue does. Reads the SPOKEN prose only -- board tags are not spoken, and a
+# tag-heavy teaching turn must never be punished for what it draws.
+_SPOKEN_WORD_CEILING = 110
+
+
+def spoken_length_conflict(reply: str):
+    """Return a description of a spoken turn that runs past the ceiling, or "".
+    Never raises (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        words = [w for w in re.split(r"\s+", prose) if w.strip()]
+        n = len(words)
+        if n <= _SPOKEN_WORD_CEILING:
+            return ""
+        secs = int(n / 2.8)
+        return ("this turn is {n} spoken words -- about {s} seconds of unbroken talking "
+                "at a child, who cannot skim it, scroll it back, or see where it ends. "
+                "Rule 19: teaching takes the length it needs, but IN BEATS. Land ONE "
+                "piece now, put its line on the board, and end this turn with a short "
+                "continue-check ('with me so far?') -- never a question they must "
+                "compute. The rest of the explanation is the NEXT turn's job, and it "
+                "will land far better after they have nodded once. Keep every word of "
+                "the teaching; just break it where a teacher would breathe."
+                ).format(n=n, s=secs)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[spokenlen] crashed (fail open): {exc}")
+        _event("referee_crash", "spokenlen", str(exc))
+        return ""
+
+
 # BUILD is -- RULE 18(a), THE TAPPED-ANSWER CHECK (the THIRTY-THIRD referee).
 # 2026-08-19, Jim live in Entry Level Math: he TAPPED "32" answering "which is
 # bigger, thirty-two or twenty-nine?" -- his own question, correctly -- and the
@@ -5235,7 +5289,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THIRTY-THREE referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-FOUR referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -5378,6 +5432,12 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if tapped:
             _event("referee_fire", "tappedanswer", tapped)
             return tapped
+        # build jd: THIRTY-FOURTH -- a turn that runs past the spoken-length ceiling
+        # (rule 19c). Reply-only and objective; measured from Jim's [voiceclip] probe.
+        toolong = spoken_length_conflict(reply)
+        if toolong:
+            _event("referee_fire", "spokenlen", toolong)
+            return toolong
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.

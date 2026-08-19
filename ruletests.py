@@ -3823,7 +3823,7 @@ RULE_VERIFY = {
     18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board; "
                       "build is added the tapped-answer half -- a reply that grades a stale "
                       "thread instead of the choice button the student just tapped is regenerated"),
-    19: ("COVERED",   "teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm"),
+    19: ("ENFORCED",  "teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm"),
     20: ("COVERED",   "partially right is not wrong"),
     21: ("EXERCISED", "'I don't know' triggers a smaller step"),
     22: ("ENFORCED",  "the escalation ladder -- the never-the-same-way-twice half "
@@ -13041,10 +13041,13 @@ def part3ch_teach_before_ask():
     check("rule 19 OVERRIDES the conversation cap in so many words",
           "TAKE THE LENGTH THE TEACHING NEEDS" in flat
           and 'The "1-3 short sentences" cap governs CONVERSATION' in flat
-          and "It does NOT govern this" in flat,
+          # build jd reworded the tail ("this" -> "a demonstration") when 19(c)
+          # gained its word ceiling; the override itself is unchanged.
+          and "It does NOT govern a demonstration" in flat,
           "the rule concedes to the cap again and the demonstration vanishes")
     check("  ...but demands BEATS, never one unbroken monologue",
-          "may NOT do is run without a beat" in flat
+          # build jd made this concrete: one beat IS one turn, with a number on it.
+          "ONE BEAT IS ONE TURN" in flat
           and "with me so far?" in flat,
           "a forty-second wall of speech at a six-year-old is not teaching either")
     check("  ...and the mid-demo check is NEVER a computation",
@@ -13174,6 +13177,44 @@ def part3cj_column_redraws():
           "SAY A TEST THE SAME WAY EVERY TIME YOU SAY IT" in flat
           and "ten or bigger" in flat and "greater than nine" in flat,
           "a beginner meets two rules where the teacher meant one")
+
+
+def part3ck_spoken_length():
+    # build jd (2026-08-19): measured, not guessed -- Jim's [voiceclip] probe on a
+    # live lesson returned a 126-word turn = 46 SECONDS of unbroken speech at a
+    # child ("Mr. Cadabra is very slow today"), on a welcome-back opener that taught
+    # nothing new. Build ja lifted the sentence cap so teaching could breathe; Jim
+    # ruled "long, but IN BEATS"; nothing bounded a turn. Now something does.
+    print("\nPART 3ck — one beat per turn (build jd, rule 19c)")
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    check("  fires: a 126-word monologue (Jim's measured turn)",
+          bool(tutor.spoken_length_conflict("word " * 126)),
+          "the 46-second turn ships again")
+    check("  silent: a normal conversational reply",
+          not tutor.spoken_length_conflict(
+              "Right -- eight plus five is thirteen! Write the three and carry the "
+              "one. What do you get for the tens?"),
+          "ordinary back-and-forth is being rejected")
+    check("  silent: a generous teaching beat (~95 words) still fits",
+          not tutor.spoken_length_conflict("word " * 95),
+          "the ceiling sits below the teaching guidance and starves rule 19 again")
+    check("  BOARD TAGS ARE NOT SPOKEN and never count toward the ceiling",
+          not tutor.spoken_length_conflict(
+              "Here it is. [[card title=\"t\" items=\"" + ("x | " * 200) + "\"]]"),
+          "a tag-heavy teaching turn is punished for what it DRAWS")
+    check("  and via the sweep",
+          "IN BEATS" in str(tutor.prose_board_conflict("word " * 126)),
+          "the referee exists but the sweep never calls it")
+    check("rule 19(c) gives a number the model can aim at",
+          "ONE BEAT PER TURN" in flat and "about 80 spoken words" in flat
+          and "never past 110" in flat,
+          "the rule says 'beats' and bounds nothing -- which is exactly how the "
+          "46-second turn happened")
+    check("rule 19(c) scopes the exemption to TEACHING SOMETHING NEW",
+          "THIS EXEMPTION IS ONLY FOR TEACHING SOMETHING NEW" in flat
+          and "welcome-back" in flat,
+          "greetings and recaps take the teaching licence again")
 
 
 def part3bb_no_lost_exchange():
@@ -13670,6 +13711,7 @@ def main():
     part3ch_teach_before_ask()
     part3ci_clip_probe()
     part3cj_column_redraws()
+    part3ck_spoken_length()
     part3ai_deploy_stamp()
     if live:
         part4_live()
