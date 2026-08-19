@@ -89,9 +89,9 @@ machine. The right-hand column is how much better we have got at that.
 
 **ENFORCED** — prose_board_conflict regenerates spoken numbers that fight the board; build is added the tapped-answer half -- a reply that grades a stale thread instead of the choice button the student just tapped is regenerated
 
-### 19. EVERY NEW TOPIC OPENS WITH A COMPLETE WORKED EXAMPLE -- "I DO, THEN YOU DO"
+### 19. TEACH IT BEFORE YOU ASK IT -- "I DO, THEN YOU DO"
 
-**COVERED** — worked example first
+**COVERED** — teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm
 
 ### 20. PARTIALLY RIGHT IS NOT WRONG
 

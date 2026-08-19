@@ -3823,7 +3823,7 @@ RULE_VERIFY = {
     18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board; "
                       "build is added the tapped-answer half -- a reply that grades a stale "
                       "thread instead of the choice button the student just tapped is regenerated"),
-    19: ("COVERED",   "worked example first"),
+    19: ("COVERED",   "teach-before-ask; build ja gave it the length teaching needs and removed the 3-sentence cap that was starving it in all ten courses. Referee still deferred: the audit judged this shape the fuzziest, and a referee that guesses does harm"),
     20: ("COVERED",   "partially right is not wrong"),
     21: ("EXERCISED", "'I don't know' triggers a smaller step"),
     22: ("ENFORCED",  "the escalation ladder -- the never-the-same-way-twice half "
@@ -8124,8 +8124,11 @@ def part3ab_seven_defects():
         # 19e -- the honest pre-ask check, and the moves that count
         ("19e names the audit's move (regrouping) among the never-watched moves",
          "regrouping or\n        borrowing" in note or "regrouping or borrowing" in note),
+        # build ja re-wrapped this line when rule 19 was rewritten; the clause is
+        # untouched, so the anchor is now whitespace-tolerant (a re-wrap is not a
+        # reword, and only a REWORD should fail this).
         ("19e demands the demo BEFORE the ask",
-         "If not, show it before you ask it." in note),
+         bool(re.search(r"If not,\s+show it\s+before you ask it\.", note))),
         # 27c -- the defect string itself, and the conversion demand
         ("27c carries the real audit string (3 dollars + 8 tickets)",
          '"3 dollars + 8 tickets = 11"' in note),
@@ -13012,6 +13015,70 @@ def part3cg_nightwatch_five():
           "every cancelled-factor zero becomes a hole again -- (x-1)/(x-1)² disagrees")
 
 
+def part3ch_teach_before_ask():
+    # build ja (2026-08-19, Jim watching a live entry-level lesson): "it's saying,
+    # look, we're gonna learn to add numbers. You have five apples, and you have
+    # two more apples. How many apples do you have? So it's starting off by asking
+    # a question right away... somehow there needs to be more teaching involved."
+    # DIAGNOSIS: "Keep almost every reply to 1-3 short sentences. No monologues out
+    # loud." appears in EVERY course, and rule 19 -- the teach-first rule -- conceded
+    # to it ("your replies stay short"). Told both to demonstrate and to stay to three
+    # sentences, the model dropped the demonstration and kept the question. The cap
+    # now names its exception everywhere, and rule 19 takes the length teaching needs.
+    print("\nPART 3ch — teach it before you ask it (build ja, rule 19)")
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    check("rule 19 leads with TEACH IT BEFORE YOU ASK IT",
+          "TEACH IT BEFORE YOU ASK IT" in flat,
+          "the rule went back to being a title nobody acts on")
+    check("  ...and carries Jim's own anti-example (the apples question-first open)",
+          "You have five apples and two more -- how many?" in flat
+          and "is not teaching" in flat,
+          "the founding catch is gone -- the rule stops teaching WHY")
+    check("  ...and works the example out loud, counting on, to an answer",
+          "Watch me count on: five... six, seven, eight. Eight apples." in flat,
+          "the rule demands a worked example without ever showing one")
+    check("rule 19 OVERRIDES the conversation cap in so many words",
+          "TAKE THE LENGTH THE TEACHING NEEDS" in flat
+          and 'The "1-3 short sentences" cap governs CONVERSATION' in flat
+          and "It does NOT govern this" in flat,
+          "the rule concedes to the cap again and the demonstration vanishes")
+    check("  ...but demands BEATS, never one unbroken monologue",
+          "may NOT do is run without a beat" in flat
+          and "with me so far?" in flat,
+          "a forty-second wall of speech at a six-year-old is not teaching either")
+    check("  ...and the mid-demo check is NEVER a computation",
+          "NEVER a math question they must compute" in flat,
+          "the demo turns back into a quiz mid-flight")
+    check("  ...then hands over with the model still on the board",
+          "now you try one!" in flat
+          and "LEAVE your worked example on the board" in flat,
+          "the I-do-then-you-do handover lost its scaffold")
+    # THE CAP ITSELF lives in each COURSE's own prompt text, NOT in the shared
+    # block -- so prove it where it actually reaches the model: the BUILT prompt of
+    # every one of the ten courses. A bare cap in even one course is that course
+    # quietly teaching question-first while its siblings teach properly, which is
+    # exactly the per-copy drift class build gz exists to kill.
+    offenders = []
+    for _c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+               "precalc", "probstat", "calculus", "diffeq"):
+        try:
+            _p = re.sub(r"\s+", " ", tutor.build_system_prompt(dict(STUDENT), course=_c))
+        except Exception as _exc:  # noqa: BLE001
+            offenders.append(f"{_c}: prompt build failed ({_exc})")
+            continue
+        _bare = (len(re.findall(r"No monologues out loud\.(?! THE ONE EXCEPTION)", _p))
+                 + len(re.findall(r"No monologues\.(?! THE ONE EXCEPTION)", _p))
+                 + len(re.findall(r"\(1-[23] sentences(?! -- except rule 19)", _p)))
+        if _bare:
+            offenders.append(f"{_c}: {_bare} bare cap(s)")
+        if "THE ONE EXCEPTION: teaching a NEW idea" not in _p:
+            offenders.append(f"{_c}: the teaching exception never reaches the model")
+    check("all TEN courses cap conversation but free the teaching turn (built prompts)",
+          not offenders,
+          "; ".join(offenders)[:300])
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13503,6 +13570,7 @@ def main():
     part3ce_tapped_answer()
     part3cf_pluggable_brain()
     part3cg_nightwatch_five()
+    part3ch_teach_before_ask()
     part3ai_deploy_stamp()
     if live:
         part4_live()

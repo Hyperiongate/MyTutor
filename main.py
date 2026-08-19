@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19ja-teach-before-you-ask". BUILD ja -- Jim,
+#               watching a live entry-level lesson: "it's starting off by asking a
+#               question right away... somehow there needs to be more teaching
+#               involved... there shouldn't be a limit on how much he teaches."
+#               ROOT CAUSE: "Keep almost every reply to 1-3 short sentences. No
+#               monologues out loud." lived in all ten courses, and rule 19 -- the
+#               teach-first rule -- CONCEDED to it ("your replies stay short"). Told
+#               both to demonstrate and to stay to three sentences, the model dropped
+#               the demonstration and kept the question. Now: rule 19 is rewritten as
+#               TEACH IT BEFORE YOU ASK IT with four beats (say what it is -> work a
+#               complete example yourself on the board -> take the length teaching
+#               needs, in beats with a continue-check that is NEVER a computation ->
+#               hand over with the model still on the board), and all NINETEEN copies
+#               of the cap across the ten courses now name the exception. Jim's
+#               ruling on pacing: long, but in BEATS -- a forty-second monologue at a
+#               six-year-old is not teaching either. Worst normal prompt after this:
+#               algebra2 182,187 of 186,000. NEXT (Jim's ruling, not yet built): the
+#               saved demo library -- a worked demonstration generated once per
+#               topic, refereed, saved, delivered verbatim thereafter. Pinned in
+#               ruletests PART 3ch; RULES.md regenerated. ALL CODE IS IN prompts.py /
+#               ruletests.py; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19iz-pipes-are-not-bars". BUILD iz -- the
 #               absolute-value phantom is DEAD: iy's line-naming showed the
 #               rule-14 referee firing on the pipe separators of option lists
@@ -8598,7 +8619,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19iz-pipes-are-not-bars"
+APP_BUILD = "2026-08-19ja-teach-before-you-ask"
 
 
 @app.get("/health")
