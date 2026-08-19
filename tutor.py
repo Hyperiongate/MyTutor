@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD iz -- THE PHANTOM FOUND, AND THE CRITIC HELD TO JSON.
+#               (1) iy's line-naming exposed why the "absolute-value unresolved"
+#               nudge could never be satisfied: the referee was reading the PIPE
+#               SEPARATORS of [[choices]]/[[card]] option lists ("3/4 | 2/4 |
+#               4/8") as absolute-value bars -- a phantom notation no retry could
+#               explain. Real bars hug their contents; the pattern now demands a
+#               non-space just inside both bars (|x|, |−5|, |x - 3| still fire).
+#               This also un-skews the model comparison: arms that used MORE
+#               answer buttons (good pedagogy) were being punished hardest.
+#               (2) The Anthropic live critic returned non-JSON verdicts 4x in
+#               one audited arm (each a silently wasted check) -- it is now held
+#               to JSON by assistant prefill of the opening brace, with the
+#               plain-shape fallback on the known intermittent refusal.
 #   2026-08-19  BUILD iy -- TWO CATCHES FROM THE ARM-1 RERUN. (1) Referee 33
 #               demanded the tutor "say 'Quiz me!' back and tell them whether it
 #               is right" -- a REQUEST button is not a graded answer; the referee
@@ -3828,7 +3841,16 @@ _NOTATIONS = (
     ("an exponent", re.compile(r"\^"),
      re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I),
      'That small raised number is an EXPONENT -- "s squared" means s times s.'),
-    ("absolute-value bars", re.compile(r"\|[^|\[\]]{1,12}\|"),
+    # build iz (2026-08-19, THE PHANTOM FOUND -- by build iy's own line-naming,
+    # in Jim's rerun logs): every "unresolved absolute-value" nudge since this
+    # referee shipped was firing on "3/4 | 2/4 | 4/8" -- the PIPE SEPARATORS of
+    # [[choices]]/[[card]]/[[today]] option lists, not absolute-value bars. The
+    # model was ordered to explain notation that was never on the board, which
+    # is why no retry could ever satisfy it (and why arms with more answer
+    # buttons audited worse). Real bars hug their contents (|x|, |−5|, |x - 3|);
+    # separators float between spaces -- so the pattern now demands a non-space
+    # immediately inside BOTH bars.
+    ("absolute-value bars", re.compile(r"\|(?=\S)[^|\[\]]{1,12}(?<=\S)\|"),
      re.compile(r"absolute\s+value", re.I),
      "Those tall straight bars mean ABSOLUTE VALUE -- how far a number is from "
      'zero -- so "the absolute value of negative five" is just five.'),
@@ -5566,16 +5588,33 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None) -
             for m in recent) or "(this is the very first turn)"
         user = (f"CONVERSATION (most recent turns):\n\n{convo}\n\n=====\n\n"
                 f"THE TUTOR'S DRAFT REPLY (the student has NOT seen it yet):\n\n{reply}")
+        prefixed = False
         if provider == "openai":
             resp = _OpenAIBrain(key).create(
                 model=model, max_tokens=500, system=_CRITIC_SYSTEM,
                 messages=[{"role": "user", "content": user}])
         else:
-            resp = Anthropic(api_key=key, timeout=30.0, max_retries=0).messages.create(
-                model=model, max_tokens=500, system=_CRITIC_SYSTEM,
-                messages=[{"role": "user", "content": user}])
+            # build iz (Jim's arm-3 log: "non-JSON verdict -- fail open" x4 --
+            # every one a silently wasted check): an Anthropic critic is HELD to
+            # JSON by assistant prefill of the opening brace; on the known
+            # intermittent prefill refusal, fall back to the plain shape.
+            _c = Anthropic(api_key=key, timeout=30.0, max_retries=0)
+            try:
+                resp = _c.messages.create(
+                    model=model, max_tokens=500, system=_CRITIC_SYSTEM,
+                    messages=[{"role": "user", "content": user},
+                              {"role": "assistant", "content": "{"}])
+                prefixed = True
+            except Exception as _pex:  # noqa: BLE001 -- only the named refusal
+                if not _is_prefill_rejection(_pex):
+                    raise
+                resp = _c.messages.create(
+                    model=model, max_tokens=500, system=_CRITIC_SYSTEM,
+                    messages=[{"role": "user", "content": user}])
         text = "".join(b.text for b in resp.content
                        if getattr(b, "type", None) == "text")
+        if prefixed:
+            text = "{" + text
         try:   # usage is a fact worth keeping, but never worth failing a turn over
             tk = {}
             _add_usage(tk, resp)

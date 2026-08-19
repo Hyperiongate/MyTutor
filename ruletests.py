@@ -12434,6 +12434,27 @@ def part3by_notation_intro():
           not tutor.notation_intro_conflict(
               'The area is side times side. [[step eq="A = s^2"]]', None),
           "a referee that cannot know is guessing")
+    # build iz -- THE PHANTOM: pipe SEPARATORS in option lists are not
+    # absolute-value bars. This false fire went unresolved through every audit
+    # run since the referee shipped, until iy's line-naming exposed it.
+    check("  silent: [[choices]] pipes are separators, not absolute value (iz)",
+          not tutor.notation_intro_conflict(
+              'Which is bigger? Tap one! [[choices options="3/4 | 2/4 | 4/8"]]',
+              _NI_H),
+          "the phantom is back: every 3-option button row reads as |absolute value|")
+    check("  silent: [[card]] item pipes too",
+          not tutor.notation_intro_conflict(
+              'Here is the plan. [[card title="today" items="one piece | two '
+              'pieces | three pieces"]]', _NI_H),
+          "a card's item list reads as absolute-value bars again")
+    check("  fires: REAL bars still caught after the tightening",
+          bool(tutor.notation_intro_conflict(
+              'Look at this. [[write text="|−5| = ?"]] What is it?', _NI_H)),
+          "the pipe fix over-tightened and real absolute value goes unread")
+    check("  fires: real bars with inner spaces (|x - 3|) too",
+          bool(tutor.notation_intro_conflict(
+              'Now this one. [[write text="|x - 3| = 7"]] Try it!', _NI_H)),
+          "spaced contents inside real bars slip the net")
     check("  and via the sweep",
           "Rule 14" in str(tutor.prose_board_conflict(
               'New idea. [[step eq="A = s^2"]] What is A when s is 3?',

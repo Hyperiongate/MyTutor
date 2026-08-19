@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19iz-pipes-are-not-bars". BUILD iz -- the
+#               absolute-value phantom is DEAD: iy's line-naming showed the
+#               rule-14 referee firing on the pipe separators of option lists
+#               ("3/4 | 2/4 | 4/8"), not on real bars -- the unresolvable nudge
+#               that haunted every audit since ih, and it skewed the model
+#               comparison against arms that used more answer buttons. Pattern
+#               now demands non-space inside both bars. Also: the Anthropic
+#               live critic is held to JSON by brace prefill (4 wasted checks
+#               in one arm). The three-arm test MUST be re-run on this build --
+#               all prior arm scores are contaminated. ALL CODE IS IN tutor.py /
+#               ruletests.py; this file only carries the stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19iy-request-is-not-an-answer". BUILD iy --
 #               two catches from the arm-1 rerun log: referee 33 now enforces
 #               only QUANTITATIVE taps (a "Quiz me!" button is a request, not an
@@ -8587,7 +8598,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19iy-request-is-not-an-answer"
+APP_BUILD = "2026-08-19iz-pipes-are-not-bars"
 
 
 @app.get("/health")
