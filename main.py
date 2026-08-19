@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19jh-the-board-says-where". BUILD jh -- three
+#               catches from one resumed lesson on 24368 + 8175. (1) REFEREE 36: the
+#               board carried "43" under the line (ones and tens done, HUNDREDS next)
+#               and the tutor announced "ten-thousands: 2 + 1 = ?", skipping two
+#               columns -- partial= makes the next place OBJECTIVE, so it is now
+#               refereed. (2) JIM'S RULING: a half-finished problem is RESTARTED on
+#               resume, never resumed mid-column -- the new session's board is EMPTY
+#               of that work, and the tutor's memory of which step was next is exactly
+#               what goes wrong. (3) The Today's Goal chip vanished on restart while
+#               the progress chip restored beside it: showGoal only ever ran from a
+#               live [[goal]] tag, so it is now restored from the stored items (which
+#               ARE the goal). ALL CODE IS IN tutor.py / prompts.py / session.html;
+#               this file only carries the stamp. PART 3cn.
 #   2026-08-19  APP_BUILD -> "2026-08-19jg-draw-the-move-whole". BUILD jg -- REFEREE
 #               35. Jim, solving 3(x-2)=2x+5: "it put a bubble between those, and the
 #               original equation was out of sight up high... it feels like it doesn't
@@ -8707,7 +8720,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jg-draw-the-move-whole"
+APP_BUILD = "2026-08-19jh-the-board-says-where"
 
 
 @app.get("/health")

@@ -12365,9 +12365,11 @@ def part3bx_quiz_vocab():
           '"terms_known": (student or {}).get("terms_known")' in tsrc
           and "terms_known=(meta or {}).get(\"terms_known\")" in tsrc,
           "the fact is computed and then dropped on the floor")
+    # build jh: the Lever-3 housekeeping re-wrapped this line (a re-wrap is not a
+    # reword), so the anchor is whitespace-tolerant -- only a REWORD should fail it.
     check("rule 37's text announces the referee",
-          "teaching may\n    introduce a word; a quiz may not" in
-          open(os.path.join(here, "prompts.py"), encoding="utf-8").read(),
+          bool(re.search(r"teaching may\s+introduce a word;\s+a quiz may not",
+                         open(os.path.join(here, "prompts.py"), encoding="utf-8").read())),
           "the promoted rule still reads like a wish")
     # THE CANONICAL SWEEP -- armed on the hardest setting (empty history, no
     # delivered scripts) over every authored string.
@@ -13366,6 +13368,54 @@ def part3cm_orphan_step():
           "the rule lost a prescription and will drift back to op-over-nothing")
 
 
+def part3cn_resume_and_place():
+    # build jh (2026-08-19), three catches from one resumed lesson on 24368 + 8175:
+    # (1) the board carried "43" under the line -- ones and tens done, HUNDREDS next --
+    # and the tutor announced "ten-thousands: 2 + 1 = ?"; (2) Jim's ruling: a resumed
+    # session goes to the START of the problem, not the middle; (3) the Today's Goal
+    # chip vanished on restart while the progress chip restored beside it.
+    print("\nPART 3cn — the board says which column, and a resume starts over (build jh)")
+    import tutor
+    flat = re.sub(r"\s+", " ", tutor.GRAPH_TOOL_NOTE)
+    BOARD = ('[[column op="+" terms="24368 | 8175" carries="11_" partial="43"]] ')
+    check("  fires: Jim's turn -- 'ten-thousands' on a board whose next column is hundreds",
+          "hundreds" in tutor.column_place_conflict(
+              BOARD + '[[step eq="ten-thousands: 2 + 1 = ?"]]'),
+          "the tutor can skip two whole columns and nothing notices")
+    check("  silent: the correct next column",
+          not tutor.column_place_conflict(BOARD + '[[step eq="hundreds: 3 + 1 + 1 = ?"]]'),
+          "the correct step is being rejected")
+    check("  silent: a fresh problem with nothing written yet",
+          not tutor.column_place_conflict(
+              '[[column op="+" terms="24368 | 8175"]] ones: what is 8 + 5?'),
+          "the start of a problem is being rejected")
+    check("  silent: no place label at all",
+          not tutor.column_place_conflict(BOARD + "Nice -- what comes next?"),
+          "ordinary prose is being rejected")
+    check("  and via the sweep",
+          "hundreds" in str(tutor.prose_board_conflict(
+              BOARD + '[[step eq="ten-thousands: 2 + 1 = ?"]]')),
+          "the referee exists but the sweep never calls it")
+    # the resume rule lives in the per-course opener spec (not GRAPH_TOOL_NOTE), so
+    # it is checked where it actually lands: every built prompt.
+    miss = []
+    for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2",
+              "precalc", "probstat", "calculus", "diffeq"):
+        bp = tutor.build_system_prompt(dict(STUDENT), course=c)
+        if ("A HALF-FINISHED PROBLEM IS RESTARTED, NEVER RESUMED" not in bp
+                or "from its first line" not in bp):
+            miss.append(c)
+    check("a half-finished problem is RESTARTED on resume, in ALL ten courses",
+          not miss,
+          f"missing in {miss} -- a returning student is dropped back into the middle "
+          "of a problem whose board is empty; Jim's ruling lost")
+    hsrc = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "static", "session.html"), encoding="utf-8").read()
+    check("the Today's Goal chip survives a session restart",
+          'if (!el("goalBar").classList.contains("show")) showGoal(TODAY_ITEMS.join(" · "));' in hsrc,
+          "the progress chip restores and the goal chip does not -- Jim's exact catch")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13863,6 +13913,7 @@ def main():
     part3ck_spoken_length()
     part3cl_readable_axes()
     part3cm_orphan_step()
+    part3cn_resume_and_place()
     part3ai_deploy_stamp()
     if live:
         part4_live()

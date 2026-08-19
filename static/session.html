@@ -3438,6 +3438,15 @@
             if (i >= 0 && i < TODAY_DONE.length) TODAY_DONE[i] = _worked[i + 1] ? "worked" : true;
           });
           renderTodayBar();
+          // build jh (Jim: "somewhere along the way, it dropped today's goals"): the
+          // TODAY BAR restored here but its GOAL chip did not, because showGoal only
+          // ever ran from a live [[goal]] tag -- so a returning student saw "Today's
+          // Progress 1/3" with no goal beside it. The banner sentence is not stored,
+          // but the ITEMS are, and the items ARE the goal; restore from them. A live
+          // [[goal]] later in the session still overwrites this.
+          try {
+            if (!el("goalBar").classList.contains("show")) showGoal(TODAY_ITEMS.join(" · "));
+          } catch (e) {}
         }
         if (SRV_PROGRESS && !UNIT_PLAN.unit) {
           // build gs (2026-08-17, Jim twice: "it still says unit one when we are talking

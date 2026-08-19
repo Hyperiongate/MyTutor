@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD jh -- REFEREE 36, THE COLUMN PLACE. Jim resuming a session on
+#               24368 + 8175: the board carried "43" under the line (ones and tens
+#               done, HUNDREDS next) and the tutor announced "ten-thousands: 2 + 1 =
+#               ?", skipping two columns. The board knows where the work stands; the
+#               tutor's memory of it does not -- and partial= makes that objective, so
+#               it is refereeable. Companion prompt rule: a half-finished problem is
+#               RESTARTED on resume, never resumed mid-column.
 #   2026-08-19  BUILD jg -- REFEREE 35, THE ORPHAN STEP. Jim, solving 3(x-2)=2x+5:
 #               "it actually put a bubble between those, and the original equation was
 #               out of sight up high... it feels like it doesn't understand what is on
@@ -4035,6 +4042,55 @@ def back_reference_conflict(reply: str, heard=None):
         return ""
 
 
+# BUILD jh -- RULE 13, THE COLUMN-PLACE CHECK (the THIRTY-SIXTH referee).
+# 2026-08-19, Jim resuming a session on 24368 + 8175: the board showed carries over
+# the tens and hundreds and the answer digits "43" -- so the NEXT column to work is
+# the HUNDREDS -- and the tutor announced "ten-thousands: 2 + 1 = ?", skipping two
+# whole columns. The board knows exactly where the work stands; the tutor's memory of
+# it does not. This is objective, so it is refereeable: partial="43" means two columns
+# are finished, so the next place is index 2 (hundreds), and a reply that labels its
+# step with any other place is wrong about its own board.
+_PLACE_INDEX = {"ones": 0, "units": 0, "tens": 1, "hundreds": 2, "thousands": 3,
+                "ten-thousands": 4, "ten thousands": 4,
+                "hundred-thousands": 5, "hundred thousands": 5, "millions": 6}
+_PLACE_LABEL = re.compile(
+    r"\b(ones|units|tens|hundreds|thousands|ten[- ]thousands|hundred[- ]thousands|millions)\s*:",
+    re.I)
+_COL_PARTIAL = re.compile(r'\[\[\s*column\b[^\]]*\bpartial\s*=\s*"([^"]*)"', re.I)
+
+
+def column_place_conflict(reply: str):
+    """Return a description of a step labelled with the wrong place value for the
+    board it is drawn on, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        m = _COL_PARTIAL.search(text)
+        if not m:
+            return ""
+        done = len(m.group(1).strip())          # answer digits written so far
+        if done <= 0:
+            return ""
+        lab = _PLACE_LABEL.search(text)
+        if not lab:
+            return ""
+        named = _PLACE_INDEX.get(lab.group(1).lower().replace("_", " "))
+        if named is None:
+            named = _PLACE_INDEX.get(lab.group(1).lower().replace(" ", "-"))
+        if named is None or named == done:
+            return ""
+        inv = {v: k for k, v in _PLACE_INDEX.items() if k not in ("units",)}
+        return ("your board already has {d} answer digit(s) written, so the next column "
+                "to work is the {right} -- but this reply labels the step \"{said}\". "
+                "The board is the record of where the work stands; read it before you "
+                "name a place. Work the {right} column next, or if you meant to start "
+                "the problem over, put the WHOLE problem back up from its first line."
+                ).format(d=done, right=inv.get(done, "next"), said=lab.group(1))
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[colplace] crashed (fail open): {exc}")
+        _event("referee_crash", "colplace", str(exc))
+        return ""
+
+
 # BUILD jg -- RULE 15(a), THE ORPHAN-STEP CHECK (the THIRTY-FIFTH referee).
 # 2026-08-19, Jim solving 3(x-2) = 2x+5 live: "instead of taking the original 3x - 6
 # = 2x + 5, then showing taking 2x from each side and then showing gives us x - 6 =
@@ -5345,7 +5401,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THIRTY-FIVE referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-SIX referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -5500,6 +5556,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if orphan:
             _event("referee_fire", "orphanstep", orphan)
             return orphan
+        # build jh: THIRTY-SIXTH -- a step labelled with the wrong place value for the
+        # board it is drawn on (rule 13). Objective: the partial answer says which
+        # column is next. From Jim's resumed 24368 + 8175.
+        colplace = column_place_conflict(reply)
+        if colplace:
+            _event("referee_fire", "colplace", colplace)
+            return colplace
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
