@@ -2,6 +2,40 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILDS iu/iv -- THE BRAIN IS PLUGGABLE + THE LIVE CRITIC SEAT
+#               (Jim's A/B ruling; challenger model his explicit call: gpt-5.6).
+#               iu: TUTOR_PROVIDER=anthropic (default, byte-identical)|openai picks
+#               the author; _OpenAIBrain adapts OpenAI's chat API to the exact
+#               client.messages.create(...) call _create_full already makes --
+#               same .content/.stop_reason/.usage shape, token-parameter and
+#               room-to-think negotiation inherited from lessonaudit's transport,
+#               prefill refused with the NAMED words _create_full's negotiation
+#               already listens for (so continuations fall back to the nudge on
+#               their own). Pipeline, referees, retries: untouched, vendor-blind.
+#               iv: LIVE_CRITIC=off (default)|anthropic|openai seats a SECOND
+#               model that reads every draft the regex referees accept -- the
+#               judgment moles (the "Eleven is the answer" thread-jump class)
+#               caught without a new build per mole. A confident objection is a
+#               retry through the same loop (_CRITIC_NUDGE); pass-unless-confident,
+#               fail open everywhere, usage logged kind="critic". Off = production
+#               behavior byte-identical. Pinned in ruletests PART 3cf.
+#   2026-08-19  BUILDS is/it -- REFEREE 33 + THE NUDGE THAT FINALLY SAYS HOW. is:
+#               tapped_answer_conflict (rule 18a's runtime half, from Jim live in
+#               Entry Level Math: he TAPPED "32" answering "which is bigger,
+#               thirty-two or twenty-nine?" and the reply graded the lesson's
+#               OTHER thread -- "Eleven is the answer -- you jumped one step past
+#               ten!" -- engaging neither 32 nor 29). When the student's message
+#               is EXACTLY one of the previous turn's [[choices]] options and the
+#               reply touches neither their answer nor any option of that
+#               question (digits or words -- "thirty-two" counts for 32), the
+#               reply is regenerated. Narrow: typed/spoken answers and "I'm not
+#               sure" are exempt; emoji-only options never judged; fail open.
+#               it: the rule-14 notation nudge goes PRESCRIPTIVE -- five straight
+#               unresolved retries (four lessonaudit runs + Jim's Render log,
+#               absolute-value bars every time) proved a described defect stays
+#               unfixed. Each _NOTATIONS entry now carries the ready sentence,
+#               and the referee message QUOTES it, so a retry only has to
+#               include it. Pinned in ruletests PART 3ce.
 #   2026-08-18  BUILDS ih/ii/ij -- REFEREES 30-32, THE TIER-B REMAINDER. ih:
 #               notation_intro_conflict (rule 14's runtime half) -- a reply whose
 #               BOARD tags carry a symbol new to this conversation (√, π, ^, |x|,
@@ -1711,6 +1745,46 @@ from prompts import (  # noqa: E402
 # Sonnet, set CLAUDE_MODEL=claude-sonnet-5 in Render (or delete the var so this default
 # is used).
 DEFAULT_MODEL = "claude-sonnet-5"
+
+# build iu (2026-08-19, Jim's A/B ruling): THE BRAIN IS PLUGGABLE. Jim, after one
+# playtest too many: "it only takes a few minutes before I find a problem... I
+# would like to try ChatGPT in place of Sonnet" -- and his explicit call: the
+# challenger is gpt-5.6. The seat is now chosen by env, so the experiment is a
+# flag, not a fork:
+#   TUTOR_PROVIDER=anthropic  (default -- today's brain, byte-identical path)
+#   TUTOR_PROVIDER=openai     (the challenger; model from OPENAI_TUTOR_MODEL)
+# Everything downstream -- _create_full's continuation stitching, _create_verified's
+# thirty-three referees, the retry nudges, the usage log -- is UNCHANGED and applies
+# to both brains: the referees judge text, not vendors. The OpenAI path speaks
+# through _OpenAIBrain (below, beside _create_full), an adapter that answers the
+# same client.messages.create(...) call the pipeline already makes.
+# NOTE: the GPT-5 family requires OpenAI ORGANISATION VERIFICATION on the
+# account (Jim's key fell back to gpt-4.1 in the 2026-08-10 audits for exactly
+# this) -- the adapter surfaces that error WITH its remedy instead of a bare 400.
+DEFAULT_OPENAI_TUTOR_MODEL = "gpt-5.6"
+
+
+def _openai_teaching_allowed() -> str:
+    """"" when the OpenAI seat may be used, else the reason it may not.
+
+    ⚠️ THE PRIVACY BOUNDARY (build gq, PART 3al, and the decision record
+    OpenAI_Data_Sharing_Decision_2026-08-17.md -- read it before touching this).
+    Jim's OPENAI_API_KEY is scoped to a data-sharing-ENABLED audit project, and
+    static/privacy.html promises parents exactly three processors -- Anthropic,
+    ElevenLabs, Render. So the OpenAI brain/critic seats are lawful ONLY for the
+    audit's SYNTHETIC students ("no child's words have ever been sent to
+    OpenAI" is the fact the whole decision rests on). lessonaudit sets
+    AUDIT_SYNTHETIC_STUDENTS=1 in its own process; without it, an openai seat
+    falls back to Anthropic LOUDLY. This is a code gate, not a hope: an env
+    typo on Render can never route a real child's turn to OpenAI.
+    If the A/B wins and Jim wants gpt-5.6 live for real students, the decision
+    doc lists what must happen FIRST: a separate sharing-OFF OpenAI project and
+    key, a privacy-policy revision naming the provider, and the attorney."""
+    if os.environ.get("AUDIT_SYNTHETIC_STUDENTS") == "1":
+        return ""
+    return ("the OpenAI seat is honored only inside the offline audit "
+            "(synthetic students). Real lessons stay on the three processors "
+            "privacy.html names -- see OpenAI_Data_Sharing_Decision_2026-08-17.")
 
 # BUILD ht (2026-08-18, Phase 5 -- review Class F): THE UPSTREAM CALL IS BOUNDED.
 # The SDK's default timeout is ~10 minutes, and a hung upstream used to freeze a
@@ -3715,16 +3789,32 @@ def quiz_vocab_conflict(reply: str, heard=None, terms_known=None, course: str = 
 #     scope is the FIRST time)
 #   - the prose reads it aloud in any accepted wording -> silent (that IS the fix)
 #   - no heard supplied -> silent (a referee that cannot know must not guess).
+# build it (2026-08-19): each notation now carries the SENTENCE that fixes it.
+# Evidence forced this: five audits and live runs in a row (four in lessonaudit,
+# then Jim's own Render log the same night) show the absolute-value nudge going
+# UNRESOLVED through all three attempts -- the old message described the defect
+# and cited the rule, and the model still could not find the words. A nudge that
+# fails five-for-five is not a nudge; it is a log line. The message below now
+# QUOTES a ready sentence to say, so a retry only has to include it.
 _NOTATIONS = (
     ("the square-root sign", re.compile(r"√|\bsqrt\b", re.I),
-     re.compile(r"square\s+root|\broot\b", re.I)),
-    ("pi", re.compile(r"π"), re.compile(r"\bpi\b", re.I)),
+     re.compile(r"square\s+root|\broot\b", re.I),
+     'That curvy checkmark is the SQUARE ROOT sign -- "the square root of '
+     'twenty-five" asks which number times itself makes twenty-five.'),
+    ("pi", re.compile(r"π"), re.compile(r"\bpi\b", re.I),
+     'That symbol is the Greek letter pi -- we say "pie" -- and it stands for '
+     "about 3.14, the number a circle keeps."),
     ("an exponent", re.compile(r"\^"),
-     re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I)),
+     re.compile(r"\bsquared\b|\bcubed\b|\bpower\b|\bexponent\b|\braised\s+to\b", re.I),
+     'That small raised number is an EXPONENT -- "s squared" means s times s.'),
     ("absolute-value bars", re.compile(r"\|[^|\[\]]{1,12}\|"),
-     re.compile(r"absolute\s+value", re.I)),
+     re.compile(r"absolute\s+value", re.I),
+     "Those tall straight bars mean ABSOLUTE VALUE -- how far a number is from "
+     'zero -- so "the absolute value of negative five" is just five.'),
     ("function notation", re.compile(r"\b[fgh]\s*\(\s*[a-z]\s*\)"),
-     re.compile(r"\b[fgh]\s+of\s+[a-z]\b", re.I)),
+     re.compile(r"\b[fgh]\s+of\s+[a-z]\b", re.I),
+     'We read f(x) out loud as "f of x" -- the name of a machine that takes x '
+     "in and sends one number back out."),
 )
 _NOTE_TAG_VALS = re.compile(r'\[\[[^\]]*?"([^"]*)"[^\]]*\]\]')
 
@@ -3744,7 +3834,7 @@ def notation_intro_conflict(reply: str, heard=None):
         if not prose.strip():
             return ""    # a tags-only FRAGMENT (foundation strings) is not a reply
         base = str(heard)
-        for name, sym, spoken in _NOTATIONS:
+        for name, sym, spoken, fix in _NOTATIONS:
             if not sym.search(vals):
                 continue                    # this notation isn't on the board
             if sym.search(base):
@@ -3754,12 +3844,16 @@ def notation_intro_conflict(reply: str, heard=None):
             # tag, and that IS the introduction (the canonical sweep's catch).
             if spoken.search(prose) or spoken.search(vals):
                 continue                    # the reply reads it aloud -- the fix itself
+            # build it: PRESCRIPTIVE. Five straight unresolved retries proved
+            # that describing the defect is not enough -- quote the exact kind
+            # of sentence the reply must add, adapted to this problem's numbers.
             return ("your board writes {n} for the FIRST time in this conversation "
                     "and your spoken words never read or name it. Rule 14: define "
                     "every notation the first time it appears -- assume the student "
-                    "knows NONE of it. Say the words a person says for it, in this "
-                    "same reply, the moment the symbol lands on the board (rule 48 "
-                    "has the wording patterns).").format(n=name)
+                    "knows NONE of it. ADD ONE SPOKEN SENTENCE to this same reply, "
+                    "right where the symbol lands, shaped exactly like this "
+                    "(adapt the numbers to YOUR board): {f} Keep everything else "
+                    "about your reply the same.").format(n=name, f=fix)
         return ""
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[notation] crashed (fail open): {exc}")
@@ -3861,6 +3955,93 @@ def back_reference_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[backref] crashed (fail open): {exc}")
         _event("referee_crash", "backref", str(exc))
+        return ""
+
+
+# BUILD is -- RULE 18(a), THE TAPPED-ANSWER CHECK (the THIRTY-THIRD referee).
+# 2026-08-19, Jim live in Entry Level Math: he TAPPED "32" answering "which is
+# bigger, thirty-two or twenty-nine?" -- his own question, correctly -- and the
+# reply came back "Eleven is the answer -- you jumped one step past ten on the
+# number line!", grading the lesson's OTHER thread. The reply engaged neither
+# "32" nor "29": the model held two interwoven threads and reached for the stale
+# one. Rule 18 already says check the student's answer before you build on
+# anything; this is its runtime half for the one case the server can know
+# PRECISELY: a tapped choice button sends the option text verbatim, so when the
+# student's message is exactly one of the previous turn's own [[choices]]
+# options and the reply never touches THAT question -- not their answer, not any
+# of its options, in digits or in words ("thirty-two" counts for 32) -- the
+# reply is answering something else, and is regenerated.
+# NARROW by design: typed and spoken answers are a looser world (paraphrase,
+# transcription) and are left to the model's judgment; "I'm not sure" is a
+# request for help, not an answer to echo; an option with no letters or digits
+# (emoji buttons) is never judged. Fed `student_message` (already in the sweep)
+# and `prev_tutor` (the ORIGINAL last assistant turn, from _create_verified).
+_TA_SEP = r"[\s\-,]{1,3}"
+
+
+def _ta_option_pattern(opt):
+    """A compiled pattern matching this choice option spoken OR written --
+    digits accept their word forms ('32' matches 'thirty-two', '2 tens'
+    matches 'two tens'). None when the option holds nothing judgeable."""
+    toks = re.findall(r"[A-Za-z]+|\d+", str(opt or ""))
+    if not toks:
+        return None
+    parts = []
+    for t in toks:
+        if t.isdigit():
+            alts = [re.escape(t)]
+            n = int(t)
+            w = _EQ_NUMWORD.get(n)
+            if w:
+                alts.append(w)
+            elif 21 <= n <= 99:
+                tens, ones = _EQ_NUMWORD.get((n // 10) * 10), _EQ_NUMWORD.get(n % 10)
+                if tens and ones:
+                    alts.append(tens + r"[\s-]?" + ones)
+            parts.append("(?:%s)" % "|".join(alts))
+        else:
+            parts.append(re.escape(t))
+    return re.compile(r"\b" + _TA_SEP.join(parts) + r"s?\b", re.I)
+
+
+def tapped_answer_conflict(reply: str, student_message: str = "", prev_tutor=None):
+    """Return a description of a reply that grades a different question than the
+    one the student just answered by tapping a choice button, or "". Silent when
+    `prev_tutor` is None, when the previous turn offered no [[choices]], or when
+    the student's message is not exactly one of its options. Never raises
+    (fail open)."""
+    try:
+        if prev_tutor is None:
+            return ""
+        msg = str(student_message or "").strip()
+        if not msg or len(msg) > 60:
+            return ""
+        opts = []
+        for m in re.finditer(r'\[\[choices\b[^\]]*?options\s*=\s*"([^"]*)"',
+                             str(prev_tutor), re.I):
+            opts.extend(o.strip() for o in m.group(1).split("|") if o.strip())
+        if not opts:
+            return ""
+        if "not sure" in msg.lower():
+            return ""              # the honest button asks for help, not a grade
+        if msg.lower() not in {o.lower() for o in opts}:
+            return ""              # typed/spoken answers are the model's judgment
+        text = str(reply or "")
+        for o in opts:
+            pat = _ta_option_pattern(o)
+            if pat and pat.search(text):
+                return ""          # the reply engages THIS question, on some option
+        return ('the student just TAPPED "{a}" -- answering the exact question '
+                "your own last reply asked with those buttons -- and this reply "
+                "engages neither their answer nor ANY option of that question. "
+                "It reads like a reply to a DIFFERENT, earlier question. Rule 18: "
+                'check THEIR answer before you build on anything -- say "{a}" '
+                "back, tell them whether it is right and why, and only then move "
+                "on. Never grade a question they did not just answer."
+                ).format(a=msg[:30])
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[tappedanswer] crashed (fail open): {exc}")
+        _event("referee_crash", "tappedanswer", str(exc))
         return ""
 
 
@@ -4972,7 +5153,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THIRTY-TWO referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-THREE referees ride this sweep (hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -5108,6 +5289,13 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if backref:
             _event("referee_fire", "backref", backref)
             return backref
+        # build is: THIRTY-THIRD -- a tapped choice answer must be graded, not a
+        # stale thread (rule 18a, from Jim's live "32" -> "Eleven is the answer").
+        # Rides with its prev_tutor siblings.
+        tapped = tapped_answer_conflict(reply, student_message, prev_tutor)
+        if tapped:
+            _event("referee_fire", "tappedanswer", tapped)
+            return tapped
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
@@ -5234,6 +5422,129 @@ _PROSE_NUDGE = (
     "checking.)")
 
 
+# =============================================================================
+# BUILD iv (2026-08-19) -- THE LIVE CRITIC SEAT. Jim's swarm insight, applied
+# where it helps a lesson instead of hurting one: not a committee drafting by
+# vote (latency x N, a persona flattened to mush), but ONE author and a SECOND
+# model reading every draft before the child does. The thirty-three regex
+# referees catch the shapes we have hand-coded; the critic catches judgment --
+# the "Eleven is the answer" thread-jump class -- without a new build per mole.
+# Its objection feeds the SAME retry loop the other referees use.
+# The seat is EMPTY by default (LIVE_CRITIC=off): production behavior is
+# byte-identical until Jim seats a critic by env. LIVE_CRITIC=openai|anthropic
+# picks the vendor (ideally the OTHER one from the author -- different failure
+# modes are the point), LIVE_CRITIC_MODEL overrides the model. Fail open
+# everywhere: a critic that crashes, times out, or answers nonsense must never
+# cost a child a turn. Usage is logged to the store under kind="critic".
+# =============================================================================
+_CRITIC_SYSTEM = (
+    "You are a silent quality referee for a children's math tutor. You will see "
+    "the most recent turns of a lesson and the tutor's DRAFT reply, which the "
+    "student has NOT seen yet. The [[double-bracket]] tags draw on a whiteboard; "
+    "they are normal, not defects.\n\n"
+    "Check ONLY these four things:\n"
+    "1. Does the draft respond to what the student JUST said -- acknowledging and "
+    "grading THEIR latest answer -- rather than answering an earlier question or "
+    "a different thread of the lesson?\n"
+    "2. Is every mathematical claim in the draft correct?\n"
+    "3. If the draft puts a symbol or term on the board that this conversation "
+    "has not explained, do the spoken words explain it in child-plain language?\n"
+    "4. Does the draft stay in character as the warm teacher (no talk of rules, "
+    "drafts, systems, or checking)?\n\n"
+    "Teaching style, pacing, and choices you would merely have made differently "
+    "are NOT defects -- pass them. Object ONLY when you are confident a child "
+    "would be wrongly graded, misled, or confused by an actual error.\n\n"
+    'Answer with pure JSON and nothing else: {"ok": true} OR '
+    '{"ok": false, "problem": "<one specific sentence a rewrite can act on>"}')
+
+_CRITIC_NUDGE = (
+    "(SYSTEM: A second teacher read your previous draft and found a real problem: "
+    "{detail} The student NEVER saw that draft. Write your reply again from "
+    "scratch -- same warm teaching flow, keeping whatever was right -- fixing "
+    "exactly that problem. Your new reply must STAND ALONE: the student saw and "
+    "heard nothing of the discarded draft, so everything they need must appear "
+    "here in full. Do not mention this note or any checking.)")
+
+
+def _live_critic_seat():
+    """(provider, model) for the live critic, or (None, None) when the seat is
+    empty. The seat is empty unless LIVE_CRITIC names a known vendor."""
+    p = (os.environ.get("LIVE_CRITIC", "off") or "off").strip().lower()
+    if p in ("", "off", "0", "none", "false"):
+        return None, None
+    if p not in ("anthropic", "openai"):
+        print(f"[livecritic] unknown LIVE_CRITIC={p!r} -- the seat stays empty")
+        return None, None
+    if p == "openai":
+        # The critic reads the student's words too -- the SAME privacy boundary
+        # gates this seat (see _openai_teaching_allowed).
+        _blocked = _openai_teaching_allowed()
+        if _blocked:
+            print(f"[livecritic] LIVE_CRITIC=openai REFUSED: {_blocked}")
+            return None, None
+    default = DEFAULT_MODEL if p == "anthropic" else DEFAULT_OPENAI_TUTOR_MODEL
+    return p, (os.environ.get("LIVE_CRITIC_MODEL", "") or default)
+
+
+def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None) -> str:
+    """One second-model read of an accepted draft. Returns a one-sentence
+    objection, or "" (pass / seat empty / any failure). Never raises."""
+    try:
+        provider, model = _live_critic_seat()
+        if not provider:
+            return ""
+        key = os.environ.get("OPENAI_API_KEY" if provider == "openai"
+                             else "ANTHROPIC_API_KEY")
+        if not key:
+            print(f"[livecritic]{log_prefix} seat is set but the {provider} key "
+                  "is missing -- fail open")
+            return ""
+        recent = [m for m in (messages or [])
+                  if isinstance(m, dict) and isinstance(m.get("content"), str)][-4:]
+        convo = "\n\n".join(
+            f"{'TUTOR' if m.get('role') == 'assistant' else 'STUDENT'}: {m['content']}"
+            for m in recent) or "(this is the very first turn)"
+        user = (f"CONVERSATION (most recent turns):\n\n{convo}\n\n=====\n\n"
+                f"THE TUTOR'S DRAFT REPLY (the student has NOT seen it yet):\n\n{reply}")
+        if provider == "openai":
+            resp = _OpenAIBrain(key).create(
+                model=model, max_tokens=500, system=_CRITIC_SYSTEM,
+                messages=[{"role": "user", "content": user}])
+        else:
+            resp = Anthropic(api_key=key, timeout=30.0, max_retries=0).messages.create(
+                model=model, max_tokens=500, system=_CRITIC_SYSTEM,
+                messages=[{"role": "user", "content": user}])
+        text = "".join(b.text for b in resp.content
+                       if getattr(b, "type", None) == "text")
+        try:   # usage is a fact worth keeping, but never worth failing a turn over
+            tk = {}
+            _add_usage(tk, resp)
+            if store is not None and meta:
+                store.log_usage(kind="critic", code=meta.get("code", ""),
+                                course=meta.get("course", ""),
+                                mode=meta.get("mode", ""), model=model,
+                                input_tokens=tk.get("in", 0), output_tokens=tk.get("out", 0),
+                                cache_read_tokens=tk.get("cr", 0),
+                                cache_write_tokens=tk.get("cw", 0),
+                                attempts=1, verify_status="critic")
+        except Exception:  # noqa: BLE001
+            pass
+        import json as _json
+        s, e = text.find("{"), text.rfind("}")
+        if s < 0 or e <= s:
+            print(f"[livecritic]{log_prefix} non-JSON verdict -- fail open")
+            return ""
+        v = _json.loads(text[s:e + 1])
+        if v.get("ok") is True:
+            return ""
+        prob = str(v.get("problem", "")).strip()
+        return prob[:400]
+    except Exception as exc:  # noqa: BLE001 -- the critic must never cost a turn
+        print(f"[livecritic]{log_prefix} crashed (fail open): {exc}")
+        _event("referee_crash", "livecritic", str(exc))
+        return ""
+
+
 MATHCHECK_MAX_ATTEMPTS = 3   # 1 normal attempt + up to 2 corrected retries
 
 _MATHCHECK_NUDGE = (
@@ -5281,6 +5592,127 @@ def _add_usage(tokens, response):
 # (seamless when accepted), and on that named 400 switch to a continuation nudge in a
 # user message and remember the choice for the rest of the process. Never guessed from
 # the model name; names change, and guessing is how you ship a break.
+# =============================================================================
+# BUILD iu (2026-08-19) -- THE OPENAI BRAIN ADAPTER. One class that answers the
+# exact call the pipeline already makes -- client.messages.create(model=...,
+# max_tokens=..., system=..., messages=...) -- and returns an object with the
+# .content / .stop_reason / .usage shape _create_full and _add_usage already
+# read. _create_full, _create_verified and every referee are untouched; the
+# adapter is the whole cost of the swap. Negotiation lessons are inherited from
+# lessonaudit.py's transport, which paid for them in Jim's live runs (builds
+# cz/db/fe): the token-limit PARAMETER is learned from the API's own 400, a
+# reasoning model that spends its whole budget thinking gets ONE roomier retry,
+# transport errors get ONE quiet retry, and the GPT-5 family's organisation-
+# verification gate is surfaced with its remedy instead of a bare 400.
+# PREFILL: OpenAI's chat API cannot continue an assistant message in place, so
+# the adapter REFUSES the prefill shape with the exact words _create_full's
+# negotiation already listens for ("must end with a user message") -- the
+# existing machinery flips to the user-message nudge on its own. No new paths.
+# =============================================================================
+_OAI_URL = "https://api.openai.com/v1/chat/completions"
+_OAI_TOKEN_PARAM = "max_completion_tokens"   # learned from the API, like the audit's
+
+
+class _OaiUsage:
+    """OpenAI usage counts wearing Anthropic's field names (for _add_usage)."""
+    def __init__(self, u):
+        u = u or {}
+        self.input_tokens = int(u.get("prompt_tokens", 0) or 0)
+        self.output_tokens = int(u.get("completion_tokens", 0) or 0)
+        det = u.get("prompt_tokens_details") or {}
+        self.cache_read_input_tokens = int(det.get("cached_tokens", 0) or 0)
+        self.cache_creation_input_tokens = 0   # OpenAI's prefix cache has no write step
+
+
+class _OaiBlock:
+    type = "text"
+
+    def __init__(self, text):
+        self.text = text or ""
+
+
+class _OaiResponse:
+    """The reply shape _create_full reads: .content blocks, .stop_reason, .usage."""
+    def __init__(self, text, finish_reason, usage):
+        self.content = [_OaiBlock(text)]
+        self.stop_reason = "max_tokens" if finish_reason == "length" else "end_turn"
+        self.usage = _OaiUsage(usage)
+
+
+class _OpenAIBrain:
+    """Duck-typed stand-in for the Anthropic client: brain.messages.create(...)."""
+
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.messages = self          # so client.messages.create resolves here
+
+    def create(self, model, max_tokens, system, messages, _retry=True):
+        global _OAI_TOKEN_PARAM
+        import httpx
+        import time
+        if messages and messages[-1].get("role") == "assistant":
+            # The named refusal _create_full already negotiates around.
+            raise RuntimeError("This model does not support assistant message "
+                               "prefill. The conversation must end with a user "
+                               "message.")
+        sys_text = system if isinstance(system, str) else "".join(
+            b.get("text", "") for b in (system or []) if isinstance(b, dict))
+        convo = [{"role": "system", "content": sys_text}] + [
+            {"role": m.get("role", "user"), "content": str(m.get("content", ""))}
+            for m in (messages or [])]
+        body = {"model": model, "messages": convo, _OAI_TOKEN_PARAM: max_tokens}
+        last_exc = None
+        for _attempt in (1, 2):
+            try:
+                r = httpx.post(_OAI_URL, json=body,
+                               timeout=httpx.Timeout(connect=15.0, read=120.0,
+                                                     write=60.0, pool=15.0),
+                               headers={"Authorization": f"Bearer {self.api_key}"})
+                last_exc = None
+                break
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                if _attempt == 1:
+                    print(f"[tutor] openai transport error ({exc}); retrying once in 2s")
+                    time.sleep(2)
+        if last_exc is not None:
+            raise RuntimeError(f"could not reach OpenAI after a retry: {last_exc}")
+        if r.status_code == 200:
+            choice = r.json()["choices"][0]
+            content = choice.get("message", {}).get("content") or ""
+            finish = choice.get("finish_reason", "")
+            # A reasoning model can spend the WHOLE budget thinking (200, empty,
+            # finish_reason "length") -- give it room once, like the audit does.
+            if _retry and not content.strip() and finish == "length":
+                roomy = max(max_tokens * 4, max_tokens + 3000)
+                print(f"[tutor] openai spent the budget reasoning; retrying with {roomy} tokens")
+                return self.create(model, roomy, system, messages, _retry=False)
+            return _OaiResponse(content, finish, r.json().get("usage"))
+        detail = ""
+        try:
+            detail = (r.json().get("error") or {}).get("message", "")
+        except Exception:  # noqa: BLE001
+            detail = (r.text or "")[:200]
+        low = detail.lower()
+        if _retry and r.status_code == 400 and "max_tokens" in low \
+                and "max_completion_tokens" in low:
+            _OAI_TOKEN_PARAM = ("max_completion_tokens"
+                                if "'max_tokens' is not supported" in low
+                                else "max_tokens")
+            print(f"[tutor] openai wants {_OAI_TOKEN_PARAM}; switching and retrying")
+            return self.create(model, max_tokens, system, messages, _retry=False)
+        if _retry and r.status_code == 400 and "output limit was reached" in low:
+            roomy = max(max_tokens * 4, max_tokens + 3000)
+            return self.create(model, roomy, system, messages, _retry=False)
+        if "verif" in low and ("organization" in low or "organisation" in low):
+            raise RuntimeError(
+                f"OpenAI {r.status_code}: {detail}  |  REMEDY: this model needs "
+                "ORGANISATION VERIFICATION -- platform.openai.com -> Settings -> "
+                "Organization -> Verify. Until then set OPENAI_TUTOR_MODEL to a "
+                "model this key reaches (the audit's dry run lists them).")
+        raise RuntimeError(f"OpenAI {r.status_code}: {detail}")
+
+
 _PREFILL_OK: dict = {}    # model name -> False once the API has refused prefill once
 
 _CONTINUE_NUDGE = (
@@ -5507,6 +5939,26 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 print(f"[prosecheck]{log_prefix} UNRESOLVED -- passing through: {prose_detail}")
                 _event("pass_through", "prosecheck", prose_detail,
                        (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            # build iv: THE LIVE CRITIC SEAT (empty by default -- see _CRITIC_SYSTEM
+            # above). A second model reads the draft the regex referees just passed;
+            # a confident objection is a retry, exactly like theirs. Runs only on
+            # drafts the deterministic referees accepted (never stacks nudges).
+            critic_detail = ""
+            if not prose_detail:
+                critic_detail = _live_critic_review(reply, messages, log_prefix, meta)
+                if critic_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
+                    print(f"[livecritic]{log_prefix} OBJECTION on attempt "
+                          f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {critic_detail}")
+                    _event("referee_fire", "livecritic", critic_detail,
+                           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+                    msgs = msgs + [{"role": "assistant", "content": reply},
+                                   {"role": "user",
+                                    "content": _CRITIC_NUDGE.format(detail=critic_detail)}]
+                    continue
+                if critic_detail:
+                    print(f"[livecritic]{log_prefix} UNRESOLVED -- passing through: {critic_detail}")
+                    _event("pass_through", "livecritic", critic_detail,
+                           (meta or {}).get("code", ""), (meta or {}).get("course", ""))
             # build gv: MEASUREMENT ONLY -- claims about what has already happened.
             try:
                 count_claim_probe(reply, (meta or {}).get("code", ""),
@@ -5527,6 +5979,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             status = verdict if verdict != "ok" else ("ok" if attempt == 1 else "fixed")
             if prose_detail:
                 status = "prose-unresolved"
+            if critic_detail:
+                status = "critic-unresolved"   # build iv: visible in the usage log
             _log_brain_usage(meta, model, tokens, attempt, status)
             return mathcheck.strip_verify_tags(reply)
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
@@ -5569,20 +6023,39 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
     post       -- optional finishing net run on the verified reply, INSIDE the try:
                   a net that crashes must degrade to the friendly message too.
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        return ("(Setup needed: I can't reach my brain yet. Please add the "
-                "ANTHROPIC_API_KEY environment variable in Render, then reload "
-                "this page.)")
-
-    model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+    # build iu (2026-08-19): the brain SEAT is chosen by env -- see the note at
+    # DEFAULT_OPENAI_TUTOR_MODEL. Default is the Anthropic path, byte-identical
+    # to what shipped before this build.
+    provider = (os.environ.get("TUTOR_PROVIDER", "anthropic") or "anthropic").strip().lower()
+    if provider == "openai":
+        _blocked = _openai_teaching_allowed()
+        if _blocked:
+            print(f"[tutor] TUTOR_PROVIDER=openai REFUSED: {_blocked}")
+            _event("privacy_gate", "tutor_provider", _blocked,
+                   (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+            provider = "anthropic"
+    if provider == "openai":
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            return ("(Setup needed: TUTOR_PROVIDER is 'openai' but there is no "
+                    "OPENAI_API_KEY in the environment. Add it in Render, or "
+                    "remove TUTOR_PROVIDER to use the Anthropic brain.)")
+        model = os.environ.get("OPENAI_TUTOR_MODEL", DEFAULT_OPENAI_TUTOR_MODEL)
+    else:
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            return ("(Setup needed: I can't reach my brain yet. Please add the "
+                    "ANTHROPIC_API_KEY environment variable in Render, then reload "
+                    "this page.)")
+        model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
 
     messages = _trim_history(list(history or []))
     messages.append({"role": "user",
                      "content": (user_message + turn_note) if turn_note else user_message})
 
     try:
-        client = Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)
+        client = (_OpenAIBrain(api_key) if provider == "openai"
+                  else Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1))
         # MATH VERIFIER (2026-08-03): the reply is generated AND refereed in here --
         # see _create_verified above. Same model, same prompt, same max_tokens.
         reply = _create_verified(
@@ -5594,7 +6067,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
     except Exception as exc:  # noqa: BLE001  -- we want a graceful UI message
         # We deliberately never leak a raw stack trace to a student. We log it
         # for the developer and show a calm message instead.
-        print(f"[{label}] Claude API error: {exc}")
+        print(f"[{label}] brain API error ({provider}): {exc}")
         _event("failopen", where, str(exc),
                (meta or {}).get("code", ""), (meta or {}).get("course", ""))
         return ("(I'm having trouble thinking right now -- give me a moment and "

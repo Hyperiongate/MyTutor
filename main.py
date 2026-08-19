@@ -2,6 +2,31 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19iv-second-pair-of-eyes". BUILDS iu + iv --
+#               Jim's A/B ruling (challenger: gpt-5.6). iu: the tutor brain is
+#               pluggable (TUTOR_PROVIDER env; _OpenAIBrain adapter; default
+#               anthropic = byte-identical) and lessonaudit grows the lineup flags
+#               --brain / --live-critic / --judge with an Anthropic judge seat, so
+#               the A/B runs as four measured arms with per-arm report files.
+#               iv: the LIVE CRITIC seat (LIVE_CRITIC env, off by default) -- a
+#               second model reads every accepted draft and a confident objection
+#               retries through the existing loop; the judgment-mole class caught
+#               without a build per mole. NOTHING is switched on by default;
+#               production is byte-identical until the env vars are set. ALL CODE
+#               IS IN tutor.py / lessonaudit.py / ruletests.py (PART 3cf); this
+#               file only carries the stamp.
+#   2026-08-19  APP_BUILD -> "2026-08-19it-nudge-says-how". BUILDS is + it -- from
+#               Jim's "wtf" screenshot + Render log, same night. is: REFEREE 33,
+#               tapped_answer_conflict (rule 18a) -- he tapped "32" answering his
+#               own question and the reply graded the lesson's OTHER thread
+#               ("Eleven is the answer..."); now a reply to a tapped [[choices]]
+#               answer that engages neither their answer nor any option of that
+#               question is regenerated. it: the rule-14 notation nudge is
+#               PRESCRIPTIVE (5-for-5 unresolved retries, abs-value bars every
+#               time -- the fifth in Jim's own log tonight): the referee message
+#               now QUOTES the ready sentence to add. ALL CODE IS IN tutor.py /
+#               prompts.py / ruletests.py (PART 3ce); this file only carries the
+#               stamp.
 #   2026-08-19  APP_BUILD -> "2026-08-19ir-turn-starts-at-the-top". BUILDS iq + ir --
 #               Jim's board-room pair, same sitting as ip. iq: the TODAY'S GOAL banner
 #               and the three progress bars collapse into two small clickable chips
@@ -8531,7 +8556,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19ir-turn-starts-at-the-top"
+APP_BUILD = "2026-08-19iv-second-pair-of-eyes"
 
 
 @app.get("/health")

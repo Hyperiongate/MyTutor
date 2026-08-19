@@ -2,6 +2,27 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  BUILD iu -- THE A/B HARNESS (Jim's call: "I wanna do an AB test...
+#               when we use ChatGPT, we use version five point six"). Three lineup
+#               flags, validated loudly per the build-im discipline:
+#                 --brain anthropic|openai        the tutor under test (sets
+#                                                 TUTOR_PROVIDER for this run; the
+#                                                 openai brain defaults to gpt-5.6)
+#                 --live-critic off|anthropic|openai
+#                                                 seats tutor.py's in-flight second
+#                                                 model (sets LIVE_CRITIC)
+#                 --judge openai|anthropic        who marks the transcripts. NEW
+#                                                 _anthropic_judge twin transport,
+#                                                 same (text, error) contract;
+#                                                 critique() routes through _judge().
+#               The student ACTOR is ALWAYS OpenAI in every arm -- a fair A/B
+#               varies one thing. Each arm writes its OWN report file (suffix
+#               named for the lineup) so an experiment never overwrites its
+#               control, the report opens with the lineup line, and the closing
+#               summary prints it. THE EXPERIMENT: same --limit, four arms --
+#               brain anthropic / brain openai, each with and without the other
+#               vendor in --live-critic; --judge both ways on the same arm when
+#               a vendor's grading is in doubt (nobody grades their own homework).
 #   2026-08-18  BUILD im -- A STRAY WORD REFUSES THE RUN. Jim typed `prompt-size
 #               large` (dashes forgotten); the old flag reader silently ignored the
 #               strays and ran the DEFAULT size for 13 minutes, reporting it as the
@@ -511,6 +532,60 @@ def _openai_model_names(key):
 
 
 # =============================================================================
+# THE JUDGE SEAT (build iu, 2026-08-19 -- Jim's A/B ruling). The critique used
+# to be OpenAI by definition; now the seat is chosen (--judge openai|anthropic),
+# so Sonnet can mark GPT's lessons and GPT can mark Sonnet's -- cross-judging is
+# how you keep a vendor from grading its own homework. The student ACTOR stays
+# OpenAI in every arm on purpose: a fair A/B varies ONE thing (the brain under
+# test), never the student. ANTHROPIC_JUDGE_MODEL overrides the default judge.
+# =============================================================================
+JUDGE_PROVIDER = "openai"          # set by main() from --judge
+
+
+def _anthropic_judge(messages, max_tokens=2000, want_json=False):
+    """One Anthropic call in the judge seat. Same (text, error) contract as
+    _openai(). Never raises, never logs the key."""
+    key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    if not key:
+        return None, ("no ANTHROPIC_API_KEY in the environment -- the anthropic "
+                      "judge seat needs it (it is already set for the tutor).")
+    try:
+        from anthropic import Anthropic
+    except Exception as exc:  # noqa: BLE001
+        return None, f"anthropic SDK unavailable: {exc}"
+    sys_text = "\n\n".join(m.get("content", "") for m in messages
+                           if m.get("role") == "system")
+    if want_json:
+        sys_text += ("\n\nAnswer with PURE JSON and nothing else -- no prose "
+                     "before or after the object.")
+    convo = [{"role": m.get("role"), "content": m.get("content", "")}
+             for m in messages if m.get("role") != "system"]
+    model = os.environ.get("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-5")
+    last_exc = None
+    for _attempt in (1, 2):
+        try:
+            client = Anthropic(api_key=key, timeout=300.0, max_retries=0)
+            resp = client.messages.create(model=model, max_tokens=max_tokens,
+                                          system=sys_text, messages=convo)
+            text = "".join(b.text for b in resp.content
+                           if getattr(b, "type", None) == "text")
+            return text, None
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if _attempt == 1:
+                print(f"[audit] anthropic judge transport error ({exc}); retrying once in 3s")
+                time.sleep(3)
+    return None, f"could not reach Anthropic after a retry: {last_exc}"
+
+
+def _judge(messages, max_tokens=2000, want_json=False):
+    """The critique call, routed to whichever vendor holds the judge seat."""
+    if JUDGE_PROVIDER == "anthropic":
+        return _anthropic_judge(messages, max_tokens, want_json)
+    return _openai(messages, max_tokens, want_json)
+
+
+# =============================================================================
 # RUNNING ONE LESSON
 # =============================================================================
 def _rules_text():
@@ -646,7 +721,7 @@ def critique(sc, transcript):
                 f"THE TUTOR'S RULE INDEX:\n\n{_rules_text()[:60000]}\n\n"
                 f"=====\n\nTRANSCRIPT (course: {sc['course']}, this scenario exists to "
                 f"expose: {sc['exposes']}):\n\n{body}"}]
-    text, err = _openai(msgs, max_tokens=2000, want_json=True)
+    text, err = _judge(msgs, max_tokens=2000, want_json=True)
     if err:
         return None, err
     try:
@@ -861,7 +936,13 @@ def main():
     # class this project exists to kill: every word on the command line must now be
     # a known flag or a known flag's value, or the run refuses LOUDLY before
     # spending a cent.
-    _VALUED = ("--limit", "--offset", "--turns", "--prompt-size")
+    _VALUED = ("--limit", "--offset", "--turns", "--prompt-size",
+               # build iu (2026-08-19, Jim's A/B): the lineup flags. --brain picks
+               # the tutor under test (TUTOR_PROVIDER for this run), --live-critic
+               # seats the in-flight second model (LIVE_CRITIC), --judge picks who
+               # marks the transcripts. The student actor is ALWAYS OpenAI, so a
+               # fair A/B varies only the thing being tested.
+               "--brain", "--live-critic", "--judge")
     _BARE = ("--dry-run",)
     _claimed = set()
     for _f in _VALUED:
@@ -903,6 +984,33 @@ def main():
     if prompt_size not in ("normal", "large"):
         print(f"--prompt-size must be small|normal|large, not {prompt_size!r}")
         return 2
+    # build iu: THE LINEUP. Validated loudly (the build-im discipline), applied
+    # via the same env vars the live app reads, printed so the log names the arm.
+    global JUDGE_PROVIDER
+    brain = (opt("--brain", "anthropic") or "anthropic").strip().lower()
+    if brain not in ("anthropic", "openai"):
+        print(f"--brain must be anthropic|openai, not {brain!r}")
+        return 2
+    live_critic = (opt("--live-critic", "off") or "off").strip().lower()
+    if live_critic not in ("off", "anthropic", "openai"):
+        print(f"--live-critic must be off|anthropic|openai, not {live_critic!r}")
+        return 2
+    judge = (opt("--judge", "openai") or "openai").strip().lower()
+    if judge not in ("openai", "anthropic"):
+        print(f"--judge must be openai|anthropic, not {judge!r}")
+        return 2
+    os.environ["TUTOR_PROVIDER"] = brain
+    os.environ["LIVE_CRITIC"] = live_critic
+    JUDGE_PROVIDER = judge
+    # THE PRIVACY GATE'S KEY (build iu): every lessonaudit student is synthetic
+    # ("Audit Student", code AUDIT -- no child's words anywhere in this process),
+    # which is the one condition under which tutor.py honors an openai seat.
+    # This flag exists ONLY here: setting it on Render's web service would be
+    # defeating a guard the privacy policy depends on. See
+    # OpenAI_Data_Sharing_Decision_2026-08-17.md before touching it.
+    os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
+    lineup = f"brain={brain} · live-critic={live_critic} · judge={judge}"
+    print(f"[audit] lineup: {lineup}")
     if "--dry-run" in args:
         d = dry_run(limit, offset, turns, prompt_size=prompt_size)
         print(f"\nLESSON AUDIT — DRY RUN (nothing is spent)\n")
@@ -928,9 +1036,17 @@ def main():
         print(f"  {d['estimate_note']}\n")
         return 0
     run = audit(limit, offset, turns, prompt_size=prompt_size)
-    md = report_markdown(run)
-    path = os.path.join(HERE, "lesson_audit_report.md" if prompt_size == "normal"
-                        else f"lesson_audit_report_{prompt_size}.md")
+    md = f"**Lineup:** {lineup}\n\n" + report_markdown(run)
+    # build iu: each arm writes ITS OWN report file, so an A/B never overwrites
+    # its control -- lesson_audit_report_openai-brain.md beside the default.
+    suffix = "" if prompt_size == "normal" else f"_{prompt_size}"
+    if brain != "anthropic":
+        suffix += f"_{brain}-brain"
+    if live_critic != "off":
+        suffix += f"_critic-{live_critic}"
+    if judge != "openai":
+        suffix += f"_judge-{judge}"
+    path = os.path.join(HERE, f"lesson_audit_report{suffix}.md")
     try:
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(md)
@@ -939,7 +1055,7 @@ def main():
         print(f"\ncould not write the report file ({exc}); it follows in full:\n")
         print(md)
     print(f"\n{run['scenarios_run']} scenarios · {run['findings']} findings "
-          f"({run['high']} high) · {run['seconds']}s")
+          f"({run['high']} high) · {run['seconds']}s · {lineup}")
     for r in run["results"]:
         if r.get("error"):
             print(f"  {r['id']:<20} DID NOT COMPLETE — {r['error']}")

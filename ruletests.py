@@ -3820,7 +3820,9 @@ RULE_VERIFY = {
                       "writes no REAL equation (a bare 'x = 4' is not one). PART 3bv"),
     17: ("ENFORCED",  "prose_answered_question_conflict: a question the reply's own board "
                       "already answers is regenerated (build dh)"),
-    18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board"),
+    18: ("ENFORCED",  "prose_board_conflict regenerates spoken numbers that fight the board; "
+                      "build is added the tapped-answer half -- a reply that grades a stale "
+                      "thread instead of the choice button the student just tapped is regenerated"),
     19: ("COVERED",   "worked example first"),
     20: ("COVERED",   "partially right is not wrong"),
     21: ("EXERCISED", "'I don't know' triggers a smaller step"),
@@ -8866,11 +8868,17 @@ def part3al_openai_boundary():
         with open(p, "r", encoding="utf-8") as fh:
             return fh.read()
 
-    # 1) THE TEACHING BRAIN NEVER CALLS OPENAI. tutor.py is where a reply is generated and
-    #    refereed; a fallback bolted in here is the single likeliest way this boundary
-    #    breaks (see the "substitute teacher" idea in the project notes -- it would need a
-    #    privacy-policy change and a NON-sharing project before it could ship).
+    # 1) THE TEACHING MODULES NEVER CALL OPENAI -- with ONE gated exception since
+    #    build iu (2026-08-19, Jim's A/B ruling): tutor.py now holds the pluggable
+    #    brain and the live critic seat, and their openai paths exist ONLY behind
+    #    _openai_teaching_allowed(), which refuses unless the process is the
+    #    offline audit's synthetic lane (AUDIT_SYNTHETIC_STUDENTS=1, set solely
+    #    by lessonaudit's own main()). The boundary's ONE FACT is unchanged: no
+    #    child's words ever reach OpenAI. tutor.py's guard is proved LIVE below;
+    #    every other teaching module still may not mention OpenAI at all.
     for mod in _TEACHING_MODULES:
+        if mod == "tutor.py":
+            continue                      # gated, and proved live just below
         src = _read(mod)
         if src is None:
             continue
@@ -8880,18 +8888,61 @@ def part3al_openai_boundary():
               f"{mod} references OpenAI in live code: {hits[:2]} — a student's words would "
               f"reach a project where data sharing is ENABLED, and static/privacy.html "
               f"promises exactly three processors, none of them OpenAI")
+    # tutor.py: the gate exists, both seats route through it, and it REFUSES in
+    # this very process (which, not being lessonaudit's main(), is exactly a
+    # real lesson's shape). An env typo on Render can never route a child's
+    # turn to OpenAI -- the guard is code, not configuration.
+    tsrc = _read("tutor.py") or ""
+    check("openai boundary: tutor.py's openai seats exist only behind the gate",
+          "def _openai_teaching_allowed" in tsrc
+          and tsrc.count("_blocked = _openai_teaching_allowed()") >= 2
+          and 'provider = "anthropic"' in tsrc,
+          "an openai path in tutor.py is reachable without the synthetic-students "
+          "gate -- a real child's words could enter a data-sharing project")
+    import tutor as _tut
+    _saved_syn = os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
+    _saved_lc = os.environ.get("LIVE_CRITIC")
+    try:
+        blocked = _tut._openai_teaching_allowed()
+        os.environ["LIVE_CRITIC"] = "openai"
+        seat_blocked = _tut._live_critic_seat()
+        os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"
+        allowed = _tut._openai_teaching_allowed()
+        seat_open = _tut._live_critic_seat()
+    finally:
+        os.environ.pop("AUDIT_SYNTHETIC_STUDENTS", None)
+        if _saved_syn is not None:
+            os.environ["AUDIT_SYNTHETIC_STUDENTS"] = _saved_syn
+        if _saved_lc is None:
+            os.environ.pop("LIVE_CRITIC", None)
+        else:
+            os.environ["LIVE_CRITIC"] = _saved_lc
+    check("openai boundary: the gate REFUSES outside the audit (proved live)",
+          bool(blocked) and ("privacy" in blocked.lower() or "audit" in blocked.lower()),
+          "the gate opened in a process that could be serving a real child")
+    check("openai boundary: an openai critic seat is refused outside the audit too",
+          seat_blocked == (None, None),
+          "the critic would send a real student's words to OpenAI")
+    check("openai boundary: the audit's synthetic lane IS allowed (the A/B can run)",
+          allowed == "" and seat_open[0] == "openai",
+          "the gate is so tight the approved experiment cannot run either")
 
-    # 2) Only the AUDIT tooling talks to the OpenAI API at all.
+    # 2) Only the AUDIT tooling (and the gated brain above) reaches the OpenAI API.
     for mod in ("lessonaudit.py", "nightwatch.py"):
         if _read(mod) is None:
             bad(f"openai boundary: {mod} present", "audit tooling missing from the repo")
-    for mod in _TEACHING_MODULES + ("store.py", "notation.py", "library.py"):
+    for mod in tuple(m for m in _TEACHING_MODULES if m != "tutor.py") \
+            + ("store.py", "notation.py", "library.py"):
         src = _read(mod)
         if src and "api.openai.com" in src:
             bad(f"openai boundary: {mod} must not reach api.openai.com",
                 "only the offline auditor may call OpenAI")
         elif src:
             ok(f"openai boundary: {mod} does not reach api.openai.com")
+    check("openai boundary: the synthetic flag is set ONLY by lessonaudit itself",
+          'os.environ["AUDIT_SYNTHETIC_STUDENTS"] = "1"' in (_read("lessonaudit.py") or "")
+          and 'AUDIT_SYNTHETIC_STUDENTS' not in (_read("main.py") or ""),
+          "something other than the audit is declaring its students synthetic")
 
     # 3) The privacy policy still names the three processors it names. If a fourth is ever
     #    added to the product, THIS CHECK IS THE REMINDER that the policy is the thing to
@@ -12718,6 +12769,151 @@ def part3cd_board_room():
           "either short turns can't reach the top or the MutationObserver spins forever")
 
 
+def part3ce_tapped_answer():
+    # build is (2026-08-19, Jim live in Entry Level Math: he tapped "32" answering
+    # "which is bigger, thirty-two or twenty-nine?" and the reply graded the
+    # lesson's OTHER thread -- "Eleven is the answer -- you jumped one step past
+    # ten!" -- engaging neither 32 nor 29). Rule 18(a)'s runtime half, for the one
+    # case the server knows precisely: a tapped button sends the option verbatim.
+    # Plus build it: the rule-14 nudge is PRESCRIPTIVE now (five straight
+    # unresolved retries -- four lessonaudit runs and Jim's own Render log).
+    print("\nPART 3ce — grade the question they answered (build is) + the "
+          "prescriptive nudge (build it)")
+    import tutor
+    PREV = ('Exactly -- two tens beats one ten! Which is bigger, thirty-two or '
+            'twenty-nine? [[write text="32 ? 29"]] [[choices options="32 | 29"]]')
+    BAD = ("Eleven is the answer -- you jumped one step past ten on the number "
+           "line! One more than ten always means one step to the right. Now "
+           "let's try one less.")
+    check("  fires: Jim's own turn -- the reply grades the stale thread",
+          "Rule 18" in tutor.tapped_answer_conflict(BAD, "32", PREV),
+          "a student's correct tapped answer can be ignored for a different question")
+    check("  silent: the reply says their number back in WORDS",
+          not tutor.tapped_answer_conflict(
+              "Thirty-two it is -- and you're right! Two tens beats one ten "
+              "every time.", "32", PREV),
+          "the word form of a tapped number is being rejected")
+    check("  silent: the reply says it in digits",
+          not tutor.tapped_answer_conflict(
+              '32 wins -- the tens digit decides! [[mark ok="1"]]', "32", PREV),
+          "the digit form of a tapped number is being rejected")
+    check("  silent: the reply engages the question via the OTHER option",
+          not tutor.tapped_answer_conflict(
+              "Twenty-nine loses this one -- fewer tens! Great pick.", "32", PREV),
+          "staying on the question through its other option is engagement, not a jump")
+    check('  silent: "I\'m not sure" is a request for help, not an answer',
+          not tutor.tapped_answer_conflict(BAD, "I'm not sure", PREV),
+          "the honest button must never demand an echo"),
+    check("  silent: a typed answer that isn't an option (the looser world)",
+          not tutor.tapped_answer_conflict(BAD, "thirty two i think", PREV),
+          "typed/spoken paraphrase belongs to the model's judgment, not this referee")
+    check("  silent: the previous turn offered no buttons",
+          not tutor.tapped_answer_conflict(BAD, "32", "What comes after ten?"),
+          "a referee that cannot know is guessing")
+    check("  silent: no prev_tutor supplied",
+          not tutor.tapped_answer_conflict(BAD, "32", None),
+          "a referee that cannot know is guessing")
+    PREV2 = 'Which has more tens? [[choices options="1 ten | 2 tens"]]'
+    check("  fires: a multiword option ignored",
+          "Rule 18" in tutor.tapped_answer_conflict(BAD, "2 tens", PREV2),
+          "multiword choice buttons are outside the net")
+    check("  silent: the multiword option engaged in words",
+          not tutor.tapped_answer_conflict(
+              "Two tens -- exactly! More tens means a bigger number.",
+              "2 tens", PREV2),
+          "the spoken form of a multiword option is being rejected")
+    check("  and via the sweep",
+          "Rule 18" in str(tutor.prose_board_conflict(
+              BAD, "32", prev_tutor=PREV)),
+          "the referee exists but the sweep never calls it")
+    flatp = re.sub(r"\s+", " ", open(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "prompts.py"),
+        encoding="utf-8").read())
+    check("rule 18 announces the tapped-answer referee",
+          "GRADE THE QUESTION THEY JUST ANSWERED" in flatp,
+          "the promoted rule's text still reads like a wish")
+    # build it -- the rule-14 nudge quotes a ready sentence instead of describing.
+    msg = tutor.notation_intro_conflict(
+        'Look at this. [[write text="|−5| = ?"]] What do you think it equals?', "")
+    check("the rule-14 nudge is PRESCRIPTIVE: it quotes the sentence to add",
+          "ADD ONE SPOKEN SENTENCE" in msg and "ABSOLUTE VALUE" in msg,
+          "five-for-five unresolved retries say a described defect stays unfixed")
+
+
+def part3cf_pluggable_brain():
+    # builds iu + iv (2026-08-19, Jim's A/B ruling; challenger model his explicit
+    # call: gpt-5.6). The brain seat and the live critic seat are env-chosen;
+    # BOTH default to today's exact behavior. These pins prove the defaults, the
+    # adapter's contract with the pipeline, and the loud CLI -- without spending
+    # a network call.
+    print("\nPART 3cf — the pluggable brain and the live critic seat (builds iu + iv)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    asrc = open(os.path.join(here, "lessonaudit.py"), encoding="utf-8").read()
+    check("the default brain is anthropic and that path is byte-identical",
+          'os.environ.get("TUTOR_PROVIDER", "anthropic")' in tsrc
+          and "Anthropic(api_key=api_key, timeout=ANTHROPIC_TIMEOUT_S, max_retries=1)" in tsrc,
+          "an unset env must mean EXACTLY the brain that shipped yesterday")
+    check("the challenger model is Jim's explicit call: gpt-5.6",
+          'DEFAULT_OPENAI_TUTOR_MODEL = "gpt-5.6"' in tsrc,
+          'Jim: "when we use ChatGPT, we use version five point six"')
+    # THE ADAPTER'S CONTRACT, live: the pipeline reads .content/.stop_reason/.usage.
+    r = tutor._OaiResponse("hello", "length",
+                           {"prompt_tokens": 5, "completion_tokens": 7,
+                            "prompt_tokens_details": {"cached_tokens": 2}})
+    text = "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
+    tk = {}
+    tutor._add_usage(tk, r)
+    check("the adapter answers the exact shape _create_full and _add_usage read",
+          text == "hello" and r.stop_reason == "max_tokens"
+          and tk == {"in": 5, "out": 7, "cr": 2, "cw": 0},
+          "the OpenAI brain returns a shape the pipeline cannot digest")
+    check('finish_reason "stop" maps to end_turn (no phantom continuations)',
+          tutor._OaiResponse("x", "stop", {}).stop_reason == "end_turn",
+          "every OpenAI reply would trigger the continuation stitcher")
+    # PREFILL: refused with the NAMED words the existing negotiation listens for.
+    try:
+        tutor._OpenAIBrain("k").create(model="m", max_tokens=10, system="s",
+                                       messages=[{"role": "user", "content": "u"},
+                                                 {"role": "assistant", "content": "a"}])
+        refused, named = False, False
+    except Exception as exc:  # noqa: BLE001
+        refused, named = True, tutor._is_prefill_rejection(exc)
+    check("the adapter refuses prefill with the words _create_full negotiates on",
+          refused and named,
+          "an OpenAI continuation would be sent as a malformed request instead of "
+          "falling back to the user-message nudge")
+    # THE CRITIC SEAT: empty by default, and empty = zero behavior change.
+    _saved = os.environ.pop("LIVE_CRITIC", None)
+    try:
+        seat = tutor._live_critic_seat()
+        review = tutor._live_critic_review("draft", [], "", {})
+    finally:
+        if _saved is not None:
+            os.environ["LIVE_CRITIC"] = _saved
+    check("the critic seat is EMPTY by default and an empty seat reviews nothing",
+          seat == (None, None) and review == "",
+          "production behavior changed without anyone setting an env var")
+    check("the critic is wired into the accepted-draft path with its own nudge",
+          "_live_critic_review(reply, messages, log_prefix, meta)" in tsrc
+          and "_CRITIC_NUDGE.format(detail=critic_detail)" in tsrc
+          and '"livecritic"' in tsrc,
+          "the seat exists but no draft ever passes through it")
+    # THE HARNESS: lineup flags exist, are validated loudly, and the judge routes.
+    check("lessonaudit grew the lineup flags and the judge seat",
+          '"--brain", "--live-critic", "--judge"' in asrc
+          and "def _anthropic_judge(" in asrc
+          and "_judge(msgs, max_tokens=2000, want_json=True)" in asrc,
+          "the A/B cannot be run as measured arms")
+    res = subprocess.run([sys.executable, os.path.join(here, "lessonaudit.py"),
+                          "--brain", "klingon", "--dry-run"],
+                         capture_output=True, text=True, timeout=120)
+    check("an unknown --brain refuses loudly before spending (the im discipline)",
+          res.returncode == 2 and "--brain must be" in (res.stdout + res.stderr),
+          "a typo'd lineup would silently run the default and report it as the experiment")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -12964,10 +13160,12 @@ def part3ax_one_pipeline():
           "a getter is calling the verifier directly again -- that lane's future "
           "referees, nets and probes will need separate wiring, and will miss it")
     # The teaching lanes build no Anthropic client of their own: pipeline + the
-    # assessment writer + the retired board net (kept dead, build gn) = 3.
+    # assessment writer + the retired board net (kept dead, build gn) = 3, plus
+    # the live critic's own short-timeout client (build iv -- it IS a referee,
+    # inside _create_verified's loop, not a path around it) = 4.
     clients = tsrc.count("Anthropic(api_key")
-    check(f"no getter constructs its own client ({clients} total)", clients == 3,
-          "a fourth Anthropic(...) appeared -- some path is bypassing the pipeline "
+    check(f"no getter constructs its own client ({clients} total)", clients == 4,
+          "a fifth Anthropic(...) appeared -- some path is bypassing the pipeline "
           "and every referee in it")
     for fn in ("get_tutor_reply", "get_practice_reply", "get_topic_reply"):
         # get_topic_reply is the LAST function in the file, so the body must be
@@ -13204,6 +13402,8 @@ def main():
     part3cb_tour_once()
     part3cc_today_calls()
     part3cd_board_room()
+    part3ce_tapped_answer()
+    part3cf_pluggable_brain()
     part3ai_deploy_stamp()
     if live:
         part4_live()

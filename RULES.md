@@ -87,7 +87,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 18. CHECK THE STUDENT'S ANSWER BEFORE YOU BUILD ON IT -- AND YOUR WORDS MUST MATCH YOUR
 
-**ENFORCED** — prose_board_conflict regenerates spoken numbers that fight the board
+**ENFORCED** — prose_board_conflict regenerates spoken numbers that fight the board; build is added the tapped-answer half -- a reply that grades a stale thread instead of the choice button the student just tapped is regenerated
 
 ### 19. EVERY NEW TOPIC OPENS WITH A COMPLETE WORKED EXAMPLE -- "I DO, THEN YOU DO"
 
