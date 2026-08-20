@@ -14347,6 +14347,191 @@ def part3cu_consistency_memory():
               v.get("blank") == "", str(v.get("blank")))
 
 
+
+# =============================================================================
+# PART 3cv -- THE SCRIPTED LESSON ENGINE (build js, 2026-08-20)
+# -----------------------------------------------------------------------------
+# Jim's scripted-first ruling: pre-authored, pre-verified, pre-voiced up to the
+# child's response; the AI enters ONLY on a wrong answer; CODE returns the child to
+# the script. This part is the "verified once" in "verified once is verified
+# forever": it runs the lesson validator (188 authoring checks -- computed answers,
+# canon vocabulary, spoken caps, tags against the registry, rule 14 and 44 by
+# construction) and then DRIVES the engine through every scenario the settings doc
+# defines. A future edit to the lesson or the engine that breaks any promise fails
+# the build here, before a child ever hears it.
+# =============================================================================
+def part3cv_scripted_engine():
+    print("\nPART 3cv — the scripted lesson engine (build js)")
+    try:
+        import lessonscripts as L
+    except Exception as exc:  # noqa: BLE001
+        bad("lessonscripts imports", f"{type(exc).__name__}: {exc}")
+        return
+    import tags as _tags
+
+    # ---- 1. the authoring validator, in full ----
+    results = L.validate(L.PILOT_LESSON, set(_tags.BOARD_TAGS))
+    fails = [(lab, det) for ok, lab, det in results if not ok]
+    check(f"pilot lesson passes ALL {len(results)} authoring checks", not fails,
+          str(fails[:4]))
+
+    # ---- 2. the settings are the ruling's, verbatim ----
+    check("settings: advance on 3-in-a-row, min 4, cap 10, drop after 2",
+          (L.ADVANCE_STREAK, L.MIN_PROBLEMS, L.MAX_PROBLEMS,
+           L.DROP_AFTER_INTERVENTIONS) == (3, 4, 10, 2),
+          "the research ruling's numbers changed without a new ruling")
+    check("settings: the drop path is abstract -> pictorial -> concrete",
+          L.LEVELS == ("abstract", "pictorial", "concrete"), str(L.LEVELS))
+
+    closure = set(L.audio_lines(L.PILOT_LESSON))
+    heard = []
+
+    def drive(events):
+        st = L.start(L.PILOT_LESSON)
+        trace = []
+        for ev in events:
+            outs, _ = L.step(L.PILOT_LESSON, st, ev)
+            trace.extend(outs)
+            heard.extend(o["spoken"] for o in outs if o.get("spoken"))
+        return trace, st
+
+    def answers(st):
+        p = st["pending"]["problem"]
+        return ("answer", p["a"] + p["b"])
+
+    # ---- 3. the perfect child: exactly MIN problems, mastered, zero AI ----
+    st = L.start(L.PILOT_LESSON)
+    outs, _ = L.step(L.PILOT_LESSON, st, ("begin",))
+    heard.extend(o["spoken"] for o in outs if o.get("spoken"))
+    ended = None
+    n_int = 0
+    for _ in range(30):
+        outs, _ = L.step(L.PILOT_LESSON, st, answers(st))
+        heard.extend(o["spoken"] for o in outs if o.get("spoken"))
+        n_int += sum(1 for o in outs if o["kind"] == "intervene")
+        ended = next((o for o in outs if o["kind"] == "end"), ended)
+        if ended:
+            break
+    check("perfect child: mastered in exactly MIN_PROBLEMS with ZERO AI calls",
+          ended and ended["mastered"] and st["done"] == L.MIN_PROBLEMS
+          and n_int == 0,
+          f"done={st['done']} int={n_int} -- the happy path must never wake the model")
+
+    # ---- 4. one miss: ONE intervention, engine-chosen retest, still masterable ----
+    st = L.start(L.PILOT_LESSON)
+    L.step(L.PILOT_LESSON, st, ("begin",))
+    L.step(L.PILOT_LESSON, st, answers(st))          # pair 0
+    L.step(L.PILOT_LESSON, st, answers(st))          # pair 1
+    L.step(L.PILOT_LESSON, st, answers(st))          # practice 1 right
+    outs, _ = L.step(L.PILOT_LESSON, st, ("answer", 99))
+    inter = [o for o in outs if o["kind"] == "intervene"]
+    check("a wrong answer emits exactly one intervention, prefixed by the scripted line",
+          len(inter) == 1 and any(o.get("spoken") == L.LINE_WRONG for o in outs),
+          str([o["kind"] for o in outs]))
+    check("⭐ the RETEST is chosen by the engine before the AI ever speaks",
+          inter and inter[0]["retest"] is not None
+          and inter[0]["retest"] == st["retest"],
+          "the model must never pick where the child lands")
+    check("the intervention carries the canon vocabulary and the level",
+          inter and set(inter[0]["vocabulary"]) == set(L.VOCABULARY)
+          and inter[0]["level"] in L.LEVELS,
+          "the AI would improvise its own wording -- the exact defect jr closed")
+    outs, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+    check("resume asks the retest, unaided, and the streak was reset",
+          outs and outs[0]["kind"] == "ask" and not outs[0]["guided"]
+          and st["streak"] == 0, str(outs[:1]))
+    ended = None
+    for _ in range(20):
+        outs, _ = L.step(L.PILOT_LESSON, st, answers(st))
+        ended = next((o for o in outs if o["kind"] == "end"), ended)
+        if ended:
+            break
+    check("after correction, three fresh in a row still masters the topic",
+          ended and ended["mastered"], "a corrected child must not be trapped")
+
+    # ---- 5. repeated failure: drop the representation, then end WARMLY ----
+    st = L.start(L.PILOT_LESSON)
+    L.step(L.PILOT_LESSON, st, ("begin",))
+    L.step(L.PILOT_LESSON, st, answers(st))
+    L.step(L.PILOT_LESSON, st, answers(st))
+    levels = [st["level"]]
+    ended = None
+    for _ in range(12):
+        outs, _ = L.step(L.PILOT_LESSON, st, ("answer", 99))
+        ended = next((o for o in outs if o["kind"] == "end"), None)
+        if ended:
+            break
+        if any(o["kind"] == "intervene" for o in outs):
+            outs2, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+            ended = next((o for o in outs2 if o["kind"] == "end"), None)
+            if ended:
+                break
+        levels.append(st["level"])
+    check("failure walks abstract -> pictorial -> concrete, never a shame spiral",
+          "pictorial" in levels and "concrete" in levels,
+          str(levels))
+    check("failing at concrete ends GRACEFULLY and unmastered -- never grinding",
+          ended and ended["graceful"] and not ended["mastered"],
+          "a child below ~50% success must be released, not drilled")
+
+    # ---- 6. the mishearing rule: one re-ask, then tap-only, NEVER the AI ----
+    st = L.start(L.PILOT_LESSON)
+    L.step(L.PILOT_LESSON, st, ("begin",))
+    o1, _ = L.step(L.PILOT_LESSON, st, ("unheard",))
+    o2, _ = L.step(L.PILOT_LESSON, st, ("unheard",))
+    heard.extend(o["spoken"] for o in o1 + o2 if o.get("spoken"))
+    check("a garbled answer: scripted re-ask once, then tap-only",
+          o1[0]["spoken"].startswith(L.LINE_REASK)
+          and o2[0]["spoken"] == L.LINE_TAP and o2[0]["tap_only"],
+          "the Tim-Tim case -- a mishearing must never cost an AI call")
+    check("  and no intervention fired for it",
+          all(o["kind"] != "intervene" for o in o1 + o2), "")
+
+    # ---- 7. the cap holds on EVERY path (the bug this build's dry run caught) ----
+    st = L.start(L.PILOT_LESSON)
+    L.step(L.PILOT_LESSON, st, ("begin",))
+    L.step(L.PILOT_LESSON, st, answers(st))
+    L.step(L.PILOT_LESSON, st, answers(st))
+    max_done, ended = 0, None
+    for i in range(40):
+        ev = answers(st) if i % 2 == 0 else ("answer", 99)
+        outs, _ = L.step(L.PILOT_LESSON, st, ev)
+        for o in outs:
+            if o["kind"] == "intervene":
+                outs2, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+                ended = next((o2 for o2 in outs2 if o2["kind"] == "end"), ended)
+            if o["kind"] == "end":
+                ended = o
+        max_done = max(max_done, st["done"])
+        if ended:
+            break
+    check("⭐ MAX_PROBLEMS holds through the WRONG-answer path too",
+          max_done <= L.MAX_PROBLEMS and ended and ended["graceful"],
+          f"max_done={max_done} -- the first dry run reached 11; the cap must "
+          "guard both doors")
+
+    # ---- 8. determinism: same events, same script, byte for byte ----
+    evs = [("begin",), ("answer", 5), ("answer", 6), ("answer", 3),
+           ("answer", 99), ("resume",), ("answer", 4), ("unheard",)]
+    t1, _ = drive(evs)
+    t2, _ = drive(evs)
+    check("the engine is deterministic (a replay is identical)",
+          [(o["kind"], o.get("spoken")) for o in t1]
+          == [(o["kind"], o.get("spoken")) for o in t2],
+          "a scripted lesson that varies is not a script")
+
+    # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
+    missing = sorted({s for s in heard if s and s not in closure})
+    check(f"⭐ every spoken line across ALL scenarios is in audio_lines() "
+          f"({len(closure)} lines, {len(heard)} heard)",
+          not missing,
+          str(missing[:3]) + " -- a line outside the closure would reach a child "
+          "as SILENCE, because its audio was never rendered")
+    est = L.audio_cost_estimate(L.PILOT_LESSON)
+    check("the audio closure is priceable and small",
+          0 < est["chars"] < 20000 and est["usd"] < 5.0, str(est))
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14660,6 +14845,7 @@ def main():
     part3cs_second_opinion()
     part3ct_output_split()
     part3cu_consistency_memory()
+    part3cv_scripted_engine()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
