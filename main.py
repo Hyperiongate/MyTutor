@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jr-one-rule-one-wording". BUILD jr --
+#               CONSISTENCY MEMORY (store.py + tutor.py; this file wires the note and
+#               carries the stamp). Jim caught it live: "over nine, carry" and, four
+#               turns later in the same lesson, "ten or more, carry". The words a
+#               student was first taught for a rule now ride THIS TURN'S user message
+#               (never the system prompt -- the 71k cached prefix must not move), and a
+#               contradiction is a probe rather than a retry, because today's numbers
+#               say a turn is 16 seconds and 30% of them already retry.
 #   2026-08-20  APP_BUILD -> "2026-08-20jq-what-a-turn-writes". BUILD jq --
 #               store.py + tutor.py + static/admin.html + ruletests.py; this file for
 #               the stamp. jm and jp took the 16-second turn apart and found 12.3s of it
@@ -8816,7 +8824,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jq-what-a-turn-writes"
+APP_BUILD = "2026-08-20jr-one-rule-one-wording"
 
 
 @app.get("/health")
@@ -9718,6 +9726,15 @@ def chat(req: ChatRequest):
     except Exception as exc:  # noqa: BLE001 -- a hint is never worth failing a turn over
         print(f"[misconceptions] hint failed: {exc}")
         turn_note = ""
+    # build jr: CONSISTENCY MEMORY. The words this student was first taught for a rule,
+    # so the same idea never arrives in two costumes ("over nine" one turn, "ten or
+    # more" four turns later -- Jim's live catch, 2026-08-20). Rides the TURN for
+    # exactly the reason build cm gives above: the cached system prefix must not move.
+    # Empty for a student who has been taught nothing yet, so a first lesson pays zero.
+    try:
+        turn_note += tutor.phrasing_note(code, req.course)
+    except Exception as _pexc:  # noqa: BLE001 -- a memory must never cost a lesson
+        print(f"[phrasing] note skipped (non-fatal): {_pexc}")
 
     # FOUNDATION MEMORY (2026-08-09, build ce): which canonical introductions this
     # student has already sat through, so rule 40 can ASK instead of replaying one.

@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jr -- CONSISTENCY MEMORY. From Jim's live Basic Math lesson: the
+#               tutor said "since that's OVER NINE, carry" and, four turns later in the
+#               SAME lesson, "since that's TEN OR MORE, carry" -- identical to us, two
+#               rules to a seven-year-old. NEW detect_phrasings / remember_phrasings /
+#               phrasing_note. What is pinned is the PHRASE THAT NAMES THE RULE, never
+#               the sentence: "write the three" vs "write the zero" is correct variation
+#               (different columns), "over nine" vs "ten or more" is not. Delivered
+#               PRE-HOC on turn_note -- never the system prompt, so the 71k cached
+#               prefix is untouched -- because today's measurement says a turn is 16s,
+#               30% of turns already retry, and a 38th referee would buy a wording fix
+#               with another whole model call. A contradicting phrasing fires a PROBE,
+#               not a rejection, so "did pre-hoc hold?" is answered by evidence.
 #   2026-08-20  BUILD jq -- WHAT THE TURN WRITES. NEW _measure_output(): the accepted
 #               reply's whole size, the part the child HEARS (tags stripped) and how
 #               many board tags it carries, all recorded on the turn's usage row. From
@@ -6164,6 +6176,122 @@ def _turn_ms(tokens):
         return (0, 0, 0, 0)
 
 
+# =============================================================================
+# BUILD jr (2026-08-20) -- CONSISTENCY MEMORY.
+# =============================================================================
+# Jim, reading a live Basic Math lesson, 2026-08-20:
+#
+#     "Since that's OVER NINE, we write the three and carry the one."   ... and then,
+#     four turns later, in the SAME lesson:
+#     "Since that's TEN OR MORE, we write the zero and carry the one."
+#
+# Mathematically identical. To a seven-year-old, TWO RULES. Jim had raised exactly this
+# class in the architecture notes that morning ("greater than nine" vs "ten or greater")
+# and here it was again, live, hours later.
+#
+# ⭐ WHAT IS PINNED IS THE PHRASE THAT NAMES THE RULE -- NOT THE SENTENCE. "we write the
+# three" and "we write the zero" are CORRECT variation: different columns, different
+# digits. "over nine" and "ten or more" are the same rule wearing two coats, and that is
+# the only part a child can mistake for two rules. Pinning whole sentences would freeze
+# the teaching; pinning the threshold phrase freezes only the vocabulary.
+#
+# ⭐ PRE-HOC, NOT A REFEREE, AND THAT IS THE WHOLE POINT. Today's measurement: a turn is
+# ~16s, 30% of turns already retry, 20% of all turn time is spent re-generating, and 25
+# replies a week ship WITH a known finding anyway. A 38th referee would add another
+# retry to fix a wording problem. The remembered phrasing rides THIS TURN'S USER MESSAGE
+# (turn_note -- never the system prompt, so the 71k-token cached prefix is untouched and
+# no cache is ever busted), and the model simply reuses the words. Cost: about thirty
+# tokens. Retries added: none.
+#
+# When a DIFFERENT phrasing appears for a concept already remembered, that is a PROBE,
+# not a rejection -- it records that the note did not hold, at zero latency cost, so the
+# question "does pre-hoc work, or does this need a referee after all?" gets answered by
+# evidence instead of by argument.
+#
+# The registry is deliberately TINY and grows only from caught lessons -- the house
+# rule. Each entry is (concept, trigger, threshold-phrases, how to say it).
+_PHRASE_CONCEPTS = (
+    ("carry_when",
+     re.compile(r"\bcarry(?:ing|ies)?\b", re.I),
+     re.compile(r"\b(?:over nine|more than nine|greater than nine|bigger than nine|"
+                r"past nine|over 9|more than 9|greater than 9|"
+                r"ten or more|10 or more|ten or greater|10 or greater|"
+                r"ten or bigger|reaches ten|gets to ten|hits ten|"
+                r"two digits|double digits)\b", re.I),
+     "when a column needs carrying"),
+    ("regroup_when",
+     re.compile(r"\b(?:borrow|regroup)(?:ing|s|ed)?\b", re.I),
+     re.compile(r"\b(?:too small|smaller than|less than the|not big enough|"
+                r"not enough|can'?t take|cannot take|won'?t go)\b", re.I),
+     "when the top digit needs regrouping"),
+)
+_PHRASE_SENTENCE = re.compile(r"[^.!?\n]+")
+
+
+def detect_phrasings(reply: str) -> dict:
+    """{concept: the threshold phrase this reply used}. Spoken words only -- a board
+    tag is not a sentence a child hears. Never raises."""
+    found = {}
+    try:
+        prose = _spoken_only(reply)
+        for sentence in _PHRASE_SENTENCE.findall(prose):
+            for concept, trigger, phrases, _label in _PHRASE_CONCEPTS:
+                if concept in found or not trigger.search(sentence):
+                    continue
+                m = phrases.search(sentence)
+                if m:
+                    found[concept] = " ".join(m.group(0).split()).lower()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[phrasing] detect crashed (ignored): {exc}")
+    return found
+
+
+def remember_phrasings(reply: str, meta=None) -> None:
+    """Record this reply's rule vocabulary, and PROBE when it contradicts what the
+    student was already taught. Fire-and-forget: never raises, never costs a turn."""
+    try:
+        if store is None or not meta or not meta.get("code"):
+            return
+        code, course = meta.get("code", ""), meta.get("course", "")
+        for concept, used in detect_phrasings(reply).items():
+            inforce = store.remember_phrasing(code, course, concept, used)
+            if inforce and inforce != used:
+                # NOT a rejection. The reply has already been accepted and the child is
+                # about to hear it; this records that the pre-hoc note did not hold.
+                _event("probe", "phrasedrift",
+                       f"{concept}: taught \"{inforce}\", this turn said \"{used}\"",
+                       code, course)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[phrasing] remember crashed (ignored): {exc}")
+
+
+def phrasing_note(code: str, course: str = "") -> str:
+    """The turn note that keeps a rule's words identical for THIS student. Empty when
+    nothing has been taught yet, so a first lesson pays nothing at all."""
+    try:
+        if store is None or not code:
+            return ""
+        known = store.get_phrasings(code, course) or {}
+        if not known:
+            return ""
+        lines = []
+        for concept, _trigger, _phrases, label in _PHRASE_CONCEPTS:
+            said = known.get(concept)
+            if said:
+                lines.append(f'- {label}, you have always said "{said}".')
+        if not lines:
+            return ""
+        return ("\n\n(SYSTEM: WORDS THIS STUDENT HAS ALREADY LEARNED FROM YOU:\n"
+                + "\n".join(lines)
+                + "\nUse those exact words again for those ideas. A child who is taught "
+                  "one wording and later hears another believes they are two different "
+                  "rules. Everything else about your reply is unchanged, and you must "
+                  "not mention this note.)")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[phrasing] note crashed (ignored): {exc}")
+        return ""
+
+
 # BUILD jq (2026-08-20) -- WHAT THE TURN ACTUALLY WROTE.
 # jm and jp took a 16-second turn apart: 12.3s of it is the teaching model, and
 # 596,500 output tokens over 682 turns is ~875 tokens a turn at ~71 tokens/second.
@@ -6649,6 +6777,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             if critic_detail:
                 status = "critic-unresolved"   # build iv: visible in the usage log
             _measure_output(tokens, reply, meta)          # build jq
+            remember_phrasings(reply, meta)               # build jr
             _log_brain_usage(meta, model, tokens, attempt, status)
             return mathcheck.strip_verify_tags(reply)
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
@@ -6662,6 +6791,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     _event("pass_through", "mathcheck", str(detail),
            (meta or {}).get("code", ""), (meta or {}).get("course", ""))
     _measure_output(tokens, reply, meta)                  # build jq
+    remember_phrasings(reply, meta)                       # build jr
     _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "unresolved")
     return mathcheck.strip_verify_tags(reply)
 

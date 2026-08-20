@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jr -- CONSISTENCY MEMORY. Jim, watching a live Basic Math lesson:
+#               "since that's OVER NINE, carry" and, four turns later in the SAME lesson,
+#               "since that's TEN OR MORE, carry". Mathematically identical; two
+#               different rules to a seven-year-old. NEW table `student_phrasings`
+#               (code, course, concept -> phrasing) plus remember_phrasing() and
+#               get_phrasings(). FIRST PHRASING WINS AND NEVER CHANGES -- the words the
+#               child actually learned are the ones that must keep coming back --
+#               enforced race-safely by read/insert/read, so two overlapping turns
+#               cannot fork a student's vocabulary. Brand-new table: create_all builds
+#               it, no migration, nothing existing touched.
 #   2026-08-20  BUILD jq -- WHAT THE TURN WRITES. jm/jp measured that 77% of a
 #               16-second turn is the model serially generating ~875 output tokens;
 #               this says which 875. usage_log gains out_chars / out_spoken_chars /
@@ -841,6 +851,20 @@ def init():
         # forever. Badges/trophies are recomputed from mastery data, but effort awards
         # (streaks, minutes, practice milestones) must PERSIST once earned -- a 7-day-streak
         # medal doesn't vanish when the streak breaks. earned_at powers the "NEW!" celebration.
+        # CONSISTENCY MEMORY (2026-08-20, build jr). Jim, watching a live Basic Math
+        # lesson: the tutor said "since that's OVER NINE, carry" and then, four turns
+        # later in the SAME lesson, "since that's TEN OR MORE, carry". Identical to us.
+        # Two different rules to a seven-year-old. Brand-new table -> create_all builds
+        # it; no migration; nothing else touched. FIRST PHRASING WINS, forever: the one
+        # the child actually learned is the one that must keep coming back.
+        _tables["student_phrasings"] = Table(
+            "student_phrasings", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True),
+            Column("concept", String(48), primary_key=True),
+            Column("phrasing", String(200)),
+            Column("created_at", DateTime(timezone=True)),
+        )
         _tables["awards"] = Table(
             "awards", _meta,
             Column("code", String(64), primary_key=True),
@@ -3614,6 +3638,66 @@ def status() -> dict:
 
 
 # ---- admin dashboard aggregates (2026-08-03: Jim's central /admin page) ------
+def remember_phrasing(code: str, course: str, concept: str, phrasing: str) -> str:
+    """Record the words this student first heard for `concept`, and return the phrasing
+    IN FORCE -- which is the FIRST one ever stored, not the one just passed in.
+
+    build jr. The whole value is that it never changes: a child who is taught "over
+    nine" and later hears "ten or more" has been handed a second rule. Race-safe by
+    construction -- read, insert, read again -- so two overlapping turns cannot fork a
+    student's vocabulary. Returns "" when the store is off or anything goes wrong;
+    NEVER raises, because a memory that can break a lesson is worse than no memory."""
+    if not _ENABLED or not code or not concept:
+        return ""
+    want = " ".join(str(phrasing or "").split())[:200]
+    if not want:
+        return ""
+    # THE PRIMARY KEY IS THE ENFORCEMENT, not the read below. (code, course, concept) is
+    # the key, so a second INSERT for the same student and rule COLLIDES -- proved by
+    # negative test on 2026-08-20: deleting the early return changed nothing, because the
+    # collision path already reads the stored words back, and the stored row never moved.
+    # The read is an optimisation that avoids a pointless failed write; the DATABASE is
+    # what makes first-wins true.
+    t = _tables["student_phrasings"]
+    key = (t.c.code == str(code)) & (t.c.course == str(course or "")) \
+        & (t.c.concept == str(concept))
+    try:
+        from sqlalchemy import select as _select
+        with _engine.connect() as conn:
+            row = conn.execute(_select(t.c.phrasing).where(key)).first()
+        if row and row[0]:
+            return str(row[0])
+        try:
+            with _engine.begin() as conn:
+                conn.execute(t.insert().values(
+                    code=str(code), course=str(course or ""), concept=str(concept),
+                    phrasing=want, created_at=_now()))
+            return want
+        except Exception:  # noqa: BLE001 -- a concurrent turn won the race; read theirs
+            with _engine.connect() as conn:
+                row = conn.execute(_select(t.c.phrasing).where(key)).first()
+            return str(row[0]) if row and row[0] else want
+    except Exception as exc:  # noqa: BLE001
+        print(f"[phrasing] remember failed (non-fatal): {_redact(str(exc))}")
+        return ""
+
+
+def get_phrasings(code: str, course: str = "") -> dict:
+    """{concept: phrasing} for this student and course. {} when the store is off."""
+    if not _ENABLED or not code:
+        return {}
+    try:
+        from sqlalchemy import select as _select
+        t = _tables["student_phrasings"]
+        with _engine.connect() as conn:
+            rows = conn.execute(_select(t.c.concept, t.c.phrasing).where(
+                (t.c.code == str(code)) & (t.c.course == str(course or "")))).fetchall()
+        return {str(r[0]): str(r[1] or "") for r in rows if r and r[1]}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[phrasing] read failed (non-fatal): {_redact(str(exc))}")
+        return {}
+
+
 def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model: str = "",
               input_tokens: int = 0, output_tokens: int = 0, cache_read_tokens: int = 0,
               cache_write_tokens: int = 0, tts_chars: int = 0, tts_cache_hit: bool = False,

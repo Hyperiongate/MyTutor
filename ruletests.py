@@ -14216,6 +14216,137 @@ def part3ct_output_split():
           "an outlier reply with no named tags is a number with no lead to follow")
 
 
+
+_JR_MEMORY = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled(), store.status()
+out = {}
+out["first"] = store.remember_phrasing("K1", "basic", "carry_when", "over nine")
+out["second"] = store.remember_phrasing("K1", "basic", "carry_when", "ten or more")
+out["read"] = store.get_phrasings("K1", "basic")
+out["other_student"] = store.remember_phrasing("K2", "basic", "carry_when", "ten or more")
+out["other_course"] = store.remember_phrasing("K1", "prealgebra", "carry_when", "ten or more")
+out["empty"] = store.get_phrasings("NOBODY", "basic")
+out["blank"] = store.remember_phrasing("K1", "basic", "carry_when", "   ")
+print(json.dumps(out))
+"""
+
+
+# =============================================================================
+# PART 3cu -- CONSISTENCY MEMORY (build jr, 2026-08-20)
+# -----------------------------------------------------------------------------
+# Jim, reading a live Basic Math lesson on 2026-08-20:
+#     "Since that's OVER NINE, we write the three and carry the one."   ...and, four
+#     turns later in the SAME lesson:
+#     "Since that's TEN OR MORE, we write the zero and carry the one."
+# Identical to us. Two rules to a seven-year-old. He had raised this exact class in the
+# architecture notes that morning and it reappeared, live, hours later.
+#
+# THE TWO PROPERTIES THAT MAKE IT WORK, and both are pinned below:
+#   (1) FIRST PHRASING WINS, FOREVER. The words the child actually learned are the ones
+#       that must keep coming back. If a later turn could overwrite them, the memory
+#       would drift exactly like the tutor it is meant to steady.
+#   (2) IT RIDES THE TURN, NEVER THE SYSTEM PROMPT. A per-student, mid-session block in
+#       the cached prefix would re-bill ~71,000 tokens every time a new phrasing was
+#       learned -- build cm's lesson, and build cn's arithmetic, both re-learned the
+#       expensive way.
+# =============================================================================
+def part3cu_consistency_memory():
+    print("\nPART 3cu — consistency memory (build jr)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = tutor.detect_phrasings
+
+    a = d("Since that is over nine, we write the three and carry the one.")
+    b = d("Since that is ten or more, we write the zero and carry the one.")
+    check("consistency: both of Jim's live sentences are recognised as the same rule",
+          a.get("carry_when") and b.get("carry_when"),
+          f"{a} / {b} -- the caught defect would not even be visible")
+    check("consistency: and they are recognised as DIFFERENT wordings",
+          a.get("carry_when") != b.get("carry_when"),
+          "if the two costumes collapse to one value nothing is ever corrected")
+    check("consistency: what is pinned is the RULE PHRASE, not the sentence",
+          a.get("carry_when") == "over nine" and b.get("carry_when") == "ten or more",
+          f"{a} / {b} -- 'write the three' vs 'write the zero' is CORRECT variation "
+          "(different columns); freezing whole sentences would freeze the teaching")
+    check("consistency: subtraction's mirror is recognised too",
+          d("The top digit is too small, so we borrow from the tens."
+            ).get("regroup_when") == "too small", "regroup_when never fires")
+    check("consistency: a BOARD TAG is not a sentence a child hears",
+          d('[[step "carry when over nine"]]') == {},
+          "board text would teach the memory vocabulary the child never heard")
+    check("consistency: ordinary arithmetic states no rule",
+          d("Seven plus six is thirteen.") == {},
+          "every turn would record a phrasing and the memory would be noise")
+    for label, bad in (("None", None), ("a number", 9), ("bytes", b"x")):
+        check(f"  consistency: survives {label}", isinstance(d(bad), dict),
+              "detection must never cost a turn")
+    check("consistency: a student who has been taught nothing pays NOTHING",
+          tutor.phrasing_note("", "basic") == "",
+          "a first lesson would carry an empty rulebook on every turn")
+
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("consistency: the memory is recorded at BOTH exits of a turn",
+          tsrc.count("remember_phrasings(reply, meta)") == 2,
+          "the accepted path or the pass-through path stopped recording")
+    check("consistency: a contradiction is a PROBE, never a retry",
+          '_event("probe", "phrasedrift"' in tsrc
+          and "phrasedrift" not in tsrc.split("def prose_board_conflict")[-1]
+                                       .split("\ndef ")[0],
+          "a 38th referee would buy a WORDING fix with an entire extra model call -- "
+          "on a 16-second turn where 30% already retry")
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("consistency: the note rides the TURN, not the system prompt",
+          "turn_note += tutor.phrasing_note(" in msrc,
+          "per-student words in the cached prefix would re-bill ~71,000 tokens every "
+          "time a phrasing was learned (builds cm and cn, the expensive way)")
+    check("consistency: build_system_prompt never sees it",
+          "phrasing_note" not in tsrc.split("def build_system_prompt")[-1]
+                                     .split("\ndef ")[0],
+          "the cached prefix would move mid-session")
+
+    # ---- FIRST PHRASING WINS -- on a real database ----
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("consistency-memory database proof", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as dd:
+        script = os.path.join(dd, "mem.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_JR_MEMORY)
+        res = subprocess.run([sys.executable, script, os.path.join(dd, "jr.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            v = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("consistency-memory database proof ran",
+                (res.stderr or res.stdout).strip()[:300])
+            return
+        check("consistency: ⭐ THE FIRST PHRASING WINS, and a later one cannot overwrite it",
+              v.get("first") == "over nine" and v.get("second") == "over nine",
+              f"{v} -- the words the child actually learned must be the words that keep "
+              "coming back; a memory that drifts is the bug it was built to fix")
+        check("consistency: it reads back what it stored",
+              v.get("read") == {"carry_when": "over nine"}, str(v.get("read")))
+        check("consistency: another student's vocabulary is his own",
+              v.get("other_student") == "ten or more", str(v))
+        check("consistency: and so is another course's",
+              v.get("other_course") == "ten or more",
+              f"{v} -- a child meets the same idea in different words in different "
+              "courses on purpose")
+        check("consistency: an unknown student has an empty rulebook, not an error",
+              v.get("empty") == {}, str(v.get("empty")))
+        check("consistency: a blank phrasing is never stored",
+              v.get("blank") == "", str(v.get("blank")))
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14528,6 +14659,7 @@ def main():
     part3cr_referee_hears_words()
     part3cs_second_opinion()
     part3ct_output_split()
+    part3cu_consistency_memory()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
