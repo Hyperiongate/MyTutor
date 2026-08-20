@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (jm) 2026-08-20 -- THE TURN CLOCK REACHES THE DASHBOARD. store.usage_stats now
+    reports how long a turn actually takes (build jm: ms_total / ms_model / ms_retry on
+    every brain row), so the Cost & verifier card gains three tiles: "Median turn"
+    (with p90, the slowest, and how many turns were timed), "Waiting on the model", and
+    "Lost to retries" -- the last one amber at 10% of all turn time and red at 25%,
+    because a retry is an ENTIRE extra model call and that is Lever 1 of the 2026-08-20
+    responsiveness proposal. Before this, the only measurement of turn time in existence
+    was Jim counting seconds. An em dash means no turn has been timed in the window --
+    never a fabricated zero. If ms_sampled is below timed_turns the tile SAYS SO: a
+    truncated sample must not read as "all of them".
+
     (jj) 2026-08-20 -- THE REFEREE FIRES GET THEIR NAMES BACK. The telemetry card summed
     every referee's fires into ONE number ("Referee fires (7d)"), so the single question
     that matters -- WHICH referee is firing, and on what share of turns -- could not be
@@ -462,6 +473,13 @@
     return String(n);
   }
   function usd(n) { return n === null || n === undefined ? "—" : "$" + Number(n).toFixed(2); }
+  // build jm: 4120 -> "4.1s", 820 -> "820ms", nothing measured -> an em dash (never "0s",
+  // which would read as an instant turn rather than an unmeasured one)
+  function secs(ms) {
+    ms = Number(ms || 0);
+    if (!ms) return "\u2014";
+    return ms >= 1000 ? (ms / 1000).toFixed(1) + "s" : Math.round(ms) + "ms";
+  }
   function money(n) { return "$" + Number(n || 0).toLocaleString(); }
   function keyMsg(text, kind) { var el = $("keyMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
   function gMsg(text, kind) { var el = $("gMsg"); el.className = "msg" + (text ? " " + (kind || "err") : ""); el.textContent = text || ""; }
@@ -588,8 +606,27 @@
     var ttsFreePct = ttsTotal7 ? Math.round(100 * (u7.tts_chars_cached || 0) / ttsTotal7) : 0;
     var perStudent = (u7.total_usd !== null && u7.total_usd !== undefined && u7.brain_students)
       ? "$" + (u7.total_usd / u7.brain_students).toFixed(2) : "—";
+    // build jm: how much of the week's turn time was spent re-doing rejected drafts.
+    // Amber at 10%, red at 25% -- Lever 1 of the responsiveness proposal, in colour.
+    var retryShare = Number(u7.ms_retry_share || 0);
+    var retryCls = !u7.timed_turns ? "" : (retryShare >= 25 ? "bad"
+                                           : (retryShare >= 10 ? "warn" : "good"));
     html += section("💵 Cost & verifier", "Last 7 days (30-day figures underneath). Dollars appear once the price env vars are set — see the tile notes.", tiles([
       { l: "Tutor turns", v: num(u7.brain_calls), s: "30d: " + num(u30.brain_calls) + " · " + num(u7.retries) + " verifier retries" },
+      // ---- build jm: THE TURN CLOCK ----
+      { l: "Median turn", v: secs(u7.ms_median),
+        s: u7.timed_turns
+             ? "p90 " + secs(u7.ms_p90) + " · slowest " + secs(u7.ms_max) + " · "
+               + num(u7.timed_turns) + " timed turns"
+               + (u7.ms_sampled < u7.timed_turns
+                    ? " (newest " + num(u7.ms_sampled) + " sampled)" : "")
+             : "no turn has been timed yet — push jm, then teach one lesson" },
+      { l: "Waiting on the model", v: secs(u7.ms_model_avg),
+        s: "average per turn — everything else is referees and our own work" },
+      { l: "Lost to retries", v: secs(u7.ms_retry_avg), cls: retryCls,
+        s: u7.timed_turns
+             ? (u7.ms_retry_share || 0) + "% of all turn time — a retry is an ENTIRE extra model call"
+             : "nothing timed yet" },
       { l: "Tokens in / out", v: big(u7.input_tokens) + " / " + big(u7.output_tokens),
         s: "cached-in: " + big(u7.cache_read_tokens) + " · 30d: " + big(u30.input_tokens) + " / " + big(u30.output_tokens) },
       { l: "Est. brain cost", v: usd(u7.brain_usd), cls: u7.brain_usd !== null && u7.brain_usd !== undefined ? "good" : "",

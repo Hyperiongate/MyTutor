@@ -13667,6 +13667,160 @@ def part3az_atomic_counters():
               f"{verdict} -- a lost update or a regressed best on a REAL database")
 
 
+
+# =============================================================================
+# PART 3cp -- THE TURN CLOCK (build jm, 2026-08-20)
+# -----------------------------------------------------------------------------
+# Jim: "what I'm really looking for is a responsive accurate application above cost."
+# Before jm the only measurement of turn time that had ever existed was Jim counting --
+# "five to eight seconds". Now every refereed turn records ms_total / ms_model /
+# ms_retry on its usage_log row, and ms_retry gives Lever 1 of the responsiveness
+# proposal a number instead of an argument.
+#
+# TWO FAILURE MODES ARE PINNED, AND THE SECOND IS THE DANGEROUS ONE:
+#   (1) the clock stops recording -- caught by the source pins below;
+#   (2) THE CLOCK LIES. An untimed row averaged in as an instant turn would make the
+#       app look faster the more of it went unmeasured. usage_stats must drop
+#       ms_total == 0, and that is proved against a REAL database, not by reading code.
+# =============================================================================
+_JM_CLOCK = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init()
+assert store.enabled(), store.status()
+from sqlalchemy import inspect
+out = {}
+cols = {c["name"] for c in inspect(store._engine).get_columns("usage_log")}
+out["cols"] = sorted(c for c in ("ms_total", "ms_model", "ms_retry") if c in cols)
+def brain(**kw):
+    store.log_usage(kind="brain", code="C1", course="prealgebra", mode="lesson",
+                    model="m", **kw)
+brain(attempts=1, verify_status="ok",         ms_total=2000,  ms_model=1800, ms_retry=0)
+brain(attempts=2, verify_status="fixed",      ms_total=6000,  ms_model=5200, ms_retry=4000)
+brain(attempts=3, verify_status="unresolved", ms_total=10000, ms_model=9000, ms_retry=8000)
+brain(attempts=1, verify_status="ok")                      # never timed (pre-jm row)
+brain(attempts=1, verify_status="ok", ms_total=-5, ms_model=-5, ms_retry=-5)  # rubbish
+st = store.usage_stats(7)
+for k in ("brain_calls", "timed_turns", "ms_sampled", "ms_avg", "ms_median", "ms_p90",
+          "ms_max", "ms_model_avg", "ms_retry_avg", "ms_retry_share"):
+    out[k] = st.get(k)
+print(json.dumps(out))
+"""
+
+
+def part3cp_turn_clock():
+    print("\nPART 3cp — the turn clock (build jm)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tempfile as _tf, json as _json
+
+    # ---- 1. THE ARITHMETIC, with no database in sight -----------------------
+    try:
+        import store as _st
+    except Exception as exc:  # noqa: BLE001
+        bad("store imports for the turn clock", str(exc))
+        return
+    ts = _st._timing_summary
+    check("turn clock: an odd-length median is the middle value",
+          ts([(1, 0, 0), (3, 0, 0), (2, 0, 0)])["ms_median"] == 2,
+          "the median is not sorting -- every latency number on /admin is wrong")
+    check("turn clock: an even-length median is the mean of the middle two",
+          ts([(2, 0, 0), (4, 0, 0)])["ms_median"] == 3, "median arithmetic")
+    # NOTE, recorded because the first version of this check was WRONG and the code was
+    # right (the hi/hh lesson: an expectation can be wrong when the data is fine). For
+    # 1..10 the NEAREST-RANK p90 is 9, not 10 -- 10 is p100. What p90 must never do is
+    # collapse onto the median or run away to the max.
+    _ten = ts([(i, 0, 0) for i in range(1, 11)])
+    check("turn clock: p90 sits in the slow tail, between the median and the slowest",
+          _ten["ms_p90"] == 9 and _ten["ms_median"] == 6 and _ten["ms_max"] == 10,
+          f"{_ten} -- p90 is the number that describes the child who waited longest; "
+          "it must not collapse to the median")
+    z = ts([(0, 0, 0), (0, 9, 9), (4, 1, 1)])
+    check("turn clock: an UNTIMED row is dropped, never averaged in as instant",
+          z["ms_sampled"] == 1 and z["ms_avg"] == 4,
+          "an unmeasured turn counted as 0ms makes the app look faster the more of it "
+          "goes unmeasured -- the one way this instrument could lie")
+    e = ts([])
+    check("turn clock: nothing measured yields zeros, not a crash",
+          e["ms_sampled"] == 0 and e["ms_median"] == 0, "empty window must be survivable")
+    check("turn clock: rubbish rows cannot raise",
+          ts([(None, None, None), ("x", "y", "z"), (5, None, None)])["ms_sampled"] == 1,
+          "a malformed row must never 500 the dashboard")
+    check("turn clock: the retry share is a percentage of total turn time",
+          ts([(1000, 0, 0), (1000, 0, 500)])["ms_retry_share"] == 25.0,
+          "ms_retry_share is Lever 1 in one number -- it must be retry/total")
+
+    # ---- 2. THE WIRING (source) ---------------------------------------------
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    body = tsrc.split("def _create_verified(")[-1].split("\ndef ")[0]
+    check("turn clock: _create_verified starts the clock",
+          'tokens["_t0"] = time.monotonic()' in body,
+          "no start time -- ms_total would be 0 on every turn")
+    check("turn clock: the retry marker is set when attempt 2 begins",
+          'if attempt == 2 and "_t_retry0" not in tokens:' in body,
+          "ms_retry would stay 0 however many drafts were thrown away")
+    check("turn clock: EVERY model call in the turn is timed",
+          "_timed_create_full(" in body and "= _create_full(" not in body,
+          "a bare _create_full inside _create_verified is time that vanishes from "
+          "ms_model -- the split would silently blame the referees for it")
+    check("turn clock: the usage row carries the three numbers",
+          "ms_total=ms_total" in tsrc and "def _turn_ms" in tsrc,
+          "_log_brain_usage stopped passing the clock to the store")
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    check("turn clock: the additive migration exists AND is called at init",
+          "def _migrate_usage_log_timing" in ssrc
+          and ssrc.count("_migrate_usage_log_timing()") >= 2,
+          "an existing Postgres usage_log would never gain the columns, and every "
+          "write would fail on a live database")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    for label, needle in (("the median-turn tile", '"Median turn"'),
+                          ("the model-time tile", '"Waiting on the model"'),
+                          ("the retry-cost tile", '"Lost to retries"'),
+                          ("the ms formatter", "function secs(ms)"),
+                          ("the retry-share colouring", "var retryCls")):
+        check(f"  turn clock: /admin shows {label}", needle in asrc,
+              "the number is recorded but nobody can read it")
+
+    # ---- 3. THE PROOF, on a real database -----------------------------------
+    try:
+        import sqlalchemy  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("turn-clock database proof", "sqlalchemy not installed here")
+        return
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "clock.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_JM_CLOCK)
+        res = subprocess.run([sys.executable, script, os.path.join(d, "jm.db"), here],
+                             capture_output=True, text=True, timeout=300)
+        line = (res.stdout.strip().splitlines() or [""])[-1]
+        try:
+            v = _json.loads(line)
+        except Exception:  # noqa: BLE001
+            bad("turn-clock database proof ran", (res.stderr or res.stdout).strip()[:300])
+            return
+        check("turn clock: a fresh usage_log has all three columns",
+              v.get("cols") == ["ms_model", "ms_retry", "ms_total"], str(v.get("cols")))
+        check("turn clock: five turns logged, only THREE of them timed",
+              v.get("brain_calls") == 5 and v.get("timed_turns") == 3,
+              f"{v} -- an untimed or clamped row leaked into the timed population")
+        check("turn clock: median 6.0s, p90 and slowest 10.0s, average 6.0s",
+              (v.get("ms_median"), v.get("ms_p90"), v.get("ms_max"), v.get("ms_avg"))
+              == (6000, 10000, 10000, 6000), str(v))
+        check("turn clock: the model average excludes the untimed rows",
+              v.get("ms_model_avg") == 5333, str(v.get("ms_model_avg")))
+        check("turn clock: retries average 4.0s and are 66.7% of all turn time",
+              v.get("ms_retry_avg") == 4000 and v.get("ms_retry_share") == 66.7,
+              f"{v} -- Lever 1's number is wrong")
+        check("turn clock: a negative duration is clamped, never stored",
+              v.get("ms_max") == 10000 and v.get("timed_turns") == 3,
+              "rubbish from a caller must not poison an average")
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13974,6 +14128,7 @@ def main():
     part3bd_truth_opener()
     part3be_streak_clock()
     part3bf_record_claims()
+    part3cp_turn_clock()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

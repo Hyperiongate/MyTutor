@@ -2,6 +2,19 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jm -- THE TURN CLOCK. `usage_log` gains ms_total / ms_model /
+#               ms_retry (additive migration _migrate_usage_log_timing, default 0 =
+#               "never timed"), log_usage accepts them, and usage_stats reports
+#               timed_turns + avg/median/p90/max plus the model and retry averages and
+#               ms_retry_share. Jim's objective this week was "a responsive accurate
+#               application above cost", and the only measurement of turn time that had
+#               ever existed was Jim counting seconds. ms_retry makes Lever 1 of the
+#               responsiveness proposal -- referee retries -- an actual number.
+#               Percentiles are computed in PYTHON by the new pure _timing_summary()
+#               over the newest TIMING_SAMPLE (5,000) rows: SQLite and Postgres disagree
+#               about percentile SQL, and a latency figure that means two different
+#               things on two databases is worse than none. The cap is REPORTED
+#               (ms_sampled vs timed_turns), never silent.
 #   2026-08-18  BUILD il -- THE TODAY BAR'S WORKED TICKS. today_goals grows Jim's
 #               "honest work-time counts" notion: done entries may now be "3w"
 #               (a WORKED tick, earned by engaged minutes) beside plain "3"
@@ -988,6 +1001,17 @@ def init():
             Column("tts_cache_hit", Integer, default=0), # 1 = served from disk cache ($0)
             Column("attempts", Integer, default=1),      # model calls this turn (verifier retries)
             Column("verify_status", String(16), default=""),  # ok|fixed|unresolved|unverifiable|none
+            # BUILD jm (2026-08-20): HOW LONG THE TURN TOOK. Jim: "what I'm really
+            # looking for is a responsive accurate application above cost" -- and until
+            # now the ONLY measurement of turn time in existence was Jim counting
+            # ("five to eight seconds"). Three integers, all milliseconds:
+            Column("ms_total", Integer, default=0),   # the whole refereed turn, wall clock
+            Column("ms_model", Integer, default=0),   # cumulative time INSIDE model calls
+            Column("ms_retry", Integer, default=0),   # time after the 1st draft was rejected
+            # ms_total - ms_model = referees + our own work. ms_retry is Lever 1 of the
+            # 2026-08-20 responsiveness proposal made countable. A row that predates jm,
+            # or a turn that was never timed, carries 0 in all three -- and usage_stats
+            # counts ONLY rows with ms_total > 0, so a zero can never drag an average.
             Column("created_at", DateTime(timezone=True), index=True),
         )
         # SYSTEM EVENTS (2026-08-17, build ha -- "EYES"): the app's own health, counted.
@@ -1037,6 +1061,9 @@ def init():
         # Give `accounts` its `parent_id` column if it predates real parent accounts
         # (additive + nullable; no key change). No-ops once migrated.
         _migrate_accounts_parent_id()
+        # Give `usage_log` its three timing columns if it predates build jm
+        # (additive, default 0 = "not timed"). No-ops once migrated.
+        _migrate_usage_log_timing()
         # Prove the connection works.
         from sqlalchemy import text as _text
         with _engine.connect() as conn:
@@ -1103,6 +1130,37 @@ def _migrate_course_columns():
                 conn.execute(_text(
                     f"ALTER TABLE {tname} ADD COLUMN course VARCHAR(32) "
                     f"NOT NULL DEFAULT '{DEFAULT_COURSE}'"))
+
+
+def _migrate_usage_log_timing():
+    """One-time, ADDITIVE migration (build jm): give `usage_log` its three timing
+    columns -- ms_total, ms_model, ms_retry. Existing rows keep 0, which reads as
+    "never timed" everywhere: usage_stats counts only rows with ms_total > 0, so a
+    pre-jm row cannot drag an average down. Safe to run on EVERY startup -- it no-ops
+    once the columns exist, and a table create_all just built already has them.
+    A FAILURE HERE MUST NOT STOP THE APP: timing is a nicety, teaching is not. The
+    column simply stays missing and every write records 0."""
+    from sqlalchemy import inspect, text as _text
+    try:
+        insp = inspect(_engine)
+        if "usage_log" not in set(insp.get_table_names()):
+            return
+        cols = {c["name"] for c in insp.get_columns("usage_log")}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[store] usage_log timing migration could not inspect "
+              f"(non-fatal): {_redact(str(exc))}")
+        return
+    for name in ("ms_total", "ms_model", "ms_retry"):
+        if name in cols:
+            continue
+        try:
+            with _engine.begin() as conn:
+                conn.execute(_text(
+                    f"ALTER TABLE usage_log ADD COLUMN {name} INTEGER NOT NULL DEFAULT 0"))
+            print(f"[store] migrated usage_log: +{name} column.")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[store] usage_log timing migration for {name} failed "
+                  f"(non-fatal, timing stays 0): {_redact(str(exc))}")
 
 
 def _migrate_classes_teacher_code():
@@ -3526,7 +3584,8 @@ def status() -> dict:
 def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model: str = "",
               input_tokens: int = 0, output_tokens: int = 0, cache_read_tokens: int = 0,
               cache_write_tokens: int = 0, tts_chars: int = 0, tts_cache_hit: bool = False,
-              attempts: int = 1, verify_status: str = "") -> None:
+              attempts: int = 1, verify_status: str = "",
+              ms_total: int = 0, ms_model: int = 0, ms_retry: int = 0) -> None:
     """Record one paid event (a tutor brain turn or a TTS request). COUNTS ONLY -- no
     conversation text ever. Fire-and-forget: every error is swallowed and printed,
     because usage logging must NEVER break or slow a lesson. No-op when the DB is off
@@ -3546,9 +3605,60 @@ def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model
                 cache_write_tokens=int(cache_write_tokens or 0),
                 tts_chars=int(tts_chars or 0), tts_cache_hit=1 if tts_cache_hit else 0,
                 attempts=int(attempts or 1), verify_status=str(verify_status or "")[:16],
+                # build jm: never negative, never absurd. A monotonic clock cannot go
+                # backwards, but a caller passing rubbish must not poison an average.
+                ms_total=max(0, int(ms_total or 0)),
+                ms_model=max(0, int(ms_model or 0)),
+                ms_retry=max(0, int(ms_retry or 0)),
                 created_at=_now()))
     except Exception as exc:  # noqa: BLE001
         print(f"[store] log_usage failed (non-fatal): {_redact(str(exc))}")
+
+
+# BUILD jm: the newest N timed turns are summarised in PYTHON, not SQL -- percentiles
+# are the one thing SQLite and Postgres disagree about, and a latency number that means
+# something different on the two databases is worse than none. The cap is reported back
+# (ms_sampled vs timed_turns) so a truncated sample can never read as "all of them".
+TIMING_SAMPLE = 5000
+
+
+def _timing_summary(rows) -> dict:
+    """(ms_total, ms_model, ms_retry) triples -> the timing block of usage_stats.
+    Pure, so the percentile arithmetic can be pinned without standing up a database.
+    Rows with ms_total <= 0 are DROPPED: 0 means "never timed", not "instant"."""
+    tot, mod, ret = [], [], []
+    for r in rows or []:
+        try:
+            t = int(r[0] or 0)
+        except (TypeError, ValueError, IndexError):
+            continue
+        if t <= 0:
+            continue
+        tot.append(t)
+        try:
+            mod.append(max(0, int(r[1] or 0)))
+        except (TypeError, ValueError, IndexError):
+            mod.append(0)
+        try:
+            ret.append(max(0, int(r[2] or 0)))
+        except (TypeError, ValueError, IndexError):
+            ret.append(0)
+    out = {"ms_sampled": len(tot), "ms_avg": 0, "ms_median": 0, "ms_p90": 0,
+           "ms_max": 0, "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
+    if not tot:
+        return out
+    n = len(tot)
+    ordered = sorted(tot)
+    out["ms_avg"] = int(round(sum(ordered) / n))
+    out["ms_median"] = ordered[(n - 1) // 2] if n % 2 else \
+        int(round((ordered[n // 2 - 1] + ordered[n // 2]) / 2))
+    out["ms_p90"] = ordered[min(n - 1, max(0, int(round(0.9 * (n - 1)))))]
+    out["ms_max"] = ordered[-1]
+    out["ms_model_avg"] = int(round(sum(mod) / n))
+    out["ms_retry_avg"] = int(round(sum(ret) / n))
+    grand = sum(ordered)
+    out["ms_retry_share"] = round(100.0 * sum(ret) / grand, 1) if grand else 0.0
+    return out
 
 
 def usage_stats(days: int = 7) -> dict:
@@ -3566,7 +3676,12 @@ def usage_stats(days: int = 7) -> dict:
            # -- tutor.py sets it when a contradiction survives all three attempts) and
            # the turns where the model returned nothing twice ("empty").
            "verify_prose-unresolved": 0, "verify_empty": 0,
-           "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0}
+           "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0,
+           # build jm -- the turn clock. timed_turns counts EVERY timed row in the
+           # window; ms_sampled is how many of them the percentiles actually read.
+           "timed_turns": 0, "ms_sample_cap": TIMING_SAMPLE, "ms_sampled": 0,
+           "ms_avg": 0, "ms_median": 0, "ms_p90": 0, "ms_max": 0,
+           "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
     if not _ENABLED:
         return out
     from sqlalchemy import select, func
@@ -3610,6 +3725,14 @@ def usage_stats(days: int = 7) -> dict:
             out["tts_chars_cached"] = int(conn.execute(
                 select(func.coalesce(func.sum(U.c.tts_chars), 0))
                 .where(tts & (U.c.tts_cache_hit == 1))).scalar() or 0)
+            # build jm: the turn clock. Only rows that were actually timed.
+            timed = brain & (U.c.ms_total > 0)
+            out["timed_turns"] = int(conn.execute(
+                select(func.count()).where(timed)).scalar() or 0)
+            out.update(_timing_summary(conn.execute(
+                select(U.c.ms_total, U.c.ms_model, U.c.ms_retry)
+                .where(timed).order_by(U.c.created_at.desc())
+                .limit(TIMING_SAMPLE)).fetchall()))
     except Exception as exc:  # noqa: BLE001
         out["error"] = _redact(str(exc))
         print(f"[store] usage_stats failed: {out['error']}")

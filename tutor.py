@@ -2,6 +2,20 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jm -- THE TURN CLOCK. A refereed turn now records how long it
+#               took: ms_total (wall clock for the whole of _create_verified), ms_model
+#               (cumulative time inside model calls, all attempts and all continuation
+#               hops) and ms_retry (everything after the first draft was rejected).
+#               NEW: _timed_create_full (a wrapper, so _create_full is untouched) and
+#               _turn_ms. No new plumbing -- the clock rides the `tokens` dict that
+#               already carries the token counts to store.log_usage. ms_total minus
+#               ms_model is referees plus our own work; ms_retry gives Lever 1 of the
+#               2026-08-20 responsiveness proposal a NUMBER instead of an argument.
+#               Every read is wrapped and every failure yields 0: a clock that throws
+#               must never cost a lesson, and store drops a 0 rather than averaging it
+#               in as an instant turn. The assessment call (get_assessment) is
+#               deliberately NOT clocked -- it is not a teaching turn and shares none of
+#               this path; its rows carry 0 and are excluded from every average.
 #   2026-08-20  BUILD jl -- RULE 61 GOES LIVE: the THIRTY-SEVENTH referee,
 #               overgeneralized_precedence_conflict. The night watch's only confirmed
 #               finding of 2026-08-20 was the tutor telling a prealgebra student
@@ -1715,6 +1729,7 @@
 
 import os
 import re
+import time   # build jm: the turn clock
 
 from anthropic import Anthropic
 
@@ -5947,16 +5962,69 @@ _MATHCHECK_NUDGE = (
     "Do not mention this note, the mistake, or any checking.)")
 
 
+# =============================================================================
+# BUILD jm (2026-08-20) -- THE TURN CLOCK.
+# =============================================================================
+# Jim: "what I'm really looking for is a responsive accurate application above cost."
+# Until this build the ONLY measurement of turn time in existence was Jim counting --
+# "five to eight seconds" -- and the 2026-08-20 proposal's own first line was that we
+# cannot optimise what we do not measure.
+#
+# NO NEW PLUMBING. The `tokens` dict is already threaded through every path of a
+# refereed turn (that is how the token counts reach the usage log), so the clock rides
+# the same wire:
+#   tokens["_t0"]        set once, at the top of _create_verified
+#   tokens["ms_model"]   accumulated by _timed_create_full, across ALL attempts and all
+#                        continuation hops -- this is time spent waiting on the API
+#   tokens["_t_retry0"]  set when attempt 2 begins, whatever rejected attempt 1
+# and _log_brain_usage turns them into three integers on the turn's usage_log row.
+#
+# ms_total - ms_model is referees plus our own work. ms_retry is the cost of Lever 1 --
+# a rejected draft is an ENTIRE extra model call, and now it has a number instead of an
+# argument. Every read is wrapped: a clock that throws must never cost a lesson.
+def _timed_create_full(client, model, system_blocks, msgs, tokens, log_prefix=""):
+    """_create_full, with its wall time accumulated into `tokens` (build jm).
+    time.monotonic() cannot go backwards, so the accumulated total is always sane
+    even if the system clock is adjusted mid-turn."""
+    _t = time.monotonic()
+    try:
+        return _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
+    finally:
+        try:
+            tokens["ms_model"] = tokens.get("ms_model", 0.0) \
+                + (time.monotonic() - _t) * 1000.0
+        except Exception:  # noqa: BLE001 -- timing must never cost a turn
+            pass
+
+
+def _turn_ms(tokens):
+    """(ms_total, ms_model, ms_retry) for this turn, as non-negative ints. All zeros
+    when the turn was never clocked (an assessment call, or any caller that does not
+    go through _create_verified) -- and usage_stats drops ms_total == 0 rather than
+    averaging it in as an instant turn."""
+    try:
+        t = tokens or {}
+        now = time.monotonic()
+        t0, tr = t.get("_t0"), t.get("_t_retry0")
+        return (int(max(0.0, (now - t0) * 1000.0)) if t0 else 0,
+                int(max(0.0, float(t.get("ms_model", 0.0)))),
+                int(max(0.0, (now - tr) * 1000.0)) if tr else 0)
+    except Exception:  # noqa: BLE001
+        return (0, 0, 0)
+
+
 def _log_brain_usage(meta, model, tokens, attempts, verify_status):
     """Hand one brain turn's consumption to the store (fire-and-forget; never raises)."""
     if store is None or not meta:
         return
     try:
+        ms_total, ms_model, ms_retry = _turn_ms(tokens)      # build jm
         store.log_usage(kind="brain", code=meta.get("code", ""), course=meta.get("course", ""),
                         mode=meta.get("mode", ""), model=model,
                         input_tokens=tokens.get("in", 0), output_tokens=tokens.get("out", 0),
                         cache_read_tokens=tokens.get("cr", 0), cache_write_tokens=tokens.get("cw", 0),
-                        attempts=attempts, verify_status=verify_status)
+                        attempts=attempts, verify_status=verify_status,
+                        ms_total=ms_total, ms_model=ms_model, ms_retry=ms_retry)
     except Exception as exc:  # noqa: BLE001
         print(f"[usage] log failed (non-fatal): {exc}")
 
@@ -6281,15 +6349,20 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             break
     reply = ""
     tokens = {}
+    tokens["_t0"] = time.monotonic()      # build jm: the turn clock starts here
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
-        reply = _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
+        # build jm: whatever rejected the previous draft -- mathcheck, the prose
+        # referee, or the live critic -- everything from here on is RETRY cost.
+        if attempt == 2 and "_t_retry0" not in tokens:
+            tokens["_t_retry0"] = time.monotonic()
+        reply = _timed_create_full(client, model, system_blocks, msgs, tokens, log_prefix)
         if not reply:
             # BUILD dg: a student who hears "I lost my train of thought" repeats
             # themselves -- so the code repeats itself FIRST. One silent retry before
             # the apology; the audit counted that apology 6 times in 10 lessons, so
             # this path is common enough to matter.
             print(f"[tutor]{log_prefix} model returned an EMPTY reply -- retrying once")
-            reply = _create_full(client, model, system_blocks, msgs, tokens, log_prefix)
+            reply = _timed_create_full(client, model, system_blocks, msgs, tokens, log_prefix)
         if not reply:
             _log_brain_usage(meta, model, tokens, attempt, "empty")
             return ""

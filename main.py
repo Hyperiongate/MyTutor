@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jm-the-turn-clock". BUILD jm -- HOW LONG A
+#               TURN TAKES, MEASURED. store.py (usage_log +ms_total/ms_model/ms_retry,
+#               additive migration, usage_stats reports median/p90/max plus the model
+#               and retry averages), tutor.py (_timed_create_full + _turn_ms, riding the
+#               `tokens` dict that already reaches the usage log), static/admin.html
+#               (three tiles on the Cost & verifier card). This file changes for the
+#               stamp only -- /api/admin/stats returns whatever usage_stats reports, so
+#               the new keys need no endpoint change. Step 2 of the 2026-08-20
+#               responsiveness proposal, and the prerequisite for every latency claim
+#               after it: the extended-thinking test and the pre-hoc corrections work
+#               both need a BEFORE number, and until now the only one that existed was
+#               Jim counting seconds.
 #   2026-08-20  APP_BUILD -> "2026-08-20jl-rule-61-goes-live". BUILD jl -- the
 #               THIRTY-SEVENTH referee: an order-of-operations rule spoken as an
 #               unconditional law is regenerated (rule 61), from the night watch's only
@@ -8754,7 +8766,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jl-rule-61-goes-live"
+APP_BUILD = "2026-08-20jm-the-turn-clock"
 
 
 @app.get("/health")
