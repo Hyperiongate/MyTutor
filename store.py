@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jp -- THE SECOND OPINION BECOMES VISIBLE. LIVE_CRITIC is set in
+#               production with LIVE_CRITIC_MODEL=claude-opus-5, so a whole extra model
+#               reads every accepted draft -- and it was invisible in BOTH directions:
+#               its seconds landed in jm's "referees and our own work" bucket (ms_model
+#               wrapped the teaching call only), and its tokens were never counted at
+#               all, because every figure on the cost card filters kind == "brain" and a
+#               critic row is kind == "critic". NEW: usage_log.ms_critic (additive, same
+#               migration), log_usage takes it, _timing_summary reports ms_critic_avg /
+#               ms_critic_share (tolerating 3-wide rows so PART 3cp's fixtures still
+#               work), and usage_stats aggregates the critic's own calls and tokens.
 #   2026-08-20  BUILD jm -- THE TURN CLOCK. `usage_log` gains ms_total / ms_model /
 #               ms_retry (additive migration _migrate_usage_log_timing, default 0 =
 #               "never timed"), log_usage accepts them, and usage_stats reports
@@ -1008,6 +1018,11 @@ def init():
             Column("ms_total", Integer, default=0),   # the whole refereed turn, wall clock
             Column("ms_model", Integer, default=0),   # cumulative time INSIDE model calls
             Column("ms_retry", Integer, default=0),   # time after the 1st draft was rejected
+            # BUILD jp (2026-08-20): the SECOND OPINION's share. LIVE_CRITIC seats a
+            # whole extra model (Opus, in production) reading every accepted draft, and
+            # jm's ms_model wrapped only the TEACHING call -- so the critic's seconds
+            # were landing in "referees and our own work" and being read as overhead.
+            Column("ms_critic", Integer, default=0),
             # ms_total - ms_model = referees + our own work. ms_retry is Lever 1 of the
             # 2026-08-20 responsiveness proposal made countable. A row that predates jm,
             # or a turn that was never timed, carries 0 in all three -- and usage_stats
@@ -1150,7 +1165,7 @@ def _migrate_usage_log_timing():
         print(f"[store] usage_log timing migration could not inspect "
               f"(non-fatal): {_redact(str(exc))}")
         return
-    for name in ("ms_total", "ms_model", "ms_retry"):
+    for name in ("ms_total", "ms_model", "ms_retry", "ms_critic"):
         if name in cols:
             continue
         try:
@@ -3585,7 +3600,8 @@ def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model
               input_tokens: int = 0, output_tokens: int = 0, cache_read_tokens: int = 0,
               cache_write_tokens: int = 0, tts_chars: int = 0, tts_cache_hit: bool = False,
               attempts: int = 1, verify_status: str = "",
-              ms_total: int = 0, ms_model: int = 0, ms_retry: int = 0) -> None:
+              ms_total: int = 0, ms_model: int = 0, ms_retry: int = 0,
+              ms_critic: int = 0) -> None:
     """Record one paid event (a tutor brain turn or a TTS request). COUNTS ONLY -- no
     conversation text ever. Fire-and-forget: every error is swallowed and printed,
     because usage logging must NEVER break or slow a lesson. No-op when the DB is off
@@ -3610,6 +3626,7 @@ def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model
                 ms_total=max(0, int(ms_total or 0)),
                 ms_model=max(0, int(ms_model or 0)),
                 ms_retry=max(0, int(ms_retry or 0)),
+                ms_critic=max(0, int(ms_critic or 0)),
                 created_at=_now()))
     except Exception as exc:  # noqa: BLE001
         print(f"[store] log_usage failed (non-fatal): {_redact(str(exc))}")
@@ -3626,7 +3643,7 @@ def _timing_summary(rows) -> dict:
     """(ms_total, ms_model, ms_retry) triples -> the timing block of usage_stats.
     Pure, so the percentile arithmetic can be pinned without standing up a database.
     Rows with ms_total <= 0 are DROPPED: 0 means "never timed", not "instant"."""
-    tot, mod, ret = [], [], []
+    tot, mod, ret, cri = [], [], [], []
     for r in rows or []:
         try:
             t = int(r[0] or 0)
@@ -3643,8 +3660,14 @@ def _timing_summary(rows) -> dict:
             ret.append(max(0, int(r[2] or 0)))
         except (TypeError, ValueError, IndexError):
             ret.append(0)
+        # build jp: the 4th member is optional -- PART 3cp's 3-wide fixtures still work.
+        try:
+            cri.append(max(0, int(r[3] or 0)))
+        except (TypeError, ValueError, IndexError):
+            cri.append(0)
     out = {"ms_sampled": len(tot), "ms_avg": 0, "ms_median": 0, "ms_p90": 0,
-           "ms_max": 0, "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
+           "ms_max": 0, "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0,
+           "ms_critic_avg": 0, "ms_critic_share": 0.0}
     if not tot:
         return out
     n = len(tot)
@@ -3656,8 +3679,10 @@ def _timing_summary(rows) -> dict:
     out["ms_max"] = ordered[-1]
     out["ms_model_avg"] = int(round(sum(mod) / n))
     out["ms_retry_avg"] = int(round(sum(ret) / n))
+    out["ms_critic_avg"] = int(round(sum(cri) / n))
     grand = sum(ordered)
     out["ms_retry_share"] = round(100.0 * sum(ret) / grand, 1) if grand else 0.0
+    out["ms_critic_share"] = round(100.0 * sum(cri) / grand, 1) if grand else 0.0
     return out
 
 
@@ -3679,6 +3704,12 @@ def usage_stats(days: int = 7) -> dict:
            "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0,
            # build jm -- the turn clock. timed_turns counts EVERY timed row in the
            # window; ms_sampled is how many of them the percentiles actually read.
+           # build jp -- the SECOND OPINION, counted on its own. A critic row is
+           # kind="critic", which every other number on this card excludes, so an
+           # entire extra model was costing time and money invisibly.
+           "critic_calls": 0, "critic_input_tokens": 0, "critic_output_tokens": 0,
+           "critic_cache_read_tokens": 0, "critic_cache_write_tokens": 0,
+           "ms_critic_avg": 0, "ms_critic_share": 0.0,
            "timed_turns": 0, "ms_sample_cap": TIMING_SAMPLE, "ms_sampled": 0,
            "ms_avg": 0, "ms_median": 0, "ms_p90": 0, "ms_max": 0,
            "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
@@ -3730,9 +3761,22 @@ def usage_stats(days: int = 7) -> dict:
             out["timed_turns"] = int(conn.execute(
                 select(func.count()).where(timed)).scalar() or 0)
             out.update(_timing_summary(conn.execute(
-                select(U.c.ms_total, U.c.ms_model, U.c.ms_retry)
+                select(U.c.ms_total, U.c.ms_model, U.c.ms_retry, U.c.ms_critic)
                 .where(timed).order_by(U.c.created_at.desc())
                 .limit(TIMING_SAMPLE)).fetchall()))
+            # build jp: the second opinion's own rows.
+            crow = conn.execute(select(
+                func.count(),
+                func.coalesce(func.sum(U.c.input_tokens), 0),
+                func.coalesce(func.sum(U.c.output_tokens), 0),
+                func.coalesce(func.sum(U.c.cache_read_tokens), 0),
+                func.coalesce(func.sum(U.c.cache_write_tokens), 0),
+            ).where((U.c.kind == "critic") & recent)).fetchone()
+            out["critic_calls"] = int(crow[0] or 0)
+            out["critic_input_tokens"] = int(crow[1] or 0)
+            out["critic_output_tokens"] = int(crow[2] or 0)
+            out["critic_cache_read_tokens"] = int(crow[3] or 0)
+            out["critic_cache_write_tokens"] = int(crow[4] or 0)
     except Exception as exc:  # noqa: BLE001
         out["error"] = _redact(str(exc))
         print(f"[store] usage_stats failed: {out['error']}")

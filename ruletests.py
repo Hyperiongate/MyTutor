@@ -13014,8 +13014,13 @@ def part3cf_pluggable_brain():
     check("the critic seat is EMPTY by default and an empty seat reviews nothing",
           seat == (None, None) and review == "",
           "production behavior changed without anyone setting an env var")
+    # build jp: the call gained the turn's `tokens` dict (so the critic's seconds are
+    # attributed to it, not to overhead) and wrapped onto two lines. Pinned on the
+    # PARTS rather than the exact formatting, and strengthened -- an unwired `tokens`
+    # would silently report every Opus call as 0ms.
     check("the critic is wired into the accepted-draft path with its own nudge",
-          "_live_critic_review(reply, messages, log_prefix, meta)" in tsrc
+          "_live_critic_review(reply, messages, log_prefix," in tsrc
+          and "meta, tokens)" in tsrc
           and "_CRITIC_NUDGE.format(detail=critic_detail)" in tsrc
           and '"livecritic"' in tsrc,
           "the seat exists but no draft ever passes through it")
@@ -13693,7 +13698,8 @@ assert store.enabled(), store.status()
 from sqlalchemy import inspect
 out = {}
 cols = {c["name"] for c in inspect(store._engine).get_columns("usage_log")}
-out["cols"] = sorted(c for c in ("ms_total", "ms_model", "ms_retry") if c in cols)
+out["cols"] = sorted(c for c in ("ms_total", "ms_model", "ms_retry", "ms_critic")
+                     if c in cols)
 def brain(**kw):
     store.log_usage(kind="brain", code="C1", course="prealgebra", mode="lesson",
                     model="m", **kw)
@@ -13702,9 +13708,21 @@ brain(attempts=2, verify_status="fixed",      ms_total=6000,  ms_model=5200, ms_
 brain(attempts=3, verify_status="unresolved", ms_total=10000, ms_model=9000, ms_retry=8000)
 brain(attempts=1, verify_status="ok")                      # never timed (pre-jm row)
 brain(attempts=1, verify_status="ok", ms_total=-5, ms_model=-5, ms_retry=-5)  # rubbish
+# build jp: the SECOND OPINION's own rows -- kind="critic", which every brain figure
+# on the cost card filters OUT. Two calls, and one timed brain turn that paid for them.
+store.log_usage(kind="critic", code="C1", course="prealgebra", mode="lesson",
+                model="claude-opus-5", input_tokens=3000, output_tokens=120,
+                attempts=1, verify_status="critic")
+store.log_usage(kind="critic", code="C1", course="prealgebra", mode="lesson",
+                model="claude-opus-5", input_tokens=3000, output_tokens=120,
+                attempts=1, verify_status="critic")
+brain(attempts=1, verify_status="ok", ms_total=4000, ms_model=2000, ms_retry=0,
+      ms_critic=1500)
 st = store.usage_stats(7)
 for k in ("brain_calls", "timed_turns", "ms_sampled", "ms_avg", "ms_median", "ms_p90",
-          "ms_max", "ms_model_avg", "ms_retry_avg", "ms_retry_share"):
+          "ms_max", "ms_model_avg", "ms_retry_avg", "ms_retry_share",
+          "critic_calls", "critic_input_tokens", "critic_output_tokens",
+          "ms_critic_avg", "ms_critic_share"):
     out[k] = st.get(k)
 print(json.dumps(out))
 """
@@ -13803,22 +13821,37 @@ def part3cp_turn_clock():
         except Exception:  # noqa: BLE001
             bad("turn-clock database proof ran", (res.stderr or res.stdout).strip()[:300])
             return
-        check("turn clock: a fresh usage_log has all three columns",
-              v.get("cols") == ["ms_model", "ms_retry", "ms_total"], str(v.get("cols")))
-        check("turn clock: five turns logged, only THREE of them timed",
-              v.get("brain_calls") == 5 and v.get("timed_turns") == 3,
+        check("turn clock: a fresh usage_log has all FOUR timing columns",
+              v.get("cols") == ["ms_critic", "ms_model", "ms_retry", "ms_total"],
+              str(v.get("cols")))
+        check("turn clock: six turns logged, only FOUR of them timed",
+              v.get("brain_calls") == 6 and v.get("timed_turns") == 4,
               f"{v} -- an untimed or clamped row leaked into the timed population")
-        check("turn clock: median 6.0s, p90 and slowest 10.0s, average 6.0s",
-              (v.get("ms_median"), v.get("ms_p90"), v.get("ms_max"), v.get("ms_avg"))
-              == (6000, 10000, 10000, 6000), str(v))
-        check("turn clock: the model average excludes the untimed rows",
-              v.get("ms_model_avg") == 5333, str(v.get("ms_model_avg")))
-        check("turn clock: retries average 4.0s and are 66.7% of all turn time",
-              v.get("ms_retry_avg") == 4000 and v.get("ms_retry_share") == 66.7,
+        # NOTE (the third time today, and the lesson is the same one): my EXPECTATION
+        # was wrong and the code was right. The four timed turns are 2,000 / 4,000 /
+        # 6,000 / 10,000 ms, so the even-length median is (4,000 + 6,000) / 2 = 5,000.
+        check("turn clock: median 5.0s, slowest 10.0s, average 5.5s",
+              (v.get("ms_median"), v.get("ms_max"), v.get("ms_avg"))
+              == (5000, 10000, 5500), str(v))
+        check("turn clock: retries average 3.0s and are 54.5% of all turn time",
+              v.get("ms_retry_avg") == 3000 and v.get("ms_retry_share") == 54.5,
               f"{v} -- Lever 1's number is wrong")
         check("turn clock: a negative duration is clamped, never stored",
-              v.get("ms_max") == 10000 and v.get("timed_turns") == 3,
+              v.get("ms_max") == 10000 and v.get("timed_turns") == 4,
               "rubbish from a caller must not poison an average")
+        # ---- build jp: THE SECOND OPINION ----
+        check("second opinion: critic calls are counted, and NOT as tutor turns",
+              v.get("critic_calls") == 2 and v.get("brain_calls") == 6,
+              f"{v} -- a critic row is kind='critic'; if it ever lands in brain_calls "
+              "the turn count and every per-turn share become wrong")
+        check("second opinion: its tokens are aggregated for pricing",
+              v.get("critic_input_tokens") == 6000
+              and v.get("critic_output_tokens") == 240,
+              f"{v} -- an Opus call on every draft with no token total is a bill "
+              "nobody can see")
+        check("second opinion: its seconds are attributed to it, not to overhead",
+              v.get("ms_critic_avg") == 375 and v.get("ms_critic_share") == 6.8,
+              f"{v} -- 1500ms over 4 timed turns is 375 average, 6.8% of 22,000ms")
 
 
 
@@ -14011,6 +14044,69 @@ def part3cr_referee_hears_words():
           tutor._pq_spoken_covers("what is 10 percent of eighty?",
                                   "0.10 x 80 = ?") is True,
           "a tutor who says the digits has still read it aloud")
+
+
+
+# =============================================================================
+# PART 3cs -- THE SECOND OPINION IS VISIBLE (build jp, 2026-08-20)
+# -----------------------------------------------------------------------------
+# LIVE_CRITIC is set in production with LIVE_CRITIC_MODEL=claude-opus-5, so an entire
+# extra model reads every draft the regex referees accept, before the child sees a word.
+# It was invisible in BOTH directions and that is the defect this part guards:
+#   (1) its SECONDS were inside jm's "everything else", reported as referees and our
+#       own overhead, because ms_model wrapped only the teaching call;
+#   (2) its TOKENS were in no figure on the cost card at all -- every one of them
+#       filters kind == "brain", and a critic row is kind == "critic".
+# A cost that cannot be seen cannot be decided about, and this seat is a decision.
+# =============================================================================
+def part3cs_second_opinion():
+    print("\nPART 3cs — the second opinion is visible (build jp)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("second opinion: the critic call is timed",
+          "tokens[\"ms_critic\"]" in tsrc and "_t_critic = time.monotonic()" in tsrc,
+          "an Opus call per turn is back to being reported as our own overhead")
+    check("second opinion: it is charged in a FINALLY block",
+          "finally:" in tsrc.split("def _live_critic_review")[1].split("\ndef ")[0],
+          "a critic that CRASHES slowly would report zero -- the slow failure is "
+          "exactly the case worth seeing")
+    check("second opinion: the turn's dict reaches it",
+          "_live_critic_review(reply, messages, log_prefix,\n"
+          "                                                    meta, tokens)" in tsrc,
+          "the call site stopped passing `tokens` -- ms_critic would always be 0")
+    check("second opinion: _turn_ms returns four numbers",
+          "return (0, 0, 0, 0)" in tsrc, "the fourth number was dropped")
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    check("second opinion: ms_critic is a column AND is in the migration list",
+          'Column("ms_critic"' in ssrc
+          and '"ms_total", "ms_model", "ms_retry", "ms_critic"' in ssrc,
+          "an existing Postgres usage_log would never gain the column")
+    import store as _st
+    # The 3-wide fixtures of PART 3cp must keep working: a widened row shape must not
+    # break the older callers, and an absent 4th member is 0, never a raise.
+    check("second opinion: _timing_summary still accepts 3-wide rows",
+          _st._timing_summary([(2, 1, 0), (4, 2, 1)])["ms_critic_avg"] == 0,
+          "widening the row shape broke the older fixtures")
+    check("second opinion: a 4-wide row reports its share",
+          _st._timing_summary([(1000, 600, 0, 300)])["ms_critic_share"] == 30.0,
+          "the critic's share of turn time is wrong")
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("second opinion: it is priced with its OWN env vars",
+          "CRITIC_IN_USD_PER_MTOK" in msrc and "CRITIC_OUT_USD_PER_MTOK" in msrc,
+          "Opus priced at the teaching model's rate understates it several times over")
+    check("second opinion: unpriced means NULL, never a borrowed number",
+          "critic_usd = None" in msrc, "a wrong cost is worse than no cost")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    check("second opinion: /admin shows the tile",
+          '"Second opinion"' in asrc and "var criticCls" in asrc,
+          "the number is recorded but nobody can read it")
+    check("second opinion: the model tile no longer claims the remainder is overhead",
+          "everything else is referees and our own work" not in asrc,
+          "that note stopped being true the day the critic seat was filled")
 
 
 def part3ay_one_grammar():
@@ -14323,6 +14419,7 @@ def main():
     part3cp_turn_clock()
     part3cq_notation_tautology()
     part3cr_referee_hears_words()
+    part3cs_second_opinion()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

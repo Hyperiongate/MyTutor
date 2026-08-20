@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jp-the-second-opinion-is-visible". BUILD jp --
+#               store.py + tutor.py + static/admin.html + ruletests.py; this file for
+#               the stamp AND for critic pricing. LIVE_CRITIC=anthropic with
+#               LIVE_CRITIC_MODEL=claude-opus-5 is LIVE, so an entire extra model reads
+#               every accepted draft -- and it was invisible twice over: its seconds sat
+#               in jm's "referees and our own work" bucket, and its tokens were in no
+#               figure on the cost card at all (every one filters kind == "brain"; a
+#               critic row is kind == "critic"). Now timed (ms_critic) and counted, with
+#               its OWN price vars -- CRITIC_IN_USD_PER_MTOK / CRITIC_OUT_USD_PER_MTOK --
+#               because Opus is not priced like the teaching model and borrowing those
+#               numbers would understate it several times over. Nothing about the
+#               critic's behaviour changed: this build only makes it possible to DECIDE.
 #   2026-08-20  APP_BUILD -> "2026-08-20jo-the-referee-can-hear-words". BUILD jo --
 #               tutor.py + ruletests.py; this file for the stamp. Rule 44's referee
 #               could only hear numbers 0-20 and the round tens, so every board problem
@@ -7320,6 +7332,12 @@ def _usage_with_dollars(days: int) -> dict:
         except ValueError:
             return None
     pin, pout = _price("ANTHROPIC_IN_USD_PER_MTOK"), _price("ANTHROPIC_OUT_USD_PER_MTOK")
+    # BUILD jp: THE SECOND OPINION IS PRICED SEPARATELY, ON PURPOSE. LIVE_CRITIC is
+    # seated with claude-opus-5, which is NOT priced like the teaching model, so
+    # borrowing the teaching prices would understate the critic by several times over.
+    # Unset means null means the tile says "—" and names the vars: never an invented
+    # cost, and never a cost quietly computed at the wrong rate.
+    cin, cout = _price("CRITIC_IN_USD_PER_MTOK"), _price("CRITIC_OUT_USD_PER_MTOK")
     ptts = _price("ELEVEN_USD_PER_1K_CHARS")
     brain_usd = tts_usd = None
     if pin is not None and pout is not None:
@@ -7329,9 +7347,17 @@ def _usage_with_dollars(days: int) -> dict:
                            + u["output_tokens"] * pout) / 1_000_000, 2)
     if ptts is not None:
         tts_usd = round(u["tts_chars_generated"] / 1000 * ptts, 2)
+    critic_usd = None
+    if cin is not None and cout is not None:
+        critic_usd = round((u.get("critic_input_tokens", 0) * cin
+                            + u.get("critic_cache_read_tokens", 0) * cin * 0.10
+                            + u.get("critic_cache_write_tokens", 0) * cin * 1.25
+                            + u.get("critic_output_tokens", 0) * cout) / 1_000_000, 2)
+    u["critic_usd"] = critic_usd
     u["brain_usd"] = brain_usd
     u["tts_usd"] = tts_usd
-    u["total_usd"] = round(brain_usd + tts_usd, 2) if (brain_usd is not None and tts_usd is not None) else None
+    u["total_usd"] = round(brain_usd + tts_usd + (critic_usd or 0.0), 2) \
+        if (brain_usd is not None and tts_usd is not None) else None
     return u
 
 
@@ -8782,7 +8808,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jo-the-referee-can-hear-words"
+APP_BUILD = "2026-08-20jp-the-second-opinion-is-visible"
 
 
 @app.get("/health")

@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jp -- THE SECOND OPINION IS TIMED. LIVE_CRITIC is seated with
+#               claude-opus-5 in production, so an entire extra model reads every draft
+#               the regex referees accept, before the child sees anything. jm's ms_model
+#               wrapped only the teaching call, so those seconds were being reported as
+#               "referees and our own work" -- overhead, rather than what they are.
+#               _live_critic_review now takes the turn's `tokens` dict and charges its
+#               own wall time to ms_critic in a finally block (so a crashed or
+#               empty-seat call is still counted honestly), and _turn_ms returns a
+#               fourth number. Nothing about the critic's BEHAVIOUR changed.
 #   2026-08-20  BUILD jo -- THE SECOND PHANTOM IS DEAD. Measured from the first real
 #               /admin reading (206 retries on 692 turns = 29.8%): rule 44's referee
 #               fired on 4.3% of turns and caused most of the replies that shipped WITH
@@ -5987,9 +5996,16 @@ def _live_critic_seat():
     return p, (os.environ.get("LIVE_CRITIC_MODEL", "") or default)
 
 
-def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None) -> str:
+def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
+                        tokens=None) -> str:
     """One second-model read of an accepted draft. Returns a one-sentence
-    objection, or "" (pass / seat empty / any failure). Never raises."""
+    objection, or "" (pass / seat empty / any failure). Never raises.
+
+    build jp: `tokens` is the turn's dict, so the seconds this costs are attributed to
+    the SECOND OPINION rather than disappearing into "our own work". The seat is Opus
+    in production -- an entire extra model call before the child sees anything -- and a
+    cost that cannot be seen cannot be decided about."""
+    _t_critic = time.monotonic()
     try:
         provider, model = _live_critic_seat()
         if not provider:
@@ -6061,6 +6077,15 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None) -
         print(f"[livecritic]{log_prefix} crashed (fail open): {exc}")
         _event("referee_crash", "livecritic", str(exc))
         return ""
+    finally:
+        # build jp: charged even when the seat is empty (then it is ~0) and even when
+        # it crashed -- a check that fails slowly is exactly what we want to see.
+        try:
+            if tokens is not None:
+                tokens["ms_critic"] = tokens.get("ms_critic", 0.0) \
+                    + (time.monotonic() - _t_critic) * 1000.0
+        except Exception:  # noqa: BLE001
+            pass
 
 
 MATHCHECK_MAX_ATTEMPTS = 3   # 1 normal attempt + up to 2 corrected retries
@@ -6121,9 +6146,10 @@ def _turn_ms(tokens):
         t0, tr = t.get("_t0"), t.get("_t_retry0")
         return (int(max(0.0, (now - t0) * 1000.0)) if t0 else 0,
                 int(max(0.0, float(t.get("ms_model", 0.0)))),
-                int(max(0.0, (now - tr) * 1000.0)) if tr else 0)
+                int(max(0.0, (now - tr) * 1000.0)) if tr else 0,
+                int(max(0.0, float(t.get("ms_critic", 0.0)))))   # build jp
     except Exception:  # noqa: BLE001
-        return (0, 0, 0)
+        return (0, 0, 0, 0)
 
 
 def _log_brain_usage(meta, model, tokens, attempts, verify_status):
@@ -6131,13 +6157,14 @@ def _log_brain_usage(meta, model, tokens, attempts, verify_status):
     if store is None or not meta:
         return
     try:
-        ms_total, ms_model, ms_retry = _turn_ms(tokens)      # build jm
+        ms_total, ms_model, ms_retry, ms_critic = _turn_ms(tokens)   # build jm/jp
         store.log_usage(kind="brain", code=meta.get("code", ""), course=meta.get("course", ""),
                         mode=meta.get("mode", ""), model=model,
                         input_tokens=tokens.get("in", 0), output_tokens=tokens.get("out", 0),
                         cache_read_tokens=tokens.get("cr", 0), cache_write_tokens=tokens.get("cw", 0),
                         attempts=attempts, verify_status=verify_status,
-                        ms_total=ms_total, ms_model=ms_model, ms_retry=ms_retry)
+                        ms_total=ms_total, ms_model=ms_model, ms_retry=ms_retry,
+                        ms_critic=ms_critic)
     except Exception as exc:  # noqa: BLE001
         print(f"[usage] log failed (non-fatal): {exc}")
 
@@ -6521,7 +6548,8 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             # drafts the deterministic referees accepted (never stacks nudges).
             critic_detail = ""
             if not prose_detail:
-                critic_detail = _live_critic_review(reply, messages, log_prefix, meta)
+                critic_detail = _live_critic_review(reply, messages, log_prefix,
+                                                    meta, tokens)
                 if critic_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                     print(f"[livecritic]{log_prefix} OBJECTION on attempt "
                           f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {critic_detail}")

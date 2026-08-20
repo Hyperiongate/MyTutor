@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    (jp) 2026-08-20 -- THE SECOND OPINION GETS A TILE. LIVE_CRITIC is seated in
+    production with claude-opus-5: an entire extra model reads every draft the regex
+    referees accept, before the child sees a word of it. It was invisible in both
+    directions -- its seconds were reported as "referees and our own work" (jm's
+    ms_model wrapped the teaching call only), and its tokens appeared in NO figure on
+    this card, because every one of them filters kind == "brain" and a critic row is
+    kind == "critic". NEW "Second opinion" tile: average seconds per turn, how many
+    calls, its share of all turn time, and its cost -- amber at 15% of turn time, red
+    at 30%. Its dollars use their OWN env vars (CRITIC_IN_USD_PER_MTOK /
+    CRITIC_OUT_USD_PER_MTOK) because Opus is not priced like the teaching model, and
+    borrowing the teaching prices would understate it several times over; unset shows
+    an em dash and names the vars rather than quoting a wrong number. The
+    "Waiting on the model" tile's note is corrected -- it was claiming the remainder
+    was referees and our own work, which stopped being true the day the seat was filled.
+
     (jm) 2026-08-20 -- THE TURN CLOCK REACHES THE DASHBOARD. store.usage_stats now
     reports how long a turn actually takes (build jm: ms_total / ms_model / ms_retry on
     every brain row), so the Cost & verifier card gains three tiles: "Median turn"
@@ -608,6 +623,12 @@
       ? "$" + (u7.total_usd / u7.brain_students).toFixed(2) : "—";
     // build jm: how much of the week's turn time was spent re-doing rejected drafts.
     // Amber at 10%, red at 25% -- Lever 1 of the responsiveness proposal, in colour.
+    // build jp: the second opinion is a whole extra model call on every accepted
+    // draft. Amber at 15% of turn time, red at 30% -- at that point it is the single
+    // largest thing standing between a child's answer and the tutor's reply.
+    var criticShare = Number(u7.ms_critic_share || 0);
+    var criticCls = !u7.critic_calls ? "" : (criticShare >= 30 ? "bad"
+                                             : (criticShare >= 15 ? "warn" : "good"));
     var retryShare = Number(u7.ms_retry_share || 0);
     var retryCls = !u7.timed_turns ? "" : (retryShare >= 25 ? "bad"
                                            : (retryShare >= 10 ? "warn" : "good"));
@@ -622,7 +643,14 @@
                     ? " (newest " + num(u7.ms_sampled) + " sampled)" : "")
              : "no turn has been timed yet — push jm, then teach one lesson" },
       { l: "Waiting on the model", v: secs(u7.ms_model_avg),
-        s: "average per turn — everything else is referees and our own work" },
+        s: "the TEACHING call only — the second opinion is counted next to this" },
+      // ---- build jp: THE SECOND OPINION ----
+      { l: "Second opinion", v: secs(u7.ms_critic_avg), cls: criticCls,
+        s: u7.critic_calls
+             ? num(u7.critic_calls) + " Opus reads · " + (u7.ms_critic_share || 0)
+               + "% of all turn time · " + (u7.critic_usd === null || u7.critic_usd === undefined
+                   ? "set CRITIC_IN/OUT_USD_PER_MTOK" : usd(u7.critic_usd))
+             : "LIVE_CRITIC is off — no second model reads the drafts" },
       { l: "Lost to retries", v: secs(u7.ms_retry_avg), cls: retryCls,
         s: u7.timed_turns
              ? (u7.ms_retry_share || 0) + "% of all turn time — a retry is an ENTIRE extra model call"
