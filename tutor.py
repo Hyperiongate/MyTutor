@@ -2,6 +2,22 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jo -- THE SECOND PHANTOM IS DEAD. Measured from the first real
+#               /admin reading (206 retries on 692 turns = 29.8%): rule 44's referee
+#               fired on 4.3% of turns and caused most of the replies that shipped WITH
+#               an unresolved finding, because _pq_spoken_covers could only hear numbers
+#               0-20 and the round tens. "three hundred", "twenty five" and "one hundred
+#               forty four" were invisible, and a decimal only counted when read
+#               digit-wise -- so "ten percent of eighty" over a board of "0.10 x 80"
+#               failed every single time. The tutor read the problem aloud exactly as
+#               rule 48 demands and the referee could not hear it: unresolvable by
+#               construction, iz's phantom in a second costume. NEW _spoken_numbers()
+#               parses compound number words (runs break at any non-number token, so
+#               "three plus one" can never become 31; "and" continues a run only after a
+#               scale word); the decimal branch gains ONE narrow door for a percent
+#               reading that still requires the word "percent". The fraction branch is
+#               untouched. Builds gk and gw are re-pinned in PART 3cr and still reject
+#               exactly what they were written to reject.
 #   2026-08-20  BUILD jm -- THE TURN CLOCK. A refereed turn now records how long it
 #               took: ms_total (wall clock for the whole of _create_verified), ms_model
 #               (cumulative time inside model calls, all attempts and all continuation
@@ -4947,6 +4963,81 @@ _EQ_DENOM_WORD = {2: "half|halves", 3: "third", 4: "fourth|quarter", 5: "fifth",
                   12: "twelfth", 16: "sixteenth", 100: "hundredth"}
 
 
+# =============================================================================
+# BUILD jo (2026-08-20) -- THE SECOND PHANTOM: RULE 44 COULD NOT HEAR WORDS.
+# =============================================================================
+# Measured, not guessed. The first reading of the /admin cards after jj and jm went
+# live: 206 retries on 692 turns (29.8%), and `unspoken` -- rule 44's referee -- was
+# the second-highest firer at 4.3% of turns AND the biggest single cause of replies
+# that shipped WITH an unresolved finding. The pass-through list named the boards:
+#
+#     0.10 x 80 = ?   ·   300 + 500 = ?   ·   144 + ? = 180
+#     130 + ? = 180   ·   c = sqrt(25) = ?
+#
+# Every one of those numbers was INVISIBLE to the referee when read aloud properly,
+# because _EQ_NUMWORD holds only 0-20 and the round tens. "three hundred" was not a
+# key. Neither was "twenty five". And a decimal only counted as read when spoken
+# digit-wise ("zero point one zero"), so the one GOOD reading of 0.10 in a percentages
+# lesson -- "ten percent" -- failed every time.
+#
+# So the nudge said "read the problem aloud", the tutor DID read it aloud, in words,
+# because this is a voice-first product and rule 48 demands it -- and the referee still
+# could not see it. Three attempts burned, flawed reply shipped anyway. That is build
+# iz's phantom exactly: UNRESOLVABLE BY CONSTRUCTION.
+#
+# ⚠️ THE FIX IS A BETTER EAR, NOT A LOWER BAR. Builds gk and gw narrowed this same
+# function ON PURPOSE and both must survive: gk because "three plus one really is four"
+# was accepted as reading 3/4 + 1/4, gw because the "1" inside the word "one" was
+# accepted as reading 1.35. Nothing below touches the fraction branch, and the decimal
+# branch gains ONE narrow door (a percent reading) that still requires the word
+# "percent" to be present.
+_NW_UNIT = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+            "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+            "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16,
+            "seventeen": 17, "eighteen": 18, "nineteen": 19}
+_NW_TEN = {"twenty": 20, "thirty": 30, "forty": 40, "fourty": 40, "fifty": 50,
+           "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+_NW_SCALE = {"hundred": 100, "thousand": 1000}
+
+
+def _spoken_numbers(prose: str) -> set:
+    """Every whole number the WORDS of a reply actually say -- compound forms included.
+    "one hundred forty four" -> {144}. "three hundred plus five hundred" -> {300, 500}.
+    "twenty five" -> {25}.
+
+    A run ends at the first token that is not a number word, so "three plus one" stays
+    {3, 1} and can never become 31 -- the separator IS the boundary. "and" continues a
+    run ONLY after a scale word, so British "one hundred and forty" reads as 140 while
+    "three and four" stays two numbers. Never raises; an empty set on any surprise."""
+    try:
+        toks = re.findall(r"[a-z]+", str(prose or "").lower().replace("-", " "))
+        found, cur, total, live, scaled = set(), 0, 0, False, False
+        for t in toks:
+            if t in _NW_UNIT:
+                cur += _NW_UNIT[t]; live = True
+            elif t in _NW_TEN:
+                cur += _NW_TEN[t]; live = True
+            elif t in _NW_SCALE:
+                v = _NW_SCALE[t]
+                if v == 100:
+                    cur = (cur or 1) * 100
+                else:
+                    total += (cur or 1) * v
+                    cur = 0
+                live = True; scaled = True
+            elif t == "and" and live and scaled:
+                continue                      # "one hundred AND forty" only
+            else:
+                if live:
+                    found.add(total + cur)
+                cur, total, live, scaled = 0, 0, False, False
+        if live:
+            found.add(total + cur)
+        return found
+    except Exception:  # noqa: BLE001 -- a reader that throws must not fail a turn
+        return set()
+
+
 def _pq_spoken_covers(prose: str, board_value: str) -> bool:
     """True if the SPOKEN words carry the numbers this board line states.
 
@@ -4955,6 +5046,7 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
     to miss EVERY number the problem states before we call it unspoken."""
     try:
         low = " " + re.sub(r"[^a-z0-9/\.\s-]", " ", str(prose or "").lower()) + " "
+        spoken_words = _spoken_numbers(prose)      # build jo -- compound number words
         # a spoken fraction ("eight twelfths", "three fourths") counts for both halves
         frac = re.search(r"(\d+)\s*/\s*(\d+)", board_value or "")
         if frac:
@@ -5009,6 +5101,23 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
                 if re.search(r"\b(?:%s)\b(?:\s+\w+){0,2}\s+(?:point|dollars?)\b"
                              % "|".join(forms), low):
                     return True
+                # BUILD jo (2026-08-20): A PERCENT READING *IS* READING IT ALOUD.
+                # From the live pass-through list: the board said "0.10 x 80 = ?" and
+                # the tutor said "ten percent of eighty" -- the only GOOD reading of
+                # 0.10 in a percentages lesson -- and this referee called the problem
+                # unspoken, three times, then shipped the reply anyway. Narrow on
+                # purpose: the word "percent" must actually be in the prose, and the
+                # value must be exact, so gw's "2.6 + 1.35" stays rejected (nobody
+                # says "two hundred sixty percent" in that lesson).
+                try:
+                    pct = float(d) * 100.0
+                    p = int(round(pct))
+                    if abs(pct - p) < 1e-9 and "percent" in low and (
+                            p in spoken_words
+                            or re.search(r"\b" + str(p) + r"\b", low)):
+                        return True
+                except (TypeError, ValueError):
+                    pass
             return False        # a decimal problem, never read as a decimal
         nums = [int(n) for n in re.findall(r"\b\d{1,4}\b", board_value or "")]
         if not nums:
@@ -5018,6 +5127,10 @@ def _pq_spoken_covers(prose: str, board_value: str) -> bool:
                 return True
             w = _EQ_NUMWORD.get(n)
             if w and re.search(r"\b%s\b" % w, low):
+                return True
+            # build jo: _EQ_NUMWORD stops at 20 (plus the round tens), so "three
+            # hundred", "twenty five" and "one hundred forty four" were all unhearable.
+            if n in spoken_words:
                 return True
         return False
     except Exception:                        # noqa: BLE001 -- fail open, always

@@ -13919,6 +13919,100 @@ def part3cq_notation_tautology():
         bad("the precalc 'function' script exists", "it was renamed or removed")
 
 
+
+# =============================================================================
+# PART 3cr -- THE REFEREE CAN HEAR WORDS (build jo, 2026-08-20)
+# -----------------------------------------------------------------------------
+# The first real reading of /admin (jj's by-name table + jm's clock) measured 206
+# retries on 692 turns -- 29.8% -- and named the culprit: `unspoken`, rule 44's
+# referee, fired on 4.3% of turns and caused most of the 21 replies that shipped WITH
+# an unresolved finding. Its pass-through details named the boards, and every one of
+# those numbers was invisible to it when read aloud PROPERLY, because _EQ_NUMWORD
+# stops at 20 plus the round tens.
+#
+# The tutor read the problem aloud exactly as rule 48 demands. The referee could not
+# hear it. Three attempts burned, flawed reply shipped. Build iz's phantom, second
+# costume: UNRESOLVABLE BY CONSTRUCTION.
+#
+# ⚠️ THIS PART EXISTS AS MUCH TO PROTECT gk AND gw AS TO PROVE jo. Those two builds
+# narrowed this function on purpose, from real audit findings, and a fix that widened
+# it carelessly would hand a listening child a problem they only ever saw written down
+# -- which is the whole reason rule 44 exists. Both directions are pinned below, and
+# the five boards are the REAL ones from the live pass-through list, verbatim.
+# =============================================================================
+def part3cr_referee_hears_words():
+    print("\nPART 3cr — the referee can hear words (build jo)")
+    sn = getattr(tutor, "_spoken_numbers", None)
+    if sn is None:
+        bad("_spoken_numbers exists", "the compound number-word reader is gone")
+        return
+
+    # ---- 1. THE READER --------------------------------------------------------
+    for label, text, want in (
+            ("a compound hundred", "one hundred forty four", {144}),
+            ("two runs, separated by an operator", "three hundred plus five hundred",
+             {300, 500}),
+            ("a compound ten", "twenty five", {25}),
+            ("hyphenated", "twenty-five", {25}),
+            ("British 'and' after a scale", "one hundred and eighty", {180}),
+            ("thousands", "two thousand three hundred", {2300}),
+            ("no number words at all", "nothing numeric here", set())):
+        check(f"  number words: {label}", sn(text) == want, f"{sn(text)} != {want}")
+    # THE TWO THAT MUST NOT MERGE. A run has to END at its separator, or gk's exact
+    # sentence would start reading as one enormous number.
+    check("  number words: an operator BREAKS the run (3 + 1 is never 31)",
+          sn("three plus one really is four") == {1, 3, 4},
+          "adjacent numbers merged across a separator -- gk's sentence would be "
+          "misread and the fraction bug could come back through the side door")
+    check("  number words: a bare 'and' does NOT continue a run",
+          sn("three and four") == {3, 4},
+          "'three and four' read as 34 -- 'and' may only bridge after a scale word")
+    check("  number words: rubbish input yields an empty set, never a raise",
+          sn(None) == set() and sn(12345) == set(), "the reader must fail open")
+
+    # ---- 2. THE FIVE BOARDS FROM THE LIVE PASS-THROUGH LIST --------------------
+    for board, prose in (
+            ("0.10 x 80 = ?", "What is ten percent of eighty?"),
+            ("300 + 500 = ?", "What is three hundred plus five hundred?"),
+            ("144 + ? = 180", "One hundred forty four plus what makes one hundred eighty?"),
+            ("130 + ? = 180", "One hundred thirty plus what gives us one hundred eighty?"),
+            ("c = sqrt(25) = ?", "So c equals the square root of twenty five.")):
+        check(f"  heard aloud: {board}", tutor._pq_spoken_covers(prose, board) is True,
+              "this exact board burned all three attempts in production and shipped "
+              "the flawed reply anyway")
+
+    # ---- 3. gk AND gw STILL REJECT WHAT THEY WERE WRITTEN TO REJECT ------------
+    check("gk survives: 'three plus one really is four' does NOT read 3/4 + 1/4",
+          tutor._pq_spoken_covers(
+              "Good job adding the tops — three plus one really is four!",
+              "3/4 + 1/4 = ?") is False,
+          "the 2026-08-16 fractions bug is back: a child is asked about a problem "
+          "they only ever saw written down")
+    check("gw survives: 'try one with a similar setup' does NOT read 1.35",
+          tutor._pq_spoken_covers(
+              "Let us try one with a similar setup, different-length decimals again.",
+              "2.6 + 1.35 = ?") is False,
+          "the 2026-08-17 decimal bug is back -- the '1' inside the word 'one' is "
+          "not a reading of 1.35")
+    check("a decimal read as a decimal still counts",
+          tutor._pq_spoken_covers("two point six plus one point three five",
+                                  "2.6 + 1.35 = ?") is True,
+          "the honest reading must still pass")
+
+    # ---- 4. THE PERCENT DOOR IS NARROW ---------------------------------------
+    check("percent door: the word 'percent' is REQUIRED",
+          tutor._pq_spoken_covers("What is ten of eighty?", "0.10 x 80 = ?") is False,
+          "any sentence containing 'ten' would open the decimal branch -- the door "
+          "must need the word that makes it a reading")
+    check("percent door: the value must be EXACT",
+          tutor._pq_spoken_covers("about twenty percent of it", "0.10 x 80 = ?") is False,
+          "a different percentage is not a reading of this number")
+    check("percent door: digits work too",
+          tutor._pq_spoken_covers("what is 10 percent of eighty?",
+                                  "0.10 x 80 = ?") is True,
+          "a tutor who says the digits has still read it aloud")
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14228,6 +14322,7 @@ def main():
     part3bf_record_claims()
     part3cp_turn_clock()
     part3cq_notation_tautology()
+    part3cr_referee_hears_words()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

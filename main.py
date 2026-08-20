@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jo-the-referee-can-hear-words". BUILD jo --
+#               tutor.py + ruletests.py; this file for the stamp. Rule 44's referee
+#               could only hear numbers 0-20 and the round tens, so every board problem
+#               with a bigger number burned all three attempts and shipped anyway --
+#               4.3% of turns, and the largest single cause of the 21 replies that went
+#               out WITH a known finding. Found by MEASURING (/admin, build jj's
+#               by-name table + build jm's clock), not by reasoning.
 #   2026-08-20  APP_BUILD -> "2026-08-20jn-write-it-say-it". BUILD jn -- foundations.py
 #               + ruletests.py; this file for the stamp. Jim, from one live precalc
 #               lesson: "We write f of x, which is read as f of x." An AUTHORED script,
@@ -8775,7 +8782,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jn-write-it-say-it"
+APP_BUILD = "2026-08-20jo-the-referee-can-hear-words"
 
 
 @app.get("/health")
