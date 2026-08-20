@@ -2,6 +2,39 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jk -- THE REVIEWER GETS A SECOND TEST. The 2026-08-20 report
+#               refuted 19 of 20 findings (95%; the first real night was 73%, and the
+#               /admin card's own scale calls near-100% MISCALIBRATED). Reading the 19
+#               dismissals showed why, and it was not the tutor being good:
+#               VERIFY_SYSTEM offered exactly ONE way to confirm a finding --
+#               "a specific child would learn something false or be unable to follow" --
+#               and refuted anything that was "taste, tone or pacing". That is a
+#               MATHS-CORRECTNESS test, so a rule of CONDUCT could never pass it.
+#               17 of the 19 refutations quote that criterion back verbatim, and the
+#               rules it silenced are the ones JIM found: rule 17 (the answer was on
+#               the board before the question was asked -- refuted TWICE as "the maths
+#               was still correct"), rules 43 and 62 (the child credited with a step the
+#               TUTOR took -- refuted TWICE as "a tone/credit issue"), rule 44 (x3),
+#               rule 15, rule 40. Build go exists because Jim asked for a system that
+#               catches what he cannot; on the rules he DID catch, it was blind -- and
+#               the blindness read on the dashboard as a healthy refute rate.
+#               THE FIX IS THE REVIEWER, NOT THE CRITIC. VERIFY_SYSTEM now states the
+#               product is judged on TWO things -- (A) TRUTH and (B) CONDUCT -- names
+#               the nine conduct promises with their rule numbers, and says plainly that
+#               "the maths was still correct" and "it was a matter of tone" are not
+#               defences against them. The skepticism is preserved and re-aimed: it now
+#               belongs to the EVIDENCE ("if you cannot see it in the transcript,
+#               REFUTE") rather than to the standard, so build fe's anti-wolf-crying
+#               discipline survives. The taste/tone refute clause is narrowed to
+#               findings that name no conduct promise; the "later corrected" clause now
+#               refutes a TRUTH finding only, because a later correction does not
+#               un-spoil a question that was already answered.
+#               ⚠️ NOT PROVED BY MEASUREMENT YET. Re-running last night's 19 would need
+#               their transcripts, which the report does not carry. The refute rate of
+#               the NEXT run is the measurement -- expect it to fall from 95% toward the
+#               60-75% band, and expect the first confirmed findings to be rule 17 and
+#               rule 43/62. If it falls below ~40%, the reviewer has gone soft and this
+#               prompt is the thing to tighten.
 #   2026-08-18  BUILD hq -- run_scenario's return grew a fourth member (the measured
 #               prompt size, for the two-prompt-sizes experiment); the watch unpacks
 #               and ignores it. No behaviour change here.
@@ -181,7 +214,34 @@ the critic is wrong.
 
 Given a transcript and one finding, decide whether the finding is REAL.
 
-Refute the finding if ANY of these hold:
+THIS TUTOR IS JUDGED ON TWO THINGS, NOT ONE.
+
+(A) TRUTH -- a child must not learn something false, and must not be left unable to
+    follow what is happening.
+
+(B) CONDUCT -- the tutor must keep the promises this product makes about HOW it teaches.
+    A broken promise is a REAL defect even when every number in the reply is correct.
+    "But the maths was still right", "but it was harmless" and "but that is a matter of
+    tone" are NOT defences against any of these:
+      - rule 43  the tutor perceives exactly two things and never pretends otherwise
+      - rule 62  the tutor may only point at work that actually happened -- crediting a
+                 child with a step the TUTOR took is a false statement ABOUT THE CHILD,
+                 not a pleasantry
+      - rule 15  a question must be complete on the board before it is asked
+      - rule 16  a substitution or check question re-writes its equation, same reply
+      - rule 17  never answer your own question in the same breath -- if the answer is
+                 already on the board when the question is asked, the check is spoiled,
+                 however correct that answer happens to be
+      - rule 39  a check must be easy to FAIL (the REQUIRED wording named below is not a
+                 rule 39 violation)
+      - rule 44  the problem is read aloud, in full, before it is worked
+      - rules 14 and 48  notation is read aloud the first time it appears
+      - rule 40  a returning student is ASKED before being made to sit through the same
+                 introduction a second time
+    Every one of these is enforced on live replies by a machine referee. If a referee
+    would regenerate the reply for it, it is not "taste".
+
+REFUTE the finding if ANY of these hold:
 - the quoted words are not actually in the transcript, or are quoted misleadingly
 - the maths is correct under standard conventions, however surprising it looks
 - the "problem" is a decided design of this product: the check-in wording
@@ -189,12 +249,20 @@ Refute the finding if ANY of these hold:
   choose to move past an unfinished unit; foundation-first teaching (explaining before
   asking) is deliberate and is NOT "lecturing"; the tutor accepting a right answer before
   extending it is rule 59 working
-- the finding is a matter of taste, tone or pacing rather than something a child would
-  learn WRONG or be unable to follow
-- the finding restates something the transcript itself later corrects
+- the finding is about wording preference, warmth, or how fast the lesson moves, AND it
+  names no conduct promise from (B)
+- the finding restates something the transcript itself later corrects -- this refutes a
+  TRUTH finding, but NOT a conduct one: a later correction does not un-spoil a question
+  that was already answered, nor un-say credit that was already given
 
-Confirm it ONLY if a specific child, reading these specific words, would learn something
-false or be unable to follow. When you are unsure, REFUTE.
+CONFIRM the finding when the transcript plainly shows EITHER
+  (A) a specific child, reading these specific words, would learn something false or be
+      unable to follow, OR
+  (B) one of the conduct promises above was broken.
+
+YOUR SKEPTICISM BELONGS TO THE EVIDENCE, NOT TO THE STANDARD. When you cannot see in the
+transcript that the thing described actually happened, REFUTE. When you can see it
+plainly and it breaks (A) or (B), CONFIRM -- "it was harmless" is not a reason to refute.
 
 Return STRICT JSON only: {"real": true|false, "why": "<one sentence>"}
 """

@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jk-the-reviewer-gets-a-second-test". BUILD jk --
+#               nightwatch.py only (this file changes for the STAMP, so /health can prove
+#               the new governor is live). The night watch's reviewer had ONE way to
+#               confirm a finding -- "would a child learn something false?" -- which no
+#               rule of CONDUCT can pass, so rules 17, 43, 62, 44, 15 and 40 were
+#               structurally unconfirmable and the 2026-08-20 report refuted 19 of 20.
+#               VERIFY_SYSTEM now judges TRUTH *and* CONDUCT. Full reasoning in
+#               nightwatch.py's own note. ⚠️ nightwatch.py is NOT in ruletests' _STAMP_PY
+#               list, so this bump is deliberate, not enforced -- adding it there is a
+#               one-line follow-up worth doing.
 #   2026-08-19  APP_BUILD -> "2026-08-19ji-cluster-b-merged". BUILD ji --
 #               CONSOLIDATION BATCH 2, CLUSTER B. Rules 16 and 17 fold into rule 15
 #               as clauses (d) and (e): 16 was literally 15(a) applied to
@@ -8736,7 +8746,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19ji-cluster-b-merged"
+APP_BUILD = "2026-08-20jk-the-reviewer-gets-a-second-test"
 
 
 @app.get("/health")
