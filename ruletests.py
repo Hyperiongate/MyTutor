@@ -13821,6 +13821,104 @@ def part3cp_turn_clock():
               "rubbish from a caller must not poison an average")
 
 
+
+# =============================================================================
+# PART 3cq -- "WE WRITE X, WHICH IS READ AS X" (build jn, 2026-08-20)
+# -----------------------------------------------------------------------------
+# From one live precalc lesson of Jim's. The screen read:
+#
+#     "We write f of x, which is read as f of x."
+#
+# A sentence whose entire job is to separate the SYMBOL from its READING, with the
+# reading on both sides. It came from an AUTHORED foundation script, spoken verbatim --
+# not from the model.
+#
+# ⭐ THE PART WORTH REMEMBERING: writing "f(x)" does NOT fix it. speech-text.js
+# forSpeech() converts f(x) -> "f of x" before the TTS engine ever sees it, which is
+# right for the ear and makes the corrected sentence a tautology AGAIN out loud. In a
+# voice-first product the screen is only half the check. So this part normalises BOTH
+# sides the way the ear will hear them before comparing -- and it therefore fails the
+# naive fix as loudly as the original defect.
+#
+# The cure is to name the notation in words that survive the transform, which the
+# "function notation" script one entry below had been doing correctly all along.
+# =============================================================================
+_JN_TAUT = re.compile(
+    r"\bwe write\b[:\s]*(.{1,70}?)[,;]?\s*(?:which is |and it is |and is |and )?"
+    r"(?:read|said|pronounced|spoken|say)\w*\s*(?:it\s*)?(?:out loud\s*|aloud\s*)?"
+    r"(?:as|:)\s*(.{1,70}?)\s*[.,;]", re.I)
+
+
+def _jn_as_heard(s):
+    """What the EAR gets. Mirrors speech-text.js forSpeech()'s f(x) -> 'f of x' rule,
+    then strips everything that cannot be heard, so "f(x)" and "f of x" compare EQUAL."""
+    s = re.sub(r"([A-Za-z])\s*\(\s*([A-Za-z0-9]+)\s*\)", r"\1 of \2", str(s or ""))
+    return " ".join(re.sub(r"[^a-z0-9 ]+", " ", s.lower()).split())
+
+
+def part3cq_notation_tautology():
+    print("\nPART 3cq — \"we write X, which is read as X\" (build jn)")
+    try:
+        import foundations as _F
+    except Exception as exc:  # noqa: BLE001
+        bad("foundations imports", str(exc))
+        return
+
+    # ---- 1. THE DETECTOR ITSELF, on known inputs -----------------------------
+    def taut(text):
+        m = _JN_TAUT.search(text)
+        if not m:
+            return None
+        a, b = _jn_as_heard(m.group(1)), _jn_as_heard(m.group(2))
+        return bool(a) and a == b
+    check("tautology check: the sentence a child actually read is caught",
+          taut("We write f of x, which is read as f of x, and it means the output.") is True,
+          "the defect that shipped would ship again")
+    check("tautology check: the NAIVE fix is caught too (it is a tautology in the EAR)",
+          taut("We write f(x), which is read as f of x, and it means the output.") is True,
+          "forSpeech turns f(x) into 'f of x' before the TTS engine sees it -- a "
+          "screen-only fix leaves the child HEARING the same broken sentence")
+    check("tautology check: naming the notation in words is clean",
+          taut("We write it with the letter f and the input tucked inside parentheses, "
+               "and you say the whole thing out loud as f of x.") is None,
+          "the cure must not be flagged as the disease")
+    check("tautology check: a genuinely different reading is clean",
+          taut("We write dy/dx, which is read as the derivative of y with respect to x.")
+          is False, "a real notation lesson must pass")
+    check("tautology check: prose with no such claim is untouched",
+          taut("A function is a rule that takes one input.") is None,
+          "the pattern must not reach into ordinary teaching")
+
+    # ---- 2. THE CORPUS -------------------------------------------------------
+    hits = []
+    scanned = 0
+    for course, items in getattr(_F, "FOUNDATIONS", {}).items():
+        for it in items:
+            scanned += 1
+            for m in _JN_TAUT.finditer(it.get("say") or ""):
+                a, b = _jn_as_heard(m.group(1)), _jn_as_heard(m.group(2))
+                if a and a == b:
+                    hits.append(f"{course}/{it.get('term')}: "
+                                f"{m.group(1)!r} == {m.group(2)!r} (as heard)")
+    check(f"no authored script says \"we write X, which is read as X\" "
+          f"({scanned} scripts scanned, as HEARD)",
+          not hits, f"{hits[:3]} -- a sentence that exists to separate the symbol from "
+                    "its reading, with the reading on both sides")
+    # The specific script this build fixed, pinned by its cure rather than its disease.
+    try:
+        fn = next(it for it in _F.FOUNDATIONS["precalc"] if it.get("term") == "function")
+        say = fn.get("say") or ""
+        check("the precalc 'function' script names the notation in words",
+              "tucked inside parentheses" in say and "out loud as f of x" in say,
+              "the 2026-08-20 wording was reverted -- the tautology is back")
+        check("the precalc 'function' script still shows the real f(x) on the board",
+              any('fname="f"' in b for b in (fn.get("board") or [])),
+              "the prose describes notation the board no longer displays -- the child "
+              "is told how to say a symbol they never see")
+    except StopIteration:
+        bad("the precalc 'function' script exists", "it was renamed or removed")
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14129,6 +14227,7 @@ def main():
     part3be_streak_clock()
     part3bf_record_claims()
     part3cp_turn_clock()
+    part3cq_notation_tautology()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

@@ -2,6 +2,25 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jn -- THE TAUTOLOGY A CHILD ACTUALLY READ. Jim, from one live
+#               precalc lesson: the screen said "We write f of x, which is read as f of
+#               x." Both halves of a sentence whose whole job is to separate the SYMBOL
+#               from its READING were the reading. It was not the model -- this script,
+#               spoken verbatim, said it. (Checked first: nothing between the model and
+#               the bubble rewrites prose. styleVars() styles letters and keeps
+#               parentheses; notation.py is a registry, not a transformer.)
+#               ⚠️ WRITING "f(x)" WOULD NOT HAVE FIXED IT. speech-text.js forSpeech()
+#               turns f(x) into "f of x" before the TTS engine sees it -- correctly, for
+#               the ear -- so the naive fix reads right on screen and is STILL a
+#               tautology out loud, in a voice-first product. The wording now names the
+#               notation in words that survive that transform, exactly as the
+#               "function notation" script one entry below already did: "the letter f
+#               and the input tucked inside parentheses... you say the whole thing out
+#               loud as f of x". The board still shows the real f(x) (the [[machine]]
+#               tag's fname), so the symbol is seen and the words say how to say it --
+#               rules 14 and 48 both satisfied, by the two channels doing their own job.
+#               ruletests PART 3cq now scans every authored script for the shape, AS
+#               HEARD, so neither the defect nor the naive fix can come back.
 #   2026-08-14  BUILD gi -- THE TERM-GAP PROBE (measurement only, no behaviour change).
 #               Jim's question after the "right angle" lesson: can it learn from a student
 #               having to ask? The weights cannot; the system can, and this collects the
@@ -1611,8 +1630,9 @@ FOUNDATIONS = {
         {"term": "function", "say":
             "A **function** is a rule that takes one input and gives back exactly one output. The exactly "
             "one part is the whole definition — put in a three and you always get the same answer out, "
-            "every time. We write f of x, which is read as f of x, and it simply means the output of the "
-            "rule f when the input is x. It is not f multiplied by x.",
+            "every time. We write it with the letter f and the input tucked inside parentheses, and you "
+            "say the whole thing out loud as f of x. It simply means the output of the rule f when the "
+            "input is x. It is not f multiplied by x.",
          "board": ['[[machine input="3" rule="2x+1" output="7" fname="f" caption="one input goes in, exactly one output comes out"]]']},
         {"term": "function notation", "say":
             "**Function notation** is worth slowing down for, because you will read it thousands of times "
