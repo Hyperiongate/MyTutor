@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <!--
+    (jj) 2026-08-20 -- THE REFEREE FIRES GET THEIR NAMES BACK. The telemetry card summed
+    every referee's fires into ONE number ("Referee fires (7d)"), so the single question
+    that matters -- WHICH referee is firing, and on what share of turns -- could not be
+    asked from this page, even though /api/admin/events has always returned the full
+    kind -> name -> count breakdown and store.event_stats() has always grouped by name.
+    That blindness is how the rule-14 phantom lived for weeks (build iz: the referee
+    fired on the PIPE SEPARATORS of [[choices]] option lists, was unresolvable by
+    construction, and burned all three attempts on any turn offering answer buttons) --
+    the total looked busy, and busy looked like health.
+    NEW, under the telemetry tiles: "Referee fires by name" (7d and 30d counts, plus each
+    referee's share of tutor turns in the same window -- amber at 3%, red at 10%) and
+    "Other events by name" (crashes, pass-throughs, fail-opens, probes, prompt-size,
+    by kind and name). The turn counts come from the /api/admin/stats payload this page
+    already loads (renderBoard stashes them), so there is no second API call.
+    DISPLAY ONLY -- static/admin.html is the ONLY file this build touches: no server
+    file changed, no new endpoint, no APP_BUILD bump (the stamp stays wherever the
+    Python side left it -- 2026-08-19ji-cluster-b-merged as this was written). Every
+    number here was already on the wire and being thrown away.
+    (!) READ THE WINDOWS HONESTLY: the phantom was live until build iz deployed on the
+    night of 2026-08-19, so a 7d or 30d share read this morning is still mostly measuring
+    the bug that is already fixed. The clean read is a week of turns from now.
+
     (ha) 2026-08-17 -- THE TELEMETRY CARD (EYES, Phase 1 of the full-app review). New
     card reading /api/admin/events: referee crashes, client errors (from the new
     browser beacon), pass-throughs, teaching fail-opens, referee fires, probe
@@ -158,6 +180,13 @@
   table.mini{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
   table.mini th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
   table.mini td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
+  /* build jj: a referee's share of turns, coloured where it deserves a look */
+  table.mini td.hot{color:#b3402e;font-weight:800}
+  table.mini td.warm{color:#8a5a12;font-weight:800}
+  table.mini td.numc{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  table.mini th.numc{text-align:right}
+  table.mini td.nm{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+  .minihead{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 2px}
   label{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
   input.f{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
   input.f:focus{outline:none;border-color:var(--purple)}
@@ -388,6 +417,7 @@
       <span class="note">the app watching itself &mdash; a dead check is a visible zero here</span></div>
     <div class="note" id="tmLine">reading events&hellip;</div>
     <div id="tmTiles" style="margin-top:10px"></div>
+    <div id="tmByName" style="margin-top:6px"></div>
     <div id="tmRecent" style="margin-top:12px"></div>
     <p class="note" style="margin-top:12px">Referee <b>fires</b> are the checks working; referee
       <b>crashes</b>, <b>client errors</b> and <b>pass-throughs</b> (a reply shipped WITH a known
@@ -498,6 +528,12 @@
       (note ? '<span class="note">' + esc(note) + '</span>' : '') + '</div>' + tilesHtml + '</div>';
   }
 
+  // build jj: the telemetry card needs the SAME WINDOW's tutor-turn counts to turn a
+  // referee's raw fire count into a share. renderBoard() always runs before tmStatus()
+  // (see load()), so stashing them here is ordered, not raced; 0 means "not known yet"
+  // and the share column prints an em dash rather than a made-up percentage.
+  var TURNS7 = 0, TURNS30 = 0;
+
   function renderBoard(payload) {
     var s = payload.stats || {};
     var st = payload.storage || {};
@@ -540,6 +576,8 @@
     // Raw counts are always real (from the usage log). DOLLARS appear only when the
     // price env vars are set in Render -- we never invent a cost.
     var u7 = payload.usage7 || {}, u30 = payload.usage30 || {};
+    TURNS7 = Number(u7.brain_calls || 0);      // build jj (see TURNS7 note above)
+    TURNS30 = Number(u30.brain_calls || 0);
     // build gz (2026-08-17): "prose-unresolved" = a reply that SHIPPED to a student
     // carrying a known, unresolved referee finding. store.py used to fold it into
     // verify_none, so the most important number on this card silently read as zero.
@@ -844,6 +882,87 @@
     var m = (stats.counts || {})[kind] || {}, n = 0;
     for (var k in m) n += m[k]; return n;
   }
+  // ---- build jj: the by-name tables ----------------------------------------
+  // tmCount() above collapses kind -> name -> count into one total, and one total is
+  // exactly where a false-firing referee hides. These helpers spend the breakdown
+  // /api/admin/events has always returned.
+  function tmNames(stats, kind) { return (stats.counts || {})[kind] || {}; }
+  function tmShare(fires, turns) {                 // fires as a % of tutor turns
+    if (!turns) return "\u2014";                    // no turns in the window: say so
+    var p = 100 * fires / turns;
+    return (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + "%";
+  }
+  function tmShareCls(fires, turns) {
+    if (!turns) return "";
+    var p = 100 * fires / turns;
+    return p >= 10 ? "hot" : (p >= 3 ? "warm" : "");
+  }
+  function tmByNameHtml(s7, s30) {
+    var out = "";
+    // --- table 1: referee fires, by referee ---------------------------------
+    var f7 = tmNames(s7, "referee_fire"), f30 = tmNames(s30, "referee_fire");
+    var seen = {}, k;
+    for (k in f7) seen[k] = true;
+    for (k in f30) seen[k] = true;
+    var rows = Object.keys(seen).map(function (nm) {
+      return { name: nm, a: f7[nm] || 0, b: f30[nm] || 0 };
+    }).sort(function (x, y) {
+      return (y.a - x.a) || (y.b - x.b) || (x.name < y.name ? -1 : (x.name > y.name ? 1 : 0));
+    });
+    out += '<div class="minihead">Referee fires by name</div>';
+    if (!rows.length) {
+      out += '<div class="note">No referee fired in the last 30 days.</div>';
+    } else {
+      out += '<table class="mini"><tr><th>referee</th><th class="numc">fires 7d</th>' +
+             '<th class="numc">% of turns</th><th class="numc">fires 30d</th>' +
+             '<th class="numc">% of turns</th></tr>';
+      rows.forEach(function (r) {
+        out += "<tr><td class=\"nm\">" + esc(r.name) + "</td>" +
+               '<td class="numc">' + num(r.a) + "</td>" +
+               '<td class="numc ' + tmShareCls(r.a, TURNS7) + '">' + tmShare(r.a, TURNS7) + "</td>" +
+               '<td class="numc">' + num(r.b) + "</td>" +
+               '<td class="numc ' + tmShareCls(r.b, TURNS30) + '">' + tmShare(r.b, TURNS30) + "</td></tr>";
+      });
+      out += "</table>";
+      out += '<p class="note" style="margin-top:8px">Share = that referee\'s fires divided by ' +
+             "<b>tutor turns</b> in the same window (" + num(TURNS7) + " turns 7d \u00b7 " +
+             num(TURNS30) + " turns 30d). A referee much above a few percent is either " +
+             "catching a real epidemic or <b>false-firing</b> \u2014 and both deserve a look, " +
+             "because every fire costs an entire extra model call. Cross-check it against " +
+             "<b>pass-throughs</b> below: high fires <i>and</i> high pass-throughs is the " +
+             "signature of a nudge that cannot be satisfied (the rule-14 phantom, build iz).</p>";
+    }
+    // --- table 2: everything else, by kind and name --------------------------
+    var kinds = {}, kd;
+    for (kd in (s7.counts || {})) kinds[kd] = true;
+    for (kd in (s30.counts || {})) kinds[kd] = true;
+    var others = [];
+    Object.keys(kinds).sort().forEach(function (kind) {
+      if (kind === "referee_fire") return;
+      var m7 = tmNames(s7, kind), m30 = tmNames(s30, kind), nm = {}, x;
+      for (x in m7) nm[x] = true;
+      for (x in m30) nm[x] = true;
+      Object.keys(nm).sort().forEach(function (name) {
+        others.push({ kind: kind, name: name, a: m7[name] || 0, b: m30[name] || 0 });
+      });
+    });
+    out += '<div class="minihead">Other events by name</div>';
+    if (!others.length) {
+      out += '<div class="note">No other event recorded in the last 30 days.</div>';
+    } else {
+      out += '<table class="mini"><tr><th>kind</th><th>name</th>' +
+             '<th class="numc">7d</th><th class="numc">30d</th></tr>';
+      others.forEach(function (r) {
+        var bad = (r.kind === "referee_crash" || r.kind === "pass_through" ||
+                   r.kind === "clienterror") && r.a > 0;
+        out += "<tr><td>" + esc(r.kind) + '</td><td class="nm">' + esc(r.name) + "</td>" +
+               '<td class="numc ' + (bad ? "hot" : "") + '">' + num(r.a) + "</td>" +
+               '<td class="numc">' + num(r.b) + "</td></tr>";
+      });
+      out += "</table>";
+    }
+    return out;
+  }
   async function tmStatus() {
     try {
       var d = await api("/api/admin/events");
@@ -867,6 +986,7 @@
           s: "countclaim / markcheck / unitdrift / termgap / rule37" },
         { l: "Prompt-size events (7d)", v: psize, s: "deferrals + over-ceiling" }
       ]);
+      $("tmByName").innerHTML = tmByNameHtml(s7, s30);   // build jj
       var rec = d.recent || [];
       if (rec.length) {
         var rows = rec.slice(0, 20).map(function (r) {
@@ -879,7 +999,10 @@
       } else {
         $("tmRecent").innerHTML = "";
       }
-    } catch (e) { $("tmLine").textContent = "could not read telemetry: " + e.message; }
+    } catch (e) {
+      $("tmLine").textContent = "could not read telemetry: " + e.message;
+      $("tmByName").innerHTML = "";   // build jj: never leave a stale table behind
+    }
   }
 
   // ---------- night watch (build gp) ----------
