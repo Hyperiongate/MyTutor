@@ -13416,6 +13416,49 @@ def part3cn_resume_and_place():
           "the progress chip restores and the goal chip does not -- Jim's exact catch")
 
 
+def part3co_cluster_b():
+    # BUILD ji -- CONSOLIDATION BATCH 2, CLUSTER B (the approved plan's merge of the
+    # question-discipline family). Rule 16 is literally rule 15(a) applied to
+    # substitution/check questions -- its own text used to say so -- and rule 17 is
+    # its mirror (the reply must not ANSWER the question it asks). Both now live in
+    # rule 15 as clauses (d) and (e).
+    # THE RAIL: numbering NEVER changes. 16 and 17 keep their numbers as one-line
+    # pointers, so every referee message, RULE_VERIFY row and pin that cites them
+    # stays true. These checks are what guarantee the merge lost nothing.
+    print("\nPART 3co — cluster B: 16 and 17 fold into 15 (build ji)")
+    import tutor
+    note = tutor.GRAPH_TOOL_NOTE
+    check("rules 16 and 17 still exist, as pointers into their new home",
+          "16. A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION" in note
+          and "The whole protocol lives in rule 15(d)" in note
+          and "17. NEVER ANSWER YOUR OWN QUESTION IN THE SAME BREATH." in note
+          and "The whole protocol lives in rule 15(e)" in note,
+          "a merged rule lost its number -- every referee message and pin citing it "
+          "now points at nothing")
+    check("rule 15 is the home: (d) substitution/check, (e) never answer yourself",
+          "(d) A SUBSTITUTION OR CHECK QUESTION RE-WRITES ITS EQUATION (rule 16's home)" in note
+          and "(e) NEVER ANSWER YOUR OWN QUESTION IN THE SAME BREATH (rule 17's home)" in note,
+          "the protocols were absorbed without a home to absorb them into")
+    for ph, why in (
+            ("NOT JUST THE SUBSTITUTION", "16's original-equation demand"),
+            ("Never speak the phrase \"the original equation\" unless this reply shows it",
+             "16's prohibition"),
+            ("THE BOARD IS PART OF THE SAME BREATH", "17's board clause"),
+            ("COMES BEFORE YOU CONFIRM", "17's ask-first clause"),
+            ("never bolt an escape hatch onto a check", "17's escape-hatch ban"),
+            ("never speak or write the number of objects you drew", "17's counting clause")):
+        check(f"  merge kept: {why}", ph in note,
+              f"the merge dropped a prescription: {ph!r}")
+    check("the referees that cite 16 and 17 still name them",
+          "Rule 16: a " in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read()
+          and "Rule 17: a " in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "a referee cites a rule number the rulebook no longer answers to")
+
+
 def part3bb_no_lost_exchange():
     print("\nPART 3bb — no exchange can be lost (build hk)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -13914,6 +13957,7 @@ def main():
     part3cl_readable_axes()
     part3cm_orphan_step()
     part3cn_resume_and_place()
+    part3co_cluster_b()
     part3ai_deploy_stamp()
     if live:
         part4_live()

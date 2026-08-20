@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-19  APP_BUILD -> "2026-08-19ji-cluster-b-merged". BUILD ji --
+#               CONSOLIDATION BATCH 2, CLUSTER B. Rules 16 and 17 fold into rule 15
+#               as clauses (d) and (e): 16 was literally 15(a) applied to
+#               substitution/check questions (its own text said so), 17 is its mirror
+#               (the asking reply must not carry the answer). Numbering FROZEN per the
+#               rails -- 16 and 17 keep their numbers as one-line pointers, so every
+#               referee message and pin citing them stays true. PART 3co pins all six
+#               absorbed prescriptions.
+#               ⚠️ MEASURED HONESTLY: the merge saved only ~350 chars, NOT the ~3.0K
+#               the proposal projected -- that figure was the CLUSTER SIZE (15+16+17 =
+#               5,914), not the overlap. The rules are almost all prescription, so
+#               merging buys structure, not bytes. Cluster C measures even smaller
+#               (22+24 = 1,887 total, ~200 of real overlap) and is NOT worth the churn.
+#               If prompt size must come down for latency, the lever is the four
+#               biggest rules (63: 5,108 · 61: 4,335 · 19: 4,099 · 49: 3,419), not
+#               more merges. Proposal doc updated with the measured numbers.
 #   2026-08-19  APP_BUILD -> "2026-08-19jh-the-board-says-where". BUILD jh -- three
 #               catches from one resumed lesson on 24368 + 8175. (1) REFEREE 36: the
 #               board carried "43" under the line (ones and tens done, HUNDREDS next)
@@ -8720,7 +8736,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-19jh-the-board-says-where"
+APP_BUILD = "2026-08-19ji-cluster-b-merged"
 
 
 @app.get("/health")
