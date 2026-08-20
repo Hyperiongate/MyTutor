@@ -6903,6 +6903,8 @@ def part3w_generalizations():
     print("\nPART 3w — a generalization carries its condition (rule 61)")
     here = os.path.dirname(os.path.abspath(__file__))
     note = tutor.GRAPH_TOOL_NOTE
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as _fh3w:
+        tutor_src_3w = _fh3w.read()          # build jl: the sweep-wiring pin below
 
     check("rule 61 lives in the shared block exactly once",
           note.count("61. A GENERALIZATION CARRIES ITS CONDITION") == 1,
@@ -6948,6 +6950,10 @@ def part3w_generalizations():
          re.compile(r"when they don'?t,? you'?ve got a jump", re.I)),
         ("the plus-or-minus always yields two answers",
          re.compile(r"means you (?:actually )?get two answers", re.I)),
+        # ---- the costume the night watch caught LIVE on 2026-08-20 (build jl) ----
+        ("multiply/divide ALWAYS before add/subtract, no grouping condition",
+         re.compile(r"(?:multiplying and dividing|multiplication and division)"
+                    r"[^.!?]{0,40}always", re.I)),
     ]
     AUTHORED = ("prompts.py", "foundations.py", "notation.py", "curriculum.py")
     for fname in AUTHORED:
@@ -6984,6 +6990,51 @@ def part3w_generalizations():
         check(f"  a TRUE absolute is still said plainly: {label}", needle in fnd,
               "rule 61(d): hedging a true sentence is its own failure -- these must "
               "stay crisp")
+
+    # ---- build jl: RULE 61 IS NOW ENFORCED ON A LIVE REPLY (the 37th referee) ----
+    # The 2026-08-20 night watch caught the sentence below from the real tutor, which
+    # proves the prompt alone does not hold: rule 61(c) already carried this exact
+    # NOT/BUT pair. These pins are the promotion, and they matter in BOTH directions --
+    # a referee that cannot be satisfied is worse than no referee (build iz).
+    _pl = tutor.overgeneralized_precedence_conflict
+    _CAUGHT = "Multiplying and dividing always happen before adding and subtracting."
+    fired = _pl(_CAUGHT)
+    check("rule 61 live: the night watch's own sentence is caught", bool(fired),
+          "the 2026-08-20 confirmed finding would ship to a child again")
+    check("rule 61 live: the nudge NAMES ITS EVIDENCE",
+          "Multiplying and dividing always happen" in (fired or ""),
+          "build iz: a referee that will not say what it saw cannot be debugged")
+    check("rule 61 live: the nudge DICTATES the fix",
+          "when there are no grouping symbols like parentheses" in (fired or ""),
+          "build it: a nudge that names no fix burns all three attempts")
+    check("rule 61 live: a bare law is caught too",
+          bool(_pl("Multiplication always comes first, before addition.")),
+          "only the one costume is caught -- the class is not")
+    # THE SILENCES. Each of these is a reply the referee must NOT touch.
+    for label, text in (
+            ("the corrected sentence itself",
+             "When there are no grouping symbols like parentheses, multiplication and "
+             "division happen before addition and subtraction."),
+            ("a conditional teaching sentence (no universality marker)",
+             "Here we multiply before we add, because nothing is grouped together."),
+            ("the same claim WITH the condition in another sentence",
+             "Multiplication always happens before addition. That is true whenever "
+             "there are no parentheses to change it."),
+            ("a PEMDAS listing",
+             "Parentheses, Exponents, Multiplication and Division, Addition and "
+             "Subtraction -- always in that order."),
+            ("arithmetic with no precedence claim at all",
+             "Three plus two is five, and five times four is twenty."),
+            ("a BOARD line, never spoken",
+             '[[step "multiplication always before addition"]]'),
+            ("an empty reply", ""),
+            ("a non-string", None)):
+        check(f"  rule 61 live: silent on {label}", _pl(text) == "",
+              "a false fire costs an entire extra model call and a worse reply")
+    check("rule 61 live: the referee rides the sweep",
+          "overgeneralized_precedence_conflict(reply)" in tutor_src_3w
+          and '_event("referee_fire", "precedencelaw"' in tutor_src_3w,
+          "the referee exists but nothing calls it -- rule 61 is still words alone")
 
 
 # =============================================================================

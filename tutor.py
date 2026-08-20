@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jl -- RULE 61 GOES LIVE: the THIRTY-SEVENTH referee,
+#               overgeneralized_precedence_conflict. The night watch's only confirmed
+#               finding of 2026-08-20 was the tutor telling a prealgebra student
+#               "Multiplying and dividing always happen before adding and subtracting"
+#               -- false, and stage one of the rule being taught. Rule 61(c) already
+#               carried that exact NOT/BUT pair, so the tutor was TOLD and said it in a
+#               new costume: the gap was enforcement, not words. Three conditions, all
+#               required (spoken prose only; a universality marker in the same sentence;
+#               no grouping symbol anywhere in the reply), so a legitimate "here we
+#               multiply before we add" is untouched and the fix the nudge dictates is
+#               always reachable -- the property build iz's phantom lacked. PART 3w
+#               gains the live pins and the new costume joins its authored-content ban
+#               list. Rule 61 stops being prompt-covered for live replies.
 #   2026-08-19  BUILD jh -- REFEREE 36, THE COLUMN PLACE. Jim resuming a session on
 #               24368 + 8175: the board carried "43" under the line (ones and tens
 #               done, HUNDREDS next) and the tutor announced "ten-thousands: 2 + 1 =
@@ -4091,6 +4104,90 @@ def column_place_conflict(reply: str):
         return ""
 
 
+# =============================================================================
+# BUILD jl -- RULE 61, THE PRECEDENCE-AS-LAW CHECK (the THIRTY-SEVENTH referee).
+# =============================================================================
+# 2026-08-20, the night watch's only confirmed finding (prealgebra, order-of-operations):
+#
+#     "Multiplying and dividing always happen before adding and subtracting."
+#
+# False as written -- in (3 + 2) x 4 the addition goes first -- and it is stage ONE of
+# the very rule being taught.
+#
+# WHY THIS ONE EARNS A REFEREE RATHER THAN MORE WORDS. Rule 61(c) ALREADY carries this
+# exact case: NOT "multiplication first, then addition, every time" ... BUT "in an
+# expression with no grouping symbols, multiply before you add." The tutor was told, and
+# said it anyway, in a costume the rule's wording did not cover. Adding an eleventh
+# NOT/BUT pair would grow the prompt and change nothing. Rule 61's own preamble says why
+# nothing catches it -- "no calculator can catch them, because there is no arithmetic in
+# the word 'always'" -- and that is true of a CALCULATOR, not of a referee. PART 3w has
+# banned the authored costumes by PATTERN since build el; this promotes the same
+# technique to the live reply, which is where a child actually hears it.
+#
+# NARROW, ON PURPOSE -- three conditions, ALL required. Build iz's phantom is the
+# standing lesson: a referee that fires on a shape the model cannot fix burns all three
+# attempts and ships the flawed reply anyway.
+#   (a) the SPOKEN prose (tags stripped -- a board line is not a spoken law) contains,
+#       inside ONE sentence and in this order, a multiply/divide word, a precedence
+#       word, and an add/subtract word;
+#   (b) that same sentence is spoken as a LAW -- it carries a universality marker
+#       (always / every time / all the time / never / whenever / no matter what).
+#       "Here we multiply before we add" is teaching, not a false law, and is left alone;
+#   (c) the reply mentions NO grouping symbol ANYWHERE (parenthes- / paren / bracket /
+#       grouping). ONE mention anywhere buys silence -- deliberately generous, because a
+#       missed overgeneralization costs one sentence while a false fire costs an entire
+#       extra model call and a worse reply.
+# The fix is one clause long and the nudge dictates it verbatim, so this referee is
+# ALWAYS SATISFIABLE -- the property the phantom lacked.
+_PL_MUL = (r"(?:multiplication|multiplying|multiplies|multiply|"
+           r"division|dividing|divides|divide|times)")
+_PL_ADD = (r"(?:addition|adding|adds|add|"
+           r"subtraction|subtracting|subtracts|subtract|plus|minus)")
+_PL_BEFORE = (r"(?:before|first|ahead of|outrank\w*|"
+              r"come[s]? first|happen[s]? before|go(?:es)? before)")
+_PL_LAW = re.compile(_PL_MUL + r"[^.!?]{0,80}?" + _PL_BEFORE + r"[^.!?]{0,80}?" + _PL_ADD,
+                     re.I)
+_PL_UNIVERSAL = re.compile(
+    r"\b(?:always|every time|all the time|never|whenever|no matter what|"
+    r"in every case|in all cases)\b", re.I)
+_PL_GROUPING = re.compile(r"parenthes|paren\b|parens|bracket|grouping", re.I)
+_PL_SENTENCE = re.compile(r"[^.!?\n]+[.!?]?")
+
+
+def overgeneralized_precedence_conflict(reply: str):
+    """Return a description of an order-of-operations rule spoken as an unconditional
+    law, or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        prose = _spoken_only(reply)
+        if not prose.strip():
+            return ""
+        if _PL_GROUPING.search(prose):
+            return ""                      # (c) the condition is somewhere in the reply
+        for raw in _PL_SENTENCE.findall(prose):
+            sentence = " ".join(raw.split())
+            if not sentence:
+                continue
+            if not _PL_LAW.search(sentence):        # (a)
+                continue
+            if not _PL_UNIVERSAL.search(sentence):  # (b)
+                continue
+            quote = sentence if len(sentence) <= 140 else sentence[:137] + "..."
+            return ('you said "{q}" -- an order-of-operations rule spoken as a LAW, and '
+                    'nothing anywhere in this reply mentions a grouping symbol. Rule 61: '
+                    'a generalization carries its condition. Grouping symbols outrank '
+                    'both, so as written the sentence is FALSE -- in (3 + 2) x 4 the '
+                    'addition happens first, which is stage one of the rule you are '
+                    'teaching. Say the whole true sentence instead: "when there are no '
+                    'grouping symbols like parentheses, multiplication and division '
+                    'happen before addition and subtraction." Change nothing else about '
+                    'your reply.').format(q=quote)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[precedencelaw] crashed (fail open): {exc}")
+        _event("referee_crash", "precedencelaw", str(exc))
+        return ""
+
+
 # BUILD jg -- RULE 15(a), THE ORPHAN-STEP CHECK (the THIRTY-FIFTH referee).
 # 2026-08-19, Jim solving 3(x-2) = 2x+5 live: "instead of taking the original 3x - 6
 # = 2x + 5, then showing taking 2x from each side and then showing gives us x - 6 =
@@ -5401,7 +5498,8 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
-    THIRTY-SIX referees ride this sweep (hm added the unitplan check, ho the
+    THIRTY-SEVEN referees ride this sweep (jl added the precedence-as-law
+    check, hm added the unitplan check, ho the
     record-claim check, hr the story-units check, hz the promised-comparison
     check, ia the quiz-term check -- fed `heard`, the turn's original conversation
     text, by _create_verified -- ib the self-contained-question check, and the
@@ -5563,6 +5661,14 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if colplace:
             _event("referee_fire", "colplace", colplace)
             return colplace
+        # build jl: THIRTY-SEVENTH -- an order-of-operations rule spoken as an
+        # unconditional law (rule 61), from the 2026-08-20 night watch's only
+        # confirmed finding. Reply-only. Silent the moment the reply names a
+        # grouping symbol anywhere, so the fix is one clause and always reachable.
+        preclaw = overgeneralized_precedence_conflict(reply)
+        if preclaw:
+            _event("referee_fire", "precedencelaw", preclaw)
+            return preclaw
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.

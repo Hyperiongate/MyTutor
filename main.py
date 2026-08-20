@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jl-rule-61-goes-live". BUILD jl -- the
+#               THIRTY-SEVENTH referee: an order-of-operations rule spoken as an
+#               unconditional law is regenerated (rule 61), from the night watch's only
+#               confirmed finding of 2026-08-20. tutor.py + ruletests.py; this file for
+#               the stamp. Sequence of the morning, for the record: jj (admin.html,
+#               referee fires by name -- static, no stamp) and jk (nightwatch.py, the
+#               reviewer's second test) were each committed and pushed on their own
+#               before this one; jl supersedes jk on /health.
 #   2026-08-20  APP_BUILD -> "2026-08-20jk-the-reviewer-gets-a-second-test". BUILD jk --
 #               nightwatch.py only (this file changes for the STAMP, so /health can prove
 #               the new governor is live). The night watch's reviewer had ONE way to
@@ -8746,7 +8754,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jk-the-reviewer-gets-a-second-test"
+APP_BUILD = "2026-08-20jl-rule-61-goes-live"
 
 
 @app.get("/health")
