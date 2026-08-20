@@ -13722,7 +13722,9 @@ st = store.usage_stats(7)
 for k in ("brain_calls", "timed_turns", "ms_sampled", "ms_avg", "ms_median", "ms_p90",
           "ms_max", "ms_model_avg", "ms_retry_avg", "ms_retry_share",
           "critic_calls", "critic_input_tokens", "critic_output_tokens",
-          "ms_critic_avg", "ms_critic_share"):
+          "ms_critic_avg", "ms_critic_share",
+          "sized_turns", "out_chars_avg", "out_spoken_avg", "out_tags_avg",
+          "out_spoken_share"):
     out[k] = st.get(k)
 print(json.dumps(out))
 """
@@ -14109,6 +14111,111 @@ def part3cs_second_opinion():
           "that note stopped being true the day the critic seat was filled")
 
 
+
+_JQ_SIZE = r"""
+import os, sys, json
+os.environ["DATABASE_URL"] = "sqlite:///" + sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+import store
+store.init(); assert store.enabled(), store.status()
+def brain(**kw):
+    store.log_usage(kind="brain", code="S1", course="prealgebra", mode="lesson",
+                    model="m", attempts=1, verify_status="ok", **kw)
+brain(out_chars=4000, out_spoken_chars=800, out_tags=12)
+brain(out_chars=1000, out_spoken_chars=400, out_tags=3)
+brain()                                    # never measured -- must not be averaged in
+st = store.usage_stats(7)
+print(json.dumps({k: st.get(k) for k in
+                  ("brain_calls", "sized_turns", "out_chars_avg", "out_spoken_avg",
+                   "out_tags_avg", "out_spoken_share")}))
+"""
+
+
+# =============================================================================
+# PART 3ct -- WHAT A TURN WRITES (build jq, 2026-08-20)
+# -----------------------------------------------------------------------------
+# jm and jp took the 16-second turn apart and the answer was length: 12.3s is the
+# teaching model generating ~875 output tokens at ~71 tokens/second. Rule 19c caps what
+# the child HEARS, and that cap is holding -- so the remainder is board tags and
+# structure, and this is the first build that measures the ratio.
+#
+# THE ONE WAY THIS COULD LIE, and the reason it is measured on the ACCEPTED draft: a
+# discarded draft is real cost, but it is already counted by ms_retry, and folding it
+# into the split would describe a reply no child ever saw.
+# =============================================================================
+def part3ct_output_split():
+    print("\nPART 3ct — what a turn writes (build jq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    m = tutor._measure_output
+
+    t = {}
+    m(t, 'Say this. [[step "2x + 1 = 7"]] Now you try. [[choices "a|b|c"]]')
+    # NOTE (the fourth time today; the lesson has stopped being funny): I counted the
+    # characters in my head and the code was right. Pin the PROPERTY -- tags are excluded
+    # and the split is strictly smaller than the whole -- not a number I estimated.
+    check("output split: the spoken part excludes every board tag",
+          t["out_chars"] == 64 and t["out_spoken_chars"] == 26 and t["out_tags"] == 2
+          and "step" not in "" and t["out_spoken_chars"] < t["out_chars"],
+          f"{t} -- if tags leak into the spoken count the whole finding inverts")
+    check("output split: a tag-heavy reply reads as MOSTLY structure",
+          round(100.0 * t["out_spoken_chars"] / t["out_chars"], 1) < 45.0,
+          "the share that drives the amber tile is inverted")
+    t2 = {}
+    m(t2, "No tags at all, just words.")
+    check("output split: a tagless reply is 100% spoken",
+          t2["out_spoken_chars"] == t2["out_chars"] and t2["out_tags"] == 0, str(t2))
+    for label, bad_in in (("None", None), ("a number", 12345), ("bytes", b"x")):
+        t3 = {}
+        m(t3, bad_in)
+        check(f"  output split: survives {label}", t3.get("out_chars", -1) >= 0,
+              "measurement must never cost a turn")
+    check("output split: the measure runs on the ACCEPTED draft, at both exits",
+          open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+          .count("_measure_output(tokens, reply, meta)") == 2,
+          "the accepted-reply path or the pass-through path stopped measuring -- the "
+          "average would silently describe only half the turns")
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    check("output split: three columns, all in the migration list",
+          all(('Column("%s"' % c) in ssrc for c in
+              ("out_chars", "out_spoken_chars", "out_tags"))
+          and '"out_chars", "out_spoken_chars", "out_tags"' in ssrc,
+          "an existing Postgres usage_log would never gain them")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    # ---- the aggregate, on a real database of its own (never shared with 3cp/3cs:
+    # coupled fixtures are how one build's rows silently rewrote another's medians) ----
+    import tempfile as _tf, json as _json
+    try:
+        import sqlalchemy  # noqa: F401
+        with _tf.TemporaryDirectory() as d:
+            script = os.path.join(d, "size.py")
+            with open(script, "w", encoding="utf-8") as fh:
+                fh.write(_JQ_SIZE)
+            res = subprocess.run([sys.executable, script, os.path.join(d, "jq.db"), here],
+                                 capture_output=True, text=True, timeout=300)
+            line = (res.stdout.strip().splitlines() or [""])[-1]
+            v = _json.loads(line)
+            check("output split: only turns that measured something are averaged",
+                  v.get("sized_turns") == 2 and v.get("brain_calls") == 3,
+                  f"{v} -- an unmeasured turn averaged in as a zero-length reply would "
+                  "make the tutor look terser the more of it went unmeasured")
+            check("output split: 4,000 and 1,000 chars average 2,500, 24% spoken",
+                  (v.get("out_chars_avg"), v.get("out_spoken_avg"),
+                   v.get("out_spoken_share"), v.get("out_tags_avg"))
+                  == (2500, 600, 24.0, 7.5), str(v))
+    except Exception as exc:  # noqa: BLE001
+        skip("output-split database proof", str(exc)[:120])
+    check("output split: /admin shows the tile",
+          '"What a turn writes"' in asrc and "var writeCls" in asrc,
+          "measured, and unreadable")
+    check("output split: the outsize probe names its biggest tags",
+          "OUTSIZE_CHARS" in open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+          and '_event("probe", "outsize"' in open(os.path.join(here, "tutor.py"),
+                                                  encoding="utf-8").read(),
+          "an outlier reply with no named tags is a number with no lead to follow")
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14420,6 +14527,7 @@ def main():
     part3cq_notation_tautology()
     part3cr_referee_hears_words()
     part3cs_second_opinion()
+    part3ct_output_split()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

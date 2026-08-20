@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jq -- WHAT THE TURN WRITES. jm/jp measured that 77% of a
+#               16-second turn is the model serially generating ~875 output tokens;
+#               this says which 875. usage_log gains out_chars / out_spoken_chars /
+#               out_tags (additive, same migration), measured on the ACCEPTED draft so
+#               a discarded one cannot skew the split, and usage_stats reports
+#               sized_turns + the averages + out_spoken_share. Characters rather than
+#               tokens on purpose: the API reports tokens for the whole turn INCLUDING
+#               retries, so only the text actually in hand can be split honestly.
 #   2026-08-20  BUILD jp -- THE SECOND OPINION BECOMES VISIBLE. LIVE_CRITIC is set in
 #               production with LIVE_CRITIC_MODEL=claude-opus-5, so a whole extra model
 #               reads every accepted draft -- and it was invisible in BOTH directions:
@@ -1023,6 +1031,15 @@ def init():
             # jm's ms_model wrapped only the TEACHING call -- so the critic's seconds
             # were landing in "referees and our own work" and being read as overhead.
             Column("ms_critic", Integer, default=0),
+            # BUILD jq (2026-08-20): WHAT THE TURN ACTUALLY WROTE. jm/jp proved 77% of a
+            # 16-second turn is the model serially generating ~875 output tokens. These
+            # say WHICH 875 -- measured on the ACCEPTED draft, so a discarded one cannot
+            # flatter or inflate the split. Characters, not tokens: the API reports
+            # tokens for the whole turn including retries, and only the text in hand can
+            # be split honestly.
+            Column("out_chars", Integer, default=0),         # accepted reply, whole
+            Column("out_spoken_chars", Integer, default=0),  # what the child HEARS
+            Column("out_tags", Integer, default=0),          # board tags in it
             # ms_total - ms_model = referees + our own work. ms_retry is Lever 1 of the
             # 2026-08-20 responsiveness proposal made countable. A row that predates jm,
             # or a turn that was never timed, carries 0 in all three -- and usage_stats
@@ -1165,7 +1182,8 @@ def _migrate_usage_log_timing():
         print(f"[store] usage_log timing migration could not inspect "
               f"(non-fatal): {_redact(str(exc))}")
         return
-    for name in ("ms_total", "ms_model", "ms_retry", "ms_critic"):
+    for name in ("ms_total", "ms_model", "ms_retry", "ms_critic",
+                 "out_chars", "out_spoken_chars", "out_tags"):
         if name in cols:
             continue
         try:
@@ -3601,7 +3619,8 @@ def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model
               cache_write_tokens: int = 0, tts_chars: int = 0, tts_cache_hit: bool = False,
               attempts: int = 1, verify_status: str = "",
               ms_total: int = 0, ms_model: int = 0, ms_retry: int = 0,
-              ms_critic: int = 0) -> None:
+              ms_critic: int = 0, out_chars: int = 0,
+              out_spoken_chars: int = 0, out_tags: int = 0) -> None:
     """Record one paid event (a tutor brain turn or a TTS request). COUNTS ONLY -- no
     conversation text ever. Fire-and-forget: every error is swallowed and printed,
     because usage logging must NEVER break or slow a lesson. No-op when the DB is off
@@ -3627,6 +3646,9 @@ def log_usage(kind: str, code: str = "", course: str = "", mode: str = "", model
                 ms_model=max(0, int(ms_model or 0)),
                 ms_retry=max(0, int(ms_retry or 0)),
                 ms_critic=max(0, int(ms_critic or 0)),
+                out_chars=max(0, int(out_chars or 0)),
+                out_spoken_chars=max(0, int(out_spoken_chars or 0)),
+                out_tags=max(0, int(out_tags or 0)),
                 created_at=_now()))
     except Exception as exc:  # noqa: BLE001
         print(f"[store] log_usage failed (non-fatal): {_redact(str(exc))}")
@@ -3710,6 +3732,11 @@ def usage_stats(days: int = 7) -> dict:
            "critic_calls": 0, "critic_input_tokens": 0, "critic_output_tokens": 0,
            "critic_cache_read_tokens": 0, "critic_cache_write_tokens": 0,
            "ms_critic_avg": 0, "ms_critic_share": 0.0,
+           # build jq -- the output split, averaged over turns that actually wrote
+           # something. spoken_share is the fraction of the accepted reply the child
+           # HEARS; the rest is board tags and structure.
+           "sized_turns": 0, "out_chars_avg": 0, "out_spoken_avg": 0,
+           "out_tags_avg": 0.0, "out_spoken_share": 0.0,
            "timed_turns": 0, "ms_sample_cap": TIMING_SAMPLE, "ms_sampled": 0,
            "ms_avg": 0, "ms_median": 0, "ms_p90": 0, "ms_max": 0,
            "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
@@ -3764,6 +3791,22 @@ def usage_stats(days: int = 7) -> dict:
                 select(U.c.ms_total, U.c.ms_model, U.c.ms_retry, U.c.ms_critic)
                 .where(timed).order_by(U.c.created_at.desc())
                 .limit(TIMING_SAMPLE)).fetchall()))
+            # build jq: what a turn writes. Only rows that measured something.
+            sized = brain & (U.c.out_chars > 0)
+            srow = conn.execute(select(
+                func.count(),
+                func.coalesce(func.sum(U.c.out_chars), 0),
+                func.coalesce(func.sum(U.c.out_spoken_chars), 0),
+                func.coalesce(func.sum(U.c.out_tags), 0),
+            ).where(sized)).fetchone()
+            _n = int(srow[0] or 0)
+            out["sized_turns"] = _n
+            if _n:
+                _tot, _spk = int(srow[1] or 0), int(srow[2] or 0)
+                out["out_chars_avg"] = int(round(_tot / _n))
+                out["out_spoken_avg"] = int(round(_spk / _n))
+                out["out_tags_avg"] = round(int(srow[3] or 0) / _n, 1)
+                out["out_spoken_share"] = round(100.0 * _spk / _tot, 1) if _tot else 0.0
             # build jp: the second opinion's own rows.
             crow = conn.execute(select(
                 func.count(),

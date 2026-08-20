@@ -2,6 +2,18 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  BUILD jq -- WHAT THE TURN WRITES. NEW _measure_output(): the accepted
+#               reply's whole size, the part the child HEARS (tags stripped) and how
+#               many board tags it carries, all recorded on the turn's usage row. From
+#               jm/jp's decomposition -- 12.3s of a 16s turn is the teaching model
+#               generating ~875 tokens at a normal ~71/second, so the wait is LENGTH,
+#               and rule 19c's cap governs only the spoken part. Measured on the
+#               ACCEPTED draft (a discarded one is counted by ms_retry; letting it in
+#               would describe a reply no child ever saw) and in CHARACTERS (the API's
+#               token count spans all attempts and cannot be split). A reply past
+#               OUTSIZE_CHARS (env, default 3000) also fires ONE probe naming its five
+#               biggest tags -- every turn would be ~9,000 telemetry rows a week, and
+#               the outliers are where the seconds are.
 #   2026-08-20  BUILD jp -- THE SECOND OPINION IS TIMED. LIVE_CRITIC is seated with
 #               claude-opus-5 in production, so an entire extra model reads every draft
 #               the regex referees accept, before the child sees anything. jm's ms_model
@@ -6152,6 +6164,54 @@ def _turn_ms(tokens):
         return (0, 0, 0, 0)
 
 
+# BUILD jq (2026-08-20) -- WHAT THE TURN ACTUALLY WROTE.
+# jm and jp took a 16-second turn apart: 12.3s of it is the teaching model, and
+# 596,500 output tokens over 682 turns is ~875 tokens a turn at ~71 tokens/second.
+# The model is not slow. It is WRITING A LOT. Build jd capped what the child HEARS at
+# 110 words and that cap held -- so the rest is board tags, chips, choices, structure,
+# and nobody has ever measured the ratio.
+#
+# Measured on the ACCEPTED draft only: a discarded one is real cost, but it is counted
+# by ms_retry, and letting it into the split would describe a reply no child ever saw.
+# CHARACTERS, not tokens -- the API's output_tokens covers the whole turn including
+# retries, so it cannot be split; the text in hand can.
+OUTSIZE_CHARS = int(os.environ.get("OUTSIZE_CHARS", "3000") or 3000)
+_JQ_TAG_NAME = re.compile(r"\[\[\s*([\w-]+)")
+_JQ_TAG_WHOLE = re.compile(r"\[\[[^\]]*\]\]")
+
+
+def _measure_output(tokens, reply, meta=None):
+    """Record the accepted reply's size split on the turn's dict. Never raises.
+
+    Also fires ONE probe -- named, with the biggest tags -- when a reply runs past
+    OUTSIZE_CHARS. Every turn would be ~9,000 telemetry rows a week; the outliers are
+    where the seconds actually are, and they are the ones worth having faces for."""
+    try:
+        text = str(reply or "")
+        spoken = _spoken_only(text)
+        tokens["out_chars"] = len(text)
+        tokens["out_spoken_chars"] = len(spoken)
+        names = _JQ_TAG_NAME.findall(text)
+        tokens["out_tags"] = len(names)
+        if len(text) < OUTSIZE_CHARS:
+            return
+        sizes = {}
+        for whole in _JQ_TAG_WHOLE.findall(text):
+            m = _JQ_TAG_NAME.match(whole)
+            nm = (m.group(1) if m else "?").lower()
+            hit = sizes.setdefault(nm, [0, 0])
+            hit[0] += 1
+            hit[1] += len(whole)
+        top = sorted(sizes.items(), key=lambda kv: -kv[1][1])[:5]
+        detail = ("chars=%d spoken=%d tags=%d · %s" % (
+            len(text), len(spoken), len(names),
+            " ".join("%s=%dx%d" % (nm, c, b) for nm, (c, b) in top)))
+        _event("probe", "outsize", detail,
+               (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+    except Exception as exc:  # noqa: BLE001 -- measurement must never cost a turn
+        print(f"[outsize] measure crashed (ignored): {exc}")
+
+
 def _log_brain_usage(meta, model, tokens, attempts, verify_status):
     """Hand one brain turn's consumption to the store (fire-and-forget; never raises)."""
     if store is None or not meta:
@@ -6164,7 +6224,10 @@ def _log_brain_usage(meta, model, tokens, attempts, verify_status):
                         cache_read_tokens=tokens.get("cr", 0), cache_write_tokens=tokens.get("cw", 0),
                         attempts=attempts, verify_status=verify_status,
                         ms_total=ms_total, ms_model=ms_model, ms_retry=ms_retry,
-                        ms_critic=ms_critic)
+                        ms_critic=ms_critic,
+                        out_chars=int(tokens.get("out_chars", 0) or 0),
+                        out_spoken_chars=int(tokens.get("out_spoken_chars", 0) or 0),
+                        out_tags=int(tokens.get("out_tags", 0) or 0))
     except Exception as exc:  # noqa: BLE001
         print(f"[usage] log failed (non-fatal): {exc}")
 
@@ -6585,6 +6648,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                 status = "prose-unresolved"
             if critic_detail:
                 status = "critic-unresolved"   # build iv: visible in the usage log
+            _measure_output(tokens, reply, meta)          # build jq
             _log_brain_usage(meta, model, tokens, attempt, status)
             return mathcheck.strip_verify_tags(reply)
         print(f"[mathcheck]{log_prefix} WRONG on attempt {attempt}/{MATHCHECK_MAX_ATTEMPTS}: {detail}")
@@ -6597,6 +6661,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     print(f"[mathcheck]{log_prefix} UNRESOLVED after {MATHCHECK_MAX_ATTEMPTS} attempts -- passing through")
     _event("pass_through", "mathcheck", str(detail),
            (meta or {}).get("code", ""), (meta or {}).get("course", ""))
+    _measure_output(tokens, reply, meta)                  # build jq
     _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "unresolved")
     return mathcheck.strip_verify_tags(reply)
 

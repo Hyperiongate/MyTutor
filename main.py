@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-20  APP_BUILD -> "2026-08-20jq-what-a-turn-writes". BUILD jq --
+#               store.py + tutor.py + static/admin.html + ruletests.py; this file for
+#               the stamp. jm and jp took the 16-second turn apart and found 12.3s of it
+#               is the teaching model writing ~875 output tokens at a perfectly normal
+#               ~71 tokens/second -- so the wait is LENGTH, not the prompt, not the
+#               referees (those are ~1s of the whole thing). Rule 19c caps what the
+#               child HEARS and that cap is holding, so the rest is board tags and
+#               structure -- a ratio nobody had ever measured. jq measures it.
 #   2026-08-20  APP_BUILD -> "2026-08-20jp-the-second-opinion-is-visible". BUILD jp --
 #               store.py + tutor.py + static/admin.html + ruletests.py; this file for
 #               the stamp AND for critic pricing. LIVE_CRITIC=anthropic with
@@ -8808,7 +8816,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jp-the-second-opinion-is-visible"
+APP_BUILD = "2026-08-20jq-what-a-turn-writes"
 
 
 @app.get("/health")

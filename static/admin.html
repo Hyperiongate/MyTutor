@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <!--
+    (jq) 2026-08-20 -- WHAT A TURN WRITES. Builds jm and jp took the 16-second turn
+    apart: 12.3s of it is the teaching model, and ~875 output tokens at ~71 tokens a
+    second is not a slow model, it is a LONG REPLY. Rule 19c caps what the child HEARS
+    and Jim's screenshots show that cap holding, so the remainder is board tags, chips,
+    choices and structure -- and nobody had ever measured the ratio. NEW "What a turn
+    writes" tile: the accepted reply's average size, what share of it is spoken, how
+    many board tags it carries, and how many turns were measured. AMBER BELOW 25%
+    SPOKEN, because that is the shape where a child waits mostly for text they will
+    never hear. Replies past OUTSIZE_CHARS also fire an `outsize` probe naming their
+    five biggest tags -- read those in the Telemetry card's other-events table.
+
     (jp) 2026-08-20 -- THE SECOND OPINION GETS A TILE. LIVE_CRITIC is seated in
     production with claude-opus-5: an entire extra model reads every draft the regex
     referees accept, before the child sees a word of it. It was invisible in both
@@ -626,6 +637,10 @@
     // build jp: the second opinion is a whole extra model call on every accepted
     // draft. Amber at 15% of turn time, red at 30% -- at that point it is the single
     // largest thing standing between a child's answer and the tutor's reply.
+    // build jq: when most of what the model writes is never heard, the child is
+    // waiting on structure. Amber below a quarter spoken.
+    var writeCls = !u7.sized_turns ? ""
+                   : (Number(u7.out_spoken_share || 0) < 25 ? "warn" : "good");
     var criticShare = Number(u7.ms_critic_share || 0);
     var criticCls = !u7.critic_calls ? "" : (criticShare >= 30 ? "bad"
                                              : (criticShare >= 15 ? "warn" : "good"));
@@ -655,6 +670,12 @@
         s: u7.timed_turns
              ? (u7.ms_retry_share || 0) + "% of all turn time — a retry is an ENTIRE extra model call"
              : "nothing timed yet" },
+      { l: "What a turn writes", v: big(u7.out_chars_avg), cls: writeCls,
+        s: u7.sized_turns
+             ? (u7.out_spoken_share || 0) + "% of it is SPOKEN · "
+               + (u7.out_tags_avg || 0) + " board tags · "
+               + num(u7.sized_turns) + " turns measured"
+             : "nothing measured yet — push jq, then teach a lesson" },
       { l: "Tokens in / out", v: big(u7.input_tokens) + " / " + big(u7.output_tokens),
         s: "cached-in: " + big(u7.cache_read_tokens) + " · 30d: " + big(u30.input_tokens) + " / " + big(u30.output_tokens) },
       { l: "Est. brain cost", v: usd(u7.brain_usd), cls: u7.brain_usd !== null && u7.brain_usd !== undefined ? "good" : "",
