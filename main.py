@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21jx-single-digit-said-plainly". BUILD jx --
+#               lessonscripts.py + ruletests.py; this file for the stamp. Jim's second
+#               wording ruling ("we're adding SINGLE-DIGIT numbers -- one through
+#               nine -- that's how I would say it"): the four lessons are renamed by
+#               their INPUTS and the validator's new a_max/b_max caps make every bank
+#               provably match its name (it caught L2's 10−6 and L4's 20−10 on the
+#               spot). NEW lessons 5 (Tens and ones) and 6 (Adding two-digit numbers,
+#               no carrying -- validator-enforced, abstract-only levels). The course
+#               is now SIX lessons, ~$10 of audio total.
 #   2026-08-21  APP_BUILD -> "2026-08-21jw-the-first-four-lessons". BUILD jw -- THE
 #               COURSE TAKES SHAPE. lessonscripts.py grows to FOUR verified lessons
 #               (adding up to 10 -- reworded to Jim's plain-language ruling: the goal
@@ -9113,7 +9122,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21jw-the-first-four-lessons"
+APP_BUILD = "2026-08-21jx-single-digit-said-plainly"
 
 
 @app.get("/health")

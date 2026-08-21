@@ -14379,11 +14379,17 @@ def part3cv_scripted_engine():
         fails = [(lab, det) for ok, lab, det in results if not ok]
         check(f"{_les['id']} passes ALL {len(results)} authoring checks", not fails,
               str(fails[:4]))
-    check("jim's wording ruling: the bound is said PLAINLY, never 'within'",
-          "ten or smaller" in L.LESSONS[0]["teach"][0][0]
+    check("jim's wording rulings: lessons are named by their INPUTS, plainly",
+          "single-digit numbers" in L.LESSONS[0]["topic"]
+          and "one through nine" in L.LESSONS[0]["teach"][0][0]
           and all("within" not in s.lower()
                   for les in L.LESSONS for s in L.audio_lines(les)),
-          "2026-08-21: 'adding within 10' is curriculum-speak -- say what it means")
+          "2026-08-21, twice: 'adding within 10' is curriculum-speak, and the honest "
+          "name is the INPUTS -- 'we're adding single-digit numbers, one through nine'")
+    check("lesson six NEVER drops to counting stars",
+          L.LESSON_BY_ID["basic-u1-add-two-digit-no-carry"].get("levels")
+          == ("abstract",),
+          "dropping a struggling child to counting 37 stars one at a time is not help")
 
     # ---- 2. the settings are the ruling's, verbatim ----
     check("settings: advance on 3-in-a-row, min 4, cap 10, drop after 2",

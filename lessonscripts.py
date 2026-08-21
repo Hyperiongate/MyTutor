@@ -2,6 +2,22 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD jx -- JIM'S SECOND WORDING RULING + LESSONS FIVE AND SIX.
+#               Jim, on jw's names: "What I meant to say is we're going to be adding
+#               or subtracting SINGLE-DIGIT numbers -- numbers one through nine.
+#               That's how I would say it." Lessons are now named by their INPUTS,
+#               the way a person says it: "Adding single-digit numbers", "Taking away
+#               single-digit numbers", "...past ten", "...from bigger numbers" -- and
+#               the validator grew a_max/b_max so the bank PROVABLY matches the name
+#               (L2's 10−6 and L4's 20−10 were quietly violating it; both replaced).
+#               NEW LESSONS: 5. "Tens and ones" (teen numbers as one ten and some
+#               ones -- a new op "t", answer = 10a+b, so the answer key stays
+#               computed) and 6. "Adding two-digit numbers" (no carrying -- and the
+#               validator ENFORCES no-carry on every bank problem, so a carrying
+#               problem cannot sneak into the lesson that promises none). Lessons may
+#               now declare their own representation levels: lesson 6 is
+#               abstract-only, because dropping a struggling child to counting 37
+#               stars one at a time would be the opposite of help.
 #   2026-08-21  BUILD jw -- THE FIRST FOUR LESSONS (the course takes shape). Jim's
 #               playtest verdict on the pilot: "very, very impressive. I think it's
 #               what we want" -- and his wording ruling: say it PLAINLY. "Adding
@@ -87,8 +103,14 @@ LINE_END_GRACEFUL = ("We did some strong thinking today. We'll practice this aga
 
 def ans(p):
     """The one place an answer is computed. Problems are DATA (a, b, op) -- a wrong
-    answer key cannot exist in this file, because none is ever typed."""
-    return p["a"] - p["b"] if p.get("op") == "-" else p["a"] + p["b"]
+    answer key cannot exist in this file, because none is ever typed.
+    ops: "+" a+b · "-" a-b · "t" tens-and-ones, a tens + b ones = 10a+b."""
+    op = p.get("op", "+")
+    if op == "-":
+        return p["a"] - p["b"]
+    if op == "t":
+        return 10 * p["a"] + p["b"]
+    return p["a"] + p["b"]
 
 
 # =============================================================================
@@ -99,17 +121,19 @@ LESSONS = [
     {
         "id": "basic-u1-add-up-to-10",
         "course": "basic", "unit": 1,
-        "topic": "Adding numbers up to 10",
-        "op": "+", "max_value": 10,
+        "topic": "Adding single-digit numbers",
+        "op": "+", "max_value": 10, "a_max": 9, "b_max": 9,
         "symbols": ("plus", "equals"),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can add numbers up to ten."),
+                         "You can add single-digit numbers."),
         "teach": [
-            # Jim's wording ruling, 2026-08-21: say the bound PLAINLY.
+            # Jim's wording rulings, 2026-08-21: name the lesson by its INPUTS, the
+            # way a person says it -- "we're adding single-digit numbers, the
+            # numbers one through nine."
             ("Today we are learning to add. Adding means putting two groups "
-             "together and counting how many there are in all. Today, every "
-             "answer will be ten or smaller.",
-             '[[goal text="Adding numbers up to 10"]]'),
+             "together and counting how many there are in all. We will add "
+             "single-digit numbers — the numbers one through nine.",
+             '[[goal text="Adding single-digit numbers"]]'),
             ("Here are three stars. And here are two more stars. Let's put the "
              "groups together and count every star: one, two, three, four, five. "
              "There are five stars in all.",
@@ -152,16 +176,17 @@ LESSONS = [
     {
         "id": "basic-u1-take-away-up-to-10",
         "course": "basic", "unit": 1,
-        "topic": "Taking away — numbers up to 10",
-        "op": "-", "max_value": 10,
+        "topic": "Taking away single-digit numbers",
+        "op": "-", "max_value": 10, "a_max": 9, "b_max": 9,
         "symbols": ("minus", "equals"),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can take away with numbers up to ten."),
+                         "You can take away single-digit numbers."),
         "teach": [
             ("Today we are learning to take away. Taking away means starting "
              "with a group, taking some away, and counting how many are left. "
-             "Today, every number is ten or smaller.",
-             '[[goal text="Taking away — numbers up to 10"]]'),
+             "We will take away single-digit numbers — the numbers one through "
+             "nine.",
+             '[[goal text="Taking away single-digit numbers"]]'),
             ("Here are five stars. Watch me take two away. Count what is left: "
              "one, two, three. Three stars are left.",
              '[[objects emoji="⭐" groups="5" caption="start with five — take two away, then count what is left"]]'),
@@ -196,21 +221,21 @@ LESSONS = [
             {"a": 5, "b": 3, "op": "-"}, {"a": 6, "b": 2, "op": "-"},
             {"a": 6, "b": 3, "op": "-"}, {"a": 7, "b": 4, "op": "-"},
             {"a": 8, "b": 3, "op": "-"}, {"a": 8, "b": 5, "op": "-"},
-            {"a": 9, "b": 4, "op": "-"}, {"a": 10, "b": 6, "op": "-"},
+            {"a": 9, "b": 4, "op": "-"}, {"a": 9, "b": 5, "op": "-"},
         ],
     },
     {
         "id": "basic-u1-add-up-to-20",
         "course": "basic", "unit": 1,
-        "topic": "Adding numbers up to 20",
-        "op": "+", "max_value": 20,
+        "topic": "Adding single-digit numbers past ten",
+        "op": "+", "max_value": 20, "a_max": 9, "b_max": 9,
         "symbols": ("plus", "equals"),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can add numbers up to twenty."),
+                         "You can add single-digit numbers past ten."),
         "teach": [
-            ("You already know how to add. Today the answers get bigger — every "
-             "answer will be twenty or smaller.",
-             '[[goal text="Adding numbers up to 20"]]'),
+            ("You already know how to add single-digit numbers. Today the answers "
+             "get bigger — they will go past ten.",
+             '[[goal text="Adding single-digit numbers past ten"]]'),
             ("Watch me. Nine stars, and four more stars. I count on from nine: "
              "ten, eleven, twelve, thirteen. Nine plus four equals thirteen.",
              '[[objects emoji="⭐" groups="9" add="4" caption="count on from nine"]]'
@@ -247,15 +272,15 @@ LESSONS = [
     {
         "id": "basic-u1-take-away-up-to-20",
         "course": "basic", "unit": 1,
-        "topic": "Taking away — numbers up to 20",
-        "op": "-", "max_value": 20,
+        "topic": "Taking away from bigger numbers",
+        "op": "-", "max_value": 20, "a_max": 19, "b_max": 9,
         "symbols": ("minus", "equals"),
         "advance_line": ("Three in a row — you've got it! "
-                         "You can take away with numbers up to twenty."),
+                         "You can take away from bigger numbers."),
         "teach": [
-            ("You already know how to take away. Today we start with bigger "
-             "numbers — up to twenty.",
-             '[[goal text="Taking away — numbers up to 20"]]'),
+            ("You already know how to take away single-digit numbers. Today we "
+             "start with bigger numbers — the numbers up to nineteen.",
+             '[[goal text="Taking away from bigger numbers"]]'),
             ("Watch me. Thirteen stars, take five away. I count back from "
              "thirteen: twelve, eleven, ten, nine, eight. Thirteen minus five "
              "equals eight.",
@@ -287,7 +312,96 @@ LESSONS = [
             {"a": 13, "b": 6, "op": "-"}, {"a": 14, "b": 6, "op": "-"},
             {"a": 15, "b": 7, "op": "-"}, {"a": 15, "b": 8, "op": "-"},
             {"a": 16, "b": 7, "op": "-"}, {"a": 17, "b": 8, "op": "-"},
-            {"a": 18, "b": 9, "op": "-"}, {"a": 20, "b": 10, "op": "-"},
+            {"a": 18, "b": 9, "op": "-"}, {"a": 19, "b": 9, "op": "-"},
+        ],
+    },
+    {
+        "id": "basic-u1-tens-and-ones",
+        "course": "basic", "unit": 1,
+        "topic": "Tens and ones",
+        "op": "t", "max_value": 19, "a_max": 1, "b_max": 9,
+        "symbols": ("ten", "ones"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You know your tens and ones."),
+        "teach": [
+            ("Today we are learning about tens and ones. Ten ones, put together, "
+             "make one ten. The numbers from eleven to nineteen are one ten and "
+             "some ones.",
+             '[[goal text="Tens and ones"]]'),
+            ("Look — here is one ten, and four more ones. One ten and four ones "
+             "is fourteen.",
+             '[[objects emoji="⭐" groups="10" add="4" caption="one ten and four ones"]]'
+             '[[step eq="1 ten and 4 ones = 14"]]'),
+            ("The first digit of fourteen counts the tens. The second digit "
+             "counts the ones. 1 ten, 4 ones — fourteen.",
+             '[[step eq="14 = 1 ten and 4 ones"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. One ten and three ones. "
+                        "Ten — eleven, twelve, thirteen. 1 ten and 3 ones is "
+                        "thirteen.",
+                        '[[objects emoji="⭐" groups="10" add="3" caption="one ten and three ones"]]'
+                        '[[step eq="1 ten and 3 ones = 13"]]'),
+             "ask": {"a": 1, "b": 2, "op": "t"}},
+            {"worked": ("One more together. One ten and six ones. Count on from "
+                        "ten — sixteen. 1 ten and 6 ones is sixteen.",
+                        '[[objects emoji="⭐" groups="10" add="6" caption="one ten and six ones"]]'
+                        '[[step eq="1 ten and 6 ones = 16"]]'),
+             "ask": {"a": 1, "b": 5, "op": "t"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 1, "op": "t"}, {"a": 1, "b": 3, "op": "t"},
+            {"a": 1, "b": 4, "op": "t"}, {"a": 1, "b": 6, "op": "t"},
+            {"a": 1, "b": 7, "op": "t"}, {"a": 1, "b": 8, "op": "t"},
+            {"a": 1, "b": 9, "op": "t"},
+        ],
+    },
+    {
+        "id": "basic-u1-add-two-digit-no-carry",
+        "course": "basic", "unit": 1,
+        "topic": "Adding two-digit numbers",
+        "op": "+", "max_value": 99, "no_carry": True,
+        "levels": ("abstract",),   # dropping to counting 37 stars would not be help
+        "symbols": ("plus", "equals"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can add two-digit numbers."),
+        "teach": [
+            ("Today we are adding two-digit numbers. A two-digit number has a "
+             "tens digit and a ones digit. We add the ones first, then the tens.",
+             '[[goal text="Adding two-digit numbers"]]'),
+            ("Watch me add 23 plus 14. First the ones: 3 plus 4 equals 7. Then "
+             "the tens: 2 tens plus 1 ten equals 3 tens. So 23 plus 14 equals 37.",
+             '[[step eq="23 + 14"]][[step eq="ones: 3 + 4 = 7"]]'
+             '[[step eq="tens: 2 + 1 = 3"]][[step eq="23 + 14 = 37"]]'),
+            ("One more, watch. 31 plus 25. Ones: 1 plus 5 equals 6. Tens: 3 plus "
+             "2 equals 5. So 31 plus 25 equals 56.",
+             '[[step eq="31 + 25"]][[step eq="ones: 1 + 5 = 6"]]'
+             '[[step eq="tens: 3 + 2 = 5"]][[step eq="31 + 25 = 56"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 42 plus 16. Ones: 2 plus "
+                        "6 equals 8. Tens: 4 plus 1 equals 5. So 42 plus 16 "
+                        "equals 58.",
+                        '[[step eq="42 + 16"]][[step eq="ones: 2 + 6 = 8"]]'
+                        '[[step eq="tens: 4 + 1 = 5"]][[step eq="42 + 16 = 58"]]'),
+             "ask": {"a": 42, "b": 13, "op": "+"}},
+            {"worked": ("One more together. 34 plus 22. Ones: 4 plus 2 equals 6. "
+                        "Tens: 3 plus 2 equals 5. So 34 plus 22 equals 56.",
+                        '[[step eq="34 + 22"]][[step eq="ones: 4 + 2 = 6"]]'
+                        '[[step eq="tens: 3 + 2 = 5"]][[step eq="34 + 22 = 56"]]'),
+             "ask": {"a": 51, "b": 24, "op": "+"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 12, "b": 13, "op": "+"}, {"a": 21, "b": 14, "op": "+"},
+            {"a": 23, "b": 15, "op": "+"}, {"a": 32, "b": 16, "op": "+"},
+            {"a": 41, "b": 17, "op": "+"}, {"a": 33, "b": 26, "op": "+"},
+            {"a": 44, "b": 23, "op": "+"}, {"a": 52, "b": 25, "op": "+"},
+            {"a": 63, "b": 21, "op": "+"}, {"a": 54, "b": 33, "op": "+"},
+            {"a": 62, "b": 34, "op": "+"}, {"a": 71, "b": 26, "op": "+"},
         ],
     },
 ]
@@ -302,6 +416,13 @@ PILOT_LESSON = LESSONS[0]   # every js/jt-era pin and endpoint default still res
 # =============================================================================
 def spoken_for(p, level):
     a, b = p["a"], p["b"]
+    if p.get("op") == "t":
+        if level == "abstract":
+            return f"What number is {a} ten and {b} ones?"
+        if level == "pictorial":
+            return f"Count if you need to. What number is {a} ten and {b} ones?"
+        return (f"Let's count together. {a} ten, and {b} more ones. "
+                f"What number is that?")
     if p.get("op") == "-":
         if level == "abstract":
             return f"What is {a} minus {b}?"
@@ -319,6 +440,13 @@ def spoken_for(p, level):
 
 def board_for(p, level):
     a, b = p["a"], p["b"]
+    if p.get("op") == "t":
+        step = f'[[step eq="{a} ten and {b} ones = ?"]]'
+        if level == "abstract":
+            return step
+        stars = (f'[[objects emoji="⭐" groups="10" add="{b}" '
+                 f'caption="one ten and {b} ones"]]')
+        return stars + step
     if p.get("op") == "-":
         step = f'[[step eq="{a} − {b} = ?"]]'
         if level == "abstract":
@@ -345,6 +473,9 @@ def choices_for(p):
 
 def praise_for(p, index):
     a, b = p["a"], p["b"]
+    if p.get("op") == "t":
+        return (PRAISE_PREFIXES[index % len(PRAISE_PREFIXES)]
+                + f" {a} ten and {b} ones — that is {ans(p)}.")
     word = "minus" if p.get("op") == "-" else "plus"
     return (PRAISE_PREFIXES[index % len(PRAISE_PREFIXES)]
             + f" {a} {word} {b} equals {ans(p)}.")
@@ -366,7 +497,8 @@ def praise_for(p, index):
 #   end        {spoken, graceful, mastered, problems_done}
 # =============================================================================
 def start(lesson):
-    return {"phase": "teach", "i": 0, "level": "abstract",
+    return {"phase": "teach", "i": 0,
+            "level": lesson.get("levels", LEVELS)[0],
             "bank_i": 0, "done": 0, "streak": 0,
             "interventions": 0, "unheard": 0, "pending": None,
             "retest": None, "finished": False}
@@ -484,9 +616,10 @@ def step(lesson, state, event):
         state["done"] += 1
     state["interventions"] += 1
     if state["interventions"] >= DROP_AFTER_INTERVENTIONS:
-        li = LEVELS.index(state["level"])
-        if li + 1 < len(LEVELS):
-            state["level"] = LEVELS[li + 1]
+        lv = lesson.get("levels", LEVELS)
+        li = lv.index(state["level"])
+        if li + 1 < len(lv):
+            state["level"] = lv[li + 1]
             state["interventions"] = 0
         else:
             # already at concrete and still failing: end warmly, mark "learning"
@@ -525,7 +658,7 @@ def audio_lines(lesson):
     lines.add(lesson["practice_intro"])
     problems = list(lesson["bank"]) + [pair["ask"] for pair in lesson["pairs"]]
     for p in problems:
-        for level in LEVELS:
+        for level in lesson.get("levels", LEVELS):
             lines.add(spoken_for(p, level))
             lines.add(LINE_REASK + " " + spoken_for(p, level))
         for i in range(len(PRAISE_PREFIXES)):
@@ -550,8 +683,14 @@ _TAG_RE = re.compile(r"\[\[\s*([\w-]+)")
 
 def _difficulty_key(p):
     """The ramp is measured on what makes the problem HARD: the sum for adding,
-    the starting number for taking away (you count back from it)."""
-    return p["a"] if p.get("op") == "-" else p["a"] + p["b"]
+    the starting number for taking away (you count back from it), the ones count
+    for tens-and-ones."""
+    op = p.get("op", "+")
+    if op == "-":
+        return p["a"]
+    if op == "t":
+        return p["b"]
+    return p["a"] + p["b"]
 
 
 def validate(lesson, board_tag_names=None):
@@ -570,6 +709,26 @@ def validate(lesson, board_tag_names=None):
        str([p for p in problems if not 1 <= ans(p) <= bound]))
     ck(all(p["a"] <= bound and p["b"] <= bound for p in problems),
        f"{lid}: every number a child sees stays within {bound}", "")
+    # jx: the lesson's NAME is a promise about its INPUTS (Jim's second wording
+    # ruling) -- a_max/b_max make the bank provably match the name.
+    a_cap = lesson.get("a_max")
+    b_cap = lesson.get("b_max")
+    if a_cap is not None:
+        ck(all(p["a"] <= a_cap for p in problems),
+           f"{lid}: every first number honors the name (a <= {a_cap})",
+           str([p for p in problems if p["a"] > a_cap]))
+    if b_cap is not None:
+        ck(all(p["b"] <= b_cap for p in problems),
+           f"{lid}: every second number honors the name (b <= {b_cap})",
+           str([p for p in problems if p["b"] > b_cap]))
+    if lesson.get("no_carry"):
+        ck(all(p["a"] % 10 + p["b"] % 10 <= 9
+               and p["a"] // 10 + p["b"] // 10 <= 9 for p in problems),
+           f"{lid}: NO problem carries -- the lesson that promises no carrying "
+           f"cannot quietly require it",
+           str([p for p in problems
+                if p["a"] % 10 + p["b"] % 10 > 9
+                or p["a"] // 10 + p["b"] // 10 > 9]))
     ck(len({_problem_key(p) for p in problems}) == len(problems),
        f"{lid}: no duplicate problems", "")
 
@@ -622,7 +781,8 @@ def validate(lesson, board_tag_names=None):
     if board_tag_names:
         boards = [b for _s, b in lesson["teach"]] + \
                  [pr["worked"][1] for pr in lesson["pairs"]] + \
-                 [board_for(p, lv) for p in problems for lv in LEVELS] + \
+                 [board_for(p, lv) for p in problems
+                  for lv in lesson.get("levels", LEVELS)] + \
                  [choices_for(p) for p in problems]
         for b in boards:
             for name in _TAG_RE.findall(b):
