@@ -2,6 +2,25 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (ke) 2026-08-21 -- THE VOICE WATCHDOG TELLS THE TRUTH. Jim's kd playtest
+    heard lines "slurring and speaking nonsense". Part of that was a server-side
+    cache bug (see main.py's build ke note), but this page had its own half of
+    it: the old no-audio safety valve fired a flat 2500ms after the ticket and
+    judged the clip by `audioEl.paused || !audioEl.duration`. A CACHED clip is
+    served as a plain Response with a Content-Length, so its duration is known at
+    once and the valve stayed quiet. An UNCACHED clip is served as a chunked
+    StreamingResponse with NO Content-Length, so `duration` is NaN or Infinity
+    while it streams, and if ElevenLabs takes over 2.5s for its first byte
+    `paused` is still true. Either way the valve declared a perfectly good clip
+    dead, lit "Next" mid-sentence, and the next tap cut the line off mid-word --
+    which is why it only misbehaved while the prewarm was still running and most
+    lines were uncached. The valve is now a WATCHDOG that judges what actually
+    matters, playback PROGRESS (currentTime advancing), on the element it created
+    rather than on a shared global that a later clip may have replaced. It also
+    stops guessing about "usable": controls unlock early via onWaiting WITHOUT
+    pretending the clip failed, so a slow line is never cut short and a silent
+    one never strands the child.
+
     (kd) 2026-08-21 -- LESSONS FLOW. When a lesson ends, the page offers
     "Next lesson" straight from the course order (the server's lessons list),
     so a child rolls from counting into adding without going back to the
@@ -242,9 +261,30 @@
   }
 
   // ---------- voice: prep a ticket, stream, FALL BACK to silence ----------
-  function speak(text, onDone) {
-    var t0 = performance.now(), done = false, played = false;
-    function finish() { if (!done) { done = true; onDone && onDone(played); } }
+  // (ke) THE WATCHDOG. onDone(played) fires once, when the clip has genuinely ENDED
+  // (played=true) or genuinely failed (played=false). onWaiting fires at most once,
+  // when a clip is taking a while to start, so the caller can unlock its controls
+  // WITHOUT the page claiming the clip is dead. Never judge a streaming clip by
+  // .duration: an uncached clip is chunked, so duration is NaN/Infinity while it
+  // plays. Judge PROGRESS instead -- currentTime moving is the only honest signal.
+  var VOICE_POLL_MS = 400;    // how often we look
+  var VOICE_START_MS = 8000;  // grace for a cold ElevenLabs stream to produce a byte
+  var VOICE_WAIT_MS = 3000;   // unlock the controls (but keep listening) after this
+  var VOICE_STALL_MS = 2400;  // playing, then no progress this long => the stream died
+  var VOICE_MAX_MS = 120000;  // absolute ceiling; no scripted beat is remotely this long
+  function speak(text, onDone, onWaiting) {
+    var t0 = performance.now(), done = false, played = false, warned = false, iv = null;
+    function finish() {
+      if (done) return;
+      done = true;
+      if (iv) { clearInterval(iv); iv = null; }
+      onDone && onDone(played);
+    }
+    function warn() {
+      if (warned || done) return;
+      warned = true;
+      onWaiting && onWaiting();
+    }
     if (!text) return finish();
     fetch("/api/speak-prep", { method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -252,17 +292,34 @@
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (j) {
         if (audioEl) { try { audioEl.pause(); } catch (e) {} }
-        audioEl = new Audio("/api/speak?t=" + encodeURIComponent(j.t || ""));
-        audioEl.onended = function () { played = true; finish(); };
-        audioEl.onerror = finish;
-        audioEl.onplaying = function () {
+        var el = new Audio("/api/speak?t=" + encodeURIComponent(j.t || ""));
+        audioEl = el;                              // el stays OURS in this closure
+        el.onended = function () { played = true; finish(); };
+        el.onerror = finish;
+        el.onplaying = function () {
           if (DEV) devline("audio started " + Math.round(performance.now() - t0) + "ms after prep");
         };
-        var p = audioEl.play();
-        if (p && p.catch) p.catch(finish);        // blocked autoplay: silent mode
-        setTimeout(function () {                   // 204/no-audio safety valve
-          if (audioEl && (audioEl.paused || !audioEl.duration)) finish();
-        }, 2500);
+        var p = el.play();
+        if (p && p.catch) p.catch(finish);         // blocked autoplay: silent mode
+        var lastT = -1, stalledSince = 0;
+        iv = setInterval(function () {
+          if (done) { clearInterval(iv); iv = null; return; }
+          if (el !== audioEl) { clearInterval(iv); iv = null; return; }  // superseded
+          var now = performance.now(), waited = now - t0;
+          if (waited > VOICE_MAX_MS) return finish();
+          var t = el.currentTime || 0;
+          if (t > lastT + 0.01) {                  // genuinely playing: keep going
+            lastT = t; stalledSince = 0;
+            return;
+          }
+          if (t <= 0) {                            // has not produced a sound yet
+            if (waited > VOICE_WAIT_MS) warn();    // let them act, do NOT give up
+            if (waited > VOICE_START_MS) finish(); // no key, 204, or a dead stream
+            return;
+          }
+          if (!stalledSince) stalledSince = now;   // was playing, has stopped moving
+          else if (now - stalledSince > VOICE_STALL_MS) finish();
+        }, VOICE_POLL_MS);
       })
       .catch(finish);
   }
@@ -298,7 +355,7 @@
       speak(words, function (played) {
         b.disabled = false; b.focus();
         if (played) setTimeout(go, 650);
-      });
+      }, function () { b.disabled = false; });   // (ke) slow clip: offer Next, keep playing
       $("status").textContent = "";
       return;
     }
@@ -311,9 +368,10 @@
         ob.onclick = function () { answer(parseInt(v, 10), ctl); };
         ctl.appendChild(ob);
       });
-      speak(words, function () {
+      var enable = function () {
         ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
-      });
+      };
+      speak(words, enable, enable);              // (ke) a slow clip must not lock the answers
       $("status").textContent = step.kind === "ai" ? "Mr. Cadabra is helping — try it again!"
                                                    : (step.tap_only ? "Tap your answer." : "");
       return;

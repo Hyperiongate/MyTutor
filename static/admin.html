@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!--
+    (ke) 2026-08-21 -- THE VOICE CACHE REPAIR GETS ITS BUTTONS. Jim's kd playtest:
+    several lessons "slurring and speaking nonsense". Cause (see main.py's build ke
+    note): three TTS cache writers all named their temp file after the TEXT, so the
+    prewarm and a child's playback rendering the same line at the same moment
+    collided on one path and stored two renders spliced together. Build ke makes
+    that impossible -- but the clips already written still replay their garble,
+    because a cache HIT never re-renders. NEW card "Voice cache repair", following
+    the kb rule to the letter: ① Check it (dry run, free, deletes nothing) reports
+    how many clips are damaged; ② Remove them deletes exactly those, and they
+    re-render on next play. Then press ② on the card above to render them all at
+    once. Same api() helper, key in the X-Admin-Key header, never a URL.
+
     (kb) 2026-08-21 -- THE SCRIPTED COURSE GETS ITS AUDIO BUTTONS. Jim tried to run
     /api/admin/script-prewarm from the address bar and got "Method Not Allowed" --
     of course he did: the endpoint is POST-only and every OTHER admin action has a
@@ -421,6 +433,20 @@
       <button class="btn btn-primary" id="spRun" type="button">&#9313; Render them</button>
     </div>
     <div class="msg" id="spMsg"></div>
+  </div></section>
+
+  <!-- (ke) the voice cache repair -- see the header note -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#128296; Voice cache repair</h2>
+      <span class="note">Finds cached voice clips that are damaged &mdash; truncated, or two
+        renders spliced together by the old cache bug &mdash; and removes them so they
+        re-render clean. A child hears a damaged clip as slurring or nonsense. Checking is
+        free and deletes nothing; run &#9313; only after &#9312; shows you the count.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" id="vrCheck" type="button">&#9312; Check it (free)</button>
+      <button class="btn btn-primary" id="vrRun" type="button">&#9313; Remove the damaged ones</button>
+    </div>
+    <div class="msg" id="vrMsg"></div>
   </div></section>
 
   <!-- 2026-08-11 (build dj, Jim: "if Render falters, do we have sufficient backup so
@@ -1310,6 +1336,35 @@
             + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
             (d.failed && d.failed.length) ? "err" : "ok");
     } catch (e) { spMsg(e.message); }
+    b.disabled = false;
+  });
+  function vrMsg(t, k) { var el = $("vrMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  function vrReport(d) {
+    var s = d.scanned + " clips checked \u2014 " + d.damaged + " damaged, " + d.healthy + " healthy";
+    if (d.stray_part_files) s += ", " + d.stray_part_files + " stray temp file(s)";
+    s += ". Detector coverage " + d.xing_coverage_pct + "% of clips.";
+    return s;
+  }
+  $("vrCheck").addEventListener("click", async function () {
+    vrMsg("Checking every cached clip\u2026 this can take a minute.", "ok");
+    try {
+      var d = await api("/api/admin/tts-cache-repair", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true }) });
+      vrMsg(vrReport(d) + (d.damaged
+        ? " Nothing deleted yet \u2014 press \u2461 to remove them."
+        : " Nothing to repair."), d.damaged ? "err" : "ok");
+    } catch (e) { vrMsg(e.message); }
+  });
+  $("vrRun").addEventListener("click", async function () {
+    var b = $("vrRun"); b.disabled = true;
+    vrMsg("Removing damaged clips\u2026", "ok");
+    try {
+      var d = await api("/api/admin/tts-cache-repair", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: false }) });
+      vrMsg(vrReport(d) + " Removed " + d.damaged + " (" + d.mb_freed
+            + " MB). They re-render on next play \u2014 use \u2461 on the card above "
+            + "to render them all at once.", "ok");
+    } catch (e) { vrMsg(e.message); }
     b.disabled = false;
   });
   $("pwPrice").addEventListener("click", async function () {

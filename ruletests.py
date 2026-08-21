@@ -2,6 +2,26 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD ke -- PART 3cx, THE VOICE CACHE IS WHOLE OR IT IS NOT CACHED.
+#               Jim's kd playtest heard several lessons "slurring and speaking
+#               nonsense" while the audio prewarm ran. Root cause: all three TTS
+#               cache writers named their temp file after the TEXT, so the prewarm
+#               and a child's playback collided on one path and cached two renders
+#               spliced together. This PART proves the whole fix: 20 accept/reject
+#               cases for mp3_is_intact() (real encoder output vs. splices,
+#               truncation, zero fill, error bodies, lying Xing headers), 40 REAL
+#               threaded races against _tts_cache_store() that must never leave a
+#               corrupt entry, the refusal to cache damaged bytes, and eviction
+#               spending the generated lane before the scripted course. Plus source
+#               pins on the repair endpoint and on pilot.html's watchdog.
+#               THREE EXISTING PINS WERE REPAIRED, not weakened: the TTS cap pin now
+#               reads TTS_CACHE_MAX_MB's default (the cap moved behind an env var)
+#               and additionally pins its floor; the SILENT-mode pin now names the
+#               MECHANISM instead of the comment phrase "safety valve", because that
+#               valve WAS the bug and its name went with it. And two new pins scan
+#               code with comments stripped -- this battery documents the old broken
+#               expressions on purpose, and a pin that forbids describing a bug
+#               deletes the memory of it.
 #   2026-08-19  BUILDS in + io -- in: PART 3cb gains the glow-is-the-pointer pin (no
 #               tour line may point with layout geometry). io (the anecdote diet,
 #               batch 1): rule 49(f)'s date pin replaced with a prescription anchor
@@ -3729,7 +3749,13 @@ def part3h_scale():
           "q[-1] <= now - max(window_seconds" in src["main.py"],
           "with every bucket busy the table grows past its cap and never shrinks")
     # the caps must be real numbers, not aspirations
-    for name, pat, lo in [("TTS cache cap", r"_TTS_CACHE_MAX_BYTES\s*=\s*([\d_]+)", 1),
+    # (ke) the TTS cap moved behind TTS_CACHE_MAX_MB so Jim can raise it when the
+    # scripted course outgrows it -- so pin the DEFAULT, which is the real number,
+    # and the floor that stops a bad env value shrinking it to nothing.
+    check("the TTS cache cap has a floor a bad env value cannot get under",
+          'max(50, int(os.environ.get("TTS_CACHE_MAX_MB"' in src["main.py"],
+          "an unparseable or tiny TTS_CACHE_MAX_MB must not silently disable the cache")
+    for name, pat, lo in [("TTS cache cap (MB)", r'TTS_CACHE_MAX_MB", "(\d+)"', 50),
                           ("usage retention days", r"USAGE_LOG_DAYS[^\n]*?\"(\d+)\"", 1)]:
         mm = re.search(pat, src["main.py"])
         check(f"{name} is set", bool(mm) and int(mm.group(1).replace("_", "")) >= lo,
@@ -14648,6 +14674,292 @@ def part3cv_scripted_engine():
 
 
 # =============================================================================
+# PART 3cx -- THE VOICE CACHE IS WHOLE OR IT IS NOT CACHED (build ke, 2026-08-21)
+# -----------------------------------------------------------------------------
+# Jim's kd playtest: "several of the lessons have the voice slurring and speaking
+# nonsense", heard while the audio prewarm was running. It was NOT missing audio --
+# pilot.html has no browser-voice fallback, so a missing clip is silent, never
+# garbled. All three cache writers built their temp file from the TEXT
+# (`path.with_suffix(".part")`), so the prewarm loop and a child's playback
+# rendering the same line at the same moment opened ONE path with mode "wb": one
+# truncated what the other was writing, one renamed a half-file into place, and the
+# loser kept writing into the renamed inode -- which IS the served cache file. Two
+# renders, spliced, cached, replayed forever.
+#
+# This part proves all four halves of the fix:
+#   1. mp3_is_intact() accepts real encoder output and rejects every shape of
+#      damage -- including the SPLICE, which the frame walk alone cannot see
+#      (ElevenLabs is constant-bitrate, so spliced clips stay frame-aligned; the
+#      Xing/Info byte count is what catches them). Negative tests for a detector,
+#      per the standing discipline.
+#   2. Two writers racing on the SAME text can no longer corrupt a cache entry.
+#      Run for real, with threads, against the real function.
+#   3. The source no longer contains the shared-temp-name pattern anywhere, the
+#      repair pass exists, and eviction protects the scripted closure.
+#   4. pilot.html judges playback by PROGRESS, never by .duration on a shared global.
+# =============================================================================
+_KE_PROBE = r'''import os, sys, threading, time
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/ke.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+sys.path.insert(0, sys.argv[2])
+import struct
+import main
+
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+# ---- a real MPEG-1 Layer III CBR 44100/128k mono stream, built by hand ----
+# Header 0xFF 0xFB 0x90 0xC4: sync, MPEG-1, Layer III, no CRC, bitrate index 9
+# (=128 kbps), sample rate index 0 (=44100), no padding, channel mode 11 (mono).
+FRAME = 144 * 128000 // 44100          # 417 bytes
+def frames(n, fill=0x00):
+    return (b"\xff\xfb\x90\xc4" + bytes([fill]) * (FRAME - 4)) * n
+
+def with_xing(n, declared_frames=None, declared_bytes=None):
+    """n audio frames preceded by a Xing frame declaring the totals (LAME's
+    convention: the count EXCLUDES the Xing frame itself)."""
+    body = frames(n, 0x11)
+    total_bytes = FRAME + len(body)
+    df = n if declared_frames is None else declared_frames
+    db = total_bytes if declared_bytes is None else declared_bytes
+    side = 17                                        # MPEG-1 mono side info
+    x = (b"\xff\xfb\x90\xc4" + b"\x00" * side + b"Xing"
+         + struct.pack(">I", 0x03) + struct.pack(">I", df) + struct.pack(">I", db))
+    return x + b"\x00" * (FRAME - len(x)) + body
+
+GOOD = {
+    "real LAME clip (main.py lead-silence blob)": main._TTS_LEAD_SILENCE,
+    "plain CBR chain, no Xing": frames(30),
+    "CBR chain with a truthful Xing": with_xing(40),
+    "Xing frame count off by one (encoder convention)": with_xing(40, declared_frames=41),
+}
+for label, data in GOOD.items():
+    chk("intact accepts: " + label, main.mp3_is_intact(data) is True, str(len(data)))
+
+A, B = with_xing(40), with_xing(90)       # two DIFFERENT renders, as two lines would be
+chk("the two race fixtures really are valid on their own",
+    main.mp3_is_intact(A) and main.mp3_is_intact(B) and len(A) != len(B))
+chk("a splice stays FRAME-ALIGNED (so the walk alone could not catch it)",
+    len(A) % FRAME == 0 and len(B) % FRAME == 0,
+    "if this ever fails the splice tests below stop proving what they claim")
+
+BAD = {
+    "empty": b"",
+    "a few bytes": b"\xff\xfb\x90\xc4" * 3,
+    "JSON error body": b'{"detail":"quota exceeded"}' + b" " * 2000,
+    "HTML error page": b"<html>502 Bad Gateway</html>" + b" " * 2000,
+    "zero fill": b"\x00" * 9000,
+    "half a frame lost (truncated writer)": B[:len(B) - 200],
+    "one frame lost": B[:len(B) - FRAME],
+    "junk appended past the end": A + b"\x01\x02\x03" * 300,
+    "zeros appended past the end": A + b"\x00" * 400,
+    "SPLICE: short render over a long one": A + B[len(A):],
+    "SPLICE: long render head, short render tail": B[:len(A) // 2] + A[len(A) // 2:],
+    "Xing byte count disagrees with the file": with_xing(40, declared_bytes=99999),
+    "Xing frame count wildly wrong": with_xing(40, declared_frames=400),
+}
+for off in (FRAME, FRAME * 5, FRAME * 17):
+    BAD["SPLICE: writer A stopped at byte %d" % off] = A[:off] + B[off:]
+for label, data in BAD.items():
+    chk("intact rejects: " + label, main.mp3_is_intact(data) is False, str(len(data)))
+
+# ---- THE RACE, RUN FOR REAL ----------------------------------------------
+# Two threads store DIFFERENT renders of the SAME line at the same moment, many
+# times over. Under the old shared-temp-name writer this produced spliced files.
+# The contract now: the cache entry is ALWAYS one of the two whole renders.
+TEXT = "Let's count the stars together."
+target = main._tts_cache_path(TEXT)
+spliced = 0
+for round_n in range(40):
+    try:
+        target.unlink(missing_ok=True)
+    except Exception:
+        pass
+    barrier = threading.Barrier(2)
+    def writer(payload):
+        barrier.wait()
+        main._tts_cache_store(TEXT, payload, source="race-test")
+    ts = [threading.Thread(target=writer, args=(p,)) for p in (A, B)]
+    for t in ts: t.start()
+    for t in ts: t.join()
+    got = target.read_bytes()
+    if got not in (A, B) or not main.mp3_is_intact(got):
+        spliced += 1
+chk("40 head-on races leave a WHOLE clip every time, never a splice",
+    spliced == 0, "%d corrupted" % spliced)
+
+leftovers = [f.name for f in main._TTS_CACHE_DIR.iterdir() if f.suffix == ".part"]
+chk("the racing writers left no .part debris behind", not leftovers, str(leftovers[:5]))
+
+# ---- damaged bytes never become a cached clip ----------------------------
+BADTEXT = "This line came back damaged."
+main._tts_cache_store(BADTEXT, A + B[len(A):], source="race-test")
+chk("a damaged render is REFUSED, not cached",
+    not main._tts_cache_path(BADTEXT).exists(),
+    "a bad clip that reaches the cache replays its garble forever")
+main._tts_cache_store(BADTEXT, b'{"detail":"rate limited"}' + b" " * 3000, source="race-test")
+chk("an API error body is REFUSED, not cached", not main._tts_cache_path(BADTEXT).exists())
+chk("a good render IS cached", main._tts_cache_store(BADTEXT, B, source="race-test") is True
+    and main._tts_cache_path(BADTEXT).read_bytes() == B)
+
+# ---- eviction spends the generated lane before the course ---------------
+import lessonscripts as L
+closure = main._script_closure_paths()
+chk("the protected closure is real and non-trivial", len(closure) > 100, str(len(closure)))
+chk("every scripted line is in the protected set",
+    main._tts_cache_path(L.audio_lines(L.LESSONS[0])[0]).name in closure)
+
+main._TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+for f in list(main._TTS_CACHE_DIR.iterdir()):
+    try: f.unlink(missing_ok=True)
+    except Exception: pass
+# Two course clips written FIRST (so they are the oldest -- exactly the case that
+# used to get culled), then generated-lane clips.
+course_lines = [s for s in L.audio_lines(L.LESSONS[0])][:3]
+for s in course_lines:
+    main._tts_cache_store(s, B, source="seed")
+    time.sleep(0.01)
+spare_paths = []
+for i in range(6):
+    t = "a generated-lane line number %d" % i
+    main._tts_cache_store(t, B, source="seed")
+    spare_paths.append(main._tts_cache_path(t))
+    time.sleep(0.01)
+main._TTS_CACHE_MAX_BYTES = len(B) * 5          # force eviction
+main._evict_tts_cache()
+survived = [main._tts_cache_path(s).exists() for s in course_lines]
+chk("eviction keeps the scripted course and spends the generated lane first",
+    all(survived) and sum(1 for p in spare_paths if p.exists()) < 6,
+    "course survived=%s, spare left=%d" % (survived, sum(1 for p in spare_paths if p.exists())))
+
+print("OKALL" if ok else "HADFAIL")
+'''
+
+
+def part3cx_voice_cache_whole():
+    print("\nPART 3cx — the voice cache is whole or it is not cached (build ke)")
+    import tempfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    # ---- the bug itself can never come back -----------------------------
+    body = msrc.split("# CHANGE NOTES", 1)[-1]
+    body = body.split("\n", 1)[1] if "\n" in body else body
+    code_only = "\n".join(ln for ln in body.split("\n") if not ln.lstrip().startswith("#"))
+    # Match the ASSIGNMENT, not the words: this file DOCUMENTS the old pattern on
+    # purpose, and a pin that forbids describing a bug is a pin that deletes the
+    # institutional memory of it. Standing discipline: pins scan code, never prose.
+    check("build ke: no cache writer derives its temp file from the text again",
+          not re.search(r"^\s*\w+\s*=\s*\w+\.with_suffix\(\s*[\"']\.part[\"']\s*\)",
+                        code_only, re.M),
+          "a temp name that is a function of the line lets two writers collide on it -- "
+          "that is the splice Jim heard as slurring")
+    check("build ke: the cache has exactly ONE write door",
+          code_only.count("def _tts_cache_store(") == 1
+          and code_only.count("_tts_cache_store(") >= 4,
+          "three writers each doing their own atomic dance is how they drifted apart")
+    check("build ke: the door uses a PRIVATE temp file per writer",
+          "tempfile.mkstemp(" in code_only and "os.replace(" in code_only,
+          "mkstemp is what makes two simultaneous writers impossible to confuse")
+    check("build ke: nothing is cached without validating first",
+          "if not mp3_is_intact(data):" in code_only,
+          "an unchecked render becomes a permanent bad clip")
+    check("build ke: the validator cross-checks the Xing byte count",
+          "def _xing_counts(" in code_only and "declared_bytes" in code_only,
+          "ElevenLabs is CBR, so a splice walks clean -- the byte count is the catch")
+    check("build ke: the repair pass exists and defaults to dry_run",
+          '@app.post("/api/admin/tts-cache-repair")' in msrc
+          and "dry_run: bool = True" in msrc,
+          "a repair that deletes by default is a repair nobody dares run")
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    check("build ke: the repair pass has BUTTONS, per the kb ruling",
+          '"/api/admin/tts-cache-repair"' in asrc
+          and 'id="vrCheck"' in asrc and 'id="vrRun"' in asrc,
+          "kb shipped because Jim pasted a POST-only endpoint into the address bar and "
+          "got Method Not Allowed -- a repair he cannot press is a repair that never runs")
+    _vr = asrc.split('$("vrCheck").addEventListener')
+    _vd = asrc.split('$("vrRun").addEventListener')
+    check("build ke: the repair's CHECK button is the free, non-destructive one",
+          len(_vr) == 2 and "dry_run: true" in _vr[1][:700]
+          and len(_vd) == 2 and "dry_run: false" in _vd[1][:700],
+          "the safe button must be the one that looks safe, and the destructive one "
+          "must be the one that says so")
+    check("build ke: the repair reports its own coverage honestly",
+          "xing_coverage_pct" in msrc and "def mp3_has_counts(" in msrc,
+          "if few clips carry an Xing header the detector has less teeth than it looks")
+    check("build ke: eviction protects the scripted closure",
+          "def _script_closure_paths(" in code_only
+          and "spare + keep" in code_only,
+          "oldest-first across the whole cache culls lesson one right after the prewarm")
+    check("build ke: script-prewarm settles the cache when it finishes",
+          "[script-prewarm] evict skipped" in msrc,
+          "a render that never evicts overruns the cap and gets culled in one lump later")
+    check("build ke: the cap is configurable rather than silently too small",
+          "TTS_CACHE_MAX_MB" in msrc and "def _tts_cache_projection(" in msrc,
+          "'it does not fit' deserves a number Jim can see before he spends")
+
+    # ---- the page's half of it ------------------------------------------
+    with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
+        psrc = fh.read()
+    # Same discipline as above: the header note QUOTES the old expression so the next
+    # reader knows what went wrong, so the ban is scanned against the JS only.
+    pjs = "\n".join(re.findall(r"<script>(.*?)</script>", psrc, re.S))
+    # ...and the JS's own explanatory comments name the old expression too, so the ban
+    # runs against executable lines only. Whole-line // comments are dropped rather
+    # than every //, so a string literal containing a slash is never mangled.
+    pcode = "\n".join(ln for ln in pjs.split("\n") if not ln.lstrip().startswith("//"))
+    check("build ke: the pilot page really does have its script where we think it is",
+          "function speak(" in pcode, "the extraction below is worthless if this fails")
+    check("build ke: the pilot page no longer judges a clip by .duration",
+          ".duration" not in pcode,
+          "an uncached clip is chunked, so duration is NaN/Infinity WHILE IT PLAYS -- "
+          "that is what lit Next mid-sentence and let the next tap cut the line off")
+    check("build ke: the watchdog judges playback PROGRESS instead",
+          "currentTime" in psrc and "VOICE_STALL_MS" in psrc and "VOICE_START_MS" in psrc,
+          "currentTime advancing is the only honest signal that a clip is alive")
+    check("build ke: the watchdog watches the element it created, not the global",
+          "if (el !== audioEl)" in psrc,
+          "a later clip replacing the global must not let an old timer judge it")
+    check("build ke: a slow clip unlocks the controls WITHOUT being declared dead",
+          "onWaiting" in psrc and "function () { b.disabled = false; }" in psrc,
+          "the old valve conflated 'taking a while' with 'failed'")
+    check("build ke: the grace before giving up is longer than a cold TTS stream",
+          "VOICE_START_MS = 8000" in psrc,
+          "2500ms was shorter than ElevenLabs' first byte on a miss -- that was the bug")
+
+    # ---- and now the real thing, in a subprocess with its own database ----
+    with tempfile.TemporaryDirectory() as d:
+        script = os.path.join(d, "ke_probe.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_KE_PROBE)
+        try:
+            r = subprocess.run([sys.executable, script, d, here],
+                               capture_output=True, text=True, timeout=300)
+        except subprocess.TimeoutExpired:
+            bad("ke: the voice-cache probe", "timed out after 300s")
+            return
+        out = (r.stdout or "") + (r.stderr or "")
+        if "OKALL" not in out and "HADFAIL" not in out:
+            bad("ke: the voice-cache probe ran", out.strip()[-1500:])
+            return
+        for line in (r.stdout or "").splitlines():
+            line = line.strip()
+            if line.startswith("PASS "):
+                ok("ke: " + line[5:].strip())
+            elif line.startswith("FAIL "):
+                bad("ke: " + line[5:].strip(), "see the probe output")
+
+
+# =============================================================================
 # PART 3cw -- THE SCRIPTED LESSON LANE, SERVED (build jt, 2026-08-21)
 # -----------------------------------------------------------------------------
 # The REAL FastAPI app is stood up against a real (sqlite) database and driven as a
@@ -14858,8 +15170,12 @@ def part3cw_script_lane():
               "/api/speak-prep" in psrc and 'speak?t=' in psrc
               and "speak?text=" not in psrc, "")
         check("pilot page: it can be played SILENT (autoplay/204 fall back)",
-              "p.catch(finish)" in psrc and "safety valve" in psrc,
-              "a blocked autoplay must never freeze a child's lesson")
+              "p.catch(finish)" in psrc
+              and "waited > VOICE_START_MS) finish()" in psrc,
+              "a blocked autoplay must never freeze a child's lesson. (ke) this used "
+              "to pin the phrase 'safety valve'; it now pins the MECHANISM -- the "
+              "watchdog giving up on a clip that never makes a sound -- because the "
+              "old flat 2500ms valve was itself the bug and its name went with it")
         check("pilot page: it renders the closure's tags and strips them from speech",
               'name === "objects"' in psrc and "spokenOnly" in psrc, "")
         check("pilot page: TAPPING a lesson starts it -- no buried Start button",
@@ -15210,6 +15526,7 @@ def main():
     part3cu_consistency_memory()
     part3cv_scripted_engine()
     part3cw_script_lane()
+    part3cx_voice_cache_whole()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

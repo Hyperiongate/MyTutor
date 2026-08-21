@@ -2,6 +2,47 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21ke-the-voice-repair". BUILD ke -- Jim's kd
+#               playtest: "several of the lessons have the voice slurring and
+#               speaking nonsense", heard while the audio prewarm was running.
+#               ROOT CAUSE, and it was not missing audio (a missing clip is SILENT
+#               here -- pilot.html has no browser-voice fallback): all THREE cache
+#               writers built their temp file from the text itself --
+#               `tmp = path.with_suffix(".part")` -- so the temp name was a pure
+#               function of the line. Render the same line from two places at once
+#               (the prewarm loop AND a child's playback, which is exactly what Jim
+#               was doing) and both writers open that ONE path with mode "wb". One
+#               truncates what the other is writing; one renames a half-written file
+#               into place as a valid cache entry; the loser keeps writing into the
+#               renamed inode -- which IS the served cache file. The result is two
+#               different renders spliced together, cached, and replayed forever.
+#               That is what "melted / underwater" sounds like. THIS FILE:
+#                 (1) _tts_cache_store() is now the ONE way a clip enters the cache.
+#                     Every writer gets its OWN temp file (tempfile.mkstemp in the
+#                     cache dir), so two writers can never share a path; the rename
+#                     is atomic, last-writer-wins, and BOTH files are complete.
+#                 (2) Nothing is cached until it VALIDATES -- mp3_is_intact() walks
+#                     the MPEG frame chain end to end AND cross-checks the Xing/Info
+#                     header's declared byte count. The walk alone is not enough:
+#                     ElevenLabs renders constant-bitrate mp3_44100_128, so spliced
+#                     clips stay frame-aligned and walk clean. The byte count is what
+#                     catches them. Error bodies (JSON/HTML), truncation, zero fill
+#                     and appended junk are all caught too.
+#                 (3) NEW POST /api/admin/tts-cache-repair -- scans the cache, deletes
+#                     every clip that fails validation plus any stray .part files, and
+#                     reports honestly how many clips carry an Xing header (the
+#                     detector's real coverage). dry_run lists without deleting.
+#                     Deleted clips simply re-render on next play, at normal cost.
+#                 (4) _evict_tts_cache() no longer culls the scripted course. It
+#                     evicted OLDEST-FIRST by mtime, and after a whole-course prewarm
+#                     the oldest clips ARE the course -- lesson one first. It now
+#                     spends the generated-lane clips before ever touching a line the
+#                     scripted closure needs, and says so in the log when it must.
+#                 (5) script-prewarm calls the evictor when it finishes (it never did,
+#                     so it could silently overrun the 300 MB cap) and its dry_run now
+#                     reports projected bytes against the cap, so the render is priced
+#                     in DISK as well as dollars before Jim spends either.
+#               Reviews/quizzes/exams stay DEFERRED by Jim's ruling.
 #   2026-08-21  APP_BUILD -> "2026-08-21kd-the-content-sweep". BUILD kd -- ten new
 #               lessons close the audit's remaining named gaps (Entry counting,
 #               before/after, story problems, coins; Basic story problems, LCM,
@@ -4896,7 +4937,15 @@ def _student_or_404(code: str) -> dict:
 _RL_LOCK = threading.Lock()
 _RL_BUCKETS: dict = defaultdict(deque)
 MAX_SPEAK_CHARS = 5000          # tutor replies spoken aloud run ~200-2500 chars; 5000 is generous
-_TTS_CACHE_MAX_BYTES = 300 * 1024 * 1024   # cap the audio cache at ~300 MB (evicts oldest first)
+# BUILD ke: configurable, because the scripted course is now a real, measurable
+# claim on this disk and the honest answer to "it does not fit" is a bigger cap,
+# not a quieter evictor. Default unchanged at 300 MB. Set TTS_CACHE_MAX_MB in
+# Render -> Environment to raise it; script-prewarm's dry_run reports the fit.
+try:
+    _TTS_CACHE_MAX_MB = max(50, int(os.environ.get("TTS_CACHE_MAX_MB", "300")))
+except Exception:  # noqa: BLE001 -- a bad env value must not stop the app booting
+    _TTS_CACHE_MAX_MB = 300
+_TTS_CACHE_MAX_BYTES = _TTS_CACHE_MAX_MB * 1024 * 1024   # cap the audio cache (evicts generated lane first)
 
 
 def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests") -> None:
@@ -7896,6 +7945,149 @@ class ScriptPrewarmIn(BaseModel):
     limit: int = 0
 
 
+class TtsCacheRepairIn(BaseModel):
+    key: str = ""
+    dry_run: bool = True       # default SAFE: look, report, delete nothing
+    limit: int = 0             # 0 = scan the whole cache
+
+
+def _tts_cache_bytes_per_char() -> float:
+    """Bytes of mp3 per character of text, measured from clips already in the cache.
+
+    Falls back to ~1,070 B/char, which is what 128 kbps (16 KB/s) works out to at a
+    normal speaking rate of ~15 characters a second."""
+    try:
+        sizes = []
+        for f in _TTS_CACHE_DIR.iterdir():
+            if f.suffix == ".mp3":
+                sizes.append(f.stat().st_size)
+            if len(sizes) >= 200:
+                break
+        if len(sizes) >= 20:
+            # The closure's average line length is the honest divisor here.
+            lines = [s for les in lessonscripts.LESSONS
+                     for s in lessonscripts.audio_lines(les)]
+            if lines:
+                avg_chars = sum(len(s) for s in lines) / float(len(lines))
+                if avg_chars > 0:
+                    return (sum(sizes) / float(len(sizes))) / avg_chars
+    except Exception:  # noqa: BLE001 -- an estimate must never break the endpoint
+        pass
+    return 1070.0
+
+
+def _tts_cache_projection(chars_to_render: int) -> dict:
+    """What the cache holds now, what the pending render adds, and whether the cap
+    can take it. Numbers only -- the caller decides what to do about them."""
+    used, count = 0, 0
+    try:
+        for f in _TTS_CACHE_DIR.iterdir():
+            if f.suffix == ".mp3":
+                used += f.stat().st_size
+                count += 1
+    except Exception:  # noqa: BLE001 -- no cache dir yet is a legitimate zero
+        pass
+    adding = int(max(0, chars_to_render) * _tts_cache_bytes_per_char())
+    cap = int(_TTS_CACHE_MAX_BYTES)
+    return {"cached_clips": count,
+            "used_bytes": used, "used_mb": round(used / 1048576.0, 1),
+            "projected_add_bytes": adding, "projected_add_mb": round(adding / 1048576.0, 1),
+            "projected_total_mb": round((used + adding) / 1048576.0, 1),
+            "cap_mb": round(cap / 1048576.0, 1),
+            "fits": (used + adding) <= cap}
+
+
+@app.post("/api/admin/tts-cache-repair")
+def admin_tts_cache_repair(body: TtsCacheRepairIn,
+                           x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """BUILD ke -- FIND AND REMOVE THE DAMAGED CLIPS.
+
+    Jim's kd playtest: "several of the lessons have the voice slurring and speaking
+    nonsense". The cause was three cache writers sharing one temp filename, so a line
+    rendered from two places at once was stored as two renders spliced together (see
+    the change note at the top of this file). Build ke makes that impossible going
+    forward -- but the clips already written are still on disk and will replay their
+    garble forever, because a cache HIT never re-renders.
+
+    This walks every clip, checks it with mp3_is_intact(), and deletes the ones that
+    fail, along with any stray .part files left by the old writers. A deleted clip is
+    not lost: the next play re-renders it at normal cost (a few cents), and the repair
+    reports the character count so that cost is known before it is spent.
+
+    dry_run defaults to TRUE -- it will look and report without deleting anything.
+    POST again with dry_run=false to actually remove them.
+
+    The response reports `xing_coverage`: the share of clips carrying an Xing/Info
+    header, which is what the byte-count cross-check needs. If that is high the
+    detector has real teeth on this cache; if it is low, splices between equal-length
+    renders could still hide, and that is worth knowing rather than assuming."""
+    _require_admin(x_admin_key or body.key)
+    scanned = bad = with_counts = 0
+    freed = 0
+    parts = 0
+    damaged = []
+    try:
+        entries = sorted(_TTS_CACHE_DIR.iterdir()) if _TTS_CACHE_DIR.exists() else []
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Cannot read the cache: {exc}")
+
+    # Stray temp files from the OLD shared-name writers. They are never served (the
+    # cache only reads .mp3) but they are wasted disk and a sign of the very bug we
+    # are repairing, so they go either way.
+    for f in entries:
+        if f.suffix == ".part":
+            parts += 1
+            if not body.dry_run:
+                try:
+                    f.unlink(missing_ok=True)
+                except Exception:  # noqa: BLE001
+                    pass
+
+    for f in entries:
+        if f.suffix != ".mp3":
+            continue
+        if body.limit and scanned >= body.limit:
+            break
+        scanned += 1
+        try:
+            data = f.read_bytes()
+        except Exception as exc:  # noqa: BLE001
+            damaged.append({"file": f.name, "bytes": 0, "why": f"unreadable: {exc}"})
+            bad += 1
+            continue
+        if mp3_has_counts(data):
+            with_counts += 1
+        if mp3_is_intact(data):
+            continue
+        bad += 1
+        freed += len(data)
+        if len(damaged) < 50:
+            damaged.append({"file": f.name, "bytes": len(data),
+                            "why": "failed the frame-chain / Xing byte-count check"})
+        if not body.dry_run:
+            try:
+                f.unlink(missing_ok=True)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[repair] could not delete {f.name}: {exc}")
+
+    coverage = round((with_counts / float(scanned)) * 100.0, 1) if scanned else 0.0
+    return {"ok": True,
+            "dry_run": bool(body.dry_run),
+            "scanned": scanned,
+            "damaged": bad,
+            "healthy": scanned - bad,
+            "stray_part_files": parts,
+            "bytes_freed": freed,
+            "mb_freed": round(freed / 1048576.0, 1),
+            "xing_coverage_pct": coverage,
+            "examples": damaged[:50],
+            "note": ("Nothing was deleted. POST again with dry_run=false to remove "
+                     "these; each one re-renders on its next play."
+                     if body.dry_run else
+                     "Damaged clips removed. They re-render on the next play -- run "
+                     "script-prewarm afterwards to render them all at once.")}
+
+
 @app.post("/api/admin/script-prewarm")
 def admin_script_prewarm(body: ScriptPrewarmIn,
                          x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -7921,9 +8113,17 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
         todo.append(say)
     chars = sum(len(s) for s in todo)
     if body.dry_run or not todo:
+        # BUILD ke: price the render in DISK too. The cache has a hard cap and the
+        # evictor enforces it; a course that does not fit would be silently culled
+        # right after Jim paid for it, so he should see that BEFORE spending.
+        disk = _tts_cache_projection(chars)
         return {"ok": True, "dry_run": True, "already_cached": already,
                 "to_render": len(todo), "chars": chars,
-                "note": "Nothing was spent. POST again with dry_run=false to render."}
+                "disk": disk,
+                "note": ("Nothing was spent. POST again with dry_run=false to render."
+                         + ("" if disk["fits"] else
+                            "  WARNING: the projected cache exceeds the cap -- raise "
+                            "TTS_CACHE_MAX_MB or the course will re-render forever."))}
     if not ELEVEN_API_KEY:
         raise HTTPException(status_code=503,
                             detail="ELEVENLABS_API_KEY is not set on this deploy.")
@@ -7943,11 +8143,9 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
             if r.status_code != 200 or not r.content:
                 failed.append(f"HTTP {r.status_code}: {say[:40]}")
                 continue
-            path = _tts_cache_path(say)
-            _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_suffix(".part")
-            tmp.write_bytes(r.content)
-            tmp.replace(path)
+            if not _tts_cache_store(say, r.content, source="script-prewarm"):
+                failed.append(f"damaged render (not cached): {say[:40]}")
+                continue
             rendered += 1
             spent += len(say)
             store.log_usage(kind="tts", code="", mode="script-prewarm",
@@ -7955,8 +8153,17 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
                             tts_cache_hit=False)
         except Exception as exc:  # noqa: BLE001
             failed.append(f"{type(exc).__name__}: {say[:40]}")
+    # BUILD ke: this loop never called the evictor, so a long render could push the
+    # cache past its cap unchecked and the NEXT ordinary playback would then cull
+    # hundreds of freshly-paid-for clips in one go. Settle up here instead, where the
+    # closure is protected and the log tells the truth about what happened.
+    try:
+        _evict_tts_cache()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script-prewarm] evict skipped: {exc}")
     return {"ok": not failed, "rendered": rendered, "already_cached": already,
-            "chars_spent": spent, "failed": failed[:10]}
+            "chars_spent": spent, "failed": failed[:10],
+            "failed_count": len(failed), "disk": _tts_cache_projection(0)}
 
 
 @app.post("/api/admin/lesson-audit")
@@ -8066,13 +8273,10 @@ def admin_prewarm_foundations(body: PrewarmAdminIn):
             if r.status_code != 200 or not r.content:
                 failed.append(f"{course}/{term}: HTTP {r.status_code}")
                 continue
-            # Same atomic write as the streaming path: a partial file must never be
-            # left behind, because a truncated clip would then be served forever.
-            path = _tts_cache_path(say)
-            _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_suffix(".part")
-            tmp.write_bytes(r.content)
-            tmp.replace(path)
+            # BUILD ke: the one cache door -- private temp file, validated first.
+            if not _tts_cache_store(say, r.content, source="prewarm-foundations"):
+                failed.append(f"{course}/{term}: damaged render (not cached)")
+                continue
             rendered += 1
             spent += len(say)
             store.log_usage(kind="tts", code="", mode="prewarm", model=str(ELEVEN_MODEL or ""),
@@ -9168,7 +9372,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kd-the-content-sweep"
+APP_BUILD = "2026-08-21ke-the-voice-repair"
 
 
 @app.get("/health")
@@ -10448,6 +10652,218 @@ def _tts_cache_path(text: str) -> Path:
     return _TTS_CACHE_DIR / (key + ".mp3")
 
 
+# =============================================================================
+# BUILD ke (2026-08-21) -- IS THIS CLIP WHOLE?
+# =============================================================================
+# Jim heard "slurring and nonsense" on several lessons. It was not missing audio --
+# a missing clip is SILENT on the pilot page. It was cache entries containing two
+# different renders spliced together (see the change note at the top of this file).
+#
+# TWO independent checks, because either alone has a blind spot:
+#
+#   1. FRAME-CHAIN WALK -- every MPEG frame header must parse and the chain must run
+#      to the end with nothing left over. Catches truncation, zero fill, JSON/HTML
+#      error bodies, garbage, and anything appended past the end.
+#
+#   2. Xing/Info CROSS-CHECK -- mainstream encoders put a header in the first frame
+#      declaring the clip's TOTAL byte count. We compare it with what is actually
+#      on disk.
+#
+# Why BOTH: ElevenLabs renders constant-bitrate mp3_44100_128, so every clip has the
+# same uniform frame geometry. Splice two clips at any offset and the frame chain
+# still walks cleanly -- check 1 is blind to it. But the surviving Xing header still
+# describes the clip it came from, so check 2 catches it. Proved both ways in
+# ruletests PART 3cx against real encoder output and 26 synthetic corruptions.
+#
+# KNOWN LIMIT, stated plainly: a single flipped byte INSIDE a frame's payload leaves
+# both the chain and the counts intact. Catching that needs a full decode and a
+# dependency we do not have on Render -- and payload bit-rot makes a click, not a
+# melted line, so it is not the failure we are chasing.
+import struct
+import tempfile
+
+_MP3_BITRATES_V1 = {  # kbps, MPEG-1, by layer number then bitrate index
+    1: [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, -1],
+    2: [0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, -1],
+    3: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, -1],
+}
+_MP3_BITRATES_V2 = {  # kbps, MPEG-2 / MPEG-2.5
+    1: [0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, -1],
+    2: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, -1],
+    3: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, -1],
+}
+_MP3_RATES = {3: [44100, 48000, 32000, 0],      # MPEG-1
+              2: [22050, 24000, 16000, 0],      # MPEG-2
+              0: [11025, 12000, 8000, 0]}       # MPEG-2.5
+
+# A one-word clip ("Yes!") at 44.1kHz/128kbps is ~0.4s ~= 7 KB, so 900 bytes sits far
+# below anything real and comfortably above any error body.
+_TTS_MIN_CACHE_BYTES = 900
+_TTS_MIN_CACHE_FRAMES = 8
+
+
+def _mp3_frame_len(head) -> int:
+    """Byte length of the MPEG frame whose 4-byte header this is, or 0 if the header
+    is not a valid one. Pure arithmetic -- no decoding, no dependencies."""
+    if len(head) < 4 or head[0] != 0xFF or (head[1] & 0xE0) != 0xE0:
+        return 0
+    ver = (head[1] >> 3) & 0x03          # 3=MPEG-1, 2=MPEG-2, 0=MPEG-2.5, 1=reserved
+    layer = (head[1] >> 1) & 0x03        # 3=Layer I, 2=Layer II, 1=Layer III, 0=reserved
+    if ver == 1 or layer == 0:
+        return 0
+    layer_n = 4 - layer                  # -> 1, 2 or 3
+    br_i = (head[2] >> 4) & 0x0F
+    sr_i = (head[2] >> 2) & 0x03
+    if br_i in (0, 15) or sr_i == 3:     # "free"/"bad" bitrate, reserved sample rate
+        return 0
+    table = _MP3_BITRATES_V1 if ver == 3 else _MP3_BITRATES_V2
+    bitrate = table[layer_n][br_i] * 1000
+    rate = _MP3_RATES[ver][sr_i]
+    if bitrate <= 0 or rate <= 0:
+        return 0
+    pad = (head[2] >> 1) & 0x01
+    if layer_n == 1:
+        return ((12 * bitrate // rate) + pad) * 4
+    if ver == 3:                          # MPEG-1, Layer II/III
+        return (144 * bitrate // rate) + pad
+    return (72 * bitrate // rate) + pad   # MPEG-2/2.5, Layer II/III
+
+
+def _id3v2_len(data) -> int:
+    """Total byte length of the ID3v2 tag at the head of `data`, or 0 if there is none."""
+    if len(data) < 10 or data[:3] != b"ID3":
+        return 0
+    flags = data[5]
+    size_bytes = data[6:10]
+    if any(b & 0x80 for b in size_bytes):        # a real tag's size is synchsafe
+        return 0
+    size = 0
+    for b in size_bytes:
+        size = (size << 7) | (b & 0x7F)
+    total = 10 + size + (10 if flags & 0x10 else 0)
+    return total if 0 < total <= len(data) else 0
+
+
+def _xing_counts(data, pos):
+    """(declared_frames, declared_bytes) from the Xing/Info header of the frame at
+    `pos`, or (None, None) when the clip carries none."""
+    head = data[pos:pos + 4]
+    if len(head) < 4 or head[0] != 0xFF or (head[1] & 0xE0) != 0xE0:
+        return (None, None)
+    ver = (head[1] >> 3) & 0x03
+    mono = ((head[3] >> 6) & 0x03) == 3
+    side = (17 if mono else 32) if ver == 3 else (9 if mono else 17)
+    off = pos + 4 + side
+    if data[off:off + 4] not in (b"Xing", b"Info") or len(data) < off + 8:
+        return (None, None)
+    flags = struct.unpack(">I", data[off + 4:off + 8])[0]
+    p, frames, nbytes = off + 8, None, None
+    if flags & 0x01:
+        if len(data) < p + 4:
+            return (None, None)
+        frames = struct.unpack(">I", data[p:p + 4])[0]
+        p += 4
+    if flags & 0x02:
+        if len(data) < p + 4:
+            return (None, None)
+        nbytes = struct.unpack(">I", data[p:p + 4])[0]
+    return (frames, nbytes)
+
+
+def mp3_is_intact(data) -> bool:
+    """True when `data` is a coherent, complete MPEG audio clip. NEVER raises -- a
+    validator that throws would take the whole voice down with it."""
+    try:
+        if not data or len(data) < _TTS_MIN_CACHE_BYTES:
+            return False
+        if data[:1] in (b"{", b"<"):        # a JSON or HTML error body, not audio
+            return False
+        end = len(data)
+        if end > 128 and data[end - 128:end - 125] == b"TAG":   # ID3v1 trailer
+            end -= 128
+        audio_start = _id3v2_len(data)
+        if audio_start >= end:
+            return False
+        declared_frames, declared_bytes = _xing_counts(data, audio_start)
+        pos, frames = audio_start, 0
+        while pos + 4 <= end:
+            size = _mp3_frame_len(data[pos:pos + 4])
+            if size <= 0 or pos + size > end:
+                return False                # chain broke: truncated, spliced or filled
+            pos += size
+            frames += 1
+        if frames < _TTS_MIN_CACHE_FRAMES or (end - pos) >= 4:
+            return False
+        # The BYTE count is exact and does the real work: every splice leaves a file
+        # whose length disagrees with the header of whichever clip landed first.
+        if declared_bytes is not None and declared_bytes != (end - audio_start):
+            return False
+        # The FRAME count is +/-1 by encoder convention (LAME and ffmpeg do not count
+        # the Xing frame itself, others do), so it is checked with that tolerance and
+        # never tighter -- a false positive here re-renders a clip we already paid for.
+        if declared_frames is not None and abs(declared_frames - frames) > 1:
+            return False
+        return True
+    except Exception:       # noqa: BLE001 -- a validator must never raise
+        return False
+
+
+def mp3_has_counts(data) -> bool:
+    """True when the clip carries an Xing/Info header, i.e. the cross-check has teeth
+    on it. The repair endpoint reports this so we know the detector's real coverage."""
+    try:
+        if not data or len(data) < 64:
+            return False
+        f, b = _xing_counts(data, _id3v2_len(data))
+        return f is not None or b is not None
+    except Exception:       # noqa: BLE001
+        return False
+
+
+def _tts_cache_store(text: str, data: bytes, source: str = "speak") -> bool:
+    """THE ONE DOOR into the TTS cache. Returns True when the clip was stored.
+
+    BUILD ke: every writer gets its OWN temp file. The old code derived the temp name
+    from the text (`path.with_suffix(".part")`), so the prewarm loop and a child's
+    playback rendering the same line at the same moment collided on one path and
+    produced a spliced, permanently-cached clip. mkstemp in the cache directory gives
+    each writer a private name; os.replace is atomic; last writer wins and BOTH files
+    were whole. Same-filesystem by construction, so the rename never degrades to a copy.
+
+    Nothing is stored unless it validates -- a bad render must not become a bad clip
+    that replays forever."""
+    if not mp3_is_intact(data):
+        print(f"[speak] REFUSED to cache a damaged clip from {source} "
+              f"({len(data or b'')} bytes) -- it will re-render on the next play")
+        return False
+    fd, tmp_name = None, None
+    try:
+        _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        fd, tmp_name = tempfile.mkstemp(dir=str(_TTS_CACHE_DIR), suffix=".part")
+        with os.fdopen(fd, "wb") as fh:
+            fd = None                      # fdopen owns it now; do not double-close
+            fh.write(data)
+            fh.flush()
+            os.fsync(fh.fileno())          # the bytes are on disk before we publish them
+        os.replace(tmp_name, str(_tts_cache_path(text)))
+        tmp_name = None                    # renamed: nothing left to clean up
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[speak] cache write error ({source}): {exc}")
+        return False
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except Exception:  # noqa: BLE001
+                pass
+        if tmp_name:
+            try:
+                os.unlink(tmp_name)        # never leave our own debris behind
+            except Exception:  # noqa: BLE001
+                pass
+
+
 # BUILD hs (2026-08-18, Phase 5): THE SPOKEN LINE LEAVES THE URL TOO. An <audio src>
 # cannot send headers, so /api/speak was the one place the credential COULD NOT move
 # to X-Student-Code -- and worse, the TEXT (a child's lesson, usually carrying their
@@ -10606,14 +11022,9 @@ def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "
         # Cache WRITE: only after a fully-streamed, non-empty clip; write atomically so a partial
         # (e.g. client disconnect / error) never leaves a truncated file behind.
         if complete and buf:
-            try:
-                _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                tmp = cache_path.with_suffix(".part")
-                tmp.write_bytes(bytes(buf))
-                tmp.replace(cache_path)
+            # BUILD ke: one door, private temp file, validated before it is published.
+            if _tts_cache_store(text, bytes(buf), source=mode or "speak"):
                 _evict_tts_cache()
-            except Exception as exc:  # noqa: BLE001
-                print(f"[speak] cache write error: {exc}")
 
     return StreamingResponse(audio_stream(), media_type="audio/mpeg")
 
@@ -10931,23 +11342,68 @@ def demo_audio(idx: int, request: Request):
     return _tts_stream_response(DEMO_VOICE_LINES[idx], mode="demo")
 
 
+def _script_closure_paths() -> set:
+    """The cache filenames every scripted lesson can ever need.
+
+    BUILD ke: computed once and memoised -- LESSONS is static for the life of the
+    process, and this is ~4k sha256 hashes we should not redo on every eviction.
+    Returns an empty set if lessonscripts cannot be read, which degrades this to the
+    old behaviour rather than breaking eviction."""
+    global _SCRIPT_CLOSURE_PATHS
+    if _SCRIPT_CLOSURE_PATHS is None:
+        paths = set()
+        try:
+            for les in lessonscripts.LESSONS:
+                for say in lessonscripts.audio_lines(les):
+                    paths.add(_tts_cache_path(say).name)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[speak] closure unavailable, eviction unprotected: {exc}")
+            paths = set()
+        _SCRIPT_CLOSURE_PATHS = paths
+    return _SCRIPT_CLOSURE_PATHS
+
+
+_SCRIPT_CLOSURE_PATHS = None
+
+
 def _evict_tts_cache() -> None:
-    """Keep the TTS cache under _TTS_CACHE_MAX_BYTES by deleting the OLDEST clips first
-    (down to 80% of the cap, so eviction runs occasionally rather than every write).
-    Without this the cache grows forever -- a disk-fill risk once the disk persists."""
+    """Keep the TTS cache under _TTS_CACHE_MAX_BYTES, spending the GENERATED-lane clips
+    before any line the scripted course needs.
+
+    BUILD ke -- why the order matters. This used to delete oldest-first across the whole
+    cache. Right after a whole-course prewarm the oldest clips ARE the course, in lesson
+    order, so the first thing evicted was lesson one -- Counting to 10. That quietly
+    undid the prewarm Jim had just paid for and put the scripted lane back on the
+    streaming path (which is where the slurring lived). Scripted lines are now evicted
+    only if culling everything else still leaves us over the cap, and we say so loudly
+    when that happens, because at that point the cap is genuinely too small and that is
+    a decision for Jim, not something to paper over."""
     try:
         files = [f for f in _TTS_CACHE_DIR.iterdir() if f.suffix == ".mp3"]
         total = sum(f.stat().st_size for f in files)
         if total <= _TTS_CACHE_MAX_BYTES:
             return
-        files.sort(key=lambda f: f.stat().st_mtime)   # oldest first
+        protected = _script_closure_paths()
         target = int(_TTS_CACHE_MAX_BYTES * 0.8)
-        for f in files:
+        spare = sorted((f for f in files if f.name not in protected),
+                       key=lambda f: f.stat().st_mtime)      # oldest first
+        keep = sorted((f for f in files if f.name in protected),
+                      key=lambda f: f.stat().st_mtime)
+        freed = 0
+        for f in spare + keep:              # generated lane first, course last
             if total <= target:
                 break
-            size = f.stat().st_size
+            try:
+                size = f.stat().st_size
+            except Exception:  # noqa: BLE001 -- already gone
+                continue
+            if f.name in protected and freed == 0:
+                print(f"[speak] WARNING: cache cap {_TTS_CACHE_MAX_BYTES} bytes cannot hold "
+                      f"the scripted course ({total} bytes in use). Evicting course audio "
+                      f"-- raise the cap or the course will keep re-rendering.")
             f.unlink(missing_ok=True)
             total -= size
+            freed += size
         print(f"[speak] cache evicted down to {total} bytes")
     except Exception as exc:  # noqa: BLE001
         print(f"[speak] cache evict error: {exc}")
