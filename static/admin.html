@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <!--
+    (kf) 2026-08-21 -- AUDIT THE AUDIO, AND RE-RENDER ONE LESSON. Jim, after the whole
+    course was prewarmed and ke's repair found zero damaged clips: "Still garbled when
+    counting four stars" -- the RIGHT WORDS with BAD AUDIO. That is a bad RENDER, not a
+    bad file, and ke's structural repair cannot see it. Two new controls:
+    ① "Audit the course audio" (free, reads only) walks the closure, so it knows the
+    TEXT behind every clip, and names the lines whose format is off-spec or whose
+    length is wildly out of proportion to their words -- measured against the median
+    of the course itself, so it needs no guessed speaking rate. It answers "one bad
+    clip or five hundred?" without anyone listening to 3,879 lines.
+    ② "Re-render one lesson" replaces cached clips for a single lesson. Until now a
+    cache HIT never re-rendered, so a clip that sounded wrong could only be fixed by
+    emptying the whole cache. It is also what makes SCRIPT_TTS_MODEL testable for
+    pennies: set the quality model in Render, re-render Counting to 10 (62 lines),
+    listen, and only then decide about the other 3,800.
+    The lesson list is fetched from the public /api/script/lessons, so the dropdown can
+    never drift from what the engine actually has.
+
     (ke) 2026-08-21 -- THE VOICE CACHE REPAIR GETS ITS BUTTONS. Jim's kd playtest:
     several lessons "slurring and speaking nonsense". Cause (see main.py's build ke
     note): three TTS cache writers all named their temp file after the TEXT, so the
@@ -425,9 +442,11 @@
   <!-- (kb) the scripted course's audio closure -- see the header note -->
   <section class="wrap"><div class="card">
     <div class="sechead"><h2>&#127925; Scripted course audio</h2>
-      <span class="note">Renders every line the 24 scripted lessons can ever speak into the
+      <span class="note">Renders every line the scripted course can ever speak into the
         voice cache. Safe to re-run &mdash; already-cached lines are skipped free, so after new
-        lessons ship you only pay for the new lines.</span></div>
+        lessons ship you only pay for the new lines. (kf: the count said "24 lessons" long
+        after the course grew to 41 across two courses &mdash; it now says neither, because
+        the button walks whatever the engine has.)</span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-ghost" id="spPrice" type="button">&#9312; Price it (free)</button>
       <button class="btn btn-primary" id="spRun" type="button">&#9313; Render them</button>
@@ -447,6 +466,28 @@
       <button class="btn btn-primary" id="vrRun" type="button">&#9313; Remove the damaged ones</button>
     </div>
     <div class="msg" id="vrMsg"></div>
+  </div></section>
+
+  <!-- (kf) audit the RENDER, not the file -- see the header note -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#127911; Course audio quality</h2>
+      <span class="note">Checks whether each cached clip is the right shape and a
+        plausible length for the words it speaks &mdash; the things a perfectly valid mp3
+        can still get wrong. Free and reads only. Then re-render a single lesson to
+        replace clips that sound bad, or to try a different voice model without paying
+        for the whole course.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <select class="f" id="caLesson" style="max-width:340px"></select>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" id="caAudit" type="button">&#9312; Audit the audio (free)</button>
+      <button class="btn btn-ghost" id="caPrice" type="button">&#9313; Price a re-render (free)</button>
+      <button class="btn btn-primary" id="caRender" type="button">&#9314; Re-render it</button>
+    </div>
+    <div class="msg" id="caMsg"></div>
+    <pre id="caOut" style="display:none;white-space:pre-wrap;font-size:13px;line-height:1.5;
+         background:#f6f7fb;border-radius:10px;padding:12px;margin-top:10px;max-height:420px;
+         overflow:auto"></pre>
   </div></section>
 
   <!-- 2026-08-11 (build dj, Jim: "if Render falters, do we have sufficient backup so
@@ -1367,6 +1408,97 @@
     } catch (e) { vrMsg(e.message); }
     b.disabled = false;
   });
+  // ---- (kf) course audio quality -------------------------------------------
+  function caMsg(t, k) { var el = $("caMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  function caOut(t) {
+    var el = $("caOut");
+    el.style.display = t ? "block" : "none";
+    el.textContent = t || "";
+  }
+  (async function loadLessons() {
+    var sel = $("caLesson");
+    sel.innerHTML = '<option value="">Whole course (all lessons)</option>';
+    try {
+      var r = await fetch("/api/script/lessons");
+      var d = await r.json();
+      var course = "";
+      (d.lessons || []).forEach(function (l) {
+        if (l.course_title !== course) {
+          course = l.course_title;
+          var og = document.createElement("optgroup");
+          og.label = course; og.id = "og_" + l.course;
+          sel.appendChild(og);
+        }
+        var o = document.createElement("option");
+        o.value = l.id;
+        o.textContent = "Unit " + l.unit + " \u2014 " + l.topic;
+        (document.getElementById("og_" + l.course) || sel).appendChild(o);
+      });
+    } catch (e) { /* the whole-course option still works */ }
+  })();
+  $("caAudit").addEventListener("click", async function () {
+    caMsg("Auditing every cached clip\u2026", "ok"); caOut("");
+    try {
+      var d = await api("/api/admin/course-audio-audit", { method: "POST",
+        body: JSON.stringify({ key: KEY, lesson: $("caLesson").value }) });
+      var head = d.cached + " of " + d.lines + " lines cached"
+        + (d.not_yet_rendered ? " (" + d.not_yet_rendered + " not rendered yet)" : "")
+        + " \u2014 voice model: " + d.model_in_use
+        + (d.script_model_set ? " (scripted lane has its own)" : "")
+        + ". Off-spec shape: " + d.odd_shape_count
+        + ". Length outliers: " + d.outlier_count + ".";
+      caMsg(head, (d.odd_shape_count || d.outlier_count) ? "err" : "ok");
+      var body = "SHAPES\n";
+      Object.keys(d.shapes || {}).forEach(function (k) { body += "  " + d.shapes[k] + "  " + k + "\n"; });
+      if ((d.odd_shape || []).length) {
+        body += "\nOFF-SPEC CLIPS (these can decode oddly)\n";
+        d.odd_shape.forEach(function (o) { body += "  [" + o.shape + "]  " + o.text + "\n"; });
+      }
+      body += "\nTypical pace: " + (d.median_seconds_per_char * 1000).toFixed(1)
+           + " ms per character (the course's own median).\n";
+      if ((d.outliers || []).length) {
+        body += "\nLENGTH OUTLIERS \u2014 go listen to these:\n";
+        d.outliers.forEach(function (o) {
+          body += "  " + o.seconds + "s (expected ~" + o.expected_seconds + "s, "
+               + o.times_off + "x off)\n      " + o.text + "\n";
+        });
+      } else {
+        body += "\nNo length outliers. Every clip is a plausible length for its words.\n";
+      }
+      if ((d.unreadable || []).length) {
+        body += "\nUNREADABLE\n";
+        d.unreadable.forEach(function (u) { body += "  " + u + "\n"; });
+      }
+      caOut(body);
+    } catch (e) { caMsg(e.message); }
+  });
+  $("caPrice").addEventListener("click", async function () {
+    caMsg("Pricing\u2026", "ok"); caOut("");
+    try {
+      var d = await api("/api/admin/script-prewarm", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true, force: true,
+                               lesson: $("caLesson").value }) });
+      caMsg("Re-rendering " + d.lesson + " = " + d.to_render + " lines ("
+        + d.chars + " characters \u2248 $" + (d.chars / 1000 * 0.22).toFixed(2)
+        + " at the Flash rate; a quality model costs about double). Voice model: "
+        + d.model + ". Press \u2462 to spend it.", "ok");
+    } catch (e) { caMsg(e.message); }
+  });
+  $("caRender").addEventListener("click", async function () {
+    var b = $("caRender"); b.disabled = true;
+    caMsg("Re-rendering \u2014 this replaces the cached clips. Leave this tab open.", "ok");
+    caOut("");
+    try {
+      var d = await api("/api/admin/script-prewarm", { method: "POST",
+        body: JSON.stringify({ key: KEY, force: true, lesson: $("caLesson").value }) });
+      caMsg((d.rendered || 0) + " lines re-rendered for " + d.lesson
+            + " on " + d.model + ", " + (d.chars_spent || 0) + " characters spent"
+            + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
+            (d.failed && d.failed.length) ? "err" : "ok");
+    } catch (e) { caMsg(e.message); }
+    b.disabled = false;
+  });
+
   $("pwPrice").addEventListener("click", async function () {
     pwMsg("Counting\u2026", "ok");
     try {

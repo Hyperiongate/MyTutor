@@ -2,6 +2,47 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kf-the-right-voice". BUILD kf -- Jim, after
+#               the whole course was prewarmed and the ke repair found ZERO damaged
+#               clips: "Still garbled when counting four stars." Asked what he hears,
+#               he reported the RIGHT WORDS with BAD AUDIO. That rules out the cache
+#               (0 damaged of 4,306, 93.7% detector coverage), rules out the ke valve
+#               (every line is cached now, and cached clips always took the sound
+#               Content-Length path), and points at the RENDER ITSELF.
+#               THE DESIGN MISTAKE UNDERNEATH IT: the whole scripted course was
+#               rendered with ELEVEN_MODEL = "eleven_flash_v2_5" -- the LOW-LATENCY
+#               model, chosen when audio was generated live mid-conversation and
+#               ~75ms mattered more than fidelity. Since the 2026-08-20 pivot the
+#               scripted lane is PRE-RENDERED: latency is irrelevant, the clip is
+#               made once and replayed from cache forever. ElevenLabs sells Flash at
+#               half price precisely because it trades quality for speed, and names
+#               Multilingual v2 as the narration model. We were paying a permanent
+#               quality tax for a speed benefit this lane no longer uses.
+#               THIS FILE:
+#                 (1) SCRIPT_TTS_MODEL -- the scripted lane's own model. DEFAULT IS
+#                     EMPTY, meaning "same as ELEVEN_MODEL", so this build changes
+#                     NOTHING until Jim sets it in Render. When set, any line in the
+#                     scripted closure renders AND KEYS on that model while the live
+#                     conversational lane stays on Flash, where latency is real.
+#                 (2) _tts_model_for(text) is the ONE place that decides. The cache
+#                     path, the streaming render and the prewarm all call it, so a
+#                     clip can never be written under one model's key and looked up
+#                     under another's -- which would silently re-render (and re-bill)
+#                     the entire course on every play.
+#                 (3) script-prewarm gains `lesson` and `force`: re-render ONE
+#                     lesson, over the top of cached clips. That is what makes the
+#                     model switch testable for pennies (Counting to 10 is 62 lines)
+#                     instead of ~$86 for the whole course, sight unheard.
+#                 (4) NEW POST /api/admin/course-audio-audit -- walks the CLOSURE, so
+#                     it knows the TEXT behind every clip and can report offending
+#                     LINES rather than hashes. Flags clips whose MPEG format is not
+#                     the canonical 44100/mono/128k (those glitch when the leading
+#                     silence is concatenated) and clips whose duration is a wild
+#                     outlier against the MEDIAN seconds-per-character of the course
+#                     itself -- self-calibrating, no guessed speaking rate. Free,
+#                     non-destructive, and it answers "one bad clip or five hundred?"
+#                     without anyone listening to 3,879 lines.
+#               Reviews/quizzes/exams stay DEFERRED by Jim's ruling.
 #   2026-08-21  APP_BUILD -> "2026-08-21ke-the-voice-repair". BUILD ke -- Jim's kd
 #               playtest: "several of the lessons have the voice slurring and
 #               speaking nonsense", heard while the audio prewarm was running.
@@ -4018,6 +4059,16 @@ ELEVEN_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "sB7vwSCyX0tQmU24cW2C")
 # eleven_flash_v2_5 = low latency (best for live conversation); override with
 # ELEVENLABS_MODEL="eleven_multilingual_v2" for higher quality at more latency.
 ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_flash_v2_5")
+# BUILD kf: THE SCRIPTED LANE'S OWN MODEL. Flash exists to keep a LIVE conversation
+# responsive. Scripted lesson audio is pre-rendered once and replayed from cache, so
+# latency there is worth nothing and fidelity is worth everything -- ElevenLabs prices
+# Flash at half precisely because it trades one for the other, and names Multilingual
+# v2 as the narration model. DEFAULT EMPTY = "same as ELEVEN_MODEL", so this changes
+# nothing until it is set in Render -> Environment.
+# ⚠️ SETTING THIS CHANGES THE CACHE KEY of every scripted line: they all become misses
+# and re-render at the new model's price. Run script-prewarm after changing it, and
+# test on ONE lesson first (script-prewarm with lesson=... force=true).
+SCRIPT_TTS_MODEL = os.environ.get("SCRIPT_TTS_MODEL", "").strip()
 # Speech-to-text model (ElevenLabs "Scribe"). Used by /api/transcribe.
 ELEVEN_STT_MODEL = os.environ.get("ELEVENLABS_STT_MODEL", "scribe_v1")
 
@@ -7943,6 +7994,14 @@ class ScriptPrewarmIn(BaseModel):
     key: str
     dry_run: bool = False
     limit: int = 0
+    lesson: str = ""           # kf: restrict to ONE lesson's closure ("" = whole course)
+    force: bool = False        # kf: re-render even lines that are already cached
+
+
+class CourseAudioAuditIn(BaseModel):
+    key: str = ""
+    lesson: str = ""           # "" = the whole course
+    tolerance: float = 2.5     # how many times off the median before it is an outlier
 
 
 class TtsCacheRepairIn(BaseModel):
@@ -8099,10 +8158,23 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
     _require_admin(x_admin_key or body.key)
     # build jw: the WHOLE course's closure, deduped -- shared lines (praise, the
     # fixed one-liners) render once and serve every lesson.
-    lines = sorted({s for les in lessonscripts.LESSONS
-                    for s in lessonscripts.audio_lines(les)})
+    # build kf: `lesson` narrows that to one lesson, so a bad clip (or a model change)
+    # can be tested for pennies instead of re-rendering the whole course unheard.
+    lessons = lessonscripts.LESSONS
+    if body.lesson:
+        lessons = [l for l in lessonscripts.LESSONS if l["id"] == body.lesson]
+        if not lessons:
+            raise HTTPException(status_code=404,
+                                detail=f"No scripted lesson with id {body.lesson!r}.")
+    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
     todo, already = [], 0
     for say in lines:
+        if body.force:
+            # kf: FORCE means re-render over the top. A cache HIT never re-renders, so
+            # without this a clip that is structurally perfect but SOUNDS wrong (the
+            # exact thing Jim heard) can never be replaced except by emptying the cache.
+            todo.append(say)
+            continue
         try:
             pth = _tts_cache_path(say)
             if pth.exists() and pth.stat().st_size > 0:
@@ -8119,6 +8191,9 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
         disk = _tts_cache_projection(chars)
         return {"ok": True, "dry_run": True, "already_cached": already,
                 "to_render": len(todo), "chars": chars,
+                "lesson": body.lesson or "(whole course)",
+                "force": bool(body.force),
+                "model": _tts_model_for(lines[0]) if lines else str(ELEVEN_MODEL),
                 "disk": disk,
                 "note": ("Nothing was spent. POST again with dry_run=false to render."
                          + ("" if disk["fits"] else
@@ -8135,7 +8210,7 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
     for say in todo:
         try:
             r = httpx.post(url, headers=headers, timeout=60.0, json={
-                "text": say, "model_id": ELEVEN_MODEL,
+                "text": say, "model_id": _tts_model_for(say),   # kf
                 "output_format": "mp3_44100_128",
                 "voice_settings": {"stability": 0.55, "similarity_boost": 0.75,
                                    "use_speaker_boost": True},
@@ -8149,7 +8224,7 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
             rendered += 1
             spent += len(say)
             store.log_usage(kind="tts", code="", mode="script-prewarm",
-                            model=str(ELEVEN_MODEL or ""), tts_chars=len(say),
+                            model=str(_tts_model_for(say) or ""), tts_chars=len(say),
                             tts_cache_hit=False)
         except Exception as exc:  # noqa: BLE001
             failed.append(f"{type(exc).__name__}: {say[:40]}")
@@ -8163,7 +8238,114 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
         print(f"[script-prewarm] evict skipped: {exc}")
     return {"ok": not failed, "rendered": rendered, "already_cached": already,
             "chars_spent": spent, "failed": failed[:10],
-            "failed_count": len(failed), "disk": _tts_cache_projection(0)}
+            "failed_count": len(failed),
+            "lesson": body.lesson or "(whole course)",
+            "forced": bool(body.force),
+            "model": _tts_model_for(todo[0]) if todo else str(ELEVEN_MODEL),
+            "disk": _tts_cache_projection(0)}
+
+
+@app.post("/api/admin/course-audio-audit")
+def admin_course_audio_audit(body: CourseAudioAuditIn,
+                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """BUILD kf -- IS THE COURSE AUDIO ANY GOOD? Free, reads only, deletes nothing.
+
+    ke's repair pass asks "is this file a valid mp3". That question found nothing,
+    because the clip Jim heard as garbled IS a valid mp3 -- a bad RENDER, not a bad
+    file. This asks the two questions a valid file can still fail:
+
+      1. IS IT THE RIGHT SHAPE? Every clip should be MPEG-1 Layer III, 44,100 Hz,
+         mono, 128 kbps -- what we ask ElevenLabs for, and what the leading silence
+         we concatenate at serve time is. A clip in any other shape can decode oddly
+         once that silence is glued to its front, which sounds exactly like "right
+         words, bad audio".
+
+      2. IS IT A PLAUSIBLE LENGTH FOR ITS WORDS? Because this walks the CLOSURE it
+         knows the TEXT behind every clip, so it can compare seconds-per-character
+         against the MEDIAN of the course itself. Self-calibrating: no guessed
+         speaking rate, no magic constant, and it moves automatically if the voice or
+         model changes. A line that renders far short of its words was truncated; far
+         long, and something was repeated or drawn out.
+
+    It reports the offending LINES, not hashes, so Jim can go listen to the named ones
+    and re-render just those (script-prewarm with lesson=... force=true).
+
+    Duration is computed from the file size at the declared constant bitrate rather
+    than by walking every frame -- exact for CBR, and it keeps a 4,000-clip audit to a
+    stat() and a 4 KB read per file instead of reading ~200 MB."""
+    _require_admin(x_admin_key or body.key)
+    lessons = lessonscripts.LESSONS
+    if body.lesson:
+        lessons = [l for l in lessonscripts.LESSONS if l["id"] == body.lesson]
+        if not lessons:
+            raise HTTPException(status_code=404,
+                                detail=f"No scripted lesson with id {body.lesson!r}.")
+    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
+
+    CANON = {"mpeg": "1", "layer": 3, "rate": 44100, "kbps": 128, "channels": "mono"}
+    clips, missing, unreadable = [], [], []
+    shapes = {}
+    for say in lines:
+        pth = _tts_cache_path(say)
+        try:
+            size = pth.stat().st_size
+        except Exception:  # noqa: BLE001 -- not rendered yet
+            missing.append(say)
+            continue
+        try:
+            with open(pth, "rb") as fh:
+                head = fh.read(4096)
+        except Exception as exc:  # noqa: BLE001
+            unreadable.append(f"{say[:50]} ({exc})")
+            continue
+        shape = _mp3_shape(head)
+        if not shape:
+            unreadable.append(f"{say[:50]} (no readable MPEG header)")
+            continue
+        key = f"{shape['rate']}/{shape['channels']}/{shape['kbps']}k/MPEG{shape['mpeg']}L{shape['layer']}"
+        shapes[key] = shapes.get(key, 0) + 1
+        audio_bytes = max(0, size - _id3v2_len(head))
+        seconds = (audio_bytes * 8.0) / (shape["kbps"] * 1000.0) if shape["kbps"] else 0.0
+        clips.append({"text": say, "seconds": round(seconds, 2), "bytes": size,
+                      "shape": key, "canon": all(shape[k] == v for k, v in CANON.items()),
+                      "sec_per_char": (seconds / len(say)) if say else 0.0})
+
+    odd_shape = [c for c in clips if not c["canon"]]
+
+    # median seconds-per-character across the course -- the course is its own yardstick
+    rates = sorted(c["sec_per_char"] for c in clips if c["sec_per_char"] > 0)
+    median = rates[len(rates) // 2] if rates else 0.0
+    tol = max(1.2, float(body.tolerance or 2.5))
+    outliers = []
+    if median > 0:
+        for c in clips:
+            r = c["sec_per_char"]
+            if r <= 0:
+                continue
+            ratio = r / median
+            if ratio > tol or ratio < (1.0 / tol):
+                outliers.append({"text": c["text"], "seconds": c["seconds"],
+                                 "expected_seconds": round(len(c["text"]) * median, 2),
+                                 "times_off": round(ratio, 2)})
+    outliers.sort(key=lambda o: abs(1.0 - o["times_off"]), reverse=True)
+
+    return {"ok": True,
+            "lesson": body.lesson or "(whole course)",
+            "model_in_use": _tts_model_for(lines[0]) if lines else str(ELEVEN_MODEL),
+            "script_model_set": bool(SCRIPT_TTS_MODEL),
+            "lines": len(lines),
+            "cached": len(clips),
+            "not_yet_rendered": len(missing),
+            "shapes": shapes,
+            "odd_shape_count": len(odd_shape),
+            "odd_shape": [{"text": c["text"][:90], "shape": c["shape"]} for c in odd_shape[:25]],
+            "median_seconds_per_char": round(median, 5),
+            "tolerance_x": tol,
+            "outlier_count": len(outliers),
+            "outliers": outliers[:40],
+            "unreadable": unreadable[:20],
+            "note": ("Nothing was changed. Listen to the lines named above, then "
+                     "re-render just that lesson with force to replace them.")}
 
 
 @app.post("/api/admin/lesson-audit")
@@ -8279,7 +8461,7 @@ def admin_prewarm_foundations(body: PrewarmAdminIn):
                 continue
             rendered += 1
             spent += len(say)
-            store.log_usage(kind="tts", code="", mode="prewarm", model=str(ELEVEN_MODEL or ""),
+            store.log_usage(kind="tts", code="", mode="prewarm", model=str(_tts_model_for(say) or ""),
                             tts_chars=len(say), tts_cache_hit=False)
         except Exception as exc:  # noqa: BLE001 -- one bad script must not stop the batch
             failed.append(f"{course}/{term}: {exc}")
@@ -9372,7 +9554,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21ke-the-voice-repair"
+APP_BUILD = "2026-08-21kf-the-right-voice"
 
 
 @app.get("/health")
@@ -10647,8 +10829,42 @@ import hashlib
 _TTS_CACHE_DIR = DATA_DIR / "tts_cache"
 
 
+def _script_closure_texts() -> set:
+    """Every line the scripted course can speak, as TEXT. Memoised -- LESSONS is
+    static for the life of the process. Empty set if lessonscripts cannot be read,
+    which degrades kf to the old single-model behaviour rather than breaking the voice."""
+    global _SCRIPT_CLOSURE_TEXTS
+    if _SCRIPT_CLOSURE_TEXTS is None:
+        try:
+            _SCRIPT_CLOSURE_TEXTS = {s for les in lessonscripts.LESSONS
+                                     for s in lessonscripts.audio_lines(les)}
+        except Exception as exc:  # noqa: BLE001
+            print(f"[speak] closure unavailable, scripted model split is off: {exc}")
+            _SCRIPT_CLOSURE_TEXTS = set()
+    return _SCRIPT_CLOSURE_TEXTS
+
+
+_SCRIPT_CLOSURE_TEXTS = None
+
+
+def _tts_model_for(text: str) -> str:
+    """BUILD kf -- THE ONE PLACE that decides which model voices a line.
+
+    Membership of the scripted closure is the test, so no caller has to declare its
+    lane and no client has to be trusted to. Critically, the cache PATH and the
+    RENDER both come through here: if they could disagree, every scripted line would
+    be written under one key and looked up under another, miss forever, and re-bill
+    the whole course on every single play."""
+    try:
+        if SCRIPT_TTS_MODEL and text in _script_closure_texts():
+            return SCRIPT_TTS_MODEL
+    except Exception:  # noqa: BLE001 -- never let the split break the voice
+        pass
+    return ELEVEN_MODEL
+
+
 def _tts_cache_path(text: str) -> Path:
-    key = hashlib.sha256(("|".join([str(ELEVEN_VOICE_ID), str(ELEVEN_MODEL), text])).encode("utf-8")).hexdigest()
+    key = hashlib.sha256(("|".join([str(ELEVEN_VOICE_ID), str(_tts_model_for(text)), text])).encode("utf-8")).hexdigest()
     return _TTS_CACHE_DIR / (key + ".mp3")
 
 
@@ -10806,6 +11022,36 @@ def mp3_is_intact(data) -> bool:
         return True
     except Exception:       # noqa: BLE001 -- a validator must never raise
         return False
+
+
+def _mp3_shape(data):
+    """BUILD kf: the MPEG parameters of the first frame -- {mpeg, layer, rate, kbps,
+    channels} -- or None. Reads a header, decodes nothing. Used by the course audio
+    audit to spot a clip that is not the shape everything else is, because the leading
+    silence we concatenate at serve time assumes 44,100 Hz mono 128 kbps and a clip in
+    another shape can decode oddly once that silence is glued to its front."""
+    try:
+        pos = _id3v2_len(data)
+        h = data[pos:pos + 4]
+        if len(h) < 4 or h[0] != 0xFF or (h[1] & 0xE0) != 0xE0:
+            return None
+        ver = (h[1] >> 3) & 0x03
+        layer = (h[1] >> 1) & 0x03
+        if ver == 1 or layer == 0:
+            return None
+        layer_n = 4 - layer
+        br_i = (h[2] >> 4) & 0x0F
+        sr_i = (h[2] >> 2) & 0x03
+        if br_i in (0, 15) or sr_i == 3:
+            return None
+        table = _MP3_BITRATES_V1 if ver == 3 else _MP3_BITRATES_V2
+        return {"mpeg": {3: "1", 2: "2", 0: "2.5"}[ver],
+                "layer": layer_n,
+                "rate": _MP3_RATES[ver][sr_i],
+                "kbps": table[layer_n][br_i],
+                "channels": "mono" if ((h[3] >> 6) & 0x03) == 3 else "stereo"}
+    except Exception:  # noqa: BLE001 -- an audit helper must never raise
+        return None
 
 
 def mp3_has_counts(data) -> bool:
@@ -10985,7 +11231,7 @@ def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "
         print(f"[speak] cache stat error: {exc}")
     # USAGE LOG (2026-08-04): a miss is about to spend ElevenLabs characters; a hit is free.
     # Fire-and-forget -- log_usage swallows its own errors and no-ops when the DB is off.
-    store.log_usage(kind="tts", code=code, mode=mode, model=str(ELEVEN_MODEL or ""),
+    store.log_usage(kind="tts", code=code, mode=mode, model=str(_tts_model_for(text) or ""),
                     tts_chars=len(text), tts_cache_hit=cache_hit)
     try:
         if cache_hit:
@@ -10998,7 +11244,7 @@ def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "
     headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
     payload = {
         "text": text,
-        "model_id": ELEVEN_MODEL,
+        "model_id": _tts_model_for(text),      # kf: same decision as the cache key
         "output_format": "mp3_44100_128",
         "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "use_speaker_boost": True},
     }
@@ -11349,8 +11595,15 @@ def _script_closure_paths() -> set:
     process, and this is ~4k sha256 hashes we should not redo on every eviction.
     Returns an empty set if lessonscripts cannot be read, which degrades this to the
     old behaviour rather than breaking eviction."""
-    global _SCRIPT_CLOSURE_PATHS
+    global _SCRIPT_CLOSURE_PATHS, _SCRIPT_CLOSURE_PATHS_MODEL
+    # kf: the closure's PATHS depend on the model (it is in the cache key), so the memo
+    # is invalidated if the scripted model changes. Env cannot change mid-process, but a
+    # memo that silently protected the wrong files would be a nasty thing to debug later.
+    if (_SCRIPT_CLOSURE_PATHS is not None
+            and _SCRIPT_CLOSURE_PATHS_MODEL != SCRIPT_TTS_MODEL):
+        _SCRIPT_CLOSURE_PATHS = None
     if _SCRIPT_CLOSURE_PATHS is None:
+        _SCRIPT_CLOSURE_PATHS_MODEL = SCRIPT_TTS_MODEL
         paths = set()
         try:
             for les in lessonscripts.LESSONS:
@@ -11364,6 +11617,7 @@ def _script_closure_paths() -> set:
 
 
 _SCRIPT_CLOSURE_PATHS = None
+_SCRIPT_CLOSURE_PATHS_MODEL = None
 
 
 def _evict_tts_cache() -> None:

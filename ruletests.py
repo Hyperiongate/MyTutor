@@ -2,6 +2,19 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD kf -- PART 3cy, THE SCRIPTED LANE PICKS ITS OWN VOICE. Jim, with
+#               the course fully prewarmed and ke's repair reporting zero damage:
+#               "Still garbled when counting four stars" -- right words, bad audio, i.e.
+#               a bad RENDER that ke's structural check cannot see. The course had been
+#               rendered on eleven_flash_v2_5, the LOW-LATENCY model, in a lane that is
+#               pre-rendered and does not care about latency. kf gives the scripted lane
+#               its own model. The DANGEROUS part is key agreement, and that is what this
+#               PART mostly tests: with the default unset every cache key must stay
+#               BYTE-IDENTICAL to ke's (or the ~$43 already spent is orphaned on deploy),
+#               and with the split on a clip must round-trip store->lookup as a HIT while
+#               the live lane's keys do not move at all. Plus force/lesson semantics and
+#               the audit's outlier maths, including the negative test that a healthy
+#               course produces NO outliers.
 #   2026-08-21  BUILD ke -- PART 3cx, THE VOICE CACHE IS WHOLE OR IT IS NOT CACHED.
 #               Jim's kd playtest heard several lessons "slurring and speaking
 #               nonsense" while the audio prewarm ran. Root cause: all three TTS
@@ -14960,6 +14973,241 @@ def part3cx_voice_cache_whole():
 
 
 # =============================================================================
+# PART 3cy -- THE SCRIPTED LANE PICKS ITS OWN VOICE (build kf, 2026-08-21)
+# -----------------------------------------------------------------------------
+# Jim, after the whole course was prewarmed and ke's repair found ZERO damaged clips:
+# "Still garbled when counting four stars" -- the RIGHT WORDS with BAD AUDIO. Not the
+# cache (0 damaged of 4,306), not ke's valve (every line is cached, and cached clips
+# always took the sound Content-Length path). The RENDER itself.
+#
+# Underneath it, a design mistake: the whole course was rendered with
+# ELEVEN_MODEL="eleven_flash_v2_5", the LOW-LATENCY model, in a lane that is
+# PRE-RENDERED and therefore does not care about latency at all.
+#
+# THE DANGEROUS PART of the fix is not the model -- it is key agreement. The cache path
+# and the render must ALWAYS pick the same model. If they could disagree, every scripted
+# line would be written under one key, looked up under another, miss forever, and re-bill
+# the entire course on every single play. So:
+#   1. WITH THE DEFAULT (unset), every cache key is BYTE-IDENTICAL to build ke's. This
+#      is the do-no-harm test: deploying kf must not orphan the ~$43 already spent.
+#   2. With the split on, a closure line round-trips (store then look up = HIT), a
+#      non-closure line does NOT move, and the two land on different keys.
+#   3. force/lesson actually narrow and actually overwrite.
+#   4. The audit's outlier maths finds a short clip and an off-spec clip, and stays
+#      quiet on a healthy course. Negative tests for a detector, per the discipline.
+# =============================================================================
+_KF_PROBE = r'''import os, sys, hashlib, struct
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/kf.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+sys.path.insert(0, sys.argv[2])
+import main, lessonscripts as L
+from fastapi.testclient import TestClient
+
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+SCRIPT_LINE = L.audio_lines(L.LESSONS[0])[0]
+OTHER_LINE = "This sentence is not in any scripted lesson closure at all."
+chk("the fixture line really is in the closure", SCRIPT_LINE in main._script_closure_texts())
+chk("the control line really is NOT", OTHER_LINE not in main._script_closure_texts())
+
+# ---- 1. THE DO-NO-HARM TEST -------------------------------------------------
+# Default (SCRIPT_TTS_MODEL unset) must reproduce build ke's key EXACTLY, or every
+# clip already paid for is orphaned on deploy.
+def ke_key(text):
+    return hashlib.sha256(("|".join([str(main.ELEVEN_VOICE_ID), str(main.ELEVEN_MODEL),
+                                     text])).encode("utf-8")).hexdigest() + ".mp3"
+chk("SCRIPT_TTS_MODEL defaults to unset", main.SCRIPT_TTS_MODEL == "",
+    repr(main.SCRIPT_TTS_MODEL))
+same = all(main._tts_cache_path(s).name == ke_key(s)
+           for s in list(main._script_closure_texts())[:400])
+chk("DEFAULT: every cache key is byte-identical to build ke's (the $43 survives)", same)
+chk("DEFAULT: a scripted line still uses ELEVEN_MODEL",
+    main._tts_model_for(SCRIPT_LINE) == main.ELEVEN_MODEL)
+
+# ---- 2. WITH THE SPLIT ON ---------------------------------------------------
+before_script = main._tts_cache_path(SCRIPT_LINE).name
+before_other = main._tts_cache_path(OTHER_LINE).name
+main.SCRIPT_TTS_MODEL = "eleven_multilingual_v2"
+chk("split ON: a scripted line switches model",
+    main._tts_model_for(SCRIPT_LINE) == "eleven_multilingual_v2")
+chk("split ON: the LIVE lane stays on Flash",
+    main._tts_model_for(OTHER_LINE) == main.ELEVEN_MODEL,
+    "latency is real on the conversational lane -- it must not be dragged along")
+chk("split ON: the scripted line's cache key MOVES",
+    main._tts_cache_path(SCRIPT_LINE).name != before_script)
+chk("split ON: the live line's cache key does NOT move",
+    main._tts_cache_path(OTHER_LINE).name == before_other,
+    "changing the scripted model must not re-bill the generated lane")
+
+# THE KEY-AGREEMENT TEST: store then look up must HIT, under the split.
+FRAME = 144 * 128000 // 44100
+def clip(n):
+    body = (b"\xff\xfb\x90\xc4" + b"\x11" * (FRAME - 4)) * n
+    x = (b"\xff\xfb\x90\xc4" + b"\x00" * 17 + b"Xing" + struct.pack(">I", 3)
+         + struct.pack(">I", n) + struct.pack(">I", FRAME + len(body)))
+    return x + b"\x00" * (FRAME - len(x)) + body
+A = clip(40)
+chk("split ON: a scripted clip stores", main._tts_cache_store(SCRIPT_LINE, A, source="kf-test"))
+chk("split ON: and is found again (write key == read key)",
+    main._tts_cache_path(SCRIPT_LINE).exists()
+    and main._tts_cache_path(SCRIPT_LINE).read_bytes() == A,
+    "a write/read key disagreement would miss forever and re-bill the whole course")
+main.SCRIPT_TTS_MODEL = ""
+chk("split OFF again: that clip is correctly NOT found under the old model",
+    not main._tts_cache_path(SCRIPT_LINE).exists(),
+    "the key must genuinely depend on the model, not merely appear to")
+
+# ---- 3. force / lesson ------------------------------------------------------
+c = TestClient(main.app)
+r = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
+                                              "lesson": "no-such-lesson"})
+chk("an unknown lesson id is a 404, not a silent whole-course render", r.status_code == 404,
+    r.status_code)
+
+whole = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True}).json()
+one = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
+                                                "lesson": L.LESSONS[0]["id"]}).json()
+chk("lesson= narrows the render to that lesson", 0 < one["to_render"] < whole["to_render"],
+    f"one={one['to_render']} whole={whole['to_render']}")
+chk("the dry run says WHICH lesson and which model",
+    one["lesson"] == L.LESSONS[0]["id"] and one.get("model"), one)
+
+# cache one lesson's lines, then prove force ignores the cache
+lines0 = sorted(set(L.audio_lines(L.LESSONS[0])))
+for s in lines0:
+    main._tts_cache_store(s, A, source="kf-seed")
+noforce = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
+                 "lesson": L.LESSONS[0]["id"]}).json()
+forced = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
+                "lesson": L.LESSONS[0]["id"], "force": True}).json()
+chk("without force, fully-cached lines are skipped free", noforce["to_render"] == 0, noforce)
+chk("WITH force, every line of that lesson is re-rendered",
+    forced["to_render"] == len(lines0), f"{forced['to_render']} vs {len(lines0)}")
+chk("force is reported back, so nobody spends it by accident", forced.get("force") is True)
+
+# ---- 4. the audit -----------------------------------------------------------
+a = c.post("/api/admin/course-audio-audit", json={"key": "TESTKEY",
+           "lesson": L.LESSONS[0]["id"]}).json()
+chk("audit sees the seeded lesson", a["cached"] == len(lines0), a.get("cached"))
+chk("audit reports the shape distribution", "44100/mono/128k/MPEG1L3" in (a.get("shapes") or {}),
+    a.get("shapes"))
+chk("audit finds no off-spec clips in a uniform course", a["odd_shape_count"] == 0, a)
+chk("HEALTHY COURSE => NO OUTLIERS (the detector's negative test)",
+    a["outlier_count"] == 0,
+    "every seeded clip is identical, so nothing can be an outlier; if this fires the "
+    "outlier maths flags noise and would send Jim chasing good clips")
+
+# now damage two clips in ways a VALID mp3 can still be wrong
+short_line = lines0[0]
+main._tts_cache_store(short_line, clip(9), source="kf-test")        # far too short
+odd_line = lines0[1]
+odd = clip(40).replace(b"\xff\xfb\x90\xc4", b"\xff\xfb\x54\xc4")     # 22050Hz-ish header
+main._TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+main._tts_cache_path(odd_line).write_bytes(odd)
+a2 = c.post("/api/admin/course-audio-audit", json={"key": "TESTKEY",
+            "lesson": L.LESSONS[0]["id"]}).json()
+chk("audit catches the too-short clip and NAMES the line",
+    any(o["text"] == short_line for o in a2.get("outliers", [])),
+    str(a2.get("outliers"))[:200])
+chk("audit catches the off-spec clip and NAMES the line",
+    a2["odd_shape_count"] >= 1
+    and any(o["text"].startswith(odd_line[:40]) for o in a2.get("odd_shape", [])),
+    str(a2.get("odd_shape"))[:200])
+chk("audit reports the course's own median pace rather than a guessed one",
+    a2["median_seconds_per_char"] > 0, a2.get("median_seconds_per_char"))
+chk("audit changed nothing on disk", main._tts_cache_path(odd_line).read_bytes() == odd)
+
+print("OKALL" if ok else "HADFAIL")
+'''
+
+
+def part3cy_scripted_voice():
+    print("\nPART 3cy — the scripted lane picks its own voice (build kf)")
+    import tempfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    body = msrc.split("# CHANGE NOTES", 1)[-1]
+    body = body.split("\n", 1)[1] if "\n" in body else body
+    code_only = "\n".join(ln for ln in body.split("\n") if not ln.lstrip().startswith("#"))
+
+    check("build kf: the scripted lane has its own model setting",
+          "SCRIPT_TTS_MODEL" in code_only, "")
+    check("build kf: it defaults to EMPTY, so a deploy changes nothing by itself",
+          'os.environ.get("SCRIPT_TTS_MODEL", "")' in code_only,
+          "a default that switched models would orphan every clip already paid for and "
+          "silently re-bill the whole course")
+    check("build kf: ONE helper decides which model voices a line",
+          code_only.count("def _tts_model_for(") == 1,
+          "the cache key and the render must never be able to disagree")
+    check("build kf: the cache PATH goes through that helper",
+          "_tts_model_for(text)), text" in code_only,
+          "a path keyed on a different model than the render is a permanent miss")
+    check("build kf: every render site goes through it too",
+          code_only.count("_tts_model_for(") >= 5,
+          "path, stream render, prewarm render and the usage log all have to agree")
+    check("build kf: the usage log records the model actually used",
+          "model=str(_tts_model_for(" in code_only,
+          "a cost log naming the wrong model is worse than none")
+    check("build kf: the closure-path memo is invalidated when the model changes",
+          "_SCRIPT_CLOSURE_PATHS_MODEL" in code_only,
+          "a stale memo would protect the wrong files from eviction")
+    check("build kf: prewarm can target ONE lesson and can FORCE over the cache",
+          "lesson: str = \"\"" in msrc and "force: bool = False" in msrc
+          and "if body.force:" in code_only,
+          "without force a cache HIT never re-renders, so a clip that SOUNDS wrong "
+          "could only be fixed by emptying the whole cache")
+    check("build kf: the audit exists and reads only",
+          '@app.post("/api/admin/course-audio-audit")' in msrc
+          and "def _mp3_shape(" in code_only, "")
+    check("build kf: the audit calibrates on the course's OWN median, not a guess",
+          "median_seconds_per_char" in msrc and "rates[len(rates) // 2]" in code_only,
+          "a hard-coded speaking rate would go wrong the moment the voice changes")
+
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        asrc = fh.read()
+    check("build kf: the audit and the re-render have BUTTONS (kb ruling)",
+          'id="caAudit"' in asrc and 'id="caRender"' in asrc and 'id="caPrice"' in asrc
+          and '"/api/admin/course-audio-audit"' in asrc, "")
+    check("build kf: the lesson picker is fed by the real lessons endpoint",
+          '"/api/script/lessons"' in asrc,
+          "a hand-typed lesson list would drift from the engine, which is how the "
+          "'24 scripted lessons' label survived the course growing to 41")
+    check("build kf: the stale '24 scripted lessons' label is gone",
+          "24 scripted lessons can ever speak" not in asrc,
+          "Jim read that label on a 41-lesson course")
+
+    with tempfile.TemporaryDirectory() as d:
+        script = os.path.join(d, "kf_probe.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_KF_PROBE)
+        try:
+            r = subprocess.run([sys.executable, script, d, here],
+                               capture_output=True, text=True, timeout=300)
+        except subprocess.TimeoutExpired:
+            bad("kf: the scripted-voice probe", "timed out after 300s")
+            return
+        out = (r.stdout or "") + (r.stderr or "")
+        if "OKALL" not in out and "HADFAIL" not in out:
+            bad("kf: the scripted-voice probe ran", out.strip()[-1500:])
+            return
+        for line in (r.stdout or "").splitlines():
+            line = line.strip()
+            if line.startswith("PASS "):
+                ok("kf: " + line[5:].strip())
+            elif line.startswith("FAIL "):
+                bad("kf: " + line[5:].strip(), "see the probe output")
+
+
+# =============================================================================
 # PART 3cw -- THE SCRIPTED LESSON LANE, SERVED (build jt, 2026-08-21)
 # -----------------------------------------------------------------------------
 # The REAL FastAPI app is stood up against a real (sqlite) database and driven as a
@@ -15527,6 +15775,7 @@ def main():
     part3cv_scripted_engine()
     part3cw_script_lane()
     part3cx_voice_cache_whole()
+    part3cy_scripted_voice()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
