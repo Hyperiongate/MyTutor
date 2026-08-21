@@ -14386,20 +14386,33 @@ def part3cv_scripted_engine():
                   for les in L.LESSONS for s in L.audio_lines(les)),
           "2026-08-21, twice: 'adding within 10' is curriculum-speak, and the honest "
           "name is the INPUTS -- 'we're adding single-digit numbers, one through nine'")
-    check("jz: the course spans ALL NINE units of Basic Math",
-          sorted({les["unit"] for les in L.LESSONS}) == list(range(1, 10)),
-          str(sorted({les["unit"] for les in L.LESSONS})))
+    check("kc: Basic Math spans all nine of ITS units",
+          sorted({les["unit"] for les in L.LESSONS
+                  if les["course"] == "basic"}) == list(range(1, 10)),
+          str(sorted({les["unit"] for les in L.LESSONS
+                      if les["course"] == "basic"})))
+    check("kc: the re-homed Entry lessons sit in Entry units 2-6",
+          sorted({les["unit"] for les in L.LESSONS
+                  if les["course"] == "entry"}) == [2, 3, 4, 5, 6],
+          "the Eureka audit's re-cut: single-digit through regrouping is "
+          "Entry-Level Math by Jim's own curriculum")
+    check("kc: the audit's two big holes are filled",
+          "basic-u2-multiply-two-digit" in L.LESSON_BY_ID
+          and "basic-u3-divide-two-digit" in L.LESSON_BY_ID
+          and "basic-u5-fractions-on-the-number-line" in L.LESSON_BY_ID,
+          "multi-digit x/÷ (Eureka G4-M3, 43 days) and fractions-as-numbers "
+          "(G3-M5) were the coverage findings")
     _ids = [les["id"] for les in L.LESSONS]
     check("jz: no-carry is taught BEFORE carrying, carrying before regrouping",
-          _ids.index("basic-u1-add-two-digit-no-carry")
-          < _ids.index("basic-u1-add-with-carrying")
-          < _ids.index("basic-u1-take-away-with-regrouping"),
+          _ids.index("entry-u5-add-two-digit-no-carry")
+          < _ids.index("entry-u5-add-with-carrying")
+          < _ids.index("entry-u6-take-away-with-regrouping"),
           "jy shipped carrying ahead of no-carry in the picker; COURSE_ORDER owns "
           "the sequence now and this pin keeps it honest")
     check("jz: the regrouping lesson exists and EVERY problem regroups",
-          L.LESSON_BY_ID.get("basic-u1-take-away-with-regrouping", {}).get("regroup")
+          L.LESSON_BY_ID.get("entry-u6-take-away-with-regrouping", {}).get("regroup")
           is True, "jr's 'too small' canon has no home")
-    _carry = L.LESSON_BY_ID.get("basic-u1-add-with-carrying")
+    _carry = L.LESSON_BY_ID.get("entry-u5-add-with-carrying")
     check("jy: the carrying lesson exists, abstract-only, and every problem carries",
           _carry is not None and _carry.get("carry") is True
           and _carry.get("levels") == ("abstract",),
@@ -14411,7 +14424,7 @@ def part3cv_scripted_engine():
           "Jim's live catch, 2026-08-20: the same rule in two costumes, four turns "
           "apart -- the second costume must not be able to pass the build")
     check("lesson six NEVER drops to counting stars",
-          L.LESSON_BY_ID["basic-u1-add-two-digit-no-carry"].get("levels")
+          L.LESSON_BY_ID["entry-u5-add-two-digit-no-carry"].get("levels")
           == ("abstract",),
           "dropping a struggling child to counting 37 stars one at a time is not help")
 
@@ -14659,7 +14672,9 @@ for v in seq:
         if s["kind"] == "end": ended = s
 chk("perfect child masters with ZERO AI calls", ended and ended["mastered"] and calls["n"] == 0,
     str(ended))
-rows = store.get_topics("KID1", "basic")
+# kc: the default lesson is now ENTRY-LEVEL MATH (the re-cut moved single-digit
+# adding there), so its mastery lands under course "entry"
+rows = store.get_topics("KID1", "entry")
 chk("mastery recorded through the real store", any(r0.get("status") == "mastered" for r0 in rows), str(rows))
 
 # usage rows kind=script with times
@@ -14731,12 +14746,12 @@ r = c.get("/api/script/lessons")
 j = r.json()
 chk("the course lists at least four lessons in order",
     len(j.get("lessons", [])) >= 4 and j["lessons"][0]["id"] == L.LESSONS[0]["id"])
-sub_id = L.LESSONS[1]["id"]
+sub_id = "entry-u3-take-away-single-digit"
 r = c.post("/api/script/start", json={"code": "KID9", "lesson": sub_id})
 j = r.json()
 chk("lesson two starts by id and ends its opening with an ask",
     r.status_code == 200 and j["steps"][-1]["kind"] == "ask", str(r.status_code))
-p9 = L.LESSONS[1]["pairs"][0]["ask"]
+p9 = L.LESSON_BY_ID[sub_id]["pairs"][0]["ask"]
 j = c.post("/api/script/answer", json={"code": "KID9", "value": L.ans(p9)}).json()
 chk("a correct take-away answer is praised and the script moves on",
     j["steps"][0]["kind"] == "say" and "minus" in j["steps"][0]["spoken"],

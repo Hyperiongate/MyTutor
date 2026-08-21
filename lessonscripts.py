@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD kc -- THE RE-CUT (Jim's ruling on the Eureka audit,
+#               Eureka_Audit_Of_The_Scripted_Course_2026-08-21.md). The audit's
+#               headline: my first eight lessons -- single-digit adding through
+#               regrouping -- were ENTRY-LEVEL MATH content by Jim's own curriculum,
+#               filed under Basic because Basic U1's title ("Place Value &
+#               Whole-Number Operations") reads the same at every grade band. MOVED:
+#               all eight to course "entry", units 2-6, ids renamed entry-*. Basic
+#               gets its REAL Unit 1 -- place value to 1,000, rounding to tens and
+#               hundreds, and an interleaved multi-digit review (interleaving is the
+#               evidence-based practice; the review lesson carries mixed_review=True
+#               and the ramp check deliberately does not apply). PLUS the audit's two
+#               biggest holes: multi-digit multiplication and division (Eureka G4-M3,
+#               43 days, the largest module in grades 3-5 -- previously ZERO lessons)
+#               and fractions ON THE NUMBER LINE (Eureka G3-M5's core idea: a
+#               fraction IS a number with a place, previously taught only as portions
+#               of groups). New ops: pv (hundreds/tens/ones), r10/r100 (rounding,
+#               with their OWN distractors -- +-10/+-100, because +-1 distractors
+#               would make rounding trivially guessable), nl/nlw (number-line hops).
+#               OP_EXT entries may now declare a "choices" function.
 #   2026-08-21  BUILD jz -- THE COURSE CROSSES ALL NINE UNITS. Jim: "keep working ...
 #               I wanna get through the whole basic math course." SEVENTEEN new
 #               lessons spanning units 1-9 (regrouping, multiplication, division,
@@ -161,8 +180,8 @@ def ans(p):
 # =============================================================================
 LESSONS = [
     {
-        "id": "basic-u1-add-up-to-10",
-        "course": "basic", "unit": 1,
+        "id": "entry-u2-add-single-digit",
+        "course": "entry", "unit": 2,
         "topic": "Adding single-digit numbers",
         "op": "+", "max_value": 10, "a_max": 9, "b_max": 9,
         "symbols": ("plus", "equals"),
@@ -216,8 +235,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-take-away-up-to-10",
-        "course": "basic", "unit": 1,
+        "id": "entry-u3-take-away-single-digit",
+        "course": "entry", "unit": 3,
         "topic": "Taking away single-digit numbers",
         "op": "-", "max_value": 10, "a_max": 9, "b_max": 9,
         "symbols": ("minus", "equals"),
@@ -267,8 +286,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-add-up-to-20",
-        "course": "basic", "unit": 1,
+        "id": "entry-u2-add-past-ten",
+        "course": "entry", "unit": 2,
         "topic": "Adding single-digit numbers past ten",
         "op": "+", "max_value": 20, "a_max": 9, "b_max": 9,
         "symbols": ("plus", "equals"),
@@ -312,8 +331,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-take-away-up-to-20",
-        "course": "basic", "unit": 1,
+        "id": "entry-u3-take-away-bigger",
+        "course": "entry", "unit": 3,
         "topic": "Taking away from bigger numbers",
         "op": "-", "max_value": 20, "a_max": 19, "b_max": 9,
         "symbols": ("minus", "equals"),
@@ -358,8 +377,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-tens-and-ones",
-        "course": "basic", "unit": 1,
+        "id": "entry-u4-tens-and-ones",
+        "course": "entry", "unit": 4,
         "topic": "Tens and ones",
         "op": "t", "max_value": 19, "a_max": 1, "b_max": 9,
         "symbols": ("ten", "ones"),
@@ -401,8 +420,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-add-with-carrying",
-        "course": "basic", "unit": 1,
+        "id": "entry-u5-add-with-carrying",
+        "course": "entry", "unit": 5,
         "topic": "Adding with carrying",
         "op": "+", "max_value": 99, "carry": True,
         "levels": ("abstract",),   # like lesson 6: stars do not help at this size
@@ -456,8 +475,8 @@ LESSONS = [
         ],
     },
     {
-        "id": "basic-u1-add-two-digit-no-carry",
-        "course": "basic", "unit": 1,
+        "id": "entry-u5-add-two-digit-no-carry",
+        "course": "entry", "unit": 5,
         "topic": "Adding two-digit numbers",
         "op": "+", "max_value": 99, "no_carry": True,
         "levels": ("abstract",),   # dropping to counting 37 stars would not be help
@@ -505,8 +524,8 @@ LESSONS = [
 
 _MORE_LESSONS = [
     {
-        "id": 'basic-u1-take-away-with-regrouping',
-        "course": "basic", "unit": 1,
+        "id": "entry-u6-take-away-with-regrouping",
+        "course": "entry", "unit": 6,
         "topic": 'Taking away with regrouping',
         "op": '-', "max_value": 99, "regroup": True,
         "levels": ("abstract",),
@@ -980,19 +999,307 @@ _MORE_LESSONS = [
                            "we're done — here comes the first one."),
         "bank": [{'a': 5, 'b': 2, 'op': 'area'}, {'a': 4, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 3, 'op': 'area'}, {'a': 7, 'b': 3, 'op': 'area'}, {'a': 6, 'b': 4, 'op': 'area'}, {'a': 8, 'b': 4, 'op': 'area'}, {'a': 9, 'b': 5, 'op': 'area'}, {'a': 8, 'b': 6, 'op': 'area'}, {'a': 9, 'b': 7, 'op': 'area'}, {'a': 12, 'b': 8, 'op': 'area'}],
     },
+    {
+        "id": "basic-u1-place-value-to-1000", "course": "basic", "unit": 1,
+        "topic": "Place value to 1,000",
+        "op": "pv", "max_value": 999,
+        "levels": ("abstract",),
+        "symbols": ("hundreds", "ones"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can read hundreds, tens and ones."),
+        "teach": [
+            ("You know tens and ones. Today we add one more place: hundreds. Ten "
+             "tens, put together, equal one hundred. A three-digit number counts "
+             "hundreds, then tens, then ones.",
+             '[[goal text="Place value to 1,000"]]'),
+            ("Watch me read 342. The 3 counts hundreds — three hundred. The 4 "
+             "counts tens — forty. The 2 counts ones. 3 hundreds, 4 tens and 2 "
+             "ones equals 342.",
+             '[[step eq="342 = 3 hundreds + 4 tens + 2 ones"]]'),
+            ("One more, watch. 5 hundreds, 1 ten and 7 ones. Five hundred, ten, "
+             "seven — 517.",
+             '[[step eq="5 hundreds + 1 ten + 7 ones = 517"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 hundreds, 6 tens and 3 "
+                        "ones. Two hundred sixty-three — 263.",
+                        '[[step eq="2 hundreds + 6 tens + 3 ones = 263"]]'),
+             "ask": {"a": 2, "b": 3, "c": 4, "op": "pv"}},
+            {"worked": ("One more together. 7 hundreds, 2 tens and 9 ones — 729.",
+                        '[[step eq="7 hundreds + 2 tens + 9 ones = 729"]]'),
+             "ask": {"a": 6, "b": 1, "c": 5, "op": "pv"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 1, "c": 2, "op": "pv"}, {"a": 1, "b": 4, "c": 3, "op": "pv"},
+            {"a": 2, "b": 2, "c": 5, "op": "pv"}, {"a": 3, "b": 1, "c": 6, "op": "pv"},
+            {"a": 3, "b": 5, "c": 2, "op": "pv"}, {"a": 4, "b": 3, "c": 8, "op": "pv"},
+            {"a": 5, "b": 6, "c": 1, "op": "pv"}, {"a": 6, "b": 4, "c": 7, "op": "pv"},
+            {"a": 7, "b": 8, "c": 3, "op": "pv"}, {"a": 9, "b": 2, "c": 9, "op": "pv"},
+        ],
+    },
+    {
+        "id": "basic-u1-rounding-tens", "course": "basic", "unit": 1,
+        "topic": "Rounding to the nearest ten",
+        "op": "r10", "max_value": 110,
+        "levels": ("abstract",),
+        "symbols": ("round", "nearest"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can round to the nearest ten."),
+        "teach": [
+            ("Rounding gives a number a simpler neighbour. To round to the "
+             "nearest ten, look at the ones digit: if it is 4 or smaller, round "
+             "down. If it is 5 or bigger, round up.",
+             '[[goal text="Rounding to the nearest ten"]]'),
+            ("Watch me round 47. The ones digit is 7 — that is 5 or bigger, so "
+             "we round up. 47 rounds to 50.",
+             '[[step eq="47 → nearest ten = 50"]]'),
+            ("One more, watch. Round 32. The ones digit is 2 — 4 or smaller, so "
+             "we round down. 32 rounds to 30.",
+             '[[step eq="32 → nearest ten = 30"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Round 85. The ones "
+                        "digit is 5 — 5 or bigger rounds up. 85 rounds to 90.",
+                        '[[step eq="85 → nearest ten = 90"]]'),
+             "ask": {"a": 74, "op": "r10", "b": 0}},
+            {"worked": ("One more together. Round 61 — the ones digit is 1, so "
+                        "round down to 60.",
+                        '[[step eq="61 → nearest ten = 60"]]'),
+             "ask": {"a": 58, "op": "r10", "b": 0}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 12, "op": "r10", "b": 0}, {"a": 17, "op": "r10", "b": 0},
+            {"a": 23, "op": "r10", "b": 0}, {"a": 35, "op": "r10", "b": 0},
+            {"a": 41, "op": "r10", "b": 0}, {"a": 49, "op": "r10", "b": 0},
+            {"a": 56, "op": "r10", "b": 0}, {"a": 64, "op": "r10", "b": 0},
+            {"a": 78, "op": "r10", "b": 0}, {"a": 93, "op": "r10", "b": 0},
+        ],
+    },
+    {
+        "id": "basic-u1-rounding-hundreds", "course": "basic", "unit": 1,
+        "topic": "Rounding to the nearest hundred",
+        "op": "r100", "max_value": 1000,
+        "levels": ("abstract",),
+        "symbols": ("round", "nearest"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can round to the nearest hundred."),
+        "teach": [
+            ("Rounding to the nearest hundred works the same way — but now the "
+             "TENS digit decides. 4 or smaller rounds down; 5 or bigger rounds "
+             "up.",
+             '[[goal text="Rounding to the nearest hundred"]]'),
+            ("Watch me round 470. The tens digit is 7 — 5 or bigger, round up. "
+             "470 rounds to 500.",
+             '[[step eq="470 → nearest hundred = 500"]]'),
+            ("One more, watch. Round 320. The tens digit is 2 — round down. 320 "
+             "rounds to 300.",
+             '[[step eq="320 → nearest hundred = 300"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Round 149. The tens "
+                        "digit is 4 — round down. 149 rounds to 100.",
+                        '[[step eq="149 → nearest hundred = 100"]]'),
+             "ask": {"a": 253, "op": "r100", "b": 0}},
+            {"worked": ("One more together. Round 662 — the tens digit is 6, "
+                        "round up to 700.",
+                        '[[step eq="662 → nearest hundred = 700"]]'),
+             "ask": {"a": 578, "op": "r100", "b": 0}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 120, "op": "r100", "b": 0}, {"a": 180, "op": "r100", "b": 0},
+            {"a": 240, "op": "r100", "b": 0}, {"a": 350, "op": "r100", "b": 0},
+            {"a": 430, "op": "r100", "b": 0}, {"a": 490, "op": "r100", "b": 0},
+            {"a": 560, "op": "r100", "b": 0}, {"a": 640, "op": "r100", "b": 0},
+            {"a": 770, "op": "r100", "b": 0}, {"a": 910, "op": "r100", "b": 0},
+        ],
+    },
+    {
+        "id": "basic-u1-multi-digit-review", "course": "basic", "unit": 1,
+        "topic": "Adding and taking away — review",
+        "op": "+", "max_value": 99, "mixed_review": True,
+        "levels": ("abstract",),
+        "symbols": ("carry", "regroup"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "Your adding and taking away are ready for bigger things."),
+        "teach": [
+            ("You learned carrying and regrouping in Entry-Level Math. Before we "
+             "multiply and divide, let's warm those up — a quick mix of both.",
+             '[[goal text="Adding and taking away — review"]]'),
+            ("Remember: when the ones add up to over nine, write the ones digit "
+             "and carry one ten. When the top ones digit is too small, regroup — "
+             "one ten becomes ten ones.",
+             '[[step eq="carry: ones over nine"]][[step eq="regroup: ones too small"]]'),
+        ],
+        "pairs": [
+            {"worked": ("One quick worked one. 38 plus 24: ones 8 plus 4 equals "
+                        "12 — over nine, write 2, carry 1. Tens: 3 plus 2 plus 1 "
+                        "equals 6. 62.",
+                        '[[step eq="38 + 24 = 62"]]'),
+             "ask": {"a": 27, "b": 15, "op": "+"}},
+            {"worked": ("And one taking away. 53 take away 28: 3 is too small — "
+                        "regroup. 13 take away 8 equals 5; 4 take away 2 equals "
+                        "2. 25.",
+                        '[[step eq="53 − 28 = 25"]]'),
+             "ask": {"a": 42, "b": 17, "op": "-"}},
+        ],
+        "practice_intro": ("Now it's your turn — adds and take-aways, mixed. "
+                           "Three right answers in a row and we're done."),
+        "bank": [
+            {"a": 26, "b": 15, "op": "+"}, {"a": 31, "b": 14, "op": "-"},
+            {"a": 35, "b": 17, "op": "+"}, {"a": 44, "b": 26, "op": "-"},
+            {"a": 46, "b": 18, "op": "+"}, {"a": 52, "b": 35, "op": "-"},
+            {"a": 57, "b": 26, "op": "+"}, {"a": 63, "b": 47, "op": "-"},
+            {"a": 65, "b": 28, "op": "+"}, {"a": 82, "b": 56, "op": "-"},
+        ],
+    },
+    {
+        "id": "basic-u2-multiply-two-digit", "course": "basic", "unit": 2,
+        "topic": "Multiplying bigger numbers",
+        "op": "*", "max_value": 300,
+        "levels": ("abstract",),
+        "symbols": ("times", "tens"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can multiply bigger numbers."),
+        "teach": [
+            ("Today we multiply a two-digit number. The trick: split it into "
+             "tens and ones, multiply each piece, then put the pieces together.",
+             '[[goal text="Multiplying bigger numbers"]]'),
+            ("Watch me. 34 times 2. Split 34 into 30 and 4. 30 times 2 equals "
+             "60. 4 times 2 equals 8. 60 plus 8 equals 68.",
+             '[[step eq="34 × 2"]][[step eq="30 × 2 = 60"]][[step eq="4 × 2 = 8"]]'
+             '[[step eq="60 + 8 = 68"]]'),
+            ("One more, watch. 23 times 3. 20 times 3 equals 60; 3 times 3 "
+             "equals 9. 60 plus 9 equals 69.",
+             '[[step eq="23 × 3"]][[step eq="20 × 3 = 60"]][[step eq="3 × 3 = 9"]]'
+             '[[step eq="23 × 3 = 69"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 42 times 2. 40 times 2 "
+                        "equals 80; 2 times 2 equals 4. 84.",
+                        '[[step eq="42 × 2 = 84"]]'),
+             "ask": {"a": 43, "b": 2, "op": "*"}},
+            {"worked": ("One more together. 31 times 3. 90 plus 3 — 93.",
+                        '[[step eq="31 × 3 = 93"]]'),
+             "ask": {"a": 32, "b": 3, "op": "*"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 12, "b": 2, "op": "*"}, {"a": 13, "b": 3, "op": "*"},
+            {"a": 24, "b": 2, "op": "*"}, {"a": 21, "b": 3, "op": "*"},
+            {"a": 23, "b": 4, "op": "*"}, {"a": 34, "b": 3, "op": "*"},
+            {"a": 42, "b": 3, "op": "*"}, {"a": 33, "b": 5, "op": "*"},
+            {"a": 45, "b": 4, "op": "*"}, {"a": 62, "b": 4, "op": "*"},
+        ],
+    },
+    {
+        "id": "basic-u3-divide-two-digit", "course": "basic", "unit": 3,
+        "topic": "Dividing bigger numbers",
+        "op": "/", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("divided", "split"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can divide bigger numbers."),
+        "teach": [
+            ("Today we divide a two-digit number. The trick is the same one "
+             "multiplying used: split the number into friendly pieces, divide "
+             "each piece, then put the answers together.",
+             '[[goal text="Dividing bigger numbers"]]'),
+            ("Watch me. 84 divided by 4. Split 84 into 80 and 4. 80 divided by "
+             "4 equals 20. 4 divided by 4 equals 1. 20 plus 1 equals 21.",
+             '[[step eq="84 ÷ 4"]][[step eq="80 ÷ 4 = 20"]][[step eq="4 ÷ 4 = 1"]]'
+             '[[step eq="84 ÷ 4 = 21"]]'),
+            ("One more, watch. 69 divided by 3. 60 divided by 3 equals 20; 9 "
+             "divided by 3 equals 3. 23.",
+             '[[step eq="69 ÷ 3 = 23"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 48 divided by 2. 40 "
+                        "divided by 2 equals 20; 8 divided by 2 equals 4. 24.",
+                        '[[step eq="48 ÷ 2 = 24"]]'),
+             "ask": {"a": 46, "b": 2, "op": "/"}},
+            {"worked": ("One more together. 96 divided by 3 — 32.",
+                        '[[step eq="96 ÷ 3 = 32"]]'),
+             "ask": {"a": 93, "b": 3, "op": "/"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 22, "b": 2, "op": "/"}, {"a": 26, "b": 2, "op": "/"},
+            {"a": 33, "b": 3, "op": "/"}, {"a": 39, "b": 3, "op": "/"},
+            {"a": 44, "b": 4, "op": "/"}, {"a": 48, "b": 4, "op": "/"},
+            {"a": 55, "b": 5, "op": "/"}, {"a": 63, "b": 3, "op": "/"},
+            {"a": 66, "b": 2, "op": "/"}, {"a": 88, "b": 4, "op": "/"},
+        ],
+    },
+    {
+        "id": "basic-u5-fractions-on-the-number-line", "course": "basic", "unit": 5,
+        "topic": "Fractions live on the number line",
+        "op": "nl", "max_value": 12,
+        "levels": ("abstract",),
+        "symbols": ("hop", "line"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "A fraction is a number with its own home on the line."),
+        "teach": [
+            ("A fraction is not just a piece of pizza — a fraction is a NUMBER, "
+             "and every number has a home on the number line. Today we find "
+             "where fractions live.",
+             '[[goal text="Fractions live on the number line"]]'),
+            ("Watch me. Cut the line from 0 to 1 into 4 equal hops. Each hop is "
+             "one fourth. Hop once — you stand on 1 out of 4. Hop three times — "
+             "you stand on 3 out of 4.",
+             '[[step eq="0 —(4 hops)— 1"]][[step eq="3 hops → 3/4"]]'),
+            ("And if you take ALL 4 hops, you reach 1 whole. Four fourths "
+             "equals one.",
+             '[[step eq="4 hops → 4/4 = 1"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Cut the line into 3 "
+                        "hops. 2 hops from 0 lands on 2 out of 3.",
+                        '[[step eq="0 —(3 hops)— 1 · 2 hops → 2/3"]]'),
+             "ask": {"a": 2, "b": 5, "op": "nl"}},
+            {"worked": ("One more together. Cut the line into 6 hops — reaching "
+                        "1 whole takes all 6 hops.",
+                        '[[step eq="0 —(6 hops)— 1 · 1 whole = 6 hops"]]'),
+             "ask": {"a": 1, "b": 8, "op": "nlw"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 2, "op": "nl"}, {"a": 1, "b": 3, "op": "nl"},
+            {"a": 2, "b": 3, "op": "nl"}, {"a": 1, "b": 4, "op": "nlw"},
+            {"a": 3, "b": 4, "op": "nl"}, {"a": 1, "b": 5, "op": "nlw"},
+            {"a": 4, "b": 5, "op": "nl"}, {"a": 5, "b": 6, "op": "nl"},
+            {"a": 1, "b": 8, "op": "nl"}, {"a": 1, "b": 10, "op": "nlw"},
+        ],
+    },
 ]
 LESSONS.extend(_MORE_LESSONS)
 
 # THE COURSE ORDER IS OWNED HERE (jz -- jy had accidentally placed carrying before
 # two-digit-no-carry). Import fails loudly if a lesson is missing or listed twice.
 COURSE_ORDER = [
-    "basic-u1-add-up-to-10", "basic-u1-take-away-up-to-10",
-    "basic-u1-add-up-to-20", "basic-u1-take-away-up-to-20",
-    "basic-u1-tens-and-ones", "basic-u1-add-two-digit-no-carry",
-    "basic-u1-add-with-carrying", "basic-u1-take-away-with-regrouping",
+    # ---- ENTRY-LEVEL MATH (the kc re-cut: these eight lessons were authored under
+    # Basic U1 and belong here by Jim's own curriculum -- Eureka audit 2026-08-21) ----
+    "entry-u2-add-single-digit", "entry-u2-add-past-ten",
+    "entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
+    "entry-u4-tens-and-ones", "entry-u5-add-two-digit-no-carry",
+    "entry-u5-add-with-carrying", "entry-u6-take-away-with-regrouping",
+    # ---- BASIC MATH (grades 3-5 band) ----
+    "basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
+    "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review",
     "basic-u2-what-multiplying-means", "basic-u2-times-tables",
+    "basic-u2-multiply-two-digit",
     "basic-u3-what-dividing-means", "basic-u3-left-overs",
+    "basic-u3-divide-two-digit",
     "basic-u4-missing-factors", "basic-u4-greatest-common-factor",
+    "basic-u5-fractions-on-the-number-line",
     "basic-u5-fraction-of-a-group", "basic-u5-equivalent-fractions",
     "basic-u6-add-fractions-same-bottom", "basic-u6-take-away-fractions-same-bottom",
     "basic-u7-tenths", "basic-u7-dimes-and-pennies",
@@ -1184,6 +1491,80 @@ OP_EXT = {
         "check": lambda p: (p["a"] % p["b"] == 0 and p["b"] >= 2,
                             "a unit price must come out exact"),
     },
+    "pv": {   # a hundreds, b tens, c ones
+        "ans": lambda p: 100 * p["a"] + 10 * p["b"] + p["c"],
+        "spoken": lambda p: (f"What number is {p['a']} hundreds, {p['b']} tens "
+                             f"and {p['c']} ones?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
+                            f'{p["c"]} ones = ?"]]'),
+        "praise": lambda p: (f"{p['a']} hundreds, {p['b']} tens and {p['c']} ones "
+                             f"— that is {100 * p['a'] + 10 * p['b'] + p['c']}."),
+        "key": lambda p: 100 * p["a"] + 10 * p["b"] + p["c"],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9
+                            and 1 <= p["c"] <= 9,
+                            "each place stays 1-9 in this first lesson"),
+    },
+    "r10": {   # round a to the nearest ten
+        "ans": lambda p: (p["a"] + 5) // 10 * 10,
+        "spoken": lambda p: f"Round {p['a']} to the nearest ten.",
+        "board": lambda p: f'[[step eq="{p["a"]} → nearest ten = ?"]]',
+        "praise": lambda p: (f"{p['a']} rounds to {(p['a'] + 5) // 10 * 10}."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (10 <= p["a"] <= 99 and p["a"] % 10 != 0,
+                            "a multiple of ten leaves nothing to round"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        # +-1 distractors would make rounding guessable by eye; the real confusion
+        # is WHICH ten, so the distractors are the neighbouring tens.
+        # near the bottom of the range the lower ten would be 0 -- shift the
+        # window up instead (tap options must stay >= 1, validator-enforced)
+        "choices": lambda p: ([(p["a"] + 5) // 10 * 10 - 10,
+                               (p["a"] + 5) // 10 * 10,
+                               (p["a"] + 5) // 10 * 10 + 10]
+                              if (p["a"] + 5) // 10 * 10 >= 20 else
+                              [(p["a"] + 5) // 10 * 10,
+                               (p["a"] + 5) // 10 * 10 + 10,
+                               (p["a"] + 5) // 10 * 10 + 20]),
+    },
+    "r100": {  # round a to the nearest hundred
+        "ans": lambda p: (p["a"] + 50) // 100 * 100,
+        "spoken": lambda p: f"Round {p['a']} to the nearest hundred.",
+        "board": lambda p: f'[[step eq="{p["a"]} → nearest hundred = ?"]]',
+        "praise": lambda p: (f"{p['a']} rounds to {(p['a'] + 50) // 100 * 100}."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (100 <= p["a"] <= 999 and p["a"] % 100 != 0,
+                            "a multiple of one hundred leaves nothing to round"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "choices": lambda p: ([(p["a"] + 50) // 100 * 100 - 100,
+                               (p["a"] + 50) // 100 * 100,
+                               (p["a"] + 50) // 100 * 100 + 100]
+                              if (p["a"] + 50) // 100 * 100 >= 200 else
+                              [(p["a"] + 50) // 100 * 100,
+                               (p["a"] + 50) // 100 * 100 + 100,
+                               (p["a"] + 50) // 100 * 100 + 200]),
+    },
+    "nl": {    # hops from 0 to a/b on a 0-to-1 number line cut into b hops
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"A number line from 0 to 1 is cut into {p['b']} "
+                             f"equal hops. How many hops from 0 reach {p['a']} "
+                             f"out of {p['b']}?"),
+        "board": lambda p: f'[[step eq="0 —({p["b"]} hops)— 1 · land on {p["a"]}/{p["b"]} = ? hops"]]',
+        "praise": lambda p: (f"{p['a']} hops — {p['a']} out of {p['b']} lives "
+                             f"{p['a']} hops from 0."),
+        "key": lambda p: p["b"],
+        "check": lambda p: (1 <= p["a"] < p["b"] <= 12,
+                            "the fraction stays proper and the hops countable"),
+    },
+    "nlw": {   # hops from 0 to reach 1 whole
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"A number line from 0 to 1 is cut into {p['b']} "
+                             f"equal hops. How many hops from 0 reach 1 whole?"),
+        "board": lambda p: f'[[step eq="0 —({p["b"]} hops)— 1 · reach 1 = ? hops"]]',
+        "praise": lambda p: (f"{p['b']} hops — all {p['b']} hops together equal "
+                             f"1 whole."),
+        "key": lambda p: p["b"],
+        "check": lambda p: (2 <= p["b"] <= 12 and p.get("a", 1) == 1,
+                            "the whole-line question fixes a=1"),
+    },
     "peri": {
         "ans": lambda p: 2 * (p["a"] + p["b"]),
         "spoken": lambda p: (f"A rectangle is {p['a']} long and {p['b']} wide. "
@@ -1266,9 +1647,15 @@ def board_for(p, level):
 
 def choices_for(p):
     """Three tap options: the answer and its two neighbours (floor 1), shuffled by a
-    FIXED per-problem rotation -- deterministic, so replays render identically."""
+    FIXED per-problem rotation -- deterministic, so replays render identically.
+    kc: an op may declare its OWN distractors (rounding needs the neighbouring tens,
+    not +-1, or the answer is guessable by eye)."""
     v = ans(p)
-    opts = [v - 1, v, v + 1] if v > 1 else [v, v + 1, v + 2]
+    ext = OP_EXT.get(p.get("op", "+"), {})
+    if "choices" in ext:
+        opts = list(ext["choices"](p))
+    else:
+        opts = [v - 1, v, v + 1] if v > 1 else [v, v + 1, v + 2]
     k = (p["a"] * 3 + p["b"] + p.get("c", 0)) % 3
     opts = opts[k:] + opts[:k]
     return "[[choices options=\"" + " | ".join(str(o) for o in opts) + "\"]]"
@@ -1570,11 +1957,14 @@ def validate(lesson, board_tag_names=None):
            f"{lid}: choices for {p['a']}{p.get('op', '+')}{p['b']} are all at "
            f"least 1", str(opts))
 
-    # 3. the difficulty ramp: the key never falls by more than 1 across the bank
-    keys = [_difficulty_key(p) for p in lesson["bank"]]
-    ck(all(keys[i + 1] >= keys[i] - 1 for i in range(len(keys) - 1)),
-       f"{lid}: the bank is a ramp (difficulty never falls by more than 1)",
-       str(keys))
+    # 3. the difficulty ramp: the key never falls by more than 1 across the bank.
+    # kc: a lesson may declare mixed_review=True -- INTERLEAVED practice across ops
+    # is the evidence-based design for review (the ramp is a teaching-lesson rule).
+    if not lesson.get("mixed_review"):
+        keys = [_difficulty_key(p) for p in lesson["bank"]]
+        ck(all(keys[i + 1] >= keys[i] - 1 for i in range(len(keys) - 1)),
+           f"{lid}: the bank is a ramp (difficulty never falls by more than 1)",
+           str(keys))
 
     # 4. every beat respects the spoken cap
     for spoken in [s for s, _b in lesson["teach"]] + \

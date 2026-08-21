@@ -155,8 +155,16 @@
   }
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
     .then(function (j) {
-      var pk = $("picker"), lastUnit = null;
+      var pk = $("picker"), lastUnit = null, lastCourse = null;
       (j.lessons || []).forEach(function (les, i) {
+        if (les.course !== lastCourse) {
+          lastCourse = les.course; lastUnit = null;
+          var ch = document.createElement("div");
+          ch.textContent = les.course_title || les.course;
+          ch.style.cssText = "font-size:16px;font-weight:850;color:var(--ink);"
+            + "margin:14px 0 0;padding-top:10px;border-top:2px solid var(--line)";
+          pk.appendChild(ch);
+        }
         if (les.unit !== lastUnit) {
           lastUnit = les.unit;
           var hdr = document.createElement("div");

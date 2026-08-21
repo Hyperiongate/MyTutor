@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kc-the-recut". BUILD kc -- Jim approved the
+#               Eureka audit's re-cut: the first eight scripted lessons move to
+#               ENTRY-LEVEL MATH (units 2-6) where his own curriculum places them;
+#               Basic Math gets its real Unit 1 (place value to 1,000, rounding to
+#               tens and hundreds, interleaved multi-digit review) plus the audit's
+#               two biggest holes -- multiplying/dividing two-digit numbers (Eureka
+#               G4-M3, 43 days, previously zero lessons) and fractions ON the number
+#               line (Eureka G3-M5's core idea). 31 lessons across TWO courses now;
+#               /api/script/lessons carries course + course_title so the picker can
+#               group honestly. lessonscripts.py + static/pilot.html + ruletests.py.
 #   2026-08-21  APP_BUILD -> "2026-08-21jz-all-nine-units". BUILD jz -- THE COURSE
 #               CROSSES ALL NINE UNITS (lessonscripts.py + ruletests.py; this file for
 #               the stamp). Seventeen new lessons on a data-driven op registry:
@@ -7779,8 +7789,12 @@ def script_start(body: ScriptStartIn):
 @app.get("/api/script/lessons")
 def script_lessons():
     """The course, in order (build jw). Public and harmless: ids and titles only."""
+    titles = {"entry": "Entry-Level Math", "basic": "Basic Math"}
     return {"ok": True, "lessons": [{"id": les["id"], "topic": les["topic"],
-                                     "unit": les["unit"]}
+                                     "unit": les["unit"],
+                                     "course": les["course"],
+                                     "course_title": titles.get(les["course"],
+                                                                les["course"])}
                                     for les in lessonscripts.LESSONS]}
 
 
@@ -9142,7 +9156,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21jz-all-nine-units"
+APP_BUILD = "2026-08-21kc-the-recut"
 
 
 @app.get("/health")
