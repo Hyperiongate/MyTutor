@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<!--
+    pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
+    =========================================================================
+    (ju) 2026-08-21 -- NEW FILE, Build C of the scripted-first pivot (see
+    Ruling_Scripted_First_And_The_Settings_2026-08-20.md and builds js/jt).
+
+    WHAT THIS PAGE IS. The client for /api/script/start + /api/script/answer:
+    the whole lesson is pre-authored and pre-voiced; this page just PLAYS it --
+    one beat at a time, tap-to-answer -- and hands the very occasional AI
+    intervention step to the same renderer. It exists to measure the pivot's
+    two numbers (scripted-turn latency, off-script rate) with Jim playing the
+    student, before any of this is folded into session.html.
+
+    DELIBERATE CHOICES, recorded so nobody "fixes" them:
+    - SELF-CONTAINED RENDERER, ON PURPOSE. The pilot lesson's entire board
+      closure is THREE tags -- [[objects]], [[step]], [[goal]] -- plus
+      [[choices]] for the tap buttons (battery-pinned in PART 3cv/3cw). A
+      ~90-line renderer that draws exactly those beats binding blind to
+      board.js's DOM contract. When the pivot scales to real courses, the
+      integration into session.html's full board happens THERE, deliberately.
+    - SPOKEN TEXT IS SENT VERBATIM. The TTS cache is keyed by the exact text
+      (main._tts_cache_path), and /api/admin/script-prewarm cached the closure
+      strings verbatim -- so this page must NOT run forSpeech() or any other
+      transform, or every line becomes a cache miss and the latency claim dies.
+      (Scripted lines are authored TTS-safe; the validator enforces the caps.)
+    - TAP-FIRST, NO MICROPHONE. The ruling: in scripted segments a tap cannot
+      be misheard and cannot go off-script. mic.js is not loaded. "unheard" is
+      therefore never sent by this page.
+    - VOICE FALLS BACK, NEVER BLOCKS. speak-prep -> ticket -> /api/speak
+      (the hs ticket flow: the code never rides a URL). A 204 (no ElevenLabs
+      key), an error, or a blocked autoplay just shows the words and enables
+      Next -- the lesson must be playable silent.
+    - ?dev=1 shows per-turn timing (fetch ms + audio-start ms) so the playtest
+      reads its own latency without opening /admin.
+
+    I did no harm and this file is not truncated. (also at end of file)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mr. Cadabra — Scripted Lesson Pilot</title>
+<style>
+  :root{--purple:#6d5ae6;--teal:#0aa5a0;--ink:#232336;--muted:#6b6b80;
+        --card:#ffffff;--line:#e6e4f2;--bg:#f7f6fc;--good:#177a52;--warn:#8a5a12}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);
+       color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  .wrap{width:100%;max-width:720px;padding:18px}
+  header{display:flex;align-items:center;gap:10px;padding:14px 0}
+  .dot{width:34px;height:34px;border-radius:50%;
+       background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%)}
+  h1{font-size:20px;font-weight:800}
+  .pill{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);
+        border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:#fff}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
+        padding:22px;box-shadow:0 6px 24px rgba(60,50,120,.07);margin-bottom:14px}
+  /* the tutor's words */
+  #bubble{font-size:19px;line-height:1.55;min-height:56px}
+  #bubble b{color:#b3402e}
+  /* the board */
+  #board{margin-top:14px;display:none}
+  .goalchip{display:inline-block;background:#f1eeff;border:1.5px dashed var(--purple);
+            color:var(--purple);font-weight:800;border-radius:12px;padding:8px 16px;font-size:16px}
+  .stars{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0}
+  .grp{display:flex;gap:6px;flex-wrap:wrap;max-width:280px}
+  .grp span{font-size:34px;line-height:1}
+  .plus{font-size:30px;font-weight:800;color:var(--muted)}
+  .cap{font-size:13.5px;color:var(--muted);margin-top:2px}
+  .eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:800;
+      letter-spacing:1px;background:#fbfaff;border:1px solid var(--line);border-radius:12px;
+      padding:12px 18px;display:inline-block;margin-top:10px}
+  /* controls */
+  #controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+  button{border:0;border-radius:14px;font-size:20px;font-weight:800;cursor:pointer;
+         padding:14px 26px;transition:transform .06s}
+  button:active{transform:scale(.97)}
+  .next{background:var(--purple);color:#fff}
+  .opt{background:#fff;border:2.5px solid var(--purple);color:var(--purple);min-width:86px}
+  .opt:disabled,.next:disabled{opacity:.45;cursor:default}
+  #status{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+  #devbar{display:none;font:12px ui-monospace,Menlo,monospace;color:var(--muted);
+          background:#fff;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin-top:8px}
+  /* start / end screens */
+  #gate input{font-size:22px;letter-spacing:4px;text-align:center;width:180px;
+              padding:10px;border:2px solid var(--line);border-radius:12px}
+  .big{font-size:26px;font-weight:850}
+  .confetti{font-size:44px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="dot"></div><h1>Mr. Cadabra</h1><span class="pill">scripted pilot</span></header>
+
+  <div class="card" id="gate">
+    <p class="big" style="margin-bottom:10px">Scripted lesson pilot</p>
+    <p style="color:var(--muted);margin-bottom:14px">Adding within 10 · every word pre-written,
+      pre-checked, and pre-recorded. The AI only appears if an answer is wrong.</p>
+    <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
+    <div id="controls-gate" style="margin-top:14px">
+      <button class="next" id="startBtn">Start the lesson</button>
+    </div>
+    <div id="gateMsg" style="color:#b3402e;font-weight:700;margin-top:10px"></div>
+  </div>
+
+  <div class="card hide" id="stage">
+    <div id="bubble"></div>
+    <div id="board"></div>
+    <div id="controls"></div>
+    <div id="status"></div>
+    <div id="devbar"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var qs = new URLSearchParams(location.search);
+  var DEV = qs.get("dev") === "1";
+  var CODE = (qs.get("code") || "").trim();
+  try { CODE = CODE || sessionStorage.getItem("mt_pilot_code") || ""; } catch (e) {}
+  if (CODE) $("code").value = CODE;
+  if (DEV) $("devbar").style.display = "block";
+
+  var queue = [];          // steps not yet played
+  var current = null;      // the step awaiting the child's tap
+  var busy = false;
+  var lastBoardHtml = "";  // praise beats carry no board; keep the last one visible
+  var audioEl = null;
+
+  // ---------- tiny renderer: the pilot closure is exactly these tags ----------
+  function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+  function attrs(tag) {
+    var m, re = /(\w+)="([^"]*)"/g, out = {};
+    while ((m = re.exec(tag)) !== null) out[m[1]] = m[2];
+    return out;
+  }
+  function starRow(n, emoji) {
+    var h = '<div class="grp">';
+    for (var i = 0; i < n; i++) h += "<span>" + esc(emoji) + "</span>";
+    return h + "</div>";
+  }
+  function renderBoard(text) {
+    var html = "", m;
+    var re = /\[\[\s*([\w-]+)([^\]]*)\]\]/g;
+    while ((m = re.exec(text)) !== null) {
+      var name = m[1].toLowerCase(), a = attrs(m[0]);
+      if (name === "goal") html += '<div class="goalchip">🎯 ' + esc(a.text || "") + "</div>";
+      else if (name === "objects") {
+        var g = parseInt(a.groups || "0", 10) || 0, add = parseInt(a.add || "0", 10) || 0;
+        html += '<div class="stars">' + starRow(g, a.emoji || "⭐")
+              + (add ? '<div class="plus">+</div>' + starRow(add, a.emoji || "⭐") : "")
+              + "</div>";
+        if (a.caption) html += '<div class="cap">' + esc(a.caption) + "</div>";
+      }
+      else if (name === "step" || name === "write")
+        html += '<div><span class="eq">' + esc(a.eq || a.text || "") + "</span></div>";
+      // choices are rendered as BUTTONS by the controls, never as a board line
+    }
+    return html;
+  }
+  function choiceValues(text) {
+    var m = /\[\[\s*choices\s+options="([^"]*)"/.exec(text || "");
+    if (!m) return [];
+    return m[1].split("|").map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+  function spokenOnly(text) {                      // for AI steps: the child hears words, not tags
+    return String(text || "").replace(/\[\[[^\]]*\]\]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function styleTerms(s) {                          // **term** -> bold (matches the app's habit)
+    return esc(s).replace(/\*\*([^*]{2,60}?)\*\*/g, "<b>$1</b>");
+  }
+
+  // ---------- voice: prep a ticket, stream, FALL BACK to silence ----------
+  function speak(text, onDone) {
+    var t0 = performance.now(), done = false;
+    function finish() { if (!done) { done = true; onDone && onDone(); } }
+    if (!text) return finish();
+    fetch("/api/speak-prep", { method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: CODE, text: text, lead: 0 }) })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (j) {
+        if (audioEl) { try { audioEl.pause(); } catch (e) {} }
+        audioEl = new Audio("/api/speak?t=" + encodeURIComponent(j.t || ""));
+        audioEl.onended = finish;
+        audioEl.onerror = finish;
+        audioEl.onplaying = function () {
+          if (DEV) devline("audio started " + Math.round(performance.now() - t0) + "ms after prep");
+        };
+        var p = audioEl.play();
+        if (p && p.catch) p.catch(finish);        // blocked autoplay: silent mode
+        setTimeout(function () {                   // 204/no-audio safety valve
+          if (audioEl && (audioEl.paused || !audioEl.duration)) finish();
+        }, 2500);
+      })
+      .catch(finish);
+  }
+  function devline(s) {
+    if (!DEV) return;
+    $("devbar").textContent = s + "  ·  " + ($("devbar").textContent || "").slice(0, 160);
+  }
+
+  // ---------- playing the step queue ----------
+  function showStep(step) {
+    var boardHtml = renderBoard(step.board || step.spoken || "");
+    if (boardHtml) lastBoardHtml = boardHtml;
+    $("board").innerHTML = lastBoardHtml;
+    $("board").style.display = lastBoardHtml ? "block" : "none";
+
+    var words = (step.kind === "ai") ? spokenOnly(step.spoken) : (step.spoken || "");
+    $("bubble").innerHTML = styleTerms(words);
+
+    var ctl = $("controls"); ctl.innerHTML = "";
+    if (step.kind === "say") {
+      var b = document.createElement("button");
+      b.className = "next"; b.textContent = "Next ▶"; b.disabled = true;
+      b.onclick = function () { playNext(); };
+      ctl.appendChild(b);
+      speak(words, function () { b.disabled = false; b.focus(); });
+      $("status").textContent = "";
+      return;
+    }
+    if (step.kind === "ask" || step.kind === "ai") {
+      current = step;
+      var opts = choiceValues(step.choices || step.spoken || "");
+      opts.forEach(function (v) {
+        var ob = document.createElement("button");
+        ob.className = "opt"; ob.textContent = v; ob.disabled = true;
+        ob.onclick = function () { answer(parseInt(v, 10), ctl); };
+        ctl.appendChild(ob);
+      });
+      speak(words, function () {
+        ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
+      });
+      $("status").textContent = step.kind === "ai" ? "Mr. Cadabra is helping — try it again!"
+                                                   : (step.tap_only ? "Tap your answer." : "");
+      return;
+    }
+    if (step.kind === "end") {
+      ctl.innerHTML = "";
+      $("bubble").innerHTML = (step.mastered ? '<span class="confetti">🎉</span> ' : "")
+        + styleTerms(step.spoken || "");
+      speak(step.spoken || "", function () {});
+      $("status").textContent = step.mastered
+        ? "Topic mastered — it's on the dashboard."
+        : "Saved as still learning — the next session re-teaches it.";
+      var again = document.createElement("button");
+      again.className = "next"; again.textContent = "Play again";
+      again.onclick = function () { location.reload(); };
+      ctl.appendChild(again);
+      current = null;
+      return;
+    }
+  }
+  function playNext() {
+    if (!queue.length) return;
+    showStep(queue.shift());
+  }
+  function ingest(steps) { queue = queue.concat(steps || []); playNext(); }
+
+  // ---------- the two API calls ----------
+  function post(url, body, onOk) {
+    if (busy) return;
+    busy = true;
+    var t0 = performance.now();
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (rj) {
+        busy = false;
+        devline(url.split("/").pop() + " " + Math.round(performance.now() - t0) + "ms");
+        if (rj.s !== 200) {
+          $("gateMsg").textContent = (rj.j && rj.j.detail) || "Something went wrong.";
+          $("gate").classList.remove("hide");
+          return;
+        }
+        onOk(rj.j);
+      })
+      .catch(function () { busy = false; $("status").textContent = "Connection hiccup — tap again."; });
+  }
+  function answer(value, ctl) {
+    ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+    post("/api/script/answer", { code: CODE, value: value }, function (j) {
+      current = null;
+      ingest(j.steps);
+    });
+  }
+  $("startBtn").onclick = function () {
+    CODE = ($("code").value || "").trim();
+    if (!CODE) { $("gateMsg").textContent = "Enter your student code first."; return; }
+    try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
+    post("/api/script/start", { code: CODE }, function (j) {
+      $("gate").classList.add("hide");
+      $("stage").classList.remove("hide");
+      ingest(j.steps);
+    });
+  };
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

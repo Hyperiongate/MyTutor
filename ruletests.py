@@ -14693,6 +14693,31 @@ def part3cw_script_lane():
           'reply.startswith("(")' in tsrc,
           "a fail-open apology would be spoken INSIDE a scripted lesson")
 
+    # ---- build ju: the pilot PAGE (static/pilot.html) ----
+    pilot_path = os.path.join(here, "static", "pilot.html")
+    check("the pilot page exists", os.path.exists(pilot_path), "static/pilot.html")
+    if os.path.exists(pilot_path):
+        with open(pilot_path, encoding="utf-8") as fh:
+            pfull = fh.read()
+        # scan the CODE, not the header comment -- the design notes deliberately
+        # NAME mic.js and forSpeech to explain why they are absent, and a pin that
+        # forbids documenting a decision would teach us to stop writing it down.
+        psrc = pfull.split("-->", 1)[-1]
+        check("pilot page: TAP-FIRST -- no microphone is ever loaded",
+              "mic.js" not in psrc and "getUserMedia" not in psrc,
+              "the ruling: in scripted segments a tap cannot be misheard")
+        check("pilot page: spoken text goes to TTS VERBATIM (no forSpeech transform)",
+              "forSpeech" not in psrc and "speech-text.js" not in psrc,
+              "the cache is keyed by exact text; a transform makes every line a miss")
+        check("pilot page: voice rides the hs ticket flow (code never in a URL)",
+              "/api/speak-prep" in psrc and 'speak?t=' in psrc
+              and "speak?text=" not in psrc, "")
+        check("pilot page: it can be played SILENT (autoplay/204 fall back)",
+              "p.catch(finish)" in psrc and "safety valve" in psrc,
+              "a blocked autoplay must never freeze a child's lesson")
+        check("pilot page: it renders the closure's tags and strips them from speech",
+              'name === "objects"' in psrc and "spokenOnly" in psrc, "")
+
     try:
         import sqlalchemy  # noqa: F401
         import fastapi  # noqa: F401
