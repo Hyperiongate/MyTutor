@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kp-ratios-and-rates". BUILD kp -- Prealgebra
+#               Unit 6, Ratios, Rates & Proportions. 60 lessons -> 64. NOTHING IN THIS
+#               FILE CHANGED but this note and the stamp; the work is in
+#               lessonscripts.py.
+#               Basic Math's "one costs" already finds a unit PRICE. These four are the
+#               family around it, in dependency order: keep a ratio's shape when both
+#               sides grow, scale a rate over time, write that move as an equation with
+#               a hole in it, and split an amount in a ratio -- the genuinely different
+#               one, because there the TOTAL is given and the parts must be counted
+#               first. The whole unit is aimed at one error: adding instead of timesing
+#               (2 to 3 grown to 4 becoming "4 to 5"), and three of the four lessons
+#               offer exactly that as their wrong tap.
+#               The validator co-authored again: it rejected "makes" (banned speech,
+#               canon is "equals") so the machine now FILLS bottles; it caught "gives
+#               you" and "is the same as"; it demanded "per hour" and "proportion" be
+#               said out loud (rule 14); and it found a share of ONE part colliding with
+#               the size of one part, which tightened shr's check to require three
+#               different tap options and moved 1-to-3 out of the bank.
 #   2026-08-21  APP_BUILD -> "2026-08-21ko-decimals-by-place". BUILD ko -- Prealgebra
 #               Unit 5, Decimals. 56 lessons -> 60. NOTHING IN THIS FILE CHANGED but
 #               this note and the stamp; the work is in lessonscripts.py.
@@ -9754,7 +9772,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21ko-decimals-by-place"
+APP_BUILD = "2026-08-21kp-ratios-and-rates"
 
 
 @app.get("/health")

@@ -2,6 +2,41 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD kp -- PREALGEBRA UNIT 6: RATIOS, RATES & PROPORTIONS.
+#               60 lessons -> 64, 53 ops (rat, rte, prop, shr added). Basic Math's
+#               "one costs" already finds a unit PRICE; these four are the family
+#               around it, in the order the ideas depend on each other: keeping a
+#               ratio's shape when both sides grow, scaling a rate over time (the same
+#               move with a unit step in the middle), writing it as an equation with a
+#               hole in it, and SPLITTING an amount in a ratio -- the genuinely
+#               different one, because there the total is given and the parts have to
+#               be counted before anything is shared. The unit is aimed at ONE error:
+#               adding instead of timesing (2 to 3 grown to 4 read as "4 to 5"), and
+#               three of the four lessons offer exactly that as their wrong tap.
+#               THE VALIDATOR CO-AUTHORED AGAIN, and every catch is recorded here
+#               because each one is a rule worth keeping: "makes" is banned speech
+#               (canon is "equals") so the machine now FILLS bottles rather than making
+#               them; "gives you" and "is the same as" were caught in teach prose; rule
+#               14 demanded "per hour" and "proportion" be said out loud; and a share of
+#               ONE part turned out to be the same number as the size of one part, so
+#               shr's check now requires THREE DIFFERENT tap options and the 1-to-3
+#               problem left the bank (it still teaches in the worked example, which is
+#               prose, not a tap). prop got the same distinctness demand when two of its
+#               distractors collided on 7.
+#               ALSO CATCHING UP ON RULE 8, which builds kk through ko wrote as inline
+#               section comments but never entered here:
+#                 kk (2026-08-21) Prealgebra U1, Number Sense & Order of Operations --
+#                     41 -> 45 lessons; ops tba, parf, expn, exo.
+#                 km (2026-08-21) Prealgebra U3, Integers -- the first answers below
+#                     zero; ops cbz, addneg, subneg, mulneg. A lesson may now declare
+#                     min_value, because "every answer is at least 1" stopped being true
+#                     the day negatives arrived; the option regex learned to see a minus
+#                     sign. U2 (Factors, Multiples & Primes; nfac, spf, npf) shipped
+#                     alongside it.  45 -> 52 lessons.
+#                 kn (2026-08-21) Prealgebra U4, Fractions -- past Basic's unit
+#                     fractions; ops nuf, uic, dbf, imp.  52 -> 56 lessons.
+#                 ko (2026-08-21) Prealgebra U5, Decimals -- past Basic's naming, to
+#                     PLACE; ops hun, x10, dth, dsh.  56 -> 60 lessons.
 #   2026-08-21  BUILD kd -- THE CONTENT SWEEP + LESSONS THAT FLOW. Jim: "my priority
 #               right now is to get the app up and running ... I wanna see it all up
 #               and running, and then I can troubleshoot it from there." (Reviews,
@@ -2580,6 +2615,176 @@ _PREALGEBRA_U5 = [
 LESSONS.extend(_PREALGEBRA_U5)
 
 
+# =============================================================================
+# PREALGEBRA -- UNIT 6: RATIOS, RATES & PROPORTIONS (build kp, 2026-08-21)
+# =============================================================================
+# Basic Math's "one costs" already finds a unit PRICE. These four are the family of
+# ideas around it, in the order they depend on each other: keep a ratio's shape when
+# both sides grow, scale a rate over time (which is that same move with a unit step in
+# the middle), write it as an equation with a hole in it, and finally SPLIT an amount
+# in a ratio -- the genuinely different one, because there the total is given and the
+# parts have to be found before anything can be shared.
+#
+# THE ERROR THIS WHOLE UNIT IS ABOUT is adding instead of timesing: a child who thinks
+# 2 to 3 grown to 4 becomes "4 to 5", because 3 was one more than 2. Three of the four
+# lessons offer exactly that as their wrong option.
+_PREALGEBRA_U6 = [
+    {
+        "id": "pre-u6-keeping-a-ratio",
+        "course": "prealgebra", "unit": 6,
+        "topic": "Keeping a ratio the same",
+        "op": "rat", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("ratio", "for every"),
+        "advance_line": "Three in a row — you've got it! A ratio grows by timesing, not by adding.",
+        "teach": [
+            ["A ratio says how two amounts go together. Two cups of flour for every 3 cups of milk is a ratio, written 2 to 3. Make more, and BOTH sides have to grow the same way — by timesing, not by adding.",
+             '[[goal text="Keeping a ratio the same"]]'],
+            ["Two cups of flour for every 3 of milk. You have 6 cups of flour. That is 3 batches, because 6 divided by 2 equals 3. So the milk grows the same way: 3 batches of 3 cups equals 9 cups.",
+             '[[step eq="2 : 3"]][[step eq="6 ÷ 2 = 3 batches"]][[step eq="3 × 3 = 9"]]'],
+            ["Careful with the tempting wrong move. 6 cups of flour does NOT mean 7 cups of milk just because 3 is one more than 2. Adding breaks the ratio; timesing keeps it.",
+             '[[step eq="2 : 3 → 6 : 9 ✓"]][[step eq="2 : 3 → 6 : 7 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 3 cups of flour for every 4 of milk, with 9 cups of flour. 9 divided by 3 equals 3 batches, and 3 times 4 equals 12 cups of milk.",
+                        '[[step eq="9 ÷ 3 = 3"]][[step eq="3 × 4 = 12"]]'],
+             "ask": {"a": 5, "b": 6, "c": 15, "op": "rat"}},
+            {"worked": ["One more together. 2 to 9, with 8 cups of flour. 8 divided by 2 equals 4 batches, and 4 times 9 equals 36.",
+                        '[[step eq="8 ÷ 2 = 4"]][[step eq="4 × 9 = 36"]]'],
+             "ask": {"a": 3, "b": 7, "c": 9, "op": "rat"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 2, "c": 10, "op": "rat"},
+            {"a": 2, "b": 3, "c": 4, "op": "rat"},
+            {"a": 4, "b": 3, "c": 8, "op": "rat"},
+            {"a": 3, "b": 4, "c": 6, "op": "rat"},
+            {"a": 2, "b": 5, "c": 6, "op": "rat"},
+            {"a": 3, "b": 5, "c": 9, "op": "rat"},
+            {"a": 4, "b": 5, "c": 12, "op": "rat"},
+            {"a": 6, "b": 5, "c": 18, "op": "rat"},
+            {"a": 2, "b": 7, "c": 8, "op": "rat"},
+            {"a": 3, "b": 8, "c": 12, "op": "rat"},
+        ],
+    },
+    {
+        "id": "pre-u6-scaling-a-rate",
+        "course": "prealgebra", "unit": 6,
+        "topic": "Working out a rate",
+        "op": "rte", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("rate", "per hour"),
+        "advance_line": "Three in a row — you've got it! Find one hour first, then times up.",
+        "teach": [
+            ["A rate says how much happens in one hour, or one minute, or one of anything. Bottles per hour is a rate. When you know how much happened over several hours, find ONE hour first. That single number does all the work afterwards.",
+             '[[goal text="Working out a rate"]]'],
+            ["A machine fills 18 bottles in 3 hours. One hour first: 18 divided by 3 equals 6 bottles an hour. Now 5 hours: 6 times 5 equals 30 bottles.",
+             '[[step eq="18 ÷ 3 = 6 per hour"]][[step eq="6 × 5 = 30"]]'],
+            ["Two steps, always in that order. Divide to reach one, then times to reach the hours you were asked about. Stopping after the divide leaves you holding the rate, not the answer.",
+             '[[step eq="÷ to reach 1 hour · × to reach the hours asked"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 24 bottles in 4 hours. That is 6 an hour, and in 6 hours it fills 36.",
+                        '[[step eq="24 ÷ 4 = 6"]][[step eq="6 × 6 = 36"]]'],
+             "ask": {"a": 4, "b": 5, "c": 20, "op": "rte"}},
+            {"worked": ["One more together. 40 bottles in 5 hours is 8 an hour, so in 2 hours it fills 16.",
+                        '[[step eq="40 ÷ 5 = 8"]][[step eq="8 × 2 = 16"]]'],
+             "ask": {"a": 6, "b": 3, "c": 21, "op": "rte"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 12, "op": "rte"},
+            {"a": 3, "b": 4, "c": 20, "op": "rte"},
+            {"a": 3, "b": 7, "c": 35, "op": "rte"},
+            {"a": 2, "b": 5, "c": 40, "op": "rte"},
+            {"a": 4, "b": 2, "c": 10, "op": "rte"},
+            {"a": 4, "b": 9, "c": 45, "op": "rte"},
+            {"a": 5, "b": 3, "c": 18, "op": "rte"},
+            {"a": 6, "b": 4, "c": 24, "op": "rte"},
+            {"a": 8, "b": 5, "c": 30, "op": "rte"},
+            {"a": 7, "b": 6, "c": 42, "op": "rte"},
+        ],
+    },
+    {
+        "id": "pre-u6-filling-in-a-proportion",
+        "course": "prealgebra", "unit": 6,
+        "topic": "Filling in a proportion",
+        "op": "prop", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("proportion", "over"),
+        "advance_line": "Three in a row — you've got it! Find what the bottom was timesed by.",
+        "teach": [
+            ["Two fractions worth the same amount make a proportion — say it, pro-por-shun. Write a proportion with a hole in it and you have a puzzle: 3 over 4 equals what over 8? The rule works exactly like the ratio rule — whatever happened to the bottom happened to the top.",
+             '[[goal text="Filling in a proportion"]]'],
+            ["3 over 4 equals what over 8. Look at the bottoms: 4 became 8, so it was timesed by 2. Do the same to the top: 3 times 2 equals 6. So 3 over 4 equals 6 over 8.",
+             '[[step eq="3/4 = ?/8"]][[step eq="4 × 2 = 8, so 3 × 2 = 6"]]'],
+            ["Watch out for adding. The bottom went up by 4, but that does NOT mean the top goes up by 4. 3 over 4 is not 7 over 8. Ask what the bottom was TIMESED by, every time.",
+             '[[step eq="3/4 = 6/8 ✓"]][[step eq="3/4 = 7/8 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 2 over 5 equals what over 10? The bottom doubled, so the top doubles: 4.",
+                        '[[step eq="2/5 = 4/10"]]'],
+             "ask": {"a": 5, "b": 3, "c": 9, "op": "prop"}},
+            {"worked": ["One more together. 3 over 5 equals what over 15? The bottom was timesed by 3, so 3 times 3 equals 9.",
+                        '[[step eq="3/5 = 9/15"]]'],
+             "ask": {"a": 2, "b": 9, "c": 27, "op": "prop"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 6, "op": "prop"},
+            {"a": 2, "b": 5, "c": 10, "op": "prop"},
+            {"a": 2, "b": 7, "c": 14, "op": "prop"},
+            {"a": 3, "b": 4, "c": 8, "op": "prop"},
+            {"a": 3, "b": 8, "c": 16, "op": "prop"},
+            {"a": 4, "b": 9, "c": 18, "op": "prop"},
+            {"a": 3, "b": 5, "c": 15, "op": "prop"},
+            {"a": 5, "b": 6, "c": 12, "op": "prop"},
+            {"a": 4, "b": 3, "c": 9, "op": "prop"},
+            {"a": 7, "b": 4, "c": 20, "op": "prop"},
+        ],
+    },
+    {
+        "id": "pre-u6-sharing-in-a-ratio",
+        "course": "prealgebra", "unit": 6,
+        "topic": "Sharing in a ratio",
+        "op": "shr", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("ratio", "parts"),
+        "advance_line": "Three in a row — you've got it! Count the parts first, then share them out.",
+        "teach": [
+            ["This one is different. You are given the whole amount and the ratio, and you have to find the shares. The trick is to count the parts first: a ratio of 2 to 3 means 5 parts in all, not 2 and not 3.",
+             '[[goal text="Sharing in a ratio"]]'],
+            ["Share 20 sweets in the ratio 2 to 3. Count the parts: 2 and 3 make 5 parts. Now share: 20 divided by 5 equals 4 sweets in each part. The first child gets 2 parts — 4 times 2 equals 8.",
+             '[[objects emoji="🟦" groups="2" add="3" caption="2 parts and 3 parts = 5 parts in all"]][[step eq="20 ÷ 5 = 4 each part"]][[step eq="4 × 2 = 8"]]'],
+            ["Check it the easy way: the other child gets 3 parts, which is 12. And 8 plus 12 equals 20, the amount you started with. If the two shares do not put back together, something went wrong.",
+             '[[step eq="8 + 12 = 20 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Share 12 in the ratio 1 to 3. That is 4 parts, so each part is 3. The first child gets 1 part — 3.",
+                        '[[step eq="12 ÷ 4 = 3"]][[step eq="3 × 1 = 3"]]'],
+             "ask": {"a": 3, "b": 4, "c": 28, "op": "shr"}},
+            {"worked": ["One more together. Share 30 in the ratio 2 to 4. Six parts, so each part is 5, and the first child gets 2 parts — 10.",
+                        '[[step eq="30 ÷ 6 = 5"]][[step eq="5 × 2 = 10"]]'],
+             "ask": {"a": 5, "b": 2, "c": 35, "op": "shr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 10, "op": "shr"},
+            {"a": 2, "b": 5, "c": 14, "op": "shr"},
+            {"a": 2, "b": 7, "c": 27, "op": "shr"},
+            {"a": 3, "b": 2, "c": 15, "op": "shr"},
+            {"a": 3, "b": 5, "c": 24, "op": "shr"},
+            {"a": 4, "b": 3, "c": 21, "op": "shr"},
+            {"a": 5, "b": 4, "c": 27, "op": "shr"},
+            {"a": 4, "b": 5, "c": 36, "op": "shr"},
+            {"a": 5, "b": 3, "c": 32, "op": "shr"},
+            {"a": 7, "b": 3, "c": 50, "op": "shr"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U6)
+
+
 
 
 
@@ -2630,6 +2835,9 @@ COURSE_ORDER = [
     # Unit 5: Decimals -- past Basic's naming of tenths and hundredths
     "pre-u5-how-many-hundredths", "pre-u5-times-by-ten",
     "pre-u5-tenths-times-a-number", "pre-u5-sharing-a-decimal",
+    # Unit 6: Ratios, Rates & Proportions -- past Basic's unit price
+    "pre-u6-keeping-a-ratio", "pre-u6-scaling-a-rate",
+    "pre-u6-filling-in-a-proportion", "pre-u6-sharing-in-a-ratio",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -3439,6 +3647,116 @@ OP_EXT = {
                             and (10 * p["a"] + p["b"]) % p["c"] == 0,
                             "it shares out exactly, so the answer is a whole number "
                             "of tenths a child can tap"),
+    },
+
+    # ---- PREALGEBRA UNIT 6 (build kp) -- RATIOS, RATES & PROPORTIONS ----------
+    # Basic Math's "one costs" already does unit PRICE. These four are the family of
+    # ideas around it: keeping a ratio's shape when both sides grow, scaling a rate
+    # over time, the same move written as an equation with a hole in it, and splitting
+    # an amount in a ratio -- the one that is genuinely different, because the total is
+    # given and the parts have to be found.
+    "rat": {   # ratio a:b -- given c of the first, how many of the second
+        "ans": lambda p: p["c"] // p["a"] * p["b"],
+        "spoken": lambda p: (f"A recipe uses {p['a']} cups of flour for every "
+                             f"{p['b']} cups of milk. With {p['c']} cups of flour, "
+                             f"how many cups of milk?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} : {p["b"]}"]]'
+                            f'[[step eq="{p["c"]} ÷ {p["a"]} = {p["c"] // p["a"]} '
+                            f'batches"]]'
+                            f'[[step eq="{p["c"] // p["a"]} × {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['c']} cups of flour is {p['c'] // p['a']} batches, "
+                             f"so it takes {p['c'] // p['a'] * p['b']} cups of milk."),
+        "key": lambda p: p["c"] // p["a"] * p["b"],
+        # The error worth offering is ADDING the difference instead of scaling -- the
+        # child who thinks 2:3 growing to 4 means "4:5", because 3 is one more than 2.
+        "choices": lambda p: [p["c"] // p["a"] * p["b"], p["c"] + (p["b"] - p["a"]),
+                              p["c"] // p["a"] * p["b"] + p["b"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp and str(p["c"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and p["a"] != p["b"]
+                            and p["c"] % p["a"] == 0 and p["c"] // p["a"] >= 2
+                            and len({p["c"] // p["a"] * p["b"],
+                                     p["c"] + (p["b"] - p["a"]),
+                                     p["c"] // p["a"] * p["b"] + p["b"]}) == 3,
+                            "the ratio really scales (at least two batches) and the "
+                            "three tap options are three different numbers"),
+    },
+    "rte": {   # c things in b hours -- how many in a hours
+        "ans": lambda p: p["c"] // p["b"] * p["a"],
+        # "makes" is banned speech (canon is "equals"), so the machine FILLS.
+        "spoken": lambda p: (f"A machine fills {p['c']} bottles in {p['b']} hours. "
+                             f"How many does it fill in {p['a']} hours?"),
+        "board": lambda p: (f'[[step eq="{p["c"]} ÷ {p["b"]} = '
+                            f'{p["c"] // p["b"]} per hour"]]'
+                            f'[[step eq="{p["c"] // p["b"]} × {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"That is {p['c'] // p['b']} an hour, so in {p['a']} "
+                             f"hours it fills {p['c'] // p['b'] * p['a']}."),
+        "key": lambda p: p["c"] // p["b"] * p["a"],
+        "choices": lambda p: [p["c"] // p["b"] * p["a"], p["c"] // p["b"],
+                              p["c"] // p["b"] * p["a"] + p["c"] // p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["c"] % p["b"] == 0 and p["a"] != 1
+                            and p["c"] // p["b"] * p["a"] != p["c"] // p["b"],
+                            "it divides exactly and the target time is not one hour, "
+                            "so finding the rate is only HALF the job"),
+    },
+    "prop": {  # a/b = ?/c
+        "ans": lambda p: p["a"] * p["c"] // p["b"],
+        "spoken": lambda p: (f"{p['a']} over {p['b']} equals what over {p['c']}?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}/{p["b"]} = ?/{p["c"]}"]]'
+                            f'[[step eq="{p["c"]} ÷ {p["b"]} = '
+                            f'{p["c"] // p["b"] if p["c"] % p["b"] == 0 else "?"}"]]'
+                            if p["c"] % p["b"] == 0 else
+                            f'[[step eq="{p["a"]}/{p["b"]} = ?/{p["c"]}"]]'
+                            f'[[step eq="{p["a"]} × {p["c"]} ÷ {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} over {p['b']} equals "
+                             f"{p['a'] * p['c'] // p['b']} over {p['c']}."),
+        "key": lambda p: p["a"] * p["c"] // p["b"],
+        # The classic error: adding the same amount to both instead of timesing.
+        "choices": lambda p: [p["a"] * p["c"] // p["b"], p["a"] + (p["c"] - p["b"]),
+                              p["a"] * p["c"] // p["b"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and p["c"] <= 30
+                            and (p["a"] * p["c"]) % p["b"] == 0 and p["c"] != p["b"]
+                            and len({p["a"] * p["c"] // p["b"],
+                                     p["a"] + (p["c"] - p["b"]),
+                                     p["a"] * p["c"] // p["b"] + p["b"]}) == 3,
+                            "the missing number is whole, the bottom really changes, "
+                            "and all THREE options are different numbers (the first "
+                            "try had the add-the-same error landing on the same value "
+                            "as the neighbour)"),
+    },
+    "shr": {   # share c in the ratio a:b -- the FIRST share
+        "ans": lambda p: p["c"] // (p["a"] + p["b"]) * p["a"],
+        "spoken": lambda p: (f"Share {p['c']} sweets between two children in the "
+                             f"ratio {p['a']} to {p['b']}. How many does the first "
+                             f"child get?"),
+        "board": lambda p: (f'[[objects emoji="🟦" groups="{p["a"]}" add="{p["b"]}" '
+                            f'caption="{p["a"]} parts and {p["b"]} parts = '
+                            f'{p["a"] + p["b"]} parts in all"]]'
+                            f'[[step eq="{p["c"]} ÷ {p["a"] + p["b"]} = '
+                            f'{p["c"] // (p["a"] + p["b"])} each part"]]'
+                            f'[[step eq="{p["c"] // (p["a"] + p["b"])} × {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a'] + p['b']} parts in all, so each part is "
+                             f"{p['c'] // (p['a'] + p['b'])}, and the first child gets "
+                             f"{p['a']} of them — "
+                             f"{p['c'] // (p['a'] + p['b']) * p['a']}."),
+        "key": lambda p: p["c"] // (p["a"] + p["b"]) * p["a"],
+        # The error worth offering is sharing the amount by the FIRST number only,
+        # forgetting that the parts have to be counted together first.
+        "choices": lambda p: [p["c"] // (p["a"] + p["b"]) * p["a"],
+                              p["c"] // (p["a"] + p["b"]) * p["b"],
+                              p["c"] // (p["a"] + p["b"])],
+        "speaks": lambda p, sp: str(p["c"]) in sp and str(p["a"]) in sp,
+        # A one-part share IS the size of one part, so a = 1 (or b = 1) makes two
+        # of the three options the same number. Requiring three different options
+        # says that out loud instead of hiding it in a bound on a.
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9 and p["a"] != p["b"]
+                            and p["c"] % (p["a"] + p["b"]) == 0
+                            and p["c"] // (p["a"] + p["b"]) != 1
+                            and len({p["c"] // (p["a"] + p["b"]) * p["a"],
+                                     p["c"] // (p["a"] + p["b"]) * p["b"],
+                                     p["c"] // (p["a"] + p["b"])}) == 3,
+                            "each part is more than one and the three tap options "
+                            "are three different numbers"),
     },
 }
 
