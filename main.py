@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21km-integers-arrive". BUILD km -- Prealgebra
+#               Units 2 and 3. 45 lessons -> 52. NOTHING IN THIS FILE CHANGED but this
+#               note and the stamp; the work is in lessonscripts.py.
+#               U2 (factors, the smallest factor, breaking into primes) goes UNDERNEATH
+#               Basic's GCF/LCM. U3 (counting back past zero, adding a negative, taking
+#               away a negative, times with a negative) is THE FIRST UNIT WHOSE ANSWERS
+#               GO BELOW ZERO, and it needed the validator extended three times --
+#               every one an assumption that was TRUE through Basic Math and false the
+#               moment integers arrive: answers were required to be >= 1; the tap-option
+#               parser was r"\d+", which cannot see a minus sign; and options were
+#               required to be >= 1 too. A lesson now declares min_value and the guards
+#               stay on for the other 45.
+#               Also recorded: an upper bound on tap options was tried and REVERTED --
+#               six shipped lessons said at once that a neighbour distractor one step
+#               past max_value is normal (Counting to 10 offers 9 | 10 | 11), and they
+#               were right.
 #   2026-08-21  APP_BUILD -> "2026-08-21kl-the-money-buttons". BUILD kl -- Jim, before
 #               pressing anything: "I re render the audio. It doesn't charge me for ones
 #               that it's already done. Is that correct?" The answer was "it depends
@@ -9720,7 +9736,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kl-the-money-buttons"
+APP_BUILD = "2026-08-21km-integers-arrive"
 
 
 @app.get("/health")

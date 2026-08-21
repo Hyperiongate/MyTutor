@@ -1951,6 +1951,294 @@ _PREALGEBRA_U1 = [
 ]
 LESSONS.extend(_PREALGEBRA_U1)
 
+# =============================================================================
+# PREALGEBRA -- UNITS 2 & 3 (build km, 2026-08-21)
+# =============================================================================
+# U2 goes UNDERNEATH what Basic Math already teaches. Basic finds the greatest common
+# factor and the least common multiple by listing; these three lessons are what that
+# listing is made of -- what a factor is, which numbers have only two, and how to break
+# a number all the way down to primes.
+#
+# U3 is the first unit in the app whose answers go BELOW ZERO, which is why validate()
+# gained min_value. Every lesson through Basic Math answers with a count, so "answers
+# are 1 or more" was a real invariant worth keeping; a lesson that means to break it now
+# says so, and the guard stays on for the other 45.
+_PREALGEBRA_U23 = [
+    {
+        "id": "pre-u2-how-many-factors",
+        "course": "prealgebra", "unit": 2,
+        "topic": "How many factors a number has",
+        "op": "nfac", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("factor", "divides"),
+        "advance_line": "Three in a row — you've got it! You can count a number's factors.",
+        "teach": [
+            ["A factor is a number that divides another one exactly, with nothing left over. 1 and the number itself are always factors. Today you count how many a number has in all.",
+             '[[goal text="How many factors a number has"]]'],
+            ["Take 6. Does 1 divide it? Yes. Does 2? Yes, 6 is two 3s. Does 3? Yes. Does 4? No, there is something left over. Does 5? No. Does 6? Yes. So 6 has four factors: 1, 2, 3 and 6.",
+             '[[step eq="factors of 6 = 1, 2, 3, 6 → four"]]'],
+            ["Now 7. Only 1 and 7 divide it exactly. Nothing else fits. So 7 has just two factors. Numbers with exactly two are special, and they have a name you will meet next lesson.",
+             '[[step eq="factors of 7 = 1, 7 → two"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 8. 1 divides it, 2 divides it, 4 divides it, 8 divides it. 3, 5, 6 and 7 do not. So 8 has four factors.",
+                        '[[step eq="factors of 8 = 1, 2, 4, 8 → four"]]'],
+             "ask": {"a": 14, "b": 4, "op": "nfac"}},
+            {"worked": ["One more together. 9. 1 divides it, 3 divides it, 9 divides it. So 9 has three factors.",
+                        '[[step eq="factors of 9 = 1, 3, 9 → three"]]'],
+             "ask": {"a": 25, "b": 3, "op": "nfac"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 7, "b": 2, "op": "nfac"},
+            {"a": 9, "b": 3, "op": "nfac"},
+            {"a": 10, "b": 4, "op": "nfac"},
+            {"a": 12, "b": 6, "op": "nfac"},
+            {"a": 15, "b": 4, "op": "nfac"},
+            {"a": 16, "b": 5, "op": "nfac"},
+            {"a": 18, "b": 6, "op": "nfac"},
+            {"a": 20, "b": 6, "op": "nfac"},
+            {"a": 24, "b": 8, "op": "nfac"},
+            {"a": 30, "b": 8, "op": "nfac"},
+        ],
+    },
+    {
+        "id": "pre-u2-the-smallest-factor",
+        "course": "prealgebra", "unit": 2,
+        "topic": "The smallest factor above 1",
+        "op": "spf", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("factor", "prime"),
+        "advance_line": "Three in a row — you've got it! You can find a number's smallest factor.",
+        "teach": [
+            ["A number with exactly two factors — just 1 and itself — is a prime number. 2, 3, 5 and 7 are primes. Every other number can be divided by something smaller, and today you hunt for the smallest one.",
+             '[[goal text="The smallest factor above 1"]]'],
+            ["Take 15. Try 2 — no, 15 is odd. Try 3 — yes, 15 is three 5s. So 3 is the smallest factor of 15 above 1. You go up in order and stop at the first one that fits.",
+             '[[step eq="15 ÷ 2 leaves 1 · 15 ÷ 3 = 5 ✓"]]'],
+            ["Take 35. Try 2 — no. Try 3 — no. Try 5 — yes, 35 is five 7s. The smallest factor of 35 above 1 is 5.",
+             '[[step eq="35 ÷ 5 = 7 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 27. 2 does not fit. 3 does — 27 is three 9s. So the answer is 3.",
+                        '[[step eq="27 ÷ 3 = 9 ✓"]]'],
+             "ask": {"a": 51, "b": 3, "op": "spf"}},
+            {"worked": ["One more together. 91. 2 no, 3 no, 5 no. 7 fits — 91 is seven 13s. The answer is 7.",
+                        '[[step eq="91 ÷ 7 = 13 ✓"]]'],
+             "ask": {"a": 65, "b": 5, "op": "spf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 9, "b": 3, "op": "spf"},
+            {"a": 15, "b": 3, "op": "spf"},
+            {"a": 21, "b": 3, "op": "spf"},
+            {"a": 25, "b": 5, "op": "spf"},
+            {"a": 33, "b": 3, "op": "spf"},
+            {"a": 35, "b": 5, "op": "spf"},
+            {"a": 39, "b": 3, "op": "spf"},
+            {"a": 49, "b": 7, "op": "spf"},
+            {"a": 55, "b": 5, "op": "spf"},
+            {"a": 77, "b": 7, "op": "spf"},
+        ],
+    },
+    {
+        "id": "pre-u2-breaking-into-primes",
+        "course": "prealgebra", "unit": 2,
+        "topic": "Breaking a number into primes",
+        "op": "npf", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("prime", "factor"),
+        "advance_line": "Three in a row — you've got it! Every number breaks down into primes.",
+        "teach": [
+            ["Every number that is not prime can be written as primes multiplied. Keep pulling out the smallest factor until only primes are left. Today you count how many primes it takes.",
+             '[[goal text="Breaking a number into primes"]]'],
+            ["Take 12. The smallest factor is 2, and 12 is two 6s. Now break the 6: that is two 3s. Nothing is left but primes. 12 equals 2 times 2 times 3 — three primes.",
+             '[[step eq="12 = 2 × 6"]][[step eq="6 = 2 × 3"]][[step eq="12 = 2 × 2 × 3 → three"]]'],
+            ["Take 20. Smallest factor 2, so 20 is two 10s. Break the 10: two 5s. 20 equals 2 times 2 times 5 — three primes again.",
+             '[[step eq="20 = 2 × 2 × 5 → three"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 8. Two 4s, and the 4 is two 2s. 8 equals 2 times 2 times 2 — three primes.",
+                        '[[step eq="8 = 2 × 2 × 2 → three"]]'],
+             "ask": {"a": 15, "b": 2, "op": "npf"}},
+            {"worked": ["One more together. 30. Two 15s, and 15 is three 5s. 30 equals 2 times 3 times 5 — three primes.",
+                        '[[step eq="30 = 2 × 3 × 5 → three"]]'],
+             "ask": {"a": 16, "b": 4, "op": "npf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 6, "b": 2, "op": "npf"},
+            {"a": 10, "b": 2, "op": "npf"},
+            {"a": 12, "b": 3, "op": "npf"},
+            {"a": 18, "b": 3, "op": "npf"},
+            {"a": 20, "b": 3, "op": "npf"},
+            {"a": 27, "b": 3, "op": "npf"},
+            {"a": 28, "b": 3, "op": "npf"},
+            {"a": 45, "b": 3, "op": "npf"},
+            {"a": 50, "b": 3, "op": "npf"},
+            {"a": 63, "b": 3, "op": "npf"},
+        ],
+    },
+    {
+        "id": "pre-u3-counting-back-past-zero",
+        "course": "prealgebra", "unit": 3,
+        "topic": "Counting back past zero",
+        "op": "cbz", "max_value": 25, "min_value": -20,
+        "levels": ("abstract",),
+        "symbols": ("negative", "zero", "number line"),
+        "advance_line": "Three in a row — you've got it! You can count straight past zero.",
+        "teach": [
+            ["Numbers keep going to the left of zero. Those are the negative numbers, and they are real places on the number line — not mistakes. One step left of zero is negative 1. Two steps is negative 2.",
+             '[[goal text="Counting back past zero"]][[numberline min="-10" max="10" points="-3"]]'],
+            ["Start at 3 and count back 7. Three steps take you to zero. You still have four to go, so you carry on to the left and land on negative 4.",
+             '[[numberline min="-10" max="10" points="-4"]][[step eq="3 − 7 = −4"]]'],
+            ["Start at 2 and count back 9. Two steps reach zero, seven more keep going left. You land on negative 7.",
+             '[[numberline min="-10" max="10" points="-7"]][[step eq="2 − 9 = −7"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Start at 4, count back 6. Four steps to zero, two more to the left — negative 2.",
+                        '[[numberline min="-10" max="10" points="-2"]][[step eq="4 − 6 = −2"]]'],
+             "ask": {"a": 6, "b": 10, "op": "cbz"}},
+            {"worked": ["One more together. Start at 1, count back 8. One step to zero, seven more left — negative 7.",
+                        '[[numberline min="-10" max="10" points="-7"]][[step eq="1 − 8 = −7"]]'],
+             "ask": {"a": 4, "b": 15, "op": "cbz"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 7, "op": "cbz"},
+            {"a": 2, "b": 6, "op": "cbz"},
+            {"a": 5, "b": 9, "op": "cbz"},
+            {"a": 4, "b": 11, "op": "cbz"},
+            {"a": 6, "b": 13, "op": "cbz"},
+            {"a": 3, "b": 12, "op": "cbz"},
+            {"a": 7, "b": 16, "op": "cbz"},
+            {"a": 8, "b": 19, "op": "cbz"},
+            {"a": 2, "b": 14, "op": "cbz"},
+            {"a": 5, "b": 18, "op": "cbz"},
+        ],
+    },
+    {
+        "id": "pre-u3-adding-a-negative",
+        "course": "prealgebra", "unit": 3,
+        "topic": "Adding a negative number",
+        "op": "addneg", "max_value": 30, "min_value": -20,
+        "levels": ("abstract",),
+        "symbols": ("negative", "plus"),
+        "advance_line": "Three in a row — you've got it! Adding a negative moves you left.",
+        "teach": [
+            ["Adding usually moves you right along the line. But adding a NEGATIVE number moves you the other way — to the left. Adding negative 3 does exactly what counting back 3 does.",
+             '[[goal text="Adding a negative number"]]'],
+            ["Watch: 5 plus negative 7. Start at 5, move 7 to the left. Five steps reach zero, two more keep going, and you land on negative 2. So 5 plus negative 7 equals negative 2.",
+             '[[numberline min="-10" max="10" points="-2"]][[step eq="5 + (−7) = −2"]]'],
+            ["Another: 3 plus negative 6. Start at 3, move 6 left. You land on negative 3. The plus sign did not stop you going left — the negative did that.",
+             '[[numberline min="-10" max="10" points="-3"]][[step eq="3 + (−6) = −3"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 plus negative 9. Start at 4, move 9 to the left, land on negative 5.",
+                        '[[numberline min="-10" max="10" points="-5"]][[step eq="4 + (−9) = −5"]]'],
+             "ask": {"a": 6, "b": 13, "op": "addneg"}},
+            {"worked": ["One more together. 2 plus negative 8 lands on negative 6.",
+                        '[[numberline min="-10" max="10" points="-6"]][[step eq="2 + (−8) = −6"]]'],
+             "ask": {"a": 8, "b": 12, "op": "addneg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 7, "op": "addneg"},
+            {"a": 3, "b": 6, "op": "addneg"},
+            {"a": 8, "b": 11, "op": "addneg"},
+            {"a": 4, "b": 10, "op": "addneg"},
+            {"a": 9, "b": 15, "op": "addneg"},
+            {"a": 6, "b": 14, "op": "addneg"},
+            {"a": 2, "b": 11, "op": "addneg"},
+            {"a": 7, "b": 18, "op": "addneg"},
+            {"a": 3, "b": 16, "op": "addneg"},
+            {"a": 5, "b": 21, "op": "addneg"},
+        ],
+    },
+    {
+        "id": "pre-u3-taking-away-a-negative",
+        "course": "prealgebra", "unit": 3,
+        "topic": "Taking away a negative number",
+        # min_value is declared even though every ANSWER here is positive: the wrong
+        # option a child can tap IS negative (the error for "4 take away negative 6" is
+        # 4 − 6 = −2, and that is exactly the mistake worth offering). The floor has to
+        # cover what appears on screen, not only what is correct. The op's own check
+        # keeps the answers positive by construction: a + b with both a and b above 0.
+        "op": "subneg", "max_value": 30, "min_value": -20,
+        "levels": ("abstract",),
+        "symbols": ("negative", "take away"),
+        "advance_line": "Three in a row — you've got it! Taking away a negative moves you right.",
+        "teach": [
+            ["Here is the surprising one. Taking away usually moves you left. But taking away a NEGATIVE moves you RIGHT — the two negatives cancel each other and the answer grows.",
+             '[[goal text="Taking away a negative number"]]'],
+            ["Watch: 3 take away negative 2. Taking away a move-left is a move-right, so you go 2 to the right of 3 and land on 5. 3 take away negative 2 equals 5.",
+             '[[step eq="3 − (−2) = 3 + 2 = 5"]]'],
+            ["Another: 5 take away negative 3 equals 8. Whenever a take away meets a negative, swap the pair for a plus.",
+             '[[step eq="5 − (−3) = 5 + 3 = 8"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 take away negative 4. The two negatives become a plus: 6 plus 4 equals 10.",
+                        '[[step eq="6 − (−4) = 6 + 4 = 10"]]'],
+             "ask": {"a": 7, "b": 6, "op": "subneg"}},
+            {"worked": ["One more together. 2 take away negative 9 equals 2 plus 9, which equals 11.",
+                        '[[step eq="2 − (−9) = 11"]]'],
+             "ask": {"a": 4, "b": 13, "op": "subneg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "subneg"},
+            {"a": 5, "b": 3, "op": "subneg"},
+            {"a": 4, "b": 6, "op": "subneg"},
+            {"a": 7, "b": 4, "op": "subneg"},
+            {"a": 6, "b": 8, "op": "subneg"},
+            {"a": 9, "b": 5, "op": "subneg"},
+            {"a": 8, "b": 9, "op": "subneg"},
+            {"a": 5, "b": 12, "op": "subneg"},
+            {"a": 9, "b": 11, "op": "subneg"},
+            {"a": 7, "b": 15, "op": "subneg"},
+        ],
+    },
+    {
+        "id": "pre-u3-times-with-a-negative",
+        "course": "prealgebra", "unit": 3,
+        "topic": "Times with a negative number",
+        "op": "mulneg", "max_value": 90, "min_value": -95,
+        "levels": ("abstract",),
+        "symbols": ("negative", "times"),
+        "advance_line": "Three in a row — you've got it! One negative turns the answer negative.",
+        "teach": [
+            ["Times works the same as it always did — only the sign is new. Negative 3 times 4 means four lots of negative 3. Four moves of 3 to the left lands on negative 12.",
+             '[[goal text="Times with a negative number"]]'],
+            ["So do the times first and ignore the sign: 3 times 4 equals 12. Then look at the signs. One of them is negative, so the answer is negative. Negative 3 times 4 equals negative 12.",
+             '[[numberline min="-20" max="10" points="-12"]][[step eq="(−3) × 4 = −12"]]'],
+            ["Another: negative 5 times 3. Five 3s equal 15, and one negative sign turns it negative 15.",
+             '[[step eq="(−5) × 3 = −15"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Negative 2 times 7. Two 7s equal 14, and one negative turns it negative 14.",
+                        '[[step eq="(−2) × 7 = −14"]]'],
+             "ask": {"a": 4, "b": 6, "op": "mulneg"}},
+            {"worked": ["One more together. Negative 6 times 4. Six 4s equal 24, so the answer is negative 24.",
+                        '[[step eq="(−6) × 4 = −24"]]'],
+             "ask": {"a": 8, "b": 5, "op": "mulneg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "mulneg"},
+            {"a": 3, "b": 3, "op": "mulneg"},
+            {"a": 2, "b": 6, "op": "mulneg"},
+            {"a": 4, "b": 4, "op": "mulneg"},
+            {"a": 3, "b": 7, "op": "mulneg"},
+            {"a": 5, "b": 5, "op": "mulneg"},
+            {"a": 4, "b": 8, "op": "mulneg"},
+            {"a": 6, "b": 7, "op": "mulneg"},
+            {"a": 7, "b": 8, "op": "mulneg"},
+            {"a": 9, "b": 9, "op": "mulneg"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U23)
+
+
 
 # THE COURSE ORDER IS OWNED HERE (jz -- jy had accidentally placed carrying before
 # two-digit-no-carry). Import fails loudly if a lesson is missing or listed twice.
@@ -1987,6 +2275,12 @@ COURSE_ORDER = [
     # ---- PREALGEBRA (build kk) -- Unit 1: Number Sense & Order of Operations ----
     "pre-u1-times-before-add", "pre-u1-parentheses-first",
     "pre-u1-exponents-are-repeated-times", "pre-u1-power-then-times-then-add",
+    # Unit 2: Factors, Multiples & Primes -- underneath Basic's GCF/LCM
+    "pre-u2-how-many-factors", "pre-u2-the-smallest-factor",
+    "pre-u2-breaking-into-primes",
+    # Unit 3: Integers & Negative Numbers -- the first answers below zero
+    "pre-u3-counting-back-past-zero", "pre-u3-adding-a-negative",
+    "pre-u3-taking-away-a-negative", "pre-u3-times-with-a-negative",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -2022,6 +2316,20 @@ def _gcd(x, y):
     while y:
         x, y = y, x % y
     return x
+
+
+def _prime_factors(n):
+    """The primes whose product is n, repeats included: 12 -> [2, 2, 3]. Used by the
+    Prealgebra U2 ops (build km); a lambda cannot express the loop readably."""
+    out, d, n = [], 2, int(n)
+    while d * d <= n:
+        while n % d == 0:
+            out.append(d)
+            n //= d
+        d += 1
+    if n > 1:
+        out.append(n)
+    return out
 
 
 OP_EXT = {
@@ -2486,6 +2794,120 @@ OP_EXT = {
                             "a is 3-9 (at 2, squaring and doubling agree and two "
                             "options would collide); b and c are 2-9"),
     },
+
+    # ---- PREALGEBRA UNIT 2 (build km) -- FACTORS, MULTIPLES & PRIMES ----------
+    # Basic Math already teaches GCF and LCM by listing. These go underneath that:
+    # what a factor IS, which numbers have only two, and how to break a number all
+    # the way down. `a` is the number; `b` carries the authored answer for reference
+    # only -- ans() recomputes it, because ans() is the ONLY place answers are made.
+    "nfac": {  # how many different numbers divide a exactly
+        "ans": lambda p: sum(1 for d in range(1, p["a"] + 1) if p["a"] % d == 0),
+        "spoken": lambda p: (f"How many different numbers divide {p['a']} exactly, "
+                             f"with nothing left over?"),
+        "board": lambda p: f'[[step eq="factors of {p["a"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} has "
+                             f"{sum(1 for d in range(1, p['a'] + 1) if p['a'] % d == 0)}"
+                             f" factors."),
+        "key": lambda p: p["a"],
+        "speaks": lambda p, sp: str(p["a"]) in sp,   # `b` is a reference, never spoken
+        "check": lambda p: (4 <= p["a"] <= 60,
+                            "the number stays small enough to check every divisor by "
+                            "hand"),
+    },
+    "spf": {   # the smallest number above 1 that divides a
+        "ans": lambda p: next(d for d in range(2, p["a"] + 1) if p["a"] % d == 0),
+        "spoken": lambda p: (f"What is the smallest number, bigger than 1, that "
+                             f"divides {p['a']} exactly?"),
+        "board": lambda p: f'[[step eq="{p["a"]} ÷ ? leaves nothing over"]]',
+        "praise": lambda p: (f"{next(d for d in range(2, p['a'] + 1) if p['a'] % d == 0)}"
+                             f" is the smallest one that divides {p['a']}."),
+        "key": lambda p: p["a"],
+        "speaks": lambda p, sp: str(p["a"]) in sp,   # `b` is a reference, never spoken
+        "check": lambda p: (9 <= p["a"] <= 99 and
+                            next(d for d in range(2, p["a"] + 1) if p["a"] % d == 0)
+                            != p["a"],
+                            "the number is 9-99 and is NOT itself prime, so there is a "
+                            "smaller factor to find"),
+    },
+    "npf": {   # how many primes multiplied make a (repeats counted)
+        "ans": lambda p: len(_prime_factors(p["a"])),
+        "spoken": lambda p: (f"Break {p['a']} down into primes multiplied. How many "
+                             f"primes does it take?"),
+        "board": lambda p: f'[[step eq="{p["a"]} = ? primes multiplied"]]',
+        "praise": lambda p: (f"{p['a']} equals "
+                             f"{' × '.join(str(x) for x in _prime_factors(p['a']))} — "
+                             f"{len(_prime_factors(p['a']))} primes."),
+        "key": lambda p: p["a"],
+        "speaks": lambda p, sp: str(p["a"]) in sp,   # `b` is a reference, never spoken
+        "check": lambda p: (4 <= p["a"] <= 99 and len(_prime_factors(p["a"])) >= 2,
+                            "the number is 4-99 and is not prime itself, so there is "
+                            "something to break down"),
+    },
+
+    # ---- PREALGEBRA UNIT 3 (build km) -- INTEGERS & NEGATIVE NUMBERS ---------
+    # THE FIRST LESSONS IN THE APP WHOSE ANSWERS GO BELOW ZERO. The validator used to
+    # assume every answer was 1 or more -- true of every counting lesson through Basic
+    # Math, and false the moment integers arrive -- so a lesson now declares its own
+    # min_value and the guard stays on. The PROBLEM DATA stays positive: `a` and `b`
+    # are the numbers a child reads, and the sign lives in the question and the answer.
+    # Each wrong option is the sign error itself.
+    "cbz": {   # start at a, count back b, land below zero
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"Start at {p['a']} and count back {p['b']}. What number "
+                             f"do you land on?"),
+        # THE PICTURE THIS UNIT EXISTS FOR (build kj gave us the renderer): below zero
+        # is a PLACE, and a child who sees it on the line stops thinking of a negative
+        # as a broken sum.
+        "board": lambda p: (f'[[numberline min="-20" max="10" '
+                            f'points="{p["a"] - p["b"]}"]]'
+                            f'[[step eq="{p["a"]} − {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"You land on negative {p['b'] - p['a']} — "
+                             f"{p['b'] - p['a']} steps to the left of zero."),
+        "key": lambda p: p["b"] - p["a"],
+        "choices": lambda p: [p["a"] - p["b"], p["b"] - p["a"], p["a"] - p["b"] - 1],
+        "check": lambda p: (1 <= p["a"] <= 9 and p["a"] < p["b"] <= 21,
+                            "counting back always passes zero, which is the lesson"),
+    },
+    "addneg": {  # a + (-b)
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"What is {p['a']} plus negative {p['b']}?"),
+        "board": lambda p: (f'[[numberline min="-20" max="10" '
+                            f'points="{p["a"] - p["b"]}"]]'
+                            f'[[step eq="{p["a"]} + (−{p["b"]}) = ?"]]'),
+        "praise": lambda p: (f"Adding negative {p['b']} moves {p['b']} to the left, "
+                             f"so you land on negative {p['b'] - p['a']}."),
+        "key": lambda p: p["b"] - p["a"],
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["a"] - p["b"] - 1],
+        "check": lambda p: (1 <= p["a"] <= 9 and p["a"] < p["b"] <= 21,
+                            "the answer lands below zero, which is the lesson"),
+    },
+    "subneg": {  # a - (-b) -- the surprise: it goes UP
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"What is {p['a']} take away negative {p['b']}?"),
+        "board": lambda p: f'[[step eq="{p["a"]} − (−{p["b"]}) = ?"]]',
+        "praise": lambda p: (f"Taking away negative {p['b']} moves {p['b']} to the "
+                             f"RIGHT, so {p['a']} take away negative {p['b']} equals "
+                             f"{p['a'] + p['b']}."),
+        "key": lambda p: p["a"] + p["b"],
+        "choices": lambda p: [p["a"] + p["b"], p["a"] - p["b"], p["a"] + p["b"] + 1],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 15 and p["a"] != p["b"],
+                            "a and b differ, so the right answer and the take-away "
+                            "error are never the same number"),
+    },
+    "mulneg": {  # (-a) x b
+        "ans": lambda p: -(p["a"] * p["b"]),
+        "spoken": lambda p: f"What is negative {p['a']} times {p['b']}?",
+        "board": lambda p: f'[[step eq="(−{p["a"]}) × {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} times {p['b']} equals {p['a'] * p['b']}, and "
+                             f"one negative turns the answer negative — negative "
+                             f"{p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        "choices": lambda p: [-(p["a"] * p["b"]), p["a"] * p["b"],
+                              -(p["a"] * p["b"]) - p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9,
+                            "both numbers are 2-9, so the answer and the "
+                            "forgot-the-sign error are always different"),
+    },
 }
 
 
@@ -2802,9 +3224,16 @@ def validate(lesson, board_tag_names=None):
 
     # 1. every answer is COMPUTED -- and inside the lesson's own stated bound
     problems = list(lesson["bank"]) + [pr["ask"] for pr in lesson["pairs"]]
-    ck(all(1 <= ans(p) <= bound for p in problems),
-       f"{lid}: every answer stays within {bound} (and above zero)",
-       str([p for p in problems if not 1 <= ans(p) <= bound]))
+    # build km: the floor is DECLARED, not assumed. Every lesson through Basic Math
+    # answers with a count, so "answers are 1 or more" was a true invariant and a
+    # useful one -- it catches an op whose arithmetic has gone backwards. Prealgebra
+    # Unit 3 teaches integers, where landing below zero IS the lesson, so a lesson may
+    # now state its own floor. Default 1, so all 45 earlier lessons are unchanged and
+    # still guarded; a lesson that wants negatives has to say so out loud.
+    floor = lesson.get("min_value", 1)
+    ck(all(floor <= ans(p) <= bound for p in problems),
+       f"{lid}: every answer stays within {floor} to {bound}",
+       str([p for p in problems if not floor <= ans(p) <= bound]))
     ck(all(p["a"] <= bound and p["b"] <= bound for p in problems),
        f"{lid}: every number a child sees stays within {bound}", "")
     # jx: the lesson's NAME is a promise about its INPUTS (Jim's second wording
@@ -2850,15 +3279,27 @@ def validate(lesson, board_tag_names=None):
     ck(len({_problem_key(p) for p in problems}) == len(problems),
        f"{lid}: no duplicate problems", "")
 
-    # 2. choices: the right answer appears exactly once, all options positive
+    # 2. choices: the right answer appears exactly once, every option in range.
+    # build km: the pattern was r"\d+", which cannot see a minus sign -- it read the
+    # option "-6" as "6", so a Prealgebra U3 lesson looked like it was offering the
+    # answer twice when it was offering -6 and +6, which is the whole point of the
+    # question. The floor moved with it: "every option is at least 1" was the same
+    # assumption as min_value, and it is now the lesson's declared floor (default 1,
+    # so the other 45 lessons are guarded exactly as before).
     for p in problems:
-        opts = re.findall(r"\d+", choices_for(p))
+        opts = re.findall(r"-?\d+", choices_for(p))
         ck(opts.count(str(ans(p))) == 1,
            f"{lid}: choices for {p['a']}{p.get('op', '+')}{p['b']} contain the "
            f"answer exactly once", str(opts))
-        ck(all(int(o) >= 1 for o in opts),
+        # THE FLOOR ONLY, deliberately. An upper bound here was tried in km and was
+        # WRONG: the default distractor set is the answer's neighbours, so a lesson
+        # whose top answer equals its max_value legitimately offers max_value + 1 --
+        # Counting to 10 shows 9 | 10 | 11, times tables show 80 | 81 | 82. Six shipped
+        # lessons said so at once, and they were right. max_value describes the
+        # PROBLEMS; a neighbour one step past it is a normal wrong answer, not a defect.
+        ck(all(int(o) >= floor for o in opts),
            f"{lid}: choices for {p['a']}{p.get('op', '+')}{p['b']} are all at "
-           f"least 1", str(opts))
+           f"least {floor}", str(opts))
 
     # 3. the difficulty ramp: the key never falls by more than 1 across the bank.
     # kc: a lesson may declare mixed_review=True -- INTERLEAVED practice across ops
