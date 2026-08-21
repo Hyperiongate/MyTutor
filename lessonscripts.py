@@ -2238,6 +2238,179 @@ _PREALGEBRA_U23 = [
 ]
 LESSONS.extend(_PREALGEBRA_U23)
 
+# =============================================================================
+# PREALGEBRA -- UNIT 4: FRACTIONS (build kn, 2026-08-21)
+# =============================================================================
+# Basic Math takes fractions as far as adding and taking them away, and its
+# "fraction of a group" only ever asks for a UNIT fraction -- "one half of 4". These
+# four go past that, in the order the ideas actually depend on each other: take a
+# non-unit fraction of a number (which is the unit-fraction skill done a times), then
+# count how many parts fit inside a whole, which is what makes dividing BY a fraction
+# make sense rather than being a rule to memorise, and finally read a fraction that is
+# bigger than 1.
+#
+# EVERY ANSWER IS A WHOLE NUMBER, because a tap answer has to be one. That is a real
+# constraint on what this unit can ask, and it was allowed to shape the questions
+# rather than being worked around -- "how many fourths are in 3 wholes" is a better
+# question than "what is 3 divided by one fourth" for a child meeting this the first
+# time, and it happens to answer with an integer.
+_PREALGEBRA_U4 = [
+    {
+        "id": "pre-u4-a-fraction-of-a-number",
+        "course": "prealgebra", "unit": 4,
+        "topic": "Two thirds of a number",
+        "op": "nuf", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("fraction", "of"),
+        "advance_line": "Three in a row — you've got it! Divide by the bottom, then times by the top.",
+        "teach": [
+            ["You already know how to find one half or one third of a number. Today the top of the fraction is bigger than 1, and that only adds one step. Divide by the bottom to find one part, then take as many parts as the top says.",
+             '[[goal text="Two thirds of a number"]]'],
+            ["Watch me find two thirds of 12. The bottom is 3, so cut 12 into 3 equal parts: 12 divided by 3 equals 4. That is ONE third. The top is 2, so take two of them: 4 times 2 equals 8.",
+             '[[step eq="12 ÷ 3 = 4"]][[step eq="4 × 2 = 8"]]'],
+            ["One more. Three fourths of 20. Bottom first: 20 divided by 4 equals 5. Now the top: 5 times 3 equals 15.",
+             '[[step eq="20 ÷ 4 = 5"]][[step eq="5 × 3 = 15"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Two fifths of 10. 10 divided by 5 equals 2, and 2 times 2 equals 4.",
+                        '[[step eq="10 ÷ 5 = 2"]][[step eq="2 × 2 = 4"]]'],
+             "ask": {"a": 3, "b": 4, "c": 16, "op": "nuf"}},
+            {"worked": ["One more together. Five sixths of 18. 18 divided by 6 equals 3, and 3 times 5 equals 15.",
+                        '[[step eq="18 ÷ 6 = 3"]][[step eq="3 × 5 = 15"]]'],
+             "ask": {"a": 2, "b": 7, "c": 21, "op": "nuf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 6, "op": "nuf"},
+            {"a": 2, "b": 5, "c": 10, "op": "nuf"},
+            {"a": 3, "b": 4, "c": 8, "op": "nuf"},
+            {"a": 2, "b": 3, "c": 9, "op": "nuf"},
+            {"a": 3, "b": 8, "c": 16, "op": "nuf"},
+            {"a": 3, "b": 4, "c": 12, "op": "nuf"},
+            {"a": 3, "b": 5, "c": 15, "op": "nuf"},
+            {"a": 2, "b": 3, "c": 15, "op": "nuf"},
+            {"a": 5, "b": 6, "c": 12, "op": "nuf"},
+            {"a": 4, "b": 5, "c": 20, "op": "nuf"},
+        ],
+    },
+    {
+        "id": "pre-u4-how-many-parts-in-a-whole",
+        "course": "prealgebra", "unit": 4,
+        "topic": "How many parts fit in a whole",
+        "op": "uic", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("fraction", "whole"),
+        "advance_line": "Three in a row — you've got it! Count the parts in one whole, then times by the wholes.",
+        "teach": [
+            ["The bottom number of a fraction says how many equal parts make one whole. Four fourths make one whole. Five fifths make one whole. So counting parts inside several wholes is just a times.",
+             '[[goal text="How many parts fit in a whole"]]'],
+            ["How many fourths are in 3 wholes? One whole holds 4 fourths. Three wholes hold three lots of that: 3 times 4 equals 12. So there are 12 fourths in 3 wholes.",
+             '[[step eq="1 whole = 4 fourths"]][[step eq="3 × 4 = 12"]]'],
+            ["How many sixths are in 2 wholes? One whole holds 6. Two wholes hold 2 times 6, which equals 12.",
+             '[[step eq="2 × 6 = 12"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. How many thirds are in 4 wholes? One whole holds 3, so 4 wholes hold 4 times 3, which equals 12.",
+                        '[[step eq="4 × 3 = 12"]]'],
+             "ask": {"a": 5, "b": 4, "op": "uic"}},
+            {"worked": ["One more together. How many eighths are in 3 wholes? 3 times 8 equals 24.",
+                        '[[step eq="3 × 8 = 24"]]'],
+             "ask": {"a": 6, "b": 5, "op": "uic"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "uic"},
+            {"a": 3, "b": 2, "op": "uic"},
+            {"a": 2, "b": 4, "op": "uic"},
+            {"a": 4, "b": 3, "op": "uic"},
+            {"a": 5, "b": 3, "op": "uic"},
+            {"a": 4, "b": 5, "op": "uic"},
+            {"a": 6, "b": 4, "op": "uic"},
+            {"a": 5, "b": 6, "op": "uic"},
+            {"a": 8, "b": 5, "op": "uic"},
+            {"a": 7, "b": 7, "op": "uic"},
+        ],
+    },
+    {
+        "id": "pre-u4-dividing-by-a-fraction",
+        "course": "prealgebra", "unit": 4,
+        "topic": "Dividing by a fraction",
+        "op": "dbf", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("fraction", "divided by"),
+        "advance_line": "Three in a row — you've got it! Flip the fraction, then times.",
+        "teach": [
+            ["Dividing asks how many of these fit inside that. You just counted how many fourths fit in 3 wholes and got 12 — a bigger number. Dividing by a fraction gives a BIGGER answer, because small parts fit in many times.",
+             '[[goal text="Dividing by a fraction"]]'],
+            ["The rule is short: flip the fraction over, then times. Watch. 4 divided by two thirds. Flip two thirds to get three halves. Now times: 4 times 3 equals 12, and 12 divided by 2 equals 6.",
+             '[[step eq="4 ÷ 2/3"]][[step eq="4 × 3/2"]][[step eq="12 ÷ 2 = 6"]]'],
+            ["One more. 6 divided by three fourths. Flip to four thirds. 6 times 4 equals 24, and 24 divided by 3 equals 8.",
+             '[[step eq="6 ÷ 3/4 = 6 × 4/3"]][[step eq="24 ÷ 3 = 8"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 divided by two fifths. Flip to five halves. 4 times 5 equals 20, and 20 divided by 2 equals 10.",
+                        '[[step eq="4 × 5/2 = 10"]]'],
+             "ask": {"a": 3, "b": 5, "c": 9, "op": "dbf"}},
+            {"worked": ["One more together. 10 divided by five sixths. Flip to six fifths. 10 times 6 equals 60, and 60 divided by 5 equals 12.",
+                        '[[step eq="10 × 6/5 = 12"]]'],
+             "ask": {"a": 2, "b": 5, "c": 6, "op": "dbf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 4, "op": "dbf"},
+            {"a": 3, "b": 4, "c": 6, "op": "dbf"},
+            {"a": 2, "b": 5, "c": 4, "op": "dbf"},
+            {"a": 3, "b": 5, "c": 6, "op": "dbf"},
+            {"a": 4, "b": 5, "c": 8, "op": "dbf"},
+            {"a": 5, "b": 6, "c": 10, "op": "dbf"},
+            {"a": 2, "b": 3, "c": 10, "op": "dbf"},
+            {"a": 3, "b": 7, "c": 9, "op": "dbf"},
+            {"a": 4, "b": 9, "c": 12, "op": "dbf"},
+            {"a": 2, "b": 7, "c": 8, "op": "dbf"},
+        ],
+    },
+    {
+        "id": "pre-u4-fractions-bigger-than-one",
+        "course": "prealgebra", "unit": 4,
+        "topic": "Fractions bigger than one",
+        "op": "imp", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("fraction", "whole", "number line"),
+        "advance_line": "Three in a row — you've got it! You can find the whole ones inside a fraction.",
+        "teach": [
+            ["A fraction can be bigger than one whole. Seven thirds is not a mistake. On the number line it is a real place, out past 2. Three thirds fill one whole, so seven thirds fill two wholes with one third left over.",
+             '[[goal text="Fractions bigger than one"]][[numberline min="0" max="3" points="2.33"]]'],
+            ["To find the whole ones, ask how many times the bottom fits into the top. Seven thirds: 3 fits into 7 twice, with 1 left. So seven thirds is 2 whole ones and one third.",
+             '[[numberline min="0" max="3" points="2.33"]][[step eq="7 ÷ 3 = 2 whole ones, 1 left"]]'],
+            ["Another. Eleven fourths. 4 fits into 11 twice, with 3 left. So eleven fourths is 2 whole ones and three fourths.",
+             '[[numberline min="0" max="3" points="2.75"]][[step eq="11 ÷ 4 = 2 whole ones, 3 left"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Nine halves. 2 fits into 9 four times, with 1 left. Four whole ones and one half.",
+                        '[[step eq="9 ÷ 2 = 4 whole ones, 1 left"]]'],
+             "ask": {"a": 14, "b": 3, "op": "imp"}},
+            {"worked": ["One more together. Twenty sevenths. 7 fits into 20 twice, with 6 left. Two whole ones and six sevenths.",
+                        '[[step eq="20 ÷ 7 = 2 whole ones, 6 left"]]'],
+             "ask": {"a": 22, "b": 5, "op": "imp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 7, "b": 3, "op": "imp"},
+            {"a": 9, "b": 4, "op": "imp"},
+            {"a": 11, "b": 5, "op": "imp"},
+            {"a": 13, "b": 4, "op": "imp"},
+            {"a": 17, "b": 5, "op": "imp"},
+            {"a": 19, "b": 6, "op": "imp"},
+            {"a": 23, "b": 7, "op": "imp"},
+            {"a": 29, "b": 8, "op": "imp"},
+            {"a": 25, "b": 6, "op": "imp"},
+            {"a": 31, "b": 7, "op": "imp"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U4)
+
+
 
 
 # THE COURSE ORDER IS OWNED HERE (jz -- jy had accidentally placed carrying before
@@ -2281,6 +2454,9 @@ COURSE_ORDER = [
     # Unit 3: Integers & Negative Numbers -- the first answers below zero
     "pre-u3-counting-back-past-zero", "pre-u3-adding-a-negative",
     "pre-u3-taking-away-a-negative", "pre-u3-times-with-a-negative",
+    # Unit 4: Fractions -- past Basic's adding, taking away and unit fractions
+    "pre-u4-a-fraction-of-a-number", "pre-u4-how-many-parts-in-a-whole",
+    "pre-u4-dividing-by-a-fraction", "pre-u4-fractions-bigger-than-one",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -2316,6 +2492,21 @@ def _gcd(x, y):
     while y:
         x, y = y, x % y
     return x
+
+
+_FRAC_BOTTOM = {2: "half", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth",
+                7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth", 12: "twelfth"}
+_FRAC_TOP = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+             7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+
+
+def _frac_words(a, b):
+    """A fraction said the way a child reads it: (2, 3) -> "two thirds". Basic Math
+    only ever spoke UNIT fractions ("one half"), so it had no need to pluralise;
+    Prealgebra U4 is where non-unit fractions arrive (build kn)."""
+    top = _FRAC_TOP.get(a, str(a))
+    bot = _FRAC_BOTTOM.get(b, f"{b}th")
+    return f"{top} {bot}" if a == 1 else f"{top} {bot}s"
 
 
 def _prime_factors(n):
@@ -2907,6 +3098,94 @@ OP_EXT = {
         "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9,
                             "both numbers are 2-9, so the answer and the "
                             "forgot-the-sign error are always different"),
+    },
+
+    # ---- PREALGEBRA UNIT 4 (build kn) -- FRACTIONS BEYOND BASIC ---------------
+    # Basic Math takes fractions as far as adding and taking them away, and its
+    # "fraction of a group" only ever asks for a UNIT fraction -- "one half of 4".
+    # These four go past that: a non-unit fraction of a number, how many parts fit
+    # inside a whole, dividing BY a fraction, and reading an improper fraction.
+    # Every answer is a whole number, because a tap answer has to be one.
+    "nuf": {   # a/b of c -- a NON-unit fraction of a whole number
+        "ans": lambda p: p["c"] // p["b"] * p["a"],
+        "spoken": lambda p: (f"What is {_frac_words(p['a'], p['b'])} of {p['c']}?"),
+        "board": lambda p: (f'[[step eq="{p["c"]} ÷ {p["b"]} = {p["c"] // p["b"]}"]]'
+                            f'[[step eq="{p["c"] // p["b"]} × {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"One {_FRAC_BOTTOM.get(p['b'], 'part')} of {p['c']} is "
+                             f"{p['c'] // p['b']}, and {p['a']} of those equal "
+                             f"{p['c'] // p['b'] * p['a']}."),
+        "key": lambda p: p["c"] // p["b"] * p["a"],
+        # The wrong option is the child who stops after the divide -- they found ONE
+        # part and forgot to take a of them, which is the whole difference between
+        # this lesson and Basic's unit-fraction one.
+        "choices": lambda p: [p["c"] // p["b"] * p["a"], p["c"] // p["b"],
+                              p["c"] // p["b"] * p["a"] + p["c"] // p["b"]],
+        "speaks": lambda p, sp: str(p["c"]) in sp,   # a and b are said as WORDS
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 10 and p["c"] % p["b"] == 0
+                            and p["c"] <= 30 and p["a"] != 1,
+                            "a proper NON-unit fraction, and c divides exactly so the "
+                            "answer is a whole number a child can tap"),
+    },
+    "uic": {   # how many 1/a fit inside b wholes
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"How many {_FRAC_BOTTOM.get(p['a'], 'parts')}s are "
+                             f"there in {p['b']} wholes?"),
+        "board": lambda p: (f'[[step eq="1 whole = {p["a"]} '
+                            f'{_FRAC_BOTTOM.get(p["a"], "parts")}s"]]'
+                            f'[[step eq="{p["b"]} wholes = {p["b"]} × {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"Each whole holds {p['a']}, so {p['b']} wholes hold "
+                             f"{p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["a"] * p["b"] - p["a"]],
+        "speaks": lambda p, sp: str(p["b"]) in sp,   # the bottom is said as a WORD
+        "check": lambda p: (2 <= p["a"] <= 10 and 2 <= p["b"] <= 8
+                            and p["a"] * p["b"] != p["a"] + p["b"],
+                            "the parts are 2-10 and the wholes 2-8, and a×b never "
+                            "equals a+b -- at 2 and 2 they both give 4 and the child "
+                            "would be offered the answer twice"),
+    },
+    "dbf": {   # c divided by a/b -- flip and times
+        "ans": lambda p: p["c"] * p["b"] // p["a"],
+        "spoken": lambda p: (f"What is {p['c']} divided by "
+                             f"{_frac_words(p['a'], p['b'])}?"),
+        "board": lambda p: (f'[[step eq="{p["c"]} ÷ {p["a"]}/{p["b"]}"]]'
+                            f'[[step eq="{p["c"]} × {p["b"]}/{p["a"]} = ?"]]'),
+        "praise": lambda p: (f"Flip the fraction and times: {p['c']} times "
+                             f"{p['b']} over {p['a']} equals "
+                             f"{p['c'] * p['b'] // p['a']}."),
+        "key": lambda p: p["c"] * p["b"] // p["a"],
+        # The error worth offering is dividing instead of flipping -- the child who
+        # trusts that dividing always makes things smaller.
+        "choices": lambda p: [p["c"] * p["b"] // p["a"], p["c"] * p["a"] // p["b"] or 1,
+                              p["c"] * p["b"] // p["a"] + p["b"]],
+        "speaks": lambda p, sp: str(p["c"]) in sp,
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 9 and 2 <= p["c"] <= 12
+                            and (p["c"] * p["b"]) % p["a"] == 0
+                            and p["c"] * p["b"] // p["a"] != p["c"] * p["a"] // p["b"],
+                            "the answer is a whole number, and flipping the wrong way "
+                            "always gives a different one"),
+    },
+    "imp": {   # a/b -- how many WHOLE ones are inside it
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"How many whole ones are inside {p['a']} "
+                             f"{_FRAC_BOTTOM.get(p['b'], 'part')}s?"),
+        # A fraction bigger than 1 is a PLACE past the whole numbers, and the line
+        # says that better than any sentence (build kj gave us the renderer).
+        "board": lambda p: (f'[[numberline min="0" max="{p["a"] // p["b"] + 1}" '
+                            f'points="{round(p["a"] / p["b"], 2)}"]]'
+                            f'[[step eq="{p["a"]}/{p["b"]} = ? whole ones and some left"]]'),
+        "praise": lambda p: (f"{p['b']} of them fill one whole, so {p['a']} of them "
+                             f"fill {p['a'] // p['b']} whole ones with "
+                             f"{p['a'] % p['b']} left over."),
+        "key": lambda p: p["a"] // p["b"],
+        "choices": lambda p: [p["a"] // p["b"], p["a"] % p["b"], p["a"] // p["b"] + 1],
+        "speaks": lambda p, sp: str(p["a"]) in sp,   # the bottom is said as a WORD
+        "check": lambda p: (7 <= p["a"] <= 40 and 3 <= p["b"] <= 9
+                            and p["a"] % p["b"] != 0
+                            and p["a"] // p["b"] != p["a"] % p["b"],
+                            "the fraction is bigger than 1 and does not land exactly "
+                            "on a whole, and the whole count and the left-over are "
+                            "never the same number"),
     },
 }
 

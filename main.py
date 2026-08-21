@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kn-fractions-go-further". BUILD kn -- Prealgebra
+#               Unit 4, Fractions. 52 lessons -> 56. NOTHING IN THIS FILE CHANGED but
+#               this note and the stamp; the work is in lessonscripts.py.
+#               Basic Math takes fractions as far as adding and taking them away, and
+#               its "fraction of a group" only ever asks a UNIT fraction ("one half of
+#               4"). U4 goes past that: a NON-unit fraction of a number, how many parts
+#               fit inside a whole, dividing BY a fraction, and reading a fraction
+#               bigger than one. Every answer is a whole number because a tap answer has
+#               to be -- a real constraint that was allowed to shape the questions
+#               rather than be worked around.
 #   2026-08-21  APP_BUILD -> "2026-08-21km-integers-arrive". BUILD km -- Prealgebra
 #               Units 2 and 3. 45 lessons -> 52. NOTHING IN THIS FILE CHANGED but this
 #               note and the stamp; the work is in lessonscripts.py.
@@ -9736,7 +9746,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21km-integers-arrive"
+APP_BUILD = "2026-08-21kn-fractions-go-further"
 
 
 @app.get("/health")
