@@ -1779,6 +1779,179 @@ _MORE_LESSONS = [
 ]
 LESSONS.extend(_MORE_LESSONS)
 
+# =============================================================================
+# PREALGEBRA -- UNIT 1: NUMBER SENSE & ORDER OF OPERATIONS (build kk, 2026-08-21)
+# =============================================================================
+# The first unit authored AFTER build kj gave the scripted lane the real board, and
+# the first of the eight courses Jim asked for ("I wanna go through all the courses").
+#
+# NAMED BY THEIR INPUTS, BOUNDS SAID PLAINLY -- Jim's jw/jx ruling. Not "Order of
+# operations": a child does not know what an operation is. "Times before add" says
+# what they will do, and the opening beat says which numbers.
+#
+# WHY THIS ORDER: the rule is worth nothing until there is a second step to compete
+# with the first, so lesson 1 puts times against add. Parentheses come next because
+# they OVERRIDE what was just learned, and a rule is only understood once you meet
+# its exception. Exponents come third because they are a NEW kind of step rather than
+# a new order. Lesson 4 stacks all three, which is the only place the full order can
+# actually be tested.
+_PREALGEBRA_U1 = [
+    {
+        "id": "pre-u1-times-before-add",
+        "course": "prealgebra", "unit": 1,
+        "topic": "Times before add",
+        "op": "tba", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("times", "plus", "equals"),
+        "advance_line": "Three in a row — you've got it! You do the times first, every time.",
+        "teach": [
+            ["Today a problem has two steps in it, not one. You will see a plus and a times in the same line. There is a rule for which one goes first, and it is not left to right. The times goes first. Always.",
+             '[[goal text="Times before add"]]'],
+            ["Watch me do 2 plus 3 times 4. Times first: 3 times 4 equals 12. Now the adding: 2 plus 12 equals 14. If you had gone left to right you would have said 20, and 20 is wrong.",
+             '[[step eq="2 + 3 × 4"]][[step eq="3 × 4 = 12"]][[step eq="2 + 12 = 14"]]'],
+            ["One more. 5 plus 2 times 6. Find the times: 2 times 6 equals 12. Then add: 5 plus 12 equals 17.",
+             '[[step eq="5 + 2 × 6"]][[step eq="2 × 6 = 12"]][[step eq="5 + 12 = 17"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 plus 3 times 3. Times first: 3 times 3 equals 9. Then 4 plus 9 equals 13.",
+                        '[[step eq="4 + 3 × 3"]][[step eq="4 + 9 = 13"]]'],
+             "ask": {"a": 3, "b": 2, "c": 5, "op": "tba"}},
+            {"worked": ["One more together. 6 plus 4 times 2. The times gives 8. Then 6 plus 8 equals 14.",
+                        '[[step eq="6 + 4 × 2"]][[step eq="6 + 8 = 14"]]'],
+             "ask": {"a": 2, "b": 3, "c": 6, "op": "tba"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 2, "c": 3, "op": "tba"},
+            {"a": 2, "b": 2, "c": 4, "op": "tba"},
+            {"a": 3, "b": 3, "c": 3, "op": "tba"},
+            {"a": 2, "b": 4, "c": 3, "op": "tba"},
+            {"a": 5, "b": 3, "c": 4, "op": "tba"},
+            {"a": 4, "b": 5, "c": 4, "op": "tba"},
+            {"a": 6, "b": 4, "c": 6, "op": "tba"},
+            {"a": 3, "b": 7, "c": 5, "op": "tba"},
+            {"a": 8, "b": 6, "c": 7, "op": "tba"},
+            {"a": 5, "b": 8, "c": 9, "op": "tba"},
+        ],
+    },
+    {
+        "id": "pre-u1-parentheses-first",
+        "course": "prealgebra", "unit": 1,
+        "topic": "Parentheses first",
+        "op": "parf", "max_value": 150,
+        "levels": ("abstract",),
+        "symbols": ("parentheses", "times", "plus", "equals"),
+        "advance_line": "Three in a row — you've got it! What is inside the parentheses goes first.",
+        "teach": [
+            ["Last time you learned the times goes before the add. Today you meet the one thing that beats it. Two curved marks around part of a problem are called parentheses, and whatever sits inside them goes first — even an add.",
+             '[[goal text="Parentheses first"]]'],
+            ["Watch me do 2 plus 3, in parentheses, times 4. Inside first: 2 plus 3 equals 5. Now the times: 5 times 4 equals 20. Without the parentheses this same line would be 14, so the marks change the answer.",
+             '[[step eq="(2 + 3) × 4"]][[step eq="2 + 3 = 5"]][[step eq="5 × 4 = 20"]]'],
+            ["One more. 1 plus 6, in parentheses, times 3. Inside: 1 plus 6 equals 7. Then 7 times 3 equals 21.",
+             '[[step eq="(1 + 6) × 3"]][[step eq="1 + 6 = 7"]][[step eq="7 × 3 = 21"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 plus 2, in parentheses, times 5. Inside gives 6. Then 6 times 5 equals 30.",
+                        '[[step eq="(4 + 2) × 5"]][[step eq="6 × 5 = 30"]]'],
+             "ask": {"a": 3, "b": 3, "c": 4, "op": "parf"}},
+            {"worked": ["One more together. 5 plus 1, in parentheses, times 7. Inside gives 6. Then 6 times 7 equals 42.",
+                        '[[step eq="(5 + 1) × 7"]][[step eq="6 × 7 = 42"]]'],
+             "ask": {"a": 2, "b": 5, "c": 3, "op": "parf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 2, "c": 2, "op": "parf"},
+            {"a": 2, "b": 3, "c": 2, "op": "parf"},
+            {"a": 3, "b": 2, "c": 3, "op": "parf"},
+            {"a": 4, "b": 3, "c": 3, "op": "parf"},
+            {"a": 2, "b": 6, "c": 4, "op": "parf"},
+            {"a": 5, "b": 4, "c": 4, "op": "parf"},
+            {"a": 3, "b": 7, "c": 5, "op": "parf"},
+            {"a": 6, "b": 5, "c": 6, "op": "parf"},
+            {"a": 8, "b": 4, "c": 8, "op": "parf"},
+            {"a": 7, "b": 9, "c": 7, "op": "parf"},
+        ],
+    },
+    {
+        "id": "pre-u1-exponents-are-repeated-times",
+        "course": "prealgebra", "unit": 1,
+        "topic": "Exponents are repeated times",
+        "op": "expn", "max_value": 216,
+        "levels": ("abstract",),
+        "symbols": ("squared", "power", "times", "equals"),
+        "advance_line": "Three in a row — you've got it! A small high number counts how many to multiply.",
+        "teach": [
+            ["A small number written high up after another number is an exponent. It is not a times. It counts how many copies to multiply. 3 with a small 2 means two 3s multiplied: 3 times 3. Say it as three squared.",
+             '[[goal text="Exponents are repeated times"]]'],
+            ["Three squared equals 9. Here is why the word squared fits — three rows of three really do make a square, and counting the little boxes gives 9.",
+             '[[areamodel rows="3" cols="3" caption="three rows of three"]][[step eq="3² = 3 × 3 = 9"]]'],
+            ["A small 3 means three copies, and we say it as to the power 3. 2 with a small 3 is 2 times 2 times 2, which equals 8. Careful — it is not 2 times 3. That would be 6, and 6 is wrong.",
+             '[[step eq="2³ = 2 × 2 × 2 = 8"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 squared is two 4s multiplied — 4 times 4, which equals 16.",
+                        '[[areamodel rows="4" cols="4" caption="four rows of four"]][[step eq="4² = 16"]]'],
+             "ask": {"a": 6, "b": 2, "op": "expn"}},
+            {"worked": ["One more together. 3 with a small 3 means three 3s multiplied: 3 times 3 times 3, which equals 27.",
+                        '[[step eq="3³ = 3 × 3 × 3 = 27"]]'],
+             "ask": {"a": 7, "b": 2, "op": "expn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "expn"},
+            {"a": 3, "b": 2, "op": "expn"},
+            {"a": 4, "b": 2, "op": "expn"},
+            {"a": 5, "b": 2, "op": "expn"},
+            {"a": 3, "b": 3, "op": "expn"},
+            {"a": 4, "b": 3, "op": "expn"},
+            {"a": 8, "b": 2, "op": "expn"},
+            {"a": 9, "b": 2, "op": "expn"},
+            {"a": 5, "b": 3, "op": "expn"},
+            {"a": 6, "b": 3, "op": "expn"},
+        ],
+    },
+    {
+        "id": "pre-u1-power-then-times-then-add",
+        "course": "prealgebra", "unit": 1,
+        "topic": "Power, then times, then add",
+        "op": "exo", "max_value": 130,
+        "levels": ("abstract",),
+        "symbols": ("squared", "times", "plus", "equals"),
+        "advance_line": "Three in a row — you've got it! Power first, then times, then add.",
+        "teach": [
+            ["You know two rules now: the times goes before the add, and parentheses go before everything. Today a third step joins them — the exponent — and it goes first of all. Power first, then times, then add.",
+             '[[goal text="Power, then times, then add"]]'],
+            ["Watch me do 3 squared plus 2 times 4. Power first: 3 squared equals 9. Times next: 2 times 4 equals 8. Add last: 9 plus 8 equals 17.",
+             '[[step eq="3² + 2 × 4"]][[step eq="9 + 8"]][[step eq="= 17"]]'],
+            ["One more. 2 squared plus 5 times 3. The power gives 4. The times gives 15. 4 plus 15 equals 19.",
+             '[[step eq="2² + 5 × 3"]][[step eq="4 + 15 = 19"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 squared plus 3 times 2. Power: 16. Times: 6. 16 plus 6 equals 22.",
+                        '[[step eq="4² + 3 × 2"]][[step eq="16 + 6 = 22"]]'],
+             "ask": {"a": 3, "b": 4, "c": 2, "op": "exo"}},
+            {"worked": ["One more together. 5 squared plus 2 times 6. Power: 25. Times: 12. 25 plus 12 equals 37.",
+                        '[[step eq="5² + 2 × 6"]][[step eq="25 + 12 = 37"]]'],
+             "ask": {"a": 4, "b": 5, "c": 2, "op": "exo"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "c": 2, "op": "exo"},
+            {"a": 3, "b": 3, "c": 2, "op": "exo"},
+            {"a": 3, "b": 2, "c": 4, "op": "exo"},
+            {"a": 4, "b": 2, "c": 3, "op": "exo"},
+            {"a": 4, "b": 3, "c": 3, "op": "exo"},
+            {"a": 5, "b": 2, "c": 4, "op": "exo"},
+            {"a": 5, "b": 4, "c": 3, "op": "exo"},
+            {"a": 6, "b": 3, "c": 4, "op": "exo"},
+            {"a": 7, "b": 5, "c": 3, "op": "exo"},
+            {"a": 8, "b": 6, "c": 5, "op": "exo"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U1)
+
+
 # THE COURSE ORDER IS OWNED HERE (jz -- jy had accidentally placed carrying before
 # two-digit-no-carry). Import fails loudly if a lesson is missing or listed twice.
 COURSE_ORDER = [
@@ -1810,6 +1983,10 @@ COURSE_ORDER = [
     "basic-u8-percent-of", "basic-u8-one-costs",
     "basic-u9-perimeter", "basic-u9-area",
     "basic-u9-quarter-turns", "basic-u9-volume",
+
+    # ---- PREALGEBRA (build kk) -- Unit 1: Number Sense & Order of Operations ----
+    "pre-u1-times-before-add", "pre-u1-parentheses-first",
+    "pre-u1-exponents-are-repeated-times", "pre-u1-power-then-times-then-add",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -2219,6 +2396,95 @@ OP_EXT = {
                              f"{p['a'] * p['b']} squares."),
         "key": lambda p: p["a"] * p["b"],
         "check": lambda p: (p["a"] > p["b"] >= 1, "long means longer"),
+    },
+
+    # ---- PREALGEBRA UNIT 1 (build kk) -- ORDER OF OPERATIONS ------------------
+    # Each of these declares its own `choices`, and the wrong option on offer is
+    # THE MISCONCEPTION ITSELF -- the answer a child gets by working left to right,
+    # or by ignoring the parentheses, or by reading an exponent as a times. A
+    # distractor that is merely "the answer plus one" tests arithmetic; a distractor
+    # that is the actual error tests whether the RULE landed, and when the child taps
+    # it the intervention knows exactly which wrong idea to unpick.
+    "tba": {   # a + b x c -- times before add
+        "ans": lambda p: p["a"] + p["b"] * p["c"],
+        "spoken": lambda p: f"What is {p['a']} plus {p['b']} times {p['c']}?",
+        "board": lambda p: f'[[step eq="{p["a"]} + {p["b"]} × {p["c"]} = ?"]]',
+        "praise": lambda p: (f"{p['b']} times {p['c']} equals {p['b'] * p['c']}, "
+                             f"and {p['a']} plus {p['b'] * p['c']} equals "
+                             f"{p['a'] + p['b'] * p['c']}."),
+        "key": lambda p: p["b"] * p["c"],
+        "choices": lambda p: [p["a"] + p["b"] * p["c"] - p["c"],
+                              p["a"] + p["b"] * p["c"],
+                              (p["a"] + p["b"]) * p["c"]],
+        "check": lambda p: (1 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9,
+                            "a is 1-9 and both times numbers are 2-9, so the "
+                            "left-to-right answer is always a DIFFERENT number"),
+    },
+    "parf": {  # (a + b) x c -- parentheses first
+        "ans": lambda p: (p["a"] + p["b"]) * p["c"],
+        "spoken": lambda p: (f"What is {p['a']} plus {p['b']}, in parentheses, "
+                             f"times {p['c']}?"),
+        "board": lambda p: f'[[step eq="({p["a"]} + {p["b"]}) × {p["c"]} = ?"]]',
+        "praise": lambda p: (f"Inside first: {p['a']} plus {p['b']} equals "
+                             f"{p['a'] + p['b']}. Then {p['a'] + p['b']} times "
+                             f"{p['c']} equals {(p['a'] + p['b']) * p['c']}."),
+        "key": lambda p: (p["a"] + p["b"]) * p["c"],
+        "choices": lambda p: [(p["a"] + p["b"]) * p["c"],
+                              p["a"] + p["b"] * p["c"],
+                              (p["a"] + p["b"]) * p["c"] + p["c"]],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9 and 2 <= p["c"] <= 9,
+                            "c is 2-9 so ignoring the parentheses always gives a "
+                            "different number"),
+    },
+    "expn": {  # a to the power b, b in (2, 3) -- an exponent is repeated times
+        "ans": lambda p: p["a"] ** p["b"],
+        # The spoken line must contain BOTH numbers -- the validator checks it, and it
+        # is right to: "3 squared" hides the 2, and a child who only ever hears the word
+        # never connects it to the small digit on the board.
+        "spoken": lambda p: (f"What is {p['a']} to the power 3? That means three "
+                             f"{p['a']}s multiplied."
+                             if p["b"] == 3 else
+                             f"What is {p['a']} squared — {p['a']} to the power 2?"),
+        # THE PICTURE THE METHODOLOGY ASKS FOR (build kj gave us the renderer): a
+        # square number IS a square. Cubes have no honest 2-D picture, so they get
+        # the written repeat instead of a drawing that would lie about the shape.
+        "board": lambda p: (f'[[areamodel rows="{p["a"]}" cols="{p["a"]}" '
+                            f'caption="{p["a"]} rows of {p["a"]}"]]'
+                            f'[[step eq="{p["a"]}² = ?"]]'
+                            if p["b"] == 2 else
+                            f'[[step eq="{p["a"]}³ = {p["a"]} × {p["a"]} × '
+                            f'{p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} to the power {p['b']} equals "
+                             f"{p['a'] ** p['b']} — that is {p['b']} {p['a']}s "
+                             f"multiplied."),
+        "key": lambda p: p["a"] ** p["b"],
+        "choices": lambda p: [p["a"] ** p["b"], p["a"] * p["b"],
+                              p["a"] ** p["b"] + p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["b"] in (2, 3)
+                            and p["a"] ** p["b"] != p["a"] * p["b"],
+                            "a is 2-9 and the power is 2 or 3, and the power answer "
+                            "never equals the times answer (which rules out 2²)"),
+    },
+    "exo": {   # a squared + b x c -- power first, then times, then add
+        "ans": lambda p: p["a"] * p["a"] + p["b"] * p["c"],
+        "spoken": lambda p: (f"What is {p['a']} squared plus {p['b']} times "
+                             f"{p['c']}?"),
+        "board": lambda p: f'[[step eq="{p["a"]}² + {p["b"]} × {p["c"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} squared equals {p['a'] * p['a']}, "
+                             f"{p['b']} times {p['c']} equals {p['b'] * p['c']}, "
+                             f"and those put together equal "
+                             f"{p['a'] * p['a'] + p['b'] * p['c']}."),
+        "key": lambda p: p["a"] * p["a"] + p["b"] * p["c"],
+        # The two wrong options are the two real errors: adding before the times, and
+        # reading the little 2 as "times 2". a >= 3 is what keeps all three distinct --
+        # at a = 2 the power and the doubling give the same number, and the child would
+        # be offered the same answer twice. (The validator caught exactly that.)
+        "choices": lambda p: [p["a"] * p["a"] + p["b"] * p["c"],
+                              (p["a"] * p["a"] + p["b"]) * p["c"],
+                              2 * p["a"] + p["b"] * p["c"]],
+        "check": lambda p: (3 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9,
+                            "a is 3-9 (at 2, squaring and doubling agree and two "
+                            "options would collide); b and c are 2-9"),
     },
 }
 

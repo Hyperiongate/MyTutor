@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kk-prealgebra-unit-one". BUILD kk -- the first
+#               new COURSE of the content push: Prealgebra Unit 1, Number Sense & Order
+#               of Operations. Four lessons (times before add; parentheses first;
+#               exponents are repeated times; power, then times, then add) and four new
+#               ops in lessonscripts. 41 lessons -> 45.
+#               THIS FILE: /api/script/lessons no longer hand-types the course titles.
+#               The map held exactly TWO entries, so the moment a third course existed
+#               the picker would have shown the raw id "prealgebra" as a heading. It now
+#               derives from curriculum.COURSES, which already has all ten.
 #   2026-08-21  APP_BUILD -> "2026-08-21kj-the-real-board". BUILD kj -- the content push
 #               begins. Jim: "I wanna get the script done. I wanna get the problem bases
 #               done. I wanna get the teaching methodology done ... I wanna go through
@@ -7987,7 +7996,15 @@ def script_start(body: ScriptStartIn):
 @app.get("/api/script/lessons")
 def script_lessons():
     """The course, in order (build jw). Public and harmless: ids and titles only."""
-    titles = {"entry": "Entry-Level Math", "basic": "Basic Math"}
+    # build kk: DERIVED, not hand-typed. This map had exactly two entries, so the
+    # moment Prealgebra was authored the picker would have shown the raw course id
+    # "prealgebra" as its heading. curriculum.COURSES already carries every title;
+    # a second hand-kept copy is the Class-B disease tags.py exists to end.
+    titles = {}
+    try:
+        titles = {k: v.get("title", k) for k, v in curriculum.COURSES.items()}
+    except Exception as exc:  # noqa: BLE001 -- a title is cosmetic; ids still work
+        print(f"[script] course titles unavailable: {exc}")
     return {"ok": True, "lessons": [{"id": les["id"], "topic": les["topic"],
                                      "unit": les["unit"],
                                      "course": les["course"],
@@ -9690,7 +9707,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kj-the-real-board"
+APP_BUILD = "2026-08-21kk-prealgebra-unit-one"
 
 
 @app.get("/health")
