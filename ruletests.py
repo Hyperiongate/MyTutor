@@ -1474,6 +1474,25 @@ def check(name, condition, detail=""):
     ok(name) if condition else bad(name, detail)
 
 
+def code_only(src: str) -> str:
+    """Source with its COMMENTS REMOVED -- /* */, <!-- -->, and whole-line //.
+
+    Added in build ki after this trap fired FIVE times in one evening. These files
+    deliberately quote the broken expressions they replaced ("no longer builds
+    /api/speak?text=...", "DO NOT load speech-text.js", "the old 2500ms valve"),
+    because the comments are the record of why each line exists. A pin that bans a
+    substring across the raw file therefore fires on the WARNING rather than the
+    defect -- and the tempting repair is to delete the documentation, which would
+    throw away exactly what makes these files maintainable.
+
+    Scan behaviour with this. Scan documentation only when documentation is the point.
+    """
+    import re as _re
+    out = _re.sub(r"/\*.*?\*/", " ", str(src or ""), flags=_re.S)      # /* block */
+    out = _re.sub(r"<!--.*?-->", " ", out, flags=_re.S)                # <!-- html -->
+    return "\n".join(ln for ln in out.split("\n") if not ln.lstrip().startswith("//"))
+
+
 # =============================================================================
 # PART 1 -- RULE COVERAGE ACROSS ALL TEN COURSES
 # =============================================================================
@@ -14936,25 +14955,33 @@ def part3cx_voice_cache_whole():
           ".duration" not in pcode,
           "an uncached clip is chunked, so duration is NaN/Infinity WHILE IT PLAYS -- "
           "that is what lit Next mid-sentence and let the next tap cut the line off")
-    check("build ke: the watchdog judges playback PROGRESS instead",
-          "currentTime" in psrc and "VOICE_STALL_MS" in psrc and "VOICE_START_MS" in psrc,
-          "currentTime advancing is the only honest signal that a clip is alive")
-    # REPAIRED IN kg, NOT WEAKENED. This pinned ke's MECHANISM -- `el !== audioEl`,
-    # comparing element identity. kg made the page reuse ONE <audio> element (a fresh
-    # one per beat let the audio route sleep and eat the first word), so identity can
-    # no longer tell two clips apart and the guard became a generation counter. The
-    # PROPERTY is unchanged and is what is pinned now: an older clip's timer must
-    # never be allowed to judge a newer clip.
-    check("build ke: an old clip's watchdog can never judge a newer clip",
-          ("if (gen !== audioGen)" in psrc or "if (el !== audioEl)" in psrc),
-          "without an ownership guard a superseded timer can finish() the clip that "
-          "replaced it, cutting a line off mid-sentence")
+    # MOVED IN ki, NOT DROPPED. ke's watchdog lived in pilot.html; ki deleted that
+    # page's whole voice layer in favour of voice.js, which is where the watchdog now
+    # is. The PROPERTY is unchanged and still pinned -- just in the file that now owns
+    # it. Pinning it against pilot.html would now pass only if the duplication came back.
+    with open(os.path.join(here, "static", "voice.js"), encoding="utf-8") as fh:
+        vsrc = fh.read()
+    check("build ke: the watchdog judges playback PROGRESS, never .duration alone",
+          "lastProgress" in vsrc and "isFinite(a.duration)" in vsrc,
+          "currentTime advancing is the only honest signal that a clip is alive; a "
+          "streamed clip's duration is NaN/Infinity WHILE IT PLAYS")
+    # THIRD REPAIR OF THIS PIN, and the last one it should need. ke pinned element
+    # identity (`el !== audioEl`); kg made the element shared so identity stopped
+    # meaning anything and it became a generation counter; ki deleted the page's voice
+    # layer entirely, so the guard is voice.js's `doneCalled` and its watchdog teardown.
+    # Three rewrites because the first two pinned a MECHANISM. This pins the PROPERTY:
+    # a finished or superseded clip must not be able to fire again.
+    check("build ke: a finished clip's watchdog can never fire again",
+          "if (doneCalled) { clearInterval(watchdog)" in vsrc,
+          "without a teardown a superseded timer can finish() the clip that replaced "
+          "it, cutting a line off mid-sentence")
     check("build ke: a slow clip unlocks the controls WITHOUT being declared dead",
           "onWaiting" in psrc and "function () { b.disabled = false; }" in psrc,
           "the old valve conflated 'taking a while' with 'failed'")
     check("build ke: the grace before giving up is longer than a cold TTS stream",
-          "VOICE_START_MS = 8000" in psrc,
-          "2500ms was shorter than ElevenLabs' first byte on a miss -- that was the bug")
+          "idle > 5000" in vsrc,
+          "ke's 2500ms was shorter than ElevenLabs' first byte on a miss -- that was "
+          "the bug. voice.js's 5s no-start guarantee now covers the pilot page too")
 
     # ---- and now the real thing, in a subprocess with its own database ----
     with tempfile.TemporaryDirectory() as d:
@@ -15215,20 +15242,28 @@ def part3cy_scripted_voice():
 
 
 # =============================================================================
-# PART 3cz -- THE PILOT PAGE KEEPS THE AUDIO ROUTE AWAKE (build kg, 2026-08-21)
+# PART 3cz -- THERE IS ONE VOICE LAYER (builds kg + ki, 2026-08-21)
 # -----------------------------------------------------------------------------
-# Jim, playtesting kf: "the first one or two words of every single spoken word or
-# paragraph was cut off." voice.js has carried the cure since builds bl/cb/gn and its
-# own comment describes the report exactly: an audio codec powers down after a few
-# seconds of silence and swallows the first ~200-400ms of the next sound waking up.
-# pilot.html had NONE of it -- a new Audio() per beat, no keep-alive, no warm-up on
-# build ka's tap gesture, and lead=0 (the MINIMUM) on every clip.
+# kg hand-ported three of voice.js's four head-of-clip protections into pilot.html
+# (the reused element, the keep-alive, the lead ladder) and STILL missed the fourth:
+# voice.js keeps a live AudioContext holding the output open, which a silent keep-alive
+# element only approximates. That was the FOURTH hand-port of this cluster to come out
+# wrong -- after bl, cb and gn each fixed it on some pages and not others (voice.js's
+# own build hd note records three hand-synced copies that had diverged).
 #
-# The pins below are mostly ANTI-DRIFT: the two pages must not diverge again, because
-# "self-contained on purpose" is exactly how the pilot page lost these fixes.
+# So ki stopped porting and DELETED the copy: pilot.html loads voice.js. These pins are
+# therefore about ABSENCE as much as presence -- the duplication must not come back.
+#
+# ⭐ THE MONEY PIN is forSpeech. voice.js transforms spoken text for session.html, whose
+# text is generated and carries notation. The scripted lane must send text VERBATIM,
+# because /api/admin/script-prewarm cached the raw closure strings and the TTS cache is
+# keyed on exact text -- a transform would turn all 3,879 cached lines into misses and
+# re-render the whole course at full price. pilot.html therefore defines forSpeech as
+# the IDENTITY and must never load speech-text.js. That is the one place the two pages
+# are REQUIRED to differ, so it is pinned from both sides.
 # =============================================================================
-def part3cz_pilot_audio_route():
-    print("\nPART 3cz — the pilot page keeps the audio route awake (build kg)")
+def part3cz_one_voice_layer():
+    print("\nPART 3cz — there is one voice layer (builds kg + ki)")
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
         p = fh.read()
@@ -15236,33 +15271,59 @@ def part3cz_pilot_audio_route():
         v = fh.read()
     code = "\n".join(ln for ln in p.split("\n") if not ln.strip().startswith("//"))
 
-    check("build kg: the pilot page no longer asks for lead=0",
-          "lead: 0" not in code,
-          "lead=0 is the MINIMUM leading silence -- less than the main app gives ANY "
-          "clip, on a page whose every beat let the route go quiet first")
-    check("build kg: every clip now gets a real lead, the first one the longest",
-          "firstSpeakLead" in code and "lead: lead" in code, "")
-    check("build kg: the lead ladder's thresholds match voice.js (anti-drift)",
-          ("2500) ? 3 :" in code and "900 ? 2 : 1" in code
-           and "2500) ? 3 :" in v and "900 ? 2 : 1" in v),
-          "the two pages must not drift apart again -- that drift is this whole bug")
-    check("build kg: ONE audio element is reused, not one per beat",
-          "function ensureAudioEl(" in code and 'new Audio("/api/speak' not in code,
-          "a fresh Audio() per clip hands the route back to the OS between beats")
-    check("build kg: a silent keep-alive holds the route open",
-          "function startKeepAlive(" in code and "keepAlive.loop = true" in code
+    check("build ki: the pilot page LOADS the real voice layer",
+          '<script src="/static/voice.js">' in p, "")
+    check("build ki: and no longer carries a copy of it",
+          not any(k in code for k in ("function silentWavUri(", "function startKeepAlive(",
+                                      "function ensureAudioEl(", "VOICE_STALL_MS",
+                                      "audioGen")),
+          "four hand-ports of this cluster have now been wrong; a fifth copy is the bug")
+    check("build ki: the page satisfies voice.js's ambient contract",
+          "function forSpeech(" in code and "function setState(" in code
+          and "CODE = " in code, "voice.js reaches for exactly CODE, forSpeech, setState")
+    # Pinned by BEHAVIOUR, not by matching the exact source line: the body must hand
+    # the string straight back, with no transform in it. (The first attempt at this pin
+    # embedded a "" inside a Python string and silently truncated its own regex.)
+    _fs = re.search(r"function forSpeech\([^)]*\)\s*\{(.*?)\n", code, re.S)
+    _body = _fs.group(1) if _fs else ""
+    check("⭐ build ki: forSpeech is the IDENTITY on the pilot page",
+          bool(_fs) and "return String(" in _body
+          and not any(t in _body for t in ("replace(", "forNumber", "spell", "notation")),
+          "a transform makes all 3,879 prewarmed lines cache MISSES and re-renders the "
+          "whole course at full price. body was: " + _body[:90])
+    # Scans for the TAG, not the name: this page's comments talk about speech-text.js
+    # at length precisely to stop someone loading it, and a pin that banned the word
+    # would forbid the warning. Fourth time this trap has fired -- HTML comments need
+    # stripping as much as // ones.
+    check("⭐ build ki: the pilot page does NOT load speech-text.js",
+          'src="/static/speech-text.js"' not in p,
+          "that file defines the real forSpeech; loading it here would silently rekey "
+          "the entire scripted cache")
+    check("build ki: session.html DOES load speech-text.js (the pages differ on purpose)",
+          "speech-text.js" in open(os.path.join(here, "static", "session.html"),
+                                   encoding="utf-8").read(),
+          "if this ever fails, the identity forSpeech above stopped being a deliberate "
+          "difference and became an accident")
+    check("build ki: the page tells voice.js whether the natural voice exists",
+          "/api/voice-status" in code and "elevenEnabled" in code,
+          "voice.js speaks through ElevenLabs only when the page has confirmed it")
+    check("build ki: the pipeline is warmed inside the real starting tap",
+          "warmUpAudio()" in code,
+          "a user gesture is the only moment a browser lets us open audio early")
+    check("⭐ build ki: auto-advance waits for AUDIBLE, not merely resolved",
+          "__voiceSpoke" in code and "finish(__voiceSpoke)" in code,
+          "voice.js resolves on a browser-voice fallback and on a dead clip too; "
+          "auto-advancing on silence would race a child who is reading, which is the "
+          "defect ke fixed")
+    check("build ki: a slow clip still unlocks the controls without being called dead",
+          "onWaiting" in code and "VOICE_WAIT_MS" in code, "")
+    check("build kg/ki: voice.js still holds the route open with a LIVE audio graph",
+          "function ensureAudioGraph(" in v and "createMediaElementSource" in v
           and "function startKeepAlive(" in v,
-          "the cure voice.js has had since build cb")
-    check("build kg: the pipeline is warmed on the tap that starts a lesson",
-          "function warmAudio(" in code and "warmAudio();" in code
-          and "function silentWavUri(" in code,
-          "a real user gesture is the only moment a browser lets us open audio early")
-    check("build kg: the watchdog now tracks its clip by GENERATION, not element identity",
-          "gen !== audioGen" in code and "el !== audioEl" not in code,
-          "with one shared element, identity can no longer tell clips apart")
-    check("build kg: playback progress keeps the silence clock honest",
-          "lastAudioAt = Date.now();" in code,
-          "the lead ladder is only as good as its idea of how long the route was quiet")
+          "the AudioContext is the protection kg's hand-port missed")
+    check("build kg/ki: voice.js still gives every clip a real lead, the first the longest",
+          "2500) ? 3 :" in v and "900 ? 2 : 1" in v and "firstSpeakLead" in v,
+          "lead=0 on every beat was the pilot page's original sin")
 
 
 # =============================================================================
@@ -15534,19 +15595,30 @@ def part3cw_script_lane():
         check("pilot page: TAP-FIRST -- no microphone is ever loaded",
               "mic.js" not in psrc and "getUserMedia" not in psrc,
               "the ruling: in scripted segments a tap cannot be misheard")
-        check("pilot page: spoken text goes to TTS VERBATIM (no forSpeech transform)",
-              "forSpeech" not in psrc and "speech-text.js" not in psrc,
-              "the cache is keyed by exact text; a transform makes every line a miss")
+        # (ki) These three pinned pilot.html's OWN voice layer. ki deleted it -- the page
+        # loads voice.js now -- so the properties are unchanged but the file that owns
+        # them is not. Pinned where they live; PART 3cz pins that the copy stays gone.
+        with open(os.path.join(here, "static", "voice.js"), encoding="utf-8") as fh:
+            vjs = fh.read()
+        check("pilot page: spoken text goes to TTS VERBATIM (forSpeech is the identity)",
+              'src="/static/speech-text.js"' not in pfull
+              and "return String(t == null ? \"\" : t);" in psrc,
+              "the cache is keyed by exact text; a transform makes every line a miss. "
+              "(ki) the page now DEFINES forSpeech as the identity rather than omitting "
+              "it, because voice.js calls it -- so this pins the BODY, not the absence")
+        vcode = code_only(vjs)      # (ki) voice.js's header QUOTES the old ?text= URL
         check("pilot page: voice rides the hs ticket flow (code never in a URL)",
-              "/api/speak-prep" in psrc and 'speak?t=' in psrc
-              and "speak?text=" not in psrc, "")
+              "/api/speak-prep" in vcode and 'speak?t=' in vcode
+              and "speak?text=" not in vcode,
+              "the child's code and lesson text must never ride a query string into "
+              "an HTTP log")
         check("pilot page: it can be played SILENT (autoplay/204 fall back)",
-              "p.catch(finish)" in psrc
-              and "waited > VOICE_START_MS) finish()" in psrc,
-              "a blocked autoplay must never freeze a child's lesson. (ke) this used "
-              "to pin the phrase 'safety valve'; it now pins the MECHANISM -- the "
-              "watchdog giving up on a clip that never makes a sound -- because the "
-              "old flat 2500ms valve was itself the bug and its name went with it")
+              "p.catch" in vjs and "idle > 5000" in vjs and "browserSpeak" in vjs,
+              "a blocked autoplay must never freeze a child's lesson. This pin has now "
+              "been rewritten three times -- 'safety valve' (a name that died with the "
+              "bug), then VOICE_START_MS (a constant that moved files), now the "
+              "MECHANISM: a clip that never makes a sound is given up on and the "
+              "browser voice takes over")
         check("pilot page: it renders the closure's tags and strips them from speech",
               'name === "objects"' in psrc and "spokenOnly" in psrc, "")
         check("pilot page: TAPPING a lesson starts it -- no buried Start button",
@@ -15555,9 +15627,11 @@ def part3cw_script_lane():
               "below the fold and 'clicking on anything' visibly did nothing")
         check("pilot page: a finished clip auto-advances; SILENT mode stays tap-paced",
               "if (played) setTimeout(go" in psrc
-              and "onDone && onDone(played)" in psrc,
+              and "onDone && onDone(!!played)" in psrc and "finish(__voiceSpoke)" in psrc,
               "Jim's playtest: tapping Next for something already said is a stall -- "
-              "but auto-advancing a silent reader would be worse")
+              "but auto-advancing a silent reader would be worse. (ki) 'played' now "
+              "means AUDIBLE (voice.js called setState('speaking')), not merely that "
+              "its promise resolved -- it resolves on a dead clip too")
 
     try:
         import sqlalchemy  # noqa: F401
@@ -15899,7 +15973,7 @@ def main():
     part3cw_script_lane()
     part3cx_voice_cache_whole()
     part3cy_scripted_voice()
-    part3cz_pilot_audio_route()
+    part3cz_one_voice_layer()
     part3da_measure_the_clip()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()

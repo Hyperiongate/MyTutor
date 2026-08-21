@@ -2,6 +2,30 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (ki) 2026-08-21 -- THIS PAGE NO LONGER HAS A VOICE LAYER. It uses voice.js,
+    the same one session.html uses. Jim, after kg still clipped the first word:
+    "when we first made this big change ... it was noticeable that the first word
+    was there" -- the main app plays audio correctly and this page never did.
+    kg ported three of voice.js's protections by hand and STILL missed the fourth:
+    voice.js keeps a live AudioContext (ensureAudioGraph -> createMediaElementSource)
+    holding the output open. A silent keep-alive element is a weaker hold than a
+    running audio graph. That is the fourth hand-port to be wrong in a row, which is
+    the actual lesson: hand-porting a voice layer does not converge. So the copy is
+    DELETED and the real one is loaded.
+    voice.js states its own AMBIENT CONTRACT -- it reaches for exactly three names it
+    does not define: CODE, forSpeech and setState -- plus the page sets elevenEnabled
+    and calls warmUpAudio() inside a real user gesture. All five are provided below.
+    ⭐ forSpeech IS DELIBERATELY THE IDENTITY HERE, and speech-text.js is deliberately
+    NOT loaded. The TTS cache is keyed on the VERBATIM text and the prewarm cached the
+    raw closure strings, so any transform would turn all 3,879 cached lines into
+    misses and re-render the entire course at full price. session.html needs the real
+    forSpeech because its text is generated and carries notation; scripted lines are
+    authored TTS-safe and the validator enforces it. This is the one place the two
+    pages MUST differ, and the battery pins it.
+    ONE DELIBERATE BEHAVIOUR CHANGE: voice.js falls back to the BROWSER voice when
+    ElevenLabs is unavailable, where this page used to fall back to silence. A robotic
+    reading beats no reading, and it is the behaviour the main app has always had.
+
     (kg) 2026-08-21 -- THE AUDIO ROUTE STAYS AWAKE. Jim, playtesting kf: "the
     first one or two words of every single spoken word or paragraph was cut off."
     This page had NONE of the head-of-clip protections the main app (voice.js) has
@@ -172,13 +196,36 @@
   </div>
 </div>
 
+<!-- (ki) THE VOICE LAYER. voice.js owns the audio graph, the keep-alive, the lead
+     ladder, the watchdog, the retry and the browser fallback. This page satisfies its
+     ambient contract (CODE / forSpeech / setState) and otherwise stays out of the way. -->
+<script>
+  // ---- voice.js's ambient contract, provided by this page ----
+  var CODE = "";                       // the login constant voice.js reads per clip
+
+  // ⭐ IDENTITY ON PURPOSE -- DO NOT "FIX" THIS BY LOADING speech-text.js.
+  // The TTS cache is keyed on the exact text and /api/admin/script-prewarm cached the
+  // raw closure strings. Any transform here makes every one of the 3,879 cached lines
+  // a MISS and re-renders the whole course at full price, killing the latency claim
+  // the scripted-first pivot rests on. session.html transforms because its text is
+  // generated and carries notation; scripted lines are authored TTS-safe and
+  // lessonscripts.validate() enforces that. This is the one place the pages differ.
+  function forSpeech(t) { return String(t == null ? "" : t); }
+
+  // voice.js calls setState("speaking") the moment audio genuinely starts. That is a
+  // better "did it play?" signal than anything this page could measure itself, and it
+  // is what decides whether a beat auto-advances or waits for a tap.
+  var __voiceSpoke = false;
+  function setState(s) { if (s === "speaking") __voiceSpoke = true; }
+</script>
+<script src="/static/voice.js"></script>
 <script>
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var qs = new URLSearchParams(location.search);
   var DEV = qs.get("dev") === "1";
-  var CODE = (qs.get("code") || "").trim();
+  CODE = (qs.get("code") || "").trim();       // (ki) the global voice.js reads
   try { CODE = CODE || sessionStorage.getItem("mt_pilot_code") || ""; } catch (e) {}
   if (CODE) $("code").value = CODE;
   if (DEV) $("devbar").style.display = "block";
@@ -195,7 +242,9 @@
       return;
     }
     try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
-    warmAudio();     // (kg) we are inside a real tap -- open the audio route NOW
+    // (ki) we are inside a REAL TAP -- the only moment a browser lets us open the
+    // audio pipeline early. voice.js's warmUpAudio also starts the build-cb keep-alive.
+    try { warmUpAudio(); } catch (e) {}
     post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
       CURRENT_ID = j.id || lessonId || (COURSE[0] && COURSE[0].id) || null;
       $("gate").classList.add("hide");
@@ -203,6 +252,12 @@
       ingest(j.steps);
     });
   }
+  // (ki) voice.js speaks only when it knows the natural voice is available; the page
+  // owns that flag. A failure here simply leaves the browser voice in charge.
+  fetch("/api/voice-status").then(function (r) { return r.json(); })
+    .then(function (j) { elevenEnabled = !!(j && j.eleven); })
+    .catch(function () {});
+
   var COURSE = [];          // the ordered lessons list (kd: next-lesson flow)
   var CURRENT_ID = null;    // which lesson this session is playing
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
@@ -240,7 +295,6 @@
   var current = null;      // the step awaiting the child's tap
   var busy = false;
   var lastBoardHtml = "";  // praise beats carry no board; keep the last one visible
-  var audioEl = null;
 
   // ---------- tiny renderer: the pilot closure is exactly these tags ----------
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
@@ -285,128 +339,37 @@
     return esc(s).replace(/\*\*([^*]{2,60}?)\*\*/g, "<b>$1</b>");
   }
 
-  // ---------- voice: prep a ticket, stream, FALL BACK to silence ----------
-  // (ke) THE WATCHDOG. onDone(played) fires once, when the clip has genuinely ENDED
-  // (played=true) or genuinely failed (played=false). onWaiting fires at most once,
-  // when a clip is taking a while to start, so the caller can unlock its controls
-  // WITHOUT the page claiming the clip is dead. Never judge a streaming clip by
-  // .duration: an uncached clip is chunked, so duration is NaN/Infinity while it
-  // plays. Judge PROGRESS instead -- currentTime moving is the only honest signal.
-  var VOICE_POLL_MS = 400;    // how often we look
-  var VOICE_START_MS = 8000;  // grace for a cold ElevenLabs stream to produce a byte
-  var VOICE_WAIT_MS = 3000;   // unlock the controls (but keep listening) after this
-  var VOICE_STALL_MS = 2400;  // playing, then no progress this long => the stream died
-  var VOICE_MAX_MS = 120000;  // absolute ceiling; no scripted beat is remotely this long
-
-  // ---------- (kg) KEEPING THE OUTPUT AWAKE -- ported from voice.js ----------
-  // An audio route that has gone quiet powers its codec down and then eats the first
-  // ~200-400ms of the next sound waking back up. That is a word or two, on every beat.
-  var audioGen = 0;            // which clip currently owns the shared element
-  var keepAlive = null;
-  var lastAudioAt = 0;         // when sound last actually came out
-  var firstSpeakLead = true;   // the first clip of a session gets the longest lead
-
-  function silentWavUri(ms) {  // identical construction to voice.js
-    var rate = 8000, n = Math.max(1, Math.round(rate * (ms / 1000)));
-    var buf = new ArrayBuffer(44 + n), v = new DataView(buf);
-    function str(off, s) { for (var i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); }
-    str(0, "RIFF"); v.setUint32(4, 36 + n, true); str(8, "WAVE");
-    str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, rate, true); v.setUint32(28, rate, true);
-    v.setUint16(32, 1, true); v.setUint16(34, 8, true);
-    str(36, "data"); v.setUint32(40, n, true);
-    for (var i = 0; i < n; i++) v.setUint8(44 + i, 128);      // 128 = 8-bit silence
-    var bin = "", b = new Uint8Array(buf);
-    for (var k = 0; k < b.length; k++) bin += String.fromCharCode(b[k]);
-    return "data:audio/wav;base64," + btoa(bin);
-  }
-  function ensureAudioEl() {
-    // ONE element for the whole lesson. A new Audio() per clip hands the route back
-    // to the OS between beats, which is an invitation to sleep.
-    if (!audioEl) { audioEl = new Audio(); audioEl.preload = "auto"; }
-    return audioEl;
-  }
-  function startKeepAlive() {
-    try {
-      if (!keepAlive) {
-        keepAlive = new Audio(silentWavUri(1000));
-        keepAlive.loop = true; keepAlive.volume = 0.001;
-      }
-      if (keepAlive.paused) { var p = keepAlive.play(); if (p && p.catch) p.catch(function () {}); }
-    } catch (e) {}
-  }
-  function warmAudio() {
-    // Called from the tap that starts a lesson -- a REAL user gesture, the only
-    // moment a browser will let us open the pipeline before it is needed.
-    try {
-      var a = ensureAudioEl();
-      a.src = silentWavUri(60);
-      var p = a.play(); if (p && p.catch) p.catch(function () {});
-    } catch (e) {}
-    startKeepAlive();
-  }
-
+  // ---------- voice: DELEGATED to voice.js (ki) ----------
+  // Everything that used to live here -- the shared element, the keep-alive, the lead
+  // ladder, the progress watchdog -- is voice.js's job now. Four hand-ports in a row
+  // got this wrong; the fourth (kg) still missed the live AudioContext. This adapter
+  // is the whole of what the page keeps: it turns voice.js's Promise into the
+  // (onDone, onWaiting) shape the step player already expects.
+  var VOICE_WAIT_MS = 3000;   // unlock the controls after this, WITHOUT calling it dead
   function speak(text, onDone, onWaiting) {
-    var t0 = performance.now(), done = false, played = false, warned = false, iv = null;
-    var gen = ++audioGen;                          // this clip's claim on the element
-    function finish() {
+    var t0 = performance.now(), done = false, warnTimer = null;
+    function finish(played) {
       if (done) return;
       done = true;
-      if (iv) { clearInterval(iv); iv = null; }
-      lastAudioAt = Date.now();
-      onDone && onDone(played);
+      if (warnTimer) { clearTimeout(warnTimer); warnTimer = null; }
+      onDone && onDone(!!played);
     }
-    function warn() {
-      if (warned || done) return;
-      warned = true;
-      onWaiting && onWaiting();
-    }
-    if (!text) return finish();
-    // (kg) THE LEAD LADDER -- voice.js's exact formula. This page used to send lead=0
-    // on every clip, which is LESS leading silence than the main app gives any clip.
-    var quiet = lastAudioAt ? (Date.now() - lastAudioAt) : 1e9;
-    var lead = (firstSpeakLead || quiet > 2500) ? 3 : (quiet > 900 ? 2 : 1);
-    firstSpeakLead = false;
-    fetch("/api/speak-prep", { method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: CODE, text: text, lead: lead }) })
-      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (j) {
-        var el = ensureAudioEl();
-        try { el.pause(); } catch (e) {}
-        el.onended = function () {
-          if (gen !== audioGen) return;
-          played = true; lastAudioAt = Date.now(); finish();
-        };
-        el.onerror = function () { if (gen === audioGen) finish(); };
-        el.onplaying = function () {
-          if (DEV) devline("audio started " + Math.round(performance.now() - t0)
-                           + "ms after prep (lead=" + lead + ")");
-        };
-        el.src = "/api/speak?t=" + encodeURIComponent(j.t || "");
-        var p = el.play();
-        if (p && p.catch) p.catch(finish);         // blocked autoplay: silent mode
-        var lastT = -1, stalledSince = 0;
-        iv = setInterval(function () {
-          if (done) { clearInterval(iv); iv = null; return; }
-          if (gen !== audioGen) { clearInterval(iv); iv = null; return; }  // superseded
-          var now = performance.now(), waited = now - t0;
-          if (waited > VOICE_MAX_MS) return finish();
-          var t = el.currentTime || 0;
-          if (t > lastT + 0.01) {                  // genuinely playing: keep going
-            lastT = t; stalledSince = 0; lastAudioAt = Date.now();
-            return;
-          }
-          if (t <= 0) {                            // has not produced a sound yet
-            if (waited > VOICE_WAIT_MS) warn();    // let them act, do NOT give up
-            if (waited > VOICE_START_MS) finish(); // no key, 204, or a dead stream
-            return;
-          }
-          if (!stalledSince) stalledSince = now;   // was playing, has stopped moving
-          else if (now - stalledSince > VOICE_STALL_MS) finish();
-        }, VOICE_POLL_MS);
-      })
-      .catch(finish);
+    if (!text) return finish(false);
+    __voiceSpoke = false;                       // voice.js flips this via setState()
+    warnTimer = setTimeout(function () {
+      if (!done) onWaiting && onWaiting();      // taking a while: let them act anyway
+    }, VOICE_WAIT_MS);
+    var p;
+    try { p = window.speak ? window.speak(text) : null; } catch (e) { p = null; }
+    if (!p || !p.then) return finish(false);    // voice.js missing: silent, never stuck
+    p.then(function () {
+      if (DEV) devline("clip done in " + Math.round(performance.now() - t0)
+                       + "ms, audible=" + __voiceSpoke);
+      // AUDIBLE, not merely resolved. voice.js resolves on a browser-voice fallback
+      // and on a dead clip too; auto-advancing on silence would race a child who is
+      // reading rather than listening, which is the defect ke fixed.
+      finish(__voiceSpoke);
+    }, function () { finish(false); });
   }
   function devline(s) {
     if (!DEV) return;

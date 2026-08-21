@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21ki-one-voice-layer". BUILD ki -- kh MEASURED
+#               the renders and cleared them: fitting voice length against text length
+#               over Counting to 10 gave an intercept of +16ms (a chopped head would be
+#               about -500ms), zero clips starting under 20ms, and a slope implying the
+#               voice runs 216 wpm against the 156 wpm the yardstick assumed -- which is
+#               the whole of the "75%". THE RENDERS ARE COMPLETE. The first word is lost
+#               in PLAYBACK. Jim also placed the regression: it was fine early on, and
+#               broke around the time the course was prewarmed -- consistent, because
+#               streamed clips took seconds to arrive and gave the output device time to
+#               wake, while a cached clip starts in ~50ms.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp. The fix is in
+#               static/pilot.html: it no longer HAS a voice layer, it loads voice.js.
+#               kg hand-ported three of voice.js's four protections and still missed the
+#               live AudioContext; that was the fourth hand-port in a row to be wrong,
+#               which is the real finding -- hand-porting a voice layer does not
+#               converge. voice.js documents an AMBIENT CONTRACT (CODE, forSpeech,
+#               setState) and the pilot page now satisfies it, with forSpeech kept as
+#               the IDENTITY on purpose: this file's TTS cache is keyed on VERBATIM
+#               text, so a transform would miss all 3,879 cached lines and re-render the
+#               course at full price.
 #   2026-08-21  APP_BUILD -> "2026-08-21kh-measure-the-clip". BUILD kh -- Jim after kg:
 #               the four-star GARBLE is gone (the quality model fixed it, so kf was
 #               right about the model), but "it's still missing the first couple of
@@ -9650,7 +9670,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kh-measure-the-clip"
+APP_BUILD = "2026-08-21ki-one-voice-layer"
 
 
 @app.get("/health")
