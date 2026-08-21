@@ -2,6 +2,11 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (kd) 2026-08-21 -- LESSONS FLOW. When a lesson ends, the page offers
+    "Next lesson" straight from the course order (the server's lessons list),
+    so a child rolls from counting into adding without going back to the
+    picker. /api/script/start now returns the lesson id; the page tracks it.
+
     (ka) 2026-08-21 -- TAP A LESSON TO START IT. Jim, playtesting the 24-lesson
     course: "when I click on anything, nothing happens." What actually happened:
     with 24 lessons the code box and the Start button had been pushed BELOW the
@@ -148,15 +153,19 @@
     }
     try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
     post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
+      CURRENT_ID = j.id || lessonId || (COURSE[0] && COURSE[0].id) || null;
       $("gate").classList.add("hide");
       $("stage").classList.remove("hide");
       ingest(j.steps);
     });
   }
+  var COURSE = [];          // the ordered lessons list (kd: next-lesson flow)
+  var CURRENT_ID = null;    // which lesson this session is playing
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
     .then(function (j) {
+      COURSE = j.lessons || [];
       var pk = $("picker"), lastUnit = null, lastCourse = null;
-      (j.lessons || []).forEach(function (les, i) {
+      COURSE.forEach(function (les, i) {
         if (les.course !== lastCourse) {
           lastCourse = les.course; lastUnit = null;
           var ch = document.createElement("div");
@@ -317,6 +326,20 @@
       $("status").textContent = step.mastered
         ? "Topic mastered — it's on the dashboard."
         : "Saved as still learning — the next session re-teaches it.";
+      var nextLes = null;
+      for (var ni = 0; ni < COURSE.length; ni++) {
+        if (COURSE[ni].id === CURRENT_ID && ni + 1 < COURSE.length) {
+          nextLes = COURSE[ni + 1];
+          break;
+        }
+      }
+      if (nextLes) {
+        var nb = document.createElement("button");
+        nb.className = "next";
+        nb.textContent = "Next lesson \u25b6 " + nextLes.topic;
+        nb.onclick = function () { startLesson(nextLes.id); };
+        ctl.appendChild(nb);
+      }
       var again = document.createElement("button");
       again.className = "next"; again.textContent = "Play again";
       again.onclick = function () { location.reload(); };

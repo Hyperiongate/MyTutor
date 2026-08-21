@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kd-the-content-sweep". BUILD kd -- ten new
+#               lessons close the audit's remaining named gaps (Entry counting,
+#               before/after, story problems, coins; Basic story problems, LCM,
+#               different-bottom fractions, hundredths, quarter turns, volume) --
+#               41 lessons across the two courses. THIS FILE: /api/script/start now
+#               returns the lesson's id alongside its topic, so the pilot page can
+#               offer "Next lesson" from the course order when a lesson ends.
+#               Reviews/quizzes/exams stay DEFERRED by Jim's ruling ("my priority
+#               right now is to get the app up and running").
 #   2026-08-21  APP_BUILD -> "2026-08-21kc-the-recut". BUILD kc -- Jim approved the
 #               Eureka audit's re-cut: the first eight scripted lessons move to
 #               ENTRY-LEVEL MATH (units 2-6) where his own curriculum places them;
@@ -7783,7 +7792,10 @@ def script_start(body: ScriptStartIn):
                               "ai_turns": 0, "history": [], "redo": None,
                               "t0": _time.monotonic()}
     _script_log(code, lesson["course"], t0)
-    return {"ok": True, "lesson": lesson["topic"], "steps": _script_clean(steps)}
+    # kd: the id rides along so the pilot page can offer "Next lesson" from the
+    # course order without guessing which lesson this session is in.
+    return {"ok": True, "lesson": lesson["topic"], "id": lesson["id"],
+            "steps": _script_clean(steps)}
 
 
 @app.get("/api/script/lessons")
@@ -9156,7 +9168,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kc-the-recut"
+APP_BUILD = "2026-08-21kd-the-content-sweep"
 
 
 @app.get("/health")

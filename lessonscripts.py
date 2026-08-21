@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD kd -- THE CONTENT SWEEP + LESSONS THAT FLOW. Jim: "my priority
+#               right now is to get the app up and running ... I wanna see it all up
+#               and running, and then I can troubleshoot it from there." (Reviews,
+#               quizzes, exams and depth-maintenance are DEFERRED to a design
+#               conversation once content is complete -- his ruling, recorded.)
+#               TEN new lessons close the audit's remaining named gaps: Entry U1
+#               counting (a concrete-only op where the child COUNTS the stars -- the
+#               spoken ask deliberately never says the number, with a speaks()
+#               override documenting why), numbers before/after, counting coins
+#               (nickels), story problems for Entry (add/take-away) and Basic
+#               (multiply/divide) -- via a NEW per-problem "story" field: a problem
+#               may carry its own spoken sentence, and every validator rule (digits
+#               spoken, canon vocabulary, word caps via closure) applies to it
+#               automatically -- plus hundredths, adding fractions with DIFFERENT
+#               bottoms, least common multiple, angles as quarter turns, and volume.
+#               41 lessons. Entry still lacks Time and Shapes units (no clock/shape
+#               renderer on the pilot page yet -- recorded, not hidden).
 #   2026-08-21  BUILD kc -- THE RE-CUT (Jim's ruling on the Eureka audit,
 #               Eureka_Audit_Of_The_Scripted_Course_2026-08-21.md). The audit's
 #               headline: my first eight lessons -- single-digit adding through
@@ -1279,6 +1296,486 @@ _MORE_LESSONS = [
             {"a": 1, "b": 8, "op": "nl"}, {"a": 1, "b": 10, "op": "nlw"},
         ],
     },
+    # ------------------------- BUILD kd: the content sweep -------------------------
+    {
+        "id": "entry-u1-counting-to-10", "course": "entry", "unit": 1,
+        "topic": "Counting to 10",
+        "op": "cnt", "max_value": 10,
+        "levels": ("concrete",),   # the picture IS the problem; there is no
+                                   # abstract form of "count these stars"
+        "symbols": ("count",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count to ten."),
+        "teach": [
+            ("Today we learn to count stars. Point to each star and say one "
+             "number for it: one, two, three.",
+             '[[goal text="Counting to 10"]]'),
+            ("Watch me count these stars. One, two, three. Three stars.",
+             '[[objects emoji="⭐" groups="3" caption="count them one at a time"]]'),
+            ("Watch me count again. One, two, three, four, five. Five stars.",
+             '[[objects emoji="⭐" groups="5" caption="count them one at a time"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. One, two, three, four. "
+                        "Four stars.",
+                        '[[objects emoji="⭐" groups="4" caption="count them one at a time"]]'),
+             "ask": {"a": 2, "b": 0, "op": "cnt"}},
+            {"worked": ("One more together. One, two, three, four, five, six. "
+                        "Six stars.",
+                        '[[objects emoji="⭐" groups="6" caption="count them one at a time"]]'),
+             "ask": {"a": 4, "b": 0, "op": "cnt"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 0, "op": "cnt"}, {"a": 3, "b": 0, "op": "cnt"},
+            {"a": 5, "b": 0, "op": "cnt"}, {"a": 6, "b": 0, "op": "cnt"},
+            {"a": 7, "b": 0, "op": "cnt"}, {"a": 8, "b": 0, "op": "cnt"},
+            {"a": 9, "b": 0, "op": "cnt"}, {"a": 10, "b": 0, "op": "cnt"},
+        ],
+    },
+    {
+        "id": "entry-u1-numbers-before-and-after", "course": "entry", "unit": 1,
+        "topic": "Numbers before and after",
+        "op": "aft", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("after", "before"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can find the number before and the number after."),
+        "teach": [
+            ("Numbers stand in a line, always in the same order: 1, 2, 3, 4, 5. "
+             "Today we find the number right after a number, and the number "
+             "right before it.",
+             '[[goal text="Numbers before and after"]]'),
+            ("Watch me. What comes right after 5? Count up one: 6. "
+             "6 comes right after 5.",
+             '[[step eq="5, 6"]]'),
+            ("Watch me. What comes right before 8? Count back one: 7. "
+             "7 comes right before 8.",
+             '[[step eq="7, 8"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Right after 6 comes 7.",
+                        '[[step eq="6, 7"]]'),
+             "ask": {"a": 4, "b": 0, "op": "aft"}},
+            {"worked": ("One more together. Right before 10 comes 9.",
+                        '[[step eq="9, 10"]]'),
+             "ask": {"a": 7, "b": 0, "op": "bef"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 2, "b": 0, "op": "aft"}, {"a": 3, "b": 0, "op": "bef"},
+            {"a": 5, "b": 0, "op": "aft"}, {"a": 6, "b": 0, "op": "bef"},
+            {"a": 8, "b": 0, "op": "aft"}, {"a": 9, "b": 0, "op": "bef"},
+            {"a": 11, "b": 0, "op": "aft"}, {"a": 12, "b": 0, "op": "bef"},
+            {"a": 14, "b": 0, "op": "aft"}, {"a": 15, "b": 0, "op": "bef"},
+            {"a": 17, "b": 0, "op": "aft"}, {"a": 20, "b": 0, "op": "bef"},
+        ],
+    },
+    {
+        "id": "entry-u3-story-problems", "course": "entry", "unit": 3,
+        "topic": "Story problems — adding and taking away",
+        "op": "+", "max_value": 10, "a_max": 9, "b_max": 9,
+        "mixed_review": True,   # plus and minus interleave; a ramp across two ops
+                                # would be meaningless
+        "levels": ("abstract",),
+        "symbols": ("plus", "minus"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can solve story problems."),
+        "teach": [
+            ("Today we solve story problems. A story problem tells a little "
+             "story and hides a plus or a minus inside. Our job is to find it.",
+             '[[goal text="Story problems"]]'),
+            ("Listen. Maya has 3 stickers. She gets 2 more. Getting more means "
+             "putting together — that is plus. Three plus two equals five "
+             "stickers in all.",
+             '[[step eq="3 + 2 = 5"]]'),
+            ("Listen. Ben has 6 grapes. He eats 2. Eating them is taking away — "
+             "that is minus. Six minus two equals four grapes are left.",
+             '[[step eq="6 − 2 = 4"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Ava has 4 crayons. She "
+                        "gets 3 more. That is plus. Four plus three equals seven "
+                        "crayons in all.",
+                        '[[step eq="4 + 3 = 7"]]'),
+             "ask": {"a": 5, "b": 2, "op": "+",
+                     "story": ("Sam has 5 shells. He finds 2 more. How many "
+                               "shells does he have in all?")}},
+            {"worked": ("One more together. Leo has 8 balloons. 3 fly away. That "
+                        "is minus — take away. Eight minus three equals five "
+                        "balloons are left.",
+                        '[[step eq="8 − 3 = 5"]]'),
+             "ask": {"a": 7, "b": 3, "op": "-",
+                     "story": ("Mia has 7 berries. She eats 3. How many berries "
+                               "are left?")}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 2, "b": 1, "op": "+",
+             "story": ("Jo has 2 rocks. She finds 1 more. How many rocks does "
+                       "she have in all?")},
+            {"a": 3, "b": 1, "op": "-",
+             "story": "Ed has 3 kites. 1 blows away. How many kites are left?"},
+            {"a": 3, "b": 2, "op": "+",
+             "story": ("Ana has 3 cups. She gets 2 more. How many cups does she "
+                       "have in all?")},
+            {"a": 4, "b": 2, "op": "-",
+             "story": "Ty has 4 socks. 2 get lost. How many socks are left?"},
+            {"a": 4, "b": 3, "op": "+",
+             "story": ("Bo has 4 cars. He gets 3 more. How many cars does he "
+                       "have in all?")},
+            {"a": 6, "b": 2, "op": "-",
+             "story": "Zoe has 6 pears. She eats 2. How many pears are left?"},
+            {"a": 5, "b": 4, "op": "+",
+             "story": ("Kim has 5 beads. She gets 4 more. How many beads does "
+                       "she have in all?")},
+            {"a": 8, "b": 3, "op": "-",
+             "story": ("Dan has 8 stamps. He gives 3 away. How many stamps are "
+                       "left?")},
+            {"a": 6, "b": 3, "op": "+",
+             "story": ("Pia has 6 leaves. She finds 3 more. How many leaves does "
+                       "she have in all?")},
+            {"a": 9, "b": 4, "op": "-",
+             "story": "Max has 9 blocks. 4 fall down. How many blocks are left?"},
+        ],
+    },
+    {
+        "id": "entry-u7-counting-coins", "course": "entry", "unit": 7,
+        "topic": "Counting nickels and pennies",
+        "op": "nick", "max_value": 35,
+        "levels": ("abstract",),
+        "symbols": ("nickel", "penny"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count nickels and pennies."),
+        "teach": [
+            ("Money time! A penny is worth 1 cent. A nickel is worth 5 cents.",
+             '[[goal text="Counting nickels and pennies"]]'),
+            ("Watch me count 2 nickels and 3 pennies. Nickels first, count by "
+             "five: 5, 10. Then pennies, count on: 11, 12, 13. That is 13 "
+             "cents.",
+             '[[step eq="5, 10 — 11, 12, 13 = 13 cents"]]'),
+            ("One more, watch. 3 nickels and 1 penny. Count by five: 5, 10, 15. "
+             "One more: 16. 16 cents.",
+             '[[step eq="5, 10, 15 — 16 = 16 cents"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 1 nickel and 2 "
+                        "pennies. 5 — then 6, 7. 7 cents.",
+                        '[[step eq="5 — 6, 7 = 7 cents"]]'),
+             "ask": {"a": 1, "b": 4, "op": "nick"}},
+            {"worked": ("One more together. 2 nickels and 2 pennies. 5, 10 — "
+                        "11, 12. 12 cents.",
+                        '[[step eq="5, 10 — 11, 12 = 12 cents"]]'),
+             "ask": {"a": 2, "b": 4, "op": "nick"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 1, "op": "nick"}, {"a": 1, "b": 2, "op": "nick"},
+            {"a": 1, "b": 3, "op": "nick"}, {"a": 2, "b": 1, "op": "nick"},
+            {"a": 2, "b": 2, "op": "nick"}, {"a": 2, "b": 3, "op": "nick"},
+            {"a": 3, "b": 1, "op": "nick"}, {"a": 3, "b": 2, "op": "nick"},
+            {"a": 4, "b": 1, "op": "nick"}, {"a": 4, "b": 3, "op": "nick"},
+            {"a": 5, "b": 2, "op": "nick"}, {"a": 6, "b": 1, "op": "nick"},
+        ],
+    },
+    {
+        "id": "basic-u3-story-problems", "course": "basic", "unit": 3,
+        "topic": "Story problems — multiplying and dividing",
+        "op": "*", "max_value": 40, "mixed_review": True,
+        "levels": ("abstract",),
+        "symbols": ("times", "divided"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can solve multiplying and dividing story problems."),
+        "teach": [
+            ("Story problems can hide times and divided by too. Equal groups of "
+             "the same size mean times. Sharing into equal groups means divided "
+             "by.",
+             '[[goal text="Story problems — multiplying and dividing"]]'),
+            ("Listen. Each box holds 4 crayons. There are 3 boxes. Equal boxes — "
+             "that is times. Four times three equals twelve crayons in all.",
+             '[[step eq="4 × 3 = 12"]]'),
+            ("Listen. 12 cookies are shared into 3 equal bags. Sharing — that is "
+             "divided by. Twelve divided by three equals four cookies in each "
+             "bag.",
+             '[[step eq="12 ÷ 3 = 4"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. Each pack holds 5 "
+                        "pencils. There are 2 packs. Five times two equals ten "
+                        "pencils in all.",
+                        '[[step eq="5 × 2 = 10"]]'),
+             "ask": {"a": 3, "b": 4, "op": "*",
+                     "story": ("Each jar holds 3 marbles. There are 4 jars. How "
+                               "many marbles in all?")}},
+            {"worked": ("One more together. 10 apples are shared into 2 equal "
+                        "baskets. Ten divided by two equals five apples in each "
+                        "basket.",
+                        '[[step eq="10 ÷ 2 = 5"]]'),
+             "ask": {"a": 12, "b": 4, "op": "/",
+                     "story": ("12 grapes are shared into 4 equal bowls. How "
+                               "many grapes go in each bowl?")}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 2, "b": 3, "op": "*",
+             "story": ("Each cup holds 2 straws. There are 3 cups. How many "
+                       "straws in all?")},
+            {"a": 6, "b": 2, "op": "/",
+             "story": ("6 socks are shared into 2 equal drawers. How many socks "
+                       "go in each drawer?")},
+            {"a": 4, "b": 2, "op": "*",
+             "story": ("Each bag holds 4 buns. There are 2 bags. How many buns "
+                       "in all?")},
+            {"a": 8, "b": 4, "op": "/",
+             "story": ("8 fish are shared into 4 equal tanks. How many fish "
+                       "swim in each tank?")},
+            {"a": 5, "b": 3, "op": "*",
+             "story": ("Each row has 5 chairs. There are 3 rows. How many "
+                       "chairs in all?")},
+            {"a": 15, "b": 3, "op": "/",
+             "story": ("15 stickers are shared into 3 equal sheets. How many "
+                       "stickers go on each sheet?")},
+            {"a": 6, "b": 4, "op": "*",
+             "story": ("Each tray holds 6 eggs. There are 4 trays. How many "
+                       "eggs in all?")},
+            {"a": 20, "b": 5, "op": "/",
+             "story": ("20 beads are shared into 5 equal strings. How many "
+                       "beads go on each string?")},
+            {"a": 7, "b": 3, "op": "*",
+             "story": ("Each shelf holds 7 books. There are 3 shelves. How many "
+                       "books in all?")},
+            {"a": 30, "b": 6, "op": "/",
+             "story": ("30 seeds are shared into 6 equal pots. How many seeds "
+                       "go in each pot?")},
+        ],
+    },
+    {
+        "id": "basic-u4-least-common-multiple", "course": "basic", "unit": 4,
+        "topic": "Least common multiple",
+        "op": "lcm", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("multiple", "least"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can find the least common multiple."),
+        "teach": [
+            ("A multiple of a number is what you land on when you count by it. "
+             "The multiples of 3 are 3, 6, 9, 12, and so on.",
+             '[[goal text="Least common multiple"]]'),
+            ("The least common multiple of two numbers is the smallest number "
+             "in BOTH count-by lists. Watch me find it for 2 and 3. Count by 2: "
+             "2, 4, 6. Count by 3: 3, 6. The first match is 6.",
+             '[[step eq="2: 2, 4, 6"]][[step eq="3: 3, 6"]]'
+             '[[step eq="LCM of 2 and 3 = 6"]]'),
+            ("One more, watch. 4 and 6. Count by 4: 4, 8, 12. Count by 6: 6, "
+             "12. The first match is 12. The least common multiple of 4 and 6 "
+             "equals 12.",
+             '[[step eq="4: 4, 8, 12"]][[step eq="6: 6, 12"]]'
+             '[[step eq="LCM of 4 and 6 = 12"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 3 and 6. Count by 3: "
+                        "3, 6. Count by 6: 6. The first match is 6 — the least "
+                        "common multiple of 3 and 6 equals 6.",
+                        '[[step eq="LCM of 3 and 6 = 6"]]'),
+             "ask": {"a": 2, "b": 6, "op": "lcm"}},
+            {"worked": ("One more together. 2 and 5. Count by 2: 2, 4, 6, 8, "
+                        "10. Count by 5: 5, 10. The first match is 10.",
+                        '[[step eq="LCM of 2 and 5 = 10"]]'),
+             "ask": {"a": 4, "b": 5, "op": "lcm"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 2, "b": 4, "op": "lcm"}, {"a": 2, "b": 3, "op": "lcm"},
+            {"a": 3, "b": 6, "op": "lcm"}, {"a": 2, "b": 5, "op": "lcm"},
+            {"a": 3, "b": 4, "op": "lcm"}, {"a": 4, "b": 6, "op": "lcm"},
+            {"a": 2, "b": 7, "op": "lcm"}, {"a": 3, "b": 5, "op": "lcm"},
+            {"a": 4, "b": 10, "op": "lcm"}, {"a": 3, "b": 8, "op": "lcm"},
+            {"a": 5, "b": 6, "op": "lcm"},
+        ],
+    },
+    {
+        "id": "basic-u6-add-fractions-different-bottoms", "course": "basic",
+        "unit": 6,
+        "topic": "Adding fractions with different bottoms",
+        "op": "fu", "max_value": 12,
+        "levels": ("abstract",),
+        "symbols": ("bottoms", "plus"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can add fractions with different bottoms."),
+        "teach": [
+            ("Today we add fractions with different bottoms. The trick: change "
+             "one fraction so both bottoms match, then add the tops.",
+             '[[goal text="Adding fractions with different bottoms"]]'),
+            ("Watch me. One half plus one fourth. One half equals two fourths. "
+             "Two fourths plus one fourth equals three fourths.",
+             '[[step eq="1/2 + 1/4"]][[step eq="1/2 = 2/4"]]'
+             '[[step eq="2/4 + 1/4 = 3/4"]]'),
+            ("One more, watch. One third plus two sixths. One third equals two "
+             "sixths. Two sixths plus two sixths equals four sixths.",
+             '[[step eq="1/3 + 2/6"]][[step eq="1/3 = 2/6"]]'
+             '[[step eq="2/6 + 2/6 = 4/6"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. One half plus one "
+                        "sixth. One half equals three sixths. Three sixths plus "
+                        "one sixth equals four sixths.",
+                        '[[step eq="1/2 = 3/6"]][[step eq="3/6 + 1/6 = 4/6"]]'),
+             "ask": {"a": 1, "b": 2, "c": 4, "op": "fu"}},
+            {"worked": ("One more together. One fourth plus one eighth. One "
+                        "fourth equals two eighths. Two eighths plus one eighth "
+                        "equals three eighths.",
+                        '[[step eq="1/4 = 2/8"]][[step eq="2/8 + 1/8 = 3/8"]]'),
+             "ask": {"a": 1, "b": 3, "c": 6, "op": "fu"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 2, "c": 6, "op": "fu"},
+            {"a": 2, "b": 3, "c": 6, "op": "fu"},
+            {"a": 1, "b": 2, "c": 8, "op": "fu"},
+            {"a": 3, "b": 2, "c": 8, "op": "fu"},
+            {"a": 1, "b": 4, "c": 8, "op": "fu"},
+            {"a": 5, "b": 4, "c": 8, "op": "fu"},
+            {"a": 2, "b": 2, "c": 10, "op": "fu"},
+            {"a": 3, "b": 5, "c": 10, "op": "fu"},
+            {"a": 4, "b": 2, "c": 12, "op": "fu"},
+            {"a": 5, "b": 3, "c": 12, "op": "fu"},
+            {"a": 2, "b": 4, "c": 12, "op": "fu"},
+            {"a": 7, "b": 6, "c": 12, "op": "fu"},
+        ],
+    },
+    {
+        "id": "basic-u7-hundredths", "course": "basic", "unit": 7,
+        "topic": "Hundredths",
+        "op": "dh", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("hundredths", "plus"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You know your hundredths."),
+        "teach": [
+            ("A hundredth is one out of one hundred equal pieces. We write "
+             "hundredths after the point — 0.25 is 25 hundredths.",
+             '[[goal text="Hundredths"]]'
+             '[[step eq="0.25 = 25 hundredths"]]'),
+            ("Adding hundredths works like adding whole numbers. Watch me. 25 "
+             "hundredths plus 13 hundredths equals 38 hundredths — 0.38.",
+             '[[step eq="0.25 + 0.13 = 0.38"]]'),
+            ("One more, watch. 40 hundredths plus 22 hundredths equals 62 "
+             "hundredths. 0.62.",
+             '[[step eq="0.40 + 0.22 = 0.62"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 31 hundredths plus 24 "
+                        "hundredths equals 55 hundredths — 0.55.",
+                        '[[step eq="0.31 + 0.24 = 0.55"]]'),
+             "ask": {"a": 11, "b": 12, "op": "dh"}},
+            {"worked": ("One more together. 26 hundredths plus 32 hundredths "
+                        "equals 58 hundredths.",
+                        '[[step eq="0.26 + 0.32 = 0.58"]]'),
+             "ask": {"a": 22, "b": 15, "op": "dh"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 12, "b": 13, "op": "dh"}, {"a": 21, "b": 14, "op": "dh"},
+            {"a": 23, "b": 22, "op": "dh"}, {"a": 31, "b": 24, "op": "dh"},
+            {"a": 42, "b": 23, "op": "dh"}, {"a": 34, "b": 37, "op": "dh"},
+            {"a": 44, "b": 31, "op": "dh"}, {"a": 52, "b": 33, "op": "dh"},
+            {"a": 63, "b": 27, "op": "dh"}, {"a": 61, "b": 34, "op": "dh"},
+        ],
+    },
+    {
+        "id": "basic-u9-quarter-turns", "course": "basic", "unit": 9,
+        "topic": "Quarter turns and degrees",
+        "op": "ang", "max_value": 360,
+        "levels": ("abstract",),
+        "symbols": ("degrees", "turn"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You know your quarter turns."),
+        "teach": [
+            ("We measure turning in degrees. There are 90 degrees in one "
+             "quarter turn of a circle, and four quarter turns go all the way "
+             "around.",
+             '[[goal text="Quarter turns and degrees"]]'),
+            ("Watch me. 2 quarter turns. 2 times 90 equals 180 — so 2 quarter "
+             "turns equals 180 degrees.",
+             '[[step eq="2 × 90° = 180°"]]'),
+            ("And backwards, watch. 270 degrees. How many quarter turns? Count "
+             "by 90: 90, 180, 270 — three counts. 270 degrees equals 3 quarter "
+             "turns.",
+             '[[step eq="270° = 3 × 90°"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 3 quarter turns. 3 "
+                        "times 90 equals 270 degrees.",
+                        '[[step eq="3 × 90° = 270°"]]'),
+             "ask": {"a": 4, "b": 0, "op": "ang"}},
+            {"worked": ("One more together. 180 degrees. Count by 90: 90, 180 — "
+                        "two counts. 180 degrees equals 2 quarter turns.",
+                        '[[step eq="180° = 2 × 90°"]]'),
+             "ask": {"a": 360, "b": 0, "op": "angq"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 0, "op": "ang"}, {"a": 90, "b": 0, "op": "angq"},
+            {"a": 2, "b": 0, "op": "ang"}, {"a": 180, "b": 0, "op": "angq"},
+            {"a": 3, "b": 0, "op": "ang"}, {"a": 270, "b": 0, "op": "angq"},
+        ],
+    },
+    {
+        "id": "basic-u9-volume", "course": "basic", "unit": 9,
+        "topic": "Volume — counting cubes",
+        "op": "vol", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("times", "cubes"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count the cubes that fill a box."),
+        "teach": [
+            ("Volume is how many cubes fill a box. Count the cubes in one "
+             "layer, then count the layers.",
+             '[[goal text="Volume — counting cubes"]]'),
+            ("Watch me. A box 3 cubes long, 2 cubes wide, 2 cubes tall. One "
+             "layer holds 3 times 2 equals 6 cubes. There are 2 layers. 6 "
+             "times 2 equals 12 cubes.",
+             '[[step eq="3 × 2 = 6"]][[step eq="6 × 2 = 12 cubes"]]'),
+            ("One more, watch. 4 cubes long, 2 wide, 2 tall. 4 times 2 equals "
+             "8 in a layer. 8 times 2 equals 16 cubes.",
+             '[[step eq="4 × 2 = 8"]][[step eq="8 × 2 = 16 cubes"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 2 long, 2 wide, 3 "
+                        "tall. 2 times 2 equals 4. 4 times 3 equals 12 cubes.",
+                        '[[step eq="2 × 2 = 4"]][[step eq="4 × 3 = 12 cubes"]]'),
+             "ask": {"a": 3, "b": 3, "c": 1, "op": "vol"}},
+            {"worked": ("One more together. 5 long, 2 wide, 2 tall. 5 times 2 "
+                        "equals 10. 10 times 2 equals 20 cubes.",
+                        '[[step eq="5 × 2 = 10"]][[step eq="10 × 2 = 20 cubes"]]'),
+             "ask": {"a": 2, "b": 3, "c": 1, "op": "vol"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 2, "b": 2, "c": 1, "op": "vol"},
+            {"a": 3, "b": 2, "c": 1, "op": "vol"},
+            {"a": 2, "b": 2, "c": 2, "op": "vol"},
+            {"a": 3, "b": 2, "c": 2, "op": "vol"},
+            {"a": 4, "b": 2, "c": 2, "op": "vol"},
+            {"a": 3, "b": 3, "c": 2, "op": "vol"},
+            {"a": 4, "b": 3, "c": 2, "op": "vol"},
+            {"a": 5, "b": 3, "c": 2, "op": "vol"},
+            {"a": 4, "b": 4, "c": 2, "op": "vol"},
+            {"a": 4, "b": 3, "c": 3, "op": "vol"},
+            {"a": 4, "b": 4, "c": 3, "op": "vol"},
+            {"a": 4, "b": 4, "c": 4, "op": "vol"},
+        ],
+    },
 ]
 LESSONS.extend(_MORE_LESSONS)
 
@@ -1286,25 +1783,33 @@ LESSONS.extend(_MORE_LESSONS)
 # two-digit-no-carry). Import fails loudly if a lesson is missing or listed twice.
 COURSE_ORDER = [
     # ---- ENTRY-LEVEL MATH (the kc re-cut: these eight lessons were authored under
-    # Basic U1 and belong here by Jim's own curriculum -- Eureka audit 2026-08-21) ----
+    # Basic U1 and belong here by Jim's own curriculum -- Eureka audit 2026-08-21;
+    # kd opens the course where Eureka does -- counting -- and adds story problems
+    # and coins) ----
+    "entry-u1-counting-to-10", "entry-u1-numbers-before-and-after",
     "entry-u2-add-single-digit", "entry-u2-add-past-ten",
     "entry-u3-take-away-single-digit", "entry-u3-take-away-bigger",
+    "entry-u3-story-problems",
     "entry-u4-tens-and-ones", "entry-u5-add-two-digit-no-carry",
     "entry-u5-add-with-carrying", "entry-u6-take-away-with-regrouping",
+    "entry-u7-counting-coins",
     # ---- BASIC MATH (grades 3-5 band) ----
     "basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
     "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review",
     "basic-u2-what-multiplying-means", "basic-u2-times-tables",
     "basic-u2-multiply-two-digit",
     "basic-u3-what-dividing-means", "basic-u3-left-overs",
-    "basic-u3-divide-two-digit",
+    "basic-u3-divide-two-digit", "basic-u3-story-problems",
     "basic-u4-missing-factors", "basic-u4-greatest-common-factor",
+    "basic-u4-least-common-multiple",
     "basic-u5-fractions-on-the-number-line",
     "basic-u5-fraction-of-a-group", "basic-u5-equivalent-fractions",
     "basic-u6-add-fractions-same-bottom", "basic-u6-take-away-fractions-same-bottom",
-    "basic-u7-tenths", "basic-u7-dimes-and-pennies",
+    "basic-u6-add-fractions-different-bottoms",
+    "basic-u7-tenths", "basic-u7-dimes-and-pennies", "basic-u7-hundredths",
     "basic-u8-percent-of", "basic-u8-one-costs",
     "basic-u9-perimeter", "basic-u9-area",
+    "basic-u9-quarter-turns", "basic-u9-volume",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -1565,6 +2070,134 @@ OP_EXT = {
         "check": lambda p: (2 <= p["b"] <= 12 and p.get("a", 1) == 1,
                             "the whole-line question fixes a=1"),
     },
+    "cnt": {   # count the stars (concrete-only; the picture IS the problem)
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: "Count the stars. How many stars are there?",
+        "board": lambda p: (f'[[objects emoji="⭐" groups="{p["a"]}" '
+                            f'caption="count them one at a time"]]'),
+        "praise": lambda p: f"{p['a']} stars — you counted every one.",
+        "key": lambda p: p["a"],
+        "check": lambda p: (1 <= p["a"] <= 10, "countable on one screen"),
+        # rule 44's PURPOSE is "the child heard the whole problem" -- here the whole
+        # problem is the picture, and SAYING the number would answer it.
+        "speaks": lambda p, sp: True,
+    },
+    "aft": {
+        "ans": lambda p: p["a"] + 1,
+        "spoken": lambda p: f"What number comes right after {p['a']}?",
+        "board": lambda p: f'[[step eq="{p["a"]}, ?"]]',
+        "praise": lambda p: f"{p['a'] + 1} comes right after {p['a']}.",
+        "key": lambda p: p["a"],
+        "check": lambda p: (1 <= p["a"] <= 19, "stays in the counting range"),
+        # the problem has ONE number; b is a placeholder 0 (like r10/r100)
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "bef": {
+        "ans": lambda p: p["a"] - 1,
+        "spoken": lambda p: f"What number comes right before {p['a']}?",
+        "board": lambda p: f'[[step eq="?, {p["a"]}"]]',
+        "praise": lambda p: f"{p['a'] - 1} comes right before {p['a']}.",
+        "key": lambda p: p["a"],
+        "check": lambda p: (2 <= p["a"] <= 20, "the answer must stay at least 1"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "nick": {  # a nickels + b pennies = ? cents
+        "ans": lambda p: 5 * p["a"] + p["b"],
+        "spoken": lambda p: (f"How many cents is {p['a']} nickels and {p['b']} "
+                             f"pennies?"),
+        "board": lambda p: f'[[step eq="{p["a"]} nickels + {p["b"]} pennies = ? cents"]]',
+        "praise": lambda p: (f"{p['a']} nickels and {p['b']} pennies equals "
+                             f"{5 * p['a'] + p['b']} cents."),
+        "key": lambda p: 5 * p["a"] + p["b"],
+        "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 4,
+                            "pennies stay under a nickel"),
+    },
+    "dh": {    # hundredths: 0.ab + 0.cd, answered in hundredths
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"How many hundredths is {p['a']} hundredths plus "
+                             f"{p['b']} hundredths?"),
+        "board": lambda p: f'[[step eq="0.{p["a"]} + 0.{p["b"]} = 0.?"]]',
+        "praise": lambda p: (f"{p['a']} hundredths plus {p['b']} hundredths "
+                             f"equals {p['a'] + p['b']} hundredths."),
+        "key": lambda p: p["a"] + p["b"],
+        "check": lambda p: (10 <= p["a"] <= 89 and 10 <= p["b"] <= 89
+                            and p["a"] + p["b"] <= 99,
+                            "two-digit hundredths, no spill into a whole"),
+    },
+    "fu": {    # one 1/b plus a/c, same-family bottoms (b divides c)
+        "ans": lambda p: p["c"] // p["b"] + p["a"],
+        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is one "
+                             f"{_FRACWORD[p['b']][0]} plus {p['a']} "
+                             f"{_FRACWORD[p['c']][1]}?"),
+        "board": lambda p: (f'[[step eq="1/{p["b"]} + {p["a"]}/{p["c"]} = '
+                            f'?/{p["c"]}"]]'),
+        "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} is "
+                             f"{p['c'] // p['b']} {_FRACWORD[p['c']][1]} — plus "
+                             f"{p['a']} more equals "
+                             f"{p['c'] // p['b'] + p['a']} {_FRACWORD[p['c']][1]}."),
+        "key": lambda p: p["c"],
+        "check": lambda p: (p["c"] % p["b"] == 0 and p["c"] > p["b"]
+                            and p["b"] in _FRACWORD and p["c"] in _FRACWORD
+                            and p["c"] // p["b"] + p["a"] < p["c"],
+                            "the bottoms must be family (b divides c) and the sum "
+                            "stays a proper fraction"),
+        "speaks": lambda p, sp: (str(p["a"]) in sp
+                                 and _FRACWORD[p["b"]][0] in sp
+                                 and _FRACWORD[p["c"]][1] in sp),
+    },
+    "lcm": {
+        "ans": lambda p: p["a"] * p["b"] // _gcd(p["a"], p["b"]),
+        "spoken": lambda p: (f"What is the least common multiple of {p['a']} "
+                             f"and {p['b']}?"),
+        "board": lambda p: f'[[step eq="LCM of {p["a"]} and {p["b"]} = ?"]]',
+        "praise": lambda p: (f"The least common multiple of {p['a']} and "
+                             f"{p['b']} equals "
+                             f"{p['a'] * p['b'] // _gcd(p['a'], p['b'])}."),
+        "key": lambda p: p["a"] * p["b"] // _gcd(p["a"], p["b"]),
+        "check": lambda p: (2 <= p["a"] and 2 <= p["b"]
+                            and p["a"] * p["b"] // _gcd(p["a"], p["b"]) <= 60,
+                            "the LCM stays countable"),
+    },
+    "ang": {   # quarter turns
+        "ans": lambda p: 90 * p["a"],
+        "spoken": lambda p: (f"A quarter turn is 90 degrees. How many degrees "
+                             f"is {p['a']} quarter "
+                             f"turn{'' if p['a'] == 1 else 's'}?"),
+        "board": lambda p: f'[[step eq="{p["a"]} × 90° = ?"]]',
+        "praise": lambda p: (f"{p['a']} quarter "
+                             f"turn{'' if p['a'] == 1 else 's'} equals "
+                             f"{90 * p['a']} degrees."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (1 <= p["a"] <= 4, "a full turn is the ceiling"),
+        # +-1 would be absurd next to 180; the confusion is WHICH multiple of 90
+        "choices": lambda p: ([90 * p["a"] - 90, 90 * p["a"], 90 * p["a"] + 90]
+                              if p["a"] >= 2 else [90, 180, 270]),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "angq": {  # the reverse of ang: how many quarter turns is a degrees?
+        "ans": lambda p: p["a"] // 90,
+        "spoken": lambda p: f"How many quarter turns is {p['a']} degrees?",
+        "board": lambda p: f'[[step eq="{p["a"]}\u00b0 = ? \u00d7 90\u00b0"]]',
+        "praise": lambda p: (f"{p['a']} degrees equals {p['a'] // 90} quarter "
+                             f"turn{'' if p['a'] // 90 == 1 else 's'}."),
+        "key": lambda p: p["a"] // 90,
+        "check": lambda p: (p["a"] in (90, 180, 270, 360),
+                            "only whole quarter turns have an answer here"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "vol": {   # a x b x c cubes
+        "ans": lambda p: p["a"] * p["b"] * p["c"],
+        "spoken": lambda p: (f"A box is {p['a']} cubes long, {p['b']} cubes "
+                             f"wide and {p['c']} cubes tall. How many cubes "
+                             f"fill it?"),
+        "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} × {p["c"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} times {p['b']} times {p['c']} equals "
+                             f"{p['a'] * p['b'] * p['c']} cubes."),
+        "key": lambda p: p["a"] * p["b"] * p["c"],
+        "check": lambda p: (p["a"] * p["b"] * p["c"] <= 96
+                            and min(p["a"], p["b"], p["c"]) >= 1,
+                            "countable cubes"),
+    },
     "peri": {
         "ans": lambda p: 2 * (p["a"] + p["b"]),
         "spoken": lambda p: (f"A rectangle is {p['a']} long and {p['b']} wide. "
@@ -1596,6 +2229,10 @@ OP_EXT = {
 # =============================================================================
 def spoken_for(p, level):
     a, b = p["a"], p["b"]
+    # kd: a problem may carry its own story sentence -- word problems are authored
+    # per problem, and every closure/vocabulary/digits check applies to the story.
+    if p.get("story"):
+        return p["story"]
     if p.get("op") in OP_EXT:
         return OP_EXT[p["op"]]["spoken"](p)
     if p.get("op") == "t":

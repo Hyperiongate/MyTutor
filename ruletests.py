@@ -14380,8 +14380,10 @@ def part3cv_scripted_engine():
         check(f"{_les['id']} passes ALL {len(results)} authoring checks", not fails,
               str(fails[:4]))
     check("jim's wording rulings: lessons are named by their INPUTS, plainly",
-          "single-digit numbers" in L.LESSONS[0]["topic"]
-          and "one through nine" in L.LESSONS[0]["teach"][0][0]
+          # kd: counting-to-10 is LESSONS[0] now, so this pin names its lesson by id
+          "single-digit numbers" in L.LESSON_BY_ID["entry-u2-add-single-digit"]["topic"]
+          and "one through nine"
+          in L.LESSON_BY_ID["entry-u2-add-single-digit"]["teach"][0][0]
           and all("within" not in s.lower()
                   for les in L.LESSONS for s in L.audio_lines(les)),
           "2026-08-21, twice: 'adding within 10' is curriculum-speak, and the honest "
@@ -14391,17 +14393,47 @@ def part3cv_scripted_engine():
                   if les["course"] == "basic"}) == list(range(1, 10)),
           str(sorted({les["unit"] for les in L.LESSONS
                       if les["course"] == "basic"})))
-    check("kc: the re-homed Entry lessons sit in Entry units 2-6",
+    check("kc/kd: Entry-Level Math spans units 1-7 (counting through coins)",
           sorted({les["unit"] for les in L.LESSONS
-                  if les["course"] == "entry"}) == [2, 3, 4, 5, 6],
-          "the Eureka audit's re-cut: single-digit through regrouping is "
-          "Entry-Level Math by Jim's own curriculum")
+                  if les["course"] == "entry"}) == [1, 2, 3, 4, 5, 6, 7],
+          "the Eureka audit's re-cut put single-digit through regrouping here; "
+          "kd opened the course at counting (U1) and added story problems (U3) "
+          "and coins (U7)")
     check("kc: the audit's two big holes are filled",
           "basic-u2-multiply-two-digit" in L.LESSON_BY_ID
           and "basic-u3-divide-two-digit" in L.LESSON_BY_ID
           and "basic-u5-fractions-on-the-number-line" in L.LESSON_BY_ID,
           "multi-digit x/÷ (Eureka G4-M3, 43 days) and fractions-as-numbers "
           "(G3-M5) were the coverage findings")
+    check("kd: the content sweep's ten lessons all exist",
+          all(i in L.LESSON_BY_ID for i in (
+              "entry-u1-counting-to-10", "entry-u1-numbers-before-and-after",
+              "entry-u3-story-problems", "entry-u7-counting-coins",
+              "basic-u3-story-problems", "basic-u4-least-common-multiple",
+              "basic-u6-add-fractions-different-bottoms", "basic-u7-hundredths",
+              "basic-u9-quarter-turns", "basic-u9-volume")),
+          str(sorted(L.LESSON_BY_ID)))
+    check("kd: the course OPENS at counting, where Jim's curriculum opens",
+          L.LESSONS[0]["id"] == "entry-u1-counting-to-10"
+          and L.PILOT_LESSON["id"] == "entry-u1-counting-to-10",
+          "Eureka GPK-5 starts at counting; a course that opens mid-skill "
+          "quietly assumes what it never taught")
+    check("kd: the counting ask NEVER says the number (saying it would answer it)",
+          str(5) not in L.spoken_for({"a": 5, "b": 0, "op": "cnt"}, "concrete")
+          and L.OP_EXT["cnt"]["speaks"]({"a": 5}, "anything") is True,
+          "rule 44's PURPOSE is 'the child heard the whole problem' -- for cnt "
+          "the picture IS the problem, so the speaks() override documents WHY")
+    _story_p = L.LESSON_BY_ID["entry-u3-story-problems"]["bank"][0]
+    check("kd: a story problem SPEAKS its own sentence, verbatim from the author",
+          _story_p.get("story")
+          and L.spoken_for(_story_p, "abstract") == _story_p["story"],
+          "word problems are authored per problem; the closure, vocabulary and "
+          "digits checks all apply to the story automatically")
+    check("kd: angles go both ways (a x 90\u00b0, and degrees back to turns)",
+          L.ans({"a": 3, "b": 0, "op": "ang"}) == 270
+          and L.ans({"a": 270, "b": 0, "op": "angq"}) == 3,
+          "ang alone has only four distinct problems -- not enough for a bank "
+          "plus pairs; the reverse form doubles the pool")
     _ids = [les["id"] for les in L.LESSONS]
     check("jz: no-carry is taught BEFORE carrying, carrying before regrouping",
           _ids.index("entry-u5-add-two-digit-no-carry")
@@ -14436,14 +14468,18 @@ def part3cv_scripted_engine():
     check("settings: the drop path is abstract -> pictorial -> concrete",
           L.LEVELS == ("abstract", "pictorial", "concrete"), str(L.LEVELS))
 
-    closure = set(L.audio_lines(L.PILOT_LESSON))
+    # kd: the deep walks pin a THREE-LEVEL lesson by id. PILOT_LESSON is now
+    # counting-to-10 (concrete-only -- there is nothing to drop to), so the
+    # drop-path scenario below would be impossible against it.
+    _WALK = L.LESSON_BY_ID["entry-u2-add-single-digit"]
+    closure = set(L.audio_lines(_WALK))
     heard = []
 
     def drive(events):
-        st = L.start(L.PILOT_LESSON)
+        st = L.start(_WALK)
         trace = []
         for ev in events:
-            outs, _ = L.step(L.PILOT_LESSON, st, ev)
+            outs, _ = L.step(_WALK, st, ev)
             trace.extend(outs)
             heard.extend(o["spoken"] for o in outs if o.get("spoken"))
         return trace, st
@@ -14453,13 +14489,13 @@ def part3cv_scripted_engine():
         return ("answer", L.ans(p))
 
     # ---- 3. the perfect child: exactly MIN problems, mastered, zero AI ----
-    st = L.start(L.PILOT_LESSON)
-    outs, _ = L.step(L.PILOT_LESSON, st, ("begin",))
+    st = L.start(_WALK)
+    outs, _ = L.step(_WALK, st, ("begin",))
     heard.extend(o["spoken"] for o in outs if o.get("spoken"))
     ended = None
     n_int = 0
     for _ in range(30):
-        outs, _ = L.step(L.PILOT_LESSON, st, answers(st))
+        outs, _ = L.step(_WALK, st, answers(st))
         heard.extend(o["spoken"] for o in outs if o.get("spoken"))
         n_int += sum(1 for o in outs if o["kind"] == "intervene")
         ended = next((o for o in outs if o["kind"] == "end"), ended)
@@ -14471,12 +14507,12 @@ def part3cv_scripted_engine():
           f"done={st['done']} int={n_int} -- the happy path must never wake the model")
 
     # ---- 4. one miss: ONE intervention, engine-chosen retest, still masterable ----
-    st = L.start(L.PILOT_LESSON)
-    L.step(L.PILOT_LESSON, st, ("begin",))
-    L.step(L.PILOT_LESSON, st, answers(st))          # pair 0
-    L.step(L.PILOT_LESSON, st, answers(st))          # pair 1
-    L.step(L.PILOT_LESSON, st, answers(st))          # practice 1 right
-    outs, _ = L.step(L.PILOT_LESSON, st, ("answer", 99))
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    L.step(_WALK, st, answers(st))          # pair 0
+    L.step(_WALK, st, answers(st))          # pair 1
+    L.step(_WALK, st, answers(st))          # practice 1 right
+    outs, _ = L.step(_WALK, st, ("answer", 99))
     inter = [o for o in outs if o["kind"] == "intervene"]
     check("a wrong answer emits exactly one intervention, prefixed by the scripted line",
           len(inter) == 1 and any(o.get("spoken") == L.LINE_WRONG for o in outs),
@@ -14489,13 +14525,13 @@ def part3cv_scripted_engine():
           inter and set(inter[0]["vocabulary"]) == set(L.VOCABULARY)
           and inter[0]["level"] in L.LEVELS,
           "the AI would improvise its own wording -- the exact defect jr closed")
-    outs, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+    outs, _ = L.step(_WALK, st, ("resume",))
     check("resume asks the retest, unaided, and the streak was reset",
           outs and outs[0]["kind"] == "ask" and not outs[0]["guided"]
           and st["streak"] == 0, str(outs[:1]))
     ended = None
     for _ in range(20):
-        outs, _ = L.step(L.PILOT_LESSON, st, answers(st))
+        outs, _ = L.step(_WALK, st, answers(st))
         ended = next((o for o in outs if o["kind"] == "end"), ended)
         if ended:
             break
@@ -14503,19 +14539,19 @@ def part3cv_scripted_engine():
           ended and ended["mastered"], "a corrected child must not be trapped")
 
     # ---- 5. repeated failure: drop the representation, then end WARMLY ----
-    st = L.start(L.PILOT_LESSON)
-    L.step(L.PILOT_LESSON, st, ("begin",))
-    L.step(L.PILOT_LESSON, st, answers(st))
-    L.step(L.PILOT_LESSON, st, answers(st))
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    L.step(_WALK, st, answers(st))
+    L.step(_WALK, st, answers(st))
     levels = [st["level"]]
     ended = None
     for _ in range(12):
-        outs, _ = L.step(L.PILOT_LESSON, st, ("answer", 99))
+        outs, _ = L.step(_WALK, st, ("answer", 99))
         ended = next((o for o in outs if o["kind"] == "end"), None)
         if ended:
             break
         if any(o["kind"] == "intervene" for o in outs):
-            outs2, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+            outs2, _ = L.step(_WALK, st, ("resume",))
             ended = next((o for o in outs2 if o["kind"] == "end"), None)
             if ended:
                 break
@@ -14528,10 +14564,10 @@ def part3cv_scripted_engine():
           "a child below ~50% success must be released, not drilled")
 
     # ---- 6. the mishearing rule: one re-ask, then tap-only, NEVER the AI ----
-    st = L.start(L.PILOT_LESSON)
-    L.step(L.PILOT_LESSON, st, ("begin",))
-    o1, _ = L.step(L.PILOT_LESSON, st, ("unheard",))
-    o2, _ = L.step(L.PILOT_LESSON, st, ("unheard",))
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    o1, _ = L.step(_WALK, st, ("unheard",))
+    o2, _ = L.step(_WALK, st, ("unheard",))
     heard.extend(o["spoken"] for o in o1 + o2 if o.get("spoken"))
     check("a garbled answer: scripted re-ask once, then tap-only",
           o1[0]["spoken"].startswith(L.LINE_REASK)
@@ -14541,17 +14577,17 @@ def part3cv_scripted_engine():
           all(o["kind"] != "intervene" for o in o1 + o2), "")
 
     # ---- 7. the cap holds on EVERY path (the bug this build's dry run caught) ----
-    st = L.start(L.PILOT_LESSON)
-    L.step(L.PILOT_LESSON, st, ("begin",))
-    L.step(L.PILOT_LESSON, st, answers(st))
-    L.step(L.PILOT_LESSON, st, answers(st))
+    st = L.start(_WALK)
+    L.step(_WALK, st, ("begin",))
+    L.step(_WALK, st, answers(st))
+    L.step(_WALK, st, answers(st))
     max_done, ended = 0, None
     for i in range(40):
         ev = answers(st) if i % 2 == 0 else ("answer", 99)
-        outs, _ = L.step(L.PILOT_LESSON, st, ev)
+        outs, _ = L.step(_WALK, st, ev)
         for o in outs:
             if o["kind"] == "intervene":
-                outs2, _ = L.step(L.PILOT_LESSON, st, ("resume",))
+                outs2, _ = L.step(_WALK, st, ("resume",))
                 ended = next((o2 for o2 in outs2 if o2["kind"] == "end"), ended)
             if o["kind"] == "end":
                 ended = o
@@ -14573,8 +14609,10 @@ def part3cv_scripted_engine():
           == [(o["kind"], o.get("spoken")) for o in t2],
           "a scripted lesson that varies is not a script")
 
-    # ---- 8b. every OTHER lesson: a perfect walk masters, inside its closure ----
-    for _les in L.LESSONS[1:]:
+    # ---- 8b. EVERY lesson: a perfect walk masters, inside its closure ----
+    # (kd: the deep walks above use add-single-digit, not LESSONS[0], so this
+    # loop covers the whole course -- one lesson is simply walked twice.)
+    for _les in L.LESSONS:
         _cl = set(L.audio_lines(_les))
         _st = L.start(_les)
         _outs, _ = L.step(_les, _st, ("begin",))
@@ -14652,11 +14690,14 @@ def chk(label, cond, extra=""):
 r = c.post("/api/script/answer", json={"code": "KID1", "value": 5})
 chk("answer before start is 409", r.status_code == 409)
 
-# 2. start
-r = c.post("/api/script/start", json={"code": "KID1"})
+# 2. start (kd: name the lesson -- the default is now counting-to-10, and the
+# hand-written answer sequences below walk ADD-SINGLE-DIGIT's banks)
+r = c.post("/api/script/start", json={"code": "KID1", "lesson": "entry-u2-add-single-digit"})
 j = r.json()
 chk("start returns teach beats + first ask", r.status_code == 200 and j["steps"][0]["kind"] == "say"
     and j["steps"][-1]["kind"] == "ask")
+chk("kd: start names the lesson it started (the next-lesson flow needs the id)",
+    j.get("id") == "entry-u2-add-single-digit", str(j.get("id")))
 payload = json.dumps(j)
 chk("NO answer leaks: no 'expected' or 'problem' in any payload",
     '"expected"' not in payload and '"problem"' not in payload)
@@ -14685,7 +14726,7 @@ with store._engine.connect() as conn:
 chk("every script turn logged with wall time, zero model", len(srows) >= 7 and all(r0[1] >= 0 for r0 in srows), str(len(srows)))
 
 # 4. wrong answer path: AI stub, code-graded redo, resume
-c.post("/api/script/start", json={"code": "KID2"})
+c.post("/api/script/start", json={"code": "KID2", "lesson": "entry-u2-add-single-digit"})
 def a2(v, unheard=False):
     return c.post("/api/script/answer", json={"code": "KID2", "value": v, "unheard": unheard}).json()
 a2(5); a2(6)                     # pairs
@@ -14705,7 +14746,7 @@ for v in (4, 4, 5, 5, 7):
 chk("corrected child still reaches an end", any(s["kind"] == "end" for s in j["steps"]) or True)
 
 # 5. wrong twice in intervention -> more AI turns, then fallback resume
-c.post("/api/script/start", json={"code": "KID3"})
+c.post("/api/script/start", json={"code": "KID3", "lesson": "entry-u2-add-single-digit"})
 def a3(v, unheard=False):
     return c.post("/api/script/answer", json={"code": "KID3", "value": v, "unheard": unheard}).json()
 a3(5); a3(6)
@@ -14720,7 +14761,7 @@ chk("AI turns are bounded then the script absorbs it",
 
 # 6. dead model: stub returns "" -> straight to scripted retest, no error
 main._script_intervene = lambda *a, **k: ""
-c.post("/api/script/start", json={"code": "KID4"})
+c.post("/api/script/start", json={"code": "KID4", "lesson": "entry-u2-add-single-digit"})
 def a4(v): return c.post("/api/script/answer", json={"code": "KID4", "value": v}).json()
 a4(5); a4(6)
 j = a4(99)
@@ -14729,7 +14770,7 @@ chk("a dead model never bricks the lesson: scripted retest arrives",
     str([s["kind"] for s in j["steps"]]))
 
 # 7. unheard twice -> tap_only
-c.post("/api/script/start", json={"code": "KID5"})
+c.post("/api/script/start", json={"code": "KID5", "lesson": "entry-u2-add-single-digit"})
 j = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
 j2 = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
 chk("mishears: re-ask then tap-only, zero AI", j2["steps"][0].get("tap_only") is True)
