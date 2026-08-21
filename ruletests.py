@@ -14756,6 +14756,13 @@ def part3cw_script_lane():
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
         msrc = fh.read()
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        _adm = fh.read()
+    check("kb: /admin has BUTTONS for the scripted-course audio (POST, never a URL)",
+          '"/api/admin/script-prewarm"' in _adm and 'id="spRun"' in _adm
+          and 'id="spPrice"' in _adm,
+          "Jim pasted the endpoint into the address bar and got Method Not Allowed -- "
+          "every admin action gets a button so nobody ever hand-POSTs")
     check("the lane exists: start, answer, prewarm",
           '@app.post("/api/script/start")' in msrc
           and '@app.post("/api/script/answer")' in msrc
@@ -14799,6 +14806,10 @@ def part3cw_script_lane():
               "a blocked autoplay must never freeze a child's lesson")
         check("pilot page: it renders the closure's tags and strips them from speech",
               'name === "objects"' in psrc and "spokenOnly" in psrc, "")
+        check("pilot page: TAPPING a lesson starts it -- no buried Start button",
+              "function startLesson(" in psrc and "startBtn" not in psrc,
+              "Jim's playtest, 2026-08-21: with 24 lessons the Start button sat "
+              "below the fold and 'clicking on anything' visibly did nothing")
         check("pilot page: a finished clip auto-advances; SILENT mode stays tap-paced",
               "if (played) setTimeout(go" in psrc
               and "onDone && onDone(played)" in psrc,

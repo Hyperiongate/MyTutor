@@ -2,6 +2,14 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (ka) 2026-08-21 -- TAP A LESSON TO START IT. Jim, playtesting the 24-lesson
+    course: "when I click on anything, nothing happens." What actually happened:
+    with 24 lessons the code box and the Start button had been pushed BELOW the
+    list, off screen -- selecting a lesson visibly did nothing because the thing
+    that starts one was buried. The gate is redesigned: the code box sits ON TOP,
+    tapping a lesson STARTS it (no separate Start button to find), and the list
+    is grouped by unit so 24 entries scan like a course instead of a wall.
+
     (ju) 2026-08-21 -- NEW FILE, Build C of the scripted-first pivot (see
     Ruling_Scripted_First_And_The_Settings_2026-08-20.md and builds js/jt).
 
@@ -99,12 +107,12 @@
     <p class="big" style="margin-bottom:10px">Scripted lesson pilot</p>
     <p style="color:var(--muted);margin-bottom:14px">Every word pre-written, pre-checked,
       and pre-recorded. The AI only appears if an answer is wrong.</p>
-    <div id="picker" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
-    <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
-    <div id="controls-gate" style="margin-top:14px">
-      <button class="next" id="startBtn">Start the lesson</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
+      <span style="color:var(--muted);font-size:14px">your student code — then tap a lesson to start it</span>
     </div>
-    <div id="gateMsg" style="color:#b3402e;font-weight:700;margin-top:10px"></div>
+    <div id="gateMsg" style="color:#b3402e;font-weight:700;margin:6px 0"></div>
+    <div id="picker" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 
   <div class="card hide" id="stage">
@@ -127,25 +135,45 @@
   if (CODE) $("code").value = CODE;
   if (DEV) $("devbar").style.display = "block";
 
-  // build jw: the course picker. Ids come from the server so the page never
-  // hardcodes a lesson list it could drift from.
-  var LESSON = "";
+  // build jw/ka: the course picker. Ids come from the server so the page never
+  // hardcodes a lesson list it could drift from. TAPPING A LESSON STARTS IT --
+  // Jim's playtest found the old separate Start button buried under 24 entries.
+  function startLesson(lessonId) {
+    CODE = ($("code").value || "").trim();
+    if (!CODE) {
+      $("gateMsg").textContent = "Enter your student code first — it goes in the box at the top.";
+      $("code").focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
+    post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
+      $("gate").classList.add("hide");
+      $("stage").classList.remove("hide");
+      ingest(j.steps);
+    });
+  }
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
     .then(function (j) {
-      var pk = $("picker");
+      var pk = $("picker"), lastUnit = null;
       (j.lessons || []).forEach(function (les, i) {
+        if (les.unit !== lastUnit) {
+          lastUnit = les.unit;
+          var hdr = document.createElement("div");
+          hdr.textContent = "Unit " + les.unit;
+          hdr.style.cssText = "font-size:12.5px;font-weight:800;color:var(--muted);"
+            + "text-transform:uppercase;letter-spacing:.06em;margin:10px 0 2px";
+          pk.appendChild(hdr);
+        }
         var b = document.createElement("button");
         b.className = "opt"; b.style.fontSize = "16px"; b.style.textAlign = "left";
         b.textContent = (i + 1) + ". " + les.topic;
-        b.onclick = function () {
-          LESSON = les.id;
-          pk.querySelectorAll("button").forEach(function (x) { x.style.background = "#fff"; });
-          b.style.background = "#f1eeff";
-        };
+        b.onclick = function () { startLesson(les.id); };
         pk.appendChild(b);
-        if (i === 0) b.onclick();
       });
-    }).catch(function () {});
+    }).catch(function () {
+      $("gateMsg").textContent = "Could not load the course list — is the server awake?";
+    });
 
   var queue = [];          // steps not yet played
   var current = null;      // the step awaiting the child's tap
@@ -322,16 +350,7 @@
       ingest(j.steps);
     });
   }
-  $("startBtn").onclick = function () {
-    CODE = ($("code").value || "").trim();
-    if (!CODE) { $("gateMsg").textContent = "Enter your student code first."; return; }
-    try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
-    post("/api/script/start", { code: CODE, lesson: LESSON }, function (j) {
-      $("gate").classList.add("hide");
-      $("stage").classList.remove("hide");
-      ingest(j.steps);
-    });
-  };
+  // (ka) the Start button is gone -- tapping a lesson starts it; see startLesson().
 })();
 </script>
 </body>
