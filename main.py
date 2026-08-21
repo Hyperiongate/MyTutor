@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21ko-decimals-by-place". BUILD ko -- Prealgebra
+#               Unit 5, Decimals. 56 lessons -> 60. NOTHING IN THIS FILE CHANGED but
+#               this note and the stamp; the work is in lessonscripts.py.
+#               Basic NAMES tenths and hundredths; U5 goes to the thing that actually
+#               goes wrong -- PLACE. Comparing two decimals is really converting both to
+#               a common unit, so lesson 1 counts hundredths and the "more digits means
+#               bigger" misconception dies where it lives: 0.5 is FIFTY hundredths and
+#               0.45 is forty-five, drawn on one number line.
 #   2026-08-21  APP_BUILD -> "2026-08-21kn-fractions-go-further". BUILD kn -- Prealgebra
 #               Unit 4, Fractions. 52 lessons -> 56. NOTHING IN THIS FILE CHANGED but
 #               this note and the stamp; the work is in lessonscripts.py.
@@ -9746,7 +9754,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kn-fractions-go-further"
+APP_BUILD = "2026-08-21ko-decimals-by-place"
 
 
 @app.get("/health")

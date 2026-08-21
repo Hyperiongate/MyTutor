@@ -2410,6 +2410,176 @@ _PREALGEBRA_U4 = [
 ]
 LESSONS.extend(_PREALGEBRA_U4)
 
+# =============================================================================
+# PREALGEBRA -- UNIT 5: DECIMALS (build ko, 2026-08-21)
+# =============================================================================
+# Basic Math NAMES tenths and hundredths and counts dimes and pennies. These four go
+# past naming to the thing that actually goes wrong with decimals: place. Comparing
+# two decimals is really converting them to a common unit, so lesson 1 does exactly
+# that and the misconception dies where it lives -- 0.45 is 45 hundredths and 0.5 is
+# FIFTY hundredths, which settles which is bigger without any rule about digits.
+#
+# EVERY ANSWER IS A COUNT OF PARTS -- "how many hundredths", "how many tenths". That
+# is forced by the tap answer being a whole number, and it is also the honest way to
+# hold a decimal in your head: 3.6 is thirty-six tenths, and sharing it between 4 is
+# just sharing 36 things.
+_PREALGEBRA_U5 = [
+    {
+        "id": "pre-u5-how-many-hundredths",
+        "course": "prealgebra", "unit": 5,
+        "topic": "How many hundredths",
+        "op": "hun", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("decimal point", "hundredths"),
+        "advance_line": "Three in a row — you've got it! You can count the hundredths in any decimal.",
+        "teach": [
+            ["A decimal point separates the whole ones from the parts. After the decimal point the first place counts tenths and the second counts hundredths. Ten hundredths make one tenth. So a decimal like 0 point 4 5 can be counted a different way: as hundredths.",
+             '[[goal text="How many hundredths"]]'],
+            ["0 point 4 5 is 4 tenths and 5 hundredths. Each tenth is 10 hundredths, so 4 tenths are 40 hundredths. Put the 5 with them and you have 45 hundredths.",
+             '[[step eq="0.45 = 40 + 5 = 45 hundredths"]]'],
+            ["Here is why that matters. Which is bigger, 0 point 5 or 0 point 4 5? Count them the same way: 0 point 5 is 50 hundredths, 0 point 4 5 is 45 hundredths. 50 beats 45. More digits does NOT mean bigger.",
+             '[[numberline min="0" max="1" points="0.5,0.45"]][[step eq="0.5 = 50 hundredths · 0.45 = 45 hundredths"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 0 point 3 2. Three tenths are 30 hundredths, put the 2 with them: 32 hundredths.",
+                        '[[step eq="0.32 = 32 hundredths"]]'],
+             "ask": {"a": 6, "b": 7, "op": "hun"}},
+            {"worked": ["One more together. 0 point 8 0. Eight tenths are 80 hundredths, and there are no extra ones: 80 hundredths.",
+                        '[[step eq="0.80 = 80 hundredths"]]'],
+             "ask": {"a": 2, "b": 9, "op": "hun"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 8, "op": "hun"},
+            {"a": 2, "b": 5, "op": "hun"},
+            {"a": 3, "b": 0, "op": "hun"},
+            {"a": 4, "b": 0, "op": "hun"},
+            {"a": 4, "b": 5, "op": "hun"},
+            {"a": 5, "b": 0, "op": "hun"},
+            {"a": 6, "b": 2, "op": "hun"},
+            {"a": 7, "b": 0, "op": "hun"},
+            {"a": 8, "b": 4, "op": "hun"},
+            {"a": 9, "b": 6, "op": "hun"},
+        ],
+    },
+    {
+        "id": "pre-u5-times-by-ten",
+        "course": "prealgebra", "unit": 5,
+        "topic": "Timesing a decimal by ten",
+        "op": "x10", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("decimal point", "place"),
+        "advance_line": "Three in a row — you've got it! Times by ten and every digit moves one place left.",
+        "teach": [
+            ["Timesing by ten does something tidy to a decimal point number: every digit moves one place to the left. The tenths become ones, the ones become tens. Nothing is dropped and nothing is invented.",
+             '[[goal text="Timesing a decimal by ten"]]'],
+            ["Watch: 3 point 7 times 10. The 7 was seven tenths; move it one place left and it is seven ones. The 3 was three ones; it becomes three tens. So the answer is 37.",
+             '[[step eq="3.7 × 10 = 37"]]'],
+            ["One more. 5 point 2 times 10 equals 52. Careful — the answer is not 50. The tenths digit moves too; it does not get left behind.",
+             '[[step eq="5.2 × 10 = 52"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 point 4 times 10. Both digits move one place left: 64.",
+                        '[[step eq="6.4 × 10 = 64"]]'],
+             "ask": {"a": 7, "b": 3, "op": "x10"}},
+            {"worked": ["One more together. 1 point 9 times 10 equals 19.",
+                        '[[step eq="1.9 × 10 = 19"]]'],
+             "ask": {"a": 4, "b": 6, "op": "x10"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 5, "op": "x10"},
+            {"a": 2, "b": 3, "op": "x10"},
+            {"a": 2, "b": 6, "op": "x10"},
+            {"a": 3, "b": 7, "op": "x10"},
+            {"a": 4, "b": 2, "op": "x10"},
+            {"a": 5, "b": 2, "op": "x10"},
+            {"a": 6, "b": 8, "op": "x10"},
+            {"a": 7, "b": 4, "op": "x10"},
+            {"a": 8, "b": 1, "op": "x10"},
+            {"a": 9, "b": 9, "op": "x10"},
+        ],
+    },
+    {
+        "id": "pre-u5-tenths-times-a-number",
+        "course": "prealgebra", "unit": 5,
+        "topic": "Tenths times a whole number",
+        "op": "dth", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("tenths", "times"),
+        "advance_line": "Three in a row — you've got it! Count the tenths, then times them.",
+        "teach": [
+            ["A decimal is easier to times if you first say what it is a count of. 0 point 3 is three tenths. Timesing three tenths by 4 works exactly like timesing 3 by 4 — the parts just stay tenths.",
+             '[[goal text="Tenths times a whole number"]]'],
+            ["Watch: 0 point 3 times 4. Say it as three tenths. 3 times 4 equals 12, so the answer is 12 tenths. Twelve tenths is more than a whole one, which is fine — that is 1 point 2.",
+             '[[step eq="0.3 = 3 tenths"]][[step eq="3 tenths × 4 = 12 tenths"]]'],
+            ["One more. 0 point 5 times 5. Five tenths, timesed by 5, equals 25 tenths.",
+             '[[step eq="5 tenths × 5 = 25 tenths"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 0 point 2 times 7. Two tenths times 7 equals 14 tenths.",
+                        '[[step eq="2 tenths × 7 = 14 tenths"]]'],
+             "ask": {"a": 6, "b": 3, "op": "dth"}},
+            {"worked": ["One more together. 0 point 8 times 6. Eight tenths times 6 equals 48 tenths.",
+                        '[[step eq="8 tenths × 6 = 48 tenths"]]'],
+             "ask": {"a": 7, "b": 4, "op": "dth"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "dth"},
+            {"a": 3, "b": 3, "op": "dth"},
+            {"a": 2, "b": 6, "op": "dth"},
+            {"a": 4, "b": 4, "op": "dth"},
+            {"a": 3, "b": 7, "op": "dth"},
+            {"a": 5, "b": 5, "op": "dth"},
+            {"a": 4, "b": 8, "op": "dth"},
+            {"a": 6, "b": 7, "op": "dth"},
+            {"a": 7, "b": 8, "op": "dth"},
+            {"a": 9, "b": 9, "op": "dth"},
+        ],
+    },
+    {
+        "id": "pre-u5-sharing-a-decimal",
+        "course": "prealgebra", "unit": 5,
+        "topic": "Sharing a decimal out",
+        "op": "dsh", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("tenths", "shared"),
+        "advance_line": "Three in a row — you've got it! Count the tenths, then share them out.",
+        "teach": [
+            ["Sharing a decimal works the same way as timesing one: say what it is a count of first. 3 point 6 is thirty-six tenths. Sharing thirty-six tenths between 4 is just sharing 36 things between 4.",
+             '[[goal text="Sharing a decimal out"]]'],
+            ["Watch: 3 point 6 shared between 4. Thirty-six tenths, shared between 4, gives 9 tenths each. Nine tenths is 0 point 9.",
+             '[[step eq="3.6 = 36 tenths"]][[step eq="36 ÷ 4 = 9 tenths"]]'],
+            ["One more. 2 point 4 shared between 3. Twenty-four tenths between 3 gives 8 tenths each, which is 0 point 8.",
+             '[[step eq="24 tenths ÷ 3 = 8 tenths"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 point 8 shared between 6. Forty-eight tenths between 6 gives 8 tenths each.",
+                        '[[step eq="48 tenths ÷ 6 = 8 tenths"]]'],
+             "ask": {"a": 9, "b": 0, "c": 5, "op": "dsh"}},
+            {"worked": ["One more together. 1 point 2 shared between 4. Twelve tenths between 4 gives 3 tenths each.",
+                        '[[step eq="12 tenths ÷ 4 = 3 tenths"]]'],
+             "ask": {"a": 7, "b": 7, "c": 7, "op": "dsh"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 2, "c": 4, "op": "dsh"},
+            {"a": 2, "b": 8, "c": 7, "op": "dsh"},
+            {"a": 2, "b": 4, "c": 3, "op": "dsh"},
+            {"a": 4, "b": 8, "c": 6, "op": "dsh"},
+            {"a": 3, "b": 6, "c": 4, "op": "dsh"},
+            {"a": 5, "b": 4, "c": 6, "op": "dsh"},
+            {"a": 6, "b": 3, "c": 7, "op": "dsh"},
+            {"a": 7, "b": 2, "c": 8, "op": "dsh"},
+            {"a": 8, "b": 1, "c": 9, "op": "dsh"},
+            {"a": 4, "b": 5, "c": 5, "op": "dsh"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U5)
+
+
 
 
 
@@ -2457,6 +2627,9 @@ COURSE_ORDER = [
     # Unit 4: Fractions -- past Basic's adding, taking away and unit fractions
     "pre-u4-a-fraction-of-a-number", "pre-u4-how-many-parts-in-a-whole",
     "pre-u4-dividing-by-a-fraction", "pre-u4-fractions-bigger-than-one",
+    # Unit 5: Decimals -- past Basic's naming of tenths and hundredths
+    "pre-u5-how-many-hundredths", "pre-u5-times-by-ten",
+    "pre-u5-tenths-times-a-number", "pre-u5-sharing-a-decimal",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -3186,6 +3359,86 @@ OP_EXT = {
                             "the fraction is bigger than 1 and does not land exactly "
                             "on a whole, and the whole count and the left-over are "
                             "never the same number"),
+    },
+
+    # ---- PREALGEBRA UNIT 5 (build ko) -- DECIMALS BEYOND BASIC ----------------
+    # Basic Math names tenths and hundredths and counts dimes and pennies. These four
+    # go past naming: converting to a common unit (which is what comparing decimals
+    # REALLY is), scaling by ten, and timesing and sharing them.
+    # Every answer is a COUNT OF PARTS -- "how many hundredths", "how many tenths" --
+    # which is both the honest way to think about a decimal and the only way a tap
+    # answer can carry one.
+    "hun": {   # 0.ab -- how many hundredths is that?
+        "ans": lambda p: 10 * p["a"] + p["b"],
+        "spoken": lambda p: (f"How many hundredths are there in "
+                             f"0 point {p['a']}{p['b']}?"),
+        "board": lambda p: (f'[[numberline min="0" max="1" '
+                            f'points="{(10 * p["a"] + p["b"]) / 100}"]]'
+                            f'[[step eq="0.{p["a"]}{p["b"]} = ? hundredths"]]'),
+        "praise": lambda p: (f"0 point {p['a']}{p['b']} is "
+                             f"{10 * p['a'] + p['b']} hundredths."),
+        "key": lambda p: 10 * p["a"] + p["b"],
+        # The wrong option is the child reading the digits as a whole number and
+        # ignoring the place -- the same habit that makes 0.45 look bigger than 0.5.
+        "choices": lambda p: [10 * p["a"] + p["b"], p["a"] + p["b"],
+                              10 * p["a"] + p["b"] + 10],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (1 <= p["a"] <= 9 and 0 <= p["b"] <= 9
+                            and 10 * p["a"] + p["b"] != p["a"] + p["b"],
+                            "a is 1-9 so the place-value answer and the "
+                            "digits-added error are never the same number"),
+    },
+    "x10": {   # a.b times 10
+        "ans": lambda p: 10 * p["a"] + p["b"],
+        "spoken": lambda p: f"What is {p['a']} point {p['b']} times 10?",
+        "board": lambda p: (f'[[step eq="{p["a"]}.{p["b"]} × 10"]]'
+                            f'[[step eq="every digit moves one place left = ?"]]'),
+        "praise": lambda p: (f"Timesing by 10 moves every digit one place to the "
+                             f"left, so {p['a']} point {p['b']} becomes "
+                             f"{10 * p['a'] + p['b']}."),
+        "key": lambda p: 10 * p["a"] + p["b"],
+        # The error worth offering is timesing only the whole part and leaving the
+        # tenths where they were.
+        "choices": lambda p: [10 * p["a"] + p["b"], 10 * p["a"],
+                              10 * p["a"] + p["b"] + 1],
+        "check": lambda p: (1 <= p["a"] <= 9 and 0 <= p["b"] <= 9 and p["b"] != 0,
+                            "there is a tenths digit to move, so leaving it behind "
+                            "gives a different number"),
+    },
+    "dth": {   # 0.a times b -- answered in TENTHS
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"0 point {p['a']} times {p['b']} — how many tenths "
+                             f"is that?"),
+        "board": lambda p: (f'[[step eq="0.{p["a"]} = {p["a"]} tenths"]]'
+                            f'[[step eq="{p["a"]} tenths × {p["b"]} = ? tenths"]]'),
+        "praise": lambda p: (f"{p['a']} tenths taken {p['b']} times equal "
+                             f"{p['a'] * p['b']} tenths."),
+        "key": lambda p: p["a"] * p["b"],
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["a"] * p["b"] + p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] * p["b"] != p["a"] + p["b"],
+                            "both are 2-9 and the times never equals the add, so the "
+                            "three options are three different numbers"),
+    },
+    "dsh": {   # a.b shared between c -- answered in TENTHS
+        "ans": lambda p: (10 * p["a"] + p["b"]) // p["c"],
+        "spoken": lambda p: (f"{p['a']} point {p['b']} shared between {p['c']} — "
+                             f"how many tenths each?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}.{p["b"]} = '
+                            f'{10 * p["a"] + p["b"]} tenths"]]'
+                            f'[[step eq="{10 * p["a"] + p["b"]} ÷ {p["c"]} = ? tenths"]]'),
+        "praise": lambda p: (f"{p['a']} point {p['b']} is "
+                             f"{10 * p['a'] + p['b']} tenths, and shared between "
+                             f"{p['c']} that is "
+                             f"{(10 * p['a'] + p['b']) // p['c']} tenths each."),
+        "key": lambda p: (10 * p["a"] + p["b"]) // p["c"],
+        "choices": lambda p: [(10 * p["a"] + p["b"]) // p["c"],
+                              (10 * p["a"] + p["b"]) // p["c"] + p["c"],
+                              (10 * p["a"] + p["b"]) // p["c"] + 1],
+        "check": lambda p: (1 <= p["a"] <= 9 and 0 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and (10 * p["a"] + p["b"]) % p["c"] == 0,
+                            "it shares out exactly, so the answer is a whole number "
+                            "of tenths a child can tap"),
     },
 }
 
