@@ -14717,6 +14717,11 @@ def part3cw_script_lane():
               "a blocked autoplay must never freeze a child's lesson")
         check("pilot page: it renders the closure's tags and strips them from speech",
               'name === "objects"' in psrc and "spokenOnly" in psrc, "")
+        check("pilot page: a finished clip auto-advances; SILENT mode stays tap-paced",
+              "if (played) setTimeout(go" in psrc
+              and "onDone && onDone(played)" in psrc,
+              "Jim's playtest: tapping Next for something already said is a stall -- "
+              "but auto-advancing a silent reader would be worse")
 
     try:
         import sqlalchemy  # noqa: F401

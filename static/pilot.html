@@ -177,8 +177,8 @@
 
   // ---------- voice: prep a ticket, stream, FALL BACK to silence ----------
   function speak(text, onDone) {
-    var t0 = performance.now(), done = false;
-    function finish() { if (!done) { done = true; onDone && onDone(); } }
+    var t0 = performance.now(), done = false, played = false;
+    function finish() { if (!done) { done = true; onDone && onDone(played); } }
     if (!text) return finish();
     fetch("/api/speak-prep", { method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -187,7 +187,7 @@
       .then(function (j) {
         if (audioEl) { try { audioEl.pause(); } catch (e) {} }
         audioEl = new Audio("/api/speak?t=" + encodeURIComponent(j.t || ""));
-        audioEl.onended = finish;
+        audioEl.onended = function () { played = true; finish(); };
         audioEl.onerror = finish;
         audioEl.onplaying = function () {
           if (DEV) devline("audio started " + Math.round(performance.now() - t0) + "ms after prep");
@@ -219,9 +219,20 @@
     if (step.kind === "say") {
       var b = document.createElement("button");
       b.className = "next"; b.textContent = "Next ▶"; b.disabled = true;
-      b.onclick = function () { playNext(); };
+      var advanced = false;
+      var go = function () { if (!advanced) { advanced = true; playNext(); } };
+      b.onclick = go;
       ctl.appendChild(b);
-      speak(words, function () { b.disabled = false; b.focus(); });
+      // AUTO-ADVANCE (Jim's playtest, 2026-08-21: "it looked like I needed to push
+      // next to make something happen that it had already talked about"). When the
+      // clip has GENUINELY finished playing, the lesson moves itself after a short
+      // breath. In SILENT mode (no key, blocked autoplay, an audio error) the Next
+      // tap stays required: a reader paces themselves, and racing them would be a
+      // worse defect than the stall was.
+      speak(words, function (played) {
+        b.disabled = false; b.focus();
+        if (played) setTimeout(go, 650);
+      });
       $("status").textContent = "";
       return;
     }
