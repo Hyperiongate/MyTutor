@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kg-the-route-stays-awake". BUILD kg -- Jim,
+#               playtesting kf: "the first one or two words of every single spoken
+#               word or paragraph was cut off." NOTHING IN THIS FILE CHANGED but this
+#               note and the build stamp; the whole fix is in static/pilot.html, and
+#               it is recorded here because /health is how a deploy is confirmed.
+#               THE FINDING: pilot.html carried NONE of the head-of-clip protections
+#               voice.js has had since builds bl/cb/gn, whose own comment describes
+#               Jim's report exactly -- audio codecs power down after a few seconds of
+#               silence and swallow the first ~200-400ms of the next sound waking up.
+#               The pilot page built a NEW Audio() per beat (handing the route back to
+#               the OS between clips), had no keep-alive, never warmed the pipeline on
+#               the tap gesture build ka already gave it, and asked /api/speak for
+#               lead=0 -- the MINIMUM, less leading silence than the main app gives any
+#               clip. All four are ported, kept identical to voice.js so they cannot
+#               drift. "Self-contained ON PURPOSE" had quietly come to mean re-deriving
+#               the voice layer without the fixes already paid for in debugging.
+#               NOTE the lead ladder uses THIS file's existing /api/speak `lead`
+#               parameter (0-4 blocks of ~280ms), which was already built and which
+#               only session.html was using.
 #   2026-08-21  APP_BUILD -> "2026-08-21kf-the-right-voice". BUILD kf -- Jim, after
 #               the whole course was prewarmed and the ke repair found ZERO damaged
 #               clips: "Still garbled when counting four stars." Asked what he hears,
@@ -9554,7 +9573,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kf-the-right-voice"
+APP_BUILD = "2026-08-21kg-the-route-stays-awake"
 
 
 @app.get("/health")

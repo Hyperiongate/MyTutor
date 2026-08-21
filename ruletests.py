@@ -14939,9 +14939,16 @@ def part3cx_voice_cache_whole():
     check("build ke: the watchdog judges playback PROGRESS instead",
           "currentTime" in psrc and "VOICE_STALL_MS" in psrc and "VOICE_START_MS" in psrc,
           "currentTime advancing is the only honest signal that a clip is alive")
-    check("build ke: the watchdog watches the element it created, not the global",
-          "if (el !== audioEl)" in psrc,
-          "a later clip replacing the global must not let an old timer judge it")
+    # REPAIRED IN kg, NOT WEAKENED. This pinned ke's MECHANISM -- `el !== audioEl`,
+    # comparing element identity. kg made the page reuse ONE <audio> element (a fresh
+    # one per beat let the audio route sleep and eat the first word), so identity can
+    # no longer tell two clips apart and the guard became a generation counter. The
+    # PROPERTY is unchanged and is what is pinned now: an older clip's timer must
+    # never be allowed to judge a newer clip.
+    check("build ke: an old clip's watchdog can never judge a newer clip",
+          ("if (gen !== audioGen)" in psrc or "if (el !== audioEl)" in psrc),
+          "without an ownership guard a superseded timer can finish() the clip that "
+          "replaced it, cutting a line off mid-sentence")
     check("build ke: a slow clip unlocks the controls WITHOUT being declared dead",
           "onWaiting" in psrc and "function () { b.disabled = false; }" in psrc,
           "the old valve conflated 'taking a while' with 'failed'")
@@ -15205,6 +15212,57 @@ def part3cy_scripted_voice():
                 ok("kf: " + line[5:].strip())
             elif line.startswith("FAIL "):
                 bad("kf: " + line[5:].strip(), "see the probe output")
+
+
+# =============================================================================
+# PART 3cz -- THE PILOT PAGE KEEPS THE AUDIO ROUTE AWAKE (build kg, 2026-08-21)
+# -----------------------------------------------------------------------------
+# Jim, playtesting kf: "the first one or two words of every single spoken word or
+# paragraph was cut off." voice.js has carried the cure since builds bl/cb/gn and its
+# own comment describes the report exactly: an audio codec powers down after a few
+# seconds of silence and swallows the first ~200-400ms of the next sound waking up.
+# pilot.html had NONE of it -- a new Audio() per beat, no keep-alive, no warm-up on
+# build ka's tap gesture, and lead=0 (the MINIMUM) on every clip.
+#
+# The pins below are mostly ANTI-DRIFT: the two pages must not diverge again, because
+# "self-contained on purpose" is exactly how the pilot page lost these fixes.
+# =============================================================================
+def part3cz_pilot_audio_route():
+    print("\nPART 3cz — the pilot page keeps the audio route awake (build kg)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
+        p = fh.read()
+    with open(os.path.join(here, "static", "voice.js"), encoding="utf-8") as fh:
+        v = fh.read()
+    code = "\n".join(ln for ln in p.split("\n") if not ln.strip().startswith("//"))
+
+    check("build kg: the pilot page no longer asks for lead=0",
+          "lead: 0" not in code,
+          "lead=0 is the MINIMUM leading silence -- less than the main app gives ANY "
+          "clip, on a page whose every beat let the route go quiet first")
+    check("build kg: every clip now gets a real lead, the first one the longest",
+          "firstSpeakLead" in code and "lead: lead" in code, "")
+    check("build kg: the lead ladder's thresholds match voice.js (anti-drift)",
+          ("2500) ? 3 :" in code and "900 ? 2 : 1" in code
+           and "2500) ? 3 :" in v and "900 ? 2 : 1" in v),
+          "the two pages must not drift apart again -- that drift is this whole bug")
+    check("build kg: ONE audio element is reused, not one per beat",
+          "function ensureAudioEl(" in code and 'new Audio("/api/speak' not in code,
+          "a fresh Audio() per clip hands the route back to the OS between beats")
+    check("build kg: a silent keep-alive holds the route open",
+          "function startKeepAlive(" in code and "keepAlive.loop = true" in code
+          and "function startKeepAlive(" in v,
+          "the cure voice.js has had since build cb")
+    check("build kg: the pipeline is warmed on the tap that starts a lesson",
+          "function warmAudio(" in code and "warmAudio();" in code
+          and "function silentWavUri(" in code,
+          "a real user gesture is the only moment a browser lets us open audio early")
+    check("build kg: the watchdog now tracks its clip by GENERATION, not element identity",
+          "gen !== audioGen" in code and "el !== audioEl" not in code,
+          "with one shared element, identity can no longer tell clips apart")
+    check("build kg: playback progress keeps the silence clock honest",
+          "lastAudioAt = Date.now();" in code,
+          "the lead ladder is only as good as its idea of how long the route was quiet")
 
 
 # =============================================================================
@@ -15776,6 +15834,7 @@ def main():
     part3cw_script_lane()
     part3cx_voice_cache_whole()
     part3cy_scripted_voice()
+    part3cz_pilot_audio_route()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

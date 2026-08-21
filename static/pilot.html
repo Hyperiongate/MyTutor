@@ -2,6 +2,30 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (kg) 2026-08-21 -- THE AUDIO ROUTE STAYS AWAKE. Jim, playtesting kf: "the
+    first one or two words of every single spoken word or paragraph was cut off."
+    This page had NONE of the head-of-clip protections the main app (voice.js) has
+    carried since builds bl/cb/gn, whose own comment describes Jim's report exactly:
+    audio codecs POWER DOWN after a few seconds of silence and then swallow the
+    first ~200-400ms of the next sound while they wake up -- which is a word or two.
+    Being "self-contained ON PURPOSE" quietly meant re-deriving the voice layer
+    without the fixes that had already been paid for in debugging. All four are now
+    ported, and deliberately kept identical to voice.js so they cannot drift:
+      1. ONE REUSED <audio> ELEMENT. Every beat used to build a brand-new Audio(),
+         which hands the output route back to the OS between clips and invites it to
+         sleep. One element is created, kept, and re-pointed at each clip.
+      2. A SILENT KEEP-ALIVE LOOP holds the route open for as long as the lesson is
+         running, so the route is never asleep to wake from.
+      3. A WARM-UP on the tap that starts a lesson -- a real user gesture, which is
+         the only moment a browser will let us open the pipeline early. Build ka's
+         tap-to-start gate already gave us that gesture for free.
+      4. A REAL LEAD. This page asked for lead=0, the MINIMUM (~280ms), on every
+         single clip -- less than the main app gives any clip. It now uses voice.js's
+         exact ladder: every clip gets at least lead=1, the first clip of a session
+         and any clip after a long silence get lead=3.
+    Why it surfaced now: before ke the valve lit "Next" mid-sentence, so Jim was
+    tapping through before enough of any line played for the pattern to show.
+
     (ke) 2026-08-21 -- THE VOICE WATCHDOG TELLS THE TRUTH. Jim's kd playtest
     heard lines "slurring and speaking nonsense". Part of that was a server-side
     cache bug (see main.py's build ke note), but this page had its own half of
@@ -171,6 +195,7 @@
       return;
     }
     try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
+    warmAudio();     // (kg) we are inside a real tap -- open the audio route NOW
     post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
       CURRENT_ID = j.id || lessonId || (COURSE[0] && COURSE[0].id) || null;
       $("gate").classList.add("hide");
@@ -272,12 +297,63 @@
   var VOICE_WAIT_MS = 3000;   // unlock the controls (but keep listening) after this
   var VOICE_STALL_MS = 2400;  // playing, then no progress this long => the stream died
   var VOICE_MAX_MS = 120000;  // absolute ceiling; no scripted beat is remotely this long
+
+  // ---------- (kg) KEEPING THE OUTPUT AWAKE -- ported from voice.js ----------
+  // An audio route that has gone quiet powers its codec down and then eats the first
+  // ~200-400ms of the next sound waking back up. That is a word or two, on every beat.
+  var audioGen = 0;            // which clip currently owns the shared element
+  var keepAlive = null;
+  var lastAudioAt = 0;         // when sound last actually came out
+  var firstSpeakLead = true;   // the first clip of a session gets the longest lead
+
+  function silentWavUri(ms) {  // identical construction to voice.js
+    var rate = 8000, n = Math.max(1, Math.round(rate * (ms / 1000)));
+    var buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+    function str(off, s) { for (var i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); }
+    str(0, "RIFF"); v.setUint32(4, 36 + n, true); str(8, "WAVE");
+    str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate, true);
+    v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+    str(36, "data"); v.setUint32(40, n, true);
+    for (var i = 0; i < n; i++) v.setUint8(44 + i, 128);      // 128 = 8-bit silence
+    var bin = "", b = new Uint8Array(buf);
+    for (var k = 0; k < b.length; k++) bin += String.fromCharCode(b[k]);
+    return "data:audio/wav;base64," + btoa(bin);
+  }
+  function ensureAudioEl() {
+    // ONE element for the whole lesson. A new Audio() per clip hands the route back
+    // to the OS between beats, which is an invitation to sleep.
+    if (!audioEl) { audioEl = new Audio(); audioEl.preload = "auto"; }
+    return audioEl;
+  }
+  function startKeepAlive() {
+    try {
+      if (!keepAlive) {
+        keepAlive = new Audio(silentWavUri(1000));
+        keepAlive.loop = true; keepAlive.volume = 0.001;
+      }
+      if (keepAlive.paused) { var p = keepAlive.play(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) {}
+  }
+  function warmAudio() {
+    // Called from the tap that starts a lesson -- a REAL user gesture, the only
+    // moment a browser will let us open the pipeline before it is needed.
+    try {
+      var a = ensureAudioEl();
+      a.src = silentWavUri(60);
+      var p = a.play(); if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+    startKeepAlive();
+  }
+
   function speak(text, onDone, onWaiting) {
     var t0 = performance.now(), done = false, played = false, warned = false, iv = null;
+    var gen = ++audioGen;                          // this clip's claim on the element
     function finish() {
       if (done) return;
       done = true;
       if (iv) { clearInterval(iv); iv = null; }
+      lastAudioAt = Date.now();
       onDone && onDone(played);
     }
     function warn() {
@@ -286,30 +362,39 @@
       onWaiting && onWaiting();
     }
     if (!text) return finish();
+    // (kg) THE LEAD LADDER -- voice.js's exact formula. This page used to send lead=0
+    // on every clip, which is LESS leading silence than the main app gives any clip.
+    var quiet = lastAudioAt ? (Date.now() - lastAudioAt) : 1e9;
+    var lead = (firstSpeakLead || quiet > 2500) ? 3 : (quiet > 900 ? 2 : 1);
+    firstSpeakLead = false;
     fetch("/api/speak-prep", { method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: CODE, text: text, lead: 0 }) })
+        body: JSON.stringify({ code: CODE, text: text, lead: lead }) })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (j) {
-        if (audioEl) { try { audioEl.pause(); } catch (e) {} }
-        var el = new Audio("/api/speak?t=" + encodeURIComponent(j.t || ""));
-        audioEl = el;                              // el stays OURS in this closure
-        el.onended = function () { played = true; finish(); };
-        el.onerror = finish;
-        el.onplaying = function () {
-          if (DEV) devline("audio started " + Math.round(performance.now() - t0) + "ms after prep");
+        var el = ensureAudioEl();
+        try { el.pause(); } catch (e) {}
+        el.onended = function () {
+          if (gen !== audioGen) return;
+          played = true; lastAudioAt = Date.now(); finish();
         };
+        el.onerror = function () { if (gen === audioGen) finish(); };
+        el.onplaying = function () {
+          if (DEV) devline("audio started " + Math.round(performance.now() - t0)
+                           + "ms after prep (lead=" + lead + ")");
+        };
+        el.src = "/api/speak?t=" + encodeURIComponent(j.t || "");
         var p = el.play();
         if (p && p.catch) p.catch(finish);         // blocked autoplay: silent mode
         var lastT = -1, stalledSince = 0;
         iv = setInterval(function () {
           if (done) { clearInterval(iv); iv = null; return; }
-          if (el !== audioEl) { clearInterval(iv); iv = null; return; }  // superseded
+          if (gen !== audioGen) { clearInterval(iv); iv = null; return; }  // superseded
           var now = performance.now(), waited = now - t0;
           if (waited > VOICE_MAX_MS) return finish();
           var t = el.currentTime || 0;
           if (t > lastT + 0.01) {                  // genuinely playing: keep going
-            lastT = t; stalledSince = 0;
+            lastT = t; stalledSince = 0; lastAudioAt = Date.now();
             return;
           }
           if (t <= 0) {                            // has not produced a sound yet
