@@ -2,6 +2,15 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD jt -- script_intervention(): the scripted lesson's one doorway
+#               to the model. A ~1,600-char system prompt (vs ~183,000 for the lesson
+#               lane) because an intervention already knows the problem, the child's
+#               answer, the level and the canon words; Model-Lead-Test on that ONE
+#               problem; at most 60 spoken words; ends with the engine-supplied
+#               choices tag so CODE grades the redo. Rides _reply_pipeline unchanged,
+#               so mathcheck and all 37 referees still check the reply. Returns "" on
+#               any failure -- the server falls back to the scripted retest, because
+#               the model must never brick a scripted lesson.
 #   2026-08-20  BUILD jr -- CONSISTENCY MEMORY. From Jim's live Basic Math lesson: the
 #               tutor said "since that's OVER NINE, carry" and, four turns later in the
 #               SAME lesson, "since that's TEN OR MORE, carry" -- identical to us, two
@@ -6174,6 +6183,73 @@ def _turn_ms(tokens):
                 int(max(0.0, float(t.get("ms_critic", 0.0)))))   # build jp
     except Exception:  # noqa: BLE001
         return (0, 0, 0, 0)
+
+
+# =============================================================================
+# BUILD jt (2026-08-21) -- THE SCRIPTED LESSON'S ONE DOORWAY TO THE MODEL.
+# =============================================================================
+# The scripted-first ruling: the AI enters a scripted lesson ONLY when a child
+# answers wrongly, teaches Model-Lead-Test on that exact problem, and CODE decides
+# everything else -- the grading, the number of AI turns, and the return to script.
+#
+# ⭐ THE PROMPT IS TINY, AND THAT IS THE POINT. The lesson lane sends ~183,000
+# characters of system prompt because the model must be ready to teach ANYTHING.
+# An intervention already knows everything: the problem, the child's answer, the
+# representation level, and the canon words. ~1,600 characters. This is where the
+# scripted architecture pays its latency dividend on the one turn that still
+# thinks -- and the referees still ride it, because _reply_pipeline is unchanged.
+_SCRIPT_INTERVENE_SYSTEM = """\
+You are Mr. Cadabra, a warm, patient math tutor for a young child, stepping in
+because the child just answered a practice problem incorrectly. You will teach
+THIS ONE PROBLEM and nothing else.
+
+Teach it in one short turn, Model-Lead-Test:
+1. MODEL: show the problem worked out completely. Draw the two star groups with
+   [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and write
+   the number sentence with [[step eq="A + B = C"]]. Count the stars out loud,
+   one number at a time.
+2. LEAD: invite the child to count along with you.
+3. TEST: ask the child to try THE SAME problem again, and end your reply with the
+   answer choices tag you are given.
+
+Hard rules:
+- Speak at most 60 words. One idea at a time. Warm, never disappointed.
+- NEVER say the child's wrong answer back to them, and never scold.
+- Use ONLY these words for these ideas, exactly: adding is "putting together";
+  the result is how many "in all"; the sign + is said "plus"; the sign = is said
+  "equals". Do not use "makes", "altogether", "total", or "combine".
+- Do not greet, do not say goodbye, do not mention this note, do not move to any
+  other problem. The lesson script resumes by itself after the child answers.
+"""
+
+
+def script_intervention(code: str, course: str, context: dict, history=None) -> str:
+    """One bounded Model-Lead-Test turn on the exact problem the child missed.
+    `context` is the engine's intervene dict (problem/expected/got/level/choices).
+    Returns the tutor's reply text (with tags), or "" on ANY failure -- the caller
+    falls back to the scripted path, because the model must never brick a lesson."""
+    try:
+        p = context.get("problem") or {}
+        a, b = int(p.get("a", 0)), int(p.get("b", 0))
+        note = (f"(SYSTEM: The problem was {a} + {b}. The child answered "
+                f"{context.get('got')!r}; the correct answer is {a + b}. The child is "
+                f"working at the {context.get('level', 'abstract')} level. Teach "
+                f"Model-Lead-Test on {a} + {b} now, and end with exactly this tag: "
+                f"{context.get('choices', '')} )")
+        reply = _reply_pipeline(
+            lambda: _SCRIPT_INTERVENE_SYSTEM,
+            list(history or []), note, " [script]",
+            meta={"code": code, "course": course, "mode": "script"},
+            where="script_intervention", label="script")
+        # the pipeline's fail-open strings start with "(" -- those are not teaching
+        return "" if (not reply or reply.startswith("(")) else reply
+    except Exception as exc:  # noqa: BLE001 -- never brick a scripted lesson
+        # Worded to stay OUT of PART 3ah's referee-crash census on purpose: this is
+        # not a referee dying (that census demands a referee_crash event per print);
+        # it is the lane's fail-open, and it counts itself via the failopen event.
+        print(f"[script] intervention failed open -- the scripted retest takes over: {exc}")
+        _event("failopen", "script_intervention", str(exc), code, course)
+        return ""
 
 
 # =============================================================================

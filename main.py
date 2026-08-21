@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21jt-the-script-serves". BUILD jt -- THE SCRIPTED
+#               LESSON LANE (Jim's scripted-first ruling, phase 2 server half).
+#               NEW: POST /api/script/start + /api/script/answer drive the pure,
+#               battery-verified engine in lessonscripts.py; POST /api/admin/
+#               script-prewarm renders the pilot's whole audio closure (~$1.66).
+#               THREE INVARIANTS, pinned by PART 3cw: no answer ever reaches the
+#               client (grading is code, always); the model never steers (bounded
+#               Model-Lead-Test turns, code-graded redo, engine-owned return, full
+#               fallback to the scripted retest when the model fails); and a script
+#               turn costs nothing (kind="script" usage rows carry the wall time, so
+#               jm's instrument can prove the pilot's latency claim). tutor.py gains
+#               script_intervention (a ~1,600-char prompt vs the lesson lane's
+#               ~183,000 -- the latency dividend on the one turn that still thinks).
 #   2026-08-20  APP_BUILD -> "2026-08-20jr-one-rule-one-wording". BUILD jr --
 #               CONSISTENCY MEMORY (store.py + tutor.py; this file wires the note and
 #               carries the stamp). Jim caught it live: "over nine, carry" and, four
@@ -3851,7 +3864,9 @@ from fastapi.responses import FileResponse, JSONResponse, Response, StreamingRes
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import time as _time
 import tutor
+import lessonscripts   # build jt: the scripted-first pilot engine (pure; see its header)
 import store   # durable DB storage; dormant unless DATABASE_URL is set (see store.py)
 import curriculum   # 9 units + classify_unit() for real per-topic tracking
 import tags     # build hm: the tag grammar's one source (hard import, loud at boot)
@@ -7615,6 +7630,255 @@ def admin_course_trial(body: CourseTrialIn):
     return report
 
 
+
+# =============================================================================
+# THE SCRIPTED LESSON LANE (build jt, 2026-08-21) -- Jim's scripted-first ruling.
+# -----------------------------------------------------------------------------
+# The engine (lessonscripts.py) is pure and battery-verified; this is its server.
+# Three invariants, each of which PART 3cw pins:
+#   1. NO ANSWER EVER REACHES THE CLIENT. The engine's "expected" stays server-side;
+#      every payload is sanitized. Grading is code, here, always.
+#   2. THE MODEL NEVER STEERS. A wrong answer buys at most SCRIPT_AI_TURNS bounded
+#      Model-Lead-Test turns on that one problem; the redo is graded by CODE against
+#      the known answer, and the engine's own retest resumes the script. If the AI
+#      fails or is unreachable, the lesson falls back to the scripted retest -- a
+#      dead model costs a child one worked example, never the lesson.
+#   3. A SCRIPT TURN COSTS NOTHING. Every non-intervention request is served from
+#      data, logged kind="script" with its wall time -- so /admin's usage log can
+#      prove the pilot's latency claim with the same instrument jm built.
+# Sessions are in-memory (state is ~200 bytes; a deploy mid-lesson restarts the
+# lesson -- acceptable for the pilot and HONEST: better than resuming corrupted).
+# =============================================================================
+SCRIPT_AI_TURNS = int(os.environ.get("SCRIPT_AI_TURNS", "3") or 3)
+_SCRIPT_SESSIONS: dict = {}
+_SCRIPT_TTL_S = 2 * 3600
+
+
+def _script_intervene(code, course, context, history):
+    """Module-level seam so ruletests can stub the model out (PART 3cw)."""
+    return tutor.script_intervention(code, course, context, history)
+
+
+def _script_clean(steps):
+    """The client payload: never the expected answer, never the raw problem."""
+    out = []
+    for s in steps:
+        c = {"kind": s["kind"], "spoken": s.get("spoken", ""),
+             "board": s.get("board", "")}
+        if s["kind"] == "ask":
+            c["choices"] = s.get("choices", "")
+            c["tap_only"] = bool(s.get("tap_only"))
+            c["guided"] = bool(s.get("guided"))
+        if s["kind"] == "end":
+            c["mastered"] = bool(s.get("mastered"))
+            c["graceful"] = bool(s.get("graceful"))
+        out.append(c)
+    return out
+
+
+def _script_session(code: str):
+    now = _time.monotonic()
+    for k in [k for k, v in _SCRIPT_SESSIONS.items()
+              if now - v.get("t0", now) > _SCRIPT_TTL_S]:
+        _SCRIPT_SESSIONS.pop(k, None)
+    return _SCRIPT_SESSIONS.get(code)
+
+
+def _script_finish(code: str, sess, end_step):
+    """Record the outcome through the SAME store calls the live lanes use."""
+    try:
+        lesson = sess["lesson"]
+        status = "mastered" if end_step.get("mastered") else "learning"
+        store.record_topic(code, lesson["unit"], lesson["topic"], status,
+                           lesson["course"])
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] outcome record failed (non-fatal): {exc}")
+    _SCRIPT_SESSIONS.pop(code, None)
+
+
+def _script_log(code, course, t_start, kind="script"):
+    try:
+        store.log_usage(kind=kind, code=code, course=course, mode="script",
+                        model="", attempts=1, verify_status="script",
+                        ms_total=int((_time.monotonic() - t_start) * 1000),
+                        ms_model=0)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+class ScriptStartIn(BaseModel):
+    code: str
+    course: str = "basic"
+
+
+class ScriptAnswerIn(BaseModel):
+    code: str
+    value: int | None = None
+    unheard: bool = False
+
+
+@app.post("/api/script/start")
+def script_start(body: ScriptStartIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    if not code:
+        raise HTTPException(status_code=400, detail="A student code is required.")
+    lesson = lessonscripts.PILOT_LESSON
+    state = lessonscripts.start(lesson)
+    steps, state = lessonscripts.step(lesson, state, ("begin",))
+    _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
+                              "ai_turns": 0, "history": [], "redo": None,
+                              "t0": _time.monotonic()}
+    _script_log(code, lesson["course"], t0)
+    return {"ok": True, "lesson": lesson["topic"], "steps": _script_clean(steps)}
+
+
+@app.post("/api/script/answer")
+def script_answer(body: ScriptAnswerIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _script_session(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No scripted lesson is running for this code -- POST /api/script/start."))
+    lesson, state = sess["lesson"], sess["state"]
+
+    # ---- the child is inside an AI intervention: CODE grades the redo ----
+    if sess["mode"] == "intervene":
+        redo = sess["redo"]
+        if body.unheard:
+            _script_log(code, lesson["course"], t0)
+            return {"ok": True, "steps": [{"kind": "say",
+                    "spoken": lessonscripts.LINE_TAP, "board": redo["choices"]}]}
+        if body.value is not None and int(body.value) == redo["expected"]:
+            praise = lessonscripts.praise_for(redo["problem"], state["done"])
+            steps, state = lessonscripts.step(lesson, state, ("resume",))
+            sess.update(state=state, mode="script", ai_turns=0,
+                        history=[], redo=None)
+            out = [{"kind": "say", "spoken": praise, "board": ""}]                 + _script_clean(steps)
+            for s in steps:
+                if s["kind"] == "end":
+                    _script_finish(code, sess, s)
+            _script_log(code, lesson["course"], t0)
+            return {"ok": True, "steps": out}
+        # wrong again: another bounded AI turn, or fall back to the scripted retest
+        if sess["ai_turns"] < SCRIPT_AI_TURNS:
+            sess["history"].append({"role": "user",
+                                    "content": f"My answer is {body.value}."})
+            reply = _script_intervene(code, lesson["course"], redo["context"],
+                                      sess["history"])
+            if reply:
+                sess["ai_turns"] += 1
+                sess["history"].append({"role": "assistant", "content": reply})
+                _script_log(code, lesson["course"], t0)
+                return {"ok": True, "steps": [{"kind": "ai", "spoken": reply,
+                                               "board": ""}]}
+        steps, state = lessonscripts.step(lesson, state, ("resume",))
+        sess.update(state=state, mode="script", ai_turns=0, history=[], redo=None)
+        for s in steps:
+            if s["kind"] == "end":
+                _script_finish(code, sess, s)
+        _script_log(code, lesson["course"], t0)
+        return {"ok": True, "steps": _script_clean(steps)}
+
+    # ---- ordinary scripted turn ----
+    event = ("unheard",) if body.unheard else ("answer", int(body.value or 0))
+    steps, state = lessonscripts.step(lesson, state, event)
+    sess["state"] = state
+    out = []
+    for s in steps:
+        if s["kind"] == "intervene":
+            context = dict(s)
+            context["choices"] = lessonscripts.choices_for(s["problem"])
+            reply = _script_intervene(code, lesson["course"], context, [])
+            if reply:
+                sess.update(mode="intervene", ai_turns=1,
+                            history=[{"role": "assistant", "content": reply}],
+                            redo={"problem": s["problem"],
+                                  "expected": s["expected"],
+                                  "choices": context["choices"],
+                                  "context": context})
+                out.append({"kind": "ai", "spoken": reply, "board": ""})
+            else:
+                # the model is unreachable or produced nothing: the script absorbs
+                # it -- straight to the engine's retest, no dead air, no error page
+                steps2, state = lessonscripts.step(lesson, state, ("resume",))
+                sess["state"] = state
+                out.extend(_script_clean(steps2))
+        else:
+            out.extend(_script_clean([s]))
+            if s["kind"] == "end":
+                _script_finish(code, sess, s)
+    _script_log(code, lesson["course"], t0)
+    return {"ok": True, "steps": out}
+
+
+class ScriptPrewarmIn(BaseModel):
+    key: str
+    dry_run: bool = False
+    limit: int = 0
+
+
+@app.post("/api/admin/script-prewarm")
+def admin_script_prewarm(body: ScriptPrewarmIn,
+                         x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """Render the pilot lesson's ENTIRE audio closure into the TTS cache.
+    lessonscripts.audio_lines() enumerates every line the engine can ever speak
+    (battery-proved), so after this runs, a scripted lesson NEVER waits on
+    ElevenLabs and never spends a TTS character again. Idempotent; dry_run prices
+    it (~$1.66 for the pilot at the live rate) without spending."""
+    _require_admin(x_admin_key or body.key)
+    lines = lessonscripts.audio_lines(lessonscripts.PILOT_LESSON)
+    todo, already = [], 0
+    for say in lines:
+        try:
+            pth = _tts_cache_path(say)
+            if pth.exists() and pth.stat().st_size > 0:
+                already += 1
+                continue
+        except Exception:  # noqa: BLE001
+            pass
+        todo.append(say)
+    chars = sum(len(s) for s in todo)
+    if body.dry_run or not todo:
+        return {"ok": True, "dry_run": True, "already_cached": already,
+                "to_render": len(todo), "chars": chars,
+                "note": "Nothing was spent. POST again with dry_run=false to render."}
+    if not ELEVEN_API_KEY:
+        raise HTTPException(status_code=503,
+                            detail="ELEVENLABS_API_KEY is not set on this deploy.")
+    if body.limit and body.limit > 0:
+        todo = todo[:body.limit]
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
+    headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
+    rendered, failed, spent = 0, [], 0
+    for say in todo:
+        try:
+            r = httpx.post(url, headers=headers, timeout=60.0, json={
+                "text": say, "model_id": ELEVEN_MODEL,
+                "output_format": "mp3_44100_128",
+                "voice_settings": {"stability": 0.55, "similarity_boost": 0.75,
+                                   "use_speaker_boost": True},
+            })
+            if r.status_code != 200 or not r.content:
+                failed.append(f"HTTP {r.status_code}: {say[:40]}")
+                continue
+            path = _tts_cache_path(say)
+            _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(".part")
+            tmp.write_bytes(r.content)
+            tmp.replace(path)
+            rendered += 1
+            spent += len(say)
+            store.log_usage(kind="tts", code="", mode="script-prewarm",
+                            model=str(ELEVEN_MODEL or ""), tts_chars=len(say),
+                            tts_cache_hit=False)
+        except Exception as exc:  # noqa: BLE001
+            failed.append(f"{type(exc).__name__}: {say[:40]}")
+    return {"ok": not failed, "rendered": rendered, "already_cached": already,
+            "chars_spent": spent, "failed": failed[:10]}
+
+
 @app.post("/api/admin/lesson-audit")
 def admin_lesson_audit(body: LessonAuditIn):
     """Run the OFFLINE LESSON AUDITOR and return its report.
@@ -8824,7 +9088,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-20jr-one-rule-one-wording"
+APP_BUILD = "2026-08-21jt-the-script-serves"
 
 
 @app.get("/health")

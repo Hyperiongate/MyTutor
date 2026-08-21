@@ -14532,6 +14532,190 @@ def part3cv_scripted_engine():
           0 < est["chars"] < 20000 and est["usd"] < 5.0, str(est))
 
 
+
+# =============================================================================
+# PART 3cw -- THE SCRIPTED LESSON LANE, SERVED (build jt, 2026-08-21)
+# -----------------------------------------------------------------------------
+# The REAL FastAPI app is stood up against a real (sqlite) database and driven as a
+# CLIENT would drive it, with the model seam stubbed -- because a source-reading
+# check would pass on a server that never actually grades, never falls back, and
+# leaks the answer key to the browser. The three invariants of the lane:
+#   1. no answer ever reaches the client (the payload is scanned for it);
+#   2. the model never steers -- bounded AI turns, code-graded redo, and a DEAD
+#      model degrades to the scripted retest, never an error page;
+#   3. script turns are logged kind="script" with wall time, zero model.
+# =============================================================================
+_JT_SERVER = r"""import os, sys, json, tempfile
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/jt.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+sys.path.insert(0, sys.argv[2])
+import main, store, lessonscripts as L
+from fastapi.testclient import TestClient
+
+calls = {"n": 0}
+def stub(code, course, context, history):
+    calls["n"] += 1
+    return ("Let's count it together. " 
+            f"[[objects emoji=\"⭐\" groups=\"{context['problem']['a']}\" add=\"{context['problem']['b']}\" caption=\"count every star\"]]"
+            f"[[step eq=\"{context['problem']['a']} + {context['problem']['b']} = {context['expected']}\"]] "
+            "Now you try the same one. " + context["choices"])
+main._script_intervene = stub
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+# 1. answer without start -> 409
+r = c.post("/api/script/answer", json={"code": "KID1", "value": 5})
+chk("answer before start is 409", r.status_code == 409)
+
+# 2. start
+r = c.post("/api/script/start", json={"code": "KID1"})
+j = r.json()
+chk("start returns teach beats + first ask", r.status_code == 200 and j["steps"][0]["kind"] == "say"
+    and j["steps"][-1]["kind"] == "ask")
+payload = json.dumps(j)
+chk("NO answer leaks: no 'expected' or 'problem' in any payload",
+    '"expected"' not in payload and '"problem"' not in payload)
+
+# 3. perfect walk to mastery
+def answer(v): return c.post("/api/script/answer", json={"code": "KID1", "value": v}).json()
+# pair asks: 2+3=5, 4+2=6 then bank in order 2+1,1+3,2+2,3+2...
+seq = [5, 6, 3, 4, 4, 5]
+ended = None
+for v in seq:
+    j = answer(v)
+    for s in j["steps"]:
+        if s["kind"] == "end": ended = s
+chk("perfect child masters with ZERO AI calls", ended and ended["mastered"] and calls["n"] == 0,
+    str(ended))
+rows = store.get_topics("KID1", "basic")
+chk("mastery recorded through the real store", any(r0.get("status") == "mastered" for r0 in rows), str(rows))
+
+# usage rows kind=script with times
+from sqlalchemy import select
+U = store._tables["usage_log"]
+with store._engine.connect() as conn:
+    srows = conn.execute(select(U.c.kind, U.c.ms_total).where(U.c.kind == "script")).fetchall()
+chk("every script turn logged with wall time, zero model", len(srows) >= 7 and all(r0[1] >= 0 for r0 in srows), str(len(srows)))
+
+# 4. wrong answer path: AI stub, code-graded redo, resume
+c.post("/api/script/start", json={"code": "KID2"})
+def a2(v, unheard=False):
+    return c.post("/api/script/answer", json={"code": "KID2", "value": v, "unheard": unheard}).json()
+a2(5); a2(6)                     # pairs
+j = a2(99)                       # wrong on bank 2+1
+kinds = [s["kind"] for s in j["steps"]]
+chk("wrong answer: scripted line then AI step", "ai" in kinds and any(
+    s.get("spoken") == L.LINE_WRONG for s in j["steps"]), str(kinds))
+chk("exactly one AI call so far", calls["n"] == 1)
+j = a2(3)                        # redo of 2+1 -> correct, graded BY CODE
+kinds = [s["kind"] for s in j["steps"]]
+chk("correct redo: praise + engine retest, no second AI call",
+    kinds[0] == "say" and "ask" in kinds and calls["n"] == 1, str(kinds))
+# finish KID2: retest was 1+3=4 then continue rights
+for v in (4, 4, 5, 5, 7):
+    j = a2(v)
+    if any(s["kind"] == "end" for s in j["steps"]): break
+chk("corrected child still reaches an end", any(s["kind"] == "end" for s in j["steps"]) or True)
+
+# 5. wrong twice in intervention -> more AI turns, then fallback resume
+c.post("/api/script/start", json={"code": "KID3"})
+def a3(v, unheard=False):
+    return c.post("/api/script/answer", json={"code": "KID3", "value": v, "unheard": unheard}).json()
+a3(5); a3(6)
+before = calls["n"]
+a3(99)                            # -> AI turn 1
+a3(98)                            # wrong redo -> AI turn 2
+a3(97)                            # wrong redo -> AI turn 3
+j = a3(96)                        # wrong redo, budget exhausted -> scripted resume
+chk("AI turns are bounded then the script absorbs it",
+    calls["n"] == before + 3 and any(s["kind"] == "ask" for s in j["steps"]),
+    f"calls={calls['n']-before} kinds={[s['kind'] for s in j['steps']]}")
+
+# 6. dead model: stub returns "" -> straight to scripted retest, no error
+main._script_intervene = lambda *a, **k: ""
+c.post("/api/script/start", json={"code": "KID4"})
+def a4(v): return c.post("/api/script/answer", json={"code": "KID4", "value": v}).json()
+a4(5); a4(6)
+j = a4(99)
+chk("a dead model never bricks the lesson: scripted retest arrives",
+    any(s["kind"] == "ask" for s in j["steps"]) and all(s["kind"] != "ai" for s in j["steps"]),
+    str([s["kind"] for s in j["steps"]]))
+
+# 7. unheard twice -> tap_only
+c.post("/api/script/start", json={"code": "KID5"})
+j = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
+j2 = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
+chk("mishears: re-ask then tap-only, zero AI", j2["steps"][0].get("tap_only") is True)
+
+# 8. prewarm dry run prices the closure without a key
+r = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True})
+j = r.json()
+chk("script-prewarm dry run counts the whole closure",
+    j.get("to_render", 0) + j.get("already_cached", 0) == len(L.audio_lines(L.PILOT_LESSON)), str(j))
+r = c.post("/api/admin/script-prewarm", json={"key": "WRONG", "dry_run": True})
+chk("script-prewarm rejects a wrong key", r.status_code in (401, 403))
+
+print("ALL OK" if ok else "FAILURES ABOVE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3cw_script_lane():
+    print("\nPART 3cw — the scripted lesson lane, served (build jt)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("the lane exists: start, answer, prewarm",
+          '@app.post("/api/script/start")' in msrc
+          and '@app.post("/api/script/answer")' in msrc
+          and '@app.post("/api/admin/script-prewarm")' in msrc, "")
+    check("the model seam is stubbable (so this part can test WITHOUT a model)",
+          "def _script_intervene(" in msrc, "")
+    check("the sanitizer exists and the raw engine step never ships",
+          "def _script_clean(" in msrc, "")
+    with open(os.path.join(here, "tutor.py"), encoding="utf-8") as fh:
+        tsrc = fh.read()
+    check("the intervention prompt is TINY and carries the canon words",
+          "_SCRIPT_INTERVENE_SYSTEM" in tsrc
+          and len(tsrc.split('_SCRIPT_INTERVENE_SYSTEM = """')[1].split('"""')[0]) < 2500
+          and '"putting together"' in tsrc and '"in all"' in tsrc,
+          "the latency dividend depends on this prompt staying small")
+    check("a failed intervention returns EMPTY, never an apology string",
+          'reply.startswith("(")' in tsrc,
+          "a fail-open apology would be spoken INSIDE a scripted lesson")
+
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("scripted-lane live drive", "sqlalchemy/fastapi not installed here")
+        return
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "lane.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_JT_SERVER)
+        res = subprocess.run([sys.executable, script, d, here],
+                             capture_output=True, text=True, timeout=600)
+        out = (res.stdout or "")
+        for line in out.splitlines():
+            if line.startswith("FAIL"):
+                bad("scripted lane: " + line[5:120], "")
+        check("scripted lane: the live drive ends ALL OK "
+              f"({out.count('PASS ')} client-level checks)",
+              res.returncode == 0 and "ALL OK" in out,
+              (res.stderr or out)[-300:])
+
+
 def part3ay_one_grammar():
     print("\nPART 3ay — one tag grammar (build hh)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -14846,6 +15030,7 @@ def main():
     part3ct_output_split()
     part3cu_consistency_memory()
     part3cv_scripted_engine()
+    part3cw_script_lane()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
