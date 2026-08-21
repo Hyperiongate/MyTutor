@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21jw-the-first-four-lessons". BUILD jw -- THE
+#               COURSE TAKES SHAPE. lessonscripts.py grows to FOUR verified lessons
+#               (adding up to 10 -- reworded to Jim's plain-language ruling: the goal
+#               chip says "Adding numbers up to 10" and the script SAYS "every answer
+#               will be ten or smaller" -- taking away up to 10, adding up to 20,
+#               taking away up to 20). This file: /api/script/start takes a lesson id,
+#               NEW GET /api/script/lessons lists the course, and script-prewarm
+#               renders the whole course's deduped closure (~$7). tutor.py's
+#               intervention prompt learns taking away. pilot.html gains the picker.
 #   2026-08-21  APP_BUILD -> "2026-08-21jt-the-script-serves". BUILD jt -- THE SCRIPTED
 #               LESSON LANE (Jim's scripted-first ruling, phase 2 server half).
 #               NEW: POST /api/script/start + /api/script/answer drive the pure,
@@ -7709,6 +7718,7 @@ def _script_log(code, course, t_start, kind="script"):
 class ScriptStartIn(BaseModel):
     code: str
     course: str = "basic"
+    lesson: str = ""        # build jw: a lesson id from /api/script/lessons; blank = first
 
 
 class ScriptAnswerIn(BaseModel):
@@ -7723,7 +7733,11 @@ def script_start(body: ScriptStartIn):
     code = (body.code or "").strip()
     if not code:
         raise HTTPException(status_code=400, detail="A student code is required.")
-    lesson = lessonscripts.PILOT_LESSON
+    lesson = lessonscripts.LESSON_BY_ID.get((body.lesson or "").strip()) \
+        if (body.lesson or "").strip() else lessonscripts.LESSONS[0]
+    if lesson is None:
+        raise HTTPException(status_code=404, detail=(
+            "Unknown lesson id -- GET /api/script/lessons lists them."))
     state = lessonscripts.start(lesson)
     steps, state = lessonscripts.step(lesson, state, ("begin",))
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
@@ -7731,6 +7745,14 @@ def script_start(body: ScriptStartIn):
                               "t0": _time.monotonic()}
     _script_log(code, lesson["course"], t0)
     return {"ok": True, "lesson": lesson["topic"], "steps": _script_clean(steps)}
+
+
+@app.get("/api/script/lessons")
+def script_lessons():
+    """The course, in order (build jw). Public and harmless: ids and titles only."""
+    return {"ok": True, "lessons": [{"id": les["id"], "topic": les["topic"],
+                                     "unit": les["unit"]}
+                                    for les in lessonscripts.LESSONS]}
 
 
 @app.post("/api/script/answer")
@@ -7828,7 +7850,10 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
     ElevenLabs and never spends a TTS character again. Idempotent; dry_run prices
     it (~$1.66 for the pilot at the live rate) without spending."""
     _require_admin(x_admin_key or body.key)
-    lines = lessonscripts.audio_lines(lessonscripts.PILOT_LESSON)
+    # build jw: the WHOLE course's closure, deduped -- shared lines (praise, the
+    # fixed one-liners) render once and serve every lesson.
+    lines = sorted({s for les in lessonscripts.LESSONS
+                    for s in lessonscripts.audio_lines(les)})
     todo, already = [], 0
     for say in lines:
         try:
@@ -9088,7 +9113,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21jt-the-script-serves"
+APP_BUILD = "2026-08-21jw-the-first-four-lessons"
 
 
 @app.get("/health")

@@ -14369,11 +14369,21 @@ def part3cv_scripted_engine():
         return
     import tags as _tags
 
-    # ---- 1. the authoring validator, in full ----
-    results = L.validate(L.PILOT_LESSON, set(_tags.BOARD_TAGS))
-    fails = [(lab, det) for ok, lab, det in results if not ok]
-    check(f"pilot lesson passes ALL {len(results)} authoring checks", not fails,
-          str(fails[:4]))
+    # ---- 1. the authoring validator, in full, for EVERY lesson in the course ----
+    check("the course has at least four lessons and the pilot is still first",
+          len(L.LESSONS) >= 4 and L.PILOT_LESSON is L.LESSONS[0]
+          and len({les["id"] for les in L.LESSONS}) == len(L.LESSONS),
+          str([les["id"] for les in L.LESSONS]))
+    for _les in L.LESSONS:
+        results = L.validate(_les, set(_tags.BOARD_TAGS))
+        fails = [(lab, det) for ok, lab, det in results if not ok]
+        check(f"{_les['id']} passes ALL {len(results)} authoring checks", not fails,
+              str(fails[:4]))
+    check("jim's wording ruling: the bound is said PLAINLY, never 'within'",
+          "ten or smaller" in L.LESSONS[0]["teach"][0][0]
+          and all("within" not in s.lower()
+                  for les in L.LESSONS for s in L.audio_lines(les)),
+          "2026-08-21: 'adding within 10' is curriculum-speak -- say what it means")
 
     # ---- 2. the settings are the ruling's, verbatim ----
     check("settings: advance on 3-in-a-row, min 4, cap 10, drop after 2",
@@ -14397,7 +14407,7 @@ def part3cv_scripted_engine():
 
     def answers(st):
         p = st["pending"]["problem"]
-        return ("answer", p["a"] + p["b"])
+        return ("answer", L.ans(p))
 
     # ---- 3. the perfect child: exactly MIN problems, mastered, zero AI ----
     st = L.start(L.PILOT_LESSON)
@@ -14519,6 +14529,29 @@ def part3cv_scripted_engine():
           [(o["kind"], o.get("spoken")) for o in t1]
           == [(o["kind"], o.get("spoken")) for o in t2],
           "a scripted lesson that varies is not a script")
+
+    # ---- 8b. every OTHER lesson: a perfect walk masters, inside its closure ----
+    for _les in L.LESSONS[1:]:
+        _cl = set(L.audio_lines(_les))
+        _st = L.start(_les)
+        _outs, _ = L.step(_les, _st, ("begin",))
+        _heard2 = [o["spoken"] for o in _outs if o.get("spoken")]
+        _ended = None
+        for _ in range(30):
+            _p = _st["pending"]["problem"]
+            _outs, _ = L.step(_les, _st, ("answer", L.ans(_p)))
+            _heard2.extend(o["spoken"] for o in _outs if o.get("spoken"))
+            _ended = next((o for o in _outs if o["kind"] == "end"), _ended)
+            if _ended:
+                break
+        _miss = [s for s in _heard2 if s and s not in _cl]
+        check(f"{_les['id']}: a perfect child masters in {L.MIN_PROBLEMS}, "
+              f"inside its own closure",
+              _ended and _ended["mastered"] and _st["done"] == L.MIN_PROBLEMS
+              and not _miss, str(_miss[:2]))
+        est2 = L.audio_cost_estimate(_les)
+        check(f"{_les['id']}: the closure is priceable and small",
+              0 < est2["chars"] < 20000 and est2["usd"] < 5.0, str(est2))
 
     # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
     missing = sorted({s for s in heard if s and s not in closure})
@@ -14656,11 +14689,30 @@ j = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
 j2 = c.post("/api/script/answer", json={"code": "KID5", "unheard": True}).json()
 chk("mishears: re-ask then tap-only, zero AI", j2["steps"][0].get("tap_only") is True)
 
-# 8. prewarm dry run prices the closure without a key
+# 8. prewarm dry run prices the WHOLE COURSE'S deduped closure without a key
 r = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True})
 j = r.json()
-chk("script-prewarm dry run counts the whole closure",
-    j.get("to_render", 0) + j.get("already_cached", 0) == len(L.audio_lines(L.PILOT_LESSON)), str(j))
+course_closure = {s for les in L.LESSONS for s in L.audio_lines(les)}
+chk("script-prewarm dry run counts the whole course closure",
+    j.get("to_render", 0) + j.get("already_cached", 0) == len(course_closure), str(j))
+
+# 9. the course list, and starting lesson two (taking away) by id
+r = c.get("/api/script/lessons")
+j = r.json()
+chk("the course lists at least four lessons in order",
+    len(j.get("lessons", [])) >= 4 and j["lessons"][0]["id"] == L.LESSONS[0]["id"])
+sub_id = L.LESSONS[1]["id"]
+r = c.post("/api/script/start", json={"code": "KID9", "lesson": sub_id})
+j = r.json()
+chk("lesson two starts by id and ends its opening with an ask",
+    r.status_code == 200 and j["steps"][-1]["kind"] == "ask", str(r.status_code))
+p9 = L.LESSONS[1]["pairs"][0]["ask"]
+j = c.post("/api/script/answer", json={"code": "KID9", "value": L.ans(p9)}).json()
+chk("a correct take-away answer is praised and the script moves on",
+    j["steps"][0]["kind"] == "say" and "minus" in j["steps"][0]["spoken"],
+    str(j["steps"][:1]))
+r = c.post("/api/script/start", json={"code": "KID9", "lesson": "no-such-lesson"})
+chk("an unknown lesson id is a 404, not a crash", r.status_code == 404)
 r = c.post("/api/admin/script-prewarm", json={"key": "WRONG", "dry_run": True})
 chk("script-prewarm rejects a wrong key", r.status_code in (401, 403))
 

@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD jw -- the intervention prompt learns TAKING AWAY: the course
+#               grew to four lessons (lessonscripts.py) and two of them subtract, so
+#               _SCRIPT_INTERVENE_SYSTEM now covers both ops with the canon words for
+#               each ("take away", "are left", "minus") and script_intervention's note
+#               states the problem with its real sign. Still under the 2,500-char pin.
 #   2026-08-21  BUILD jt -- script_intervention(): the scripted lesson's one doorway
 #               to the model. A ~1,600-char system prompt (vs ~183,000 for the lesson
 #               lane) because an intervention already knows the problem, the child's
@@ -6204,10 +6209,13 @@ because the child just answered a practice problem incorrectly. You will teach
 THIS ONE PROBLEM and nothing else.
 
 Teach it in one short turn, Model-Lead-Test:
-1. MODEL: show the problem worked out completely. Draw the two star groups with
+1. MODEL: show the problem worked out completely.
+   For ADDING (+): draw the two star groups with
    [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and write
-   the number sentence with [[step eq="A + B = C"]]. Count the stars out loud,
-   one number at a time.
+   [[step eq="A + B = C"]]. Count every star out loud, one number at a time.
+   For TAKING AWAY (−): draw the starting group with
+   [[objects emoji="⭐" groups="A" caption="start with A — take B away"]] and write
+   [[step eq="A − B = C"]]. Count back out loud from A, one number at a time.
 2. LEAD: invite the child to count along with you.
 3. TEST: ask the child to try THE SAME problem again, and end your reply with the
    answer choices tag you are given.
@@ -6216,8 +6224,10 @@ Hard rules:
 - Speak at most 60 words. One idea at a time. Warm, never disappointed.
 - NEVER say the child's wrong answer back to them, and never scold.
 - Use ONLY these words for these ideas, exactly: adding is "putting together";
-  the result is how many "in all"; the sign + is said "plus"; the sign = is said
-  "equals". Do not use "makes", "altogether", "total", or "combine".
+  an adding result is how many "in all"; taking away is "take away"; a take-away
+  result is how many "are left"; + is said "plus"; − is said "minus"; = is said
+  "equals". Do not use "makes", "altogether", "total", "combine", "subtract",
+  or "remove".
 - Do not greet, do not say goodbye, do not mention this note, do not move to any
   other problem. The lesson script resumes by itself after the child answers.
 """
@@ -6231,8 +6241,10 @@ def script_intervention(code: str, course: str, context: dict, history=None) -> 
     try:
         p = context.get("problem") or {}
         a, b = int(p.get("a", 0)), int(p.get("b", 0))
-        note = (f"(SYSTEM: The problem was {a} + {b}. The child answered "
-                f"{context.get('got')!r}; the correct answer is {a + b}. The child is "
+        op = "−" if p.get("op") == "-" else "+"
+        right = a - b if op == "−" else a + b
+        note = (f"(SYSTEM: The problem was {a} {op} {b}. The child answered "
+                f"{context.get('got')!r}; the correct answer is {right}. The child is "
                 f"working at the {context.get('level', 'abstract')} level. Teach "
                 f"Model-Lead-Test on {a} + {b} now, and end with exactly this tag: "
                 f"{context.get('choices', '')} )")

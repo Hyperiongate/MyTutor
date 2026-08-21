@@ -97,8 +97,9 @@
 
   <div class="card" id="gate">
     <p class="big" style="margin-bottom:10px">Scripted lesson pilot</p>
-    <p style="color:var(--muted);margin-bottom:14px">Adding within 10 · every word pre-written,
-      pre-checked, and pre-recorded. The AI only appears if an answer is wrong.</p>
+    <p style="color:var(--muted);margin-bottom:14px">Every word pre-written, pre-checked,
+      and pre-recorded. The AI only appears if an answer is wrong.</p>
+    <div id="picker" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
     <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
     <div id="controls-gate" style="margin-top:14px">
       <button class="next" id="startBtn">Start the lesson</button>
@@ -125,6 +126,26 @@
   try { CODE = CODE || sessionStorage.getItem("mt_pilot_code") || ""; } catch (e) {}
   if (CODE) $("code").value = CODE;
   if (DEV) $("devbar").style.display = "block";
+
+  // build jw: the course picker. Ids come from the server so the page never
+  // hardcodes a lesson list it could drift from.
+  var LESSON = "";
+  fetch("/api/script/lessons").then(function (r) { return r.json(); })
+    .then(function (j) {
+      var pk = $("picker");
+      (j.lessons || []).forEach(function (les, i) {
+        var b = document.createElement("button");
+        b.className = "opt"; b.style.fontSize = "16px"; b.style.textAlign = "left";
+        b.textContent = (i + 1) + ". " + les.topic;
+        b.onclick = function () {
+          LESSON = les.id;
+          pk.querySelectorAll("button").forEach(function (x) { x.style.background = "#fff"; });
+          b.style.background = "#f1eeff";
+        };
+        pk.appendChild(b);
+        if (i === 0) b.onclick();
+      });
+    }).catch(function () {});
 
   var queue = [];          // steps not yet played
   var current = null;      // the step awaiting the child's tap
@@ -305,7 +326,7 @@
     CODE = ($("code").value || "").trim();
     if (!CODE) { $("gateMsg").textContent = "Enter your student code first."; return; }
     try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
-    post("/api/script/start", { code: CODE }, function (j) {
+    post("/api/script/start", { code: CODE, lesson: LESSON }, function (j) {
       $("gate").classList.add("hide");
       $("stage").classList.remove("hide");
       ingest(j.steps);
