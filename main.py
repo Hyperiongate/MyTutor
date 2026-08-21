@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21jz-all-nine-units". BUILD jz -- THE COURSE
+#               CROSSES ALL NINE UNITS (lessonscripts.py + ruletests.py; this file for
+#               the stamp). Seventeen new lessons on a data-driven op registry:
+#               regrouping (jr's "too small"/"regroup" canon, "borrow" banned),
+#               multiplication, division, left-overs, missing factors, GCF, fractions
+#               of a group, equivalent fractions, same-bottom fraction add/take-away,
+#               tenths, dimes-and-pennies, percent, unit price, perimeter, area.
+#               24 lessons, 3,054 authoring checks, ~$28 of audio for the whole
+#               course. COURSE_ORDER now owns the sequence (fixes jy's carrying-
+#               before-no-carry ordering) and the module refuses to import if it
+#               disagrees with the lesson list. The validator caught EIGHT of my own
+#               authoring errors on first run (bad ramps, duplicate problems, symbols
+#               never taught) -- the factory working exactly as designed.
 #   2026-08-21  APP_BUILD -> "2026-08-21jy-carrying-comes-home". BUILD jy -- lesson 7,
 #               "Adding with carrying" (lessonscripts.py + tutor.py + ruletests.py;
 #               this file for the stamp). The lesson jr's fight was about: "over nine"
@@ -9129,7 +9142,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21jy-carrying-comes-home"
+APP_BUILD = "2026-08-21jz-all-nine-units"
 
 
 @app.get("/health")

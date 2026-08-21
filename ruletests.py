@@ -14386,6 +14386,19 @@ def part3cv_scripted_engine():
                   for les in L.LESSONS for s in L.audio_lines(les)),
           "2026-08-21, twice: 'adding within 10' is curriculum-speak, and the honest "
           "name is the INPUTS -- 'we're adding single-digit numbers, one through nine'")
+    check("jz: the course spans ALL NINE units of Basic Math",
+          sorted({les["unit"] for les in L.LESSONS}) == list(range(1, 10)),
+          str(sorted({les["unit"] for les in L.LESSONS})))
+    _ids = [les["id"] for les in L.LESSONS]
+    check("jz: no-carry is taught BEFORE carrying, carrying before regrouping",
+          _ids.index("basic-u1-add-two-digit-no-carry")
+          < _ids.index("basic-u1-add-with-carrying")
+          < _ids.index("basic-u1-take-away-with-regrouping"),
+          "jy shipped carrying ahead of no-carry in the picker; COURSE_ORDER owns "
+          "the sequence now and this pin keeps it honest")
+    check("jz: the regrouping lesson exists and EVERY problem regroups",
+          L.LESSON_BY_ID.get("basic-u1-take-away-with-regrouping", {}).get("regroup")
+          is True, "jr's 'too small' canon has no home")
     _carry = L.LESSON_BY_ID.get("basic-u1-add-with-carrying")
     check("jy: the carrying lesson exists, abstract-only, and every problem carries",
           _carry is not None and _carry.get("carry") is True
