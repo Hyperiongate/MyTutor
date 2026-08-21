@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <!--
+    (kl) 2026-08-21 -- FREE AND PAID, SAID PLAINLY. Jim, before pressing anything:
+    "I re render the audio. It doesn't charge me for ones that it's already done. Is
+    that correct?" It depended on WHICH button, and nothing on screen said so. The two
+    render buttons behave deliberately differently -- "Render the new lines" skips what
+    is cached, while the per-lesson one sends force:true and pays for EVERY line
+    including good ones, which is the whole reason it exists (a cache hit otherwise
+    never re-renders, so a clip that sounds bad can never be replaced). Two buttons,
+    opposite money behaviour, near-identical labels.
+    Every button now says FREE or SPENDS in its own label, and the paying ones are
+    tinted amber rather than sharing the plain primary style with harmless actions.
+    ⭐ AND THE BIG ONE IS NOW CONFIRMED. The lesson picker has a "Whole course" option,
+    so one click on the old "Re-render it" could force-render all ~4,200 lines and
+    charge for every one -- roughly $90, one click from a dropdown nobody had to
+    change. It is now two clicks: the first prices the job for free and rewrites the
+    button to name the REAL number of lines and dollars, the second spends it. The
+    confirmation lapses after 15 seconds so a stale armed button cannot be hit later.
+
     (kh) 2026-08-21 -- MEASURE THE ACTUAL SOUND. kf's audit reasons about FILE
     SIZE. That caught nothing here, and it has a blind spot worth naming: it flags
     clips that deviate from the COURSE'S OWN MEDIAN, which is the right yardstick for
@@ -241,6 +258,13 @@
   .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  /* (kl) SPENDS MONEY. Amber, not the house gradient -- a button that bills the
+     account should not look like every harmless action on the page. */
+  .btn-spend{background:#fff7ed;color:#9a3412;border:2px solid #f59e0b}
+  .btn-spend:hover{background:#ffedd5}
+  .btn-armed{background:#dc2626;color:#fff;border:2px solid #dc2626}
+  .freetag{font-size:12px;font-weight:700;color:#0f766e;margin-left:6px}
+  .spendtag{font-size:12px;font-weight:700;color:#9a3412;margin-left:6px}
   .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
   .btn[disabled]{opacity:.55;cursor:wait;transform:none}
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
@@ -461,8 +485,14 @@
         after the course grew to 41 across two courses &mdash; it now says neither, because
         the button walks whatever the engine has.)</span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-ghost" id="spPrice" type="button">&#9312; Price it (free)</button>
-      <button class="btn btn-primary" id="spRun" type="button">&#9313; Render them</button>
+      <button class="btn btn-ghost" id="spPrice" type="button">&#9312; Check what's missing &mdash; FREE</button>
+      <button class="btn btn-spend" id="spRun" type="button">&#9313; Render the missing lines &mdash; SPENDS</button>
+    </div>
+    <div class="note" style="margin-top:8px">
+      &#9313; only pays for lines that are <b>not already cached</b>. Lines already
+      rendered at the current voice are skipped free, so this is safe to re-run.
+      <br><b>Note:</b> changing <code>SCRIPT_TTS_MODEL</code> changes every line's cache
+      key, so after a voice change the whole course counts as missing again.
     </div>
     <div class="msg" id="spMsg"></div>
   </div></section>
@@ -493,10 +523,17 @@
       <select class="f" id="caLesson" style="max-width:340px"></select>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-ghost" id="caAudit" type="button">&#9312; Audit the audio (free)</button>
-      <button class="btn btn-ghost" id="caPrice" type="button">&#9313; Price a re-render (free)</button>
-      <button class="btn btn-primary" id="caRender" type="button">&#9314; Re-render it</button>
-      <button class="btn btn-ghost" id="caMeasure" type="button">&#9315; Measure the sound (free)</button>
+      <button class="btn btn-ghost" id="caAudit" type="button">&#9312; Audit the audio &mdash; FREE</button>
+      <button class="btn btn-ghost" id="caPrice" type="button">&#9313; Price a re-render &mdash; FREE</button>
+      <button class="btn btn-ghost" id="caMeasure" type="button">&#9314; Measure the sound &mdash; FREE</button>
+      <button class="btn btn-spend" id="caRender" type="button">&#9315; Re-render EVERY line &mdash; SPENDS</button>
+    </div>
+    <div class="note" style="margin-top:8px">
+      &#9315; re-renders <b>every line of the chosen lesson, including ones already
+      paid for</b>, and replaces them. That is what it is for &mdash; a cached clip is
+      never re-made otherwise, so this is the only way to fix one that sounds wrong.
+      It asks you to confirm, and shows the real cost, before it spends anything.
+      <br><b>Careful:</b> with <b>Whole course</b> selected it re-renders all of it.
     </div>
     <div class="msg" id="caMsg"></div>
     <pre id="caOut" style="display:none;white-space:pre-wrap;font-size:13px;line-height:1.5;
@@ -1498,19 +1535,56 @@
         + d.model + ". Press \u2462 to spend it.", "ok");
     } catch (e) { caMsg(e.message); }
   });
+  // (kl) TWO CLICKS, AND THE FIRST ONE IS FREE. The lesson picker has a "Whole
+  // course" option, so a single click here could once have force-rendered ~4,200 lines
+  // and billed for every one. Click one prices the exact job and rewrites this button
+  // to say what it will cost; click two spends it. The arming lapses after 15s so a
+  // button left armed cannot be hit by accident later.
+  var _caArmed = null, _caArmTimer = null, _caLabel = null;
+  function caDisarm() {
+    var btn = $("caRender");
+    if (_caArmTimer) { clearTimeout(_caArmTimer); _caArmTimer = null; }
+    _caArmed = null;
+    if (_caLabel !== null) { btn.innerHTML = _caLabel; _caLabel = null; }
+    btn.className = "btn btn-spend";
+  }
+  $("caLesson").addEventListener("change", caDisarm);   // a new lesson un-arms the old job
   $("caRender").addEventListener("click", async function () {
-    var b = $("caRender"); b.disabled = true;
-    caMsg("Re-rendering \u2014 this replaces the cached clips. Leave this tab open.", "ok");
-    caOut("");
+    var btn = $("caRender"), lesson = $("caLesson").value;
+    if (_caArmed !== null && _caArmed === lesson) {     // ---- second click: SPEND ----
+      caDisarm();
+      btn.disabled = true;
+      caMsg("Re-rendering \u2014 this replaces the cached clips. Leave this tab open.", "ok");
+      caOut("");
+      try {
+        var d = await api("/api/admin/script-prewarm", { method: "POST",
+          body: JSON.stringify({ key: KEY, force: true, lesson: lesson }) });
+        caMsg((d.rendered || 0) + " lines re-rendered for " + d.lesson
+              + " on " + d.model + ", " + (d.chars_spent || 0) + " characters spent"
+              + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
+              (d.failed && d.failed.length) ? "err" : "ok");
+      } catch (e) { caMsg(e.message); }
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = true;                                // ---- first click: PRICE ----
+    caMsg("Working out what that would cost\u2026", "ok");
     try {
-      var d = await api("/api/admin/script-prewarm", { method: "POST",
-        body: JSON.stringify({ key: KEY, force: true, lesson: $("caLesson").value }) });
-      caMsg((d.rendered || 0) + " lines re-rendered for " + d.lesson
-            + " on " + d.model + ", " + (d.chars_spent || 0) + " characters spent"
-            + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
-            (d.failed && d.failed.length) ? "err" : "ok");
+      var q = await api("/api/admin/script-prewarm", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true, force: true, lesson: lesson }) });
+      var cost = (q.chars / 1000 * 0.22).toFixed(2);
+      _caArmed = lesson;
+      _caLabel = btn.innerHTML;
+      btn.innerHTML = "\u26a0 Yes \u2014 spend on " + q.to_render + " lines (\u2248 $"
+                    + cost + ")";
+      btn.className = "btn btn-armed";
+      caMsg("This will re-render ALL " + q.to_render + " lines of " + q.lesson
+            + " on " + q.model + ", including ones already paid for \u2014 about $"
+            + cost + " at the Flash rate, roughly double on a quality model. "
+            + "Press the red button to spend it, or wait 15 seconds to cancel.", "err");
+      _caArmTimer = setTimeout(caDisarm, 15000);
     } catch (e) { caMsg(e.message); }
-    b.disabled = false;
+    btn.disabled = false;
   });
 
   // ---- (kh) decode the real clips and measure where the sound starts ----------

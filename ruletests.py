@@ -15373,6 +15373,30 @@ def part3da_measure_the_clip():
         a = fh.read()
     check("build kh: the measurement has a button (kb ruling)",
           'id="caMeasure"' in a and '"/api/admin/clip-bytes"' in a, "")
+
+    # ---- (kl) A MONEY BUTTON MUST SAY SO -----------------------------------
+    # Jim asked, before pressing anything, whether re-rendering charges for lines
+    # already done. It depends which button, and nothing on screen said so.
+    import re as _re
+    def _btn(idname):
+        m = _re.search(r'id="%s"[^>]*>(.*?)</button>' % idname, a, _re.S)
+        return m.group(1) if m else ""
+    for free in ("caAudit", "caPrice", "caMeasure", "spPrice"):
+        check("build kl: %s is labelled FREE" % free, "FREE" in _btn(free), _btn(free))
+    for spend in ("caRender", "spRun"):
+        check("build kl: %s is labelled SPENDS" % spend, "SPENDS" in _btn(spend), _btn(spend))
+        check("build kl: %s is styled as a spender, not a plain action" % spend,
+              ('id="%s"' % spend) in a and 'class="btn btn-spend"' in a,
+              "a button that bills the account must not look like every harmless one")
+    check("⭐ build kl: the forced re-render is CONFIRMED before it spends",
+          "_caArmed" in a and "dry_run: true, force: true" in a
+          and "Yes \\u2014 spend on" in a,
+          "with 'Whole course' selected one click could bill ~4,200 lines; the first "
+          "click must price it for free and name the number")
+    check("build kl: an armed re-render lapses, and a new lesson disarms it",
+          "setTimeout(caDisarm, 15000)" in a
+          and '$("caLesson").addEventListener("change", caDisarm)' in a,
+          "a button left armed must not be spendable later, or on a different lesson")
     check("build kh: it DECODES the audio rather than inspecting bytes",
           "decodeAudioData" in a,
           "file size is what kf already looked at, and it found nothing")

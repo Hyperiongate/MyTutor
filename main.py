@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kl-the-money-buttons". BUILD kl -- Jim, before
+#               pressing anything: "I re render the audio. It doesn't charge me for ones
+#               that it's already done. Is that correct?" The answer was "it depends
+#               which button", and NOTHING ON SCREEN SAID SO. script-prewarm without
+#               force skips cached lines free; with force it re-renders and bills for
+#               every line including good ones (which is the whole point -- a cache hit
+#               otherwise never re-renders). Two buttons, opposite money behaviour,
+#               near-identical labels. NOTHING IN THIS FILE CHANGED but this note and
+#               the stamp; the work is in static/admin.html. Every button now says FREE
+#               or SPENDS, the paying ones are tinted amber, and the forced re-render
+#               is CONFIRMED: with "Whole course" picked it could bill ~4,200 lines
+#               (~$90) on one click, so it now prices the job for free first and
+#               rewrites itself to name the real number before it can spend.
 #   2026-08-21  APP_BUILD -> "2026-08-21kk-prealgebra-unit-one". BUILD kk -- the first
 #               new COURSE of the content push: Prealgebra Unit 1, Number Sense & Order
 #               of Operations. Four lessons (times before add; parentheses first;
@@ -9707,7 +9720,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kk-prealgebra-unit-one"
+APP_BUILD = "2026-08-21kl-the-money-buttons"
 
 
 @app.get("/health")
