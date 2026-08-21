@@ -2,6 +2,33 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kh-measure-the-clip". BUILD kh -- Jim after kg:
+#               the four-star GARBLE is gone (the quality model fixed it, so kf was
+#               right about the model), but "it's still missing the first couple of
+#               words in each" -- with kg deployed, confirmed on /health.
+#               STOP. voice.js's build jb comment says this was chased FOUR times on
+#               the main app -- "bl: lead silence; cb: the keep-alive loop; gn: the
+#               resume race" -- and records that jb finally PROVED THE DELIVERY PATH
+#               INNOCENT by measurement: the leading silence really is ~1,254ms decoded
+#               in Chrome, the silence-to-voice seam is lossless, the head probe reports
+#               currentTime=0.000 every clip. Its conclusion: "That leaves exactly one
+#               unmeasured link: what ElevenLabs actually renders." kg was the FIFTH
+#               reasoned fix. This build stops reasoning and measures.
+#               ALSO A BLIND SPOT IN kf's AUDIT, admitted here: it flags clips that
+#               deviate from the COURSE'S OWN MEDIAN seconds-per-character. That is the
+#               right yardstick for one odd clip and the WRONG one for a uniform
+#               defect -- if every render is short at the head, the median moves with
+#               them and nothing looks like an outlier. A self-calibrating detector is
+#               blind to exactly the failure Jim is describing.
+#               THIS FILE: NEW POST /api/admin/clip-bytes returns ONE cached clip
+#               (base64) plus its text, by lesson and index. That lets the admin page
+#               decode the REAL audio in the browser -- the only place with an mp3
+#               decoder we can reach -- and measure where sound actually starts and how
+#               much VOICE a clip contains, against an ABSOLUTE expectation from its
+#               word count rather than against its neighbours. Reads only; serves
+#               nothing that is not already in the cache; admin-gated because it is
+#               lesson audio, and capped so it can never become a bulk exfiltration
+#               route.
 #   2026-08-21  APP_BUILD -> "2026-08-21kg-the-route-stays-awake". BUILD kg -- Jim,
 #               playtesting kf: "the first one or two words of every single spoken
 #               word or paragraph was cut off." NOTHING IN THIS FILE CHANGED but this
@@ -8023,6 +8050,12 @@ class CourseAudioAuditIn(BaseModel):
     tolerance: float = 2.5     # how many times off the median before it is an outlier
 
 
+class ClipBytesIn(BaseModel):
+    key: str = ""
+    lesson: str = ""           # which lesson's closure to index into
+    index: int = 0             # which line of it (sorted, stable)
+
+
 class TtsCacheRepairIn(BaseModel):
     key: str = ""
     dry_run: bool = True       # default SAFE: look, report, delete nothing
@@ -8262,6 +8295,50 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
             "forced": bool(body.force),
             "model": _tts_model_for(todo[0]) if todo else str(ELEVEN_MODEL),
             "disk": _tts_cache_projection(0)}
+
+
+@app.post("/api/admin/clip-bytes")
+def admin_clip_bytes(body: ClipBytesIn,
+                     x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """BUILD kh -- HAND THE REAL AUDIO TO SOMETHING THAT CAN DECODE IT.
+
+    Five builds have now tried to stop the first words being swallowed (bl: leading
+    silence; cb: the keep-alive loop; gn: the resume race; jb: the clip probe; kg: the
+    pilot page finally getting all of the above). voice.js's own build jb note records
+    that the delivery path was PROVEN INNOCENT by measurement, leaving one unmeasured
+    link -- what ElevenLabs actually renders. Nothing on this server can decode an mp3;
+    the browser can. So this endpoint simply hands one cached clip to the admin page,
+    which decodes it and measures where the sound really starts.
+
+    Returns the clip verbatim from the cache -- it renders nothing and spends nothing.
+    `index` walks the lesson's closure in the same sorted order the audit uses, so the
+    two reports line up line for line."""
+    _require_admin(x_admin_key or body.key)
+    lessons = [l for l in lessonscripts.LESSONS if l["id"] == body.lesson] \
+        if body.lesson else list(lessonscripts.LESSONS)
+    if not lessons:
+        raise HTTPException(status_code=404,
+                            detail=f"No scripted lesson with id {body.lesson!r}.")
+    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
+    i = int(body.index or 0)
+    if i < 0 or i >= len(lines):
+        raise HTTPException(status_code=404,
+                            detail=f"index {i} is outside 0..{len(lines) - 1}.")
+    say = lines[i]
+    pth = _tts_cache_path(say)
+    try:
+        data = pth.read_bytes()
+    except Exception:  # noqa: BLE001 -- simply not rendered yet
+        return {"ok": True, "index": i, "total": len(lines), "text": say,
+                "cached": False, "b64": "", "bytes": 0,
+                "note": "Not in the cache yet -- render this lesson first."}
+    # A clip is a few tens of KB; this is a diagnostic, not a download service.
+    if len(data) > 4 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="That cached clip is implausibly large.")
+    return {"ok": True, "index": i, "total": len(lines), "text": say,
+            "cached": True, "bytes": len(data),
+            "model": _tts_model_for(say),
+            "b64": _b64.b64encode(data).decode("ascii")}
 
 
 @app.post("/api/admin/course-audio-audit")
@@ -9573,7 +9650,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kg-the-route-stays-awake"
+APP_BUILD = "2026-08-21kh-measure-the-clip"
 
 
 @app.get("/health")

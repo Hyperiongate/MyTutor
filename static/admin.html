@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <!--
+    (kh) 2026-08-21 -- MEASURE THE ACTUAL SOUND. kf's audit reasons about FILE
+    SIZE. That caught nothing here, and it has a blind spot worth naming: it flags
+    clips that deviate from the COURSE'S OWN MEDIAN, which is the right yardstick for
+    one odd clip and the wrong one for a UNIFORM defect -- if every render is short at
+    the head, the median moves with them and nothing looks like an outlier. Jim's
+    "missing the first couple of words in EACH" is exactly that shape.
+    So ④ Measure the sound fetches each cached clip and DECODES it (the browser is the
+    only mp3 decoder in reach), then reports where sound actually begins and how much
+    VOICE each clip holds against an ABSOLUTE expectation from its word count -- not
+    against its neighbours. voice.js's build jb did this once for the main app and its
+    note is the reason this exists: five builds had tried to fix this by reasoning,
+    and the one that made progress measured instead.
+
     (kf) 2026-08-21 -- AUDIT THE AUDIO, AND RE-RENDER ONE LESSON. Jim, after the whole
     course was prewarmed and ke's repair found zero damaged clips: "Still garbled when
     counting four stars" -- the RIGHT WORDS with BAD AUDIO. That is a bad RENDER, not a
@@ -483,6 +496,7 @@
       <button class="btn btn-ghost" id="caAudit" type="button">&#9312; Audit the audio (free)</button>
       <button class="btn btn-ghost" id="caPrice" type="button">&#9313; Price a re-render (free)</button>
       <button class="btn btn-primary" id="caRender" type="button">&#9314; Re-render it</button>
+      <button class="btn btn-ghost" id="caMeasure" type="button">&#9315; Measure the sound (free)</button>
     </div>
     <div class="msg" id="caMsg"></div>
     <pre id="caOut" style="display:none;white-space:pre-wrap;font-size:13px;line-height:1.5;
@@ -1497,6 +1511,81 @@
             (d.failed && d.failed.length) ? "err" : "ok");
     } catch (e) { caMsg(e.message); }
     b.disabled = false;
+  });
+
+  // ---- (kh) decode the real clips and measure where the sound starts ----------
+  // The server cannot decode an mp3; this page can. Everything before this build
+  // reasoned about bytes. This listens.
+  $("caMeasure").addEventListener("click", async function () {
+    var btn = $("caMeasure"); btn.disabled = true;
+    caMsg("Fetching and decoding every cached clip\u2026", "ok"); caOut("");
+    var lesson = $("caLesson").value;
+    try {
+      var first = await api("/api/admin/clip-bytes", { method: "POST",
+        body: JSON.stringify({ key: KEY, lesson: lesson, index: 0 }) });
+      var total = first.total, rows = [], missing = 0;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      var ctx = new AC();
+      for (var i = 0; i < total; i++) {
+        var d = (i === 0) ? first : await api("/api/admin/clip-bytes", { method: "POST",
+                 body: JSON.stringify({ key: KEY, lesson: lesson, index: i }) });
+        if (!d.cached) { missing++; continue; }
+        var raw = atob(d.b64), buf = new Uint8Array(raw.length);
+        for (var k = 0; k < raw.length; k++) buf[k] = raw.charCodeAt(k);
+        var ab;
+        try { ab = await ctx.decodeAudioData(buf.buffer); }
+        catch (e) { rows.push({ text: d.text, undecodable: true }); continue; }
+        var ch = ab.getChannelData(0), onset = -1, tail = -1;
+        for (var s = 0; s < ch.length; s++) { if (Math.abs(ch[s]) > 0.015) { onset = s; break; } }
+        for (var t = ch.length - 1; t >= 0; t--) { if (Math.abs(ch[t]) > 0.015) { tail = t; break; } }
+        var words = String(d.text || "").trim().split(/\s+/).filter(Boolean).length;
+        rows.push({
+          text: d.text,
+          totalMs: Math.round(ab.duration * 1000),
+          leadMs: onset < 0 ? -1 : Math.round(onset / ab.sampleRate * 1000),
+          voiceMs: onset < 0 ? 0 : Math.round((tail - onset) / ab.sampleRate * 1000),
+          words: words,
+          expectMs: Math.round(words / 2.6 * 1000)
+        });
+        if (i % 10 === 0) caMsg("Decoding\u2026 " + (i + 1) + " of " + total, "ok");
+      }
+      try { ctx.close(); } catch (e) {}
+
+      var good = rows.filter(function (r) { return !r.undecodable && r.voiceMs > 0; });
+      var shortHead = good.filter(function (r) { return r.voiceMs < r.expectMs * 0.7; });
+      var leads = good.map(function (r) { return r.leadMs; }).sort(function (a, b) { return a - b; });
+      var medLead = leads.length ? leads[Math.floor(leads.length / 2)] : -1;
+      var ratios = good.map(function (r) { return r.voiceMs / Math.max(1, r.expectMs); })
+                       .sort(function (a, b) { return a - b; });
+      var medRatio = ratios.length ? ratios[Math.floor(ratios.length / 2)] : 0;
+
+      caMsg(good.length + " clips decoded"
+        + (missing ? " (" + missing + " not rendered)" : "")
+        + ". Median silence BEFORE the first sound: " + medLead + "ms."
+        + " Median voice length vs. what the words need: " + Math.round(medRatio * 100) + "%."
+        + " Clips missing 30%+ of their voice: " + shortHead.length + ".",
+        (shortHead.length || medRatio < 0.8) ? "err" : "ok");
+
+      var body = "WHAT THIS MEANS\n"
+        + "  Median voice/expected near 100% => the renders are complete; a cut-off\n"
+        + "  first word is happening on the DEVICE, not in the file.\n"
+        + "  Median well under 100% across the board => the renders themselves are\n"
+        + "  short, and no amount of leading silence on playback can fix that.\n\n"
+        + "  Leading silence here is what ELEVENLABS produced. The ~280ms-per-block\n"
+        + "  lead the app prepends at serve time is NOT included -- this is the raw\n"
+        + "  cached clip, on purpose, so the render is measured on its own.\n\n";
+      body += "PER CLIP (voice / expected)\n";
+      rows.forEach(function (r) {
+        if (r.undecodable) { body += "  UNDECODABLE  " + r.text.slice(0, 70) + "\n"; return; }
+        var pct = Math.round(r.voiceMs / Math.max(1, r.expectMs) * 100);
+        body += "  " + String(pct + "%").padStart(5) + "  lead " + String(r.leadMs + "ms").padStart(7)
+             + "  voice " + String(r.voiceMs + "ms").padStart(7)
+             + "  need ~" + String(r.expectMs + "ms").padStart(7)
+             + "  " + (pct < 70 ? "<< SHORT  " : "          ") + r.text.slice(0, 60) + "\n";
+      });
+      caOut(body);
+    } catch (e) { caMsg(e.message); }
+    btn.disabled = false;
   });
 
   $("pwPrice").addEventListener("click", async function () {

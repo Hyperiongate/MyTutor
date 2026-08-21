@@ -15266,6 +15266,71 @@ def part3cz_pilot_audio_route():
 
 
 # =============================================================================
+# PART 3da -- MEASURE THE CLIP, DO NOT REASON ABOUT IT (build kh, 2026-08-21)
+# -----------------------------------------------------------------------------
+# Jim after kg (kg confirmed live on /health): the four-star GARBLE is gone -- the
+# quality model fixed it, so kf was right about the model -- but "it's still missing
+# the first couple of words in each".
+#
+# voice.js's build jb note records that this exact symptom was chased FOUR times on the
+# main app (bl: leading silence; cb: the keep-alive loop; gn: the resume race), and that
+# jb finally PROVED THE DELIVERY PATH INNOCENT by measurement, concluding: "That leaves
+# exactly one unmeasured link: what ElevenLabs actually renders." kg was the FIFTH
+# reasoned fix. kh measures instead.
+#
+# AND IT ADMITS A BLIND SPOT IN kf's AUDIT. kf flags clips deviating from the COURSE'S
+# OWN MEDIAN seconds-per-character -- self-calibrating, which is right for one odd clip
+# and WRONG for a uniform defect: if every render is short at the head, the median moves
+# with them and nothing is an outlier. "Missing the first words in EACH" is precisely
+# that shape. So kh's measurement judges every clip against an ABSOLUTE expectation from
+# its own word count, and that difference is what these pins protect.
+# =============================================================================
+def part3da_measure_the_clip():
+    print("\nPART 3da — measure the clip, do not reason about it (build kh)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        m = fh.read()
+    body = m.split("# CHANGE NOTES", 1)[-1]
+    body = body.split("\n", 1)[1] if "\n" in body else body
+    code = "\n".join(ln for ln in body.split("\n") if not ln.lstrip().startswith("#"))
+
+    check("build kh: the admin page can fetch one real cached clip",
+          '@app.post("/api/admin/clip-bytes")' in m, "")
+    check("build kh: it is admin-gated",
+          "def admin_clip_bytes(" in code and "_require_admin(x_admin_key or body.key)" in code, "")
+    check("build kh: it RENDERS nothing and spends nothing",
+          "clip-bytes" in m
+          and "httpx.post" not in code.split("def admin_clip_bytes(")[1].split("@app.")[0],
+          "a diagnostic that can spend money is not a diagnostic")
+    check("build kh: it is capped, so it cannot become a bulk download route",
+          "4 * 1024 * 1024" in code and "status_code=413" in code, "")
+    check("build kh: it walks the closure in the SAME sorted order as the audit",
+          "lines = sorted({s for les in lessons" in code,
+          "the two reports have to line up line for line or they cannot be read together")
+
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        a = fh.read()
+    check("build kh: the measurement has a button (kb ruling)",
+          'id="caMeasure"' in a and '"/api/admin/clip-bytes"' in a, "")
+    check("build kh: it DECODES the audio rather than inspecting bytes",
+          "decodeAudioData" in a,
+          "file size is what kf already looked at, and it found nothing")
+    check("build kh: it finds where sound actually starts",
+          "Math.abs(ch[s]) > 0.015" in a, "")
+    check("⭐ build kh: it judges against an ABSOLUTE expectation, not the median",
+          "words / 2.6" in a and "expectMs" in a,
+          "kf's median-based audit is BLIND to a uniform defect -- if every render is "
+          "short at the head the median moves with them. That blindness is the reason "
+          "this exists, so a change back to a relative yardstick must fail here")
+    check("build kh: the report says what the numbers MEAN",
+          "the renders are complete" in a and "short, and no amount of leading silence" in a,
+          "a measurement nobody can interpret sends the next build guessing again")
+    check("build kh: it measures the RAW cached clip, and says so",
+          "is NOT included" in a and "raw" in a,
+          "including the serve-time lead would hide the render behind the delivery")
+
+
+# =============================================================================
 # PART 3cw -- THE SCRIPTED LESSON LANE, SERVED (build jt, 2026-08-21)
 # -----------------------------------------------------------------------------
 # The REAL FastAPI app is stood up against a real (sqlite) database and driven as a
@@ -15835,6 +15900,7 @@ def main():
     part3cx_voice_cache_whole()
     part3cy_scripted_voice()
     part3cz_pilot_audio_route()
+    part3da_measure_the_clip()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
