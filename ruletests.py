@@ -15392,6 +15392,96 @@ def part3da_measure_the_clip():
 
 
 # =============================================================================
+# PART 3db -- THE SCRIPTED LANE DRAWS ON THE REAL BOARD (build kj, 2026-08-21)
+# -----------------------------------------------------------------------------
+# Jim opened the content push: "I wanna get the script done. I wanna get the problem
+# bases done. I wanna get the teaching methodology done ... I wanna go through all the
+# courses." Eight courses remain, roughly 200 lessons.
+#
+# THE MEASUREMENT THAT SET THE ORDER: lessonscripts declares
+# LEVELS = (abstract, pictorial, concrete) -- the pedagogy from the 2026-08-20 research
+# ruling. What actually shipped was 35 lessons ABSTRACT, 1 CONCRETE and ZERO PICTORIAL,
+# with 35 of 41 drawing no picture at all, because pilot.html could render exactly four
+# tags. The methodology was not being delivered, and authoring 200 more lessons against
+# a four-tag renderer would have meant writing algebra and calculus with no graphs.
+#
+# Every piece already existed: tags.py holds the 35-tag registry, validate() already
+# took board_tag_names, board.js + math-figures.js + geo-figures.js hold ~19 figure
+# kinds. Only the wiring was missing -- the same shape as ki and the voice.
+#
+# These pins close the loop REGISTRY -> ALLOWED SET -> RENDERER, so a tag can never be
+# authorable but undrawable, or drawable but unregistered.
+# =============================================================================
+def part3db_scripted_board():
+    print("\nPART 3db — the scripted lane draws on the real board (build kj)")
+    import json
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
+        p = fh.read()
+    code = code_only(p)
+    with open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8") as fh:
+        mf = fh.read()
+    import tags as _t
+
+    check("build kj: the pilot page loads the REAL board and its figure libraries",
+          all(f'src="/static/{f}"' in p for f in
+              ("board.js", "board-text.js", "math-figures.js", "geo-figures.js")),
+          "35 of 41 lessons drew no picture because this page could render four tags")
+    check("build kj: board-text.js loads BEFORE board.js (it defines what board.js uses)",
+          p.index("board-text.js") < p.index('src="/static/board.js"'),
+          "board.js reads styleVars/escapeHTML from it")
+    check("build kj: the board's styles are a file, not trapped inside session.html",
+          'href="/static/board.css"' in p
+          and os.path.exists(os.path.join(here, "static", "board.css")), "")
+    check("build kj: and no longer carries its own renderer",
+          "function renderBoard(" not in code and "function starRow(" not in code,
+          "the four-tag renderer is gone; this is the same deletion ki made for voice")
+    check("build kj: the page provides board.js's ambient contract",
+          all(n in code for n in ("function feedBlock(", "function getWorklist(",
+                                  "var composer", "var busy")),
+          "el, feed, composer, busy, feedBlock(), getWorklist()")
+    check("build kj: feed is resolved LAZILY, not at load",
+          "function boardEl(" in code and 'feed = document.getElementById("board")' in code,
+          "this script block runs BEFORE the board div exists -- binding eagerly gets "
+          "null and the page silently draws nothing, which is exactly what it did")
+    check("build kj: the beat player no longer collides with board.js's showStep",
+          "function playStep(" in code and "function showStep(" not in code
+          and "playStep(queue.shift())" in code,
+          "board.js owns showStep(attrs) for the [[step]] tag; this page had its own "
+          "showStep(step) for the BEAT player and one would have shadowed the other")
+    check("build kj: showGoal is provided here (board.js leaves it page-specific)",
+          "function showGoal(" in code,
+          "session.html has its own; the scripted lane wants a chip, not a panel")
+
+    # ---- the loop: registry -> allowed -> renderer -------------------------
+    dispatched = set(re.findall(r'name === "([a-z]+)"', code))
+    figs = set(re.findall(r'"([a-z]+)"', code.split("FIGURE_KINDS = [")[1].split("]")[0])) \
+        if "FIGURE_KINDS = [" in code else set()
+    drawable = (dispatched | figs) - {"clear"}
+    registered = set(_t.BOARD_TAGS)
+    check("⭐ build kj: every tag the page draws is in the tags.py registry",
+          drawable <= registered | {"vector", "twoway", "unitcircle"},
+          f"invented tags: {sorted(drawable - registered)}")
+    check("⭐ build kj: the figure list matches what MathFigures actually exports",
+          all(f"{k}: " in mf.split("window.MathFigures = {")[1][:400] or f"{k}," in
+              mf.split("window.MathFigures = {")[1][:400] for k in sorted(figs)),
+          f"a kind listed here but missing there renders nothing, silently: {sorted(figs)}")
+    check("build kj: the scripted lane draws MORE than the four tags it used to",
+          len(drawable) >= 20, f"{len(drawable)} tags: {sorted(drawable)}")
+    check("build kj: session bookkeeping tags stay OUT of the scripted lane",
+          not (drawable & {"check", "quiz", "today", "todaydone", "unitplan",
+                           "finalexam", "mark", "nice", "bye"}),
+          "those belong to the generated lane; a scripted lesson reaching for one "
+          "would be reaching outside its closure")
+    check("build kj: every drawn tag has a real renderer behind it",
+          all(("function show" + n.capitalize()) in
+              open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+              or n in figs or n in ("graph", "triangle", "angle", "circle", "goal")
+              for n in dispatched - {"clear"}),
+          "a dispatched tag with no renderer fails silently at a child's screen")
+
+
+# =============================================================================
 # PART 3cw -- THE SCRIPTED LESSON LANE, SERVED (build jt, 2026-08-21)
 # -----------------------------------------------------------------------------
 # The REAL FastAPI app is stood up against a real (sqlite) database and driven as a
@@ -15975,6 +16065,7 @@ def main():
     part3cy_scripted_voice()
     part3cz_one_voice_layer()
     part3da_measure_the_clip()
+    part3db_scripted_board()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

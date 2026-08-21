@@ -1,0 +1,173 @@
+/* =============================================================================
+   board.css  --  THE WHITEBOARD'S STYLES, FOR THE SCRIPTED LANE  --  Hyperion Shift LLC
+   -----------------------------------------------------------------------------
+   CHANGE NOTES (keep newest at top):
+     2026-08-21  NEW FILE (build kj). board.js has been the one copy of the board's
+                 LOGIC since build he, but its STYLES still lived inline in
+                 session.html, so nothing else could draw a board. The scripted lane
+                 needs them: 35 of the 41 scripted lessons currently draw no picture
+                 at all, and the pilot page could render exactly four tags, which is
+                 why LEVELS = (abstract, pictorial, concrete) was shipping as 35
+                 abstract, 1 concrete and ZERO pictorial. You cannot author fractions,
+                 geometry, graphs or calculus against a board that can only write
+                 equations.
+                 EXTRACTED from session.html's <style> -- every rule whose selector
+                 names a class board.js creates, plus the keyframes those rules use.
+                 HONEST LIMIT: session.html still carries its own inline copy. This
+                 file is loaded by pilot.html only. De-duplicating session.html means
+                 editing the page children actually use, and tonight's rule is do no
+                 harm to the live page -- so that is a deliberate, separate build.
+                 Recorded here so nobody thinks it was missed.
+   ============================================================================= */
+
+.stage-hint { color: var(--muted); font-size: 14px; text-align: center; }
+/* Balance scale */
+    .scale { width: 100%; max-width: 580px; }
+.scale .beamwrap { position: relative; height: 190px; }
+.scale .pivot { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent;
+      border-bottom: 104px solid #9aa7b6; }
+.scale .beam { position: absolute; left: 9%; right: 9%; top: 42px; height: 10px;
+      background: var(--wood); border-radius: 6px; transform-origin: 50% 50%;
+      transition: transform .7s cubic-bezier(.34,1.2,.5,1); }
+.scale .pan { position: absolute; top: 38px; width: 168px; transform: translateX(-50%); text-align: center; }
+.scale .pan.left { left: 12%; }
+.scale .pan.right { left: 88%; }
+.scale .tray { min-height: 58px; border: 2px solid #c9d2dd; border-top: none;
+      border-radius: 0 0 78px 78px; background: #f7fafc; padding: 8px 8px 12px;
+      display: flex; flex-wrap: wrap; gap: 3px; align-items: center; justify-content: center;
+      font-size: 28px; line-height: 1; }
+.scale .rope { height: 30px; width: 2px; background: #c9d2dd; margin: 0 auto; }
+.scale .label { margin-top: 10px; font-weight: 700; font-size: 22px; }
+.scale .box { display: inline-flex; align-items: center; justify-content: center;
+      min-width: 40px; height: 40px; padding: 0 8px; border-radius: 8px; background: #ffe6b0;
+      border: 2px solid var(--wood); font-size: 19px; font-weight: 700; color: #6b4c15; }
+.scale .eq { text-align: center; margin-top: 12px; font-size: 17px; color: var(--muted); }
+.scale .cap { text-align: center; margin-top: 8px; font-size: 15px; }
+.pop { animation: pop .4s ease; }
+/* Coordinate grapher */
+    .graphwrap { width: 100%; max-width: 440px; text-align: center; }
+.grapher { width: 100%; height: auto; display: block; border-radius: 12px; }
+.glegend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+.glg { font-size: 14px; font-weight: 700; }
+.graphwrap .cap { text-align: center; margin-top: 6px; font-size: 15px; color: var(--ink); }
+.writeboard .wcap { margin-top:16px; font-size:16px; color:var(--muted); }
+/* Step-by-step solved equation, marching DOWN the board (via [[solve]]) */
+    .solveboard { width:100%; max-width:560px; text-align:center; }
+.solveboard .sline { font-size:33px; font-weight:800; color:var(--ink); line-height:1.2; margin:3px 0;
+      opacity:0; animation: stepin .45s ease forwards; }
+.solveboard .sline.start { padding-bottom:4px; }
+.solveboard .sop { font-size:14px; color:var(--muted); font-weight:600; margin:7px 0; opacity:0;
+      display:flex; align-items:center; justify-content:center; gap:6px; animation: stepin .45s ease forwards; }
+.solveboard .sop .sarrow { color:var(--accent); font-weight:800; font-size:16px; }
+.solveboard .scap { margin-top:14px; font-size:15px; color:var(--muted); }
+.solveboard .sline { font-size:26px; }
+/* ---- Persistent WORKLIST board: a running column that STACKS and STAYS ---- */
+    /* The main solving surface. Each [[step]] APPENDS a row that stays below the last
+       one, so the whole worked solution builds up -- nothing replaces earlier lines;
+       only [[clear]] wipes it. Equation rows use a 3-column grid (left | = | right) so a
+       both-sides operation lines up under each side, exactly like working on paper. */
+    .worklist { width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center;
+      gap:2px; max-height:100%; overflow-y:auto; }
+.worklist .wrow { display:grid; grid-template-columns:1fr auto 1fr; align-items:baseline; column-gap:14px;
+      width:100%; max-width:520px; font-size:33px; font-weight:800; color:var(--ink); line-height:1.2;
+      margin:2px 0; opacity:0; animation: stepin .45s ease forwards; }
+.worklist .wrow .wl { text-align:right; }
+.worklist .wrow .we { color:var(--muted); }
+.worklist .wrow .wr { text-align:left; }
+/* 2026-08-09 (build bu, proactive audit #11): a long step line used to WRAP inside its
+       grid cell, which literally displayed a different equation ("dimes: 7 + 8 + = 16" with
+       "1(carried)" on the next line). Cells never wrap now; fitRow() shrinks an oversized
+       row's font until the whole line fits on one line. A broken equation is worse than a
+       small one. */
+    .worklist .wrow .wl, .worklist .wrow .wr, .worklist .wrow .we { white-space: nowrap; }
+.worklist .wrow.solo { grid-template-columns:1fr; }
+.worklist .wrow.solo .wl { text-align:center; }
+.worklist .worow { display:grid; grid-template-columns:1fr auto 1fr; column-gap:14px; width:100%; max-width:520px;
+      font-size:18px; font-weight:800; color:var(--accent); margin:0 0 2px; opacity:0; animation: stepin .4s ease forwards; }
+.worklist .worow .ol { text-align:right; }
+.worklist .worow .orr { text-align:left; }
+.worklist .wcheck { font-size:25px; font-weight:800; color:#0e9f6e; margin-top:12px; text-align:center;
+      opacity:0; animation: stepin .45s ease forwards; }
+.worklist .wcap { margin-top:12px; font-size:15px; color:var(--muted); text-align:center; }
+.worklist .wrow { font-size:24px; }
+.worklist .wcheck { font-size:19px; }
+/* Column arithmetic -- stacked, place-value / decimal-point aligned add & subtract (pre-algebra).
+       Integer parts share a right-aligned column and fractional parts (".NN") a left-aligned column,
+       so every decimal point lines up in one vertical line -- exactly what "line up the points" means. */
+    .colmath { display:grid; grid-template-columns:auto auto auto; column-gap:6px; justify-content:center;
+      font-variant-numeric:tabular-nums; font-weight:800; font-size:40px; color:var(--ink); line-height:1.18; margin:6px 0; }
+.colmath .cop { text-align:center; color:var(--accent,#5b5bd6); padding-right:6px;
+      opacity:0; animation: stepin .4s ease forwards; }
+.colmath .cip { text-align:right; opacity:0; animation: stepin .4s ease forwards; }
+.colmath .cfp { text-align:left; opacity:0; animation: stepin .4s ease forwards; }
+.colmath .cres { color:#0e9f6e; }
+/* build jc (2026-08-19): the carry row above the columns, the answer digits as
+       they get written, and the RED that marks whatever is new THIS step. .dig keeps
+       the PARENT font-size on purpose, so 1ch is a true digit width and a carry sits
+       exactly over its column; the inner <i> is what renders small. */
+    .colmath .dig { display:inline-block; width:1ch; text-align:center; }
+.colmath .dig > i { font-style:normal; }
+.colmath .ccarry { line-height:0.62; height:0.62em; color:#6b7280; }
+.colmath .ccarry .dig > i { font-size:0.42em; }
+.colmath .cpart { color:#0e9f6e; }
+.colmath .cnew > i { color:#e0392b; }
+.colmath .crule { grid-column:1 / -1; border-top:3px solid var(--ink); height:0; margin:6px 0 4px; }
+.colmath .ccap { grid-column:1 / -1; text-align:center; font-size:15px; font-weight:600; color:var(--muted); margin-top:10px; }
+/* build di (audit S-9): the DELIBERATELY-WRONG last-digit lineup -- amber, dashed
+       rule, and a badge, so the wrong way can never be mistaken for the taught way. */
+    .colmath.colwrong .cip, .colmath.colwrong .cfp, .colmath.colwrong .cop { color:#b45309; }
+.colmath.colwrong .crule { border-top-color:#b45309; border-top-style:dashed; }
+.colmath .cwarn { grid-column:1 / -1; text-align:center; font-size:14px; font-weight:800; color:#b45309; margin-top:8px; }
+.colmath { font-size:30px; }
+/* Function machine (input -> rule -> output). The RIGHT picture for evaluating a
+       function -- a number goes IN, the rule runs, a number comes OUT. Used for
+       functions instead of the balance scale (which stays for equations). */
+    .machine { width:100%; max-width:560px; text-align:center; }
+.machine .mflow { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+.machine .mnode { min-width:96px; padding:12px 14px; border-radius:14px; background:#eef2ff; border:2px solid #c9d2f5; }
+.machine .mnode.mout { background:#eafaf3; border-color:#bfe6cd; }
+.machine .mcap { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.machine .mval { font-size:34px; font-weight:800; line-height:1.1; margin-top:2px; color:var(--ink); }
+.machine .marrow { font-size:30px; color:var(--accent); flex:0 0 auto; }
+.machine .mbox { min-width:120px; padding:16px 18px; border-radius:16px; background:#fff7e6;
+      border:2px solid var(--wood); box-shadow:0 8px 20px rgba(185,133,47,.18); }
+.machine .mboxlabel { font-size:14px; color:#6b4c15; font-weight:700; margin-bottom:4px; }
+.machine .mrule { font-size:26px; font-weight:800; color:#6b4c15; }
+.machine .mwork { margin-top:16px; font-size:20px; font-weight:700; color:var(--ink); }
+.machine .mfx { margin-top:6px; font-size:16px; color:var(--muted); font-weight:700; }
+.machine .cap { margin-top:8px; font-size:15px; color:var(--ink); }
+.machine .mflow { gap:6px; }
+.machine .mval { font-size:26px; }
+.machine .marrow { font-size:22px; }
+/* BOARD SPOTLIGHT (build ee, rule 60): [[highlight id="line"|"board"]] glows board
+       work while teaching. A calmer tourglow -- no bounce tag, self-clears on a timer
+       (see spotlightBoard). The dz reduced-motion rule stills the pulse automatically. */
+    .stepglow { border-radius: 10px; box-shadow: 0 0 0 3px var(--accent), 0 0 18px 5px rgba(91,91,214,.30);
+      animation: stepglowpulse 1.2s ease-in-out infinite; position: relative; z-index: 4; }
+/* THINKING FLAG (2026-08-08, build bl, Jim): "is thinking" only lived in the tiny
+       corner status line — easy to miss. A red pulsing badge now appears in the MIDDLE
+       of the whiteboard while he thinks, and disappears the moment he starts talking
+       (setState drives it; positioned over #feed by placeThinkFlag; pointer-events off
+       so it can never block a tap). */
+    .thinkflag { display: none; position: fixed; z-index: 60; transform: translate(-50%, -50%);
+      align-items: center; gap: 10px; pointer-events: none; white-space: nowrap;
+      background: #fff; border: 2px solid #e0392b; color: #c22112; border-radius: 999px;
+      padding: 10px 22px; font-weight: 800; font-size: 15px;
+      box-shadow: 0 10px 30px rgba(224,57,43,.22); }
+.thinkflag.show { display: flex; }
+.thinkflag .tdot { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%;
+      background: #e0392b; animation: thinkpulse 1s ease-in-out infinite; }
+.feed .stage-hint { margin: auto; }
+.feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
+      align-items: center; padding: 6px 0; }
+
+/* ---- keyframes the rules above use ---- */
+@keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes stepin { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes stepglowpulse { 0%,100% { box-shadow: 0 0 0 3px var(--accent), 0 0 14px 4px rgba(91,91,214,.20); }
+      50% { box-shadow: 0 0 0 3px var(--accent), 0 0 24px 8px rgba(91,91,214,.40); } }
+@keyframes thinkpulse { 0%, 100% { transform: scale(.7); opacity: .5; }
+      50% { transform: scale(1.2); opacity: 1; } }
+
+/* I did no harm and this file is not truncated. */

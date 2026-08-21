@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kj-the-real-board". BUILD kj -- the content push
+#               begins. Jim: "I wanna get the script done. I wanna get the problem bases
+#               done. I wanna get the teaching methodology done ... I wanna go through
+#               all the courses."
+#               THE MEASUREMENT THAT SET THE ORDER: lessonscripts declares
+#               LEVELS = (abstract, pictorial, concrete), the pedagogy from the
+#               2026-08-20 research ruling. What ships is 35 lessons ABSTRACT, 1
+#               CONCRETE, ZERO PICTORIAL -- 35 of 41 draw no picture at all, because
+#               pilot.html could render exactly four tags. Perimeter, area, volume,
+#               fractions on a number line and quarter turns are taught with sentences
+#               and equations. The methodology was not being delivered.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp; the work is in
+#               static/ (new board.css, pilot.html now loads board.js + the figure
+#               libraries and dispatches ~24 tags instead of 4). Recorded here because
+#               /health is how a deploy is confirmed.
+#               The remaining eight courses are ~200 lessons; authoring them against a
+#               four-tag renderer would have meant writing algebra and calculus with no
+#               graphs and re-authoring later. tags.py already held the 35-tag registry
+#               and validate() already accepted board_tag_names -- the grammar and the
+#               renderers both existed; only the wiring was missing.
 #   2026-08-21  APP_BUILD -> "2026-08-21ki-one-voice-layer". BUILD ki -- kh MEASURED
 #               the renders and cleared them: fitting voice length against text length
 #               over Counting to 10 gave an intercept of +16ms (a chopped head would be
@@ -9670,7 +9690,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21ki-one-voice-layer"
+APP_BUILD = "2026-08-21kj-the-real-board"
 
 
 @app.get("/health")
