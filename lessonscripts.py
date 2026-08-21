@@ -2,6 +2,19 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD jy -- CARRYING COMES HOME. Lesson 7, "Adding with carrying" --
+#               the lesson build jr's whole consistency-memory fight was about. On
+#               2026-08-20 Jim caught the live tutor teaching the SAME rule two ways
+#               four turns apart ("over nine" ... "ten or more"), and jr pinned the
+#               first phrasing per student at runtime. Here the fix becomes
+#               structural: "over nine" is now CANON VOCABULARY -- "ten or more",
+#               "more than nine" and "bigger than nine" are BANNED from every
+#               lesson's closure by the validator, and the intervention prompt hands
+#               the AI the same words. A child on the scripted path can no longer
+#               hear the carrying rule in two costumes, because the second costume
+#               cannot pass the build. New validator branch "carry": every bank
+#               problem MUST carry in the ones (else the lesson teaches its idea on
+#               examples that never use it) and must NOT overflow the tens.
 #   2026-08-21  BUILD jx -- JIM'S SECOND WORDING RULING + LESSONS FIVE AND SIX.
 #               Jim, on jw's names: "What I meant to say is we're going to be adding
 #               or subtracting SINGLE-DIGIT numbers -- numbers one through nine.
@@ -87,6 +100,10 @@ VOCABULARY = {
     "equals": ("makes", "gives you", "is the same as"),
     "take away": ("subtract", "remove"),
     "are left": ("remain", "remaining"),
+    # jy: THE CARRYING RULE HAS ONE WORDING -- the exact defect Jim caught live on
+    # 2026-08-20 ("over nine" ... then "ten or more", four turns apart), now banned
+    # at authoring time across every lesson's closure.
+    "over nine": ("ten or more", "more than nine", "bigger than nine"),
 }
 
 # ---- PRAISE (rotated deterministically by problem index; all pre-renderable) ------
@@ -356,6 +373,61 @@ LESSONS = [
             {"a": 1, "b": 4, "op": "t"}, {"a": 1, "b": 6, "op": "t"},
             {"a": 1, "b": 7, "op": "t"}, {"a": 1, "b": 8, "op": "t"},
             {"a": 1, "b": 9, "op": "t"},
+        ],
+    },
+    {
+        "id": "basic-u1-add-with-carrying",
+        "course": "basic", "unit": 1,
+        "topic": "Adding with carrying",
+        "op": "+", "max_value": 99, "carry": True,
+        "levels": ("abstract",),   # like lesson 6: stars do not help at this size
+        "symbols": ("carry", "plus", "equals"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can carry like a pro."),
+        "teach": [
+            ("Today we are learning to carry. Sometimes when we add, the ones add "
+             "up to over nine. When that happens, we write the ones digit and "
+             "carry one ten over to the tens.",
+             '[[goal text="Adding with carrying"]]'),
+            ("Watch me add 27 plus 15. Ones first: 7 plus 5 equals 12. Twelve is "
+             "over nine — so we write the 2 and carry one ten. Tens: 2 plus 1 "
+             "equals 3, plus the carried one equals 4. So 27 plus 15 equals 42.",
+             '[[step eq="27 + 15"]][[step eq="ones: 7 + 5 = 12"]]'
+             '[[step eq="write 2, carry 1"]][[step eq="tens: 2 + 1 + 1 = 4"]]'
+             '[[step eq="27 + 15 = 42"]]'),
+            ("One more, watch. 38 plus 24. Ones: 8 plus 4 equals 12 — over nine, "
+             "write the 2, carry one ten. Tens: 3 plus 2 equals 5, plus the "
+             "carried one equals 6. So 38 plus 24 equals 62.",
+             '[[step eq="38 + 24"]][[step eq="ones: 8 + 4 = 12"]]'
+             '[[step eq="write 2, carry 1"]][[step eq="tens: 3 + 2 + 1 = 6"]]'
+             '[[step eq="38 + 24 = 62"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 46 plus 17. Ones: 6 plus "
+                        "7 equals 13 — over nine, write the 3, carry one ten. "
+                        "Tens: 4 plus 1 plus the carried one equals 6. So 46 plus "
+                        "17 equals 63.",
+                        '[[step eq="46 + 17"]][[step eq="ones: 6 + 7 = 13"]]'
+                        '[[step eq="write 3, carry 1"]][[step eq="tens: 4 + 1 + 1 = 6"]]'
+                        '[[step eq="46 + 17 = 63"]]'),
+             "ask": {"a": 45, "b": 17, "op": "+"}},
+            {"worked": ("One more together. 29 plus 35. Ones: 9 plus 5 equals 14 "
+                        "— over nine, write the 4, carry one ten. Tens: 2 plus 3 "
+                        "plus the carried one equals 6. So 29 plus 35 equals 64.",
+                        '[[step eq="29 + 35"]][[step eq="ones: 9 + 5 = 14"]]'
+                        '[[step eq="write 4, carry 1"]][[step eq="tens: 2 + 3 + 1 = 6"]]'
+                        '[[step eq="29 + 35 = 64"]]'),
+             "ask": {"a": 28, "b": 34, "op": "+"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 15, "b": 16, "op": "+"}, {"a": 18, "b": 13, "op": "+"},
+            {"a": 24, "b": 17, "op": "+"}, {"a": 26, "b": 15, "op": "+"},
+            {"a": 28, "b": 16, "op": "+"}, {"a": 35, "b": 17, "op": "+"},
+            {"a": 36, "b": 18, "op": "+"}, {"a": 45, "b": 19, "op": "+"},
+            {"a": 47, "b": 26, "op": "+"}, {"a": 56, "b": 27, "op": "+"},
+            {"a": 58, "b": 25, "op": "+"}, {"a": 67, "b": 26, "op": "+"},
         ],
     },
     {
@@ -721,6 +793,14 @@ def validate(lesson, board_tag_names=None):
         ck(all(p["b"] <= b_cap for p in problems),
            f"{lid}: every second number honors the name (b <= {b_cap})",
            str([p for p in problems if p["b"] > b_cap]))
+    if lesson.get("carry"):
+        ck(all(p["a"] % 10 + p["b"] % 10 > 9 for p in problems),
+           f"{lid}: EVERY problem carries -- a carrying lesson that practices on "
+           f"no-carry problems teaches its idea on examples that never use it",
+           str([p for p in problems if p["a"] % 10 + p["b"] % 10 <= 9]))
+        ck(all(p["a"] // 10 + p["b"] // 10 + 1 <= 9 for p in problems),
+           f"{lid}: no problem overflows the tens (answers stay two-digit)",
+           str([p for p in problems if p["a"] // 10 + p["b"] // 10 + 1 > 9]))
     if lesson.get("no_carry"):
         ck(all(p["a"] % 10 + p["b"] % 10 <= 9
                and p["a"] // 10 + p["b"] // 10 <= 9 for p in problems),

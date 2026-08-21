@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21jy-carrying-comes-home". BUILD jy -- lesson 7,
+#               "Adding with carrying" (lessonscripts.py + tutor.py + ruletests.py;
+#               this file for the stamp). The lesson jr's fight was about: "over nine"
+#               is now canon vocabulary, "ten or more" is BANNED from every lesson's
+#               closure at build time, the validator requires every bank problem to
+#               actually carry, and the intervention prompt teaches with the same
+#               words. Seven lessons; whole-course audio ~$11.
 #   2026-08-21  APP_BUILD -> "2026-08-21jx-single-digit-said-plainly". BUILD jx --
 #               lessonscripts.py + ruletests.py; this file for the stamp. Jim's second
 #               wording ruling ("we're adding SINGLE-DIGIT numbers -- one through
@@ -9122,7 +9129,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21jx-single-digit-said-plainly"
+APP_BUILD = "2026-08-21jy-carrying-comes-home"
 
 
 @app.get("/health")

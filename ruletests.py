@@ -14386,6 +14386,17 @@ def part3cv_scripted_engine():
                   for les in L.LESSONS for s in L.audio_lines(les)),
           "2026-08-21, twice: 'adding within 10' is curriculum-speak, and the honest "
           "name is the INPUTS -- 'we're adding single-digit numbers, one through nine'")
+    _carry = L.LESSON_BY_ID.get("basic-u1-add-with-carrying")
+    check("jy: the carrying lesson exists, abstract-only, and every problem carries",
+          _carry is not None and _carry.get("carry") is True
+          and _carry.get("levels") == ("abstract",),
+          "the lesson jr's canon phrase was built for")
+    check("jy: ⭐ the carrying rule has ONE wording, canon 'over nine'",
+          _carry is not None and "over nine" in " ".join(L.audio_lines(_carry)).lower()
+          and "over nine" in L.VOCABULARY
+          and "ten or more" in L.VOCABULARY["over nine"],
+          "Jim's live catch, 2026-08-20: the same rule in two costumes, four turns "
+          "apart -- the second costume must not be able to pass the build")
     check("lesson six NEVER drops to counting stars",
           L.LESSON_BY_ID["basic-u1-add-two-digit-no-carry"].get("levels")
           == ("abstract",),

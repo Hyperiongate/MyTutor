@@ -2,6 +2,11 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD jy -- the intervention prompt learns CARRYING, with jr's canon
+#               words baked in: two-digit adds are modeled as step lines (ones, the
+#               carry when the ones go over nine, tens, answer), and the rule is
+#               "over nine" -- NEVER "ten or more", the exact two-costume defect Jim
+#               caught live on 2026-08-20. Still under the 2,500-char pin.
 #   2026-08-21  BUILD jw -- the intervention prompt learns TAKING AWAY: the course
 #               grew to four lessons (lessonscripts.py) and two of them subtract, so
 #               _SCRIPT_INTERVENE_SYSTEM now covers both ops with the canon words for
@@ -6210,9 +6215,12 @@ THIS ONE PROBLEM and nothing else.
 
 Teach it in one short turn, Model-Lead-Test:
 1. MODEL: show the problem worked out completely.
-   For ADDING (+): draw the two star groups with
+   For ADDING (+) with single-digit numbers: draw the two star groups with
    [[objects emoji="⭐" groups="A" add="B" caption="count every star"]] and write
    [[step eq="A + B = C"]]. Count every star out loud, one number at a time.
+   For ADDING two-digit numbers: no stars. Write the steps: the ones first, then
+   -- only if the ones add up to over nine -- "write X, carry 1", then the tens,
+   then the whole answer, each as its own [[step eq="..."]] line.
    For TAKING AWAY (−): draw the starting group with
    [[objects emoji="⭐" groups="A" caption="start with A — take B away"]] and write
    [[step eq="A − B = C"]]. Count back out loud from A, one number at a time.
@@ -6226,8 +6234,9 @@ Hard rules:
 - Use ONLY these words for these ideas, exactly: adding is "putting together";
   an adding result is how many "in all"; taking away is "take away"; a take-away
   result is how many "are left"; + is said "plus"; − is said "minus"; = is said
-  "equals". Do not use "makes", "altogether", "total", "combine", "subtract",
-  or "remove".
+  "equals"; the carrying rule is "the ones add up to over nine" -- NEVER "ten or
+  more". Do not use "makes", "altogether", "total", "combine", "subtract", or
+  "remove".
 - Do not greet, do not say goodbye, do not mention this note, do not move to any
   other problem. The lesson script resumes by itself after the child answers.
 """
