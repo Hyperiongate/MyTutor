@@ -2,6 +2,29 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22ky-two-lines-cross". BUILD ky -- Algebra I
+#               Unit 5, Systems of Equations. 92 lessons -> 96, 81 ops -> 85.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#               Two rules true at once: the grapher draws two lines crossing;
+#               substitution is "swap y for what it equals"; the sum-and-difference
+#               puzzle; elimination as two shopping trips where the eraser vanishes.
+#               The unit-wide distractor is the OTHER unknown's value -- a system
+#               holds two answers, and only one of them is yours.
+#   2026-08-22  APP_BUILD -> "2026-08-22kx-the-first-line". BUILD kx -- Algebra I
+#               Unit 4, Linear Functions & Graphs. 88 lessons -> 92, 77 ops -> 81.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#               ⭐ [[graph]] draws its first scripted line. A line is the machine's
+#               whole table of answers at once; slope is taught from two points as
+#               "the climb per step" before any formula; y = ax + b is a sentence
+#               ("start at b, climb a per step") before it is a formula.
+#   2026-08-22  APP_BUILD -> "2026-08-22kw-the-number-machine". BUILD kw -- Algebra I
+#               Unit 3, Functions & Notation. 84 lessons -> 88, 73 ops -> 77.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#               ⭐ [[machine]]'s first scripted use -- the last of July's renderers to
+#               be picked up. A function is a machine; f(3) is the machine's name and
+#               its meal, and the f-times-3 misreading (reasonable, after the
+#               distributive lesson taught parentheses as times) is named out loud
+#               and offered as the wrong tap.
 #   2026-08-22  APP_BUILD -> "2026-08-22kv-the-balance-tips". BUILD kv -- Algebra I
 #               Unit 2, Linear Equations & Inequalities. 80 lessons -> 84, 69 ops ->
 #               73. NOTHING IN THIS FILE CHANGED but this note and the stamp.
@@ -10027,7 +10050,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22kv-the-balance-tips"
+APP_BUILD = "2026-08-22ky-two-lines-cross"
 
 
 @app.get("/health")

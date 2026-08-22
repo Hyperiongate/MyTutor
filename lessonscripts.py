@@ -2,6 +2,74 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  BUILD ky -- ALGEBRA I UNIT 5: SYSTEMS OF EQUATIONS. 92 lessons -> 96,
+#               85 ops (sys1, sys2, sumd, elim added). TWO RULES TRUE AT ONCE, opened
+#               by [[graph]] drawing TWO LINES CROSSING (lines= splits on ";") -- the
+#               crossing point is the answer standing on the board before anyone
+#               computes it. Then the three classical moves in their plainest
+#               clothes: SUBSTITUTION as "swap y for what it equals" (two letters
+#               become one), the sum-and-difference puzzle (add the clues and the
+#               smaller number cancels itself away), and ELIMINATION as two shopping
+#               trips -- take one buy away from the other and the eraser VANISHES.
+#               ONE DISTRACTOR RUNS THROUGH THE WHOLE UNIT: the value of the OTHER
+#               unknown. In sys1 it is the y where the lines cross, in sys2 it is y
+#               again, in elim it is the eraser's price. A system holds two answers,
+#               and tapping the wrong one is the system-specific mistake -- offered
+#               every time, and the teach beats name it every time.
+#               AUTHORING NOTE WORTH KEEPING: sys1's constraint surface is genuinely
+#               small -- with single-digit a there are only SIX distinct valid
+#               problems, fewer than one bank. Its check now allows a up to 14 and
+#               says why. The bank verifier caught ten bad picks before insertion
+#               (sumd at a = 2b where the halving error IS the answer; elim at
+#               3b = 2a where the eraser's price collides with it; sys2 at b = 3a
+#               where stopping-at-2x collides with y) -- every one is now excluded
+#               by the op's own check, not by hand-care.
+#               The validator caught "makes" in sys1's ask ("what x makes both
+#               rules...") and rule 14 demanded " cents " spoken standalone.
+#   2026-08-22  BUILD kx -- ALGEBRA I UNIT 4: LINEAR FUNCTIONS & GRAPHS. 88 lessons
+#               -> 92, 81 ops (lny, slp, yint, lin2 added).
+#               ⭐ [[graph]] DRAWS ITS FIRST SCRIPTED LINE -- the real function
+#               grapher, used by the generated lane since July and never by a
+#               scripted lesson (the shelf: areamodel kt, angle-split ks, balance kv,
+#               machine kw, grapher kx). A line is taught as THE MACHINE'S WHOLE
+#               TABLE OF ANSWERS DRAWN AT ONCE -- every point an input standing under
+#               its output -- so the unit sits directly on U3 rather than beside it.
+#               The ladder: read one point off a line (wrong tap: the swapped
+#               partner, answering y with the x you were given); SLOPE from two
+#               points, before any formula, as "the climb per step" (wrong taps: the
+#               heights -- where y landed and where it started -- versus how far it
+#               MOVED); the starting height at x = 0, where 2 × 0 makes the times
+#               part VANISH (wrong tap: the slope -- the other number in the rule);
+#               and start-plus-climb answering any x, where y = ax + b is a sentence
+#               ("start at b, climb a per step") before it is a formula (wrong tap:
+#               the height one step LEFT -- the off-by-one graph-reading error).
+#               Rule 14 forced "line" to be spoken as a standalone word -- it only
+#               appeared against punctuation -- same punctuation-spacing fix as
+#               "terms" in kt and "the term" in km.
+#   2026-08-22  BUILD kw -- ALGEBRA I UNIT 3: FUNCTIONS & NOTATION. 84 lessons -> 88,
+#               77 ops (fm1, fnot, fm2, fback added).
+#               ⭐ [[machine]] GETS ITS FIRST SCRIPTED USE -- the last renderer on
+#               July's figure shelf to be picked up (areamodel kt, angle-split ks,
+#               balance kv). A function is taught as a MACHINE: door in, rule, door
+#               out. The renderer prints "f(4) = 9" under the flow, so lesson 1 lets
+#               the child STARE at the notation for a whole lesson before lesson 2
+#               ever asks them to read it -- the shorthand arrives as a caption for
+#               something familiar, not as a new thing.
+#               THE NOTATION ERROR THE UNIT DEFUSES: f(3) read as f times 3. The
+#               misreading is not stupid -- parentheses have meant times since the
+#               distributive lesson, and the same marks suddenly mean "feed the
+#               machine". The f-of-x lesson says that conflict OUT LOUD ("same marks,
+#               different job") and offers the times-reading as the wrong tap on
+#               every problem.
+#               The rest of the ladder: two machines in a row (the first's output is
+#               the second's input; wrong tap = the other order -- composition
+#               without the word), and running the machine BACKWARDS (f of WHAT
+#               equals 10 -- "an equation in machine clothes", tying straight back to
+#               U2's balance; wrong tap = feeding the machine its own output).
+#               fm2's asks open with "Two machines in a row." deliberately -- that is
+#               scene-setting like rat's recipe, not rule re-teaching like the evxy
+#               and mlx scaffolds that were trimmed; the distinction is recorded here
+#               so a future sweep does not "fix" it.
 #   2026-08-22  BUILD kv -- ALGEBRA I UNIT 2: LINEAR EQUATIONS & INEQUALITIES.
 #               80 lessons -> 84, 73 ops (un1, un2, un3, ineq added). SOLVING BEGINS.
 #               Unit 1 always handed the child what x was holding; from here the
@@ -3773,6 +3841,519 @@ _ALGEBRA1_U2 = [
 LESSONS.extend(_ALGEBRA1_U2)
 
 
+# =============================================================================
+# ALGEBRA I -- UNIT 3: FUNCTIONS & NOTATION (build kw, 2026-08-22)
+# =============================================================================
+# A function is a MACHINE: a number goes in, the rule happens to it, a number comes
+# out. The board is ⭐ [[machine]] -- the last renderer on July's figure shelf to get
+# its first scripted use (areamodel kt, angle-split ks, balance kv). It draws
+# input -> rule box -> output and prints "f(4) = 9" underneath, which means the
+# NOTATION lesson can point at a line the child has already stared at for a whole
+# lesson before anyone asks them to read it.
+#
+# THE NOTATION ERROR THIS UNIT DEFUSES: f(3) read as f TIMES 3. That misreading is
+# not stupid -- parentheses have meant times since the distributive lesson, and here
+# the same marks suddenly mean "feed the machine". The f-of-x lesson says that out
+# loud and offers the times-reading as the wrong tap on every single problem.
+_ALGEBRA1_U3 = [
+    {
+        "id": "alg1-u3-the-number-machine",
+        "course": "algebra1", "unit": 3,
+        "topic": "The number machine",
+        "op": "fm1", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("machine", "rule"),
+        "advance_line": "Three in a row — you've got it! In goes a number, the rule runs, out comes the answer.",
+        "teach": [
+            ["Here is a machine that eats numbers. It has one rule painted on its side, and it follows that rule on whatever you feed it — same rule, every time, no exceptions. Feed it a number and it puts a number out. That is all a function is: a rule with a door in and a door out.",
+             '[[goal text="The number machine"]][[machine input="4" rule="2x + 1" output="9"]]'],
+            ["This machine's rule is: times the input by 2, then add 1. Feed it 4. The rule runs in order: 2 times 4 equals 8, then 8 plus 1 equals 9. Out comes 9.",
+             '[[machine input="4" rule="2x + 1" output="9"]][[step eq="2 × 4 = 8"]][[step eq="8 + 1 = 9"]]'],
+            ["The rule says its steps in order, and the order is part of the rule. Times by 2 THEN add 1 is not the same machine as add 1 then times by 2 — feed them both a 4 and one puts out 9, the other 10.",
+             '[[step eq="2 × 4 + 1 = 9 ✓"]][[step eq="(4 + 1) × 2 = 10 — a DIFFERENT machine"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The rule is times by 3, then add 2. Feed it 5: 3 times 5 equals 15, plus 2 equals 17.",
+                        '[[machine input="5" rule="3x + 2" output="17"]]'],
+             "ask": {"a": 3, "b": 2, "c": 4, "op": "fm1"}},
+            {"worked": ["One more together. Times by 4, then add 1. Feed it 3: 4 times 3 equals 12, plus 1 equals 13.",
+                        '[[machine input="3" rule="4x + 1" output="13"]]'],
+             "ask": {"a": 5, "b": 3, "c": 5, "op": "fm1"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 3, "op": "fm1"},
+            {"a": 2, "b": 3, "c": 3, "op": "fm1"},
+            {"a": 3, "b": 2, "c": 3, "op": "fm1"},
+            {"a": 2, "b": 4, "c": 4, "op": "fm1"},
+            {"a": 3, "b": 4, "c": 3, "op": "fm1"},
+            {"a": 4, "b": 2, "c": 3, "op": "fm1"},
+            {"a": 3, "b": 3, "c": 4, "op": "fm1"},
+            {"a": 4, "b": 3, "c": 4, "op": "fm1"},
+            {"a": 5, "b": 2, "c": 4, "op": "fm1"},
+            {"a": 4, "b": 4, "c": 5, "op": "fm1"},
+        ],
+    },
+    {
+        "id": "alg1-u3-f-of-x",
+        "course": "algebra1", "unit": 3,
+        "topic": "Saying f of x",
+        "op": "fnot", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("f", "of"),
+        "advance_line": "Three in a row — you've got it! f of 3 means feed the machine 3.",
+        "teach": [
+            ["Mathematicians got tired of drawing the machine, so they gave it a name: f. And look under the machine — the board has been writing its shorthand all along: f of 4 equals 9. It means: feed machine f the number 4, and 9 comes out. That is the whole code.",
+             '[[goal text="Saying f of x"]][[machine input="4" rule="x + 5" output="9" fname="f"]]'],
+            ["f of x equals x plus 5 — that is the rule, written with the name in front. So what is f of 3? Feed the machine 3: 3 plus 5 equals 8. f of 3 equals 8.",
+             '[[machine input="3" rule="x + 5" output="8" fname="f"]][[step eq="f(3) = 3 + 5 = 8"]]'],
+            ["Now the warning, and it is a fair one. In the distributive lesson, parentheses meant TIMES. Here, f followed by 3 in parentheses does NOT mean f times 3 — there is no timesing anywhere. It is the machine's name and its meal. Same marks, different job.",
+             '[[step eq="f(3) = feed f the number 3 ✓"]][[step eq="f × 3 ✗ — nothing is being timesed"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. f of x equals x plus 4. f of 6: feed it 6, and 6 plus 4 equals 10.",
+                        '[[step eq="f(6) = 6 + 4 = 10"]]'],
+             "ask": {"a": 3, "b": 5, "op": "fnot"}},
+            {"worked": ["One more together. f of x equals x plus 2. f of 9 is 9 plus 2, which equals 11.",
+                        '[[step eq="f(9) = 11"]]'],
+             "ask": {"a": 7, "b": 4, "op": "fnot"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "fnot"},
+            {"a": 4, "b": 2, "op": "fnot"},
+            {"a": 3, "b": 4, "op": "fnot"},
+            {"a": 5, "b": 3, "op": "fnot"},
+            {"a": 4, "b": 5, "op": "fnot"},
+            {"a": 6, "b": 4, "op": "fnot"},
+            {"a": 5, "b": 7, "op": "fnot"},
+            {"a": 7, "b": 6, "op": "fnot"},
+            {"a": 6, "b": 8, "op": "fnot"},
+            {"a": 8, "b": 9, "op": "fnot"},
+        ],
+    },
+    {
+        "id": "alg1-u3-two-machines",
+        "course": "algebra1", "unit": 3,
+        "topic": "Two machines in a row",
+        "op": "fm2", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("machine", "order"),
+        "advance_line": "Three in a row — you've got it! The first machine's output is the second machine's input.",
+        "teach": [
+            ["Machines can stand in a line. The first machine's out-door feeds the second machine's in-door — whatever comes out of one goes straight into the next. Two small rules in a row can do the work of one bigger rule.",
+             '[[goal text="Two machines in a row"]]'],
+            ["The first machine adds 2. The second times by 3. Feed 4 through both, in order. Machine one: 4 plus 2 equals 6. That 6 goes into machine two: 6 times 3 equals 18.",
+             '[[machine input="4" rule="x + 2" output="6"]][[machine input="6" rule="3x" output="18" fname="g"]]'],
+            ["The order is everything. Run the same two machines the other way round — times 3 first, then add 2 — and 4 becomes 12 becomes 14, not 18. Same machines, different line-up, different answer. Read WHICH machine is first before you feed anything.",
+             '[[step eq="(4 + 2) × 3 = 18 ✓"]][[step eq="4 × 3 + 2 = 14 — the other order"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. First adds 3, second times by 2. Feed 5: 5 plus 3 equals 8, and 8 times 2 equals 16.",
+                        '[[machine input="5" rule="x + 3" output="8"]][[machine input="8" rule="2x" output="16" fname="g"]]'],
+             "ask": {"a": 3, "b": 2, "c": 4, "op": "fm2"}},
+            {"worked": ["One more together. First adds 2, second times by 4. Feed 3: 3 plus 2 equals 5, and 5 times 4 equals 20.",
+                        '[[step eq="(3 + 2) × 4 = 20"]]'],
+             "ask": {"a": 4, "b": 4, "c": 2, "op": "fm2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 3, "op": "fm2"},
+            {"a": 2, "b": 3, "c": 2, "op": "fm2"},
+            {"a": 2, "b": 2, "c": 4, "op": "fm2"},
+            {"a": 2, "b": 3, "c": 3, "op": "fm2"},
+            {"a": 3, "b": 3, "c": 2, "op": "fm2"},
+            {"a": 2, "b": 4, "c": 3, "op": "fm2"},
+            {"a": 4, "b": 3, "c": 3, "op": "fm2"},
+            {"a": 3, "b": 3, "c": 5, "op": "fm2"},
+            {"a": 5, "b": 3, "c": 4, "op": "fm2"},
+            {"a": 4, "b": 4, "c": 3, "op": "fm2"},
+        ],
+    },
+    {
+        "id": "alg1-u3-which-input",
+        "course": "algebra1", "unit": 3,
+        "topic": "Which input was it",
+        "op": "fback", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("f", "of"),
+        "advance_line": "Three in a row — you've got it! Undo the rule and the input walks back out.",
+        "teach": [
+            ["One more trick with the machine: running it backwards. f of x equals x plus 3, and somebody tells you the machine put out 10 — but not what went in. f of WHAT equals 10? The input is hiding, exactly like x hid on the balance.",
+             '[[goal text="Which input was it"]][[machine input="?" rule="x + 3" output="10" fname="f"]]'],
+            ["You already know this move. Something plus 3 came to 10 — that is an equation in machine clothes. Undo the rule: 10 take away 3 equals 7. The input was 7.",
+             '[[machine input="?" rule="x + 3" output="10" fname="f"]][[step eq="? + 3 = 10"]][[step eq="? = 10 − 3 = 7"]]'],
+            ["Check it by running the machine forwards: feed 7, and 7 plus 3 equals 10. It fits. The careless move is running the machine forwards with the OUTPUT — feeding it the 10 and getting 13. The 10 came out of the machine; it never went in.",
+             '[[step eq="f(7) = 10 ✓"]][[step eq="10 + 3 = 13 ✗ — the 10 came OUT, it never went in"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. f of x equals x plus 4, and the output is 11. Undo: 11 take away 4 equals 7. The input was 7.",
+                        '[[machine input="?" rule="x + 4" output="11" fname="f"]][[step eq="? = 11 − 4 = 7"]]'],
+             "ask": {"a": 3, "b": 13, "op": "fback"}},
+            {"worked": ["One more together. f of x equals x plus 5, and out came 12. 12 take away 5 equals 7 — the input was 7.",
+                        '[[step eq="? = 12 − 5 = 7"]]'],
+             "ask": {"a": 6, "b": 20, "op": "fback"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 5, "op": "fback"},
+            {"a": 4, "b": 7, "op": "fback"},
+            {"a": 2, "b": 6, "op": "fback"},
+            {"a": 3, "b": 8, "op": "fback"},
+            {"a": 5, "b": 11, "op": "fback"},
+            {"a": 2, "b": 9, "op": "fback"},
+            {"a": 6, "b": 14, "op": "fback"},
+            {"a": 4, "b": 13, "op": "fback"},
+            {"a": 7, "b": 18, "op": "fback"},
+            {"a": 5, "b": 18, "op": "fback"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U3)
+
+
+# =============================================================================
+# ALGEBRA I -- UNIT 4: LINEAR FUNCTIONS & GRAPHS (build kx, 2026-08-22)
+# =============================================================================
+# The machine meets the coordinate plane. A line IS the machine's whole table of
+# answers drawn at once -- every point on it is an input standing under its output.
+# The board is ⭐ [[graph]], the real function grapher that no scripted lesson has
+# ever used (the shelf continues: areamodel kt, angle-split ks, balance kv,
+# machine kw).
+#
+# The ladder: read one point off a line, SLOPE as how much y climbs when x steps
+# once (taught from two points, before any formula), the starting height where x is
+# zero, and then slope and start working together to answer for any x -- which is
+# y = ax + b understood as "start at b, climb a per step" rather than as a formula.
+_ALGEBRA1_U4 = [
+    {
+        "id": "alg1-u4-reading-the-line",
+        "course": "algebra1", "unit": 4,
+        "topic": "Reading the line",
+        "op": "lny", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("y", "line"),
+        "advance_line": "Three in a row — you've got it! Every point is an input standing under its output.",
+        "teach": [
+            ["Last unit the machine answered one input at a time. A graph answers ALL of them at once. The rule y equals x plus 2 becomes a line on the graph. Pick any x along the bottom, go straight up to the line , and the height you reach is that x's answer — its y.",
+             '[[goal text="Reading the line"]][[graph lines="y=x+2" range="0..8"]]'],
+            ["What is y when x is 3? Find 3 along the bottom, climb up to the line, and read the height: 3 plus 2 equals 5. The point sits at 3 comma 5 — the input and its output, standing together.",
+             '[[graph lines="y=x+2" points="(3,5)" range="0..8"]][[step eq="x = 3 → y = 3 + 2 = 5"]]'],
+            ["Keep the partners straight. The first number is the x you were given; the second is the y you found. At 3 comma 5, the answer to the question 'what is y' is 5 — not the 3 you started from.",
+             '[[step eq="(3, 5): x = 3, y = 5"]][[step eq="y = 3 ✗ — that is the input"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x plus 4, and x is 2. Climb: 2 plus 4 equals 6. The point is 2 comma 6, and y is 6.",
+                        '[[graph lines="y=x+4" points="(2,6)" range="0..8"]][[step eq="y = 2 + 4 = 6"]]'],
+             "ask": {"a": 3, "b": 6, "op": "lny"}},
+            {"worked": ["One more together. y equals x plus 5, and x is 4: y equals 9.",
+                        '[[step eq="y = 4 + 5 = 9"]]'],
+             "ask": {"a": 7, "b": 6, "op": "lny"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "lny"},
+            {"a": 4, "b": 2, "op": "lny"},
+            {"a": 3, "b": 4, "op": "lny"},
+            {"a": 5, "b": 3, "op": "lny"},
+            {"a": 4, "b": 5, "op": "lny"},
+            {"a": 6, "b": 4, "op": "lny"},
+            {"a": 5, "b": 7, "op": "lny"},
+            {"a": 8, "b": 5, "op": "lny"},
+            {"a": 6, "b": 9, "op": "lny"},
+            {"a": 9, "b": 8, "op": "lny"},
+        ],
+    },
+    {
+        "id": "alg1-u4-the-climb",
+        "course": "algebra1", "unit": 4,
+        "topic": "The climb of a line",
+        "op": "slp", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("slope", "line"),
+        "advance_line": "Three in a row — you've got it! The slope is the climb, not the height.",
+        "teach": [
+            ["Lines are straight, and straight means FAIR: every time x steps one to the right, y climbs by the same amount. That amount — the climb per step — is called the slope. It is the line's personality: big slope, steep line; small slope, gentle line.",
+             '[[goal text="The climb of a line"]]'],
+            ["Here is a line through 2 comma 3 and 3 comma 5. x stepped once, from 2 to 3. y climbed from 3 to 5 — a climb of 2. The slope is 2, and it is 2 between ANY two neighbouring steps on this line, all the way along.",
+             '[[graph points="(2,3),(3,5)" range="0..5"]][[step eq="y: 3 → 5, a climb of 2"]]'],
+            ["The slope is the CLIMB, not the height. This line reaches height 5, but its slope is not 5 — 5 is where y landed, and 3 is where it started. The slope is the difference between them: how far y MOVED.",
+             '[[step eq="slope = 5 − 3 = 2 ✓"]][[step eq="slope = 5 ✗ — that is a height, not a climb"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Through 1 comma 4 and 2 comma 7. y went from 4 to 7 — a climb of 3. The slope is 3.",
+                        '[[graph points="(1,4),(2,7)" range="0..4"]][[step eq="7 − 4 = 3"]]'],
+             "ask": {"a": 3, "b": 2, "c": 5, "op": "slp"}},
+            {"worked": ["One more together. Through 2 comma 2 and 3 comma 6. From 2 up to 6 is a climb of 4 — the slope is 4.",
+                        '[[step eq="6 − 2 = 4"]]'],
+             "ask": {"a": 6, "b": 3, "c": 4, "op": "slp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 1, "c": 3, "op": "slp"},
+            {"a": 2, "b": 3, "c": 5, "op": "slp"},
+            {"a": 3, "b": 2, "c": 4, "op": "slp"},
+            {"a": 3, "b": 4, "c": 6, "op": "slp"},
+            {"a": 4, "b": 2, "c": 5, "op": "slp"},
+            {"a": 5, "b": 3, "c": 6, "op": "slp"},
+            {"a": 6, "b": 2, "c": 7, "op": "slp"},
+            {"a": 7, "b": 3, "c": 8, "op": "slp"},
+            {"a": 8, "b": 2, "c": 9, "op": "slp"},
+            {"a": 9, "b": 4, "c": 7, "op": "slp"},
+        ],
+    },
+    {
+        "id": "alg1-u4-where-it-starts",
+        "course": "algebra1", "unit": 4,
+        "topic": "Where the line starts",
+        "op": "yint", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("y", "zero"),
+        "advance_line": "Three in a row — you've got it! At x equals zero, the times part vanishes.",
+        "teach": [
+            ["Every line has a starting height: where it stands when x is zero, right at the left wall of the graph. For a rule like y equals 2 x plus 3, you can find it without drawing anything — put zero in for x and watch what happens.",
+             '[[goal text="Where the line starts"]][[graph lines="y=2x+3" range="0..4"]]'],
+            ["y equals 2 times zero plus 3. But 2 times zero is ZERO — the whole times part vanishes. All that is left is the plus 3. So at x equals zero, y equals 3. The line starts at height 3 and does its climbing from there.",
+             '[[step eq="y = 2 × 0 + 3"]][[step eq="y = 0 + 3 = 3"]]'],
+            ["So in y equals 2 x plus 3, the two numbers have two different jobs: the 2 is the climb per step, and the 3 is where the climbing starts. Asked where the line starts, the answer is the plus number — not the 2.",
+             '[[step eq="start = 3 ✓"]][[step eq="start = 2 ✗ — that is the climb, not the start"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 4 x plus 5. At x equals zero, 4 times zero vanishes, and y equals 5.",
+                        '[[step eq="y = 4 × 0 + 5 = 5"]]'],
+             "ask": {"a": 4, "b": 3, "op": "yint"}},
+            {"worked": ["One more together. y equals 3 x plus 7. At zero, y equals 7 — that is the starting height.",
+                        '[[step eq="y = 3 × 0 + 7 = 7"]]'],
+             "ask": {"a": 6, "b": 8, "op": "yint"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "yint"},
+            {"a": 5, "b": 3, "op": "yint"},
+            {"a": 2, "b": 4, "op": "yint"},
+            {"a": 8, "b": 4, "op": "yint"},
+            {"a": 6, "b": 5, "op": "yint"},
+            {"a": 4, "b": 6, "op": "yint"},
+            {"a": 9, "b": 7, "op": "yint"},
+            {"a": 3, "b": 8, "op": "yint"},
+            {"a": 5, "b": 9, "op": "yint"},
+            {"a": 7, "b": 9, "op": "yint"},
+        ],
+    },
+    {
+        "id": "alg1-u4-start-and-climb",
+        "course": "algebra1", "unit": 4,
+        "topic": "Start plus climb",
+        "op": "lin2", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("y", "x"),
+        "advance_line": "Three in a row — you've got it! Start at the plus number, climb the slope once per step.",
+        "teach": [
+            ["Now the two jobs work together. y equals 3 x plus 2: start at height 2, and climb 3 for every step x takes. That is the whole line in one sentence — and it answers any x you like.",
+             '[[goal text="Start plus climb"]][[graph lines="y=3x+2" range="0..5"]]'],
+            ["What is y when x is 4? Four steps, each a climb of 3: 3 times 4 equals 12 of climbing. Add the start: 12 plus 2 equals 14. The line stands at height 14 over x equals 4.",
+             '[[graph lines="y=3x+2" points="(4,14)" range="0..6"]][[step eq="y = 3 × 4 + 2 = 14"]]'],
+            ["Count your steps carefully. The height at x equals 4 is 14; one step earlier, at x equals 3, it was only 11. Stopping a step short is the easiest mistake on a graph — land on the x you were asked about, then read the height.",
+             '[[step eq="x = 4 → 14 ✓"]][[step eq="x = 3 → 11 — one step short"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 2 x plus 5, at x equals 3. Climb: 2 times 3 equals 6. Start: plus 5. y equals 11.",
+                        '[[step eq="y = 2 × 3 + 5 = 11"]]'],
+             "ask": {"a": 2, "b": 3, "c": 4, "op": "lin2"}},
+            {"worked": ["One more together. y equals 4 x plus 1, at x equals 5: 4 times 5 equals 20, plus 1 equals 21.",
+                        '[[step eq="y = 4 × 5 + 1 = 21"]]'],
+             "ask": {"a": 5, "b": 3, "c": 5, "op": "lin2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 2, "op": "lin2"},
+            {"a": 3, "b": 2, "c": 2, "op": "lin2"},
+            {"a": 2, "b": 3, "c": 3, "op": "lin2"},
+            {"a": 2, "b": 4, "c": 3, "op": "lin2"},
+            {"a": 3, "b": 3, "c": 3, "op": "lin2"},
+            {"a": 4, "b": 2, "c": 3, "op": "lin2"},
+            {"a": 3, "b": 4, "c": 4, "op": "lin2"},
+            {"a": 4, "b": 3, "c": 4, "op": "lin2"},
+            {"a": 5, "b": 2, "c": 4, "op": "lin2"},
+            {"a": 4, "b": 4, "c": 5, "op": "lin2"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U4)
+
+
+# =============================================================================
+# ALGEBRA I -- UNIT 5: SYSTEMS OF EQUATIONS (build ky, 2026-08-22)
+# =============================================================================
+# TWO RULES TRUE AT ONCE. The unit's one big picture is two lines crossing --
+# [[graph]] takes lines="y=x+2; y=3x" and draws them both, and the crossing point is
+# the answer, standing on the board before anyone computes it. From there the three
+# classical moves, each in its plainest clothes: SWAP a letter for what it equals
+# (substitution), the oldest system in the world -- a sum and a difference -- and
+# taking one equation away from another so a whole unknown VANISHES (elimination,
+# taught as two shopping trips).
+#
+# A RECURRING DISTRACTOR RUNS THROUGH THE WHOLE UNIT: the value of the OTHER
+# unknown. In sys1 it is the y where the lines cross; in sys2 it is y again; in elim
+# it is the eraser's price. A system has two answers living in it, and tapping the
+# wrong one is the system-specific mistake -- so it is offered every single time.
+_ALGEBRA1_U5 = [
+    {
+        "id": "alg1-u5-where-two-rules-agree",
+        "course": "algebra1", "unit": 5,
+        "topic": "Where two rules agree",
+        "op": "sys1", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("cross", "x"),
+        "advance_line": "Three in a row — you've got it! The crossing is where both rules tell the same story.",
+        "teach": [
+            ["Two rules can both talk about the same x and y. One says y equals x plus 2. Another says y equals 3 times x. Usually they disagree — feed them the same x and they give different y's. But look at the picture: two lines, and they cross .",
+             '[[goal text="Where two rules agree"]][[graph lines="y=x+2; y=3x" range="0..4"]]'],
+            ["At the crossing, both rules give the SAME y. Try x equals 1: the first rule says 3, the second says 3. They agree! That is what the crossing point means — the one x where both lines stand at the same height.",
+             '[[graph lines="y=x+2; y=3x" points="(1,3)" range="0..4"]][[step eq="x + 2 = 3x at x = 1"]]'],
+            ["You can find it without the picture too: if both rules give the same y, then x plus 2 EQUALS 3 x. That is an equation, and you know what to do with equations. But keep the question straight — the answer asked for is the x of the crossing, not its height.",
+             '[[step eq="x + 2 = 3x → x = 1 ✓"]][[step eq="y = 3 is the HEIGHT, not the x"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x plus 4, and y equals 3 times x. They agree where x plus 4 equals 3 x — at x equals 2, where both say 6.",
+                        '[[graph lines="y=x+4; y=3x" points="(2,6)" range="0..5"]][[step eq="x + 4 = 3x → x = 2"]]'],
+             "ask": {"a": 10, "b": 6, "op": "sys1"}},
+            {"worked": ["One more together. y equals x plus 6, and y equals 4 times x. x plus 6 equals 4 x at x equals 2, where both rules say 8.",
+                        '[[step eq="x + 6 = 4x → x = 2"]]'],
+             "ask": {"a": 12, "b": 5, "op": "sys1"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 3, "op": "sys1"},
+            {"a": 6, "b": 4, "op": "sys1"},
+            {"a": 8, "b": 5, "op": "sys1"},
+            {"a": 6, "b": 3, "op": "sys1"},
+            {"a": 9, "b": 4, "op": "sys1"},
+            {"a": 8, "b": 3, "op": "sys1"},
+            {"a": 12, "b": 4, "op": "sys1"},
+            {"a": 10, "b": 3, "op": "sys1"},
+            {"a": 12, "b": 3, "op": "sys1"},
+            {"a": 14, "b": 3, "op": "sys1"},
+        ],
+    },
+    {
+        "id": "alg1-u5-swapping-in",
+        "course": "algebra1", "unit": 5,
+        "topic": "Swapping a letter in",
+        "op": "sys2", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("swap", "y"),
+        "advance_line": "Three in a row — you've got it! Swap y for what it equals, and one letter is left.",
+        "teach": [
+            ["Here is the strongest trick in this whole unit. If one rule TELLS you what y equals, you can swap y out of the other rule entirely — write what it equals in its place. Two letters become one, and one letter you can solve.",
+             '[[goal text="Swapping a letter in"]]'],
+            ["y equals x plus 2. Also, x plus y equals 10. Swap the y in the second rule for x plus 2: x plus x plus 2 equals 10. That is 2 x plus 2 equals 10 — so 2 x equals 8, and x equals 4.",
+             '[[step eq="x + (x + 2) = 10"]][[step eq="2x = 8"]][[step eq="x = 4"]]'],
+            ["Two cares. First: after the swap there are TWO x's — count them. Second: the question asked for x. y is 6 here, and 6 is also standing in the problem waiting to be tapped — but it is the other letter's answer, not yours.",
+             '[[step eq="x = 4 ✓ · y = 6 — the OTHER letter"]][[step eq="check: 4 + 6 = 10 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x plus 4, and x plus y equals 12. Swap: x plus x plus 4 equals 12, so 2 x equals 8, and x equals 4.",
+                        '[[step eq="2x + 4 = 12"]][[step eq="x = 4"]]'],
+             "ask": {"a": 5, "b": 13, "op": "sys2"}},
+            {"worked": ["One more together. y equals x plus 3, and x plus y equals 11. Swap: 2 x plus 3 equals 11, so x equals 4.",
+                        '[[step eq="2x + 3 = 11 → x = 4"]]'],
+             "ask": {"a": 7, "b": 23, "op": "sys2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 7, "op": "sys2"},
+            {"a": 4, "b": 8, "op": "sys2"},
+            {"a": 2, "b": 8, "op": "sys2"},
+            {"a": 5, "b": 11, "op": "sys2"},
+            {"a": 2, "b": 10, "op": "sys2"},
+            {"a": 6, "b": 14, "op": "sys2"},
+            {"a": 3, "b": 13, "op": "sys2"},
+            {"a": 4, "b": 16, "op": "sys2"},
+            {"a": 6, "b": 20, "op": "sys2"},
+            {"a": 5, "b": 21, "op": "sys2"},
+        ],
+    },
+    {
+        "id": "alg1-u5-sum-and-difference",
+        "course": "algebra1", "unit": 5,
+        "topic": "The sum and the difference",
+        "op": "sumd", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("together", "difference"),
+        "advance_line": "Three in a row — you've got it! Add the two clues and the smaller number cancels itself away.",
+        "teach": [
+            ["The oldest puzzle with two unknowns: two secret numbers, and two clues. Put together they equal 10. Their difference — the bigger take away the smaller — equals 4. Neither clue alone is enough; together they trap the answer completely.",
+             '[[goal text="The sum and the difference"]][[step eq="big + small = 10"]][[step eq="big − small = 4"]]'],
+            ["Here is the trap closing. Add the two clues: big plus small, plus big take away small — the small cancels itself away, leaving two bigs. 10 plus 4 equals 14, so two bigs equal 14, and the big one is 7. The small one is what is left: 3.",
+             '[[step eq="two bigs = 10 + 4 = 14"]][[step eq="big = 7 · small = 3"]]'],
+            ["Check both clues: 7 plus 3 equals 10, and 7 take away 3 equals 4. Both happy. The lazy answer is 5 — half of 10 — but that ignores the second clue entirely: 5 and 5 have no difference at all.",
+             '[[step eq="7 + 3 = 10 ✓ · 7 − 3 = 4 ✓"]][[step eq="5 and 5 ✗ — their difference is 0, not 4"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Together 12, difference 2. Two bigs equal 14, so the bigger is 7 and the smaller is 5.",
+                        '[[step eq="two bigs = 14 → big = 7"]]'],
+             "ask": {"a": 10, "b": 4, "op": "sumd"}},
+            {"worked": ["One more together. Together 16, difference 6. Two bigs equal 22, the bigger is 11, the smaller is 5.",
+                        '[[step eq="two bigs = 22 → big = 11"]]'],
+             "ask": {"a": 22, "b": 6, "op": "sumd"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 6, "b": 2, "op": "sumd"},
+            {"a": 8, "b": 2, "op": "sumd"},
+            {"a": 10, "b": 2, "op": "sumd"},
+            {"a": 12, "b": 4, "op": "sumd"},
+            {"a": 14, "b": 6, "op": "sumd"},
+            {"a": 16, "b": 4, "op": "sumd"},
+            {"a": 18, "b": 8, "op": "sumd"},
+            {"a": 20, "b": 6, "op": "sumd"},
+            {"a": 24, "b": 8, "op": "sumd"},
+            {"a": 26, "b": 10, "op": "sumd"},
+        ],
+    },
+    {
+        "id": "alg1-u5-the-eraser-vanishes",
+        "course": "algebra1", "unit": 5,
+        "topic": "The eraser vanishes",
+        "op": "elim", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("take away", "cents"),
+        "advance_line": "Three in a row — you've got it! Take one buy away from the other and a whole unknown vanishes.",
+        "teach": [
+            ["Two shopping trips, paid in cents , the smallest coins. Trip one: two pencils and an eraser, 14 cents. Trip two: one pencil and the same eraser, 9 cents. Nobody told you what anything costs — and yet you can work out the pencil exactly.",
+             '[[goal text="The eraser vanishes"]][[step eq="2 pencils + eraser = 14"]][[step eq="1 pencil + eraser = 9"]]'],
+            ["Take the second trip away from the first. The eraser is in both, so it vanishes . One pencil is left over on one side, and 14 take away 9 equals 5 on the other. A pencil costs 5 cents.",
+             '[[step eq="difference: 1 pencil = 14 − 9 = 5"]]'],
+            ["And the eraser? Put the pencil back into trip two: 5 plus eraser equals 9, so the eraser is 4 cents. Careful when you tap — 4 is the ERASER'S price, and the question asked for the pencil. A system holds two answers, and only one of them is yours.",
+             '[[step eq="pencil = 5 ✓ · eraser = 4 — the other unknown"]][[step eq="check: 2 × 5 + 4 = 14 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Two pencils and an eraser, 12 cents; one pencil and the eraser, 7. Take away: one pencil equals 5 cents.",
+                        '[[step eq="1 pencil = 12 − 7 = 5"]]'],
+             "ask": {"a": 14, "b": 9, "op": "elim"}},
+            {"worked": ["One more together. Two pencils and an eraser, 16 cents; one pencil and the eraser, 9. The pencil is 16 take away 9 — 7 cents.",
+                        '[[step eq="1 pencil = 16 − 9 = 7"]]'],
+             "ask": {"a": 24, "b": 13, "op": "elim"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 8, "op": "elim"},
+            {"a": 8, "b": 5, "op": "elim"},
+            {"a": 10, "b": 7, "op": "elim"},
+            {"a": 10, "b": 6, "op": "elim"},
+            {"a": 12, "b": 7, "op": "elim"},
+            {"a": 14, "b": 8, "op": "elim"},
+            {"a": 16, "b": 9, "op": "elim"},
+            {"a": 18, "b": 10, "op": "elim"},
+            {"a": 20, "b": 11, "op": "elim"},
+            {"a": 22, "b": 12, "op": "elim"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U5)
+
+
 
 
 
@@ -3844,6 +4425,15 @@ COURSE_ORDER = [
     # Unit 2: Linear Equations & Inequalities -- solving begins, on the ⭐ balance
     "alg1-u2-undoing-a-plus", "alg1-u2-undoing-a-times",
     "alg1-u2-two-steps-back", "alg1-u2-the-biggest-x",
+    # Unit 3: Functions & Notation -- the ⭐ machine, named f
+    "alg1-u3-the-number-machine", "alg1-u3-f-of-x",
+    "alg1-u3-two-machines", "alg1-u3-which-input",
+    # Unit 4: Linear Functions & Graphs -- the ⭐ grapher draws its first line
+    "alg1-u4-reading-the-line", "alg1-u4-the-climb",
+    "alg1-u4-where-it-starts", "alg1-u4-start-and-climb",
+    # Unit 5: Systems of Equations -- two rules true at once
+    "alg1-u5-where-two-rules-agree", "alg1-u5-swapping-in",
+    "alg1-u5-sum-and-difference", "alg1-u5-the-eraser-vanishes",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -5281,6 +5871,304 @@ OP_EXT = {
                             and p["b"] - p["a"] >= 3,
                             "the boundary is at least 3, so the answer is a real "
                             "number and the door-shut error sits right beside it"),
+    },
+
+    # ---- ALGEBRA I UNIT 3 (build kw) -- FUNCTIONS & NOTATION ------------------
+    # A function is a MACHINE: a number goes in, a rule happens to it, a number comes
+    # out. The board is ⭐ [[machine]], the function-machine renderer -- the last of
+    # July's figure shelf to get its first scripted use (areamodel kt, angle-split ks,
+    # balance kv). It draws input -> rule box -> output AND prints "f(4) = 9"
+    # underneath, so the notation lesson can point at a line the child has already
+    # been looking at for a whole lesson.
+    "fm1": {   # rule ax + b, input c -- what comes out?
+        "ans": lambda p: p["a"] * p["c"] + p["b"],
+        "spoken": lambda p: (f"A machine's rule is: times the input by {p['a']}, "
+                             f"then add {p['b']}. Feed it {p['c']}. "
+                             f"What number comes out?"),
+        "board": lambda p: (f'[[machine input="{p["c"]}" '
+                            f'rule="{p["a"]}x + {p["b"]}" output="?"]]'),
+        "praise": lambda p: (f"{p['c']} goes in, the rule runs: {p['a']} times "
+                             f"{p['c']} equals {p['a'] * p['c']}, plus {p['b']} — "
+                             f"out comes {p['a'] * p['c'] + p['b']}."),
+        "key": lambda p: p["a"] * p["c"] + p["b"],
+        # The rule says its steps IN ORDER, so the wrong tap is running them the other
+        # way: adding first. The third is ignoring the times altogether.
+        "choices": lambda p: [p["a"] * p["c"] + p["b"],
+                              p["a"] * (p["c"] + p["b"]),
+                              p["a"] + p["b"] + p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({p["a"] * p["c"] + p["b"],
+                                     p["a"] * (p["c"] + p["b"]),
+                                     p["a"] + p["b"] + p["c"]}) == 3,
+                            "single digits and three distinct outputs -- which rules "
+                            "out the inputs where timesing and adding agree"),
+    },
+    "fnot": {  # f(x) = x + a -- what is f(b)?
+        "ans": lambda p: p["b"] + p["a"],
+        "spoken": lambda p: (f"f of x equals x plus {p['a']}. "
+                             f"What is f of {p['b']}?"),
+        "board": lambda p: (f'[[machine input="{p["b"]}" rule="x + {p["a"]}" '
+                            f'output="?" fname="f"]]'
+                            f'[[step eq="f({p["b"]}) = {p["b"]} + {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"f of {p['b']} means: feed the machine {p['b']}. "
+                             f"{p['b']} plus {p['a']} equals {p['b'] + p['a']}."),
+        "key": lambda p: p["b"] + p["a"],
+        # THE notation error: reading f(3) as f TIMES 3 -- the parentheses have meant
+        # "times" since the distributive lesson, and here they suddenly do not. The
+        # wrong tap is the times reading; the third is handing back the input.
+        "choices": lambda p: [p["b"] + p["a"], p["a"] * p["b"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] * p["b"] != p["a"] + p["b"],
+                            "single digits, never the 2-and-2 case, so the "
+                            "f-times-b misreading is visibly a different number"),
+    },
+    "fm2": {   # machine one adds a, machine two times by b, input c -- IN ORDER
+        "ans": lambda p: (p["c"] + p["a"]) * p["b"],
+        "spoken": lambda p: (f"Two machines in a row. The first adds {p['a']}. "
+                             f"The second times by {p['b']}. Feed {p['c']} through "
+                             f"both, first then second. What comes out?"),
+        "board": lambda p: (f'[[machine input="{p["c"]}" rule="x + {p["a"]}" '
+                            f'output="{p["c"] + p["a"]}"]]'
+                            f'[[machine input="{p["c"] + p["a"]}" '
+                            f'rule="{p["b"]}x" output="?" fname="g"]]'),
+        "praise": lambda p: (f"Machine one: {p['c']} plus {p['a']} equals "
+                             f"{p['c'] + p['a']}. That goes straight into machine "
+                             f"two: {p['c'] + p['a']} times {p['b']} equals "
+                             f"{(p['c'] + p['a']) * p['b']}."),
+        "key": lambda p: (p["c"] + p["a"]) * p["b"],
+        # The error is running the machines in the WRONG ORDER -- timesing first,
+        # then adding. Order mattering is the entire lesson.
+        "choices": lambda p: [(p["c"] + p["a"]) * p["b"],
+                              p["c"] * p["b"] + p["a"],
+                              p["c"] + p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({(p["c"] + p["a"]) * p["b"],
+                                     p["c"] * p["b"] + p["a"],
+                                     p["c"] + p["a"] + p["b"]}) == 3,
+                            "three distinct outputs, so the wrong-order error is a "
+                            "real different tap"),
+    },
+    "fback": { # f(x) = x + a and f(?) = b -- which input was it?
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: (f"f of x equals x plus {p['a']}. f of WHAT equals "
+                             f"{p['b']}? Which number went in?"),
+        "board": lambda p: (f'[[machine input="?" rule="x + {p["a"]}" '
+                            f'output="{p["b"]}" fname="f"]]'
+                            f'[[step eq="? + {p["a"]} = {p["b"]}"]]'),
+        "praise": lambda p: (f"The machine put out {p['b']} after adding {p['a']}, "
+                             f"so {p['b']} take away {p['a']} went in — "
+                             f"{p['b'] - p['a']}."),
+        "key": lambda p: p["b"] - p["a"],
+        # Running the machine FORWARDS with the output as input -- b + a -- is the
+        # error; the third is tapping the output itself.
+        "choices": lambda p: [p["b"] - p["a"], p["b"] + p["a"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["a"] < p["b"] <= 30
+                            and p["b"] - p["a"] >= 2,
+                            "the input is at least 2 and the numbers stay small "
+                            "enough to check by running the machine forwards"),
+    },
+
+    # ---- ALGEBRA I UNIT 4 (build kx) -- LINEAR FUNCTIONS & GRAPHS -------------
+    # The machine met the coordinate plane. A line IS the machine's whole table of
+    # answers drawn at once -- every point is an input standing under its output. The
+    # board is ⭐ [[graph]], the real function grapher (lines=, points=, range=) that
+    # no scripted lesson has ever used. The ladder: read one point off a line, SLOPE
+    # as how much y climbs when x steps once, the starting height where x is zero,
+    # and finally slope and start working together to answer for any x.
+    "lny": {   # y = x + a -- what is y when x = b?
+        "ans": lambda p: p["b"] + p["a"],
+        "spoken": lambda p: (f"The line is y equals x plus {p['a']}. "
+                             f"What is y when x is {p['b']}?"),
+        "board": lambda p: (f'[[graph lines="y=x+{p["a"]}" '
+                            f'range="0..{p["b"] + p["a"] + 2}"]]'
+                            f'[[step eq="x = {p["b"]} → y = {p["b"]} + {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"At x equals {p['b']}, the line stands at {p['b']} "
+                             f"plus {p['a']} — y equals {p['b'] + p['a']}."),
+        "key": lambda p: p["b"] + p["a"],
+        # The graph error is SWAPPING THE PARTNERS: asked for y, tapping the x you
+        # were given. The third option is the line's own added number.
+        "choices": lambda p: [p["b"] + p["a"], p["b"], p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and p["a"] != p["b"],
+                            "a and b differ, so the swapped-partner tap and the "
+                            "added-number tap are three different numbers"),
+    },
+    "slp": {   # through (b, c) and (b+1, c+a) -- how much does y go up?
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"A line passes through the point {p['b']} comma "
+                             f"{p['c']}, and the point {p['b'] + 1} comma "
+                             f"{p['c'] + p['a']}. When x goes up by 1, how much "
+                             f"does y go up?"),
+        "board": lambda p: (f'[[graph points="({p["b"]},{p["c"]}),'
+                            f'({p["b"] + 1},{p["c"] + p["a"]})" '
+                            f'range="0..{p["b"] + 3}"]]'
+                            f'[[step eq="y: {p["c"]} → {p["c"] + p["a"]}, '
+                            f'a climb of ?"]]'),
+        "praise": lambda p: (f"x stepped once and y climbed from {p['c']} to "
+                             f"{p['c'] + p['a']} — a climb of {p['a']}. That climb "
+                             f"is called the slope."),
+        "key": lambda p: p["a"],
+        # The errors are reading a HEIGHT as the climb: tapping where y landed, or
+        # where it started, instead of how far it moved.
+        "choices": lambda p: [p["a"], p["c"] + p["a"], p["c"]],
+        # The rise is the ANSWER, so it is deliberately never spoken; the two
+        # heights and the x-step carry the problem.
+        "speaks": lambda p, sp: (str(p["b"]) in sp and str(p["c"]) in sp
+                                 and str(p["c"] + p["a"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 1 <= p["b"] <= 4 and 2 <= p["c"] <= 9
+                            and p["a"] != p["c"],
+                            "the climb differs from both heights, so all three taps "
+                            "are different numbers, and the points sit near the "
+                            "origin where the graph can show them"),
+    },
+    "yint": {  # y = ax + b -- what is y when x is ZERO?
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"The line is y equals {p['a']} x plus {p['b']}. "
+                             f"What is y when x is zero?"),
+        "board": lambda p: (f'[[graph lines="y={p["a"]}x+{p["b"]}" '
+                            f'range="0..5"]]'
+                            f'[[step eq="x = 0 → y = {p["a"]} × 0 + {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} times zero is zero — the times part "
+                             f"vanishes, and y is just {p['b']}. That is where the "
+                             f"line starts."),
+        "key": lambda p: p["b"],
+        # The error is tapping the SLOPE -- the other number in the rule -- or adding
+        # the two as if x being zero changed nothing.
+        "choices": lambda p: [p["b"], p["a"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and p["a"] != p["b"],
+                            "slope and start differ, so the three taps are three "
+                            "different numbers"),
+    },
+    "lin2": {  # y = ax + b -- what is y when x = c?
+        "ans": lambda p: p["a"] * p["c"] + p["b"],
+        "spoken": lambda p: (f"The line is y equals {p['a']} x plus {p['b']}. "
+                             f"What is y when x is {p['c']}?"),
+        "board": lambda p: (f'[[graph lines="y={p["a"]}x+{p["b"]}" '
+                            f'range="0..{p["c"] + 2}"]]'
+                            f'[[step eq="y = {p["a"]} × {p["c"]} + {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"Start at {p['b']}, climb {p['a']} for each of the "
+                             f"{p['c']} steps: {p['a']} times {p['c']} equals "
+                             f"{p['a'] * p['c']}, plus {p['b']} equals "
+                             f"{p['a'] * p['c'] + p['b']}."),
+        "key": lambda p: p["a"] * p["c"] + p["b"],
+        # Off-by-one-step is the graph-reading error: the height one x to the LEFT.
+        # The third is tapping the x itself.
+        "choices": lambda p: [p["a"] * p["c"] + p["b"],
+                              p["a"] * (p["c"] - 1) + p["b"], p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 1 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({p["a"] * p["c"] + p["b"],
+                                     p["a"] * (p["c"] - 1) + p["b"],
+                                     p["c"]}) == 3,
+                            "three distinct heights, so the one-step-left error is a "
+                            "real different tap"),
+    },
+
+    # ---- ALGEBRA I UNIT 5 (build ky) -- SYSTEMS OF EQUATIONS ------------------
+    # Two rules true at once. The unit's one big picture is TWO LINES CROSSING --
+    # [[graph]] takes lines="y=x+2; y=3x" and draws them both, and the crossing
+    # point is the answer standing on the board. The ladder: see the crossing (sys1),
+    # SWAP a letter for what it equals (sys2, substitution), the oldest system there
+    # is -- a sum and a difference (sumd), and taking one equation away from another
+    # so a whole unknown vanishes (elim, elimination in story clothes).
+    "sys1": {  # y = x + a and y = bx -- which x makes both agree?
+        "ans": lambda p: p["a"] // (p["b"] - 1),
+        "spoken": lambda p: (f"One rule says y equals x plus {p['a']}. Another rule "
+                             f"says y equals {p['b']} times x. For which x do both "
+                             f"rules say the SAME y?"),
+        "board": lambda p: (f'[[graph lines="y=x+{p["a"]}; y={p["b"]}x" '
+                            f'range="0..{p["a"] // (p["b"] - 1) + 3}"]]'
+                            f'[[step eq="x + {p["a"]} = {p["b"]}x"]]'),
+        "praise": lambda p: (f"At x equals {p['a'] // (p['b'] - 1)}, both rules say "
+                             f"y equals {p['b'] * (p['a'] // (p['b'] - 1))} — the "
+                             f"lines cross there, and that crossing is the answer."),
+        "key": lambda p: p["a"] // (p["b"] - 1),
+        # U4's swapped-partner error comes back: tapping the Y where the lines meet
+        # instead of the x that was asked for. The third is the rule's own plus number.
+        "choices": lambda p: [p["a"] // (p["b"] - 1),
+                              p["b"] * (p["a"] // (p["b"] - 1)), p["a"]],
+        # a runs to 14, not 9: with b in 3..6 and the crossing forced whole and >= 2,
+        # single-digit a yields only SIX distinct problems -- fewer than one bank.
+        # The constraint surface here is genuinely small, and the wider a is what
+        # buys a 10-problem ramp.
+        "check": lambda p: (2 <= p["a"] <= 14 and 3 <= p["b"] <= 6
+                            and p["a"] % (p["b"] - 1) == 0
+                            and p["a"] // (p["b"] - 1) >= 2
+                            and len({p["a"] // (p["b"] - 1),
+                                     p["b"] * (p["a"] // (p["b"] - 1)),
+                                     p["a"]}) == 3,
+                            "the crossing lands on a whole x of at least 2, b is at "
+                            "least 3 so the x never equals the plus number, and the "
+                            "three taps differ"),
+    },
+    "sys2": {  # y = x + a and x + y = b -- what is x?
+        "ans": lambda p: (p["b"] - p["a"]) // 2,
+        "spoken": lambda p: (f"y equals x plus {p['a']}. Also, x plus y equals "
+                             f"{p['b']}. What is x?"),
+        "board": lambda p: (f'[[step eq="x + y = {p["b"]}"]]'
+                            f'[[step eq="swap y in: x + (x + {p["a"]}) = {p["b"]}"]]'
+                            f'[[step eq="2x = {p["b"] - p["a"]} → x = ?"]]'),
+        "praise": lambda p: (f"Swap y for what it equals and there are two x's: "
+                             f"2 x plus {p['a']} equals {p['b']}, so 2 x equals "
+                             f"{p['b'] - p['a']}, and x equals "
+                             f"{(p['b'] - p['a']) // 2}."),
+        "key": lambda p: (p["b"] - p["a"]) // 2,
+        # The middle option IS the other unknown -- y. Tapping the wrong letter's
+        # value is the system error. The third is stopping at 2x.
+        "choices": lambda p: [(p["b"] - p["a"]) // 2, (p["b"] + p["a"]) // 2,
+                              p["b"] - p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["a"] < p["b"] <= 30
+                            and (p["b"] - p["a"]) % 2 == 0
+                            and (p["b"] - p["a"]) // 2 >= 2
+                            and p["b"] != 3 * p["a"],
+                            "the swap lands on whole numbers, x is at least 2, and "
+                            "b is never 3a (where stopping-at-2x collides with y)"),
+    },
+    "sumd": {  # together a, apart b -- the BIGGER of the two
+        "ans": lambda p: (p["a"] + p["b"]) // 2,
+        "spoken": lambda p: (f"Two secret numbers. Put together they equal {p['a']}. "
+                             f"The bigger take away the smaller equals {p['b']}. "
+                             f"What is the bigger number?"),
+        "board": lambda p: (f'[[step eq="bigger + smaller = {p["a"]}"]]'
+                            f'[[step eq="bigger − smaller = {p["b"]}"]]'
+                            f'[[step eq="bigger = ({p["a"]} + {p["b"]}) ÷ 2 = ?"]]'),
+        "praise": lambda p: (f"The bigger is {(p['a'] + p['b']) // 2} and the "
+                             f"smaller is {(p['a'] - p['b']) // 2} — together "
+                             f"{p['a']}, apart {p['b']}. Both rules happy at once."),
+        "key": lambda p: (p["a"] + p["b"]) // 2,
+        # The error is HALVING THE TOTAL -- splitting evenly as if the difference
+        # rule were not there. One rule satisfied, the other ignored.
+        "choices": lambda p: [(p["a"] + p["b"]) // 2, p["a"] // 2, p["b"]],
+        "check": lambda p: (p["a"] % 2 == 0 and p["b"] % 2 == 0
+                            and 2 <= p["b"] < p["a"] <= 30 and p["a"] != 2 * p["b"]
+                            and (p["a"] - p["b"]) // 2 >= 1
+                            and len({(p["a"] + p["b"]) // 2, p["a"] // 2,
+                                     p["b"]}) == 3,
+                            "both secret numbers are whole, the smaller is at least "
+                            "1, and the split-evenly error is a different tap"),
+    },
+    "elim": {  # 2 pencils + eraser = a; 1 pencil + eraser = b -- the pencil?
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"Two pencils and an eraser cost {p['a']} cents. One "
+                             f"pencil and the same eraser cost {p['b']} cents. "
+                             f"What does one pencil cost?"),
+        "board": lambda p: (f'[[step eq="2 pencils + eraser = {p["a"]}"]]'
+                            f'[[step eq="1 pencil + eraser = {p["b"]}"]]'
+                            f'[[step eq="take the second away: 1 pencil = '
+                            f'{p["a"]} − {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"Take the second buy away from the first: the eraser "
+                             f"vanishes, one pencil is left, and it costs "
+                             f"{p['a'] - p['b']} cents."),
+        "key": lambda p: p["a"] - p["b"],
+        # The middle option is the ERASER's price -- the other unknown again. The
+        # third is halving the first buy as if it were two pencils and nothing else.
+        "choices": lambda p: [p["a"] - p["b"], 2 * p["b"] - p["a"], p["a"] // 2],
+        "check": lambda p: (p["b"] < p["a"] < 2 * p["b"] and p["a"] % 2 == 0
+                            and p["a"] <= 30 and p["a"] - p["b"] >= 2
+                            and 2 * p["b"] - p["a"] >= 1
+                            and len({p["a"] - p["b"], 2 * p["b"] - p["a"],
+                                     p["a"] // 2}) == 3,
+                            "both prices are real (pencil and eraser at least 1), a "
+                            "is even so the halving error is a whole tap, and the "
+                            "three taps differ"),
     },
 }
 
