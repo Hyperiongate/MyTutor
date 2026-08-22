@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22la-rooms-and-curves". BUILD la -- Algebra I
+#               Units 7 AND 8 in one build, per Jim's pacing ruling. 100 lessons ->
+#               108, 89 ops -> 97. NOTHING IN THIS FILE CHANGED but this note and
+#               the stamp.
+#               U7 Polynomials & Factoring: the area model runs backwards -- four
+#               rooms, middles add, corner times; factoring as a two-clue detective
+#               game; the whole common factor or none; the vanishing middle.
+#               U8 Quadratic Functions: the first curve; zero times anything;
+#               a square is never negative so the curve has a floor; and the ball
+#               comes down, where the square root is an answer before it is a symbol.
+#   2026-08-22  APP_BUILD -> "2026-08-22kz-one-hundred-lessons". BUILD kz -- Algebra I
+#               Unit 6, Exponents & Exponential Functions. ⭐ 96 lessons -> 100 -- THE
+#               COURSE REACHES ONE HUNDRED SCRIPTED LESSONS. 85 ops -> 89. NOTHING IN
+#               THIS FILE CHANGED but this note and the stamp.
+#               Powers behave: joining piles ADDS the counts, copying a pile TIMES
+#               them (taught as a deliberate pair, each the other's wrong tap);
+#               b × 10^a carries a digit; and the doubling pond is the first
+#               exponential growth, with the linear thinker's answer as the wrong tap.
 #   2026-08-22  APP_BUILD -> "2026-08-22ky-two-lines-cross". BUILD ky -- Algebra I
 #               Unit 5, Systems of Equations. 92 lessons -> 96, 81 ops -> 85.
 #               NOTHING IN THIS FILE CHANGED but this note and the stamp.
@@ -10050,7 +10068,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22ky-two-lines-cross"
+APP_BUILD = "2026-08-22la-rooms-and-curves"
 
 
 @app.get("/health")

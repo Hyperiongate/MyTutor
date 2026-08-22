@@ -2,6 +2,57 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  BUILD la -- ALGEBRA I UNITS 7 AND 8, ONE BUILD (Jim: "do twice as
+#               much as you have been doing between pushes"). 100 lessons -> 108,
+#               97 ops (foil, fnum, gcfx, dsq + sqy, roots, vtx, hitg).
+#               UNIT 7, POLYNOMIALS & FACTORING: the area model comes back and RUNS
+#               BACKWARDS. (x + a)(x + b) is FOUR rooms -- middles ADD, corner TIMES,
+#               and mixing those two jobs is the unit's recurring wrong tap.
+#               Factoring is the same picture read the other way, a detective game
+#               with two clues (adds to the x count AND timeses to the corner --
+#               "a number that fits only one clue is an impostor"). gcfx demands
+#               gcd(a, b) = 1 via a new _gcd helper: the pulled-out factor must be
+#               the WHOLE common factor, or the factored form is a lie. dsq is the
+#               vanishing middle -- the first identity that feels like a magic trick
+#               and is just two rooms cancelling; a >= 3 because at 2 the square
+#               collides with the double.
+#               UNIT 8, QUADRATIC FUNCTIONS: the curve arrives, built on three
+#               feelings: SQUARING IS NOT DOUBLING (sqy requires x >= 3 and its
+#               teach names the trap's cause -- at 2 the two agree, and that
+#               coincidence is what plants the habit); a product of zero means a
+#               factor is zero (roots: "nobody asked for 3 + 5 or 3 x 5" -- the
+#               wrong taps do arithmetic on the roots); a square is never negative,
+#               so the curve has a FLOOR (vtx); and the ball comes down (hitg),
+#               where the square root is met as the answer to "what number squared
+#               equals 25" before it is ever a symbol -- and the wrong tap of 2a is
+#               the child reaching for halving, "which undoes doubling, not
+#               squaring".
+#               CAUGHT READING THE BOARDS: vtx originally wrote "lowest y = 0 + 2 =
+#               ?" -- the answer wearing a hat, the same giveaway class as kz's pond
+#               sequence. The board now shows the rule and the floor, never the sum.
+#   2026-08-22  BUILD kz -- ALGEBRA I UNIT 6: EXPONENTS & EXPONENTIAL FUNCTIONS.
+#               ⭐ THE COURSE REACHES 100 LESSONS. 96 -> 100, 89 ops (exadd, exmul,
+#               sci, dbl added). Prealgebra U1 taught what a power IS; this unit
+#               teaches how powers BEHAVE.
+#               Lessons 1 and 2 are a deliberate PAIR: the product rule (x³ · x² --
+#               joining piles, powers ADD) and the power of a power ((x³)² -- copying
+#               a pile, powers TIMES) are each other's classic confusion, taught
+#               back-to-back, each offering the other's rule as its wrong tap. The
+#               closing beat gives the one question that separates them: "am I
+#               JOINING two piles, or COPYING a whole pile?"
+#               Lesson 3 is scientific notation in child clothes (b × 10^a; the wrong
+#               tap is the times-not-power reading, 3 × 10² tapped as 60). Lesson 4
+#               is THE FIRST EXPONENTIAL GROWTH: the doubling pond, whose wrong tap
+#               is the LINEAR THINKER'S answer (up by 2 a day) -- the board draws the
+#               run-away sequence so the child watches doubling pull away from
+#               walking. dbl requires at least 3 days: below that, doubling and
+#               times-2-times-days agree and the error cannot be shown.
+#               NEW module helper _sup(n) -- real superscripts for board text; expn
+#               hard-coded ² and ³ because its powers stop at 3, Algebra I's do not.
+#               CAUGHT READING THE BOARDS OUT LOUD: dbl's sequence originally ran ALL
+#               THE WAY to the answer ("2 → 4 → 8 → 16" asking for 16). It now stops
+#               one day short and ends on "?" -- a board that answers its own ask
+#               teaches tapping, not doubling.
 #   2026-08-22  BUILD ky -- ALGEBRA I UNIT 5: SYSTEMS OF EQUATIONS. 92 lessons -> 96,
 #               85 ops (sys1, sys2, sumd, elim added). TWO RULES TRUE AT ONCE, opened
 #               by [[graph]] drawing TWO LINES CROSSING (lines= splits on ";") -- the
@@ -4354,6 +4405,508 @@ _ALGEBRA1_U5 = [
 LESSONS.extend(_ALGEBRA1_U5)
 
 
+# =============================================================================
+# ALGEBRA I -- UNIT 6: EXPONENTS & EXPONENTIAL FUNCTIONS (build kz, 2026-08-22)
+# =============================================================================
+# Prealgebra U1 taught what a power IS ("three 2s multiplied"). This unit teaches how
+# powers BEHAVE. Lessons 1 and 2 are a deliberate PAIR: the product rule (powers add)
+# and the power of a power (powers times) are each other's classic confusion, so they
+# are taught back-to-back and each offers the other's rule as its wrong tap. Telling
+# the two situations apart IS the skill.
+#
+# Lesson 3 puts the power to work carrying a digit (scientific notation in child
+# clothes), and lesson 4 is THE FIRST EXPONENTIAL GROWTH -- the doubling pond, where
+# the wrong tap is the linear thinker's answer and the board draws the run-away
+# sequence so the child can watch it pull ahead.
+_ALGEBRA1_U6 = [
+    {
+        "id": "alg1-u6-counting-the-copies",
+        "course": "algebra1", "unit": 6,
+        "topic": "Counting the copies",
+        "op": "exadd", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("power", "x"),
+        "advance_line": "Three in a row — you've got it! Multiplying powers ADDS the counts.",
+        "teach": [
+            ["You know x to the power 3 means three x's multiplied. So what is x to the 3, times x to the 2? Do not guess — WRITE IT OUT. Three x's multiplied, times two more x's multiplied. Count them: five x's. It is x to the power 5.",
+             '[[goal text="Counting the copies"]][[step eq="x³ · x² = (x · x · x) · (x · x)"]]'],
+            ["That is the whole rule: when powers of x multiply, their counts ADD. 3 x's and 2 x's are 5 x's — the same way 3 apples and 2 apples are 5 apples. The power is just a count.",
+             '[[step eq="x³ · x² = x⁵"]][[step eq="3 + 2 = 5"]]'],
+            ["The tempting wrong move is timesing the powers: 3 times 2 equals 6, so x to the 6. Write it out and count — there are only five x's on the page. Nothing here made copies of copies; two piles just joined.",
+             '[[step eq="x³ · x² = x⁵ ✓"]][[step eq="x⁶ ✗ — count the x\'s: there are 5"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x to the 4 times x to the 3. Four x's joined by three more: seven x's, so x to the 7.",
+                        '[[step eq="x⁴ · x³ = x⁷"]]'],
+             "ask": {"a": 3, "b": 7, "op": "exadd"}},
+            {"worked": ["One more together. x to the 5 times x to the 2: five and two make... careful — five x's and two x's are SEVEN x's. x to the 7.",
+                        '[[step eq="x⁵ · x² = x⁷"]]'],
+             "ask": {"a": 4, "b": 6, "op": "exadd"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "op": "exadd"},
+            {"a": 3, "b": 3, "op": "exadd"},
+            {"a": 2, "b": 5, "op": "exadd"},
+            {"a": 3, "b": 4, "op": "exadd"},
+            {"a": 2, "b": 6, "op": "exadd"},
+            {"a": 3, "b": 5, "op": "exadd"},
+            {"a": 4, "b": 4, "op": "exadd"},
+            {"a": 2, "b": 7, "op": "exadd"},
+            {"a": 4, "b": 5, "op": "exadd"},
+            {"a": 5, "b": 5, "op": "exadd"},
+        ],
+    },
+    {
+        "id": "alg1-u6-copies-of-copies",
+        "course": "algebra1", "unit": 6,
+        "topic": "Copies of copies",
+        "op": "exmul", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("power", "parentheses"),
+        "advance_line": "Three in a row — you've got it! Copies of copies times the counts.",
+        "teach": [
+            ["Now the OTHER situation, and it looks teasingly similar. Take x to the 3 — all of it, parentheses around it — and raise THAT to the power 2. That means two copies of the whole thing: two copies of three x's.",
+             '[[goal text="Copies of copies"]][[step eq="(x³)² = (x · x · x) · (x · x · x)"]]'],
+            ["Count them: two groups of three is 3 times 2, which equals 6 x's. So a power OF a power TIMES the counts — because you are making copies of copies, and copies of copies is exactly what timesing counts.",
+             '[[step eq="(x³)² = x⁶"]][[step eq="3 × 2 = 6"]]'],
+            ["Yesterday multiplying powers ADDED, today a power of a power TIMES — and telling the two apart is the entire skill. Ask one question: am I JOINING two piles, or COPYING a whole pile? Joining adds. Copying times.",
+             '[[step eq="x³ · x² = x⁵ — joining, ADD"]][[step eq="(x³)² = x⁶ — copying, TIMES"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x to the 4, all raised to the power 2. Two copies of four x's: 4 times 2 equals 8, so x to the 8.",
+                        '[[step eq="(x⁴)² = x⁸"]]'],
+             "ask": {"a": 3, "b": 4, "op": "exmul"}},
+            {"worked": ["One more together. x to the 2, raised to the power 5. Five copies of two x's is 10: x to the 10.",
+                        '[[step eq="(x²)⁵ = x¹⁰"]]'],
+             "ask": {"a": 5, "b": 4, "op": "exmul"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "exmul"},
+            {"a": 4, "b": 2, "op": "exmul"},
+            {"a": 3, "b": 3, "op": "exmul"},
+            {"a": 2, "b": 5, "op": "exmul"},
+            {"a": 4, "b": 3, "op": "exmul"},
+            {"a": 2, "b": 7, "op": "exmul"},
+            {"a": 5, "b": 3, "op": "exmul"},
+            {"a": 4, "b": 4, "op": "exmul"},
+            {"a": 3, "b": 6, "op": "exmul"},
+            {"a": 4, "b": 5, "op": "exmul"},
+        ],
+    },
+    {
+        "id": "alg1-u6-times-ten-again",
+        "course": "algebra1", "unit": 6,
+        "topic": "Times ten, again and again",
+        "op": "sci", "max_value": 10000,
+        "levels": ("abstract",),
+        "symbols": ("ten", "power"),
+        "advance_line": "Three in a row — you've got it! The power counts the zeros.",
+        "teach": [
+            ["Powers of ten are the friendliest powers there are. 10 to the power 3 is 10 times 10 times 10, which equals 1000 — a one with three zeros. The power counts the zeros. That is why scientists write huge numbers this way.",
+             '[[goal text="Times ten, again and again"]][[step eq="10³ = 10 × 10 × 10 = 1000"]]'],
+            ["Now put a digit in front. 3 times 10 to the power 2: that is 3 times 100, which equals 300 — the 3 with two zeros marching behind it.",
+             '[[step eq="3 × 10² = 3 × 100 = 300"]]'],
+            ["The trap is reading the power as a TIMES: 3 times 10 times 2 equals 60, and 60 is nowhere near 300. The 2 up there is not a number to times by — it is a count of how many times the ten itself appears.",
+             '[[step eq="3 × 10² = 300 ✓"]][[step eq="3 × 10 × 2 = 60 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 5 times 10 to the 3. That is 5 times 1000 — 5000, the 5 with three zeros behind it.",
+                        '[[step eq="5 × 10³ = 5000"]]'],
+             "ask": {"a": 2, "b": 4, "op": "sci"}},
+            {"worked": ["One more together. 7 times 10 to the 2 equals 700.",
+                        '[[step eq="7 × 10² = 700"]]'],
+             "ask": {"a": 3, "b": 5, "op": "sci"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "op": "sci"},
+            {"a": 2, "b": 3, "op": "sci"},
+            {"a": 2, "b": 5, "op": "sci"},
+            {"a": 2, "b": 7, "op": "sci"},
+            {"a": 2, "b": 9, "op": "sci"},
+            {"a": 3, "b": 2, "op": "sci"},
+            {"a": 3, "b": 4, "op": "sci"},
+            {"a": 3, "b": 6, "op": "sci"},
+            {"a": 3, "b": 8, "op": "sci"},
+            {"a": 3, "b": 9, "op": "sci"},
+        ],
+    },
+    {
+        "id": "alg1-u6-the-doubling-pond",
+        "course": "algebra1", "unit": 6,
+        "topic": "The doubling pond",
+        "op": "dbl", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("doubles", "day"),
+        "advance_line": "Three in a row — you've got it! Doubling doubles everything there is, not just the start.",
+        "teach": [
+            ["A pond has 3 lily pads, and lily pads double : every day, each pad becomes two. Watch a few days go by — 3, then 6, then 12, then 24. Look how fast that pulled away. This kind of growing has a name: exponential.",
+             '[[goal text="The doubling pond"]][[step eq="3 → 6 → 12 → 24"]]'],
+            ["Why so fast? Because each day doubles EVERYTHING there is, not just the pads you started with. After 3 days the pond has been doubled 3 times: 3 times 2 times 2 times 2, which equals 24. The days count the doublings — the days are a power of 2.",
+             '[[step eq="3 × 2 × 2 × 2 = 24"]][[step eq="3 × 2³"]]'],
+            ["A careful person who has not seen doubling before guesses like a walker: up by the same amount each day, 3, 5, 7, 9. But the pond is not walking — it is doubling, and by day 3 it holds 24, not 9. Growth that FEEDS ON ITSELF leaves walking behind.",
+             '[[step eq="doubling: 3 → 24 ✓"]][[step eq="up by 2 a day: 3 → 9 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 2 pads, doubling for 4 days: 2, 4, 8, 16, 32. That is 2 times 2 to the power 4 — 32 pads.",
+                        '[[step eq="2 → 4 → 8 → 16 → 32"]]'],
+             "ask": {"a": 3, "b": 6, "op": "dbl"}},
+            {"worked": ["One more together. 5 pads, doubling for 3 days: 5, 10, 20, 40. Forty pads.",
+                        '[[step eq="5 → 10 → 20 → 40"]]'],
+             "ask": {"a": 4, "b": 6, "op": "dbl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "dbl"},
+            {"a": 3, "b": 3, "op": "dbl"},
+            {"a": 4, "b": 2, "op": "dbl"},
+            {"a": 3, "b": 4, "op": "dbl"},
+            {"a": 3, "b": 5, "op": "dbl"},
+            {"a": 4, "b": 3, "op": "dbl"},
+            {"a": 5, "b": 2, "op": "dbl"},
+            {"a": 4, "b": 4, "op": "dbl"},
+            {"a": 4, "b": 5, "op": "dbl"},
+            {"a": 5, "b": 3, "op": "dbl"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U6)
+
+
+# =============================================================================
+# ALGEBRA I -- UNIT 7: POLYNOMIALS & FACTORING (build la, 2026-08-22)
+# =============================================================================
+# The area model comes back and then RUNS BACKWARDS. Build kt drew a(x + b) as two
+# rooms; now the rectangle is (x + a)(x + b) -- FOUR rooms -- and factoring is the
+# same picture read the other way: given the rooms, find the sides. The unit ends on
+# the vanishing middle, the first identity a child meets that feels like a magic
+# trick and is just two rooms cancelling.
+_ALGEBRA1_U7 = [
+    {
+        "id": "alg1-u7-the-four-rooms",
+        "course": "algebra1", "unit": 7,
+        "topic": "The four rooms",
+        "op": "foil", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("rooms", "x"),
+        "advance_line": "Three in a row — you've got it! The middle rooms add; the corner room times.",
+        "teach": [
+            ["The rectangle picture grows up today. x plus 2, times x plus 3 — BOTH sides have an x in them now, so the wall cuts each way and the rectangle has four rooms : an x-squared room, two x rooms, and a corner of plain number.",
+             '[[goal text="The four rooms"]][[areamodel rows="x,2" cols="x,3"]]'],
+            ["Read the rooms. x times x is x squared. The two middle rooms are 3 x and 2 x — together 5 x. The corner is 2 times 3, which equals 6. So x plus 2, times x plus 3, comes to x squared plus 5 x plus 6.",
+             '[[areamodel rows="x,2" cols="x,3"]][[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'],
+            ["Two different jobs in one picture: the MIDDLE rooms add the two numbers — 2 plus 3 equals 5 — and the CORNER rooms times them — 2 times 3 equals 6. Mixing those two jobs up is the whole danger of this unit, so say them apart: middles add, corner times.",
+             '[[step eq="middles: 2 + 3 = 5 → 5x"]][[step eq="corner: 2 × 3 = 6"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x plus 4, times x plus 2. Middles: 4 plus 2 equals 6, so 6 x. Corner: 4 times 2 equals 8. x squared plus 6 x plus 8.",
+                        '[[areamodel rows="x,4" cols="x,2"]]'],
+             "ask": {"a": 4, "b": 6, "op": "foil"}},
+            {"worked": ["One more together. x plus 5, times x plus 3: middles make 8 x, corner is 15. x squared plus 8 x plus 15.",
+                        '[[step eq="(x + 5)(x + 3) = x² + 8x + 15"]]'],
+             "ask": {"a": 5, "b": 6, "op": "foil"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "op": "foil"},
+            {"a": 3, "b": 3, "op": "foil"},
+            {"a": 2, "b": 5, "op": "foil"},
+            {"a": 3, "b": 4, "op": "foil"},
+            {"a": 2, "b": 6, "op": "foil"},
+            {"a": 3, "b": 5, "op": "foil"},
+            {"a": 4, "b": 4, "op": "foil"},
+            {"a": 2, "b": 7, "op": "foil"},
+            {"a": 4, "b": 5, "op": "foil"},
+            {"a": 3, "b": 7, "op": "foil"},
+        ],
+    },
+    {
+        "id": "alg1-u7-factoring-backwards",
+        "course": "algebra1", "unit": 7,
+        "topic": "Running the rooms backwards",
+        "op": "fnum", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("factoring", "x"),
+        "advance_line": "Three in a row — you've got it! The right number fits BOTH clues at once.",
+        "teach": [
+            ["Now run yesterday's picture backwards. You are handed the finished sum — x squared plus 5 x plus 6 — and asked what two sides built it. Working back from the rooms to the sides is called factoring , and it is a detective game with two clues.",
+             '[[goal text="Running the rooms backwards"]][[areamodel rows="x,2" cols="x,3"]]'],
+            ["The clues: the two hidden numbers ADD to the x count, 5, and TIMES to the corner, 6. Try pairs: 1 and 4? Add to 5, but times to 4 — no. 2 and 3? Add to 5 AND times to 6. Both clues fit, so the sides are x plus 2 and x plus 3.",
+             '[[step eq="? + ? = 5 · ? × ? = 6"]][[step eq="2 + 3 = 5 ✓ · 2 × 3 = 6 ✓"]]'],
+            ["Both clues, always. A number that only adds right, or only timeses right, is an impostor. And you can check the whole answer for free — multiply the sides back out and watch the original come back.",
+             '[[step eq="(x + 2)(x + 3) = x² + 5x + 6 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x squared plus 7 x plus 12, equals x plus 3, times x plus what? The partner must add with 3 to 7 and times with 3 to 12 — that is 4, both ways.",
+                        '[[step eq="3 + 4 = 7 ✓ · 3 × 4 = 12 ✓"]]'],
+             "ask": {"a": 6, "b": 2, "op": "fnum"}},
+            {"worked": ["One more together. x squared plus 9 x plus 20, equals x plus 5, times x plus what? 5 plus 4 equals 9, and 5 times 4 equals 20. It is 4.",
+                        '[[step eq="(x + 5)(x + 4) = x² + 9x + 20"]]'],
+             "ask": {"a": 4, "b": 6, "op": "fnum"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "c": 0, "op": "fnum"},
+            {"a": 4, "b": 2, "c": 0, "op": "fnum"},
+            {"a": 2, "b": 3, "c": 0, "op": "fnum"},
+            {"a": 4, "b": 3, "c": 0, "op": "fnum"},
+            {"a": 5, "b": 3, "c": 0, "op": "fnum"},
+            {"a": 3, "b": 4, "c": 0, "op": "fnum"},
+            {"a": 2, "b": 5, "c": 0, "op": "fnum"},
+            {"a": 3, "b": 5, "c": 0, "op": "fnum"},
+            {"a": 4, "b": 5, "c": 0, "op": "fnum"},
+            {"a": 5, "b": 6, "c": 0, "op": "fnum"},
+        ],
+    },
+    {
+        "id": "alg1-u7-the-common-factor",
+        "course": "algebra1", "unit": 7,
+        "topic": "Pulling out the common factor",
+        "op": "gcfx", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("common factor", "x"),
+        "advance_line": "Three in a row — you've got it! Both parts share, or it is not a common factor.",
+        "teach": [
+            ["Sometimes the whole expression shares one number. Look at 6 x plus 9: the 6 is 3 times 2, and the 9 is 3 times 3. The 3 lives in BOTH parts — it is a common factor , and you can pull it out front.",
+             '[[goal text="Pulling out the common factor"]][[step eq="6x + 9 = 3 · 2x + 3 · 3"]]'],
+            ["Pull the 3 out: 6 x plus 9 equals 3 times, 2 x plus 3. Check it with the distributive lesson's own rule — the 3 reaches both rooms: 3 times 2 x is 6 x, and 3 times 3 is 9. It all comes back.",
+             '[[step eq="6x + 9 = 3(2x + 3)"]][[step eq="check: 3 × 2x = 6x ✓ · 3 × 3 = 9 ✓"]]'],
+            ["The mistake is pulling the factor from ONE part only: 3 times, 2 x plus 9 — multiply that back and you get 6 x plus 27, not 6 x plus 9. A common factor comes out of everything it was in, or it does not come out at all.",
+             '[[step eq="3(2x + 3) ✓"]][[step eq="3(2x + 9) ✗ — that is 6x + 27"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 8 x plus 6 equals 2 times, 4 x plus 3. Both the 8 and the 6 gave up their 2.",
+                        '[[step eq="8x + 6 = 2(4x + 3)"]]'],
+             "ask": {"a": 3, "b": 5, "c": 2, "op": "gcfx"}},
+            {"worked": ["One more together. 15 x plus 10 equals 5 times, 3 x plus 2.",
+                        '[[step eq="15x + 10 = 5(3x + 2)"]]'],
+             "ask": {"a": 7, "b": 2, "c": 3, "op": "gcfx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 2, "op": "gcfx"},
+            {"a": 2, "b": 5, "c": 3, "op": "gcfx"},
+            {"a": 3, "b": 4, "c": 2, "op": "gcfx"},
+            {"a": 4, "b": 3, "c": 2, "op": "gcfx"},
+            {"a": 3, "b": 2, "c": 3, "op": "gcfx"},
+            {"a": 2, "b": 3, "c": 5, "op": "gcfx"},
+            {"a": 4, "b": 5, "c": 3, "op": "gcfx"},
+            {"a": 5, "b": 4, "c": 3, "op": "gcfx"},
+            {"a": 4, "b": 3, "c": 4, "op": "gcfx"},
+            {"a": 5, "b": 3, "c": 4, "op": "gcfx"},
+        ],
+    },
+    {
+        "id": "alg1-u7-the-vanishing-middle",
+        "course": "algebra1", "unit": 7,
+        "topic": "The vanishing middle",
+        "op": "dsq", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("squared", "take away"),
+        "advance_line": "Three in a row — you've got it! Plus and take away the same x's — the middles cancel.",
+        "teach": [
+            ["One special pair of sides does something wonderful. x plus 3, times x TAKE AWAY 3. Build the rooms: x squared, then plus 3 x from one middle and take away 3 x from the other, then the corner, 3 times 3 taken away.",
+             '[[goal text="The vanishing middle"]][[step eq="(x + 3)(x − 3)"]][[step eq="x² + 3x − 3x − 9"]]'],
+            ["Watch the middles: plus 3 x and take away 3 x. They cancel — land exactly on nothing. All that survives is x squared take away 9. The whole middle of the answer vanished .",
+             '[[step eq="+3x − 3x = 0"]][[step eq="(x + 3)(x − 3) = x² − 9"]]'],
+            ["And notice WHICH 9: it is 3 squared, not 3 and not 6. The corner room is 3 times 3. This pattern — x squared take away a square — is famous enough to have a name, the difference of squares, and it works for any number in the 3's place.",
+             '[[step eq="x² − 9 ✓ (9 = 3²)"]][[step eq="x² − 3 ✗ · x² − 6x... ✗ nothing survived but the squares"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x plus 5, times x take away 5. The middles cancel, the corner is 5 squared: x squared take away 25.",
+                        '[[step eq="(x + 5)(x − 5) = x² − 25"]]'],
+             "ask": {"a": 13, "b": 0, "op": "dsq"}},
+            {"worked": ["One more together. x plus 10, times x take away 10: x squared take away 100.",
+                        '[[step eq="(x + 10)(x − 10) = x² − 100"]]'],
+             "ask": {"a": 14, "b": 0, "op": "dsq"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 0, "op": "dsq"},
+            {"a": 4, "b": 0, "op": "dsq"},
+            {"a": 5, "b": 0, "op": "dsq"},
+            {"a": 6, "b": 0, "op": "dsq"},
+            {"a": 7, "b": 0, "op": "dsq"},
+            {"a": 8, "b": 0, "op": "dsq"},
+            {"a": 9, "b": 0, "op": "dsq"},
+            {"a": 10, "b": 0, "op": "dsq"},
+            {"a": 11, "b": 0, "op": "dsq"},
+            {"a": 12, "b": 0, "op": "dsq"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U7)
+
+
+# =============================================================================
+# ALGEBRA I -- UNIT 8: QUADRATIC FUNCTIONS (build la, 2026-08-22)
+# =============================================================================
+# THE CURVE ARRIVES. y = x² is the first rule whose graph BENDS, and the unit is
+# built on the three things a child must feel about it: squaring is not doubling, a
+# product of zero means one of the factors is zero, and a square is never negative
+# -- which is exactly why the curve has a lowest point. The last lesson throws a
+# ball: height c take away x squared, and finding where it lands is asking what
+# number squared equals c -- the square root, met as an answer to a question rather
+# than as a symbol.
+_ALGEBRA1_U8 = [
+    {
+        "id": "alg1-u8-the-curve",
+        "course": "algebra1", "unit": 8,
+        "topic": "The curve",
+        "op": "sqy", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("squared", "curve"),
+        "advance_line": "Three in a row — you've got it! Squared means times itself, never times two.",
+        "teach": [
+            ["Every line you have drawn was straight. Meet the first rule that bends: y equals x squared. Feed it 1, 2, 3, 4 and out come 1, 4, 9, 16 — each step up costs more than the last, so the graph bends into a curve , shaped like a bowl.",
+             '[[goal text="The curve"]][[graph func="x^2" range="-4..4"]]'],
+            ["Read it like any rule. y equals x squared plus 2, at x equals 3: 3 squared is 3 times 3, which equals 9, plus 2 equals 11.",
+             '[[graph func="x^2+2" range="-4..4"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'],
+            ["The one error to burn away now: squared means TIMES ITSELF, not times two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 times 2 and 2 plus 2 are both 4 — and that coincidence at 2 is exactly what plants the habit. Everywhere else it breaks.",
+             '[[step eq="3² = 3 × 3 = 9 ✓"]][[step eq="3² = 6 ✗ — that is doubling"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x squared plus 3, at x equals 4: 16 plus 3 equals 19.",
+                        '[[step eq="y = 4² + 3 = 19"]]'],
+             "ask": {"a": 3, "b": 7, "op": "sqy"}},
+            {"worked": ["One more together. y equals x squared plus 1, at x equals 5: 25 plus 1 equals 26.",
+                        '[[step eq="y = 5² + 1 = 26"]]'],
+             "ask": {"a": 6, "b": 7, "op": "sqy"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 1, "op": "sqy"},
+            {"a": 3, "b": 4, "op": "sqy"},
+            {"a": 4, "b": 2, "op": "sqy"},
+            {"a": 4, "b": 5, "op": "sqy"},
+            {"a": 5, "b": 2, "op": "sqy"},
+            {"a": 5, "b": 6, "op": "sqy"},
+            {"a": 6, "b": 3, "op": "sqy"},
+            {"a": 7, "b": 2, "op": "sqy"},
+            {"a": 8, "b": 4, "op": "sqy"},
+            {"a": 9, "b": 5, "op": "sqy"},
+        ],
+    },
+    {
+        "id": "alg1-u8-two-answers",
+        "course": "algebra1", "unit": 8,
+        "topic": "Zero times anything",
+        "op": "roots", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("zero", "x"),
+        "advance_line": "Three in a row — you've got it! A product is zero only when a factor is zero.",
+        "teach": [
+            ["Here is a fact so plain it hides its power: zero times ANYTHING is zero — and NOTHING ELSE, times anything, ever lands on zero. So if two brackets multiply to zero, one of the brackets MUST be zero. There is no other way.",
+             '[[goal text="Zero times anything"]][[step eq="(something) × (something) = 0"]]'],
+            ["x take away 3, times x take away 5, equals zero. When is the first bracket zero? At x equals 3. The second? At x equals 5. So the equation has TWO answers, 3 and 5 — a bending curve can touch the ground twice.",
+             '[[step eq="(x − 3)(x − 5) = 0"]][[step eq="x = 3 or x = 5"]]'],
+            ["Do not do arithmetic on the two numbers — they are not asking to be added or timesed. Each one answers its own bracket. Check: at x equals 5, the second bracket is zero, and zero times anything wipes out the whole thing.",
+             '[[step eq="x = 3, x = 5 ✓"]][[step eq="x = 8 ✗ · x = 15 ✗ — nobody asked for 3 + 5 or 3 × 5"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x take away 2, times x take away 6, equals zero. The answers are 2 and 6 — one per bracket.",
+                        '[[step eq="(x − 2)(x − 6) = 0 → x = 2 or 6"]]'],
+             "ask": {"a": 6, "b": 4, "op": "roots"}},
+            {"worked": ["One more together. x take away 4, times x take away 7: the answers are 4 and 7.",
+                        '[[step eq="x = 4 or x = 7"]]'],
+             "ask": {"a": 7, "b": 5, "op": "roots"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "roots"},
+            {"a": 4, "b": 2, "op": "roots"},
+            {"a": 2, "b": 3, "op": "roots"},
+            {"a": 5, "b": 3, "op": "roots"},
+            {"a": 2, "b": 5, "op": "roots"},
+            {"a": 4, "b": 5, "op": "roots"},
+            {"a": 3, "b": 6, "op": "roots"},
+            {"a": 2, "b": 7, "op": "roots"},
+            {"a": 5, "b": 8, "op": "roots"},
+            {"a": 4, "b": 9, "op": "roots"},
+        ],
+    },
+    {
+        "id": "alg1-u8-the-lowest-point",
+        "course": "algebra1", "unit": 8,
+        "topic": "The lowest point",
+        "op": "vtx", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("squared", "lowest"),
+        "advance_line": "Three in a row — you've got it! A square is never below zero, so the plus number is the floor.",
+        "teach": [
+            ["A square can never be below zero. Times any number by itself — even a negative one — and the answer refuses to be negative. That single refusal gives every bending curve of this shape a FLOOR: a lowest point it touches and never goes under.",
+             '[[goal text="The lowest point"]][[graph func="(x-3)^2+2" range="0..6"]]'],
+            ["y equals: x take away 3, squared, plus 2. The squared part is smallest when it is exactly zero — which happens right at x equals 3. At that moment y is 0 plus 2, which equals 2. The lowest y this curve ever reaches is 2.",
+             '[[step eq="(x − 3)² is 0 at x = 3"]][[step eq="lowest y = 0 + 2 = 2"]]'],
+            ["The rule's two numbers do two jobs — the U4 lesson again, curved. The 3 says WHERE the low point sits, left and right. The 2 says HOW LOW the curve goes. Asked for the lowest y, the answer is the plus number, not the number inside the brackets.",
+             '[[step eq="lowest y = 2 ✓"]][[step eq="3 ✗ — that is where it sits, not how low"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals: x take away 5, squared, plus 4. The square bottoms out at zero, so the lowest y is 4.",
+                        '[[graph func="(x-5)^2+4" range="2..8"]][[step eq="lowest y = 4"]]'],
+             "ask": {"a": 4, "b": 3, "op": "vtx"}},
+            {"worked": ["One more together. y equals: x take away 2, squared, plus 6. Lowest y: 6.",
+                        '[[step eq="lowest y = 6"]]'],
+             "ask": {"a": 7, "b": 8, "op": "vtx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "vtx"},
+            {"a": 5, "b": 3, "op": "vtx"},
+            {"a": 2, "b": 4, "op": "vtx"},
+            {"a": 7, "b": 4, "op": "vtx"},
+            {"a": 6, "b": 5, "op": "vtx"},
+            {"a": 4, "b": 6, "op": "vtx"},
+            {"a": 9, "b": 7, "op": "vtx"},
+            {"a": 3, "b": 8, "op": "vtx"},
+            {"a": 5, "b": 9, "op": "vtx"},
+            {"a": 8, "b": 9, "op": "vtx"},
+        ],
+    },
+    {
+        "id": "alg1-u8-the-ball-comes-down",
+        "course": "algebra1", "unit": 8,
+        "topic": "The ball comes down",
+        "op": "hitg", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("squared", "zero"),
+        "advance_line": "Three in a row — you've got it! Ask what number squared equals the height.",
+        "teach": [
+            ["Throw a ball and its height follows a bending curve — quadratics are how the world falls. Here is one: y equals 25 take away x squared. At x equals 0 the height is 25, and as x grows, x squared eats the height away.",
+             '[[goal text="The ball comes down"]][[graph func="25-x^2" range="0..6"]]'],
+            ["When does it hit the ground? The ground is where the height is zero , so 25 take away x squared equals 0 — x squared must equal 25. Now the question turns around — WHAT NUMBER, squared, equals 25? Five: 5 times 5 is 25. The ball lands at x equals 5.",
+             '[[step eq="25 − x² = 0"]][[step eq="x² = 25 → x = 5"]]'],
+            ["That backwards question has a name: 5 is the square root of 25 — the number that squares to it. It is not half of 25. Halving undoes doubling; the square root undoes SQUARING, and you have known since the curve lesson that those are different beasts.",
+             '[[step eq="x = 5 ✓ (5² = 25)"]][[step eq="x = 12 ✗ — half undoes DOUBLING, not squaring"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 36 take away x squared. It lands where x squared equals 36 — and 6 squared is 36. x equals 6.",
+                        '[[step eq="x² = 36 → x = 6"]]'],
+             "ask": {"a": 13, "b": 0, "op": "hitg"}},
+            {"worked": ["One more together. y equals 49 take away x squared. 7 squared is 49, so it lands at x equals 7.",
+                        '[[step eq="x² = 49 → x = 7"]]'],
+             "ask": {"a": 14, "b": 0, "op": "hitg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 0, "op": "hitg"},
+            {"a": 4, "b": 0, "op": "hitg"},
+            {"a": 5, "b": 0, "op": "hitg"},
+            {"a": 6, "b": 0, "op": "hitg"},
+            {"a": 7, "b": 0, "op": "hitg"},
+            {"a": 8, "b": 0, "op": "hitg"},
+            {"a": 9, "b": 0, "op": "hitg"},
+            {"a": 10, "b": 0, "op": "hitg"},
+            {"a": 11, "b": 0, "op": "hitg"},
+            {"a": 12, "b": 0, "op": "hitg"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U8)
+
+
 
 
 
@@ -4434,6 +4987,15 @@ COURSE_ORDER = [
     # Unit 5: Systems of Equations -- two rules true at once
     "alg1-u5-where-two-rules-agree", "alg1-u5-swapping-in",
     "alg1-u5-sum-and-difference", "alg1-u5-the-eraser-vanishes",
+    # Unit 6: Exponents & Exponential Functions -- how powers behave
+    "alg1-u6-counting-the-copies", "alg1-u6-copies-of-copies",
+    "alg1-u6-times-ten-again", "alg1-u6-the-doubling-pond",
+    # Unit 7: Polynomials & Factoring -- the area model runs backwards
+    "alg1-u7-the-four-rooms", "alg1-u7-factoring-backwards",
+    "alg1-u7-the-common-factor", "alg1-u7-the-vanishing-middle",
+    # Unit 8: Quadratic Functions -- the curve arrives
+    "alg1-u8-the-curve", "alg1-u8-two-answers",
+    "alg1-u8-the-lowest-point", "alg1-u8-the-ball-comes-down",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -4484,6 +5046,24 @@ def _frac_words(a, b):
     top = _FRAC_TOP.get(a, str(a))
     bot = _FRAC_BOTTOM.get(b, f"{b}th")
     return f"{top} {bot}" if a == 1 else f"{top} {bot}s"
+
+
+def _gcd(a, b):
+    """math.gcd without the import ceremony (build la -- gcfx's honesty check:
+    the pulled-out factor must be the WHOLE common factor)."""
+    while b:
+        a, b = b, a % b
+    return a
+
+
+_SUPS = {0: "\u2070", 1: "\u00b9", 2: "\u00b2", 3: "\u00b3", 4: "\u2074",
+         5: "\u2075", 6: "\u2076", 7: "\u2077", 8: "\u2078", 9: "\u2079"}
+
+
+def _sup(n):
+    """A small exponent as a real superscript, for board text (build kz -- expn
+    hard-coded \u00b2 and \u00b3 because its powers stop at 3; Algebra I's do not)."""
+    return "".join(_SUPS[int(d)] for d in str(n))
 
 
 def _prime_factors(n):
@@ -6169,6 +6749,299 @@ OP_EXT = {
                             "both prices are real (pencil and eraser at least 1), a "
                             "is even so the halving error is a whole tap, and the "
                             "three taps differ"),
+    },
+
+    # ---- ALGEBRA I UNIT 6 (build kz) -- EXPONENTS & EXPONENTIAL FUNCTIONS -----
+    # Prealgebra U1 taught what a power IS (expn: "three 2s multiplied"). This unit
+    # teaches how powers BEHAVE: the product rule as counting copies (x³ · x² is five
+    # x's, not six), a power of a power as copies of copies, powers of ten carrying a
+    # digit (scientific notation in child clothes), and finally DOUBLING -- the first
+    # exponential growth, where the wrong tap is the linear thinker's answer.
+    # _sup() writes the exponents as real superscripts on the board, the way expn
+    # already wrote ² and ³ by hand.
+    "exadd": { # x^a · x^b -- how many x's multiplied in all?
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"x to the power {p['a']}, times x to the power "
+                             f"{p['b']}. Write out all the x's multiplied — "
+                             f"how many x's are there?"),
+        "board": lambda p: (f'[[step eq="x{_sup(p["a"])} · x{_sup(p["b"])}"]]'
+                            f'[[step eq="({" · ".join(["x"] * p["a"])}) · '
+                            f'({" · ".join(["x"] * p["b"])})"]]'
+                            f'[[step eq="{p["a"]} + {p["b"]} = ? x\'s"]]'),
+        "praise": lambda p: (f"{p['a']} x's joined by {p['b']} more x's — "
+                             f"{p['a'] + p['b']} x's multiplied, which is x to the "
+                             f"power {p['a'] + p['b']}. The powers ADD."),
+        "key": lambda p: p["a"] + p["b"],
+        # THE exponent error: timesing the powers. x³ · x² read as x to the 6.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] * p["b"],
+                              p["a"] + p["b"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] + p["b"], p["a"] * p["b"],
+                                     p["a"] + p["b"] + 1}) == 3,
+                            "three distinct counts -- which rules out 2·2 (where "
+                            "adding and timesing agree) and 2·3 (where timesing "
+                            "lands on the neighbour)"),
+    },
+    "exmul": { # (x^a)^b -- how many x's is that?
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"Take x to the power {p['a']}, and raise all of it "
+                             f"to the power {p['b']}. How many x's multiplied "
+                             f"is that?"),
+        "board": lambda p: (f'[[step eq="(x{_sup(p["a"])}){_sup(p["b"])}"]]'
+                            f'[[step eq="{p["b"]} copies of {p["a"]} x\'s"]]'
+                            f'[[step eq="{p["a"]} × {p["b"]} = ? x\'s"]]'),
+        "praise": lambda p: (f"{p['b']} copies of {p['a']} x's each: {p['a']} times "
+                             f"{p['b']} equals {p['a'] * p['b']} x's. Copies of "
+                             f"copies TIMES."),
+        "key": lambda p: p["a"] * p["b"],
+        # The mirror of exadd's error: ADDING here, where copies of copies times.
+        # Taught back-to-back with exadd deliberately, because telling the two
+        # situations apart IS the skill.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              p["a"] * p["b"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["a"] * p["b"] + 1}) == 3,
+                            "three distinct counts, ruling out the cases where "
+                            "adding collides with timesing or its neighbour"),
+    },
+    "sci": {   # b × 10^a
+        "ans": lambda p: p["b"] * 10 ** p["a"],
+        "spoken": lambda p: (f"What is {p['b']} times 10 to the power {p['a']}?"),
+        "board": lambda p: (f'[[step eq="{p["b"]} × 10{_sup(p["a"])}"]]'
+                            f'[[step eq="{p["b"]} × '
+                            f'{" × ".join(["10"] * p["a"])} = ?"]]'),
+        "praise": lambda p: (f"10 to the {p['a']} is a 1 with {p['a']} zeros, so "
+                             f"{p['b']} times it is {p['b']} with {p['a']} zeros — "
+                             f"{p['b'] * 10 ** p['a']}."),
+        "key": lambda p: p["b"] * 10 ** p["a"],
+        # The times-not-power error, at ten: b × 10 × a instead of b × 10^a --
+        # 3 times 10 to the 2 read as 3 × 10 × 2 = 60. The third option is one
+        # power short, the place-value slip from Unit 8's changing-units lesson.
+        "choices": lambda p: [p["b"] * 10 ** p["a"], p["b"] * 10 * p["a"],
+                              p["b"] * 10 ** (p["a"] - 1)],
+        "check": lambda p: (2 <= p["a"] <= 3 and 2 <= p["b"] <= 9,
+                            "the exponent is at least 2 (at 1, times-ten and "
+                            "ten-to-the agree and the error cannot be shown)"),
+    },
+    "dbl": {   # b pads, doubling every day, for a days
+        "ans": lambda p: p["b"] * 2 ** p["a"],
+        "spoken": lambda p: (f"A pond has {p['b']} lily pads, and the pads double "
+                             f"every day. How many pads after {p['a']} days?"),
+        # The sequence stops ONE DAY SHORT and ends on "?" -- drawn to the end it
+        # hands the child the answer, and a board that answers its own ask teaches
+        # tapping, not doubling.
+        "board": lambda p: (f'[[step eq="start: {p["b"]}"]]'
+                            f'[[step eq="{" → ".join(str(p["b"] * 2 ** d) for d in range(p["a"]))} → ?"]]'
+                            f'[[step eq="{p["b"]} × {" × ".join(["2"] * p["a"])} = ?"]]'),
+        "praise": lambda p: (f"Doubling {p['a']} times: "
+                             f"{' , then '.join(str(p['b'] * 2 ** d) for d in range(1, p['a'] + 1))}"
+                             f" — {p['b'] * 2 ** p['a']} pads. Each day doubles "
+                             f"EVERYTHING there is, not just the start."),
+        "key": lambda p: p["b"] * 2 ** p["a"],
+        # THE growth error is LINEAR THINKING: up by 2 a day (b + 2a), or "double"
+        # read as times-2-times-days (b × 2 × a). Exponential beats both, visibly.
+        "choices": lambda p: [p["b"] * 2 ** p["a"], p["b"] + 2 * p["a"],
+                              p["b"] * 2 * p["a"]],
+        "check": lambda p: (3 <= p["a"] <= 5 and 2 <= p["b"] <= 6
+                            and p["b"] * 2 ** p["a"] <= 100
+                            and len({p["b"] * 2 ** p["a"], p["b"] + 2 * p["a"],
+                                     p["b"] * 2 * p["a"]}) == 3,
+                            "at least 3 days (below that, doubling and times-2-"
+                            "times-days agree), and the pond stays countable"),
+    },
+
+    # ---- ALGEBRA I UNIT 7 (build la) -- POLYNOMIALS & FACTORING ---------------
+    # The area model comes back and then RUNS BACKWARDS. kt drew a(x + b); now the
+    # rectangle is (x + a)(x + b) -- four rooms -- and factoring is the same picture
+    # read the other way: given the rooms, find the sides. The unit ends on the
+    # vanishing middle, the first identity a child meets that feels like a magic
+    # trick and is just the rooms cancelling.
+    "foil": {  # (x + a)(x + b) = x² + ?x + ab -- the x count
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"x plus {p['a']}, times x plus {p['b']}. That comes "
+                            f"to x squared, plus how many x, plus "
+                            f"{p['a'] * p['b']}?"),
+        "board": lambda p: (f'[[step eq="(x + {p["a"]})(x + {p["b"]})"]]'
+                            f'[[step eq="x rooms: {p["a"]}x + {p["b"]}x"]]'
+                            f'[[step eq="x² + ?x + {p["a"] * p["b"]}"]]'),
+        "praise": lambda p: (f"The two x rooms hold {p['a']} x and {p['b']} x — "
+                             f"{p['a'] + p['b']} x in all. x squared, plus "
+                             f"{p['a'] + p['b']} x, plus {p['a'] * p['b']}."),
+        "key": lambda p: p["a"] + p["b"],
+        # The classic: forgetting the middle rooms entirely, or filling them with
+        # the corner's product. The middle ADDS the two numbers; the corner times.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] * p["b"],
+                              p["a"] + p["b"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] + p["b"], p["a"] * p["b"],
+                                     p["a"] + p["b"] + 1}) == 3,
+                            "three distinct counts (ruling out 2·2 and 2·3, where "
+                            "the times collides with the add or its neighbour)"),
+    },
+    "fnum": {  # x² + (a+b)x + ab = (x + a)(x + ?)
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"x squared, plus {p['a'] + p['b']} x, plus "
+                             f"{p['a'] * p['b']}, equals: x plus {p['a']}, times, "
+                             f"x plus what?"),
+        "board": lambda p: (f'[[step eq="x² + {p["a"] + p["b"]}x + '
+                            f'{p["a"] * p["b"]}"]]'
+                            f'[[step eq="= (x + {p["a"]})(x + ?)"]]'
+                            f'[[step eq="{p["a"]} + ? = {p["a"] + p["b"]} · '
+                            f'{p["a"]} × ? = {p["a"] * p["b"]}"]]'),
+        "praise": lambda p: (f"{p['a']} plus {p['b']} equals {p['a'] + p['b']}, and "
+                             f"{p['a']} times {p['b']} equals {p['a'] * p['b']} — "
+                             f"{p['b']} fits BOTH clues, and a factor has to fit "
+                             f"both."),
+        "key": lambda p: p["b"],
+        # The wrong taps: the number that fits only ONE clue -- what is left after
+        # subtracting from the product -- and the x count itself.
+        "choices": lambda p: [p["b"], p["a"] * p["b"] - p["a"], p["a"] + p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["a"] + p["b"]) in sp
+                                 and str(p["a"] * p["b"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["b"], p["a"] * p["b"] - p["a"],
+                                     p["a"] + p["b"]}) == 3,
+                            "three distinct taps -- which quietly excludes the "
+                            "handful of pairs where the leftover collides"),
+    },
+    "gcfx": {  # (c·a)x + (c·b) = c(ax + ?)
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"{p['c'] * p['a']} x plus {p['c'] * p['b']} equals: "
+                             f"{p['c']} times, {p['a']} x plus what?"),
+        "board": lambda p: (f'[[step eq="{p["c"] * p["a"]}x + {p["c"] * p["b"]}"]]'
+                            f'[[step eq="= {p["c"]}({p["a"]}x + ?)"]]'
+                            f'[[step eq="{p["c"]} × ? = {p["c"] * p["b"]}"]]'),
+        "praise": lambda p: (f"The {p['c']} was pulled out of BOTH parts: "
+                             f"{p['c'] * p['a']} x became {p['a']} x, so "
+                             f"{p['c'] * p['b']} becomes {p['b']}. Both parts "
+                             f"share, or it is not a common factor."),
+        "key": lambda p: p["c"] * p["a"],
+        # THE factoring-out error: pulling the factor from the x part only and
+        # leaving the constant untouched -- 6x + 9 = 3(2x + 9).
+        "choices": lambda p: [p["b"], p["c"] * p["b"], p["c"]],
+        "speaks": lambda p, sp: (str(p["c"] * p["a"]) in sp
+                                 and str(p["c"] * p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and 2 <= p["c"] <= 9 and p["b"] != p["c"]
+                            and _gcd(p["a"], p["b"]) == 1,
+                            "a and b share no factor (so c really is the WHOLE "
+                            "common factor -- a half-factored answer would be a "
+                            "lie), and b differs from c so the taps differ"),
+    },
+    "dsq": {   # (x + a)(x - a) = x² - ?
+        "ans": lambda p: p["a"] * p["a"],
+        "spoken": lambda p: (f"x plus {p['a']}, times x take away {p['a']}. That "
+                             f"comes to x squared take away what number?"),
+        "board": lambda p: (f'[[step eq="(x + {p["a"]})(x − {p["a"]})"]]'
+                            f'[[step eq="middles: +{p["a"]}x − {p["a"]}x cancel"]]'
+                            f'[[step eq="x² − ?"]]'),
+        "praise": lambda p: (f"The middle rooms cancel — plus {p['a']} x and take "
+                             f"away {p['a']} x land on nothing — leaving x squared "
+                             f"take away {p['a'] * p['a']}."),
+        "key": lambda p: p["a"] * p["a"],
+        # The errors: tapping the number itself (x² − 3 for x² − 9), or doubling it
+        # (the ghost of the middle terms that SHOULD have cancelled).
+        "choices": lambda p: [p["a"] * p["a"], p["a"], 2 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (3 <= p["a"] <= 14,
+                            "a is at least 3 (at 2, the square equals the double "
+                            "and two taps collide)"),
+    },
+
+    # ---- ALGEBRA I UNIT 8 (build la) -- QUADRATIC FUNCTIONS -------------------
+    # The curve arrives. y = x² is the first rule where the graph BENDS, and the
+    # unit is built on the three things a child must feel about it: squaring is not
+    # doubling, a product of zero means one of the factors is zero, and a square is
+    # never negative (which is why the curve has a lowest point). The last lesson
+    # throws a ball: height c take away x squared, and finding where it lands is
+    # asking what number squared equals c.
+    "sqy": {   # y = x² + b at x = a
+        "ans": lambda p: p["a"] * p["a"] + p["b"],
+        "spoken": lambda p: (f"The curve is y equals x squared plus {p['b']}. "
+                             f"What is y when x is {p['a']}?"),
+        "board": lambda p: (f'[[graph func="x^2+{p["b"]}" range="-4..4"]]'
+                            f'[[step eq="y = {p["a"]}² + {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} squared is {p['a']} times {p['a']} — "
+                             f"{p['a'] * p['a']} — plus {p['b']} equals "
+                             f"{p['a'] * p['a'] + p['b']}."),
+        "key": lambda p: p["a"] * p["a"] + p["b"],
+        # THE squaring error: x² read as 2x. The third tap drops the square entirely.
+        "choices": lambda p: [p["a"] * p["a"] + p["b"], 2 * p["a"] + p["b"],
+                              p["a"] + p["b"]],
+        "check": lambda p: (3 <= p["a"] <= 9 and 1 <= p["b"] <= 9,
+                            "x is at least 3 (at 2, squaring and doubling agree "
+                            "and the error cannot be shown)"),
+    },
+    "roots": { # (x - a)(x - b) = 0 -- the other answer
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"x take away {p['a']}, times x take away {p['b']}, "
+                             f"equals zero. One answer is x equals {p['a']}. "
+                             f"What is the other answer?"),
+        "board": lambda p: (f'[[step eq="(x − {p["a"]})(x − {p["b"]}) = 0"]]'
+                            f'[[step eq="zero times anything is zero"]]'
+                            f'[[step eq="x = {p["a"]}, or x = ?"]]'),
+        "praise": lambda p: (f"If either bracket lands on zero, the whole thing is "
+                             f"zero. x equals {p['a']} kills the first bracket, and "
+                             f"x equals {p['b']} kills the second."),
+        "key": lambda p: p["b"],
+        # The wrong taps ADD or TIMES the two numbers -- treating the equation like
+        # an arithmetic problem instead of reading which x kills a bracket.
+        "choices": lambda p: [p["b"], p["a"] + p["b"], p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] != p["b"]
+                            and p["a"] + p["b"] != p["a"] * p["b"],
+                            "two different roots, and the add and times taps are "
+                            "different numbers"),
+    },
+    "vtx": {   # y = (x - a)² + b -- the lowest y
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"y equals: x take away {p['a']}, squared, plus "
+                             f"{p['b']}. What is the LOWEST y this curve can ever "
+                             f"reach?"),
+        # The board shows the RULE and the square's floor -- never "0 + b = ?",
+        # which is the answer wearing a hat (the pond taught this in kz).
+        "board": lambda p: (f'[[graph func="(x-{p["a"]})^2+{p["b"]}" '
+                            f'range="{p["a"] - 3}..{p["a"] + 3}"]]'
+                            f'[[step eq="y = (x − {p["a"]})² + {p["b"]}"]]'
+                            f'[[step eq="the squared part bottoms out at 0 — '
+                            f'lowest y = ?"]]'),
+        "praise": lambda p: (f"A square can never be below zero — the smallest the "
+                             f"squared part gets is 0, right at x equals {p['a']} — "
+                             f"so the lowest y is 0 plus {p['b']}: {p['b']}."),
+        "key": lambda p: p["b"],
+        # The wrong taps: the OTHER number in the rule (where the low point sits
+        # left-and-right, not how low it goes), and the two added.
+        "choices": lambda p: [p["b"], p["a"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] != p["b"],
+                            "the across number and the up number differ, so the "
+                            "three taps are three different numbers"),
+    },
+    "hitg": {  # y = a² - x² -- where does the height reach zero?
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"A ball's height is y equals {p['a'] * p['a']} take "
+                             f"away x squared. At what x does the height reach "
+                             f"zero?"),
+        "board": lambda p: (f'[[graph func="{p["a"] * p["a"]}-x^2" '
+                            f'range="0..{p["a"] + 1}"]]'
+                            f'[[step eq="{p["a"] * p["a"]} − x² = 0"]]'
+                            f'[[step eq="what number squared equals '
+                            f'{p["a"] * p["a"]}?"]]'),
+        "praise": lambda p: (f"The height is zero when x squared equals "
+                             f"{p['a'] * p['a']} — and {p['a']} squared is exactly "
+                             f"that. {p['a']} is called the square root of "
+                             f"{p['a'] * p['a']}."),
+        "key": lambda p: p["a"],
+        # The wrong taps: the height itself, and its half -- the child who reaches
+        # for halving because halving undoes doubling, when what is needed is the
+        # number that SQUARES to it.
+        "choices": lambda p: [p["a"], p["a"] * p["a"], 2 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"] * p["a"]) in sp,
+        "check": lambda p: (3 <= p["a"] <= 14,
+                            "a is at least 3 (at 2, the double collides with the "
+                            "square... with 2a = a² -- same wall as dsq)"),
     },
 }
 
