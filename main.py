@@ -2,6 +2,89 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22lj-the-root-and-the-hidden-exponent".
+#               BUILD lj -- ALGEBRA II UNITS 5 AND 6 (Radicals & Rational
+#               Exponents; Exponential & Logarithmic Functions). 164 lessons ->
+#               172, 153 ops -> 161. NOTHING IN THIS FILE CHANGED but this note
+#               and the stamp -- the course grew in lessonscripts.py (ops
+#               rmul/rpow/rsq/rbet and hlfl/logb/logm/lbet). U5: a root, never a
+#               halving. U6: decay's linear faller, the logarithm as the hidden
+#               exponent, logs add, and estimation between the powers.
+#   2026-08-22  APP_BUILD -> "2026-08-22li-the-degree-and-the-divide". BUILD li --
+#               ALGEBRA II UNITS 3 AND 4 (Polynomial Functions; Rational
+#               Expressions & Functions). 156 lessons -> 164, 145 ops -> 153.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp -- the
+#               course grew in lessonscripts.py (ops pdeg/turnc/rsum3/pval and
+#               rdiv/rsol/excl/rasy). U3: what the degree promises -- adds under
+#               times, caps the wiggles, three crossings together, and x³ is not
+#               3x. U4: division becomes a function -- a/x both directions, the
+#               forbidden x, and the survivor at the far horizon.
+#   2026-08-22  APP_BUILD -> "2026-08-22lh-algebra-two-opens". BUILD lh -- ⭐
+#               ALGEBRA II OPENS (U1 Foundations & Systems; U2 Quadratic Functions
+#               & Complex Numbers). 148 lessons -> 156, 137 ops -> 145. NOTHING IN
+#               THIS FILE CHANGED but this note and the stamp -- the course grew
+#               in lessonscripts.py (ops absv/absc/el2/sys3 and
+#               vtx2/rsum/disc/imag). U1: absolute value as distance, elimination
+#               that leaves a pair, three unknowns two at a time. U2: the
+#               quadratic's secrets unsolved -- where it turns, both roots
+#               together, the discriminant's sign (the first 0/1/2 judgment ask),
+#               and i arrives.
+#   2026-08-22  APP_BUILD -> "2026-08-22lg-geometry-complete". BUILD lg -- GEOMETRY
+#               UNITS 8 AND 9 (Area, Surface Area & Volume; Probability). ⭐
+#               GEOMETRY IS COMPLETE: nine units, 36 lessons, the sixth finished
+#               course. 140 lessons -> 148, 129 ops -> 137. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp -- the course grew in
+#               lessonscripts.py (ops para/lshp/surf/svol and poft/notp/outc/twop).
+#               U8 ends on the k³ volume capstone of U4's scaling story; U9 is
+#               chance in child numbers, closing on the two-way table ([[twoway]]
+#               drawn by a scripted lesson for the first time; [[tree]] stays on
+#               the shelf -- it prints its leaf products, unusable on asks).
+#               Next: Algebra II.
+#   2026-08-22  APP_BUILD -> "2026-08-22lf-the-rim-and-the-grid". BUILD lf --
+#               GEOMETRY UNITS 6 AND 7 (Circles; Coordinate Geometry). 132 lessons
+#               -> 140, 121 ops -> 129. NOTHING IN THIS FILE CHANGED but this note
+#               and the stamp -- the course grew in lessonscripts.py (ops
+#               cent/insc/iarc/alen and vseg/dist/mid2/corn). U6: the whole is 360
+#               against the straight-line habit, the inscribed angle both
+#               directions ([[circle inscribed=]] drawn by scripted lessons for the
+#               first time, on the angle-to-arc side only -- its auto-label is the
+#               given there and the answer the other way), arc length on the
+#               shaded pie. U7: the grid -- fencepost, taxicab-vs-straight,
+#               2D midpoint, the fourth corner.
+#   2026-08-22  APP_BUILD -> "2026-08-22le-the-scale-and-the-climb". BUILD le --
+#               GEOMETRY UNITS 4 AND 5 (Similarity & Dilations; Right Triangles &
+#               Trigonometry). 124 lessons -> 132, 113 ops -> 121. NOTHING IN THIS
+#               FILE CHANGED but this note and the stamp -- the course grew in
+#               lessonscripts.py (ops scal/sfac/mside/sare and pyth/leg/tang/topp).
+#               U4 is the times-never-add thread closed by the k² area surprise;
+#               U5 is Pythagoras both directions on whole triples, then the tangent
+#               as the climb inside a triangle. [[righttriangle]] draws its first
+#               scripted lessons (teach/worked + tangent asks only -- it always
+#               labels the hypotenuse, so it never carries a Pythagorean ask).
+#               New audio if rendered now: 720 unique lines / ~75k chars (~20 MB);
+#               course total after le ≈ 930k chars ≈ 949 MB projected -- the 2500
+#               cap holds it with room.
+#   2026-08-22  APP_BUILD -> "2026-08-22ld-the-shape-moves". BUILD ld -- GEOMETRY
+#               UNITS 2 AND 3 (Transformations & Symmetry; Congruence & Triangle
+#               Proofs). 116 lessons -> 124, 105 ops -> 113. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp -- the course grew in
+#               lessonscripts.py (ops tran/refl/htrn/rota and cong/isos/extr/chas).
+#               U2 is the three moves with one coordinate rule each (slide adds,
+#               flip changes one sign, half turn changes both) closed by turn
+#               symmetry; U3 is matching-by-letters congruence, the isosceles pair
+#               read both directions, and the exterior angle as the course's first
+#               proof. New audio if rendered now: 695 unique lines / ~82k chars
+#               (~22 MB) -- the 2500 cache cap holds it with room (course total
+#               after ld ≈ 856k chars ≈ 873 MB projected).
+#   2026-08-22  APP_BUILD -> "2026-08-22lc-geometry-opens". BUILD lc -- ⭐ ALGEBRA I
+#               COMPLETE (U9 Data & Statistics) and ⭐ GEOMETRY OPENS (U1 Foundations
+#               & Constructions). 108 lessons -> 116, 97 ops -> 105. NOTHING IN THIS
+#               FILE CHANGED but this note and the stamp.
+#               U9 finishes the renderer shelf -- [[dotplot]] and [[bars]] draw for a
+#               scripted lesson for the first time -- and builds to the one idea that
+#               matters: one unusual number drags the mean and leaves the median
+#               standing. Geometry U1 lays its vocabulary with figures rather than
+#               definitions. Four courses done: Entry, Basic, Prealgebra, Algebra I.
 #   2026-08-22  APP_BUILD -> "2026-08-22lb-the-cache-can-keep-it". BUILD lb -- Jim:
 #               "check the scripted course audio ... it keeps running and running, and
 #               I'm not sure it's caching what it's processing."
@@ -10129,7 +10212,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22lb-the-cache-can-keep-it"
+APP_BUILD = "2026-08-22lj-the-root-and-the-hidden-exponent"
 
 
 @app.get("/health")
