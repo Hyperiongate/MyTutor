@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  BUILD ku -- ALGEBRA I OPENS: UNIT 1, FOUNDATIONS & EXPRESSIONS.
+#               76 lessons -> 80, 69 ops (ev2, evxy, cl2, dstm added). The course key
+#               is "algebra1", matching curriculum.COURSES, whose own unit list names
+#               this unit -- the lessons follow Jim's declared curriculum, not an
+#               invented one.
+#               Prealgebra U9 planted four seeds one at a time; this unit makes them
+#               WORK TOGETHER: two-step evaluation (order of operations meets a letter
+#               -- the add-first error b(a+c) is the wrong tap), a second letter
+#               (proving x was never special; each letter keeps its own number),
+#               collecting the x's PAST A Y (the first algebra done blind -- neither
+#               letter's value is ever given -- with "9 of what?" as the
+#               grab-everything error), and distributing over a take away, where the
+#               invisible times carries a minus with it, drawn as an [[areamodel]]
+#               with a NEGATIVE room (the renderer parses cols="x,-3" and prints the
+#               expanded sum with the minus carried through).
+#               Caught while reading the rendered asks out loud: evxy's ask opened
+#               "Two letters now." in every one of twelve problems -- the same
+#               scaffold-never-fades defect mlx had in build kt. The teach beats
+#               introduce y; the ask just asks.
 #   2026-08-21  BUILD kt -- PREALGEBRA UNIT 9: VARIABLES & EXPRESSIONS. THE COURSE'S
 #               LAST UNIT. 72 lessons -> 76, 65 ops (evx, mlx, clt, dst added).
 #               PREALGEBRA IS COMPLETE: nine units, 35 lessons (Unit 2 has three), entry ladder to the
@@ -3389,6 +3408,176 @@ _PREALGEBRA_U9 = [
 LESSONS.extend(_PREALGEBRA_U9)
 
 
+# =============================================================================
+# ALGEBRA I -- UNIT 1: FOUNDATIONS & EXPRESSIONS (build ku, 2026-08-22)
+# =============================================================================
+# THE FIRST ALGEBRA I UNIT, sitting directly on Prealgebra U9. That unit planted the
+# four seeds one at a time; this one makes them work together. Two-step evaluation is
+# where order of operations (Prealgebra U1's very first rule) meets a letter. The
+# second letter proves the first one was never special. Collecting past a y is the
+# first algebra done blind -- you never learn what either letter holds. And
+# distributing over a take away is the first time the invisible times has to carry a
+# minus sign with it, drawn as an area model with a negative room.
+#
+# THE COURSE KEY IS "algebra1", matching curriculum.COURSES -- Jim's own curriculum
+# names this unit "Foundations & Expressions".
+_ALGEBRA1_U1 = [
+    {
+        "id": "alg1-u1-two-steps-with-a-letter",
+        "course": "algebra1", "unit": 1,
+        "topic": "Two steps with a letter",
+        "op": "ev2", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "times"),
+        "advance_line": "Three in a row — you've got it! Times first, then add — even with a letter inside.",
+        "teach": [
+            ["Welcome to algebra. You already know the two moves this lesson needs: a number against a letter means times, and times comes before add. Put them together and you can work out something like 3 x plus 2 the moment you learn what x is holding.",
+             '[[goal text="Two steps with a letter"]]'],
+            ["Say x is holding 4. What is 3 x plus 2? The times comes first: 3 times 4 equals 12. Then the add: 12 plus 2 equals 14.",
+             '[[step eq="x = 4"]][[step eq="3x + 2 = 3 × 4 + 2"]][[step eq="12 + 2 = 14"]]'],
+            ["The order is the whole game. If you add first — 4 plus 2, then times 3 — you get 18, and 18 is wrong. The plus cannot reach the x before the times has had it.",
+             '[[step eq="3 × 4 + 2 = 14 ✓"]][[step eq="3 × (4 + 2) = 18 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x is holding 5. 2 x plus 7: times first, 2 times 5 equals 10, then 10 plus 7 equals 17.",
+                        '[[step eq="2x + 7 = 10 + 7 = 17"]]'],
+             "ask": {"a": 4, "b": 3, "c": 2, "op": "ev2"}},
+            {"worked": ["One more together. x is holding 3. 5 x plus 4: 5 times 3 equals 15, and 15 plus 4 equals 19.",
+                        '[[step eq="5x + 4 = 15 + 4 = 19"]]'],
+             "ask": {"a": 5, "b": 4, "c": 6, "op": "ev2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 2, "op": "ev2"},
+            {"a": 3, "b": 2, "c": 3, "op": "ev2"},
+            {"a": 2, "b": 3, "c": 4, "op": "ev2"},
+            {"a": 4, "b": 2, "c": 5, "op": "ev2"},
+            {"a": 3, "b": 4, "c": 3, "op": "ev2"},
+            {"a": 5, "b": 3, "c": 4, "op": "ev2"},
+            {"a": 4, "b": 5, "c": 2, "op": "ev2"},
+            {"a": 6, "b": 4, "c": 3, "op": "ev2"},
+            {"a": 7, "b": 4, "c": 5, "op": "ev2"},
+            {"a": 8, "b": 5, "c": 6, "op": "ev2"},
+        ],
+    },
+    {
+        "id": "alg1-u1-two-letters",
+        "course": "algebra1", "unit": 1,
+        "topic": "Two letters at once",
+        "op": "evxy", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("y", "letter"),
+        "advance_line": "Three in a row — you've got it! Each letter keeps its own number.",
+        "teach": [
+            ["There was never anything special about x. Any letter can hold a number, and two letters can each hold their own. Meet y — it works exactly like x, and the two of them can stand in the same expression without getting mixed up.",
+             '[[goal text="Two letters at once"]]'],
+            ["Say x is holding 3 and y is holding 4. What is x plus 2 y? Deal with the times first: 2 y is 2 times 4, which equals 8. Then x plus that: 3 plus 8 equals 11.",
+             '[[step eq="x = 3 · y = 4"]][[step eq="x + 2y = 3 + 2 × 4"]][[step eq="3 + 8 = 11"]]'],
+            ["Each letter keeps its own number — the 2 belongs to the y and never touches the x. 3 plus 2, timesed by 4, would be 20, and 20 is wrong. Read who the 2 is standing next to.",
+             '[[step eq="3 + 2 × 4 = 11 ✓"]][[step eq="(3 + 2) × 4 = 20 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x holds 5, y holds 2. x plus 4 y: 4 times 2 equals 8, and 5 plus 8 equals 13.",
+                        '[[step eq="5 + 4 × 2 = 13"]]'],
+             "ask": {"a": 3, "b": 4, "c": 2, "op": "evxy"}},
+            {"worked": ["One more together. x holds 6, y holds 3. x plus 5 y: 5 times 3 equals 15, and 6 plus 15 equals 21.",
+                        '[[step eq="6 + 5 × 3 = 21"]]'],
+             "ask": {"a": 7, "b": 5, "c": 4, "op": "evxy"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 2, "op": "evxy"},
+            {"a": 3, "b": 2, "c": 3, "op": "evxy"},
+            {"a": 4, "b": 3, "c": 2, "op": "evxy"},
+            {"a": 2, "b": 5, "c": 2, "op": "evxy"},
+            {"a": 5, "b": 4, "c": 3, "op": "evxy"},
+            {"a": 4, "b": 5, "c": 3, "op": "evxy"},
+            {"a": 6, "b": 5, "c": 3, "op": "evxy"},
+            {"a": 3, "b": 7, "c": 4, "op": "evxy"},
+            {"a": 6, "b": 7, "c": 4, "op": "evxy"},
+            {"a": 9, "b": 6, "c": 5, "op": "evxy"},
+        ],
+    },
+    {
+        "id": "alg1-u1-collecting-past-a-y",
+        "course": "algebra1", "unit": 1,
+        "topic": "Collecting past a y",
+        "op": "cl2", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "y"),
+        "advance_line": "Three in a row — you've got it! Only the same letter collects.",
+        "teach": [
+            ["You know that x's collect by counting: 3 x plus 4 x is 7 x. Today there is a y standing in the middle. The rule does not change — it just gets a boundary: only the SAME letter collects. An x and a y are apples and oranges.",
+             '[[goal text="Collecting past a y"]]'],
+            ["Watch: 3 x plus 2 y plus 4 x. Walk along it and count only the x's: 3 of them, then 4 more, which equals 7 x. The 2 y is a different thing — it walks past and stays exactly as it is. The answer is 7 x plus 2 y.",
+             '[[step eq="3x + 2y + 4x"]][[step eq="the x\'s: 3 + 4 = 7 · the y stays"]]'],
+            ["The tempting mistake is grabbing everything: 3 plus 2 plus 4 equals 9, and calling it 9 of something. Nine of WHAT? The x's and the y are not the same thing, and a count needs everything in it to be the same thing.",
+             '[[step eq="7x + 2y ✓"]][[step eq="9 ✗ — nine of what?"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 5 x plus 3 y plus 2 x. The x's: 5 plus 2 equals 7. So it is 7 x plus 3 y.",
+                        '[[step eq="5x + 3y + 2x = 7x + 3y"]]'],
+             "ask": {"a": 4, "b": 2, "c": 6, "op": "cl2"}},
+            {"worked": ["One more together. 6 x plus 4 y plus 3 x. The x's make 9, so it is 9 x plus 4 y.",
+                        '[[step eq="6x + 4y + 3x = 9x + 4y"]]'],
+             "ask": {"a": 8, "b": 3, "c": 5, "op": "cl2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 3, "op": "cl2"},
+            {"a": 3, "b": 2, "c": 4, "op": "cl2"},
+            {"a": 4, "b": 3, "c": 4, "op": "cl2"},
+            {"a": 5, "b": 4, "c": 4, "op": "cl2"},
+            {"a": 6, "b": 3, "c": 5, "op": "cl2"},
+            {"a": 7, "b": 4, "c": 5, "op": "cl2"},
+            {"a": 8, "b": 5, "c": 6, "op": "cl2"},
+            {"a": 9, "b": 4, "c": 6, "op": "cl2"},
+            {"a": 9, "b": 5, "c": 8, "op": "cl2"},
+            {"a": 9, "b": 6, "c": 9, "op": "cl2"},
+        ],
+    },
+    {
+        "id": "alg1-u1-minus-goes-through",
+        "course": "algebra1", "unit": 1,
+        "topic": "The minus goes through too",
+        "op": "dstm", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("parentheses", "take away"),
+        "advance_line": "Three in a row — you've got it! The times reaches both rooms, minus and all.",
+        "teach": [
+            ["You know the times outside parentheses reaches both rooms: 4 times the whole of x plus 3 is 4 x plus 12. Today the inside says take away instead — x take away 3 — and the rule holds. The times still reaches both rooms; the second room just comes off instead of going on.",
+             '[[goal text="The minus goes through too"]][[areamodel rows="4" cols="x,-3"]]'],
+            ["Look at the picture: a rectangle 4 tall and x take away 3 wide. The rooms are 4 times x, and 4 times 3, which equals 12 — and that room is TAKEN AWAY. So 4 times the whole of x take away 3 comes to 4 x take away 12.",
+             '[[areamodel rows="4" cols="x,-3"]][[step eq="4(x − 3) = 4x − 12"]]'],
+            ["The wrong answer is 4 x take away 3, where the 4 timesed the x and never reached the 3. The times does not stop at the minus sign — it carries it along. 12 comes off, not 3.",
+             '[[step eq="4x − 12 ✓"]][[step eq="4x − 3 ✗ — the 3 never got timesed"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Times the whole of x take away 2 by 5. The rooms are 5 x, and 5 times 2, which equals 10, taken away: 5 x take away 10.",
+                        '[[areamodel rows="5" cols="x,-2"]][[step eq="5(x − 2) = 5x − 10"]]'],
+             "ask": {"a": 4, "b": 3, "op": "dstm"}},
+            {"worked": ["One more together. Times the whole of x take away 4 by 3. The rooms are 3 x and 12, taken away: 3 x take away 12.",
+                        '[[areamodel rows="3" cols="x,-4"]][[step eq="3(x − 4) = 3x − 12"]]'],
+             "ask": {"a": 7, "b": 3, "op": "dstm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "dstm"},
+            {"a": 4, "b": 2, "op": "dstm"},
+            {"a": 3, "b": 3, "op": "dstm"},
+            {"a": 3, "b": 4, "op": "dstm"},
+            {"a": 5, "b": 3, "op": "dstm"},
+            {"a": 4, "b": 4, "op": "dstm"},
+            {"a": 6, "b": 3, "op": "dstm"},
+            {"a": 5, "b": 4, "op": "dstm"},
+            {"a": 6, "b": 4, "op": "dstm"},
+            {"a": 8, "b": 4, "op": "dstm"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U1)
+
+
 
 
 
@@ -3453,6 +3642,10 @@ COURSE_ORDER = [
     # ⭐ area model for the distributive property
     "pre-u9-a-letter-holds-a-number", "pre-u9-a-number-against-a-letter",
     "pre-u9-collecting-x", "pre-u9-the-times-reaches-both",
+
+    # ---- ALGEBRA I (build ku) -- Unit 1: Foundations & Expressions ----
+    "alg1-u1-two-steps-with-a-letter", "alg1-u1-two-letters",
+    "alg1-u1-collecting-past-a-y", "alg1-u1-minus-goes-through",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -4693,6 +4886,108 @@ OP_EXT = {
                             "the multiplier is at least 2 so the untouched-number "
                             "error is a real different tap, and all three options "
                             "differ"),
+    },
+
+    # ---- ALGEBRA I UNIT 1 (build ku) -- FOUNDATIONS & EXPRESSIONS -------------
+    # The first Algebra I unit, sitting directly on Prealgebra U9. That unit taught
+    # the four seeds one at a time: a letter holds a number, a number against a letter
+    # means times, like terms count, a times distributes. These four make the seeds
+    # WORK TOGETHER: evaluate a two-step expression (where order of operations meets a
+    # letter), read TWO letters at once, collect the x's when y's are standing in the
+    # way, and distribute over a take away -- the first time the invisible times has
+    # to carry a minus sign with it.
+    "ev2": {   # x holds a -- what is bx + c?
+        "ans": lambda p: p["a"] * p["b"] + p["c"],
+        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
+                             f"What is {p['b']} x plus {p['c']}?"),
+        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
+                            f'[[step eq="{p["b"]}x + {p["c"]} = '
+                            f'{p["b"]} × {p["a"]} + {p["c"]} = ?"]]'),
+        "praise": lambda p: (f"{p['b']} x is {p['b']} times {p['a']}, which equals "
+                             f"{p['a'] * p['b']}, and {p['a'] * p['b']} plus "
+                             f"{p['c']} equals {p['a'] * p['b'] + p['c']}."),
+        "key": lambda p: p["a"] * p["b"] + p["c"],
+        # Prealgebra U1's own rule, now with a letter in it: times before add. The
+        # error worth offering is ADDING FIRST -- b times (a plus c). The third option
+        # is ignoring the invisible times altogether and adding everything in sight.
+        "choices": lambda p: [p["a"] * p["b"] + p["c"],
+                              p["b"] * (p["a"] + p["c"]),
+                              p["a"] + p["b"] + p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({p["a"] * p["b"] + p["c"],
+                                     p["b"] * (p["a"] + p["c"]),
+                                     p["a"] + p["b"] + p["c"]}) == 3,
+                            "single digits and three distinct options -- which rules "
+                            "out x holding 2 with a coefficient of 2, where timesing "
+                            "and adding agree"),
+    },
+    "evxy": {  # x holds a, y holds b -- what is x + cy?
+        "ans": lambda p: p["a"] + p["c"] * p["b"],
+        # No "two letters now" preamble in the ask -- the same scaffold-never-fades
+        # defect mlx had in build kt. The teach beats introduce y; the ask just asks.
+        "spoken": lambda p: (f"x is holding {p['a']}, and y is holding {p['b']}. "
+                             f"What is x plus {p['c']} y?"),
+        "board": lambda p: (f'[[step eq="x = {p["a"]} · y = {p["b"]}"]]'
+                            f'[[step eq="x + {p["c"]}y = {p["a"]} + '
+                            f'{p["c"]} × {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['c']} y is {p['c']} times {p['b']}, which equals "
+                             f"{p['c'] * p['b']}, and {p['a']} plus that equals "
+                             f"{p['a'] + p['c'] * p['b']}."),
+        "key": lambda p: p["a"] + p["c"] * p["b"],
+        # Each letter keeps its own number. The errors: adding a to c first and then
+        # timesing (the same add-first slip as ev2, wearing a y), and treating "c y"
+        # as c plus y.
+        "choices": lambda p: [p["a"] + p["c"] * p["b"],
+                              (p["a"] + p["c"]) * p["b"],
+                              p["a"] + p["c"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({p["a"] + p["c"] * p["b"],
+                                     (p["a"] + p["c"]) * p["b"],
+                                     p["a"] + p["c"] + p["b"]}) == 3,
+                            "single digits and three distinct options"),
+    },
+    "cl2": {   # ax + by + cx -- how many x?
+        "ans": lambda p: p["a"] + p["c"],
+        "spoken": lambda p: (f"{p['a']} x plus {p['b']} y plus {p['c']} x — "
+                             f"how many x is that in all?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}x + {p["b"]}y + {p["c"]}x"]]'
+                            f'[[step eq="the x\'s: {p["a"]} + {p["c"]} = ? '
+                            f'· the y walks past"]]'),
+        "praise": lambda p: (f"Only the x's collect: {p['a']} and {p['c']} make "
+                             f"{p['a'] + p['c']} x. The {p['b']} y is a different "
+                             f"thing and stays as it is."),
+        "key": lambda p: p["a"] + p["c"],
+        # The error is GRABBING EVERYTHING -- apples and oranges into one pile. A y is
+        # not an x, and 3x + 2y + 4x is 7x plus 2y, not 9 of anything.
+        "choices": lambda p: [p["a"] + p["c"], p["a"] + p["b"] + p["c"],
+                              p["a"] + p["c"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9 and 2 <= p["c"] <= 9
+                            and len({p["a"] + p["c"], p["a"] + p["b"] + p["c"],
+                                     p["a"] + p["c"] + 1}) == 3,
+                            "the y really is in the way (b at least 2, so grabbing it "
+                            "is visibly different from the neighbour distractor)"),
+    },
+    "dstm": {  # a(x - b) = ax - ?
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"Times the whole of x take away {p['b']} by {p['a']}. "
+                             f"That comes to {p['a']} x take away what number?"),
+        # The area model again, with a NEGATIVE room: [[areamodel]] parses "-b" and
+        # prints the expanded sum with the minus carried through ("= ax - ab").
+        "board": lambda p: (f'[[areamodel rows="{p["a"]}" cols="x,-{p["b"]}"]]'
+                            f'[[step eq="{p["a"]}(x − {p["b"]}) = {p["a"]}x − ?"]]'),
+        "praise": lambda p: (f"The {p['a']} reaches both rooms, minus and all: "
+                             f"{p['a']} times x, and {p['a']} times {p['b']}, which "
+                             f"equals {p['a'] * p['b']} — taken away. So it is "
+                             f"{p['a']} x take away {p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        # Same family as dst: the times never reaches the number (tap b), or the
+        # numbers get added instead of timesed.
+        "choices": lambda p: [p["a"] * p["b"], p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] * p["b"], p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "the multiplier is at least 2 and the three options are "
+                            "three different numbers"),
     },
 }
 

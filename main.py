@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22ku-algebra-one-opens". BUILD ku -- Algebra I
+#               Unit 1, Foundations & Expressions. 76 lessons -> 80, 65 ops -> 69.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp. The ninth
+#               course in COURSE_ORDER begins: course key "algebra1", unit names from
+#               curriculum.COURSES. Prealgebra U9's four seeds now work together --
+#               two-step evaluation, a second letter, collecting past a y, and the
+#               minus carried through the parentheses in an [[areamodel]] with a
+#               negative room.
 #   2026-08-21  APP_BUILD -> "2026-08-21kt-prealgebra-complete". BUILD kt --
 #               Prealgebra Unit 9, Variables & Expressions -- THE LAST UNIT.
 #               72 lessons -> 76, 61 ops -> 65. PREALGEBRA IS COMPLETE: nine units,
@@ -10011,7 +10019,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kt-prealgebra-complete"
+APP_BUILD = "2026-08-22ku-algebra-one-opens"
 
 
 @app.get("/health")
