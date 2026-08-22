@@ -2,6 +2,61 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD ks -- PREALGEBRA UNIT 8: MEASUREMENT & GEOMETRY BASICS.
+#               68 lessons -> 72, 61 ops (cnv, tri, sla, tri3 added).
+#               ⭐ THE FIRST SCRIPTED LESSONS THAT DRAW A REAL FIGURE. Basic Math's
+#               geometry unit -- perimeter, area, quarter turns, volume -- draws NO
+#               pictures at all: every board in it is a [[step]] line. Geometry is the
+#               one subject where the picture IS the argument, and geo-figures.js has
+#               carried [[triangle]] and [[angle]] since July. Three of these four
+#               lessons put a figure up, and the straight-line lesson uses
+#               [[angle deg="180" split="130"]] -- a tag built on 2026-08-01 for
+#               exactly that sentence, after Jim's beta run caught the tutor SAYING
+#               "a ray splits it into two smaller angles" over a figure with no ray,
+#               and never once used by a scripted lesson until now.
+#               The ladder: change a unit (Unit 5's place value wearing a coat), halve
+#               a rectangle to get a triangle, then the two facts every later geometry
+#               course leans on -- a straight line is 180 degrees, and so are the three
+#               angles of ANY triangle. That last lesson is the first in the whole
+#               course whose answer comes from a rule about all triangles rather than
+#               from counting something.
+#               Distractors, all of them real errors: the wrong power of ten (cnv --
+#               a child who knows a zero goes on and not how many), the rectangle
+#               un-halved (tri), a full turn's 360 in place of a straight line's 180
+#               (sla), and the two angles you were GIVEN added up (tri3 -- doing step
+#               one and tapping it).
+#               tri3 draws the right-angle square when one of its given angles is 90.
+#               These figures are schematic by design, but a right angle drawn as a
+#               lazy corner with "90°" written beside it is schematic in the one way
+#               that teaches the wrong thing.
+#   2026-08-21  BUILD kr -- PREALGEBRA UNIT 7: PERCENTS. 64 lessons -> 68, 57 ops
+#               (pcn, asp, pwh, pup added). Basic Math's percent lesson only ever asks
+#               for 10, 25 or 50 percent and answers them with a FRACTION SHORTCUT --
+#               half, a fourth, a tenth. The shortcut is fine and it is also a dead
+#               end: it says nothing at all about 30 percent or 70 percent. This unit
+#               replaces it with one method that never runs out -- find ten percent,
+#               then count how many tens you need -- and then runs that method in all
+#               four directions a percent question can face: forwards (pcn), as a
+#               reading of one number against another (asp, which is Unit 6's
+#               proportion with 100 on the bottom), BACKWARDS from a part to the whole
+#               (pwh, the direction children reverse), and finally up and down on a
+#               price (pup).
+#               THE ERROR THE LAST LESSON EXISTS FOR is moving a price by the PERCENT
+#               NUMBER instead of by that percent OF the price -- 40 dollars up 10
+#               percent read as 50 dollars, because 40 and 10 are two numbers and
+#               adding them is the thing a child already knows how to do. It is the
+#               wrong tap on every problem in that bank.
+#               Two defects the validator could NOT see, found by reading the rendered
+#               boards and options out loud:
+#                 - pup drew the ten-percent step TWICE whenever the percent was ten
+#                   ("10% of 40 = 4" then "10% = 4"), which teaches a child that the
+#                   second step is empty. It is now drawn only when it says something
+#                   new.
+#                 - pwh's forward-error distractor rounds DOWN. At "6 is 20 percent of
+#                   what?" it came out as 1, and 1 is not an answer any child arrives
+#                   at -- it is a stub. The check now demands every wrong option be a
+#                   real wrong answer, and the one bank item that relied on the stub
+#                   was replaced.
 #   2026-08-21  BUILD kp -- PREALGEBRA UNIT 6: RATIOS, RATES & PROPORTIONS.
 #               60 lessons -> 64, 53 ops (rat, rte, prop, shr added). Basic Math's
 #               "one costs" already finds a unit PRICE; these four are the family
@@ -2785,6 +2840,349 @@ _PREALGEBRA_U6 = [
 LESSONS.extend(_PREALGEBRA_U6)
 
 
+# =============================================================================
+# PREALGEBRA -- UNIT 7: PERCENTS (build kr, 2026-08-21)
+# =============================================================================
+# Basic Math's percent lesson only ever asks for 10, 25 or 50 percent, and it answers
+# them with a fraction shortcut: half, a fourth, a tenth. That shortcut is fine and it
+# is also a dead end -- it says nothing at all about 30 percent or 70 percent. This
+# unit replaces it with ONE method that never runs out: find ten percent, then count
+# how many tens you need. Lesson 1 teaches the method; lessons 2, 3 and 4 run it in
+# the other three directions a percent question can face.
+#
+# THE ERROR THE LAST LESSON IS ABOUT is moving a price by the PERCENT NUMBER instead
+# of by that percent OF the price -- 40 dollars up 10 percent read as 50 dollars,
+# because 40 and 10 are two numbers and adding them is the thing a child knows how to
+# do. It is offered as the wrong tap on every problem in that bank.
+_PREALGEBRA_U7 = [
+    {
+        "id": "pre-u7-any-percent",
+        "course": "prealgebra", "unit": 7,
+        "topic": "Any percent, ten at a time",
+        "op": "pcn", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("percent", "of"),
+        "advance_line": "Three in a row — you've got it! Find ten percent, then count the tens.",
+        "teach": [
+            ["You already know 50 percent is half and 10 percent is a tenth. But what about 30 percent, or 70 percent? Half and a fourth are no help there. Here is one way that works for every single one of them.",
+             '[[goal text="Any percent, ten at a time"]]'],
+            ["Find TEN percent first, because that is easy — just a tenth. Ten percent of 40 is 4. Now 30 percent is three tens, so take three of those fours: 3 times 4 equals 12. So 30 percent of 40 equals 12.",
+             '[[step eq="10% of 40 = 4"]][[step eq="30% is 3 tens"]][[step eq="3 × 4 = 12"]]'],
+            ["One more. 70 percent of 20. Ten percent of 20 is 2. Seventy percent is seven tens, so 7 times 2 equals 14. Careful — the answer is not 2. Finding ten percent is only the first of the two steps.",
+             '[[step eq="10% of 20 = 2"]][[step eq="7 × 2 = 14"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 20 percent of 50. Ten percent of 50 is 5, and 20 percent is two tens: 2 times 5 equals 10.",
+                        '[[step eq="10% of 50 = 5"]][[step eq="2 × 5 = 10"]]'],
+             "ask": {"a": 20, "b": 50, "op": "pcn"}},
+            {"worked": ["One more together. 80 percent of 40. Ten percent of 40 is 4, and eight of those is 8 times 4, which equals 32.",
+                        '[[step eq="10% of 40 = 4"]][[step eq="8 × 4 = 32"]]'],
+             "ask": {"a": 80, "b": 40, "op": "pcn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 20, "op": "pcn"},
+            {"a": 30, "b": 20, "op": "pcn"},
+            {"a": 20, "b": 40, "op": "pcn"},
+            {"a": 30, "b": 30, "op": "pcn"},
+            {"a": 40, "b": 30, "op": "pcn"},
+            {"a": 60, "b": 20, "op": "pcn"},
+            {"a": 30, "b": 60, "op": "pcn"},
+            {"a": 40, "b": 60, "op": "pcn"},
+            {"a": 60, "b": 60, "op": "pcn"},
+            {"a": 70, "b": 80, "op": "pcn"},
+        ],
+    },
+    {
+        "id": "pre-u7-what-percent-is-that",
+        "course": "prealgebra", "unit": 7,
+        "topic": "What percent is that",
+        "op": "asp", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("percent", "out of"),
+        "advance_line": "Three in a row — you've got it! Put it over a hundred and read the top.",
+        "teach": [
+            ["Sometimes you are given both numbers and asked for the percent instead. 15 out of 20 — what percent is that? Percent means out of a hundred, so this is the proportion puzzle you already know, with 100 on the bottom.",
+             '[[goal text="What percent is that"]]'],
+            ["15 out of 20 equals what out of 100? Look at the bottoms: 20 became 100, so it was timesed by 5. Do the same to the top: 15 times 5 equals 75. So 15 out of 20 is 75 percent.",
+             '[[step eq="15/20 = ?/100"]][[step eq="20 × 5 = 100, so 15 × 5 = 75"]]'],
+            ["Watch which number you answer with. 15 out of 20 is 75 percent, not 15 percent and not 25 percent. 25 is the percent of the ones you did NOT have.",
+             '[[step eq="15 out of 20 = 75% ✓"]][[step eq="the other 5 are the 25% ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 2 out of 5. The bottom 5 becomes 100 by timesing by 20, so the top does too: 2 times 20 equals 40 percent.",
+                        '[[step eq="2/5 = 40/100"]]'],
+             "ask": {"a": 2, "b": 5, "op": "asp"}},
+            {"worked": ["One more together. 11 out of 20. Times both by 5: 11 times 5 equals 55, so that is 55 percent.",
+                        '[[step eq="11/20 = 55/100"]]'],
+             "ask": {"a": 11, "b": 20, "op": "asp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 10, "op": "asp"},
+            {"a": 1, "b": 4, "op": "asp"},
+            {"a": 3, "b": 10, "op": "asp"},
+            {"a": 9, "b": 20, "op": "asp"},
+            {"a": 13, "b": 20, "op": "asp"},
+            {"a": 17, "b": 25, "op": "asp"},
+            {"a": 7, "b": 10, "op": "asp"},
+            {"a": 3, "b": 4, "op": "asp"},
+            {"a": 21, "b": 25, "op": "asp"},
+            {"a": 19, "b": 20, "op": "asp"},
+        ],
+    },
+    {
+        "id": "pre-u7-finding-the-whole",
+        "course": "prealgebra", "unit": 7,
+        "topic": "Finding the whole from a part",
+        "op": "pwh", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("percent", "whole"),
+        "advance_line": "Three in a row — you've got it! Step down to ten percent, then up to a hundred.",
+        "teach": [
+            ["Here the question turns around. You are told a part and what percent it is, and the whole is what is missing. 12 is 30 percent of what number? The same ten-percent step does it, walked in the other direction.",
+             '[[goal text="Finding the whole from a part"]]'],
+            ["30 percent is 12. Step DOWN to ten percent first: 30 percent is three tens, so ten percent is 12 divided by 3, which equals 4. Now step up: one hundred percent is ten of those, and 4 times 10 equals 40.",
+             '[[step eq="30% = 12"]][[step eq="10% = 12 ÷ 3 = 4"]][[step eq="100% = 4 × 10 = 40"]]'],
+            ["Check it the easy way: is 30 percent of 40 really 12? Ten percent of 40 is 4, three tens is 3 times 4, which equals 12. It fits. And notice the whole is BIGGER than the part — if your answer came out smaller, you ran the sum forwards by mistake.",
+             '[[step eq="30% of 40 = 12 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 9 is 30 percent of what? Ten percent is 9 divided by 3, which equals 3, and a hundred percent is 3 times 10, which equals 30.",
+                        '[[step eq="10% = 3"]][[step eq="100% = 30"]]'],
+             "ask": {"a": 30, "b": 9, "op": "pwh"}},
+            {"worked": ["One more together. 30 is 60 percent of what? Ten percent is 30 divided by 6, which equals 5, so the whole is 5 times 10, which equals 50.",
+                        '[[step eq="10% = 5"]][[step eq="100% = 50"]]'],
+             "ask": {"a": 60, "b": 30, "op": "pwh"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 60, "b": 18, "op": "pwh"},
+            {"a": 30, "b": 12, "op": "pwh"},
+            {"a": 40, "b": 16, "op": "pwh"},
+            {"a": 20, "b": 10, "op": "pwh"},
+            {"a": 60, "b": 36, "op": "pwh"},
+            {"a": 80, "b": 48, "op": "pwh"},
+            {"a": 70, "b": 49, "op": "pwh"},
+            {"a": 90, "b": 72, "op": "pwh"},
+            {"a": 20, "b": 18, "op": "pwh"},
+            {"a": 40, "b": 40, "op": "pwh"},
+        ],
+    },
+    {
+        "id": "pre-u7-a-price-goes-up",
+        "course": "prealgebra", "unit": 7,
+        "topic": "A price goes up or down",
+        "op": "pup", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("percent", "price"),
+        "advance_line": "Three in a row — you've got it! Work out the change first, then move the price by it.",
+        "teach": [
+            ["This is where percents earn their keep: prices. A coat costs 40 dollars and the price goes up by 10 percent. Two steps, and the first one you already know: work out what the change is worth, then move the price by that.",
+             '[[goal text="A price goes up or down"]]'],
+            ["Ten percent of 40 is 4, so the change is 4 dollars. The price goes UP, so put it on: 40 plus 4 equals 44 dollars.",
+             '[[step eq="10% of 40 = 4"]][[step eq="40 + 4 = 44"]]'],
+            ["Here is the trap. The new price is NOT 50 dollars. Ten is a percent, not ten dollars — you cannot put it straight onto the price. And when the price goes DOWN instead, the same 4 comes off: 40 take away 4 equals 36 dollars.",
+             '[[step eq="40 + 4 = 44 ✓"]][[step eq="40 + 10 = 50 ✗"]][[step eq="down: 40 − 4 = 36"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A 30 dollar shirt goes up by 10 percent. Ten percent of 30 is 3, so the new price is 30 plus 3, which equals 33 dollars.",
+                        '[[step eq="10% of 30 = 3"]][[step eq="30 + 3 = 33"]]'],
+             "ask": {"a": 10, "b": 30, "c": 1, "op": "pup"}},
+            {"worked": ["One more together. A 40 dollar bag goes down by 20 percent. Ten percent of 40 is 4, so 20 percent is 8, and 40 take away 8 equals 32 dollars.",
+                        '[[step eq="20% of 40 = 8"]][[step eq="40 − 8 = 32"]]'],
+             "ask": {"a": 20, "b": 40, "c": 0, "op": "pup"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 20, "c": 1, "op": "pup"},
+            {"a": 20, "b": 20, "c": 1, "op": "pup"},
+            {"a": 10, "b": 40, "c": 0, "op": "pup"},
+            {"a": 20, "b": 50, "c": 0, "op": "pup"},
+            {"a": 10, "b": 40, "c": 1, "op": "pup"},
+            {"a": 30, "b": 40, "c": 1, "op": "pup"},
+            {"a": 20, "b": 60, "c": 1, "op": "pup"},
+            {"a": 10, "b": 80, "c": 0, "op": "pup"},
+            {"a": 50, "b": 60, "c": 1, "op": "pup"},
+            {"a": 20, "b": 80, "c": 1, "op": "pup"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U7)
+
+
+# =============================================================================
+# PREALGEBRA -- UNIT 8: MEASUREMENT & GEOMETRY BASICS (build ks, 2026-08-21)
+# =============================================================================
+# Basic Math's geometry unit -- perimeter, area, quarter turns, volume -- draws NO
+# PICTURES. Every board in it is a [[step]] line. Geometry is the one subject where the
+# picture IS the argument, and geo-figures.js has had [[triangle]] and [[angle]] since
+# July. THREE OF THESE FOUR LESSONS PUT A REAL FIGURE ON THE BOARD, and the
+# straight-line lesson uses [[angle deg="180" split="130"]] -- a tag built for exactly
+# that sentence and never once used by a scripted lesson.
+#
+# The unit walks from measuring to seeing: change a unit (which is Unit 5's place value
+# wearing a coat), then halve a rectangle to get a triangle, then meet the two facts
+# every later geometry course leans on -- a straight line is 180 degrees, and so are
+# the three angles of any triangle. The last lesson is the first one in the whole
+# course whose answer comes from a rule about ALL triangles rather than from counting.
+_PREALGEBRA_U8 = [
+    {
+        "id": "pre-u8-changing-units",
+        "course": "prealgebra", "unit": 8,
+        "topic": "Changing units",
+        "op": "cnv", "max_value": 9000,
+        "levels": ("abstract",),
+        "symbols": ("unit", "centimetres"),
+        "advance_line": "Three in a row — you've got it! Going to a smaller unit means more of them.",
+        "teach": [
+            ["Measuring the same thing in a smaller unit takes MORE of them. One centimetre is 10 millimetres, one metre is 100 centimetres, one kilogram is 1000 grams. Each time you swap to the smaller unit, you times.",
+             '[[goal text="Changing units"]]'],
+            ["How many centimetres are there in 3 metres? One metre is 100 centimetres, so 3 metres is 3 lots of 100: 3 times 100 equals 300 centimetres.",
+             '[[step eq="1 m = 100 cm"]][[step eq="3 × 100 = 300"]]'],
+            ["The hard part is never the timesing — it is knowing HOW MANY zeros. 3 metres is not 30 centimetres; that would be using ten when the unit needs a hundred. Say the fact out loud first, then times by it.",
+             '[[step eq="3 m = 300 cm ✓"]][[step eq="3 m = 30 cm ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 centimetres in millimetres. One centimetre is 10 millimetres, so 6 times 10 equals 60 millimetres.",
+                        '[[step eq="6 × 10 = 60"]]'],
+             "ask": {"a": 6, "b": 10, "op": "cnv"}},
+            {"worked": ["One more together. 3 kilograms in grams. One kilogram is 1000 grams, so 3 times 1000 equals 3000 grams.",
+                        '[[step eq="3 × 1000 = 3000"]]'],
+             "ask": {"a": 3, "b": 1000, "op": "cnv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 10, "op": "cnv"},
+            {"a": 5, "b": 10, "op": "cnv"},
+            {"a": 8, "b": 10, "op": "cnv"},
+            {"a": 2, "b": 100, "op": "cnv"},
+            {"a": 4, "b": 100, "op": "cnv"},
+            {"a": 7, "b": 100, "op": "cnv"},
+            {"a": 9, "b": 100, "op": "cnv"},
+            {"a": 2, "b": 1000, "op": "cnv"},
+            {"a": 5, "b": 1000, "op": "cnv"},
+            {"a": 9, "b": 1000, "op": "cnv"},
+        ],
+    },
+    {
+        "id": "pre-u8-area-of-a-triangle",
+        "course": "prealgebra", "unit": 8,
+        "topic": "Area of a triangle",
+        "op": "tri", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("base", "height"),
+        "advance_line": "Three in a row — you've got it! Times the base by the height, then halve it.",
+        "teach": [
+            ["You already know a rectangle's area: the long side times the short side. A triangle is easier than it looks, because every right triangle is exactly HALF of a rectangle. Draw the rectangle round it and you can see the other half.",
+             '[[goal text="Area of a triangle"]][[triangle v="A,B,C" right="A" sides="6,,4"]]'],
+            ["This one has a base of 6 and a height of 4. The rectangle round it is 6 times 4, which equals 24. The triangle is half of that: 24 divided by 2 equals 12.",
+             '[[triangle v="A,B,C" right="A" sides="6,,4"]][[step eq="6 × 4 = 24"]][[step eq="24 ÷ 2 = 12"]]'],
+            ["Do not stop after the timesing. 24 is the rectangle, not the triangle. The halving is the whole idea — miss it and your triangle is twice the size of the one on the board.",
+             '[[step eq="24 ÷ 2 = 12 ✓"]][[step eq="24 ✗ — that is the rectangle"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A base of 8 and a height of 3. 8 times 3 equals 24, and half of 24 equals 12.",
+                        '[[triangle v="A,B,C" right="A" sides="8,,3"]][[step eq="24 ÷ 2 = 12"]]'],
+             "ask": {"a": 9, "b": 4, "op": "tri"}},
+            {"worked": ["One more together. A base of 10 and a height of 6. 10 times 6 equals 60, and half of 60 equals 30.",
+                        '[[step eq="10 × 6 = 60"]][[step eq="60 ÷ 2 = 30"]]'],
+             "ask": {"a": 7, "b": 8, "op": "tri"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 2, "op": "tri"},
+            {"a": 3, "b": 4, "op": "tri"},
+            {"a": 4, "b": 5, "op": "tri"},
+            {"a": 6, "b": 4, "op": "tri"},
+            {"a": 5, "b": 6, "op": "tri"},
+            {"a": 8, "b": 5, "op": "tri"},
+            {"a": 6, "b": 9, "op": "tri"},
+            {"a": 12, "b": 5, "op": "tri"},
+            {"a": 10, "b": 8, "op": "tri"},
+            {"a": 14, "b": 9, "op": "tri"},
+        ],
+    },
+    {
+        "id": "pre-u8-angles-on-a-line",
+        "course": "prealgebra", "unit": 8,
+        "topic": "Angles on a straight line",
+        "op": "sla", "max_value": 360,
+        "levels": ("abstract",),
+        "symbols": ("degrees", "straight line"),
+        "advance_line": "Three in a row — you've got it! A straight line is 180 degrees.",
+        "teach": [
+            ["You know a quarter turn is 90 degrees — two of those make a half turn, and a half turn is a straight line: 180 degrees. That one fact answers a whole family of questions.",
+             '[[goal text="Angles on a straight line"]][[angle deg="180" split="90"]]'],
+            ["Here is a straight line with a ray drawn up from it. The two angles sit together and fill the line, so together they are 180. If one of them is 130, the other is 180 take away 130, which equals 50.",
+             '[[angle deg="180" split="130"]][[step eq="180° − 130° = 50°"]]'],
+            ["Watch which number you take away from. It is 180, not 90 and not 360. 90 is a quarter turn and 360 is the whole way round — neither of them is a straight line.",
+             '[[step eq="180° − 130° = 50° ✓"]][[step eq="360° − 130° = 230° ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. One angle on the line is 120 degrees. 180 take away 120 equals 60 degrees.",
+                        '[[angle deg="180" split="120"]][[step eq="180° − 120° = 60°"]]'],
+             "ask": {"a": 150, "b": 0, "op": "sla"}},
+            {"worked": ["One more together. One angle is 45 degrees, so the other is 180 take away 45, which equals 135 degrees.",
+                        '[[angle deg="180" split="45"]][[step eq="180° − 45° = 135°"]]'],
+             "ask": {"a": 70, "b": 0, "op": "sla"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 160, "b": 0, "op": "sla"},
+            {"a": 140, "b": 0, "op": "sla"},
+            {"a": 125, "b": 0, "op": "sla"},
+            {"a": 110, "b": 0, "op": "sla"},
+            {"a": 100, "b": 0, "op": "sla"},
+            {"a": 80, "b": 0, "op": "sla"},
+            {"a": 65, "b": 0, "op": "sla"},
+            {"a": 50, "b": 0, "op": "sla"},
+            {"a": 35, "b": 0, "op": "sla"},
+            {"a": 20, "b": 0, "op": "sla"},
+        ],
+    },
+    {
+        "id": "pre-u8-angles-in-a-triangle",
+        "course": "prealgebra", "unit": 8,
+        "topic": "Angles in a triangle",
+        "op": "tri3", "max_value": 180,
+        "levels": ("abstract",),
+        "symbols": ("degrees", "triangle"),
+        "advance_line": "Three in a row — you've got it! The three angles of any triangle are 180 degrees.",
+        "teach": [
+            ["Here is one of the most useful facts in all of geometry. Take any triangle at all — thin, wide, lopsided — and its three angles always come to 180 degrees — the same 180 as a straight line, and that is not a coincidence.",
+             '[[goal text="Angles in a triangle"]][[triangle v="A,B,C" angles="50,60,70"]]'],
+            ["So if you are given two of them, the third one is forced. Two angles are 50 and 60. Add those: 50 plus 60 equals 110. Now 180 take away 110 equals 70 degrees.",
+             '[[triangle v="A,B,C" angles="50,60,"]][[step eq="50° + 60° = 110°"]][[step eq="180° − 110° = 70°"]]'],
+            ["Two steps, and the first one is not the answer. 110 is what the two you were GIVEN come to. The one you were asked for is what is left of the 180 after them.",
+             '[[step eq="180° − 110° = 70° ✓"]][[step eq="110° ✗ — that is the two you were given"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Two angles are 30 and 60. Together they are 90, and 180 take away 90 equals 90 degrees.",
+                        '[[triangle v="A,B,C" angles="30,60,"]][[step eq="180° − 90° = 90°"]]'],
+             "ask": {"a": 65, "b": 75, "op": "tri3"}},
+            {"worked": ["One more together. Two angles are 20 and 30. Together they are 50, so the third is 180 take away 50, which equals 130 degrees.",
+                        '[[step eq="20° + 30° = 50°"]][[step eq="180° − 50° = 130°"]]'],
+             "ask": {"a": 50, "b": 60, "op": "tri3"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 80, "b": 80, "op": "tri3"},
+            {"a": 70, "b": 85, "op": "tri3"},
+            {"a": 60, "b": 90, "op": "tri3"},
+            {"a": 55, "b": 90, "op": "tri3"},
+            {"a": 60, "b": 70, "op": "tri3"},
+            {"a": 40, "b": 80, "op": "tri3"},
+            {"a": 30, "b": 90, "op": "tri3"},
+            {"a": 45, "b": 60, "op": "tri3"},
+            {"a": 40, "b": 55, "op": "tri3"},
+            {"a": 20, "b": 40, "op": "tri3"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U8)
+
+
 
 
 
@@ -2838,6 +3236,13 @@ COURSE_ORDER = [
     # Unit 6: Ratios, Rates & Proportions -- past Basic's unit price
     "pre-u6-keeping-a-ratio", "pre-u6-scaling-a-rate",
     "pre-u6-filling-in-a-proportion", "pre-u6-sharing-in-a-ratio",
+    # Unit 7: Percents -- past Basic's 10/25/50 fraction shortcut
+    "pre-u7-any-percent", "pre-u7-what-percent-is-that",
+    "pre-u7-finding-the-whole", "pre-u7-a-price-goes-up",
+    # Unit 8: Measurement & Geometry Basics -- and the first prealgebra lessons
+    # that put a real FIGURE on the board rather than a line of text
+    "pre-u8-changing-units", "pre-u8-area-of-a-triangle",
+    "pre-u8-angles-on-a-line", "pre-u8-angles-in-a-triangle",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -3757,6 +4162,232 @@ OP_EXT = {
                                      p["c"] // (p["a"] + p["b"])}) == 3,
                             "each part is more than one and the three tap options "
                             "are three different numbers"),
+    },
+
+    # ---- PREALGEBRA UNIT 7 (build kr) -- PERCENTS -----------------------------
+    # Basic Math's "pc" only ever asks for 10, 25 or 50 percent, and it answers them
+    # with a fraction shortcut (half, a fourth, a tenth). That shortcut runs out the
+    # moment the percent is 30 or 70. These four replace it with ONE method that keeps
+    # working -- find ten percent, then count how many tens you need -- and then run
+    # that method in every direction: forwards, as a reading of one number against
+    # another, backwards from a part to the whole, and finally up and down.
+    "pcn": {   # a percent of b, both multiples of ten
+        "ans": lambda p: p["a"] * p["b"] // 100,
+        "spoken": lambda p: f"What is {p['a']} percent of {p['b']}?",
+        "board": lambda p: (f'[[step eq="10% of {p["b"]} = {p["b"] // 10}"]]'
+                            f'[[step eq="{p["a"]}% is {p["a"] // 10} tens"]]'
+                            f'[[step eq="{p["a"] // 10} × {p["b"] // 10} = ?"]]'),
+        "praise": lambda p: (f"10 percent of {p['b']} is {p['b'] // 10}, and "
+                             f"{p['a']} percent is {p['a'] // 10} of those — "
+                             f"{p['a'] * p['b'] // 100}."),
+        "key": lambda p: p["a"] * p["b"] // 100,
+        # The error worth offering is STOPPING AT TEN PERCENT -- the same shape as the
+        # rate error in Unit 6, where the child divides to reach one and taps that.
+        "choices": lambda p: [p["a"] * p["b"] // 100, p["b"] // 10,
+                              p["a"] * p["b"] // 100 + p["b"] // 10],
+        "check": lambda p: (p["a"] % 10 == 0 and 20 <= p["a"] <= 90 and p["a"] != 50
+                            and p["b"] % 10 == 0 and 10 <= p["b"] <= 90
+                            and len({p["a"] * p["b"] // 100, p["b"] // 10,
+                                     p["a"] * p["b"] // 100 + p["b"] // 10}) == 3,
+                            "both are tens so ten percent is whole, the percent is one "
+                            "Basic never taught, and the three options differ"),
+    },
+    "asp": {   # a out of b -- what percent?
+        "ans": lambda p: p["a"] * 100 // p["b"],
+        "spoken": lambda p: f"{p['a']} out of {p['b']} — what percent is that?",
+        "board": lambda p: (f'[[step eq="{p["a"]}/{p["b"]} = ?/100"]]'
+                            f'[[step eq="{p["a"]} × 100 ÷ {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} out of {p['b']} is "
+                             f"{p['a'] * 100 // p['b']} percent."),
+        "key": lambda p: p["a"] * 100 // p["b"],
+        # The classic slip is reading the percent of what is NOT there, so the second
+        # option is the leftover percent. The third is tapping the part itself.
+        "choices": lambda p: [p["a"] * 100 // p["b"],
+                              100 - p["a"] * 100 // p["b"], p["a"]],
+        "check": lambda p: (1 <= p["a"] < p["b"] <= 100
+                            and (p["a"] * 100) % p["b"] == 0
+                            and len({p["a"] * 100 // p["b"],
+                                     100 - p["a"] * 100 // p["b"], p["a"]}) == 3,
+                            "the percent is whole, the part is smaller than the whole, "
+                            "and the three options differ (which rules out 50 percent, "
+                            "where the answer and its leftover are one number)"),
+    },
+    "pwh": {   # b is a percent of WHAT? -- the reverse, and the hard direction
+        "ans": lambda p: p["b"] * 100 // p["a"],
+        "spoken": lambda p: f"{p['b']} is {p['a']} percent of what number?",
+        "board": lambda p: (f'[[step eq="{p["a"]}% = {p["b"]}"]]'
+                            f'[[step eq="10% = {p["b"]} ÷ {p["a"] // 10} = '
+                            f'{p["b"] // (p["a"] // 10)}"]]'
+                            f'[[step eq="100% = {p["b"] // (p["a"] // 10)} × 10 = ?"]]'),
+        "praise": lambda p: (f"10 percent is {p['b'] // (p['a'] // 10)}, so the whole "
+                             f"is ten of those — {p['b'] * 100 // p['a']}."),
+        "key": lambda p: p["b"] * 100 // p["a"],
+        # THE reversal error: doing the forward sum instead -- finding a percent OF the
+        # part, when the part is what you were given.
+        "choices": lambda p: [p["b"] * 100 // p["a"], p["a"] * p["b"] // 100,
+                              p["b"] * 100 // p["a"] - p["b"]],
+        "check": lambda p: (p["a"] % 10 == 0 and 10 <= p["a"] <= 90
+                            and (p["b"] * 100) % p["a"] == 0
+                            and p["b"] % (p["a"] // 10) == 0
+                            and 1 <= p["b"] * 100 // p["a"] <= 100
+                            # >= 2, not >= 1: at 20 percent of 6 the forward error
+                            # rounds down to 1, and "1" is not an answer any child
+                            # arrives at -- it is a stub, and a stub is not a choice.
+                            and min(p["b"] * 100 // p["a"], p["a"] * p["b"] // 100,
+                                    p["b"] * 100 // p["a"] - p["b"]) >= 2
+                            and len({p["b"] * 100 // p["a"], p["a"] * p["b"] // 100,
+                                     p["b"] * 100 // p["a"] - p["b"]}) == 3,
+                            "the ten-percent step is whole, the whole is a real "
+                            "number a child can tap, and every wrong option is a real "
+                            "wrong answer rather than a rounded-down stub"),
+    },
+    "pup": {   # c=1 a percent MORE, c=0 a percent LESS
+        "ans": lambda p: (p["b"] + p["a"] * p["b"] // 100 if p.get("c")
+                          else p["b"] - p["a"] * p["b"] // 100),
+        "spoken": lambda p: (f"A coat costs {p['b']} dollars. The price goes "
+                             f"{'up' if p.get('c') else 'down'} by {p['a']} percent. "
+                             f"What does it cost now?"),
+        # The ten-percent step and the "a percent" step are the SAME LINE when the
+        # percent is ten, and a board that says "10% of 40 = 4" and then "10% = 4"
+        # teaches a child that the second step is empty. Show it only when it says
+        # something new.
+        "board": lambda p: (f'[[step eq="10% of {p["b"]} = {p["b"] // 10}"]]'
+                            + (f'[[step eq="{p["a"]}% = {p["a"] * p["b"] // 100}"]]'
+                               if p["a"] != 10 else "")
+                            + f'[[step eq="{p["b"]} '
+                              f'{"+" if p.get("c") else "−"} '
+                              f'{p["a"] * p["b"] // 100} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} percent of {p['b']} is "
+                             f"{p['a'] * p['b'] // 100}, so the new price is "
+                             f"{p['b'] + p['a'] * p['b'] // 100 if p.get('c') else p['b'] - p['a'] * p['b'] // 100} dollars."),
+        "key": lambda p: (p["b"] + p["a"] * p["b"] // 100 if p.get("c")
+                          else p["b"] - p["a"] * p["b"] // 100),
+        # THE error this lesson exists for: moving the price by the PERCENT NUMBER
+        # instead of by that percent OF the price -- 40 dollars up 10 percent read as
+        # 50 dollars. The third option is the change on its own, mistaken for the price.
+        "choices": lambda p: [(p["b"] + p["a"] * p["b"] // 100 if p.get("c")
+                               else p["b"] - p["a"] * p["b"] // 100),
+                              (p["b"] + p["a"] if p.get("c") else p["b"] - p["a"]),
+                              p["a"] * p["b"] // 100],
+        "speaks": lambda p, sp: str(p["a"]) in sp and str(p["b"]) in sp,
+        "check": lambda p: (p["a"] % 10 == 0 and 10 <= p["a"] <= 50
+                            and p["b"] % 10 == 0 and 10 <= p["b"] <= 90
+                            and (p["a"] * p["b"]) % 100 == 0
+                            and len({(p["b"] + p["a"] * p["b"] // 100 if p.get("c")
+                                      else p["b"] - p["a"] * p["b"] // 100),
+                                     (p["b"] + p["a"] if p.get("c")
+                                      else p["b"] - p["a"]),
+                                     p["a"] * p["b"] // 100}) == 3,
+                            "the change is a whole number of dollars and the three "
+                            "options are three different prices"),
+    },
+
+    # ---- PREALGEBRA UNIT 8 (build ks) -- MEASUREMENT & GEOMETRY BASICS -------
+    # Basic Math's geometry unit (perimeter, area, quarter turns, volume) draws NO
+    # PICTURES -- every one of its boards is a [[step]] line. That is the wrong medium
+    # for the one subject where the picture IS the argument, and geo-figures.js has had
+    # [[triangle]] and [[angle]] the whole time. Three of these four ops put a real
+    # figure on the board, and the straight-line lesson uses [[angle deg="180"
+    # split="130"]] -- a tag built in July for exactly this and never once used by a
+    # scripted lesson.
+    "cnv": {   # a of the bigger unit -- how many of the smaller? b is the factor
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (
+            f"How many millimetres are there in {p['a']} centimetres?" if p["b"] == 10
+            else f"How many centimetres are there in {p['a']} metres?" if p["b"] == 100
+            else f"How many grams are there in {p['a']} kilograms?"),
+        "board": lambda p: (f'[[step eq="1 {"cm = 10 mm" if p["b"] == 10 else "m = 100 cm" if p["b"] == 100 else "kg = 1000 g"}"]]'
+                            f'[[step eq="{p["a"]} × {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"Each one is {p['b']}, so {p['a']} of them are "
+                             f"{p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        # THE unit-conversion error is the wrong power of ten -- one place short, or one
+        # place too far. Neither is a careless slip; both are a child who knows a zero
+        # goes on and does not know how many.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] * p["b"] // 10,
+                              p["a"] * p["b"] * 10],
+        # The factor is not spoken -- the UNIT NAMES carry it, which is the whole point
+        # of the lesson. Rule 44 is satisfied by the number the child has to use.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (1 <= p["a"] <= 9 and p["b"] in (10, 100, 1000)
+                            and p["a"] * p["b"] <= 9000
+                            and len({p["a"] * p["b"], p["a"] * p["b"] // 10,
+                                     p["a"] * p["b"] * 10}) == 3,
+                            "a single-digit count of a real unit, and the three options "
+                            "are three different places"),
+    },
+    "tri": {   # area of a right triangle, base a and height b
+        "ans": lambda p: p["a"] * p["b"] // 2,
+        "spoken": lambda p: (f"A triangle has a base of {p['a']} and a height of "
+                             f"{p['b']}. What is its area?"),
+        "board": lambda p: (f'[[triangle v="A,B,C" right="A" '
+                            f'sides="{p["a"]},,{p["b"]}"]]'
+                            f'[[step eq="the rectangle round it: '
+                            f'{p["a"]} × {p["b"]} = {p["a"] * p["b"]}"]]'
+                            f'[[step eq="the triangle is half: '
+                            f'{p["a"] * p["b"]} ÷ 2 = ?"]]'),
+        "praise": lambda p: (f"The rectangle round it is {p['a'] * p['b']}, and the "
+                             f"triangle is half of that — {p['a'] * p['b'] // 2}."),
+        "key": lambda p: p["a"] * p["b"] // 2,
+        # The error worth offering is FORGETTING TO HALVE -- answering with the
+        # rectangle. It is the single most common wrong answer there is here.
+        "choices": lambda p: [p["a"] * p["b"] // 2, p["a"] * p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 20 and 2 <= p["b"] <= 20
+                            and (p["a"] * p["b"]) % 2 == 0
+                            and len({p["a"] * p["b"] // 2, p["a"] * p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "the half is a whole number of squares and the three "
+                            "options are three different numbers"),
+    },
+    "sla": {   # two angles on a straight line: one is a, how big is the other?
+        "ans": lambda p: 180 - p["a"],
+        "spoken": lambda p: (f"Two angles sit together on a straight line. One of them "
+                             f"is {p['a']} degrees. How big is the other one?"),
+        # geo-figures' split= was built in July for exactly this sentence and no
+        # scripted lesson had ever used it: the straight line IS the 180, drawn.
+        "board": lambda p: (f'[[angle deg="180" split="{p["a"]}"]]'
+                            f'[[step eq="180° − {p["a"]}° = ?"]]'),
+        "praise": lambda p: (f"A straight line is 180 degrees, and 180 take away "
+                             f"{p['a']} equals {180 - p['a']}."),
+        "key": lambda p: 180 - p["a"],
+        # The two real errors: using a RIGHT ANGLE'S 90 or a FULL TURN'S 360 in place of
+        # the straight line's 180, and simply tapping the angle you were handed.
+        "choices": lambda p: [180 - p["a"], 360 - p["a"], p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (10 <= p["a"] <= 170 and p["a"] != 90
+                            and len({180 - p["a"], 360 - p["a"], p["a"]}) == 3,
+                            "the angle is not the right angle (where the answer and the "
+                            "angle are one number) and the three options differ"),
+    },
+    "tri3": {  # two angles of a triangle are a and b -- the third?
+        "ans": lambda p: 180 - p["a"] - p["b"],
+        "spoken": lambda p: (f"Two angles of a triangle are {p['a']} degrees and "
+                             f"{p['b']} degrees. How big is the third one?"),
+        # When one of the given angles IS 90, say so in the figure. The renderer's
+        # header calls these figures schematic, and they are -- but a right angle drawn
+        # as a lazy corner with "90°" written beside it is schematic in the one way
+        # that teaches the wrong thing.
+        "board": lambda p: (f'[[triangle v="A,B,C"'
+                            + (' right="A"' if p["a"] == 90 else
+                               ' right="B"' if p["b"] == 90 else "")
+                            + f' angles="{p["a"]},{p["b"]},"]]'
+                            f'[[step eq="{p["a"]}° + {p["b"]}° = '
+                            f'{p["a"] + p["b"]}°"]]'
+                            f'[[step eq="180° − {p["a"] + p["b"]}° = ?"]]'),
+        "praise": lambda p: (f"The two you were given are {p['a'] + p['b']} together, "
+                             f"and 180 take away {p['a'] + p['b']} equals "
+                             f"{180 - p['a'] - p['b']}."),
+        "key": lambda p: 180 - p["a"] - p["b"],
+        # The error worth offering is answering with the two you were GIVEN added up --
+        # the child who does the first step and taps it.
+        "choices": lambda p: [180 - p["a"] - p["b"], p["a"] + p["b"],
+                              180 - p["a"]],
+        "check": lambda p: (10 <= p["a"] <= 150 and 10 <= p["b"] <= 150
+                            and 180 - p["a"] - p["b"] >= 10
+                            and len({180 - p["a"] - p["b"], p["a"] + p["b"],
+                                     180 - p["a"]}) == 3,
+                            "all three angles are real ones a child can see, and the "
+                            "three options are three different numbers"),
     },
 }
 

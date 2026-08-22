@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21ks-the-first-figures". BUILD ks -- Prealgebra
+#               Unit 8, Measurement & Geometry Basics. 68 lessons -> 72, 57 ops -> 61.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#               ⭐ The first scripted lessons that draw a real FIGURE. Basic's geometry
+#               unit draws none -- every board in it is a [[step]] line -- while
+#               geo-figures.js has carried [[triangle]] and [[angle]] since July. The
+#               straight-line lesson finally uses [[angle deg="180" split="130"]], the
+#               tag added on 2026-08-01 for exactly that sentence and never used by a
+#               scripted lesson until now.
+#   2026-08-21  APP_BUILD -> "2026-08-21kr-percents". BUILD kr -- Prealgebra Unit 7,
+#               Percents. 64 lessons -> 68, 53 ops -> 57. NOTHING IN THIS FILE CHANGED
+#               but this note and the stamp; the work is in lessonscripts.py.
+#               Basic's percent lesson only does 10/25/50 through a fraction shortcut
+#               that says nothing about 30 or 70 percent. U7 replaces it with one
+#               method that never runs out -- find ten percent, count the tens -- and
+#               runs it forwards, as a reading of one number against another,
+#               backwards from a part to the whole, and up and down on a price.
 #   2026-08-21  APP_BUILD -> "2026-08-21kq-the-render-is-a-job". BUILD kq -- Jim:
 #               "I keep getting failure notice on the script rendering." The notice
 #               read "Request failed.", which is admin.html's fallback for a non-2xx
@@ -9985,7 +10002,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kq-the-render-is-a-job"
+APP_BUILD = "2026-08-21ks-the-first-figures"
 
 
 @app.get("/health")
