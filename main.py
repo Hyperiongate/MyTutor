@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kt-prealgebra-complete". BUILD kt --
+#               Prealgebra Unit 9, Variables & Expressions -- THE LAST UNIT.
+#               72 lessons -> 76, 61 ops -> 65. PREALGEBRA IS COMPLETE: nine units,
+#               35 lessons (Unit 2 has three). NOTHING IN THIS FILE CHANGED but this
+#               note and the stamp.
+#               ⭐ The distributive property is DRAWN as an area model ([[areamodel]],
+#               in the registry since July, first scripted use) -- a rectangle 4 tall
+#               and (x + 3) wide cut into a 4x room and a 12 room. The child is shown
+#               the two rooms, not handed the rule.
 #   2026-08-21  APP_BUILD -> "2026-08-21ks-the-first-figures". BUILD ks -- Prealgebra
 #               Unit 8, Measurement & Geometry Basics. 68 lessons -> 72, 57 ops -> 61.
 #               NOTHING IN THIS FILE CHANGED but this note and the stamp.
@@ -10002,7 +10011,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21ks-the-first-figures"
+APP_BUILD = "2026-08-21kt-prealgebra-complete"
 
 
 @app.get("/health")

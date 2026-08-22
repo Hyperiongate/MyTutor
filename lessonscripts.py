@@ -2,6 +2,37 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  BUILD kt -- PREALGEBRA UNIT 9: VARIABLES & EXPRESSIONS. THE COURSE'S
+#               LAST UNIT. 72 lessons -> 76, 65 ops (evx, mlx, clt, dst added).
+#               PREALGEBRA IS COMPLETE: nine units, 35 lessons (Unit 2 has three), entry ladder to the
+#               doorway of algebra.
+#               The order is the order the idea grows: a letter HOLDS a number (evx),
+#               a number written against a letter means TIMES (mlx -- the one piece of
+#               notation a child must simply be told, because nothing about it looks
+#               like what it means), like terms collect by COUNTING (clt -- three x's
+#               plus two x's are five x's, like apples), and a times DISTRIBUTES over
+#               a parenthesis (dst).
+#               ⭐ dst DRAWS THE DISTRIBUTIVE PROPERTY as an area model: a rectangle
+#               4 tall and (x + 3) wide, cut into a 4x room and a 12 room, expanded
+#               sum printed underneath -- using [[areamodel]], the algebra-tile
+#               renderer in the registry since July and (exactly like [[angle split=]]
+#               before build ks) never used by a scripted lesson until now. The child
+#               is not handed the rule; the child is shown the two rooms. The teach
+#               beat ties it back to rule one of prealgebra: parentheses SAY do the
+#               inside first, but an x inside will not collapse -- so the times has to
+#               reach in, and it reaches BOTH rooms.
+#               The distractors are the unit's real errors: CONCATENATION (x holds 5,
+#               "x + 3" tapped as 53 -- the documented universal first misreading of
+#               substitution), 3x read as 3 plus x, counts timesed instead of added
+#               (3x + 2x tapped as 6x), and the times never reaching the number
+#               (4(x + 3) tapped as "plus 3").
+#               Caught this build: (1) clt's neighbour distractor lands exactly on its
+#               times-them distractor at 2x + 3x (both 6) -- its check now demands
+#               three distinct options, the same repair shr and prop needed in kp.
+#               (2) mlx's ask originally re-explained the invisible-times shorthand in
+#               EVERY problem; a scaffold repeated in all twelve asks is a scaffold
+#               that never fades, and fading it is what practice is for. The teach
+#               beats own the explanation now.
 #   2026-08-21  BUILD ks -- PREALGEBRA UNIT 8: MEASUREMENT & GEOMETRY BASICS.
 #               68 lessons -> 72, 61 ops (cnv, tri, sla, tri3 added).
 #               ⭐ THE FIRST SCRIPTED LESSONS THAT DRAW A REAL FIGURE. Basic Math's
@@ -3183,6 +3214,181 @@ _PREALGEBRA_U8 = [
 LESSONS.extend(_PREALGEBRA_U8)
 
 
+# =============================================================================
+# PREALGEBRA -- UNIT 9: VARIABLES & EXPRESSIONS (build kt, 2026-08-21)
+# =============================================================================
+# The last prealgebra unit, and the doorway to algebra. Everything before this asked
+# about numbers; these four ask about a LETTER that stands for one. The order is the
+# order the idea grows: a letter holds a number, a number written against a letter
+# means times, like terms collect by counting, and a times distributes over a
+# parenthesis.
+#
+# ⭐ THE LAST LESSON DRAWS THE DISTRIBUTIVE PROPERTY as an area model -- a rectangle
+# 4 tall and (x + 3) wide, cut into a 4x room and a 12 room -- using [[areamodel]],
+# the algebra-tile renderer that has been in the registry since July and (exactly like
+# [[angle split=]] before build ks) has never been used by a scripted lesson. The
+# child is not handed the rule; the child is shown the two rooms.
+#
+# THE ERROR THAT RULES THIS UNIT is the notation quietly meaning times: 3x read as
+# 3 plus x, and 4(x + 3) read as 4x + 3 with the times never reaching the number.
+# Both are offered as wrong taps, every time.
+_PREALGEBRA_U9 = [
+    {
+        "id": "pre-u9-a-letter-holds-a-number",
+        "course": "prealgebra", "unit": 9,
+        "topic": "A letter holds a number",
+        "op": "evx", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "letter"),
+        "advance_line": "Three in a row — you've got it! Swap the letter for its number, then work it out.",
+        "teach": [
+            ["Here is the biggest idea in all of algebra, and it is small enough to hold: a letter can stand for a number. When we write x , we mean some number that x is holding for us. Tell me what x holds, and every question about x becomes a question about that number.",
+             '[[goal text="A letter holds a number"]]'],
+            ["Say x is holding 5. What is x plus 3? Swap the letter for its number: x plus 3 becomes 5 plus 3, which equals 8. That swap is the whole move.",
+             '[[step eq="x = 5"]][[step eq="x + 3 = 5 + 3 = 8"]]'],
+            ["One careful thing. x plus 3 with x holding 5 is NOT fifty-three. The 5 and the 3 do not sit next to each other like digits — the plus keeps them apart. Swap first, then add.",
+             '[[step eq="5 + 3 = 8 ✓"]][[step eq="53 ✗ — those are digits, not a sum"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x is holding 4. x plus 6 becomes 4 plus 6, which equals 10.",
+                        '[[step eq="x = 4"]][[step eq="4 + 6 = 10"]]'],
+             "ask": {"a": 5, "b": 6, "op": "evx"}},
+            {"worked": ["One more together. x is holding 7. x plus 2 becomes 7 plus 2, which equals 9.",
+                        '[[step eq="7 + 2 = 9"]]'],
+             "ask": {"a": 8, "b": 7, "op": "evx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "evx"},
+            {"a": 4, "b": 2, "op": "evx"},
+            {"a": 3, "b": 4, "op": "evx"},
+            {"a": 5, "b": 3, "op": "evx"},
+            {"a": 6, "b": 3, "op": "evx"},
+            {"a": 4, "b": 7, "op": "evx"},
+            {"a": 8, "b": 4, "op": "evx"},
+            {"a": 9, "b": 5, "op": "evx"},
+            {"a": 7, "b": 9, "op": "evx"},
+            {"a": 9, "b": 9, "op": "evx"},
+        ],
+    },
+    {
+        "id": "pre-u9-a-number-against-a-letter",
+        "course": "prealgebra", "unit": 9,
+        "topic": "A number against a letter means times",
+        "op": "mlx", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "times"),
+        "advance_line": "Three in a row — you've got it! A number against a letter means times, every time.",
+        "teach": [
+            ["Algebra has one piece of shorthand you have to be told, because nothing about it looks like what it means: a number written right next to a letter means TIMES. 3 x means 3 times x. The times sign is there — it is just invisible.",
+             '[[goal text="A number against a letter means times"]]'],
+            ["Say x is holding 4. What is 3 x? That is 3 times x, so 3 times 4, which equals 12.",
+             '[[step eq="x = 4"]][[step eq="3x = 3 × 4 = 12"]]'],
+            ["The trap is reading 3 x as 3 plus x — it looks like the 3 is just standing near the x. It is not standing near it; it is timesing it. 3 x with x holding 4 equals 12, never 7.",
+             '[[step eq="3x = 12 ✓"]][[step eq="3 + 4 = 7 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x is holding 5. 4 x is 4 times 5, which equals 20.",
+                        '[[step eq="4x = 4 × 5 = 20"]]'],
+             "ask": {"a": 4, "b": 5, "op": "mlx"}},
+            {"worked": ["One more together. x is holding 3. 6 x is 6 times 3, which equals 18.",
+                        '[[step eq="6x = 6 × 3 = 18"]]'],
+             "ask": {"a": 7, "b": 3, "op": "mlx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "mlx"},
+            {"a": 4, "b": 2, "op": "mlx"},
+            {"a": 3, "b": 3, "op": "mlx"},
+            {"a": 3, "b": 4, "op": "mlx"},
+            {"a": 5, "b": 3, "op": "mlx"},
+            {"a": 4, "b": 4, "op": "mlx"},
+            {"a": 6, "b": 3, "op": "mlx"},
+            {"a": 5, "b": 4, "op": "mlx"},
+            {"a": 7, "b": 4, "op": "mlx"},
+            {"a": 6, "b": 6, "op": "mlx"},
+        ],
+    },
+    {
+        "id": "pre-u9-collecting-x",
+        "course": "prealgebra", "unit": 9,
+        "topic": "Collecting the x's",
+        "op": "clt", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "terms"),
+        "advance_line": "Three in a row — you've got it! x's collect by counting, like apples.",
+        "teach": [
+            ["You do not need to know what x is holding to do some things with it. 3 x plus 2 x — three of something plus two of the same something is five of it. Three apples plus two apples: five apples. Three x's plus two x's: five x's. Pieces like 3 x and 2 x are called terms , and terms of x collect by counting.",
+             '[[goal text="Collecting the x\'s"]]'],
+            ["Watch: 3 x plus 2 x. Count them: 3 of them plus 2 of them equals 5 of them. So 3 x plus 2 x equals 5 x — whatever x turns out to be holding.",
+             '[[step eq="3x + 2x"]][[step eq="3 of them + 2 of them = 5 of them"]]'],
+            ["Careful — the counts ADD. Do not times them. 3 x plus 2 x is 5 x, not 6 x. The invisible times lives between a number and its own letter, not between the two counts.",
+             '[[step eq="3x + 2x = 5x ✓"]][[step eq="6x ✗ — the counts add"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 x plus 5 x. Four of them plus five of them equals nine of them: 9 x.",
+                        '[[step eq="4x + 5x = 9x"]]'],
+             "ask": {"a": 5, "b": 6, "op": "clt"}},
+            {"worked": ["One more together. 7 x plus 2 x equals 9 x.",
+                        '[[step eq="7x + 2x = 9x"]]'],
+             "ask": {"a": 8, "b": 6, "op": "clt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "op": "clt"},
+            {"a": 4, "b": 3, "op": "clt"},
+            {"a": 6, "b": 2, "op": "clt"},
+            {"a": 4, "b": 5, "op": "clt"},
+            {"a": 7, "b": 4, "op": "clt"},
+            {"a": 8, "b": 5, "op": "clt"},
+            {"a": 9, "b": 5, "op": "clt"},
+            {"a": 7, "b": 8, "op": "clt"},
+            {"a": 9, "b": 7, "op": "clt"},
+            {"a": 9, "b": 9, "op": "clt"},
+        ],
+    },
+    {
+        "id": "pre-u9-the-times-reaches-both",
+        "course": "prealgebra", "unit": 9,
+        "topic": "The times reaches both rooms",
+        "op": "dst", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("parentheses", "x"),
+        "advance_line": "Three in a row — you've got it! The times outside reaches everything inside.",
+        "teach": [
+            ["You met parentheses in the very first prealgebra lesson: do what is inside first. But when an x is inside, you CANNOT do the inside first — x plus 3 will not collapse into one number. So the times outside has to reach in. Here is the picture that shows what that means.",
+             '[[goal text="The times reaches both rooms"]][[areamodel rows="4" cols="x,3"]]'],
+            ["This rectangle is 4 tall and x plus 3 wide, so its area is 4 times the whole of x plus 3. The wall splits it into two rooms: one is 4 times x, the other is 4 times 3, which equals 12. Both rooms together: 4 x plus 12.",
+             '[[areamodel rows="4" cols="x,3"]][[step eq="4(x + 3) = 4x + 12"]]'],
+            ["The times reaches BOTH rooms — that is the whole rule. The wrong answer is 4 x plus 3, where the 4 timesed the x and never touched the 3. Look at the picture: the second room is real, and it is 12, not 3.",
+             '[[step eq="4x + 12 ✓"]][[step eq="4x + 3 ✗ — the 3 never got timesed"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Times the whole of x plus 2 by 5. The rooms are 5 x and 5 times 2, which equals 10. So it is 5 x plus 10.",
+                        '[[areamodel rows="5" cols="x,2"]][[step eq="5(x + 2) = 5x + 10"]]'],
+             "ask": {"a": 4, "b": 3, "op": "dst"}},
+            {"worked": ["One more together. Times the whole of x plus 4 by 3. The rooms are 3 x and 3 times 4, which equals 12: 3 x plus 12.",
+                        '[[areamodel rows="3" cols="x,4"]][[step eq="3(x + 4) = 3x + 12"]]'],
+             "ask": {"a": 5, "b": 6, "op": "dst"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "dst"},
+            {"a": 4, "b": 2, "op": "dst"},
+            {"a": 3, "b": 3, "op": "dst"},
+            {"a": 3, "b": 4, "op": "dst"},
+            {"a": 5, "b": 3, "op": "dst"},
+            {"a": 4, "b": 4, "op": "dst"},
+            {"a": 6, "b": 3, "op": "dst"},
+            {"a": 5, "b": 4, "op": "dst"},
+            {"a": 6, "b": 4, "op": "dst"},
+            {"a": 7, "b": 4, "op": "dst"},
+        ],
+    },
+]
+LESSONS.extend(_PREALGEBRA_U9)
+
+
 
 
 
@@ -3243,6 +3449,10 @@ COURSE_ORDER = [
     # that put a real FIGURE on the board rather than a line of text
     "pre-u8-changing-units", "pre-u8-area-of-a-triangle",
     "pre-u8-angles-on-a-line", "pre-u8-angles-in-a-triangle",
+    # Unit 9: Variables & Expressions -- the doorway to algebra, closed with the
+    # ⭐ area model for the distributive property
+    "pre-u9-a-letter-holds-a-number", "pre-u9-a-number-against-a-letter",
+    "pre-u9-collecting-x", "pre-u9-the-times-reaches-both",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -4388,6 +4598,101 @@ OP_EXT = {
                                      180 - p["a"]}) == 3,
                             "all three angles are real ones a child can see, and the "
                             "three options are three different numbers"),
+    },
+
+    # ---- PREALGEBRA UNIT 9 (build kt) -- VARIABLES & EXPRESSIONS --------------
+    # The last prealgebra unit, and the doorway to algebra. Everything before this
+    # asked about numbers; these four ask about a LETTER that stands for one. The
+    # order is the order the idea actually grows: a letter holds a number (evx), a
+    # number written against a letter means times (mlx), like terms collect by
+    # counting (clt), and a times distributes over a parenthesis (dst) -- drawn with
+    # [[areamodel]], the algebra-tile renderer that has been in the registry since
+    # July and, exactly like [[angle split=]] before build ks, has never once been
+    # used by a scripted lesson.
+    "evx": {   # x holds a -- what is x + b?
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
+                             f"What is x plus {p['b']}?"),
+        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
+                            f'[[step eq="x + {p["b"]} = {p["a"]} + {p["b"]} = ?"]]'),
+        "praise": lambda p: (f"x is {p['a']}, so x plus {p['b']} is {p['a']} plus "
+                             f"{p['b']}, which equals {p['a'] + p['b']}."),
+        "key": lambda p: p["a"] + p["b"],
+        # THE first-variable error is CONCATENATION: x holds 5, so "x + 3" is read as
+        # writing 5 next to 3 -- the child taps 53. It looks bizarre to an adult and it
+        # is the documented, universal first misreading of substitution.
+        "choices": lambda p: [p["a"] + p["b"], 10 * p["a"] + p["b"], p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] * p["b"] != p["a"] + p["b"],
+                            "single digits so the glued-together error is a real tap, "
+                            "and the times never equals the add"),
+    },
+    "mlx": {   # x holds a -- what is bx?
+        "ans": lambda p: p["a"] * p["b"],
+        # The ask does NOT re-explain the shorthand -- the teach beats own that.
+        # A scaffold repeated in every one of twelve asks is a scaffold that never
+        # fades, and fading it is what practice is for.
+        "spoken": lambda p: (f"The letter x is holding the number {p['a']}. "
+                             f"What is {p['b']} x?"),
+        "board": lambda p: (f'[[step eq="x = {p["a"]}"]]'
+                            f'[[step eq="{p["b"]}x = {p["b"]} × {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['b']} x means {p['b']} times x, and {p['b']} times "
+                             f"{p['a']} equals {p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        # The error is reading the written-together 3x as 3 PLUS x -- adding where the
+        # notation quietly means times.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              p["a"] * p["b"] + p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] * p["b"] != p["a"] + p["b"],
+                            "both single digits and never the 2-and-2 case, so the "
+                            "times-versus-add error is a different number"),
+    },
+    "clt": {   # ax + bx -- how many x in all?
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"{p['a']} x plus {p['b']} x — how many x is that "
+                             f"in all?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}x + {p["b"]}x"]]'
+                            f'[[step eq="{p["a"]} of them + {p["b"]} of them '
+                            f'= ? of them"]]'),
+        "praise": lambda p: (f"{p['a']} x's and {p['b']} more x's are "
+                             f"{p['a'] + p['b']} x's in all — {p['a'] + p['b']} x."),
+        "key": lambda p: p["a"] + p["b"],
+        # The error is TIMESING the counts -- the child who has just learned that
+        # letters mean times and now applies it to everything in sight.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] * p["b"], p["a"] + p["b"] + 1],
+        # Three DISTINCT options, said outright: at 2x + 3x the neighbour distractor
+        # (6) lands exactly on the times-them distractor (6), so requiring the pair
+        # to differ is not enough -- the whole set has to.
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] + p["b"], p["a"] * p["b"],
+                                     p["a"] + p["b"] + 1}) == 3,
+                            "the counts add like apples add, and the three tap "
+                            "options are three different numbers"),
+    },
+    "dst": {   # a(x + b) = ax + ? -- the distributive property, drawn as area
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"Times the whole of x plus {p['b']} by {p['a']}. "
+                             f"That comes to {p['a']} x plus what number?"),
+        # ⭐ [[areamodel]] draws a rectangle a tall and (x + b) wide, cut into an ax
+        # piece and an ab piece, with the expanded sum printed under it. The child is
+        # not told the rule -- the child is shown the two rooms of the rectangle.
+        "board": lambda p: (f'[[areamodel rows="{p["a"]}" cols="x,{p["b"]}"]]'
+                            f'[[step eq="{p["a"]}(x + {p["b"]}) = {p["a"]}x + ?"]]'),
+        "praise": lambda p: (f"The {p['a']} reaches BOTH rooms: {p['a']} times x, and "
+                             f"{p['a']} times {p['b']}, which equals "
+                             f"{p['a'] * p['b']}. So it is {p['a']} x plus "
+                             f"{p['a'] * p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        # THE distributive error: the times reaches the x and never the number --
+        # 4(x + 3) read as 4x + 3. The wrong tap is the untouched 3.
+        "choices": lambda p: [p["a"] * p["b"], p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and len({p["a"] * p["b"], p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "the multiplier is at least 2 so the untouched-number "
+                            "error is a real different tap, and all three options "
+                            "differ"),
     },
 }
 
