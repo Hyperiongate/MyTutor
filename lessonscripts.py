@@ -2,6 +2,29 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  BUILD kv -- ALGEBRA I UNIT 2: LINEAR EQUATIONS & INEQUALITIES.
+#               80 lessons -> 84, 73 ops (un1, un2, un3, ineq added). SOLVING BEGINS.
+#               Unit 1 always handed the child what x was holding; from here the
+#               EQUATION holds it, and the child gets it back by undoing -- the same
+#               move off both sides.
+#               ⭐ [[balance]] GETS ITS FIRST SCRIPTED USE -- the balance-scale
+#               renderer, in the codebase since July, same story as [[areamodel]]
+#               (kt) and [[angle split=]] (ks). An equation IS a balance; "take the
+#               same off both sides or the scale tips" is the whole logic of solving,
+#               drawn instead of asserted. Equals is taught as LEVEL.
+#               The ladder: undo a plus, undo a times (a DIFFERENT undo -- choosing
+#               which is the single biggest decision a solver makes, so it gets its
+#               own lesson and its own wrong tap: 3x = 12 answered 9, the wrong-undo
+#               error), two steps back in reverse order (socks before shoes -- the 3
+#               went on last so it comes off first; the wrong tap is stopping at
+#               "2x = 8" and calling 8 the answer, the same stop-at-step-one error as
+#               rte/pcn/tri3), and LESS THAN, where the tap answer is the biggest
+#               whole number allowed -- an inequality's answer is a crowd, a tap can
+#               hold one number, and the wrong tap is the boundary itself (x < 7
+#               answered 7), which is THE inequality misconception.
+#               The validator caught "makes" twice in one teach beat ("plus 4 makes
+#               11", "the picture that makes it honest") -- the first was the exact
+#               habit the ban exists for; both reworded rather than the ban weakened.
 #   2026-08-22  BUILD ku -- ALGEBRA I OPENS: UNIT 1, FOUNDATIONS & EXPRESSIONS.
 #               76 lessons -> 80, 69 ops (ev2, evxy, cl2, dstm added). The course key
 #               is "algebra1", matching curriculum.COURSES, whose own unit list names
@@ -3578,6 +3601,178 @@ _ALGEBRA1_U1 = [
 LESSONS.extend(_ALGEBRA1_U1)
 
 
+# =============================================================================
+# ALGEBRA I -- UNIT 2: LINEAR EQUATIONS & INEQUALITIES (build kv, 2026-08-22)
+# =============================================================================
+# SOLVING BEGINS. Unit 1 always handed the child what x was holding; from here the
+# EQUATION holds it, and the child gets it back by undoing -- the same move off both
+# sides. The board is ⭐ [[balance]], the balance-scale renderer that has been in the
+# codebase since July and never once used by a scripted lesson. An equation IS a
+# balance, and "take the same off both sides or the scale tips" is the whole logic of
+# solving, drawn.
+#
+# The ladder: undo a plus, undo a times (a DIFFERENT undo -- the single biggest
+# decision a solver makes is which one), two steps back in reverse order (the 3 went
+# on last, so it comes off first -- socks on before shoes, shoes off before socks),
+# and finally "less than", where the tap answer is the BIGGEST whole number allowed,
+# because an inequality's answer is a crowd and a tap can only hold one number.
+_ALGEBRA1_U2 = [
+    {
+        "id": "alg1-u2-undoing-a-plus",
+        "course": "algebra1", "unit": 2,
+        "topic": "Undoing a plus",
+        "op": "un1", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("equals", "x"),
+        "advance_line": "Three in a row — you've got it! Take the same off both sides and the scale stays level.",
+        "teach": [
+            ["Until today, I always told you what x was holding. Now the equation tells you — in disguise. x plus 4 equals 11 means: some hidden number, plus 4, comes to 11 — and finding it is called solving. Here is the picture that keeps it honest: an equation is a balance scale, and equals means LEVEL.",
+             '[[goal text="Undoing a plus"]][[balance left="x + 4" right="11"]]'],
+            ["The left pan holds x and a 4. To get x alone, take the 4 off — but the scale only stays level if you take 4 off BOTH sides. 11 take away 4 equals 7. So x is holding 7.",
+             '[[balance left="x + 4" right="11" caption="take 4 off both sides"]][[step eq="x = 11 − 4 = 7"]]'],
+            ["Check it — put 7 back in: 7 plus 4 equals 11. Level. And watch the wrong move: ADDING 4 gives 15, which pushes the same way the equation already went. Solving is undoing, and the undo of a plus is a take away.",
+             '[[step eq="7 + 4 = 11 ✓"]][[step eq="x = 15 ✗ — that pushed instead of undoing"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x plus 5 equals 12. Take 5 off both sides: 12 take away 5 equals 7. x is holding 7.",
+                        '[[balance left="x + 5" right="12"]][[step eq="x = 12 − 5 = 7"]]'],
+             "ask": {"a": 4, "b": 13, "op": "un1"}},
+            {"worked": ["One more together. x plus 3 equals 10. 10 take away 3 equals 7, so x is holding 7.",
+                        '[[step eq="x = 10 − 3 = 7"]]'],
+             "ask": {"a": 6, "b": 21, "op": "un1"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 5, "op": "un1"},
+            {"a": 4, "b": 7, "op": "un1"},
+            {"a": 2, "b": 7, "op": "un1"},
+            {"a": 5, "b": 11, "op": "un1"},
+            {"a": 3, "b": 10, "op": "un1"},
+            {"a": 6, "b": 14, "op": "un1"},
+            {"a": 4, "b": 14, "op": "un1"},
+            {"a": 7, "b": 19, "op": "un1"},
+            {"a": 5, "b": 19, "op": "un1"},
+            {"a": 8, "b": 24, "op": "un1"},
+        ],
+    },
+    {
+        "id": "alg1-u2-undoing-a-times",
+        "course": "algebra1", "unit": 2,
+        "topic": "Undoing a times",
+        "op": "un2", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("x", "times"),
+        "advance_line": "Three in a row — you've got it! The undo of a times is a share.",
+        "teach": [
+            ["A new disguise. 3 x equals 12 — three x's together weigh 12. The undo is NOT a take away this time. Three of something made 12, so one of them is 12 shared between 3. The undo of a times is a share.",
+             '[[goal text="Undoing a times"]][[balance left="3x" right="12"]]'],
+            ["Share both sides between 3: the left pan drops to one x, and the right drops to 12 shared between 3, which equals 4. So x is holding 4.",
+             '[[balance left="3x" right="12" caption="share both sides between 3"]][[step eq="x = 12 ÷ 3 = 4"]]'],
+            ["The trap is undoing the WRONG operation. 12 take away 3 equals 9 — but nothing here was added, so there is nothing to take away. Ask what happened to x. It was timesed, so it gets shared. Check: 3 times 4 equals 12. Level.",
+             '[[step eq="3 × 4 = 12 ✓"]][[step eq="x = 12 − 3 = 9 ✗ — wrong undo"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 4 x equals 20. Share both sides between 4: 20 shared between 4 equals 5. x is holding 5.",
+                        '[[balance left="4x" right="20"]][[step eq="x = 20 ÷ 4 = 5"]]'],
+             "ask": {"a": 2, "b": 12, "op": "un2"}},
+            {"worked": ["One more together. 5 x equals 30. 30 shared between 5 equals 6, so x is holding 6.",
+                        '[[step eq="x = 30 ÷ 5 = 6"]]'],
+             "ask": {"a": 4, "b": 36, "op": "un2"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 8, "op": "un2"},
+            {"a": 3, "b": 9, "op": "un2"},
+            {"a": 5, "b": 15, "op": "un2"},
+            {"a": 2, "b": 8, "op": "un2"},
+            {"a": 6, "b": 24, "op": "un2"},
+            {"a": 3, "b": 15, "op": "un2"},
+            {"a": 4, "b": 24, "op": "un2"},
+            {"a": 5, "b": 35, "op": "un2"},
+            {"a": 3, "b": 24, "op": "un2"},
+            {"a": 6, "b": 54, "op": "un2"},
+        ],
+    },
+    {
+        "id": "alg1-u2-two-steps-back",
+        "course": "algebra1", "unit": 2,
+        "topic": "Two steps back",
+        "op": "un3", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("x", "equals"),
+        "advance_line": "Three in a row — you've got it! Last on, first off — then share.",
+        "teach": [
+            ["Now both disguises at once: 2 x plus 3 equals 11. Two undos to make, and the ORDER matters. Think of socks and shoes: the shoes went on last, so they come off first. Here the plus 3 went on last — it comes off first.",
+             '[[goal text="Two steps back"]][[balance left="2x + 3" right="11"]]'],
+            ["Take 3 off both sides: 2 x equals 8. Now the second undo — share both sides between 2: x equals 4.",
+             '[[balance left="2x" right="8" caption="the 3 is off — one undo left"]][[step eq="2x = 11 − 3 = 8"]][[step eq="x = 8 ÷ 2 = 4"]]'],
+            ["Do not stop at 8. Eight is what TWO x's weigh, not what one x is holding. Both undos have to happen. Check: 2 times 4 is 8, plus 3 is 11. Level.",
+             '[[step eq="2 × 4 + 3 = 11 ✓"]][[step eq="x = 8 ✗ — that is two x\'s, not one"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 3 x plus 2 equals 14. The 2 comes off first: 3 x equals 12. Then share: x equals 4.",
+                        '[[step eq="3x = 14 − 2 = 12"]][[step eq="x = 12 ÷ 3 = 4"]]'],
+             "ask": {"a": 2, "b": 4, "c": 14, "op": "un3"}},
+            {"worked": ["One more together. 4 x plus 3 equals 19. Take the 3 off: 4 x equals 16. Share between 4: x equals 4.",
+                        '[[step eq="4x = 16"]][[step eq="x = 4"]]'],
+             "ask": {"a": 5, "b": 3, "c": 38, "op": "un3"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 7, "op": "un3"},
+            {"a": 3, "b": 2, "c": 11, "op": "un3"},
+            {"a": 2, "b": 5, "c": 13, "op": "un3"},
+            {"a": 4, "b": 3, "c": 23, "op": "un3"},
+            {"a": 3, "b": 4, "c": 22, "op": "un3"},
+            {"a": 2, "b": 7, "c": 21, "op": "un3"},
+            {"a": 5, "b": 2, "c": 42, "op": "un3"},
+            {"a": 4, "b": 5, "c": 41, "op": "un3"},
+            {"a": 3, "b": 6, "c": 36, "op": "un3"},
+            {"a": 6, "b": 4, "c": 76, "op": "un3"},
+        ],
+    },
+    {
+        "id": "alg1-u2-the-biggest-x",
+        "course": "algebra1", "unit": 2,
+        "topic": "Less than",
+        "op": "ineq", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("less than", "x"),
+        "advance_line": "Three in a row — you've got it! Less than shuts the door on the number itself.",
+        "teach": [
+            ["Not every puzzle says equals. x plus 3 is LESS THAN 10 — the left side has to weigh less than the right. Now x is not one hidden number any more; it is a whole crowd of allowed ones, and the puzzle is finding where the crowd stops.",
+             '[[goal text="Less than"]][[step eq="x + 3 < 10"]]'],
+            ["Undo it exactly like an equation: take 3 from both sides. x is less than 7. On the number line, that is everything to the LEFT of 7 — and 7 itself is not included, because x plus 3 has to stay under 10, not land on it.",
+             '[[step eq="x < 10 − 3 = 7"]][[numberline min="0" max="9" points="7"]]'],
+            ["So what is the biggest WHOLE number x can hold? Not 7 — less than shuts the door on 7 itself. Try it: 7 plus 3 equals 10, and 10 is not less than 10. The biggest allowed is 6.",
+             '[[step eq="x = 6 ✓ — 6 + 3 = 9, under 10"]][[step eq="x = 7 ✗ — 7 + 3 = 10, not under"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x plus 4 is less than 11. Take 4 off: x is less than 7, so the biggest whole number is 6.",
+                        '[[step eq="x < 7"]][[step eq="biggest whole number: 6"]]'],
+             "ask": {"a": 3, "b": 9, "op": "ineq"}},
+            {"worked": ["One more together. x plus 2 is less than 9. x is less than 7 — the biggest whole number x can hold is 6.",
+                        '[[step eq="x < 7 → 6"]]'],
+             "ask": {"a": 6, "b": 19, "op": "ineq"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 5, "op": "ineq"},
+            {"a": 3, "b": 7, "op": "ineq"},
+            {"a": 4, "b": 9, "op": "ineq"},
+            {"a": 2, "b": 8, "op": "ineq"},
+            {"a": 5, "b": 12, "op": "ineq"},
+            {"a": 3, "b": 11, "op": "ineq"},
+            {"a": 6, "b": 15, "op": "ineq"},
+            {"a": 4, "b": 14, "op": "ineq"},
+            {"a": 7, "b": 18, "op": "ineq"},
+            {"a": 5, "b": 17, "op": "ineq"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA1_U2)
+
+
 
 
 
@@ -3646,6 +3841,9 @@ COURSE_ORDER = [
     # ---- ALGEBRA I (build ku) -- Unit 1: Foundations & Expressions ----
     "alg1-u1-two-steps-with-a-letter", "alg1-u1-two-letters",
     "alg1-u1-collecting-past-a-y", "alg1-u1-minus-goes-through",
+    # Unit 2: Linear Equations & Inequalities -- solving begins, on the ⭐ balance
+    "alg1-u2-undoing-a-plus", "alg1-u2-undoing-a-times",
+    "alg1-u2-two-steps-back", "alg1-u2-the-biggest-x",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -4988,6 +5186,101 @@ OP_EXT = {
                                      p["a"] + p["b"]}) == 3,
                             "the multiplier is at least 2 and the three options are "
                             "three different numbers"),
+    },
+
+    # ---- ALGEBRA I UNIT 2 (build kv) -- LINEAR EQUATIONS & INEQUALITIES -------
+    # SOLVING BEGINS. Until now every x was handed to the child ("x is holding 5");
+    # from here the equation holds it and the child gets it back by UNDOING -- the
+    # same move off both sides. The board is ⭐ [[balance]], the balance-scale
+    # renderer that (like [[areamodel]] and [[angle split=]] before it) has been in
+    # the codebase since July and never once used by a scripted lesson. An equation
+    # IS a balance; the figure is the argument.
+    "un1": {   # x + a = b -- undo the plus
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: (f"x plus {p['a']} equals {p['b']}. "
+                             f"What number is x holding?"),
+        "board": lambda p: (f'[[balance left="x + {p["a"]}" right="{p["b"]}" '
+                            f'caption="take {p["a"]} off BOTH sides"]]'
+                            f'[[step eq="x = {p["b"]} − {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"Take {p['a']} off both sides and the scale stays "
+                             f"level: x is {p['b']} take away {p['a']}, which "
+                             f"equals {p['b'] - p['a']}."),
+        "key": lambda p: p["b"] - p["a"],
+        # The error is pushing the same way instead of undoing: x + 4 = 11 answered
+        # with 15. The third option is tapping the right-hand side untouched.
+        "choices": lambda p: [p["b"] - p["a"], p["b"] + p["a"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["a"] < p["b"] <= 30
+                            and p["b"] - p["a"] >= 2,
+                            "the hidden number is at least 2 and every number stays "
+                            "small enough to check by counting"),
+    },
+    "un2": {   # ax = b -- undo the times
+        "ans": lambda p: p["b"] // p["a"],
+        "spoken": lambda p: (f"{p['a']} x equals {p['b']}. "
+                             f"What number is x holding?"),
+        "board": lambda p: (f'[[balance left="{p["a"]}x" right="{p["b"]}" '
+                            f'caption="share BOTH sides between {p["a"]}"]]'
+                            f'[[step eq="x = {p["b"]} ÷ {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} x's weigh {p['b']}, so one x weighs "
+                             f"{p['b']} shared between {p['a']} — "
+                             f"{p['b'] // p['a']}."),
+        "key": lambda p: p["b"] // p["a"],
+        # The error is UNDOING THE WRONG OPERATION: taking the 3 away instead of
+        # sharing between 3 -- 3x = 12 answered with 9.
+        "choices": lambda p: [p["b"] // p["a"], p["b"] - p["a"],
+                              p["b"] // p["a"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["b"] % p["a"] == 0
+                            and p["b"] // p["a"] >= 2
+                            and len({p["b"] // p["a"], p["b"] - p["a"],
+                                     p["b"] // p["a"] + 1}) == 3,
+                            "it shares exactly, x is at least 2, and the take-away "
+                            "error is visibly a different number"),
+    },
+    "un3": {   # ax + b = c -- two steps back, in reverse order
+        "ans": lambda p: (p["c"] - p["b"]) // p["a"],
+        "spoken": lambda p: (f"{p['a']} x plus {p['b']} equals {p['c']}. "
+                             f"What number is x holding?"),
+        "board": lambda p: (f'[[balance left="{p["a"]}x + {p["b"]}" '
+                            f'right="{p["c"]}"]]'
+                            f'[[step eq="take {p["b"]} off both sides: '
+                            f'{p["a"]}x = {p["c"] - p["b"]}"]]'
+                            f'[[step eq="x = {p["c"] - p["b"]} ÷ {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"The {p['b']} went on last, so it comes off first: "
+                             f"{p['a']} x equals {p['c'] - p['b']}. Then share: "
+                             f"x equals {(p['c'] - p['b']) // p['a']}."),
+        "key": lambda p: (p["c"] - p["b"]) // p["a"],
+        # The stop-at-step-one error again (rte, pcn, tri3 -- it is everywhere):
+        # taking the b off, seeing ax = c-b, and tapping THAT number as x.
+        "choices": lambda p: [(p["c"] - p["b"]) // p["a"], p["c"] - p["b"],
+                              (p["c"] - p["b"]) // p["a"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and (p["c"] - p["b"]) % p["a"] == 0
+                            and (p["c"] - p["b"]) // p["a"] >= 2
+                            and len({(p["c"] - p["b"]) // p["a"], p["c"] - p["b"],
+                                     (p["c"] - p["b"]) // p["a"] + 1}) == 3,
+                            "both undo steps land on whole numbers and the "
+                            "stopped-halfway error is a different number"),
+    },
+    "ineq": {  # x + a < b -- the BIGGEST whole number x can hold
+        "ans": lambda p: p["b"] - p["a"] - 1,
+        "spoken": lambda p: (f"x plus {p['a']} is less than {p['b']}. "
+                             f"What is the biggest whole number x can hold?"),
+        "board": lambda p: (f'[[step eq="x + {p["a"]} < {p["b"]}"]]'
+                            f'[[step eq="x < {p["b"]} − {p["a"]}"]]'
+                            f'[[numberline min="0" max="{p["b"] - p["a"] + 2}" '
+                            f'points="{p["b"] - p["a"]}"]]'),
+        "praise": lambda p: (f"x has to stay under {p['b'] - p['a']} — it can be "
+                             f"anything less, and the biggest whole number under "
+                             f"{p['b'] - p['a']} is {p['b'] - p['a'] - 1}."),
+        "key": lambda p: p["b"] - p["a"] - 1,
+        # THE inequality error: forgetting that "less than" shuts the door on the
+        # number itself. x + 3 < 10 means x < 7, and 7 is NOT allowed.
+        "choices": lambda p: [p["b"] - p["a"] - 1, p["b"] - p["a"],
+                              p["b"] + p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and p["a"] < p["b"] <= 30
+                            and p["b"] - p["a"] >= 3,
+                            "the boundary is at least 3, so the answer is a real "
+                            "number and the door-shut error sits right beside it"),
     },
 }
 

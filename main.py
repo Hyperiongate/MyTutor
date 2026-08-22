@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22kv-the-balance-tips". BUILD kv -- Algebra I
+#               Unit 2, Linear Equations & Inequalities. 80 lessons -> 84, 69 ops ->
+#               73. NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#               Solving begins, drawn on ⭐ [[balance]] -- the balance-scale renderer's
+#               first scripted use (same shelf as [[areamodel]] and [[angle split=]]).
+#               Undo a plus; undo a times; two steps back in reverse order; and "less
+#               than" answered with the biggest allowed whole number, whose wrong tap
+#               is the boundary itself.
 #   2026-08-22  APP_BUILD -> "2026-08-22ku-algebra-one-opens". BUILD ku -- Algebra I
 #               Unit 1, Foundations & Expressions. 76 lessons -> 80, 65 ops -> 69.
 #               NOTHING IN THIS FILE CHANGED but this note and the stamp. The ninth
@@ -10019,7 +10027,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22ku-algebra-one-opens"
+APP_BUILD = "2026-08-22kv-the-balance-tips"
 
 
 @app.get("/health")
