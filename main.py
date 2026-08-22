@@ -2,6 +2,38 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-21  APP_BUILD -> "2026-08-21kq-the-render-is-a-job". BUILD kq -- Jim:
+#               "I keep getting failure notice on the script rendering." The notice
+#               read "Request failed.", which is admin.html's fallback for a non-2xx
+#               with no JSON detail -- and the cause was never in the rendering.
+#               script-prewarm rendered every missing line SERIALLY INSIDE THE HTTP
+#               REQUEST. A whole course is hundreds of ElevenLabs calls, so the browser
+#               had to hold one connection open for minutes; Render's proxy cuts a
+#               request that long, and a redeploy kills it outright ("Waiting for
+#               connections to close" appears three times in the log Jim pasted, each
+#               one landing on an in-flight render). The page then reported failure
+#               over work that was very possibly half done, and threw away the HTTP
+#               status code -- the one number that would have said which it was.
+#               THE FIX, three parts:
+#                 (1) the render moved to a background thread. The POST returns in
+#                     MILLISECONDS (measured: 8ms for a 62-line job) with a job id.
+#                     The render loop itself is unchanged, line for line.
+#                 (2) ONE LOCK, process-wide, in _prewarm_start -- the only door.
+#                     A second render while one is running is refused with a 409 that
+#                     says why. TWO OVERLAPPING JOBS PAYING TWICE FOR THE SAME LINES IS
+#                     WHAT EMPTIED THE ELEVENLABS CREDITS; nothing prevented it before.
+#                 (3) the job's progress is written to disk as it goes, and a record
+#                     still marked "running" at boot is recovered as INTERRUPTED. A job
+#                     killed by a deploy can finally say so, and say how far it got.
+#               dry_run is untouched: free, synchronous, same request -- every existing
+#               battery pin on this endpoint exercises that path and still passes.
+#               NEW POST /api/admin/script-prewarm-status. admin.html now starts and
+#               POLLS both SPENDS buttons, keeps the HTTP status in its error text, and
+#               reports an interrupted job on load. Battery part 3dc, 18 new pins.
+#               NOTE FOR NEXT TIME: tempfile had to be hoisted to the top import block.
+#               _prewarm_recover_record() runs at import time, which is EARLIER than
+#               the old `import tempfile` 3,000 lines down -- the recovery path, the
+#               one that must never fail quietly, would have raised NameError.
 #   2026-08-21  APP_BUILD -> "2026-08-21kp-ratios-and-rates". BUILD kp -- Prealgebra
 #               Unit 6, Ratios, Rates & Proportions. 60 lessons -> 64. NOTHING IN THIS
 #               FILE CHANGED but this note and the stamp; the work is in
@@ -4143,6 +4175,11 @@ import json
 import os
 import re
 import secrets
+# build kq: tempfile is imported HERE, not 3,000 lines down. _prewarm_recover_record()
+# runs at import time -- it is what turns a job killed by a redeploy into a visible
+# "interrupted" -- and it writes the record back. A late import would have made that
+# one path raise NameError, which is the one path that must never fail quietly.
+import tempfile
 import threading
 
 # build go (2026-08-16) -- THE GOVERNOR. Imported defensively: nightwatch is offline
@@ -8158,6 +8195,202 @@ def script_answer(body: ScriptAnswerIn):
     return {"ok": True, "steps": out}
 
 
+# =============================================================================
+# BUILD kq -- THE PREWARM RENDER IS A JOB, NOT A REQUEST
+# -----------------------------------------------------------------------------
+# It used to render every missing line serially INSIDE the HTTP request. A whole
+# course is hundreds of ElevenLabs calls, so the browser had to hold one connection
+# open for minutes; Render's proxy cuts a request that long, and a redeploy kills it
+# outright ("Waiting for connections to close"). Either way admin.html saw a non-2xx
+# with no JSON body and printed its fallback -- "Request failed." -- while the work
+# may well have been half done. Nothing was ever lost (each clip is cached the moment
+# it arrives, and the cache is keyed on the verbatim text, so re-running skips what is
+# already paid for) but NOTHING SAID SO.
+#
+# Three things change here and nothing else:
+#   (a) the render runs on a background thread; the POST returns in milliseconds,
+#   (b) ONE LOCK, process-wide, so a second job cannot start on top of a running one
+#       -- two overlapping jobs paying twice for the same lines is exactly what
+#       emptied Jim's ElevenLabs credits,
+#   (c) the job's progress is written to disk as it goes, so after the process is
+#       restarted mid-render the next status call can say "interrupted at 210 of 354"
+#       instead of pretending nothing happened.
+#
+# dry_run is UNTOUCHED: it is free, it is fast, it answers in the same request, and
+# every battery pin on this endpoint exercises that path.
+_PREWARM_STATE_LOCK = threading.Lock()   # guards _PREWARM_JOB and nothing else
+_PREWARM_JOB: dict = {}                  # {} means no job has run in this process
+_PREWARM_RECORD = DATA_DIR / "tts_prewarm_job.json"
+_PREWARM_FAIL_CAP = 25                   # keep the record small; the count is exact
+
+
+def _prewarm_write_record(job: dict) -> None:
+    """Persist the job so a redeploy cannot erase the fact that it was running.
+    Best-effort by design: a failed write must never abort a paid render."""
+    try:
+        # A PRIVATE temp name per writer, exactly as build ke made the TTS cache do.
+        # A fixed ".part" beside the target is the same shape of bug that spliced two
+        # renders into one clip -- the lock makes a collision unlikely here, not
+        # impossible, and "unlikely" is what ke was about.
+        fd, tmp_name = tempfile.mkstemp(dir=str(DATA_DIR), suffix=".jobpart")
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(job, fh)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp_name, str(_PREWARM_RECORD))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script-prewarm] could not write the job record: {exc}")
+
+
+def _prewarm_read_record() -> dict:
+    try:
+        if _PREWARM_RECORD.exists():
+            with open(_PREWARM_RECORD, encoding="utf-8") as fh:
+                return dict(json.load(fh))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script-prewarm] could not read the job record: {exc}")
+    return {}
+
+
+def _prewarm_recover_record() -> None:
+    """At boot: a record still saying "running" belongs to a process that is gone.
+    THAT IS THE BUG JIM SAW, written down. Mark it interrupted so the admin page can
+    report where it got to and tell him that pressing render again resumes."""
+    rec = _prewarm_read_record()
+    if rec.get("state") == "running":
+        rec["state"] = "interrupted"
+        rec["note"] = ("This job was still running when the server restarted -- a "
+                       "deploy, a restart, or the instance sleeping. Everything it had "
+                       "already rendered is cached and paid for; press render again "
+                       "and it picks up from there.")
+        _prewarm_write_record(rec)
+        print(f"[script-prewarm] recovered an interrupted job: "
+              f"{rec.get('done')} of {rec.get('total')} lines")
+
+
+_prewarm_recover_record()
+
+
+def _prewarm_snapshot() -> dict:
+    """The live job if this process has one, otherwise whatever is on disk."""
+    with _PREWARM_STATE_LOCK:
+        if _PREWARM_JOB:
+            return dict(_PREWARM_JOB)
+    rec = _prewarm_read_record()
+    return rec or {"state": "idle", "note": "No render has been started."}
+
+
+def _prewarm_worker(job_id: str, todo: list, already: int) -> None:
+    """The render loop, exactly as it was -- only now it is nobody's HTTP request."""
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
+    headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
+    rendered, failed, spent, done = 0, [], 0, 0
+
+    def publish(**extra):
+        with _PREWARM_STATE_LOCK:
+            if _PREWARM_JOB.get("id") != job_id:
+                return None                       # superseded; stop touching it
+            _PREWARM_JOB.update(done=done, rendered=rendered, chars_spent=spent,
+                                failed=failed[:_PREWARM_FAIL_CAP],
+                                failed_count=len(failed), **extra)
+            return dict(_PREWARM_JOB)
+
+    try:
+        for say in todo:
+            try:
+                r = httpx.post(url, headers=headers, timeout=60.0, json={
+                    "text": say, "model_id": _tts_model_for(say),   # kf
+                    "output_format": "mp3_44100_128",
+                    "voice_settings": {"stability": 0.55, "similarity_boost": 0.75,
+                                       "use_speaker_boost": True},
+                })
+                if r.status_code != 200 or not r.content:
+                    failed.append(f"HTTP {r.status_code}: {say[:40]}")
+                elif not _tts_cache_store(say, r.content, source="script-prewarm"):
+                    failed.append(f"damaged render (not cached): {say[:40]}")
+                else:
+                    rendered += 1
+                    spent += len(say)
+                    store.log_usage(kind="tts", code="", mode="script-prewarm",
+                                    model=str(_tts_model_for(say) or ""),
+                                    tts_chars=len(say), tts_cache_hit=False)
+            except Exception as exc:  # noqa: BLE001
+                failed.append(f"{type(exc).__name__}: {say[:40]}")
+            done += 1
+            # Every tenth line, and on the last one, the record on disk catches up.
+            # A restart can then only ever lose the last few lines of PROGRESS -- never
+            # a rendered clip, which was cached the instant it arrived.
+            snap = publish()
+            if snap is None:
+                return
+            if done % 10 == 0 or done == len(todo):
+                _prewarm_write_record(snap)
+        # BUILD ke: settle the cache up here, where the closure is protected, rather
+        # than letting the next ordinary playback cull hundreds of fresh clips at once.
+        try:
+            _evict_tts_cache()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[script-prewarm] evict skipped: {exc}")
+        snap = publish(state=("done" if not failed else "done_with_failures"),
+                       finished_at=int(_time.time()),
+                       disk=_tts_cache_projection(0),
+                       note=("Every line rendered." if not failed else
+                             f"{len(failed)} line(s) failed -- press render again and "
+                             f"only those are retried."))
+    except Exception as exc:  # noqa: BLE001
+        snap = publish(state="error", finished_at=int(_time.time()),
+                       note=f"{type(exc).__name__}: {exc}")
+    if snap:
+        _prewarm_write_record(snap)
+
+
+def _prewarm_start(todo: list, already: int, lesson: str, force: bool) -> dict:
+    """Claim the lock and start ONE job. Returns the job, or raises 409 if a render
+    is already in flight -- the refusal that stops two jobs paying for the same line
+    twice. There is no way to run two: this is the only door."""
+    global _PREWARM_JOB
+    with _PREWARM_STATE_LOCK:
+        if _PREWARM_JOB.get("state") == "running":
+            live = dict(_PREWARM_JOB)
+            raise HTTPException(status_code=409, detail=(
+                f"A render is already running ({live.get('done', 0)} of "
+                f"{live.get('total', 0)} lines, started for "
+                f"{live.get('lesson') or '(whole course)'}). Two renders at once pay "
+                f"TWICE for the same lines -- that is what emptied the credits before. "
+                f"Watch this one finish, or wait for it to stop."))
+        job_id = uuid.uuid4().hex[:12]
+        _PREWARM_JOB = {
+            "id": job_id, "state": "running", "started_at": int(_time.time()),
+            "finished_at": None, "lesson": lesson or "(whole course)",
+            "forced": bool(force), "total": len(todo), "done": 0, "rendered": 0,
+            "already_cached": already, "chars_spent": 0, "failed": [],
+            "failed_count": 0,
+            "model": _tts_model_for(todo[0]) if todo else str(ELEVEN_MODEL),
+            "note": "Running on the server. It keeps going if you close this tab.",
+        }
+        job = dict(_PREWARM_JOB)
+    _prewarm_write_record(job)
+    threading.Thread(target=_prewarm_worker, args=(job_id, todo, already),
+                     name=f"tts-prewarm-{job_id}", daemon=True).start()
+    return job
+
+
+class PrewarmStatusIn(BaseModel):
+    key: str = ""
+
+
+@app.post("/api/admin/script-prewarm-status")
+def admin_script_prewarm_status(body: PrewarmStatusIn,
+                                x_admin_key: str = Header(default="",
+                                                          alias="X-Admin-Key")):
+    """Where the render got to. Free, instant, and safe to poll -- it reads a dict
+    and, at worst, one small file."""
+    _require_admin(x_admin_key or body.key)
+    job = _prewarm_snapshot()
+    return {"ok": True, "job": job, "state": job.get("state", "idle"),
+            "running": job.get("state") == "running"}
+
+
 class ScriptPrewarmIn(BaseModel):
     key: str
     dry_run: bool = False
@@ -8324,11 +8557,16 @@ def admin_tts_cache_repair(body: TtsCacheRepairIn,
 @app.post("/api/admin/script-prewarm")
 def admin_script_prewarm(body: ScriptPrewarmIn,
                          x_admin_key: str = Header(default="", alias="X-Admin-Key")):
-    """Render the pilot lesson's ENTIRE audio closure into the TTS cache.
-    lessonscripts.audio_lines() enumerates every line the engine can ever speak
-    (battery-proved), so after this runs, a scripted lesson NEVER waits on
-    ElevenLabs and never spends a TTS character again. Idempotent; dry_run prices
-    it (~$1.66 for the pilot at the live rate) without spending."""
+    """Render a lesson's (or the whole course's) ENTIRE audio closure into the TTS
+    cache. lessonscripts.audio_lines() enumerates every line the engine can ever speak
+    (battery-proved), so after this runs, a scripted lesson NEVER waits on ElevenLabs
+    and never spends a TTS character again. Idempotent; dry_run prices it without
+    spending, in this request.
+
+    BUILD kq: a real render no longer happens in this request. It STARTS a background
+    job and returns at once -- poll /api/admin/script-prewarm-status to watch it.
+    Only one job may run at a time; a second attempt is refused with a 409 rather
+    than quietly paying for the same lines twice."""
     _require_admin(x_admin_key or body.key)
     # build jw: the WHOLE course's closure, deduped -- shared lines (praise, the
     # fixed one-liners) render once and serve every lesson.
@@ -8378,45 +8616,20 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
                             detail="ELEVENLABS_API_KEY is not set on this deploy.")
     if body.limit and body.limit > 0:
         todo = todo[:body.limit]
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}"
-    headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
-    rendered, failed, spent = 0, [], 0
-    for say in todo:
-        try:
-            r = httpx.post(url, headers=headers, timeout=60.0, json={
-                "text": say, "model_id": _tts_model_for(say),   # kf
-                "output_format": "mp3_44100_128",
-                "voice_settings": {"stability": 0.55, "similarity_boost": 0.75,
-                                   "use_speaker_boost": True},
-            })
-            if r.status_code != 200 or not r.content:
-                failed.append(f"HTTP {r.status_code}: {say[:40]}")
-                continue
-            if not _tts_cache_store(say, r.content, source="script-prewarm"):
-                failed.append(f"damaged render (not cached): {say[:40]}")
-                continue
-            rendered += 1
-            spent += len(say)
-            store.log_usage(kind="tts", code="", mode="script-prewarm",
-                            model=str(_tts_model_for(say) or ""), tts_chars=len(say),
-                            tts_cache_hit=False)
-        except Exception as exc:  # noqa: BLE001
-            failed.append(f"{type(exc).__name__}: {say[:40]}")
-    # BUILD ke: this loop never called the evictor, so a long render could push the
-    # cache past its cap unchecked and the NEXT ordinary playback would then cull
-    # hundreds of freshly-paid-for clips in one go. Settle up here instead, where the
-    # closure is protected and the log tells the truth about what happened.
-    try:
-        _evict_tts_cache()
-    except Exception as exc:  # noqa: BLE001
-        print(f"[script-prewarm] evict skipped: {exc}")
-    return {"ok": not failed, "rendered": rendered, "already_cached": already,
-            "chars_spent": spent, "failed": failed[:10],
-            "failed_count": len(failed),
-            "lesson": body.lesson or "(whole course)",
-            "forced": bool(body.force),
-            "model": _tts_model_for(todo[0]) if todo else str(ELEVEN_MODEL),
-            "disk": _tts_cache_projection(0)}
+    # BUILD kq: hand the work to a background job and answer NOW. The render loop
+    # itself moved to _prewarm_worker unchanged -- what changed is that no browser has
+    # to hold a connection open for the length of it. _prewarm_start owns the lock,
+    # so this is also the point where a second concurrent render is refused with a 409.
+    job = _prewarm_start(todo, already, body.lesson, bool(body.force))
+    return {"ok": True, "started": True, "job_id": job["id"], "state": "running",
+            "to_render": job["total"], "already_cached": already, "chars": chars,
+            "lesson": job["lesson"], "forced": job["forced"], "model": job["model"],
+            "note": ("The render is running ON THE SERVER, not in your browser. Every "
+                     "clip is cached the moment it arrives, so if it is interrupted -- "
+                     "a deploy, a restart, an instance going to sleep -- pressing "
+                     "render again picks up where it stopped and never pays twice. "
+                     "Keep the tab open to watch it; the watching is also the traffic "
+                     "that keeps an idle instance awake.")}
 
 
 @app.post("/api/admin/clip-bytes")
@@ -9772,7 +9985,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-21kp-ratios-and-rates"
+APP_BUILD = "2026-08-21kq-the-render-is-a-job"
 
 
 @app.get("/health")

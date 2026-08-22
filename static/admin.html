@@ -1,5 +1,26 @@
 <!DOCTYPE html>
 <!--
+    (kq) 2026-08-21 -- THE RENDER IS A JOB YOU CAN WATCH. Jim: "I keep getting failure
+    notice on the script rendering", and the notice read "Request failed." -- which is
+    THIS FILE'S fallback text, printed whenever the server answers non-2xx with no JSON
+    detail. The cause was never in the rendering: script-prewarm rendered every missing
+    line serially INSIDE the HTTP request, so a whole course meant holding one
+    connection open for minutes. Render's proxy cuts a request that long, and a
+    redeploy kills it outright. The page then said "Request failed" over work that was
+    very possibly half done -- and threw away the HTTP status code, the one number that
+    would have told us which of those it was.
+    Three fixes here:
+    ① api() now keeps the status code in the message, and a dropped connection says so
+      in words instead of borrowing the server's wording.
+    ② The two SPENDS buttons now START a job and POLL it. The request returns in
+      milliseconds; the progress line counts lines as they render.
+    ③ On load the page asks whether a job is already running, or whether the last one
+      was interrupted by a restart -- so an interrupted render is visible instead of
+      silent. Re-running never pays twice; cached lines are skipped free.
+    The polling doubles as traffic, which is what keeps a sleepy instance awake while a
+    long render is in flight -- so "leave this tab open" is still the advice, but now
+    closing it only costs you the view, not the job.
+
     (kl) 2026-08-21 -- FREE AND PAID, SAID PLAINLY. Jim, before pressing anything:
     "I re render the audio. It doesn't charge me for ones that it's already done. Is
     that correct?" It depended on WHICH button, and nothing on screen said so. The two
@@ -674,10 +695,25 @@
     // BUILD dg: the admin key travels in a HEADER on every call, never in the URL.
     opts.headers = Object.assign({ "Content-Type": "application/json",
                                    "X-Admin-Key": KEY }, opts.headers || {});
-    var r = await fetch(path, opts);
+    // BUILD kq: a bare "Request failed." hid the ONE fact that identifies the cause.
+    // The status code now travels in the message, and a connection that never got an
+    // answer at all is described honestly rather than borrowing the server's wording.
+    var r;
+    try {
+      r = await fetch(path, opts);
+    } catch (netErr) {
+      var ne = new Error("Couldn't reach the server \u2014 the connection was cut, or "
+                       + "the app is restarting. Nothing is lost: press \u2460 to see "
+                       + "where things stand.");
+      ne.status = 0; throw ne;
+    }
     var data = {};
     try { data = await r.json(); } catch (e) {}
-    if (!r.ok) { var err = new Error((data && data.detail) || "Request failed."); err.status = r.status; throw err; }
+    if (!r.ok) {
+      var err = new Error(((data && data.detail) || "Request failed.")
+                          + " (HTTP " + r.status + ")");
+      err.status = r.status; throw err;
+    }
     return data;
   }
 
@@ -1405,6 +1441,70 @@
   });
 
   function spMsg(t, k) { var el = $("spMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+
+  // ---- (kq) ONE watcher for the render job, shared by both SPENDS buttons ------
+  // The job runs on the server. This asks it how far it has got, every three seconds,
+  // and keeps asking through a hiccup -- a single failed poll is not a failed render.
+  var _jobPolling = false;
+  function jobLine(j) {
+    var where = (j.lesson || "(whole course)");
+    if (j.state === "running") {
+      return "Rendering " + where + ": " + (j.done || 0) + " of " + (j.total || 0)
+           + " lines done, " + (j.chars_spent || 0) + " characters spent"
+           + ((j.failed_count) ? ", " + j.failed_count + " failed" : "")
+           + ". It runs on the server \u2014 keep this tab open to watch it (the "
+           + "watching is also what keeps a sleepy instance awake).";
+    }
+    if (j.state === "interrupted") {
+      return "The last render was INTERRUPTED at " + (j.done || 0) + " of "
+           + (j.total || 0) + " lines (" + where + ") \u2014 the server restarted "
+           + "under it. Everything it had rendered is cached and paid for. Press "
+           + "\u2461 to carry on from there; it never pays twice.";
+    }
+    if (j.state === "done") {
+      return "Finished " + where + ": " + (j.rendered || 0) + " lines rendered, "
+           + (j.chars_spent || 0) + " characters spent. No failures.";
+    }
+    if (j.state === "done_with_failures") {
+      return "Finished " + where + " with " + (j.failed_count || 0) + " failure(s): "
+           + (j.rendered || 0) + " rendered, " + (j.chars_spent || 0)
+           + " characters spent. " + ((j.failed || []).join(" | "))
+           + " \u2014 press \u2461 again and only the failures are retried.";
+    }
+    if (j.state === "error") { return "The render stopped: " + (j.note || ""); }
+    return j.note || "No render has been started.";
+  }
+  async function jobStatus() {
+    var d = await api("/api/admin/script-prewarm-status", { method: "POST",
+      body: JSON.stringify({ key: KEY }) });
+    return d.job || {};
+  }
+  // Poll until the job stops. `paint` receives (text, kind) so each card can write
+  // into its own message line.
+  async function jobWatch(paint) {
+    if (_jobPolling) return null;
+    _jobPolling = true;
+    var misses = 0, j = null;
+    try {
+      while (true) {
+        try {
+          j = await jobStatus();
+          misses = 0;
+        } catch (e) {
+          // A poll may fail while the app restarts. Six misses (about 18 seconds)
+          // before we admit defeat -- and even then the job record on disk keeps
+          // the truth, so the next \u2460 will still report where it got to.
+          if (++misses >= 6) { paint("Lost contact while watching the render: "
+                                     + e.message + " Press \u2460 to see where it "
+                                     + "got to.", "err"); return null; }
+        }
+        if (j) paint(jobLine(j), j.state === "running" ? "ok"
+                     : (j.state === "done" ? "ok" : "err"));
+        if (j && j.state !== "running") return j;
+        await new Promise(function (res) { setTimeout(res, 3000); });
+      }
+    } finally { _jobPolling = false; }
+  }
   $("spPrice").addEventListener("click", async function () {
     spMsg("Counting\u2026", "ok");
     try {
@@ -1418,15 +1518,20 @@
     } catch (e) { spMsg(e.message); }
   });
   $("spRun").addEventListener("click", async function () {
+    // BUILD kq: this used to await the WHOLE render. Now it starts a job and watches.
     var b = $("spRun"); b.disabled = true;
-    spMsg("Rendering \u2014 this can take a few minutes. Leave this tab open.", "ok");
+    spMsg("Starting the render\u2026", "ok");
     try {
       var d = await api("/api/admin/script-prewarm", { method: "POST",
         body: JSON.stringify({ key: KEY }) });
-      spMsg((d.rendered || 0) + " lines rendered, " + (d.already_cached || 0)
-            + " were already cached"
-            + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
-            (d.failed && d.failed.length) ? "err" : "ok");
+      if (d.to_render === 0) {
+        spMsg("Nothing to render \u2014 all " + (d.already_cached || 0)
+              + " lines are already cached. Nothing was spent.", "ok");
+      } else {
+        spMsg("Started: " + d.to_render + " lines to render, " + (d.already_cached || 0)
+              + " already cached and skipped free.", "ok");
+        await jobWatch(spMsg);
+      }
     } catch (e) { spMsg(e.message); }
     b.disabled = false;
   });
@@ -1554,15 +1659,15 @@
     if (_caArmed !== null && _caArmed === lesson) {     // ---- second click: SPEND ----
       caDisarm();
       btn.disabled = true;
-      caMsg("Re-rendering \u2014 this replaces the cached clips. Leave this tab open.", "ok");
+      caMsg("Starting \u2014 this replaces the cached clips.", "ok");
       caOut("");
       try {
+        // BUILD kq: starts a job and watches it, instead of holding the connection.
         var d = await api("/api/admin/script-prewarm", { method: "POST",
           body: JSON.stringify({ key: KEY, force: true, lesson: lesson }) });
-        caMsg((d.rendered || 0) + " lines re-rendered for " + d.lesson
-              + " on " + d.model + ", " + (d.chars_spent || 0) + " characters spent"
-              + ((d.failed && d.failed.length) ? " \u2014 FAILURES: " + d.failed.join(" | ") : "."),
-              (d.failed && d.failed.length) ? "err" : "ok");
+        caMsg("Started: re-rendering " + d.to_render + " lines of " + d.lesson
+              + " on " + d.model + ".", "ok");
+        await jobWatch(caMsg);
       } catch (e) { caMsg(e.message); }
       btn.disabled = false;
       return;
@@ -1694,6 +1799,13 @@
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
       try { bkStatus(); nwStatus(); tmStatus(); } catch (e) {}   // build dj backups + gp night watch + ha telemetry
+      // BUILD kq: an interrupted render used to be invisible -- the page came back
+      // clean and Jim had no way to know a job had died mid-way. Ask once, on load.
+      try {
+        var _j = await jobStatus();
+        if (_j.state === "running") { spMsg(jobLine(_j), "ok"); jobWatch(spMsg); }
+        else if (_j.state === "interrupted") { spMsg(jobLine(_j), "err"); }
+      } catch (e) {}
       var now = new Date();
       $("asof").textContent = "Live numbers, as of " + now.toLocaleTimeString() + " — tap Refresh to update.";
     } catch (e) {

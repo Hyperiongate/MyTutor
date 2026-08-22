@@ -11110,6 +11110,146 @@ def part3bf_record_claims():
 # another. Now exactly ONE block is absolute, the five levels are stated, the known
 # cross-pulls are named by number, and RULES.md can no longer go quietly stale.
 # =============================================================================
+
+def part3dc_render_is_a_job():
+    print("\nPART 3dc — the render is a job, not a request (build kq)")
+    import time as _t_
+    import types as _ty_
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        adm = fh.read()
+    admcode = code_only(adm)
+
+    # ---- the shape of the fix, read out of the source -----------------------
+    check("kq: there is ONE lock guarding the render job",
+          "_PREWARM_STATE_LOCK = threading.Lock()" in msrc,
+          "two overlapping prewarm jobs paying twice for the same lines is what "
+          "emptied Jim's ElevenLabs credits; nothing in the code prevented it")
+    check("kq: the render runs on a background thread, not the request thread",
+          "threading.Thread(target=_prewarm_worker" in msrc,
+          "a whole-course render is hundreds of serial ElevenLabs calls -- held "
+          "inside one HTTP request it outlives Render's proxy timeout")
+    check("kq: the endpoint hands off and returns, it no longer renders inline",
+          "job = _prewarm_start(todo, already, body.lesson, bool(body.force))" in msrc
+          and "for say in todo:" not in msrc.split(
+              '@app.post("/api/admin/script-prewarm")')[1].split(
+              '@app.post("/api/admin/script-prewarm-status")')[0],
+          "the render loop must live in the worker, not the handler")
+    check("kq: there is a status endpoint to poll",
+          '@app.post("/api/admin/script-prewarm-status")' in msrc, "")
+    check("kq: a job still marked running at boot is recovered as INTERRUPTED",
+          "_prewarm_recover_record()" in msrc
+          and 'rec["state"] = "interrupted"' in msrc,
+          "a redeploy kills the thread; without this the page comes back clean and "
+          "the dead job is invisible")
+    check("kq: the admin page keeps the HTTP status in its error text",
+          '" (HTTP " + r.status + ")"' in admcode,
+          '"Request failed." threw away the one number that identifies the cause')
+    check("kq: the admin page polls the job instead of awaiting the render",
+          "async function jobWatch(" in admcode
+          and '"/api/admin/script-prewarm-status"' in admcode, "")
+    check("kq: both SPENDS buttons watch the job",
+          admcode.count("jobWatch(") >= 3,
+          "spRun, caRender and the on-load check")
+
+    # ---- and now the behaviour, run for real against a stubbed ElevenLabs ----
+    import main as _m
+    key = os.environ.get("FORUM_MOD_KEY") or "TESTKEY"
+    os.environ["FORUM_MOD_KEY"] = key
+    _m.FORUM_MOD_KEY = key
+    old_key, old_httpx = _m.ELEVEN_API_KEY, _m.httpx
+    _m.ELEVEN_API_KEY = "stub-key-no-network"
+
+    mp3 = None
+    for p in _m._TTS_CACHE_DIR.glob("*.mp3"):
+        mp3 = p.read_bytes()
+        break
+    if mp3 is None:
+        # A real MPEG-1 Layer III CBR 44100/128k mono stream. It must be genuinely
+        # valid: _tts_cache_store REFUSES a damaged clip, so a fake one would make
+        # this part measure the refusal path instead of the job.
+        _FR = 144 * 128000 // 44100
+        mp3 = (b"\xff\xfb\x90\xc4" + b"\x00" * (_FR - 4)) * 30
+
+    class _Resp:
+        status_code = 200
+        content = mp3
+
+    def _slow_post(url, **kw):
+        _t_.sleep(0.02)                  # slow enough that the lock has work to refuse
+        return _Resp()
+
+    _m.httpx = _ty_.SimpleNamespace(post=_slow_post)
+    _m._PREWARM_JOB = {}
+    try:
+        from fastapi.testclient import TestClient
+        c = TestClient(_m.app)
+        lesson = _m.lessonscripts.LESSONS[0]["id"]
+
+        t0 = _t_.time()
+        r = c.post("/api/admin/script-prewarm",
+                   json={"key": key, "lesson": lesson, "force": True})
+        elapsed = _t_.time() - t0
+        j = r.json()
+        check("kq: the render POST answers in well under a second",
+              r.status_code == 200 and elapsed < 2.0,
+              f"{elapsed:.2f}s status={r.status_code}")
+        check("kq: it reports a started job, not a finished render",
+              j.get("started") is True and j.get("state") == "running"
+              and j.get("job_id"), j)
+
+        r2 = c.post("/api/admin/script-prewarm",
+                    json={"key": key, "lesson": lesson, "force": True})
+        check("⭐ kq: a SECOND render while one runs is refused with 409",
+              r2.status_code == 409, r2.status_code)
+        check("kq: and the refusal says why, in the words that cost Jim money",
+              "TWICE" in (r2.json().get("detail") or ""), r2.json())
+
+        saw_partial, st = False, {}
+        for _ in range(400):
+            st = c.post("/api/admin/script-prewarm-status", json={"key": key}).json()
+            d = st["job"].get("done", 0)
+            if 0 < d < j["to_render"]:
+                saw_partial = True
+            if not st.get("running"):
+                break
+            _t_.sleep(0.05)
+        check("kq: status reports progress WHILE it runs", saw_partial,
+              "a progress bar that only ever reads 0 then 100 is not progress")
+        check("kq: the job finishes and every line is rendered",
+              st.get("state", "").startswith("done")
+              and st["job"]["done"] == j["to_render"], st.get("job"))
+
+        # dry_run must be exactly as it was: free, synchronous, no job
+        _m._PREWARM_JOB = {}
+        d = c.post("/api/admin/script-prewarm",
+                   json={"key": key, "dry_run": True}).json()
+        check("kq DO NO HARM: dry_run still answers in the same request",
+              d.get("dry_run") is True, d)
+        check("kq DO NO HARM: dry_run starts no job and spends nothing",
+              not _m._PREWARM_JOB, _m._PREWARM_JOB)
+
+        # the interrupted record, which is the whole point of writing it down
+        _m._prewarm_write_record({"id": "x", "state": "running", "done": 210,
+                                  "total": 354, "lesson": "(whole course)"})
+        _m._prewarm_recover_record()
+        rec = _m._prewarm_read_record()
+        check("⭐ kq: a job killed by a restart is recovered as interrupted, "
+              "with how far it got",
+              rec.get("state") == "interrupted" and rec.get("done") == 210, rec)
+        check("kq: and it says re-running resumes rather than paying twice",
+              "picks up" in (rec.get("note") or ""), rec.get("note"))
+    finally:
+        _m.httpx = old_httpx
+        _m.ELEVEN_API_KEY = old_key
+        _m._PREWARM_JOB = {}
+        try:
+            _m._PREWARM_RECORD.unlink()
+        except Exception:
+            pass
+
 def part3bg_order_of_authority():
     print("\nPART 3bg — the order of authority (build hp)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -16090,6 +16230,7 @@ def main():
     part3cz_one_voice_layer()
     part3da_measure_the_clip()
     part3db_scripted_board()
+    part3dc_render_is_a_job()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()
