@@ -11250,6 +11250,118 @@ def part3dc_render_is_a_job():
         except Exception:
             pass
 
+
+def part3dd_the_cache_can_keep_it():
+    print("\nPART 3dd — the render refuses to pay for clips the cache will delete (build lb)")
+    import time as _t_
+    import types as _ty_
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
+        adm = fh.read()
+    admcode = code_only(adm)
+
+    check("lb: the render is guarded by the cache projection",
+          "_proj = _tts_cache_projection(sum(len(t) for t in todo))" in msrc
+          and 'if not _proj["fits"] and not body.over_cap_ok:' in msrc,
+          "the projection existed from build ke and NOTHING EVER REFUSED -- so once "
+          "the course outgrew the cap, every render paid for clips the evictor "
+          "deleted minutes later")
+    check("lb: the refusal names the env var and a number to set",
+          "TTS_CACHE_MAX_MB={_need}" in msrc,
+          "a refusal that does not say what to change is a wall, not a fix")
+    check("lb: Jim can still override it deliberately",
+          "over_cap_ok: bool = False" in msrc, "")
+    check("⭐ lb: the admin page PRINTS the cache line (the unread field)",
+          "Voice cache: " in admcode and "projected_total_mb" in admcode,
+          "the endpoint returned used/cap/projected since build ke and this page "
+          "never displayed one of them -- the symptom was invisible for six builds")
+    check("lb: and the over-cap render re-arms as a deliberate second click",
+          "over_cap_ok: overCap" in admcode and "_spOverCap" in admcode,
+          "same two-click money pattern as kl's per-lesson re-render")
+
+    # ---- and now the behaviour, against a cap too small for the course --------
+    import main as _m
+    key = os.environ.get("FORUM_MOD_KEY") or "TESTKEY"
+    os.environ["FORUM_MOD_KEY"] = key
+    _m.FORUM_MOD_KEY = key
+    old_cap, old_key, old_httpx = (_m._TTS_CACHE_MAX_BYTES, _m.ELEVEN_API_KEY, _m.httpx)
+    _m.ELEVEN_API_KEY = "stub-key-no-network"
+    _FR = 144 * 128000 // 44100
+    big = (b"\xff\xfb\x90\xc4" + b"\x00" * (_FR - 4)) * 300      # ~122 KB a clip
+
+    class _Resp:
+        status_code = 200
+        content = big
+    _m.httpx = _ty_.SimpleNamespace(post=lambda url, **kw: _Resp())
+    _m._PREWARM_JOB = {}
+    try:
+        from fastapi.testclient import TestClient
+        c = TestClient(_m.app)
+
+        # A cap far below what the course needs -- production's exact shape. It is
+        # set from what the cache ALREADY holds at this point in the battery, so the
+        # pin does not quietly depend on how much earlier parts happened to seed.
+        # Headroom deliberately SMALLER than the projection for a couple of lines,
+        # so that even the two-line render below is genuinely over cap. (An earlier
+        # draft of this pin left 200 KB of room and then asserted that a 20 KB render
+        # was refused -- the code was right and the pin was wrong.)
+        _used = sum(f.stat().st_size for f in _m._TTS_CACHE_DIR.glob("*.mp3"))
+        _m._TTS_CACHE_MAX_BYTES = _used + 4 * 1024
+        d = c.post("/api/admin/script-prewarm",
+                   json={"key": key, "dry_run": True}).json()
+        check("lb: the FREE check reports the misfit", d["disk"]["fits"] is False,
+              d.get("disk"))
+        check("lb: and its note says what to set TTS_CACHE_MAX_MB to",
+              "TTS_CACHE_MAX_MB=" in d["note"], d["note"][:120])
+
+        r = c.post("/api/admin/script-prewarm", json={"key": key})
+        check("⭐ lb: the render is REFUSED (409) when the cache cannot keep it",
+              r.status_code == 409, r.status_code)
+        check("lb: the refusal explains the LOSS, not merely the limit",
+              "pay for it again" in (r.json().get("detail") or ""), r.json())
+        check("lb: and no job was started and nothing rendered",
+              not _m._PREWARM_JOB, _m._PREWARM_JOB)
+
+        # force=True so there IS work to do -- earlier parts of this battery have
+        # already seeded lesson one's lines, and a render with nothing to render
+        # takes the free early-return branch, which is correct and not what this
+        # pin is about.
+        r2 = c.post("/api/admin/script-prewarm",
+                    json={"key": key, "limit": 2, "force": True,
+                          "over_cap_ok": True})
+        check("lb: over_cap_ok spends anyway, deliberately, and says over_cap",
+              r2.status_code == 200 and r2.json().get("over_cap") is True,
+              (r2.status_code, r2.json()))
+        for _ in range(200):
+            if _m._PREWARM_JOB.get("state") != "running":
+                break
+            _t_.sleep(0.05)
+
+        # DO NO HARM: with room, everything behaves exactly as build kq left it
+        _m._TTS_CACHE_MAX_BYTES = 4000 * 1024 * 1024
+        _m._PREWARM_JOB = {}
+        r3 = c.post("/api/admin/script-prewarm",
+                    json={"key": key, "lesson": _m.lessonscripts.LESSONS[0]["id"],
+                          "limit": 2, "force": True})
+        check("lb DO NO HARM: a render that FITS still starts normally",
+              r3.status_code == 200 and r3.json().get("started") is True,
+              (r3.status_code, r3.json()))
+        for _ in range(200):
+            if _m._PREWARM_JOB.get("state") != "running":
+                break
+            _t_.sleep(0.05)
+    finally:
+        _m.httpx = old_httpx
+        _m.ELEVEN_API_KEY = old_key
+        _m._TTS_CACHE_MAX_BYTES = old_cap
+        _m._PREWARM_JOB = {}
+        try:
+            _m._PREWARM_RECORD.unlink()
+        except Exception:
+            pass
+
 def part3bg_order_of_authority():
     print("\nPART 3bg — the order of authority (build hp)")
     here = os.path.dirname(os.path.abspath(__file__))
@@ -16231,6 +16343,7 @@ def main():
     part3da_measure_the_clip()
     part3db_scripted_board()
     part3dc_render_is_a_job()
+    part3dd_the_cache_can_keep_it()
     part3bg_order_of_authority()
     part3bh_two_prompt_sizes()
     part3bi_story_units()

@@ -2,6 +2,35 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22lb-the-cache-can-keep-it". BUILD lb -- Jim:
+#               "check the scripted course audio ... it keeps running and running, and
+#               I'm not sure it's caching what it's processing."
+#               IT WAS CACHING. THEN THE EVICTOR WAS DELETING IT. The voice cache caps
+#               at TTS_CACHE_MAX_MB (default 300 MB) and the scripted course had grown
+#               to 9,829 lines / 696,327 characters -- about 711 MB of audio, 2.4x the
+#               cap. Every render pushed the cache over, the evictor culled it back to
+#               80% of cap (240 MB) taking course audio with it, and the next check
+#               reported thousands of lines missing again. Paid for, deleted, re-billed.
+#               Reproduced locally before any claim was made: with a cap below the
+#               course, three rounds each paid for 810 lines and kept 335.
+#               THE COURSE CROSSED THE CAP AT BUILD ko (pre-u5-times-by-ten). Every
+#               render since then has been partly burning money.
+#               WHAT WAS ALREADY THERE AND USELESS: build ke computed the projection
+#               (used/cap/projected/fits) and returned it on every dry run. Build kl
+#               labelled every button FREE or SPENDS. Build kq made the render a
+#               watchable job. NONE OF THEM EVER REFUSED, and admin.html never printed
+#               the disk block -- one unread field, and the symptom stayed invisible
+#               through six builds while the course quietly outgrew its shelf.
+#               THE FIX: the render is REFUSED with a 409 when the projection does not
+#               fit, and the refusal names the env var AND the number to set. A
+#               deliberate over_cap_ok overrides it (the admin page re-arms the button
+#               for one second click, the same two-click money pattern kl gave the
+#               per-lesson re-render, lapsing after 20s). The FREE check now always
+#               prints the cache line. dry_run, and any render that fits, are
+#               untouched. Battery part 3dd, 12 pins.
+#               FOR JIM: set TTS_CACHE_MAX_MB=900 in Render -> Environment, and raise
+#               the mounted disk (render.yaml documents 1 GB at /var/data, shared with
+#               the nightly DB snapshots) to 2 GB before rendering the whole course.
 #   2026-08-22  APP_BUILD -> "2026-08-22la-rooms-and-curves". BUILD la -- Algebra I
 #               Units 7 AND 8 in one build, per Jim's pacing ruling. 100 lessons ->
 #               108, 89 ops -> 97. NOTHING IN THIS FILE CHANGED but this note and
@@ -8480,6 +8509,7 @@ class ScriptPrewarmIn(BaseModel):
     limit: int = 0
     lesson: str = ""           # kf: restrict to ONE lesson's closure ("" = whole course)
     force: bool = False        # kf: re-render even lines that are already cached
+    over_cap_ok: bool = False  # lb: render ANYWAY, knowing the evictor will cull it
 
 
 class CourseAudioAuditIn(BaseModel):
@@ -8692,13 +8722,42 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
                 "disk": disk,
                 "note": ("Nothing was spent. POST again with dry_run=false to render."
                          + ("" if disk["fits"] else
-                            "  WARNING: the projected cache exceeds the cap -- raise "
-                            "TTS_CACHE_MAX_MB or the course will re-render forever."))}
+                            f"  WARNING: this does NOT fit the voice cache "
+                            f"({disk['projected_total_mb']} MB needed, cap is "
+                            f"{disk['cap_mb']} MB). Whatever you render past the cap "
+                            f"is deleted by the evictor and billed again next time. "
+                            f"Set TTS_CACHE_MAX_MB="
+                            f"{int(disk['projected_total_mb'] * 1.25) + 50} in Render "
+                            f"-> Environment and redeploy BEFORE rendering."))}
     if not ELEVEN_API_KEY:
         raise HTTPException(status_code=503,
                             detail="ELEVENLABS_API_KEY is not set on this deploy.")
     if body.limit and body.limit > 0:
         todo = todo[:body.limit]
+
+    # ---------------------------------------------------------------------
+    # BUILD lb -- THE MONEY GUARD. Build ke computed this projection and build kl
+    # made every button say FREE or SPENDS, but NOTHING EVER REFUSED, and admin.html
+    # never displayed the numbers. So when the course outgrew the cap (at build ko,
+    # pre-u5-times-by-ten, ~300 MB) the render began paying for clips the evictor
+    # deleted minutes later -- and the only symptom Jim could see was that it "keeps
+    # running and running". Reproduced locally: with a cap smaller than the course,
+    # every round paid for 810 lines and kept 335, forever.
+    # Rendering into a cache that cannot hold the result is not a render. It is a
+    # purchase with a receipt and no goods, so it is REFUSED unless Jim says
+    # otherwise in so many words.
+    _proj = _tts_cache_projection(sum(len(t) for t in todo))
+    if not _proj["fits"] and not body.over_cap_ok:
+        _need = int(_proj["projected_total_mb"] * 1.25) + 50
+        raise HTTPException(status_code=409, detail=(
+            f"REFUSED -- this render does not fit in the voice cache, so most of it "
+            f"would be deleted by the evictor and you would pay for it again next "
+            f"time. Cache holds {_proj['used_mb']} MB of {_proj['cap_mb']} MB; this "
+            f"job adds {_proj['projected_add_mb']} MB, for "
+            f"{_proj['projected_total_mb']} MB total. "
+            f"FIX: set TTS_CACHE_MAX_MB={_need} in Render -> Environment (and make "
+            f"sure the mounted disk is bigger than that), redeploy, then render. "
+            f"To spend anyway, knowing clips will be culled, send over_cap_ok."))
     # BUILD kq: hand the work to a background job and answer NOW. The render loop
     # itself moved to _prewarm_worker unchanged -- what changed is that no browser has
     # to hold a connection open for the length of it. _prewarm_start owns the lock,
@@ -8707,6 +8766,8 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
     return {"ok": True, "started": True, "job_id": job["id"], "state": "running",
             "to_render": job["total"], "already_cached": already, "chars": chars,
             "lesson": job["lesson"], "forced": job["forced"], "model": job["model"],
+            "disk": _proj,          # lb: what the cache can actually keep
+            "over_cap": not _proj["fits"],
             "note": ("The render is running ON THE SERVER, not in your browser. Every "
                      "clip is cached the moment it arrives, so if it is interrupted -- "
                      "a deploy, a restart, an instance going to sleep -- pressing "
@@ -10068,7 +10129,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22la-rooms-and-curves"
+APP_BUILD = "2026-08-22lb-the-cache-can-keep-it"
 
 
 @app.get("/health")

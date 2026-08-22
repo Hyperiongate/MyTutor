@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    (lb) 2026-08-22 -- THE CACHE-FIT NUMBERS BECOME VISIBLE. Jim: "check the scripted
+    course audio ... it keeps running and running, and I'm not sure it's caching what
+    it's processing." It WAS caching, and then the evictor was deleting it: the voice
+    cache caps at 300 MB by default and the course had grown to ~711 MB, so every
+    render paid for clips that were culled minutes later and billed again next time.
+    Reproduced locally -- every round paid for 810 lines and kept 335.
+    THE ENDPOINT HAS RETURNED THE PROOF SINCE BUILD ke: a "disk" block with used_mb,
+    cap_mb, projected_total_mb and a fits flag. THIS FILE NEVER DISPLAYED IT. One
+    unread field, and the symptom was invisible for six builds.
+    ① now always prints the cache line (used / cap / after this render) and turns red
+    with the exact TTS_CACHE_MAX_MB to set when it does not fit. ② is refused by the
+    server with a 409 in that state; the refusal is shown in full and re-arms as a
+    deliberate second click that sends over_cap_ok, the same two-click money pattern
+    build kl gave the per-lesson re-render.
+
     (kq) 2026-08-21 -- THE RENDER IS A JOB YOU CAN WATCH. Jim: "I keep getting failure
     notice on the script rendering", and the notice read "Request failed." -- which is
     THIS FILE'S fallback text, printed whenever the server answers non-2xx with no JSON
@@ -1510,20 +1525,49 @@
     try {
       var d = await api("/api/admin/script-prewarm", { method: "POST",
         body: JSON.stringify({ key: KEY, dry_run: true }) });
-      spMsg(d.to_render === 0
+      // BUILD lb: the cache line. This has been in the response since ke and was
+      // never printed -- the one number that explains a render which never finishes.
+      var disk = d.disk || {}, fits = disk.fits !== false;
+      var cacheLine = " \u00b7 Voice cache: " + disk.used_mb + " MB used of "
+                    + disk.cap_mb + " MB cap; " + disk.projected_total_mb
+                    + " MB after this render.";
+      var base = d.to_render === 0
         ? "Fully rendered \u2014 every scripted line is cached (" + d.already_cached + " lines)."
         : d.to_render + " lines still to render (" + d.chars + " characters \u2248 $"
           + (d.chars / 1000 * 0.22).toFixed(2) + "). " + d.already_cached
-          + " already cached. Press \u2461 to render.", "ok");
+          + " already cached.";
+      if (!fits) {
+        spMsg(base + cacheLine
+              + "  \u26a0 THIS DOES NOT FIT. Anything past the cap is deleted by the"
+              + " evictor and billed again next time \u2014 which is why a render can"
+              + " run forever without ever finishing. Set TTS_CACHE_MAX_MB="
+              + (Math.floor(disk.projected_total_mb * 1.25) + 50)
+              + " in Render \u2192 Environment (and check the mounted disk is bigger"
+              + " than that), redeploy, THEN render.", "err");
+      } else {
+        spMsg(base + (d.to_render ? " Press \u2461 to render." : "") + cacheLine, "ok");
+      }
     } catch (e) { spMsg(e.message); }
   });
+  // BUILD lb: when the server refuses an over-cap render (409), the button re-arms
+  // for ONE deliberate second click that sends over_cap_ok -- the same two-click
+  // money pattern kl gave the per-lesson re-render. It lapses after 20 seconds so a
+  // stale armed button cannot be hit later by accident.
+  var _spOverCap = false, _spOverTimer = null, _spLabel = null;
+  function spDisarm() {
+    if (_spOverTimer) { clearTimeout(_spOverTimer); _spOverTimer = null; }
+    if (_spLabel !== null) { $("spRun").innerHTML = _spLabel; _spLabel = null; }
+    $("spRun").className = "btn btn-spend";
+    _spOverCap = false;
+  }
   $("spRun").addEventListener("click", async function () {
     // BUILD kq: this used to await the WHOLE render. Now it starts a job and watches.
     var b = $("spRun"); b.disabled = true;
+    var overCap = _spOverCap; spDisarm();
     spMsg("Starting the render\u2026", "ok");
     try {
       var d = await api("/api/admin/script-prewarm", { method: "POST",
-        body: JSON.stringify({ key: KEY }) });
+        body: JSON.stringify({ key: KEY, over_cap_ok: overCap }) });
       if (d.to_render === 0) {
         spMsg("Nothing to render \u2014 all " + (d.already_cached || 0)
               + " lines are already cached. Nothing was spent.", "ok");
@@ -1532,7 +1576,16 @@
               + " already cached and skipped free.", "ok");
         await jobWatch(spMsg);
       }
-    } catch (e) { spMsg(e.message); }
+    } catch (e) {
+      spMsg(e.message);
+      if (e.status === 409 && /does not fit/i.test(e.message)) {
+        _spOverCap = true;
+        _spLabel = b.innerHTML;
+        b.innerHTML = "\u26a0 Render anyway \u2014 clips WILL be deleted";
+        b.className = "btn btn-armed";
+        _spOverTimer = setTimeout(spDisarm, 20000);
+      }
+    }
     b.disabled = false;
   });
   function vrMsg(t, k) { var el = $("vrMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
