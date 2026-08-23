@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23ls-a-number-on-a-chance". BUILD ls --
+#               PROB & STATS UNITS 5 AND 6 (Probability Basics; Conditional
+#               Probability & Independence). 236 lessons -> 244, 225 ops ->
+#               233. NOTHING IN THIS FILE CHANGED but this note and the stamp
+#               -- the course grew in lessonscripts.py (ops ppct/por/pand/
+#               ptre and cbse/ccnt/indp/wout). U5: chance as a percent, the
+#               OR rule, the AND rule, and counting winning paths. U6: what
+#               conditioning does to the denominator, the conditional rate,
+#               what independence claims, and drawing without replacement.
+#               [[tree]] used for the first time (teach beats only -- it
+#               prints every leaf's product).
 #   2026-08-23  APP_BUILD -> "2026-08-23lr-two-numbers-at-once". BUILD lr --
 #               PROB & STATS UNITS 3 AND 4 (Scatterplots & Correlation;
 #               Collecting Data). 228 lessons -> 236, 217 ops -> 225. NOTHING
@@ -10308,7 +10319,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23lr-two-numbers-at-once"
+APP_BUILD = "2026-08-23ls-a-number-on-a-chance"
 
 
 @app.get("/health")

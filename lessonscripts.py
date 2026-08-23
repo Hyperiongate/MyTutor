@@ -2,6 +2,40 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD ls -- PROB & STATS UNITS 5 AND 6: PUTTING A NUMBER ON A
+#               CHANCE, AND THE WORD THAT SHRINKS THE WORLD. 236 lessons ->
+#               244, 233 ops (ppct, por, pand, ptre + cbse, ccnt, indp, wout).
+#               ⭐ [[tree]] WALKED -- it prints every leaf's product, so it
+#               lives in teach beats only; ptre's ask boards carry the givens
+#               in words. Only [[normal]] and conic type="hyperbola" remain
+#               unused anywhere in the course.
+#               UNIT 5 -- geo-u9 COUNTED chances ("a out of b"); this unit
+#               MEASURES them on the 0-to-100 scale, then meets the two ways
+#               chances join, taught as a deliberate PAIR where each is the
+#               other's trap: OR adds (timesing counts pairs of marbles, not
+#               marbles) and AND times (adding makes a chance commoner, which
+#               cannot be right when you demand both). It closes by counting
+#               winning PATHS through two stages -- the AND rule drawn.
+#               UNIT 6 -- the word GIVEN throws away everyone it does not
+#               mention: first WHAT YOU DIVIDE BY (the whole class is the tap
+#               that ignores the conditioning), then the rate inside the
+#               shrunken world, then what INDEPENDENT actually claims -- that
+#               the group's rate IS the overall rate, so the MEASURED rate is
+#               the wrong answer to "what would independence predict" -- and
+#               last the draw that changes the bag behind it.
+#               Read-aloud caught two beyond the usual: (1) por's praise said
+#               timesing "would give more winners than there are marbles",
+#               which is FALSE at the smallest problem (2 red, 3 blue, 2
+#               green: 6 is not more than 7) -- a praise that argues from
+#               size must hold at every tuple in the bank, so it now names
+#               what the product actually counts, PAIRS; (2) indp's stories
+#               claimed a percent of a group of students without checking the
+#               percent landed on whole children -- 55 percent of 35
+#               left-handers is 19.25 of them. check() now enforces
+#               (b * c) % 100 == 0: no fraction of a child.
+#               Closure cost checked BEFORE the battery this time (lr's
+#               lesson): indp and pand both came in over the 20,000-char pin
+#               and were trimmed at authoring, not after a failed run.
 #   2026-08-23  BUILD lr -- PROB & STATS UNITS 3 AND 4: TWO NUMBERS AT ONCE,
 #               AND THE ASKING. 228 lessons -> 236, 225 ops (spnt, sslp, resd,
 #               sblw + strf, resp, bias, merr). New helpers _scat_points /
@@ -10647,6 +10681,334 @@ _PROBSTAT_U4 = [
     },
 ]
 LESSONS.extend(_PROBSTAT_U4)
+# =============================================================================
+# PROB & STATS UNIT 5 -- Probability Basics (build ls)
+# The thread: PUT A NUMBER ON A CHANCE. Geometry U9 counted chances ("a out of
+# b"); this unit measures them on the 0-to-100 scale, then meets the two rules
+# that combine them -- OR adds, AND times -- taught as a deliberate PAIR, each
+# one the other's trap, and finishes by counting winning PATHS through two
+# stages.
+# ⭐ [[tree]] walked here. It prints every leaf's product, so it appears in
+# teach beats only; ask boards carry the givens in words.
+# =============================================================================
+_PROBSTAT_U5 = [
+    {
+        "id": "ps-u5-chance-on-a-scale",
+        "course": "probstat", "unit": 5,
+        "topic": "Chance as a percent",
+        "op": "ppct", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("percent", "chance"),
+        "advance_line": "Three in a row — you've got it! A chance is a percent of the whole.",
+        "teach": [
+            ["Geometry counted a chance : 3 red marbles out of 10 is 3 out of 10. That is true, but two chances counted out of different wholes cannot be compared. So probability puts every chance on ONE scale, from 0 to 100.",
+             '[[goal text="Chance on a scale"]][[step eq="0 = never · 100 = always"]]'],
+            ["Turn a count into a percent the ordinary way. 3 red out of 10 marbles is 30 percent — 3 divided by 10, then out of a hundred. Now it can be set beside any other chance in the world: a 30 percent chance of red, a 40 percent chance of rain.",
+             '[[step eq="3 out of 10 → 30%"]]'],
+            ["The two ends anchor the scale: 0 percent never happens, 100 percent always does, and everything real lives between. So do not hand back 3, the count of red marbles, or 7, the count that is not red. The question asks for the percent .",
+             '[[step eq="30 ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 9 red out of 12 marbles: 9 divided by 12 is 75 percent.",
+                        '[[step eq="9 out of 12 → 75%"]]'],
+             "ask": {"a": 17, "b": 20, "op": "ppct"}},
+            {"worked": ["One more together. 7 out of 35 marbles is 20 percent.",
+                        '[[step eq="7 out of 35 → 20%"]]'],
+             "ask": {"a": 16, "b": 20, "op": "ppct"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 20, "op": "ppct"},
+            {"a": 8, "b": 50, "op": "ppct"},
+            {"a": 11, "b": 50, "op": "ppct"},
+            {"a": 9, "b": 36, "op": "ppct"},
+            {"a": 12, "b": 40, "op": "ppct"},
+            {"a": 2, "b": 5, "op": "ppct"},
+            {"a": 21, "b": 50, "op": "ppct"},
+            {"a": 27, "b": 50, "op": "ppct"},
+            {"a": 15, "b": 25, "op": "ppct"},
+            {"a": 26, "b": 40, "op": "ppct"},
+        ],
+    },
+    {
+        "id": "ps-u5-either-one-wins",
+        "course": "probstat", "unit": 5,
+        "topic": "The OR rule",
+        "op": "por", "max_value": 27,
+        "levels": ("abstract",),
+        "symbols": ("or", "winners"),
+        "advance_line": "Three in a row — you've got it! Two piles that cannot overlap simply join.",
+        "teach": [
+            ["Chances join up, and there are exactly two ways. The first: either one will do. A bag of 4 red, 3 blue and 5 green, where red OR blue wins — a marble cannot be both colours at once, so the two piles simply join.",
+             '[[goal text="Either one wins"]][[bars data="red:4 | blue:3 | green:5"]]'],
+            ["Put them together: 4 plus 3 gives 7 winners out of the 12 marbles. That is the OR rule, and it works whenever the two things cannot happen together — one marble, one colour.",
+             '[[step eq="4 + 3 = 7 winners out of 12"]]'],
+            ["Do not times them. 4 times 3 is 12, which would say every marble in the bag is a winner — and timesing belongs to the OTHER rule, the one for two separate events. Adding the green in as well counts marbles that lose.",
+             '[[step eq="7 ✓"]][[step eq="12 ✗ timesed · 12 ✗ the whole bag"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 3 red, 6 blue and 2 green, with red or blue winning: 3 plus 6 — 9 winners.",
+                        '[[step eq="3 + 6 = 9 winners"]]'],
+             "ask": {"a": 7, "b": 9, "c": 8, "op": "por"}},
+            {"worked": ["One more together. 5 red and 2 blue among 4 green: 7 winners.",
+                        '[[step eq="5 + 2 = 7 winners"]]'],
+             "ask": {"a": 6, "b": 9, "c": 6, "op": "por"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 2, "op": "por"},
+            {"a": 4, "b": 2, "c": 7, "op": "por"},
+            {"a": 2, "b": 6, "c": 6, "op": "por"},
+            {"a": 2, "b": 7, "c": 4, "op": "por"},
+            {"a": 6, "b": 3, "c": 8, "op": "por"},
+            {"a": 5, "b": 5, "c": 5, "op": "por"},
+            {"a": 2, "b": 9, "c": 9, "op": "por"},
+            {"a": 7, "b": 4, "c": 3, "op": "por"},
+            {"a": 4, "b": 8, "c": 6, "op": "por"},
+            {"a": 8, "b": 4, "c": 8, "op": "por"},
+        ],
+    },
+    {
+        "id": "ps-u5-both-at-once",
+        "course": "probstat", "unit": 5,
+        "topic": "The AND rule",
+        "op": "pand", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("and", "rarer"),
+        "advance_line": "Three in a row — you've got it! Wanting both leaves a chance rarer — times the two.",
+        "teach": [
+            ["The second way chances join up: you want BOTH, and the two have nothing to do with each other. Rain tomorrow is one day in 4. A late bus is one bus in 3. Neither cares what the other does.",
+             '[[goal text="Both at once"]][[step eq="rain 1 in 4 · late bus 1 in 3"]]'],
+            ["Think it through. Of every 4 days, one is rainy — and on that rainy day, only one bus in 3 runs late. So a rainy day WITH a late bus turns up one time in 4 times 3: one in 12. Wanting both times the two chances together.",
+             '[[step eq="1 in 4 × 1 in 3 → 1 in 12"]]'],
+            ["Notice the direction: asking for both always leaves a chance rarer , so the answer must be a bigger \"one in\" number than either you started with. One in 7 — adding them — is more common than rain alone, which cannot be right.",
+             '[[step eq="1 in 12 ✓ rarer"]][[step eq="1 in 7 ✗ added · 1 in 4 ✗ the bus ignored"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. One in 5 and one in 6, with nothing between them: one in 30.",
+                        '[[step eq="5 × 6 = 30"]]'],
+             "ask": {"a": 10, "b": 8, "op": "pand"}},
+            {"worked": ["One more together. One in 7 and one in 11: one in 77.",
+                        '[[step eq="7 × 11 = 77"]]'],
+             "ask": {"a": 6, "b": 12, "op": "pand"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "pand"},
+            {"a": 3, "b": 4, "op": "pand"},
+            {"a": 2, "b": 8, "op": "pand"},
+            {"a": 4, "b": 5, "op": "pand"},
+            {"a": 2, "b": 12, "op": "pand"},
+            {"a": 9, "b": 3, "op": "pand"},
+            {"a": 4, "b": 8, "op": "pand"},
+            {"a": 4, "b": 9, "op": "pand"},
+            {"a": 6, "b": 7, "op": "pand"},
+            {"a": 6, "b": 8, "op": "pand"},
+        ],
+    },
+    {
+        "id": "ps-u5-count-the-winning-paths",
+        "course": "probstat", "unit": 5,
+        "topic": "Two-stage outcomes",
+        "op": "ptre", "max_value": 64,
+        "levels": ("abstract",),
+        "symbols": ("paths", "both"),
+        "advance_line": "Three in a row — you've got it! Winners on the first spin, times winners on the second.",
+        "teach": [
+            ["Draw the two rules as a picture and you get a tree: every first outcome branches into every second one, and each finished branch is one path through the whole experiment. A 4-part spinner with 2 winners, spun twice, holds 4 times 4 — sixteen paths in all.",
+             '[[goal text="Count the winning paths"]][[tree stage1="W:2,L:2" stage2="W:2,L:2"]]'],
+            ["Now count the ones that win BOTH times. Each of the 2 winning first spins can be followed by each of the 2 winning second spins, so 2 times 2 — four paths win twice, out of sixteen. That is the AND rule again, counted on a picture.",
+             '[[step eq="2 × 2 = 4 winning paths of 16"]]'],
+            ["Two miscounts. 2 times 4 is 8 — that counts winning FIRST and then anything at all, which is a different question. And 2 plus 2 treats two spins as though they were one longer spin. Winners times winners, always.",
+             '[[step eq="4 ✓"]][[step eq="8 ✗ second spin left free · 4 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A 12-part spinner with 9 winners, spun twice: 9 times 9 — 81 paths win both times.",
+                        '[[step eq="9 × 9 = 81 winning paths"]]'],
+             "ask": {"a": 9, "b": 8, "op": "ptre"}},
+            {"worked": ["One more together. 11 parts with 10 winners: 10 times 10 — 100 paths win twice.",
+                        '[[step eq="10 × 10 = 100"]]'],
+             "ask": {"a": 7, "b": 4, "op": "ptre"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 3, "op": "ptre"},
+            {"a": 5, "b": 3, "op": "ptre"},
+            {"a": 5, "b": 4, "op": "ptre"},
+            {"a": 6, "b": 4, "op": "ptre"},
+            {"a": 6, "b": 5, "op": "ptre"},
+            {"a": 7, "b": 5, "op": "ptre"},
+            {"a": 7, "b": 6, "op": "ptre"},
+            {"a": 8, "b": 6, "op": "ptre"},
+            {"a": 8, "b": 7, "op": "ptre"},
+            {"a": 9, "b": 7, "op": "ptre"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U5)
+
+# =============================================================================
+# PROB & STATS UNIT 6 -- Conditional Probability & Independence (build ls)
+# The thread: THE WORD "GIVEN" SHRINKS THE WORLD. First what you divide BY
+# (conditioning changes the denominator), then the rate inside that smaller
+# world, then what INDEPENDENT actually claims -- that the group's rate is the
+# overall rate -- and finally the draw that changes the bag behind it.
+# =============================================================================
+_PROBSTAT_U6 = [
+    {
+        "id": "ps-u6-out-of-how-many-now",
+        "course": "probstat", "unit": 6,
+        "topic": "Conditioning changes the whole",
+        "op": "cbse", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("among", "world"),
+        "advance_line": "Three in a row — you've got it! Asking about one group shrinks the whole to that group.",
+        "teach": [
+            ["Unit Six turns on one small word: GIVEN. A class has 6 girls in soccer and 4 in art, 5 boys in soccer and 8 in art — 23 children. Ask \"what is the chance a child plays soccer?\" and the whole is all 23.",
+             '[[goal text="Out of how many now?"]][[twoway rowlabels="girls,boys" collabels="soccer,art" data="6,4|5,8"]]'],
+            ["Now ask a different question: among the girls only, what is the chance of soccer? The boys have left the room. The world has shrunk to the 10 girls — 6 plus 4 — and every chance from here on is out of 10, not 23.",
+             '[[step eq="among the girls: 6 + 4 = 10"]]'],
+            ["That is the whole idea of a conditional chance: the word GIVEN throws away everyone it does not mention. Answering 23 keeps the boys who were just sent away, and 6 is the soccer girls themselves — the group you are counting, not the group you are counting out of.",
+             '[[step eq="10 ✓"]][[step eq="23 ✗ everyone · 6 ✗ the cell"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 9 girls in soccer and 7 in art: among the girls, everything is out of 16.",
+                        '[[step eq="9 + 7 = 16 girls"]]'],
+             "ask": {"a": 16, "b": 18, "c": 5, "op": "cbse"}},
+            {"worked": ["One more together. 5 girls in soccer and 15 in art gives a world of 20 girls.",
+                        '[[step eq="5 + 15 = 20 girls"]]'],
+             "ask": {"a": 14, "b": 17, "c": 8, "op": "cbse"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 2, "op": "cbse"},
+            {"a": 6, "b": 4, "c": 13, "op": "cbse"},
+            {"a": 8, "b": 5, "c": 10, "op": "cbse"},
+            {"a": 13, "b": 2, "c": 7, "op": "cbse"},
+            {"a": 14, "b": 3, "c": 4, "op": "cbse"},
+            {"a": 10, "b": 9, "c": 15, "op": "cbse"},
+            {"a": 3, "b": 18, "c": 12, "op": "cbse"},
+            {"a": 11, "b": 11, "c": 9, "op": "cbse"},
+            {"a": 19, "b": 4, "c": 6, "op": "cbse"},
+            {"a": 12, "b": 13, "c": 3, "op": "cbse"},
+        ],
+    },
+    {
+        "id": "ps-u6-inside-the-smaller-world",
+        "course": "probstat", "unit": 6,
+        "topic": "The conditional rate",
+        "op": "ccnt", "max_value": 80,
+        "levels": ("abstract",),
+        "symbols": ("among", "percent"),
+        "advance_line": "Three in a row — you've got it! Divide inside the smaller world, not the big one.",
+        "teach": [
+            ["Once the world has shrunk, work out the chance the ordinary way — just inside the smaller group. Every girl in a class chose one club: 9 chose soccer and 6 chose art. Among the girls, that is 15 children in all.",
+             '[[goal text="Inside the smaller world"]][[step eq="girls: 9 soccer + 6 art = 15"]]'],
+            ["So the chance a girl chose soccer is 9 out of 15 — 60 percent . The boys never enter the arithmetic at any point, however many of them there are, because the question already sent them away.",
+             '[[step eq="9 out of 15 → 60%"]]'],
+            ["Two answers not to give: 9 is a headcount, not a percent, and 40 percent is the art share — the rest of the girls. Read which group is being asked about, count that group, and divide inside it.",
+             '[[step eq="60 ✓"]][[step eq="9 ✗ a count · 40 ✗ the other club"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 8 girls in soccer and 32 in art: 8 out of 40 is 20 percent.",
+                        '[[step eq="8 out of 40 → 20%"]]'],
+             "ask": {"a": 30, "b": 10, "op": "ccnt"}},
+            {"worked": ["One more together. 21 in soccer and 14 in art: 21 out of 35 — 60 percent.",
+                        '[[step eq="21 out of 35 → 60%"]]'],
+             "ask": {"a": 14, "b": 6, "op": "ccnt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 8, "op": "ccnt"},
+            {"a": 6, "b": 19, "op": "ccnt"},
+            {"a": 7, "b": 21, "op": "ccnt"},
+            {"a": 6, "b": 14, "op": "ccnt"},
+            {"a": 9, "b": 16, "op": "ccnt"},
+            {"a": 12, "b": 18, "op": "ccnt"},
+            {"a": 11, "b": 14, "op": "ccnt"},
+            {"a": 24, "b": 26, "op": "ccnt"},
+            {"a": 14, "b": 11, "op": "ccnt"},
+            {"a": 12, "b": 8, "op": "ccnt"},
+        ],
+    },
+    {
+        "id": "ps-u6-what-independent-claims",
+        "course": "probstat", "unit": 6,
+        "topic": "Independence",
+        "op": "indp", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("independent", "rate"),
+        "advance_line": "Three in a row — you've got it! Independent means the group looks just like everyone.",
+        "teach": [
+            ["Two things are independent when knowing one tells you nothing about the other. That is a claim you can TEST, because it carries a promise: the group's rate should match the overall rate , exactly.",
+             '[[goal text="What independent claims"]][[step eq="independent → group rate = overall rate"]]'],
+            ["Say 30 percent of a school likes maths. If left-handedness were independent of liking maths, then 30 percent of the left-handers would like maths too — the same 30, whether there are 20 left-handers or 200.",
+             '[[step eq="school 30% → left-handers 30% if independent"]]'],
+            ["Then you look. If the left-handers actually come in at 55 percent, the promise is broken and the two are NOT independent — something links them. The question asks what independence WOULD predict, so the measured 55 is not the answer, and the number of left-handers is not a rate at all.",
+             '[[step eq="30 ✓ what independence predicts"]][[step eq="55 ✗ what was measured"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 40 percent of a school walks to school. If independence held, 40 percent of the bus-pass holders would walk too.",
+                        '[[step eq="school 40% → any group 40%"]]'],
+             "ask": {"a": 75, "b": 55, "c": 20, "op": "indp"}},
+            {"worked": ["One more together. A school at 60 percent predicts 60 percent inside any independent group.",
+                        '[[step eq="school 60% → group 60%"]]'],
+             "ask": {"a": 85, "b": 20, "c": 65, "op": "indp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 20, "c": 90, "op": "indp"},
+            {"a": 15, "b": 40, "c": 85, "op": "indp"},
+            {"a": 20, "b": 10, "c": 80, "op": "indp"},
+            {"a": 25, "b": 60, "c": 75, "op": "indp"},
+            {"a": 30, "b": 50, "c": 70, "op": "indp"},
+            {"a": 40, "b": 30, "c": 90, "op": "indp"},
+            {"a": 45, "b": 15, "c": 80, "op": "indp"},
+            {"a": 50, "b": 25, "c": 20, "op": "indp"},
+            {"a": 55, "b": 35, "c": 20, "op": "indp"},
+            {"a": 65, "b": 45, "c": 20, "op": "indp"},
+        ],
+    },
+    {
+        "id": "ps-u6-the-bag-remembers",
+        "course": "probstat", "unit": 6,
+        "topic": "Without replacement",
+        "op": "wout", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("kept", "smaller"),
+        "advance_line": "Three in a row — you've got it! A marble kept out leaves a smaller bag behind.",
+        "teach": [
+            ["The last conditional idea is the most physical. Take a marble from a bag and put it back, and the second pick faces exactly the bag the first one did. Keep it instead, and the bag has changed — the second pick lives in a smaller world.",
+             '[[goal text="The bag remembers"]][[step eq="10 marbles · one taken and kept → 9 left"]]'],
+            ["A bag of 10 with 4 red. Take a red and keep it: 9 marbles are left and only 3 of them are red, so the next pick is 3 out of 9 rather than 4 out of 10. Both numbers moved, and the bottom one is what the question asks for.",
+             '[[step eq="4 of 10 → 3 of 9"]]'],
+            ["Answering 10 is the slip worth naming — it treats the bag as though the marble went back. And 3 is the reds left over, the TOP of the new chance, not the bottom. One marble kept out, one smaller bag.",
+             '[[step eq="9 ✓"]][[step eq="10 ✗ nothing taken · 3 ✗ that is the reds"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 25 marbles, one kept out: the next pick is out of 24.",
+                        '[[step eq="25 − 1 = 24"]]'],
+             "ask": {"a": 19, "b": 39, "op": "wout"}},
+            {"worked": ["One more together. A bag of 16 with one marble kept leaves 15 for the next pick.",
+                        '[[step eq="16 − 1 = 15"]]'],
+             "ask": {"a": 6, "b": 38, "op": "wout"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 5, "op": "wout"},
+            {"a": 5, "b": 14, "op": "wout"},
+            {"a": 6, "b": 18, "op": "wout"},
+            {"a": 8, "b": 21, "op": "wout"},
+            {"a": 20, "b": 23, "op": "wout"},
+            {"a": 7, "b": 26, "op": "wout"},
+            {"a": 9, "b": 28, "op": "wout"},
+            {"a": 7, "b": 30, "op": "wout"},
+            {"a": 28, "b": 31, "op": "wout"},
+            {"a": 20, "b": 33, "op": "wout"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U6)
 
 
 
@@ -10852,6 +11214,12 @@ COURSE_ORDER = [
     # Unit 4: Collecting Data (build lr)
     "ps-u4-a-sample-that-matches", "ps-u4-who-actually-answered",
     "ps-u4-the-ones-you-never-asked", "ps-u4-the-price-of-accuracy",
+    # Unit 5: Probability Basics (build ls)
+    "ps-u5-chance-on-a-scale", "ps-u5-either-one-wins",
+    "ps-u5-both-at-once", "ps-u5-count-the-winning-paths",
+    # Unit 6: Conditional Probability & Independence (build ls)
+    "ps-u6-out-of-how-many-now", "ps-u6-inside-the-smaller-world",
+    "ps-u6-what-independent-claims", "ps-u6-the-bag-remembers",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -16558,7 +16926,247 @@ OP_EXT = {
                             "a sample that can afford to quadruple, and "
                             "three distinct taps"),
     },
+    # ---- build ls: Prob & Stats U5 Probability Basics --------------------
+    "ppct": {  # chance on the 0-to-100 scale -- geo-u9 counted, this measures
+        "ans": lambda p: 100 * p["a"] // p["b"],
+        "spoken": lambda p: (f"A bag holds {p['b']} marbles and {p['a']} of "
+                             f"them are red. One is picked without looking. "
+                             f"What percent chance is it red?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} red out of {p["b"]} '
+                            f'marbles"]]'
+                            f'[[step eq="percent chance of red = ?"]]'),
+        "praise": lambda p: (f"{p['a']} out of {p['b']} is "
+                             f"{100 * p['a'] // p['b']} percent — chance "
+                             f"lives on a scale from 0 to 100, where 0 never "
+                             f"happens and 100 always does. {p['a']} is a "
+                             f"count of marbles, and {p['b'] - p['a']} is "
+                             f"how many are not red."),
+        "key": lambda p: 100 * p["a"] // p["b"],
+        # The errors: the COUNT of red handed back as a percent, and the
+        # count of everything else.
+        "choices": lambda p: [100 * p["a"] // p["b"], p["a"],
+                              p["b"] - p["a"]],
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 50
+                            and (100 * p["a"]) % p["b"] == 0
+                            and 10 <= 100 * p["a"] // p["b"] <= 90
+                            and len({100 * p["a"] // p["b"], p["a"],
+                                     p["b"] - p["a"]}) == 3,
+                            "a chance that lands on a whole percent, well "
+                            "inside 0 and 100, with three distinct taps"),
+    },
+    "por": {  # OR, when the two cannot happen together: ADD the ways
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"A bag holds {p['a']} red, {p['b']} blue and "
+                             f"{p['c']} green marbles. One is picked. Red OR "
+                             f"blue wins. How many of the marbles are "
+                             f"winners?"),
+        "board": lambda p: (f'[[bars data="red:{p["a"]} | blue:{p["b"]} | '
+                            f'green:{p["c"]}"]]'
+                            f'[[step eq="red OR blue wins · how many '
+                            f'winners?"]]'),
+        "praise": lambda p: (f"A marble cannot be red AND blue at once, so "
+                             f"the two piles just join: {p['a']} plus "
+                             f"{p['b']} equals {p['a'] + p['b']} winners out "
+                             f"of {p['a'] + p['b'] + p['c']}. Timesing them "
+                             f"would say {p['a'] * p['b']}, which counts "
+                             f"PAIRS of marbles rather than marbles — and "
+                             f"timesing is what AND does, not OR."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: TIMESING (the and/or mix-up -- pand is the other half
+        # of this pair), and counting the whole bag.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] * p["b"],
+                              p["a"] + p["b"] + p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and 2 <= p["c"] <= 9
+                            and len({p["a"] + p["b"], p["a"] * p["b"],
+                                     p["a"] + p["b"] + p["c"]}) == 3,
+                            "three real piles, and the sum, the product and "
+                            "the whole bag are three different numbers"),
+    },
+    "pand": {  # AND, when neither touches the other: TIMES the chances
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"The chance of rain tomorrow is one in "
+                             f"{p['a']}. The chance your bus is late is one "
+                             f"in {p['b']}. Neither has anything to do with "
+                             f"the other. The chance of BOTH happening is "
+                             f"one in what?"),
+        "board": lambda p: (f'[[step eq="rain: 1 in {p["a"]} · late bus: 1 '
+                            f'in {p["b"]}"]]'
+                            f'[[step eq="both = 1 in ?"]]'),
+        "praise": lambda p: (f"One day in {p['a']} is rainy, and one bus "
+                             f"in {p['b']} is late, so both together turn up "
+                             f"one time in {p['a']} times {p['b']} — one in "
+                             f"{p['a'] * p['b']}. Wanting BOTH is always "
+                             f"rarer, never one in "
+                             f"{p['a'] + p['b']}."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: ADDING (por's rule, borrowed wrongly), and the rarer
+        # of the two chances kept as if the other did nothing.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              max(p["a"], p["b"])],
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"] and p["a"] * p["b"] <= 100
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     max(p["a"], p["b"])}) == 3,
+                            "two different chances whose product stays "
+                            "under 100, and three distinct taps"),
+    },
+    "ptre": {  # count the winning PATHS of a two-stage spin
+        "ans": lambda p: p["b"] * p["b"],
+        "spoken": lambda p: (f"A spinner has {p['a']} equal parts, and "
+                             f"{p['b']} of them are winners. You spin it "
+                             f"twice, giving {p['a'] * p['a']} "
+                             f"different paths in all. How many of those "
+                             f"paths win BOTH times?"),
+        # NOT [[tree]] on the ask -- that renderer prints every leaf's
+        # product, which is the answer. The teach beats show it instead.
+        "board": lambda p: (f'[[step eq="{p["b"]} winners of {p["a"]} parts '
+                            f'· spun twice"]]'
+                            f'[[step eq="paths that win twice = ?"]]'),
+        "praise": lambda p: (f"Each winning first spin can be followed by "
+                             f"each winning second spin: {p['b']} times "
+                             f"{p['b']} equals {p['b'] * p['b']} winning "
+                             f"paths out of {p['a'] * p['a']}. "
+                             f"{p['b'] * p['a']} would count the paths that "
+                             f"win the FIRST spin and then do anything at "
+                             f"all."),
+        "key": lambda p: p["b"],
+        # The errors: win-then-anything (the second spin left free), and the
+        # two spins added instead of paired.
+        "choices": lambda p: [p["b"] * p["b"], p["b"] * p["a"], 2 * p["b"]],
+        "check": lambda p: (3 <= p["a"] <= 12 and 2 <= p["b"] <= p["a"] - 1
+                            and p["b"] * p["b"] <= 64
+                            and len({p["b"] * p["b"], p["b"] * p["a"],
+                                     2 * p["b"]}) == 3,
+                            "a spinner with real losers on it, a winning-"
+                            "path count under 64, and three distinct taps"),
+    },
+    # ---- build ls: Prob & Stats U6 Conditional Probability & Independence -
+    "cbse": {  # conditioning changes WHAT YOU DIVIDE BY
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"In a class, {p['a']} girls chose soccer and "
+                             f"{p['b']} girls chose art, while {p['c']} boys "
+                             f"chose soccer and {p['c'] + 3} boys chose art. "
+                             f"Picking from the GIRLS only, the chance of "
+                             f"soccer is out of how many?"),
+        "board": lambda p: (f'[[step eq="girls: {p["a"]} soccer, {p["b"]} '
+                            f'art · boys: {p["c"]} soccer, {p["c"] + 3} '
+                            f'art"]]'
+                            f'[[step eq="among the girls · out of ?"]]'),
+        "praise": lambda p: (f"Asking about the girls only shrinks the "
+                             f"world to the girls: {p['a']} plus {p['b']} "
+                             f"equals {p['a'] + p['b']}. The whole class of "
+                             f"{2 * p['c'] + 3 + p['a'] + p['b']} is the "
+                             f"answer to a different question, and "
+                             f"{p['a']} on its own is the soccer girls, not "
+                             f"the group they came from."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the WHOLE class (conditioning ignored -- the heart of
+        # the unit), and the cell itself.
+        "choices": lambda p: [p["a"] + p["b"],
+                              2 * p["c"] + 3 + p["a"] + p["b"], p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 20 and 2 <= p["b"] <= 20
+                            and 2 <= p["c"] <= 15
+                            and len({p["a"] + p["b"],
+                                     2 * p["c"] + 3 + p["a"] + p["b"],
+                                     p["a"]}) == 3,
+                            "a class with all four boxes filled, and three "
+                            "distinct taps"),
+    },
+    "ccnt": {  # the conditional rate itself, once the world has shrunk
+        "ans": lambda p: 100 * p["a"] // (p["a"] + p["b"]),
+        "spoken": lambda p: (f"Every girl in a class chose one club: "
+                             f"{p['a']} chose soccer and {p['b']} chose art. "
+                             f"Picking a girl at random, what percent chose "
+                             f"soccer?"),
+        "board": lambda p: (f'[[step eq="girls: {p["a"]} soccer · {p["b"]} '
+                            f'art"]]'
+                            f'[[step eq="percent of the girls in soccer = '
+                            f'?"]]'),
+        "praise": lambda p: (f"The girls are the whole world now — "
+                             f"{p['a']} plus {p['b']} equals "
+                             f"{p['a'] + p['b']} of them — and {p['a']} of "
+                             f"those chose soccer: "
+                             f"{100 * p['a'] // (p['a'] + p['b'])} percent. "
+                             f"The other "
+                             f"{100 - 100 * p['a'] // (p['a'] + p['b'])} "
+                             f"percent chose art, and {p['a']} is a "
+                             f"headcount, not a percent."),
+        "key": lambda p: 100 * p["a"] // (p["a"] + p["b"]),
+        # The errors: the count answered as a percent, and the OTHER club's
+        # share.
+        "choices": lambda p: [100 * p["a"] // (p["a"] + p["b"]), p["a"],
+                              100 - 100 * p["a"] // (p["a"] + p["b"])],
+        "check": lambda p: (2 <= p["a"] <= 30 and 2 <= p["b"] <= 30
+                            and (100 * p["a"]) % (p["a"] + p["b"]) == 0
+                            and 20 <= 100 * p["a"] // (p["a"] + p["b"]) <= 80
+                            and 100 * p["a"] // (p["a"] + p["b"]) != 50
+                            and len({100 * p["a"] // (p["a"] + p["b"]),
+                                     p["a"],
+                                     100 - 100 * p["a"]
+                                     // (p["a"] + p["b"])}) == 3,
+                            "a whole percent away from the 50-50 split, so "
+                            "the share and its complement are different "
+                            "taps"),
+    },
+    "indp": {  # independent means the group's rate IS the overall rate
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"In a school, {p['a']} percent of students "
+                             f"like maths, and among the {p['b']} "
+                             f"left-handers {p['c']} percent do. If "
+                             f"left-handedness had nothing to do with liking "
+                             f"maths, what percent of the left-handers would "
+                             f"like it?"),
+        "board": lambda p: (f'[[step eq="whole school: {p["a"]}% · '
+                            f'left-handers: {p["c"]}%"]]'
+                            f'[[step eq="if independent, left-handers '
+                            f'= ?%"]]'),
+        "praise": lambda p: (f"Independent means the left-handers would "
+                             f"look just like the school: {p['a']} percent. "
+                             f"They came in at {p['c']}, so the two are NOT "
+                             f"independent — and {p['b']} is a headcount, "
+                             f"not a rate."),
+        "key": lambda p: p["a"],
+        # The errors: the MEASURED rate (the question asked what it would be
+        # IF independent), and the size of the group.
+        "choices": lambda p: [p["a"], p["c"], p["b"]],
+        "check": lambda p: (10 <= p["a"] <= 90 and p["a"] % 5 == 0
+                            and 10 <= p["c"] <= 90 and p["c"] % 5 == 0
+                            and abs(p["a"] - p["c"]) >= 10
+                            and 10 <= p["b"] <= 60
+                            and (p["b"] * p["c"]) % 100 == 0
+                            and len({p["a"], p["c"], p["b"]}) == 3,
+                            "two rates far enough apart to argue about, and "
+                            "a group whose measured percent lands on whole "
+                            "students -- no fraction of a child"),
+    },
+    "wout": {  # without replacement: the second draw lives in a smaller world
+        "ans": lambda p: p["b"] - 1,
+        "spoken": lambda p: (f"A bag holds {p['b']} marbles and {p['a']} of "
+                             f"them are red. You take one red out and keep "
+                             f"it. For the NEXT pick, the chance of red is "
+                             f"out of how many marbles now?"),
+        "board": lambda p: (f'[[step eq="{p["b"]} marbles · {p["a"]} red · '
+                            f'one red taken and kept"]]'
+                            f'[[step eq="next pick · out of ?"]]'),
+        "praise": lambda p: (f"The marble did not go back, so the bag is "
+                             f"smaller: {p['b']} take away 1 leaves "
+                             f"{p['b'] - 1}. The reds shrank too, to "
+                             f"{p['a'] - 1} — but that is the top of the "
+                             f"chance, not the bottom. Answering {p['b']} "
+                             f"forgets that anything was taken at all."),
+        "key": lambda p: p["b"],
+        # The errors: the bag unchanged (the whole lesson), and the count of
+        # reds left -- the other number that shrank.
+        "choices": lambda p: [p["b"] - 1, p["b"], p["a"] - 1],
+        "check": lambda p: (3 <= p["a"] < p["b"] <= 40
+                            and p["b"] - p["a"] >= 2
+                            and len({p["b"] - 1, p["b"], p["a"] - 1}) == 3,
+                            "a bag with other colours left in it, and three "
+                            "distinct taps"),
+    },
 }
+
 
 
 
