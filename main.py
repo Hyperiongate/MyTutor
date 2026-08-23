@@ -2,6 +2,40 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23lx-backwards-and-the-area". BUILD
+#               lx -- CALCULUS UNITS 6 AND 7 (Antiderivatives &
+#               Indefinite Integrals; The Definite Integral & the FTC).
+#               276 lessons -> 284, 265 ops -> 273. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23lw-the-tool-and-the-best". BUILD lw
+#               -- CALCULUS UNITS 4 AND 5 (Applications of Derivatives; Curve
+#               Sketching & Optimization). 268 lessons -> 276, 257 ops -> 265.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23lv-the-slope-at-a-point". BUILD lv --
+#               CALCULUS UNITS 2 AND 3 (The Derivative; Product, Quotient &
+#               Chain Rules). 260 lessons -> 268, 249 ops -> 257. NOTHING IN
+#               THIS FILE CHANGED but this note and the stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23lu-inference-and-calculus". BUILD lu
+#               -- ⭐ PROBABILITY & STATISTICS COMPLETE (U9 Sampling &
+#               Inference) and ⭐ CALCULUS OPENS (U1 Limits & Continuity).
+#               252 lessons -> 260, 241 ops -> 249. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp. Jim raised
+#               TTS_CACHE_MAX_MB to 4000 on 2026-08-23, which covers the
+#               finished course (~3,800 MB projected). ELEVEN courses done;
+#               only Calculus (U2-U9) and Differential Equations remain.
+#   2026-08-23  APP_BUILD -> "2026-08-23lt-the-curve-that-fits". BUILD lt --
+#               PROB & STATS UNITS 7 AND 8 (Random Variables & Expected
+#               Value; The Normal Distribution). 244 lessons -> 252, 233 ops
+#               -> 241. NOTHING IN THIS FILE CHANGED but this note and the
+#               stamp -- the course grew in lessonscripts.py (ops pdis/evwa/
+#               fair/hedg and n68/zsco/zval/ntal). U7: a distribution adds to
+#               one whole, expected value as a weighted average, what prize
+#               would be fair, and the long-run cost of a play. U8: the 68
+#               percent rule as a headcount, counting standard deviations,
+#               reading the curve backwards, and how few people live in the
+#               tails. ⭐ [[normal]] used for the first time -- the LAST
+#               unused renderer in the app, and teach-only, since it labels
+#               the axis at every standard deviation.
 #   2026-08-23  APP_BUILD -> "2026-08-23ls-a-number-on-a-chance". BUILD ls --
 #               PROB & STATS UNITS 5 AND 6 (Probability Basics; Conditional
 #               Probability & Independence). 236 lessons -> 244, 225 ops ->
@@ -10319,7 +10353,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23ls-a-number-on-a-chance"
+APP_BUILD = "2026-08-23lx-backwards-and-the-area"
 
 
 @app.get("/health")

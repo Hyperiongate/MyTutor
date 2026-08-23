@@ -2,6 +2,154 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD lx -- CALCULUS UNITS 6 AND 7: THE RULE RUN BACKWARDS,
+#               AND THE AREA THAT MEANS SOMETHING. 276 lessons -> 284, 273
+#               ops (anti, antp, plusc, init + defi, triz, ftc, avgv).
+#               U6 -- every unit up to here asked for a derivative; this one
+#               asks the question backwards. The power rule reversed (halve,
+#               do not double), the same reversal at any power (raise the
+#               exponent, then DIVIDE by it), the discovery that going
+#               backwards never lands on one function but on a whole FAMILY
+#               a constant apart, and the one known point that picks a single
+#               member out of that family.
+#               U7 -- the area under a graph is a real measurement: a
+#               rectangle of steady speed IS a distance, a triangle of steady
+#               acceleration is the same idea halved, the Fundamental Theorem
+#               ties that area back to the antiderivatives of U6 (end take
+#               away start), and the average value flattens the area out
+#               again into a single height.
+#               ⚠️ THREE AUTHORING CATCHES WORTH KEEPING. (1) max_value
+#               bounds every number a child SEES, not just the answer -- anti,
+#               antp and avgv all validated their answers happily and failed
+#               on their givens (a=48, b=72, a=154). Set the bound from
+#               max(a, b, answer), not from the answer alone. (2) A TEACH
+#               beat that walks a worked example must not walk a BANK tuple:
+#               anti demoed 6x, antp demoed 12x cubed and triz demoed 6
+#               seconds, and all three numbers sat in their own banks. The
+#               worked-example audit only reads pairs[]; teach beats need the
+#               same check by hand. (3) antp's "timesed instead of divided"
+#               tap reached 396 against an answer of 11 -- a distractor no
+#               child would ever touch is a wasted tap, so it became the
+#               front number handed back UNDIVIDED, which is the error they
+#               actually make.
+#   2026-08-23  BUILD lw -- CALCULUS UNITS 4 AND 5: THE DERIVATIVE AS A TOOL,
+#               AND FINDING THE BEST. 268 lessons -> 276, 265 ops (vsol,
+#               mrat, crit, acce + optr, maxa, sumx, infl).
+#               U4 -- a derivative is an equation and can be SOLVED (from a
+#               speed back to the moment it happens), one rate drives another
+#               (a square's area speeds up while its side grows steadily --
+#               the chain rule doing real work), a curve can only turn where
+#               its slope is zero, and differentiating TWICE reaches
+#               acceleration, which for a falling stone is the constant
+#               called gravity.
+#               U5 -- the best answer sits where the slope is zero: the oldest
+#               optimisation there is (a fixed fence wants a SQUARE), the
+#               area that wins, the same truth stripped to plain numbers
+#               (equal halves beat every other split), and the SECOND
+#               derivative finding where the bend changes rather than where
+#               the slope does -- with the halving habit named as the tap.
+#               Four surfaces were too small to fill a bank and had their
+#               ranges widened at authoring (maxa 11 tuples, sumx 8, infl 10,
+#               vsol 11) -- the enumerate-first habit catches this before a
+#               single lesson is written. ⚠️ AND THE OLD RULE-44 TRAP BIT
+#               THREE TIMES AT ONCE: crit, optr and infl are all b=0 ops, so
+#               the default speaks check demanded the digit "0" in speech
+#               that never says zero. Every b=0 op needs its own speaks
+#               override; it is the single most repeated defect in the build
+#               history.
+#   2026-08-23  BUILD lv -- CALCULUS UNITS 2 AND 3: THE SLOPE AT A POINT, AND
+#               THE RULES FOR BUILT-UP FUNCTIONS. 260 lessons -> 268, 257 ops
+#               (derv, pwrc, cnst, evat + prod, chan, chev, quot).
+#               U2 -- pc-u9's avgr shrank the window and named the limit;
+#               here it becomes a NUMBER (on x squared the slope at a point
+#               is twice that point, and the height is the tap), then the
+#               POWER RULE that skips the shrinking entirely (exponent times
+#               the front number -- adding is not a rule anything obeys),
+#               then a line's one constant slope (the lifting number is the
+#               tap), then the derivative as a MACHINE you feed x's to (the
+#               height and the un-fed front number are both taps).
+#               U3 -- the product rule checked against expanding first, so
+#               the child can SEE it agree; the chain rule, whose whole point
+#               is that the inside's derivative comes out too (forgetting it
+#               is named in the lesson as the commonest mistake in Calculus);
+#               the chain rule then evaluated at a point; and the reassurance
+#               that a plain NUMBER underneath needs no quotient rule at all.
+#               Three lessons came in over the 20,000-char closure pin and
+#               were trimmed at authoring -- derv's spoken had grown a whole
+#               paragraph of setup. Checking cost before the battery is now
+#               reflex, and it is catching one or two lessons every build.
+#   2026-08-23  BUILD lu -- ⭐ PROBABILITY & STATISTICS COMPLETE (U9 Sampling
+#               & Inference) and ⭐ CALCULUS OPENS (U1 Limits & Continuity).
+#               252 lessons -> 260, 249 ops (cint, cwid, inci, npop + llaw,
+#               linf, jump, cfix). Prob & Stats finishes as the ELEVENTH
+#               course: nine units, 36 lessons, the sixth 36-lesson course in
+#               a row. Calculus is the twelfth.
+#               ⭐ JIM RAISED TTS_CACHE_MAX_MB TO 4000 (2026-08-23), which
+#               covers the finished course (~3,800 MB projected) with room.
+#               U9 -- A SAMPLE ANSWERS WITH A RANGE, NEVER A POINT. Unit 4
+#               built the sample; this reports it honestly: the low end (the
+#               high end is the tap), the width of the whole range (the
+#               margin counts twice -- elax's un-square-and-double, in
+#               statistics clothes), whether somebody's claim can survive
+#               inside it (measure from the EDGE, not the middle -- measuring
+#               from the estimate pretends it is exact), and the range
+#               carried back onto real people (take the low end FIRST, then
+#               count).
+#               CALCULUS U1 -- Pre-Calc met the limit; Calculus puts it to
+#               work. Limits pass straight through arithmetic (the permission
+#               every later rule rests on), they survive out at infinity
+#               where matched powers cancel and only the ratio of the leading
+#               numbers is left, a break has a measurable SIZE, and a curve
+#               can be MENDED -- walk the slope up to the border and match
+#               it, which is continuity as a repair job.
+#               Two catches of the collides-with-a-constant class (lq's
+#               lesson), both now forbidden by check() rather than by care:
+#               jump's added-heights tap could equal the border 6 that its
+#               own sentence names, and cfix's flat value could equal the
+#               border, putting one number in two roles in one sentence.
+#               The auto-picker needed better KEYS this time, not just a
+#               variety rule: five ops ramped on a parameter that let the
+#               ANSWER repeat (cint gave the same answer five times running),
+#               so cint, inci, npop and jump now key on what the lesson
+#               actually measures.
+#   2026-08-23  BUILD lt -- PROB & STATS UNITS 7 AND 8: WHAT ONE PLAY IS
+#               WORTH, AND THE CURVE THAT FITS THE WORLD. 244 lessons -> 252,
+#               241 ops (pdis, evwa, fair, hedg + n68, zsco, zval, ntal).
+#               ⭐ [[normal]] WALKED -- THE LAST UNUSED RENDERER IN THE APP.
+#               It labels the axis at every standard deviation from minus
+#               three to plus three, which prints zval's answer outright and
+#               lets a child count ticks for zsco, so it is TEACH-ONLY
+#               throughout the unit. Every figure renderer the app owns has
+#               now carried at least one lesson; only conic type="hyperbola"
+#               (a variant, not a renderer) is still unused.
+#               UNIT 7 -- alg2-u9's expv counted the payout of a RUN of
+#               plays; this unit builds the idea properly. A distribution's
+#               chances must fill the hundred (something happens every time).
+#               Expected value is the payoffs WEIGHTED by how often they come
+#               -- and the plain average of the two prizes, the classic slip,
+#               is only right when both come up equally often. Fairness is
+#               that idea run backwards: spread the whole stake over just the
+#               wins, which is why a rare prize must be a big one. And the
+#               gap between what you pay and what comes back is the house
+#               edge -- invisible in one play, perfectly reliable over
+#               hundreds.
+#               UNIT 8 -- one curve fits so much of the world, and it comes
+#               with a ruler: how many sit in the crowded middle (68 percent,
+#               turned into actual children), how far out a value really is
+#               once measured in standard deviations rather than raw units
+#               (the raw gap is the tap), which value sits two deviations out
+#               (starting FROM the mean is the tap), and how few people live
+#               in the tails -- the 5 percent split evenly between two ends,
+#               so counting both is the tap.
+#               Validator caught six wordings ("makes" x3, "remain",
+#               "remaining", "altogether"). Closure cost was checked BEFORE
+#               the battery (lr's lesson, now standing practice): three U7
+#               lessons came in at or over the 20,000-char pin and their
+#               praise was trimmed at authoring. The auto-picked banks needed
+#               a VARIETY rule this time -- keying on one parameter made four
+#               banks march monotonously (hedg gave the same answer ten times
+#               running), so the picker now rotates the shape it has not used
+#               recently.
 #   2026-08-23  BUILD ls -- PROB & STATS UNITS 5 AND 6: PUTTING A NUMBER ON A
 #               CHANCE, AND THE WORD THAT SHRINKS THE WORLD. 236 lessons ->
 #               244, 233 ops (ppct, por, pand, ptre + cbse, ccnt, indp, wout).
@@ -11009,6 +11157,1401 @@ _PROBSTAT_U6 = [
     },
 ]
 LESSONS.extend(_PROBSTAT_U6)
+# =============================================================================
+# PROB & STATS UNIT 7 -- Random Variables & Expected Value (build lt)
+# The thread: WHAT IS ONE PLAY WORTH? alg2-u9's expv counted the payout of a
+# run of plays; this unit builds the idea properly -- a distribution's chances
+# must fill the hundred, a value is the payoffs WEIGHTED by how often they
+# come, fairness is that idea run backwards, and the gap between what you pay
+# and what comes back is why the machine is still standing there.
+# =============================================================================
+_PROBSTAT_U7 = [
+    {
+        "id": "ps-u7-the-chances-fill-the-hundred",
+        "course": "probstat", "unit": 7,
+        "topic": "A distribution adds to one whole",
+        "op": "pdis", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("chances", "hundred"),
+        "advance_line": "Three in a row — you've got it! The chances fill the hundred, and what is left is the last one.",
+        "teach": [
+            ["A random variable is just an outcome with a number on it — the prize a machine gives, the score a spinner shows. List every value it can take and the chance of each, and you have its distribution. Those chances have a duty: they must fill the whole hundred .",
+             '[[goal text="The chances fill the hundred"]][[step eq="small 25% · medium 40% · large ?%"]]'],
+            ["Why? Because something happens every single time. If small comes up 25 percent of the time and medium 40, that is 65 accounted for, so large takes the 35 that are left — there is nowhere else for those plays to go.",
+             '[[step eq="25 + 40 = 65 → large = 35%"]]'],
+            ["So any missing chance can be found. Add the ones you know, take them from 100, and the leftover is the answer. Handing back 65, the part you added, forgets the very outcome you were asked about — and 100 is all three together.",
+             '[[step eq="35 ✓"]][[step eq="65 ✗ the two given · 100 ✗ all of them"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 40 percent and 15 percent are spoken for, so the third takes 45.",
+                        '[[step eq="100 − 40 − 15 = 45%"]]'],
+             "ask": {"a": 10, "b": 30, "op": "pdis"}},
+            {"worked": ["One more together. 20 and 25 leave 55 percent for the last one.",
+                        '[[step eq="100 − 20 − 25 = 55%"]]'],
+             "ask": {"a": 10, "b": 35, "op": "pdis"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 30, "b": 60, "op": "pdis"},
+            {"a": 60, "b": 30, "op": "pdis"},
+            {"a": 50, "b": 35, "op": "pdis"},
+            {"a": 35, "b": 45, "op": "pdis"},
+            {"a": 15, "b": 60, "op": "pdis"},
+            {"a": 45, "b": 30, "op": "pdis"},
+            {"a": 20, "b": 50, "op": "pdis"},
+            {"a": 50, "b": 20, "op": "pdis"},
+            {"a": 25, "b": 40, "op": "pdis"},
+            {"a": 55, "b": 10, "op": "pdis"},
+        ],
+    },
+    {
+        "id": "ps-u7-what-one-play-is-worth",
+        "course": "probstat", "unit": 7,
+        "topic": "Expected value",
+        "op": "evwa", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("average", "often"),
+        "advance_line": "Three in a row — you've got it! Weigh each payout by how often it comes.",
+        "teach": [
+            ["What is one play worth? Not the best prize, and not the worst — something in between, pulled toward whichever turns up more often . That in-between number is the expected value, and it is a weighted average, exactly like the heavier mean of Algebra Two.",
+             '[[goal text="What one play is worth"]][[step eq="20 tokens 40% · 5 tokens 60%"]]'],
+            ["Take 20 tokens 40 percent of the time and 5 tokens the other 60. Over a hundred plays that is 40 twenties and 60 fives — 800 plus 300, which is 1100 tokens across 100 plays. So one play is worth 11 tokens on average .",
+             '[[step eq="40×20 + 60×5 = 1100 → 11 a play"]]'],
+            ["The trap is averaging the two prizes and stopping: 20 and 5 average to 12 point 5, which would only be right if both came up equally often. They do not — the small prize comes up more, so the true value sits lower, at 11. And the big prize alone is not what a play is worth.",
+             '[[step eq="11 ✓"]][[step eq="12 or 13 ✗ the prizes averaged · 20 ✗ the big prize"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 30 tokens 20 percent of the time and 5 tokens otherwise: 600 plus 400 over a hundred plays — 10 a play.",
+                        '[[step eq="20×30 + 80×5 = 1000 → 10 a play"]]'],
+             "ask": {"a": 22, "b": 12, "c": 10, "op": "evwa"}},
+            {"worked": ["One more together. 25 tokens 40 percent of the time and 10 the rest: 16 tokens a play.",
+                        '[[step eq="40×25 + 60×10 = 1600 → 16 a play"]]'],
+             "ask": {"a": 22, "b": 12, "c": 20, "op": "evwa"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 12, "b": 2, "c": 10, "op": "evwa"},
+            {"a": 12, "b": 2, "c": 20, "op": "evwa"},
+            {"a": 22, "b": 2, "c": 15, "op": "evwa"},
+            {"a": 9, "b": 5, "c": 25, "op": "evwa"},
+            {"a": 14, "b": 4, "c": 30, "op": "evwa"},
+            {"a": 17, "b": 7, "c": 10, "op": "evwa"},
+            {"a": 17, "b": 7, "c": 20, "op": "evwa"},
+            {"a": 27, "b": 7, "c": 15, "op": "evwa"},
+            {"a": 14, "b": 10, "c": 25, "op": "evwa"},
+            {"a": 19, "b": 9, "c": 30, "op": "evwa"},
+        ],
+    },
+    {
+        "id": "ps-u7-what-would-be-fair",
+        "course": "probstat", "unit": 7,
+        "topic": "Fair games",
+        "op": "fair", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("fair", "prize"),
+        "advance_line": "Three in a row — you've got it! Spread the whole stake over the wins.",
+        "teach": [
+            ["Run expected value backwards and you can design a game. A fair game is one worth exactly what it costs — over many plays you come out level, neither up nor down. So what prize would make a game fair?",
+             '[[goal text="What would be fair"]][[step eq="costs 5 tokens · win 20% of the time"]]'],
+            ["Count a hundred plays. At 5 tokens a play you have paid 500 tokens, and you have won 20 times. Those 500 tokens must come back across just those 20 wins, so the fair prize is 500 shared over 20 — 25 tokens.",
+             '[[step eq="500 paid ÷ 20 wins = 25 a prize"]]'],
+            ["A prize of 5 — your money back — sounds fair and is not: you only collect it one play in five, and the other four are gone. The rarer the win, the bigger the prize has to be, which is why every real prize worth having is hard to get.",
+             '[[step eq="25 ✓"]][[step eq="5 ✗ just your stake · 20 ✗ that is the percent"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 tokens a play, winning a quarter of the time: 600 over 25 wins — a fair prize of 24.",
+                        '[[step eq="600 ÷ 25 = 24"]]'],
+             "ask": {"a": 12, "b": 15, "op": "fair"}},
+            {"worked": ["One more together. 8 tokens a play, winning 40 percent of the time: 800 over 40 — 20 tokens.",
+                        '[[step eq="800 ÷ 40 = 20"]]'],
+             "ask": {"a": 7, "b": 10, "op": "fair"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 50, "op": "fair"},
+            {"a": 3, "b": 30, "op": "fair"},
+            {"a": 3, "b": 20, "op": "fair"},
+            {"a": 3, "b": 15, "op": "fair"},
+            {"a": 10, "b": 50, "op": "fair"},
+            {"a": 13, "b": 50, "op": "fair"},
+            {"a": 15, "b": 50, "op": "fair"},
+            {"a": 9, "b": 25, "op": "fair"},
+            {"a": 10, "b": 25, "op": "fair"},
+            {"a": 9, "b": 20, "op": "fair"},
+        ],
+    },
+    {
+        "id": "ps-u7-why-the-machine-stays-open",
+        "course": "probstat", "unit": 7,
+        "topic": "The long-run cost",
+        "op": "hedg", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("long run", "back"),
+        "advance_line": "Three in a row — you've got it! Paid out take away paid back — that is the real cost.",
+        "teach": [
+            ["Real games are not fair, and the gap is the whole business model. You pay a fixed price each play; expected value says what comes back on average. Take one from the other and you have what a play really costs you in the long run .",
+             '[[goal text="Why the machine stays open"]][[step eq="pay 10 · get back 7 on average"]]'],
+            ["Pay 10 tokens and get 7 back on average: each play quietly costs 3. Play once and you might walk away up — that is why anyone plays. Play four hundred times and the 3 arrives with perfect reliability: 1200 tokens gone.",
+             '[[step eq="10 − 7 = 3 a play"]]'],
+            ["So the two numbers to keep apart are what comes back and what it costs. 7 is what comes back , and adding the two is nothing at all — no play ever costs you 17. The gap is small on purpose: small enough to ignore, steady enough to build a business on.",
+             '[[step eq="3 ✓"]][[step eq="7 ✗ what comes back · 17 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Pay 20, get 13 back on average: 7 tokens a play, gone.",
+                        '[[step eq="20 − 13 = 7"]]'],
+             "ask": {"a": 15, "b": 9, "op": "hedg"}},
+            {"worked": ["One more together. Pay 30 and get 22 back: each play costs 8.",
+                        '[[step eq="30 − 22 = 8"]]'],
+             "ask": {"a": 16, "b": 14, "op": "hedg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 3, "op": "hedg"},
+            {"a": 6, "b": 4, "op": "hedg"},
+            {"a": 7, "b": 4, "op": "hedg"},
+            {"a": 8, "b": 3, "op": "hedg"},
+            {"a": 9, "b": 5, "op": "hedg"},
+            {"a": 10, "b": 4, "op": "hedg"},
+            {"a": 11, "b": 9, "op": "hedg"},
+            {"a": 12, "b": 9, "op": "hedg"},
+            {"a": 13, "b": 8, "op": "hedg"},
+            {"a": 14, "b": 10, "op": "hedg"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U7)
+
+# =============================================================================
+# PROB & STATS UNIT 8 -- The Normal Distribution (build lt)
+# The thread: ONE CURVE FITS SO MUCH OF THE WORLD, and it comes with a ruler.
+# How many sit in the crowded middle, how far out a value really is once you
+# count in standard deviations, which value sits that far out, and how few
+# people live in the tails.
+# ⭐ [[normal]] walked here -- the LAST unused renderer. It labels the axis at
+# every standard deviation, so it is teach-only throughout.
+# =============================================================================
+_PROBSTAT_U8 = [
+    {
+        "id": "ps-u8-the-crowded-middle",
+        "course": "probstat", "unit": 8,
+        "topic": "The 68 percent rule",
+        "op": "n68", "max_value": 800,
+        "levels": ("abstract",),
+        "symbols": ("bell curve", "standard deviation"),
+        "advance_line": "Three in a row — you've got it! About 68 in every hundred sit in the middle band.",
+        "teach": [
+            ["Measure almost anything about a big group of people — heights, test scores, how long a walk to school takes — and the picture comes out the same shape: a bell curve , crowded in the middle and thinning at both ends.",
+             '[[goal text="The crowded middle"]][[normal mean="100" sd="10" lo="90" hi="110"]]'],
+            ["The spread has a ruler: one standard deviation , the typical distance from the middle that Unit Two measured. And the bell always shares itself out the same way — about 68 percent of everybody sits no further than one standard deviation from the mean.",
+             '[[step eq="no further than 1 deviation → about 68%"]]'],
+            ["Turn that into people. In a school of 200, about 68 percent — 136 students — are no further than one standard deviation from the average height. The 68 is a percent and never a headcount, and 200 is everybody, middle and ends together.",
+             '[[step eq="68% of 200 = 136 students"]][[step eq="68 ✗ a percent · 200 ✗ everyone"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. In a group of 300, 68 percent is 204 people in the middle band.",
+                        '[[step eq="68% of 300 = 204"]]'],
+             "ask": {"a": 725, "b": 0, "op": "n68"}},
+            {"worked": ["One more together. Out of 900, about 612 sit no further than one standard deviation out.",
+                        '[[step eq="68% of 900 = 612"]]'],
+             "ask": {"a": 675, "b": 0, "op": "n68"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 50, "b": 0, "op": "n68"},
+            {"a": 125, "b": 0, "op": "n68"},
+            {"a": 175, "b": 0, "op": "n68"},
+            {"a": 225, "b": 0, "op": "n68"},
+            {"a": 275, "b": 0, "op": "n68"},
+            {"a": 325, "b": 0, "op": "n68"},
+            {"a": 375, "b": 0, "op": "n68"},
+            {"a": 425, "b": 0, "op": "n68"},
+            {"a": 475, "b": 0, "op": "n68"},
+            {"a": 525, "b": 0, "op": "n68"},
+        ],
+    },
+    {
+        "id": "ps-u8-how-far-out-is-that",
+        "course": "probstat", "unit": 8,
+        "topic": "Counting standard deviations",
+        "op": "zsco", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("deviations", "above"),
+        "advance_line": "Three in a row — you've got it! Measure the gap in deviations, not in raw units.",
+        "teach": [
+            ["Is a score of 82 impressive? You cannot say until you know the middle and the spread. So the bell curve measures every distance in its own units: how many standard deviations above or below the mean a value sits.",
+             '[[goal text="How far out is that?"]][[normal mean="70" sd="6"]]'],
+            ["Mean 70, one standard deviation 6, and a score of 82. The raw gap is 12, and 12 holds two sixes — so 82 sits two deviations above the mean. Roughly 2 people in a hundred beat that, which is why it is impressive.",
+             '[[step eq="82 − 70 = 12 → 12 ÷ 6 = 2 deviations"]]'],
+            ["Answering 12 stops at the raw gap and never asks how big a step is — and 12 points might be enormous or nothing at all, depending on the spread. That is the whole reason for counting deviations: it lets a height and a test score be compared at all.",
+             '[[step eq="2 ✓"]][[step eq="12 ✗ the raw gap · 6 ✗ one step"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Mean 80, deviation 7, value 94: the gap is 14, which holds two sevens — 2 deviations.",
+                        '[[step eq="14 ÷ 7 = 2 deviations"]]'],
+             "ask": {"a": 60, "b": 2, "c": 66, "op": "zsco"}},
+            {"worked": ["One more together. Mean 90, deviation 8, value 114: a gap of 24 — 3 deviations out.",
+                        '[[step eq="24 ÷ 8 = 3 deviations"]]'],
+             "ask": {"a": 65, "b": 3, "c": 71, "op": "zsco"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 2, "c": 16, "op": "zsco"},
+            {"a": 15, "b": 3, "c": 21, "op": "zsco"},
+            {"a": 20, "b": 4, "c": 28, "op": "zsco"},
+            {"a": 25, "b": 4, "c": 37, "op": "zsco"},
+            {"a": 30, "b": 5, "c": 40, "op": "zsco"},
+            {"a": 35, "b": 2, "c": 41, "op": "zsco"},
+            {"a": 40, "b": 3, "c": 46, "op": "zsco"},
+            {"a": 45, "b": 4, "c": 53, "op": "zsco"},
+            {"a": 50, "b": 4, "c": 62, "op": "zsco"},
+            {"a": 55, "b": 5, "c": 65, "op": "zsco"},
+        ],
+    },
+    {
+        "id": "ps-u8-which-value-sits-out-there",
+        "course": "probstat", "unit": 8,
+        "topic": "Reading the curve backwards",
+        "op": "zval", "max_value": 140,
+        "levels": ("abstract",),
+        "symbols": ("mean", "two"),
+        "advance_line": "Three in a row — you've got it! Two steps of the deviation, starting from the mean.",
+        "teach": [
+            ["The ruler works in both directions. Instead of asking how far out a value is, name a distance and ask which value sits there — two standard deviations above the mean, say, where only about 2 people in a hundred ever reach.",
+             '[[goal text="Which value sits out there?"]][[normal mean="50" sd="8" lo="66" hi="82"]]'],
+            ["Mean 50, one deviation 8. Two deviations is 8 twice — 16 — and that distance starts FROM the mean : 50 plus 16 is 66. Everything above 66 is that rare top sliver of the curve.",
+             '[[step eq="50 + 2×8 = 66"]]'],
+            ["Two slips. Adding one 8 gives 58, which is only one deviation out. And answering 16 gives the distance while forgetting to start from 50 — a distance is not a value. Two steps, always beginning at the mean.",
+             '[[step eq="66 ✓"]][[step eq="58 ✗ one deviation · 16 ✗ the distance alone"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Mean 70, deviation 9: two deviations is 18, so the value is 88.",
+                        '[[step eq="70 + 18 = 88"]]'],
+             "ask": {"a": 60, "b": 2, "op": "zval"}},
+            {"worked": ["One more together. Mean 80 with a deviation of 7 puts two steps out at 94.",
+                        '[[step eq="80 + 14 = 94"]]'],
+             "ask": {"a": 65, "b": 3, "op": "zval"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 2, "op": "zval"},
+            {"a": 15, "b": 3, "op": "zval"},
+            {"a": 20, "b": 4, "op": "zval"},
+            {"a": 25, "b": 5, "op": "zval"},
+            {"a": 30, "b": 6, "op": "zval"},
+            {"a": 35, "b": 2, "op": "zval"},
+            {"a": 40, "b": 3, "op": "zval"},
+            {"a": 45, "b": 4, "op": "zval"},
+            {"a": 50, "b": 5, "op": "zval"},
+            {"a": 55, "b": 6, "op": "zval"},
+        ],
+    },
+    {
+        "id": "ps-u8-almost-nobody-out-there",
+        "course": "probstat", "unit": 8,
+        "topic": "The tails",
+        "op": "ntal", "max_value": 800,
+        "levels": ("abstract",),
+        "symbols": ("ends", "outside"),
+        "advance_line": "Three in a row — you've got it! Half of the leftover five percent lives at each end.",
+        "teach": [
+            ["The bell keeps sharing itself out the same way. About 68 percent sit no further than one standard deviation out, and about 95 percent no further than two — which leaves just 5 percent outside two deviations in all.",
+             '[[goal text="Almost nobody out there"]][[normal mean="100" sd="10" lo="80" hi="120"]]'],
+            ["And that 5 percent is split between the two ends of the curve, evenly, because the bell is symmetric. In a group of 400: 5 percent is 20 people out at the ends , so 10 sit above two deviations and 10 below.",
+             '[[step eq="5% of 400 = 20 · half at each end = 10"]]'],
+            ["Forgetting the split is the slip — 20 counts BOTH ends when the question asked for one. And a bell curve never has half its people out at the edges; that is what the shape is telling you. Rare really does mean rare.",
+             '[[step eq="10 ✓"]][[step eq="20 ✗ both ends · 200 ✗ half the group"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Out of 1000, 5 percent is 50 at the ends — so 25 sit above two deviations.",
+                        '[[step eq="50 ÷ 2 = 25 above"]]'],
+             "ask": {"a": 600, "b": 0, "op": "ntal"}},
+            {"worked": ["One more together. In a group of 2000, 50 sit out beyond two deviations at the top.",
+                        '[[step eq="2000 ÷ 40 = 50"]]'],
+             "ask": {"a": 560, "b": 0, "op": "ntal"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 80, "b": 0, "op": "ntal"},
+            {"a": 120, "b": 0, "op": "ntal"},
+            {"a": 160, "b": 0, "op": "ntal"},
+            {"a": 200, "b": 0, "op": "ntal"},
+            {"a": 240, "b": 0, "op": "ntal"},
+            {"a": 280, "b": 0, "op": "ntal"},
+            {"a": 320, "b": 0, "op": "ntal"},
+            {"a": 360, "b": 0, "op": "ntal"},
+            {"a": 400, "b": 0, "op": "ntal"},
+            {"a": 440, "b": 0, "op": "ntal"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U8)
+# =============================================================================
+# PROB & STATS UNIT 9 -- Sampling & Inference (build lu) -- ⭐ COURSE COMPLETE
+# The thread: A SAMPLE ANSWERS WITH A RANGE, NEVER A POINT. Unit 4 built the
+# sample; this one reports it honestly -- the low end, the width of the whole
+# range, whether somebody else's claim can survive inside it, and what the
+# range means once it is carried back onto real people.
+# =============================================================================
+_PROBSTAT_U9 = [
+    {
+        "id": "ps-u9-give-or-take",
+        "course": "probstat", "unit": 9,
+        "topic": "The low end of an estimate",
+        "op": "cint", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("poll", "give or take"),
+        "advance_line": "Three in a row — you've got it! The margin steps down as well as up.",
+        "teach": [
+            ["A sample never knows the exact answer, so an honest poll reports a range: 46 percent, give or take 5. That give-or-take is the margin of error from Unit Four, and it turns one number into a band of numbers the truth could be hiding in.",
+             '[[goal text="Give or take"]][[step eq="46% ± 5 → from 41 to 51"]]'],
+            ["The band reaches the same distance each way. Down from 46 by 5 gives 41; up by 5 gives 51. So this poll is really saying: somewhere between 41 and 51, and we cannot narrow it further with the people we asked.",
+             '[[step eq="46 − 5 = 41 · 46 + 5 = 51"]]'],
+            ["Asked for the LOWEST the truth might be, take the margin off. Answering 51 gives the highest — the same step in the other direction — and 5 on its own is just the size of the step, not a percent anybody claimed.",
+             '[[step eq="41 ✓"]][[step eq="51 ✗ the high end · 5 ✗ the step"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 62 percent give or take 9: the low end is 62 take away 9 — 53.",
+                        '[[step eq="62 − 9 = 53"]]'],
+             "ask": {"a": 20, "b": 2, "op": "cint"}},
+            {"worked": ["One more together. 75 percent give or take 6 reaches down to 69.",
+                        '[[step eq="75 − 6 = 69"]]'],
+             "ask": {"a": 22, "b": 3, "op": "cint"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 12, "op": "cint"},
+            {"a": 21, "b": 12, "op": "cint"},
+            {"a": 22, "b": 12, "op": "cint"},
+            {"a": 23, "b": 12, "op": "cint"},
+            {"a": 20, "b": 8, "op": "cint"},
+            {"a": 24, "b": 11, "op": "cint"},
+            {"a": 25, "b": 11, "op": "cint"},
+            {"a": 27, "b": 12, "op": "cint"},
+            {"a": 28, "b": 12, "op": "cint"},
+            {"a": 21, "b": 4, "op": "cint"},
+        ],
+    },
+    {
+        "id": "ps-u9-how-wide-is-the-doubt",
+        "course": "probstat", "unit": 9,
+        "topic": "The width of the range",
+        "op": "cwid", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("range", "doubt"),
+        "advance_line": "Three in a row — you've got it! The margin counts twice — once each way.",
+        "teach": [
+            ["The margin measures how much doubt a poll carries, and it points both ways at once. So the range a poll really covers is wider than its margin — the margin is only the trip from the middle to one edge.",
+             '[[goal text="How wide is the doubt"]][[step eq="50% ± 4 → 46 … 54"]]'],
+            ["Take 50 percent give or take 4. It reaches down to 46 and up to 54, so from edge to edge it covers 8 points — the 4 counted twice. The whole range is always double the margin, exactly the way an ellipse's width was double its reach.",
+             '[[step eq="4 down + 4 up = 8 points wide"]]'],
+            ["That is why a margin of 4 is not as tight as it sounds: the poll is really pointing at an 8-point stretch. Answering 4 gives one side only, and 50 is the middle of the range rather than its size.",
+             '[[step eq="8 ✓"]][[step eq="4 ✗ one side · 50 ✗ the middle"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 40 percent give or take 12 covers 24 points, from 28 up to 52.",
+                        '[[step eq="12 × 2 = 24 points wide"]]'],
+             "ask": {"a": 21, "b": 12, "op": "cwid"}},
+            {"worked": ["One more together. A margin of 15 opens a range 30 points wide.",
+                        '[[step eq="15 × 2 = 30"]]'],
+             "ask": {"a": 22, "b": 13, "op": "cwid"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 21, "b": 2, "op": "cwid"},
+            {"a": 22, "b": 3, "op": "cwid"},
+            {"a": 23, "b": 4, "op": "cwid"},
+            {"a": 24, "b": 5, "op": "cwid"},
+            {"a": 25, "b": 6, "op": "cwid"},
+            {"a": 21, "b": 7, "op": "cwid"},
+            {"a": 22, "b": 8, "op": "cwid"},
+            {"a": 23, "b": 9, "op": "cwid"},
+            {"a": 24, "b": 10, "op": "cwid"},
+            {"a": 25, "b": 11, "op": "cwid"},
+        ],
+    },
+    {
+        "id": "ps-u9-can-that-claim-survive",
+        "course": "probstat", "unit": 9,
+        "topic": "Testing a claim",
+        "op": "inci", "max_value": 95,
+        "levels": ("abstract",),
+        "symbols": ("claim", "range"),
+        "advance_line": "Three in a row — you've got it! Measure from the edge of your range, not its middle.",
+        "teach": [
+            ["Here is what a range is FOR. Somebody claims a number; your sample disagrees. Whether that is a real disagreement depends on whether their claim can fit inside your range at all.",
+             '[[goal text="Can that claim survive?"]][[step eq="your poll 40% ± 6 → 34 … 46"]]'],
+            ["Your poll says 40 percent give or take 6, so your range tops out at 46. A company claims 55. That claim sits 9 points past the very best your data can support — far outside, and your sample flatly contradicts it.",
+             '[[step eq="46 is your ceiling · 55 − 46 = 9 points past"]]'],
+            ["Measure from the EDGE, not the middle. Measuring from 40 gives 15 and pretends your estimate is exact, when the whole point of a range is that it is not. And the margin 6 is the size of your doubt, not the size of the disagreement.",
+             '[[step eq="9 ✓"]][[step eq="15 ✗ measured from the middle · 6 ✗ the margin"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 30 percent give or take 4 tops out at 34, and a claim of 45 sits 11 points past it.",
+                        '[[step eq="45 − 34 = 11 points past"]]'],
+             "ask": {"a": 20, "b": 2, "c": 34, "op": "inci"}},
+            {"worked": ["One more together. A ceiling of 50 with a claim of 58 is 8 points outside.",
+                        '[[step eq="58 − 50 = 8"]]'],
+             "ask": {"a": 21, "b": 2, "c": 36, "op": "inci"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 24, "b": 3, "c": 29, "op": "inci"},
+            {"a": 25, "b": 2, "c": 30, "op": "inci"},
+            {"a": 26, "b": 2, "c": 32, "op": "inci"},
+            {"a": 27, "b": 2, "c": 34, "op": "inci"},
+            {"a": 20, "b": 2, "c": 28, "op": "inci"},
+            {"a": 21, "b": 2, "c": 30, "op": "inci"},
+            {"a": 24, "b": 2, "c": 34, "op": "inci"},
+            {"a": 25, "b": 2, "c": 36, "op": "inci"},
+            {"a": 26, "b": 2, "c": 38, "op": "inci"},
+            {"a": 27, "b": 2, "c": 40, "op": "inci"},
+        ],
+    },
+    {
+        "id": "ps-u9-the-range-in-real-people",
+        "course": "probstat", "unit": 9,
+        "topic": "Carrying a range to the population",
+        "op": "npop", "max_value": 1000,
+        "levels": ("abstract",),
+        "symbols": ("low end", "students"),
+        "advance_line": "Three in a row — you've got it! Take the low end FIRST, then count the people.",
+        "teach": [
+            ["Algebra Two scaled a sample's answer up to a whole school. Now do it honestly — with the give-or-take carried along, because a sample's range becomes a range of people.",
+             '[[goal text="The range in real people"]][[step eq="30% ± 10 of 400 students"]]'],
+            ["A sample says 30 percent of 400 students walk, give or take 10 points. The low end of the range is 20 percent, and 20 percent of 400 is 80 students. The high end, 40 percent, gives 160 — so somewhere between 80 and 160 walk.",
+             '[[step eq="low end 20% of 400 = 80 students"]]'],
+            ["The order matters: take the low end of the percents FIRST, then count the people. Using 30 percent gives 120 and quietly drops the doubt — and a sample that does not know exactly should never be reported as though it did.",
+             '[[step eq="80 ✓"]][[step eq="120 ✗ the margin dropped · 160 ✗ the high end"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 45 percent of 600 give or take 5: the low end is 40 percent — 240 students.",
+                        '[[step eq="40% of 600 = 240"]]'],
+             "ask": {"a": 30, "b": 5, "c": 400, "op": "npop"}},
+            {"worked": ["One more together. 55 percent of 800 give or take 15 reaches down to 40 percent — 320 students.",
+                        '[[step eq="40% of 800 = 320"]]'],
+             "ask": {"a": 20, "b": 5, "c": 700, "op": "npop"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 10, "c": 200, "op": "npop"},
+            {"a": 20, "b": 5, "c": 200, "op": "npop"},
+            {"a": 20, "b": 10, "c": 400, "op": "npop"},
+            {"a": 20, "b": 5, "c": 300, "op": "npop"},
+            {"a": 20, "b": 10, "c": 500, "op": "npop"},
+            {"a": 20, "b": 5, "c": 400, "op": "npop"},
+            {"a": 40, "b": 5, "c": 200, "op": "npop"},
+            {"a": 20, "b": 5, "c": 500, "op": "npop"},
+            {"a": 50, "b": 10, "c": 200, "op": "npop"},
+            {"a": 35, "b": 5, "c": 300, "op": "npop"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U9)
+
+# =============================================================================
+# CALCULUS UNIT 1 -- Limits & Continuity (build lu) -- ⭐ THE TWELFTH COURSE
+# The thread: Pre-Calc met the limit; Calculus puts it to WORK. Limits pass
+# straight through arithmetic, they survive all the way out to infinity where
+# only the leading terms matter, a break has a measurable size, and a curve
+# can be MENDED so that no break is left at all.
+# =============================================================================
+_CALCULUS_U1 = [
+    {
+        "id": "calc-u1-limits-pass-through",
+        "course": "calculus", "unit": 1,
+        "topic": "The limit laws",
+        "op": "llaw", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("limits", "product"),
+        "advance_line": "Three in a row — you've got it! Limits pass straight through the arithmetic.",
+        "teach": [
+            ["Welcome to Calculus, built on one idea you already own: the limit — where a function is HEADED. Pre-Calculus found limits one at a time. Calculus needs them to join up, and happily they do, without any fuss at all.",
+             '[[goal text="Limits pass through"]][[step eq="f → 6 · g → 5"]]'],
+            ["If f is heading for 6 as x creeps toward some point, and g is heading for 5, then f plus g heads for 11 and f times g heads for 30. The limits pass straight through the arithmetic — whatever you do to the functions, you may do to their limits instead.",
+             '[[step eq="f + g → 11 · f × g → 30"]]'],
+            ["That single permission is what every later rule rests on: complicated functions get taken apart, their pieces followed separately, and the answers put back together. So for a product , times the two limits — adding answers the wrong question.",
+             '[[step eq="30 ✓"]][[step eq="11 ✗ that is the sum · 6 ✗ just the bigger"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. f heads for 9 and g for 4: their product heads for 36.",
+                        '[[step eq="9 × 4 = 36"]]'],
+             "ask": {"a": 2, "b": 11, "op": "llaw"}},
+            {"worked": ["One more together. Limits of 7 and 6 give a product heading for 42.",
+                        '[[step eq="7 × 6 = 42"]]'],
+             "ask": {"a": 12, "b": 2, "op": "llaw"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "llaw"},
+            {"a": 2, "b": 4, "op": "llaw"},
+            {"a": 2, "b": 5, "op": "llaw"},
+            {"a": 4, "b": 3, "op": "llaw"},
+            {"a": 2, "b": 7, "op": "llaw"},
+            {"a": 5, "b": 3, "op": "llaw"},
+            {"a": 8, "b": 2, "op": "llaw"},
+            {"a": 3, "b": 6, "op": "llaw"},
+            {"a": 5, "b": 4, "op": "llaw"},
+            {"a": 3, "b": 7, "op": "llaw"},
+        ],
+    },
+    {
+        "id": "calc-u1-far-out-only-the-leaders-matter",
+        "course": "calculus", "unit": 1,
+        "topic": "Limits at infinity",
+        "op": "linf", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("infinity", "cancel"),
+        "advance_line": "Three in a row — you've got it! Same power top and bottom — the ratio survives.",
+        "teach": [
+            ["Some limits are asked at the far end of the number line, where x runs off toward infinity . Algebra Two met one: a fraction whose bottom outgrew its top settled to a number. Calculus asks it in general.",
+             '[[goal text="Far out, only the leaders matter"]][[step eq="y = 8x² ÷ 2x² · x → huge"]]'],
+            ["Take 8 x squared over 2 x squared. However enormous x becomes, the two x squareds cancel exactly — they grow at the very same speed — and what is left is 8 over 2, which is 4. The curve flattens toward 4 and stays there.",
+             '[[step eq="the x²s cancel → 8 ÷ 2 = 4"]]'],
+            ["So when the top and bottom carry the same power, the limit is the ratio of their front numbers, and nothing else about them matters at all. Taking one from the other, or timesing them, describes no part of what the fraction does.",
+             '[[step eq="4 ✓"]][[step eq="6 ✗ subtracted · 16 ✗ timesed"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 45 x squared over 9 x squared: the x squareds cancel, leaving 5.",
+                        '[[step eq="45 ÷ 9 = 5"]]'],
+             "ask": {"a": 36, "b": 3, "op": "linf"}},
+            {"worked": ["One more together. 70 x squared over 10 x squared settles toward 7.",
+                        '[[step eq="70 ÷ 10 = 7"]]'],
+             "ask": {"a": 26, "b": 2, "op": "linf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 6, "b": 3, "op": "linf"},
+            {"a": 6, "b": 2, "op": "linf"},
+            {"a": 16, "b": 4, "op": "linf"},
+            {"a": 25, "b": 5, "op": "linf"},
+            {"a": 36, "b": 6, "op": "linf"},
+            {"a": 21, "b": 3, "op": "linf"},
+            {"a": 16, "b": 2, "op": "linf"},
+            {"a": 36, "b": 4, "op": "linf"},
+            {"a": 50, "b": 5, "op": "linf"},
+            {"a": 66, "b": 6, "op": "linf"},
+        ],
+    },
+    {
+        "id": "calc-u1-how-big-is-the-break",
+        "course": "calculus", "unit": 1,
+        "topic": "Jump discontinuities",
+        "op": "jump", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("jump", "sides"),
+        "advance_line": "Three in a row — you've got it! The jump is the gap between the two sides.",
+        "teach": [
+            ["A curve is continuous where you could draw it without lifting the pencil. Where you must lift it, there is a break — and Pre-Calculus already met the kind where the two sides head for different numbers.",
+             '[[goal text="How big is the break?"]][[step eq="x < 6 → y = 4 · x ≥ 6 → y = 10"]]'],
+            ["Now measure it. From the left the curve heads for 4; from the right it heads for 10. It leaps 6 in no distance at all, so the break has a size — 6 — and mathematicians call this a jump discontinuity for the obvious reason.",
+             '[[step eq="10 − 4 = a jump of 6"]]'],
+            ["The two sides are what the measurement needs. Answering 10 names where the curve lands but not how far it travelled, and adding the heights describes nothing the curve ever does. Take one side from the other.",
+             '[[step eq="6 ✓"]][[step eq="10 ✗ where it lands · 14 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The left side heads for 9 and the right for 25: a jump of 16.",
+                        '[[step eq="25 − 9 = 16"]]'],
+             "ask": {"a": 2, "b": 14, "op": "jump"}},
+            {"worked": ["One more together. Sides of 11 and 30 make a jump of 19.",
+                        '[[step eq="30 − 11 = 19"]]'],
+             "ask": {"a": 4, "b": 17, "op": "jump"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 5, "op": "jump"},
+            {"a": 4, "b": 7, "op": "jump"},
+            {"a": 3, "b": 7, "op": "jump"},
+            {"a": 5, "b": 10, "op": "jump"},
+            {"a": 7, "b": 13, "op": "jump"},
+            {"a": 2, "b": 9, "op": "jump"},
+            {"a": 4, "b": 12, "op": "jump"},
+            {"a": 3, "b": 12, "op": "jump"},
+            {"a": 5, "b": 15, "op": "jump"},
+            {"a": 7, "b": 18, "op": "jump"},
+        ],
+    },
+    {
+        "id": "calc-u1-mend-the-curve",
+        "course": "calculus", "unit": 1,
+        "topic": "Making a function continuous",
+        "op": "cfix", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("continuous", "meet"),
+        "advance_line": "Three in a row — you've got it! Walk the slope up to the border and match it.",
+        "teach": [
+            ["A break can be mended. Take a curve that runs along y equals x plus 2 until x reaches 5, and then goes flat at 3. It jumps, badly. What flat value would make it continuous instead?",
+             '[[goal text="Mend the curve"]][[step eq="x < 5 → y = x + 2 · x ≥ 5 → y = 3"]]'],
+            ["Walk the sloping piece right up to the border and see where it arrives: at x equals 5 it is heading for 5 plus 2, which is 7. Set the flat piece to 7 and the two ends meet exactly — no jump, no hole, nothing to lift the pencil for.",
+             '[[step eq="5 + 2 = 7 → set the flat piece to 7"]]'],
+            ["That is continuity as a repair job, and it is the whole test: the limit coming in must equal the value waiting there. The broken 3 is what you were given, not what fits, and 2 is only the slope's own number.",
+             '[[step eq="7 ✓"]][[step eq="3 ✗ the broken value · 2 ✗ the slope\'s number"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x plus 8 up to x equals 12: the slope arrives at 20, so the flat piece must be 20.",
+                        '[[step eq="12 + 8 = 20"]]'],
+             "ask": {"a": 6, "b": 2, "c": 9, "op": "cfix"}},
+            {"worked": ["One more together. x plus 9 running up to x equals 13 arrives at 22.",
+                        '[[step eq="13 + 9 = 22"]]'],
+             "ask": {"a": 7, "b": 2, "c": 9, "op": "cfix"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "c": 3, "op": "cfix"},
+            {"a": 3, "b": 2, "c": 3, "op": "cfix"},
+            {"a": 4, "b": 2, "c": 3, "op": "cfix"},
+            {"a": 5, "b": 2, "c": 3, "op": "cfix"},
+            {"a": 6, "b": 2, "c": 3, "op": "cfix"},
+            {"a": 7, "b": 2, "c": 3, "op": "cfix"},
+            {"a": 2, "b": 3, "c": 9, "op": "cfix"},
+            {"a": 3, "b": 2, "c": 9, "op": "cfix"},
+            {"a": 4, "b": 2, "c": 9, "op": "cfix"},
+            {"a": 5, "b": 2, "c": 9, "op": "cfix"},
+        ],
+    },
+]
+LESSONS.extend(_CALCULUS_U1)
+# =============================================================================
+# CALCULUS UNIT 2 -- The Derivative: Definition & Basic Rules (build lv)
+# The thread: THE SLOPE AT A SINGLE POINT. Pre-Calc shrank the window and named
+# the limit; here it becomes a number you can compute, then a rule that skips
+# the shrinking entirely, then a function you feed x's to.
+# =============================================================================
+_CALCULUS_U2 = [
+    {
+        "id": "calc-u2-the-window-closes",
+        "course": "calculus", "unit": 2,
+        "topic": "The derivative at a point",
+        "op": "derv", "max_value": 48,
+        "levels": ("abstract",),
+        "symbols": ("derivative", "slope"),
+        "advance_line": "Three in a row — you've got it! On x squared, the slope at a point is twice that point.",
+        "teach": [
+            ["Pre-Calculus ended by shrinking a window on the curve y equals x squared and watching the average rate settle. That settling number has a name — the derivative — and it is the slope of the curve at one single point, which nothing before Calculus could measure.",
+             '[[goal text="The window closes"]][[step eq="average rate from a to b = a + b"]]'],
+            ["The average rate between two x's was the two put together. Now slide the second one onto the first: between 4 and 5 the rate is 9; between 4 and 4 point 1, about 8 point 1; and closing in, it settles on 8 — which is 4 plus 4.",
+             '[[step eq="4→5: 9 · 4→4.1: 8.1 · closing in: 8"]]'],
+            ["So on this curve the slope at any x is simply twice that x. At 4 the curve climbs at 8, at 10 it climbs at 20, and it never stops steepening. Careful: 16 is how HIGH the curve sits above 4, which is a different question entirely.",
+             '[[step eq="slope at 4 = 8 ✓"]][[step eq="16 ✗ that is the height"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. At x equals 30 the slope of x squared is twice 30 — 60.",
+                        '[[step eq="slope at 30 = 60"]]'],
+             "ask": {"a": 13, "b": 0, "op": "derv"}},
+            {"worked": ["One more together. At x equals 25 the slope is 50.",
+                        '[[step eq="slope at 25 = 50"]]'],
+             "ask": {"a": 14, "b": 0, "op": "derv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "derv"} for v in
+                 (3, 4, 5, 6, 7, 8, 9, 10, 11, 12)],
+    },
+    {
+        "id": "calc-u2-the-power-comes-down-front",
+        "course": "calculus", "unit": 2,
+        "topic": "The power rule",
+        "op": "pwrc", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("power rule", "exponent"),
+        "advance_line": "Three in a row — you've got it! The exponent comes down and times what is already there.",
+        "teach": [
+            ["Shrinking a window every time would be unbearable, so Calculus finds the pattern once and keeps it. It is called the power rule : the exponent comes down in front, and the power drops by one.",
+             '[[goal text="The power comes down front"]][[step eq="x^n → n·x^(n−1)"]]'],
+            ["Watch it agree with what you know. For x squared the 2 comes down and the power drops to 1, giving 2 x — exactly the twice-the-x from the last lesson. Now try 5 x to the power 3: the 3 comes down onto the 5, giving 15 x squared.",
+             '[[step eq="5x³ → 3 × 5 = 15 → 15x²"]]'],
+            ["The exponent TIMES the front number, never plus. And leaving the front number alone means the exponent never came down at all — the one move the rule is entirely about.",
+             '[[step eq="15 ✓"]][[step eq="8 ✗ added · 5 ✗ the exponent stayed up"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. For 9 x to the power 4: the 4 comes down onto the 9 — 36.",
+                        '[[step eq="4 × 9 = 36"]]'],
+             "ask": {"a": 2, "b": 11, "op": "pwrc"}},
+            {"worked": ["One more together. 7 x to the power 6 gives a front number of 42.",
+                        '[[step eq="6 × 7 = 42"]]'],
+             "ask": {"a": 8, "b": 3, "op": "pwrc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "pwrc"} for a, b in
+                 ((2,3),(4,2),(5,2),(3,4),(7,2),(3,5),(2,8),(6,3),(4,5),(3,7))],
+    },
+    {
+        "id": "calc-u2-a-line-has-one-slope",
+        "course": "calculus", "unit": 2,
+        "topic": "The derivative of a line",
+        "op": "cnst", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("constant", "steepness"),
+        "advance_line": "Three in a row — you've got it! A line's slope is the number in front of x.",
+        "teach": [
+            ["Not every derivative changes as you move. A straight line has the same steepness at every point on it, so its derivative is a constant — one number, true everywhere along the line.",
+             '[[goal text="A line has one slope"]][[graph lines="y=3x+5" range="0..8"]]'],
+            ["For y equals 3 x plus 5, the slope is 3 wherever you stand. Algebra One measured that as the climb per step across; Calculus calls the same number the derivative, and the power rule agrees — x to the 1 sends its 1 down onto the 3.",
+             '[[step eq="y = 3x + 5 → slope 3, everywhere"]]'],
+            ["The 5 does nothing to the steepness — it only lifts the whole line up the page, and a plain number on its own has a derivative of zero. So read the number sitting in front of x, and ignore the one standing alone.",
+             '[[step eq="3 ✓"]][[step eq="5 ✗ that lifts, not tilts · 8 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 15 x plus 9 has a slope of 15 at every point.",
+                        '[[step eq="slope = 15"]]'],
+             "ask": {"a": 12, "b": 4, "op": "cnst"}},
+            {"worked": ["One more together. The slope of y equals 18 x plus 11 is 18.",
+                        '[[step eq="slope = 18"]]'],
+             "ask": {"a": 13, "b": 5, "op": "cnst"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "cnst"} for a, b in
+                 ((2,6),(3,7),(4,2),(5,3),(6,4),(7,5),(8,6),(9,7),(10,2),(11,3))],
+    },
+    {
+        "id": "calc-u2-feed-the-derivative-an-x",
+        "course": "calculus", "unit": 2,
+        "topic": "Evaluating a derivative",
+        "op": "evat", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("machine", "at x"),
+        "advance_line": "Three in a row — you've got it! Work out the derivative, then feed it the x.",
+        "teach": [
+            ["A derivative is not one number — it is a whole new function, a machine that hands you the slope at whatever x you feed it. Get the derivative first, then feed it.",
+             '[[goal text="Feed the derivative an x"]][[step eq="y = 5x² → slope machine = 10x"]]'],
+            ["For y equals 5 x squared the power rule gives 10 x. That is the machine. At x equals 2 it hands back 20, at x equals 6 it hands back 60 — the same curve, steeper the further out you stand.",
+             '[[step eq="at x = 2 → 20 · at x = 6 → 60"]]'],
+            ["Two answers not to give. The curve's HEIGHT at that x is a different measurement — at 6 the curve sits at 180 while its slope is 60. And 10 is the machine's own front number, before any x was fed in at all.",
+             '[[step eq="60 ✓"]][[step eq="180 ✗ the height · 10 ✗ nothing fed in"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 6 x squared gives 12 x; at x equals 4 the slope is 48.",
+                        '[[step eq="12 × 4 = 48"]]'],
+             "ask": {"a": 3, "b": 0, "c": 7, "op": "evat"}},
+            {"worked": ["One more together. y equals 7 x squared gives 14 x, so at x equals 3 the slope is 42.",
+                        '[[step eq="14 × 3 = 42"]]'],
+             "ask": {"a": 3, "b": 0, "c": 8, "op": "evat"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": 0, "c": c, "op": "evat"} for a, c in
+                 ((2,3),(2,4),(3,3),(2,5),(2,6),(2,7),(3,5),(2,8),(2,9),(4,5))],
+    },
+]
+LESSONS.extend(_CALCULUS_U2)
+
+# =============================================================================
+# CALCULUS UNIT 3 -- Product, Quotient & Chain Rules (build lv)
+# The thread: DERIVATIVES OF THINGS BUILT FROM OTHER THINGS. The product rule
+# agrees with multiplying out first, the chain rule brings the INSIDE's
+# derivative out too (forgetting it is the commonest mistake in Calculus), and
+# a plain number on the bottom needs no quotient rule at all.
+# =============================================================================
+_CALCULUS_U3 = [
+    {
+        "id": "calc-u3-two-things-multiplied",
+        "course": "calculus", "unit": 3,
+        "topic": "The product rule",
+        "op": "prod", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("product", "expand"),
+        "advance_line": "Three in a row — you've got it! Feed the x into the derivative you worked out.",
+        "teach": [
+            ["What is the derivative of two functions multiplied together? Not the two derivatives multiplied — that is the tempting guess and it is wrong. There is a rule for it, and the surest way to believe the rule is to check it against expanding first.",
+             '[[goal text="Two things multiplied"]][[step eq="y = x(x + 4)"]]'],
+            ["Take y equals x times the quantity x plus 4. Expand it: x squared plus 4 x, whose derivative you already know — 2 x plus 4. The product rule gives the very same answer without expanding, which matters when the pieces are too ugly to expand.",
+             '[[step eq="x² + 4x → slope = 2x + 4"]]'],
+            ["Then feed in the x you were asked about. At x equals 5 the slope is 10 plus 4 — 14. The curve's HEIGHT there is 5 times 9, which is 45, and 10 is only half the derivative, with the second piece forgotten.",
+             '[[step eq="2(5) + 4 = 14 ✓"]][[step eq="45 ✗ the height · 10 ✗ half of it"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals x times x plus 9: the slope is 2 x plus 9, and at x equals 8 that is 25.",
+                        '[[step eq="2(8) + 9 = 25"]]'],
+             "ask": {"a": 6, "b": 0, "c": 5, "op": "prod"}},
+            {"worked": ["One more together. With x plus 11 inside, the slope at x equals 7 is 25.",
+                        '[[step eq="2(7) + 11 = 25"]]'],
+             "ask": {"a": 5, "b": 0, "c": 6, "op": "prod"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": 0, "c": c, "op": "prod"} for a, c in
+                 ((2,2),(3,2),(2,3),(5,2),(6,2),(5,3),(6,3),(5,4),(6,4),(5,5))],
+    },
+    {
+        "id": "calc-u3-do-not-forget-the-inside",
+        "course": "calculus", "unit": 3,
+        "topic": "The chain rule",
+        "op": "chan", "max_value": 81,
+        "levels": ("abstract",),
+        "symbols": ("chain rule", "inside"),
+        "advance_line": "Three in a row — you've got it! The power comes down AND the inside's derivative comes out.",
+        "teach": [
+            ["Pre-Calculus fed one machine into another and called it composition. Differentiating one of those needs the chain rule , and it says: differentiate the outside, then times by the derivative of the inside .",
+             '[[goal text="Do not forget the inside"]][[step eq="y = (5x + 3)^4"]]'],
+            ["Take the quantity 5 x plus 3, raised to the power 4. The outside is something to the 4, so the 4 comes down. But the inside, 5 x plus 3, has its own derivative — 5 — and that comes out too. Front number: 4 times 5, which is 20.",
+             '[[step eq="4 comes down · inside gives 5 → 20"]]'],
+            ["Forgetting the inside leaves 4 and is the commonest mistake in all of Calculus — it quietly assumes the inside was just x. Whenever something sits inside something else, its derivative must come out as well.",
+             '[[step eq="20 ✓"]][[step eq="4 ✗ inside forgotten · 9 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The quantity 7 x plus 3 to the power 5: the 5 comes down and meets the inside's 7 — 35.",
+                        '[[step eq="5 × 7 = 35"]]'],
+             "ask": {"a": 8, "b": 3, "op": "chan"}},
+            {"worked": ["One more together. 6 x plus 3, to the power 7: 7 times 6 is 42.",
+                        '[[step eq="7 × 6 = 42"]]'],
+             "ask": {"a": 9, "b": 3, "op": "chan"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "chan"} for a, b in
+                 ((2,3),(4,2),(5,2),(3,4),(7,2),(3,5),(2,8),(6,3),(4,5),(3,7))],
+    },
+    {
+        "id": "calc-u3-the-chain-rule-at-a-point",
+        "course": "calculus", "unit": 3,
+        "topic": "Using the chain rule",
+        "op": "chev", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("squared", "inside"),
+        "advance_line": "Three in a row — you've got it! Twice the inside, times the inside's derivative.",
+        "teach": [
+            ["Now use the chain rule on a real number. For the quantity 3 x plus 5, squared , the rule gives: 2, times the quantity itself, times the inside's derivative 3.",
+             '[[goal text="The chain rule at a point"]][[step eq="y = (3x + 5)² → slope = 2(3x + 5)·3"]]'],
+            ["At x equals zero the inside is just 5, because the 3 x vanishes. So the slope is 2 times 5 times 3 — 30. Work the inside out first, then let the two outside numbers do their work.",
+             '[[step eq="inside = 5 → 2 × 5 × 3 = 30"]]'],
+            ["Two slips. 25 is the curve's height at zero, the inside squared, not its steepness. And 10 keeps the 2 and the inside but drops the 3 — the inside's own derivative, which is the whole reason the chain rule exists.",
+             '[[step eq="30 ✓"]][[step eq="25 ✗ the height · 10 ✗ the 3 dropped"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The quantity 4 x plus 9, squared: at zero the slope is 2 times 9 times 4 — 72.",
+                        '[[step eq="2 × 9 × 4 = 72"]]'],
+             "ask": {"a": 8, "b": 3, "op": "chev"}},
+            {"worked": ["One more together. With 7 inside and a multiplier of 5, the slope at zero is 70.",
+                        '[[step eq="2 × 7 × 5 = 70"]]'],
+             "ask": {"a": 9, "b": 3, "op": "chev"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "chev"} for a, b in
+                 ((2,3),(2,5),(3,4),(2,7),(5,3),(2,8),(6,3),(4,5),(3,7),(2,11))],
+    },
+    {
+        "id": "calc-u3-a-number-underneath",
+        "course": "calculus", "unit": 3,
+        "topic": "A constant denominator",
+        "op": "quot", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("underneath", "divides"),
+        "advance_line": "Three in a row — you've got it! Differentiate the top, and the number underneath keeps dividing.",
+        "teach": [
+            ["There is a quotient rule for one function divided by another, and it is fiddly. But most fractions in practice have a plain NUMBER underneath — and those need no rule at all.",
+             '[[goal text="A number underneath"]][[step eq="y = 12x² ÷ 4"]]'],
+            ["A number underneath just divides everything, before or after, and the answer comes out the same. For 12 x squared over 4: differentiate the top to get 24 x, then divide by 4 — 6 x. The number underneath simply came along for the ride.",
+             '[[step eq="12x² → 24x → 24 ÷ 4 = 6"]]'],
+            ["The slip is dividing without differentiating: 12 over 4 is 3, which forgets that the power rule doubles the front number first. And timesing the two numbers is no rule at all. Differentiate the top; keep dividing underneath.",
+             '[[step eq="6 ✓"]][[step eq="3 ✗ the doubling forgotten · 48 ✗ timesed"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 45 x squared over 9: the top gives 90 x, and 90 over 9 is 10.",
+                        '[[step eq="90 ÷ 9 = 10"]]'],
+             "ask": {"a": 22, "b": 2, "op": "quot"}},
+            {"worked": ["One more together. 55 x squared over 11 gives a front number of 10.",
+                        '[[step eq="110 ÷ 11 = 10"]]'],
+             "ask": {"a": 24, "b": 2, "op": "quot"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "quot"} for a, b in
+                 ((2,2),(6,3),(12,4),(20,5),(30,6),(42,7),(14,2),(24,3),(36,4),(50,5))],
+    },
+]
+LESSONS.extend(_CALCULUS_U3)
+# =============================================================================
+# CALCULUS UNIT 4 -- Applications of Derivatives (build lw)
+# The thread: A DERIVATIVE IS A TOOL, not an exercise. Solve it backwards for a
+# time, watch one rate drive another, find where a curve levels off, and
+# differentiate twice to get at acceleration.
+# =============================================================================
+_CALCULUS_U4 = [
+    {
+        "id": "calc-u4-when-is-it-going-that-fast",
+        "course": "calculus", "unit": 4,
+        "topic": "Solving with a derivative",
+        "op": "vsol", "max_value": 300,
+        "levels": ("abstract",),
+        "symbols": ("speed", "solve"),
+        "advance_line": "Three in a row — you've got it! Set the speed equal and solve for the time.",
+        "teach": [
+            ["A derivative is an equation like any other, and equations can be solved. If a falling stone's speed is 8 t metres a second, asking WHEN it falls at 40 is just asking what t turns 8 t into 40.",
+             '[[goal text="When is it going that fast?"]][[step eq="speed = 8t · when is speed 40?"]]'],
+            ["Solve it the ordinary way: 8 t equals 40, so t is 5 seconds. The derivative told you the speed at any time; setting it equal to a number and solving runs that knowledge backwards, from a speed to the moment it happens.",
+             '[[step eq="8t = 40 → t = 5 seconds"]]'],
+            ["Watch which number you divide by. The speed's front number is DOUBLE the distance's, so dividing by the distance's number gives the wrong time — and handing back 40 answers with a speed when a time was asked for.",
+             '[[step eq="5 ✓"]][[step eq="40 ✗ that is the speed · 10 ✗ wrong divisor"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Speed 12 t, asked when it reaches 84: 84 over 12 is 7 seconds.",
+                        '[[step eq="12t = 84 → t = 7"]]'],
+             "ask": {"a": 6, "b": 144, "op": "vsol"}},
+            {"worked": ["One more together. Speed 18 t reaching 162 gives 9 seconds.",
+                        '[[step eq="18t = 162 → t = 9"]]'],
+             "ask": {"a": 7, "b": 182, "op": "vsol"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "vsol"} for a, b in
+                 ((2,8),(3,18),(4,32),(5,50),(6,72),(7,98),(2,32),(3,54),(4,80),(5,110))],
+    },
+    {
+        "id": "calc-u4-one-rate-drives-another",
+        "course": "calculus", "unit": 4,
+        "topic": "Related rates",
+        "op": "mrat", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("growing", "area"),
+        "advance_line": "Three in a row — you've got it! Twice the side, times the side's own rate.",
+        "teach": [
+            ["Here is what derivatives are really for. A square's side is growing steadily — and its AREA is growing too, but not steadily at all, because a bigger square gains more area from the same extra centimetre.",
+             '[[goal text="One rate drives another"]][[step eq="side grows 2 cm/s · area grows how fast?"]]'],
+            ["Area is side squared, so the chain rule applies: the area's rate is 2, times the side, times the side's own rate. With a side of 10 growing at 2 centimetres a second, the area gains 2 times 10 times 2 — 40 square centimetres every second.",
+             '[[step eq="2 × 10 × 2 = 40 cm² per second"]]'],
+            ["And when that same square reaches a side of 50, the area gains 200 a second from the very same steady growth. So do not hand back 2, the side's rate, or 100, the area itself — the question asks how fast the area CHANGES.",
+             '[[step eq="40 ✓"]][[step eq="2 ✗ the side\'s rate · 100 ✗ the area"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A side of 12 growing at 3: the area gains 2 times 12 times 3 — 72 a second.",
+                        '[[step eq="2 × 12 × 3 = 72"]]'],
+             "ask": {"a": 11, "b": 2, "op": "mrat"}},
+            {"worked": ["One more together. A side of 9 growing at 5 gives 90 square centimetres a second.",
+                        '[[step eq="2 × 9 × 5 = 90"]]'],
+             "ask": {"a": 6, "b": 4, "op": "mrat"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "mrat"} for a, b in
+                 ((3,2),(3,3),(5,2),(3,4),(7,2),(3,5),(8,2),(3,6),(10,2),(7,3))],
+    },
+    {
+        "id": "calc-u4-where-the-curve-levels-off",
+        "course": "calculus", "unit": 4,
+        "topic": "Critical points",
+        "op": "crit", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("flat", "turn"),
+        "advance_line": "Three in a row — you've got it! Set the slope to zero and solve.",
+        "teach": [
+            ["A smooth curve can only turn around where it is momentarily flat — where its slope is exactly zero. Find those points and you have found every peak and every valley the curve owns.",
+             '[[goal text="Where the curve levels off"]][[graph func="x^2-6*x" range="-1..7"]]'],
+            ["For y equals x squared take away 6 x, the slope is 2 x take away 6. Set that to zero: 2 x equals 6, so x is 3. At x equals 3 the curve stops falling and starts rising — the bottom of the valley.",
+             '[[step eq="2x − 6 = 0 → x = 3"]]'],
+            ["The number in the slope is not the answer to the question. 6 is what you set 2 x equal TO; the x that solves it is half of that. Halve, do not double, and do not simply repeat what you were given.",
+             '[[step eq="3 ✓"]][[step eq="6 ✗ the slope\'s number · 12 ✗ doubled"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Slope 2 x take away 30: zero at x equals 15.",
+                        '[[step eq="2x = 30 → x = 15"]]'],
+             "ask": {"a": 24, "b": 0, "op": "crit"}},
+            {"worked": ["One more together. A slope of 2 x take away 34 levels off at 17.",
+                        '[[step eq="2x = 34 → x = 17"]]'],
+             "ask": {"a": 26, "b": 0, "op": "crit"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "crit"} for v in
+                 (4, 6, 8, 10, 12, 14, 16, 18, 20, 22)],
+    },
+    {
+        "id": "calc-u4-differentiate-twice",
+        "course": "calculus", "unit": 4,
+        "topic": "The second derivative",
+        "op": "acce", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("acceleration", "twice"),
+        "advance_line": "Three in a row — you've got it! Differentiate the speed to get the acceleration.",
+        "teach": [
+            ["Differentiating does not have to stop after one go. Distance differentiates into speed; differentiate the SPEED and you get acceleration — how fast the speed itself is changing.",
+             '[[goal text="Differentiate twice"]][[step eq="distance → speed → acceleration"]]'],
+            ["A stone falling 5 t squared metres has speed 10 t. That is a line, and a line's derivative is its front number: 10. So the acceleration is a flat 10, the same at every moment of the fall.",
+             '[[step eq="5t² → 10t → 10"]]'],
+            ["That constant is gravity, and finding it took two differentiations. Stopping after one leaves 5, the distance's own number, and doubling twice over gives 20 — one differentiation too many.",
+             '[[step eq="10 ✓"]][[step eq="5 ✗ one step short · 20 ✗ one step too far"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Falling 30 t squared gives speed 60 t, so the acceleration is 60.",
+                        '[[step eq="30t² → 60t → 60"]]'],
+             "ask": {"a": 12, "b": 0, "op": "acce"}},
+            {"worked": ["One more together. 40 t squared gives an acceleration of 80.",
+                        '[[step eq="40t² → 80t → 80"]]'],
+             "ask": {"a": 13, "b": 0, "op": "acce"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "acce"} for v in
+                 (2, 3, 4, 5, 6, 7, 8, 9, 10, 11)],
+    },
+]
+LESSONS.extend(_CALCULUS_U4)
+
+# =============================================================================
+# CALCULUS UNIT 5 -- Curve Sketching & Optimization (build lw)
+# The thread: THE BEST ANSWER SITS WHERE THE SLOPE IS ZERO. The most famous
+# optimisation there is (a fixed fence wants a square), the area that wins,
+# the same truth in plain numbers, and the second derivative finding where the
+# BEND changes rather than the slope.
+# =============================================================================
+_CALCULUS_U5 = [
+    {
+        "id": "calc-u5-the-best-rectangle",
+        "course": "calculus", "unit": 5,
+        "topic": "Optimisation",
+        "op": "optr", "max_value": 88,
+        "levels": ("abstract",),
+        "symbols": ("optimisation", "fence"),
+        "advance_line": "Three in a row — you've got it! A fixed fence wants a square.",
+        "teach": [
+            ["This unit is about optimisation — asking for the BEST — and calculus finds the best where the slope is zero. The oldest question of the kind: with a fixed length of fence , what rectangle encloses the most ground?",
+             '[[goal text="The best rectangle"]][[step eq="40 m of fence · biggest area?"]]'],
+            ["With 40 metres of fence, write the area in terms of one side, differentiate, set the slope to zero — and out comes a side of 10. Four tens use the fence exactly, so the winner is a square, 10 by 10.",
+             '[[step eq="40 ÷ 4 = 10 m each side"]]'],
+            ["Every fixed fence wants a square; long thin rectangles waste their fence on length and enclose almost nothing. So share the fence four ways. Half of it is two sides at once, and the whole 40 is no side at all.",
+             '[[step eq="10 ✓"]][[step eq="20 ✗ two sides · 40 ✗ the whole fence"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 72 metres of fence: each side of the best rectangle is 18.",
+                        '[[step eq="72 ÷ 4 = 18"]]'],
+             "ask": {"a": 56, "b": 0, "op": "optr"}},
+            {"worked": ["One more together. 84 metres of fence gives sides of 21.",
+                        '[[step eq="84 ÷ 4 = 21"]]'],
+             "ask": {"a": 60, "b": 0, "op": "optr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "optr"} for v in
+                 (16, 20, 24, 28, 32, 36, 40, 44, 48, 52)],
+    },
+    {
+        "id": "calc-u5-and-how-much-ground-that-wins",
+        "course": "calculus", "unit": 5,
+        "topic": "The best area",
+        "op": "maxa", "max_value": 484,
+        "levels": ("abstract",),
+        "symbols": ("square metres", "encloses"),
+        "advance_line": "Three in a row — you've got it! Square the winning side to get the ground it encloses.",
+        "teach": [
+            ["Knowing the best SHAPE is half the answer. The other half is how much ground it actually encloses — and that is what tells you whether the fence was worth buying.",
+             '[[goal text="How much ground that wins"]][[step eq="40 m fence → square of side 10"]]'],
+            ["40 metres of fence gives a square of side 10, and its area is 10 times 10 — 100 square metres . No other rectangle with that same fence can beat it: 5 by 15 uses the identical fence and encloses only 75.",
+             '[[step eq="10 × 10 = 100 m² · 5 × 15 = only 75"]]'],
+            ["So the answer to how much is the side SQUARED. Handing back 10 gives the side rather than the ground, and 40 is the fence you started with — three different measurements, and the question names one.",
+             '[[step eq="100 ✓"]][[step eq="10 ✗ the side · 40 ✗ the fence"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 68 metres of fence gives a square of side 17, enclosing 289 square metres.",
+                        '[[step eq="17 × 17 = 289 m²"]]'],
+             "ask": {"a": 60, "b": 0, "op": "maxa"}},
+            {"worked": ["One more together. 72 metres gives sides of 18 and an area of 324.",
+                        '[[step eq="18 × 18 = 324 m²"]]'],
+             "ask": {"a": 64, "b": 0, "op": "maxa"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "maxa"} for v in
+                 (20, 24, 28, 32, 36, 40, 44, 48, 52, 56)],
+    },
+    {
+        "id": "calc-u5-equal-halves-win",
+        "course": "calculus", "unit": 5,
+        "topic": "The biggest product",
+        "op": "sumx", "max_value": 256,
+        "levels": ("abstract",),
+        "symbols": ("product", "halves"),
+        "advance_line": "Three in a row — you've got it! Split it down the middle and multiply.",
+        "teach": [
+            ["Strip the fence away and the same truth shows up in plain numbers. Two numbers must add to 20. Which pair has the biggest product ?",
+             '[[goal text="Equal halves win"]][[step eq="two numbers adding to 20 · biggest product?"]]'],
+            ["Try a few: 1 and 19 give 19; 5 and 15 give 75; 9 and 11 give 99; and 10 with 10 gives 100. Equal halves win, every time — it is the square fence again, with the fence taken away.",
+             '[[step eq="10 × 10 = 100 · beats 9 × 11 = 99"]]'],
+            ["Calculus proves it in one line: the product's slope is zero exactly at the halfway point. So halve the number you were given, then multiply — the halves themselves are not the answer, and neither is the sum you started from.",
+             '[[step eq="100 ✓"]][[step eq="10 ✗ one half · 20 ✗ the total"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Two numbers adding to 34: 17 and 17 give the biggest product, 289.",
+                        '[[step eq="17 × 17 = 289"]]'],
+             "ask": {"a": 26, "b": 0, "op": "sumx"}},
+            {"worked": ["One more together. Adding to 36, the best pair is 18 and 18 — a product of 324.",
+                        '[[step eq="18 × 18 = 324"]]'],
+             "ask": {"a": 28, "b": 0, "op": "sumx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "sumx"} for v in
+                 (6, 8, 10, 12, 14, 16, 18, 20, 22, 24)],
+    },
+    {
+        "id": "calc-u5-where-the-bend-changes",
+        "course": "calculus", "unit": 5,
+        "topic": "Inflection points",
+        "op": "infl", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("bend", "second derivative"),
+        "advance_line": "Three in a row — you've got it! Set the second derivative to zero.",
+        "teach": [
+            ["A curve can bend like a cup or like a dome, and somewhere between the two it changes its mind. That place is an inflection point, and the FIRST derivative cannot find it — being flat is a different thing from changing your bend .",
+             '[[goal text="Where the bend changes"]][[step eq="cup ↔ dome · where does it swap?"]]'],
+            ["The second derivative measures the bending, so set THAT to zero. For y equals x cubed take away 6 x squared, the second derivative is 6 x take away 12, which is zero at x equals 2. Before 2 the curve is a dome; after it, a cup.",
+             '[[step eq="6x − 12 = 0 → x = 2"]]'],
+            ["Notice the arithmetic differs from a critical point: there you halved, here you divide by 6. Halving out of habit gives the wrong x, and the number in the equation is not the answer either.",
+             '[[step eq="2 ✓"]][[step eq="6 ✗ the halving habit · 12 ✗ the equation\'s number"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Second derivative 6 x take away 156: zero at x equals 26.",
+                        '[[step eq="6x = 156 → x = 26"]]'],
+             "ask": {"a": 66, "b": 0, "op": "infl"}},
+            {"worked": ["One more together. 6 x take away 168 is zero at 28.",
+                        '[[step eq="6x = 168 → x = 28"]]'],
+             "ask": {"a": 72, "b": 0, "op": "infl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "infl"} for v in
+                 (6, 12, 18, 24, 30, 36, 42, 48, 54, 60)],
+    },
+]
+LESSONS.extend(_CALCULUS_U5)
+
+
+# =============================================================================
+# CALCULUS UNIT 6 -- Antiderivatives & Indefinite Integrals (build lx)
+# The thread: RUN THE DERIVATIVE BACKWARDS. The power rule reversed, the same
+# reversal through a higher power, the discovery that going backwards never
+# lands on one function but on a whole family, and the one known point that
+# picks a single member out of that family.
+# =============================================================================
+_CALCULUS_U6 = [
+    {
+        "id": "calc-u6-the-rule-run-backwards",
+        "course": "calculus", "unit": 6,
+        "topic": "Antiderivatives",
+        "op": "anti", "max_value": 50,
+        "levels": ("abstract",),
+        "symbols": ("antiderivative", "backwards"),
+        "advance_line": "Three in a row — you've got it! Halve the front number and put the power back.",
+        "teach": [
+            ["Every unit so far has asked what the derivative of a function is. This one asks it backwards . Given a derivative, which function did it come from? That function is called an antiderivative .",
+             '[[goal text="The rule run backwards"]][[step eq="derivative = 6x · what came from it?"]]'],
+            ["Forwards, x squared drops its 2 down the front, so 3 x squared differentiates to 6 x. Backwards from 6 x, then, you HALVE the front number: 6 halved is 3, and the power climbs back up to squared.",
+             '[[step eq="3x² → 6x  ·  6x → 3x²"]]'],
+            ["So halve, do not double. Doubling runs the forward rule the wrong way and lands twice as high, and copying the number straight over forgets that differentiating doubled it in the first place.",
+             '[[step eq="6x → 3 ✓"]][[step eq="6 ✗ copied · 12 ✗ doubled"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A derivative of 52 x came from 26 x squared — half of 52.",
+                        '[[step eq="52 ÷ 2 = 26"]]'],
+             "ask": {"a": 44, "b": 0, "op": "anti"}},
+            {"worked": ["One more together. 56 x came from 28 x squared.",
+                        '[[step eq="56 ÷ 2 = 28"]]'],
+             "ask": {"a": 48, "b": 0, "op": "anti"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "anti"} for v in
+                 (4, 8, 10, 14, 18, 22, 26, 30, 34, 40)],
+    },
+    {
+        "id": "calc-u6-raise-then-divide",
+        "course": "calculus", "unit": 6,
+        "topic": "The reverse power rule",
+        "op": "antp", "max_value": 80,
+        "levels": ("abstract",),
+        "symbols": ("reverse", "exponent"),
+        "advance_line": "Three in a row — you've got it! Raise the exponent by one, then divide by it.",
+        "teach": [
+            ["Halving worked because the power was 2. For any other power the reverse move is the same shape: raise the exponent by one, then divide the front number by that new exponent .",
+             '[[goal text="Raise, then divide"]][[step eq="derivative = 24x³ · what came from it?"]]'],
+            ["From 24 x cubed: the power 3 climbs to 4, and 24 divided by 4 is 6. So 6 x to the fourth is the answer. Check it forwards — the 4 comes down onto the 6 and gives 24 x cubed back, which is the reverse move undone.",
+             '[[step eq="3 + 1 = 4 · 24 ÷ 4 = 6"]]'],
+            ["Divide by the new exponent — never skip that step. Handing the front number straight back leaves the dividing undone, and handing back the new exponent itself answers a question nobody asked.",
+             '[[step eq="6 ✓"]][[step eq="24 ✗ not divided · 4 ✗ the exponent"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 77 x to the sixth: the power climbs to 7, and 77 over 7 is 11.",
+                        '[[step eq="77 ÷ 7 = 11"]]'],
+             "ask": {"a": 5, "b": 66, "op": "antp"}},
+            {"worked": ["One more together. 108 x to the eighth: the power climbs to 9, and 108 over 9 is 12.",
+                        '[[step eq="108 ÷ 9 = 12"]]'],
+             "ask": {"a": 4, "b": 60, "op": "antp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "antp"} for a, b in
+                 ((2, 6), (3, 12), (4, 20), (5, 30), (6, 42),
+                  (7, 56), (8, 72), (2, 27), (3, 40), (2, 33))],
+    },
+    {
+        "id": "calc-u6-a-whole-family",
+        "course": "calculus", "unit": 6,
+        "topic": "The constant of integration",
+        "op": "plusc", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("family", "constant"),
+        "advance_line": "Three in a row — you've got it! Same derivative means a fixed gap, so add it on.",
+        "teach": [
+            ["Here is the catch in running the rule backwards. A flat number differentiates to nothing, so x squared and x squared plus 5 have the SAME derivative. Going backwards cannot tell them apart.",
+             '[[goal text="A whole family"]][[step eq="x² and x² + 5 · one derivative"]]'],
+            ["That means an antiderivative is never one curve but a whole family of them, every member the same shape shifted up or down the page by a constant . Curves 5 apart at one x are 5 apart at every x.",
+             '[[step eq="same derivative · fixed gap everywhere"]]'],
+            ["So if the lower curve reads 12 and the gap is 5, the higher one reads 17 — add the gap on. Taking it away drops you below the curve you were given, and the gap alone is not a height at all.",
+             '[[step eq="12 + 5 = 17 ✓"]][[step eq="7 ✗ taken away · 5 ✗ the gap"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A gap of 13 above a lower curve reading 30: the higher one reads 43.",
+                        '[[step eq="30 + 13 = 43"]]'],
+             "ask": {"a": 28, "b": 17, "op": "plusc"}},
+            {"worked": ["One more together. Lower curve 44, gap 15, higher curve 59.",
+                        '[[step eq="44 + 15 = 59"]]'],
+             "ask": {"a": 52, "b": 9, "op": "plusc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "plusc"} for a, b in
+                 ((5, 2), (9, 6), (13, 10), (17, 14), (21, 18),
+                  (25, 22), (29, 26), (33, 30), (42, 29), (51, 28))],
+    },
+    {
+        "id": "calc-u6-one-point-picks-one-curve",
+        "course": "calculus", "unit": 6,
+        "topic": "Initial value problems",
+        "op": "init", "max_value": 110,
+        "levels": ("abstract",),
+        "symbols": ("initial", "curve"),
+        "advance_line": "Three in a row — you've got it! The starting height IS the constant.",
+        "teach": [
+            ["A whole family is not much use when you want one answer. One known point fixes it: tell me where the curve passes through, and exactly one member of the family goes there.",
+             '[[goal text="One point picks one curve"]][[step eq="slope 2x · through height 7 at x = 0"]]'],
+            ["Slope 2 x comes from x squared plus a constant. At x equals zero the x squared part is nothing, so whatever height you start at IS the constant — here, 7. The initial height hands it to you free.",
+             '[[step eq="y = x² + 7"]]'],
+            ["Now any other x is easy. At x equals 3: 3 squared is 9, plus 7 is 16. Answering 9 forgets the constant the point gave you, and answering 7 pretends the curve never climbed.",
+             '[[step eq="9 + 7 = 16 ✓"]][[step eq="9 ✗ no constant · 7 ✗ never moved"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Starting height 5, and at x equals 7: 49 plus 5 is 54.",
+                        '[[step eq="49 + 5 = 54"]]'],
+             "ask": {"a": 19, "b": 0, "c": 4, "op": "init"}},
+            {"worked": ["One more together. Starting height 10, at x equals 6: 36 plus 10 is 46.",
+                        '[[step eq="36 + 10 = 46"]]'],
+             "ask": {"a": 28, "b": 0, "c": 6, "op": "init"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": 0, "c": c, "op": "init"} for a, c in
+                 ((2, 2), (8, 3), (11, 4), (12, 5), (22, 5),
+                  (21, 6), (3, 8), (13, 8), (6, 9), (16, 9))],
+    },
+]
+LESSONS.extend(_CALCULUS_U6)
+
+
+# =============================================================================
+# CALCULUS UNIT 7 -- The Definite Integral & the FTC (build lx)
+# The thread: THE AREA UNDER A GRAPH IS A REAL MEASUREMENT. A rectangle of
+# steady speed, a triangle of steady acceleration, the Fundamental Theorem
+# tying area back to the antiderivatives of Unit 6, and the average height
+# that spreads the area flat again.
+# =============================================================================
+_CALCULUS_U7 = [
+    {
+        "id": "calc-u7-the-area-is-the-answer",
+        "course": "calculus", "unit": 7,
+        "topic": "The definite integral",
+        "op": "defi", "max_value": 170,
+        "levels": ("abstract",),
+        "symbols": ("integral", "rectangle"),
+        "advance_line": "Three in a row — you've got it! Height times width is the area under the graph.",
+        "teach": [
+            ["Unit 6 ran the derivative backwards. This unit does something that sounds unrelated and turns out to be the same thing: measuring the AREA underneath a graph. That area is called a definite integral .",
+             '[[goal text="The area is the answer"]][[step eq="speed 8 m/s · for 5 s"]]'],
+            ["Draw a car holding a steady 8 metres a second for 5 seconds on a speed graph and you get a rectangle , 8 tall and 5 wide. Its area is 40 — and 40 metres is exactly how far the car went. The area MEANS something.",
+             '[[step eq="8 × 5 = 40 m"]]'],
+            ["So multiply the height by the width. Adding them puts metres and seconds together as though they measured the same thing, and the width alone is just the time you were already told.",
+             '[[step eq="40 ✓"]][[step eq="13 ✗ added · 5 ✗ the time"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 metres a second for 4 seconds is a rectangle of area 24 metres.",
+                        '[[step eq="6 × 4 = 24 m"]]'],
+             "ask": {"a": 11, "b": 5, "op": "defi"}},
+            {"worked": ["One more together. 9 metres a second for 6 seconds covers 54 metres.",
+                        '[[step eq="9 × 6 = 54 m"]]'],
+             "ask": {"a": 10, "b": 9, "op": "defi"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "defi"} for a, b in
+                 ((2, 3), (3, 7), (17, 2), (4, 12), (7, 9),
+                  (7, 11), (12, 8), (14, 8), (19, 7), (14, 11))],
+    },
+    {
+        "id": "calc-u7-when-the-graph-is-a-ramp",
+        "course": "calculus", "unit": 7,
+        "topic": "Area under a ramp",
+        "op": "triz", "max_value": 460,
+        "levels": ("abstract",),
+        "symbols": ("ramp", "triangle"),
+        "advance_line": "Three in a row — you've got it! Square the time, then halve it.",
+        "teach": [
+            ["Steady speed drew a rectangle. Now let the car speed up steadily, so that after t seconds it is going t metres a second. The graph is no longer flat — it is a straight ramp climbing from the corner.",
+             '[[goal text="When the graph is a ramp"]][[step eq="speed = t · from 0 to 6 s"]]'],
+            ["Under a ramp the shape is a triangle , 6 wide and 6 tall after 6 seconds. A triangle covers half of the rectangle around it, so the area is 6 times 6 halved — 18 metres.",
+             '[[step eq="6 × 6 ÷ 2 = 18 m"]]'],
+            ["Forgetting the half claims 36, the whole rectangle, as if the car had gone flat out from the very first second. And the time itself, 6, is not a distance at all.",
+             '[[step eq="18 ✓"]][[step eq="36 ✗ no half · 6 ✗ the time"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. After 32 seconds the triangle is 32 by 32, halved: 512 metres.",
+                        '[[step eq="32 × 32 ÷ 2 = 512 m"]]'],
+             "ask": {"a": 28, "b": 0, "op": "triz"}},
+            {"worked": ["One more together. After 34 seconds: 34 times 34 halved is 578 metres.",
+                        '[[step eq="34 × 34 ÷ 2 = 578 m"]]'],
+             "ask": {"a": 30, "b": 0, "op": "triz"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "triz"} for v in
+                 (8, 10, 12, 14, 16, 18, 20, 22, 24, 26)],
+    },
+    {
+        "id": "calc-u7-end-take-away-start",
+        "course": "calculus", "unit": 7,
+        "topic": "The Fundamental Theorem",
+        "op": "ftc", "max_value": 170,
+        "levels": ("abstract",),
+        "symbols": ("theorem", "ends"),
+        "advance_line": "Three in a row — you've got it! Square both ends and take the smaller from the bigger.",
+        "teach": [
+            ["Rectangles and triangles are easy shapes. Most graphs are neither — so here is the theorem that handles all of them, and it is the biggest idea in the subject.",
+             '[[goal text="End take away start"]][[step eq="area under 2x, from 3 to 5"]]'],
+            ["To find the area under y equals 2 x, first run it backwards as in Unit 6: 2 x comes from x squared. Then work x squared out at both ends and take one from the other. From 3 to 5: 25 take away 9 is 16.",
+             '[[step eq="5² − 3² = 25 − 9 = 16"]]'],
+            ["That is the Fundamental Theorem of Calculus: areas and antiderivatives are one idea wearing two hats. Squaring the gap between the ends instead gives 4, a different number entirely, and the plain gap is only 2.",
+             '[[step eq="16 ✓"]][[step eq="4 ✗ gap squared · 2 ✗ the gap"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. From 3 to 8: 64 take away 9 is 55.",
+                        '[[step eq="8² − 3² = 55"]]'],
+             "ask": {"a": 5, "b": 9, "op": "ftc"}},
+            {"worked": ["One more together. From 2 to 11: 121 take away 4 is 117.",
+                        '[[step eq="11² − 2² = 117"]]'],
+             "ask": {"a": 6, "b": 12, "op": "ftc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "ftc"} for a, b in
+                 ((1, 3), (5, 7), (8, 10), (7, 10), (9, 12),
+                  (2, 9), (7, 12), (9, 14), (6, 13), (4, 13))],
+    },
+    {
+        "id": "calc-u7-flatten-it-out",
+        "course": "calculus", "unit": 7,
+        "topic": "Average value",
+        "op": "avgv", "max_value": 160,
+        "levels": ("abstract",),
+        "symbols": ("average", "flat"),
+        "advance_line": "Three in a row — you've got it! Area divided by width is the average height.",
+        "teach": [
+            ["One last thing the area can tell you. Suppose you know the area under a curve and you want a single number for how high the curve typically ran. Flatten it out.",
+             '[[goal text="Flatten it out"]][[step eq="area 60 · width 5"]]'],
+            ["Imagine pushing the humps down into the dips until the top is flat . An area of 60 spread across a width of 5 stands 12 high, so 12 is the curve's average height — the average value of the function.",
+             '[[step eq="60 ÷ 5 = 12"]]'],
+            ["Some of the curve towers above that line and some falls below, and the two trade places exactly. Handing back 60 answers with an area where a height was asked for, and 5 is only the width.",
+             '[[step eq="12 ✓"]][[step eq="60 ✗ the area · 5 ✗ the width"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. An area of 96 across a width of 8 flattens to a height of 12.",
+                        '[[step eq="96 ÷ 8 = 12"]]'],
+             "ask": {"a": 154, "b": 11, "op": "avgv"}},
+            {"worked": ["One more together. 150 of area across a width of 10 stands 15 high.",
+                        '[[step eq="150 ÷ 10 = 15"]]'],
+             "ask": {"a": 153, "b": 9, "op": "avgv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "avgv"} for a, b in
+                 ((6, 3), (12, 4), (8, 2), (30, 6), (42, 7),
+                  (35, 5), (72, 9), (90, 10), (80, 8), (132, 12))],
+    },
+]
+LESSONS.extend(_CALCULUS_U7)
 
 
 
@@ -11220,6 +12763,38 @@ COURSE_ORDER = [
     # Unit 6: Conditional Probability & Independence (build ls)
     "ps-u6-out-of-how-many-now", "ps-u6-inside-the-smaller-world",
     "ps-u6-what-independent-claims", "ps-u6-the-bag-remembers",
+    # Unit 7: Random Variables & Expected Value (build lt)
+    "ps-u7-the-chances-fill-the-hundred", "ps-u7-what-one-play-is-worth",
+    "ps-u7-what-would-be-fair", "ps-u7-why-the-machine-stays-open",
+    # Unit 8: The Normal Distribution (build lt)
+    "ps-u8-the-crowded-middle", "ps-u8-how-far-out-is-that",
+    "ps-u8-which-value-sits-out-there", "ps-u8-almost-nobody-out-there",
+    # Unit 9: Sampling & Inference (build lu) -- ⭐ PROB & STATS COMPLETE
+    "ps-u9-give-or-take", "ps-u9-how-wide-is-the-doubt",
+    "ps-u9-can-that-claim-survive", "ps-u9-the-range-in-real-people",
+
+    # ---- CALCULUS (build lu) -- ⭐ THE TWELFTH COURSE OPENS ----
+    # Unit 1: Limits & Continuity
+    "calc-u1-limits-pass-through", "calc-u1-far-out-only-the-leaders-matter",
+    "calc-u1-how-big-is-the-break", "calc-u1-mend-the-curve",
+    # Unit 2: The Derivative (build lv)
+    "calc-u2-the-window-closes", "calc-u2-the-power-comes-down-front",
+    "calc-u2-a-line-has-one-slope", "calc-u2-feed-the-derivative-an-x",
+    # Unit 3: Product, Quotient & Chain Rules (build lv)
+    "calc-u3-two-things-multiplied", "calc-u3-do-not-forget-the-inside",
+    "calc-u3-the-chain-rule-at-a-point", "calc-u3-a-number-underneath",
+    # Unit 4: Applications of Derivatives (build lw)
+    "calc-u4-when-is-it-going-that-fast", "calc-u4-one-rate-drives-another",
+    "calc-u4-where-the-curve-levels-off", "calc-u4-differentiate-twice",
+    # Unit 5: Curve Sketching & Optimization (build lw)
+    "calc-u5-the-best-rectangle", "calc-u5-and-how-much-ground-that-wins",
+    "calc-u5-equal-halves-win", "calc-u5-where-the-bend-changes",
+    # Unit 6: Antiderivatives & Indefinite Integrals (build lx)
+    "calc-u6-the-rule-run-backwards", "calc-u6-raise-then-divide",
+    "calc-u6-a-whole-family", "calc-u6-one-point-picks-one-curve",
+    # Unit 7: The Definite Integral & the FTC (build lx)
+    "calc-u7-the-area-is-the-answer", "calc-u7-when-the-graph-is-a-ramp",
+    "calc-u7-end-take-away-start", "calc-u7-flatten-it-out",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -17165,7 +18740,1134 @@ OP_EXT = {
                             "a bag with other colours left in it, and three "
                             "distinct taps"),
     },
+    # ---- build lt: Prob & Stats U7 Random Variables & Expected Value ------
+    "pdis": {  # every chance in a distribution, added up, is the whole 100
+        "ans": lambda p: 100 - p["a"] - p["b"],
+        "spoken": lambda p: (f"A prize machine gives a small, medium or "
+                             f"large prize. Small comes up {p['a']} percent "
+                             f"of the time and medium {p['b']} percent. "
+                             f"What percent of the time is it large?"),
+        "board": lambda p: (f'[[step eq="small {p["a"]}% · medium '
+                            f'{p["b"]}% · large ?%"]]'
+                            f'[[step eq="every chance adds to 100"]]'),
+        "praise": lambda p: (f"All the chances of one machine add to the "
+                             f"whole 100: {p['a']} plus {p['b']} is "
+                             f"{p['a'] + p['b']}, so large takes what is "
+                             f"left — {100 - p['a'] - p['b']} percent. "
+                             f"Something has to happen every time, and "
+                             f"these three are the only choices."),
+        "key": lambda p: 100 - p["a"] - p["b"],
+        # The errors: the two given chances added (the leftover forgotten),
+        # and the whole 100 handed back.
+        "choices": lambda p: [100 - p["a"] - p["b"], p["a"] + p["b"], 100],
+        "check": lambda p: (10 <= p["a"] <= 60 and 10 <= p["b"] <= 60
+                            and p["a"] % 5 == 0 and p["b"] % 5 == 0
+                            and 10 <= 100 - p["a"] - p["b"] <= 70
+                            and len({100 - p["a"] - p["b"],
+                                     p["a"] + p["b"], 100}) == 3,
+                            "three real chances that add to 100, and three "
+                            "distinct taps"),
+    },
+    "evwa": {  # expected value: the payoffs WEIGHTED by how often they come
+        "ans": lambda p: (p["a"] * p["c"] + p["b"] * (100 - p["c"])) // 100,
+        "spoken": lambda p: (f"A game pays {p['a']} tokens {p['c']} percent "
+                             f"of the time, and {p['b']} tokens the rest of "
+                             f"the time. Over many plays, how many tokens "
+                             f"is a single play worth on average?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} tokens {p["c"]}% of the '
+                            f'time · {p["b"]} tokens otherwise"]]'
+                            f'[[step eq="one play is worth ? on average"]]'),
+        "praise": lambda p: (f"Weighed by how often each turns up, "
+                             f"{p['a']} tokens {p['c']} percent of the time "
+                             f"and {p['b']} the rest averages "
+                             f"{(p['a'] * p['c'] + p['b'] * (100 - p['c'])) // 100} "
+                             f"a play. The plain average "
+                             f"{(p['a'] + p['b']) // 2} would need both to "
+                             f"come up equally often."),
+        "key": lambda p: (p["a"] * p["c"] + p["b"] * (100 - p["c"])) // 100,
+        # The errors: the PLAIN average of the two prizes (the classic --
+        # weights ignored), and the big prize taken as the value.
+        "choices": lambda p: [(p["a"] * p["c"]
+                               + p["b"] * (100 - p["c"])) // 100,
+                              (p["a"] + p["b"]) // 2, p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["b"] < p["a"] <= 40
+                            and 10 <= p["c"] <= 90 and p["c"] % 5 == 0
+                            and (p["a"] * p["c"]
+                                 + p["b"] * (100 - p["c"])) % 100 == 0
+                            and (p["a"] + p["b"]) % 2 == 0
+                            and len({(p["a"] * p["c"]
+                                      + p["b"] * (100 - p["c"])) // 100,
+                                     (p["a"] + p["b"]) // 2, p["a"]}) == 3,
+                            "an average that lands whole, a whole plain "
+                            "average to argue with, and three distinct "
+                            "taps"),
+    },
+    "fair": {  # run expected value BACKWARDS: what prize makes it even?
+        "ans": lambda p: 100 * p["a"] // p["b"],
+        "spoken": lambda p: (f"A game costs {p['a']} tokens to play, and "
+                             f"you win {p['b']} percent of the time. What "
+                             f"prize would make the game exactly fair — "
+                             f"worth just what it costs?"),
+        "board": lambda p: (f'[[step eq="costs {p["a"]} tokens · win '
+                            f'{p["b"]}% of the time"]]'
+                            f'[[step eq="fair prize = ?"]]'),
+        "praise": lambda p: (f"You pay on all hundred plays but collect "
+                             f"on {p['b']}: {100 * p['a']} tokens in, "
+                             f"shared over {p['b']} wins — "
+                             f"{100 * p['a'] // p['b']} tokens a prize. "
+                             f"Just your stake back, {p['a']}, still loses "
+                             f"you every play you do not win."),
+        "key": lambda p: 100 * p["a"] // p["b"],
+        # The errors: the stake handed back as the prize (a fair-looking
+        # trade that ignores the losses), and the percent read as tokens.
+        "choices": lambda p: [100 * p["a"] // p["b"], p["a"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 20 and 10 <= p["b"] <= 50
+                            and p["b"] % 5 == 0
+                            and (100 * p["a"]) % p["b"] == 0
+                            and 100 * p["a"] // p["b"] <= 200
+                            and len({100 * p["a"] // p["b"], p["a"],
+                                     p["b"]}) == 3,
+                            "a fair prize that lands on whole tokens, and "
+                            "three distinct taps"),
+    },
+    "hedg": {  # what a play really costs once the winnings are counted in
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"A game costs {p['a']} tokens a play, and "
+                             f"over many plays it pays back {p['b']} tokens "
+                             f"a play on average. In the long run, how many "
+                             f"tokens does each play really cost you?"),
+        "board": lambda p: (f'[[step eq="pay {p["a"]} · get back {p["b"]} '
+                            f'on average"]]'
+                            f'[[step eq="real cost per play = ?"]]'),
+        "praise": lambda p: (f"Money out, money back: {p['a']} take away "
+                             f"{p['b']} leaves {p['a'] - p['b']} tokens "
+                             f"gone a play. That gap never shows in one "
+                             f"play, only over hundreds — and it is how "
+                             f"the machine stays open."),
+        "key": lambda p: p["a"],
+        # The errors: the two amounts added, and the winnings read as the
+        # cost.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (3 <= p["b"] < p["a"] <= 60
+                            and p["a"] - p["b"] >= 2
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a real gap between paying and winning, and "
+                            "three distinct taps"),
+    },
+    # ---- build lt: Prob & Stats U8 The Normal Distribution ----------------
+    "n68": {  # the middle of the bell: 68 percent, turned into children
+        "ans": lambda p: 68 * p["a"] // 100,
+        "spoken": lambda p: (f"The heights of {p['a']} students follow a "
+                             f"bell curve. About 68 percent of them sit "
+                             f"no further than one standard deviation "
+                             f"from the mean. "
+                             f"About how many students is that?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} students · about 68% '
+                            f'no further than one deviation"]]'
+                            f'[[step eq="how many students = ?"]]'),
+        "praise": lambda p: (f"68 percent of {p['a']} is "
+                             f"{68 * p['a'] // 100} students — most of a "
+                             f"bell curve crowds close to the middle, and "
+                             f"that is what gives it the shape. The 68 is a "
+                             f"percent, never a headcount, and {p['a']} is "
+                             f"everybody."),
+        "key": lambda p: p["a"],
+        # The errors: the 68 answered as if it were people, and the whole
+        # group.
+        "choices": lambda p: [68 * p["a"] // 100, 68, p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 25 == 0 and 50 <= p["a"] <= 800
+                            and p["b"] == 0
+                            and len({68 * p["a"] // 100, 68, p["a"]}) == 3,
+                            "a group whose 68 percent lands on whole "
+                            "students, and three distinct taps"),
+    },
+    "zsco": {  # how many standard deviations out a value sits
+        "ans": lambda p: (p["c"] - p["a"]) // p["b"],
+        "spoken": lambda p: (f"On a bell curve the mean is {p['a']} and one "
+                             f"standard deviation is {p['b']}. A value of "
+                             f"{p['c']} sits how many standard deviations "
+                             f"ABOVE the mean?"),
+        # NOT [[normal]] on the ask -- that renderer labels the axis at
+        # every standard deviation, so the picture counts them for you.
+        "board": lambda p: (f'[[step eq="mean {p["a"]} · one standard '
+                            f'deviation {p["b"]} · value {p["c"]}"]]'
+                            f'[[step eq="how many deviations above = ?"]]'),
+        "praise": lambda p: (f"{p['c']} sits {p['c'] - p['a']} above the "
+                             f"mean, and each standard deviation is "
+                             f"{p['b']} — so that gap holds "
+                             f"{(p['c'] - p['a']) // p['b']} of them. "
+                             f"Counting deviations instead of raw units is "
+                             f"what lets two different measurements be "
+                             f"compared at all."),
+        "key": lambda p: p["a"],
+        # The errors: the RAW gap (deviations never counted), and the
+        # standard deviation itself.
+        "choices": lambda p: [(p["c"] - p["a"]) // p["b"],
+                              p["c"] - p["a"], p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (10 <= p["a"] <= 100 and 2 <= p["b"] <= 15
+                            and p["c"] > p["a"]
+                            and (p["c"] - p["a"]) % p["b"] == 0
+                            and 1 <= (p["c"] - p["a"]) // p["b"] <= 3
+                            and len({(p["c"] - p["a"]) // p["b"],
+                                     p["c"] - p["a"], p["b"]}) == 3,
+                            "a value a whole number of deviations out, no "
+                            "more than three, and three distinct taps"),
+    },
+    "zval": {  # the same rule run the other way: which value sits out there
+        "ans": lambda p: p["a"] + 2 * p["b"],
+        "spoken": lambda p: (f"On a bell curve the mean is {p['a']} and one "
+                             f"standard deviation is {p['b']}. What value "
+                             f"sits exactly two standard deviations ABOVE "
+                             f"the mean?"),
+        "board": lambda p: (f'[[step eq="mean {p["a"]} · one standard '
+                            f'deviation {p["b"]}"]]'
+                            f'[[step eq="two deviations above = ?"]]'),
+        "praise": lambda p: (f"Two deviations is {p['b']} twice — "
+                             f"{2 * p['b']} — laid on top of the mean: "
+                             f"{p['a']} plus {2 * p['b']} equals "
+                             f"{p['a'] + 2 * p['b']}. Only about 2 students "
+                             f"in a hundred ever get out that far. "
+                             f"{p['a'] + p['b']} is one deviation, and "
+                             f"{2 * p['b']} forgot to start from the mean."),
+        "key": lambda p: p["a"],
+        # The errors: ONE deviation counted, and the distance answered
+        # without ever leaving from the mean.
+        "choices": lambda p: [p["a"] + 2 * p["b"], p["a"] + p["b"],
+                              2 * p["b"]],
+        "check": lambda p: (10 <= p["a"] <= 100 and 2 <= p["b"] <= 20
+                            and len({p["a"] + 2 * p["b"], p["a"] + p["b"],
+                                     2 * p["b"]}) == 3,
+                            "a mean and a deviation whose one-step, "
+                            "two-step and bare distance all differ"),
+    },
+    "ntal": {  # the far tail: how few people really live out there
+        "ans": lambda p: p["a"] // 40,
+        "spoken": lambda p: (f"In a group of {p['a']}, about 95 percent sit "
+                             f"no further than two standard deviations "
+                             f"from the mean. "
+                             f"The 5 percent left over splits evenly "
+                             f"between the two ends. About how many sit "
+                             f"more than two standard deviations ABOVE the "
+                             f"mean?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} people · 95% no further '
+                            f'than two deviations"]]'
+                            f'[[step eq="the top end holds ?"]]'),
+        "praise": lambda p: (f"5 percent of {p['a']} is {p['a'] // 20} "
+                             f"people out at the ends, and they split "
+                             f"evenly: {p['a'] // 40} above and "
+                             f"{p['a'] // 40} below. That is why a value "
+                             f"two deviations out is worth remarking on — "
+                             f"almost nobody is there."),
+        "key": lambda p: p["a"],
+        # The errors: BOTH ends counted (the split forgotten), and half the
+        # group -- the bell read as though its ends were huge.
+        "choices": lambda p: [p["a"] // 40, p["a"] // 20, p["a"] // 2],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 40 == 0 and 80 <= p["a"] <= 800
+                            and p["b"] == 0
+                            and len({p["a"] // 40, p["a"] // 20,
+                                     p["a"] // 2}) == 3,
+                            "a group whose ends land on whole people, and "
+                            "three distinct taps"),
+    },
+    # ---- build lu: Prob & Stats U9 Sampling & Inference -------------------
+    "cint": {  # an estimate is a RANGE: this is its low end
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"A poll estimates {p['a']} percent, give or "
+                             f"take {p['b']} points. What is the LOWEST "
+                             f"percent the true answer might be?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}% · give or take '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="lowest possible = ?"]]'),
+        "praise": lambda p: (f"Give or take {p['b']} means {p['b']} either "
+                             f"way, so the low end is {p['a']} take away "
+                             f"{p['b']} — {p['a'] - p['b']} percent. "
+                             f"{p['a'] + p['b']} is the HIGH end, the same "
+                             f"step in the other direction."),
+        "key": lambda p: p["a"] - p["b"],
+        # The errors: the high end, and the margin on its own.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (20 <= p["a"] <= 80 and 2 <= p["b"] <= 12
+                            and p["a"] - p["b"] >= 5
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a real range that stays inside the percents, "
+                            "and three distinct taps"),
+    },
+    "cwid": {  # the whole range is the margin BOTH ways
+        "ans": lambda p: 2 * p["b"],
+        "spoken": lambda p: (f"A poll estimates {p['a']} percent, give or "
+                             f"take {p['b']} points. From its lowest to its "
+                             f"highest, how many points wide is that whole "
+                             f"range?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}% · give or take '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="lowest to highest = ? points"]]'),
+        "praise": lambda p: (f"The range runs {p['b']} below and {p['b']} "
+                             f"above, so it is {p['b']} twice — "
+                             f"{2 * p['b']} points wide, from "
+                             f"{p['a'] - p['b']} to {p['a'] + p['b']}. The "
+                             f"margin {p['b']} is only half the story, one "
+                             f"side of the middle."),
+        "key": lambda p: p["b"],
+        # The errors: the margin answered as the width (one side only), and
+        # the estimate itself.
+        "choices": lambda p: [2 * p["b"], p["b"], p["a"]],
+        "check": lambda p: (20 <= p["a"] <= 80 and 2 <= p["b"] <= 15
+                            and p["a"] - p["b"] >= 5
+                            and len({2 * p["b"], p["b"], p["a"]}) == 3,
+                            "a margin whose double is still not the "
+                            "estimate, and three distinct taps"),
+    },
+    "inci": {  # is a claim inside the range -- and if not, by how much?
+        "ans": lambda p: p["c"] - (p["a"] + p["b"]),
+        "spoken": lambda p: (f"Your poll says {p['a']} percent, give or "
+                             f"take {p['b']}, so anything up to "
+                             f"{p['a'] + p['b']} is possible. A company "
+                             f"claims {p['c']} percent. How many points "
+                             f"ABOVE your highest possible value is their "
+                             f"claim?"),
+        "board": lambda p: (f'[[step eq="your range tops out at '
+                            f'{p["a"] + p["b"]}%"]]'
+                            f'[[step eq="their claim {p["c"]}% · how far '
+                            f'above = ?"]]'),
+        "praise": lambda p: (f"Your range reaches {p['a'] + p['b']} at the "
+                             f"very most, and they claim {p['c']}: that is "
+                             f"{p['c'] - (p['a'] + p['b'])} points past "
+                             f"anything your poll can support. Measuring "
+                             f"from {p['a']} instead gives "
+                             f"{p['c'] - p['a']} and forgets that your own "
+                             f"estimate has room in it."),
+        "key": lambda p: p["c"] - (p["a"] + p["b"]),
+        # The errors: measured from the ESTIMATE (the margin ignored), and
+        # the margin itself.
+        "choices": lambda p: [p["c"] - (p["a"] + p["b"]), p["c"] - p["a"],
+                              p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (20 <= p["a"] <= 70 and 2 <= p["b"] <= 10
+                            and p["c"] <= 95
+                            and p["c"] - (p["a"] + p["b"]) >= 2
+                            and len({p["c"] - (p["a"] + p["b"]),
+                                     p["c"] - p["a"], p["b"]}) == 3,
+                            "a claim clearly outside the range, and three "
+                            "distinct taps"),
+    },
+    "npop": {  # carry the range down onto real people
+        "ans": lambda p: (p["a"] - p["b"]) * p["c"] // 100,
+        "spoken": lambda p: (f"A sample says {p['a']} percent of the "
+                             f"{p['c']} students walk to school, give or "
+                             f"take {p['b']} points. At the LOW end of that "
+                             f"range, how many students is that?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}% of {p["c"]} · give or '
+                            f'take {p["b"]}"]]'
+                            f'[[step eq="low end · how many students = '
+                            f'?"]]'),
+        "praise": lambda p: (f"The low end of the range is "
+                             f"{p['a'] - p['b']} percent, and "
+                             f"{p['a'] - p['b']} percent of {p['c']} is "
+                             f"{(p['a'] - p['b']) * p['c'] // 100} "
+                             f"students. Using {p['a']} percent gives "
+                             f"{p['a'] * p['c'] // 100} and quietly drops "
+                             f"the give-or-take — the whole point of a "
+                             f"sample is that it does not know exactly."),
+        "key": lambda p: (p["a"] - p["b"]) * p["c"] // 100,
+        # The errors: the estimate used with the margin forgotten, and the
+        # HIGH end taken instead of the low.
+        "choices": lambda p: [(p["a"] - p["b"]) * p["c"] // 100,
+                              p["a"] * p["c"] // 100,
+                              (p["a"] + p["b"]) * p["c"] // 100],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (20 <= p["a"] <= 70 and 5 <= p["b"] <= 20
+                            and p["c"] % 100 == 0 and 200 <= p["c"] <= 1000
+                            and p["a"] - p["b"] >= 10
+                            and p["a"] + p["b"] <= 90
+                            and len({(p["a"] - p["b"]) * p["c"] // 100,
+                                     p["a"] * p["c"] // 100,
+                                     (p["a"] + p["b"]) * p["c"] // 100}) == 3,
+                            "a school size that turns every percent into "
+                            "whole students, and three distinct taps"),
+    },
+    # ---- build lu: Calculus U1 Limits & Continuity ------------------------
+    "llaw": {  # limits pass straight through arithmetic
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"As x creeps toward 4, f creeps toward "
+                             f"{p['a']} and g creeps toward {p['b']}. What "
+                             f"does f times g creep toward?"),
+        "board": lambda p: (f'[[step eq="f → {p["a"]} · g → {p["b"]}"]]'
+                            f'[[step eq="f × g → ?"]]'),
+        "praise": lambda p: (f"Limits pass straight through the arithmetic: "
+                             f"if f is heading for {p['a']} and g for "
+                             f"{p['b']}, their product heads for {p['a']} "
+                             f"times {p['b']} — {p['a'] * p['b']}. Adding "
+                             f"would answer a different question, and "
+                             f"{max(p['a'], p['b'])} is just the bigger of "
+                             f"the two."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the limits ADDED, and the bigger limit kept.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              max(p["a"], p["b"])],
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"] and p["a"] * p["b"] <= 100
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     max(p["a"], p["b"])}) == 3,
+                            "two different limits whose product stays under "
+                            "100, and three distinct taps"),
+    },
+    "linf": {  # far out, only the leading terms matter
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"As x grows huge, what number does {p['a']} x "
+                             f"squared, divided by {p['b']} x squared, "
+                             f"settle toward?"),
+        "board": lambda p: (f'[[step eq="y = {p["a"]}x² ÷ {p["b"]}x²"]]'
+                            f'[[step eq="x grows huge · y → ?"]]'),
+        "praise": lambda p: (f"The x squareds cancel however big x gets, "
+                             f"leaving {p['a']} over {p['b']} — "
+                             f"{p['a'] // p['b']}. Algebra Two's asymptote "
+                             f"lesson split a fraction to find its "
+                             f"survivor; here both parts grow at the same "
+                             f"speed, so the ratio is what survives."),
+        "key": lambda p: p["a"] // p["b"],
+        # The errors: the coefficients subtracted, and timesed.
+        "choices": lambda p: [p["a"] // p["b"], p["a"] - p["b"],
+                              p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["b"] <= 12 and p["a"] <= 96
+                            and p["a"] % p["b"] == 0
+                            and p["a"] // p["b"] >= 2
+                            and len({p["a"] // p["b"], p["a"] - p["b"],
+                                     p["a"] * p["b"]}) == 3,
+                            "a ratio that lands whole and is at least 2, "
+                            "with three distinct taps"),
+    },
+    "jump": {  # a break has a SIZE, and that size has a name
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: (f"y is {p['a']} while x is below 6, and jumps "
+                             f"to {p['b']} the moment x reaches 6. How big "
+                             f"is the jump?"),
+        "board": lambda p: (f'[[step eq="x < 6 → y = {p["a"]} · x ≥ 6 → '
+                            f'y = {p["b"]}"]]'
+                            f'[[step eq="the jump measures ?"]]'),
+        "praise": lambda p: (f"The two sides head for {p['a']} and "
+                             f"{p['b']}, so the curve leaps "
+                             f"{p['b'] - p['a']} in no distance at all — "
+                             f"that is a jump discontinuity, and its size "
+                             f"is the gap between the one-sided limits. "
+                             f"{p['b']} is only where it lands."),
+        "key": lambda p: p["b"] - p["a"],
+        # The errors: where it lands, and the two heights added.
+        "choices": lambda p: [p["b"] - p["a"], p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 40
+                            and p["b"] - p["a"] >= 2
+                            and 6 not in (p["a"], p["b"])
+                            and p["a"] + p["b"] != 6
+                            and len({p["b"] - p["a"], p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a real gap, no height and no tap equal to the "
+                            "border 6 the question names, and three "
+                            "distinct taps"),
+    },
+    "cfix": {  # mend the break: the flat piece must MEET the sloping one
+        "ans": lambda p: p["c"] + p["a"],
+        "spoken": lambda p: (f"y equals x plus {p['a']} while x is below "
+                             f"{p['c']}, and a flat {p['b']} once x reaches "
+                             f"{p['c']}. Right now it jumps. What would "
+                             f"that flat value have to be for the curve to "
+                             f"join up smoothly?"),
+        "board": lambda p: (f'[[step eq="x < {p["c"]} → y = x + {p["a"]} · '
+                            f'x ≥ {p["c"]} → y = {p["b"]}"]]'
+                            f'[[step eq="join up smoothly · flat value = '
+                            f'?"]]'),
+        "praise": lambda p: (f"Walk the sloping piece right up to "
+                             f"{p['c']}: it arrives at {p['c']} plus "
+                             f"{p['a']}, which is {p['c'] + p['a']}. Set "
+                             f"the flat piece to {p['c'] + p['a']} and the "
+                             f"two ends meet — no jump, no hole, and the "
+                             f"curve is continuous. {p['b']} is the value "
+                             f"that does not fit."),
+        "key": lambda p: p["c"] + p["a"],
+        # The errors: the broken value kept, and the slope's own number.
+        "choices": lambda p: [p["c"] + p["a"], p["b"], p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 12 and 3 <= p["c"] <= 15
+                            and 2 <= p["b"] <= 30
+                            and p["b"] != p["c"] + p["a"]
+                            and p["b"] != p["c"]
+                            and len({p["c"] + p["a"], p["b"], p["a"]}) == 3,
+                            "a flat piece that really does not meet the "
+                            "slope and does not echo the border, and three "
+                            "distinct taps"),
+    },
+    # ---- build lv: Calculus U2 The Derivative -----------------------------
+    "derv": {  # the shrinking window's limit -- pc-u9's avgr, finished
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: (f"On y equals x squared, shrink the window "
+                             f"onto x equals {p['a']}. What number does the "
+                             f"average rate close in on?"),
+        "board": lambda p: (f'[[step eq="y = x² · window shrinking onto x = '
+                            f'{p["a"]}"]]'
+                            f'[[step eq="the rate closes in on ?"]]'),
+        "praise": lambda p: (f"The average rate is the two x's put "
+                             f"together, so sliding both onto {p['a']} "
+                             f"gives {2 * p['a']} — the DERIVATIVE there, "
+                             f"the slope at a single point. "
+                             f"{p['a'] * p['a']} is how HIGH the curve is, "
+                             f"not how steep."),
+        "key": lambda p: p["a"],
+        # The errors: the curve's HEIGHT at that x, and the x itself.
+        "choices": lambda p: [2 * p["a"], p["a"] * p["a"], p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (3 <= p["a"] <= 24 and p["b"] == 0
+                            and len({2 * p["a"], p["a"] * p["a"],
+                                     p["a"]}) == 3,
+                            "an x where the slope, the height and the x "
+                            "itself are three different numbers"),
+    },
+    "pwrc": {  # the power rule: the exponent comes DOWN and times the front
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"The power rule says the exponent comes down "
+                             f"in front and the power drops by one. For y "
+                             f"equals {p['b']} x to the power {p['a']}, "
+                             f"what is the derivative's front number?"),
+        "board": lambda p: (f'[[step eq="y = {p["b"]}x^{p["a"]}"]]'
+                            f'[[step eq="derivative front number = ?"]]'),
+        "praise": lambda p: (f"The {p['a']} comes down and meets the "
+                             f"{p['b']} already standing there: {p['a']} "
+                             f"times {p['b']} equals {p['a'] * p['b']}, and "
+                             f"the power drops to {p['a'] - 1}. So the "
+                             f"derivative is {p['a'] * p['b']} x to the "
+                             f"{p['a'] - 1}. Adding the two numbers is not "
+                             f"a rule anything obeys."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the two numbers ADDED, and the front number left
+        # alone (the exponent never brought down).
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"] and p["a"] * p["b"] <= 96
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "an exponent and a front number that differ, "
+                            "with three distinct taps"),
+    },
+    "cnst": {  # a straight line has ONE slope, everywhere
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"A straight line is y equals {p['a']} x plus "
+                             f"{p['b']}. Its steepness never changes. What "
+                             f"is its derivative — the slope, anywhere "
+                             f"along it?"),
+        "board": lambda p: (f'[[step eq="y = {p["a"]}x + {p["b"]}"]]'
+                            f'[[step eq="slope anywhere = ?"]]'),
+        "praise": lambda p: (f"A line climbs {p['a']} for every step "
+                             f"across, at every point on it, so its "
+                             f"derivative is just {p['a']} — a constant. "
+                             f"The {p['b']} only says where the line starts "
+                             f"and never changes its steepness; a plain "
+                             f"number has a derivative of zero."),
+        "key": lambda p: p["a"],
+        # The errors: the starting height read as the slope, and the two
+        # numbers added.
+        "choices": lambda p: [p["a"], p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 20 and 2 <= p["b"] <= 20
+                            and p["a"] != p["b"]
+                            and len({p["a"], p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a slope and a starting height that differ, "
+                            "with three distinct taps"),
+    },
+    "evat": {  # a derivative is a FUNCTION -- feed it an x
+        "ans": lambda p: 2 * p["a"] * p["c"],
+        "spoken": lambda p: (f"For y equals {p['a']} x squared, the "
+                             f"derivative is {2 * p['a']} x. What is the "
+                             f"slope of the curve at x equals {p['c']}?"),
+        "board": lambda p: (f'[[step eq="y = {p["a"]}x² → slope = '
+                            f'{2 * p["a"]}x"]]'
+                            f'[[step eq="at x = {p["c"]} · slope = ?"]]'),
+        "praise": lambda p: (f"The derivative is a machine of its own: feed "
+                             f"it {p['c']} and it gives {2 * p['a']} times "
+                             f"{p['c']} — {2 * p['a'] * p['c']}. That is "
+                             f"the slope right at that point. "
+                             f"{p['a'] * p['c'] * p['c']} is how high the "
+                             f"curve sits there, and {2 * p['a']} is the "
+                             f"derivative's own front number, before any x "
+                             f"went in."),
+        "key": lambda p: 2 * p["a"] * p["c"],
+        # The errors: the HEIGHT of the curve, and the derivative's front
+        # number handed back un-fed.
+        "choices": lambda p: [2 * p["a"] * p["c"],
+                              p["a"] * p["c"] * p["c"], 2 * p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["c"] <= 9
+                            and p["b"] == 0
+                            and 2 * p["a"] * p["c"] <= 96
+                            and len({2 * p["a"] * p["c"],
+                                     p["a"] * p["c"] * p["c"],
+                                     2 * p["a"]}) == 3,
+                            "a point where the slope, the height and the "
+                            "bare front number are three different taps"),
+    },
+    # ---- build lv: Calculus U3 Product, Quotient & Chain Rules ------------
+    "prod": {  # the product rule agrees with multiplying out first
+        "ans": lambda p: 2 * p["c"] + p["a"],
+        "spoken": lambda p: (f"y equals x times the quantity x plus "
+                             f"{p['a']}. Multiplied out that is x squared "
+                             f"plus {p['a']} x, so its derivative is 2 x "
+                             f"plus {p['a']}. What is the slope at x equals "
+                             f"{p['c']}?"),
+        "board": lambda p: (f'[[step eq="y = x(x + {p["a"]}) = x² + '
+                            f'{p["a"]}x"]]'
+                            f'[[step eq="slope = 2x + {p["a"]} · at x = '
+                            f'{p["c"]} = ?"]]'),
+        "praise": lambda p: (f"Feed {p['c']} into 2 x plus {p['a']}: "
+                             f"{2 * p['c']} plus {p['a']} is "
+                             f"{2 * p['c'] + p['a']}. The product rule "
+                             f"gives this without expanding first. "
+                             f"{p['c'] * (p['c'] + p['a'])} is the curve's "
+                             f"height there, not its slope."),
+        "key": lambda p: 2 * p["c"] + p["a"],
+        # The errors: the curve's height at that x, and the 2x term with
+        # the second piece's derivative forgotten.
+        "choices": lambda p: [2 * p["c"] + p["a"],
+                              p["c"] * (p["c"] + p["a"]), 2 * p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["c"] <= 12
+                            and p["b"] == 0
+                            and len({2 * p["c"] + p["a"],
+                                     p["c"] * (p["c"] + p["a"]),
+                                     2 * p["c"]}) == 3,
+                            "a point where the slope, the height and the "
+                            "half-answer are three different taps"),
+    },
+    "chan": {  # the chain rule: the INSIDE's derivative comes out too
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"y equals the quantity {p['a']} x plus 3, "
+                             f"raised to the power {p['b']}. The chain rule "
+                             f"brings the power down front AND times by the "
+                             f"inside's own derivative. What number ends up "
+                             f"in front?"),
+        "board": lambda p: (f'[[step eq="y = ({p["a"]}x + 3)^{p["b"]}"]]'
+                            f'[[step eq="front number of the derivative = '
+                            f'?"]]'),
+        "praise": lambda p: (f"Two things come down: the power {p['b']} "
+                             f"and the inside's derivative {p['a']} — "
+                             f"{p['b']} times {p['a']} is "
+                             f"{p['a'] * p['b']}. Forgetting the inside "
+                             f"leaves {p['b']}, the commonest mistake in "
+                             f"Calculus."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the INSIDE forgotten (the classic), and the two
+        # numbers added.
+        "choices": lambda p: [p["a"] * p["b"], p["b"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] != p["b"] and p["a"] * p["b"] <= 81
+                            and len({p["a"] * p["b"], p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "an inside and a power that differ, with three "
+                            "distinct taps"),
+    },
+    "chev": {  # the chain rule, then fed a number
+        "ans": lambda p: 2 * p["a"] * p["b"],
+        "spoken": lambda p: (f"y equals the quantity {p['a']} x plus "
+                             f"{p['b']}, squared. The chain rule gives a "
+                             f"slope of 2, times that quantity, times "
+                             f"{p['a']}. What is the slope at x equals "
+                             f"zero?"),
+        "board": lambda p: (f'[[step eq="y = ({p["a"]}x + {p["b"]})²"]]'
+                            f'[[step eq="slope = 2({p["a"]}x + {p["b"]})'
+                            f'·{p["a"]} · at x = 0 = ?"]]'),
+        "praise": lambda p: (f"At x equals zero the inside is just "
+                             f"{p['b']}, so the slope is 2 times {p['b']} "
+                             f"times {p['a']} — {2 * p['a'] * p['b']}. "
+                             f"{p['b'] * p['b']} is the curve's height "
+                             f"there, and {2 * p['b']} drops the inside's "
+                             f"derivative — the chain rule's whole point."),
+        "key": lambda p: 2 * p["a"] * p["b"],
+        # The errors: the HEIGHT at zero, and the chain factor dropped.
+        "choices": lambda p: [2 * p["a"] * p["b"], p["b"] * p["b"],
+                              2 * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"]
+                            and 2 * p["a"] * p["b"] <= 96
+                            and len({2 * p["a"] * p["b"], p["b"] * p["b"],
+                                     2 * p["b"]}) == 3,
+                            "an inside and a multiplier that differ, with "
+                            "three distinct taps"),
+    },
+    "quot": {  # a constant on the bottom just divides -- no quotient rule
+        "ans": lambda p: 2 * p["a"] // p["b"],
+        "spoken": lambda p: (f"y equals {p['a']} x squared, all divided by "
+                             f"{p['b']}. A plain number on the bottom just "
+                             f"divides everything. What is the derivative's "
+                             f"front number?"),
+        "board": lambda p: (f'[[step eq="y = {p["a"]}x² ÷ {p["b"]}"]]'
+                            f'[[step eq="derivative front number = ?"]]'),
+        "praise": lambda p: (f"The power rule doubles the {p['a']} to "
+                             f"{2 * p['a']}, and the {p['b']} underneath "
+                             f"divides it: {2 * p['a']} over {p['b']} is "
+                             f"{2 * p['a'] // p['b']}. A constant on the "
+                             f"bottom needs no quotient rule at all — it "
+                             f"just comes along for the ride."),
+        "key": lambda p: 2 * p["a"] // p["b"],
+        # The errors: the 2 from the power rule forgotten, and the two
+        # numbers timesed instead of divided.
+        "choices": lambda p: [2 * p["a"] // p["b"], p["a"] // p["b"],
+                              p["a"] * p["b"]],
+        "check": lambda p: ((2 * p["a"]) % p["b"] == 0
+                            and p["a"] % p["b"] == 0
+                            and 2 <= p["b"] <= 12 and p["a"] <= 60
+                            and 2 * p["a"] // p["b"] >= 2
+                            and len({2 * p["a"] // p["b"],
+                                     p["a"] // p["b"],
+                                     p["a"] * p["b"]}) == 3,
+                            "both the doubled and the plain division land "
+                            "whole, so the forgotten-2 tap is a real "
+                            "number, and three distinct taps"),
+    },
+    # ---- build lw: Calculus U4 Applications of Derivatives ----------------
+    "vsol": {  # run a derivative BACKWARDS: when is the speed this?
+        "ans": lambda p: p["b"] // (2 * p["a"]),
+        "spoken": lambda p: (f"A ball has fallen {p['a']} t squared metres "
+                             f"after t seconds, so its speed is "
+                             f"{2 * p['a']} t metres a second. At what time "
+                             f"is it falling at {p['b']} metres a second?"),
+        "board": lambda p: (f'[[step eq="speed = {2 * p["a"]}t"]]'
+                            f'[[step eq="speed = {p["b"]} at t = ?"]]'),
+        "praise": lambda p: (f"Set the speed equal to {p['b']}: "
+                             f"{2 * p['a']} t equals {p['b']}, so t is "
+                             f"{p['b']} over {2 * p['a']} — "
+                             f"{p['b'] // (2 * p['a'])} seconds. A "
+                             f"derivative can be solved like any other "
+                             f"equation once you know what it says."),
+        "key": lambda p: p["b"] // (2 * p["a"]),
+        # The errors: the speed handed back as a time, and dividing by the
+        # front number without doubling it.
+        "choices": lambda p: [p["b"] // (2 * p["a"]), p["b"],
+                              p["b"] // p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 9
+                            and p["b"] % (2 * p["a"]) == 0
+                            and p["b"] % p["a"] == 0
+                            and 2 <= p["b"] // (2 * p["a"]) <= 15
+                            and len({p["b"] // (2 * p["a"]), p["b"],
+                                     p["b"] // p["a"]}) == 3,
+                            "a time that lands whole, with the halved-and-"
+                            "unhalved divisions both real, and three "
+                            "distinct taps"),
+    },
+    "mrat": {  # related rates: how fast the AREA grows as the side grows
+        "ans": lambda p: 2 * p["a"] * p["b"],
+        "spoken": lambda p: (f"A square's side is growing {p['b']} "
+                             f"centimetres a second. At the moment the side "
+                             f"is {p['a']} centimetres, how fast is its "
+                             f"AREA growing, in square centimetres a "
+                             f"second?"),
+        "board": lambda p: (f'[[step eq="side {p["a"]} cm · growing '
+                            f'{p["b"]} cm/s"]]'
+                            f'[[step eq="area growing at ? cm²/s"]]'),
+        "praise": lambda p: (f"Area is side squared, so its rate is 2 times "
+                             f"the side times the side's rate: 2 times "
+                             f"{p['a']} times {p['b']} — "
+                             f"{2 * p['a'] * p['b']} square centimetres a "
+                             f"second. The area speeds up as the square "
+                             f"grows, even though the side keeps a steady "
+                             f"{p['b']}."),
+        "key": lambda p: 2 * p["a"] * p["b"],
+        # The errors: the SIDE's rate answered, and the area itself.
+        "choices": lambda p: [2 * p["a"] * p["b"], p["b"],
+                              p["a"] * p["a"]],
+        "check": lambda p: (3 <= p["a"] <= 20 and 2 <= p["b"] <= 9
+                            and 2 * p["a"] * p["b"] <= 96
+                            and len({2 * p["a"] * p["b"], p["b"],
+                                     p["a"] * p["a"]}) == 3,
+                            "a growing square whose rate, side-rate and "
+                            "area are three different numbers"),
+    },
+    "crit": {  # where the curve levels off: the slope hits zero
+        "ans": lambda p: p["a"] // 2,
+        "spoken": lambda p: (f"For y equals x squared take away {p['a']} x, "
+                             f"the slope is 2 x take away {p['a']}. At "
+                             f"which x is the slope exactly zero?"),
+        "board": lambda p: (f'[[step eq="slope = 2x − {p["a"]}"]]'
+                            f'[[step eq="slope = 0 at x = ?"]]'),
+        "praise": lambda p: (f"Set the slope to zero: 2 x equals {p['a']}, "
+                             f"so x is {p['a'] // 2}. There the curve is "
+                             f"flat for an instant — the bottom of its "
+                             f"valley, and the only place a smooth curve "
+                             f"can turn around. {p['a']} is the number in "
+                             f"the slope, not the x that answers it."),
+        "key": lambda p: p["a"] // 2,
+        # The errors: the slope's own number, and doubling instead of
+        # halving.
+        "choices": lambda p: [p["a"] // 2, p["a"], 2 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 40
+                            and len({p["a"] // 2, p["a"],
+                                     2 * p["a"]}) == 3,
+                            "an even number so the flat point lands whole, "
+                            "and three distinct taps"),
+    },
+    "acce": {  # the derivative OF the derivative
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: (f"A stone falls {p['a']} t squared metres in t "
+                             f"seconds. Its speed is {2 * p['a']} t. "
+                             f"Differentiate once more: what is its "
+                             f"acceleration?"),
+        "board": lambda p: (f'[[step eq="fallen {p["a"]}t² · speed '
+                            f'{2 * p["a"]}t"]]'
+                            f'[[step eq="differentiate again → ?"]]'),
+        "praise": lambda p: (f"The speed {2 * p['a']} t is a line, and a "
+                             f"line's derivative is its front number: "
+                             f"{2 * p['a']}. That is the acceleration — the "
+                             f"rate the SPEED changes — and it never varies "
+                             f"here, which is exactly what falling under "
+                             f"gravity does. {p['a']} is the distance's "
+                             f"number, one step back."),
+        "key": lambda p: p["a"],
+        # The errors: the distance's front number (one differentiation
+        # short), and doubling once too often.
+        "choices": lambda p: [2 * p["a"], p["a"], 4 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 24 and p["b"] == 0
+                            and len({2 * p["a"], p["a"], 4 * p["a"]}) == 3,
+                            "a fall whose speed, distance and double-"
+                            "doubled numbers all differ"),
+    },
+    # ---- build lw: Calculus U5 Curve Sketching & Optimization -------------
+    "optr": {  # the best rectangle for a fixed fence is a SQUARE
+        "ans": lambda p: p["a"] // 4,
+        "spoken": lambda p: (f"A rectangle is to be built with {p['a']} "
+                             f"metres of fence all the way round. To make "
+                             f"its area as big as possible, how long should "
+                             f"each side be?"),
+        "board": lambda p: (f'[[step eq="fence all round = {p["a"]} m"]]'
+                            f'[[step eq="biggest area · each side = ?"]]'),
+        "praise": lambda p: (f"The area is biggest when the rectangle is a "
+                             f"SQUARE, and four equal sides share the "
+                             f"{p['a']} metres: {p['a'] // 4} metres each. "
+                             f"{p['a'] // 2} would be half the fence — two "
+                             f"sides, not one — and a shape stretched long "
+                             f"and thin has almost no area at all."),
+        "key": lambda p: p["a"] // 4,
+        # The errors: half the fence (two sides at once), and the whole
+        # fence read as a side.
+        "choices": lambda p: [p["a"] // 4, p["a"] // 2, p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 4 == 0 and 16 <= p["a"] <= 80
+                            and len({p["a"] // 4, p["a"] // 2,
+                                     p["a"]}) == 3,
+                            "a fence that shares four ways exactly, and "
+                            "three distinct taps"),
+    },
+    "maxa": {  # ...and how much area that actually wins you
+        "ans": lambda p: (p["a"] // 4) * (p["a"] // 4),
+        "spoken": lambda p: (f"With {p['a']} metres of fence all the way "
+                             f"round, the best rectangle is a square of "
+                             f"side {p['a'] // 4}. What is its area, in "
+                             f"square metres?"),
+        "board": lambda p: (f'[[step eq="square of side {p["a"] // 4} m"]]'
+                            f'[[step eq="area = ? m²"]]'),
+        "praise": lambda p: (f"A square of side {p['a'] // 4} has area "
+                             f"{p['a'] // 4} times {p['a'] // 4} — "
+                             f"{(p['a'] // 4) * (p['a'] // 4)} square "
+                             f"metres. That is the most any rectangle can "
+                             f"get from {p['a']} metres of fence; every "
+                             f"other shape with the same fence encloses "
+                             f"less."),
+        "key": lambda p: (p["a"] // 4) * (p["a"] // 4),
+        # The errors: the SIDE answered instead of the area, and the fence.
+        "choices": lambda p: [(p["a"] // 4) * (p["a"] // 4), p["a"] // 4,
+                              p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 4 == 0 and 16 <= p["a"] <= 88
+                            and p["b"] == 0
+                            and len({(p["a"] // 4) * (p["a"] // 4),
+                                     p["a"] // 4, p["a"]}) == 3,
+                            "a square whose area, side and fence are three "
+                            "different numbers"),
+    },
+    "sumx": {  # two numbers with a fixed sum: equal halves win
+        "ans": lambda p: (p["a"] // 2) * (p["a"] // 2),
+        "spoken": lambda p: (f"Two numbers add to {p['a']}. Choosing them "
+                             f"to make their product as big as possible, "
+                             f"what is that biggest product?"),
+        "board": lambda p: (f'[[step eq="two numbers adding to {p["a"]}"]]'
+                            f'[[step eq="biggest product = ?"]]'),
+        "praise": lambda p: (f"Equal halves always win: {p['a'] // 2} and "
+                             f"{p['a'] // 2} give {(p['a'] // 2) * (p['a'] // 2)}. "
+                             f"Pull them apart and the product falls away — "
+                             f"1 and {p['a'] - 1} give only {p['a'] - 1}. "
+                             f"It is the fence problem again, wearing plain "
+                             f"numbers."),
+        "key": lambda p: (p["a"] // 2) * (p["a"] // 2),
+        # The errors: the half answered instead of the product, and the sum.
+        "choices": lambda p: [(p["a"] // 2) * (p["a"] // 2), p["a"] // 2,
+                              p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 6 <= p["a"] <= 32
+                            and p["b"] == 0
+                            and len({(p["a"] // 2) * (p["a"] // 2),
+                                     p["a"] // 2, p["a"]}) == 3,
+                            "an even sum whose product, half and total are "
+                            "three different numbers"),
+    },
+    "infl": {  # where the bend itself changes sides
+        "ans": lambda p: p["a"] // 3,
+        "spoken": lambda p: (f"For y equals x cubed take away {p['a']} x "
+                             f"squared, the second derivative is 6 x take "
+                             f"away {2 * p['a']}. At which x is the SECOND "
+                             f"derivative zero?"),
+        "board": lambda p: (f'[[step eq="second derivative = 6x − '
+                            f'{2 * p["a"]}"]]'
+                            f'[[step eq="second derivative = 0 at x = ?"]]'),
+        "praise": lambda p: (f"6 x equals {2 * p['a']}, so x is "
+                             f"{p['a'] // 3}. There the curve stops bending "
+                             f"one way and starts bending the other — an "
+                             f"inflection point. The slope is not zero "
+                             f"there; it is the BEND that changes, which is "
+                             f"a different thing entirely."),
+        "key": lambda p: p["a"] // 3,
+        # The errors: halving (the first-derivative habit), and the number
+        # from the equation.
+        "choices": lambda p: [p["a"] // 3, p["a"] // 2, p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 6 == 0 and 6 <= p["a"] <= 90
+                            and len({p["a"] // 3, p["a"] // 2,
+                                     p["a"]}) == 3,
+                            "a number that thirds AND halves cleanly, so "
+                            "the halving tap is a real number, and three "
+                            "distinct taps"),
+    },
+    # ---- build lx: Calculus U6 Antiderivatives ----------------------------
+    "anti": {  # the power rule run BACKWARDS
+        "ans": lambda p: p["a"] // 2,
+        "spoken": lambda p: (f"Which function has a derivative of {p['a']} "
+                             f"x? It looks like something times x squared — "
+                             f"what is that something?"),
+        "board": lambda p: (f'[[step eq="derivative = {p["a"]}x"]]'
+                            f'[[step eq="? x² came from it"]]'),
+        "praise": lambda p: (f"Differentiating {p['a'] // 2} x squared "
+                             f"doubles the {p['a'] // 2} and drops the "
+                             f"power: {p['a']} x, exactly what we wanted. "
+                             f"Going backwards you HALVE instead of "
+                             f"doubling, so {p['a']} x squared would "
+                             f"differentiate to {2 * p['a']} x — far too "
+                             f"much."),
+        "key": lambda p: p["a"] // 2,
+        # The errors: the number copied straight over (no halving), and
+        # doubling -- the forward rule run the wrong way.
+        "choices": lambda p: [p["a"] // 2, p["a"], 2 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 60
+                            and p["b"] == 0
+                            and len({p["a"] // 2, p["a"],
+                                     2 * p["a"]}) == 3,
+                            "an even front number so the halving lands "
+                            "whole, and three distinct taps"),
+    },
+    "antp": {  # backwards through a higher power: raise, then divide
+        "ans": lambda p: p["b"] // (p["a"] + 1),
+        "spoken": lambda p: (f"Which function has a derivative of {p['b']} "
+                             f"x to the power {p['a']}? Its power is one "
+                             f"higher — {p['a'] + 1} — and its front number "
+                             f"is what?"),
+        "board": lambda p: (f'[[step eq="derivative = {p["b"]}x^{p["a"]}"]]'
+                            f'[[step eq="? x^{p["a"] + 1} came from it"]]'),
+        "praise": lambda p: (f"Raise the power to {p['a'] + 1}, then divide "
+                             f"by it: {p['b']} over {p['a'] + 1} is "
+                             f"{p['b'] // (p['a'] + 1)}. Check it forwards "
+                             f"— the {p['a'] + 1} comes down onto "
+                             f"{p['b'] // (p['a'] + 1)} and gives {p['b']} "
+                             f"back. Handing {p['b']} straight back leaves "
+                             f"the dividing undone."),
+        "key": lambda p: p["b"] // (p["a"] + 1),
+        # The errors: the front number handed back undivided, and the new
+        # power itself.
+        "choices": lambda p: [p["b"] // (p["a"] + 1),
+                              p["b"], p["a"] + 1],
+        "check": lambda p: (2 <= p["a"] <= 8
+                            and p["b"] % (p["a"] + 1) == 0
+                            and 2 <= p["b"] // (p["a"] + 1) <= 12
+                            and len({p["b"] // (p["a"] + 1),
+                                     p["b"], p["a"] + 1}) == 3,
+                            "a front number that divides by the new power "
+                            "exactly, and three distinct taps"),
+    },
+    "plusc": {  # antiderivatives come in FAMILIES, a constant apart
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"Two functions have exactly the same "
+                             f"derivative, so they sit a constant {p['b']} "
+                             f"apart at every x. At x equals 4 the lower "
+                             f"one is {p['a']}. What is the higher one "
+                             f"there?"),
+        "board": lambda p: (f'[[step eq="same derivative · {p["b"]} apart '
+                            f'everywhere"]]'
+                            f'[[step eq="lower is {p["a"]} · higher = ?"]]'),
+        "praise": lambda p: (f"They run parallel, {p['b']} apart at every "
+                             f"single x, so the higher one is {p['a']} plus "
+                             f"{p['b']} — {p['a'] + p['b']}. That gap is "
+                             f"the plus C: an antiderivative is never one "
+                             f"function but a whole family of them, stacked "
+                             f"up the page."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the gap taken away instead of added, and the gap
+        # itself answered.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] - p["b"], p["b"]],
+        "check": lambda p: (5 <= p["a"] <= 60 and 2 <= p["b"] <= 30
+                            and p["a"] - p["b"] >= 2
+                            and len({p["a"] + p["b"], p["a"] - p["b"],
+                                     p["b"]}) == 3,
+                            "a real gap that still leaves the lower curve "
+                            "positive, and three distinct taps"),
+    },
+    "init": {  # one known point picks ONE member of the family
+        "ans": lambda p: p["c"] * p["c"] + p["a"],
+        "spoken": lambda p: (f"A curve has slope 2 x everywhere, and passes "
+                             f"through the height {p['a']} when x is zero. "
+                             f"What is its height at x equals {p['c']}?"),
+        "board": lambda p: (f'[[step eq="slope 2x → y = x² + C"]]'
+                            f'[[step eq="y = {p["a"]} at x = 0 · y at x = '
+                            f'{p["c"]} = ?"]]'),
+        "praise": lambda p: (f"Slope 2 x comes from x squared, plus some "
+                             f"constant. At x equals zero the x squared is "
+                             f"nothing, so the constant is {p['a']} itself. "
+                             f"Then at {p['c']}: {p['c']} squared is "
+                             f"{p['c'] * p['c']}, plus {p['a']} — "
+                             f"{p['c'] * p['c'] + p['a']}. One known point "
+                             f"picks one curve out of the whole family."),
+        "key": lambda p: p["c"] * p["c"] + p["a"],
+        # The errors: the constant forgotten, and the starting height kept
+        # as though the curve never moved.
+        "choices": lambda p: [p["c"] * p["c"] + p["a"],
+                              p["c"] * p["c"], p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 30 and 2 <= p["c"] <= 9
+                            and p["b"] == 0
+                            and p["c"] * p["c"] != p["a"]
+                            and len({p["c"] * p["c"] + p["a"],
+                                     p["c"] * p["c"], p["a"]}) == 3,
+                            "a height and a square that differ, with three "
+                            "distinct taps"),
+    },
+    # ---- build lx: Calculus U7 The Definite Integral & the FTC ------------
+    "defi": {  # the simplest integral of all: a rectangle
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"A car holds a steady {p['a']} metres a "
+                             f"second for {p['b']} seconds. On a speed "
+                             f"graph that is a rectangle, and its area is "
+                             f"the distance travelled. How far did it go?"),
+        "board": lambda p: (f'[[step eq="speed {p["a"]} m/s · for '
+                            f'{p["b"]} s"]]'
+                            f'[[step eq="area under the graph = ? metres"]]'),
+        "praise": lambda p: (f"{p['a']} metres every second for {p['b']} "
+                             f"seconds is {p['a'] * p['b']} metres — and on "
+                             f"the graph that is exactly the rectangle's "
+                             f"area, height times width. That is what an "
+                             f"integral IS: the area underneath, read as "
+                             f"whatever the picture measures."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the two numbers added, and the time alone.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 20 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"]
+                            and p["a"] * p["b"] <= 200
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a steady speed and a time that differ, with "
+                            "three distinct taps"),
+    },
+    "triz": {  # a straight ramp: the area is a triangle
+        "ans": lambda p: p["a"] * p["a"] // 2,
+        "spoken": lambda p: (f"A car speeds up steadily so that after t "
+                             f"seconds it is going t metres a second. After "
+                             f"{p['a']} seconds, the area under that speed "
+                             f"graph is a triangle. How far has it gone?"),
+        "board": lambda p: (f'[[step eq="speed = t · from 0 to '
+                            f'{p["a"]} s"]]'
+                            f'[[step eq="triangle area = ? metres"]]'),
+        "praise": lambda p: (f"The triangle is {p['a']} wide and {p['a']} "
+                             f"tall, and a triangle takes half the "
+                             f"rectangle: {p['a']} times {p['a']} halved is "
+                             f"{p['a'] * p['a'] // 2} metres. Forgetting "
+                             f"the half claims {p['a'] * p['a']} — the "
+                             f"whole rectangle, as if the car had gone flat "
+                             f"out the entire time."),
+        "key": lambda p: p["a"],
+        # The errors: the half forgotten (the full rectangle), and the time.
+        "choices": lambda p: [p["a"] * p["a"] // 2, p["a"] * p["a"],
+                              p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 30
+                            and p["b"] == 0
+                            and len({p["a"] * p["a"] // 2, p["a"] * p["a"],
+                                     p["a"]}) == 3,
+                            "an even time so the half lands whole, and "
+                            "three distinct taps"),
+    },
+    "ftc": {  # the fundamental theorem: end value take away start value
+        "ans": lambda p: p["b"] * p["b"] - p["a"] * p["a"],
+        "spoken": lambda p: (f"The area under y equals 2 x, from x equals "
+                             f"{p['a']} to x equals {p['b']}, is found by "
+                             f"working out x squared at both ends and "
+                             f"taking one from the other. What is it?"),
+        "board": lambda p: (f'[[step eq="area under 2x from {p["a"]} to '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="{p["b"]}² − {p["a"]}² = ?"]]'),
+        "praise": lambda p: (f"{p['b']} squared is {p['b'] * p['b']}, "
+                             f"{p['a']} squared is {p['a'] * p['a']}, so "
+                             f"the area is "
+                             f"{p['b'] * p['b'] - p['a'] * p['a']}. That is "
+                             f"the Fundamental Theorem: areas come from "
+                             f"ANTIDIFFERENTIATING and taking end from "
+                             f"start — the two halves of Calculus, one "
+                             f"idea."),
+        "key": lambda p: p["b"] * p["b"] - p["a"] * p["a"],
+        # The errors: the difference SQUARED, and the plain width.
+        "choices": lambda p: [p["b"] * p["b"] - p["a"] * p["a"],
+                              (p["b"] - p["a"]) * (p["b"] - p["a"]),
+                              p["b"] - p["a"]],
+        "check": lambda p: (1 <= p["a"] and p["a"] + 2 <= p["b"] <= 14
+                            and len({p["b"] * p["b"] - p["a"] * p["a"],
+                                     (p["b"] - p["a"]) * (p["b"] - p["a"]),
+                                     p["b"] - p["a"]}) == 3,
+                            "ends far enough apart that the squared "
+                            "difference is a visibly different number"),
+    },
+    "avgv": {  # spread the area back out: the average height
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"The area under a curve from x equals zero to "
+                             f"x equals {p['b']} is {p['a']}. If that same "
+                             f"area were a flat rectangle of the same "
+                             f"width, how tall would it be?"),
+        "board": lambda p: (f'[[step eq="area {p["a"]} · width {p["b"]}"]]'
+                            f'[[step eq="flattened height = ?"]]'),
+        "praise": lambda p: (f"Spread {p['a']} of area evenly across a "
+                             f"width of {p['b']} and it stands "
+                             f"{p['a'] // p['b']} high — the curve's "
+                             f"AVERAGE height. Some of it towers above that "
+                             f"line and some falls below, and the two "
+                             f"exactly trade places."),
+        "key": lambda p: p["a"] // p["b"],
+        # The errors: the area answered as a height, and the width.
+        "choices": lambda p: [p["a"] // p["b"], p["a"], p["b"]],
+        "check": lambda p: (2 <= p["b"] <= 12 and p["a"] % p["b"] == 0
+                            and 2 <= p["a"] // p["b"] <= 20
+                            and p["a"] <= 200
+                            and len({p["a"] // p["b"], p["a"],
+                                     p["b"]}) == 3,
+                            "an area that flattens to a whole height, and "
+                            "three distinct taps"),
+    },
 }
+
+
+
+
+
 
 
 
