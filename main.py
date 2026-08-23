@@ -2,6 +2,66 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  APP_BUILD -> "2026-08-22lo-the-work-clothes-and-the-equation".
+#               BUILD lo -- PRE-CALC UNITS 6 AND 7 (Applications of
+#               Trigonometry; Conic Sections & Parametric Equations). 204
+#               lessons -> 212, 193 ops -> 201. NOTHING IN THIS FILE CHANGED
+#               but this note and the stamp -- the course grew in
+#               lessonscripts.py (ops arsn/ramp/brng/vmag and crad/cctr/elax/
+#               parm). U6: area from two sides and the angle, the 30-degree
+#               ramp, bearings wrapped past 360, an arrow's length from its
+#               steps. U7: un-square the radius, read the center (the sign
+#               points opposite), un-square and double for an ellipse's
+#               width, and position by time. Two shelved renderers finally
+#               used -- [[vector]] and [[conic]] -- both TEACH-ONLY, since
+#               each would print or let a child measure the answer.
+#   2026-08-22  APP_BUILD -> "2026-08-22ln-the-language-and-the-mirror". BUILD
+#               ln -- PRE-CALC UNITS 4 AND 5 (Trigonometric Functions;
+#               Analytic Trigonometry). 196 lessons -> 204, 185 ops -> 193.
+#               NOTHING IN THIS FILE CHANGED but this note and the stamp --
+#               the course grew in lessonscripts.py (ops rad1/nspn/refq/wper
+#               and pyid/cofn/negf/sols; period is "wper" because "peri" was
+#               already Basic Math's perimeter). U4 deepens alg2-u8: radians
+#               in half turns, negative angles named forwards, reference
+#               angles hugging the flat line, the period of sin(ax). U5, the
+#               identities: one whole split into hundredths, partners across
+#               90, the mirror that flips height and never across, and
+#               crossings counted per sweep.
+#   2026-08-22  APP_BUILD -> "2026-08-22lm-the-shortcut-and-the-layers". BUILD
+#               lm -- PRE-CALC UNITS 2 AND 3 (Polynomial & Rational Functions;
+#               Exponential & Logarithmic Functions). 188 lessons -> 196, 177
+#               ops -> 185. NOTHING IN THIS FILE CHANGED but this note and the
+#               stamp -- the course grew in lessonscripts.py (ops negp/remt/
+#               vprd/vasy and logp/lsol/hcnt/cmpd). U2: the minus parade, the
+#               Remainder Theorem as the plug-in shortcut (named on the board;
+#               the speech says "left over" -- "remainder" contains the banned
+#               "remain"), Vieta's product (lh's planted promise, paid), and
+#               forbidden x's counted from factored bottoms. U3: the power
+#               rule brings the exponent down front, log equations solved by
+#               stacking the base, halvings counted backwards (hlfl's mirror),
+#               and money that doubles beating steady adding.
+#   2026-08-22  APP_BUILD -> "2026-08-22ll-algebra-two-complete". BUILD ll -- ⭐
+#               ALGEBRA II COMPLETE (U9 Statistics & Probability: weighted means,
+#               three slots, expected value, sampling) and ⭐ PRE-CALC OPENS (U1
+#               Functions & Their Graphs: composition, the graph-slides rule,
+#               domain, piecewise). 180 lessons -> 188, 169 ops -> 177. NOTHING
+#               IN THIS FILE CHANGED but this note and the stamp -- the course
+#               grew in lessonscripts.py (ops wavg/cnt3/expv/samp and
+#               fcmp/fshf/fdom/fpie). Eight courses done, Pre-Calc the ninth
+#               underway; only Probability & Statistics, Calculus and
+#               Differential Equations remain unopened.
+#   2026-08-22  APP_BUILD -> "2026-08-22lk-the-ride-and-the-circle". BUILD lk --
+#               ALGEBRA II UNITS 7 AND 8 (Sequences & Series; Trigonometric
+#               Functions). 172 lessons -> 180, 161 ops -> 169. NOTHING IN THIS
+#               FILE CHANGED but this note and the stamp -- the course grew in
+#               lessonscripts.py (ops anth/gnth/gaus/reca and sinp/cosp/spin/
+#               ampl). U7: ride the pattern (the off-by-one), times again,
+#               Gauss's pairing (the child gets to BE Gauss at n=100), walk the
+#               rule. U8: the circle of size one -- sine as height, cosine as
+#               across, coterminal spins, amplitude. [[unitcircle]] drawn by
+#               scripted lessons for the first time (teach boards only -- it
+#               prints the answers); the non-stats renderer shelf is now fully
+#               walked. One unit left in Algebra II: U9.
 #   2026-08-22  APP_BUILD -> "2026-08-22lj-the-root-and-the-hidden-exponent".
 #               BUILD lj -- ALGEBRA II UNITS 5 AND 6 (Radicals & Rational
 #               Exponents; Exponential & Logarithmic Functions). 164 lessons ->
@@ -10212,7 +10272,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22lj-the-root-and-the-hidden-exponent"
+APP_BUILD = "2026-08-22lo-the-work-clothes-and-the-equation"
 
 
 @app.get("/health")

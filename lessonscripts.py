@@ -2,6 +2,140 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-22  BUILD lo -- PRE-CALC UNITS 6 AND 7: THE WORK CLOTHES AND THE
+#               EQUATION. 204 lessons -> 212, 201 ops (arsn, ramp, brng, vmag
+#               + crad, cctr, elax, parm).
+#               UNIT 6, APPLICATIONS OF TRIGONOMETRY -- trigonometry puts on
+#               work clothes: area from two sides and the angle between them
+#               (sin 90 = 1 halves the product, sin 30 = sin 150 quarters it
+#               -- and the 150 case PAYS OFF ln's reference angle), a ramp's
+#               climb as half its length, a ship's bearing wrapped past 360
+#               (ln's coterminal rule, at sea), and an arrow's length from its
+#               two steps -- Geometry's Pythagoras in vector clothes, bounded
+#               above by the corner walk and below by the biggest step.
+#               UNIT 7, CONIC SECTIONS & PARAMETRIC EQUATIONS -- a shape's
+#               EQUATION hands over its measurements: un-square the circle's
+#               right-hand number for the radius, read the center out of the
+#               take-aways (the sign points opposite -- vtx2's and fdom's rule
+#               in its third home), un-square AND DOUBLE for an ellipse's
+#               width, and tie both coordinates to time so the curve becomes a
+#               path (the speed-mistaken-for-distance tap is the new one).
+#               ⭐ TWO SHELVED RENDERERS WALKED: [[vector]] (vmag's teach) and
+#               [[conic]] (crad's and elax's teach). BOTH ARE TEACH-ONLY BY
+#               RULE: [[vector]] prints |v| -- vmag's exact answer -- and
+#               [[conic]] draws on a labeled grid a child could measure an
+#               ellipse's width off. Only [[hyperbola]]-style conic types and
+#               the statistics shelf now remain unused.
+#               Read-aloud pass caught SIX: "half of half of" (unspeakable),
+#               "the turn made backwards" (names the wrong noun), a trailing
+#               possessive ("not 2 seconds'"), two guided asks sharing 144,
+#               a worked example reading "take away 9 ... equals 9", and --
+#               the real one -- arsn's ask FIGURE drawing a 150-degree angle
+#               that looks sharp while the praise calls that triangle wide
+#               (the le/topp class: speech arguing with the picture). The ask
+#               board is now words; the teach keeps the figure at 90 degrees,
+#               where the drawing tells the truth.
+#   2026-08-22  BUILD ln -- PRE-CALC UNITS 4 AND 5: THE LANGUAGE AND THE MIRROR.
+#               196 lessons -> 204, 193 ops (rad1, nspn, refq, wper + pyid,
+#               cofn, negf, sols). NOTE: the period op is "wper", not "peri" --
+#               "peri" was already the Basic Math perimeter op (checked before
+#               authoring; always grep planned op names first).
+#               UNIT 4, TRIGONOMETRIC FUNCTIONS -- the circle gets a NEW
+#               LANGUAGE and a map, deepening alg2-u8's compass points:
+#               radians counted in half turns (180 = 1 pi; the quarter-turn
+#               double and the degrees-copied taps), negative angles named
+#               forwards by adding a full turn (spin's backwards mirror; the
+#               dropped-minus and half-turn taps), reference angles in the
+#               second quarter (hug the FLAT line -- the measured-from-the-top
+#               tap; 135 excluded where the taps would collide), and the
+#               period of sin(ax) (divide 360 -- the times-360 flip and the
+#               plain-360 habit).
+#               UNIT 5, ANALYTIC TRIGONOMETRY -- what is ALWAYS true:
+#               sin^2 + cos^2 splits one whole into hundredths (50 excluded --
+#               the copy tap would collide), cofunction partners across 90
+#               (45 excluded -- its own partner), even/odd on the circle (the
+#               mirror flips height, never across -- lm's minus parade paid
+#               forward; all answers spoken as words, never printed minus),
+#               and counting solutions per sweep (skip the start, keep the
+#               finish; the one-per-quarter tap says 4).
+#               Read-aloud pass found NOTHING to fix -- second build running
+#               (raw-givens + the design-time canon sweep now catch the
+#               defect classes at authoring time).
+#   2026-08-22  BUILD lm -- PRE-CALC UNITS 2 AND 3: THE SHORTCUT AND THE LAYERS.
+#               188 lessons -> 196, 185 ops (negp, remt, vprd, vasy + logp,
+#               lsol, hcnt, cmpd).
+#               UNIT 2, POLYNOMIAL & RATIONAL FUNCTIONS -- a polynomial tells
+#               you everything WITHOUT long division: (-1)^n read by parity
+#               (the minus parade, cancelled two at a time), the Remainder
+#               Theorem as the plug-in shortcut (the theorem's NAME lives on
+#               the board only -- "remainder" contains the banned "remain",
+#               so the speech says "left over" throughout, canon-clean by
+#               construction), Vieta's product paying off lh's planted
+#               promise ("the product -- famous later"; the sum tap is the
+#               mirror), and forbidden x's COUNTED from a factored bottom
+#               (repeated factors share one zero -- count zeros, not
+#               factors).
+#               UNIT 3, EXPONENTIAL & LOGARITHMIC FUNCTIONS -- logs and
+#               exponentials un-do each other: the power rule (the exponent
+#               comes down front; powering the log is the trap), solving
+#               log ? = b by stacking the base (the a-times-b single-times
+#               trap), halvings counted BACKWARDS (hcnt is lj's hlfl read
+#               the other way -- the ratio-not-count trap), and money that
+#               doubles (count the doublings from the years FIRST; steady
+#               adding stalls where doubling pulls away).
+#               All eight ask boards raw-givens at authoring time. Read-aloud
+#               pass caught one edge-grammar defect: negp's "the pairs
+#               cancel" with power 2 or 3 has exactly ONE pair -- now
+#               "cancel two at a time", parity-safe at every power.
+#   2026-08-22  BUILD ll -- ⭐ ALGEBRA II COMPLETE (U9 Statistics & Probability)
+#               and ⭐ PRE-CALC OPENS (U1 Functions & Their Graphs). 188 lessons,
+#               177 ops (wavg, cnt3, expv, samp + fcmp, fshf, fdom, fpie).
+#               Algebra II finishes as the EIGHTH course: nine units, 36 lessons,
+#               the fourth 36-lesson course in a row.
+#               U9 goes past alg1-u9 and geo-u9: the WEIGHTED mean (the
+#               unweighted-average-of-two-numbers slip is the classic), the
+#               counting principle grown a third slot, expected value in child
+#               clothes ("count the paying plays, then times"), and sampling --
+#               "ask a few, learn about everyone", with the sample-copied and
+#               half-guess taps, and the word ABOUT taught as part of the answer.
+#               PRE-CALC U1 grows alg1-u3's machines up: composition in f(g(x))
+#               notation (INSIDE FIRST -- the order flip is the trap), the
+#               graph-slides rule (f(x − a) slides RIGHT -- vtx2's opposite-sign
+#               lesson generalized to every function), the domain as a doorway
+#               (with the taught CONTRAST: the root's edge is welcome, division's
+#               forbidden x was not), and piecewise functions (find where x
+#               lives, run THAT rule only -- the wrong-branch value is the tap).
+#               All eight ask boards are raw-givens by design -- the lj rule
+#               applied at authoring time, and for once the read-aloud pass found
+#               nothing to fix.
+#   2026-08-22  BUILD lk -- ALGEBRA II UNITS 7 AND 8: THE RIDE AND THE CIRCLE.
+#               172 lessons -> 180, 169 ops (anth, gnth, gaus, reca + sinp, cosp,
+#               spin, ampl).
+#               UNIT 7, SEQUENCES & SERIES -- a pattern is a rule you can RIDE:
+#               the arithmetic closed form (the OFF-BY-ONE is the trap -- term c
+#               stands c-1 steps from the start, "the fencepost in a new coat"),
+#               the geometric one (the adding habit again), Gauss's pairing trick
+#               -- where the teach tells the schoolboy story but WITHHOLDS 5050,
+#               so ask2 (n=100) lets the child BE Gauss -- and walking a
+#               recursive rule as the contrast that shows what closed forms buy.
+#               UNIT 8, TRIGONOMETRIC FUNCTIONS -- the circle of size one: sine
+#               is the HEIGHT of the arrow's tip, cosine the ACROSS, read at the
+#               compass points where both are exactly 1, 0 or negative 1 (the
+#               whole-number surface; the four base angles ARE the world, so the
+#               teach shows them -- the turnc precedent -- and the spun angles
+#               past 360 are the fresh practice, which quietly drills coterminal
+#               stripping twelve times per lesson). Then the spin that changes
+#               nothing, and amplitude on a real [[graph]] sine wave (compile
+#               supports sin() -- checked first).
+#               ⭐ [[unitcircle]] draws its first scripted lessons -- teach and
+#               worked boards ONLY: it prints cos and sin at the bottom, the
+#               answers (the righttriangle/inscribed rule, fourth instance). With
+#               it, EVERY non-statistics renderer on July's shelf has now been
+#               walked by a scripted lesson.
+#               Caught out loud: sinp/cosp praise opened lowercase after the
+#               praise prefix in the no-spin branch ("That's it! the arrow...")
+#               -- conditional praise templates must re-check capitalization in
+#               EVERY branch. Validator caught one "makes" (reca teach).
 #   2026-08-22  BUILD lj -- ALGEBRA II UNITS 5 AND 6: THE ROOT AND THE HIDDEN
 #               EXPONENT. 164 lessons -> 172, 161 ops (rmul, rpow, rsq, rbet +
 #               hlfl, logb, logm, lbet).
@@ -7776,6 +7910,1652 @@ _ALGEBRA2_U6 = [
 LESSONS.extend(_ALGEBRA2_U6)
 
 
+# =============================================================================
+# ALGEBRA II -- UNIT 7: SEQUENCES & SERIES (build lk, 2026-08-22)
+# =============================================================================
+# A PATTERN IS A RULE YOU CAN RIDE. The arithmetic closed form (the off-by-one
+# trap: term c stands c-1 steps from the start), the geometric one (the adding
+# habit -- times-not-add, one more time), Gauss's pairing trick (and the ask
+# that lets the child BE nine-year-old Gauss: the teach tells the 1-to-100
+# story but withholds the number), and walking a recursive rule as contrast.
+_ALGEBRA2_U7 = [
+    {
+        "id": "alg2-u7-ride-the-pattern",
+        "course": "algebra2", "unit": 7,
+        "topic": "Arithmetic sequences",
+        "op": "anth", "max_value": 80,
+        "levels": ("abstract",),
+        "symbols": ("term", "step"),
+        "advance_line": "Three in a row — you've got it! Term one is already standing at the start.",
+        "teach": [
+            ["A pattern with a steady step is a road you can ride. 4, 7, 10, 13 — it starts at 4 and grows by 3. To find a far-off term , you could walk: add 3, add 3, add 3… or you could RIDE: count the steps and jump there in one move.",
+             '[[goal text="Ride the pattern"]][[step eq="4, 7, 10, 13, …"]]'],
+            ["How far is term 10? Careful — the famous trap lives right here. Term 1 is already standing at the start; walking from term 1 to term 10 crosses NINE steps, not ten. So term 10 is 4 plus 9 steps of 3 — 4 plus 27 — 31.",
+             '[[step eq="term 1 → term 10: 9 steps"]][[step eq="4 + 9 × 3 = 31"]]'],
+            ["Take ten steps instead and you land at 34 — one term too far. It is the fencepost from the grid unit, wearing a new coat: posts and rails, terms and steps. Terms count the posts; the ride is the rails. One fewer step than the term number, every time.",
+             '[[step eq="4 + 9 × 3 = 31 ✓"]][[step eq="4 + 10 × 3 = 34 ✗ — one step too many"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Start 5, step 2, term 8: seven steps of 2 is 14, and 5 plus 14 is 19.",
+                        '[[step eq="5 + 7 × 2 = 19"]]'],
+             "ask": {"a": 2, "b": 3, "c": 5, "op": "anth"}},
+            {"worked": ["One more together. Start 6, step 4, term 7: six steps — 6 plus 24 equals 30.",
+                        '[[step eq="6 + 6 × 4 = 30"]]'],
+             "ask": {"a": 5, "b": 4, "c": 9, "op": "anth"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 4, "op": "anth"},
+            {"a": 3, "b": 2, "c": 6, "op": "anth"},
+            {"a": 4, "b": 3, "c": 5, "op": "anth"},
+            {"a": 2, "b": 4, "c": 5, "op": "anth"},
+            {"a": 5, "b": 3, "c": 6, "op": "anth"},
+            {"a": 3, "b": 4, "c": 6, "op": "anth"},
+            {"a": 4, "b": 5, "c": 6, "op": "anth"},
+            {"a": 2, "b": 5, "c": 8, "op": "anth"},
+            {"a": 6, "b": 5, "c": 8, "op": "anth"},
+            {"a": 3, "b": 6, "c": 9, "op": "anth"},
+        ],
+    },
+    {
+        "id": "alg2-u7-times-again",
+        "course": "algebra2", "unit": 7,
+        "topic": "Geometric sequences",
+        "op": "gnth", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("term", "ratio"),
+        "advance_line": "Three in a row — you've got it! A ratio is a times, never an add.",
+        "teach": [
+            ["Some patterns do not step — they LEAP. 2, 6, 18, 54: each term is 3 times the one before. The times-number has a name, the ratio , and a pattern that rides a ratio grows the way the doubling pond grew: slowly at first, then away.",
+             '[[goal text="Times again"]][[step eq="2, 6, 18, 54, …"]]'],
+            ["Ride it the same way: term 5 from a start of 2 with ratio 3 is four leaps — times 3, four times over. 2 times 81 is 162. The step-counting rule survives: one fewer leap than the term number.",
+             '[[step eq="term 5: 4 leaps of × 3"]][[step eq="2 × 81 = 162"]]'],
+            ["The trap is the old similarity mistake in a new coat: treating the ratio as a step. ADDING 3 four times gives 14 — a stroll, while the true pattern has already leapt past 150. When each term is TIMES the one before, adding is not slow — it is wrong.",
+             '[[step eq="2 × 3 × 3 × 3 × 3 = 162 ✓"]][[step eq="2 + 3 + 3 + 3 + 3 = 14 ✗ — a ratio is not a step"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Start 4, ratio 2, term 5: four doublings — 4, 8, 16, 32, 64.",
+                        '[[step eq="4 × 2 × 2 × 2 × 2 = 64"]]'],
+             "ask": {"a": 4, "b": 2, "c": 4, "op": "gnth"}},
+            {"worked": ["One more together. Start 5, ratio 2, term 6: five doublings of 5 — 160.",
+                        '[[step eq="5 × 32 = 160"]]'],
+             "ask": {"a": 3, "b": 3, "c": 4, "op": "gnth"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 3, "op": "gnth"},
+            {"a": 3, "b": 2, "c": 3, "op": "gnth"},
+            {"a": 2, "b": 2, "c": 4, "op": "gnth"},
+            {"a": 2, "b": 3, "c": 3, "op": "gnth"},
+            {"a": 5, "b": 2, "c": 3, "op": "gnth"},
+            {"a": 3, "b": 2, "c": 4, "op": "gnth"},
+            {"a": 2, "b": 2, "c": 5, "op": "gnth"},
+            {"a": 5, "b": 2, "c": 4, "op": "gnth"},
+            {"a": 3, "b": 2, "c": 5, "op": "gnth"},
+            {"a": 2, "b": 3, "c": 4, "op": "gnth"},
+        ],
+    },
+    {
+        "id": "alg2-u7-pair-the-ends",
+        "course": "algebra2", "unit": 7,
+        "topic": "The sum of 1 to n",
+        "op": "gaus", "max_value": 5050,
+        "levels": ("abstract",),
+        "symbols": ("sum", "pair"),
+        "advance_line": "Three in a row — you've got it! Pair the ends, times, halve.",
+        "teach": [
+            ["A true story. A teacher, wanting quiet, told his class to add every number from 1 to 100. A nine-year-old named Gauss put his slate down in seconds — right. He had seen something in the sum no one had shown him: the ENDS of it belong together.",
+             '[[goal text="Pair the ends"]][[step eq="1 + 2 + 3 + … + 100"]]'],
+            ["Watch it on 1 to 10. Pair the ends: 1 with 10 is 11. 2 with 9 — 11 again. 3 with 8, 4 with 7, 5 with 6 — every pair is 11, and ten numbers make five pairs. Five 11s: 55. In general: the last number, times one more than it, halved.",
+             '[[step eq="1+10 · 2+9 · 3+8 · 4+7 · 5+6"]][[step eq="5 pairs of 11 = 55"]]'],
+            ["The traps: 10 times 10 is 100 — but the numbers being added are mostly SMALLER than 10, so squaring overshoots. And 10 alone is just the last footstep of the walk. Pair the ends, times, halve — and in a moment, you will do what Gauss did.",
+             '[[step eq="10 × 11 ÷ 2 = 55 ✓"]][[step eq="100 ✗ overshoots · 10 ✗ the last step only"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 1 up to 6: pair the ends — 1 with 6, 2 with 5, 3 with 4 — three pairs of 7: 21.",
+                        '[[step eq="6 × 7 ÷ 2 = 21"]]'],
+             "ask": {"a": 11, "b": 0, "op": "gaus"}},
+            {"worked": ["One more together. 1 up to 30: 30 times 31, halved — 465.",
+                        '[[step eq="30 × 31 ÷ 2 = 465"]]'],
+             "ask": {"a": 100, "b": 0, "op": "gaus"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 0, "op": "gaus"},
+            {"a": 5, "b": 0, "op": "gaus"},
+            {"a": 6, "b": 0, "op": "gaus"},
+            {"a": 7, "b": 0, "op": "gaus"},
+            {"a": 8, "b": 0, "op": "gaus"},
+            {"a": 9, "b": 0, "op": "gaus"},
+            {"a": 12, "b": 0, "op": "gaus"},
+            {"a": 14, "b": 0, "op": "gaus"},
+            {"a": 15, "b": 0, "op": "gaus"},
+            {"a": 20, "b": 0, "op": "gaus"},
+        ],
+    },
+    {
+        "id": "alg2-u7-walk-the-rule",
+        "course": "algebra2", "unit": 7,
+        "topic": "Recursive rules",
+        "op": "reca", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("rule", "term"),
+        "advance_line": "Three in a row — you've got it! Apply the WHOLE rule, every term.",
+        "teach": [
+            ["Some patterns hand you no shortcut — only a rule : to get the next term , take the one before, times 2, then take away 1. Start at 5. There is nothing to ride here; you walk, one term at a time, applying the whole rule at every step.",
+             '[[goal text="Walk the rule"]][[step eq="rule: × 2, then − 1"]]'],
+            ["Walk it. Term 1 is 5. Term 2: 2 times 5 is 10, take away 1 — 9. Term 3: 2 times 9 is 18, take away 1 — 17. Each answer feeds back in; that is why it is a walk and not a jump.",
+             '[[step eq="5 → 9 → 17"]]'],
+            ["Two traps, both about not finishing. Stopping at term 2 answers a different question — count your arrivals. And applying only HALF the rule — doubling without the take away — walks a different pattern entirely: 5, 10, 20. The rule is a package: all of it, every term.",
+             '[[step eq="5 → 9 → 17 ✓"]][[step eq="9 ✗ stopped early · 18 ✗ the take away got dropped"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Rule: times 2, take away 3. Start at 7: term 2 is 11, term 3 is 19.",
+                        '[[step eq="7 → 11 → 19"]]'],
+             "ask": {"a": 3, "b": 1, "op": "reca"}},
+            {"worked": ["One more together. Times 2, take away 5, from 9: term 2 is 13, term 3 is 21.",
+                        '[[step eq="9 → 13 → 21"]]'],
+             "ask": {"a": 10, "b": 6, "op": "reca"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "reca"},
+            {"a": 4, "b": 3, "op": "reca"},
+            {"a": 5, "b": 4, "op": "reca"},
+            {"a": 4, "b": 2, "op": "reca"},
+            {"a": 6, "b": 4, "op": "reca"},
+            {"a": 5, "b": 2, "op": "reca"},
+            {"a": 6, "b": 3, "op": "reca"},
+            {"a": 7, "b": 4, "op": "reca"},
+            {"a": 8, "b": 5, "op": "reca"},
+            {"a": 9, "b": 4, "op": "reca"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA2_U7)
+
+
+# =============================================================================
+# ALGEBRA II -- UNIT 8: TRIGONOMETRIC FUNCTIONS (build lk, 2026-08-22)
+# =============================================================================
+# THE CIRCLE OF SIZE ONE: an arrow spins from the middle, and sine is the
+# HEIGHT of its tip, cosine the ACROSS -- read at the compass points, where
+# both are exactly 1, 0 or negative 1 (the whole-number surface; the four base
+# angles ARE the world, so the teach shows them -- the turnc precedent -- and
+# the spun angles past 360 are the fresh practice). Then the spin that changes
+# nothing, and the stretched wave. ⭐ [[unitcircle]] (July's shelf, the last
+# non-stats renderer) draws its first scripted lessons -- teach/worked boards
+# only: it prints cos and sin at the bottom, the answers.
+_ALGEBRA2_U8 = [
+    {
+        "id": "alg2-u8-the-height",
+        "course": "algebra2", "unit": 8,
+        "topic": "Sine at the compass points",
+        "op": "sinp", "max_value": 1170, "min_value": -1,
+        "levels": ("abstract",),
+        "symbols": ("sine", "height"),
+        "advance_line": "Three in a row — you've got it! Point the arrow, read the height.",
+        "teach": [
+            ["Meet the circle that runs all of trigonometry: size one, an arrow spinning from its middle. The angle says how far the arrow has turned from flat-right. And the sine of the angle is simply the HEIGHT of the arrow's tip — how far above or below the middle line it sits.",
+             '[[goal text="The height"]][[unitcircle angle="90"]]'],
+            ["At 90 degrees the arrow points straight up: its tip sits at height 1 — the sine of 90 is 1. At 270, straight down: height negative 1. At 0 or 180 the arrow lies flat and the tip has no height at all: sine 0. Four directions, three heights.",
+             '[[unitcircle angle="270"]][[step eq="90° → 1 · 270° → −1 · flat → 0"]]'],
+            ["Keep spinning and nothing new happens: 360 is a full turn — the arrow is back at flat-right, and every compass point repeats. 450 degrees is a spin and a quarter: straight up again, sine 1. Strip away the full turns, point the arrow, read the height.",
+             '[[unitcircle angle="450"]][[step eq="450° = 360° + 90° → straight up → 1"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The sine of 630 degrees: 630 is a full spin plus 270 — straight down. The height is negative 1.",
+                        '[[unitcircle angle="630"]][[step eq="630° = 360° + 270° → −1"]]'],
+             "ask": {"a": 90, "b": 0, "op": "sinp"}},
+            {"worked": ["One more together. The sine of 540: a full spin plus 180 — flat to the left. Height 0.",
+                        '[[unitcircle angle="540"]][[step eq="540° → flat → 0"]]'],
+             "ask": {"a": 990, "b": 0, "op": "sinp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 0, "b": 0, "op": "sinp"},
+            {"a": 180, "b": 0, "op": "sinp"},
+            {"a": 270, "b": 0, "op": "sinp"},
+            {"a": 360, "b": 0, "op": "sinp"},
+            {"a": 450, "b": 0, "op": "sinp"},
+            {"a": 720, "b": 0, "op": "sinp"},
+            {"a": 810, "b": 0, "op": "sinp"},
+            {"a": 900, "b": 0, "op": "sinp"},
+            {"a": 1080, "b": 0, "op": "sinp"},
+            {"a": 1170, "b": 0, "op": "sinp"},
+        ],
+    },
+    {
+        "id": "alg2-u8-the-across",
+        "course": "algebra2", "unit": 8,
+        "topic": "Cosine at the compass points",
+        "op": "cosp", "max_value": 1170, "min_value": -1,
+        "levels": ("abstract",),
+        "symbols": ("cosine", "across"),
+        "advance_line": "Three in a row — you've got it! Same arrow, other coordinate.",
+        "teach": [
+            ["The sine read the arrow's height. Its partner, the cosine , reads the ACROSS — how far right or left of the middle the tip sits. Same circle, same arrow, other coordinate: sine is up-and-down, cosine is side-to-side.",
+             '[[goal text="The across"]][[unitcircle angle="0"]]'],
+            ["At 0 degrees the arrow points flat-right: fully across — cosine 1. At 180, flat-left: cosine negative 1. And straight up or straight down, the tip hangs over the middle with no across at all: cosine 0. The compass points swap their jobs.",
+             '[[unitcircle angle="180"]][[step eq="0° → 1 · 180° → −1 · up or down → 0"]]'],
+            ["Notice the swap exactly: where the sine was 0 — the flat directions — the cosine is 1 or negative 1; where the sine was 1 or negative 1 — up and down — the cosine is 0. Full spins still vanish first. Point the arrow, then read ACROSS, not up.",
+             '[[unitcircle angle="810"]][[step eq="810° = two spins + 90° → up → across 0"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The cosine of 450 degrees: a spin and a quarter — straight up. Across: 0.",
+                        '[[unitcircle angle="450"]][[step eq="450° → up → 0"]]'],
+             "ask": {"a": 180, "b": 0, "op": "cosp"}},
+            {"worked": ["One more together. The cosine of 720: two full spins — flat-right again. Across: 1.",
+                        '[[unitcircle angle="720"]][[step eq="720° → flat right → 1"]]'],
+             "ask": {"a": 990, "b": 0, "op": "cosp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 0, "b": 0, "op": "cosp"},
+            {"a": 90, "b": 0, "op": "cosp"},
+            {"a": 270, "b": 0, "op": "cosp"},
+            {"a": 360, "b": 0, "op": "cosp"},
+            {"a": 540, "b": 0, "op": "cosp"},
+            {"a": 630, "b": 0, "op": "cosp"},
+            {"a": 810, "b": 0, "op": "cosp"},
+            {"a": 900, "b": 0, "op": "cosp"},
+            {"a": 1080, "b": 0, "op": "cosp"},
+            {"a": 1170, "b": 0, "op": "cosp"},
+        ],
+    },
+    {
+        "id": "alg2-u8-spin-once-more",
+        "course": "algebra2", "unit": 8,
+        "topic": "Coterminal angles",
+        "op": "spin", "max_value": 440,
+        "levels": ("abstract",),
+        "symbols": ("full turn", "degrees"),
+        "advance_line": "Three in a row — you've got it! Add the whole 360 — same direction, same sine.",
+        "teach": [
+            ["Here is the circle's quiet superpower: a full turn changes NOTHING. Spin the arrow all the way around — 360 degrees — and it points exactly where it began. Angles that land the same way have a bond: everything trigonometric about them is identical.",
+             '[[goal text="Spin once more"]][[unitcircle angle="45"]]'],
+            ["Start at 45 degrees and spin one more full turn: 45 plus 360 is 405. The picture for 405 is the SAME picture — same direction, same height, same across. The wave repeats forever because the circle does.",
+             '[[unitcircle angle="405"]][[step eq="45° + 360° = 405°"]]'],
+            ["Two traps. A HALF turn — adding 180 — is real spinning but lands opposite: everything flips sign. And 360 take away the angle is a mirror, not a spin — a different arrow entirely. The turn that changes nothing is the whole 360, added on.",
+             '[[step eq="45° + 360° = 405° ✓ same arrow"]][[step eq="+180 ✗ lands opposite · 360 − 45 ✗ a mirror"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 55 degrees, one more full turn: 55 plus 360 — 415.",
+                        '[[step eq="55° + 360° = 415°"]]'],
+             "ask": {"a": 35, "b": 0, "op": "spin"}},
+            {"worked": ["One more together. 72 degrees plus a full turn: 432.",
+                        '[[step eq="72° + 360° = 432°"]]'],
+             "ask": {"a": 65, "b": 0, "op": "spin"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 0, "op": "spin"},
+            {"a": 15, "b": 0, "op": "spin"},
+            {"a": 20, "b": 0, "op": "spin"},
+            {"a": 25, "b": 0, "op": "spin"},
+            {"a": 30, "b": 0, "op": "spin"},
+            {"a": 40, "b": 0, "op": "spin"},
+            {"a": 50, "b": 0, "op": "spin"},
+            {"a": 60, "b": 0, "op": "spin"},
+            {"a": 70, "b": 0, "op": "spin"},
+            {"a": 80, "b": 0, "op": "spin"},
+        ],
+    },
+    {
+        "id": "alg2-u8-the-stretched-wave",
+        "course": "algebra2", "unit": 8,
+        "topic": "Amplitude",
+        "op": "ampl", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("amplitude", "wave"),
+        "advance_line": "Three in a row — you've got it! The number out front is the crest.",
+        "teach": [
+            ["Let the circle run and the sine draws a wave — rising to 1, sinking to negative 1, forever. Now put a number out front: y equals 20 times the sine of x. Every height gets timesed by 20, so the whole wave STRETCHES: crest at 20, trough at negative 20.",
+             '[[goal text="The stretched wave"]][[graph func="sin(x)" range="-7..7"]]'],
+            ["The stretch has a name: the amplitude — how high the wave reaches above its middle line. For y equals 20 times sine, the amplitude is 20. The number out front IS the crest; no computation, just recognition.",
+             '[[graph func="4*sin(x)" range="-7..7"]][[step eq="y = 4·sin x → crest 4, trough −4"]]'],
+            ["Two traps. Crest to trough is DOUBLE the amplitude — 40 for our wave — but amplitude measures from the middle, not the bottom. And the plain sine's crest of 1 is gone the moment a number stands out front: the stretch happened. Read the front number; that is the top.",
+             '[[step eq="y = 20·sin x → top 20 ✓"]][[step eq="40 ✗ crest-to-trough · 1 ✗ the unstretched habit"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals 13 times the sine of x: the wave crests at 13.",
+                        '[[graph func="13*sin(x)" range="-7..7"]][[step eq="crest = 13"]]'],
+             "ask": {"a": 11, "b": 0, "op": "ampl"}},
+            {"worked": ["One more together. y equals 25 times the sine of x — the highest it ever reaches is 25.",
+                        '[[step eq="crest = 25"]]'],
+             "ask": {"a": 15, "b": 0, "op": "ampl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "op": "ampl"},
+            {"a": 3, "b": 0, "op": "ampl"},
+            {"a": 4, "b": 0, "op": "ampl"},
+            {"a": 5, "b": 0, "op": "ampl"},
+            {"a": 6, "b": 0, "op": "ampl"},
+            {"a": 7, "b": 0, "op": "ampl"},
+            {"a": 8, "b": 0, "op": "ampl"},
+            {"a": 9, "b": 0, "op": "ampl"},
+            {"a": 10, "b": 0, "op": "ampl"},
+            {"a": 12, "b": 0, "op": "ampl"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA2_U8)
+
+
+# =============================================================================
+# ALGEBRA II -- UNIT 9: STATISTICS & PROBABILITY (build ll, 2026-08-22)
+# =============================================================================
+# ⭐ ALGEBRA II COMPLETES with the unit that answers questions about what you
+# have NOT seen yet. Past alg1-u9 (mean/median/range/outlier) and geo-u9
+# (chance counts, counting principle, tables): the mean when scores REPEAT,
+# counting with a third slot, what chance pays on average, and the sample
+# scaled up to the school.
+_ALGEBRA2_U9 = [
+    {
+        "id": "alg2-u9-the-heavier-mean",
+        "course": "algebra2", "unit": 9,
+        "topic": "Weighted means",
+        "op": "wavg", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("mean", "weight"),
+        "advance_line": "Three in a row — you've got it! Every score goes in as many times as it happened.",
+        "teach": [
+            ["Algebra One taught the mean: put together, share out. But scores REPEAT — and a score that happens three times pulls three times as hard. That pull is called its weight . Three quizzes of 10 and two of 5 do not average like one 10 and one 5.",
+             '[[goal text="The heavier mean"]][[step eq="10, 10, 10, 5, 5"]]'],
+            ["Do it honestly: all five scores go in. Three 10s are 30; two 5s are 10; put together, 40 — shared by the five quizzes, the mean is 8. Notice where 8 sits: closer to 10 than to 5, dragged by the heavier side.",
+             '[[step eq="30 + 10 = 40 · 40 ÷ 5 = 8"]][[step eq="8 sits nearer the three 10s"]]'],
+            ["The trap is averaging the two NUMBERS and forgetting how often each happened: 10 and 5 average to 7 and a half — but that treats a three-time score and a two-time score as equals. Count the repeats. Every score goes in as many times as it happened.",
+             '[[step eq="mean of the five = 8 ✓"]][[step eq="averaging just 10 and 5 ✗ — the repeats vanished"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Three quizzes of 10 and two of 5: 30 plus 10 is 40, shared by 5 — the mean is 8.",
+                        '[[step eq="(30 + 10) ÷ 5 = 8"]]'],
+             "ask": {"a": 13, "b": 3, "op": "wavg"}},
+            {"worked": ["One more together. Three 4s and two 14s: 12 plus 28 is 40 — mean 8.",
+                        '[[step eq="(12 + 28) ÷ 5 = 8"]]'],
+             "ask": {"a": 18, "b": 8, "op": "wavg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 12, "op": "wavg"},
+            {"a": 3, "b": 13, "op": "wavg"},
+            {"a": 4, "b": 14, "op": "wavg"},
+            {"a": 12, "b": 2, "op": "wavg"},
+            {"a": 5, "b": 15, "op": "wavg"},
+            {"a": 6, "b": 16, "op": "wavg"},
+            {"a": 14, "b": 4, "op": "wavg"},
+            {"a": 7, "b": 17, "op": "wavg"},
+            {"a": 8, "b": 18, "op": "wavg"},
+            {"a": 16, "b": 6, "op": "wavg"},
+        ],
+    },
+    {
+        "id": "alg2-u9-three-slots",
+        "course": "algebra2", "unit": 9,
+        "topic": "The counting principle, grown",
+        "op": "cnt3", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("choice", "slot"),
+        "advance_line": "Three in a row — you've got it! Times every slot, skip none.",
+        "teach": [
+            ["Geometry counted outfits from two choices: shirts times hats. Add pants and nothing changes but the length: every choice is a slot , and slots TIMES together. 2 shirts, 5 pants, 3 hats — for each shirt, every pair of pants; for each of those, every hat.",
+             '[[goal text="Three slots"]][[step eq="shirts · pants · hats"]]'],
+            ["Count it: 2 times 5 is 10 shirt-and-pants pairs, and each pair takes any of 3 hats: 10 times 3 is 30 outfits. Slot by slot, left to right — the times just keeps rolling.",
+             '[[step eq="2 × 5 = 10 · 10 × 3 = 30"]]'],
+            ["Two traps, both old friends grown taller. Adding — 2 plus 5 plus 3 is 10 THINGS, not outfits. And stopping after two slots — 10 — forgets the hats entirely. However many slots there are: times every one, skip none.",
+             '[[step eq="2 × 5 × 3 = 30 ✓"]][[step eq="10 ✗ added, or stopped early"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 3 shirts, 3 pants, 2 hats: 3 times 3 is 9, times 2 — 18 outfits.",
+                        '[[step eq="3 × 3 × 2 = 18"]]'],
+             "ask": {"a": 2, "b": 3, "c": 3, "op": "cnt3"}},
+            {"worked": ["One more together. 4 shirts, 2 pants, 5 hats: 8, then 40.",
+                        '[[step eq="4 × 2 × 5 = 40"]]'],
+             "ask": {"a": 5, "b": 4, "c": 4, "op": "cnt3"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 2, "op": "cnt3"},
+            {"a": 2, "b": 2, "c": 3, "op": "cnt3"},
+            {"a": 3, "b": 2, "c": 3, "op": "cnt3"},
+            {"a": 2, "b": 3, "c": 4, "op": "cnt3"},
+            {"a": 2, "b": 4, "c": 4, "op": "cnt3"},
+            {"a": 3, "b": 3, "c": 4, "op": "cnt3"},
+            {"a": 4, "b": 3, "c": 4, "op": "cnt3"},
+            {"a": 4, "b": 4, "c": 4, "op": "cnt3"},
+            {"a": 3, "b": 5, "c": 5, "op": "cnt3"},
+            {"a": 4, "b": 4, "c": 5, "op": "cnt3"},
+        ],
+    },
+    {
+        "id": "alg2-u9-what-to-expect",
+        "course": "algebra2", "unit": 9,
+        "topic": "Expected value",
+        "op": "expv", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("expect", "tokens"),
+        "advance_line": "Three in a row — you've got it! Count the paying plays, then times.",
+        "teach": [
+            ["Chance can be planned for. A game pays 5 tokens , and you win exactly 2 times out of every 6 plays. Play 6 times: you cannot say WHICH plays pay — but you can say how much to expect , because about 2 of them will.",
+             '[[goal text="What to expect"]][[step eq="6 plays · 2 winners among them"]]'],
+            ["Expect it out: 2 winning plays, 5 tokens each — about 10 tokens over the 6 plays. Not a promise; a center of gravity. Casinos, insurers and weather planners live on exactly this number.",
+             '[[step eq="2 wins × 5 tokens = 10 expected"]]'],
+            ["Two traps. 6 times 5 — 30 — pretends EVERY play pays, but four of the six pay nothing. And plain 5 counts a single win, as if the other winning play never came. Count the paying plays first; then times by the prize.",
+             '[[step eq="2 × 5 = 10 ✓"]][[step eq="30 ✗ every play paid · 5 ✗ one win only"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Win 4 tokens, 3 times out of 5, over 5 plays: 3 wins of 4 — expect 12.",
+                        '[[step eq="3 × 4 = 12"]]'],
+             "ask": {"a": 2, "b": 3, "c": 4, "op": "expv"}},
+            {"worked": ["One more together. 2 wins in 7 plays, 6 tokens each: expect about 12.",
+                        '[[step eq="2 × 6 = 12"]]'],
+             "ask": {"a": 5, "b": 8, "c": 6, "op": "expv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 5, "c": 2, "op": "expv"},
+            {"a": 2, "b": 4, "c": 3, "op": "expv"},
+            {"a": 2, "b": 6, "c": 4, "op": "expv"},
+            {"a": 3, "b": 6, "c": 3, "op": "expv"},
+            {"a": 2, "b": 5, "c": 5, "op": "expv"},
+            {"a": 3, "b": 7, "c": 4, "op": "expv"},
+            {"a": 3, "b": 5, "c": 5, "op": "expv"},
+            {"a": 4, "b": 9, "c": 4, "op": "expv"},
+            {"a": 3, "b": 8, "c": 6, "op": "expv"},
+            {"a": 4, "b": 7, "c": 5, "op": "expv"},
+        ],
+    },
+    {
+        "id": "alg2-u9-the-sample-speaks",
+        "course": "algebra2", "unit": 9,
+        "topic": "Sampling",
+        "op": "samp", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("sample", "about"),
+        "advance_line": "Three in a row — you've got it! Scale the sample, and keep the word ABOUT.",
+        "teach": [
+            ["The last idea of Algebra Two is the boldest: ask a few, learn about everyone. A sample of 20 students found 5 like pizza. The school holds 60 — nobody asked them all. Statistics says the sample SPEAKS for the school, about .",
+             '[[goal text="The sample speaks"]][[step eq="asked 20 · 5 said yes · school: 60"]]'],
+            ["Scale it: 60 students is three samples of 20, side by side. If each slice of 20 behaves like the one we asked, each holds about 5 pizza-lovers: 5 times 3 — about 15 in the school. The similarity unit's factor thinking, aimed at people.",
+             '[[step eq="60 = 3 × 20 · 5 × 3 = about 15"]]'],
+            ["Two traps. Answering 5 stops at the sample — the question asked about the school. And guessing half — 30 — ignores the sample entirely; we ASKED, and the sample said one in four, not one in two. Scale what the sample said, and keep the word about: samples estimate, never promise.",
+             '[[step eq="5 × 3 = about 15 ✓"]][[step eq="5 ✗ the sample only · 30 ✗ the half-guess"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A sample of 10 found 4 readers; the school has 30 — three samples wide. About 12 readers.",
+                        '[[step eq="4 × 3 = about 12"]]'],
+             "ask": {"a": 10, "b": 2, "c": 5, "op": "samp"}},
+            {"worked": ["One more together. 15 asked, 6 said yes; the school is 45. About 18.",
+                        '[[step eq="6 × 3 = about 18"]]'],
+             "ask": {"a": 30, "b": 9, "c": 4, "op": "samp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 3, "c": 2, "op": "samp"},
+            {"a": 12, "b": 4, "c": 2, "op": "samp"},
+            {"a": 10, "b": 3, "c": 4, "op": "samp"},
+            {"a": 20, "b": 7, "c": 2, "op": "samp"},
+            {"a": 12, "b": 5, "c": 3, "op": "samp"},
+            {"a": 10, "b": 4, "c": 4, "op": "samp"},
+            {"a": 20, "b": 6, "c": 3, "op": "samp"},
+            {"a": 16, "b": 5, "c": 4, "op": "samp"},
+            {"a": 20, "b": 8, "c": 3, "op": "samp"},
+            {"a": 25, "b": 7, "c": 4, "op": "samp"},
+        ],
+    },
+]
+LESSONS.extend(_ALGEBRA2_U9)
+
+
+# =============================================================================
+# PRE-CALC -- UNIT 1: FUNCTIONS & THEIR GRAPHS (build ll, 2026-08-22)
+# =============================================================================
+# ⭐ THE NINTH COURSE OPENS. Algebra I's machines grow up: composition in
+# f(g(x)) notation (INSIDE FIRST -- the order flip is the trap), the graph that
+# slides opposite its sign (vtx2's lesson generalized to every function), the
+# domain as a doorway (and the taught CONTRAST: the root's edge is welcome,
+# division's forbidden x was not), and a function built in pieces.
+_PRECALC_U1 = [
+    {
+        "id": "pc-u1-machines-in-a-row",
+        "course": "precalc", "unit": 1,
+        "topic": "Composition",
+        "op": "fcmp", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("composition", "inside"),
+        "advance_line": "Three in a row — you've got it! The inner machine runs first.",
+        "teach": [
+            ["Welcome to Pre-Calculus, where functions become the main characters. Algebra One fed numbers through two machines in a row; now the chaining gets a name — composition — and a notation: f of g of x. Read it from the inside out: g runs first, then f eats what g made.",
+             '[[goal text="Machines in a row"]][[step eq="f(g(x)) — the inside runs first"]]'],
+            ["Try f of x equals x plus 3, g of x equals 2 times x, and feed 5 to f of g. Inside first: g of 5 is 10. Then the outer machine: f of 10 is 13. The parentheses are a map: whatever sits deepest goes first.",
+             '[[step eq="g(5) = 10 → f(10) = 13"]]'],
+            ["The trap is running f first: f of 5 is 8, then g gives 16 — a different number entirely, because these machines do not commute. Order is everything in a kitchen and in a composition: the INSIDE machine cooks first.",
+             '[[step eq="f(g(5)) = 13 ✓"]][[step eq="g(f(5)) = 16 ✗ — the order flipped"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. f adds 4, g times by 3. f of g of 2: inside, g of 2 is 6; then f — 10.",
+                        '[[step eq="g(2) = 6 → f(6) = 10"]]'],
+             "ask": {"a": 2, "b": 2, "c": 4, "op": "fcmp"}},
+            {"worked": ["One more together. f adds 5, g doubles. f of g of 7: 14, then 19.",
+                        '[[step eq="g(7) = 14 → f(14) = 19"]]'],
+             "ask": {"a": 7, "b": 3, "c": 6, "op": "fcmp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 2, "op": "fcmp"},
+            {"a": 3, "b": 2, "c": 2, "op": "fcmp"},
+            {"a": 2, "b": 2, "c": 3, "op": "fcmp"},
+            {"a": 4, "b": 2, "c": 3, "op": "fcmp"},
+            {"a": 3, "b": 3, "c": 3, "op": "fcmp"},
+            {"a": 2, "b": 3, "c": 4, "op": "fcmp"},
+            {"a": 5, "b": 2, "c": 6, "op": "fcmp"},
+            {"a": 4, "b": 3, "c": 5, "op": "fcmp"},
+            {"a": 6, "b": 2, "c": 8, "op": "fcmp"},
+            {"a": 5, "b": 3, "c": 7, "op": "fcmp"},
+        ],
+    },
+    {
+        "id": "pc-u1-the-graph-slides",
+        "course": "precalc", "unit": 1,
+        "topic": "Shifting graphs",
+        "op": "fshf", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("slides", "opposite"),
+        "advance_line": "Three in a row — you've got it! The minus inside slides the graph right.",
+        "teach": [
+            ["One rule moves EVERY graph ever drawn. Change y equals f of x into y equals f of: x take away 3 — and the whole picture slides 3 to the RIGHT. The vertex lesson met this for one curve; it is true for all of them, and the minus still points opposite .",
+             '[[goal text="The graph slides"]][[step eq="f(x − 3): everything slides right 3"]]'],
+            ["Why right? To get the OLD answer at f of zero, x take away 3 must BE zero — so x must be 3. Every old moment happens 3 later. A point like (4, 2) keeps its height and slides across: it lands at (7, 2).",
+             '[[step eq="old (4, 2) → new (7, 2)"]]'],
+            ["The trap is reading the minus literally and sliding LEFT — landing at (1, 2). But the minus inside is a delay, not a direction: it says x must grow before the function sees what it saw before. Inside the parentheses, signs point opposite. Always.",
+             '[[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y = f of: x take away 2. The point (5, 6) slides right 2 — new x is 7.",
+                        '[[step eq="(5, 6) → (7, 6)"]]'],
+             "ask": {"a": 3, "b": 5, "c": 2, "op": "fshf"}},
+            {"worked": ["One more together. f of: x take away 6, and the point (7, 3): new x is 13.",
+                        '[[step eq="(7, 3) → (13, 3)"]]'],
+             "ask": {"a": 7, "b": 8, "c": 4, "op": "fshf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 4, "op": "fshf"},
+            {"a": 2, "b": 4, "c": 2, "op": "fshf"},
+            {"a": 3, "b": 4, "c": 5, "op": "fshf"},
+            {"a": 2, "b": 6, "c": 3, "op": "fshf"},
+            {"a": 4, "b": 5, "c": 2, "op": "fshf"},
+            {"a": 3, "b": 7, "c": 4, "op": "fshf"},
+            {"a": 5, "b": 6, "c": 3, "op": "fshf"},
+            {"a": 4, "b": 8, "c": 5, "op": "fshf"},
+            {"a": 6, "b": 7, "c": 2, "op": "fshf"},
+            {"a": 5, "b": 9, "c": 6, "op": "fshf"},
+        ],
+    },
+    {
+        "id": "pc-u1-the-doorway",
+        "course": "precalc", "unit": 1,
+        "topic": "Domain",
+        "op": "fdom", "max_value": 14, "min_value": -14,
+        "levels": ("abstract",),
+        "symbols": ("domain", "allowed"),
+        "advance_line": "Three in a row — you've got it! The doorway is where the inside hits zero — and it is welcome.",
+        "teach": [
+            ["Not every x may enter every function. The set of allowed x's is the function's domain , and Pre-Calculus reads it straight off the formula. y equals the square root of: x take away 13 — roots refuse negatives, so the inside must stay at zero or above.",
+             '[[goal text="The doorway"]][[step eq="√(x − 13): the inside must not go negative"]]'],
+            ["Solve the doorway: x take away 13 stays at zero or above exactly when x is 13 or more. So 13 is the smallest x allowed — the domain's front door. At the door itself the root gets zero, and the root of zero is zero: perfectly fine.",
+             '[[step eq="x − 13 ≥ 0 → x ≥ 13"]][[step eq="√0 = 0 · the door is open"]]'],
+            ["Remember division's forbidden x? The bottom's zero was BANNED. The root's edge is the opposite: zero under a root is WELCOME — the boundary belongs. And the flip trap still lurks: the door is at 13, never negative 13. Doors sit where the inside hits zero.",
+             '[[step eq="door at 13, allowed ✓"]][[step eq="−13 ✗ the flip · division banned its zero; the root keeps it"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y equals the square root of: x take away 20. The inside hits zero at 20 — that is the doorway, and it is allowed in.",
+                        '[[step eq="√(x − 20) → door at 20"]]'],
+             "ask": {"a": 11, "b": 0, "op": "fdom"}},
+            {"worked": ["One more together. The root of: x take away 16 — the doorway is 16.",
+                        '[[step eq="√(x − 16) → door at 16"]]'],
+             "ask": {"a": 14, "b": 0, "op": "fdom"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "op": "fdom"},
+            {"a": 3, "b": 0, "op": "fdom"},
+            {"a": 4, "b": 0, "op": "fdom"},
+            {"a": 5, "b": 0, "op": "fdom"},
+            {"a": 6, "b": 0, "op": "fdom"},
+            {"a": 7, "b": 0, "op": "fdom"},
+            {"a": 8, "b": 0, "op": "fdom"},
+            {"a": 9, "b": 0, "op": "fdom"},
+            {"a": 10, "b": 0, "op": "fdom"},
+            {"a": 12, "b": 0, "op": "fdom"},
+        ],
+    },
+    {
+        "id": "pc-u1-a-function-in-pieces",
+        "course": "precalc", "unit": 1,
+        "topic": "Piecewise functions",
+        "op": "fpie", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("piecewise", "rule"),
+        "advance_line": "Three in a row — you've got it! Check where x lives, then run that rule only.",
+        "teach": [
+            ["A function may be built from parts, each ruling its own stretch of x — a piecewise function. Say: y equals x plus 4 when x is below 5, and y equals 3 times x when x is 5 or more. One function, two rules, and a border at 5.",
+             '[[goal text="A function in pieces"]][[step eq="x < 5 → x + 4 · x ≥ 5 → 3x"]]'],
+            ["Feeding it is a two-step: first find WHERE x lives, then run that rule and no other. Feed 2: below 5, so 2 plus 4 — 6. Feed 6: it is 5 or more, so 3 times 6 — 18. Same function, different neighborhoods.",
+             '[[step eq="x = 2 → first rule → 6"]][[step eq="x = 6 → second rule → 18"]]'],
+            ["The trap is running the wrong rule — feeding 6 into x plus 4 and getting 10, a number the function never says at 6. The border matters too: exactly 5 belongs to the 5-or-more side; read the border's owner from the words. Check the neighborhood, then compute.",
+             '[[step eq="6 → 18 ✓"]][[step eq="6 → 10 ✗ — the wrong rule ran"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Rules: x plus 6 below 5; 2 times x at 5 or more. Feed 3: below 5 — 3 plus 6 is 9.",
+                        '[[step eq="3 < 5 → 3 + 6 = 9"]]'],
+             "ask": {"a": 4, "b": 2, "c": 2, "op": "fpie"}},
+            {"worked": ["One more together. Same rules, feed 8: 5 or more — 2 times 8 is 16.",
+                        '[[step eq="8 ≥ 5 → 2 × 8 = 16"]]'],
+             "ask": {"a": 4, "b": 4, "c": 6, "op": "fpie"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "c": 2, "op": "fpie"},
+            {"a": 5, "b": 3, "c": 3, "op": "fpie"},
+            {"a": 6, "b": 2, "c": 4, "op": "fpie"},
+            {"a": 2, "b": 2, "c": 5, "op": "fpie"},
+            {"a": 7, "b": 3, "c": 4, "op": "fpie"},
+            {"a": 3, "b": 2, "c": 6, "op": "fpie"},
+            {"a": 4, "b": 2, "c": 7, "op": "fpie"},
+            {"a": 2, "b": 3, "c": 5, "op": "fpie"},
+            {"a": 2, "b": 2, "c": 8, "op": "fpie"},
+            {"a": 3, "b": 3, "c": 6, "op": "fpie"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U1)
+
+# =============================================================================
+# PRE-CALC UNIT 2 -- Polynomial & Rational Functions (build lm)
+# The thread: a polynomial tells you everything you want to know WITHOUT long
+# division -- parity reads (-1)^n at a glance, the plug-in shortcut finds the
+# leftover, the roots write the puzzle's own numbers, and a factored bottom
+# hands you its forbidden x's by count.
+# =============================================================================
+_PRECALC_U2 = [
+    {
+        "id": "pc-u2-the-minus-parade",
+        "course": "precalc", "unit": 2,
+        "topic": "Even and odd powers",
+        "op": "negp", "max_value": 13, "min_value": -1,
+        "levels": ("abstract",),
+        "symbols": ("power", "even"),
+        "advance_line": "Three in a row — you've got it! Even wipes the minus; odd leaves one.",
+        "teach": [
+            ["Unit Two turns to polynomials — and starts with the smallest one that bites: negative 1, raised to a power . Each minus sign cancels the one before it, so everything hangs on whether the power is even or odd. A parade of minus signs, counted in pairs.",
+             '[[goal text="The minus parade"]][[step eq="(−1)^n — even n → 1 · odd n → −1"]]'],
+            ["Raise negative 1 to the power 14: the minus signs pair up — 7 pairs, none left out — so every minus cancels and the answer is 1. An even power wipes the minus away completely.",
+             '[[step eq="(−1)^14 = 1 — 7 pairs, all cancel"]]'],
+            ["Now the power 15: the pairs cancel, and one lone minus sign survives at the end of the parade. The answer is negative 1. Odd leaves a leftover; even leaves none — that single fact powers half of Pre-Calculus.",
+             '[[step eq="(−1)^15 = −1 — one minus survives"]][[step eq="even → 1 · odd → −1"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Negative 1 to the power 20: even, so the pairs all cancel — 1.",
+                        '[[step eq="(−1)^20 = 1"]]'],
+             "ask": {"a": 12, "b": 0, "op": "negp"}},
+            {"worked": ["One more together. The power 25 is odd — one minus survives: negative 1.",
+                        '[[step eq="(−1)^25 = −1"]]'],
+             "ask": {"a": 13, "b": 0, "op": "negp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "op": "negp"},
+            {"a": 3, "b": 0, "op": "negp"},
+            {"a": 4, "b": 0, "op": "negp"},
+            {"a": 5, "b": 0, "op": "negp"},
+            {"a": 6, "b": 0, "op": "negp"},
+            {"a": 7, "b": 0, "op": "negp"},
+            {"a": 8, "b": 0, "op": "negp"},
+            {"a": 9, "b": 0, "op": "negp"},
+            {"a": 10, "b": 0, "op": "negp"},
+            {"a": 11, "b": 0, "op": "negp"},
+        ],
+    },
+    {
+        "id": "pc-u2-no-long-division",
+        "course": "precalc", "unit": 2,
+        "topic": "The remainder theorem",
+        "op": "remt", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("left over", "divided by"),
+        "advance_line": "Three in a row — you've got it! Plug it in — no dividing needed.",
+        "teach": [
+            ["Take x squared plus 5 x plus 1, divided by x take away 2. Long division would grind through it and end with a number left over — the way 17 divided by 5 leaves 2. Pre-Calculus owns a shortcut that finds that number with no dividing at all.",
+             '[[goal text="No long division"]][[step eq="(x² + 5x + 1) ÷ (x − 2) → left over = ?"]]'],
+            ["The shortcut — a famous theorem, named on the board: plug the 2 straight into the top. 2 squared equals 4, plus 5 times 2 equals 10, plus 1 — in all, 15. That IS the number long division would have left over. One plug beats twenty steps of dividing.",
+             '[[step eq="the Remainder Theorem"]][[step eq="2² + 5·2 + 1 = 15 → left over = 15"]]'],
+            ["Why does it work? Because x take away 2 turns into ZERO exactly at x equals 2 — at that one x the whole divided-out part vanishes, and only the leftover speaks. Careful: plug in the 2 from x take away 2, never some other number.",
+             '[[step eq="at x = 2 the divisor is 0 — only the leftover speaks"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x squared plus 1 x plus 2, divided by x take away 5: plug in 5 — 25 plus 5 plus 2 equals 32.",
+                        '[[step eq="5² + 1·5 + 2 = 32"]]'],
+             "ask": {"a": 2, "b": 2, "c": 5, "op": "remt"}},
+            {"worked": ["One more together. x squared plus 4 x plus 3, divided by x take away 4: 16 plus 16 plus 3 — 35.",
+                        '[[step eq="4² + 4·4 + 3 = 35"]]'],
+             "ask": {"a": 5, "b": 2, "c": 4, "op": "remt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 1, "c": 1, "op": "remt"},
+            {"a": 2, "b": 2, "c": 3, "op": "remt"},
+            {"a": 2, "b": 3, "c": 3, "op": "remt"},
+            {"a": 3, "b": 1, "c": 4, "op": "remt"},
+            {"a": 3, "b": 2, "c": 4, "op": "remt"},
+            {"a": 3, "b": 3, "c": 2, "op": "remt"},
+            {"a": 4, "b": 1, "c": 5, "op": "remt"},
+            {"a": 3, "b": 4, "c": 6, "op": "remt"},
+            {"a": 4, "b": 2, "c": 6, "op": "remt"},
+            {"a": 4, "b": 3, "c": 5, "op": "remt"},
+        ],
+    },
+    {
+        "id": "pc-u2-the-roots-secret",
+        "course": "precalc", "unit": 2,
+        "topic": "Vieta's product",
+        "op": "vprd", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("roots", "product"),
+        "advance_line": "Three in a row — you've got it! The end number is the product of the roots.",
+        "teach": [
+            ["Back in Algebra Two you learned the two roots of a puzzle secretly ADD to the middle number — and we promised the product would be famous later. Later is now. The roots of an x-squared puzzle also multiply to something: the plain END number.",
+             '[[goal text="The roots\' secret"]][[step eq="roots add → middle · roots times → end"]]'],
+            ["Watch it happen. Roots 2 and 6: the puzzle is x take away 2, times x take away 6. Multiply it out: x squared, take away 8 x, plus 12. The middle 8 is 2 plus 6. The end 12 is 2 times 6 — the product of the roots.",
+             '[[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8 · 2 × 6 = 12"]]'],
+            ["So a puzzle hands over its numbers without any solving: the end number is the roots\' product, the middle is their sum. The trap runs backwards too — asked for the end number, do not ADD the roots. Sum sits in the middle; product sits at the end.",
+             '[[step eq="end = product ✓ · sum ✗ — that is the middle"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Roots 4 and 7: the end number is 4 times 7 — 28. The middle would be 11.",
+                        '[[step eq="(x − 4)(x − 7) → end 28 · middle 11"]]'],
+             "ask": {"a": 2, "b": 8, "op": "vprd"}},
+            {"worked": ["One more together. Roots 2 and 9: the end number is 18.",
+                        '[[step eq="(x − 2)(x − 9) → end 18"]]'],
+             "ask": {"a": 5, "b": 7, "op": "vprd"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "vprd"},
+            {"a": 2, "b": 4, "op": "vprd"},
+            {"a": 2, "b": 5, "op": "vprd"},
+            {"a": 3, "b": 4, "op": "vprd"},
+            {"a": 2, "b": 7, "op": "vprd"},
+            {"a": 3, "b": 5, "op": "vprd"},
+            {"a": 3, "b": 6, "op": "vprd"},
+            {"a": 4, "b": 5, "op": "vprd"},
+            {"a": 4, "b": 6, "op": "vprd"},
+            {"a": 5, "b": 6, "op": "vprd"},
+        ],
+    },
+    {
+        "id": "pc-u2-twice-forbidden",
+        "course": "precalc", "unit": 2,
+        "topic": "Forbidden x's, counted",
+        "op": "vasy", "max_value": 9, "min_value": 0,
+        "levels": ("abstract",),
+        "symbols": ("forbidden", "factors"),
+        "advance_line": "Three in a row — you've got it! Count the different zeros, not the factors.",
+        "teach": [
+            ["Algebra Two found division's forbidden x — the one x that zeroes a bottom. Pre-Calculus bottoms come factored: 1 divided by, x take away 3, times x take away 7. TWO factors now — so how many x's are forbidden ? Count the zeros, and count carefully.",
+             '[[goal text="Twice forbidden"]][[step eq="y = 1 ÷ (x − 3)(x − 7)"]]'],
+            ["Each factor dies at its own x: x equals 3 zeroes the first, x equals 7 zeroes the second, and either one alone flattens the whole bottom. Two different zeros — two forbidden x's. The count is 2.",
+             '[[step eq="x = 3 ✗ · x = 7 ✗ — two forbidden"]]'],
+            ["But factors can repeat: 1 divided by, x take away 8, times x take away 8. Two factors , yet both die at the SAME x. Only x equals 8 is forbidden — the count is 1. Count the different zeros, never the factors.",
+             '[[step eq="(x − 8)(x − 8): both die at 8 → count 1"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 1 divided by, x take away 4, times x take away 9: zeros at 4 and 9 — two forbidden x's.",
+                        '[[step eq="(x − 4)(x − 9) → count 2"]]'],
+             "ask": {"a": 2, "b": 4, "op": "vasy"}},
+            {"worked": ["One more together. x take away 9, times x take away 9: both die at 9 — the count is 1.",
+                        '[[step eq="(x − 9)(x − 9) → count 1"]]'],
+             "ask": {"a": 7, "b": 7, "op": "vasy"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "op": "vasy"},
+            {"a": 2, "b": 3, "op": "vasy"},
+            {"a": 3, "b": 3, "op": "vasy"},
+            {"a": 2, "b": 5, "op": "vasy"},
+            {"a": 4, "b": 4, "op": "vasy"},
+            {"a": 3, "b": 6, "op": "vasy"},
+            {"a": 5, "b": 5, "op": "vasy"},
+            {"a": 4, "b": 7, "op": "vasy"},
+            {"a": 6, "b": 6, "op": "vasy"},
+            {"a": 5, "b": 8, "op": "vasy"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U2)
+
+# =============================================================================
+# PRE-CALC UNIT 3 -- Exponential & Logarithmic Functions (build lm)
+# The thread: logs and exponentials UN-DO each other, and the world runs on it
+# -- the power rule brings exponents down front, solving a log means stacking
+# the base back up, a tank's halvings are a logarithm in work clothes, and
+# money that doubles is the exponential doing what steady adding never can.
+# hcnt is hlfl read backwards -- the same halving tank, asked the other way.
+# =============================================================================
+_PRECALC_U3 = [
+    {
+        "id": "pc-u3-the-power-comes-down",
+        "course": "precalc", "unit": 3,
+        "topic": "Log of a power",
+        "op": "logp", "max_value": 512,
+        "levels": ("abstract",),
+        "symbols": ("logarithm", "power"),
+        "advance_line": "Three in a row — you've got it! The exponent comes down front.",
+        "teach": [
+            ["Unit Three: the logarithm and the exponential, each un-doing the other. Algebra Two counted layers one at a time; Pre-Calculus learns the power rule — the logarithm of a power lets the exponent step DOWN in front and turn into a times.",
+             '[[goal text="The power comes down"]][[step eq="log(a^n) = n × log a"]]'],
+            ["In this lesson every log is base 2. Try the logarithm of 1024 to the power 2. Log base 2 of 1024 is 10 — ten layers. The power rule: the exponent 2 comes down front — 2 times 10 equals 20. Done, and no giant number was ever built.",
+             '[[step eq="log 1024^2 = 2 × 10 = 20"]]'],
+            ["Feel the size of the shortcut: 1024 to the power 2 is past a MILLION, and you never touched it. The trap: the exponent TIMES the log, never the log raised to the exponent — that would say 100, wildly wrong.",
+             '[[step eq="2 × 10 = 20 ✓ · 10^2 = 100 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Log base 2 of 256 to the power 3: log of 256 is 8, and 3 times 8 equals 24.",
+                        '[[step eq="log 256^3 = 3 × 8 = 24"]]'],
+             "ask": {"a": 512, "b": 2, "op": "logp"}},
+            {"worked": ["One more together. Log base 2 of 32 to the power 4: 4 times 5 equals 20.",
+                        '[[step eq="log 32^4 = 4 × 5 = 20"]]'],
+             "ask": {"a": 128, "b": 3, "op": "logp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 8, "b": 2, "op": "logp"},
+            {"a": 16, "b": 2, "op": "logp"},
+            {"a": 8, "b": 3, "op": "logp"},
+            {"a": 32, "b": 2, "op": "logp"},
+            {"a": 64, "b": 2, "op": "logp"},
+            {"a": 16, "b": 3, "op": "logp"},
+            {"a": 128, "b": 2, "op": "logp"},
+            {"a": 32, "b": 3, "op": "logp"},
+            {"a": 256, "b": 2, "op": "logp"},
+            {"a": 64, "b": 3, "op": "logp"},
+        ],
+    },
+    {
+        "id": "pc-u3-rebuild-the-number",
+        "course": "precalc", "unit": 3,
+        "topic": "Solving log equations",
+        "op": "lsol", "max_value": 1000,
+        "levels": ("abstract",),
+        "symbols": ("logarithm", "rebuild"),
+        "advance_line": "Three in a row — you've got it! Stack the base and rebuild.",
+        "teach": [
+            ["A logarithm can sit inside an equation: the logarithm , base 2, of some mystery number equals 10. Solving it means running the log BACKWARDS — the log counted the layers, so you rebuild the number by stacking the layers again.",
+             '[[goal text="Rebuild the number"]][[step eq="log ? = 10 · base 2"]]'],
+            ["Ten layers of 2: 2 multiplied out 10 times equals 1024. The mystery number is 1024 — the exponential un-did the logarithm. Check it forward: log base 2 of 1024 is indeed 10. Rebuilt, and confirmed.",
+             '[[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log 1024 = 10 ✓"]]'],
+            ["The base matters: log base 10 of the mystery equals 4 rebuilds to 10 thousand — never 40. The trap is timesing base and answer when the base must STACK: layers power upward; a single times cannot reach them.",
+             '[[step eq="base 10, log 4 → 10000 ✓ · 10 × 4 = 40 ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Log base 3 of the mystery equals 6: stack six 3s — 729.",
+                        '[[step eq="3 stacked 6 times = 729"]]'],
+             "ask": {"a": 2, "b": 8, "op": "lsol"}},
+            {"worked": ["One more together. Log base 2 of the mystery equals 9: 512.",
+                        '[[step eq="2 stacked 9 times = 512"]]'],
+             "ask": {"a": 10, "b": 3, "op": "lsol"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "lsol"},
+            {"a": 3, "b": 2, "op": "lsol"},
+            {"a": 2, "b": 4, "op": "lsol"},
+            {"a": 3, "b": 3, "op": "lsol"},
+            {"a": 2, "b": 5, "op": "lsol"},
+            {"a": 2, "b": 6, "op": "lsol"},
+            {"a": 3, "b": 4, "op": "lsol"},
+            {"a": 10, "b": 2, "op": "lsol"},
+            {"a": 2, "b": 7, "op": "lsol"},
+            {"a": 3, "b": 5, "op": "lsol"},
+        ],
+    },
+    {
+        "id": "pc-u3-count-the-halvings",
+        "course": "precalc", "unit": 3,
+        "topic": "How many halvings",
+        "op": "hcnt", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("halvings", "days"),
+        "advance_line": "Three in a row — you've got it! Count the halvings, not the ratio.",
+        "teach": [
+            ["Algebra Two halved a sample forward: start, halve for a stretch of days , find the end. Pre-Calculus asks it BACKWARDS: here is the start, here is the end — how many halvings happened? That backwards question is exactly a logarithm wearing work clothes.",
+             '[[goal text="Count the halvings"]][[step eq="start → half, half, half → end · how many?"]]'],
+            ["A tank starts at 56 liters and drops to half each day; now it holds 7. Halve and count: 56, then 28, then 14, then 7. Three halvings — three days went by. You rode the halving down and counted the steps.",
+             '[[step eq="56 → 28 → 14 → 7 · 3 days"]]'],
+            ["The trap: 56 divided by 7 equals 8, and 8 is NOT the answer — 8 says how many times bigger, never how many halvings. Each halving divides by 2, so ask instead: how many 2s multiply up to 8? Three. The ratio hides the count.",
+             '[[step eq="56 ÷ 7 = 8 ✗ ratio"]][[step eq="8 = 2 × 2 × 2 → 3 days ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. From 36 down to 9: 36, then 18, then 9 — two halvings, two days.",
+                        '[[step eq="36 → 18 → 9 · 2 days"]]'],
+             "ask": {"a": 28, "b": 7, "op": "hcnt"}},
+            {"worked": ["One more together. From 24 down to 3: 24, then 12, then 6, then 3 — three days.",
+                        '[[step eq="24 → 12 → 6 → 3 · 3 days"]]'],
+             "ask": {"a": 96, "b": 3, "op": "hcnt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 12, "b": 3, "op": "hcnt"},
+            {"a": 20, "b": 5, "op": "hcnt"},
+            {"a": 24, "b": 6, "op": "hcnt"},
+            {"a": 16, "b": 2, "op": "hcnt"},
+            {"a": 40, "b": 5, "op": "hcnt"},
+            {"a": 48, "b": 6, "op": "hcnt"},
+            {"a": 32, "b": 2, "op": "hcnt"},
+            {"a": 48, "b": 3, "op": "hcnt"},
+            {"a": 80, "b": 5, "op": "hcnt"},
+            {"a": 64, "b": 2, "op": "hcnt"},
+        ],
+    },
+    {
+        "id": "pc-u3-money-doubles",
+        "course": "precalc", "unit": 3,
+        "topic": "Compound growth",
+        "op": "cmpd", "max_value": 96,
+        "levels": ("abstract",),
+        "symbols": ("doubles", "years"),
+        "advance_line": "Three in a row — you've got it! Count the doublings first, then double.",
+        "teach": [
+            ["The exponential's favorite home is money. Save some dollars where the pile doubles every few years , and the growth is not a climb — it is a rocket. This lesson reads the rocket: how much after the years go by?",
+             '[[goal text="Money doubles"]][[step eq="$ → ×2 → ×2 → ×2 …"]]'],
+            ["Say 4 dollars, doubling every 3 years, left alone for 6 years. First count the doublings: 6 divided by 3 equals 2. Then double twice: 4, then 8, then 16. Sixteen dollars — the years only matter through the COUNT of doublings.",
+             '[[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'],
+            ["The trap is thinking in plain adding: up 4, up 4 — that reaches 12 and stalls. Doubling reaches 16, then 32, then 64, pulling away faster every step. Exponential growth beats steady adding every time, given enough years.",
+             '[[step eq="16 ✓ doubling · 12 ✗ steady adding"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 3 dollars doubling every 2 years, for 6 years: three doublings — 3, then 6, then 12, then 24.",
+                        '[[step eq="6 ÷ 2 = 3 · 3 → 6 → 12 → 24"]]'],
+             "ask": {"a": 2, "b": 2, "c": 6, "op": "cmpd"}},
+            {"worked": ["One more together. 6 dollars doubling every 4 years, for 8 years: two doublings — 24.",
+                        '[[step eq="8 ÷ 4 = 2 · 6 → 12 → 24"]]'],
+             "ask": {"a": 6, "b": 4, "c": 5, "op": "cmpd"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 2, "op": "cmpd"},
+            {"a": 3, "b": 2, "c": 3, "op": "cmpd"},
+            {"a": 4, "b": 2, "c": 4, "op": "cmpd"},
+            {"a": 2, "b": 3, "c": 2, "op": "cmpd"},
+            {"a": 5, "b": 2, "c": 5, "op": "cmpd"},
+            {"a": 3, "b": 3, "c": 3, "op": "cmpd"},
+            {"a": 2, "b": 4, "c": 2, "op": "cmpd"},
+            {"a": 4, "b": 3, "c": 4, "op": "cmpd"},
+            {"a": 5, "b": 3, "c": 5, "op": "cmpd"},
+            {"a": 3, "b": 4, "c": 4, "op": "cmpd"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U3)
+
+# =============================================================================
+# PRE-CALC UNIT 4 -- Trigonometric Functions (build ln)
+# The thread: the circle gets a NEW LANGUAGE and a map. Radians measure in
+# half turns, negative angles spin backwards and earn a forwards name, every
+# arrow hugs the flat line with its reference angle, and the sine wave's
+# period bends to its multiplier. All of it deepens alg2-u8's compass-point
+# work (sinp/cosp/spin/ampl) -- go past it, never over it again.
+# =============================================================================
+_PRECALC_U4 = [
+    {
+        "id": "pc-u4-the-half-turn-language",
+        "course": "precalc", "unit": 4,
+        "topic": "Radians",
+        "op": "rad1", "max_value": 13,
+        "levels": ("abstract",),
+        "symbols": ("radians", "pi"),
+        "advance_line": "Three in a row — you've got it! Count the half turns — that is the pi's.",
+        "teach": [
+            ["Unit Four hands the circle a second language. Degrees chop a turn into 360 pieces; mathematicians also measure in radians , and the dictionary has one entry: a half turn — 180 degrees — is exactly pi radians. Pi, the circle number, near 3.14.",
+             '[[goal text="The half-turn language"]][[step eq="180° = π rad"]]'],
+            ["Count half turns to translate. 3600 degrees is twenty half turns — 20 pi radians. And 180 itself is one half turn: 1 pi. The number of pi's IS the number of half turns; nothing else to it.",
+             '[[step eq="3600° = 20 half turns = 20π"]]'],
+            ["Two traps. Counting QUARTER turns says twice too many pi's — 90 degrees is not one pi, it is half of one. And handing the degrees back unchanged is no translation at all. Divide by 180; the count of half turns is the answer.",
+             '[[step eq="÷ 180 → the count of half turns"]][[step eq="quarter-turn count ✗ · degrees copied ✗"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 2520 degrees: 2520 divided by 180 equals 14 — 14 pi radians.",
+                        '[[step eq="2520 ÷ 180 = 14 → 14π"]]'],
+             "ask": {"a": 12, "b": 0, "op": "rad1"}},
+            {"worked": ["One more together. 2700 degrees: 15 pi.",
+                        '[[step eq="2700 ÷ 180 = 15 → 15π"]]'],
+             "ask": {"a": 13, "b": 0, "op": "rad1"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "op": "rad1"},
+            {"a": 3, "b": 0, "op": "rad1"},
+            {"a": 4, "b": 0, "op": "rad1"},
+            {"a": 5, "b": 0, "op": "rad1"},
+            {"a": 6, "b": 0, "op": "rad1"},
+            {"a": 7, "b": 0, "op": "rad1"},
+            {"a": 8, "b": 0, "op": "rad1"},
+            {"a": 9, "b": 0, "op": "rad1"},
+            {"a": 10, "b": 0, "op": "rad1"},
+            {"a": 11, "b": 0, "op": "rad1"},
+        ],
+    },
+    {
+        "id": "pc-u4-the-backwards-spin",
+        "course": "precalc", "unit": 4,
+        "topic": "Negative angles",
+        "op": "nspn", "max_value": 340,
+        "levels": ("abstract",),
+        "symbols": ("negative", "turn"),
+        "advance_line": "Three in a row — you've got it! Add a full turn — 360 — to name it forwards.",
+        "teach": [
+            ["The arrow can spin backwards too. A negative angle winds the other way: negative 45 means swing 45 degrees DOWN from flat right instead of up. Same circle, opposite turn — and every backwards angle has a forwards name.",
+             '[[goal text="The backwards spin"]][[step eq="−45° · wound the other way"]]'],
+            ["To find it, add one full turn: negative 45 plus 360 equals 315. Check with your arms: 45 down from flat right, or 315 the long way around — the SAME arrow. One direction, two names, and the positive name is 360 take away the backwards one.",
+             '[[step eq="−45° + 360° = 315°"]]'],
+            ["Two traps. Dropping the minus says 45 — the mirror image, above the line when the arrow hangs below. And adding only a half turn — 135 here — parks the arrow on the wrong side entirely. A full turn, 360, always.",
+             '[[step eq="315° ✓"]][[step eq="45 ✗ mirror · 135 ✗ half turn"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Negative 25: add 360 — 335.",
+                        '[[step eq="−25° + 360° = 335°"]]'],
+             "ask": {"a": 70, "b": 0, "op": "nspn"}},
+            {"worked": ["One more together. Negative 155 plus 360 — 205.",
+                        '[[step eq="−155° + 360° = 205°"]]'],
+             "ask": {"a": 110, "b": 0, "op": "nspn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 0, "op": "nspn"},
+            {"a": 30, "b": 0, "op": "nspn"},
+            {"a": 40, "b": 0, "op": "nspn"},
+            {"a": 50, "b": 0, "op": "nspn"},
+            {"a": 60, "b": 0, "op": "nspn"},
+            {"a": 80, "b": 0, "op": "nspn"},
+            {"a": 100, "b": 0, "op": "nspn"},
+            {"a": 120, "b": 0, "op": "nspn"},
+            {"a": 140, "b": 0, "op": "nspn"},
+            {"a": 160, "b": 0, "op": "nspn"},
+        ],
+    },
+    {
+        "id": "pc-u4-hug-the-flat-line",
+        "course": "precalc", "unit": 4,
+        "topic": "Reference angles",
+        "op": "refq", "max_value": 170,
+        "levels": ("abstract",),
+        "symbols": ("reference", "gap"),
+        "advance_line": "Three in a row — you've got it! The gap to the flat line — that is the reference.",
+        "teach": [
+            ["Every arrow, wherever it lands, has a reference angle: the small gap between the arrow and the flat line through the circle's middle. This lesson lives in the second quarter — past straight up, short of flat left — where that gap is measured to 180.",
+             '[[goal text="Hug the flat line"]][[step eq="reference = the gap to the flat line"]]'],
+            ["Take 175 degrees: the arrow sits 5 short of flat left, so its reference angle is 180 take away 175 — 5 degrees. The reference angle is why the trig values at 175 echo the ones at 5: the circle reuses its first quarter, everywhere.",
+             '[[step eq="175° → 180 − 175 = 5°"]]'],
+            ["Now 135: the gap to flat left is 45. The trap is measuring from straight up — that says 45 too here, by coincidence, but at 135 only! Measure from straight up at 145 and you get 55; the true reference is 35. Hug the FLAT line, never the top.",
+             '[[step eq="135° → 45 ✓"]][[step eq="145°: from the top 55 ✗ · reference 35 ✓"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 155 degrees: 180 take away 155 — the reference angle is 25.",
+                        '[[step eq="155° → 180 − 155 = 25°"]]'],
+             "ask": {"a": 125, "b": 0, "op": "refq"}},
+            {"worked": ["One more together. 112 degrees: the reference is 68.",
+                        '[[step eq="112° → 180 − 112 = 68°"]]'],
+             "ask": {"a": 165, "b": 0, "op": "refq"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 100, "b": 0, "op": "refq"},
+            {"a": 105, "b": 0, "op": "refq"},
+            {"a": 110, "b": 0, "op": "refq"},
+            {"a": 115, "b": 0, "op": "refq"},
+            {"a": 120, "b": 0, "op": "refq"},
+            {"a": 130, "b": 0, "op": "refq"},
+            {"a": 140, "b": 0, "op": "refq"},
+            {"a": 150, "b": 0, "op": "refq"},
+            {"a": 160, "b": 0, "op": "refq"},
+            {"a": 170, "b": 0, "op": "refq"},
+        ],
+    },
+    {
+        "id": "pc-u4-the-faster-wave",
+        "course": "precalc", "unit": 4,
+        "topic": "Period",
+        "op": "wper", "max_value": 120,
+        "levels": ("abstract",),
+        "symbols": ("period", "repeats"),
+        "advance_line": "Three in a row — you've got it! Divide 360 by the multiplier.",
+        "teach": [
+            ["The plain sine wave repeats its whole story every 360 degrees — its period . Write y equals the sine of 2 x and the wave wiggles twice as fast: the story that took 360 degrees now fits in 180. Faster wiggle, shorter period.",
+             '[[goal text="The faster wave"]][[graph func="sin(2*x)" range="-7..7"]][[step eq="sin 2x: the story fits in 180°"]]'],
+            ["The rule: divide 360 by the multiplier. y equals the sine of 30 x races thirty times faster, so it repeats every 360 divided by 30 — 12 degrees. The whole rise-and-fall, squeezed into 12.",
+             '[[step eq="period = 360 ÷ 30 = 12°"]]'],
+            ["Two traps. Faster does NOT stretch the wave: 360 times the multiplier points the wrong way — a faster wave repeats SOONER. And 360 unchanged is the plain sine's habit; the multiplier is standing right there. Divide, always.",
+             '[[step eq="÷ ✓ shorter"]][[step eq="× 360 ✗ longer · 360 ✗ the plain habit"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The sine of 36 x: 360 divided by 36 — the period is 10 degrees.",
+                        '[[step eq="360 ÷ 36 = 10°"]]'],
+             "ask": {"a": 20, "b": 0, "op": "wper"}},
+            {"worked": ["One more together. The sine of 40 x: the period is 9.",
+                        '[[step eq="360 ÷ 40 = 9°"]]'],
+             "ask": {"a": 24, "b": 0, "op": "wper"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 0, "op": "wper"},
+            {"a": 4, "b": 0, "op": "wper"},
+            {"a": 5, "b": 0, "op": "wper"},
+            {"a": 6, "b": 0, "op": "wper"},
+            {"a": 8, "b": 0, "op": "wper"},
+            {"a": 9, "b": 0, "op": "wper"},
+            {"a": 10, "b": 0, "op": "wper"},
+            {"a": 12, "b": 0, "op": "wper"},
+            {"a": 15, "b": 0, "op": "wper"},
+            {"a": 18, "b": 0, "op": "wper"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U4)
+
+# =============================================================================
+# PRE-CALC UNIT 5 -- Analytic Trigonometry (build ln)
+# The thread: what is ALWAYS true. sin^2 + cos^2 splits one whole between the
+# pair, sine and cosine are partners across ninety, the mirror flips height
+# and never across (even/odd -- lm's minus parade, on the circle), and
+# solving a trig equation means counting the crossings per sweep.
+# =============================================================================
+_PRECALC_U5 = [
+    {
+        "id": "pc-u5-one-whole-between-them",
+        "course": "precalc", "unit": 5,
+        "topic": "The Pythagorean identity",
+        "op": "pyid", "max_value": 99,
+        "levels": ("abstract",),
+        "symbols": ("squared", "hundredths"),
+        "advance_line": "Three in a row — you've got it! The pair splits one whole — take the share from 100.",
+        "teach": [
+            ["Unit Five is about what is ALWAYS true. Here is trigonometry's most famous always: for every angle, sine squared plus cosine squared equals exactly 1. Height squared plus across squared — one whole, every single time. It is Pythagoras, living on the circle.",
+             '[[goal text="One whole between them"]][[step eq="sin² + cos² = 1 — always"]]'],
+            ["Split the whole into hundredths : 1 is 100 hundredths. If sine squared takes 20 of them, cosine squared holds the rest — 100 take away 20 is 80. The pair splits one whole between them, wherever the arrow points.",
+             '[[step eq="sin² = 20/100 → cos² = 80/100"]]'],
+            ["Two traps. Copying sine's share hands back the number you were given — the question asked for the PARTNER. And answering 100 forgets that sine already claimed its part. Take the given share away from 100; what is left is cosine's.",
+             '[[step eq="100 − given ✓"]][[step eq="copied ✗ · 100 ✗ the whole"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Sine squared equals 70 hundredths: 100 take away 70 — cosine squared is 30 hundredths.",
+                        '[[step eq="sin² = 70/100 → cos² = 30/100"]]'],
+             "ask": {"a": 30, "b": 0, "op": "pyid"}},
+            {"worked": ["One more together. Sine squared 45 hundredths: cosine squared 55.",
+                        '[[step eq="sin² = 45/100 → cos² = 55/100"]]'],
+             "ask": {"a": 55, "b": 0, "op": "pyid"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 0, "op": "pyid"},
+            {"a": 10, "b": 0, "op": "pyid"},
+            {"a": 19, "b": 0, "op": "pyid"},
+            {"a": 25, "b": 0, "op": "pyid"},
+            {"a": 36, "b": 0, "op": "pyid"},
+            {"a": 40, "b": 0, "op": "pyid"},
+            {"a": 64, "b": 0, "op": "pyid"},
+            {"a": 75, "b": 0, "op": "pyid"},
+            {"a": 81, "b": 0, "op": "pyid"},
+            {"a": 91, "b": 0, "op": "pyid"},
+        ],
+    },
+    {
+        "id": "pc-u5-partners-across-ninety",
+        "course": "precalc", "unit": 5,
+        "topic": "Cofunctions",
+        "op": "cofn", "max_value": 80,
+        "levels": ("abstract",),
+        "symbols": ("cosine", "partners"),
+        "advance_line": "Three in a row — you've got it! Partners finish 90 together.",
+        "teach": [
+            ["Sine and cosine are partners — the CO in cosine says so. Take any angle and its partner across 90: the two sharp corners of one right triangle. The sine of one equals the cosine of the other, exactly, every time.",
+             '[[goal text="Partners across ninety"]][[step eq="sin a = cos (90 − a)"]]'],
+            ["Watch: the sine of 35 equals the cosine of 55, because 35 plus 55 equals 90. One triangle, two sharp corners; what one corner calls height, the other calls across. Swap the name, swap the angle — across 90.",
+             '[[step eq="sin 35° = cos 55° · 35 + 55 = 90"]]'],
+            ["Two traps. Keeping the SAME angle — the sine of 35 does not equal the cosine of 35. And adding 90 overshoots: the partner of 35 is 55, never 125. Partners share the 90; together they finish it.",
+             '[[step eq="35 → partner 55 ✓"]][[step eq="35 ✗ same angle · 125 ✗ added 90"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The sine of 85 equals the cosine of 5 — together they finish 90.",
+                        '[[step eq="sin 85° = cos 5°"]]'],
+             "ask": {"a": 25, "b": 0, "op": "cofn"}},
+            {"worked": ["One more together. The sine of 42 equals the cosine of 48.",
+                        '[[step eq="sin 42° = cos 48°"]]'],
+             "ask": {"a": 75, "b": 0, "op": "cofn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 10, "b": 0, "op": "cofn"},
+            {"a": 15, "b": 0, "op": "cofn"},
+            {"a": 20, "b": 0, "op": "cofn"},
+            {"a": 30, "b": 0, "op": "cofn"},
+            {"a": 40, "b": 0, "op": "cofn"},
+            {"a": 50, "b": 0, "op": "cofn"},
+            {"a": 60, "b": 0, "op": "cofn"},
+            {"a": 65, "b": 0, "op": "cofn"},
+            {"a": 70, "b": 0, "op": "cofn"},
+            {"a": 80, "b": 0, "op": "cofn"},
+        ],
+    },
+    {
+        "id": "pc-u5-the-mirror-knows",
+        "course": "precalc", "unit": 5,
+        "topic": "Even and odd functions",
+        "op": "negf", "max_value": 810, "min_value": -1,
+        "levels": ("abstract",),
+        "symbols": ("mirror", "flips"),
+        "advance_line": "Three in a row — you've got it! The mirror flips height, never across.",
+        "teach": [
+            ["Feed a negative angle into cosine and sine and watch. The backwards spin is the forwards spin's mirror image — flipped across the flat line. The mirror flips HEIGHT: what was up hangs down. It never flips ACROSS: left stays left, right stays right.",
+             '[[goal text="The mirror knows"]][[step eq="−a is a\'s mirror · height flips, across holds"]]'],
+            ["So cosine — the across — ignores the minus completely: the cosine of negative 180 equals the cosine of 180, flat left, negative 1. Cosine is called an even function, like the even powers of the minus parade: the minus vanishes.",
+             '[[step eq="cos(−180°) = cos(180°) = −1"]][[step eq="even: the minus vanishes"]]'],
+            ["Sine — the height — FLIPS: the sine of negative 90 is the opposite of the sine of 90. Straight up becomes straight down: 1 becomes negative 1. Sine is an odd function — one minus survives, just like an odd power. The mirror knows which is which.",
+             '[[step eq="sin(−90°) = −sin(90°) = −1"]][[step eq="odd: one minus survives"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The cosine of negative 450: spin back a full turn, then a quarter more — straight down. The across of straight down is 0.",
+                        '[[step eq="cos(−450°) = 0"]]'],
+             "ask": {"a": 720, "b": 0, "c": 0, "op": "negf"}},
+            {"worked": ["One more together. The sine of negative 540: a turn and a half backwards lands flat left — height 0.",
+                        '[[step eq="sin(−540°) = 0"]]'],
+             "ask": {"a": 810, "b": 0, "c": 1, "op": "negf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 90, "b": 0, "c": 0, "op": "negf"},
+            {"a": 90, "b": 0, "c": 1, "op": "negf"},
+            {"a": 180, "b": 0, "c": 0, "op": "negf"},
+            {"a": 180, "b": 0, "c": 1, "op": "negf"},
+            {"a": 270, "b": 0, "c": 0, "op": "negf"},
+            {"a": 270, "b": 0, "c": 1, "op": "negf"},
+            {"a": 360, "b": 0, "c": 0, "op": "negf"},
+            {"a": 450, "b": 0, "c": 1, "op": "negf"},
+            {"a": 540, "b": 0, "c": 0, "op": "negf"},
+            {"a": 630, "b": 0, "c": 1, "op": "negf"},
+        ],
+    },
+    {
+        "id": "pc-u5-count-the-crossings",
+        "course": "precalc", "unit": 5,
+        "topic": "Solving trig equations",
+        "op": "sols", "max_value": 4,
+        "levels": ("abstract",),
+        "symbols": ("turn", "finish"),
+        "advance_line": "Three in a row — you've got it! Count one turn's crossings, then times the turns.",
+        "teach": [
+            ["The last identity skill is counting answers. An equation like: the sine equals 0 — how many angles solve it? Sweep the arrow one full turn , and count every moment the height hits the target — skip the start, keep the finish .",
+             '[[goal text="Count the crossings"]][[step eq="sweep · skip the start, keep the finish"]]'],
+            ["Sine equal 0 in one turn: the height is 0 at flat left and again at the finish — twice. Sine equal 1: only straight up — once. The middle value gets hit going up AND coming down; the ends of the swing get touched once.",
+             '[[step eq="sin = 0 → twice · sin = 1 → once"]]'],
+            ["More turns just repeat the story: three turns triple every count — sine equal 1 happens 3 times in three turns. The trap answers 4 — one per quarter — but the ends of the swing live in ONE spot each. Count the true crossings, then times the turns.",
+             '[[step eq="3 turns → 3 × each count"]][[step eq="4 ✗ one-per-quarter"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The cosine equal 0, three turns: twice each turn — straight up and straight down — times 3 is 6.",
+                        '[[step eq="cos = 0 · 3 turns → 2 × 3 = 6"]]'],
+             "ask": {"a": 0, "b": 1, "c": 1, "op": "sols"}},
+            {"worked": ["One more together. Sine equal negative 1, three turns: once each — 3.",
+                        '[[step eq="sin = −1 · 3 turns → 3"]]'],
+             "ask": {"a": -1, "b": 2, "c": 0, "op": "sols"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 1, "c": 0, "op": "sols"},
+            {"a": -1, "b": 1, "c": 0, "op": "sols"},
+            {"a": 1, "b": 1, "c": 1, "op": "sols"},
+            {"a": -1, "b": 1, "c": 1, "op": "sols"},
+            {"a": 0, "b": 1, "c": 0, "op": "sols"},
+            {"a": 1, "b": 2, "c": 0, "op": "sols"},
+            {"a": -1, "b": 2, "c": 1, "op": "sols"},
+            {"a": 1, "b": 2, "c": 1, "op": "sols"},
+            {"a": 0, "b": 2, "c": 0, "op": "sols"},
+            {"a": 0, "b": 2, "c": 1, "op": "sols"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U5)
+
+# =============================================================================
+# PRE-CALC UNIT 6 -- Applications of Trigonometry (build lo)
+# The thread: trigonometry PUTS ON WORK CLOTHES. Area from two sides and the
+# angle between them, a ramp's climb from the 30-degree sine, a ship's bearing
+# wrapped past the full turn (ln's coterminal rule, at sea), and an arrow's
+# length from its two steps -- Geometry's Pythagoras, wearing vector clothes.
+# The [[vector]] renderer prints |v|, so it is TEACH-ONLY here.
+# =============================================================================
+_PRECALC_U6 = [
+    {
+        "id": "pc-u6-two-sides-and-the-angle",
+        "course": "precalc", "unit": 6,
+        "topic": "Area from two sides",
+        "op": "arsn", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("sine", "between"),
+        "advance_line": "Three in a row — you've got it! Half the product, times the sine.",
+        "teach": [
+            ["Unit Six puts trigonometry to work, starting with area. Base times height, halved, needs a height you may not have. Two sides and the angle between them are enough: the area is half of one side, times the other side, times the sine of that angle.",
+             '[[goal text="Two sides and the angle"]][[step eq="area = ½ · side · side · sin(angle)"]]'],
+            ["Two sines carry this lesson. The sine of 90 degrees is 1, so a right angle hands over half the product outright: sides 10 and 4, with 90 degrees between them, cover half of 40 — an area of 20.",
+             '[[triangle v="A,B,C" right="A" sides="10,,4" angles="90,,"]][[step eq="½ · 10 · 4 · 1 = 20"]]'],
+            ["The sine of 30 degrees is exactly one half — keep that one in your pocket. So 30 degrees between those same sides quarters the product: 10. And 150 shares that sine, because its reference angle is 30 — the wide triangle covers what the sharp one covers.",
+             '[[step eq="30° → ¼ · 40 = 10"]][[step eq="150° → reference 30° → 10 as well"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Sides 12 and 4, with a right angle between them: half of 48 — an area of 24.",
+                        '[[step eq="½ · 12 · 4 · 1 = 24"]]'],
+             "ask": {"a": 6, "b": 10, "c": 90, "op": "arsn"}},
+            {"worked": ["One more together. The same 12 and 4, but 30 degrees between them: a quarter of 48 — 12.",
+                        '[[step eq="¼ · 12 · 4 = 12"]]'],
+             "ask": {"a": 12, "b": 6, "c": 150, "op": "arsn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "c": 90, "op": "arsn"},
+            {"a": 4, "b": 4, "c": 30, "op": "arsn"},
+            {"a": 2, "b": 6, "c": 90, "op": "arsn"},
+            {"a": 6, "b": 6, "c": 150, "op": "arsn"},
+            {"a": 4, "b": 6, "c": 90, "op": "arsn"},
+            {"a": 6, "b": 8, "c": 30, "op": "arsn"},
+            {"a": 4, "b": 8, "c": 90, "op": "arsn"},
+            {"a": 8, "b": 8, "c": 30, "op": "arsn"},
+            {"a": 5, "b": 8, "c": 90, "op": "arsn"},
+            {"a": 8, "b": 10, "c": 150, "op": "arsn"},
+        ],
+    },
+    {
+        "id": "pc-u6-the-thirty-degree-ramp",
+        "course": "precalc", "unit": 6,
+        "topic": "The 30-degree rise",
+        "op": "ramp", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("ramp", "half"),
+        "advance_line": "Three in a row — you've got it! At 30 degrees, the climb is half the length.",
+        "teach": [
+            ["A ramp rises at 30 degrees. How high does its far end sit? The sine of an angle is the rise divided by the slope's length, so the rise equals length times sine — and at 30 degrees that sine is a half . The ramp climbs half its length.",
+             '[[goal text="The thirty-degree ramp"]][[step eq="rise = length × sin 30° = ½ × length"]]'],
+            ["A 22-foot ramp at 30 degrees: half of 22 is 11 feet up. You walk 22 along the slope and rise 11. The climb is always the smaller number — you travel farther than you rise, on every ramp ever built.",
+             '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,,"]]'],
+            ["That is the whole trap: the length is how far you WALK, and it never doubles as the height. A 40-foot ramp rises 20 — not 40, which is the walk, and certainly not 80, which would stand higher than the ramp is long.",
+             '[[step eq="40 ft ramp → 20 ft up ✓"]][[step eq="40 ✗ the walk · 80 ✗ doubled"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A 26-foot ramp at 30 degrees: half of 26 — it rises 13 feet.",
+                        '[[step eq="½ · 26 = 13 ft"]]'],
+             "ask": {"a": 32, "b": 0, "op": "ramp"}},
+            {"worked": ["One more together. A 30-foot ramp at the same 30 degrees rises 15 feet.",
+                        '[[step eq="½ · 30 = 15 ft"]]'],
+             "ask": {"a": 36, "b": 0, "op": "ramp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 6, "b": 0, "op": "ramp"},
+            {"a": 8, "b": 0, "op": "ramp"},
+            {"a": 10, "b": 0, "op": "ramp"},
+            {"a": 12, "b": 0, "op": "ramp"},
+            {"a": 14, "b": 0, "op": "ramp"},
+            {"a": 16, "b": 0, "op": "ramp"},
+            {"a": 18, "b": 0, "op": "ramp"},
+            {"a": 20, "b": 0, "op": "ramp"},
+            {"a": 24, "b": 0, "op": "ramp"},
+            {"a": 28, "b": 0, "op": "ramp"},
+        ],
+    },
+    {
+        "id": "pc-u6-past-the-full-turn",
+        "course": "precalc", "unit": 6,
+        "topic": "Bearings",
+        "op": "brng", "max_value": 350,
+        "levels": ("abstract",),
+        "symbols": ("bearing", "clockwise"),
+        "advance_line": "Three in a row — you've got it! Add the turn, then wrap at 360.",
+        "teach": [
+            ["Sailors and pilots steer by a bearing : degrees measured clockwise from north, from 0 up to 360. Turn clockwise and the bearing grows — but the circle stops at 360, and a turn that passes it starts counting again from zero.",
+             '[[goal text="Past the full turn"]][[step eq="bearing: 0° → 360°, clockwise from north"]]'],
+            ["A ship on bearing 350 turns 40 degrees clockwise. 350 plus 40 is 390 — past the full turn. Take away 360 and the true bearing is 30: the ship has swung around through north and is heading nearly north again.",
+             '[[step eq="350 + 40 = 390 → 390 − 360 = 30"]]'],
+            ["Two traps live here. Leaving 390 on the compass names a bearing no compass carries. And turning the other way — 350 take away 40 — points at 310, a heading the ship never took. Add the turn first, then wrap.",
+             '[[step eq="30 ✓"]][[step eq="390 ✗ no such bearing · 310 ✗ turned the wrong way"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Bearing 245, turning 160 clockwise: 405, past the turn — take away 360 for 45.",
+                        '[[step eq="245 + 160 = 405 → 45"]]'],
+             "ask": {"a": 290, "b": 125, "op": "brng"}},
+            {"worked": ["One more together. Bearing 290, turning 150: 440, and 440 take away 360 is 80.",
+                        '[[step eq="290 + 150 = 440 → 80"]]'],
+             "ask": {"a": 330, "b": 105, "op": "brng"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 200, "b": 170, "op": "brng"},
+            {"a": 210, "b": 165, "op": "brng"},
+            {"a": 220, "b": 160, "op": "brng"},
+            {"a": 230, "b": 155, "op": "brng"},
+            {"a": 240, "b": 150, "op": "brng"},
+            {"a": 250, "b": 145, "op": "brng"},
+            {"a": 260, "b": 140, "op": "brng"},
+            {"a": 270, "b": 135, "op": "brng"},
+            {"a": 280, "b": 130, "op": "brng"},
+            {"a": 300, "b": 120, "op": "brng"},
+        ],
+    },
+    {
+        "id": "pc-u6-the-arrow-and-its-steps",
+        "course": "precalc", "unit": 6,
+        "topic": "Vector length",
+        "op": "vmag", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("arrow", "steps"),
+        "advance_line": "Three in a row — you've got it! The arrow is the hypotenuse of its two steps.",
+        "teach": [
+            ["An arrow on a grid is described by its steps : so many to the right, so many up. Those two steps meet at a right angle — so the arrow itself is a hypotenuse, and Geometry's Pythagoras measures it without a ruler.",
+             '[[goal text="The arrow and its steps"]][[vector v="3,4"]]'],
+            ["Right 3 and up 4: 9 put together with 16 is 25, and 5 times 5 squares back to it. The arrow is 5 long — farther than either step on its own, and shorter than walking 3 and then 4, which is 7.",
+             '[[step eq="3² + 4² = 25 → arrow 5"]][[step eq="5 > 4 · 5 < 3 + 4"]]'],
+            ["Those two bounds catch both traps. An arrow is never as long as its steps added, and never as short as its biggest step alone. Right 5 and up 12 gives 13 — not 17, and not 12.",
+             '[[vector v="5,12"]][[step eq="13 ✓ · 17 ✗ added · 12 ✗ the big step alone"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Right 9 and up 40: 81 put together with 1600 is 1681, and 41 squares back to it. The arrow is 41.",
+                        '[[step eq="9² + 40² = 1681 → arrow 41"]]'],
+             "ask": {"a": 12, "b": 35, "c": 37, "op": "vmag"}},
+            {"worked": ["One more together. Right 30 and up 40: the arrow is 50, the old 3-4-5 grown ten times.",
+                        '[[step eq="30² + 40² = 2500 → arrow 50"]]'],
+             "ask": {"a": 24, "b": 32, "c": 40, "op": "vmag"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 6, "b": 8, "c": 10, "op": "vmag"},
+            {"a": 9, "b": 12, "c": 15, "op": "vmag"},
+            {"a": 8, "b": 15, "c": 17, "op": "vmag"},
+            {"a": 12, "b": 16, "c": 20, "op": "vmag"},
+            {"a": 7, "b": 24, "c": 25, "op": "vmag"},
+            {"a": 15, "b": 20, "c": 25, "op": "vmag"},
+            {"a": 10, "b": 24, "c": 26, "op": "vmag"},
+            {"a": 20, "b": 21, "c": 29, "op": "vmag"},
+            {"a": 18, "b": 24, "c": 30, "op": "vmag"},
+            {"a": 16, "b": 30, "c": 34, "op": "vmag"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U6)
+
+# =============================================================================
+# PRE-CALC UNIT 7 -- Conic Sections & Parametric Equations (build lo)
+# The thread: a shape's EQUATION hands over its measurements, if you read the
+# squares right. Un-square the circle's right-hand number for the radius, read
+# the center out of the take-aways (the sign points opposite -- vtx2's and
+# fdom's rule, third home), un-square and DOUBLE for an ellipse's width, and
+# tie both coordinates to time so a curve becomes a path something travels.
+# The [[conic]] renderer draws on a labeled grid, so it is TEACH-ONLY here.
+# =============================================================================
+_PRECALC_U7 = [
+    {
+        "id": "pc-u7-un-square-the-radius",
+        "course": "precalc", "unit": 7,
+        "topic": "Circle equations",
+        "op": "crad", "max_value": 12,
+        "levels": ("abstract",),
+        "symbols": ("radius", "circle"),
+        "advance_line": "Three in a row — you've got it! Un-square the right-hand number.",
+        "teach": [
+            ["Unit Seven reads shapes straight off their equations. A circle can be written: x take away 2, squared, plus y take away 9, squared, equals 49 — every point sitting one fixed distance from the middle. That 49 is not the radius , though.",
+             '[[goal text="Un-square the radius"]][[conic type="circle" r="7"]]'],
+            ["It is the radius SQUARED. Un-square 49 and the radius is 7 — the circle reaches 7 in every direction from its middle. The distance formula built this equation, and distances arrive squared; un-squaring is how you get them back.",
+             '[[step eq="(x − 2)² + (y − 9)² = 49"]][[step eq="un-square 49 → radius 7"]]'],
+            ["Two grabs to resist: answering 49, which is still squared; and answering 2 or 9, which say WHERE the circle sits and nothing about its size. Un-square the right-hand number — that is the radius, every time.",
+             '[[step eq="7 ✓"]][[step eq="49 ✗ still squared · 2 ✗ the center"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x take away 5, squared, plus y take away 5, squared, equals 169: un-square 169 — the radius is 13.",
+                        '[[step eq="= 169 → radius 13"]]'],
+             "ask": {"a": 8, "b": 3, "c": 12, "op": "crad"}},
+            {"worked": ["One more together. That same shape ending in 196 has a radius of 14.",
+                        '[[step eq="= 196 → radius 14"]]'],
+             "ask": {"a": 6, "b": 11, "c": 10, "op": "crad"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 5, "c": 2, "op": "crad"},
+            {"a": 5, "b": 2, "c": 3, "op": "crad"},
+            {"a": 2, "b": 7, "c": 4, "op": "crad"},
+            {"a": 7, "b": 3, "c": 5, "op": "crad"},
+            {"a": 4, "b": 9, "c": 6, "op": "crad"},
+            {"a": 9, "b": 4, "c": 7, "op": "crad"},
+            {"a": 3, "b": 11, "c": 8, "op": "crad"},
+            {"a": 11, "b": 6, "c": 9, "op": "crad"},
+            {"a": 6, "b": 12, "c": 10, "op": "crad"},
+            {"a": 12, "b": 7, "c": 11, "op": "crad"},
+        ],
+    },
+    {
+        "id": "pc-u7-where-the-circle-sits",
+        "course": "precalc", "unit": 7,
+        "topic": "The center",
+        "op": "cctr", "max_value": 12, "min_value": -12,
+        "levels": ("abstract",),
+        "symbols": ("center", "opposite"),
+        "advance_line": "Three in a row — you've got it! Take away 6 means the center sits at positive 6.",
+        "teach": [
+            ["Same equation, a different question: where is the middle? Write a circle as: x take away 6, squared, plus y take away 2, squared, equals 25. The center hides inside the two take-aways — and it hides with its sign flipped.",
+             '[[goal text="Where the circle sits"]][[step eq="(x − 6)² + (y − 2)² = 25"]]'],
+            ["x take away 6 goes quiet at x equals 6, and the middle sits exactly where those squared pieces go quiet. So the center's x is 6 — positive 6, even though a minus sign is what your eye reads on the page.",
+             '[[step eq="x − 6 = 0 at x = 6 → center x = 6"]]'],
+            ["Inside the parentheses, a sign always points opposite — the rule the parabola's turn obeyed, and the doorway before that. Take away 6 means positive 6, never negative 6. And the 2 is the OTHER coordinate: answer the one you were asked for.",
+             '[[step eq="6 ✓"]][[step eq="−6 ✗ the flip · 2 ✗ the y"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x take away 9, squared, plus y take away 1, squared, equals 16: the center's x is 9.",
+                        '[[step eq="(x − 9)² … → center x = 9"]]'],
+             "ask": {"a": 12, "b": 7, "c": 5, "op": "cctr"}},
+            {"worked": ["One more together. x take away 4, squared, plus y take away 6, squared: the center's x is 4.",
+                        '[[step eq="(x − 4)² … → center x = 4"]]'],
+             "ask": {"a": 7, "b": 11, "c": 8, "op": "cctr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 5, "c": 3, "op": "cctr"},
+            {"a": 3, "b": 7, "c": 4, "op": "cctr"},
+            {"a": 4, "b": 9, "c": 2, "op": "cctr"},
+            {"a": 5, "b": 2, "c": 6, "op": "cctr"},
+            {"a": 6, "b": 11, "c": 3, "op": "cctr"},
+            {"a": 7, "b": 4, "c": 5, "op": "cctr"},
+            {"a": 8, "b": 3, "c": 7, "op": "cctr"},
+            {"a": 9, "b": 12, "c": 4, "op": "cctr"},
+            {"a": 10, "b": 6, "c": 8, "op": "cctr"},
+            {"a": 11, "b": 5, "c": 9, "op": "cctr"},
+        ],
+    },
+    {
+        "id": "pc-u7-edge-to-edge",
+        "course": "precalc", "unit": 7,
+        "topic": "Ellipses",
+        "op": "elax", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("ellipse", "edge"),
+        "advance_line": "Three in a row — you've got it! Un-square, then double.",
+        "teach": [
+            ["Stretch a circle and you have an ellipse : x squared over 144, plus y squared over 25, equals 1. Those two bottom numbers are squares as well — and un-squaring them says how far the shape reaches in each direction.",
+             '[[goal text="Edge to edge"]][[conic type="ellipse" a="12" b="5"]]'],
+            ["Un-square 144: the ellipse reaches 12 to the left and 12 to the right of its middle. From the left edge to the right edge is double that — 24 across. The 25 does the same work upward: 5 each way, so 10 tall.",
+             '[[step eq="un-square 144 → 12 each way → 24 across"]][[step eq="un-square 25 → 5 each way → 10 tall"]]'],
+            ["Two half-answers wait here. 12 is the reach ONE way, not the full width; and 144 is the printed number, still squared. Un-square, then double — and the answer is always the widest measurement the shape has.",
+             '[[step eq="24 ✓"]][[step eq="12 ✗ half of it · 144 ✗ still squared"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x squared over 121, plus y squared over 16: un-square 121 — 11 each way, so 22 across.",
+                        '[[step eq="121 → 11 each way → 22 across"]]'],
+             "ask": {"a": 7, "b": 5, "op": "elax"}},
+            {"worked": ["One more together. x squared over 196: 14 each way, so 28 across.",
+                        '[[step eq="196 → 14 each way → 28 across"]]'],
+             "ask": {"a": 9, "b": 8, "op": "elax"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 2, "op": "elax"},
+            {"a": 4, "b": 3, "op": "elax"},
+            {"a": 5, "b": 2, "op": "elax"},
+            {"a": 5, "b": 4, "op": "elax"},
+            {"a": 6, "b": 5, "op": "elax"},
+            {"a": 7, "b": 3, "op": "elax"},
+            {"a": 8, "b": 5, "op": "elax"},
+            {"a": 8, "b": 7, "op": "elax"},
+            {"a": 9, "b": 4, "op": "elax"},
+            {"a": 10, "b": 6, "op": "elax"},
+        ],
+    },
+    {
+        "id": "pc-u7-where-you-are-at-time-t",
+        "course": "precalc", "unit": 7,
+        "topic": "Parametric equations",
+        "op": "parm", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("time", "path"),
+        "advance_line": "Three in a row — you've got it! Plug the time in first, then measure straight.",
+        "teach": [
+            ["The unit ends in motion. Instead of tying y to x, tie BOTH of them to time : x equals 3 times t, y equals 4 times t. Hand it a moment and it hands back a position, so the curve becomes a path something travels.",
+             '[[goal text="Where you are at time t"]][[step eq="x = 3t · y = 4t"]]'],
+            ["At t equals 1 second the ball sits 3 right and 4 up — 5 away from its start, by Pythagoras. At t equals 10 seconds it is at 30 and 40, which is 50 away. Every second adds another 5 of distance.",
+             '[[step eq="t = 1 → (3, 4) → 5 away"]][[step eq="t = 10 → (30, 40) → 50 away"]]'],
+            ["So two answers tempt at 10 seconds. 5 is one second's worth — that is the speed, not the trip. And 30 plus 40 walks the corner instead of cutting across. Plug the time in first, then measure straight.",
+             '[[step eq="50 ✓"]][[step eq="5 ✗ one second · 70 ✗ walked the corner"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x equals 20 t, y equals 21 t. At 2 seconds: 40 and 42, and the straight distance is 58.",
+                        '[[step eq="t = 2 → (40, 42) → 58"]]'],
+             "ask": {"a": 5, "b": 12, "c": 3, "op": "parm"}},
+            {"worked": ["One more together. x equals 7 t, y equals 24 t. At 2 seconds: 14 and 48 — 50 away.",
+                        '[[step eq="t = 2 → (14, 48) → 50"]]'],
+             "ask": {"a": 6, "b": 8, "c": 4, "op": "parm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 3, "b": 4, "c": 2, "op": "parm"},
+            {"a": 3, "b": 4, "c": 3, "op": "parm"},
+            {"a": 3, "b": 4, "c": 4, "op": "parm"},
+            {"a": 6, "b": 8, "c": 2, "op": "parm"},
+            {"a": 3, "b": 4, "c": 5, "op": "parm"},
+            {"a": 5, "b": 12, "c": 2, "op": "parm"},
+            {"a": 9, "b": 12, "c": 2, "op": "parm"},
+            {"a": 6, "b": 8, "c": 3, "op": "parm"},
+            {"a": 8, "b": 15, "c": 2, "op": "parm"},
+            {"a": 12, "b": 16, "c": 2, "op": "parm"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U7)
+
+
 
 
 
@@ -7920,6 +9700,43 @@ COURSE_ORDER = [
     # exponent with its adding law
     "alg2-u6-the-fading-half", "alg2-u6-the-hidden-exponent",
     "alg2-u6-logs-add", "alg2-u6-between-the-powers",
+    # Unit 7: Sequences & Series -- a pattern is a rule you can ride
+    "alg2-u7-ride-the-pattern", "alg2-u7-times-again",
+    "alg2-u7-pair-the-ends", "alg2-u7-walk-the-rule",
+    # Unit 8: Trigonometric Functions -- the circle of size one
+    "alg2-u8-the-height", "alg2-u8-the-across",
+    "alg2-u8-spin-once-more", "alg2-u8-the-stretched-wave",
+    # Unit 9: Statistics & Probability -- ⭐ ALGEBRA II COMPLETE
+    "alg2-u9-the-heavier-mean", "alg2-u9-three-slots",
+    "alg2-u9-what-to-expect", "alg2-u9-the-sample-speaks",
+
+    # ---- PRE-CALC (build ll) -- Unit 1: Functions & Their Graphs ----
+    "pc-u1-machines-in-a-row", "pc-u1-the-graph-slides",
+    "pc-u1-the-doorway", "pc-u1-a-function-in-pieces",
+
+    # ---- PRE-CALC (build lm) -- Units 2 and 3 ----
+    # Unit 2: Polynomial & Rational Functions
+    "pc-u2-the-minus-parade", "pc-u2-no-long-division",
+    "pc-u2-the-roots-secret", "pc-u2-twice-forbidden",
+    # Unit 3: Exponential & Logarithmic Functions
+    "pc-u3-the-power-comes-down", "pc-u3-rebuild-the-number",
+    "pc-u3-count-the-halvings", "pc-u3-money-doubles",
+
+    # ---- PRE-CALC (build ln) -- Units 4 and 5 ----
+    # Unit 4: Trigonometric Functions
+    "pc-u4-the-half-turn-language", "pc-u4-the-backwards-spin",
+    "pc-u4-hug-the-flat-line", "pc-u4-the-faster-wave",
+    # Unit 5: Analytic Trigonometry
+    "pc-u5-one-whole-between-them", "pc-u5-partners-across-ninety",
+    "pc-u5-the-mirror-knows", "pc-u5-count-the-crossings",
+
+    # ---- PRE-CALC (build lo) -- Units 6 and 7 ----
+    # Unit 6: Applications of Trigonometry
+    "pc-u6-two-sides-and-the-angle", "pc-u6-the-thirty-degree-ramp",
+    "pc-u6-past-the-full-turn", "pc-u6-the-arrow-and-its-steps",
+    # Unit 7: Conic Sections & Parametric Equations
+    "pc-u7-un-square-the-radius", "pc-u7-where-the-circle-sits",
+    "pc-u7-edge-to-edge", "pc-u7-where-you-are-at-time-t",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -11709,6 +13526,1142 @@ OP_EXT = {
                              "neighbouring powers, and the half-tap clears "
                              "both neighbours"))
                            (p["a"].bit_length() - 1),
+    },
+
+    # ---- ALGEBRA II UNIT 7 (build lk) -- SEQUENCES & SERIES -------------------
+    # A PATTERN IS A RULE YOU CAN RIDE to any term without walking every step:
+    # the arithmetic closed form (the off-by-one is THE trap -- term c is c-1
+    # steps from the start), the geometric one (the adding habit is the trap,
+    # the U4-similarity thread again), Gauss's pairing trick, and then walking
+    # WITH a rule -- recursion -- as the contrast that shows what the closed
+    # forms bought.
+    "anth": {  # arithmetic sequence: start a, step b, term number c
+        "ans": lambda p: p["a"] + (p["c"] - 1) * p["b"],
+        "spoken": lambda p: (f"A pattern starts at {p['a']} and grows by "
+                             f"{p['b']} each step. What is term number "
+                             f"{p['c']}?"),
+        # First three terms shown (the child could write them); the step COUNT
+        # -- c or c-1 -- is the skill, so the board never says it.
+        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] + p["b"]}, '
+                            f'{p["a"] + 2 * p["b"]}, …"]]'
+                            f'[[step eq="term {p["c"]} = ?"]]'),
+        "praise": lambda p: (f"From term 1 to term {p['c']} is "
+                             f"{p['c'] - 1} steps — not {p['c']}: {p['a']} "
+                             f"plus {p['c'] - 1} steps of {p['b']} equals "
+                             f"{p['a'] + (p['c'] - 1) * p['b']}."),
+        "key": lambda p: p["a"] + (p["c"] - 1) * p["b"],
+        # The errors: the OFF-BY-ONE (took c steps -- term 1 is already
+        # standing at the start), and forgetting the start entirely.
+        "choices": lambda p: [p["a"] + (p["c"] - 1) * p["b"],
+                              p["a"] + p["c"] * p["b"],
+                              p["c"] * p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] != p["b"] and 4 <= p["c"] <= 9
+                            and p["a"] + (p["c"] - 1) * p["b"] <= 80
+                            and len({p["a"] + (p["c"] - 1) * p["b"],
+                                     p["a"] + p["c"] * p["b"],
+                                     p["c"] * p["b"]}) == 3,
+                            "start and step differ (so the forgot-the-start "
+                            "tap is visible), and the three taps differ"),
+    },
+    "gnth": {  # geometric sequence: start a, ratio b, term number c
+        "ans": lambda p: p["a"] * p["b"] ** (p["c"] - 1),
+        "spoken": lambda p: (f"A pattern starts at {p['a']}, and each term is "
+                             f"{p['b']} times the one before. What is term "
+                             f"number {p['c']}?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] * p["b"]}, '
+                            f'{p["a"] * p["b"] * p["b"]}, …"]]'
+                            f'[[step eq="term {p["c"]} = ?"]]'),
+        "praise": lambda p: (f"Times {p['b']} again and again — "
+                             f"{p['c'] - 1} times in all: term {p['c']} is "
+                             f"{p['a'] * p['b'] ** (p['c'] - 1)}."),
+        "key": lambda p: p["a"] * p["b"] ** (p["c"] - 1),
+        # The errors: the ARITHMETIC habit (grew by adding the ratio), and
+        # stopping at term 2.
+        "choices": lambda p: [p["a"] * p["b"] ** (p["c"] - 1),
+                              p["a"] + p["b"] * (p["c"] - 1),
+                              p["a"] * p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 5 and p["b"] in (2, 3)
+                            and 3 <= p["c"] <= 6
+                            and p["a"] * p["b"] ** (p["c"] - 1) <= 96
+                            and len({p["a"] * p["b"] ** (p["c"] - 1),
+                                     p["a"] + p["b"] * (p["c"] - 1),
+                                     p["a"] * p["b"]}) == 3,
+                            "the answer stays under 96 and the three taps "
+                            "differ (excludes the collisions at 3-3-3 and "
+                            "4-2-3)"),
+    },
+    "gaus": {  # the sum 1 + 2 + ... + n, by pairing the ends
+        "ans": lambda p: p["a"] * (p["a"] + 1) // 2,
+        "spoken": lambda p: (f"Put together every counting number from 1 up "
+                             f"to {p['a']}. What is the sum?"),
+        "board": lambda p: (f'[[step eq="1 + 2 + 3 + … + {p["a"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} numbers, paired end to end, each pair "
+                             f"{p['a'] + 1}: the sum is {p['a']} times "
+                             f"{p['a'] + 1}, halved — "
+                             f"{p['a'] * (p['a'] + 1) // 2}."),
+        "key": lambda p: p["a"],
+        # The errors: squaring ("n numbers, about n each"), and the last
+        # number alone.
+        "choices": lambda p: [p["a"] * (p["a"] + 1) // 2,
+                              p["a"] * p["a"], p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (4 <= p["a"] <= 100
+                            and len({p["a"] * (p["a"] + 1) // 2,
+                                     p["a"] * p["a"], p["a"]}) == 3,
+                            "at least 1-to-4, and the sum, the square and "
+                            "the last number are three different taps"),
+    },
+    "reca": {  # walk a recursive rule twice: x2 then minus b, from a
+        "ans": lambda p: 4 * p["a"] - 3 * p["b"],
+        "spoken": lambda p: (f"A pattern's rule: each term is 2 times the one "
+                             f"before, take away {p['b']}. The first term is "
+                             f"{p['a']}. What is the third term?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} → ×2 − {p["b"]} → ? → '
+                            f'×2 − {p["b"]} → ?"]]'),
+        "praise": lambda p: (f"Term 2: 2 times {p['a']} take away {p['b']} is "
+                             f"{2 * p['a'] - p['b']}. Term 3: 2 times "
+                             f"{2 * p['a'] - p['b']} take away {p['b']} — "
+                             f"{4 * p['a'] - 3 * p['b']}."),
+        "key": lambda p: 4 * p["a"] - 3 * p["b"],
+        # The errors: stopping at term 2, and forgetting the SECOND take away.
+        "choices": lambda p: [4 * p["a"] - 3 * p["b"],
+                              2 * p["a"] - p["b"],
+                              4 * p["a"] - 2 * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and 1 <= p["b"] <= 9
+                            and p["a"] != p["b"]
+                            and 2 * p["a"] - p["b"] >= 2
+                            and 4 * p["a"] - 3 * p["b"] >= 2
+                            and len({4 * p["a"] - 3 * p["b"],
+                                     2 * p["a"] - p["b"],
+                                     4 * p["a"] - 2 * p["b"]}) == 3,
+                            "both walked terms stay positive and the three "
+                            "taps differ"),
+    },
+
+    # ---- ALGEBRA II UNIT 8 (build lk) -- TRIGONOMETRIC FUNCTIONS --------------
+    # THE CIRCLE OF SIZE ONE: sine is the HEIGHT of the arrow's tip, cosine the
+    # ACROSS -- read at the compass points, where both are exactly 1, 0 or -1
+    # (the whole-number surface; the four base angles are the entire world, so
+    # the teach necessarily shows them -- the turnc precedent -- and the spun
+    # angles past 360 are the fresh practice). Then the spin that changes
+    # nothing (coterminal angles) and the stretched wave (amplitude).
+    # RENDERER RULE: [[unitcircle]] PRINTS "cos = ... sin = ..." at the bottom
+    # -- teach and worked boards only, never a value ask.
+    "sinp": {  # sine at the compass points, with full spins allowed
+        "ans": lambda p: {0: 0, 90: 1, 180: 0, 270: -1}[p["a"] % 360],
+        "spoken": lambda p: (f"What is the sine of {p['a']} degrees — 1, 0, "
+                             f"or negative 1?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}° · where does the arrow '
+                            f'point?"]]'
+                            f'[[step eq="sine = the height of its tip"]]'),
+        # The no-spin branch must start with a CAPITAL (the praise prefix ends
+        # in "!", so a lowercase opener reads broken -- caught out loud).
+        "praise": lambda p: (lambda spins, base:
+                             ((("After " + ("a full spin, "
+                                            if spins == 1 else
+                                            f"{spins} full spins, "))
+                               + "the arrow points ")
+                              if spins else "The arrow points ")
+                             + {0: "flat to the right — height 0",
+                                90: "straight up — height 1",
+                                180: "flat to the left — height 0",
+                                270: "straight down — height negative 1"}
+                             [base] + ".")
+                            (p["a"] // 360, p["a"] % 360),
+        "key": lambda p: p["a"],
+        # All three values are always on offer -- the judgment IS the lesson.
+        "choices": lambda p: [1, 0, -1],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 90 == 0 and p["a"] % 360 in
+                            (0, 90, 180, 270) and 0 <= p["a"] <= 1170,
+                            "a compass point, possibly after full spins"),
+    },
+    "cosp": {  # cosine at the compass points -- the ACROSS, the deliberate pair
+        "ans": lambda p: {0: 1, 90: 0, 180: -1, 270: 0}[p["a"] % 360],
+        "spoken": lambda p: (f"What is the cosine of {p['a']} degrees — 1, 0, "
+                             f"or negative 1?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}° · where does the arrow '
+                            f'point?"]]'
+                            f'[[step eq="cosine = the across of its tip"]]'),
+        "praise": lambda p: (lambda spins, base:
+                             ((("After " + ("a full spin, "
+                                            if spins == 1 else
+                                            f"{spins} full spins, "))
+                               + "the arrow points ")
+                              if spins else "The arrow points ")
+                             + {0: "flat to the right — across 1",
+                                90: "straight up — across 0",
+                                180: "flat to the left — across negative 1",
+                                270: "straight down — across 0"}
+                             [base] + ".")
+                            (p["a"] // 360, p["a"] % 360),
+        "key": lambda p: p["a"],
+        "choices": lambda p: [1, 0, -1],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 90 == 0 and p["a"] % 360 in
+                            (0, 90, 180, 270) and 0 <= p["a"] <= 1170,
+                            "a compass point, possibly after full spins"),
+    },
+    "spin": {  # coterminal: a degrees plus one full turn
+        "ans": lambda p: p["a"] + 360,
+        "spoken": lambda p: (f"Start at {p['a']} degrees and spin one more "
+                             f"full turn around the circle. What angle do "
+                             f"you land on?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}° + one full turn = ?"]]'),
+        "praise": lambda p: (f"A full turn is 360: {p['a']} plus 360 equals "
+                             f"{p['a'] + 360} — same direction, same sine, "
+                             f"same cosine."),
+        "key": lambda p: p["a"],
+        # The errors: the HALF turn, and spinning backwards to the mirror.
+        "choices": lambda p: [p["a"] + 360, p["a"] + 180, 360 - p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (10 <= p["a"] <= 80
+                            and len({p["a"] + 360, p["a"] + 180,
+                                     360 - p["a"]}) == 3,
+                            "a first-quarter angle, so all three taps "
+                            "differ"),
+    },
+    "ampl": {  # amplitude: y = a sin x crests at a
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"The wave y equals {p['a']} times the sine of "
+                             f"x rises and falls forever. What is the "
+                             f"HIGHEST value it ever reaches?"),
+        # The wave itself is on the board -- reading its crest IS understanding
+        # amplitude (the sys1-crossing precedent).
+        "board": lambda p: (f'[[graph func="{p["a"]}*sin(x)" '
+                            f'range="-7..7"]]'
+                            f'[[step eq="the top of the wave = ?"]]'),
+        "praise": lambda p: (f"The plain sine tops out at 1; times {p['a']} "
+                             f"stretches it — the wave crests at {p['a']} "
+                             f"and dips to negative {p['a']}."),
+        "key": lambda p: p["a"],
+        # The errors: the full top-to-bottom swing, and the unstretched
+        # sine's habit.
+        "choices": lambda p: [p["a"], 2 * p["a"], 1],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 15
+                            and len({p["a"], 2 * p["a"], 1}) == 3,
+                            "a stretch of at least 2, so the crest, the "
+                            "swing and the plain sine differ"),
+    },
+
+    # ---- ALGEBRA II UNIT 9 (build ll) -- STATISTICS & PROBABILITY -------------
+    # ⭐ THE UNIT THAT COMPLETES ALGEBRA II. Past alg1-u9 (mean/median/range/
+    # outlier) and geo-u9 (chance counts, the counting principle, tables):
+    # statistics answers questions about what you have NOT seen yet -- the mean
+    # when scores repeat, counting with three slots, what to expect from chance,
+    # and scaling a sample up to the whole school.
+    "wavg": {  # weighted mean: three quizzes at a, two at b
+        "ans": lambda p: (3 * p["a"] + 2 * p["b"]) // 5,
+        "spoken": lambda p: (f"Three quizzes each scored {p['a']} points, and "
+                             f"two quizzes each scored {p['b']}. What is the "
+                             f"mean of all five scores?"),
+        # RAW givens: the five scores listed -- weighting them is the skill.
+        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"]}, {p["a"]}, '
+                            f'{p["b"]}, {p["b"]}"]]'
+                            f'[[step eq="mean of the five = ?"]]'),
+        "praise": lambda p: (f"All five go in: three {p['a']}s and two "
+                             f"{p['b']}s put together are "
+                             f"{3 * p['a'] + 2 * p['b']}, shared by 5 — "
+                             f"{(3 * p['a'] + 2 * p['b']) // 5}. The "
+                             f"{p['a']}s count three times."),
+        "key": lambda p: (3 * p["a"] + 2 * p["b"]) // 5,
+        # The errors: the UNWEIGHTED mean of the two numbers (ignoring how
+        # often each appears -- the classic), and the majority score alone.
+        "choices": lambda p: [(3 * p["a"] + 2 * p["b"]) // 5,
+                              (p["a"] + p["b"]) // 2, p["a"]],
+        "check": lambda p: ((3 * p["a"] + 2 * p["b"]) % 5 == 0
+                            and (p["a"] + p["b"]) % 2 == 0
+                            and 2 <= p["a"] <= 20 and 2 <= p["b"] <= 20
+                            and p["a"] != p["b"]
+                            and len({(3 * p["a"] + 2 * p["b"]) // 5,
+                                     (p["a"] + p["b"]) // 2,
+                                     p["a"]}) == 3,
+                            "both means come out whole, the two scores "
+                            "differ, and the three taps differ"),
+    },
+    "cnt3": {  # the counting principle grows a slot: a * b * c
+        "ans": lambda p: p["a"] * p["b"] * p["c"],
+        "spoken": lambda p: (f"You own {p['a']} shirts, {p['b']} pairs of "
+                             f"pants, and {p['c']} hats, all different. How "
+                             f"many different outfits can you choose?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} shirts · {p["b"]} pants · '
+                            f'{p["c"]} hats"]]'
+                            f'[[step eq="outfits = ?"]]'),
+        "praise": lambda p: (f"Choices times up, slot by slot: {p['a']} times "
+                             f"{p['b']} is {p['a'] * p['b']}, times "
+                             f"{p['c']} — {p['a'] * p['b'] * p['c']}."),
+        "key": lambda p: p["a"] * p["b"] * p["c"],
+        # The errors: ADDING the three counts, and stopping after two slots.
+        "choices": lambda p: [p["a"] * p["b"] * p["c"],
+                              p["a"] + p["b"] + p["c"],
+                              p["a"] * p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 5 and 2 <= p["b"] <= 5
+                            and 2 <= p["c"] <= 5
+                            and len({p["a"] * p["b"] * p["c"],
+                                     p["a"] + p["b"] + p["c"],
+                                     p["a"] * p["b"]}) == 3,
+                            "small closets, and the product, the sum and the "
+                            "two-slot stop are three different numbers"),
+    },
+    "expv": {  # expected value in child clothes: a wins of c tokens per b plays
+        "ans": lambda p: p["a"] * p["c"],
+        "spoken": lambda p: (f"In a game, you win {p['c']} tokens exactly "
+                             f"{p['a']} times out of every {p['b']} plays. "
+                             f"You play {p['b']} times. How many tokens "
+                             f"should you EXPECT to win in all?"),
+        "board": lambda p: (f'[[step eq="{p["b"]} plays · win {p["c"]} '
+                            f'tokens, {p["a"]} times"]]'
+                            f'[[step eq="expected in all = ?"]]'),
+        "praise": lambda p: (f"About {p['a']} of the {p['b']} plays pay out: "
+                             f"{p['a']} wins of {p['c']} tokens equals "
+                             f"{p['a'] * p['c']} tokens."),
+        "key": lambda p: p["a"] * p["c"],
+        # The errors: paying out EVERY play, and paying out only once.
+        "choices": lambda p: [p["a"] * p["c"], p["b"] * p["c"], p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 10 and 2 <= p["c"] <= 9
+                            and len({p["a"] * p["c"], p["b"] * p["c"],
+                                     p["c"]}) == 3,
+                            "wins are fewer than plays, and the three taps "
+                            "differ"),
+    },
+    "samp": {  # scale a sample to the school: b liked, school is c samples wide
+        "ans": lambda p: p["b"] * p["c"],
+        "spoken": lambda p: (f"A sample of {p['a']} students found {p['b']} "
+                             f"of them like pizza. The whole school has "
+                             f"{p['a'] * p['c']} students. About how many "
+                             f"students in the school like pizza?"),
+        "board": lambda p: (f'[[step eq="sample: {p["b"]} of {p["a"]}"]]'
+                            f'[[step eq="school: {p["a"] * p["c"]} students '
+                            f'· about ?"]]'),
+        "praise": lambda p: (f"The school is {p['c']} samples wide: "
+                             f"{p['b']} liked it per sample, times "
+                             f"{p['c']} — about {p['b'] * p['c']}."),
+        "key": lambda p: p["b"] * p["c"],
+        # The errors: the sample count copied ("the survey already said"),
+        # and the about-half guess.
+        "choices": lambda p: [p["b"] * p["c"], p["b"],
+                              (p["a"] * p["c"]) // 2],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["a"] * p["c"]) in sp),
+        "check": lambda p: (2 <= p["b"] < p["a"] <= 30 and 2 <= p["c"] <= 10
+                            and (p["a"] * p["c"]) % 2 == 0
+                            and p["a"] * p["c"] <= 400
+                            and len({p["b"] * p["c"], p["b"],
+                                     (p["a"] * p["c"]) // 2}) == 3,
+                            "the sample is bigger than the yes-count, the "
+                            "school halves evenly, and the three taps "
+                            "differ"),
+    },
+
+    # ---- PRE-CALC UNIT 1 (build ll) -- FUNCTIONS & THEIR GRAPHS ---------------
+    # ⭐ THE NINTH COURSE OPENS. Algebra I's machines grow up: composition in
+    # f(g(x)) notation (inside first -- the order flip is THE trap), the graph
+    # that slides opposite its sign (vtx2's lesson, generalized), the domain as
+    # a doorway (the root's edge is WELCOME, unlike division's forbidden x --
+    # the contrast is taught), and a function in pieces.
+    "fcmp": {  # f(x) = x + a, g(x) = b x: evaluate f(g(c)) -- inside first
+        "ans": lambda p: p["b"] * p["c"] + p["a"],
+        "spoken": lambda p: (f"f of x equals x plus {p['a']}. g of x equals "
+                             f"{p['b']} times x. What is f of g of {p['c']}?"),
+        "board": lambda p: (f'[[step eq="f(x) = x + {p["a"]} · g(x) = '
+                            f'{p["b"]}x"]]'
+                            f'[[step eq="f(g({p["c"]})) = ?"]]'),
+        "praise": lambda p: (f"Inside first: g of {p['c']} is "
+                             f"{p['b'] * p['c']}. Then f: {p['b'] * p['c']} "
+                             f"plus {p['a']} equals "
+                             f"{p['b'] * p['c'] + p['a']}. The inner machine "
+                             f"runs before the outer."),
+        "key": lambda p: p["b"] * p["c"] + p["a"],
+        # The errors: running f FIRST (the order flip -- THE composition
+        # misconception), and forgetting the outer machine.
+        "choices": lambda p: [p["b"] * p["c"] + p["a"],
+                              p["b"] * (p["c"] + p["a"]),
+                              p["b"] * p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 4
+                            and 2 <= p["c"] <= 9
+                            and len({p["b"] * p["c"] + p["a"],
+                                     p["b"] * (p["c"] + p["a"]),
+                                     p["b"] * p["c"]}) == 3,
+                            "small machines, and the right order, the "
+                            "flipped order and the unfinished run are three "
+                            "different numbers"),
+    },
+    "fshf": {  # y = f(x - a): the point (b, c) slides RIGHT -- new x = b + a
+        "ans": lambda p: p["b"] + p["a"],
+        "spoken": lambda p: (f"The graph of y equals f of x becomes y equals "
+                             f"f of: x take away {p['a']}. The point "
+                             f"({p['b']}, {p['c']}) on the old graph slides "
+                             f"to a new spot. What is its new x?"),
+        "board": lambda p: (f'[[step eq="y = f(x − {p["a"]}) · old point '
+                            f'({p["b"]}, {p["c"]})"]]'
+                            f'[[step eq="new x = ?"]]'),
+        "praise": lambda p: (f"The minus points OPPOSITE, exactly as the "
+                             f"vertex lesson said: take away {p['a']} inside "
+                             f"slides the graph RIGHT — the point lands at x "
+                             f"equals {p['b'] + p['a']}."),
+        "key": lambda p: p["b"] + p["a"],
+        # The errors: reading the minus literally (slid left), and not
+        # sliding at all.
+        "choices": lambda p: [p["b"] + p["a"], p["b"] - p["a"], p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and p["a"] < p["b"] <= 12
+                            and 1 <= p["c"] <= 9
+                            and len({p["b"] + p["a"], p["b"] - p["a"],
+                                     p["b"]}) == 3,
+                            "the literal-minus slip stays on the grid, and "
+                            "the three taps differ"),
+    },
+    "fdom": {  # domain of sqrt(x - a): the doorway is a, and it is WELCOME
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"y equals the square root of: x take away "
+                             f"{p['a']}. Roots refuse negatives. What is the "
+                             f"SMALLEST x allowed in?"),
+        "board": lambda p: (f'[[step eq="y = √(x − {p["a"]})"]]'
+                            f'[[step eq="under the root must not go negative '
+                            f'· smallest x = ?"]]'),
+        "praise": lambda p: (f"Below {p['a']}, x take away {p['a']} goes "
+                             f"negative and the root refuses. At x equals "
+                             f"{p['a']} it is exactly zero — and zero under "
+                             f"a root is welcome. The doorway is {p['a']}."),
+        "key": lambda p: p["a"],
+        # The errors: the sign flip (excl's cousin, by design), and "zero is
+        # always the edge".
+        "choices": lambda p: [p["a"], -p["a"], 0],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 14
+                            and len({p["a"], -p["a"], 0}) == 3,
+                            "a nonzero doorway, so the flip and the zero "
+                            "habit are visible mistakes"),
+    },
+    "fpie": {  # piecewise: x + a below 5, b x at 5 or more -- run the RIGHT rule
+        "ans": lambda p: (p["c"] + p["a"] if p["c"] < 5
+                          else p["b"] * p["c"]),
+        "spoken": lambda p: (f"A function in pieces: y equals x plus {p['a']} "
+                             f"when x is below 5, and y equals {p['b']} times "
+                             f"x when x is 5 or more. What is y when x "
+                             f"equals {p['c']}?"),
+        "board": lambda p: (f'[[step eq="x < 5 → x + {p["a"]} · x ≥ 5 → '
+                            f'{p["b"]}x"]]'
+                            f'[[step eq="x = {p["c"]} → ?"]]'),
+        "praise": lambda p: ((f"x equals {p['c']} is below 5, so the FIRST "
+                              f"rule runs: {p['c']} plus {p['a']} equals "
+                              f"{p['c'] + p['a']}. The other rule sleeps.")
+                             if p["c"] < 5 else
+                             (f"x equals {p['c']} is 5 or more, so the "
+                              f"SECOND rule runs: {p['b']} times {p['c']} "
+                              f"equals {p['b'] * p['c']}. The other rule "
+                              f"sleeps.")),
+        "key": lambda p: (p["c"] + p["a"] if p["c"] < 5
+                          else p["b"] * p["c"]),
+        # The errors: running the WRONG piece, and handing x back untouched.
+        "choices": lambda p: [(p["c"] + p["a"] if p["c"] < 5
+                               else p["b"] * p["c"]),
+                              (p["b"] * p["c"] if p["c"] < 5
+                               else p["c"] + p["a"]),
+                              p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 4
+                            and 2 <= p["c"] <= 9
+                            and p["c"] + p["a"] != p["b"] * p["c"]
+                            and len({(p["c"] + p["a"] if p["c"] < 5
+                                      else p["b"] * p["c"]),
+                                     (p["b"] * p["c"] if p["c"] < 5
+                                      else p["c"] + p["a"]),
+                                     p["c"]}) == 3,
+                            "the two rules land on different values at this "
+                            "x, and the three taps differ"),
+    },
+    # ---- build lm: Pre-Calc U2 Polynomial & Rational Functions ------------
+    "negp": {  # (-1)^a: even wipes the minus, odd leaves one
+        "ans": lambda p: 1 if p["a"] % 2 == 0 else -1,
+        "spoken": lambda p: (f"What is negative 1, raised to the power "
+                             f"{p['a']}?"),
+        "board": lambda p: f'[[step eq="(−1)^{p["a"]} = ?"]]',
+        "praise": lambda p: ((f"The power {p['a']} is even: the minus signs "
+                              f"cancel two at a time, none survive, and the "
+                              f"answer is 1.")
+                             if p["a"] % 2 == 0 else
+                             (f"The power {p['a']} is odd: the minus signs "
+                              f"cancel two at a time, and one lone minus "
+                              f"sign survives. The answer is negative 1.")),
+        "key": lambda p: p["a"],
+        # The errors: the other parity, and "the minus signs all vanish to 0".
+        "choices": lambda p: [1, -1, 0],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 15 and p["b"] == 0,
+                            "a real parade: power between 2 and 15, and no "
+                            "second number"),
+    },
+    "remt": {  # remainder theorem: plug a into x^2 + bx + c -- no dividing
+        "ans": lambda p: p["a"] * p["a"] + p["a"] * p["b"] + p["c"],
+        "spoken": lambda p: (f"Take x squared plus {p['b']} x plus {p['c']}, "
+                             f"divided by x take away {p['a']}. Do NOT "
+                             f"divide — plug {p['a']} into the top instead. "
+                             f"What number is left over?"),
+        "board": lambda p: (f'[[step eq="(x² + {p["b"]}x + {p["c"]}) ÷ '
+                            f'(x − {p["a"]})"]]'
+                            f'[[step eq="left over = ?"]]'),
+        "praise": lambda p: (f"Plug in {p['a']}: {p['a']} squared equals "
+                             f"{p['a'] * p['a']}, plus {p['b']} times "
+                             f"{p['a']} equals {p['a'] * p['b']}, plus "
+                             f"{p['c']} — in all, "
+                             f"{p['a'] * p['a'] + p['a'] * p['b'] + p['c']}. "
+                             f"Long division would have ended exactly "
+                             f"there, and you never divided."),
+        "key": lambda p: p["a"] * p["a"] + p["a"] * p["b"] + p["c"],
+        # The errors: plugging in zero (the end number), and the root itself.
+        "choices": lambda p: [p["a"] * p["a"] + p["a"] * p["b"] + p["c"],
+                              p["c"], p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 5 and 1 <= p["b"] <= 6
+                            and 1 <= p["c"] <= 9 and p["c"] != p["a"]
+                            and p["a"] * p["a"] + p["a"] * p["b"] + p["c"]
+                            <= 40,
+                            "small quadratic, the leftover stays under 40, "
+                            "and the zero-plug tap differs from the root "
+                            "tap"),
+    },
+    "vprd": {  # Vieta: roots a and b -- the end number is their product
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"A puzzle's roots are {p['a']} and {p['b']}, "
+                             f"so it equals x take away {p['a']}, times x "
+                             f"take away {p['b']}. Multiplied out, it ends "
+                             f"in a plain number. What is that END number?"),
+        "board": lambda p: (f'[[step eq="(x − {p["a"]})(x − {p["b"]})"]]'
+                            f'[[step eq="end number = ?"]]'),
+        "praise": lambda p: (f"The end number is the product of the roots: "
+                             f"{p['a']} times {p['b']} equals "
+                             f"{p['a'] * p['b']}. The middle number is "
+                             f"their sum, {p['a'] + p['b']}, worn with a "
+                             f"minus — the roots write the whole puzzle."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the SUM (that is the middle number -- lh's promise,
+        # paid), and the first root copied.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["a"]],
+        "check": lambda p: (2 <= p["a"] < p["b"] <= 8
+                            and p["a"] * p["b"] <= 40
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["a"]}) == 3,
+                            "two different roots, product under 40, and the "
+                            "sum tap is a visible mistake"),
+    },
+    "vasy": {  # how many forbidden x's in 1 / ((x-a)(x-b)): count the ZEROS
+        "ans": lambda p: 2 if p["a"] != p["b"] else 1,
+        "spoken": lambda p: (f"y equals 1 divided by: x take away {p['a']}, "
+                             f"times x take away {p['b']}. Division forbids "
+                             f"any x that turns the bottom into zero. How "
+                             f"many x's are forbidden?"),
+        "board": lambda p: (f'[[step eq="y = 1 ÷ (x − {p["a"]})'
+                            f'(x − {p["b"]})"]]'
+                            f'[[step eq="forbidden x count = ?"]]'),
+        "praise": lambda p: ((f"Two factors, two different zeros: x equals "
+                              f"{p['a']} zeroes the first, and x equals "
+                              f"{p['b']} zeroes the second. The count is 2 "
+                              f"— division forbids them both.")
+                             if p["a"] != p["b"] else
+                             (f"Both factors die at the same x: only x "
+                              f"equals {p['a']} zeroes the bottom. The "
+                              f"count is 1 — one x, counted once, however "
+                              f"many factors say its name.")),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the repeated case answered 2 (or the distinct case 1),
+        # and "nothing is forbidden".
+        "choices": lambda p: [2, 1, 0],
+        "check": lambda p: (2 <= p["a"] <= p["b"] <= 8,
+                            "factors in order, zeros between 2 and 8"),
+    },
+    # ---- build lm: Pre-Calc U3 Exponential & Logarithmic Functions --------
+    "logp": {  # log2(a^b) by the power rule: the exponent comes down front
+        "ans": lambda p: p["b"] * (p["a"].bit_length() - 1),
+        "spoken": lambda p: (f"What is the logarithm, base 2, of {p['a']} "
+                             f"raised to the power {p['b']}?"),
+        "board": lambda p: f'[[step eq="log {p["a"]}^{p["b"]} = ? · base 2"]]',
+        "praise": lambda p: (lambda j:
+                             f"The power rule: the exponent {p['b']} comes "
+                             f"down front. Log base 2 of {p['a']} is {j}, "
+                             f"so the logarithm equals {p['b']} times {j} — "
+                             f"{p['b'] * j}. Powering the log instead lands "
+                             f"on {j ** p['b']}, the wrong kind of growth.")
+                            (p["a"].bit_length() - 1),
+        "key": lambda p: p["b"] * (p["a"].bit_length() - 1),
+        # The errors: the log RAISED to the exponent, and the bare log with
+        # the power ignored.
+        "choices": lambda p: (lambda j: [p["b"] * j, j ** p["b"], j])
+                             (p["a"].bit_length() - 1),
+        "check": lambda p: (lambda j:
+                            (p["a"] == 2 ** j and j >= 3
+                             and p["b"] in (2, 3) and p["a"] <= 512
+                             and len({p["b"] * j, j ** p["b"], j}) == 3,
+                             "a true power of 2 with at least three layers, "
+                             "exponent 2 or 3, three distinct taps"))
+                           (p["a"].bit_length() - 1),
+    },
+    "lsol": {  # solve log_a(?) = b: rebuild the number by stacking the base
+        "ans": lambda p: p["a"] ** p["b"],
+        "spoken": lambda p: (f"The logarithm, base {p['a']}, of a mystery "
+                             f"number equals {p['b']}. What is the mystery "
+                             f"number?"),
+        "board": lambda p: f'[[step eq="log ? = {p["b"]} · base {p["a"]}"]]',
+        "praise": lambda p: (f"Stack the base: {p['a']} multiplied out "
+                             f"{p['b']} times equals {p['a'] ** p['b']} — "
+                             f"the power un-does the log. The tap "
+                             f"{p['a'] * p['b']} came from {p['a']} times "
+                             f"{p['b']}, a single times when the log "
+                             f"promised {p['b']} whole layers."),
+        "key": lambda p: p["a"] ** p["b"],
+        # The errors: base TIMES log (the single-times trap), and base PLUS
+        # log.
+        "choices": lambda p: [p["a"] ** p["b"], p["a"] * p["b"],
+                              p["a"] + p["b"]],
+        "check": lambda p: (p["a"] in (2, 3, 10) and 2 <= p["b"] <= 8
+                            and not (p["a"] == 2 and p["b"] == 2)
+                            and p["a"] ** p["b"] <= 1000
+                            and len({p["a"] ** p["b"], p["a"] * p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a friendly base, the rebuilt number stays at "
+                            "1000 or under, and the three taps differ"),
+    },
+    "hcnt": {  # halvings counted BACKWARDS: a -> b, how many days -- a log
+        "ans": lambda p: (p["a"] // p["b"]).bit_length() - 1,
+        "spoken": lambda p: (f"A tank starts at {p['a']} liters, and each "
+                             f"day it drops to HALF. Now it holds {p['b']} "
+                             f"liters. How many days went by?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} → half each day → '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="days = ?"]]'),
+        "praise": lambda p: (lambda k:
+                             "Halve and count: "
+                             + ", then ".join(str(p["a"] >> i)
+                                              for i in range(k + 1))
+                             + f". That is {k} halvings — {k} days. The "
+                             f"ratio {p['a'] // p['b']} says how many times "
+                             f"bigger {p['a']} is, never how many days it "
+                             f"took.")
+                            ((p["a"] // p["b"]).bit_length() - 1),
+        "key": lambda p: (p["a"] // p["b"]).bit_length() - 1,
+        # The errors: the RATIO handed back as the count (hlfl's mirror
+        # trap), and the end amount copied.
+        "choices": lambda p: [(p["a"] // p["b"]).bit_length() - 1,
+                              p["a"] // p["b"], p["b"]],
+        "check": lambda p: (lambda k:
+                            (p["b"] >= 2 and p["a"] <= 96
+                             and 2 <= k <= 5
+                             and p["a"] == p["b"] * 2 ** k
+                             and k != p["b"]
+                             and p["a"] // p["b"] != p["b"],
+                             "the halvings come out exact, two to five "
+                             "days, and the three taps differ"))
+                           ((p["a"] // p["b"]).bit_length() - 1),
+    },
+    "cmpd": {  # money doubling every a years for a*b years: count, then power
+        "ans": lambda p: p["c"] * 2 ** p["b"],
+        "spoken": lambda p: (f"You save {p['c']} dollars, and it DOUBLES "
+                             f"every {p['a']} years. After "
+                             f"{p['a'] * p['b']} years, how many dollars do "
+                             f"you have?"),
+        "board": lambda p: (f'[[step eq="${p["c"]} · doubles every '
+                            f'{p["a"]} years"]]'
+                            f'[[step eq="after {p["a"] * p["b"]} years → '
+                            f'$?"]]'),
+        "praise": lambda p: ("Count the doublings first: "
+                             f"{p['a'] * p['b']} divided by {p['a']} equals "
+                             f"{p['b']}. Now double: "
+                             + ", then ".join(str(p["c"] * 2 ** i)
+                                              for i in range(p["b"] + 1))
+                             + f". Steady adding would stall at "
+                             f"{p['c'] * (1 + p['b'])} dollars — doubling "
+                             f"pulls away."),
+        "key": lambda p: p["c"] * 2 ** p["b"],
+        # The errors: SIMPLE growth (up by c each doubling period), and
+        # doubling exactly once.
+        "choices": lambda p: [p["c"] * 2 ** p["b"],
+                              p["c"] * (1 + p["b"]), 2 * p["c"]],
+        "speaks": lambda p, sp: (str(p["c"]) in sp and str(p["a"]) in sp
+                                 and str(p["a"] * p["b"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 10 and 2 <= p["b"] <= 4
+                            and 2 <= p["c"] <= 6
+                            and p["c"] * 2 ** p["b"] <= 96
+                            and len({p["c"] * 2 ** p["b"],
+                                     p["c"] * (1 + p["b"]),
+                                     2 * p["c"]}) == 3,
+                            "two to four doublings, the pile stays at 96 "
+                            "dollars or under, and the three taps differ"),
+    },
+    # ---- build ln: Pre-Calc U4 Trigonometric Functions --------------------
+    "rad1": {  # degrees -> pi radians: count the HALF TURNS
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"How many pi radians is {180 * p['a']} "
+                             f"degrees?"),
+        "board": lambda p: f'[[step eq="{180 * p["a"]}° = ? π rad"]]',
+        "praise": lambda p: (f"180 degrees is one pi, so count the half "
+                             f"turns: {180 * p['a']} divided by 180 equals "
+                             f"{p['a']} — {p['a']} pi radians. Counting "
+                             f"quarter turns would double it, and the "
+                             f"degrees themselves were never the answer."),
+        "key": lambda p: p["a"],
+        # The errors: quarter turns counted (90-per-pi), and the degrees
+        # handed straight back.
+        "choices": lambda p: [p["a"], 2 * p["a"], 180 * p["a"]],
+        "speaks": lambda p, sp: str(180 * p["a"]) in sp,
+        "check": lambda p: (1 <= p["a"] <= 13 and p["b"] == 0,
+                            "a whole count of half turns, and no second "
+                            "number"),
+    },
+    "nspn": {  # negative angle -> its positive coterminal name: add 360
+        "ans": lambda p: 360 - p["a"],
+        "spoken": lambda p: (f"Start at negative {p['a']} degrees — a "
+                             f"backwards spin. Add one full turn. What "
+                             f"positive angle names the same direction?"),
+        "board": lambda p: (f'[[step eq="−{p["a"]}° + one full turn '
+                            f'= ?"]]'),
+        "praise": lambda p: (f"A full turn is 360: negative {p['a']} plus "
+                             f"360 equals {360 - p['a']} — the same arrow, "
+                             f"named forwards. Dropping the minus would say "
+                             f"{p['a']} — the mirror image, on the wrong "
+                             f"side of the flat line."),
+        "key": lambda p: p["a"],
+        # The errors: the minus dropped (the mirror), and only a half turn
+        # added.
+        "choices": lambda p: [360 - p["a"], p["a"], 180 - p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (10 <= p["a"] <= 170 and p["a"] != 90
+                            and p["b"] == 0
+                            and len({360 - p["a"], p["a"],
+                                     180 - p["a"]}) == 3,
+                            "a backwards angle under half a turn, not 90, "
+                            "and the three taps differ"),
+    },
+    "refq": {  # reference angle in the second quarter: the gap to 180
+        "ans": lambda p: 180 - p["a"],
+        "spoken": lambda p: (f"The arrow rests at {p['a']} degrees — past "
+                             f"straight up, short of flat left. Its "
+                             f"reference angle is the small gap between the "
+                             f"arrow and the flat line. How many degrees is "
+                             f"that gap?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}° · reference angle '
+                            f'= ?"]]'),
+        "praise": lambda p: (f"Flat left is 180, and the arrow sits at "
+                             f"{p['a']}: the gap is 180 take away {p['a']} "
+                             f"— {180 - p['a']} degrees. Measured from "
+                             f"straight up it would be {p['a'] - 90}, but "
+                             f"reference angles hug the FLAT line, always."),
+        "key": lambda p: p["a"],
+        # The errors: measured from straight up, and the angle itself.
+        "choices": lambda p: [180 - p["a"], p["a"] - 90, p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (100 <= p["a"] <= 170 and p["a"] % 5 == 0
+                            and p["a"] != 135 and p["b"] == 0,
+                            "a second-quarter angle, not 135 (where the "
+                            "top-measure tap would collide)"),
+    },
+    "wper": {  # period of sin(a x): divide 360 by the multiplier
+        "ans": lambda p: 360 // p["a"],
+        "spoken": lambda p: (f"y equals the sine of {p['a']} x. The plain "
+                             f"sine repeats every 360 degrees. How many "
+                             f"degrees until THIS wave repeats?"),
+        "board": lambda p: (f'[[step eq="y = sin({p["a"]}x)"]]'
+                            f'[[step eq="repeats every ? degrees"]]'),
+        "praise": lambda p: (f"Divide: 360 divided by {p['a']} equals "
+                             f"{360 // p['a']} — this wave tells its whole "
+                             f"story in {360 // p['a']} degrees. Stretching "
+                             f"to {360 * p['a']} points the wrong way: "
+                             f"faster waves repeat SOONER, never later."),
+        "key": lambda p: p["a"],
+        # The errors: multiplied instead (faster read as longer), and the
+        # plain sine's 360 kept.
+        "choices": lambda p: [360 // p["a"], 360 * p["a"], 360],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] in (3, 4, 5, 6, 8, 9, 10, 12, 15, 18,
+                                       20, 24)
+                            and 360 % p["a"] == 0 and p["b"] == 0,
+                            "a clean divisor of 360, at least 3"),
+    },
+    # ---- build ln: Pre-Calc U5 Analytic Trigonometry ----------------------
+    "pyid": {  # sin^2 + cos^2 = 1, split into hundredths
+        "ans": lambda p: 100 - p["a"],
+        "spoken": lambda p: (f"For a certain angle, sine squared equals "
+                             f"{p['a']} hundredths. How many hundredths is "
+                             f"cosine squared?"),
+        "board": lambda p: (f'[[step eq="sin² = {p["a"]}/100"]]'
+                            f'[[step eq="cos² = ?/100"]]'),
+        "praise": lambda p: (f"Sine squared plus cosine squared equals 1 — "
+                             f"the whole hundred: 100 take away {p['a']} "
+                             f"equals {100 - p['a']}. The pair always "
+                             f"splits one whole between them."),
+        "key": lambda p: p["a"],
+        # The errors: sine's share copied, and the whole 100 handed back.
+        "choices": lambda p: [100 - p["a"], p["a"], 100],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (1 <= p["a"] <= 99 and p["a"] != 50
+                            and p["b"] == 0,
+                            "a real share of the whole, not the 50-50 "
+                            "split where the copy tap would collide"),
+    },
+    "cofn": {  # cofunction: sin(a) = cos(90 - a)
+        "ans": lambda p: 90 - p["a"],
+        "spoken": lambda p: (f"The sine of {p['a']} degrees equals the "
+                             f"cosine of one special angle. Which angle?"),
+        "board": lambda p: f'[[step eq="sin {p["a"]}° = cos ?°"]]',
+        "praise": lambda p: (f"Sine and cosine are partners across 90: "
+                             f"{p['a']} plus {90 - p['a']} equals 90, so "
+                             f"the sine of {p['a']} equals the cosine of "
+                             f"{90 - p['a']} — a right angle's two sharp "
+                             f"corners, finishing 90 together."),
+        "key": lambda p: p["a"],
+        # The errors: the same angle kept, and 90 ADDED instead of shared.
+        "choices": lambda p: [90 - p["a"], p["a"], 90 + p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (10 <= p["a"] <= 80 and p["a"] % 5 == 0
+                            and p["a"] != 45 and p["b"] == 0,
+                            "a sharp angle, not 45 (its own partner), in "
+                            "clean fives"),
+    },
+    "negf": {  # even/odd: cos(-a) = cos(a), sin(-a) = -sin(a), compass points
+        "ans": lambda p: ({0: 1, 90: 0, 180: -1, 270: 0}[p["a"] % 360]
+                          if p["c"] == 0 else
+                          {0: 0, 90: -1, 180: 0, 270: 1}[p["a"] % 360]),
+        "spoken": lambda p: (f"What is the "
+                             f"{'cosine' if p['c'] == 0 else 'sine'} of "
+                             f"negative {p['a']} degrees — 1, 0, or "
+                             f"negative 1?"),
+        "board": lambda p: (f'[[step eq="−{p["a"]}° · a backwards spin"]]'
+                            + ('[[step eq="cosine = the across of its '
+                               'tip"]]' if p["c"] == 0 else
+                               '[[step eq="sine = the height of its '
+                               'tip"]]')),
+        "praise": lambda p: (lambda v, w:
+                             ((f"Backwards or forwards, the across is the "
+                               f"same — the mirror flips height, never "
+                               f"across. The cosine of negative {p['a']} "
+                               f"equals the cosine of {p['a']}: {w}.")
+                              if p["c"] == 0 else
+                              (f"The mirror flips the height: the sine of "
+                               f"negative {p['a']} is the opposite of the "
+                               f"sine of {p['a']} — {w}.")))
+                            (0, ("negative 1" if
+                                 ({0: 1, 90: 0, 180: -1, 270: 0}
+                                  [p["a"] % 360] if p["c"] == 0 else
+                                  {0: 0, 90: -1, 180: 0, 270: 1}
+                                  [p["a"] % 360]) == -1 else
+                                 str({0: 1, 90: 0, 180: -1, 270: 0}
+                                     [p["a"] % 360] if p["c"] == 0 else
+                                     {0: 0, 90: -1, 180: 0, 270: 1}
+                                     [p["a"] % 360]))),
+        "key": lambda p: p["a"],
+        # All three values always on offer -- the judgment IS the lesson
+        # (sinp's precedent).
+        "choices": lambda p: [1, 0, -1],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 360 in (0, 90, 180, 270)
+                            and 90 <= p["a"] <= 810 and p["b"] == 0
+                            and p["c"] in (0, 1),
+                            "a compass point fed in backwards, cosine or "
+                            "sine"),
+    },
+    "sols": {  # count the solutions per sweep: skip the start, keep the finish
+        "ans": lambda p: (2 if p["a"] == 0 else 1) * p["b"],
+        "spoken": lambda p: (f"The arrow sweeps {p['b']} full "
+                             f"turn{'s' if p['b'] > 1 else ''}. Not "
+                             f"counting the start, how many times along "
+                             f"the way does the "
+                             f"{'sine' if p['c'] == 0 else 'cosine'} equal "
+                             + ("0" if p["a"] == 0 else
+                                ("1" if p["a"] == 1 else "negative 1"))
+                             + "?"),
+        "board": lambda p: (f'[[step eq="{p["b"]} '
+                            f'turn{"s" if p["b"] > 1 else ""} · '
+                            f'{"sin" if p["c"] == 0 else "cos"} = '
+                            f'{"−1" if p["a"] == -1 else p["a"]} · how '
+                            f'many times?"]]'),
+        "praise": lambda p: (lambda base, word, place:
+                             (f"Each turn, the {word} equals "
+                              + ("0" if p["a"] == 0 else
+                                 ("1" if p["a"] == 1 else "negative 1"))
+                              + f" {'twice' if base == 2 else 'once'} — "
+                              f"{place}. "
+                              + (f"{p['b']} turns, {base} each: "
+                                 f"{base * p['b']}."
+                                 if p["b"] > 1 else
+                                 f"One turn, so the count is {base}.")))
+                            (2 if p["a"] == 0 else 1,
+                             "sine" if p["c"] == 0 else "cosine",
+                             {(0, 0): "at flat left and at the finish",
+                              (0, 1): "at straight up",
+                              (0, -1): "at straight down",
+                              (1, 0): "at straight up and at straight down",
+                              (1, 1): "at the finish",
+                              (1, -1): "at flat left"}[(p["c"], p["a"])]),
+        "key": lambda p: (2 if p["a"] == 0 else 1) * p["b"],
+        # The errors: the miscounts, and 4 -- "one per quarter, always".
+        "choices": lambda p: [2, 1, 4],
+        "speaks": lambda p, sp: str(p["b"]) in sp,
+        "check": lambda p: (p["a"] in (-1, 0, 1) and p["b"] in (1, 2)
+                            and p["c"] in (0, 1),
+                            "a reachable target, one or two sweeps, sine "
+                            "or cosine"),
+    },
+    # ---- build lo: Pre-Calc U6 Applications of Trigonometry ---------------
+    "arsn": {  # area from two sides and the angle between: half a b sin C
+        "ans": lambda p: (p["a"] * p["b"] // 2 if p["c"] == 90
+                          else p["a"] * p["b"] // 4),
+        "spoken": lambda p: (f"A triangle has two sides of {p['a']} and "
+                             f"{p['b']}, and the angle between them is "
+                             f"{p['c']} degrees. What is its area?"),
+        # Raw givens, in WORDS not a figure: the triangle renderer is
+        # schematic, so a 150-degree angle would be drawn looking sharp --
+        # and the praise calls that triangle wide. A picture that argues
+        # with the speech is the le/topp defect; the teach keeps the figure
+        # for the 90-degree case, where the drawing is honest.
+        "board": lambda p: (f'[[step eq="sides {p["a"]} and {p["b"]} · '
+                            f'angle {p["c"]}° between them"]]'
+                            f'[[step eq="area = ?"]]'),
+        "praise": lambda p: ((f"The sine of 90 degrees is 1, so the area is "
+                              f"half of {p['a']} times {p['b']} — "
+                              f"{p['a'] * p['b'] // 2}. The whole "
+                              f"{p['a'] * p['b']} is the rectangle around "
+                              f"it, and a triangle takes half.")
+                             if p["c"] == 90 else
+                             (f"The sine of {p['c']} degrees is one half, "
+                              f"so half the product is halved again — a "
+                              f"quarter of {p['a']} times {p['b']}, which "
+                              f"is {p['a'] * p['b'] // 4}."
+                              + (" And 150 shares its sine with 30, so this "
+                                 "wide triangle covers what the sharp one "
+                                 "covers." if p["c"] == 150 else ""))),
+        "key": lambda p: (p["a"] * p["b"] // 2 if p["c"] == 90
+                          else p["a"] * p["b"] // 4),
+        # The errors: the half forgotten (the whole rectangle), and the
+        # WRONG sine used (1 where it is a half, or a half where it is 1).
+        "choices": lambda p: [(p["a"] * p["b"] // 2 if p["c"] == 90
+                               else p["a"] * p["b"] // 4),
+                              p["a"] * p["b"],
+                              (p["a"] * p["b"] // 4 if p["c"] == 90
+                               else p["a"] * p["b"] // 2)],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (p["c"] in (30, 90, 150)
+                            and 2 <= p["a"] <= 12 and 2 <= p["b"] <= 12
+                            and p["a"] * p["b"] % 4 == 0
+                            and p["a"] * p["b"] <= 80
+                            and len({p["a"] * p["b"] // 2,
+                                     p["a"] * p["b"],
+                                     p["a"] * p["b"] // 4}) == 3,
+                            "a special angle, sides whose product quarters "
+                            "cleanly, and three distinct taps"),
+    },
+    "ramp": {  # the 30-degree rise: height is HALF the ramp's length
+        "ans": lambda p: p["a"] // 2,
+        "spoken": lambda p: (f"A ramp {p['a']} feet long rises at 30 "
+                             f"degrees above flat ground. How high is its "
+                             f"top end?"),
+        # The figure carries the givens; the height is a question mark.
+        "board": lambda p: ('[[triangle v="A,B,C" right="B" sides=",?,'
+                            + str(p["a"]) + '" angles="30,,"]]'
+                            + '[[step eq="height = ?"]]'),
+        "praise": lambda p: (f"The sine of 30 degrees is one half, so the "
+                             f"ramp climbs half its length: half of "
+                             f"{p['a']} equals {p['a'] // 2} feet. The "
+                             f"{p['a']} is how far you walk up the slope, "
+                             f"never how high you rise — and doubling "
+                             f"instead would say {2 * p['a']}, higher than "
+                             f"the ramp is long."),
+        "key": lambda p: p["a"],
+        # The errors: the length handed back as the height, and doubling
+        # where the half belongs.
+        "choices": lambda p: [p["a"] // 2, p["a"], 2 * p["a"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 6 <= p["a"] <= 40
+                            and p["b"] == 0,
+                            "an even length, so the half lands whole, and "
+                            "no second number"),
+    },
+    "brng": {  # bearings: turn clockwise and wrap past the full turn
+        "ans": lambda p: p["a"] + p["b"] - 360,
+        "spoken": lambda p: (f"A ship sails on a bearing of {p['a']} "
+                             f"degrees, then turns {p['b']} degrees "
+                             f"clockwise. What is its new bearing?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}° · turn {p["b"]}° '
+                            f'clockwise → ?"]]'),
+        "praise": lambda p: (f"{p['a']} plus {p['b']} equals "
+                             f"{p['a'] + p['b']} — past a full turn, so "
+                             f"take away 360: the new bearing is "
+                             f"{p['a'] + p['b'] - 360} degrees. "
+                             f"{p['a'] + p['b']} names no bearing at all, "
+                             f"and {p['a'] - p['b']} is where a backwards "
+                             f"turn would have pointed."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the wrap forgotten (a bearing past 360), and the turn
+        # taken the wrong way round.
+        "choices": lambda p: [p["a"] + p["b"] - 360, p["a"] + p["b"],
+                              p["a"] - p["b"]],
+        "check": lambda p: (180 <= p["a"] <= 350 and 20 <= p["b"] <= 170
+                            and p["a"] % 5 == 0 and p["b"] % 5 == 0
+                            and p["a"] + p["b"] > 360 and p["a"] > p["b"]
+                            and len({p["a"] + p["b"] - 360, p["a"] + p["b"],
+                                     p["a"] - p["b"]}) == 3,
+                            "the turn really does pass 360, the backwards "
+                            "turn stays positive, and the taps differ"),
+    },
+    "vmag": {  # an arrow's length from its two steps (Pythagoras, vectors)
+        "ans": lambda p: p["c"],
+        "spoken": lambda p: (f"An arrow starts at the corner and goes "
+                             f"{p['a']} steps to the right and {p['b']} "
+                             f"steps up. How long is the arrow itself?"),
+        # NOT [[vector]] on the ask -- that renderer PRINTS the magnitude.
+        "board": lambda p: ('[[triangle v="A,B,C" right="B" sides="'
+                            + str(p["a"]) + ',' + str(p["b"])
+                            + ',?"]][[step eq="the arrow = ?"]]'),
+        "praise": lambda p: (f"Right {p['a']} and up {p['b']} meet at a "
+                             f"right angle, so the arrow is the "
+                             f"hypotenuse: {p['a']} squared is "
+                             f"{p['a'] * p['a']}, {p['b']} squared is "
+                             f"{p['b'] * p['b']}, put together "
+                             f"{p['a'] * p['a'] + p['b'] * p['b']} — and "
+                             f"{p['c']} times {p['c']} squares back to it. "
+                             f"The arrow is {p['c']}: longer than either "
+                             f"step, shorter than walking both."),
+        "key": lambda p: p["c"],
+        # The errors: the two steps added (walking the corner), and the
+        # bigger step alone ("it is mostly up").
+        "choices": lambda p: [p["c"], p["a"] + p["b"], max(p["a"], p["b"])],
+        "check": lambda p: (p["a"] * p["a"] + p["b"] * p["b"]
+                            == p["c"] * p["c"]
+                            and 3 <= p["a"] <= 36 and 3 <= p["b"] <= 36
+                            and 5 <= p["c"] <= 40
+                            and len({p["c"], p["a"] + p["b"],
+                                     max(p["a"], p["b"])}) == 3,
+                            "a true triple with whole steps, and three "
+                            "distinct taps"),
+    },
+    # ---- build lo: Pre-Calc U7 Conic Sections & Parametric Equations ------
+    "crad": {  # circle equation -> radius: un-square the right-hand number
+        "ans": lambda p: p["c"],
+        "spoken": lambda p: (f"A circle is written: x take away {p['a']}, "
+                             f"squared, plus y take away {p['b']}, "
+                             f"squared, equals {p['c'] * p['c']}. What is "
+                             f"the circle's radius?"),
+        "board": lambda p: (f'[[step eq="(x − {p["a"]})² + (y − '
+                            f'{p["b"]})² = {p["c"] * p["c"]}"]]'
+                            f'[[step eq="radius = ?"]]'),
+        "praise": lambda p: (f"The number on the right is the radius "
+                             f"SQUARED: un-square {p['c'] * p['c']} and "
+                             f"the radius is {p['c']}. The {p['a']} and "
+                             f"the {p['b']} name where the circle sits, "
+                             f"never how big it is."),
+        "key": lambda p: p["c"],
+        # The errors: the squared number kept, and a center number grabbed.
+        "choices": lambda p: [p["c"], p["c"] * p["c"], p["a"]],
+        "check": lambda p: (2 <= p["c"] <= 12 and 1 <= p["a"] <= 12
+                            and 1 <= p["b"] <= 12
+                            and len({p["c"], p["c"] * p["c"],
+                                     p["a"]}) == 3,
+                            "a whole radius of at least 2, and three "
+                            "distinct taps"),
+    },
+    "cctr": {  # circle equation -> the center's x: the minus points opposite
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: (f"A circle is written: x take away {p['a']}, "
+                             f"squared, plus y take away {p['b']}, "
+                             f"squared, equals {p['c'] * p['c']}. What is "
+                             f"the x of its center?"),
+        "board": lambda p: (f'[[step eq="(x − {p["a"]})² + (y − '
+                            f'{p["b"]})² = {p["c"] * p["c"]}"]]'
+                            f'[[step eq="center x = ?"]]'),
+        "praise": lambda p: (f"x take away {p['a']} is zero exactly at x "
+                             f"equals {p['a']}, and that is where the "
+                             f"middle sits: the center's x is {p['a']}. "
+                             f"The minus points opposite — take away "
+                             f"{p['a']} means positive {p['a']}, never "
+                             f"negative {p['a']}."),
+        "key": lambda p: p["a"],
+        # The errors: the sign flip (vtx2's and fdom's classic), and the
+        # y-number answered instead.
+        "choices": lambda p: [p["a"], -p["a"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and 1 <= p["b"] <= 12
+                            and 2 <= p["c"] <= 9 and p["a"] != p["b"]
+                            and len({p["a"], -p["a"], p["b"]}) == 3,
+                            "the two center numbers differ, so the "
+                            "wrong-coordinate tap is visible"),
+    },
+    "elax": {  # ellipse: the number under x^2 un-squares to the HALF width
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: (f"An ellipse is written: x squared over "
+                             f"{p['a'] * p['a']}, plus y squared over "
+                             f"{p['b'] * p['b']}, equals 1. How wide is it "
+                             f"from its left edge to its right edge?"),
+        "board": lambda p: (f'[[step eq="x²/{p["a"] * p["a"]} + '
+                            f'y²/{p["b"] * p["b"]} = 1"]]'
+                            f'[[step eq="left edge to right edge = ?"]]'),
+        "praise": lambda p: (f"The number under x squared is the "
+                             f"half-width SQUARED: un-square "
+                             f"{p['a'] * p['a']} and the ellipse reaches "
+                             f"{p['a']} each way from the middle. Edge to "
+                             f"edge is double that — {2 * p['a']}."),
+        "key": lambda p: p["a"],
+        # The errors: the half-width answered (the reach one way), and the
+        # printed number handed back un-squared.
+        "choices": lambda p: [2 * p["a"], p["a"], p["a"] * p["a"]],
+        "speaks": lambda p, sp: (str(p["a"] * p["a"]) in sp
+                                 and str(p["b"] * p["b"]) in sp),
+        "check": lambda p: (3 <= p["a"] <= 10 and 2 <= p["b"] <= 10
+                            and p["a"] != p["b"]
+                            and len({2 * p["a"], p["a"],
+                                     p["a"] * p["a"]}) == 3,
+                            "a real ellipse whose half-width, width and "
+                            "printed number are three different numbers"),
+    },
+    "parm": {  # parametric motion: plug the time, then the straight distance
+        "ans": lambda p: p["c"] * round((p["a"] * p["a"]
+                                         + p["b"] * p["b"]) ** 0.5),
+        "spoken": lambda p: (f"A ball's path: x equals {p['a']} times t, "
+                             f"and y equals {p['b']} times t, with t in "
+                             f"seconds. At t equals {p['c']} seconds, how "
+                             f"far is the ball from its start?"),
+        "board": lambda p: (f'[[step eq="x = {p["a"]}t · y = {p["b"]}t"]]'
+                            f'[[step eq="at t = {p["c"]} · distance from '
+                            f'the start = ?"]]'),
+        "praise": lambda p: (lambda h:
+                             f"At {p['c']} seconds x is {p['a'] * p['c']} "
+                             f"and y is {p['b'] * p['c']} — those two are "
+                             f"the legs, and the straight distance is "
+                             f"{h * p['c']}. Each second covers {h}, so "
+                             f"{h} alone is one second's worth, not the "
+                             f"whole {p['c']} seconds. Adding the two legs "
+                             f"walks the corner: "
+                             f"{(p['a'] + p['b']) * p['c']}.")
+                            (round((p["a"] * p["a"]
+                                    + p["b"] * p["b"]) ** 0.5)),
+        "key": lambda p: p["c"] * round((p["a"] * p["a"]
+                                         + p["b"] * p["b"]) ** 0.5),
+        # The errors: the corner walked (legs added), and the ONE-SECOND
+        # distance handed back -- speed mistaken for distance.
+        "choices": lambda p: (lambda h: [p["c"] * h,
+                                         (p["a"] + p["b"]) * p["c"], h])
+                             (round((p["a"] * p["a"]
+                                     + p["b"] * p["b"]) ** 0.5)),
+        "check": lambda p: (lambda h:
+                            (h * h == p["a"] * p["a"] + p["b"] * p["b"]
+                             and 3 <= p["a"] <= 20 and 3 <= p["b"] <= 20
+                             and 2 <= p["c"] <= 5 and h * p["c"] <= 40,
+                             "a whole one-second distance, at least two "
+                             "seconds gone, and the trip stays under 40"))
+                           (round((p["a"] * p["a"]
+                                   + p["b"] * p["b"]) ** 0.5)),
     },
 }
 
