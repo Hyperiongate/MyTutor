@@ -2,6 +2,117 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD lr -- PROB & STATS UNITS 3 AND 4: TWO NUMBERS AT ONCE,
+#               AND THE ASKING. 228 lessons -> 236, 225 ops (spnt, sslp, resd,
+#               sblw + strf, resp, bias, merr). New helpers _scat_points /
+#               _scat_at / _scat_next build the six-dot cloud.
+#               ⭐ [[scatter]] WALKED -- the last of the plot renderers except
+#               tree and normal. It prints the fit equation when fit="true",
+#               so it appears with the fit ONLY in teach beats; ask boards
+#               either show the bare cloud (reading a dot IS the skill) or no
+#               figure at all.
+#               UNIT 3 -- TWO MEASUREMENTS AT ONCE: reading one dot without
+#               mixing the axes (answering the x is the classic), the fit
+#               line's slope USED as a rate over several steps (alg1's slp
+#               measured the climb; here the climb means points per hour), the
+#               RESIDUAL as the gap between predicted and actual, and the fact
+#               that the line runs THROUGH the cloud so both sides hold dots.
+#               UNIT 4 -- THE ANSWER IS ONLY AS GOOD AS THE ASKING. alg2-u9's
+#               samp scaled a sample up to a school; this unit asks whether it
+#               deserved to be scaled: a stratified sample that keeps the
+#               group's own mix (half-and-half is the lazy tap), the response
+#               rate as a warning light, the people a survey could never reach
+#               (undercoverage, the heart of bias), and the price of accuracy
+#               -- FOUR times the people to halve the margin, where doubling
+#               is the honest-looking wrong answer.
+#               Design-time greps again earned their keep: a planned "scale
+#               the sample up" op WAS alg2-u9's samp outright, and alg1 owns
+#               lny/slp/yint, so the slope lesson had to become a rate
+#               application rather than a second reading of a climb.
+#               ⭐ READ-ALOUD FOUND A SHARPER FORM OF lp's RULE: three worked
+#               examples solved a problem sitting in their own lesson's BANK
+#               (not merely the ask beside them) -- spnt twice and merr once.
+#               The rule is now: a worked example must not answer ANY problem
+#               in its lesson. A scripted sweep for this (numbers opening with
+#               a problem's tuple, then its answer) finds 45 older lessons
+#               with the same shape -- logged for a dedicated cleanup build,
+#               NOT touched here.
+#   2026-08-23  BUILD lq -- ⭐ PROBABILITY & STATISTICS OPENS, THE TENTH COURSE
+#               (U1 Exploring Data; U2 Describing Distributions). 220 lessons
+#               -> 228, 217 ops (dotm, dcnt, htot, farv + medv, iqrw, madv,
+#               pctl). New list helpers _dotmode/_dotcut/_histvals/_farlist/
+#               _evenlist/_madlist build the plotted data from p.
+#               ⭐ THE STATISTICS RENDERER SHELF COMES OFF THE WALL: [[histogram]]
+#               and [[boxplot]] used for the first time since they were
+#               written. Both PRINT their numbers (histogram labels every
+#               bar's count; boxplot prints all five) -- so the lessons are
+#               built so that READING is the given and the arithmetic is the
+#               skill: add the printed bars, subtract the printed box edges
+#               (alg1-u9 rnge's precedent, where the board showed smallest
+#               and biggest and asked for the range). Still unused: tree,
+#               scatter, normal -- they belong to later units of this course.
+#               UNIT 1 -- BEFORE YOU COMPUTE, LOOK. Algebra One computed mean,
+#               median and range from lists; this unit reads a PICTURE: the
+#               mode as the value under the tallest stack (the count of dots
+#               standing on it is the classic wrong tap), a slice of the plot
+#               counted with one dot standing exactly ON the line ("more than
+#               8" excludes 8 -- the off-by-one tap), a histogram's bars added
+#               up, and SPOTTING an outlier (alg1's outl showed what one DOES
+#               to a mean; this teaches how to see it first).
+#               UNIT 2 -- NOW PUT NUMBERS ON THE SHAPE: the median when there
+#               is no single middle (alg1's medn is odd-only by check), the
+#               box plot's box as the middle half (whisker-to-whisker is the
+#               tap), the average distance from the mean -- standard deviation
+#               in child clothes, four numbers placed b and 3b either side so
+#               the answer is exactly 2b -- and the percentile, read as a
+#               percent of the group rather than a headcount.
+#               Op-name collisions caught by grep before authoring: "outl" is
+#               alg1's outlier op (-> farv) and a planned "new mean after an
+#               outlier joins" lesson WOULD HAVE REPEATED alg1-u9 outright
+#               (-> replaced with percentiles). Compile check caught the
+#               f-string quoting slip again (dcnt's board, ll's lesson).
+#               Read-aloud caught FIVE: a worked example landing on the SAME
+#               answer AND the same arithmetic as the ask beside it (lp's new
+#               checklist line, earning its place on its first outing); three
+#               worked examples describing a picture their board did not show;
+#               an all-equal-bars histogram making "the tallest bar" a
+#               meaningless phrase; "1 either side of the pair"; and -- the
+#               real one -- "a class of 20" counting the CHILD among the 20,
+#               so 2 beaten plus 18 above came to 20 people in a class that
+#               also contained the reader. Now "20 other students".
+#   2026-08-22  BUILD lp -- ⭐ PRE-CALC COMPLETE (U8 Sequences, Series & the
+#               Binomial Theorem; U9 Introduction to Limits). 212 lessons ->
+#               220, 209 ops (gsum, sigm, pasc, gser + lsub, lhol, lsid,
+#               avgr). Pre-Calc finishes as the NINTH course: nine units, 36
+#               lessons, the fifth 36-lesson course in a row.
+#               New module helpers _fact / _npr / _ncr (a lambda cannot
+#               express the loops readably -- _prime_factors' precedent).
+#               UNIT 8 -- ADD THE WHOLE PATTERN UP, not just its last term:
+#               the finite geometric sum (the last-term tap is the classic,
+#               the never-grew tap is the arithmetic habit), sigma read as an
+#               INSTRUCTION (gaus's bare sum now carrying a multiplier --
+#               dropping it is one slip, answering the last term the other),
+#               choosing when ORDER DOES NOT MATTER (cnt3 grown up: count the
+#               line-ups, then divide the orders away), and -- the hinge --
+#               an INFINITE halving sum that still settles, on twice the
+#               first piece.
+#               UNIT 9, LIMITS -- one question: where was it HEADED? The
+#               friendly limit (walk the value in), THE HOLE (undefined at
+#               the point, plain everywhere around it -- the case limits were
+#               invented for), two sides that disagree (fpie's piecewise, met
+#               again -- and the limit is never the middle), and the average
+#               rate of change over a shrinking window, which is the
+#               derivative, handed forward to Calculus by name.
+#               Read-aloud caught THREE, one of them the worst kind yet:
+#               lsid's two WORKED EXAMPLES WERE THEIR OWN ASKS, number for
+#               number -- the answer served aloud immediately before the
+#               question. The validator cannot see it (workeds are prose, not
+#               tuples). NEW CHECKLIST LINE: compare every worked example's
+#               numbers against its own ask. Also caught: sigm's workeds were
+#               its asks with a and b transposed (a near miss of the same
+#               defect), and a y-value of 6 in lsid colliding with the
+#               border's own 6 ("y is 6 when x is below 6") -- now excluded
+#               by check.
 #   2026-08-22  BUILD lo -- PRE-CALC UNITS 6 AND 7: THE WORK CLOTHES AND THE
 #               EQUATION. 204 lessons -> 212, 201 ops (arsn, ramp, brng, vmag
 #               + crad, cctr, elax, parm).
@@ -9554,6 +9665,988 @@ _PRECALC_U7 = [
     },
 ]
 LESSONS.extend(_PRECALC_U7)
+# =============================================================================
+# PRE-CALC UNIT 8 -- Sequences, Series & the Binomial Theorem (build lp)
+# The thread: ADD THE WHOLE PATTERN UP, not just look at its last term. The
+# finite geometric sum, sigma read as an instruction (gaus's bare sum, now
+# carrying a multiplier), choosing when order does not matter, and -- the
+# hinge into Unit 9 -- an INFINITE sum that still settles on a finite number.
+# =============================================================================
+_PRECALC_U8 = [
+    {
+        "id": "pc-u8-add-the-whole-run",
+        "course": "precalc", "unit": 8,
+        "topic": "Geometric sums",
+        "op": "gsum", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("sum", "terms"),
+        "advance_line": "Three in a row — you've got it! The sum is the whole run, not the last term.",
+        "teach": [
+            ["Algebra Two rode a pattern to its nth term. Unit Eight adds the whole run up instead. A pattern starting at 1 and doubling gives 1, 2, 4, 8 — and their sum is 15, a number no single term ever equals.",
+             '[[goal text="Add the whole run"]][[step eq="1 + 2 + 4 + 8 = 15"]]'],
+            ["Look at what happened: 15 is one short of 16, the NEXT double. Doubling sums always land one short of the next term — 1, 2, 4, 8, 16 sums to 31. So the whole run adds up to a little less than double its biggest piece.",
+             '[[step eq="1+2+4+8+16 = 31 — one short of 32"]]'],
+            ["Two traps. The last term alone — 8 in that first run — is the biggest piece, never the sum. And counting the start over and over, four 1s for 4, is what a pattern that never grew would give. Add the terms as they actually stand.",
+             '[[step eq="15 ✓"]][[step eq="8 ✗ the last term · 4 ✗ never grew"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Start at 4, doubling, four terms: 4, 8, 16, 32 — put together, 60.",
+                        '[[step eq="4 + 8 + 16 + 32 = 60"]]'],
+             "ask": {"a": 2, "b": 2, "c": 5, "op": "gsum"}},
+            {"worked": ["One more together. Start at 2, times 3 each step, four terms: 2, 6, 18, 54 — 80 in all.",
+                        '[[step eq="2 + 6 + 18 + 54 = 80"]]'],
+             "ask": {"a": 5, "b": 2, "c": 4, "op": "gsum"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 2, "c": 3, "op": "gsum"},
+            {"a": 3, "b": 2, "c": 3, "op": "gsum"},
+            {"a": 2, "b": 3, "c": 3, "op": "gsum"},
+            {"a": 4, "b": 2, "c": 3, "op": "gsum"},
+            {"a": 2, "b": 2, "c": 4, "op": "gsum"},
+            {"a": 5, "b": 2, "c": 3, "op": "gsum"},
+            {"a": 3, "b": 3, "c": 3, "op": "gsum"},
+            {"a": 6, "b": 2, "c": 3, "op": "gsum"},
+            {"a": 3, "b": 2, "c": 4, "op": "gsum"},
+            {"a": 4, "b": 3, "c": 3, "op": "gsum"},
+        ],
+    },
+    {
+        "id": "pc-u8-the-instruction-called-sigma",
+        "course": "precalc", "unit": 8,
+        "topic": "Sigma notation",
+        "op": "sigm", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("sigma", "instruction"),
+        "advance_line": "Three in a row — you've got it! Pull the multiplier out, then sum 1 up to n.",
+        "teach": [
+            ["Mathematics writes long sums in shorthand: a big Greek S — sigma — with a start below it and a stop above. It is not a new idea, only an instruction : run k from the bottom number to the top one, work out the recipe each time, and put every result together.",
+             '[[goal text="The instruction called sigma"]][[step eq="Σ (k = 1 → 5) of k = 1+2+3+4+5 = 15"]]'],
+            ["Now a recipe with a multiplier: the sum, for k from 1 to 5, of 10 times k. That is 10, 20, 30, 40, 50 — and every term carries the 10, so pull it out front: 1 up to 5 sums to 15, and 10 times 15 is 150.",
+             '[[step eq="Σ (k = 1 → 5) of 10k = 10 × 15 = 150"]]'],
+            ["The two slips are opposite. Dropping the multiplier answers 15 — Gauss's bare sum, the right shape but the wrong size. And answering 50 gives the LAST term only, the biggest single piece. Sum first, then times the multiplier.",
+             '[[step eq="150 ✓"]][[step eq="15 ✗ multiplier dropped · 50 ✗ last term"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The sum, k from 1 to 11, of 2 times k: 1 up to 11 is 66, and 2 times 66 is 132.",
+                        '[[step eq="2 × 66 = 132"]]'],
+             "ask": {"a": 6, "b": 7, "op": "sigm"}},
+            {"worked": ["One more together. k from 1 to 4, of 9 times k: 10 times 9 — 90.",
+                        '[[step eq="9 × 10 = 90"]]'],
+             "ask": {"a": 5, "b": 8, "op": "sigm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "op": "sigm"},
+            {"a": 2, "b": 5, "op": "sigm"},
+            {"a": 3, "b": 4, "op": "sigm"},
+            {"a": 2, "b": 6, "op": "sigm"},
+            {"a": 4, "b": 5, "op": "sigm"},
+            {"a": 3, "b": 7, "op": "sigm"},
+            {"a": 5, "b": 6, "op": "sigm"},
+            {"a": 4, "b": 8, "op": "sigm"},
+            {"a": 2, "b": 12, "op": "sigm"},
+            {"a": 3, "b": 10, "op": "sigm"},
+        ],
+    },
+    {
+        "id": "pc-u8-when-order-does-not-matter",
+        "course": "precalc", "unit": 8,
+        "topic": "Choosing a team",
+        "op": "pasc", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("order", "teams"),
+        "advance_line": "Three in a row — you've got it! Count the line-ups, then divide the orders away.",
+        "teach": [
+            ["Algebra Two counted outfits by timesing the slots — and there, order mattered: shirt, then pants, then hat. Choosing a team is different. Ana and Ben is the same team as Ben and Ana, so counting line-ups counts every team more than once.",
+             '[[goal text="When order does not matter"]][[step eq="Ana & Ben = Ben & Ana — one team"]]'],
+            ["Choose 2 from 3 people. Line-ups: 3 choices, then 2 left — 6. But each team of 2 appears twice in that list, once per order. Divide by 2: three teams. Count the line-ups, then divide the orders away.",
+             '[[step eq="3 × 2 = 6 line-ups ÷ 2 orders = 3 teams"]]'],
+            ["Teams of 3 hide more repeats: 3 people can stand in 6 different orders, so divide by 6. Choosing 3 from 10 gives 10 times 9 times 8 — 720 line-ups — and 720 divided by 6 is 120 teams. The bigger the team, the more orders to divide away.",
+             '[[step eq="10 × 9 × 8 = 720 ÷ 6 = 120 teams"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Choose 2 from 11: 11 times 10 is 110 line-ups, halved — 55 teams.",
+                        '[[step eq="110 ÷ 2 = 55 teams"]]'],
+             "ask": {"a": 8, "b": 3, "op": "pasc"}},
+            {"worked": ["One more together. Choose 3 from 11: 990 line-ups, divided by 6 — 165 teams.",
+                        '[[step eq="990 ÷ 6 = 165 teams"]]'],
+             "ask": {"a": 9, "b": 3, "op": "pasc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 2, "op": "pasc"},
+            {"a": 5, "b": 2, "op": "pasc"},
+            {"a": 5, "b": 3, "op": "pasc"},
+            {"a": 6, "b": 2, "op": "pasc"},
+            {"a": 6, "b": 3, "op": "pasc"},
+            {"a": 7, "b": 2, "op": "pasc"},
+            {"a": 8, "b": 2, "op": "pasc"},
+            {"a": 7, "b": 3, "op": "pasc"},
+            {"a": 9, "b": 2, "op": "pasc"},
+            {"a": 10, "b": 2, "op": "pasc"},
+        ],
+    },
+    {
+        "id": "pc-u8-the-sum-that-never-ends",
+        "course": "precalc", "unit": 8,
+        "topic": "Infinite series",
+        "op": "gser", "max_value": 120,
+        "levels": ("abstract",),
+        "symbols": ("forever", "settles"),
+        "advance_line": "Three in a row — you've got it! Halving forever settles at twice the first piece.",
+        "teach": [
+            ["Here is the strangest true thing in Unit Eight. Add 1, then a half, then a quarter, then an eighth — forever , with no last term. The running total climbs to 1, then one and a half, then one and three quarters, and it never once passes 2.",
+             '[[goal text="The sum that never ends"]][[step eq="1 + ½ + ¼ + ⅛ + … → 2"]]'],
+            ["Each new piece covers half of what is left over, so there is always a little gap and the gap always shrinks. The sum settles on 2 without ever arriving — a first taste of the idea Unit Nine is built from.",
+             '[[step eq="gap halves every step · total → 2"]]'],
+            ["Halving from any start does the same: begin at 64 and the endless sum settles on 128 — twice the first piece. So 64 alone is the first piece, 32 is the second, and only 128 is the whole endless journey.",
+             '[[step eq="64 + 32 + 16 + … → 128"]][[step eq="64 ✗ first piece · 32 ✗ second"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A first bounce of 52 feet, halving forever: the whole trip is twice 52 — 104 feet.",
+                        '[[step eq="52 + 26 + 13 + … → 104"]]'],
+             "ask": {"a": 48, "b": 0, "op": "gser"}},
+            {"worked": ["One more together. A first bounce of 60 feet halving forever travels 120 feet in all.",
+                        '[[step eq="60 + 30 + 15 + … → 120"]]'],
+             "ask": {"a": 56, "b": 0, "op": "gser"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 8, "b": 0, "op": "gser"},
+            {"a": 12, "b": 0, "op": "gser"},
+            {"a": 16, "b": 0, "op": "gser"},
+            {"a": 20, "b": 0, "op": "gser"},
+            {"a": 24, "b": 0, "op": "gser"},
+            {"a": 28, "b": 0, "op": "gser"},
+            {"a": 32, "b": 0, "op": "gser"},
+            {"a": 36, "b": 0, "op": "gser"},
+            {"a": 40, "b": 0, "op": "gser"},
+            {"a": 44, "b": 0, "op": "gser"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U8)
+
+# =============================================================================
+# PRE-CALC UNIT 9 -- Introduction to Limits (build lp)
+# ⭐ THE NINTH COURSE CLOSES HERE. The thread: WHERE WAS IT HEADED? -- a
+# question that does not care what happens at the point itself. Substitution
+# when nothing breaks, the hole where the function is undefined yet the
+# heading is plain, two sides that may disagree, and the average rate of
+# change over a shrinking window -- the limit Calculus is built on, handed
+# forward.
+# =============================================================================
+_PRECALC_U9 = [
+    {
+        "id": "pc-u9-walk-the-value-in",
+        "course": "precalc", "unit": 9,
+        "topic": "Limits by substitution",
+        "op": "lsub", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("limit", "creeps"),
+        "advance_line": "Three in a row — you've got it! Nothing breaks, so walk the value in.",
+        "teach": [
+            ["The last unit of Pre-Calculus asks one question: where was it HEADED? Follow a curve toward some x without ever landing on it, and the value it approaches is called the limit . You have met one already — the settling number of an endless sum.",
+             '[[goal text="Walk the value in"]][[step eq="x → some number · y → ?"]]'],
+            ["When nothing breaks, the answer is the plainest possible. As x creeps toward 4, 5 x plus 2 creeps toward 5 times 4 plus 2 — 22. Walk x in, and the value walks in beside it. No limit needed, strictly speaking; the function is simply there.",
+             '[[step eq="y = 5x + 2 · x → 4 · y → 22"]]'],
+            ["Two slips. Handing back the 4 answers where x went, not where y went. And 5 plus 2 reads the times as a plus. Do the arithmetic the formula actually asks for — the limit of a well-behaved line is just its value.",
+             '[[step eq="22 ✓"]][[step eq="4 ✗ that is x · 7 ✗ added instead"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. As x creeps toward 6, 7 x plus 2 creeps toward 44.",
+                        '[[step eq="7 × 6 + 2 = 44"]]'],
+             "ask": {"a": 8, "b": 6, "c": 3, "op": "lsub"}},
+            {"worked": ["One more together. As x creeps toward 8, 4 x plus 6 creeps toward 38.",
+                        '[[step eq="4 × 8 + 6 = 38"]]'],
+             "ask": {"a": 9, "b": 7, "c": 5, "op": "lsub"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "c": 1, "op": "lsub"},
+            {"a": 3, "b": 2, "c": 4, "op": "lsub"},
+            {"a": 2, "b": 5, "c": 3, "op": "lsub"},
+            {"a": 4, "b": 3, "c": 2, "op": "lsub"},
+            {"a": 3, "b": 4, "c": 5, "op": "lsub"},
+            {"a": 5, "b": 3, "c": 4, "op": "lsub"},
+            {"a": 4, "b": 5, "c": 3, "op": "lsub"},
+            {"a": 6, "b": 4, "c": 3, "op": "lsub"},
+            {"a": 5, "b": 6, "c": 5, "op": "lsub"},
+            {"a": 7, "b": 5, "c": 4, "op": "lsub"},
+        ],
+    },
+    {
+        "id": "pc-u9-the-hole-in-the-curve",
+        "course": "precalc", "unit": 9,
+        "topic": "Limits at a hole",
+        "op": "lhol", "max_value": 40, "min_value": 0,
+        "levels": ("abstract",),
+        "symbols": ("hole", "undefined"),
+        "advance_line": "Three in a row — you've got it! The hole has no value, but it has a heading.",
+        "teach": [
+            ["Now the case limits were invented for. Take y equals: x squared take away 25, all divided by x take away 5. At x equals 5 the bottom is zero, so the function is undefined there — a hole in the curve, one point missing.",
+             '[[goal text="The hole in the curve"]][[step eq="y = (x² − 25) ÷ (x − 5) · x = 5 forbidden"]]'],
+            ["Everywhere else, though, the top factors into: x take away 5, times x plus 5 — and the take-aways cancel. So away from the hole this curve IS x plus 5. As x creeps toward 5, y creeps toward 10, calmly, from both sides.",
+             '[[step eq="(x−5)(x+5) ÷ (x−5) = x + 5"]][[step eq="x → 5 · y → 10"]]'],
+            ["That is the whole point of a limit: it reports where the curve was HEADED, and never asks what happens at the point itself. The function truly has no value at 5. It still has a heading — 10 — and 5 is only where the hole sits.",
+             '[[step eq="10 ✓ the heading"]][[step eq="5 ✗ that is the hole · 0 ✗ undefined is not zero"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. x squared take away 100, over x take away 10: away from the hole it is x plus 10, so the heading is 20.",
+                        '[[step eq="x → 10 · y → 20"]]'],
+             "ask": {"a": 14, "b": 0, "op": "lhol"}},
+            {"worked": ["One more together. x squared take away 169, over x take away 13: the heading is 26.",
+                        '[[step eq="x → 13 · y → 26"]]'],
+             "ask": {"a": 16, "b": 0, "op": "lhol"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "op": "lhol"},
+            {"a": 3, "b": 0, "op": "lhol"},
+            {"a": 4, "b": 0, "op": "lhol"},
+            {"a": 6, "b": 0, "op": "lhol"},
+            {"a": 7, "b": 0, "op": "lhol"},
+            {"a": 8, "b": 0, "op": "lhol"},
+            {"a": 9, "b": 0, "op": "lhol"},
+            {"a": 11, "b": 0, "op": "lhol"},
+            {"a": 12, "b": 0, "op": "lhol"},
+            {"a": 15, "b": 0, "op": "lhol"},
+        ],
+    },
+    {
+        "id": "pc-u9-the-two-sides-disagree",
+        "course": "precalc", "unit": 9,
+        "topic": "One-sided limits",
+        "op": "lsid", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("side", "approach"),
+        "advance_line": "Three in a row — you've got it! Read the side you were asked to come from.",
+        "teach": [
+            ["Unit One built functions in pieces. Watch what limits do to one. Say y is 3 when x is below 6, and 9 when x is 6 or more — a step. Creep up on 6 and the answer depends entirely on which side you approach from.",
+             '[[goal text="The two sides disagree"]][[step eq="x < 6 → y = 3 · x ≥ 6 → y = 9"]]'],
+            ["From the left, every x you pass is below 6, so y reads 3 the whole way in — the limit from that side is 3. From the right, every x is 6 or more, so y reads 9 all the way in. Two sides, two different headings.",
+             '[[step eq="from the left → 3"]][[step eq="from the right → 9"]]'],
+            ["When the sides disagree the curve has no single limit there — and the answer is never the middle. 6 is not the heading from either side; nobody approaching that step ever sees 6. Read which side you were asked for, and report what that side sees.",
+             '[[step eq="3 ✓ from the left"]][[step eq="9 ✗ other side · 6 ✗ split the difference"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y is 20 below 6 and 28 at 6 or more. Coming from the RIGHT, y reads 28.",
+                        '[[step eq="from the right → 28"]]'],
+             "ask": {"a": 11, "b": 19, "c": 1, "op": "lsid"}},
+            {"worked": ["One more together. y is 9 below 6 and 17 at 6 or more. From the LEFT, y reads 9.",
+                        '[[step eq="from the left → 9"]]'],
+             "ask": {"a": 13, "b": 21, "c": 0, "op": "lsid"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 4, "b": 10, "c": 0, "op": "lsid"},
+            {"a": 5, "b": 11, "c": 0, "op": "lsid"},
+            {"a": 2, "b": 16, "c": 0, "op": "lsid"},
+            {"a": 7, "b": 13, "c": 0, "op": "lsid"},
+            {"a": 8, "b": 14, "c": 1, "op": "lsid"},
+            {"a": 9, "b": 15, "c": 1, "op": "lsid"},
+            {"a": 10, "b": 16, "c": 1, "op": "lsid"},
+            {"a": 12, "b": 20, "c": 0, "op": "lsid"},
+            {"a": 14, "b": 22, "c": 1, "op": "lsid"},
+            {"a": 16, "b": 24, "c": 0, "op": "lsid"},
+        ],
+    },
+    {
+        "id": "pc-u9-the-shrinking-window",
+        "course": "precalc", "unit": 9,
+        "topic": "Average rate of change",
+        "op": "avgr", "max_value": 24,
+        "levels": ("abstract",),
+        "symbols": ("rise", "window"),
+        "advance_line": "Three in a row — you've got it! Rise divided by run — and on this curve, it is the two x's put together.",
+        "teach": [
+            ["Pre-Calculus ends by handing Calculus its first question. On y equals x squared, move x from 2 to 6. y climbs from 4 to 36 — a rise of 32 — while x moves 4. So y rose 8 for each step of x, on average across that window .",
+             '[[goal text="The shrinking window"]][[step eq="rise 32 ÷ run 4 = 8 per step"]]'],
+            ["And 8 is simply 2 plus 6. On this curve the average rate is always the two x's put together — try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5. A tidy shortcut, and it is about to do something remarkable.",
+             '[[step eq="2 to 6 → 8 · 3 to 5 → 8"]]'],
+            ["Shrink the window toward a single point. From 4 to 5 the rate is 9; from 4 to 4 point 1, about 8 point 1; closer still, 8 point 0 1. The rates creep toward 8 — twice the 4. That limit is called the derivative, and Calculus starts exactly there.",
+             '[[step eq="4→5: 9 · 4→4.1: 8.1 · 4→4.01: 8.01"]][[step eq="the limit → 8 = 2 × 4"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. On y equals x squared, from 1 to 7: rise 48, run 6 — 8 per step, which is 1 plus 7.",
+                        '[[step eq="48 ÷ 6 = 8 = 1 + 7"]]'],
+             "ask": {"a": 2, "b": 10, "op": "avgr"}},
+            {"worked": ["One more together. From 7 to 11: rise 72, run 4 — 18 per step, and 7 plus 11 is 18.",
+                        '[[step eq="72 ÷ 4 = 18 = 7 + 11"]]'],
+             "ask": {"a": 5, "b": 12, "op": "avgr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 1, "b": 3, "op": "avgr"},
+            {"a": 2, "b": 4, "op": "avgr"},
+            {"a": 1, "b": 5, "op": "avgr"},
+            {"a": 3, "b": 6, "op": "avgr"},
+            {"a": 2, "b": 7, "op": "avgr"},
+            {"a": 4, "b": 8, "op": "avgr"},
+            {"a": 3, "b": 9, "op": "avgr"},
+            {"a": 5, "b": 10, "op": "avgr"},
+            {"a": 4, "b": 11, "op": "avgr"},
+            {"a": 6, "b": 12, "op": "avgr"},
+        ],
+    },
+]
+LESSONS.extend(_PRECALC_U9)
+# =============================================================================
+# PROB & STATS UNIT 1 -- Exploring Data (build lq) -- ⭐ THE TENTH COURSE OPENS
+# The thread: BEFORE you compute anything, LOOK. Algebra One computed the mean,
+# median and range from lists of numbers; this unit reads a picture instead --
+# the mode under the tallest stack, a slice of the dots counted with an edge
+# case standing on the line, a histogram's bars added up, and the one value
+# that does not belong.
+# =============================================================================
+_PROBSTAT_U1 = [
+    {
+        "id": "ps-u1-under-the-tallest-stack",
+        "course": "probstat", "unit": 1,
+        "topic": "The mode from a picture",
+        "op": "dotm", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("mode", "stack"),
+        "advance_line": "Three in a row — you've got it! The mode is the value under the stack.",
+        "teach": [
+            ["Welcome to Probability and Statistics, where the first move is always to LOOK. A dot plot puts one dot above a number for every time that number happened, so the shape of the data stands up off the page — tall where values repeat, flat where they do not.",
+             '[[goal text="Under the tallest stack"]][[dotplot values="3,4,4,5,5,5,5,6,6,7"]]'],
+            ["The mode is the value that happened most often — so find the tallest stack and read the number UNDERNEATH it. Here four dots stand over 5, more than any other number, so the mode is 5.",
+             '[[step eq="tallest stack sits over 5 → mode = 5"]]'],
+            ["Here is the slip worth naming. Four dots stand on that stack, and 4 is not the answer — the mode is the value they stand on, 5, not the count of them. Read down to the number line, never across to how many.",
+             '[[step eq="5 ✓ the value"]][[step eq="4 ✗ that is the count of dots"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The tallest stack here sits over 16 — so the mode is 16, however many dots are stacked on it.",
+                        '[[dotplot values="14,15,15,16,16,16,17,17,18"]]'],
+             "ask": {"a": 18, "b": 5, "op": "dotm"}},
+            {"worked": ["One more together. The tallest stack here sits over 20, so the mode is 20.",
+                        '[[dotplot values="18,19,19,20,20,20,20,20,21,21,22"]]'],
+             "ask": {"a": 17, "b": 6, "op": "dotm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 3, "op": "dotm"},
+            {"a": 6, "b": 5, "op": "dotm"},
+            {"a": 7, "b": 4, "op": "dotm"},
+            {"a": 8, "b": 6, "op": "dotm"},
+            {"a": 9, "b": 3, "op": "dotm"},
+            {"a": 10, "b": 3, "op": "dotm"},
+            {"a": 11, "b": 4, "op": "dotm"},
+            {"a": 12, "b": 6, "op": "dotm"},
+            {"a": 13, "b": 5, "op": "dotm"},
+            {"a": 15, "b": 4, "op": "dotm"},
+        ],
+    },
+    {
+        "id": "ps-u1-count-the-ones-above",
+        "course": "probstat", "unit": 1,
+        "topic": "Counting part of a plot",
+        "op": "dcnt", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("count", "line"),
+        "advance_line": "Three in a row — you've got it! Count only past the line, and never the dot standing on it.",
+        "teach": [
+            ["A dot plot answers more than one question. Beyond what is most common, you can count how many values sit past some mark — how many players scored more than 8, how many days ran over an hour. Draw a line , then count one side of it.",
+             '[[goal text="Count the ones above"]][[dotplot values="6,7,7,8,9,9,10,11"]]'],
+            ["Count how many are MORE than 8 here: 9, 9, 10 and 11 — four dots to the right of 8. Work left to right and touch each dot once; a count you cannot repeat exactly is a count you should do again.",
+             '[[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'],
+            ["The dot standing exactly ON 8 is the whole trap. More than 8 does not include 8 itself, so that dot stays out and the answer is 4, not 5. And counting the other side answers a question nobody asked. Read the word, then count.",
+             '[[step eq="4 ✓"]][[step eq="5 ✗ counted the dot on the line"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. More than 14: five dots sit to the right, and the one resting on 14 stays out.",
+                        '[[step eq="more than 14 → 5"]]'],
+             "ask": {"a": 13, "b": 8, "c": 7, "op": "dcnt"}},
+            {"worked": ["One more together. More than 9, with seven dots past the line: the answer is 7.",
+                        '[[step eq="more than 9 → 7"]]'],
+             "ask": {"a": 18, "b": 7, "c": 6, "op": "dcnt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 4, "c": 3, "op": "dcnt"},
+            {"a": 10, "b": 4, "c": 8, "op": "dcnt"},
+            {"a": 16, "b": 4, "c": 6, "op": "dcnt"},
+            {"a": 5, "b": 5, "c": 9, "op": "dcnt"},
+            {"a": 11, "b": 5, "c": 7, "op": "dcnt"},
+            {"a": 17, "b": 5, "c": 3, "op": "dcnt"},
+            {"a": 6, "b": 6, "c": 8, "op": "dcnt"},
+            {"a": 12, "b": 6, "c": 4, "op": "dcnt"},
+            {"a": 17, "b": 6, "c": 9, "op": "dcnt"},
+            {"a": 7, "b": 7, "c": 5, "op": "dcnt"},
+        ],
+    },
+    {
+        "id": "ps-u1-add-the-bars",
+        "course": "probstat", "unit": 1,
+        "topic": "Reading a histogram",
+        "op": "htot", "max_value": 27,
+        "levels": ("abstract",),
+        "symbols": ("histogram", "bars"),
+        "advance_line": "Three in a row — you've got it! Add every bar to find how many there are in all.",
+        "teach": [
+            ["When there are too many values for one dot each, a histogram sorts them into groups and draws a bar for each group. The bar's height is how many landed in that group — and on this board, each bar carries its count printed above it.",
+             '[[goal text="Add the bars"]][[histogram values="5,5,5,15,15,15,15,25,25"]]'],
+            ["To find how many values there are in all, add the bars : 3 plus 4 plus 2 equals 9 values. A histogram never shows you the values themselves — it shows you how many landed in each group, and adding those counts brings them all back.",
+             '[[step eq="3 + 4 + 2 = 9 values in all"]]'],
+            ["Two easy misreads. The tallest bar, 4, is only the biggest group — it is not the whole. And counting the bars themselves gives 3, which is how many GROUPS there are, not how many values. Add the heights, always.",
+             '[[step eq="9 ✓"]][[step eq="4 ✗ tallest group · 3 ✗ number of groups"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Bars of 4, 4 and 4: adding them gives 12 values in all.",
+                        '[[step eq="4 + 4 + 4 = 12"]]'],
+             "ask": {"a": 9, "b": 8, "c": 5, "op": "htot"}},
+            {"worked": ["One more together. Bars of 5, 5 and 5 add up to 15 values.",
+                        '[[step eq="5 + 5 + 5 = 15"]]'],
+             "ask": {"a": 7, "b": 6, "c": 8, "op": "htot"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "c": 3, "op": "htot"},
+            {"a": 3, "b": 4, "c": 4, "op": "htot"},
+            {"a": 6, "b": 3, "c": 3, "op": "htot"},
+            {"a": 7, "b": 3, "c": 3, "op": "htot"},
+            {"a": 6, "b": 5, "c": 3, "op": "htot"},
+            {"a": 5, "b": 6, "c": 4, "op": "htot"},
+            {"a": 4, "b": 7, "c": 5, "op": "htot"},
+            {"a": 2, "b": 9, "c": 6, "op": "htot"},
+            {"a": 8, "b": 4, "c": 5, "op": "htot"},
+            {"a": 7, "b": 4, "c": 7, "op": "htot"},
+        ],
+    },
+    {
+        "id": "ps-u1-the-one-that-sits-alone",
+        "course": "probstat", "unit": 1,
+        "topic": "Spotting an outlier",
+        "op": "farv", "max_value": 40,
+        "levels": ("abstract",),
+        "symbols": ("outlier", "cluster"),
+        "advance_line": "Three in a row — you've got it! The outlier is the value sitting alone, far from the crowd.",
+        "teach": [
+            ["Algebra One showed what one unusual value does to a mean — it drags it. Before you can watch for that, you have to SPOT the stray. On a dot plot it is obvious: nearly every dot huddles in one cluster , and one sits out on its own with a gap between.",
+             '[[goal text="The one that sits alone"]][[dotplot values="6,7,7,8,8,9,26"]]'],
+            ["That lonely dot is called an outlier , and here it sits at 26 while the crowd huddles between 6 and 9. The outlier is the VALUE it sits above — 26 — the same way the mode was the value under its stack.",
+             '[[step eq="crowd 6 to 9 · stray at 26 → outlier = 26"]]'],
+            ["Two things not to hand back. 7, where the crowd is thickest, is the mode — a different question. And 20, the size of the gap, tells you how far out the stray is, not what it is. Point at the lonely dot and read the number below it.",
+             '[[step eq="26 ✓"]][[step eq="7 ✗ the crowd · 20 ✗ the gap"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. The crowd sits near 10 and one dot is stranded at 30 — the outlier is 30.",
+                        '[[dotplot values="9,10,10,11,11,12,30"]]'],
+             "ask": {"a": 15, "b": 38, "op": "farv"}},
+            {"worked": ["One more together. A crowd around 13 with one stray far out at 35: the outlier is 35.",
+                        '[[dotplot values="12,13,13,14,14,15,35"]]'],
+             "ask": {"a": 12, "b": 37, "op": "farv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 17, "op": "farv"},
+            {"a": 9, "b": 21, "op": "farv"},
+            {"a": 5, "b": 24, "op": "farv"},
+            {"a": 12, "b": 25, "op": "farv"},
+            {"a": 8, "b": 27, "op": "farv"},
+            {"a": 11, "b": 28, "op": "farv"},
+            {"a": 15, "b": 29, "op": "farv"},
+            {"a": 8, "b": 31, "op": "farv"},
+            {"a": 11, "b": 32, "op": "farv"},
+            {"a": 14, "b": 33, "op": "farv"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U1)
+
+# =============================================================================
+# PROB & STATS UNIT 2 -- Describing Distributions (build lq)
+# The thread: now put NUMBERS on the shape. The median when there is no single
+# middle, the box plot's box as the middle half, the average distance from the
+# mean (standard deviation in child clothes), and a percentile read as a
+# percent of the class rather than a headcount.
+# =============================================================================
+_PROBSTAT_U2 = [
+    {
+        "id": "ps-u2-no-single-middle",
+        "course": "probstat", "unit": 2,
+        "topic": "The median of an even list",
+        "op": "medv", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("median", "middles"),
+        "advance_line": "Three in a row — you've got it! Two middles — the median sits halfway between them.",
+        "teach": [
+            ["Algebra One found the median of an odd list: count in from both ends and one number is left standing. Unit Two starts with the case that has no single middle at all — an even count, where counting in from both ends leaves TWO numbers facing each other.",
+             '[[goal text="No single middle"]][[step eq="4, 6, | 8, 10 | , 12, 14"]]'],
+            ["Take 4, 6, 8, 10, 12, 14 — six numbers, so three sit either side and the middles are 8 and 10. The median is halfway between them: add and halve, 8 plus 10 is 18, halved is 9. The median of an even list often is not in the list at all.",
+             '[[step eq="middles 8 and 10 → (8 + 10) ÷ 2 = 9"]]'],
+            ["Neither middle on its own will do. Answering 8 takes the lower one and 10 takes the upper, and both leave half the data unbalanced — 9 is the only number with three below it and three above. Find both middles , then go halfway.",
+             '[[step eq="9 ✓"]][[step eq="8 ✗ lower middle · 10 ✗ upper middle"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 7, 9, 11, 13, 15, 17: the middles are 11 and 13, so the median is 12.",
+                        '[[step eq="(11 + 13) ÷ 2 = 12"]]'],
+             "ask": {"a": 3, "b": 23, "op": "medv"}},
+            {"worked": ["One more together. With middles of 18 and 20, the median is 19.",
+                        '[[step eq="(18 + 20) ÷ 2 = 19"]]'],
+             "ask": {"a": 2, "b": 22, "op": "medv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 4, "op": "medv"},
+            {"a": 2, "b": 7, "op": "medv"},
+            {"a": 4, "b": 8, "op": "medv"},
+            {"a": 2, "b": 10, "op": "medv"},
+            {"a": 3, "b": 11, "op": "medv"},
+            {"a": 4, "b": 12, "op": "medv"},
+            {"a": 2, "b": 14, "op": "medv"},
+            {"a": 3, "b": 15, "op": "medv"},
+            {"a": 4, "b": 16, "op": "medv"},
+            {"a": 2, "b": 18, "op": "medv"},
+        ],
+    },
+    {
+        "id": "ps-u2-the-middle-half",
+        "course": "probstat", "unit": 2,
+        "topic": "The box plot's box",
+        "op": "iqrw", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("box", "whiskers"),
+        "advance_line": "Three in a row — you've got it! The box is the middle half — take one edge away from the other.",
+        "teach": [
+            ["A box plot draws five numbers: the smallest, the biggest, the median in the middle, and two more that cut the data into quarters. The box spans the middle two quarters — the middle HALF of everything — and the whiskers reach out to the extremes.",
+             '[[goal text="The middle half"]][[boxplot five="4,10,15,20,26"]]'],
+            ["This box runs from 10 to 20, so the middle half of the data lies between them: its width is 20 take away 10 — 10. Statisticians lean on that width because the wild extremes cannot touch it; whatever the whiskers do, the box holds the calm middle.",
+             '[[step eq="box: 10 to 20 → width 10"]]'],
+            ["Do not measure the whiskers by mistake. Tip to tip is 4 out to 26 — a stretch of 22, the whole range, which one strange value can blow wide open. And 20 alone is just the box's right edge. Two edges, one take-away.",
+             '[[step eq="10 ✓ the box"]][[step eq="22 ✗ whisker to whisker · 20 ✗ one edge"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A box from 12 to 24: the middle half is 24 take away 12 — 12 wide.",
+                        '[[boxplot five="8,12,18,24,28"]]'],
+             "ask": {"a": 14, "b": 34, "c": 6, "op": "iqrw"}},
+            {"worked": ["One more together. This box runs 15 to 27 — 12 wide as well, however far its whiskers reach.",
+                        '[[boxplot five="9,15,21,27,33"]]'],
+             "ask": {"a": 23, "b": 41, "c": 6, "op": "iqrw"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 9, "c": 2, "op": "iqrw"},
+            {"a": 22, "b": 26, "c": 2, "op": "iqrw"},
+            {"a": 13, "b": 19, "c": 2, "op": "iqrw"},
+            {"a": 29, "b": 35, "c": 3, "op": "iqrw"},
+            {"a": 20, "b": 28, "c": 3, "op": "iqrw"},
+            {"a": 11, "b": 21, "c": 2, "op": "iqrw"},
+            {"a": 27, "b": 37, "c": 4, "op": "iqrw"},
+            {"a": 18, "b": 30, "c": 4, "op": "iqrw"},
+            {"a": 9, "b": 23, "c": 2, "op": "iqrw"},
+            {"a": 25, "b": 39, "c": 5, "op": "iqrw"},
+        ],
+    },
+    {
+        "id": "ps-u2-how-far-from-the-middle",
+        "course": "probstat", "unit": 2,
+        "topic": "Average distance from the mean",
+        "op": "madv", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("distance", "spread"),
+        "advance_line": "Three in a row — you've got it! Add the four distances, then share them out.",
+        "teach": [
+            ["Two sets can share a mean and look nothing alike: 19, 20, 21 huddles, while 5, 20, 35 sprawls. To describe that difference you measure spread — and the plainest measure asks how far a number sits from the mean, on average.",
+             '[[goal text="How far from the middle"]][[dotplot values="19,20,21"]][[step eq="same mean, very different spread"]]'],
+            ["Take 11, 17, 23, 29, whose mean is 20. Their distances from 20 are 9, 3, 3 and 9 — never mind which side, distance has no sign. Put them together for 24, then share between the four numbers: each sits 6 from the mean, on average.",
+             '[[step eq="9 + 3 + 3 + 9 = 24 → 24 ÷ 4 = 6"]]'],
+            ["The two temptations are the extremes. The farthest number is 9 away and the nearest only 3, so an average distance of 6 sits between them — as an average must. Square these distances instead of averaging them and you get variance, which is another unit's business.",
+             '[[step eq="6 ✓"]][[step eq="9 ✗ the farthest · 3 ✗ the nearest"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 2, 12, 22, 32 have a mean of 17 and distances of 15, 5, 5, 15 — put together 40, shared four ways: 10.",
+                        '[[step eq="40 ÷ 4 = 10"]]'],
+             "ask": {"a": 24, "b": 6, "op": "madv"}},
+            {"worked": ["One more together. 10, 18, 26, 34: mean 22, distances 12, 4, 4, 12 — put together 32, shared four ways: 8.",
+                        '[[step eq="(12 + 4 + 4 + 12) ÷ 4 = 8"]]'],
+             "ask": {"a": 29, "b": 5, "op": "madv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 8, "b": 2, "op": "madv"},
+            {"a": 14, "b": 2, "op": "madv"},
+            {"a": 20, "b": 2, "op": "madv"},
+            {"a": 26, "b": 2, "op": "madv"},
+            {"a": 12, "b": 3, "op": "madv"},
+            {"a": 18, "b": 3, "op": "madv"},
+            {"a": 24, "b": 3, "op": "madv"},
+            {"a": 30, "b": 3, "op": "madv"},
+            {"a": 19, "b": 4, "op": "madv"},
+            {"a": 25, "b": 4, "op": "madv"},
+        ],
+    },
+    {
+        "id": "ps-u2-a-percent-not-a-person",
+        "course": "probstat", "unit": 2,
+        "topic": "Percentiles",
+        "op": "pctl", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("percentile", "percent"),
+        "advance_line": "Three in a row — you've got it! A percentile is a percent of the group, not a count of people.",
+        "teach": [
+            ["A last way to place one value inside a distribution: say what percent of the others it beat. That is a percentile . Sitting at the 80th percentile means you scored higher than 80 percent of the people you were measured against — nothing more, nothing less.",
+             '[[goal text="A percent, not a person"]][[step eq="80th percentile → higher than 80% of them"]]'],
+            ["Turn it into people by taking that percent of the group. Sit a test with 20 others at the 80th percentile: 80 percent of 20 is 16, so you beat 16 of them and 4 scored above you. The percentile never changes, but the headcount depends on the group.",
+             '[[step eq="80% of 20 = 16 beaten · 4 above"]]'],
+            ["Two mix-ups to dodge. The 80 is a percent, not 80 people — among 20 others there are not 80 anybody. And 4 answers the opposite question, how many finished ahead of you. Take the percent of the group, and read which side was asked for.",
+             '[[step eq="16 ✓"]][[step eq="80 ✗ that is the percent · 4 ✗ the other side"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Sit with 60 others at the 25th percentile: a quarter of 60 is 15 of them beaten.",
+                        '[[step eq="25% of 60 = 15"]]'],
+             "ask": {"a": 40, "b": 85, "op": "pctl"}},
+            {"worked": ["One more together. With 30 others at the 90th percentile: 90 percent of 30 is 27.",
+                        '[[step eq="90% of 30 = 27"]]'],
+             "ask": {"a": 40, "b": 75, "op": "pctl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 10, "op": "pctl"},
+            {"a": 50, "b": 10, "op": "pctl"},
+            {"a": 20, "b": 35, "op": "pctl"},
+            {"a": 20, "b": 45, "op": "pctl"},
+            {"a": 40, "b": 25, "op": "pctl"},
+            {"a": 30, "b": 40, "op": "pctl"},
+            {"a": 20, "b": 70, "op": "pctl"},
+            {"a": 50, "b": 30, "op": "pctl"},
+            {"a": 24, "b": 75, "op": "pctl"},
+            {"a": 50, "b": 40, "op": "pctl"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U2)
+# =============================================================================
+# PROB & STATS UNIT 3 -- Scatterplots & Correlation (build lr)
+# The thread: TWO measurements at once. Each dot carries a pair, so the cloud
+# shows how one thing moves with another -- read a single dot without mixing
+# the axes, use the fit line's slope as a RATE, measure how far a dot sits
+# from the line it predicted (the residual), and see that the line runs
+# THROUGH the cloud rather than over or under it.
+# ⭐ [[scatter]] walked here for the first time. It prints the fit equation
+# when fit="true", so any lesson whose answer IS the line stays teach-only.
+# =============================================================================
+_PROBSTAT_U3 = [
+    {
+        "id": "ps-u3-one-dot-two-numbers",
+        "course": "probstat", "unit": 3,
+        "topic": "Reading a scatterplot",
+        "op": "spnt", "max_value": 50,
+        "levels": ("abstract",),
+        "symbols": ("scatterplot", "dot"),
+        "advance_line": "Three in a row — you've got it! Across for the hours, up for the points.",
+        "teach": [
+            ["Every plot so far showed ONE measurement. A scatterplot shows two at once: each dot is one child, placed across by hours practiced and up by points scored. One dot, two numbers — and that pairing is what lets you see whether practice and points travel together.",
+             '[[goal text="One dot, two numbers"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)"]]'],
+            ["To read a child, find their hours along the bottom, go straight up until you meet their dot , then straight across to the side. The child at 8 hours sits level with 27 — so 27 points. Across first, then up, then across again.",
+             '[[step eq="8 hours → up to the dot → across → 27 points"]]'],
+            ["The mix-up to avoid is answering with the number you were GIVEN. 8 is the hours, and hours live across the bottom; the points live up the side. And it is easy to land on the dot next door — 30 belongs to the child who practiced 10 hours, not 8.",
+             '[[step eq="27 ✓"]][[step eq="8 ✗ that is the hours · 30 ✗ the next dot"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. This child practiced 8 hours: go up to the dot, across to the side — 35 points.",
+                        '[[scatter points="(2,10),(4,20),(6,25),(8,35),(10,40),(12,50)"]]'],
+             "ask": {"a": 12, "b": 0, "c": 2, "op": "spnt"}},
+            {"worked": ["One more together. On a gentler plot, the child at 6 hours sits level with 13 points.",
+                        '[[scatter points="(2,6),(4,12),(6,13),(8,19),(10,20),(12,26)"]]'],
+             "ask": {"a": 10, "b": 0, "c": 3, "op": "spnt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 0, "c": 2, "op": "spnt"},
+            {"a": 2, "b": 0, "c": 3, "op": "spnt"},
+            {"a": 4, "b": 0, "c": 2, "op": "spnt"},
+            {"a": 4, "b": 0, "c": 4, "op": "spnt"},
+            {"a": 6, "b": 0, "c": 3, "op": "spnt"},
+            {"a": 6, "b": 0, "c": 4, "op": "spnt"},
+            {"a": 8, "b": 0, "c": 2, "op": "spnt"},
+            {"a": 8, "b": 0, "c": 3, "op": "spnt"},
+            {"a": 10, "b": 0, "c": 2, "op": "spnt"},
+            {"a": 10, "b": 0, "c": 4, "op": "spnt"},
+        ],
+    },
+    {
+        "id": "ps-u3-the-slope-is-a-rate",
+        "course": "probstat", "unit": 3,
+        "topic": "Using the best-fit line's slope",
+        "op": "sslp", "max_value": 81,
+        "levels": ("abstract",),
+        "symbols": ("slope", "per"),
+        "advance_line": "Three in a row — you've got it! The slope is points per hour — times the hours.",
+        "teach": [
+            ["Draw the single straight line that runs best through a scatter cloud and you have a best-fit line. Algebra One measured a line's slope as its climb per step. Here that climb MEANS something: points per extra hour of practice.",
+             '[[goal text="The slope is a rate"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" fit="true"]]'],
+            ["Say the slope is 4 — four more points for each extra hour. Then two extra hours are worth 4 twice: 8 points. Ten extra hours would be worth 40. A slope is a rate, so it multiplies by however many steps you take.",
+             '[[step eq="4 points per hour × 2 hours = 8 points"]]'],
+            ["Two slips. Answering 4 gives ONE hour's worth when the question asked about two. And adding — 4 plus 2 — treats a rate as though it were a total. Times the rate by the steps, every time.",
+             '[[step eq="8 ✓"]][[step eq="4 ✗ one hour only · 6 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A slope of 7 points per hour, over 5 extra hours: 7 times 5 — 35 more points.",
+                        '[[step eq="7 × 5 = 35"]]'],
+             "ask": {"a": 7, "b": 7, "op": "sslp"}},
+            {"worked": ["One more together. 5 points per hour over 8 hours predicts 40 more points.",
+                        '[[step eq="5 × 8 = 40"]]'],
+             "ask": {"a": 5, "b": 9, "op": "sslp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 2, "b": 3, "op": "sslp"},
+            {"a": 3, "b": 3, "op": "sslp"},
+            {"a": 3, "b": 4, "op": "sslp"},
+            {"a": 7, "b": 2, "op": "sslp"},
+            {"a": 4, "b": 4, "op": "sslp"},
+            {"a": 6, "b": 3, "op": "sslp"},
+            {"a": 3, "b": 7, "op": "sslp"},
+            {"a": 6, "b": 4, "op": "sslp"},
+            {"a": 9, "b": 3, "op": "sslp"},
+            {"a": 6, "b": 5, "op": "sslp"},
+        ],
+    },
+    {
+        "id": "ps-u3-how-far-off-the-line",
+        "course": "probstat", "unit": 3,
+        "topic": "Residuals",
+        "op": "resd", "max_value": 60,
+        "levels": ("abstract",),
+        "symbols": ("residual", "predicted"),
+        "advance_line": "Three in a row — you've got it! The residual is the gap between predicted and actual.",
+        "teach": [
+            ["A best-fit line predicts, and predictions miss. Read the line at some child's hours and it names a score; look at that child's real dot and you see what they actually got. The gap between those two is the interesting part.",
+             '[[goal text="How far off the line"]][[step eq="predicted 30 · actual 36"]]'],
+            ["That gap has a name: the residual . If the line predicted 30 and the child scored 36, the residual is 6 — the line was 6 points low. A dot above the line has the line guessing low; a dot below has it guessing high.",
+             '[[step eq="36 − 30 = 6 → the residual"]]'],
+            ["The best-fit line is chosen to keep these gaps as small as they can be across every dot at once — that is what BEST fit means. So do not hand back 36, which is what the child scored, or 66, which puts two unrelated numbers together. The residual is the distance between them.",
+             '[[step eq="6 ✓"]][[step eq="36 ✗ the actual score · 66 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Predicted 29, actual 56: the line was 27 points low.",
+                        '[[step eq="56 − 29 = 27"]]'],
+             "ask": {"a": 5, "b": 47, "op": "resd"}},
+            {"worked": ["One more together. Predicted 44, actual 14 — the line guessed 30 points high.",
+                        '[[step eq="44 − 14 = 30"]]'],
+             "ask": {"a": 11, "b": 47, "op": "resd"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 5, "b": 8, "op": "resd"},
+            {"a": 41, "b": 44, "op": "resd"},
+            {"a": 26, "b": 20, "op": "resd"},
+            {"a": 11, "b": 20, "op": "resd"},
+            {"a": 47, "b": 56, "op": "resd"},
+            {"a": 38, "b": 26, "op": "resd"},
+            {"a": 29, "b": 44, "op": "resd"},
+            {"a": 26, "b": 8, "op": "resd"},
+            {"a": 23, "b": 44, "op": "resd"},
+            {"a": 23, "b": 47, "op": "resd"},
+        ],
+    },
+    {
+        "id": "ps-u3-through-the-middle-of-the-cloud",
+        "course": "probstat", "unit": 3,
+        "topic": "The line splits the cloud",
+        "op": "sblw", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("above", "below"),
+        "advance_line": "Three in a row — you've got it! Every dot is on one side or the other.",
+        "teach": [
+            ["Here is a fact about the best-fit line that catches people out: it does not sit on top of the cloud, or underneath it. It runs THROUGH the middle, so dots end up on both sides — some above it, some below.",
+             '[[goal text="Through the middle of the cloud"]][[scatter points="(2,8),(4,16),(6,19),(8,27),(10,30),(12,38)" fit="true"]]'],
+            ["That turns the counting into one take-away. If 14 dots are plotted and none lands exactly on the line, then every dot is either above or below. With 6 above , the other 8 must be below : 14 take away 6.",
+             '[[step eq="14 dots · 6 above → 14 − 6 = 8 below"]]'],
+            ["Two answers to resist. 6 is the side you were already told about — the question asked for the other one. And 14 is every dot on the plot, both sides at once. Take the side you know away from the whole.",
+             '[[step eq="8 ✓"]][[step eq="6 ✗ the side you were given · 14 ✗ all of them"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 18 dots with 16 above the line leaves just 2 below.",
+                        '[[step eq="18 − 16 = 2"]]'],
+             "ask": {"a": 19, "b": 4, "op": "sblw"}},
+            {"worked": ["One more together. 18 dots, 6 above: 12 sit below.",
+                        '[[step eq="18 − 6 = 12"]]'],
+             "ask": {"a": 19, "b": 13, "op": "sblw"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 8, "b": 6, "op": "sblw"},
+            {"a": 9, "b": 2, "op": "sblw"},
+            {"a": 11, "b": 7, "op": "sblw"},
+            {"a": 12, "b": 7, "op": "sblw"},
+            {"a": 13, "b": 7, "op": "sblw"},
+            {"a": 14, "b": 9, "op": "sblw"},
+            {"a": 15, "b": 11, "op": "sblw"},
+            {"a": 15, "b": 2, "op": "sblw"},
+            {"a": 16, "b": 5, "op": "sblw"},
+            {"a": 17, "b": 10, "op": "sblw"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U3)
+
+# =============================================================================
+# PROB & STATS UNIT 4 -- Collecting Data (build lr)
+# The thread: THE ANSWER IS ONLY AS GOOD AS THE ASKING. Algebra II's samp
+# scaled a sample up to a school; this unit asks whether the sample deserved
+# to be scaled at all -- a sample built to match the group's own mix, the
+# response rate as a warning light, the people a survey could never reach,
+# and the price of accuracy: four times the people to halve the margin.
+# =============================================================================
+_PROBSTAT_U4 = [
+    {
+        "id": "ps-u4-a-sample-that-matches",
+        "course": "probstat", "unit": 4,
+        "topic": "Stratified samples",
+        "op": "strf", "max_value": 90,
+        "levels": ("abstract",),
+        "symbols": ("mix", "share"),
+        "advance_line": "Three in a row — you've got it! Keep the group's own mix inside the sample.",
+        "teach": [
+            ["Algebra Two took a sample's answer and scaled it up to a whole school. That only works if the sample looks like the school. So this unit builds the sample first — and the plainest way is to keep the same mix of people inside it.",
+             '[[goal text="A sample that matches"]][[step eq="school 40 girls · 60 boys → sample keeps 40:60"]]'],
+            ["A school of 40 girls and 60 boys is two-fifths girls. A sample of 20 students should be two-fifths girls too: 20 times 40, divided by 100 — 8 girls, and 12 boys. Take the share the group has, and give the sample that same share .",
+             '[[step eq="20 × 40 ÷ 100 = 8 girls"]]'],
+            ["The lazy move is splitting the sample down the middle — 10 and 10 — which only matches a school that really is half and half. And copying 40 straight across would ask more girls than the whole sample holds. Work out the share, then take it.",
+             '[[step eq="8 ✓"]][[step eq="10 ✗ half and half · 40 ✗ the school\'s own count"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 60 girls and 30 boys, a sample of 24: girls are two-thirds, so 16 of them.",
+                        '[[step eq="24 × 60 ÷ 90 = 16 girls"]]'],
+             "ask": {"a": 60, "b": 35, "c": 38, "op": "strf"}},
+            {"worked": ["One more together. 45 girls and 40 boys with a sample of 34 gives 18 girls.",
+                        '[[step eq="34 × 45 ÷ 85 = 18 girls"]]'],
+             "ask": {"a": 75, "b": 30, "c": 28, "op": "strf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 80, "c": 10, "op": "strf"},
+            {"a": 20, "b": 60, "c": 20, "op": "strf"},
+            {"a": 45, "b": 30, "c": 10, "op": "strf"},
+            {"a": 20, "b": 45, "c": 26, "op": "strf"},
+            {"a": 60, "b": 30, "c": 12, "op": "strf"},
+            {"a": 90, "b": 70, "c": 16, "op": "strf"},
+            {"a": 50, "b": 90, "c": 28, "op": "strf"},
+            {"a": 35, "b": 70, "c": 36, "op": "strf"},
+            {"a": 90, "b": 75, "c": 22, "op": "strf"},
+            {"a": 30, "b": 50, "c": 40, "op": "strf"},
+        ],
+    },
+    {
+        "id": "ps-u4-who-actually-answered",
+        "course": "probstat", "unit": 4,
+        "topic": "Response rate",
+        "op": "resp", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("response rate", "percent"),
+        "advance_line": "Three in a row — you've got it! Returned out of sent, as a percent.",
+        "teach": [
+            ["Sending a survey is not the same as getting answers. Of everyone you ask, only some reply — and the percent who do is called the response rate . It is the first number a statistician looks for, before believing a word of the results.",
+             '[[goal text="Who actually answered"]][[step eq="60 sent · 15 back → ?%"]]'],
+            ["Work it out as any percent : 15 back out of 60 sent is a quarter — 25 percent. Three out of every four people you asked said nothing at all, and a survey reporting only the quarter who answered is reporting a quarter of the story.",
+             '[[step eq="15 ÷ 60 = 25%"]]'],
+            ["Why it matters: the silent ones may differ from the answerers. People with strong feelings reply; the contented shrug and bin it. So do not hand back 15, which is a count of surveys, or 45, which is how many stayed silent. The rate is the percent.",
+             '[[step eq="25 ✓"]][[step eq="15 ✗ a count · 45 ✗ the silent ones"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 55 sent and 33 back: 33 out of 55 is 60 percent.",
+                        '[[step eq="33 ÷ 55 = 60%"]]'],
+             "ask": {"a": 90, "b": 72, "op": "resp"}},
+            {"worked": ["One more together. 150 sent with 96 back is 64 percent.",
+                        '[[step eq="96 ÷ 150 = 64%"]]'],
+             "ask": {"a": 75, "b": 54, "op": "resp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 20, "b": 2, "op": "resp"},
+            {"a": 50, "b": 7, "op": "resp"},
+            {"a": 40, "b": 8, "op": "resp"},
+            {"a": 180, "b": 36, "op": "resp"},
+            {"a": 150, "b": 39, "op": "resp"},
+            {"a": 190, "b": 57, "op": "resp"},
+            {"a": 150, "b": 54, "op": "resp"},
+            {"a": 120, "b": 48, "op": "resp"},
+            {"a": 175, "b": 77, "op": "resp"},
+            {"a": 150, "b": 78, "op": "resp"},
+        ],
+    },
+    {
+        "id": "ps-u4-the-ones-you-never-asked",
+        "course": "probstat", "unit": 4,
+        "topic": "Bias and undercoverage",
+        "op": "bias", "max_value": 400,
+        "levels": ("abstract",),
+        "symbols": ("biased", "chance"),
+        "advance_line": "Three in a row — you've got it! Count everyone the survey could never reach.",
+        "teach": [
+            ["A survey can be perfectly run and still be wrong, if it asks the wrong crowd. Hand a lunch survey only to the children in the cafeteria and every child who brings lunch from home is invisible — and they are the ones with the strongest opinions about school lunches.",
+             '[[goal text="The ones you never asked"]][[step eq="asked: 120 in the cafeteria · school: 300"]]'],
+            ["Count them: a school of 300 with 120 in the cafeteria leaves 180 children who never had a chance of being handed the survey. Not 180 who said no — 180 who were never asked at all. A sample like that is called biased .",
+             '[[step eq="300 − 120 = 180 never asked"]]'],
+            ["The cure is giving everyone a chance of being picked, usually at random. And notice which numbers do not answer the question: 120 is the crowd that WAS asked, and 300 is everybody, asked or not. The gap between them is the blind spot.",
+             '[[step eq="180 ✓"]][[step eq="120 ✗ those asked · 300 ✗ everyone"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 90 asked at the school gate, out of 250: 160 never had a chance.",
+                        '[[step eq="250 − 90 = 160"]]'],
+             "ask": {"a": 120, "b": 320, "op": "bias"}},
+            {"worked": ["One more together. 140 asked in a school of 360 leaves 220 unreachable.",
+                        '[[step eq="360 − 140 = 220"]]'],
+             "ask": {"a": 160, "b": 400, "op": "bias"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 30, "b": 50, "op": "bias"},
+            {"a": 40, "b": 70, "op": "bias"},
+            {"a": 60, "b": 100, "op": "bias"},
+            {"a": 50, "b": 105, "op": "bias"},
+            {"a": 80, "b": 140, "op": "bias"},
+            {"a": 75, "b": 145, "op": "bias"},
+            {"a": 100, "b": 180, "op": "bias"},
+            {"a": 95, "b": 185, "op": "bias"},
+            {"a": 120, "b": 220, "op": "bias"},
+            {"a": 110, "b": 230, "op": "bias"},
+        ],
+    },
+    {
+        "id": "ps-u4-the-price-of-accuracy",
+        "course": "probstat", "unit": 4,
+        "topic": "Sample size and margin of error",
+        "op": "merr", "max_value": 1000,
+        "levels": ("abstract",),
+        "symbols": ("margin", "four times"),
+        "advance_line": "Three in a row — you've got it! Four times the people for half the margin.",
+        "teach": [
+            ["Every sample carries a margin of error — a give-or-take around its answer. Ask 100 people and you might report 60 percent, give or take 10. Bigger samples give smaller margins, but not in the way most people expect.",
+             '[[goal text="The price of accuracy"]][[step eq="100 people → margin about 10 points"]]'],
+            ["Doubling the sample does NOT halve the margin. To halve it you need four times as many people: 100 becomes 400. Want the margin halved again? Four times more still — 1600 people to go from 10 points to 2 and a half.",
+             '[[step eq="100 → 400 halves it · 400 → 1600 halves it again"]]'],
+            ["That is why national surveys stop around a thousand people. Going further costs a fortune and buys very little. So the tap that says double — 200 — is the honest-looking wrong answer, and the margin itself is not a headcount at all.",
+             '[[step eq="400 ✓"]][[step eq="200 ✗ doubling · 10 ✗ that is the margin"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A sample of 45 needs four times as many — 180 people — to halve its margin.",
+                        '[[step eq="45 × 4 = 180"]]'],
+             "ask": {"a": 110, "b": 5, "op": "merr"}},
+            {"worked": ["One more together. 250 people become 1000 to halve the margin.",
+                        '[[step eq="250 × 4 = 1000"]]'],
+             "ask": {"a": 190, "b": 3, "op": "merr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [
+            {"a": 25, "b": 3, "op": "merr"},
+            {"a": 50, "b": 4, "op": "merr"},
+            {"a": 75, "b": 6, "op": "merr"},
+            {"a": 100, "b": 3, "op": "merr"},
+            {"a": 125, "b": 5, "op": "merr"},
+            {"a": 150, "b": 7, "op": "merr"},
+            {"a": 175, "b": 4, "op": "merr"},
+            {"a": 200, "b": 6, "op": "merr"},
+            {"a": 225, "b": 3, "op": "merr"},
+            {"a": 240, "b": 8, "op": "merr"},
+        ],
+    },
+]
+LESSONS.extend(_PROBSTAT_U4)
 
 
 
@@ -9737,6 +10830,28 @@ COURSE_ORDER = [
     # Unit 7: Conic Sections & Parametric Equations
     "pc-u7-un-square-the-radius", "pc-u7-where-the-circle-sits",
     "pc-u7-edge-to-edge", "pc-u7-where-you-are-at-time-t",
+
+    # ---- PRE-CALC (build lp) -- Units 8 and 9 -- ⭐ PRE-CALC COMPLETE ----
+    # Unit 8: Sequences, Series & the Binomial Theorem
+    "pc-u8-add-the-whole-run", "pc-u8-the-instruction-called-sigma",
+    "pc-u8-when-order-does-not-matter", "pc-u8-the-sum-that-never-ends",
+    # Unit 9: Introduction to Limits
+    "pc-u9-walk-the-value-in", "pc-u9-the-hole-in-the-curve",
+    "pc-u9-the-two-sides-disagree", "pc-u9-the-shrinking-window",
+
+    # ---- PROBABILITY & STATISTICS (build lq) -- ⭐ THE TENTH COURSE OPENS ----
+    # Unit 1: Exploring Data
+    "ps-u1-under-the-tallest-stack", "ps-u1-count-the-ones-above",
+    "ps-u1-add-the-bars", "ps-u1-the-one-that-sits-alone",
+    # Unit 2: Describing Distributions
+    "ps-u2-no-single-middle", "ps-u2-the-middle-half",
+    "ps-u2-how-far-from-the-middle", "ps-u2-a-percent-not-a-person",
+    # Unit 3: Scatterplots & Correlation (build lr)
+    "ps-u3-one-dot-two-numbers", "ps-u3-the-slope-is-a-rate",
+    "ps-u3-how-far-off-the-line", "ps-u3-through-the-middle-of-the-cloud",
+    # Unit 4: Collecting Data (build lr)
+    "ps-u4-a-sample-that-matches", "ps-u4-who-actually-answered",
+    "ps-u4-the-ones-you-never-asked", "ps-u4-the-price-of-accuracy",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -9799,6 +10914,83 @@ def _medlist_words(p):
     return ", ".join(str(p["b"] - p["a"] + i) for i in range(2 * p["a"] + 1))
 
 
+def _dotmode(p):
+    """build lq: a dot plot whose tallest stack sits over a, b dots high, with
+    small neighbouring stacks so the shape reads like real data."""
+    vals = ([p["a"] - 2] + [p["a"] - 1] * 2 + [p["a"]] * p["b"]
+            + [p["a"] + 1] * 2 + [p["a"] + 2])
+    return ",".join(str(v) for v in vals)
+
+
+def _dotcut(p):
+    """build lq: c dots below the cutoff a, ONE dot sitting exactly on it, and b
+    dots above -- so "more than a" has a real edge case standing on the line."""
+    below = [p["a"] - 1 - (i % 3) for i in range(p["c"])]
+    above = [p["a"] + 1 + (i % 3) for i in range(p["b"])]
+    return ",".join(str(v) for v in sorted(below + [p["a"]] + above))
+
+
+def _histvals(p):
+    """build lq: raw values that fall into three well-separated groups, a, b and c
+    of them -- however the renderer bins, the printed counts still add to a+b+c."""
+    return ",".join(["5"] * p["a"] + ["15"] * p["b"] + ["25"] * p["c"])
+
+
+def _farlist(p):
+    """build lq: a tight cluster around a, and one stray far out at b."""
+    vals = [p["a"] - 1, p["a"], p["a"], p["a"] + 1, p["a"] + 1, p["a"] + 2, p["b"]]
+    return ",".join(str(v) for v in vals)
+
+
+def _evenlist(p):
+    """build lq: an EVEN-length list (2a numbers) whose two middles are b and b + 2
+    -- so the median lands halfway between them, on a whole number."""
+    lower = [p["b"] - 2 * (p["a"] - 1 - i) for i in range(p["a"])]
+    upper = [p["b"] + 2 + 2 * i for i in range(p["a"])]
+    return lower + upper
+
+
+def _evenlist_words(p):
+    return ", ".join(str(v) for v in _evenlist(p))
+
+
+def _madlist(p):
+    """build lq: four numbers sitting b and 3b either side of the mean a -- so the
+    average distance comes out to exactly 2b."""
+    return [p["a"] - 3 * p["b"], p["a"] - p["b"],
+            p["a"] + p["b"], p["a"] + 3 * p["b"]]
+
+
+def _madlist_words(p):
+    return ", ".join(str(v) for v in _madlist(p))
+
+
+_SCAT_X = (2, 4, 6, 8, 10, 12)
+_SCAT_JIT = (0, 2, -1, 1, -2, 0)
+
+
+def _scat_ys(p):
+    """build lr: a rising cloud of six dots -- slope c, a little scatter either
+    side of it, so the picture looks like real data instead of a ruler."""
+    return [p["c"] * x + 2 + j for x, j in zip(_SCAT_X, _SCAT_JIT)]
+
+
+def _scat_points(p):
+    return ",".join(f"({x},{y})" for x, y in zip(_SCAT_X, _scat_ys(p)))
+
+
+def _scat_at(p):
+    """The y of the dot the question asks about (the child who practiced a hours)."""
+    return _scat_ys(p)[_SCAT_X.index(p["a"])]
+
+
+def _scat_next(p):
+    """The y of the dot ONE TO THE RIGHT -- the misread-the-wrong-dot tap."""
+    i = _SCAT_X.index(p["a"])
+    ys = _scat_ys(p)
+    return ys[i + 1] if i + 1 < len(ys) else ys[i - 1]
+
+
 def _gcd(a, b):
     """math.gcd without the import ceremony (build la -- gcfx's honesty check:
     the pulled-out factor must be the WHOLE common factor)."""
@@ -9829,6 +11021,29 @@ def _prime_factors(n):
     if n > 1:
         out.append(n)
     return out
+
+
+def _fact(n):
+    """n factorial -- how many orders n things can stand in. Used by the
+    Pre-Calc U8 counting op (build lp)."""
+    out = 1
+    for i in range(2, int(n) + 1):
+        out *= i
+    return out
+
+
+def _npr(n, k):
+    """Line-ups: n things, k picked, ORDER counted. n * (n-1) * ... k terms."""
+    out = 1
+    for i in range(int(k)):
+        out *= int(n) - i
+    return out
+
+
+def _ncr(n, k):
+    """Teams: n things, k picked, order IGNORED -- the line-ups divided by the
+    k! orders each team could have been picked in. Whole by construction."""
+    return _npr(n, k) // _fact(k)
 
 
 OP_EXT = {
@@ -14663,7 +15878,690 @@ OP_EXT = {
                            (round((p["a"] * p["a"]
                                    + p["b"] * p["b"]) ** 0.5)),
     },
+    # ---- build lp: Pre-Calc U8 Sequences, Series & the Binomial Theorem ---
+    "gsum": {  # a FINITE geometric sum: the run of terms, added up
+        "ans": lambda p: (p["a"] * (p["b"] ** p["c"] - 1) // (p["b"] - 1)),
+        "spoken": lambda p: (f"A pattern starts at {p['a']}, and each term "
+                             f"is {p['b']} times the one before. Put the "
+                             f"first {p['c']} terms together. What is the "
+                             f"sum?"),
+        # Raw givens: start, ratio, how many. Writing the terms out would do
+        # the adding for them.
+        "board": lambda p: (f'[[step eq="start {p["a"]} · times {p["b"]} '
+                            f'each step · {p["c"]} terms"]]'
+                            f'[[step eq="sum = ?"]]'),
+        "praise": lambda p: (f"The terms are "
+                             + ", ".join(str(p["a"] * p["b"] ** i)
+                                         for i in range(p["c"]))
+                             + f" — put together, "
+                             f"{p['a'] * (p['b'] ** p['c'] - 1) // (p['b'] - 1)}. "
+                             f"The last term alone is only "
+                             f"{p['a'] * p['b'] ** (p['c'] - 1)}, and a "
+                             f"pattern that never grew would have stopped "
+                             f"at {p['a'] * p['c']}."),
+        "key": lambda p: (p["a"] * (p["b"] ** p["c"] - 1) // (p["b"] - 1)),
+        # The errors: the LAST TERM handed back as the sum, and the
+        # arithmetic habit -- the start counted c times.
+        "choices": lambda p: [(p["a"] * (p["b"] ** p["c"] - 1)
+                               // (p["b"] - 1)),
+                              p["a"] * p["b"] ** (p["c"] - 1),
+                              p["a"] * p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (p["b"] in (2, 3) and 2 <= p["a"] <= 6
+                            and 3 <= p["c"] <= 5
+                            and (p["a"] * (p["b"] ** p["c"] - 1)
+                                 // (p["b"] - 1)) <= 100
+                            and len({(p["a"] * (p["b"] ** p["c"] - 1)
+                                      // (p["b"] - 1)),
+                                     p["a"] * p["b"] ** (p["c"] - 1),
+                                     p["a"] * p["c"]}) == 3,
+                            "a friendly ratio, at least three terms, a sum "
+                            "at 100 or under, and three distinct taps"),
+    },
+    "sigm": {  # sigma notation read as an instruction: sum of a*k, k = 1..b
+        "ans": lambda p: p["a"] * p["b"] * (p["b"] + 1) // 2,
+        "spoken": lambda p: (f"Read this instruction: the sum, for k going "
+                             f"from 1 up to {p['b']}, of {p['a']} times k. "
+                             f"What is the sum?"),
+        "board": lambda p: (f'[[step eq="Σ (k = 1 → {p["b"]}) of '
+                            f'{p["a"]}k = ?"]]'),
+        "praise": lambda p: (f"Every term carries the {p['a']}, so pull it "
+                             f"out front: 1 up to {p['b']} sums to "
+                             f"{p['b'] * (p['b'] + 1) // 2}, and {p['a']} "
+                             f"times that is "
+                             f"{p['a'] * p['b'] * (p['b'] + 1) // 2}. The "
+                             f"bare sum {p['b'] * (p['b'] + 1) // 2} forgot "
+                             f"the {p['a']}, and {p['a'] * p['b']} is only "
+                             f"the last term."),
+        "key": lambda p: p["a"] * p["b"] * (p["b"] + 1) // 2,
+        # The errors: the multiplier dropped (Gauss's bare sum), and the
+        # LAST TERM answered instead of the sum.
+        "choices": lambda p: [p["a"] * p["b"] * (p["b"] + 1) // 2,
+                              p["b"] * (p["b"] + 1) // 2,
+                              p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 3 <= p["b"] <= 12
+                            and p["a"] * p["b"] * (p["b"] + 1) // 2 <= 200
+                            and len({p["a"] * p["b"] * (p["b"] + 1) // 2,
+                                     p["b"] * (p["b"] + 1) // 2,
+                                     p["a"] * p["b"]}) == 3,
+                            "the sum stays at 200 or under, and the full "
+                            "sum, the bare sum and the last term differ"),
+    },
+    "pasc": {  # n choose k: the count when ORDER does not matter
+        "ans": lambda p: (_ncr(p["a"], p["b"])),
+        "spoken": lambda p: (f"A team of {p['b']} is chosen from {p['a']} "
+                             f"people, and the order they are picked in "
+                             f"does not matter. How many different teams "
+                             f"are possible?"),
+        "board": lambda p: (f'[[step eq="choose {p["b"]} from {p["a"]} · '
+                            f'order does not matter"]]'
+                            f'[[step eq="teams = ?"]]'),
+        "praise": lambda p: (f"Picking in order would give "
+                             f"{_npr(p['a'], p['b'])} line-ups, but every "
+                             f"team of {p['b']} shows up "
+                             f"{_fact(p['b'])} times in that list — once "
+                             f"per order. Divide: "
+                             f"{_npr(p['a'], p['b'])} divided by "
+                             f"{_fact(p['b'])} equals "
+                             f"{_ncr(p['a'], p['b'])} teams."),
+        "key": lambda p: _ncr(p["a"], p["b"]),
+        # The errors: ORDER counted (the line-up count), and the crowd size
+        # handed back.
+        "choices": lambda p: [_ncr(p["a"], p["b"]), _npr(p["a"], p["b"]),
+                              p["a"]],
+        "check": lambda p: (4 <= p["a"] <= 10 and p["b"] in (2, 3)
+                            and _ncr(p["a"], p["b"]) <= 100
+                            and len({_ncr(p["a"], p["b"]),
+                                     _npr(p["a"], p["b"]), p["a"]}) == 3,
+                            "a small crowd, teams of two or three, and the "
+                            "team count, the line-up count and the crowd "
+                            "are three different numbers"),
+    },
+    "gser": {  # the INFINITE halving series: it settles on twice the first
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: (f"A ball's first bounce carries it {p['a']} "
+                             f"feet, and every bounce after that carries it "
+                             f"half as far — forever. How far does it "
+                             f"travel in all?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} + {p["a"] // 2} + '
+                            f'{p["a"] // 4} + … forever"]]'
+                            f'[[step eq="in all = ?"]]'),
+        "praise": lambda p: (f"Add forever and it still settles: {p['a']} "
+                             f"plus {p['a'] // 2} plus {p['a'] // 4}, on "
+                             f"and on, closes in on {2 * p['a']} — twice "
+                             f"the first bounce, and never a foot more. "
+                             f"{p['a']} is the first bounce alone, and "
+                             f"{p['a'] // 2} is only the second."),
+        "key": lambda p: p["a"],
+        # The errors: the first bounce alone, and the second one.
+        "choices": lambda p: [2 * p["a"], p["a"], p["a"] // 2],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 4 == 0 and 8 <= p["a"] <= 60
+                            and p["b"] == 0,
+                            "a first bounce that halves twice cleanly, so "
+                            "the written-out sum stays whole"),
+    },
+    # ---- build lp: Pre-Calc U9 Introduction to Limits ---------------------
+    "lsub": {  # the friendly limit: walk x in, and the value walks in too
+        "ans": lambda p: p["a"] * p["b"] + p["c"],
+        "spoken": lambda p: (f"As x creeps closer and closer to {p['a']}, "
+                             f"what number does {p['b']} x plus {p['c']} "
+                             f"creep toward?"),
+        "board": lambda p: (f'[[step eq="y = {p["b"]}x + {p["c"]}"]]'
+                            f'[[step eq="x → {p["a"]} · y → ?"]]'),
+        "praise": lambda p: (f"Nothing breaks at x equals {p['a']}, so the "
+                             f"value walks in with x: {p['b']} times "
+                             f"{p['a']} is {p['a'] * p['b']}, plus "
+                             f"{p['c']} — {p['a'] * p['b'] + p['c']}. For a "
+                             f"line, the limit is simply where the line "
+                             f"already is."),
+        "key": lambda p: p["a"] * p["b"] + p["c"],
+        # The errors: x itself handed back, and the times read as a plus.
+        "choices": lambda p: [p["a"] * p["b"] + p["c"], p["a"],
+                              p["b"] + p["c"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and 1 <= p["c"] <= 9
+                            and p["a"] * p["b"] + p["c"] <= 90
+                            and len({p["a"] * p["b"] + p["c"], p["a"],
+                                     p["b"] + p["c"]}) == 3,
+                            "small whole numbers, and the value, the x and "
+                            "the added pair are three different taps"),
+    },
+    "lhol": {  # the hole: undefined AT the point, perfectly clear around it
+        "ans": lambda p: 2 * p["a"],
+        "spoken": lambda p: (f"y equals: x squared take away "
+                             f"{p['a'] * p['a']}, all divided by x take "
+                             f"away {p['a']}. At x equals {p['a']} it is "
+                             f"undefined. As x creeps toward {p['a']}, what "
+                             f"number does y creep toward?"),
+        "board": lambda p: (f'[[step eq="y = (x² − {p["a"] * p["a"]}) ÷ '
+                            f'(x − {p["a"]})"]]'
+                            f'[[step eq="x → {p["a"]} · y → ?"]]'),
+        "praise": lambda p: (f"Everywhere except {p['a']}, that fraction "
+                             f"quietly equals x plus {p['a']} — so as x "
+                             f"creeps toward {p['a']}, y creeps toward "
+                             f"{2 * p['a']}. The function has a hole there "
+                             f"and never reaches the value; the limit says "
+                             f"where it was headed."),
+        "key": lambda p: p["a"],
+        # The errors: the forbidden x itself, and "undefined must mean
+        # zero".
+        "choices": lambda p: [2 * p["a"], p["a"], 0],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 20 and p["b"] == 0,
+                            "a whole hole between 2 and 20, and no second "
+                            "number"),
+    },
+    "lsid": {  # one-sided limits: the two sides can disagree
+        "ans": lambda p: (p["a"] if p["c"] == 0 else p["b"]),
+        "spoken": lambda p: (f"y is {p['a']} when x is below 6, and "
+                             f"{p['b']} when x is 6 or more. Creeping up on "
+                             f"6 from the "
+                             + ("LEFT" if p["c"] == 0 else "RIGHT")
+                             + ", what value does y creep toward?"),
+        "board": lambda p: (f'[[step eq="x < 6 → y = {p["a"]} · x ≥ 6 → '
+                            f'y = {p["b"]}"]]'
+                            + '[[step eq="from the '
+                            + ("left" if p["c"] == 0 else "right")
+                            + ' · y → ?"]]'),
+        "praise": lambda p: ((f"From the left, every x is below 6, so y is "
+                              f"{p['a']} the whole way in — the limit from "
+                              f"that side is {p['a']}. The other side would "
+                              f"say {p['b']}, and the two do not have to "
+                              f"agree.")
+                             if p["c"] == 0 else
+                             (f"From the right, every x is 6 or more, so y "
+                              f"is {p['b']} the whole way in — the limit "
+                              f"from that side is {p['b']}. The other side "
+                              f"would say {p['a']}, and the two do not have "
+                              f"to agree.")),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the OTHER side's value, and splitting the difference
+        # -- a limit is not an average.
+        "choices": lambda p: [(p["a"] if p["c"] == 0 else p["b"]),
+                              (p["b"] if p["c"] == 0 else p["a"]),
+                              (p["a"] + p["b"]) // 2],
+        "check": lambda p: (2 <= p["a"] <= 30 and 2 <= p["b"] <= 30
+                            and (p["a"] + p["b"]) % 2 == 0
+                            and abs(p["a"] - p["b"]) >= 4
+                            and 6 not in (p["a"], p["b"])
+                            and p["c"] in (0, 1),
+                            "two clearly different heights whose midpoint "
+                            "lands whole, neither of them 6 -- that is the "
+                            "border's own number -- so all three taps are "
+                            "visible and nothing reads twice"),
+    },
+    "avgr": {  # average rate of change of x^2 -- the derivative, previewed
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"On the curve y equals x squared, x moves "
+                             f"from {p['a']} to {p['b']}. For each step of "
+                             f"x, how much does y rise on average?"),
+        "board": lambda p: (f'[[step eq="y = x² · x from {p["a"]} to '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="rise per step of x = ?"]]'),
+        "praise": lambda p: (f"y climbs from {p['a'] * p['a']} to "
+                             f"{p['b'] * p['b']} — a rise of "
+                             f"{p['b'] * p['b'] - p['a'] * p['a']} — while "
+                             f"x moves {p['b'] - p['a']}. Divide: "
+                             f"{p['a'] + p['b']} per step, which is simply "
+                             f"{p['a']} plus {p['b']}. The rise alone and "
+                             f"the run alone are only halves of the "
+                             f"story."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the RUN alone, and the RISE alone -- the two halves of
+        # a slope, each mistaken for the whole.
+        "choices": lambda p: [p["a"] + p["b"], p["b"] - p["a"],
+                              p["b"] * p["b"] - p["a"] * p["a"]],
+        "check": lambda p: (1 <= p["a"] and p["a"] + 2 <= p["b"] <= 12
+                            and len({p["a"] + p["b"], p["b"] - p["a"],
+                                     p["b"] * p["b"]
+                                     - p["a"] * p["a"]}) == 3,
+                            "a window at least two wide, so the slope, the "
+                            "run and the rise are three different numbers"),
+    },
+    # ---- build lq: Probability & Statistics U1 Exploring Data -------------
+    "dotm": {  # the MODE off a dot plot: the value under the stack, not the count
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: ("This dot plot shows how many books each child "
+                             "read last month. Which number of books is the "
+                             "MODE — the number that the most children "
+                             "read?"),
+        "board": lambda p: (f'[[dotplot values="{_dotmode(p)}"]]'
+                            f'[[step eq="the mode = ?"]]'),
+        "praise": lambda p: (f"The tallest stack sits over {p['a']}, and it "
+                             f"holds {p['b']} dots — so {p['b']} children "
+                             f"read {p['a']} books each. The mode is the "
+                             f"value UNDER the stack, {p['a']}, never the "
+                             f"{p['b']} children standing on it."),
+        "key": lambda p: p["a"],
+        # The errors: the COUNT answered instead of the value (the classic),
+        # and the biggest value on the line.
+        "choices": lambda p: [p["a"], p["b"], p["a"] + 2],
+        # Every number lives on the board; the question names none of them.
+        "speaks": lambda p, sp: True,
+        "check": lambda p: (5 <= p["a"] <= 20 and 3 <= p["b"] <= 6
+                            and len({p["a"], p["b"], p["a"] + 2}) == 3,
+                            "a clear tallest stack, and the value, the count "
+                            "and the top of the line are three different "
+                            "taps"),
+    },
+    "dcnt": {  # counting a SLICE of a dot plot, with a dot on the line itself
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: (f"This dot plot shows the goals each player "
+                             f"scored. How many players scored MORE than "
+                             f"{p['a']} goals?"),
+        "board": lambda p: (f'[[dotplot values="{_dotcut(p)}"]]'
+                            f'[[step eq="more than {p["a"]} · how many '
+                            f'players?"]]'),
+        "praise": lambda p: (f"Count only the dots to the RIGHT of {p['a']}: "
+                             f"there are {p['b']}. The dot standing exactly "
+                             f"on {p['a']} does not join them — {p['a']} is "
+                             f"not more than {p['a']} — and the {p['c']} "
+                             f"dots below answer the opposite question."),
+        "key": lambda p: p["b"],
+        # The errors: the dot ON the line counted too, and the other side
+        # counted.
+        "choices": lambda p: [p["b"], p["b"] + 1, p["c"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (5 <= p["a"] <= 20 and 4 <= p["b"] <= 8
+                            and 3 <= p["c"] <= 9
+                            and len({p["b"], p["b"] + 1, p["c"]}) == 3,
+                            "dots on both sides and one on the line, and "
+                            "three distinct taps"),
+    },
+    "htot": {  # how many in all, from a histogram: add the printed bars
+        "ans": lambda p: p["a"] + p["b"] + p["c"],
+        "spoken": lambda p: ("This histogram sorts the scores into groups, "
+                             "and each bar carries its count printed on "
+                             "top. How many scores are shown in all?"),
+        "board": lambda p: (f'[[histogram values="{_histvals(p)}"]]'
+                            f'[[step eq="how many scores in all?"]]'),
+        "praise": lambda p: (f"Add the bars: {p['a']} plus {p['b']} plus "
+                             f"{p['c']} equals {p['a'] + p['b'] + p['c']}. "
+                             f"The tallest bar alone holds only "
+                             f"{max(p['a'], p['b'], p['c'])}, and the "
+                             f"number of bars is not the number of "
+                             f"scores."),
+        "key": lambda p: p["a"] + p["b"] + p["c"],
+        # The errors: the tallest bar answered, and the BARS counted instead
+        # of what stands in them.
+        "choices": lambda p: [p["a"] + p["b"] + p["c"],
+                              max(p["a"], p["b"], p["c"]), 3],
+        "speaks": lambda p, sp: True,
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and 2 <= p["c"] <= 9
+                            and p["a"] + p["b"] + p["c"] <= 27
+                            and len({p["a"] + p["b"] + p["c"],
+                                     max(p["a"], p["b"], p["c"]), 3}) == 3,
+                            "three readable bars whose sum, tallest bar and "
+                            "bar count are three different numbers"),
+    },
+    "farv": {  # SPOTTING the outlier -- alg1's outl showed what one does
+        "ans": lambda p: p["b"],
+        "spoken": lambda p: ("This dot plot shows how many minutes each "
+                             "child took. One value sits far away from all "
+                             "the others — the outlier. What is that "
+                             "value?"),
+        "board": lambda p: (f'[[dotplot values="{_farlist(p)}"]]'
+                            f'[[step eq="the outlier = ?"]]'),
+        "praise": lambda p: (f"Nearly every dot crowds around {p['a']}, and "
+                             f"one sits alone out at {p['b']} — that stray "
+                             f"is the outlier. {p['a']} is where the crowd "
+                             f"is, and {p['b'] - p['a']} is only how far "
+                             f"the stray sits from it."),
+        "key": lambda p: p["b"],
+        # The errors: the CROWD's value, and the GAP between them.
+        "choices": lambda p: [p["b"], p["a"], p["b"] - p["a"]],
+        "speaks": lambda p, sp: True,
+        "check": lambda p: (5 <= p["a"] <= 15 and p["a"] + 12 <= p["b"] <= 40
+                            and len({p["b"], p["a"],
+                                     p["b"] - p["a"]}) == 3,
+                            "a stray far enough out to be unmistakable, and "
+                            "three distinct taps"),
+    },
+    # ---- build lq: Probability & Statistics U2 Describing Distributions ---
+    "medv": {  # the median of an EVEN list: halfway between the two middles
+        "ans": lambda p: p["b"] + 1,
+        "spoken": lambda p: (f"Here are {2 * p['a']} numbers, smallest "
+                             f"first: {_evenlist_words(p)}. What is the "
+                             f"median?"),
+        "board": lambda p: (f'[[dotplot values="'
+                            + ",".join(str(v) for v in _evenlist(p))
+                            + f'"]][[step eq="{2 * p["a"]} numbers · no '
+                            f'single middle · median = ?"]]'),
+        "praise": lambda p: (f"An even count has no one middle: {p['b']} "
+                             f"and {p['b'] + 2} both sit there, with the "
+                             f"rest split evenly either side of the pair. "
+                             f"The median is halfway between them — "
+                             f"{p['b'] + 1} — and neither middle on its own "
+                             f"is the answer."),
+        "key": lambda p: p["b"],
+        # The errors: the lower middle, and the upper one.
+        "choices": lambda p: [p["b"] + 1, p["b"], p["b"] + 2],
+        "speaks": lambda p, sp: str(p["b"]) in sp,
+        "check": lambda p: (2 <= p["a"] <= 4
+                            and p["b"] - 2 * (p["a"] - 1) >= 2
+                            and p["b"] <= 24,
+                            "an even list that stays positive, with two "
+                            "middles two apart"),
+    },
+    "iqrw": {  # the BOX's width: the middle half, not the whole stretch
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: (f"On this box plot the box runs from {p['a']} "
+                             f"to {p['b']}, and the whiskers reach out to "
+                             f"{p['a'] - p['c']} and {p['b'] + p['c']}. How "
+                             f"wide is the BOX — the middle half of the "
+                             f"data?"),
+        "board": lambda p: (f'[[boxplot five="{p["a"] - p["c"]},{p["a"]},'
+                            f'{(p["a"] + p["b"]) // 2},{p["b"]},'
+                            f'{p["b"] + p["c"]}"]]'
+                            f'[[step eq="box width = ?"]]'),
+        "praise": lambda p: (f"The box holds the middle half, from {p['a']} "
+                             f"to {p['b']}: {p['b']} take away {p['a']} "
+                             f"equals {p['b'] - p['a']}. Whisker tip to "
+                             f"whisker tip is {p['b'] + p['c'] - p['a'] + p['c']} "
+                             f"— that is the whole stretch, a different "
+                             f"measurement, and {p['b']} alone is just the "
+                             f"box's right edge."),
+        "key": lambda p: p["b"] - p["a"],
+        # The errors: the WHOLE range (whisker to whisker), and the box's
+        # right edge read as its width.
+        "choices": lambda p: [p["b"] - p["a"],
+                              (p["b"] + p["c"]) - (p["a"] - p["c"]),
+                              p["b"]],
+        "check": lambda p: (5 <= p["a"] and p["a"] + 4 <= p["b"]
+                            and p["b"] <= p["a"] + 20
+                            and 2 <= p["c"] <= 6
+                            and (p["a"] + p["b"]) % 2 == 0
+                            and p["b"] + p["c"] <= 60
+                            and len({p["b"] - p["a"],
+                                     (p["b"] + p["c"]) - (p["a"] - p["c"]),
+                                     p["b"]}) == 3,
+                            "a real box with whiskers either side, a whole "
+                            "median to print, and three distinct taps"),
+    },
+    "madv": {  # the average distance from the mean -- deviation, in child form
+        "ans": lambda p: 2 * p["b"],
+        "spoken": lambda p: (f"Four numbers — {_madlist_words(p)} — have a "
+                             f"mean of {p['a']}. On average, how far from "
+                             f"that mean does a number sit?"),
+        "board": lambda p: (f'[[dotplot values="'
+                            + ",".join(str(v) for v in _madlist(p))
+                            + f'"]][[step eq="mean {p["a"]} · average '
+                            f'distance = ?"]]'),
+        "praise": lambda p: (f"The four distances are {3 * p['b']}, "
+                             f"{p['b']}, {p['b']} and {3 * p['b']} — put "
+                             f"together {8 * p['b']}, shared between 4: "
+                             f"{2 * p['b']}. The farthest number sits "
+                             f"{3 * p['b']} away and the nearest {p['b']}, "
+                             f"so the average distance lies between them."),
+        "key": lambda p: 2 * p["b"],
+        # The errors: the FARTHEST distance, and the nearest -- the typical
+        # distance mistaken for one of the extremes.
+        "choices": lambda p: [2 * p["b"], 3 * p["b"], p["b"]],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (2 <= p["b"] <= 6 and p["a"] - 3 * p["b"] >= 2
+                            and p["a"] <= 30,
+                            "four numbers spread evenly either side of the "
+                            "mean, all of them positive"),
+    },
+    "pctl": {  # a percentile is a PERCENT of the class, not a headcount
+        "ans": lambda p: p["a"] * p["b"] // 100,
+        "spoken": lambda p: (f"You sat a test along with {p['a']} other "
+                             f"students, and your score lands at the "
+                             f"{p['b']}th percentile — higher than "
+                             f"{p['b']} percent of them. How many of those "
+                             f"students did you beat?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} other students · '
+                            f'{p["b"]}th percentile"]]'
+                            f'[[step eq="how many beaten = ?"]]'),
+        "praise": lambda p: (f"{p['b']} percent of {p['a']} is "
+                             f"{p['a'] * p['b'] // 100}, so you beat "
+                             f"{p['a'] * p['b'] // 100} of them. The "
+                             f"{p['b']} is a PERCENT, never a headcount — "
+                             f"and the other "
+                             f"{p['a'] - p['a'] * p['b'] // 100} scored "
+                             f"above you."),
+        "key": lambda p: p["a"] * p["b"] // 100,
+        # The errors: the percentile read as a count of people, and the
+        # OTHER side of the class counted.
+        "choices": lambda p: [p["a"] * p["b"] // 100, p["b"],
+                              p["a"] - p["a"] * p["b"] // 100],
+        "check": lambda p: (20 <= p["a"] <= 60 and 10 <= p["b"] <= 90
+                            and p["b"] % 5 == 0
+                            and p["a"] * p["b"] % 100 == 0
+                            and len({p["a"] * p["b"] // 100, p["b"],
+                                     p["a"] - p["a"] * p["b"] // 100}) == 3,
+                            "a percentile that lands on a whole classmate, "
+                            "and three distinct taps"),
+    },
+    # ---- build lr: Prob & Stats U3 Scatterplots & Correlation ------------
+    "spnt": {  # read ONE dot off a scatterplot -- the axes are the trap
+        "ans": lambda p: _scat_at(p),
+        "spoken": lambda p: (f"On this scatterplot each dot is one child: "
+                             f"hours practiced across the bottom, points "
+                             f"scored up the side. One child practiced "
+                             f"{p['a']} hours. How many points did that "
+                             f"child score?"),
+        "board": lambda p: (f'[[scatter points="{_scat_points(p)}"]]'
+                            f'[[step eq="at {p["a"]} hours · points = ?"]]'),
+        "praise": lambda p: (f"Find {p['a']} along the bottom, go straight "
+                             f"up to the dot, then straight across: "
+                             f"{_scat_at(p)} points. The {p['a']} is how "
+                             f"long the child practiced — across, not up — "
+                             f"and {_scat_next(p)} belongs to the "
+                             f"neighbouring dot."),
+        "key": lambda p: p["a"],
+        # The errors: the x answered instead of the y (the axis mix-up), and
+        # the dot next door read by mistake.
+        "choices": lambda p: [_scat_at(p), p["a"], _scat_next(p)],
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] in _SCAT_X and 2 <= p["c"] <= 4
+                            and p["b"] == 0
+                            and min(_scat_ys(p)) >= 1
+                            and len({_scat_at(p), p["a"],
+                                     _scat_next(p)}) == 3,
+                            "a dot really on the plot, a cloud that stays "
+                            "positive, and three distinct taps"),
+    },
+    "sslp": {  # the fit line's slope USED -- a rate, over several steps
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"A scatterplot's best-fit line climbs "
+                             f"{p['a']} points for every extra hour of "
+                             f"practice. Nadia practices {p['b']} hours "
+                             f"more than Omar. How many more points would "
+                             f"you predict for Nadia?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} points per extra hour · '
+                            f'{p["b"]} extra hours"]]'
+                            f'[[step eq="extra points = ?"]]'),
+        "praise": lambda p: (f"The slope is a rate: {p['a']} points EACH "
+                             f"hour, so {p['b']} hours brings {p['b']} "
+                             f"times {p['a']} — {p['a'] * p['b']} points. "
+                             f"{p['a']} alone is one hour's worth, and "
+                             f"adding the two numbers treats a rate like a "
+                             f"total."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: one hour's worth handed back, and the rate ADDED to
+        # the hours instead of timesed by them.
+        "choices": lambda p: [p["a"] * p["b"], p["a"], p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 9
+                            and p["a"] * p["b"] <= 81
+                            and len({p["a"] * p["b"], p["a"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a real rate over real steps, and the total, "
+                            "the rate and their sum all differ"),
+    },
+    "resd": {  # the residual: how far the truth sits from the prediction
+        "ans": lambda p: abs(p["b"] - p["a"]),
+        "spoken": lambda p: (f"A best-fit line predicted {p['a']} points "
+                             f"for Sam. Sam actually scored {p['b']}. How "
+                             f"far off was the prediction?"),
+        "board": lambda p: (f'[[step eq="predicted {p["a"]} · actual '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="how far off = ?"]]'),
+        "praise": lambda p: (f"The gap between {p['a']} and {p['b']} is "
+                             f"{abs(p['b'] - p['a'])} — that gap has a "
+                             f"name, the residual, and every dot has one. "
+                             f"{p['b']} is what Sam scored, not how far the "
+                             f"line missed by, and putting the two numbers "
+                             f"together answers nothing at all."),
+        "key": lambda p: abs(p["b"] - p["a"]),
+        # The errors: the actual score handed back, and the two numbers
+        # added.
+        "choices": lambda p: [abs(p["b"] - p["a"]), p["b"], p["a"] + p["b"]],
+        "check": lambda p: (5 <= p["a"] <= 60 and 5 <= p["b"] <= 60
+                            and abs(p["b"] - p["a"]) >= 2
+                            and len({abs(p["b"] - p["a"]), p["b"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a real miss of at least 2, and three distinct "
+                            "taps"),
+    },
+    "sblw": {  # the fit line runs THROUGH the cloud, so both sides are full
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"A best-fit line is drawn through a "
+                             f"scatterplot's {p['a']} dots, and no dot "
+                             f"lands exactly on it. {p['b']} of the dots "
+                             f"sit above the line. How many sit below it?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} dots · {p["b"]} above the '
+                            f'line"]]'
+                            f'[[step eq="below the line = ?"]]'),
+        "praise": lambda p: (f"The line runs THROUGH the cloud, so every "
+                             f"dot is on one side or the other: {p['a']} "
+                             f"take away {p['b']} leaves "
+                             f"{p['a'] - p['b']} below. {p['b']} is the "
+                             f"side you were told about, and {p['a']} is "
+                             f"every dot on the plot."),
+        "key": lambda p: p["a"],
+        # The errors: the given side echoed back, and the whole cloud.
+        "choices": lambda p: [p["a"] - p["b"], p["b"], p["a"]],
+        "check": lambda p: (8 <= p["a"] <= 20 and 2 <= p["b"] <= p["a"] - 2
+                            and p["a"] - p["b"] != p["b"],
+                            "dots on both sides, and the two sides do not "
+                            "hold the same number"),
+    },
+    # ---- build lr: Prob & Stats U4 Collecting Data ------------------------
+    "strf": {  # a sample that keeps the school's own mix
+        "ans": lambda p: p["c"] * p["a"] // (p["a"] + p["b"]),
+        "spoken": lambda p: (f"A school has {p['a']} girls and {p['b']} "
+                             f"boys. A sample of {p['c']} students is built "
+                             f"to keep the same mix. How many girls should "
+                             f"it include?"),
+        "board": lambda p: (f'[[step eq="school: {p["a"]} girls · '
+                            f'{p["b"]} boys"]]'
+                            f'[[step eq="sample of {p["c"]} · girls = ?"]]'),
+        "praise": lambda p: (f"Girls are {p['a']} of {p['a'] + p['b']} in "
+                             f"the school, so the sample keeps that share: "
+                             f"{p['c']} times {p['a']} divided by "
+                             f"{p['a'] + p['b']} equals "
+                             f"{p['c'] * p['a'] // (p['a'] + p['b'])} "
+                             f"girls. Splitting the sample down the middle "
+                             f"would say {p['c'] // 2}, which only matches "
+                             f"a school that is half and half."),
+        "key": lambda p: p["c"] * p["a"] // (p["a"] + p["b"]),
+        # The errors: half and half whatever the school looks like, and the
+        # school's own girl count copied into the sample.
+        "choices": lambda p: [p["c"] * p["a"] // (p["a"] + p["b"]),
+                              p["c"] // 2, p["a"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp
+                                 and str(p["c"]) in sp),
+        "check": lambda p: (20 <= p["a"] <= 90 and 20 <= p["b"] <= 90
+                            and p["a"] != p["b"]
+                            and 10 <= p["c"] <= 40
+                            and p["c"] < p["a"] + p["b"]
+                            and (p["c"] * p["a"]) % (p["a"] + p["b"]) == 0
+                            and p["c"] % 2 == 0
+                            and len({p["c"] * p["a"] // (p["a"] + p["b"]),
+                                     p["c"] // 2, p["a"]}) == 3,
+                            "a school that is not half and half, a sample "
+                            "share that lands on whole children, and three "
+                            "distinct taps"),
+    },
+    "resp": {  # the response rate: what percent actually came back
+        "ans": lambda p: 100 * p["b"] // p["a"],
+        "spoken": lambda p: (f"{p['a']} surveys went out and {p['b']} came "
+                             f"back. What percent of them came back?"),
+        "board": lambda p: (f'[[step eq="{p["b"]} back out of {p["a"]} '
+                            f'sent"]]'
+                            f'[[step eq="percent returned = ?"]]'),
+        "praise": lambda p: (f"{p['b']} out of {p['a']} is "
+                             f"{100 * p['b'] // p['a']} percent — that is "
+                             f"the response rate, and a low one is a "
+                             f"warning: the people who never answer may not "
+                             f"think like the people who did. {p['b']} is a "
+                             f"count of surveys, and "
+                             f"{p['a'] - p['b']} is how many stayed out "
+                             f"there."),
+        "key": lambda p: 100 * p["b"] // p["a"],
+        # The errors: the COUNT returned given as a percent, and the count
+        # that never came back.
+        "choices": lambda p: [100 * p["b"] // p["a"], p["b"],
+                              p["a"] - p["b"]],
+        "check": lambda p: (20 <= p["a"] <= 200 and 2 <= p["b"] < p["a"]
+                            and (100 * p["b"]) % p["a"] == 0
+                            and 100 * p["b"] // p["a"] >= 10
+                            and len({100 * p["b"] // p["a"], p["b"],
+                                     p["a"] - p["b"]}) == 3,
+                            "a rate that lands on a whole percent, and "
+                            "three distinct taps"),
+    },
+    "bias": {  # undercoverage: who never had a chance of being asked at all
+        "ans": lambda p: p["b"] - p["a"],
+        "spoken": lambda p: (f"A lunch survey is handed only to the "
+                             f"{p['a']} students in the cafeteria, in a "
+                             f"school of {p['b']}. How many students never "
+                             f"had a chance to be asked?"),
+        "board": lambda p: (f'[[step eq="asked: {p["a"]} in the cafeteria · '
+                            f'school: {p["b"]}"]]'
+                            f'[[step eq="never had a chance = ?"]]'),
+        "praise": lambda p: (f"{p['b']} take away {p['a']} leaves "
+                             f"{p['b'] - p['a']} students it could never "
+                             f"reach — and the ones who bring lunch from "
+                             f"home are just the ones it misses. A sample "
+                             f"that cannot reach everyone is biased."),
+        "key": lambda p: p["b"] - p["a"],
+        # The errors: the asked group, and the whole school.
+        "choices": lambda p: [p["b"] - p["a"], p["a"], p["b"]],
+        "check": lambda p: (20 <= p["a"] <= 200 and p["a"] + 20 <= p["b"]
+                            and p["b"] <= 400
+                            and p["b"] - p["a"] != p["a"]
+                            and len({p["b"] - p["a"], p["a"],
+                                     p["b"]}) == 3,
+                            "a school clearly bigger than the group asked, "
+                            "and three distinct taps"),
+    },
+    "merr": {  # four times the people to halve the margin -- not twice
+        "ans": lambda p: 4 * p["a"],
+        "spoken": lambda p: (f"A sample of {p['a']} people gives a margin "
+                             f"of error of about {p['b']} points. To cut "
+                             f"that margin in HALF you need four times as "
+                             f"many people. How many people is that?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} people → margin '
+                            f'{p["b"]} points"]]'
+                            f'[[step eq="half the margin → ? people"]]'),
+        "praise": lambda p: (f"Four times {p['a']} is {4 * p['a']} people. "
+                             f"Accuracy comes slowly: doubling to "
+                             f"{2 * p['a']} does NOT halve the margin, it "
+                             f"only shaves it a little. Every extra digit "
+                             f"of certainty costs far more people than the "
+                             f"last one did."),
+        "key": lambda p: p["a"],
+        # The errors: DOUBLING (the linear guess, and the whole lesson), and
+        # the margin itself answered instead of a headcount.
+        "choices": lambda p: [4 * p["a"], 2 * p["a"], p["b"]],
+        "speaks": lambda p, sp: (str(p["a"]) in sp and str(p["b"]) in sp),
+        "check": lambda p: (25 <= p["a"] <= 250 and 2 <= p["b"] <= 9
+                            and 4 * p["a"] <= 1000
+                            and len({4 * p["a"], 2 * p["a"], p["b"]}) == 3,
+                            "a sample that can afford to quadruple, and "
+                            "three distinct taps"),
+    },
 }
+
+
+
 
 
 # =============================================================================

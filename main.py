@@ -2,6 +2,42 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23lr-two-numbers-at-once". BUILD lr --
+#               PROB & STATS UNITS 3 AND 4 (Scatterplots & Correlation;
+#               Collecting Data). 228 lessons -> 236, 217 ops -> 225. NOTHING
+#               IN THIS FILE CHANGED but this note and the stamp -- the course
+#               grew in lessonscripts.py (ops spnt/sslp/resd/sblw and strf/
+#               resp/bias/merr, plus three scatter helpers). U3: read one dot,
+#               the slope as a rate, residuals, and the line through the
+#               cloud. U4: stratified samples, response rate, undercoverage,
+#               and four times the people for half the margin. [[scatter]]
+#               used for the first time (with fit="true" in teach only -- it
+#               prints the line's equation).
+#   2026-08-23  APP_BUILD -> "2026-08-23lq-statistics-opens". BUILD lq --
+#               ⭐ PROBABILITY & STATISTICS OPENS, THE TENTH COURSE (U1
+#               Exploring Data; U2 Describing Distributions). 220 lessons ->
+#               228, 209 ops -> 217. NOTHING IN THIS FILE CHANGED but this
+#               note and the stamp -- the course grew in lessonscripts.py
+#               (ops dotm/dcnt/htot/farv and medv/iqrw/madv/pctl, plus six
+#               list helpers). U1 reads the PICTURE: the mode under the
+#               tallest stack, a counted slice with a dot on the line, a
+#               histogram's bars added, an outlier spotted. U2 puts numbers
+#               on the shape: the even-length median, the box plot's middle
+#               half, the average distance from the mean, and percentiles.
+#               [[histogram]] and [[boxplot]] used for the first time.
+#   2026-08-22  APP_BUILD -> "2026-08-22lp-precalc-complete". BUILD lp --
+#               ⭐ PRE-CALC COMPLETE (U8 Sequences, Series & the Binomial
+#               Theorem; U9 Introduction to Limits). 212 lessons -> 220, 201
+#               ops -> 209. NOTHING IN THIS FILE CHANGED but this note and
+#               the stamp -- the course grew in lessonscripts.py (ops gsum/
+#               sigm/pasc/gser and lsub/lhol/lsid/avgr, plus the _fact/_npr/
+#               _ncr helpers). U8: geometric sums, sigma as an instruction,
+#               choosing when order does not matter, and an infinite halving
+#               series that settles. U9: limits by substitution, the hole,
+#               one-sided disagreement, and the average rate of change over a
+#               shrinking window -- the derivative, handed to Calculus.
+#               NINE COURSES DONE; only Probability & Statistics, Calculus
+#               and Differential Equations remain unopened.
 #   2026-08-22  APP_BUILD -> "2026-08-22lo-the-work-clothes-and-the-equation".
 #               BUILD lo -- PRE-CALC UNITS 6 AND 7 (Applications of
 #               Trigonometry; Conic Sections & Parametric Equations). 204
@@ -10272,7 +10308,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-22lo-the-work-clothes-and-the-equation"
+APP_BUILD = "2026-08-23lr-two-numbers-at-once"
 
 
 @app.get("/health")
