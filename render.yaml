@@ -11,9 +11,15 @@
 #               The curriculum is now COMPLETE at 328 lessons, whose deduped audio
 #               closure is 29,326 unique lines = 3,662,898 characters ~= 3,738 MB
 #               of mp3 at 128 kbps. So the two numbers that must agree are here
-#               together now: sizeGB: 5 (5,120 MB) and TTS_CACHE_MAX_MB 4500,
-#               leaving ~620 MB for the nightly DB snapshots and ~762 MB of room
-#               for the generated (non-scripted) voice lane before eviction.
+#               together now: sizeGB: 10 (10,240 MB) and TTS_CACHE_MAX_MB 6000.
+#               ⚠️ THE 3,738 MB FIGURE THIS NOTE FIRST CARRIED WAS ITSELF WRONG --
+#               it came from the projection main.py build mf later found to be 35%
+#               light. Measured against clips actually on disk, the finished course
+#               is ~4,345 MB. Hence 10 GB and a 6,000 MB cap rather than 5 and
+#               4,500: the course sits 1,655 MB under the cap (room for ~125 more
+#               lessons before anyone has to think about this again), a cull leaves
+#               455 MB of generated voice standing, and 4,240 MB of disk remains for
+#               the nightly DB snapshots.
 #               Raising the cap alone is NOT enough -- see main.py build me, where
 #               the evictor's flat 80%-of-cap target was found to sit BELOW the
 #               course it was supposed to protect.
@@ -95,7 +101,7 @@ services:
       - key: DATA_DIR
         value: /var/data       # MUST match the disk mount below: voice cache + nightly DB snapshots
       - key: TTS_CACHE_MAX_MB
-        value: "4500"          # 2026-08-23: the finished course is 3,738 MB of mp3. This cap must
+        value: "6000"          # 2026-08-23: the finished course is ~4,345 MB of mp3. This cap must
                                # leave the course room AND fit inside sizeGB below. See the note at top.
       # Optional tuning vars production also understands (set in the dashboard as needed):
       #   OPENAI_AUDIT_MODEL (default gpt-4.1) · AUDIT_TURNS · USAGE_LOG_DAYS (180)
@@ -104,5 +110,5 @@ services:
     disk:                      # 2026-08-11: the persistent disk (survives every deploy)
       name: data
       mountPath: /var/data
-      sizeGB: 5                # 2026-08-23: was 1 -- see the change note at the top
+      sizeGB: 10               # 2026-08-23: was 1, then 5 -- see the change note at the top
 # I did no harm and this file is not truncated.
