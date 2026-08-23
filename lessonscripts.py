@@ -2,6 +2,170 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD md -- ⭐⭐ THE CURRICULUM IS COMPLETE. DIFFEQ UNIT 9
+#               (Nonlinear Systems & Stability). 324 lessons -> 328, 317 ops
+#               (lnrz, prey, cycl, chao). THIRTEEN COURSES, NINE UNITS EACH
+#               WHERE THE CURRICULUM CALLS FOR IT, AND THE ARC THAT OPENED
+#               WITH COUNTING CLOSES HERE.
+#               U9 -- almost nothing in the world is linear, and Unit 8's
+#               neat straight-line systems look like a special case until
+#               you see the rescue: zoom in far enough on any curve and it
+#               becomes its own tangent, so close to an equilibrium every
+#               curved law behaves like a straight one. Then the most famous
+#               nonlinear system there is -- rabbits and foxes, where the
+#               eating depends on BOTH numbers at once and neither is steady
+#               on its own. Then what such a system does that no linear one
+#               can: it circles, for ever, with the foxes always peaking a
+#               quarter of a cycle behind the rabbits.
+#               And then the last lesson in the course, which is deliberately
+#               the strangest: two forecasts start almost the same, the gap
+#               multiplies every day, and after a week it is out of sight.
+#               Nothing random, nothing unknown, the equation exact -- and
+#               still no forecast. A child who has come the whole way from
+#               counting to here finishes by learning where prediction stops.
+#               ⚠️ ONE CATCH WORTH THE WHOLE READ-ALOUD HABIT. lnrz's first
+#               draft let its two numbers float free, so it cheerfully said
+#               "the law 6 take away P squared has its equilibrium at P
+#               equals 6" -- which is false; the equilibrium is the square
+#               root of the constant. The check now requires a == b*b, so
+#               the story cannot contradict its own algebra. Also caught:
+#               two rule-14 symbols that only appeared in the plural or not
+#               at all, one teach beat walking its own bank tuple (cycl),
+#               two lessons over the closure pin, and chao saying the gap
+#               "doubled its way out of sight" when in most of its bank it
+#               triples or quintuples.
+#   2026-08-23  BUILD mc -- DIFFEQ UNITS 7 AND 8: TURN IT INTO ALGEBRA, AND
+#               FOLLOW TWO THINGS AT ONCE. 316 lessons -> 324, 313 ops
+#               (lder, lalg, lshf, lfin + sysx, nucl, detm, eign).
+#               U7 -- the Laplace transform, taught as what it actually is:
+#               a way to solve a differential equation by turning it into
+#               something that is not one. The derivative rule (a derivative
+#               becomes a MULTIPLICATION, which is the whole reason it
+#               works), the plain algebra left behind, the shift rule and
+#               what a pole means (right of zero it grows, left of zero it
+#               dies), and the final-value theorem -- where a thing settles,
+#               read straight off the transform with no inverting at all.
+#               U8 -- Unit 1's slope field one dimension up: two quantities
+#               changing together, each watching the other. Reading the
+#               system at a point, the nullclines where one arrow goes flat
+#               (and their crossing, which is an equilibrium), the
+#               determinant that classifies the whole picture, and the pair
+#               of eigenvalues that decide it.
+#               ⚠️ U8 WAS DELIBERATELY KEPT OFF b² − 4c. U5's char already
+#               computes that discriminant and Algebra II's disc computes it
+#               too; a third pass would have been the same subtraction in a
+#               new hat. So U8 runs on the trace and the DETERMINANT
+#               instead, and the classification is what those numbers mean.
+#               Catches: two rule-14 misses where the symbol appeared only
+#               hyphenated ("x-nullcline" is not " nullcline "); one teach
+#               beat walking its own bank tuple (eign); "the total" and
+#               "altogether" both written into ops and caught by the sweep;
+#               and one read-aloud fix worth keeping -- lfin said "Y is 96
+#               over s, times s plus 8", which spoken aloud is (96/s)(s+8),
+#               the wrong expression. The board had it right and the speech
+#               did not. It now names which parts are underneath.
+#   2026-08-23  BUILD mb -- DIFFEQ UNITS 5 AND 6: ONE NUMBER DECIDES, AND
+#               NOW SOMEBODY IS PUSHING. 308 lessons -> 316, 305 ops (char,
+#               cdmp, natf, oscf + part, trns, reso, damp).
+#               U5 -- second-order equations describe everything that swings,
+#               and each hides a quadratic. Algebra II's discriminant comes
+#               back, but now its SIGN is a physical case: above zero the
+#               door closes without a wobble. Exactly zero is critical
+#               damping, the knife-edge every door closer is built to sit
+#               on. Strip the damping and the spring rocks at its natural
+#               frequency for ever. Put a little back and -- the surprise --
+#               the rocking gets SLOWER, not just smaller.
+#               U6 -- a steady push settles at a steady height (guess the
+#               shape, let the equation fix the size); the transient is
+#               whatever the start is not explained by, which is why a
+#               spring forgets how it was let go; a push at the object's own
+#               frequency has nothing left to divide by and grows without
+#               stopping; and damping is the only thing standing between
+#               resonance and ruin.
+#               ⚠️ THE b=0 TRAP, THIRD BUILD RUNNING -- AND THIS TIME IT WAS
+#               CAUGHT AND MISSED IN THE SAME BUILD. natf got its speaks
+#               override at authoring; cdmp, written twenty minutes later,
+#               did not. Its bank then HALF passed, because a=10 and a=20
+#               carry a "0" of their own. Both ops now carry the comment.
+#               Also: reso's second tap was the gap itself, which sat at 3
+#               beside an answer of 47 -- the small-end wasted tap for the
+#               fifth build running; it became "divided by the driver
+#               instead of the gap", which scales. Four teach beats walked
+#               their own bank tuples (cdmp, natf, oscf, damp) -- the
+#               teach-beat audit earns its place every single build now.
+#               And two read-aloud catches the validator cannot see: reso
+#               said the swing "has no size at all -- it just grows", which
+#               contradicts itself; and cdmp first demoed a middle number of
+#               4, the one value where a squared over 4 is 4 as well, so the
+#               rule looked like "copy it down" -- revo's degenerate-demo
+#               lesson, learned again.
+#   2026-08-23  BUILD ma -- DIFFEQ UNITS 3 AND 4: KNOWING THE SHAPE WITHOUT
+#               SOLVING, AND WALKING IT WHEN YOU CANNOT. 300 lessons -> 308,
+#               297 ops (logi, carr, fast, away + eulr, estp, rk4, evls).
+#               U3 -- qualitative analysis, which is the art of refusing to
+#               solve. The logistic rate read straight off the law (and
+#               dying at BOTH ends), the non-obvious place growth peaks
+#               (halfway, not near the top -- a crowd gets in its own way),
+#               how big that peak is, and the other kind of equilibrium:
+#               one that pushes away instead of pulling in, which is why a
+#               pencil will not stand on its point.
+#               U4 -- Euler commits to the slope it read at the START of a
+#               step and always lands low on a curve that bends up; its
+#               error follows the step size exactly, which is a poor
+#               bargain; fourth-order Runge-Kutta divides its error by
+#               SIXTEEN where Euler manages two; and the fine print, which
+#               is that accuracy is paid for in slope evaluations.
+#               ⚠️ THE b=0 TRAP LANDED AGAIN. rk4 is a b=0 op and the
+#               default rule-44 check demands the digit "0" in speech that
+#               never says zero -- so a=80 and a=160 PASSED by accident
+#               while a=32 failed, which is the nastiest shape this bug
+#               takes. Every handoff since lw has named it and it still
+#               got through. It is now commented at the op itself.
+#               Three more caught at authoring, all read-aloud only: the
+#               wasted tap at the SMALL end (lz's discovery) hit three ops
+#               at once -- away, estp and evls each had a constant of 2 to 12
+#               sitting beside answers over 140; a ceiling of 24 fish with a
+#               growth constant of 12 gave a peak rate of 72 fish a year in
+#               a pond that holds 24, so the constant is now capped at a
+#               quarter of the ceiling; and carr had "its fastest -growing
+#               size" -- a space inserted purely to satisfy rule 14, which
+#               the symbol's other appearance already covered.
+#   2026-08-23  BUILD lz -- ⭐ DIFFERENTIAL EQUATIONS OPENS, THE THIRTEENTH
+#               AND LAST COURSE. UNITS 1 AND 2: THE EQUATION AS A PICTURE,
+#               AND THE FIRST TWO METHODS THAT SOLVE ONE. 292 lessons ->
+#               300, 289 ops (slpf, slpq, isoc, fldc + sepv, sepr, newt,
+#               conc). New helper _isqrt -- a whole square root, or 0 when
+#               the number is not a perfect square; sepr needs it and a
+#               lambda cannot say "and only if it comes out whole".
+#               U1 -- classification named in passing (first order, second)
+#               and then the idea that makes the subject visible: the
+#               equation hands you a SLOPE at every point, so draw a dash
+#               there. Change the law and every dash swings. Read the field
+#               backwards and the equal dashes line up on an isocline. Then
+#               walk it: joining the dashes is not a picture of a solution,
+#               it IS one.
+#               U2 -- separate the two letters and integrate each side; do
+#               it again where the y sits underneath and the answer arrives
+#               as a square root, which breaks the straight-line guess for
+#               good; then the two first-order LINEAR equations the world
+#               is full of -- a cooling cup and a tank of brine.
+#               ⚠️ FOUR CATCHES, AND THREE OF THEM ARE THE SAME LESSON. The
+#               enormous-distractor check (lx, ly) fired twice more: slpf's
+#               first draft timesed the coordinates and reached 2,750
+#               against an answer of 105. And the DUAL of it, which is new:
+#               slpf's bank had a and b nearly equal all the way up, so the
+#               "taken away" tap SHRANK to 5 beside an answer of 105 --
+#               equally dismissible. A tap is wasted at either extreme, so
+#               the bank now scales its gap with the answer. Third, slpq's
+#               "squaring skipped" tap was a take away b, which goes
+#               NEGATIVE wherever y sits above x; the choices floor caught
+#               it. Fourth, and this one only a read-aloud finds: newt's
+#               bank opened with "coffee at 20 degrees in a room at 10",
+#               which is not coffee, it is a cold cup. Coffee now starts at
+#               40. Its cooling constant was also INVERTED at authoring --
+#               1 degree a minute per c degrees of gap, not c degrees per
+#               degree -- because the first wording had a 30-degree gap
+#               cooling at 60 degrees a minute.
 #   2026-08-23  BUILD ly -- ⭐ CALCULUS COMPLETE. UNITS 8 AND 9: WHAT AREA
 #               CAN MEASURE, AND AN EQUATION ABOUT A RATE. 284 lessons ->
 #               292, 281 ops (btwn, trap, accu, revo + dfeq, mixr, pgrw,
@@ -12846,6 +13010,1173 @@ _CALCULUS_U9 = [
 LESSONS.extend(_CALCULUS_U9)
 
 
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 1 -- Introduction, Classification & Slope Fields
+# (build lz) -- ⭐ THE THIRTEENTH AND LAST COURSE OPENS.
+# The thread: THE EQUATION IS A PICTURE. A differential equation names a slope
+# at every point on the plane; drawing those dashes turns the equation into a
+# field you can see, read backwards, and walk across.
+# =============================================================================
+_DIFFEQ_U1 = [
+    {
+        "id": "diffeq-u1-a-dash-at-every-point",
+        "course": "diffeq", "unit": 1,
+        "topic": "Slope fields",
+        "op": "slpf", "max_value": 110,
+        "levels": ("abstract",),
+        "symbols": ("slope field", "order"),
+        "advance_line": "Three in a row — you've got it! Feed the point into the equation and read the slope.",
+        "teach": [
+            ["A differential equation is named by how deep its derivatives go: one derivative is first order , two is second. This whole first unit stays first order — and asks what such an equation LOOKS like.",
+             '[[goal text="A dash at every point"]][[step eq="dy/dx = x + y"]]'],
+            ["Here is the trick that turns it into a picture. Take d y d x equals x plus y, pick any point — say x is 7 and y is 5 — and the equation hands you a number: 12. Draw a tiny dash there leaning at that steepness.",
+             '[[step eq="at (7, 5) · slope 7 + 5 = 12"]]'],
+            ["Do that at every point and a slope field appears. So add the two coordinates, exactly as the equation says. Taking them away reaches 2, and using the x on its own throws half the point away.",
+             '[[step eq="12 ✓"]][[step eq="2 ✗ taken away · 7 ✗ only the x"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. At the point where x is 50 and y is 14, the dash has slope 64.",
+                        '[[step eq="50 + 14 = 64"]]'],
+             "ask": {"a": 55, "b": 23, "op": "slpf"}},
+            {"worked": ["One more together. At x equals 59 with y equals 43, the slope is 102.",
+                        '[[step eq="59 + 43 = 102"]]'],
+             "ask": {"a": 58, "b": 35, "op": "slpf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "slpf"} for a, b in
+                 ((4, 2), (11, 6), (18, 10), (25, 14), (32, 18),
+                  (39, 22), (46, 26), (52, 31), (57, 37), (60, 45))],
+    },
+    {
+        "id": "diffeq-u1-change-the-law-change-the-field",
+        "course": "diffeq", "unit": 1,
+        "topic": "A different law",
+        "op": "slpq", "max_value": 230,
+        "levels": ("abstract",),
+        "symbols": ("law", "field"),
+        "advance_line": "Three in a row — you've got it! Square the x first, then take the y off it.",
+        "teach": [
+            ["The plane never changes. The points never change. Change the equation, though, and every dash on it swings to a new angle — so the field is a picture of the law , not of the paper.",
+             '[[goal text="Change the law, change the field"]][[step eq="dy/dx = x² − y"]]'],
+            ["This one says d y d x equals x squared, take away y. At the point where x is 5 and y is 9: square the 5 first, giving 25, then take the 9 off it. The dash there has slope 16.",
+             '[[step eq="5² − 9 = 25 − 9 = 16"]]'],
+            ["Order matters. Adding the y instead climbs to 34, and leaving the y off the end hands back 25, the bare square — the same point, three different fields, and only one of them is the equation you were handed.",
+             '[[step eq="16 ✓"]][[step eq="34 ✗ added · 25 ✗ y left off"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. At x equals 11 with y equals 50: 121 take away 50 is 71.",
+                        '[[step eq="11² − 50 = 71"]]'],
+             "ask": {"a": 11, "b": 42, "op": "slpq"}},
+            {"worked": ["One more together. At x equals 13, y equals 23: 169 take away 23 is 146.",
+                        '[[step eq="13² − 23 = 146"]]'],
+             "ask": {"a": 12, "b": 10, "op": "slpq"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "slpq"} for a, b in
+                 ((3, 4), (6, 15), (7, 12), (8, 11), (10, 31),
+                  (11, 36), (12, 43), (13, 52), (12, 11), (13, 20))],
+    },
+    {
+        "id": "diffeq-u1-reading-the-field-backwards",
+        "course": "diffeq", "unit": 1,
+        "topic": "Isoclines",
+        "op": "isoc", "max_value": 80,
+        "levels": ("abstract",),
+        "symbols": ("isocline", "same"),
+        "advance_line": "Three in a row — you've got it! Take the x off the slope and what's left is y.",
+        "teach": [
+            ["Drawing a field dash by dash is slow. Here is how it is really done: instead of asking what slope sits at a point, ask where all the points with the SAME slope are.",
+             '[[goal text="Reading the field backwards"]][[step eq="dy/dx = x + y = 14"]]'],
+            ["In d y d x equals x plus y, every dash leaning at 14 sits where x plus y comes to 14 — a straight line. At x equals 5 on that line, y has to be 9. Such a line is called an isocline .",
+             '[[step eq="x + y = 14 · at x = 5 → y = 9"]]'],
+            ["So take the x off the slope. Adding them instead lands at 19, nowhere near the line, and answering 5 hands back the x you were already given.",
+             '[[step eq="9 ✓"]][[step eq="19 ✗ added · 5 ✗ the x again"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Slope 39 read at x equals 19: y is 20.",
+                        '[[step eq="39 − 19 = 20"]]'],
+             "ask": {"a": 26, "b": 2, "op": "isoc"}},
+            {"worked": ["One more together. Slope 54 at x equals 6 puts y at 48.",
+                        '[[step eq="54 − 6 = 48"]]'],
+             "ask": {"a": 56, "b": 15, "op": "isoc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "isoc"} for a, b in
+                 ((5, 3), (9, 2), (16, 4), (23, 6), (27, 5),
+                  (34, 7), (41, 9), (45, 8), (52, 10), (59, 12))],
+    },
+    {
+        "id": "diffeq-u1-joining-the-dashes",
+        "course": "diffeq", "unit": 1,
+        "topic": "Solution curves",
+        "op": "fldc", "max_value": 170,
+        "levels": ("abstract",),
+        "symbols": ("solution", "curve"),
+        "advance_line": "Three in a row — you've got it! Climb by the slope for every step across, then add the start.",
+        "teach": [
+            ["Now the payoff. A solution of a differential equation is not a number — it is a whole curve , and on a slope field you can see it: start somewhere and walk, always following the dash under your feet.",
+             '[[goal text="Joining the dashes"]][[step eq="start at y = 5 · slope 3 all the way"]]'],
+            ["Take an easy field where every dash leans at 3. Start at height 5 and walk 4 across: a slope of 3 climbs 3 for every 1 across, so 4 across is 12 of climb, landing at 17.",
+             '[[step eq="3 × 4 = 12 · 5 + 12 = 17"]]'],
+            ["The dashes were never a picture OF a solution — joining them is what creates one. Answering 12 gives the climb with no starting height, and 8 climbs a single step and stops.",
+             '[[step eq="17 ✓"]][[step eq="12 ✗ climb only · 8 ✗ one step"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Start at 37, slope 3, walk 10 across: 30 of climb, landing at 67.",
+                        '[[step eq="37 + 30 = 67"]]'],
+             "ask": {"a": 19, "b": 9, "c": 6, "op": "fldc"}},
+            {"worked": ["One more together. From height 18 with slope 10, walking 12 across lands at 138.",
+                        '[[step eq="18 + 120 = 138"]]'],
+             "ask": {"a": 2, "b": 10, "c": 12, "op": "fldc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "fldc"} for a, b, c in
+                 ((3, 2, 2), (4, 4, 5), (5, 3, 12), (2, 7, 8), (9, 6, 11),
+                  (8, 12, 7), (10, 11, 9), (16, 10, 11), (23, 12, 10),
+                  (28, 11, 12))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U1)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 2 -- First-Order: Separable & Linear (build lz)
+# The thread: THE FIRST TWO METHODS THAT ACTUALLY SOLVE ONE. Separate the two
+# letters and integrate each side; do it again where y will not sit quietly on
+# the right; then the two linear equations the world is full of -- a cooling
+# cup and a tank of brine.
+# =============================================================================
+_DIFFEQ_U2 = [
+    {
+        "id": "diffeq-u2-splitting-the-letters-apart",
+        "course": "diffeq", "unit": 2,
+        "topic": "Separable equations",
+        "op": "sepv", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("separable", "integrate"),
+        "advance_line": "Three in a row — you've got it! Halve the front number, times 9, then add the C.",
+        "teach": [
+            ["Unit 1 drew the equation. This unit solves one. The first method is the oldest: if every x can be herded to one side and every y to the other, the equation is separable and you integrate each side on its own.",
+             '[[goal text="Splitting the letters apart"]][[step eq="dy/dx = 8x"]]'],
+            ["Take d y d x equals 8 x. Separate and integrate and the 8 halves: y equals 4 x squared, plus C. If the curve sits at height 5 when x is zero, then C is 5, and at x equals 3 the x part is 4 times 9 — 36, plus 5 is 41.",
+             '[[step eq="y = 4x² + 5 · at x = 3 → 36 + 5 = 41"]]'],
+            ["So halve, times nine, add the C. Dropping the C leaves 36 and forgets which curve of the family you were on; skipping the halving runs to 77, integrating as though the rule were the derivative rule.",
+             '[[step eq="41 ✓"]][[step eq="36 ✗ no C · 77 ✗ not halved"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. d y d x equals 6 x with C of 30: 3 times 9 is 27, plus 30 is 57.",
+                        '[[step eq="3 × 9 + 30 = 57"]]'],
+             "ask": {"a": 10, "b": 39, "op": "sepv"}},
+            {"worked": ["One more together. 8 x with C of 33: 4 times 9 is 36, plus 33 is 69.",
+                        '[[step eq="4 × 9 + 33 = 69"]]'],
+             "ask": {"a": 14, "b": 40, "op": "sepv"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "sepv"} for a, b in
+                 ((4, 7), (6, 11), (10, 6), (8, 28), (14, 14),
+                  (12, 36), (20, 10), (18, 25), (16, 37), (16, 40))],
+    },
+    {
+        "id": "diffeq-u2-when-the-y-is-underneath",
+        "course": "diffeq", "unit": 2,
+        "topic": "Separating a harder one",
+        "op": "sepr", "max_value": 230,
+        "levels": ("abstract",),
+        "symbols": ("separating", "square root"),
+        "advance_line": "Three in a row — you've got it! Work out y squared first, then take its square root.",
+        "teach": [
+            ["Separating earns its keep when the y refuses to sit quietly on the right. Take d y d x equals 3 over y — the y is underneath, so multiply both sides by it and every y is on the left.",
+             '[[goal text="When the y is underneath"]][[step eq="dy/dx = 3/y → y dy = 3 dx"]]'],
+            ["Integrating gives y squared over 2 equals 3 x plus a constant, so y squared equals 6 x plus C. Start the curve at height 4 when x is zero and C is 16. At x equals 8: 48 plus 16 is 64, and y is the square root of that — 8.",
+             '[[step eq="y² = 6x + 16 · at x = 8 → 64 → y = 8"]]'],
+            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for, and guessing a straight climb from 4 gives 28 — but the curve does not climb in a straight line, and only separating tells you so.",
+             '[[step eq="8 ✓"]][[step eq="64 ✗ that is y² · 28 ✗ a straight guess"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. d y d x equals 2 over y from height 11, at x equals 12: y squared is 48 plus 121, which is 169, so y is 13.",
+                        '[[step eq="y² = 169 → y = 13"]]'],
+             "ask": {"a": 6, "b": 10, "c": 8, "op": "sepr"}},
+            {"worked": ["One more together. 8 over y from height 9, at x equals 9: y squared is 144 plus 81, which is 225, so y is 15.",
+                        '[[step eq="y² = 225 → y = 15"]]'],
+             "ask": {"a": 6, "b": 9, "c": 12, "op": "sepr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "sepr"} for a, b, c in
+                 ((2, 2, 3), (4, 3, 2), (2, 4, 5), (5, 3, 4), (2, 6, 7),
+                  (3, 3, 12), (2, 8, 9), (6, 5, 8), (2, 10, 11),
+                  (10, 7, 6))],
+    },
+    {
+        "id": "diffeq-u2-the-cooling-cup",
+        "course": "diffeq", "unit": 2,
+        "topic": "Newton's law of cooling",
+        "op": "newt", "max_value": 100,
+        "levels": ("abstract",),
+        "symbols": ("cooling", "gap"),
+        "advance_line": "Three in a row — you've got it! Find the gap, then share it out.",
+        "teach": [
+            ["Separable equations are one half of first order. The other half are the LINEAR ones, and here is the linear equation everybody meets first: a hot drink cooling in a room.",
+             '[[goal text="The cooling cup"]][[step eq="coffee 50° · room 20°"]]'],
+            ["Newton's law of cooling says the speed depends on the gap — nothing else. Say the coffee drops 1 degree a minute for every 5 degrees it stands above the room. Coffee at 50 in a room at 20 has a gap of 30, so it is cooling at 6 degrees a minute.",
+             '[[step eq="50 − 20 = 30 · 30 ÷ 5 = 6"]]'],
+            ["Now notice what that means. As it cools the gap shrinks, so the cooling itself slows — which is why coffee goes lukewarm quickly and then sits there. Answering 30 hands back the gap, and 5 is only the constant.",
+             '[[step eq="6 ✓"]][[step eq="30 ✗ the gap · 5 ✗ the constant"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Coffee at 95 in a room at 14, dropping 1 degree for every 3 of gap: a gap of 81, so 27 degrees a minute.",
+                        '[[step eq="81 ÷ 3 = 27"]]'],
+             "ask": {"a": 91, "b": 16, "c": 3, "op": "newt"}},
+            {"worked": ["One more together. 89 degrees, room 27, one for every 2: the gap is 62 and the rate is 31.",
+                        '[[step eq="62 ÷ 2 = 31"]]'],
+             "ask": {"a": 79, "b": 21, "c": 2, "op": "newt"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "newt"} for a, b, c in
+                 ((42, 12, 6), (71, 15, 8), (65, 20, 5), (59, 26, 3),
+                  (92, 14, 6), (90, 30, 4), (45, 11, 2), (94, 18, 4),
+                  (88, 25, 3), (68, 22, 2))],
+    },
+    {
+        "id": "diffeq-u2-the-tank-of-brine",
+        "course": "diffeq", "unit": 2,
+        "topic": "Concentration",
+        "op": "conc", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("concentration", "litre"),
+        "advance_line": "Three in a row — you've got it! Share the grams out over the litres.",
+        "teach": [
+            ["The other famous linear equation is a tank of salty water with fresh brine running in and the mixture running out. Every one of them turns on a single number, and it is not the salt.",
+             '[[goal text="The tank of brine"]][[step eq="45 g of salt · 3 L of water"]]'],
+            ["It is the concentration : how much salt rides in each litre . Stir 45 grams evenly into 3 litres and every litre carries 15 grams. That is the number the outflow pipe takes away with it.",
+             '[[step eq="45 ÷ 3 = 15 g per litre"]]'],
+            ["Which is why the equation has the salt DIVIDED by the volume inside it. Taking the litres off the grams reaches 42 and muddles two different measurements, and 3 is the size of the tank, not the strength of the brine.",
+             '[[step eq="15 ✓"]][[step eq="42 ✗ taken away · 3 ✗ the litres"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 98 grams stirred into 7 litres: each litre carries 14 grams.",
+                        '[[step eq="98 ÷ 7 = 14"]]'],
+             "ask": {"a": 85, "b": 5, "op": "conc"}},
+            {"worked": ["One more together. 120 grams in 6 litres is 20 grams a litre.",
+                        '[[step eq="120 ÷ 6 = 20"]]'],
+             "ask": {"a": 190, "b": 10, "op": "conc"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "conc"} for a, b in
+                 ((6, 2), (20, 5), (15, 3), (42, 7), (28, 4),
+                  (48, 6), (72, 8), (110, 11), (99, 9), (156, 13))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U2)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 3 -- Qualitative Analysis: Equilibria & Stability
+# (build ma)
+# The thread: YOU CAN KNOW THE SHAPE WITHOUT SOLVING ANYTHING. The logistic
+# rate read straight off the law, the non-obvious place where growth peaks,
+# how big that peak is, and the other kind of equilibrium -- one that pushes
+# away instead of pulling in.
+# =============================================================================
+_DIFFEQ_U3 = [
+    {
+        "id": "diffeq-u3-the-crowded-pond",
+        "course": "diffeq", "unit": 3,
+        "topic": "The logistic rate",
+        "op": "logi", "max_value": 150,
+        "levels": ("abstract",),
+        "symbols": ("logistic", "ceiling"),
+        "advance_line": "Three in a row — you've got it! Fish times room left, then divide.",
+        "teach": [
+            ["Unit 2 solved equations. This unit refuses to, and finds out the shape anyway. Start with the most useful rate law in biology: growth that runs into a ceiling .",
+             '[[goal text="The crowded pond"]][[step eq="ceiling 40 · 10 fish · ÷ 5"]]'],
+            ["A pond holds at most 40 fish. Logistic growth says the rate is the fish times the room still left, divided by some constant — say 5. With 10 fish there is room for 30, so the rate is 10 times 30 over 5: 60.",
+             '[[step eq="10 × 30 ÷ 5 = 60"]]'],
+            ["Look at what that law does at the two ends. Almost no fish gives almost no growth; almost no room does the same. Answering 30 hands back the room, and using the whole ceiling instead of the room left reaches 80.",
+             '[[step eq="60 ✓"]][[step eq="30 ✗ the room · 80 ✗ whole ceiling"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Ceiling 41, 22 fish, divided by 11: room is 19, so 22 times 19 over 11 is 38.",
+                        '[[step eq="22 × 19 ÷ 11 = 38"]]'],
+             "ask": {"a": 27, "b": 16, "c": 4, "op": "logi"}},
+            {"worked": ["One more together. Ceiling 34, 10 fish, over 4: room is 24, and 10 times 24 over 4 is 60.",
+                        '[[step eq="10 × 24 ÷ 4 = 60"]]'],
+             "ask": {"a": 43, "b": 24, "c": 8, "op": "logi"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "logi"} for a, b, c in
+                 ((22, 18, 12), (26, 4, 8), (20, 12, 6), (30, 21, 9),
+                  (21, 8, 4), (68, 6, 12), (27, 15, 5), (86, 4, 8),
+                  (37, 14, 7), (47, 30, 10))],
+    },
+    {
+        "id": "diffeq-u3-where-growth-peaks",
+        "course": "diffeq", "unit": 3,
+        "topic": "Where growth peaks",
+        "op": "carr", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("halfway", "fastest"),
+        "advance_line": "Three in a row — you've got it! Halve the ceiling, then take off what's already there.",
+        "teach": [
+            ["Since the rate dies at both ends, it must peak somewhere in between — and here is the fact almost everybody gets wrong. It peaks exactly halfway to the ceiling, not near the top.",
+             '[[goal text="Where growth peaks"]][[step eq="ceiling 60 · fastest at 30"]]'],
+            ["A pond with a ceiling of 60 grows fastest when it holds 30. If it holds 22 today, then 8 more fish take it to its fastest-growing size — and after that the pond keeps filling but the filling slows.",
+             '[[step eq="30 − 22 = 8 more"]]'],
+            ["The tempting wrong answer is the distance to the CEILING, 38, as though a nearly full pond were a fast one. It is the opposite: a crowd gets in its own way. And 30 is the halfway size itself, not the distance to it.",
+             '[[step eq="8 ✓"]][[step eq="38 ✗ to the ceiling · 30 ✗ the halfway size"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Ceiling 168 with 57 fish: half is 84, so 27 more.",
+                        '[[step eq="84 − 57 = 27"]]'],
+             "ask": {"a": 130, "b": 30, "op": "carr"}},
+            {"worked": ["One more together. Ceiling 166, 11 fish: half is 83, so 72 more.",
+                        '[[step eq="83 − 11 = 72"]]'],
+             "ask": {"a": 176, "b": 25, "op": "carr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "carr"} for a, b in
+                 ((20, 8), (30, 4), (52, 6), (68, 5), (90, 7),
+                  (112, 9), (134, 11), (150, 10), (172, 12), (174, 4))],
+    },
+    {
+        "id": "diffeq-u3-how-big-the-peak-is",
+        "course": "diffeq", "unit": 3,
+        "topic": "The size of the peak",
+        "op": "fast", "max_value": 300,
+        "levels": ("abstract",),
+        "symbols": ("peak", "quarter"),
+        "advance_line": "Three in a row — you've got it! Ceiling times constant, then a quarter of it.",
+        "teach": [
+            ["Knowing WHERE the peak sits is half of it. The other half is how big that peak is, and the answer is one of the tidiest in the subject: the ceiling times the growth constant, divided by 4.",
+             '[[goal text="How big the peak is"]][[step eq="ceiling 40 · constant 4"]]'],
+            ["A ceiling of 40 with a growth constant of 4: 40 times 4 is 160, and a quarter of that is 40 fish a year at the very fastest moment.",
+             '[[step eq="40 × 4 ÷ 4 = 40"]]'],
+            ["Where does the quarter come from? Two halvings at once — half the fish and half the room, at the same instant. Never taking the quarter leaves 160, and halving only once gives 80.",
+             '[[step eq="40 ✓"]][[step eq="160 ✗ no quarter · 80 ✗ halved once"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Ceiling 56 with a constant of 3: 168, and a quarter of that is 42.",
+                        '[[step eq="56 × 3 ÷ 4 = 42"]]'],
+             "ask": {"a": 100, "b": 2, "op": "fast"}},
+            {"worked": ["One more together. Ceiling 60, constant 6: 360 quartered is 90.",
+                        '[[step eq="60 × 6 ÷ 4 = 90"]]'],
+             "ask": {"a": 96, "b": 3, "op": "fast"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "fast"} for a, b in
+                 ((20, 2), (32, 2), (44, 2), (36, 3), (44, 3),
+                  (76, 2), (88, 2), (28, 7), (72, 3), (40, 6))],
+    },
+    {
+        "id": "diffeq-u3-the-one-that-pushes-away",
+        "course": "diffeq", "unit": 3,
+        "topic": "Unstable equilibria",
+        "op": "away", "max_value": 170,
+        "levels": ("abstract",),
+        "symbols": ("unstable", "balance"),
+        "advance_line": "Three in a row — you've got it! Distance from the equilibrium, times the push.",
+        "teach": [
+            ["Every equilibrium so far has pulled things back toward it. Those are the stable ones. But an equilibrium can just as easily PUSH — a balance so delicate that the smallest nudge sends you away for good.",
+             '[[goal text="The one that pushes away"]][[step eq="unstable at 20 · now 35"]]'],
+            ["Say the unstable point sits at 20, and anything off it moves at 4 for every 1 of distance. A population of 35 stands 15 above, so it is racing away at 60 — and climbing, because the further it goes the harder it is pushed.",
+             '[[step eq="35 − 20 = 15 · 15 × 4 = 60"]]'],
+            ["That runaway is what unstable means, and it is why a pencil will not stand on its point. Answering 15 hands back the distance, and 35 is where it is standing, not how fast it is leaving.",
+             '[[step eq="60 ✓"]][[step eq="15 ✗ the distance · 35 ✗ where it stands"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Unstable at 60, a population of 88, pushed at 3 per 1: 28 above, so 84.",
+                        '[[step eq="28 × 3 = 84"]]'],
+             "ask": {"a": 39, "b": 90, "c": 2, "op": "away"}},
+            {"worked": ["One more together. Unstable at 20, population 58, push of 4: that is 38 above, racing off at 152.",
+                        '[[step eq="38 × 4 = 152"]]'],
+             "ask": {"a": 8, "b": 63, "c": 3, "op": "away"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "away"} for a, b, c in
+                 ((4, 7, 2), (5, 14, 3), (6, 11, 9), (7, 28, 3), (8, 18, 8),
+                  (10, 29, 5), (9, 47, 3), (11, 54, 3), (12, 85, 2),
+                  (13, 40, 6))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U3)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 4 -- Numerical Methods: Euler & Runge-Kutta
+# (build ma)
+# The thread: WHEN YOU CANNOT SOLVE IT, WALK IT -- AND COUNT THE COST. Euler
+# commits to the slope it read at the start of each step, its error follows the
+# step size exactly, fourth-order Runge-Kutta divides its error by sixteen
+# instead of two, and accuracy is paid for in slope evaluations.
+# =============================================================================
+_DIFFEQ_U4 = [
+    {
+        "id": "diffeq-u4-walking-it-in-straight-steps",
+        "course": "diffeq", "unit": 4,
+        "topic": "Euler's method",
+        "op": "eulr", "max_value": 180,
+        "levels": ("abstract",),
+        "symbols": ("method", "step"),
+        "advance_line": "Three in a row — you've got it! Nothing on the first step, then twice the step squared.",
+        "teach": [
+            ["Most differential equations cannot be solved on paper at all. So a computer does what Unit 1 did by eye: it walks the slope field. The oldest such method is Euler's, and it is exactly that walk.",
+             '[[goal text="Walking it in straight steps"]][[step eq="dy/dx = 2x · start 5 · steps of 3"]]'],
+            ["Here is Euler's one rule: read the slope at the START of a step , then hold it for the whole width. Take d y d x equals 2 x from height 5, in two steps of 3. The first step starts at x equals zero, where the slope is nothing, so it climbs nothing.",
+             '[[step eq="step 1: slope 0 → no climb"]]'],
+            ["The second step starts at 3, where the slope is 6, and holding 6 across a width of 3 climbs 18 — landing at 23. But the true curve reaches 41, because the slope kept rising while Euler was using an old one. Euler always lags on a curve that bends upward.",
+             '[[step eq="23 ✓"]][[step eq="41 ✗ the true curve · 18 ✗ climb only"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. From height 22 in two steps of 4: nothing, then 32 — landing at 54.",
+                        '[[step eq="22 + 32 = 54"]]'],
+             "ask": {"a": 30, "b": 4, "op": "eulr"}},
+            {"worked": ["One more together. From 34 in two steps of 6: the second step climbs 72, landing at 106.",
+                        '[[step eq="34 + 72 = 106"]]'],
+             "ask": {"a": 22, "b": 6, "op": "eulr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "eulr"} for a, b in
+                 ((2, 2), (2, 3), (12, 3), (8, 4), (32, 3),
+                  (10, 5), (20, 5), (30, 5), (18, 6), (28, 6))],
+    },
+    {
+        "id": "diffeq-u4-the-deal-euler-offers",
+        "course": "diffeq", "unit": 4,
+        "topic": "First-order accuracy",
+        "op": "estp", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("first order", "proportional"),
+        "advance_line": "Three in a row — you've got it! Scale the error by the same factor as the step.",
+        "teach": [
+            ["Euler lags, so the obvious repair is smaller steps. The question is what that buys — and there is an exact answer, which is why Euler is called a first order method.",
+             '[[goal text="The deal Euler offers"]][[step eq="step 10 → error 90"]]'],
+            ["First order means the error is proportional to the step size. Not roughly — exactly. A step of 10 left an error of 90; go to a step of 4 and the error follows it down by the same factor, to 36.",
+             '[[step eq="90 × 4 ÷ 10 = 36"]]'],
+            ["So ten times the work buys a tenth of the error, and not a scrap more. Leaving the error at 90 pretends smaller steps are free of any gain, and halving it to 45 out of habit ignores what the step actually did.",
+             '[[step eq="36 ✓"]][[step eq="90 ✗ unchanged · 45 ✗ halved by habit"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A step of 11 left 110; a step of 5 leaves 50.",
+                        '[[step eq="110 × 5 ÷ 11 = 50"]]'],
+             "ask": {"a": 110, "b": 10, "c": 6, "op": "estp"}},
+            {"worked": ["One more together. A step of 10 left an error of 150; a step of 9 leaves 135.",
+                        '[[step eq="150 × 9 ÷ 10 = 135"]]'],
+             "ask": {"a": 150, "b": 5, "c": 4, "op": "estp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "estp"} for a, b, c in
+                 ((20, 10, 2), (22, 11, 8), (32, 8, 7), (48, 6, 5),
+                  (78, 9, 6), (102, 3, 2), (116, 4, 3), (130, 5, 4),
+                  (132, 12, 11), (184, 12, 9))],
+    },
+    {
+        "id": "diffeq-u4-sixteen-instead-of-two",
+        "course": "diffeq", "unit": 4,
+        "topic": "Runge-Kutta",
+        "op": "rk4", "max_value": 330,
+        "levels": ("abstract",),
+        "symbols": ("fourth order", "sixteen"),
+        "advance_line": "Three in a row — you've got it! Divide the error by sixteen.",
+        "teach": [
+            ["A tenth of the error for ten times the work is a poor bargain, and nobody accepts it. The method everybody actually uses is fourth order Runge-Kutta, and the word fourth is the whole story.",
+             '[[goal text="Sixteen instead of two"]][[step eq="halve the step"]]'],
+            ["Halve the step and Euler's error halves. Halve it for Runge-Kutta and the error divides by sixteen, because that same halving of the error happens four times over. So an error of 208 drops to 13 in one stroke.",
+             '[[step eq="208 ÷ 16 = 13"]]'],
+            ["The three wrong instincts are the three orders themselves: halving is first order, quartering is second, and sixteen is fourth. Which is why a fourth order method reaches an accuracy Euler could not buy with a thousand times the steps.",
+             '[[step eq="13 ✓"]][[step eq="104 ✗ halved · 52 ✗ quartered"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. An error of 240 divided by 16 is 15.",
+                        '[[step eq="240 ÷ 16 = 15"]]'],
+             "ask": {"a": 272, "b": 0, "op": "rk4"}},
+            {"worked": ["One more together. 304 over 16 is 19.",
+                        '[[step eq="304 ÷ 16 = 19"]]'],
+             "ask": {"a": 320, "b": 0, "op": "rk4"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "rk4"} for v in
+                 (32, 48, 64, 80, 96, 112, 128, 144, 160, 176)],
+    },
+    {
+        "id": "diffeq-u4-what-accuracy-costs",
+        "course": "diffeq", "unit": 4,
+        "topic": "Counting the cost",
+        "op": "evls", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("evaluations", "cost"),
+        "advance_line": "Three in a row — you've got it! Four for every Runge-Kutta step, then take that off Euler's bill.",
+        "teach": [
+            ["Runge-Kutta is not magic, and this last lesson is the fine print. It reads the slope FOUR times inside every step — once at the start, twice in the middle, once at the end — and averages them.",
+             '[[goal text="What accuracy costs"]][[step eq="Euler 100 × 1 · RK4 9 × 4"]]'],
+            ["So count the slope evaluations , which is what a method really costs. Euler needs 100 steps at one evaluation each: 100. Runge-Kutta gets there in 9 steps, but pays 4 each — 36. It saves 64.",
+             '[[step eq="100 − 36 = 64"]]'],
+            ["Four times the cost per step, and it still wins easily, because it needs so very many fewer of them. Comparing the step counts alone gives 91 and forgets the price; 36 is what Runge-Kutta spent, not what it saved.",
+             '[[step eq="64 ✓"]][[step eq="91 ✗ steps only · 36 ✗ what it spent"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Euler 184 steps against Runge-Kutta's 6: that is 24 evaluations, so 160 saved.",
+                        '[[step eq="184 − 24 = 160"]]'],
+             "ask": {"a": 190, "b": 11, "op": "evls"}},
+            {"worked": ["One more together. Euler 190 against 5 Runge-Kutta steps: 20 evaluations, and 170 saved.",
+                        '[[step eq="190 − 20 = 170"]]'],
+             "ask": {"a": 186, "b": 8, "op": "evls"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "evls"} for a, b in
+                 ((12, 2), (36, 4), (60, 6), (84, 8), (108, 10),
+                  (132, 12), (156, 14), (180, 16), (188, 15), (190, 13))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U4)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 5 -- Second-Order Linear: Homogeneous (build mb)
+# The thread: ONE NUMBER DECIDES HOW THE WHOLE THING BEHAVES. The characteristic
+# equation's discriminant classifies the motion, the knife-edge where it is
+# exactly zero is critical damping, an undamped spring rocks at its natural
+# frequency, and damping slows that rocking down.
+# =============================================================================
+_DIFFEQ_U5 = [
+    {
+        "id": "diffeq-u5-one-number-decides",
+        "course": "diffeq", "unit": 5,
+        "topic": "The characteristic equation",
+        "op": "char", "max_value": 310,
+        "levels": ("abstract",),
+        "symbols": ("characteristic", "damping"),
+        "advance_line": "Three in a row — you've got it! Square the middle number, then take off four times the last.",
+        "teach": [
+            ["Second-order equations have a second derivative in them, and they describe everything that swings, rocks or wobbles. Each one hides a quadratic — its characteristic equation — and Algebra II already taught you to test one.",
+             '[[goal text="One number decides"]][[step eq="y″ + 6y′ + 5y = 0 → r² + 6r + 5"]]'],
+            ["The test has not changed: the middle number squared, take away 4 times the last. For 6 and 5 that is 36 take away 20 — 16. What has changed is what the answer MEANS.",
+             '[[step eq="6² − 4×5 = 16"]]'],
+            ["Above zero, as here, the damping wins and the door closes slowly without a wobble. Below zero it rocks. Forgetting the 4 gives 31, and adding instead of taking away gives 56 — and each wrong number would describe a different world.",
+             '[[step eq="16 ✓"]][[step eq="31 ✗ no 4 · 56 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 12 and 19: 144 take away 76 is 68.",
+                        '[[step eq="12² − 4×19 = 68"]]'],
+             "ask": {"a": 12, "b": 16, "op": "char"}},
+            {"worked": ["One more together. 15 and 2: 225 take away 8 is 217.",
+                        '[[step eq="15² − 4×2 = 217"]]'],
+             "ask": {"a": 14, "b": 5, "op": "char"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "char"} for a, b in
+                 ((4, 3), (9, 14), (8, 4), (11, 13), (10, 2),
+                  (13, 14), (12, 2), (15, 17), (14, 4), (16, 11))],
+    },
+    {
+        "id": "diffeq-u5-the-knife-edge",
+        "course": "diffeq", "unit": 5,
+        "topic": "Critical damping",
+        "op": "cdmp", "max_value": 800,
+        "levels": ("abstract",),
+        "symbols": ("critically", "bounce"),
+        "advance_line": "Three in a row — you've got it! Square it, then take a quarter.",
+        "teach": [
+            ["Between wobbling and crawling there is one exact setting, and every good door closer is built to sit on it. It is called critically damped: the fastest close with no bounce at all.",
+             '[[goal text="The knife-edge"]][[step eq="test number exactly 0"]]'],
+            ["It happens when that test number is exactly zero — so the middle squared must equal 4 times the last. With 30 in the middle, 30 squared is 900, and a quarter of that is 225. Set the last term to 225 and you are on the edge.",
+             '[[step eq="30² = 900 · 900 ÷ 4 = 225"]]'],
+            ["A hair below 225 and the door bounces past the frame; a hair above and it crawls shut. Handing back 900 skips the quarter, and halving instead of quartering gives 450 — a door that overshoots every time.",
+             '[[step eq="225 ✓"]][[step eq="900 ✗ no quarter · 450 ✗ halved"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. With 32 in the middle: 1024, and a quarter of that is 256.",
+                        '[[step eq="32² ÷ 4 = 256"]]'],
+             "ask": {"a": 26, "b": 0, "op": "cdmp"}},
+            {"worked": ["One more together. 34 in the middle: 1156 quartered is 289.",
+                        '[[step eq="34² ÷ 4 = 289"]]'],
+             "ask": {"a": 28, "b": 0, "op": "cdmp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "cdmp"} for v in
+                 (6, 8, 10, 12, 14, 16, 18, 20, 22, 24)],
+    },
+    {
+        "id": "diffeq-u5-the-spring-that-never-stops",
+        "course": "diffeq", "unit": 5,
+        "topic": "Natural frequency",
+        "op": "natf", "max_value": 230,
+        "levels": ("abstract",),
+        "symbols": ("natural", "rocks"),
+        "advance_line": "Three in a row — you've got it! The natural frequency is the square root.",
+        "teach": [
+            ["Now take the damping away completely — no friction, no air, nothing to steal the motion. The wobble that was dying out now never dies, and the spring rocks for ever.",
+             '[[goal text="The spring that never stops"]][[step eq="y″ + 9y = 0"]]'],
+            ["Such a spring rocks at one particular speed, its natural frequency, and that frequency is simply the square root of the number sitting on the y. For 9 the frequency is 3 — 3 radians a second, for ever.",
+             '[[step eq="√9 = 3 radians a second"]]'],
+            ["Every object on earth has a frequency like this: a bridge, a wine glass, a building. Handing back 9 forgets the root, and doubling it to 6 undoes a square the wrong way. The next unit is about what happens when something else finds that number.",
+             '[[step eq="3 ✓"]][[step eq="9 ✗ not rooted · 6 ✗ doubled"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y double-prime plus 256 y: the square root of 256 is 16.",
+                        '[[step eq="√256 = 16"]]'],
+             "ask": {"a": 196, "b": 0, "op": "natf"}},
+            {"worked": ["One more together. With 289 on the y, the frequency is 17.",
+                        '[[step eq="√289 = 17"]]'],
+             "ask": {"a": 225, "b": 0, "op": "natf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "natf"} for v in
+                 (16, 25, 36, 49, 64, 81, 100, 121, 144, 169)],
+    },
+    {
+        "id": "diffeq-u5-damping-slows-the-rocking",
+        "course": "diffeq", "unit": 5,
+        "topic": "Damped frequency",
+        "op": "oscf", "max_value": 250,
+        "levels": ("abstract",),
+        "symbols": ("damped", "slower"),
+        "advance_line": "Three in a row — you've got it! Four times the last, take off the middle squared, root it, halve it.",
+        "teach": [
+            ["Put a little damping back — not enough to stop the rocking, only enough to shrink it. Everyone expects the swing to get smaller. Almost nobody expects the rocking to get slower , but it does.",
+             '[[goal text="Damping slows the rocking"]][[step eq="y″ + 8y′ + 25y = 0"]]'],
+            ["The damped frequency is 4 times the last number, take away the middle squared, then rooted and halved. For 8 and 25: 100 take away 64 is 36, whose root is 6, and half of that is 3.",
+             '[[step eq="4×25 − 8² = 36 · √36 ÷ 2 = 3"]]'],
+            ["Undamped it would have rocked at the root of 25 — that is 5 — so the damping really did slow it, from 5 down to 3. Skipping the halving gives 6, and 4 is half the damping, which is a real number here but not this one.",
+             '[[step eq="3 ✓"]][[step eq="6 ✗ not halved · 4 ✗ half the damping"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. With 10 and 221: 884 take away 100 is 784, whose root is 28, halved to 14.",
+                        '[[step eq="√784 ÷ 2 = 14"]]'],
+             "ask": {"a": 14, "b": 193, "op": "oscf"}},
+            {"worked": ["One more together. 6 and 205: 820 take away 36 is 784, and 28 halved is 14.",
+                        '[[step eq="√784 ÷ 2 = 14"]]'],
+             "ask": {"a": 6, "b": 234, "op": "oscf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "oscf"} for a, b in
+                 ((4, 13), (6, 25), (8, 41), (10, 61), (12, 85),
+                  (14, 113), (16, 145), (18, 181), (20, 221), (12, 205))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U5)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 6 -- Nonhomogeneous, Vibrations & Resonance
+# (build mb)
+# The thread: NOW SOMEBODY IS PUSHING. A steady push settles at a steady
+# height, the part that fades is pinned by where you started, a push at the
+# spring's own frequency grows without bound, and damping is the only thing
+# standing between resonance and ruin.
+# =============================================================================
+_DIFFEQ_U6 = [
+    {
+        "id": "diffeq-u6-somebody-is-pushing",
+        "course": "diffeq", "unit": 6,
+        "topic": "Particular solutions",
+        "op": "part", "max_value": 240,
+        "levels": ("abstract",),
+        "symbols": ("particular", "steady"),
+        "advance_line": "Three in a row — you've got it! Share the push out over the spring's number.",
+        "teach": [
+            ["Every equation so far has had a zero on the right — nobody pushing, the spring left to itself. Put a number there instead and somebody is leaning on it. That changes where it ends up.",
+             '[[goal text="Somebody is pushing"]][[step eq="y″ + 5y = 40"]]'],
+            ["Guess that the answer is steady — a flat height that never moves. A flat height has no curvature, so the y double-prime is nothing, and 5 y has to equal 40 all by itself. So y is 8.",
+             '[[step eq="5y = 40 → y = 8"]]'],
+            ["That is a particular solution, and the method is always the same: guess the SHAPE the push has, then let the equation fix the size. Timesing instead of sharing gives 200, and 40 is the push, not a height.",
+             '[[step eq="8 ✓"]][[step eq="200 ✗ timesed · 40 ✗ the push"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. y double-prime plus 4 y equals 52: 52 over 4 is 13.",
+                        '[[step eq="4y = 52 → y = 13"]]'],
+             "ask": {"a": 3, "b": 42, "op": "part"}},
+            {"worked": ["One more together. Plus 2 y equals 34, so the steady height is 17.",
+                        '[[step eq="2y = 34 → y = 17"]]'],
+             "ask": {"a": 2, "b": 32, "op": "part"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "part"} for a, b in
+                 ((3, 6), (4, 12), (2, 8), (6, 30), (4, 24),
+                  (2, 14), (3, 24), (5, 45), (2, 20), (4, 44))],
+    },
+    {
+        "id": "diffeq-u6-the-part-that-fades",
+        "course": "diffeq", "unit": 6,
+        "topic": "The transient",
+        "op": "trns", "max_value": 250,
+        "levels": ("abstract",),
+        "symbols": ("transient", "forgets"),
+        "advance_line": "Three in a row — you've got it! Start take away steady is the part that fades.",
+        "teach": [
+            ["A pushed spring does two things at once, and this is the shape of every answer in the unit: a steady part that stays, plus a transient part that fades away to nothing.",
+             '[[goal text="The part that fades"]][[step eq="steady 40 · starts at 65"]]'],
+            ["Suppose it settles at 40 in the long run but you let it go from 65. The steady part only explains 40 of that, so the other 25 must be the transient — and 25 is exactly how much has to die away.",
+             '[[step eq="65 − 40 = 25"]]'],
+            ["Wait long enough and that piece is gone, leaving 40 no matter where you let go from. A spring forgets how it started. Adding gives 105, and 40 is the part that stays, not the part that goes.",
+             '[[step eq="25 ✓"]][[step eq="105 ✗ added · 40 ✗ the steady part"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Settling at 40, let go from 180: the transient is 140.",
+                        '[[step eq="180 − 40 = 140"]]'],
+             "ask": {"a": 188, "b": 52, "op": "trns"}},
+            {"worked": ["One more together. Steady 30, released at 186, so 156 fades away.",
+                        '[[step eq="186 − 30 = 156"]]'],
+             "ask": {"a": 190, "b": 36, "op": "trns"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "trns"} for a, b in
+                 ((5, 3), (24, 6), (46, 12), (68, 18), (90, 24),
+                  (112, 30), (134, 36), (156, 42), (178, 48), (190, 44))],
+    },
+    {
+        "id": "diffeq-u6-why-soldiers-break-step",
+        "course": "diffeq", "unit": 6,
+        "topic": "Resonance",
+        "op": "reso", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("resonance", "gap"),
+        "advance_line": "Three in a row — you've got it! Share the force out over the gap between the two frequencies.",
+        "teach": [
+            ["Unit 5 gave every object its own natural frequency. This lesson is what happens when a push arrives at that very frequency — and it is the reason soldiers break step before crossing a bridge.",
+             '[[goal text="Why soldiers break step"]][[step eq="natural² 9 · driver² 3"]]'],
+            ["The swing that builds up is the force shared out over the gap between the two frequencies squared. Natural 9 against a driver of 3 leaves a gap of 6, so a force of 42 builds a swing of 7.",
+             '[[step eq="42 ÷ (9 − 3) = 7"]]'],
+            ["Now close that gap and watch. A gap of 3 doubles the swing; a gap of 1 gives 42; and at a gap of nothing there is no size left to name — the swing simply grows without stopping. That is resonance . Dividing by the driver instead reaches 14.",
+             '[[step eq="7 ✓"]][[step eq="14 ✗ divided by the driver · 42 ✗ the force"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Natural squared 15, driver squared 5, force 110: a gap of 10, so a swing of 11.",
+                        '[[step eq="110 ÷ 10 = 11"]]'],
+             "ask": {"a": 7, "b": 4, "c": 156, "op": "reso"}},
+            {"worked": ["One more together. Natural 12, driver 8, force 176: the gap is 4 and the swing is 44.",
+                        '[[step eq="176 ÷ 4 = 44"]]'],
+             "ask": {"a": 5, "b": 3, "c": 114, "op": "reso"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "reso"} for a, b, c in
+                 ((5, 2, 6), (9, 3, 42), (6, 4, 24), (15, 5, 170),
+                  (12, 8, 88), (8, 6, 54), (18, 16, 64), (39, 37, 74),
+                  (10, 7, 126), (6, 2, 188))],
+    },
+    {
+        "id": "diffeq-u6-what-saves-the-bridge",
+        "course": "diffeq", "unit": 6,
+        "topic": "Damped resonance",
+        "op": "damp", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("damping", "endless"),
+        "advance_line": "Three in a row — you've got it! Damping times frequency, and share the force over that.",
+        "teach": [
+            ["A swing with no size at all is not something the world actually does, so something must be missing from that picture. What is missing is damping — and it is the last idea in the unit.",
+             '[[goal text="What saves the bridge"]][[step eq="force 150 · damping 5 · frequency 3"]]'],
+            ["At the exact resonant frequency the swing would be endless without it. With damping, the swing is the force shared over the damping times the frequency. A force of 150, damping 5, frequency 3: 5 times 3 is 15, and 150 over 15 is 10.",
+             '[[step eq="150 ÷ (5 × 3) = 10"]]'],
+            ["So damping is the only thing standing between resonance and ruin, and the smaller it gets the bigger that swing grows. Dividing by the damping alone leaves 30, and 150 is the force, undivided.",
+             '[[step eq="10 ✓"]][[step eq="30 ✗ damping only · 150 ✗ the force"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Force 156, damping 2, frequency 6: 12 in all, and 156 over 12 is 13.",
+                        '[[step eq="156 ÷ 12 = 13"]]'],
+             "ask": {"a": 176, "b": 4, "c": 2, "op": "damp"}},
+            {"worked": ["One more together. Force 190, damping 5, frequency 2: 190 over 10 is 19.",
+                        '[[step eq="190 ÷ 10 = 19"]]'],
+             "ask": {"a": 174, "b": 3, "c": 2, "op": "damp"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "damp"} for a, b, c in
+                 ((12, 2, 3), (32, 4, 2), (60, 2, 5), (84, 3, 4),
+                  (120, 5, 3), (126, 7, 2), (160, 2, 8), (132, 4, 3),
+                  (168, 2, 7), (180, 2, 6))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U6)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 7 -- Laplace Transforms (build mc)
+# The thread: TURN THE CALCULUS INTO ALGEBRA, THEN JUST DO ALGEBRA. The rule
+# that turns a derivative into a multiplication, the plain algebra that is left
+# behind, the shift rule that moves a pole, and the theorem that reads where a
+# solution ENDS without ever transforming back.
+# =============================================================================
+_DIFFEQ_U7 = [
+    {
+        "id": "diffeq-u7-derivatives-become-timesing",
+        "course": "diffeq", "unit": 7,
+        "topic": "The derivative rule",
+        "op": "lder", "max_value": 210,
+        "levels": ("abstract",),
+        "symbols": ("transform", "derivative"),
+        "advance_line": "Three in a row — you've got it! s times Y, then take off the starting height.",
+        "teach": [
+            ["Here is a completely different way to solve a differential equation: change it into something that is not one. The Laplace transform does exactly that, and this first rule is the whole reason it works.",
+             '[[goal text="Derivatives become timesing"]][[step eq="L{y′} = sY − y(0)"]]'],
+            ["Transform a derivative and you get s times Y, take away the starting height. The derivative is GONE — it has turned into a multiplication. If the curve started at 9, with s of 4 and Y of 5, that is 20 take away 9 — 11.",
+             '[[step eq="4 × 5 − 9 = 11"]]'],
+            ["Adding the start instead of taking it away gives 29, and 20 forgets that where you began matters at all. This one line is what carries the whole unit: differentiating becomes timesing by s.",
+             '[[step eq="11 ✓"]][[step eq="29 ✗ added · 20 ✗ start ignored"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Starting at 2, with s of 5 and Y of 9: 45 take away 2 is 43.",
+                        '[[step eq="5 × 9 − 2 = 43"]]'],
+             "ask": {"a": 12, "b": 7, "c": 10, "op": "lder"}},
+            {"worked": ["One more together. Start 2, s of 12, Y of 11: 132 take away 2 is 130.",
+                        '[[step eq="12 × 11 − 2 = 130"]]'],
+             "ask": {"a": 29, "b": 14, "c": 10, "op": "lder"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "lder"} for a, b, c in
+                 ((4, 2, 3), (3, 11, 2), (6, 3, 14), (2, 5, 11), (8, 13, 6),
+                  (17, 8, 13), (16, 10, 12), (5, 14, 9), (30, 12, 14),
+                  (13, 12, 14))],
+    },
+    {
+        "id": "diffeq-u7-and-now-it-is-just-algebra",
+        "course": "diffeq", "unit": 7,
+        "topic": "Solving in the s world",
+        "op": "lalg", "max_value": 250,
+        "levels": ("abstract",),
+        "symbols": ("algebra", "solve"),
+        "advance_line": "Three in a row — you've got it! Add the two on the bottom, then share the top over it.",
+        "teach": [
+            ["Once every derivative has become a multiplication, look at what is left on the page. No derivatives. No integrals. Just letters and numbers — plain algebra , and you have been solving that since Algebra I.",
+             '[[goal text="And now it is just algebra"]][[step eq="(s + 6)Y = 96"]]'],
+            ["Say the transforming left s plus 6, all times Y, equals 96. Solve for Y the way you always would: Y is 96 over s plus 6. Then at s equals 2 the bottom is 8, and 96 over 8 is 12.",
+             '[[step eq="Y = 96/(s + 6) · at s = 2 → 96 ÷ 8 = 12"]]'],
+            ["Taking the two bottom numbers away instead of adding gives 24, and 96 is the top, not the answer. Notice what did NOT happen anywhere in that: no calculus at all. The derivative left the problem the moment we transformed it.",
+             '[[step eq="12 ✓"]][[step eq="24 ✗ taken away · 96 ✗ the top"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. s plus 2, times Y, equals 228; at s equals 4 the bottom is 6, and 228 over 6 is 38.",
+                        '[[step eq="228 ÷ 6 = 38"]]'],
+             "ask": {"a": 2, "b": 192, "c": 4, "op": "lalg"}},
+            {"worked": ["One more together. 240 over s plus 2, at s equals 4: 240 over 6 is 40.",
+                        '[[step eq="240 ÷ 6 = 40"]]'],
+             "ask": {"a": 4, "b": 210, "c": 2, "op": "lalg"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "lalg"} for a, b, c in
+                 ((2, 12, 4), (3, 40, 5), (4, 48, 2), (5, 88, 3),
+                  (8, 168, 4), (2, 102, 4), (4, 120, 2), (3, 184, 5),
+                  (5, 208, 3), (2, 232, 6))],
+    },
+    {
+        "id": "diffeq-u7-the-shift-rule",
+        "course": "diffeq", "unit": 7,
+        "topic": "The shift rule",
+        "op": "lshf", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("pole", "shift"),
+        "advance_line": "Three in a row — you've got it! The pole slides right by the amount in the exponent.",
+        "teach": [
+            ["The transform of a thing blows up at certain values of s, and those places have a name: poles. A pole is not bookkeeping — it is the answer in disguise, as the last beat will show.",
+             '[[goal text="The shift rule"]][[step eq="pole at s = 20 · × e^(6t)"]]'],
+            ["Here is the shift rule, the line of the table used most of all. Multiply the original by e to the 6 t, and every s in the transform becomes s take away 6 — so the whole picture slides 6 to the right. A pole at 20 moves to 26.",
+             '[[step eq="20 + 6 = 26"]]'],
+            ["Sliding the wrong way gives 14, and 20 is where the pole used to be. And now why poles matter: a pole to the right of zero means the answer GROWS, and one to the left means it dies away. The pole is the behaviour, written down.",
+             '[[step eq="26 ✓"]][[step eq="14 ✗ wrong way · 20 ✗ the old pole"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A pole at 130 shifted by 55 lands at 185.",
+                        '[[step eq="130 + 55 = 185"]]'],
+             "ask": {"a": 124, "b": 52, "op": "lshf"}},
+            {"worked": ["One more together. 140 shifted by 60 gives a pole at 200.",
+                        '[[step eq="140 + 60 = 200"]]'],
+             "ask": {"a": 136, "b": 57, "op": "lshf"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "lshf"} for a, b in
+                 ((4, 2), (16, 7), (28, 12), (40, 17), (52, 22),
+                  (64, 27), (76, 32), (88, 37), (100, 42), (112, 47))],
+    },
+    {
+        "id": "diffeq-u7-reading-the-ending",
+        "course": "diffeq", "unit": 7,
+        "topic": "The final-value theorem",
+        "op": "lfin", "max_value": 200,
+        "levels": ("abstract",),
+        "symbols": ("final", "settles"),
+        "advance_line": "Three in a row — you've got it! Share the top over the number beside the s.",
+        "teach": [
+            ["The last idea of the unit is the one engineers reach for daily. Often you do not want the whole solution — you only want to know where it settles in the end. You can read that off without transforming back at all.",
+             '[[goal text="Reading the ending"]][[step eq="Y = 96/(s(s + 8))"]]'],
+            ["Suppose Y is 96, with two things underneath it: a lone s, and s plus 8. Multiply by s, which clears that lone s, and then let s fall away to zero. The s plus 8 becomes just 8, and 96 over 8 is 12. That is the final value.",
+             '[[step eq="96 ÷ 8 = 12"]]'],
+            ["Handing back 96 answers with the top, and 88 takes the two away rather than sharing. The theorem is worth its weight: where a thing ends up, read straight off the transform, with no inverting at all.",
+             '[[step eq="12 ✓"]][[step eq="96 ✗ the top · 88 ✗ taken away"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 180 underneath a lone s and an s plus 12: 180 over 12 is 15.",
+                        '[[step eq="180 ÷ 12 = 15"]]'],
+             "ask": {"a": 4, "b": 132, "op": "lfin"}},
+            {"worked": ["One more together. 76 under a lone s and an s plus 2 settles at 38.",
+                        '[[step eq="76 ÷ 2 = 38"]]'],
+             "ask": {"a": 3, "b": 105, "op": "lfin"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "lfin"} for a, b in
+                 ((3, 6), (2, 10), (4, 32), (6, 66), (5, 70),
+                  (7, 119), (9, 180), (8, 184), (6, 156), (5, 145))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U7)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 8 -- Linear Systems & the Phase Plane (build mc)
+# The thread: TWO THINGS CHANGING TOGETHER, EACH WATCHING THE OTHER. Unit 1's
+# slope field one dimension up, the lines where one arrow goes flat, the
+# determinant that classifies the whole picture, and the pair of eigenvalues
+# that decide it.
+# =============================================================================
+_DIFFEQ_U8 = [
+    {
+        "id": "diffeq-u8-two-things-at-once",
+        "course": "diffeq", "unit": 8,
+        "topic": "Systems in the plane",
+        "op": "sysx", "max_value": 260,
+        "levels": ("abstract",),
+        "symbols": ("system", "arrow"),
+        "advance_line": "Three in a row — you've got it! The x part first, then take off the y.",
+        "teach": [
+            ["Everything so far has followed one quantity. Now follow two at once, each one watching the other: rabbits and foxes, a spring in two directions, two tanks feeding each other. That is a system .",
+             '[[goal text="Two things at once"]][[step eq="x′ = 4x − y"]]'],
+            ["Say x grows by 4 for every x it already has, and loses 1 for every y. At the point where x is 9 and y is 5: 4 times 9 is 36, and the 5 of y pulls it back to 31.",
+             '[[step eq="4 × 9 − 5 = 31"]]'],
+            ["Do the same for y and you get an arrow at that point, pointing somewhere in the plane — Unit 1's slope field with two directions instead of one. Adding the y gives 41, and 36 pretends the foxes were not there.",
+             '[[step eq="31 ✓"]][[step eq="41 ✗ added · 36 ✗ no y"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 6 for every x, at x of 15 with y of 51: 90 take away 51 is 39.",
+                        '[[step eq="6 × 15 − 51 = 39"]]'],
+             "ask": {"a": 7, "b": 15, "c": 53, "op": "sysx"}},
+            {"worked": ["One more together. 11 per x, x of 12, y of 7: 132 take away 7 is 125.",
+                        '[[step eq="11 × 12 − 7 = 125"]]'],
+             "ask": {"a": 9, "b": 12, "c": 3, "op": "sysx"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "sysx"} for a, b, c in
+                 ((2, 2, 2), (4, 6, 4), (3, 15, 7), (5, 13, 9), (7, 11, 3),
+                  (9, 14, 34), (11, 12, 22), (10, 16, 32), (12, 14, 22),
+                  (12, 16, 28))],
+    },
+    {
+        "id": "diffeq-u8-where-an-arrow-goes-flat",
+        "course": "diffeq", "unit": 8,
+        "topic": "Nullclines",
+        "op": "nucl", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("nullcline", "cross"),
+        "advance_line": "Three in a row — you've got it! Slope times x is where the line sits.",
+        "teach": [
+            ["Drawing an arrow at every point is slow — the same problem Unit 1 solved with isoclines. Here the shortcut is even better: find the places where one of the two arrows goes completely flat.",
+             '[[goal text="Where an arrow goes flat"]][[step eq="x′ = 0 where y = 5x"]]'],
+            ["For our system x stops changing exactly where 5 x equals y. That is a straight line through the origin, and it is called a nullcline — the x one, since x is what has stopped. At x equals 12, it sits at y equals 60.",
+             '[[step eq="5 × 12 = 60"]]'],
+            ["Along that whole line the arrows point straight up or straight down, since x is going nowhere. Adding gives 17, and 25 is the slope squared rather than a height. And where the x-nullcline and the y-nullcline cross , nothing moves at all — an equilibrium.",
+             '[[step eq="60 ✓"]][[step eq="17 ✗ added · 25 ✗ slope squared"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A slope of 14 at x equals 4: the nullcline sits at 56.",
+                        '[[step eq="14 × 4 = 56"]]'],
+             "ask": {"a": 7, "b": 11, "op": "nucl"}},
+            {"worked": ["One more together. Slope 10 at x equals 16 puts it at 160.",
+                        '[[step eq="10 × 16 = 160"]]'],
+             "ask": {"a": 11, "b": 13, "op": "nucl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "nucl"} for a, b in
+                 ((2, 3), (9, 2), (4, 7), (8, 5), (6, 9),
+                  (11, 6), (7, 12), (13, 8), (9, 14), (9, 16))],
+    },
+    {
+        "id": "diffeq-u8-the-number-in-the-corner",
+        "course": "diffeq", "unit": 8,
+        "topic": "The determinant",
+        "op": "detm", "max_value": 290,
+        "levels": ("abstract",),
+        "symbols": ("determinant", "saddle"),
+        "advance_line": "Three in a row — you've got it! Diagonal product, take away the corner squared.",
+        "teach": [
+            ["A linear system is carried by four numbers arranged in a square, and out of those four comes one number that classifies the entire picture. It is called the determinant .",
+             '[[goal text="The number in the corner"]][[step eq="[9 4; 4 6]"]]'],
+            ["Take 9 and 6 down the diagonal with 4 in both corners. The determinant is 9 times 6, take away 4 squared: 54 take away 16 is 38.",
+             '[[step eq="9×6 − 4² = 38"]]'],
+            ["Now what it means. The determinant is the two eigenvalues multiplied together — so if it ever falls below zero, one of them must be positive and you have a saddle : a point that pulls you in one way and flings you out the other. Adding the corners gives 70, and skipping the squaring gives 50.",
+             '[[step eq="38 ✓"]][[step eq="70 ✗ added · 50 ✗ not squared"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 15 and 9 on the diagonal, 9 in the corners: 135 take away 81 is 54.",
+                        '[[step eq="15×9 − 9² = 54"]]'],
+             "ask": {"a": 14, "b": 5, "c": 7, "op": "detm"}},
+            {"worked": ["One more together. 14 and 16 with 7 in the corners: 224 take away 49 is 175.",
+                        '[[step eq="14×16 − 7² = 175"]]'],
+             "ask": {"a": 14, "b": 8, "c": 15, "op": "detm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "detm"} for a, b, c in
+                 ((2, 2, 3), (4, 6, 14), (6, 3, 8), (11, 3, 6), (8, 7, 16),
+                  (8, 2, 13), (13, 6, 12), (15, 5, 11), (12, 4, 15),
+                  (16, 2, 12))],
+    },
+    {
+        "id": "diffeq-u8-two-numbers-decide-the-picture",
+        "course": "diffeq", "unit": 8,
+        "topic": "Eigenvalues",
+        "op": "eign", "max_value": 240,
+        "levels": ("abstract",),
+        "symbols": ("eigenvalues", "trace"),
+        "advance_line": "Three in a row — you've got it! Take the one you know off the trace.",
+        "teach": [
+            ["The determinant was the two eigenvalues multiplied. Their SUM has a name too — the trace , the sum down the diagonal — and between the sum and the product you can always recover both.",
+             '[[goal text="Two numbers decide the picture"]][[step eq="trace 60 = λ₁ + λ₂"]]'],
+            ["Suppose the trace is 60 and the work has already turned up one eigenvalue, 14. The two must add to 60, so the other is 46. No further algebra needed.",
+             '[[step eq="60 − 14 = 46"]]'],
+            ["And those two numbers decide everything. Both above zero, as here, and every path races away from the origin. Both below and it all spirals in. One of each is a saddle. Adding gives 74, and 14 is the one you already had.",
+             '[[step eq="46 ✓"]][[step eq="74 ✗ added · 14 ✗ the known one"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A trace of 186 with one eigenvalue at 30: the other is 156.",
+                        '[[step eq="186 − 30 = 156"]]'],
+             "ask": {"a": 180, "b": 40, "op": "eign"}},
+            {"worked": ["One more together. Trace 190, one eigenvalue 26, so the other is 164.",
+                        '[[step eq="190 − 26 = 164"]]'],
+             "ask": {"a": 190, "b": 38, "op": "eign"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "eign"} for a, b in
+                 ((5, 3), (26, 6), (50, 12), (74, 18), (98, 24),
+                  (122, 30), (146, 36), (170, 42), (178, 44), (186, 48))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U8)
+
+
+# =============================================================================
+# DIFFERENTIAL EQUATIONS UNIT 9 -- Nonlinear Systems & Stability (build md)
+# ⭐⭐ THE LAST UNIT OF THE LAST COURSE. 328 lessons, and the arc that began
+# with counting ends here.
+# The thread: WHAT SURVIVES WHEN THE SYSTEM IS NOT LINEAR. Up close a curve is
+# a line, which is why Unit 8 was worth learning; the most famous nonlinear
+# system there is; the cycle it settles into; and the one thing no amount of
+# mathematics can give you back -- a forecast.
+# =============================================================================
+_DIFFEQ_U9 = [
+    {
+        "id": "diffeq-u9-up-close-it-is-a-line",
+        "course": "diffeq", "unit": 9,
+        "topic": "Linearization",
+        "op": "lnrz", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("nonlinear", "tangent"),
+        "advance_line": "Three in a row — you've got it! Double the equilibrium, then times the distance.",
+        "teach": [
+            ["Almost nothing in the world is linear. Real rate laws bend, and Unit 8's neat straight-line systems look like a special case — until you notice the trick that rescues all of it.",
+             '[[goal text="Up close it is a line"]][[step eq="rate = 9 − P²"]]'],
+            ["Zoom in far enough on any curve and it becomes its own tangent . The nonlinear law 9 take away P squared sits still at P equals 3, and near there it pulls back at 2 times 3 for every 1 of distance. Sitting 4 out, that is 24.",
+             '[[step eq="2×3 = 6 per 1 · × 4 = 24"]]'],
+            ["So close to an equilibrium, every curved law behaves like a straight one — which is exactly why the last unit was worth learning. Forgetting to double gives 12, and adding the two gives 7.",
+             '[[step eq="24 ✓"]][[step eq="12 ✗ not doubled · 7 ✗ added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. Equilibrium at 10, sitting 8 out: 20 for every 1, so 160.",
+                        '[[step eq="2×10×8 = 160"]]'],
+             "ask": {"a": 64, "b": 8, "c": 9, "op": "lnrz"}},
+            {"worked": ["One more together. Equilibrium 12, distance 7: 24 each, giving 168.",
+                        '[[step eq="2×12×7 = 168"]]'],
+             "ask": {"a": 121, "b": 11, "c": 8, "op": "lnrz"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "lnrz"} for a, b, c in
+                 ((4, 2, 3), (9, 3, 4), (36, 6, 3), (16, 4, 6), (25, 5, 6),
+                  (81, 9, 4), (121, 11, 4), (100, 10, 5), (49, 7, 8),
+                  (144, 12, 5))],
+    },
+    {
+        "id": "diffeq-u9-rabbits-and-foxes",
+        "course": "diffeq", "unit": 9,
+        "topic": "Predator and prey",
+        "op": "prey", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("predator", "balance"),
+        "advance_line": "Three in a row — you've got it! Count the new rabbits, then share them among the foxes.",
+        "teach": [
+            ["Here is the most famous nonlinear system there is — a predator and its prey — and the reason it cannot be linear: rabbits eat grass, foxes eat rabbits, and the eating depends on BOTH numbers at once.",
+             '[[goal text="Rabbits and foxes"]][[step eq="20 rabbits · 3 born each · 5 eaten per fox"]]'],
+            ["Say a wood holds 20 rabbits, each adding 3 new ones a year — 60 new rabbits. If every fox eats 5 rabbits a year, then 12 foxes eat exactly those 60, and the rabbit number holds still. That is a balance point.",
+             '[[step eq="20 × 3 ÷ 5 = 12 foxes"]]'],
+            ["Notice neither number is steady on its own — each is held in place by the other. Answering 60 counts the births with nothing eating them, and 20 hands back the rabbits when foxes were asked for.",
+             '[[step eq="12 ✓"]][[step eq="60 ✗ nothing eating · 20 ✗ the rabbits"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 32 rabbits at 4 each is 128 new; at 8 eaten per fox that is 16 foxes.",
+                        '[[step eq="32 × 4 ÷ 8 = 16"]]'],
+             "ask": {"a": 3, "b": 2, "c": 14, "op": "prey"}},
+            {"worked": ["One more together. 27 rabbits, 4 born each, 2 eaten per fox: 108 new rabbits and 54 foxes.",
+                        '[[step eq="27 × 4 ÷ 2 = 54"]]'],
+             "ask": {"a": 8, "b": 2, "c": 11, "op": "prey"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "prey"} for a, b, c in
+                 ((2, 4, 4), (4, 8, 14), (3, 2, 8), (5, 10, 34), (2, 3, 33),
+                  (9, 5, 15), (8, 3, 12), (2, 4, 74), (6, 3, 21),
+                  (2, 3, 72))],
+    },
+    {
+        "id": "diffeq-u9-round-and-round",
+        "course": "diffeq", "unit": 9,
+        "topic": "The cycle",
+        "op": "cycl", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("cycle", "quarter"),
+        "advance_line": "Three in a row — you've got it! The foxes lag by a quarter of the cycle.",
+        "teach": [
+            ["A balance point is not where rabbits and foxes actually go. Nudge them off it and they do something no straight-line system can do: they circle it, for ever, in a closed loop.",
+             '[[goal text="Round and round"]][[step eq="cycle 60 months"]]'],
+            ["And the loop has a shape. Plenty of rabbits feed more foxes; more foxes eat the rabbits down; fewer rabbits starve the foxes; fewer foxes let the rabbits back. So the foxes always peak a quarter of a cycle after the rabbits. In a 60-month cycle , that is 15 months.",
+             '[[step eq="60 ÷ 4 = 15 months"]]'],
+            ["Halving instead of quartering gives 30 — half a cycle, which would put the foxes at their fewest just as the rabbits peak. And 60 is the whole loop, not the lag inside it.",
+             '[[step eq="15 ✓"]][[step eq="30 ✗ halved · 60 ✗ the whole cycle"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A cycle of 100 months puts the fox peak 25 months behind.",
+                        '[[step eq="100 ÷ 4 = 25"]]'],
+             "ask": {"a": 128, "b": 0, "op": "cycl"}},
+            {"worked": ["One more together. 184 months round, so the foxes lag by 46.",
+                        '[[step eq="184 ÷ 4 = 46"]]'],
+             "ask": {"a": 176, "b": 0, "op": "cycl"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": v, "b": 0, "op": "cycl"} for v in
+                 (8, 24, 40, 56, 72, 88, 104, 120, 136, 152)],
+    },
+    {
+        "id": "diffeq-u9-a-perfectly-known-equation",
+        "course": "diffeq", "unit": 9,
+        "topic": "Sensitive dependence",
+        "op": "chao", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("sensitive", "forecast"),
+        "advance_line": "Three in a row — you've got it! The gap multiplies once for every day.",
+        "teach": [
+            ["One last idea, and it is the strangest in the whole course. Everything you have learned says that if you know the equation and the starting point, you know the future. Here is where that quietly stops being true.",
+             '[[goal text="A perfectly known equation"]][[step eq="gap 4 · ×3 each day"]]'],
+            ["Two forecasts start 4 apart — almost the same, but not quite. In a sensitive system every day multiplies whatever gap there is by 3. After 3 days: 3 times 3 times 3 is 27, and 4 of those is a gap of 108.",
+             '[[step eq="4 × 3³ = 108"]]'],
+            ["Nothing was random and nothing was unknown. The equation is exact, and the gap simply multiplied its way out of sight — which is why a forecast a month ahead is not available to anyone, at any price. Timesing the days instead of powering gives 36, and 27 forgets the gap you started with.",
+             '[[step eq="108 ✓"]][[step eq="36 ✗ timesed · 27 ✗ no start"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A gap of 9 doubling for 3 days: 8 times 9 is 72.",
+                        '[[step eq="9 × 2³ = 72"]]'],
+             "ask": {"a": 5, "b": 5, "c": 2, "op": "chao"}},
+            {"worked": ["One more together. 5 apart, multiplying by 6 for 2 days: 36 times 5 is 180.",
+                        '[[step eq="5 × 6² = 180"]]'],
+             "ask": {"a": 6, "b": 3, "c": 3, "op": "chao"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — and it is the last one in the course.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "chao"} for a, b, c in
+                 ((2, 2, 3), (3, 3, 2), (5, 2, 3), (2, 5, 2), (7, 3, 2),
+                  (3, 5, 2), (6, 2, 4), (7, 4, 2), (5, 3, 3), (5, 2, 5))],
+    },
+]
+LESSONS.extend(_DIFFEQ_U9)
+
+
 
 
 
@@ -13095,6 +14426,47 @@ COURSE_ORDER = [
     "calc-u9-an-equation-about-a-rate", "calc-u9-two-rates-at-once",
     "calc-u9-when-the-rate-depends-on-the-amount",
     "calc-u9-where-the-change-stops",
+    # ---- DIFFERENTIAL EQUATIONS -- the thirteenth and last course ----
+    # Unit 1: Introduction, Classification & Slope Fields (build lz)
+    "diffeq-u1-a-dash-at-every-point",
+    "diffeq-u1-change-the-law-change-the-field",
+    "diffeq-u1-reading-the-field-backwards",
+    "diffeq-u1-joining-the-dashes",
+    # Unit 2: First-Order: Separable & Linear (build lz)
+    "diffeq-u2-splitting-the-letters-apart",
+    "diffeq-u2-when-the-y-is-underneath",
+    "diffeq-u2-the-cooling-cup", "diffeq-u2-the-tank-of-brine",
+    # Unit 3: Qualitative Analysis: Equilibria & Stability (build ma)
+    "diffeq-u3-the-crowded-pond", "diffeq-u3-where-growth-peaks",
+    "diffeq-u3-how-big-the-peak-is",
+    "diffeq-u3-the-one-that-pushes-away",
+    # Unit 4: Numerical Methods: Euler & Runge-Kutta (build ma)
+    "diffeq-u4-walking-it-in-straight-steps",
+    "diffeq-u4-the-deal-euler-offers",
+    "diffeq-u4-sixteen-instead-of-two",
+    "diffeq-u4-what-accuracy-costs",
+    # Unit 5: Second-Order Linear: Homogeneous (build mb)
+    "diffeq-u5-one-number-decides", "diffeq-u5-the-knife-edge",
+    "diffeq-u5-the-spring-that-never-stops",
+    "diffeq-u5-damping-slows-the-rocking",
+    # Unit 6: Nonhomogeneous, Vibrations & Resonance (build mb)
+    "diffeq-u6-somebody-is-pushing", "diffeq-u6-the-part-that-fades",
+    "diffeq-u6-why-soldiers-break-step",
+    "diffeq-u6-what-saves-the-bridge",
+    # Unit 7: Laplace Transforms (build mc)
+    "diffeq-u7-derivatives-become-timesing",
+    "diffeq-u7-and-now-it-is-just-algebra",
+    "diffeq-u7-the-shift-rule", "diffeq-u7-reading-the-ending",
+    # Unit 8: Linear Systems & the Phase Plane (build mc)
+    "diffeq-u8-two-things-at-once",
+    "diffeq-u8-where-an-arrow-goes-flat",
+    "diffeq-u8-the-number-in-the-corner",
+    "diffeq-u8-two-numbers-decide-the-picture",
+    # Unit 9: Nonlinear Systems & Stability (build md)
+    # ⭐⭐ THE LAST FOUR LESSONS OF THE WHOLE CURRICULUM.
+    "diffeq-u9-up-close-it-is-a-line", "diffeq-u9-rabbits-and-foxes",
+    "diffeq-u9-round-and-round",
+    "diffeq-u9-a-perfectly-known-equation",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -13264,6 +14636,19 @@ def _prime_factors(n):
     if n > 1:
         out.append(n)
     return out
+
+
+def _isqrt(n):
+    """The whole square root of n, or 0 when n is not a perfect square (build lz).
+    DiffEq U2's separable op solves y squared = 2ax + C and has to hand back a
+    whole height; a lambda cannot say "and only if it comes out whole"."""
+    n = int(n)
+    if n < 0:
+        return 0
+    r = 0
+    while (r + 1) * (r + 1) <= n:
+        r += 1
+    return r if r * r == n else 0
 
 
 def _fact(n):
@@ -20384,6 +21769,1132 @@ OP_EXT = {
                                      p["a"]}) == 3,
                             "a rate law that balances at a whole "
                             "population, and three distinct taps"),
+    },
+    # ---- build lz: DiffEq U1 Introduction, Classification & Slope Fields ---
+    "slpf": {  # the equation draws a dash at every point on the plane
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"A slope field draws a tiny dash at every "
+                             f"point, and the equation says how steep each "
+                             f"one leans. This one says d y d x equals x "
+                             f"plus y. At the point where x is {p['a']} and "
+                             f"y is {p['b']}, how steep is the dash?"),
+        "board": lambda p: (f'[[step eq="dy/dx = x + y"]]'
+                            f'[[step eq="at ({p["a"]}, {p["b"]}) · slope = '
+                            f'?"]]'),
+        "praise": lambda p: (f"Feed the point straight into the equation: "
+                             f"{p['a']} plus {p['b']} is "
+                             f"{p['a'] + p['b']}, so the dash there leans at "
+                             f"a slope of {p['a'] + p['b']}. Do that at "
+                             f"every point and the whole field appears — "
+                             f"and the field is the equation, drawn."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: the two taken away instead of added, and only the x
+        # read -- half the point used, half ignored. (Timesing was the first
+        # draft's third tap and reached 2,750 against an answer of 105; a
+        # tap nobody would touch is a wasted tap -- lx and ly both.)
+        "choices": lambda p: [p["a"] + p["b"], p["a"] - p["b"], p["a"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 60
+                            and len({p["a"] + p["b"], p["a"] - p["b"],
+                                     p["a"]}) == 3,
+                            "a point whose two coordinates differ enough to "
+                            "keep three distinct taps"),
+    },
+    "slpq": {  # change the law and the whole field changes with it
+        "ans": lambda p: p["a"] * p["a"] - p["b"],
+        "spoken": lambda p: (f"Here is a different equation over the same "
+                             f"plane: d y d x equals x squared, take away "
+                             f"y. At the point where x is {p['a']} and y is "
+                             f"{p['b']}, how steep is the dash?"),
+        "board": lambda p: (f'[[step eq="dy/dx = x² − y"]]'
+                            f'[[step eq="at ({p["a"]}, {p["b"]}) · slope = '
+                            f'?"]]'),
+        "praise": lambda p: (f"Square the x first: {p['a']} squared is "
+                             f"{p['a'] * p['a']}, and taking away the "
+                             f"{p['b']} leaves {p['a'] * p['a'] - p['b']}. "
+                             f"Same plane, same points, a completely "
+                             f"different field — the law is what shapes it."),
+        "key": lambda p: p["a"] * p["a"] - p["b"],
+        # The errors: the y added instead of taken away, and the y left off
+        # the end so only the bare square comes back.
+        "choices": lambda p: [p["a"] * p["a"] - p["b"],
+                              p["a"] * p["a"] + p["b"], p["a"] * p["a"]],
+        "check": lambda p: (3 <= p["a"] <= 13 and 2 <= p["b"] <= 60
+                            and p["a"] + 2 <= p["a"] * p["a"] - p["b"]
+                            and len({p["a"] * p["a"] - p["b"],
+                                     p["a"] * p["a"] + p["b"],
+                                     p["a"] * p["a"]}) == 3,
+                            "a square comfortably above the y, and three "
+                            "distinct taps"),
+    },
+    "isoc": {  # the field read BACKWARDS: where do the equal dashes live?
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"Now read the field backwards. In d y d x "
+                             f"equals x plus y, every dash leaning at a "
+                             f"slope of {p['a']} lies along one straight "
+                             f"line. Where that line crosses x equals "
+                             f"{p['b']}, what is y?"),
+        "board": lambda p: (f'[[step eq="dy/dx = x + y = {p["a"]}"]]'
+                            f'[[step eq="at x = {p["b"]} · y = ?"]]'),
+        "praise": lambda p: (f"x plus y has to come to {p['a']}, and x is "
+                             f"already {p['b']}, so y is "
+                             f"{p['a'] - p['b']}. That line is called an "
+                             f"isocline — every dash along it leans exactly "
+                             f"the same way, and drawing whole lines at a "
+                             f"time is how a field gets built by hand."),
+        "key": lambda p: p["a"] - p["b"],
+        # The errors: the two added, and the x handed back as the y.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 60
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a slope above the x it is read at, and three "
+                            "distinct taps"),
+    },
+    "fldc": {  # join the dashes and a solution curve appears
+        "ans": lambda p: p["a"] + p["b"] * p["c"],
+        "spoken": lambda p: (f"A solution is what you get by joining the "
+                             f"dashes. Start on the field at height "
+                             f"{p['a']}, and suppose every dash along the "
+                             f"way leans at a slope of {p['b']}. Follow "
+                             f"them for {p['c']} across. What height do you "
+                             f"land at?"),
+        "board": lambda p: (f'[[step eq="start at y = {p["a"]}"]]'
+                            f'[[step eq="slope {p["b"]} · for {p["c"]} '
+                            f'across · y = ?"]]'),
+        "praise": lambda p: (f"A slope of {p['b']} climbs {p['b']} for "
+                             f"every 1 across, so {p['c']} across is "
+                             f"{p['b'] * p['c']} of climb — landing at "
+                             f"{p['a'] + p['b'] * p['c']}. The dashes were "
+                             f"never a picture of the answer; joining them "
+                             f"IS the answer."),
+        "key": lambda p: p["a"] + p["b"] * p["c"],
+        # The errors: the climb handed back with no starting height, and a
+        # single step's worth of it.
+        "choices": lambda p: [p["a"] + p["b"] * p["c"], p["b"] * p["c"],
+                              p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 40 and 2 <= p["b"] <= 12
+                            and 2 <= p["c"] <= 12
+                            and p["a"] + p["b"] * p["c"] <= 190
+                            and len({p["a"] + p["b"] * p["c"],
+                                     p["b"] * p["c"],
+                                     p["a"] + p["b"]}) == 3,
+                            "a start and a climb that stay in range, with "
+                            "three distinct taps"),
+    },
+    # ---- build lz: DiffEq U2 First-Order: Separable & Linear --------------
+    "sepv": {  # split the letters apart, integrate, pin the constant
+        "ans": lambda p: 9 * (p["a"] // 2) + p["b"],
+        "spoken": lambda p: (f"The equation d y d x equals {p['a']} x "
+                             f"separates and integrates to y equals half of "
+                             f"{p['a']}, times x squared, plus C. The curve "
+                             f"sits at height {p['b']} when x is zero. What "
+                             f"is its height at x equals 3?"),
+        "board": lambda p: (f'[[step eq="dy/dx = {p["a"]}x → y = '
+                            f'{p["a"] // 2}x² + C"]]'
+                            f'[[step eq="C = {p["b"]} · y at x = 3 = ?"]]'),
+        "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and 3 "
+                             f"squared is 9, so the x part is "
+                             f"{9 * (p['a'] // 2)} — then the C of "
+                             f"{p['b']} lands on top: "
+                             f"{9 * (p['a'] // 2) + p['b']}. Separating and "
+                             f"integrating is the whole method; the point "
+                             f"is only there to pin the C."),
+        "key": lambda p: 9 * (p["a"] // 2) + p["b"],
+        # The errors: the C dropped, and the halving skipped.
+        "choices": lambda p: [9 * (p["a"] // 2) + p["b"], 9 * (p["a"] // 2),
+                              9 * p["a"] + p["b"]],
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 20
+                            and 2 <= p["b"] <= 40
+                            and 9 * p["a"] + p["b"] <= 190
+                            and len({9 * (p["a"] // 2) + p["b"],
+                                     9 * (p["a"] // 2),
+                                     9 * p["a"] + p["b"]}) == 3,
+                            "an even front number so the halving lands "
+                            "whole, and three distinct taps"),
+    },
+    "sepr": {  # separating when the y will not stay on one side quietly
+        "ans": lambda p: _isqrt(2 * p["a"] * p["c"] + p["b"] * p["b"]),
+        "spoken": lambda p: (f"This one has y underneath: d y d x equals "
+                             f"{p['a']} over y. Separating gives y d y "
+                             f"equals {p['a']} d x, so y squared equals 2 "
+                             f"times {p['a']} times x, plus C. The height "
+                             f"is {p['b']} when x is zero. What is the "
+                             f"height at x equals {p['c']}?"),
+        "board": lambda p: (f'[[step eq="y² = 2·{p["a"]}x + C · C = '
+                            f'{p["b"] * p["b"]}"]]'
+                            f'[[step eq="at x = {p["c"]} · y = ?"]]'),
+        "praise": lambda p: (f"y squared climbs to "
+                             f"{2 * p['a'] * p['c'] + p['b'] * p['b']}, and "
+                             f"the height is the square root of that — "
+                             f"{_isqrt(2 * p['a'] * p['c'] + p['b'] * p['b'])}. "
+                             f"Notice it did NOT climb in a straight line: "
+                             f"separating tells you the truth about a curve "
+                             f"that guessing cannot."),
+        "key": lambda p: _isqrt(2 * p["a"] * p["c"] + p["b"] * p["b"]),
+        # The errors: y squared answered instead of y, and a straight-line
+        # guess -- the very guess the lesson exists to break.
+        "choices": lambda p: [_isqrt(2 * p["a"] * p["c"] + p["b"] * p["b"]),
+                              2 * p["a"] * p["c"] + p["b"] * p["b"],
+                              p["b"] + p["a"] * p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 13 and 2 <= p["b"] <= 13
+                            and 2 <= p["c"] <= 13
+                            and _isqrt(2 * p["a"] * p["c"]
+                                       + p["b"] * p["b"]) > p["b"]
+                            and 2 * p["a"] * p["c"] + p["b"] * p["b"] <= 250
+                            and len({_isqrt(2 * p["a"] * p["c"]
+                                            + p["b"] * p["b"]),
+                                     2 * p["a"] * p["c"] + p["b"] * p["b"],
+                                     p["b"] + p["a"] * p["c"]}) == 3,
+                            "a y squared that comes out a perfect square, "
+                            "and three distinct taps"),
+    },
+    "newt": {  # the first-order LINEAR equation everybody meets first
+        # NOTE (lz): the first draft read "loses {c} degrees a minute for
+        # every degree of gap", which made a 30-degree gap cool at 60 degrees
+        # a minute -- the coffee would reach room temperature in half a
+        # minute. Real cooling constants are fractions, which integer taps
+        # cannot carry, so the constant was INVERTED: one degree a minute for
+        # every c degrees of gap. Same law, honest numbers.
+        "ans": lambda p: (p["a"] - p["b"]) // p["c"],
+        "spoken": lambda p: (f"Coffee at {p['a']} degrees stands in a room "
+                             f"at {p['b']} degrees. Newton's law of cooling "
+                             f"says it drops 1 degree a minute for every "
+                             f"{p['c']} degrees it stands above the room. "
+                             f"How fast is it cooling right now?"),
+        "board": lambda p: (f'[[step eq="coffee {p["a"]}° · room '
+                            f'{p["b"]}°"]]'
+                            f'[[step eq="1°/min per {p["c"]}° of gap · '
+                            f'rate = ?"]]'),
+        "praise": lambda p: (f"The gap is {p['a'] - p['b']} degrees, and "
+                             f"every {p['c']} of those is worth 1 degree a "
+                             f"minute — so {(p['a'] - p['b']) // p['c']} a "
+                             f"minute. The gap shrinks as it cools, so the "
+                             f"cooling slows, which is why coffee never "
+                             f"quite gets cold."),
+        "key": lambda p: (p["a"] - p["b"]) // p["c"],
+        # The errors: the gap handed back as though it were a rate, and the
+        # cooling constant answered on its own.
+        "choices": lambda p: [(p["a"] - p["b"]) // p["c"], p["a"] - p["b"],
+                              p["c"]],
+        "check": lambda p: (10 <= p["b"] <= 30
+                            and 40 <= p["a"] <= 95
+                            and p["b"] + 10 <= p["a"]
+                            and 2 <= p["c"] <= 8
+                            and (p["a"] - p["b"]) % p["c"] == 0
+                            and 2 <= (p["a"] - p["b"]) // p["c"] <= 40
+                            and len({(p["a"] - p["b"]) // p["c"],
+                                     p["a"] - p["b"], p["c"]}) == 3,
+                            "coffee comfortably hotter than the room, a gap "
+                            "that shares out whole, and three distinct "
+                            "taps"),
+    },
+    "conc": {  # the number every mixing problem is really about
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"A mixing problem always turns on one number. "
+                             f"{p['a']} grams of salt are stirred evenly "
+                             f"into {p['b']} litres of water. How many "
+                             f"grams sit in each single litre?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} g in {p["b"]} L"]]'
+                            f'[[step eq="grams per litre = ?"]]'),
+        "praise": lambda p: (f"Share the {p['a']} grams out over {p['b']} "
+                             f"litres and each one carries "
+                             f"{p['a'] // p['b']}. That is the "
+                             f"concentration — what the outflow pipe takes "
+                             f"away, and why a mixing equation has the salt "
+                             f"divided by the volume inside it."),
+        "key": lambda p: p["a"] // p["b"],
+        # The errors: the litres taken off the grams, muddling the units,
+        # and the litres handed back as the concentration.
+        "choices": lambda p: [p["a"] // p["b"], p["a"] - p["b"], p["b"]],
+        "check": lambda p: (2 <= p["b"] <= 14 and p["a"] % p["b"] == 0
+                            and 2 <= p["a"] // p["b"] <= 20
+                            and p["a"] <= 190
+                            and len({p["a"] // p["b"], p["a"] - p["b"],
+                                     p["b"]}) == 3,
+                            "a share that comes out whole, and three "
+                            "distinct taps"),
+    },
+    # ---- build ma: DiffEq U3 Qualitative Analysis: Equilibria & Stability --
+    "logi": {  # the rate law whose whole shape is the lesson
+        "ans": lambda p: p["b"] * (p["a"] - p["b"]) // p["c"],
+        "spoken": lambda p: (f"A pond holds at most {p['a']} fish. Logistic "
+                             f"growth says the rate is the number of fish "
+                             f"times the room still left, divided by "
+                             f"{p['c']}. With {p['b']} fish in it now, how "
+                             f"fast is the population growing?"),
+        "board": lambda p: (f'[[step eq="ceiling {p["a"]} · now '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="P × room ÷ {p["c"]} = ?"]]'),
+        "praise": lambda p: (f"The room still left is {p['a']} take away "
+                             f"{p['b']}, which is {p['a'] - p['b']}, so the "
+                             f"rate is {p['b']} times that over {p['c']} — "
+                             f"{p['b'] * (p['a'] - p['b']) // p['c']}. "
+                             f"Notice both ends: almost no fish and almost "
+                             f"no room BOTH give almost no growth."),
+        "key": lambda p: p["b"] * (p["a"] - p["b"]) // p["c"],
+        # The errors: the room left handed back as a rate, and the whole
+        # ceiling used where only the room left belongs.
+        "choices": lambda p: [p["b"] * (p["a"] - p["b"]) // p["c"],
+                              p["a"] - p["b"],
+                              p["b"] * p["a"] // p["c"]],
+        "check": lambda p: (2 <= p["c"] <= 12
+                            and 20 <= p["a"] <= 200
+                            and 4 <= p["b"] <= p["a"] - 4
+                            and p["b"] * (p["a"] - p["b"]) % p["c"] == 0
+                            and p["b"] * p["a"] % p["c"] == 0
+                            and 2 <= p["b"] * (p["a"] - p["b"]) // p["c"] <= 60
+                            and p["b"] * p["a"] // p["c"] <= 190
+                            and len({p["b"] * (p["a"] - p["b"]) // p["c"],
+                                     p["a"] - p["b"],
+                                     p["b"] * p["a"] // p["c"]}) == 3,
+                            "a pond with room at both ends and three "
+                            "distinct taps"),
+    },
+    "carr": {  # the non-obvious fact: growth peaks HALFWAY, not at the top
+        "ans": lambda p: p["a"] // 2 - p["b"],
+        "spoken": lambda p: (f"Logistic growth is fastest exactly halfway "
+                             f"to the ceiling — not near the top, where "
+                             f"everyone guesses. The pond's ceiling is "
+                             f"{p['a']} and it holds {p['b']} fish today. "
+                             f"How many more fish would take it to its "
+                             f"fastest-growing size?"),
+        "board": lambda p: (f'[[step eq="ceiling {p["a"]} · fastest at '
+                            f'half"]]'
+                            f'[[step eq="now {p["b"]} · how many more?"]]'),
+        "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and it is "
+                             f"already at {p['b']}, so {p['a'] // 2 - p['b']} "
+                             f"more fish reach the fastest-growing size. "
+                             f"Past that point the pond keeps filling but "
+                             f"the FILLING slows — the crowd starts getting "
+                             f"in its own way."),
+        "key": lambda p: p["a"] // 2 - p["b"],
+        # The errors: the distance to the CEILING rather than to the halfway
+        # point -- the guess the lesson exists to break -- and the halfway
+        # point itself answered instead of the distance to it.
+        "choices": lambda p: [p["a"] // 2 - p["b"], p["a"] - p["b"],
+                              p["a"] // 2],
+        "check": lambda p: (p["a"] % 2 == 0 and 20 <= p["a"] <= 190
+                            and 4 <= p["b"]
+                            and p["b"] + 2 <= p["a"] // 2
+                            and len({p["a"] // 2 - p["b"], p["a"] - p["b"],
+                                     p["a"] // 2}) == 3,
+                            "a pond still short of its halfway mark, and "
+                            "three distinct taps"),
+    },
+    "fast": {  # and how big that peak actually is
+        "ans": lambda p: p["a"] * p["b"] // 4,
+        "spoken": lambda p: (f"A pond grows fastest at its halfway point, "
+                             f"and the size of that peak is the ceiling "
+                             f"times the growth constant, divided by 4. "
+                             f"With a ceiling of {p['a']} and a growth "
+                             f"constant of {p['b']}, what is the fastest "
+                             f"rate?"),
+        "board": lambda p: (f'[[step eq="ceiling {p["a"]} · constant '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="peak rate = {p["a"]} × {p["b"]} ÷ '
+                            f'4 = ?"]]'),
+        "praise": lambda p: (f"{p['a']} times {p['b']} is "
+                             f"{p['a'] * p['b']}, and a quarter of that is "
+                             f"{p['a'] * p['b'] // 4}. The quarter is where "
+                             f"the halving shows up twice — half the fish "
+                             f"and half the room, at the same moment."),
+        "key": lambda p: p["a"] * p["b"] // 4,
+        # The errors: the quarter never taken, and halved once instead of
+        # twice.
+        "choices": lambda p: [p["a"] * p["b"] // 4, p["a"] * p["b"],
+                              p["a"] * p["b"] // 2],
+        "check": lambda p: (p["a"] % 4 == 0 and 20 <= p["a"] <= 100
+                            and 2 <= p["b"] <= p["a"] // 4 and p["b"] <= 12
+                            and p["a"] * p["b"] <= 300
+                            and 2 <= p["a"] * p["b"] // 4
+                            and len({p["a"] * p["b"] // 4, p["a"] * p["b"],
+                                     p["a"] * p["b"] // 2}) == 3,
+                            "a ceiling that quarters whole, and three "
+                            "distinct taps"),
+    },
+    "away": {  # the other kind of equilibrium: one that PUSHES
+        "ans": lambda p: p["c"] * (p["b"] - p["a"]),
+        "spoken": lambda p: (f"Not every equilibrium pulls things in. This "
+                             f"one sits at {p['a']} and pushes away: "
+                             f"anything off it moves at {p['c']} for every "
+                             f"1 of distance. A population of {p['b']} is "
+                             f"sitting above it. How fast is it moving "
+                             f"away?"),
+        "board": lambda p: (f'[[step eq="unstable at {p["a"]} · now '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="{p["c"]} per 1 of distance · rate '
+                            f'= ?"]]'),
+        "praise": lambda p: (f"It stands {p['b'] - p['a']} above the "
+                             f"equilibrium, and {p['c']} for each of those "
+                             f"is {p['c'] * (p['b'] - p['a'])}. And it only "
+                             f"gets worse — the further it goes the harder "
+                             f"it is pushed. That is what UNSTABLE means."),
+        "key": lambda p: p["c"] * (p["b"] - p["a"]),
+        # The errors: the distance handed back as a rate, and the
+        # population itself answered as though it were the speed.
+        "choices": lambda p: [p["c"] * (p["b"] - p["a"]),
+                              p["b"] - p["a"], p["b"]],
+        "check": lambda p: (4 <= p["a"] and p["a"] + 3 <= p["b"] <= 90
+                            and 2 <= p["c"] <= 9
+                            and p["c"] * (p["b"] - p["a"]) <= 190
+                            and len({p["c"] * (p["b"] - p["a"]),
+                                     p["b"] - p["a"], p["b"]}) == 3,
+                            "a population clear of the equilibrium, and "
+                            "three distinct taps"),
+    },
+    # ---- build ma: DiffEq U4 Numerical Methods: Euler & Runge-Kutta -------
+    "eulr": {  # Euler reads the slope at the START of the step and commits
+        "ans": lambda p: p["a"] + 2 * p["b"] * p["b"],
+        "spoken": lambda p: (f"Euler's method walks in straight steps, "
+                             f"using the slope at the START of each one. "
+                             f"For d y d x equals 2 x, starting at height "
+                             f"{p['a']} when x is zero, take two steps of "
+                             f"{p['b']}. Where does Euler land?"),
+        "board": lambda p: (f'[[step eq="dy/dx = 2x · start {p["a"]} · two '
+                            f'steps of {p["b"]}"]]'
+                            f'[[step eq="0 climb, then 2×{p["b"]}×{p["b"]} '
+                            f'· lands ?"]]'),
+        "praise": lambda p: (f"The first step starts where the slope is "
+                             f"nothing, so it climbs nothing. The second "
+                             f"starts at {p['b']}, slope {2 * p['b']}, held "
+                             f"across {p['b']} — a climb of "
+                             f"{2 * p['b'] * p['b']}, landing at "
+                             f"{p['a'] + 2 * p['b'] * p['b']}. Euler lands "
+                             f"low: it committed to an old slope."),
+        "key": lambda p: p["a"] + 2 * p["b"] * p["b"],
+        # The errors: the TRUE value, which Euler does not reach -- the
+        # whole point of the unit -- and the climb with no starting height.
+        "choices": lambda p: [p["a"] + 2 * p["b"] * p["b"],
+                              p["a"] + 4 * p["b"] * p["b"],
+                              2 * p["b"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 40 and 2 <= p["b"] <= 9
+                            and p["a"] + 4 * p["b"] * p["b"] <= 190
+                            and len({p["a"] + 2 * p["b"] * p["b"],
+                                     p["a"] + 4 * p["b"] * p["b"],
+                                     2 * p["b"] * p["b"]}) == 3,
+                            "a start and a step whose true landing stays in "
+                            "range, and three distinct taps"),
+    },
+    "estp": {  # what "first order" actually buys you
+        "ans": lambda p: p["a"] * p["c"] // p["b"],
+        "spoken": lambda p: (f"Euler is called first order because its "
+                             f"error is proportional to the step size — "
+                             f"shrink the step and the error shrinks by the "
+                             f"very same factor. A step of {p['b']} left an "
+                             f"error of {p['a']}. What error does a step of "
+                             f"{p['c']} leave?"),
+        "board": lambda p: (f'[[step eq="step {p["b"]} → error '
+                            f'{p["a"]}"]]'
+                            f'[[step eq="step {p["c"]} → error ?"]]'),
+        "praise": lambda p: (f"The step shrank from {p['b']} to {p['c']}, "
+                             f"and the error follows it exactly: {p['a']} "
+                             f"becomes {p['a'] * p['c'] // p['b']}. That is "
+                             f"the deal Euler offers — the error only ever "
+                             f"shrinks in step with the step itself, never "
+                             f"faster."),
+        "key": lambda p: p["a"] * p["c"] // p["b"],
+        # The errors: the error left unchanged, and the error halved out of
+        # habit no matter what the step actually did.
+        "choices": lambda p: [p["a"] * p["c"] // p["b"], p["a"],
+                              p["a"] // 2],
+        "check": lambda p: (2 <= p["b"] <= 12 and 2 <= p["c"] <= 12
+                            and p["c"] < p["b"] and 2 * p["c"] != p["b"]
+                            and 20 <= p["a"] <= 190 and p["a"] % 2 == 0
+                            and p["a"] * p["c"] % p["b"] == 0
+                            and 2 <= p["a"] * p["c"] // p["b"]
+                            and len({p["a"] * p["c"] // p["b"], p["a"],
+                                     p["a"] // 2}) == 3,
+                            "a smaller step that scales the error whole, "
+                            "and three distinct taps"),
+    },
+    "rk4": {  # fourth order, and what that is worth
+        "ans": lambda p: p["a"] // 16,
+        "spoken": lambda p: (f"Runge-Kutta of fourth order is the method "
+                             f"everybody actually uses. Halve the step and "
+                             f"Euler's error halves — but this one's error "
+                             f"divides by 16. Starting from an error of "
+                             f"{p['a']}, what is left after halving the "
+                             f"step once?"),
+        "board": lambda p: (f'[[step eq="RK4 error {p["a"]} · halve the '
+                            f'step"]]'
+                            f'[[step eq="÷ 16 = ?"]]'),
+        "praise": lambda p: (f"{p['a']} divided by 16 is {p['a'] // 16}. "
+                             f"Halving the step twice would divide by 16 "
+                             f"again — which is why a fourth-order method "
+                             f"reaches an accuracy Euler could not buy with "
+                             f"a thousand times the steps."),
+        "key": lambda p: p["a"] // 16,
+        # The errors: halving like Euler, and quartering like a second-order
+        # method -- the three taps are the three convergence orders.
+        "choices": lambda p: [p["a"] // 16, p["a"] // 2, p["a"] // 4],
+        # ⚠️ THE b=0 TRAP AGAIN (lw bit three ops at once, and every handoff
+        # since has named it). The default rule-44 check demands the digit
+        # "0" in speech that never says zero -- so a=80 passed by accident
+        # and a=32 failed. Every b=0 op needs its own speaks override.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 16 == 0 and 32 <= p["a"] <= 320
+                            and len({p["a"] // 16, p["a"] // 2,
+                                     p["a"] // 4}) == 3,
+                            "an error that divides by 16 whole, and three "
+                            "distinct taps"),
+    },
+    "evls": {  # accuracy is not free: count the slope evaluations
+        "ans": lambda p: p["a"] - 4 * p["b"],
+        "spoken": lambda p: (f"Accuracy is never free. Euler needs {p['a']} "
+                             f"steps to reach the accuracy you want, at one "
+                             f"slope evaluation each. Runge-Kutta reaches "
+                             f"it in {p['b']} steps, but every step costs 4 "
+                             f"evaluations. How many evaluations does "
+                             f"Runge-Kutta save?"),
+        "board": lambda p: (f'[[step eq="Euler {p["a"]} × 1"]]'
+                            f'[[step eq="RK4 {p["b"]} × 4 · saving = ?"]]'),
+        "praise": lambda p: (f"Runge-Kutta spends 4 times {p['b']}, which "
+                             f"is {4 * p['b']}, against Euler's {p['a']} — "
+                             f"a saving of {p['a'] - 4 * p['b']}. Four "
+                             f"times the cost per step and it still wins "
+                             f"easily, because it needs so very many fewer "
+                             f"of them."),
+        "key": lambda p: p["a"] - 4 * p["b"],
+        # The errors: the step counts compared as though a step cost the
+        # same in both, and RK4's bill answered as the saving.
+        "choices": lambda p: [p["a"] - 4 * p["b"], p["a"] - p["b"],
+                              4 * p["b"]],
+        "check": lambda p: (2 <= p["b"] <= 30
+                            and 4 * p["b"] + 4 <= p["a"] <= 190
+                            and len({p["a"] - 4 * p["b"], p["a"] - p["b"],
+                                     4 * p["b"]}) == 3,
+                            "a Runge-Kutta bill comfortably under Euler's, "
+                            "and three distinct taps"),
+    },
+    # ---- build mb: DiffEq U5 Second-Order Linear: Homogeneous -------------
+    "char": {  # the discriminant again -- but now it decides a PHYSICS case
+        "ans": lambda p: p["a"] * p["a"] - 4 * p["b"],
+        "spoken": lambda p: (f"A damped spring obeys y double-prime, plus "
+                             f"{p['a']} y prime, plus {p['b']} y, equals "
+                             f"zero. Its characteristic equation is r "
+                             f"squared plus {p['a']} r plus {p['b']}. What "
+                             f"is {p['a']} squared, take away 4 times "
+                             f"{p['b']}?"),
+        "board": lambda p: (f'[[step eq="r² + {p["a"]}r + {p["b"]} = 0"]]'
+                            f'[[step eq="{p["a"]}² − 4×{p["b"]} = ?"]]'),
+        "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and 4 "
+                             f"times {p['b']} is {4 * p['b']}, leaving "
+                             f"{p['a'] * p['a'] - 4 * p['b']}. Above zero "
+                             f"means two real roots and no wobble at all — "
+                             f"the door closes slowly and stops. That one "
+                             f"number decides how the whole spring behaves."),
+        "key": lambda p: p["a"] * p["a"] - 4 * p["b"],
+        # The errors: the 4 forgotten, and the two added instead of taken
+        # away.
+        "choices": lambda p: [p["a"] * p["a"] - 4 * p["b"],
+                              p["a"] * p["a"] - p["b"],
+                              p["a"] * p["a"] + 4 * p["b"]],
+        "check": lambda p: (4 <= p["a"] <= 20 and 2 <= p["b"]
+                            and 4 * p["b"] + 4 <= p["a"] * p["a"]
+                            and p["a"] * p["a"] + 4 * p["b"] <= 300
+                            and len({p["a"] * p["a"] - 4 * p["b"],
+                                     p["a"] * p["a"] - p["b"],
+                                     p["a"] * p["a"] + 4 * p["b"]}) == 3,
+                            "a damping strong enough to keep the test "
+                            "number above zero, and three distinct taps"),
+    },
+    "cdmp": {  # the knife-edge: the discriminant exactly zero
+        "ans": lambda p: p["a"] * p["a"] // 4,
+        "spoken": lambda p: (f"A door closer is critically damped when that "
+                             f"test number is exactly zero — the fastest "
+                             f"close with no bounce at all. With {p['a']} "
+                             f"on the y prime term, what must the plain y "
+                             f"term be to land exactly there?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}² − 4c = 0"]]'
+                            f'[[step eq="c = ?"]]'),
+        "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and a "
+                             f"quarter of that is "
+                             f"{p['a'] * p['a'] // 4} — set the plain term "
+                             f"there and the test number is exactly zero. A "
+                             f"hair less and the door bounces; a hair more "
+                             f"and it crawls."),
+        "key": lambda p: p["a"] * p["a"] // 4,
+        # The errors: the square itself, and halved rather than quartered.
+        "choices": lambda p: [p["a"] * p["a"] // 4, p["a"] * p["a"],
+                              p["a"] * p["a"] // 2],
+        # ⚠️ b=0 op. THIS BUILD WROTE TWO OF THEM AND ONLY REMEMBERED ONE --
+        # natf got its override at authoring, cdmp did not, and the bank
+        # half-passed because a=10 and a=20 carry a "0" of their own. Every
+        # b=0 op needs this line. No exceptions, no memory required.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 30
+                            and p["a"] * p["a"] <= 900
+                            and len({p["a"] * p["a"] // 4, p["a"] * p["a"],
+                                     p["a"] * p["a"] // 2}) == 3,
+                            "an even damping so the quarter lands whole, "
+                            "and three distinct taps"),
+    },
+    "natf": {  # strip the damping away and it never stops
+        "ans": lambda p: _isqrt(p["a"]),
+        "spoken": lambda p: (f"Take the damping away completely and the "
+                             f"spring never stops: y double-prime plus "
+                             f"{p['a']} y equals zero. It rocks at its "
+                             f"natural frequency, which is the square root "
+                             f"of {p['a']}. What is that?"),
+        "board": lambda p: (f'[[step eq="y″ + {p["a"]}y = 0"]]'
+                            f'[[step eq="natural frequency = √{p["a"]} = '
+                            f'?"]]'),
+        "praise": lambda p: (f"The square root of {p['a']} is "
+                             f"{_isqrt(p['a'])}, so it rocks at "
+                             f"{_isqrt(p['a'])} radians a second and keeps "
+                             f"rocking for ever. Every object has a "
+                             f"frequency like this one, and the next unit "
+                             f"is about what happens when something else "
+                             f"finds it."),
+        "key": lambda p: _isqrt(p["a"]),
+        # The errors: the number itself un-rooted, and the root doubled --
+        # reaching for the other operation that undoes a square.
+        "choices": lambda p: [_isqrt(p["a"]), p["a"], 2 * _isqrt(p["a"])],
+        # ⚠️ b=0 op -- the default rule-44 check would demand the digit "0"
+        # in speech that never says zero. (lw bit three at once; ma's rk4
+        # half-passed because some of its numbers happened to contain a 0.)
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["b"] == 0 and _isqrt(p["a"]) >= 3
+                            and p["a"] <= 300
+                            and len({_isqrt(p["a"]), p["a"],
+                                     2 * _isqrt(p["a"])}) == 3,
+                            "a perfect square whose root is 3 or more, and "
+                            "three distinct taps"),
+    },
+    "oscf": {  # put a little damping back and the rocking SLOWS
+        "ans": lambda p: _isqrt(4 * p["b"] - p["a"] * p["a"]) // 2,
+        "spoken": lambda p: (f"Now put a little damping back: y "
+                             f"double-prime, plus {p['a']} y prime, plus "
+                             f"{p['b']} y, equals zero. It still rocks, but "
+                             f"slower — at the square root of 4 times "
+                             f"{p['b']} take away {p['a']} squared, all "
+                             f"halved. What is that?"),
+        "board": lambda p: (f'[[step eq="4×{p["b"]} − {p["a"]}² = '
+                            f'{4 * p["b"] - p["a"] * p["a"]}"]]'
+                            f'[[step eq="√ then ÷ 2 = ?"]]'),
+        "praise": lambda p: (f"4 times {p['b']} take away {p['a']} squared "
+                             f"is {4 * p['b'] - p['a'] * p['a']}, whose "
+                             f"root is "
+                             f"{_isqrt(4 * p['b'] - p['a'] * p['a'])}, and "
+                             f"half of that is "
+                             f"{_isqrt(4 * p['b'] - p['a'] * p['a']) // 2}. "
+                             f"Damping does not only shrink the swing — it "
+                             f"slows the rocking down as well."),
+        "key": lambda p: _isqrt(4 * p["b"] - p["a"] * p["a"]) // 2,
+        # The errors: the halving skipped, and the DAMPING halved instead
+        # of the root -- a over 2 is a real number in this solution, just
+        # not the frequency.
+        "choices": lambda p: [_isqrt(4 * p["b"] - p["a"] * p["a"]) // 2,
+                              _isqrt(4 * p["b"] - p["a"] * p["a"]),
+                              p["a"] // 2],
+        "check": lambda p: (p["a"] % 2 == 0 and 4 <= p["a"] <= 20
+                            and 2 <= p["b"] <= 240
+                            and 4 * p["b"] - p["a"] * p["a"] > 0
+                            and _isqrt(4 * p["b"] - p["a"] * p["a"]) % 2 == 0
+                            and _isqrt(4 * p["b"]
+                                       - p["a"] * p["a"]) // 2 >= 2
+                            and 4 * p["b"] - p["a"] * p["a"] <= 900
+                            and len({_isqrt(4 * p["b"] - p["a"] * p["a"]) // 2,
+                                     _isqrt(4 * p["b"] - p["a"] * p["a"]),
+                                     p["a"] // 2}) == 3,
+                            "a wobble whose root halves whole, and three "
+                            "distinct taps"),
+    },
+    # ---- build mb: DiffEq U6 Nonhomogeneous, Vibrations & Resonance -------
+    "part": {  # a steady push produces a steady offset
+        "ans": lambda p: p["b"] // p["a"],
+        "spoken": lambda p: (f"Until now the right-hand side was zero — "
+                             f"nobody pushing. Now someone leans on the "
+                             f"spring with a steady force: y double-prime "
+                             f"plus {p['a']} y equals {p['b']}. A steady "
+                             f"push settles at a steady height. What "
+                             f"height?"),
+        "board": lambda p: (f'[[step eq="y″ + {p["a"]}y = {p["b"]}"]]'
+                            f'[[step eq="steady y · {p["a"]}y = {p["b"]} · '
+                            f'y = ?"]]'),
+        "praise": lambda p: (f"A steady answer has no curvature, so the y "
+                             f"double-prime is nothing and {p['a']} y has "
+                             f"to equal {p['b']} on its own, so y is "
+                             f"{p['b'] // p['a']}. That is a particular "
+                             f"solution: guess the SHAPE of the push, then "
+                             f"let the equation fix the size."),
+        "key": lambda p: p["b"] // p["a"],
+        # The errors: the force timesed instead of shared out, and the force
+        # handed straight back as a height.
+        "choices": lambda p: [p["b"] // p["a"], p["a"] * p["b"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and p["b"] % p["a"] == 0
+                            and 2 <= p["b"] // p["a"] <= 20
+                            and p["a"] * p["b"] <= 300
+                            and len({p["b"] // p["a"], p["a"] * p["b"],
+                                     p["b"]}) == 3,
+                            "a push that shares out whole, and three "
+                            "distinct taps"),
+    },
+    "trns": {  # the part that fades, and how the start pins it
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"A pushed spring does two things at once. It "
+                             f"settles toward a steady height of {p['b']}, "
+                             f"and it carries a transient that fades away. "
+                             f"At the very start it is at {p['a']}. How big "
+                             f"is the transient part?"),
+        "board": lambda p: (f'[[step eq="starts at {p["a"]} · settles at '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="transient = ?"]]'),
+        "praise": lambda p: (f"The transient is whatever the start is NOT "
+                             f"explained by the steady part: {p['a']} take "
+                             f"away {p['b']} is {p['a'] - p['b']}. Wait a "
+                             f"while and that piece is gone, leaving only "
+                             f"{p['b']} — which is why a spring forgets how "
+                             f"it was let go."),
+        "key": lambda p: p["a"] - p["b"],
+        # The errors: the two added, and the steady height answered as
+        # though the transient were the whole story.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 190
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a start clear of the steady height, and three "
+                            "distinct taps"),
+    },
+    "reso": {  # the closer the frequencies, the wilder the answer
+        "ans": lambda p: p["c"] // (p["a"] - p["b"]),
+        "spoken": lambda p: (f"Here is why soldiers break step on a bridge. "
+                             f"The spring's natural frequency squared is "
+                             f"{p['a']}, and something is shaking it at a "
+                             f"frequency squared of {p['b']}. The swing it "
+                             f"builds is {p['c']} divided by the gap "
+                             f"between those two. How big is the swing?"),
+        "board": lambda p: (f'[[step eq="natural² {p["a"]} · driver² '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="{p["c"]} ÷ gap = ?"]]'),
+        "praise": lambda p: (f"The gap is {p['a'] - p['b']}, so the swing "
+                             f"is {p['c']} over that — "
+                             f"{p['c'] // (p['a'] - p['b'])}. Shrink the "
+                             f"gap and the swing grows; close it entirely "
+                             f"and there is nothing left to divide by — it "
+                             f"just grows. That is resonance."),
+        "key": lambda p: p["c"] // (p["a"] - p["b"]),
+        # The errors: divided by the DRIVER instead of by the gap, and the
+        # force handed back undivided. (The gap itself was the first
+        # draft's second tap and sat at 3 beside an answer of 47 -- the
+        # small-end wasted tap, for the fifth build running.)
+        "choices": lambda p: [p["c"] // (p["a"] - p["b"]),
+                              p["c"] // p["b"], p["c"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 190
+                            and 4 <= p["c"] <= 190
+                            and p["c"] % (p["a"] - p["b"]) == 0
+                            and p["c"] % p["b"] == 0
+                            and p["a"] - p["b"] != p["b"]
+                            and 2 <= p["c"] // (p["a"] - p["b"]) <= 60
+                            and len({p["c"] // (p["a"] - p["b"]),
+                                     p["c"] // p["b"], p["c"]}) == 3,
+                            "a force that divides by both the gap and the "
+                            "driver, and three distinct taps"),
+    },
+    "damp": {  # the only thing standing between resonance and ruin
+        "ans": lambda p: p["a"] // (p["b"] * p["c"]),
+        "spoken": lambda p: (f"At exact resonance the swing would be "
+                             f"endless — except that real things have "
+                             f"damping. Then the swing is the force "
+                             f"{p['a']}, divided by the damping {p['b']} "
+                             f"times the frequency {p['c']}. How big does "
+                             f"it actually get?"),
+        "board": lambda p: (f'[[step eq="force {p["a"]} · damping '
+                            f'{p["b"]} · frequency {p["c"]}"]]'
+                            f'[[step eq="{p["a"]} ÷ ({p["b"]}×{p["c"]}) = '
+                            f'?"]]'),
+        "praise": lambda p: (f"{p['b']} times {p['c']} is "
+                             f"{p['b'] * p['c']}, and {p['a']} shared over "
+                             f"that is {p['a'] // (p['b'] * p['c'])}. So "
+                             f"damping is the only thing standing between "
+                             f"resonance and ruin — and the smaller it "
+                             f"gets, the bigger that swing grows."),
+        "key": lambda p: p["a"] // (p["b"] * p["c"]),
+        # The errors: only one of the two divisions done, and the force
+        # answered undivided.
+        "choices": lambda p: [p["a"] // (p["b"] * p["c"]),
+                              p["a"] // p["b"], p["a"]],
+        "check": lambda p: (2 <= p["b"] <= 12 and 2 <= p["c"] <= 12
+                            and p["b"] != p["c"]
+                            and p["a"] % (p["b"] * p["c"]) == 0
+                            and 2 <= p["a"] // (p["b"] * p["c"]) <= 40
+                            and p["a"] <= 190
+                            and len({p["a"] // (p["b"] * p["c"]),
+                                     p["a"] // p["b"], p["a"]}) == 3,
+                            "a force that divides by both whole, and three "
+                            "distinct taps"),
+    },
+    # ---- build mc: DiffEq U7 Laplace Transforms ---------------------------
+    "lder": {  # the rule that turns calculus into algebra
+        "ans": lambda p: p["b"] * p["c"] - p["a"],
+        "spoken": lambda p: (f"The Laplace transform turns a derivative into "
+                             f"a multiplication: y prime becomes s times Y, "
+                             f"take away the starting height. The curve "
+                             f"starts at {p['a']}. With s equal to {p['b']} "
+                             f"and Y equal to {p['c']}, what does y prime "
+                             f"become?"),
+        "board": lambda p: (f'[[step eq="L{{y′}} = sY − y(0)"]]'
+                            f'[[step eq="s={p["b"]} · Y={p["c"]} · y(0)='
+                            f'{p["a"]} · = ?"]]'),
+        "praise": lambda p: (f"{p['b']} times {p['c']} is "
+                             f"{p['b'] * p['c']}, take away the starting "
+                             f"{p['a']} — {p['b'] * p['c'] - p['a']}. That "
+                             f"one rule is the whole trick: differentiating "
+                             f"becomes timesing by s, so a differential "
+                             f"equation turns into ordinary algebra."),
+        "key": lambda p: p["b"] * p["c"] - p["a"],
+        # The errors: the starting height added instead of taken away, and
+        # the product handed back with the start ignored.
+        "choices": lambda p: [p["b"] * p["c"] - p["a"],
+                              p["b"] * p["c"] + p["a"], p["b"] * p["c"]],
+        "check": lambda p: (2 <= p["b"] <= 14 and 2 <= p["c"] <= 14
+                            and p["b"] != p["c"]
+                            and 2 <= p["a"]
+                            and p["a"] + 2 <= p["b"] * p["c"]
+                            and p["b"] * p["c"] + p["a"] <= 250
+                            and len({p["b"] * p["c"] - p["a"],
+                                     p["b"] * p["c"] + p["a"],
+                                     p["b"] * p["c"]}) == 3,
+                            "a product comfortably above the starting "
+                            "height, and three distinct taps"),
+    },
+    "lalg": {  # and now it IS algebra: solve for Y, then read it off
+        "ans": lambda p: p["b"] // (p["a"] + p["c"]),
+        "spoken": lambda p: (f"Transforming leaves plain algebra: s plus "
+                             f"{p['a']}, all times Y, equals {p['b']}. So Y "
+                             f"is {p['b']} over s plus {p['a']}. What is Y "
+                             f"when s is {p['c']}?"),
+        "board": lambda p: (f'[[step eq="(s + {p["a"]})Y = {p["b"]}"]]'
+                            f'[[step eq="Y = {p["b"]}/(s + {p["a"]}) · at s '
+                            f'= {p["c"]} · = ?"]]'),
+        "praise": lambda p: (f"The bottom is {p['c']} plus {p['a']}, which "
+                             f"is {p['c'] + p['a']}, and {p['b']} over that "
+                             f"is {p['b'] // (p['a'] + p['c'])}. Notice "
+                             f"what just happened: no calculus was done at "
+                             f"all. The derivative left the problem the "
+                             f"moment we transformed it."),
+        "key": lambda p: p["b"] // (p["a"] + p["c"]),
+        # The errors: the two bottom numbers taken away instead of added,
+        # and the top handed back undivided.
+        "choices": lambda p: [p["b"] // (p["a"] + p["c"]),
+                              p["b"] // abs(p["c"] - p["a"])
+                              if p["c"] != p["a"] else p["b"],
+                              p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["c"] <= 12
+                            and p["a"] != p["c"]
+                            and p["b"] % (p["a"] + p["c"]) == 0
+                            and p["b"] % abs(p["c"] - p["a"]) == 0
+                            and 2 <= p["b"] // (p["a"] + p["c"]) <= 40
+                            and p["b"] <= 240
+                            and len({p["b"] // (p["a"] + p["c"]),
+                                     p["b"] // abs(p["c"] - p["a"]),
+                                     p["b"]}) == 3,
+                            "a top that divides by both the sum and the "
+                            "difference, and three distinct taps"),
+    },
+    "lshf": {  # the most-used line in the whole table
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"Here is the shift rule, the line of the "
+                             f"table everybody uses most. A transform blows "
+                             f"up at s equals {p['a']} — that is its pole. "
+                             f"Multiply the original by e to the {p['b']} "
+                             f"t, and every s becomes s take away "
+                             f"{p['b']}. Where is the pole now?"),
+        "board": lambda p: (f'[[step eq="pole at s = {p["a"]}"]]'
+                            f'[[step eq="× e^({p["b"]}t) · new pole = ?"]]'),
+        "praise": lambda p: (f"The whole picture slides {p['b']} to the "
+                             f"right, so the pole moves from {p['a']} to "
+                             f"{p['a'] + p['b']}. And the pole is not "
+                             f"bookkeeping: a pole to the right of zero "
+                             f"means the answer grows, one to the left "
+                             f"means it dies away."),
+        "key": lambda p: p["a"] + p["b"],
+        # The errors: shifted the wrong way, and the original pole left
+        # where it was.
+        "choices": lambda p: [p["a"] + p["b"], p["a"] - p["b"], p["a"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 150
+                            and len({p["a"] + p["b"], p["a"] - p["b"],
+                                     p["a"]}) == 3,
+                            "a pole clear of the shift, and three distinct "
+                            "taps"),
+    },
+    "lfin": {  # read the ending without ever transforming back
+        "ans": lambda p: p["b"] // p["a"],
+        "spoken": lambda p: (f"Best of all, you can read where a solution "
+                             f"ENDS without ever transforming back. Y is "
+                             f"{p['b']}, with two things underneath it: a "
+                             f"lone s, and s plus {p['a']}. Multiply by s "
+                             f"and let s fall to zero: what is the final "
+                             f"value?"),
+        "board": lambda p: (f'[[step eq="Y = {p["b"]}/(s(s + {p["a"]}))"]]'
+                            f'[[step eq="s·Y as s → 0 · = ?"]]'),
+        "praise": lambda p: (f"Multiplying by s clears the lone s "
+                             f"underneath, and letting s fall to zero "
+                             f"leaves {p['b']} over {p['a']} — "
+                             f"{p['b'] // p['a']}. The final-value theorem: "
+                             f"where a thing settles, read straight off the "
+                             f"transform, with no inverting at all."),
+        "key": lambda p: p["b"] // p["a"],
+        # The errors: the top handed back whole, and the two taken away
+        # rather than shared.
+        "choices": lambda p: [p["b"] // p["a"], p["b"], p["b"] - p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and p["b"] % p["a"] == 0
+                            and 2 <= p["b"] // p["a"] <= 40
+                            and p["b"] <= 190
+                            and len({p["b"] // p["a"], p["b"],
+                                     p["b"] - p["a"]}) == 3,
+                            "a top that shares out whole, and three "
+                            "distinct taps"),
+    },
+    # ---- build mc: DiffEq U8 Linear Systems & the Phase Plane -------------
+    "sysx": {  # Unit 1's slope field, one dimension up
+        "ans": lambda p: p["a"] * p["b"] - p["c"],
+        "spoken": lambda p: (f"Two things now change together, each one "
+                             f"watching the other. Say x grows by {p['a']} "
+                             f"for every x it already has, and loses 1 for "
+                             f"every y. At the point where x is {p['b']} "
+                             f"and y is {p['c']}, how fast is x changing?"),
+        "board": lambda p: (f'[[step eq="x′ = {p["a"]}x − y"]]'
+                            f'[[step eq="at ({p["b"]}, {p["c"]}) · x′ = '
+                            f'?"]]'),
+        "praise": lambda p: (f"{p['a']} times {p['b']} is "
+                             f"{p['a'] * p['b']}, and the {p['c']} of y "
+                             f"pulls it back to "
+                             f"{p['a'] * p['b'] - p['c']}. Do that for y as "
+                             f"well and you have an arrow at that point — "
+                             f"a slope field with two directions instead of "
+                             f"one."),
+        "key": lambda p: p["a"] * p["b"] - p["c"],
+        # The errors: the y added instead of taken away, and the x part
+        # answered with the y ignored.
+        "choices": lambda p: [p["a"] * p["b"] - p["c"],
+                              p["a"] * p["b"] + p["c"], p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["b"] <= 16
+                            and 2 <= p["c"]
+                            and p["c"] + 2 <= p["a"] * p["b"]
+                            and p["a"] * p["b"] + p["c"] <= 250
+                            and len({p["a"] * p["b"] - p["c"],
+                                     p["a"] * p["b"] + p["c"],
+                                     p["a"] * p["b"]}) == 3,
+                            "an x part comfortably above the y, and three "
+                            "distinct taps"),
+    },
+    "nucl": {  # the lines where one of the two arrows goes flat
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"Some points are special: x stops changing "
+                             f"entirely where {p['a']} x equals y. That "
+                             f"line is called the x-nullcline. Where x is "
+                             f"{p['b']}, what is y on it?"),
+        "board": lambda p: (f'[[step eq="x′ = 0 where y = {p["a"]}x"]]'
+                            f'[[step eq="at x = {p["b"]} · y = ?"]]'),
+        "praise": lambda p: (f"{p['a']} times {p['b']} is "
+                             f"{p['a'] * p['b']}, so the nullcline passes "
+                             f"through there. Along that whole line the "
+                             f"arrows point straight up or straight down — "
+                             f"and where the two nullclines cross, nothing "
+                             f"moves at all. That crossing is an "
+                             f"equilibrium."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the two added -- the honest wrong operation, and
+        # small here only because that is what addition IS next to a product
+        # -- and the slope used for the x as well.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"],
+                              p["a"] * p["a"]],
+        "check": lambda p: (2 <= p["a"] <= 14 and 2 <= p["b"] <= 16
+                            and p["a"] != p["b"]
+                            and p["a"] * p["b"] <= 190
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["a"] * p["a"]}) == 3,
+                            "a slope and an x that differ, and three "
+                            "distinct taps"),
+    },
+    "detm": {  # one number that classifies the whole picture
+        "ans": lambda p: p["a"] * p["c"] - p["b"] * p["b"],
+        "spoken": lambda p: (f"A system like this is carried by four "
+                             f"numbers in a square: {p['a']} and {p['c']} "
+                             f"down the diagonal, {p['b']} in both corners. "
+                             f"Its determinant is {p['a']} times {p['c']}, "
+                             f"take away {p['b']} squared. What is it?"),
+        "board": lambda p: (f'[[step eq="[{p["a"]} {p["b"]}; {p["b"]} '
+                            f'{p["c"]}]"]]'
+                            f'[[step eq="{p["a"]}×{p["c"]} − {p["b"]}² = '
+                            f'?"]]'),
+        "praise": lambda p: (f"{p['a']} times {p['c']} is "
+                             f"{p['a'] * p['c']}, and {p['b']} squared is "
+                             f"{p['b'] * p['b']}, leaving "
+                             f"{p['a'] * p['c'] - p['b'] * p['b']}. The "
+                             f"determinant is the two eigenvalues "
+                             f"multiplied together — so if it ever falls "
+                             f"below zero, one of them is positive and you "
+                             f"have a saddle."),
+        "key": lambda p: p["a"] * p["c"] - p["b"] * p["b"],
+        # The errors: the corners added on instead of taken off, and the
+        # squaring skipped.
+        "choices": lambda p: [p["a"] * p["c"] - p["b"] * p["b"],
+                              p["a"] * p["c"] + p["b"] * p["b"],
+                              p["a"] * p["c"] - p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 16 and 2 <= p["c"] <= 16
+                            and 2 <= p["b"] <= 12
+                            and p["b"] * p["b"] + 2 <= p["a"] * p["c"]
+                            and p["a"] * p["c"] + p["b"] * p["b"] <= 300
+                            and len({p["a"] * p["c"] - p["b"] * p["b"],
+                                     p["a"] * p["c"] + p["b"] * p["b"],
+                                     p["a"] * p["c"] - p["b"]}) == 3,
+                            "a diagonal product comfortably above the "
+                            "corner squared, and three distinct taps"),
+    },
+    "eign": {  # the two numbers that decide everything
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"The two eigenvalues add up to the trace — "
+                             f"the sum down the diagonal. This system's "
+                             f"trace is {p['a']}, and one eigenvalue has "
+                             f"turned out to be {p['b']}. What is the "
+                             f"other?"),
+        "board": lambda p: (f'[[step eq="trace {p["a"]} = λ₁ + λ₂"]]'
+                            f'[[step eq="λ₁ = {p["b"]} · λ₂ = ?"]]'),
+        "praise": lambda p: (f"They have to add to {p['a']}, and one is "
+                             f"{p['b']}, so the other is "
+                             f"{p['a'] - p['b']}. Both above zero and "
+                             f"everything races away from the origin; both "
+                             f"below and it spirals in; one of each is a "
+                             f"saddle. Two numbers decide the picture."),
+        "key": lambda p: p["a"] - p["b"],
+        # The errors: the two added, and the known eigenvalue handed back.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 190
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a trace clear of the known eigenvalue, and "
+                            "three distinct taps"),
+    },
+    # ---- build md: DiffEq U9 Nonlinear Systems & Stability ----------------
+    # ⭐ THE LAST FOUR OPS IN THE COURSE.
+    "lnrz": {  # up close, a curve is a line -- which is why Unit 8 mattered
+        "ans": lambda p: 2 * p["b"] * p["c"],
+        "spoken": lambda p: (f"A nonlinear rate law is a curve, but up "
+                             f"close it is very nearly a straight line. The "
+                             f"law {p['a']} take away P squared has slope 2 "
+                             f"P, so at the equilibrium P equals {p['b']} "
+                             f"it pulls back at 2 times {p['b']} for every "
+                             f"1 of distance. You are {p['c']} away. How "
+                             f"fast are you pulled back?"),
+        "board": lambda p: (f'[[step eq="rate = {p["a"]} − P² · '
+                            f'equilibrium P = {p["b"]}"]]'
+                            f'[[step eq="2×{p["b"]} per 1 · {p["c"]} away · '
+                            f'= ?"]]'),
+        "praise": lambda p: (f"2 times {p['b']} is {2 * p['b']} for every 1 "
+                             f"of distance, and you are {p['c']} out — "
+                             f"{2 * p['b'] * p['c']}. That is "
+                             f"linearisation: close to an equilibrium, "
+                             f"every curved law behaves like a straight "
+                             f"one."),
+        "key": lambda p: 2 * p["b"] * p["c"],
+        # The errors: the doubling forgotten, and the two numbers added.
+        "choices": lambda p: [2 * p["b"] * p["c"], p["b"] * p["c"],
+                              p["b"] + p["c"]],
+        # ⚠️ The story has to be TRUE, not merely arithmetical: the rate law
+        # is a take away P squared, so its equilibrium is the square root of
+        # a. The first draft let a and b float free and cheerfully said "the
+        # law 6 take away P squared has its equilibrium at P equals 6".
+        "check": lambda p: (p["a"] == p["b"] * p["b"] and p["a"] <= 190
+                            and 2 <= p["b"] <= 12
+                            and 2 <= p["c"] <= 12 and p["b"] != p["c"]
+                            and 2 * p["b"] * p["c"] <= 190
+                            and len({2 * p["b"] * p["c"], p["b"] * p["c"],
+                                     p["b"] + p["c"]}) == 3,
+                            "a distance and a pull that differ, and three "
+                            "distinct taps"),
+    },
+    "prey": {  # the most famous nonlinear system there is
+        "ans": lambda p: p["a"] * p["c"] // p["b"],
+        "spoken": lambda p: (f"Rabbits and foxes. Each rabbit adds {p['a']} "
+                             f"new rabbits a year, and each fox eats "
+                             f"{p['b']} rabbits a year. With {p['c']} "
+                             f"rabbits in the wood, how many foxes hold "
+                             f"that number exactly steady?"),
+        "board": lambda p: (f'[[step eq="{p["c"]} rabbits × {p["a"]} born '
+                            f'each"]]'
+                            f'[[step eq="÷ {p["b"]} eaten per fox · foxes = '
+                            f'?"]]'),
+        "praise": lambda p: (f"{p['c']} rabbits breeding at {p['a']} each "
+                             f"is {p['a'] * p['c']} new rabbits a year, and "
+                             f"at {p['b']} eaten per fox that takes "
+                             f"{p['a'] * p['c'] // p['b']} foxes to hold "
+                             f"level. Neither number is steady on its own — "
+                             f"each one is held in place by the other."),
+        "key": lambda p: p["a"] * p["c"] // p["b"],
+        # The errors: the births counted with nothing eating them, and the
+        # rabbits handed back as a fox count.
+        "choices": lambda p: [p["a"] * p["c"] // p["b"], p["a"] * p["c"],
+                              p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 12
+                            and 4 <= p["c"] <= 90
+                            and p["a"] * p["c"] % p["b"] == 0
+                            and 2 <= p["a"] * p["c"] // p["b"] <= 60
+                            and p["a"] * p["c"] <= 190
+                            and len({p["a"] * p["c"] // p["b"],
+                                     p["a"] * p["c"], p["c"]}) == 3,
+                            "a wood whose births share out whole among the "
+                            "foxes, and three distinct taps"),
+    },
+    "cycl": {  # what a nonlinear system does that a linear one cannot
+        "ans": lambda p: p["a"] // 4,
+        "spoken": lambda p: (f"Rabbits and foxes never settle — they go "
+                             f"round and round, and the foxes always peak a "
+                             f"quarter of a cycle after the rabbits do. If "
+                             f"the whole cycle takes {p['a']} months, how "
+                             f"long after the rabbits do the foxes peak?"),
+        "board": lambda p: (f'[[step eq="cycle {p["a"]} months"]]'
+                            f'[[step eq="foxes lag ¼ of it · = ?"]]'),
+        "praise": lambda p: (f"A quarter of {p['a']} is "
+                             f"{p['a'] // 4} months. That lag is what keeps "
+                             f"the loop turning — each one chasing the "
+                             f"other round, for ever."),
+        "key": lambda p: p["a"] // 4,
+        # The errors: halved rather than quartered, and the whole cycle
+        # handed back as the lag.
+        "choices": lambda p: [p["a"] // 4, p["a"] // 2, p["a"]],
+        # ⚠️ b=0 op -- the default rule-44 check would demand the digit "0"
+        # in speech that never says zero. Written FIRST, before the rest of
+        # the op, exactly as the handoff insists.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        "check": lambda p: (p["b"] == 0 and p["a"] % 4 == 0
+                            and 8 <= p["a"] <= 190
+                            and len({p["a"] // 4, p["a"] // 2,
+                                     p["a"]}) == 3,
+                            "a cycle that quarters whole, and three "
+                            "distinct taps"),
+    },
+    "chao": {  # ⭐ THE LAST OP IN THE COURSE
+        "ans": lambda p: p["a"] * p["b"] ** p["c"],
+        "spoken": lambda p: (f"Two weather forecasts start {p['a']} apart — "
+                             f"almost the same, but not quite. In this "
+                             f"system every day multiplies whatever gap "
+                             f"there is by {p['b']}. After {p['c']} days, "
+                             f"how far apart are they?"),
+        "board": lambda p: (f'[[step eq="gap {p["a"]} · ×{p["b"]} each '
+                            f'day"]]'
+                            f'[[step eq="after {p["c"]} days · = ?"]]'),
+        "praise": lambda p: (f"{p['b']} to the power {p['c']} is "
+                             f"{p['b'] ** p['c']}, and {p['a']} of those is "
+                             f"{p['a'] * p['b'] ** p['c']}. Nothing was "
+                             f"random and nothing was unknown — the gap "
+                             f"just multiplied its way out of sight. A "
+                             f"perfectly known equation, and still no "
+                             f"forecast."),
+        "key": lambda p: p["a"] * p["b"] ** p["c"],
+        # The errors: the days timesed instead of powered -- the guess that
+        # growth is a walk -- and the starting gap forgotten.
+        "choices": lambda p: [p["a"] * p["b"] ** p["c"],
+                              p["a"] * p["b"] * p["c"], p["b"] ** p["c"]],
+        "check": lambda p: (2 <= p["a"] <= 9 and 2 <= p["b"] <= 6
+                            and 2 <= p["c"] <= 6
+                            and p["a"] * p["b"] ** p["c"] <= 190
+                            and len({p["a"] * p["b"] ** p["c"],
+                                     p["a"] * p["b"] * p["c"],
+                                     p["b"] ** p["c"]}) == 3,
+                            "a gap that stays readable after all that "
+                            "doubling, and three distinct taps"),
     },
 }
 

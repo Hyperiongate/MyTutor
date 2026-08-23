@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23md-the-curriculum-is-complete".
+#               BUILD md -- ⭐⭐ THE CURRICULUM IS COMPLETE. DIFFEQ UNIT 9
+#               (Nonlinear Systems & Stability). 324 lessons -> 328, 313
+#               ops -> 317. THIRTEEN COURSES DONE. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23mc-algebra-and-the-plane". BUILD
+#               mc -- DIFFEQ UNITS 7 AND 8 (Laplace Transforms; Linear
+#               Systems & the Phase Plane). 316 lessons -> 324, 305 ops
+#               -> 313. NOTHING IN THIS FILE CHANGED but this note and
+#               the stamp. ONE UNIT LEFT IN THE ENTIRE CURRICULUM.
+#   2026-08-23  APP_BUILD -> "2026-08-23mb-one-number-decides". BUILD mb
+#               -- DIFFEQ UNITS 5 AND 6 (Second-Order Linear:
+#               Homogeneous; Nonhomogeneous, Vibrations & Resonance).
+#               308 lessons -> 316, 297 ops -> 305. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23ma-the-shape-and-the-walk". BUILD
+#               ma -- DIFFEQ UNITS 3 AND 4 (Qualitative Analysis:
+#               Equilibria & Stability; Numerical Methods: Euler &
+#               Runge-Kutta). 300 lessons -> 308, 289 ops -> 297.
+#               NOTHING IN THIS FILE CHANGED but this note and the
+#               stamp.
+#   2026-08-23  APP_BUILD -> "2026-08-23lz-the-equation-as-a-picture".
+#               BUILD lz -- ⭐ DIFFERENTIAL EQUATIONS OPENS, the
+#               thirteenth and last course (U1 Introduction,
+#               Classification & Slope Fields; U2 First-Order:
+#               Separable & Linear). 292 lessons -> 300, 281 ops -> 289.
+#               NOTHING IN THIS FILE CHANGED but this note and the
+#               stamp.
 #   2026-08-23  APP_BUILD -> "2026-08-23ly-calculus-complete". BUILD ly --
 #               ⭐ CALCULUS COMPLETE (U8 Applications of Integration; U9
 #               Introduction to Differential Equations). 284 lessons ->
@@ -10359,7 +10387,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23ly-calculus-complete"
+APP_BUILD = "2026-08-23md-the-curriculum-is-complete"
 
 
 @app.get("/health")
