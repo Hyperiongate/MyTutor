@@ -2,6 +2,26 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23me-the-evictor-can-see-the-course".
+#               BUILD me -- ⚠️ A REAL BUG, FOUND WHILE CHECKING WHETHER THE
+#               FINISHED COURSE FITS ON THE DISK. _evict_tts_cache() culled
+#               down to a flat 80% of the cap. With Jim's cap at 4,500 MB
+#               that target is 3,600 MB -- but the completed course's audio
+#               closure is 3,738 MB. So the first time anything tipped the
+#               cache over the cap, eviction would have thrown away every
+#               generated clip, found itself STILL above target, and then
+#               deleted ~138 MB of COURSE audio that had been paid for --
+#               putting those lessons back on the streaming path, which is
+#               exactly where build ke's slurring lived. The protection added
+#               in ke (evict the generated lane first) was real but could not
+#               save the course from the TARGET itself.
+#               The target now never falls below what the protected closure
+#               actually occupies, plus a 64 MB margin so a cull does not
+#               re-enter on the next clip. A cap genuinely too small still
+#               warns and still culls -- that decision stays Jim's.
+#               render.yaml updated in the same build: it still documented a
+#               1 GB disk, and it is the file a rebuild-after-disaster starts
+#               from. Now 5 GB with TTS_CACHE_MAX_MB recorded beside it.
 #   2026-08-23  APP_BUILD -> "2026-08-23md-the-curriculum-is-complete".
 #               BUILD md -- ⭐⭐ THE CURRICULUM IS COMPLETE. DIFFEQ UNIT 9
 #               (Nonlinear Systems & Stability). 324 lessons -> 328, 313
@@ -5564,6 +5584,9 @@ try:
 except Exception:  # noqa: BLE001 -- a bad env value must not stop the app booting
     _TTS_CACHE_MAX_MB = 300
 _TTS_CACHE_MAX_BYTES = _TTS_CACHE_MAX_MB * 1024 * 1024   # cap the audio cache (evicts generated lane first)
+# BUILD me: how much room an eviction leaves ABOVE the protected course, so that a
+# cull does not put us straight back over the cap on the very next generated clip.
+_TTS_EVICT_MARGIN_BYTES = 64 * 1024 * 1024        # 64 MB
 
 
 def _rate_limit(key: str, limit: int, window_seconds: int, what: str = "requests") -> None:
@@ -10387,7 +10410,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23md-the-curriculum-is-complete"
+APP_BUILD = "2026-08-23me-the-evictor-can-see-the-course"
 
 
 @app.get("/health")
@@ -12471,7 +12494,27 @@ def _evict_tts_cache() -> None:
         if total <= _TTS_CACHE_MAX_BYTES:
             return
         protected = _script_closure_paths()
-        target = int(_TTS_CACHE_MAX_BYTES * 0.8)
+        # BUILD me (2026-08-23) -- THE 80% TARGET COULD NOT SEE THE COURSE.
+        # The old target was a flat 80% of the cap. That is a fine anti-thrash
+        # rule and a terrible floor: with the cap at 4,500 MB the target was
+        # 3,600 MB, while the scripted closure is 3,738 MB. So the FIRST time
+        # anything tipped the cache over the cap, this evicted every generated
+        # clip, found itself still above target, and started deleting COURSE
+        # audio that Jim had paid to render -- putting those lessons back on
+        # the streaming path, which is where build ke's slurring lived.
+        # The target now never falls below what the protected course actually
+        # occupies (plus a small margin so we do not re-enter immediately).
+        # If the course alone will not fit under the cap, the warning below
+        # still fires and the decision is Jim's, exactly as before.
+        protected_bytes = 0
+        for f in files:
+            if f.name in protected:
+                try:
+                    protected_bytes += f.stat().st_size
+                except Exception:  # noqa: BLE001 -- already gone
+                    pass
+        floor = protected_bytes + _TTS_EVICT_MARGIN_BYTES
+        target = max(int(_TTS_CACHE_MAX_BYTES * 0.8), min(floor, int(_TTS_CACHE_MAX_BYTES)))
         spare = sorted((f for f in files if f.name not in protected),
                        key=lambda f: f.stat().st_mtime)      # oldest first
         keep = sorted((f for f in files if f.name in protected),

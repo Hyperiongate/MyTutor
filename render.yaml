@@ -2,6 +2,21 @@
 # render.yaml  --  MyTutor  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD me -- THE DISK NOW MATCHES THE FINISHED COURSE. This file
+#               still said sizeGB: 1, which was true when it was written and has
+#               not been true for a while -- production runs 5 GB. That mattered
+#               more than a stale comment usually does, because this file's whole
+#               job is to be the recipe someone rebuilds from after a disaster:
+#               a service recreated at 1 GB could not hold the course at all.
+#               The curriculum is now COMPLETE at 328 lessons, whose deduped audio
+#               closure is 29,326 unique lines = 3,662,898 characters ~= 3,738 MB
+#               of mp3 at 128 kbps. So the two numbers that must agree are here
+#               together now: sizeGB: 5 (5,120 MB) and TTS_CACHE_MAX_MB 4500,
+#               leaving ~620 MB for the nightly DB snapshots and ~762 MB of room
+#               for the generated (non-scripted) voice lane before eviction.
+#               Raising the cap alone is NOT enough -- see main.py build me, where
+#               the evictor's flat 80%-of-cap target was found to sit BELOW the
+#               course it was supposed to protect.
 #   2026-08-11  BUILD dj -- THE TRUTHFUL RECREATION RECIPE (backup work; see
 #               RECOVERY.md Drill 3). The running service (mytutor-2) was created by
 #               hand and is NOT attached to this blueprint, so this file's job is to
@@ -79,6 +94,9 @@ services:
         sync: false            # the lesson auditor's independent critic (build cw); optional but wanted
       - key: DATA_DIR
         value: /var/data       # MUST match the disk mount below: voice cache + nightly DB snapshots
+      - key: TTS_CACHE_MAX_MB
+        value: "4500"          # 2026-08-23: the finished course is 3,738 MB of mp3. This cap must
+                               # leave the course room AND fit inside sizeGB below. See the note at top.
       # Optional tuning vars production also understands (set in the dashboard as needed):
       #   OPENAI_AUDIT_MODEL (default gpt-4.1) · AUDIT_TURNS · USAGE_LOG_DAYS (180)
       #   DB_POOL_SIZE / DB_MAX_OVERFLOW · BACKUP_KEEP (14) · WEEKLY_EMAIL (on)
@@ -86,5 +104,5 @@ services:
     disk:                      # 2026-08-11: the persistent disk (survives every deploy)
       name: data
       mountPath: /var/data
-      sizeGB: 1
+      sizeGB: 5                # 2026-08-23: was 1 -- see the change note at the top
 # I did no harm and this file is not truncated.
