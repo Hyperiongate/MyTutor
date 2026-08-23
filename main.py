@@ -2,6 +2,32 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23mf-two-honest-numbers". BUILD mf --
+#               ⚠️ SUPERSEDES mf's SIBLING: if you took a main.py stamped "me"
+#               earlier today, DISCARD IT and deploy this one instead. Same
+#               evictor fix, plus the second bug below. render.yaml is
+#               unchanged from the me delivery.
+#               THE PROJECTION WAS ~35% LIGHT, and Jim was about to plan a
+#               $418 render around it. _tts_cache_bytes_per_char() divided the
+#               average size of CACHED clips by the average line length of the
+#               WHOLE closure -- including the 10,324 lines not rendered yet.
+#               Two different populations: his cached clips averaged 92.7
+#               characters against a closure average of 124.9, so the rate came
+#               back as 923 B/char while those very clips sat on disk at 1,244.
+#               The admin panel therefore promised a finished cache of 3,762 MB
+#               when the honest figure is ~4,345 -- a 582 MB error against a
+#               4,500 MB cap, i.e. the difference between comfortable and
+#               nearly full. Each sampled clip is now weighed against ITS OWN
+#               text via the new _script_closure_chars() memo; generated-lane
+#               clips are skipped rather than guessed at. Reproduced against a
+#               simulated cache built to Jim's exact position: old estimator
+#               31.6% low, new estimator 0.0%.
+#               ⚠️ NOTE FOR JIM, unrelated to any code here: ELEVENLABS_VOICE_ID,
+#               ELEVENLABS_MODEL and SCRIPT_TTS_MODEL are all INSIDE the cache
+#               key. Changing any one of them invalidates all 19,002 clips he
+#               has paid for and the whole course counts as missing again.
+#               TTS_CACHE_MAX_MB is not in the key and never was -- raising it
+#               from 2500 to 4500 could not, and did not, affect the voice.
 #   2026-08-23  APP_BUILD -> "2026-08-23me-the-evictor-can-see-the-course".
 #               BUILD me -- ⚠️ A REAL BUG, FOUND WHILE CHECKING WHETHER THE
 #               FINISHED COURSE FITS ON THE DISK. _evict_tts_cache() culled
@@ -8816,21 +8842,41 @@ def _tts_cache_bytes_per_char() -> float:
 
     Falls back to ~1,070 B/char, which is what 128 kbps (16 KB/s) works out to at a
     normal speaking rate of ~15 characters a second."""
+    # BUILD me (2026-08-23) -- THE NUMERATOR AND THE DENOMINATOR CAME FROM
+    # DIFFERENT POPULATIONS, and the answer was ~35% light.
+    #
+    # This used to take the average size of some cached clips and divide it by the
+    # average line length of the WHOLE closure -- including every line not rendered
+    # yet. Those are not the same set. Jim's cache held 19,002 clips averaging 92.7
+    # characters, while the closure as a whole averages 124.9, so the estimate came
+    # out at 923 B/char when those very clips were sitting on disk at 1,244. The
+    # admin panel then told him a finished render would reach 3,762 MB when the
+    # honest figure was ~4,344 -- a 582 MB error, against a 4,500 MB cap, and he
+    # was about to plan a $418 render around it.
+    #
+    # Now every sampled clip is weighed against ITS OWN text length: sum the bytes
+    # of clips we can identify, sum exactly those clips' characters, divide. Clips
+    # from the generated lane are skipped rather than guessed at, because we do not
+    # know their text. If nothing identifiable is on disk we fall back as before.
     try:
-        sizes = []
+        by_name = _script_closure_chars()
+        sample_bytes, sample_chars, n = 0, 0, 0
         for f in _TTS_CACHE_DIR.iterdir():
-            if f.suffix == ".mp3":
-                sizes.append(f.stat().st_size)
-            if len(sizes) >= 200:
+            if f.suffix != ".mp3":
+                continue
+            chars = by_name.get(f.name)
+            if not chars:                    # generated lane: text unknown, skip it
+                continue
+            try:
+                sample_bytes += f.stat().st_size
+            except Exception:  # noqa: BLE001 -- vanished mid-scan
+                continue
+            sample_chars += chars
+            n += 1
+            if n >= 400:                     # plenty for a stable mean
                 break
-        if len(sizes) >= 20:
-            # The closure's average line length is the honest divisor here.
-            lines = [s for les in lessonscripts.LESSONS
-                     for s in lessonscripts.audio_lines(les)]
-            if lines:
-                avg_chars = sum(len(s) for s in lines) / float(len(lines))
-                if avg_chars > 0:
-                    return (sum(sizes) / float(len(sizes))) / avg_chars
+        if n >= 20 and sample_chars > 0:
+            return sample_bytes / float(sample_chars)
     except Exception:  # noqa: BLE001 -- an estimate must never break the endpoint
         pass
     return 1070.0
@@ -10410,7 +10456,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23me-the-evictor-can-see-the-course"
+APP_BUILD = "2026-08-23mf-two-honest-numbers"
 
 
 @app.get("/health")
@@ -12444,6 +12490,31 @@ def demo_audio(idx: int, request: Request):
     return _tts_stream_response(DEMO_VOICE_LINES[idx], mode="demo")
 
 
+def _script_closure_chars() -> dict:
+    """BUILD me: {cache filename -> how many characters of text that clip speaks}.
+
+    The companion to _script_closure_paths(): same walk, same model-sensitive key,
+    but it keeps the LENGTH so a clip on disk can be weighed against its own text
+    instead of against the course average. Memoised for the life of the process and
+    invalidated by a scripted-model change, exactly as the path set is."""
+    global _SCRIPT_CLOSURE_CHARS, _SCRIPT_CLOSURE_CHARS_MODEL
+    if (_SCRIPT_CLOSURE_CHARS is not None
+            and _SCRIPT_CLOSURE_CHARS_MODEL != SCRIPT_TTS_MODEL):
+        _SCRIPT_CLOSURE_CHARS = None
+    if _SCRIPT_CLOSURE_CHARS is None:
+        _SCRIPT_CLOSURE_CHARS_MODEL = SCRIPT_TTS_MODEL
+        out = {}
+        try:
+            for les in lessonscripts.LESSONS:
+                for say in lessonscripts.audio_lines(les):
+                    out[_tts_cache_path(say).name] = len(say)
+        except Exception as exc:  # noqa: BLE001 -- degrade to the fallback estimate
+            print(f"[speak] closure chars unavailable: {exc}")
+            out = {}
+        _SCRIPT_CLOSURE_CHARS = out
+    return _SCRIPT_CLOSURE_CHARS
+
+
 def _script_closure_paths() -> set:
     """The cache filenames every scripted lesson can ever need.
 
@@ -12474,6 +12545,8 @@ def _script_closure_paths() -> set:
 
 _SCRIPT_CLOSURE_PATHS = None
 _SCRIPT_CLOSURE_PATHS_MODEL = None
+_SCRIPT_CLOSURE_CHARS = None            # build me: {cache name -> chars of its text}
+_SCRIPT_CLOSURE_CHARS_MODEL = None
 
 
 def _evict_tts_cache() -> None:
