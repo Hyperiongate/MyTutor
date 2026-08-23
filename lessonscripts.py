@@ -2,6 +2,39 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD ly -- ⭐ CALCULUS COMPLETE. UNITS 8 AND 9: WHAT AREA
+#               CAN MEASURE, AND AN EQUATION ABOUT A RATE. 284 lessons ->
+#               292, 281 ops (btwn, trap, accu, revo + dfeq, mixr, pgrw,
+#               eqbm). THE TWELFTH COURSE IS DONE; only Differential
+#               Equations remains.
+#               U8 -- once area is a measurement it measures anything: the
+#               strip caught between two curves (top take away bottom), the
+#               trapezium under a speed that climbs (average the two ends,
+#               then hold it for the time), an integral that ADDS ON to what
+#               was already in the tank -- an integral measures the CHANGE,
+#               never the amount -- and a flat rectangle spun into a
+#               cylinder, where squaring the radius is what turns an area
+#               into a solid.
+#               U9 -- the closing unit, and the one that reframes the whole
+#               course: an equation can describe a RATE instead of an
+#               amount, and integration is what turns it back. A constant
+#               rate (the draining tank), two rates pulling against each
+#               other (find the NET rate first, then let the clock work on
+#               it), a rate that depends on the amount itself -- the
+#               equation behind every exponential -- and equilibrium, the
+#               amount at which all change stops.
+#               ⚠️ TWO CATCHES, BOTH ABOUT WHAT THE CHILD ACTUALLY SEES.
+#               (1) The max_value rule only INSPECTS a and b, but its label
+#               promises "every number a child sees". The wrong taps are
+#               numbers a child sees too, and four of these eight lessons
+#               had a tap outside the stated bound. Bounds are now set from
+#               max(a, b, answer, every tap). (2) eqbm's "timesed" tap
+#               reached 1,323 against an answer of 27 -- the same defect lx
+#               found in antp. A distractor nobody would ever touch is a
+#               wasted tap, so it became the constant answered as though it
+#               were the population, which is a mistake children make.
+#               Two builds running, the enormous-distractor check has earned
+#               its place in the pipeline.
 #   2026-08-23  BUILD lx -- CALCULUS UNITS 6 AND 7: THE RULE RUN BACKWARDS,
 #               AND THE AREA THAT MEANS SOMETHING. 276 lessons -> 284, 273
 #               ops (anti, antp, plusc, init + defi, triz, ftc, avgv).
@@ -12554,6 +12587,265 @@ _CALCULUS_U7 = [
 LESSONS.extend(_CALCULUS_U7)
 
 
+# =============================================================================
+# CALCULUS UNIT 8 -- Applications of Integration (build ly)
+# The thread: ONCE AREA IS A MEASUREMENT, IT MEASURES ANYTHING. The area caught
+# between two curves, the trapezium under a speed that climbs, an integral that
+# adds on to what was already in the tank, and a flat area spun into a solid.
+# =============================================================================
+_CALCULUS_U8 = [
+    {
+        "id": "calc-u8-the-gap-between-two-curves",
+        "course": "calculus", "unit": 8,
+        "topic": "Area between curves",
+        "op": "btwn", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("between", "strip"),
+        "advance_line": "Three in a row — you've got it! Top area take away bottom area.",
+        "teach": [
+            ["Unit 7 measured the area under one curve. Draw a second curve below it and a new region appears — the strip caught between the two. Measuring that is the first real use of everything you have learned.",
+             '[[goal text="The gap between two curves"]][[step eq="top area 50 · bottom area 18"]]'],
+            ["Here is the trick, and it is easier than it looks. The area under the top curve is 50. The area under the bottom curve, 18, is already counted inside that 50. So take it away: 32 is the strip between them.",
+             '[[step eq="50 − 18 = 32"]]'],
+            ["Top take away bottom, always in that order. Adding the two counts the lower region twice over, and answering with the top area alone hands back the whole slab instead of the gap.",
+             '[[step eq="32 ✓"]][[step eq="68 ✗ added · 50 ✗ the whole slab"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A top area of 120 with 45 underneath it: the strip between them is 75.",
+                        '[[step eq="120 − 45 = 75"]]'],
+             "ask": {"a": 150, "b": 31, "op": "btwn"}},
+            {"worked": ["One more together. Top 160, bottom 38, so the gap is 122.",
+                        '[[step eq="160 − 38 = 122"]]'],
+             "ask": {"a": 164, "b": 22, "op": "btwn"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "btwn"} for a, b in
+                 ((4, 2), (24, 4), (41, 3), (61, 5), (81, 7),
+                  (98, 6), (118, 8), (138, 10), (155, 9), (175, 11))],
+    },
+    {
+        "id": "calc-u8-a-speed-that-climbs",
+        "course": "calculus", "unit": 8,
+        "topic": "The trapezium rule",
+        "op": "trap", "max_value": 320,
+        "levels": ("abstract",),
+        "symbols": ("trapezium", "halfway"),
+        "advance_line": "Three in a row — you've got it! Average the two speeds, then hold it for the time.",
+        "teach": [
+            ["A rectangle came from a steady speed and a triangle from a speed starting at nothing. Now a train that is already moving speeds up further — the graph is a ramp that starts partway up the page.",
+             '[[goal text="A speed that climbs"]][[step eq="4 m/s → 10 m/s over 5 s"]]'],
+            ["That shape is a trapezium , and there is a lovely shortcut. The speed climbs steadily, so the average speed is exactly halfway between 4 and 10 — that is 7 — and 7 metres a second for 5 seconds is 35 metres.",
+             '[[step eq="(4 + 10) ÷ 2 = 7 · 7 × 5 = 35"]]'],
+            ["Forgetting to halve holds both speeds at once and doubles the answer to 70. Using the top speed for the whole journey claims 50, as though the train had never been slower than its finish.",
+             '[[step eq="35 ✓"]][[step eq="70 ✗ no half · 50 ✗ top speed only"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. From 13 to 21 metres a second over 9 seconds: halfway is 17, and 17 for 9 seconds is 153 metres.",
+                        '[[step eq="(13 + 21) ÷ 2 = 17 · 17 × 9 = 153"]]'],
+             "ask": {"a": 6, "b": 16, "c": 10, "op": "trap"}},
+            {"worked": ["One more together. From 11 to 18 over 12 seconds: halfway is 14 and a half, giving 174 metres.",
+                        '[[step eq="(11 + 18) × 12 ÷ 2 = 174"]]'],
+             "ask": {"a": 18, "b": 22, "c": 7, "op": "trap"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "trap"} for a, b, c in
+                 ((2, 4, 2), (3, 16, 2), (4, 12, 4), (5, 18, 4), (6, 8, 9),
+                  (7, 13, 8), (8, 20, 7), (17, 22, 6), (13, 21, 8),
+                  (9, 17, 12))],
+    },
+    {
+        "id": "calc-u8-adding-on-to-what-was-there",
+        "course": "calculus", "unit": 8,
+        "topic": "Accumulation",
+        "op": "accu", "max_value": 160,
+        "levels": ("abstract",),
+        "symbols": ("accumulation", "start"),
+        "advance_line": "Three in a row — you've got it! Work out the change, then add it to what was there.",
+        "teach": [
+            ["Areas have measured distances so far. Here is the same idea measuring something you can pour. A tank holds 20 litres, and water runs in at 6 litres a minute for 5 minutes.",
+             '[[goal text="Adding on to what was there"]][[step eq="20 L in the tank · 6 L/min for 5 min"]]'],
+            ["Six litres a minute for five minutes is 30 litres — that is the area under the flow graph. But the tank was not empty at the start , so those 30 land on top of the 20 already in it: 50 litres.",
+             '[[step eq="6 × 5 = 30 · 20 + 30 = 50"]]'],
+            ["This is what accumulation means: an integral measures the CHANGE, never the amount. Answering 30 forgets the water that was already there, and adding all three numbers loosely gives 31, which measures nothing at all.",
+             '[[step eq="50 ✓"]][[step eq="30 ✗ the change only · 31 ✗ all three added"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 14 litres in the tank, 11 a minute for 10 minutes: 110 more, so 124.",
+                        '[[step eq="14 + 110 = 124"]]'],
+             "ask": {"a": 6, "b": 9, "c": 36, "op": "accu"}},
+            {"worked": ["One more together. 23 litres to start, 10 a minute for 12 minutes: 143 litres.",
+                        '[[step eq="23 + 120 = 143"]]'],
+             "ask": {"a": 12, "b": 9, "c": 5, "op": "accu"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "accu"} for a, b, c in
+                 ((2, 3, 2), (3, 2, 18), (4, 5, 20), (5, 4, 36), (6, 7, 30),
+                  (7, 9, 25), (8, 11, 16), (10, 8, 40), (9, 12, 28),
+                  (12, 10, 32))],
+    },
+    {
+        "id": "calc-u8-spin-it-into-a-solid",
+        "course": "calculus", "unit": 8,
+        "topic": "Volumes of revolution",
+        "op": "revo", "max_value": 300,
+        "levels": ("abstract",),
+        "symbols": ("revolution", "radius"),
+        "advance_line": "Three in a row — you've got it! Square the radius, then stack it along the length.",
+        "teach": [
+            ["The boldest use of all. Take a flat shape, spin it around a line, and it sweeps out a solid — a volume of revolution . Integration measures that solid as easily as it measured the flat area.",
+             '[[goal text="Spin it into a solid"]][[step eq="rectangle 3 tall, 4 long · spun"]]'],
+            ["Spin a rectangle 3 tall and 4 long and you get a cylinder of radius 3. Every slice through it is a circle of area pi times 3 squared — 9 pi — and 4 lengths of that stack up to 36 pi.",
+             '[[step eq="3² × 4 = 36 · volume = 36π"]]'],
+            ["Squaring the radius is what turns a flat area into a solid one. Leaving the squaring out gives 12, still an area pretending to be a volume, and doubling the radius where you meant to square it gives only 24.",
+             '[[step eq="36 ✓"]][[step eq="12 ✗ not squared · 24 ✗ doubled"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A rectangle 6 tall and 8 long: 6 squared is 36, and 8 of those is 288 pi.",
+                        '[[step eq="6² × 8 = 288"]]'],
+             "ask": {"a": 5, "b": 8, "op": "revo"}},
+            {"worked": ["One more together. 5 tall and 12 long: 25 times 12 is 300 pi.",
+                        '[[step eq="5² × 12 = 300"]]'],
+             "ask": {"a": 5, "b": 11, "op": "revo"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "revo"} for a, b in
+                 ((3, 2), (3, 5), (3, 6), (5, 3), (3, 10),
+                  (3, 11), (4, 7), (7, 3), (5, 7), (4, 12))],
+    },
+]
+LESSONS.extend(_CALCULUS_U8)
+
+
+# =============================================================================
+# CALCULUS UNIT 9 -- Introduction to Differential Equations (build ly)
+# The thread: AN EQUATION CAN DESCRIBE A RATE INSTEAD OF AN AMOUNT, and
+# integration is what turns it back into an amount. A constant rate, two rates
+# pulling against each other, a rate that depends on the amount itself, and the
+# amount at which all change stops. This unit CLOSES CALCULUS.
+# =============================================================================
+_CALCULUS_U9 = [
+    {
+        "id": "calc-u9-an-equation-about-a-rate",
+        "course": "calculus", "unit": 9,
+        "topic": "Differential equations",
+        "op": "dfeq", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("differential", "rate"),
+        "advance_line": "Three in a row — you've got it! Rate times time is what goes, then take it off the start.",
+        "teach": [
+            ["Every equation you have met describes an AMOUNT. A differential equation describes a rate instead — how fast something is changing — and integration is what turns it back into an amount.",
+             '[[goal text="An equation about a rate"]][[step eq="dV/dt = −4 · starts at 60 L"]]'],
+            ["Read this one out loud: the tank loses 4 litres every minute. It says nothing about how much is in there — only how fast it leaves. Start it at 60 litres and run it 7 minutes: 4 times 7 is 28 gone, so 32 are left.",
+             '[[step eq="4 × 7 = 28 · 60 − 28 = 32"]]'],
+            ["So the rate has to meet the clock before it means anything. Taking away one minute's worth leaves 56, and answering 28 hands back what drained rather than what is in the tank.",
+             '[[step eq="32 ✓"]][[step eq="56 ✗ one minute · 28 ✗ what drained"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 166 litres losing 8 a minute for 2 minutes: 16 gone, so 150 are left.",
+                        '[[step eq="166 − 16 = 150"]]'],
+             "ask": {"a": 155, "b": 8, "c": 5, "op": "dfeq"}},
+            {"worked": ["One more together. 183 litres, 5 a minute, 4 minutes: 20 gone, leaving 163.",
+                        '[[step eq="183 − 20 = 163"]]'],
+             "ask": {"a": 175, "b": 5, "c": 7, "op": "dfeq"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "dfeq"} for a, b, c in
+                 ((8, 3, 2), (28, 2, 4), (50, 4, 3), (86, 6, 5), (109, 5, 7),
+                  (134, 7, 6), (182, 9, 8), (144, 8, 2), (164, 2, 9),
+                  (186, 2, 11))],
+    },
+    {
+        "id": "calc-u9-two-rates-at-once",
+        "course": "calculus", "unit": 9,
+        "topic": "Net rate of change",
+        "op": "mixr", "max_value": 320,
+        "levels": ("abstract",),
+        "symbols": ("net", "against"),
+        "advance_line": "Three in a row — you've got it! Find the net rate first, then let the clock work on it.",
+        "teach": [
+            ["Real tanks rarely do one thing at a time. This one is filling and draining at once: 9 litres a minute run in while 4 litres a minute run out. Two rates, pulling against each other.",
+             '[[goal text="Two rates at once"]][[step eq="in 9 L/min · out 4 L/min"]]'],
+            ["Settle the fight before you touch the clock. Nine in and four out means the tank truly gains 5 litres a minute — that single number is the net rate. Over 7 minutes it gains 35 litres.",
+             '[[step eq="9 − 4 = 5 · 5 × 7 = 35"]]'],
+            ["Adding the two rates instead pretends the drain is helping to fill, and reaches 91. Counting the inflow alone forgets the plug is out at all, and claims 63.",
+             '[[step eq="35 ✓"]][[step eq="91 ✗ added · 63 ✗ inflow only"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 22 in and 11 out is a net 11 a minute; over 12 minutes, 132 litres.",
+                        '[[step eq="(22 − 11) × 12 = 132"]]'],
+             "ask": {"a": 10, "b": 2, "c": 11, "op": "mixr"}},
+            {"worked": ["One more together. 20 in, 2 out, so 18 a minute net; over 9 minutes that is 162 litres.",
+                        '[[step eq="(20 − 2) × 9 = 162"]]'],
+             "ask": {"a": 18, "b": 5, "c": 9, "op": "mixr"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "c": c, "op": "mixr"} for a, b, c in
+                 ((4, 2, 2), (6, 4, 9), (8, 3, 6), (19, 5, 3), (12, 7, 11),
+                  (13, 6, 10), (20, 3, 5), (22, 5, 6), (18, 8, 12),
+                  (16, 2, 10))],
+    },
+    {
+        "id": "calc-u9-when-the-rate-depends-on-the-amount",
+        "course": "calculus", "unit": 9,
+        "topic": "Proportional growth",
+        "op": "pgrw", "max_value": 160,
+        "levels": ("abstract",),
+        "symbols": ("proportional", "colony"),
+        "advance_line": "Three in a row — you've got it! Multiply the amount by the growth constant.",
+        "teach": [
+            ["Both tanks so far changed at a fixed rate. Now the most important differential equation there is, the one where the rate depends on the amount itself — growth that is proportional to what is already there.",
+             '[[goal text="When the rate depends on the amount"]][[step eq="dP/dt = 4P"]]'],
+            ["A bacterial colony gains 4 new bacteria a minute for every single bacterium already in it. With 12 in the dish right now, the rate right now is 12 times 4 — 48 a minute.",
+             '[[step eq="P = 12 · rate = 12 × 4 = 48"]]'],
+            ["And that rate will not hold, because the growing feeds the growing. Adding the two numbers instead of timesing them gives 16, and answering 4 pretends a colony of a thousand grows no faster than a colony of ten.",
+             '[[step eq="48 ✓"]][[step eq="16 ✗ added · 4 ✗ the constant alone"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. 18 bacteria gaining 9 each a minute: the rate is 162 a minute.",
+                        '[[step eq="18 × 9 = 162"]]'],
+             "ask": {"a": 28, "b": 4, "op": "pgrw"}},
+            {"worked": ["One more together. 20 bacteria at 9 each: 180 a minute.",
+                        '[[step eq="20 × 9 = 180"]]'],
+             "ask": {"a": 21, "b": 7, "op": "pgrw"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "pgrw"} for a, b in
+                 ((2, 3), (11, 2), (4, 9), (17, 3), (13, 5),
+                  (10, 8), (16, 6), (19, 6), (22, 6), (19, 8))],
+    },
+    {
+        "id": "calc-u9-where-the-change-stops",
+        "course": "calculus", "unit": 9,
+        "topic": "Equilibrium",
+        "op": "eqbm", "max_value": 190,
+        "levels": ("abstract",),
+        "symbols": ("equilibrium", "population"),
+        "advance_line": "Three in a row — you've got it! Set the rate to zero and solve for P.",
+        "teach": [
+            ["The last question of the whole course, and it is a quiet one. A differential equation tells you how fast things change — so ask it where the change stops. That place is called equilibrium .",
+             '[[goal text="Where the change stops"]][[step eq="dP/dt = 45 − 5P"]]'],
+            ["This population changes at a rate of 45 take away 5 P. Set that rate to zero: 5 P has to equal 45, so P is 9. Park the population at exactly 9 and nothing moves — births and deaths balance.",
+             '[[step eq="5P = 45 → P = 9"]]'],
+            ["It is a stable place, too. Above 9 the rate turns negative and pulls back down; below it, the rate pushes up. So divide, do not take away — 40 is not a population, and 45 is the number in the equation, not the answer to it.",
+             '[[step eq="9 ✓"]][[step eq="40 ✗ taken away · 45 ✗ the equation\'s number"]]'],
+        ],
+        "pairs": [
+            {"worked": ["Here is one more, done for you. A rate of 58 take away 2 P is zero when P is 29.",
+                        '[[step eq="2P = 58 → P = 29"]]'],
+             "ask": {"a": 144, "b": 6, "op": "eqbm"}},
+            {"worked": ["One more together. 90 take away 3 P is zero at P equals 30.",
+                        '[[step eq="3P = 90 → P = 30"]]'],
+             "ask": {"a": 189, "b": 7, "op": "eqbm"}},
+        ],
+        "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
+        "bank": [{"a": a, "b": b, "op": "eqbm"} for a, b in
+                 ((6, 3), (8, 2), (24, 4), (48, 6), (50, 5),
+                  (84, 7), (126, 9), (128, 8), (36, 2), (40, 2))],
+    },
+]
+LESSONS.extend(_CALCULUS_U9)
+
+
 
 
 
@@ -12795,6 +13087,14 @@ COURSE_ORDER = [
     # Unit 7: The Definite Integral & the FTC (build lx)
     "calc-u7-the-area-is-the-answer", "calc-u7-when-the-graph-is-a-ramp",
     "calc-u7-end-take-away-start", "calc-u7-flatten-it-out",
+    # Unit 8: Applications of Integration (build ly)
+    "calc-u8-the-gap-between-two-curves", "calc-u8-a-speed-that-climbs",
+    "calc-u8-adding-on-to-what-was-there", "calc-u8-spin-it-into-a-solid",
+    # Unit 9: Introduction to Differential Equations (build ly) -- ⭐ CALCULUS
+    # COMPLETE, the twelfth course.
+    "calc-u9-an-equation-about-a-rate", "calc-u9-two-rates-at-once",
+    "calc-u9-when-the-rate-depends-on-the-amount",
+    "calc-u9-where-the-change-stops",
 ]
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
@@ -19861,6 +20161,229 @@ OP_EXT = {
                                      p["b"]}) == 3,
                             "an area that flattens to a whole height, and "
                             "three distinct taps"),
+    },
+    # ---- build ly: Calculus U8 Applications of Integration ----------------
+    "btwn": {  # two areas, one sitting inside the other
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"Two curves run across the same stretch. The "
+                             f"area under the top one is {p['a']}, and the "
+                             f"area under the bottom one is {p['b']}. How "
+                             f"much area sits between them?"),
+        "board": lambda p: (f'[[step eq="top area {p["a"]} · bottom area '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="area between = ?"]]'),
+        "praise": lambda p: (f"The bottom curve's {p['b']} is counted inside "
+                             f"the top curve's {p['a']}, so take it away and "
+                             f"{p['a'] - p['b']} is what is left in the gap. "
+                             f"Top take away bottom, every time — adding "
+                             f"them counts the lower strip twice over."),
+        "key": lambda p: p["a"] - p["b"],
+        # The errors: the two areas added, and the top area answered alone.
+        "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["a"]],
+        "check": lambda p: (2 <= p["b"] and p["b"] + 2 <= p["a"] <= 190
+                            and len({p["a"] - p["b"], p["a"] + p["b"],
+                                     p["a"]}) == 3,
+                            "a top area comfortably above the bottom one, "
+                            "and three distinct taps"),
+    },
+    "trap": {  # a speed that climbs: the shape under it is a trapezium
+        "ans": lambda p: (p["a"] + p["b"]) * p["c"] // 2,
+        "spoken": lambda p: (f"A train speeds up steadily from {p['a']} "
+                             f"metres a second to {p['b']} metres a second "
+                             f"over {p['c']} seconds. How far does it "
+                             f"travel in that time?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} m/s → {p["b"]} m/s · over '
+                            f'{p["c"]} s"]]'
+                            f'[[step eq="area under the graph = ? metres"]]'),
+        "praise": lambda p: (f"Its average speed is halfway between "
+                             f"{p['a']} and {p['b']}, and it holds that for "
+                             f"{p['c']} seconds: "
+                             f"{(p['a'] + p['b']) * p['c'] // 2} metres. "
+                             f"That is the trapezium under the graph — a "
+                             f"rectangle and a triangle stacked, which is "
+                             f"why the halving turns up again."),
+        "key": lambda p: (p["a"] + p["b"]) * p["c"] // 2,
+        # The errors: the half forgotten, and the top speed held throughout.
+        "choices": lambda p: [(p["a"] + p["b"]) * p["c"] // 2,
+                              (p["a"] + p["b"]) * p["c"], p["b"] * p["c"]],
+        "check": lambda p: (2 <= p["a"] and p["a"] + 2 <= p["b"] <= 22
+                            and 2 <= p["c"] <= 12
+                            and (p["a"] + p["b"]) * p["c"] % 2 == 0
+                            and (p["a"] + p["b"]) * p["c"] // 2 <= 190
+                            and len({(p["a"] + p["b"]) * p["c"] // 2,
+                                     (p["a"] + p["b"]) * p["c"],
+                                     p["b"] * p["c"]}) == 3,
+                            "a climb that halves to a whole distance, and "
+                            "three distinct taps"),
+    },
+    "accu": {  # the integral ADDS ON to what was already there
+        "ans": lambda p: p["c"] + p["a"] * p["b"],
+        "spoken": lambda p: (f"A tank already holds {p['c']} litres. Water "
+                             f"runs in at {p['a']} litres a minute for "
+                             f"{p['b']} minutes. How much is in it then?"),
+        "board": lambda p: (f'[[step eq="starts with {p["c"]} L"]]'
+                            f'[[step eq="{p["a"]} L/min · {p["b"]} min · '
+                            f'total = ?"]]'),
+        "praise": lambda p: (f"{p['a']} litres a minute for {p['b']} "
+                             f"minutes runs in {p['a'] * p['b']}, and that "
+                             f"lands on top of the {p['c']} already there — "
+                             f"{p['c'] + p['a'] * p['b']}. An integral "
+                             f"measures the CHANGE, so whatever was there "
+                             f"at the start still has to be counted."),
+        "key": lambda p: p["c"] + p["a"] * p["b"],
+        # The errors: the starting amount forgotten, and all three numbers
+        # simply added.
+        "choices": lambda p: [p["c"] + p["a"] * p["b"], p["a"] * p["b"],
+                              p["c"] + p["a"] + p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 12 and 2 <= p["b"] <= 12
+                            and 2 <= p["c"] <= 40 and p["a"] != p["b"]
+                            and p["c"] + p["a"] * p["b"] <= 190
+                            and len({p["c"] + p["a"] * p["b"],
+                                     p["a"] * p["b"],
+                                     p["c"] + p["a"] + p["b"]}) == 3,
+                            "a start and a flow that stay in range, with "
+                            "three distinct taps"),
+    },
+    "revo": {  # spin the area and it sweeps out a solid
+        "ans": lambda p: p["a"] * p["a"] * p["b"],
+        "spoken": lambda p: (f"Spin a rectangle {p['a']} tall and {p['b']} "
+                             f"long about the line beneath it and it sweeps "
+                             f"out a cylinder. Its volume is pi times the "
+                             f"radius squared, times the length. What "
+                             f"number does the pi multiply?"),
+        "board": lambda p: (f'[[step eq="radius {p["a"]} · length '
+                            f'{p["b"]}"]]'
+                            f'[[step eq="volume = ? × π"]]'),
+        "praise": lambda p: (f"The radius {p['a']} squares to "
+                             f"{p['a'] * p['a']}, and {p['b']} lengths of "
+                             f"that stack up to {p['a'] * p['a'] * p['b']} "
+                             f"pi. Squaring the radius is what turns a flat "
+                             f"area into a solid — leave the squaring out "
+                             f"and you get {p['a'] * p['b']}, a rectangle "
+                             f"pretending to be a cylinder."),
+        "key": lambda p: p["a"] * p["a"] * p["b"],
+        # The errors: the squaring left out, and the radius doubled instead
+        # of squared.
+        "choices": lambda p: [p["a"] * p["a"] * p["b"], p["a"] * p["b"],
+                              2 * p["a"] * p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 7 and 2 <= p["b"] <= 12
+                            and p["a"] != p["b"]
+                            and p["a"] * p["a"] * p["b"] <= 300
+                            and len({p["a"] * p["a"] * p["b"],
+                                     p["a"] * p["b"],
+                                     2 * p["a"] * p["b"]}) == 3,
+                            "a radius above 2 so squaring beats doubling, "
+                            "and three distinct taps"),
+    },
+    # ---- build ly: Calculus U9 Introduction to Differential Equations -----
+    "dfeq": {  # an equation that describes a RATE, not an amount
+        "ans": lambda p: p["a"] - p["b"] * p["c"],
+        "spoken": lambda p: (f"A differential equation says how fast "
+                             f"something changes. This one says the tank "
+                             f"loses {p['b']} litres every minute. It "
+                             f"starts with {p['a']} litres. How many are "
+                             f"left after {p['c']} minutes?"),
+        "board": lambda p: (f'[[step eq="dV/dt = −{p["b"]} · starts at '
+                            f'{p["a"]} L"]]'
+                            f'[[step eq="after {p["c"]} min · ? litres"]]'),
+        "praise": lambda p: (f"{p['b']} litres a minute for {p['c']} "
+                             f"minutes is {p['b'] * p['c']} gone, and "
+                             f"{p['a']} take away that is "
+                             f"{p['a'] - p['b'] * p['c']}. The equation "
+                             f"only told you the RATE — integrating it is "
+                             f"what turned the rate back into litres."),
+        "key": lambda p: p["a"] - p["b"] * p["c"],
+        # The errors: one minute's loss taken away, and the amount that
+        # drained answered instead of the amount left.
+        "choices": lambda p: [p["a"] - p["b"] * p["c"], p["a"] - p["b"],
+                              p["b"] * p["c"]],
+        "check": lambda p: (2 <= p["b"] <= 9 and 2 <= p["c"] <= 12
+                            and p["b"] * p["c"] + 2 <= p["a"] <= 190
+                            and len({p["a"] - p["b"] * p["c"],
+                                     p["a"] - p["b"],
+                                     p["b"] * p["c"]}) == 3,
+                            "a tank that never runs dry, and three distinct "
+                            "taps"),
+    },
+    "mixr": {  # two rates pulling against each other
+        "ans": lambda p: (p["a"] - p["b"]) * p["c"],
+        "spoken": lambda p: (f"Water runs into an empty tank at {p['a']} "
+                             f"litres a minute and drains out at {p['b']} "
+                             f"litres a minute at the same time. After "
+                             f"{p['c']} minutes, how much is in it?"),
+        "board": lambda p: (f'[[step eq="in {p["a"]} L/min · out '
+                            f'{p["b"]} L/min"]]'
+                            f'[[step eq="after {p["c"]} min · ? litres"]]'),
+        "praise": lambda p: (f"The two rates pull against each other, so "
+                             f"the tank really gains {p['a'] - p['b']} "
+                             f"litres a minute — and over {p['c']} minutes "
+                             f"that is {(p['a'] - p['b']) * p['c']}. Find "
+                             f"the NET rate first, then let the time work "
+                             f"on that one number."),
+        "key": lambda p: (p["a"] - p["b"]) * p["c"],
+        # The errors: the two rates added, and the inflow counted alone.
+        "choices": lambda p: [(p["a"] - p["b"]) * p["c"],
+                              (p["a"] + p["b"]) * p["c"], p["a"] * p["c"]],
+        "check": lambda p: (2 <= p["b"] <= 12 and p["b"] + 2 <= p["a"] <= 22
+                            and 2 <= p["c"] <= 12
+                            and (p["a"] - p["b"]) * p["c"] <= 190
+                            and len({(p["a"] - p["b"]) * p["c"],
+                                     (p["a"] + p["b"]) * p["c"],
+                                     p["a"] * p["c"]}) == 3,
+                            "an inflow that beats the drain, and three "
+                            "distinct taps"),
+    },
+    "pgrw": {  # the rate depends on how much is already there
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"In this one the rate depends on the amount: "
+                             f"the colony gains {p['b']} bacteria a minute "
+                             f"for every single bacterium already there. "
+                             f"Right now there are {p['a']}. How fast is it "
+                             f"growing at this moment?"),
+        "board": lambda p: (f'[[step eq="dP/dt = {p["b"]}P"]]'
+                            f'[[step eq="P = {p["a"]} · rate = ?"]]'),
+        "praise": lambda p: (f"Every one of the {p['a']} contributes "
+                             f"{p['b']} a minute, so the rate right now is "
+                             f"{p['a'] * p['b']}. And it will not stay "
+                             f"there: as the colony grows the rate grows "
+                             f"with it, and that is exactly why this kind "
+                             f"of change explodes."),
+        "key": lambda p: p["a"] * p["b"],
+        # The errors: the two numbers added, and the constant answered as
+        # though the amount did not matter.
+        "choices": lambda p: [p["a"] * p["b"], p["a"] + p["b"], p["b"]],
+        "check": lambda p: (2 <= p["a"] <= 30 and 2 <= p["b"] <= 9
+                            and p["a"] != p["b"] and p["a"] * p["b"] <= 190
+                            and len({p["a"] * p["b"], p["a"] + p["b"],
+                                     p["b"]}) == 3,
+                            "a colony and a growth constant that differ, "
+                            "and three distinct taps"),
+    },
+    "eqbm": {  # the amount at which the change stops
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"A population changes at a rate of {p['a']} "
+                             f"take away {p['b']} P, where P is the "
+                             f"population. Equilibrium is the P that "
+                             f"drives that rate to zero. What is it?"),
+        "board": lambda p: (f'[[step eq="dP/dt = {p["a"]} − {p["b"]}P"]]'
+                            f'[[step eq="rate = 0 when P = ?"]]'),
+        "praise": lambda p: (f"Set the rate to zero and {p['b']} P has to "
+                             f"equal {p['a']}, so P is "
+                             f"{p['a'] // p['b']}. Sit the population "
+                             f"exactly there and nothing moves — above it "
+                             f"the rate turns negative and pulls back "
+                             f"down, below it the rate pushes up."),
+        "key": lambda p: p["a"] // p["b"],
+        # The errors: the two numbers taken away from each other, and the
+        # constant answered as though it were the population itself.
+        "choices": lambda p: [p["a"] // p["b"], p["a"] - p["b"], p["a"]],
+        "check": lambda p: (2 <= p["b"] <= 9 and p["a"] % p["b"] == 0
+                            and 2 <= p["a"] // p["b"] <= 30
+                            and p["a"] <= 190
+                            and len({p["a"] // p["b"], p["a"] - p["b"],
+                                     p["a"]}) == 3,
+                            "a rate law that balances at a whole "
+                            "population, and three distinct taps"),
     },
 }
 

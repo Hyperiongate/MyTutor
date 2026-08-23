@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  APP_BUILD -> "2026-08-23ly-calculus-complete". BUILD ly --
+#               ⭐ CALCULUS COMPLETE (U8 Applications of Integration; U9
+#               Introduction to Differential Equations). 284 lessons ->
+#               292, 273 ops -> 281. TWELVE courses done; only
+#               Differential Equations remains. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp.
 #   2026-08-23  APP_BUILD -> "2026-08-23lx-backwards-and-the-area". BUILD
 #               lx -- CALCULUS UNITS 6 AND 7 (Antiderivatives &
 #               Indefinite Integrals; The Definite Integral & the FTC).
@@ -10353,7 +10359,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23lx-backwards-and-the-area"
+APP_BUILD = "2026-08-23ly-calculus-complete"
 
 
 @app.get("/health")
