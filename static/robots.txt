@@ -3,10 +3,14 @@
 # pages (lesson, practice, dashboards...) need a sign-in code and are useless to
 # index, so they are excluded. AI assistants' crawlers are EXPLICITLY welcomed --
 # they power ChatGPT / Claude / Perplexity recommendations.
+#
+# 2026-08-23 (build mh): /drill added -- Abrabot's extra-practice room. It needs a
+# student code like every other in-app page, so it is excluded for the same reason.
 
 User-agent: *
 Disallow: /session
 Disallow: /practice
+Disallow: /drill
 Disallow: /topic
 Disallow: /challenge
 Disallow: /dashboard

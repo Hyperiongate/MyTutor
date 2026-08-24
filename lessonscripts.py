@@ -2,6 +2,23 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-23  BUILD mk -- THE CLOSURE GREW A SECOND KIND OF LINE, AND ONE OWNER.
+#               Phase 5 of Abrabot: Mr. Cadabra introduces him, in four authored
+#               lines. They are the first speech that belongs to the COURSE rather
+#               than to any lesson, so audio_lines(lesson) could never find them.
+#               ⚠️ THE REAL RISK WAS NOT THE LINES, IT WAS THE SIX COPIES. main.py
+#               built "the closure" in SIX places -- prewarm, dry-run, clip audit,
+#               model split, eviction guard, byte estimator -- each as its own
+#               comprehension over audio_lines(). A line those six disagree about is
+#               a line that gets rendered but not protected (evicted, then re-billed),
+#               or protected but never rendered (silence in production). So
+#               course_audio_lines() is now the single answer and all six ask it.
+#               ⚠️ AND THE NEW LINES ARE OUTSIDE validate()'s REACH, because
+#               validate() takes a lesson. PART 3di holds them to the same speech
+#               rules instead -- the VOCABULARY canon, the beat word cap, no notation.
+#               The first draft of line four said a problem "gives you trouble";
+#               "gives you" is a banned synonym for "equals" and the sweep caught it
+#               before it was ever spoken, which is the whole argument for the pin.
 #   2026-08-23  BUILD md -- ⭐⭐ THE CURRICULUM IS COMPLETE. DIFFEQ UNIT 9
 #               (Nonlinear Systems & Stability). 324 lessons -> 328, 317 ops
 #               (lnrz, prey, cycl, chao). THIRTEEN COURSES, NINE UNITS EACH
@@ -23181,6 +23198,59 @@ def audio_lines(lesson):
     lines.update([LINE_WRONG, LINE_TAP, LINE_END_GRACEFUL,
                   lesson["advance_line"]])
     return sorted(lines)
+
+
+# =============================================================================
+# LINES THAT BELONG TO NO SINGLE LESSON  (build mk, 2026-08-23)
+# -----------------------------------------------------------------------------
+# THE CLOSURE PROPERTY, restated: every line the app can ever speak in Mr. Cadabra's
+# voice must be enumerable in advance, so it is rendered once and free forever. Until
+# now every such line lived inside a lesson and audio_lines(lesson) found it. Abrabot's
+# introduction is the first that belongs to the COURSE rather than to any lesson --
+# Mr. Cadabra says it once, on a page that is not a lesson at all.
+#
+# ⚠️ SO IT HAS TO BE ENUMERATED HERE, NOT WHEREVER IT IS SPOKEN. main.py had SIX
+# separate places building the closure as {s for les in LESSONS for s in
+# audio_lines(les)} -- the prewarm, the dry-run, the clip audit, the model split, the
+# eviction guard and the byte estimator. A line these six disagree about is a line that
+# is rendered but not protected, or protected but never rendered, or billed twice.
+# course_audio_lines() is now the ONE answer and all six ask it.
+#
+# ⚠️ AND THESE LINES ARE NOT VALIDATED BY validate(), because validate() takes a
+# LESSON. They are held to the same speech rules by the battery instead (PART 3di):
+# the VOCABULARY canon, the beat word cap, and no notation. A line outside the
+# validator's reach is exactly the kind of line that quietly acquires "subtract".
+ABRABOT_INTRO = (
+    "I would like you to meet somebody. This is Abrabot. He is my practice helper, "
+    "and he is very good at his job.",
+
+    "When you have finished a lesson with me, Abrabot has more problems for you. "
+    "As many as you want, on the very same idea.",
+
+    "He will tell you when you are right, and he will show you the answer when you "
+    "are not. He keeps count, and nothing you do with him changes what you have "
+    "already learned.",
+
+    "And if a problem is tricky, Abrabot will come and get me. I will teach it again, "
+    "and then I will hand you back to him. Have fun!",
+)
+
+# Everything above, plus anything else that is spoken outside a lesson later.
+STANDALONE_LINES = tuple(ABRABOT_INTRO)
+
+
+def course_audio_lines(lessons=None):
+    """EVERY line the app can speak in Mr. Cadabra's voice, deduped and sorted.
+
+    `lessons` narrows to a subset (the admin tools render one lesson at a time). The
+    standalone lines belong to the COURSE, so they come along only when nobody has
+    narrowed the request -- rendering "just lesson 12" should not quietly re-price
+    Abrabot's introduction."""
+    src = LESSONS if lessons is None else list(lessons)
+    out = {s for les in src for s in audio_lines(les)}
+    if lessons is None:
+        out.update(STANDALONE_LINES)
+    return sorted(out)
 
 
 def audio_cost_estimate(lesson, usd_per_1k_chars=0.22):

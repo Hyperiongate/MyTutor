@@ -2,6 +2,200 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mm-deploy-safe". BUILD mm -- ONE FILE MUST
+#               NOT BE ABLE TO TAKE THE SITE DOWN. Found while preparing the handoff
+#               for the morning deploy, not by a test.
+#               ⚠️ THE RISK. drillpool.py is a NEW file (mg) and main.py imported it
+#               bare. `git commit -am` does NOT stage a new untracked file, and Jim
+#               deploys GitHub -> Render. So the realistic first-deploy failure was:
+#               drillpool.py never reaches the repo, main.py raises ImportError at
+#               module load, and the WHOLE SITE is down -- for a feature nobody had
+#               used yet. static/drill.html and static/script-board.js are new too,
+#               but a missing static file is a 404 on one page, not a dead app.
+#               THE FIX IS THE HOUSE PATTERN, not a special case: misconceptions,
+#               foundations, sprints and nightwatch are ALL imported try/except into
+#               None and reported in /health's `subsystems`. Drill now joins them.
+#               A deploy that lost the file gets: the site up, "drillpool": false on
+#               /health, an empty picker, and a 503 with words on /api/drill/start --
+#               instead of a blank page and no clue.
+#               PART 3dj pins that the import is guarded, that /health reports it,
+#               and that every route which touches drillpool checks it first.
+#   2026-08-23  APP_BUILD -> "2026-08-23mk-the-introduction". BUILD mk -- PHASE 5
+#               OF ABRABOT, AND THE LAST ONE: MR. CADABRA INTRODUCES HIM, in four
+#               authored lines, in his real voice, the first time a child opens the
+#               drill room. 525 characters. About TWELVE CENTS, once, ever -- I told
+#               Jim one to two dollars when I scoped it; the real number is $0.12.
+#               ⚠️ THE LINES WERE THE EASY HALF. They are the first speech in the
+#               product that belongs to the COURSE rather than to a lesson, and
+#               main.py built "the closure" in SIX separate places -- the prewarm, the
+#               dry-run, the clip audit, the model split, the eviction guard and the
+#               byte estimator -- each as its own comprehension over audio_lines().
+#               Adding a line to five of six is not a small bug: a line the evictor
+#               does not know about is DELETED after the course paid to render it,
+#               and a line the prewarm does not know about is SILENCE in production.
+#               So lessonscripts.course_audio_lines() is now the one answer and all
+#               six ask it. It also declines to include course-level speech when the
+#               caller narrowed to a single lesson, so re-rendering one lesson cannot
+#               quietly re-price the introduction.
+#               ⚠️ AND THESE LINES ARE OUTSIDE validate()'s REACH, because validate()
+#               takes a lesson. PART 3di holds them to the same rules instead -- the
+#               VOCABULARY canon, the beat word cap, no notation -- and earned its
+#               keep on this very build: the first draft of line four said a problem
+#               "gives you trouble", and "gives you" is a banned synonym for
+#               "equals". Speech nothing checks is speech that quietly acquires
+#               "subtract" eighteen months from now, in his real voice, to a child.
+#               ONCE PER CHILD, PER PROCESS. No store write in this lane, so a
+#               redeploy re-introduces them. That is the right way round: hearing it
+#               twice is a small cost, skipping it for a child who never heard it is
+#               the feature not existing.
+#               ⚠️ FOR JIM'S RENDER: the closure is now 29,330 lines, up 4. Those four
+#               are new and unrendered, so they want to be in the SAME render pass as
+#               the rest -- not a separate trip.
+#   2026-08-23  APP_BUILD -> "2026-08-23mj-the-handoff". BUILD mj -- PHASE 4 OF
+#               ABRABOT: HE FETCHES MR. CADABRA, AND IT COSTS NOTHING.
+#               Jim: "if it detects a child is struggling, it needs to call in Mr
+#               Cadabra to do some more teaching" and "can we have it fly in and
+#               replace mr cadabra when it enters the game." Both now happen.
+#               ⭐ THE CHANGE THAT MATTERS IS A PIN THAT MOVED. mh and mi enforced
+#               "drill.html must not contain the string /api/speak". That was the
+#               right REASON written as the wrong RULE. The reason: a GENERATED
+#               problem's sentence was never pre-rendered, so sending it to a paid
+#               renderer is a guaranteed cache miss -- a live call per problem, per
+#               child. The rule held only while the lane never legitimately needed
+#               the route. Mr. Cadabra's re-teach is the exact opposite: it is the
+#               lesson's OWN authored teach beat, enumerated by audio_lines(),
+#               rendered once by the prewarm, a cache hit forever.
+#               So the guarantee moved to where a page cannot get it wrong. voice.js
+#               sends lane:"drill"; /api/speak-prep then (a) REFUSES a ticket for any
+#               text outside the scripted closure and (b) mints a CACHE-ONLY ticket,
+#               so even an authored line that has not been rendered yet costs nothing
+#               and 204s to the browser voice. Half the course is still unrendered
+#               while Jim's quota refills, and a drill request must never be the
+#               thing that renders it. When the render finishes, his real voice
+#               appears in the drill lane by itself.
+#               ⭐ AND IT IS PROVED, NOT ARGUED. PART 3dh's live drive replaces
+#               httpx.stream with a function that RAISES, so if anything in this lane
+#               ever reaches ElevenLabs the battery fails instead of Jim's card.
+#               THE LADDER: first fetch = ONE worked example (a stuck child usually
+#               needs to watch one done, not to hear the lesson from the top); second
+#               fetch = the full teach sequence, then the worked example.
+#               ⚠️ AND THE COUNTERS RESET WHEN HE ARRIVES, or a child having a bad
+#               afternoon is re-taught on every single miss -- which is how a helpful
+#               feature turns into a punishment.
+#               ⚠️ WHAT TRIPS IT, HONESTLY. The scope said "the same misconception
+#               twice". misconceptions.py cannot deliver that here: match() reads the
+#               WORDS of an answer for detect-strings, and a drill answer is a TAPPED
+#               NUMBER with no words in it -- many entries carry no detect strings at
+#               all. So the trigger is what the lane can actually measure and has
+#               measured since mh: three wrong in a row, or two problems missed even
+#               on the second try. Claiming misconception detection off a tap would
+#               be a measurement that does not exist.
+#   2026-08-23  APP_BUILD -> "2026-08-23mi-abrabot-the-character". BUILD mi --
+#               PHASE 3 OF ABRABOT: HE BECOMES A CHARACTER. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp. The work is in three static
+#               files, and all three changes are ADDITIVE with the old behaviour as
+#               the default:
+#               (1) static/tutor-face.js -- the robot's eight colour constants became
+#               TutorFace.PALETTES: .cadabra unchanged to the byte, plus .abrabot
+#               (cyan shell, amber eyes). draw() resolves opts.palette into the SAME
+#               eight local names the drawing code always used, so not one drawing
+#               line moved.
+#               ⭐ AND opts.presence:false DRAWS THE ROBOT ALONE. The presence layer
+#               is VIDEO OF A REAL PERSON. Without that flag the drill page would
+#               have laid Mr. Cadabra's actual face over Abrabot's body the moment
+#               the video manifest deployed -- and it would have looked like a
+#               rendering glitch rather than the impersonation it is. PART 3dg pins
+#               that the drill page passes it.
+#               (2) static/voice.js -- a `voiceProfile` hook, null by default, so a
+#               page can give its speaker its own voice, rate and pitch. Abrabot
+#               lives on the browserSpeak path by design (a generated problem has no
+#               clip), and that path had exactly ONE voice: Mr. Cadabra's fallback.
+#               ⚠️ THE PITCH IS THE GUARANTEE, NOT THE VOICE. A machine may have one
+#               English voice installed, and then no preference list can separate two
+#               characters -- so a profile always shifts rate and pitch too. The
+#               battery pins the DEFAULTS (1.0 / 0.9) as literals, because "additive"
+#               is a claim until something holds it.
+#               (3) static/drill.html -- his face on the picker and beside his words,
+#               his name under both, and a brief smile when an answer is right.
+#               Deliberately NOT TutorFace.celebrate(): that gold burst marks a
+#               problem finished in a LESSON, and drill is practice.
+#               ⚠️ WHY THE ROBOT IS THE RIGHT FACE FOR HIM AND ALWAYS WAS. Jim, in
+#               tutor-face.js's build-ej note: "I don't like the robot... I think
+#               it's fine to have Mr. Cadabra in every instance." The robot's job has
+#               been to be the fallback face nobody wants to see. Here it becomes a
+#               face somebody DOES want: a helper who is visibly a machine, standing
+#               next to a teacher who is visibly a person.
+#   2026-08-23  APP_BUILD -> "2026-08-23mh-abrabot-drill-loop". BUILD mh --
+#               PHASE 2 OF ABRABOT: THE DRILL LOOP. Phase 1 built the problems
+#               (drillpool.py, 24,880 of them, validator-vetted) and wired them to
+#               nothing. This build gives them a door: three routes here, one new
+#               page (static/drill.html), one extracted shared file
+#               (static/script-board.js), and GET /drill.
+#               ⭐ THE RULE THAT SHAPES THE WHOLE LANE: A GENERATED PROBLEM HAS NO
+#               CLIP. Mr. Cadabra's voice is pre-rendered per line and the cache is
+#               keyed on the verbatim text, which is what makes every scripted line
+#               free forever -- and what makes a generated sentence a guaranteed
+#               MISS: a live ElevenLabs call per problem, per child, at full price
+#               and full latency. So Abrabot speaks in the BROWSER's own voice.
+#               That is not a compromise dressed as a feature; it is why he is a
+#               different character. drill.html never sets elevenEnabled and never
+#               calls /api/voice-status, so voice.js takes its browserSpeak path,
+#               and PART 3df pins that the page names no paid audio route at all.
+#               ⚠️ THE SHARED BOARD LAYER, and why it is a file and not a copy.
+#               pilot.html had carried board.js's ambient contract and the scripted
+#               tag dispatcher inline since kj. The drill page needs exactly the
+#               same twenty-nine tags. voice.js's own header records what happened
+#               the last time this lane duplicated a layer: FOUR hand-ports of the
+#               audio code in a row, each missing a different one of the four
+#               head-of-clip protections, until the copy was deleted and the real
+#               file loaded. So the dispatcher moved to script-board.js VERBATIM
+#               and pilot.html now loads it. Both pages are browser-driven in the
+#               battery, because "nothing changed" is a claim, not a proof.
+#               THE POOLS ARE MEMOISED, NOT PRELOADED. One lesson costs ~0.07s to
+#               pool (21.7s for all 328), so the first child to drill a lesson pays
+#               milliseconds. /api/drill/lessons kicks a background warm walk and
+#               reports `ready` honestly -- a null count means NOT MEASURED YET,
+#               never "no problems". Boot is untouched: a cold Render instance has
+#               a redeploy's worth of work to do already.
+#               MASTERY IS UNTOUCHED, still, by Jim's ruling: "Drill is practice,
+#               quizzes are for mastery." The lane writes exactly one thing: a
+#               usage row, kind="drill", so /admin can see it working. No topic
+#               row, no unit, no mastery, ever.
+#               HONEST GAPS, recorded so they are not mistaken for bugs: (a) the
+#               pool is walked from its easiest end on every NEW session, because
+#               nothing is persisted -- position is a store write and this lane
+#               does not write; (b) 53 of 328 lessons have no pool at all, and the
+#               picker says so up front rather than failing at the tap; (c) the
+#               server already reports `struggling` and the page shows it only
+#               under ?dev=1 -- Abrabot must NOT promise to fetch Mr. Cadabra in a
+#               build where he cannot. That is phase 4.
+#   2026-08-23  APP_BUILD -> "2026-08-23mg-abrabot-phase-one". BUILD mg --
+#               PHASE 1 OF ABRABOT, the practice assistant. NOTHING IN THIS FILE
+#               CHANGED but this note and the stamp: phase 1 is a new module
+#               (drillpool.py) and a battery pin, wired to no route and no page.
+#               WHAT IT IS. Every op already carries a check() saying which
+#               {a,b,c} are legal -- the auto-picker has used them to choose banks
+#               for thirteen builds. So the ops ARE generators. drillpool turns
+#               that surface into 24,880 EXTRA practice problems against the 3,947
+#               authored, 6.3x the practice depth with no new authoring.
+#               ⭐ THE DESIGN DECISION WORTH KEEPING: the admission filter is the
+#               COURSE'S OWN validate(), not new rules in the new file. Every
+#               candidate is put in a bank with nine of its lesson's human-vetted
+#               problems and must survive all forty-odd rules. An envelope of tap
+#               ratios and bounds -- the first design -- could never have caught
+#               what that did on the first run: problems that do not CARRY in a
+#               carrying lesson, do not REGROUP in a regrouping one, DO carry in
+#               the lesson promising none, and sums overflowing the tens in a
+#               two-digit lesson. Those promises live in validate(); a second copy
+#               would have drifted.
+#               ⚠️ AND THE PIN EARNED ITS KEEP IMMEDIATELY, on the build that wrote
+#               it: pool_for()'s early return (the cap and scan-limit exit) handed
+#               back an UNSORTED list, so the 61 biggest pools -- the ones a child
+#               is likeliest to reach -- lurched between hard and easy while every
+#               small pool ramped properly. Pin an invariant; do not trust the
+#               function that holds it.
+#               MASTERY IS UNTOUCHED, by Jim's ruling: "Drill is practice, quizzes
+#               are for mastery." PART 3de pins that drillpool cannot reach store.
 #   2026-08-23  APP_BUILD -> "2026-08-23mf-two-honest-numbers". BUILD mf --
 #               ⚠️ SUPERSEDES mf's SIBLING: if you took a main.py stamped "me"
 #               earlier today, DISCARD IT and deploy this one instead. Same
@@ -5927,6 +6121,15 @@ def practice_page():
     return FileResponse(STATIC_DIR / "practice.html")
 
 
+@app.get("/drill")
+def drill_page():
+    """ABRABOT'S PRACTICE ROOM (build mh) -- extra problems from drillpool.py, fed by
+    a helper who speaks in the BROWSER's voice. Separate from /practice, which is the
+    AI homework-help lane: this one costs nothing per problem and touches no mastery.
+    """
+    return FileResponse(STATIC_DIR / "drill.html")
+
+
 @app.get("/home")
 def home_page():
     """The 'what would you like to do today?' hub (course / practice / topic)."""
@@ -8613,6 +8816,497 @@ def script_answer(body: ScriptAnswerIn):
     _script_log(code, lesson["course"], t0)
     return {"ok": True, "steps": out}
 
+# =============================================================================
+# ABRABOT -- THE DRILL LANE  (build mh, phase 2 of Abrabot)
+# -----------------------------------------------------------------------------
+# WHAT THIS IS. drillpool.py (build mg) turned every op's own check() into a pool of
+# EXTRA problems per lesson -- 24,880 of them across 275 lessons, each one put through
+# the real lessonscripts.validate() before it was admitted. Phase 1 was data with no
+# door. This is the door: three small routes and an in-memory session, so a child who
+# has finished a lesson can keep working problems from it.
+#
+# ⭐ THE ONE RULE THAT SHAPES EVERYTHING HERE: A DRILL PROBLEM HAS NO CLIP.
+# Mr. Cadabra's voice is pre-rendered per line and the cache is keyed on the verbatim
+# text (_tts_cache_path). Every line of every SCRIPTED lesson is in that closure and
+# therefore free forever. A GENERATED problem's sentence was never rendered, so
+# speaking it in his voice would be a cache MISS -- a live ElevenLabs call, per
+# problem, per child, at full price and full latency. That is why Abrabot exists and
+# why he sounds different: he speaks in the BROWSER's own voice, which costs nothing,
+# starts instantly, and needs no cache. The drill page therefore never sets
+# elevenEnabled, so voice.js takes its browser-speech path -- and the battery pins
+# that the page contains no reference to /api/speak or speak-prep at all.
+#
+# ⭐ ABRABOT DRILLS; MR. CADABRA TEACHES. Jim's ruling, 2026-08-23: "Drill is practice,
+# quizzes are for mastery." So NOTHING in this lane writes a topic row, touches
+# mastery, or moves a unit. It logs usage (kind="drill") so /admin can see the lane
+# working and price its latency with the same instrument every other lane uses, and
+# that is the whole of its persistence. A drill session lives in memory and dies with
+# the process, exactly like a scripted one.
+#
+# WHAT PHASE 2 DELIBERATELY DOES NOT DO. It detects struggle and REPORTS it
+# (`struggling` in the payload) but does not act on it: fetching Mr. Cadabra is phase
+# 4, and the fly-in and the replayed teach beat land there. Abrabot must not say "let
+# me fetch Mr. Cadabra" in a build where he cannot -- telling a stuck child that help
+# is coming and then not sending it is a worse defect than the silence it replaces.
+#
+# WHAT PHASE 2 KNOWS IT IS MISSING, recorded so it is not mistaken for a bug:
+#   - the pool is walked from its easiest end on every new session, because nothing
+#     is persisted. A child who drills twice in one session keeps advancing; a child
+#     who comes back tomorrow starts easy again. Persisting that position is a store
+#     write, and this lane does not write. It lands with the effort awards or not at
+#     all.
+#   - 53 of the 328 lessons have no pool (their ops admit no extra tuple the validator
+#     will accept). /api/drill/lessons reports the count per lesson so the picker can
+#     say so up front instead of failing at the tap.
+# =============================================================================
+# ⚠️ (mm) OPTIONAL, LIKE EVERY OTHER SUBSYSTEM IN THIS FILE. drillpool.py is a NEW
+# file (build mg). `git commit -am` does NOT stage a new untracked file -- so the
+# realistic failure on the very first deploy of this lane is that main.py imports a
+# module that never reached the repo. A bare `import drillpool` would make that an
+# ImportError at module load: not "drill is missing", but THE WHOLE SITE DOWN, for a
+# feature nobody was using yet.
+# misconceptions, foundations, sprints and nightwatch are all imported exactly this
+# way and reported in /health's `subsystems` block. Drill is a smaller thing than any
+# of them and has no business being the one that can take the app with it.
+try:
+    import drillpool
+except Exception as _dp_exc:  # noqa: BLE001
+    drillpool = None
+    print(f"[main] drillpool.py unavailable ({_dp_exc}) -- extra practice disabled")
+
+_DRILL_SESSIONS: dict = {}
+_DRILL_TTL_S = 2 * 3600
+_DRILL_ROUND = 8                 # problems in one round before Abrabot totals up
+_DRILL_STRUGGLE_STREAK = 3       # wrong three in a row
+_DRILL_STRUGGLE_MISSES = 2       # or two problems missed even on the second try
+
+# The pool memo. Building ONE lesson's pool costs ~0.07s (measured across the course:
+# 21.7s for all 328), so the first child to drill a lesson pays milliseconds and
+# everyone after pays nothing. The lock guards the DICT, never the computation: two
+# threads racing on the same lesson do the same deterministic work twice, which is
+# cheap and correct, where holding a lock through a 20-second warm walk would stall
+# every other request behind it.
+_DRILL_POOLS: dict = {}
+_DRILL_POOL_LOCK = threading.Lock()
+_DRILL_WARM: dict = {"state": "cold", "done": 0, "total": 0}
+_DRILL_WARM_LOCK = threading.Lock()
+
+
+def _drill_pool(lesson) -> list:
+    """This lesson's extra problems, built once per process."""
+    lid = lesson["id"]
+    got = _DRILL_POOLS.get(lid)
+    if got is not None:
+        return got
+    if drillpool is None:
+        return []                      # (mm) the module never loaded: no extra practice
+    try:
+        pool = drillpool.pool_for(lesson)
+    except Exception as exc:  # noqa: BLE001 -- a lesson we cannot pool is one we skip
+        print(f"[drill] pool build failed for {lid}: {exc}")
+        pool = []
+    with _DRILL_POOL_LOCK:
+        _DRILL_POOLS[lid] = pool
+    return pool
+
+
+def _drill_warm_worker() -> None:
+    """Fill the memo for the whole course in the background (~22s, once per process).
+
+    Started by the first /api/drill/lessons call, never at boot: a cold Render
+    instance has a redeploy's worth of work to do already, and nothing about drill is
+    needed until somebody asks for it."""
+    try:
+        for les in lessonscripts.LESSONS:
+            _drill_pool(les)
+            _DRILL_WARM["done"] = len(_DRILL_POOLS)
+        _DRILL_WARM["state"] = "ready"
+        print(f"[drill] pools ready: {sum(len(v) for v in _DRILL_POOLS.values())} "
+              f"extra problems across {len(_DRILL_POOLS)} lessons")
+    except Exception as exc:  # noqa: BLE001 -- warming is an optimisation, never a duty
+        _DRILL_WARM["state"] = "cold"
+        print(f"[drill] warm walk stopped: {exc}")
+
+
+def _drill_warm_start() -> None:
+    if drillpool is None:
+        return                          # (mm) nothing to warm
+    with _DRILL_WARM_LOCK:
+        if _DRILL_WARM["state"] != "cold":
+            return
+        _DRILL_WARM["state"] = "warming"
+        _DRILL_WARM["total"] = len(lessonscripts.LESSONS)
+    threading.Thread(target=_drill_warm_worker, daemon=True, name="drill-warm").start()
+
+
+# ---- Abrabot's own words ----------------------------------------------------
+# He is a different character from Mr. Cadabra and says so. These lines are spoken by
+# the browser, so they are free and they are NOT part of the audio closure -- but they
+# obey lessonscripts.VOCABULARY exactly as an authored lesson does, because a child
+# must not hear "subtract" from the helper and "take away" from the teacher. The
+# battery pins that against the real VOCABULARY table.
+_ABRA_HELLO = ("Hi! I am Abrabot, Mr. Cadabra's practice helper. I have extra "
+               "problems for you. Here is the first one.")
+_ABRA_YES = ("Correct!", "Yes!", "That is right!", "Nice work!", "Got it!")
+_ABRA_RETRY = "Not quite. Have one more try."
+_ABRA_TELL = "The answer was {v}. Let's keep going."
+_ABRA_ROUND = "That is {right} out of {asked} right. Want another round?"
+_ABRA_EMPTY = ("You have worked every extra problem I have for this lesson. "
+               "That is all of them!")
+# ---- (mj) THE HANDOFF ---------------------------------------------------------
+# Jim, 2026-08-23: "if it detects a child is struggling, it needs to call in Mr
+# Cadabra to do some more teaching." Phase 2 detected it and said nothing, on
+# purpose: Abrabot must not promise help he cannot send. He can now, so he says so.
+_ABRA_FETCH = "This one is tricky. Let me get Mr. Cadabra."
+_ABRA_BACK = "Thanks, Mr. Cadabra! Let's try another one."
+# Mr. Cadabra's own two lines around the re-teach. They are NOT authored closure
+# text, so they are spoken by the browser like Abrabot's -- see _drill_speakable().
+_CAD_HELLO = "Let's look at this one together."
+_CAD_BYE = "You have got this. Back to you, Abrabot."
+
+# ---- (mk) THE INTRODUCTION ----------------------------------------------------
+# Mr. Cadabra brings Abrabot on, in four authored lines, IN HIS REAL VOICE. They live
+# in lessonscripts.ABRABOT_INTRO because that is where the closure is enumerated --
+# so the prewarm renders them, the evictor protects them, the estimator prices them
+# and the drill lane's closure gate admits them, all without a second list anywhere.
+# 525 characters, about twelve cents, once, for the whole product's lifetime.
+#
+# ⚠️ ONCE PER CHILD, PER PROCESS. There is no store write in this lane, so "has this
+# child met Abrabot?" is memory: a redeploy re-introduces them. That is the honest
+# trade and it is the RIGHT way round -- hearing the introduction a second time next
+# week is a small cost; skipping it for a child who never heard it is the feature
+# not existing. Persisting it belongs with the effort awards, or nowhere.
+_DRILL_INTRODUCED: set = set()
+_DRILL_INTRODUCED_CAP = 5000
+
+
+def _drill_intro_steps(code: str) -> list:
+    """Mr. Cadabra's introduction, the first time this child opens the drill room."""
+    if code in _DRILL_INTRODUCED:
+        return []
+    if len(_DRILL_INTRODUCED) >= _DRILL_INTRODUCED_CAP:
+        _DRILL_INTRODUCED.clear()          # a bounded set; the worst case is a repeat
+    _DRILL_INTRODUCED.add(code)
+    lines = list(lessonscripts.ABRABOT_INTRO)
+    if not lines:
+        return []
+    kinds = ["arrive"] + ["teach"] * (len(lines) - 2) + ["leave"]
+    return [{"kind": k, "who": "cadabra", "spoken": ln, "board": ""}
+            for k, ln in zip(kinds, lines)]
+
+
+def _drill_teach_steps(lesson, depth: int) -> list:
+    """Mr. Cadabra's re-teach, straight out of the lesson. A LADDER, not a lecture.
+
+    ⭐ EVERY LINE HERE IS ALREADY PAID FOR. lessonscripts.audio_lines() enumerates
+    exactly these strings, so each one was rendered once by the prewarm and is a cache
+    hit forever. That is the whole reason the handoff is free: the teaching a stuck
+    child needs was written and voiced months before they got stuck.
+
+    depth 1 -- ONE WORKED EXAMPLE. A child who has missed two problems usually needs
+              to watch one done, not to hear the lesson again from the top.
+    depth 2+ -- THE FULL TEACH SEQUENCE, then the worked example. If watching one done
+              did not land, the idea underneath it is what is missing.
+    """
+    out = []
+    if depth >= 2:
+        for spoken, board in lesson.get("teach", []):
+            out.append({"kind": "teach", "who": "cadabra",
+                        "spoken": spoken, "board": board})
+    pairs = lesson.get("pairs") or []
+    if pairs:
+        worked = pairs[0].get("worked") or ("", "")
+        out.append({"kind": "teach", "who": "cadabra",
+                    "spoken": worked[0], "board": worked[1]})
+    return out
+
+
+def _drill_speakable(text) -> bool:
+    """Is this line one the course has already rendered? (Reporting only.)
+
+    The page does not have to trust this -- /api/speak-prep refuses a drill ticket for
+    anything outside the closure, and the ticket is cache-only on top. This just lets
+    the page ask for the natural voice ONLY where it stands a chance, so a stuck child
+    is not made to wait on a request that was always going to 204."""
+    try:
+        return _tts_cache_path(str(text or "")).name in _script_closure_paths()
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _drill_praise(p, index: int) -> str:
+    """Abrabot's praise: HIS opener, the LESSON'S own sentence about the answer.
+
+    praise_for() is the one place that knows how each op says its result out loud, and
+    re-deriving that here would be a second copy of 300-odd op branches to drift. So
+    the real function is called and Mr. Cadabra's opener is taken off the front --
+    Abrabot does not borrow the teacher's voice OR his catchphrases."""
+    line = lessonscripts.praise_for(p, index)
+    for pre in lessonscripts.PRAISE_PREFIXES:
+        if line.startswith(pre):
+            line = line[len(pre):].strip()
+            break
+    opener = _ABRA_YES[index % len(_ABRA_YES)]
+    return (opener + " " + line).strip() if line else opener
+
+
+def _drill_session(code: str):
+    now = _time.monotonic()
+    for k in [k for k, v in _DRILL_SESSIONS.items()
+              if now - v.get("t0", now) > _DRILL_TTL_S]:
+        _DRILL_SESSIONS.pop(k, None)
+    return _DRILL_SESSIONS.get(code)
+
+
+def _drill_ask(sess) -> dict:
+    """The next problem as an ask beat, and the session remembers what it expects."""
+    lesson, pool = sess["lesson"], sess["pool"]
+    p = pool[sess["i"]]
+    level = (lesson.get("levels") or lessonscripts.LEVELS)[0]
+    expected = lessonscripts.ans(p)
+    sess["pending"] = {"problem": p, "expected": expected}
+    return {"kind": "ask",
+            "spoken": lessonscripts.spoken_for(p, level),
+            "board": lessonscripts.board_for(p, level),
+            "choices": lessonscripts.choices_for(p),
+            "expected": expected}
+
+
+def _drill_clean(steps) -> list:
+    """The client payload. Same rule as _script_clean: the expected answer and the raw
+    problem NEVER leave the server, because a tap that can be read out of the page is
+    not an answer."""
+    out = []
+    for s in steps:
+        c = {"kind": s["kind"], "spoken": s.get("spoken", ""),
+             "board": s.get("board", "")}
+        # (mj) WHO IS TALKING. The page swaps face and voice on this and nothing else,
+        # so a step that forgets to say lands on Abrabot -- the safe default, because
+        # Abrabot never uses the paid voice.
+        c["who"] = s.get("who", "abrabot")
+        # (mj) and whether the natural voice is even worth asking for: true only for
+        # lines the course authored AND rendered. Advisory -- the server refuses a
+        # drill ticket for anything else regardless of what the page believes.
+        c["natural"] = bool(s.get("who") == "cadabra" and _drill_speakable(s.get("spoken")))
+        if s["kind"] == "ask":
+            c["choices"] = s.get("choices", "")
+        if s["kind"] == "end":
+            c["right"] = int(s.get("right", 0))
+            c["asked"] = int(s.get("asked", 0))
+            c["more"] = bool(s.get("more"))
+        out.append(c)
+    return out
+
+
+def _drill_struggling(sess) -> bool:
+    return (sess["wrong_streak"] >= _DRILL_STRUGGLE_STREAK
+            or sess["misses"] >= _DRILL_STRUGGLE_MISSES)
+
+
+def _drill_handoff(sess) -> list:
+    """Abrabot fetches Mr. Cadabra, he re-teaches, and he hands back.
+
+    ⚠️ WHAT TRIPS THIS, HONESTLY. The scope I wrote for Jim said "the same
+    misconception twice". misconceptions.py cannot deliver that here: match() reads
+    the WORDS of an answer for detect-strings like "5x", and a drill answer is a
+    TAPPED NUMBER with no words in it at all -- many catalogue entries carry no detect
+    strings whatever. Claiming misconception detection off a tap would be a
+    measurement that does not exist. What the lane can honestly see is the counters it
+    has kept since mh: three wrong in a row, or two problems missed even on the second
+    try. That is what fetches him, and it is what the payload has always called
+    `struggling`.
+
+    ⚠️ AND THE COUNTERS RESET AFTER HE COMES. Without this he arrives, teaches, and
+    is instantly re-fetched by the same still-true counters on the very next miss --
+    a child who is having a bad day would get the same lecture five times in a row,
+    which is how a helpful feature becomes a punishment."""
+    lesson = sess["lesson"]
+    sess["fetches"] += 1
+    steps = ([{"kind": "say", "who": "abrabot", "spoken": _ABRA_FETCH, "board": ""},
+              {"kind": "arrive", "who": "cadabra", "spoken": _CAD_HELLO, "board": ""}]
+             + _drill_teach_steps(lesson, sess["fetches"])
+             + [{"kind": "leave", "who": "cadabra", "spoken": _CAD_BYE, "board": ""},
+                {"kind": "say", "who": "abrabot", "spoken": _ABRA_BACK, "board": ""}])
+    sess["wrong_streak"] = 0
+    sess["misses"] = 0
+    return steps + _drill_advance(sess)
+
+
+def _drill_advance(sess) -> list:
+    """Retire the problem just finished and hand back what comes next: the next ask,
+    the end of a round, or the end of the pool."""
+    sess["i"] += 1
+    sess["asked"] += 1
+    sess["round_asked"] += 1
+    if sess["i"] >= len(sess["pool"]):
+        sess["pending"] = None
+        return [{"kind": "end", "spoken": _ABRA_EMPTY, "board": "",
+                 "right": sess["round_right"], "asked": sess["round_asked"],
+                 "more": False}]
+    if sess["round_asked"] >= _DRILL_ROUND:
+        sess["pending"] = None
+        return [{"kind": "end",
+                 "spoken": _ABRA_ROUND.format(right=sess["round_right"],
+                                              asked=sess["round_asked"]),
+                 "board": "", "right": sess["round_right"],
+                 "asked": sess["round_asked"], "more": True}]
+    return [_drill_ask(sess)]
+
+
+class DrillStartIn(BaseModel):
+    code: str
+    lesson: str = ""
+
+
+class DrillAnswerIn(BaseModel):
+    code: str
+    value: int | None = None
+
+
+class DrillNextIn(BaseModel):
+    code: str
+
+
+@app.get("/api/drill/lessons")
+def drill_lessons():
+    """The course with a drill count against each lesson.
+
+    `ready` is false while the background warm walk is still running, in which case a
+    count of null means "not measured yet", NOT "no problems". The picker says so
+    rather than hiding a lesson that is about to become available."""
+    _drill_warm_start()
+    titles = {}
+    try:
+        titles = {k: v.get("title", k) for k, v in curriculum.COURSES.items()}
+    except Exception as exc:  # noqa: BLE001 -- a title is cosmetic; ids still work
+        print(f"[drill] course titles unavailable: {exc}")
+    known = dict(_DRILL_POOLS)
+    out = []
+    for les in lessonscripts.LESSONS:
+        pool = known.get(les["id"])
+        out.append({"id": les["id"], "topic": les["topic"], "unit": les["unit"],
+                    "course": les["course"],
+                    "course_title": titles.get(les["course"], les["course"]),
+                    "drill": (None if pool is None else len(pool))})
+    return {"ok": True, "ready": _DRILL_WARM["state"] == "ready",
+            # (mm) If drillpool.py never loaded, every count is "not measured yet" and
+            # the picker would say "checking..." forever -- true of the memo, useless
+            # to a person. This says the real thing instead.
+            "available": drillpool is not None,
+            "warmed": len(known), "total": len(lessonscripts.LESSONS),
+            "lessons": out}
+
+
+@app.post("/api/drill/start")
+def drill_start(body: DrillStartIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    if not code:
+        raise HTTPException(status_code=400, detail="A student code is required.")
+    _student_or_404(code)
+    _rate_limit("drill:" + code, limit=400, window_seconds=300, what="problems")
+    lesson = lessonscripts.LESSON_BY_ID.get((body.lesson or "").strip()) \
+        if (body.lesson or "").strip() else lessonscripts.LESSONS[0]
+    if lesson is None:
+        raise HTTPException(status_code=404, detail=(
+            "Unknown lesson id -- GET /api/drill/lessons lists them."))
+    if drillpool is None:
+        raise HTTPException(status_code=503, detail=(
+            "Abrabot's extra problems are not loaded on this server right now."))
+    pool = _drill_pool(lesson)
+    if not pool:
+        raise HTTPException(status_code=409, detail=(
+            "Abrabot has no extra problems for this lesson yet -- try another one."))
+    sess = {"lesson": lesson, "pool": pool, "i": 0, "asked": 0, "right": 0,
+            "wrong_streak": 0, "misses": 0, "second_chance": False,
+            "pending": None, "round_asked": 0, "round_right": 0,
+            "fetches": 0,                      # (mj) how often Mr. Cadabra has come
+            "t0": _time.monotonic()}
+    _DRILL_SESSIONS[code] = sess
+    steps = (_drill_intro_steps(code)
+             + [{"kind": "say", "who": "abrabot", "spoken": _ABRA_HELLO, "board": ""},
+                _drill_ask(sess)])
+    _script_log(code, lesson["course"], t0, kind="drill")
+    return {"ok": True, "lesson": lesson["topic"], "id": lesson["id"],
+            "pool": len(pool), "struggling": False,
+            "score": {"right": 0, "asked": 0},
+            "steps": _drill_clean(steps)}
+
+
+@app.post("/api/drill/answer")
+def drill_answer(body: DrillAnswerIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _drill_session(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No drill is running for this code -- POST /api/drill/start."))
+    _rate_limit("drill:" + code, limit=400, window_seconds=300, what="problems")
+    pending = sess.get("pending")
+    if not pending:
+        raise HTTPException(status_code=409, detail=(
+            "Abrabot is not waiting on an answer -- POST /api/drill/next."))
+    lesson = sess["lesson"]
+    value = None if body.value is None else int(body.value)
+
+    if value is not None and value == pending["expected"]:
+        sess["right"] += 1
+        sess["round_right"] += 1
+        sess["wrong_streak"] = 0
+        sess["second_chance"] = False
+        steps = ([{"kind": "say",
+                   "spoken": _drill_praise(pending["problem"], sess["asked"]),
+                   "board": ""}]
+                 + _drill_advance(sess))
+    elif not sess["second_chance"]:
+        # ONE second try, on the SAME problem, before Abrabot says the answer. A tap
+        # can be a slip; a lesson's own engine gives a re-ask too. The problem is not
+        # retired here, so it is not counted twice.
+        sess["wrong_streak"] += 1
+        sess["second_chance"] = True
+        steps = [{"kind": "say", "spoken": _ABRA_RETRY, "board": ""},
+                 _drill_ask(sess)]
+    else:
+        # Missed twice. Abrabot TELLS -- he still does not teach; teaching is Mr.
+        # Cadabra's, and as of mj Abrabot can actually go and get him.
+        sess["wrong_streak"] += 1
+        sess["misses"] += 1
+        sess["second_chance"] = False
+        steps = [{"kind": "say",
+                  "spoken": _ABRA_TELL.format(v=pending["expected"]), "board": ""}]
+        if _drill_struggling(sess):
+            steps += _drill_handoff(sess)
+        else:
+            steps += _drill_advance(sess)
+
+    _script_log(code, lesson["course"], t0, kind="drill")
+    return {"ok": True, "struggling": _drill_struggling(sess),
+            "score": {"right": sess["right"], "asked": sess["asked"]},
+            "steps": _drill_clean(steps)}
+
+
+@app.post("/api/drill/next")
+def drill_next(body: DrillNextIn):
+    """Another round from where this session left off in the pool."""
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _drill_session(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No drill is running for this code -- POST /api/drill/start."))
+    _rate_limit("drill:" + code, limit=400, window_seconds=300, what="problems")
+    if sess["i"] >= len(sess["pool"]):
+        raise HTTPException(status_code=409, detail=(
+            "Abrabot has no extra problems left for this lesson."))
+    sess["round_asked"] = 0
+    sess["round_right"] = 0
+    sess["second_chance"] = False
+    steps = [_drill_ask(sess)]
+    _script_log(code, sess["lesson"]["course"], t0, kind="drill")
+    return {"ok": True, "struggling": _drill_struggling(sess),
+            "score": {"right": sess["right"], "asked": sess["asked"]},
+            "steps": _drill_clean(steps)}
+
 
 # =============================================================================
 # BUILD kq -- THE PREWARM RENDER IS A JOB, NOT A REQUEST
@@ -9018,7 +9712,12 @@ def admin_script_prewarm(body: ScriptPrewarmIn,
         if not lessons:
             raise HTTPException(status_code=404,
                                 detail=f"No scripted lesson with id {body.lesson!r}.")
-    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
+    # (mk) ONE OWNER FOR THE CLOSURE. `lessons` is the full course unless the caller
+    # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
+    # introduction) only in the un-narrowed case -- rendering one lesson must not
+    # quietly re-price course-level speech.
+    lines = lessonscripts.course_audio_lines(
+        None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
     todo, already = [], 0
     for say in lines:
         if body.force:
@@ -9125,7 +9824,12 @@ def admin_clip_bytes(body: ClipBytesIn,
     if not lessons:
         raise HTTPException(status_code=404,
                             detail=f"No scripted lesson with id {body.lesson!r}.")
-    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
+    # (mk) ONE OWNER FOR THE CLOSURE. `lessons` is the full course unless the caller
+    # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
+    # introduction) only in the un-narrowed case -- rendering one lesson must not
+    # quietly re-price course-level speech.
+    lines = lessonscripts.course_audio_lines(
+        None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
     i = int(body.index or 0)
     if i < 0 or i >= len(lines):
         raise HTTPException(status_code=404,
@@ -9182,7 +9886,12 @@ def admin_course_audio_audit(body: CourseAudioAuditIn,
         if not lessons:
             raise HTTPException(status_code=404,
                                 detail=f"No scripted lesson with id {body.lesson!r}.")
-    lines = sorted({s for les in lessons for s in lessonscripts.audio_lines(les)})
+    # (mk) ONE OWNER FOR THE CLOSURE. `lessons` is the full course unless the caller
+    # narrowed it, and course_audio_lines() adds the standalone lines (Abrabot's
+    # introduction) only in the un-narrowed case -- rendering one lesson must not
+    # quietly re-price course-level speech.
+    lines = lessonscripts.course_audio_lines(
+        None if len(lessons) == len(lessonscripts.LESSONS) else lessons)
 
     CANON = {"mpeg": "1", "layer": 3, "rate": 44100, "kbps": 128, "channels": "mono"}
     clips, missing, unreadable = [], [], []
@@ -10456,7 +11165,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-23mf-two-honest-numbers"
+APP_BUILD = "2026-08-24mm-deploy-safe"
 
 
 @app.get("/health")
@@ -10474,7 +11183,10 @@ def health():
     subsystems = {"misconceptions": misconceptions is not None,
                   "foundations": foundations is not None,
                   "sprints": sprints is not None,
-                  "nightwatch": nightwatch is not None}
+                  "nightwatch": nightwatch is not None,
+                  # (mm) so a deploy that lost drillpool.py SAYS so on /health rather
+                  # than looking fine until a child taps a lesson and gets nothing.
+                  "drillpool": drillpool is not None}
     try:
         subsystems.update(tutor.subsystems())
     except Exception as exc:  # noqa: BLE001
@@ -11738,8 +12450,8 @@ def _script_closure_texts() -> set:
     global _SCRIPT_CLOSURE_TEXTS
     if _SCRIPT_CLOSURE_TEXTS is None:
         try:
-            _SCRIPT_CLOSURE_TEXTS = {s for les in lessonscripts.LESSONS
-                                     for s in lessonscripts.audio_lines(les)}
+            # (mk) one owner -- see lessonscripts.course_audio_lines()
+            _SCRIPT_CLOSURE_TEXTS = set(lessonscripts.course_audio_lines())
         except Exception as exc:  # noqa: BLE001
             print(f"[speak] closure unavailable, scripted model split is off: {exc}")
             _SCRIPT_CLOSURE_TEXTS = set()
@@ -12033,6 +12745,10 @@ class SpeakPrepIn(BaseModel):
     code: str = ""
     text: str = ""
     lead: int = 0
+    # (mj) Which lane is asking. "drill" is the only value with a meaning: it demands
+    # closure text and mints a ticket that can never spend money. Anything else is the
+    # ordinary lane and behaves exactly as it did before this build.
+    lane: str = ""
 
 
 @app.post("/api/speak-prep")
@@ -12047,6 +12763,30 @@ def speak_prep(req: SpeakPrepIn):
         raise HTTPException(status_code=413, detail="That text is too long to speak.")
     if not text:
         raise HTTPException(status_code=400, detail="Nothing to speak.")
+    # ⭐ (mj) THE DRILL LANE'S TICKETS ARE CLOSURE-ONLY AND CACHE-ONLY.
+    # Builds mh and mi pinned this the crude way -- "drill.html must not name
+    # /api/speak" -- because at the time it never needed to. Phase 4 fetches Mr.
+    # Cadabra to re-teach, in his own real voice, so the page DOES need the route.
+    # The invariant was never "do not name the route". It was always: NEVER SEND
+    # GENERATED TEXT TO A PAID RENDERER, because a generated problem's sentence was
+    # never pre-rendered and is a guaranteed cache miss. That invariant now lives
+    # HERE, on the server, where a page cannot get it wrong:
+    #   (a) the text must be in the scripted closure, or there is no ticket at all;
+    #   (b) the ticket is cache-only, so even a closure line that has not been
+    #       rendered yet costs nothing -- it 204s and the browser voice takes over.
+    # A server-side gate beats a grep over a file, and this one is exact.
+    cached_only = False
+    if (req.lane or "").strip().lower() == "drill":
+        cached_only = True
+        try:
+            in_closure = _tts_cache_path(text).name in _script_closure_paths()
+        except Exception as exc:  # noqa: BLE001 -- a broken memo must not bill anybody
+            print(f"[speak] closure check failed, refusing the drill ticket: {exc}")
+            in_closure = False
+        if not in_closure:
+            raise HTTPException(status_code=409, detail=(
+                "The drill lane may only speak lines the course has already "
+                "authored -- this text is not in the scripted closure."))
     t = secrets.token_urlsafe(16)
     now = time.time()
     with _SPEAK_TICKETS_LOCK:
@@ -12057,7 +12797,8 @@ def speak_prep(req: SpeakPrepIn):
             while len(_SPEAK_TICKETS) >= _SPEAK_TICKET_CAP:
                 _SPEAK_TICKETS.pop(next(iter(_SPEAK_TICKETS)), None)   # oldest-in first
         _SPEAK_TICKETS[t] = (code, text,
-                             max(0, min(int(req.lead or 0), 4)), now + _SPEAK_TICKET_TTL)
+                             max(0, min(int(req.lead or 0), 4)), now + _SPEAK_TICKET_TTL,
+                             cached_only)
     return {"t": t, "voice": bool(ELEVEN_API_KEY)}
 
 
@@ -12070,9 +12811,14 @@ def speak(text: str = "", code: str = "", lead: int = 0, t: str = ""):
             # 410: the page's voice engine mints a fresh ticket and retries once.
             raise HTTPException(status_code=410, detail="That voice ticket expired.")
         code, text, lead = tk[0], tk[1], tk[2]
+        # (mj) tickets minted before this deploy are 4-tuples; len() keeps them valid
+        # rather than 500-ing a child mid-lesson on the way past a redeploy.
+        cached_only = bool(tk[4]) if len(tk) > 4 else False
         if not text or not ELEVEN_API_KEY:
             return Response(status_code=204)
-        return _tts_stream_response(text, lead, code=code, mode="speak")
+        return _tts_stream_response(text, lead, code=code,
+                                    mode=("drill" if cached_only else "speak"),
+                                    cached_only=cached_only)
     return _speak_legacy(text, code, lead)
 
 
@@ -12116,7 +12862,8 @@ _TTS_LEAD_SILENCE = _b64.b64decode(
     "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAMAAAVOAAnJycnJycnJzs7Ozs7Ozs7Tk5OTk5OTk5iYmJiYmJiYmJ2dnZ2dnZ2domJiYmJiYmJnZ2dnZ2dnZ2dsbGxsbGxsbHExMTExMTExNjY2NjY2NjY2Ozs7Ozs7Ozs//////////8AAAAATGF2YzYwLjMxAAAAAAAAAAAAAAAAJAOEAAAAAAAAFTh99LqRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uQxAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+5LEOQPAAAGkAAAAIAAANIAAAARVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//uSxDkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7ksQ5A8AAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=")
 
 
-def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "speak"):
+def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "speak",
+                        cached_only: bool = False):
     """Shared TTS pipeline (used by /api/speak and /api/demo-audio): serve the cached
     render if we have it, otherwise stream from ElevenLabs while caching atomically.
     `lead` = extra leading-silence blocks (0-4) beyond the standard one -- the first clip
@@ -12141,6 +12888,18 @@ def _tts_stream_response(text: str, lead: int = 0, code: str = "", mode: str = "
                             media_type="audio/mpeg")
     except Exception as exc:  # noqa: BLE001
         print(f"[speak] cache read error: {exc}")
+
+    # ⭐ BUILD mj -- cached_only: A LANE THAT MAY NEVER SPEND. The drill lane fetches
+    # Mr. Cadabra in his real voice when a child is stuck, and every line it asks for
+    # is authored closure text that the course has already paid to render. But "has
+    # already been rendered" is a fact about the cache at this instant, not a law --
+    # half the course is still unrendered while Jim's quota refills. A cached_only
+    # request therefore serves the hit and, on a MISS, returns 204 without touching
+    # ElevenLabs at all. The page falls back to the browser voice, the child still
+    # gets taught, and drilling cannot put a single character on the bill. When the
+    # render finishes, his real voice appears in the drill lane by itself.
+    if cached_only:
+        return Response(status_code=204)
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE_ID}/stream"
     headers = {"xi-api-key": ELEVEN_API_KEY, "Content-Type": "application/json"}
@@ -12505,9 +13264,10 @@ def _script_closure_chars() -> dict:
         _SCRIPT_CLOSURE_CHARS_MODEL = SCRIPT_TTS_MODEL
         out = {}
         try:
-            for les in lessonscripts.LESSONS:
-                for say in lessonscripts.audio_lines(les):
-                    out[_tts_cache_path(say).name] = len(say)
+            # (mk) one owner -- the estimator and the guard must never disagree
+            # about what the closure contains, or the projection drifts again.
+            for say in lessonscripts.course_audio_lines():
+                out[_tts_cache_path(say).name] = len(say)
         except Exception as exc:  # noqa: BLE001 -- degrade to the fallback estimate
             print(f"[speak] closure chars unavailable: {exc}")
             out = {}
@@ -12533,9 +13293,10 @@ def _script_closure_paths() -> set:
         _SCRIPT_CLOSURE_PATHS_MODEL = SCRIPT_TTS_MODEL
         paths = set()
         try:
-            for les in lessonscripts.LESSONS:
-                for say in lessonscripts.audio_lines(les):
-                    paths.add(_tts_cache_path(say).name)
+            # (mk) one owner: a line this set misses is a line the evictor will
+            # happily delete after the course has paid to render it.
+            for say in lessonscripts.course_audio_lines():
+                paths.add(_tts_cache_path(say).name)
         except Exception as exc:  # noqa: BLE001
             print(f"[speak] closure unavailable, eviction unprotected: {exc}")
             paths = set()

@@ -2,6 +2,30 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (mh) 2026-08-23 -- THE BOARD LAYER IS A FILE NOW, AND THIS PAGE LOADS IT.
+    Everything the kj note below describes -- board.js's ambient contract, the
+    one-board-per-beat helpers, and the scripted tag dispatcher -- moved VERBATIM
+    into static/script-board.js. Nothing that moved changed.
+    WHY: Abrabot's drill page (static/drill.html, build mh) draws the same
+    twenty-nine tags. The alternative was a second copy, and the ki note below is
+    the record of what a second copy costs this lane: FOUR hand-ports of the voice
+    layer in a row, each missing a different one of the four head-of-clip
+    protections, until the copy was deleted and the real file loaded. The
+    dispatcher has grown from four tags to twenty-nine across thirteen content
+    builds; a copy would drift on the first lesson only one page knew how to draw.
+    TWO SMALL CONSEQUENCES INSIDE THIS FILE:
+      - playStep() used to clear the board with `f.innerHTML = ""` plus
+        `_pilotWork = null`. The worklist pointer now lives in the shared file with
+        the code that uses it, so those two lines are one call to wipeBoard(),
+        which does exactly what they did.
+      - window.boardWarn is this page's hook back INTO the shared dispatcher: it
+        reports a tag that threw, which is what ?dev=1 wants to see. The shared
+        file calls it only if the page defines it.
+    PROVED, not asserted: both pages are browser-driven end to end in the build's
+    verification (picker paints, lesson starts, board draws, no JS errors), and
+    PART 3db's pins now scan what the page ACTUALLY GETS AT RUNTIME -- its own code
+    plus the layer it loads -- rather than the file the code left.
+
     (kj) 2026-08-21 -- AND IT NO LONGER HAS A RENDERER EITHER. It draws with
     board.js, the same whiteboard session.html uses, plus math-figures.js and
     geo-figures.js. Jim, setting the direction for the content push: "I wanna get
@@ -233,53 +257,13 @@
 <script src="/static/board-text.js"></script>
 <script src="/static/math-figures.js"></script>
 <script src="/static/geo-figures.js"></script>
-<script>
-  // ---- board.js's ambient contract, provided by this page ----
-  // It reads these as bare globals, so they are declared here, before it loads.
-  var el = function (id) { return document.getElementById(id); };
-  var feed = null;        // set on DOMContentLoaded: the one board area
-  var composer = null;    // this page has no text composer; board.js only guards on it
-  var busy = false;
-
-  // ONE BOARD, REDRAWN PER BEAT (see the header note). board.js appends its work to
-  // whatever feedBlock() returns, so a cleared board plus a fresh child gives us the
-  // real renderers inside the pilot's single-screen model.
-  var _pilotWork = null;
-  // This <script> runs BEFORE <div id="board"> exists, so `feed` cannot be bound at
-  // load time -- it is resolved on first use and cached. (The first version of this
-  // build bound it eagerly, got null, and silently drew nothing.)
-  function boardEl() {
-    if (!feed) feed = document.getElementById("board");
-    return feed;
-  }
-  function feedBlock() {
-    _pilotWork = null;
-    var b = document.createElement("div");
-    b.className = "mblock";
-    (boardEl() || document.body).appendChild(b);
-    return b;
-  }
-  // showGoal is PAGE-SPECIFIC by board.js's design (session.html has its own); the
-  // scripted lane wants a compact chip, not the session goal panel.
-  function showGoal(text) {
-    var d = document.createElement("div");
-    d.className = "goalchip";
-    d.textContent = "\ud83c\udfaf " + String(text == null ? "" : text);
-    (boardEl() || document.body).appendChild(d);
-  }
-  function getWorklist() {
-    if (!_pilotWork) {
-      var b = feedBlock();
-      _pilotWork = document.createElement("div");
-      _pilotWork.className = "worklist";
-      b.appendChild(_pilotWork);
-    }
-    return _pilotWork;
-  }
-  function scrollFeed() {}          // nothing to scroll: the beat IS the screen
-  function clearHint() {}
-  function wipeBoard() { var f = boardEl(); if (f) f.innerHTML = ""; _pilotWork = null; }
-</script>
+<!-- (mh) THE BOARD LAYER IS A FILE NOW. Everything that used to be declared
+     inline here -- board.js's ambient contract, the one-board-per-beat helpers
+     and the scripted tag dispatcher -- lives in script-board.js so the Abrabot
+     drill page draws with the SAME code instead of a copy that would drift.
+     Nothing that moved changed. It must load BEFORE board.js, which reads these
+     names as bare globals. -->
+<script src="/static/script-board.js"></script>
 <script src="/static/board.js"></script>
 
 <!-- (ki) THE VOICE LAYER. voice.js owns the audio graph, the keep-alive, the lead
@@ -381,63 +365,13 @@
   var current = null;      // the step awaiting the child's tap
   var busy = false;
 
-  // ---------- tiny renderer: the pilot closure is exactly these tags ----------
-  function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
-  function attrs(tag) {
-    var m, re = /(\w+)="([^"]*)"/g, out = {};
-    while ((m = re.exec(tag)) !== null) out[m[1]] = m[2];
-    return out;
-  }
-  // ---------- the board: DELEGATED to board.js (kj) ----------
-  // board.js says the tag dispatcher is page-specific BY DESIGN. This is ours: the
-  // tags a SCRIPTED lesson may draw. Everything here is rendered by the same code
-  // session.html uses, so a lesson authored against this page will look the same when
-  // the scripted lane is eventually folded into the real client.
-  // DELIBERATELY ABSENT: check / quiz / today / unitplan / finalexam / mark / nice /
-  // bye -- those belong to the generated lane's session bookkeeping, and a scripted
-  // lesson that reached for one would be reaching outside the closure.
-  var FIGURE_KINDS = ["bars", "histogram", "dotplot", "boxplot", "scatter", "normal",
-                      "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
-                      "numberline", "areamodel", "vector"];
-  function drawBoard(text) {
-    if (!boardEl()) return false;
-    var re = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g, m, drew = false;
-    _pilotWork = null;
-    while ((m = re.exec(text)) !== null) {
-      var name = m[1].toLowerCase(), a = attrs(m[0]);
-      try {
-        if (name === "goal" && a.text) { showGoal(a.text); drew = true; }
-        else if (name === "step") { showStep(a); drew = true; }
-        else if (name === "write") { showWrite(a); drew = true; }
-        else if (name === "column") { showColumn(a); drew = true; }
-        else if (name === "solve") { showSolve(a); drew = true; }
-        else if (name === "objects") { showObjects(a); drew = true; }
-        else if (name === "balance") { showBalance(a); drew = true; }
-        else if (name === "machine") { showMachine(a); drew = true; }
-        else if (name === "graph") { showFig("graph", a); drew = true; }
-        else if (FIGURE_KINDS.indexOf(name) >= 0) { showFig(name, a); drew = true; }
-        else if (name === "triangle" || name === "angle" || name === "circle") {
-          showGeo(name, a); drew = true;
-        }
-        else if (name === "clear") { wipeBoard(); }
-        // [[choices]] becomes tap BUTTONS in the controls row, never a board line
-      } catch (e) {
-        if (DEV) devline("board tag [[" + name + "]] threw: " + e.message);
-      }
-    }
-    return drew;
-  }
-  function choiceValues(text) {
-    var m = /\[\[\s*choices\s+options="([^"]*)"/.exec(text || "");
-    if (!m) return [];
-    return m[1].split("|").map(function (s) { return s.trim(); }).filter(Boolean);
-  }
-  function spokenOnly(text) {                      // for AI steps: the child hears words, not tags
-    return String(text || "").replace(/\[\[[^\]]*\]\]/g, " ").replace(/\s+/g, " ").trim();
-  }
-  function styleTerms(s) {                          // **term** -> bold (matches the app's habit)
-    return esc(s).replace(/\*\*([^*]{2,60}?)\*\*/g, "<b>$1</b>");
-  }
+  // ---------- the renderer: DELEGATED to script-board.js (mh) ----------
+  // esc / attrs / drawBoard / choiceValues / spokenOnly / styleTerms and the
+  // whole board contract now live in script-board.js, loaded above, and this
+  // page inherits them from the global scope exactly as it inherits board.js's
+  // renderers. window.boardWarn is the one hook the shared file offers back:
+  // it reports a tag that threw, which is what ?dev=1 wants to see.
+  window.boardWarn = function (msg) { devline(msg); };
 
   // ---------- voice: DELEGATED to voice.js (ki) ----------
   // Everything that used to live here -- the shared element, the keep-alive, the lead
@@ -485,8 +419,9 @@
     var f = boardEl();
     if (f) {
       var keep = f.innerHTML;
-      f.innerHTML = "";
-      _pilotWork = null;
+      wipeBoard();                                       // (mh) clears the board AND
+      // resets the shared worklist pointer -- exactly what the two lines it replaces
+      // did, except the pointer now lives in script-board.js with the code that uses it.
       if (!drawBoard(markup)) f.innerHTML = keep;        // nothing new: keep the last
       f.style.display = f.innerHTML ? "block" : "none";
     }
@@ -595,10 +530,9 @@
       ingest(j.steps);
     });
   }
-  // (kj) TEST SEAM, same convention as session.html's window.__setState: the board
-  // dispatcher is reachable by name so a browser proof can draw one tag in isolation
-  // and check what came out. Nothing in the page calls it through window.
-  window.__drawBoard = drawBoard;
+  // (mh) THE TEST SEAM MOVED WITH THE DISPATCHER: window.__drawBoard is set by
+  // script-board.js now, so the browser proof that draws one tag in isolation
+  // works unchanged on this page and on the drill page.
 
   // (ka) the Start button is gone -- tapping a lesson starts it; see startLesson().
 })();

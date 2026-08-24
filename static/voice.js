@@ -2,6 +2,42 @@
    voice.js  --  THE TUTOR'S VOICE, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-23  BUILD mj -- ONE FILE, TWO CHARACTERS, AND A LANE THAT CANNOT SPEND.
+                 Phase 4 of Abrabot: when a child is stuck, Abrabot fetches Mr.
+                 Cadabra, who re-teaches IN HIS OWN REAL VOICE. Three additions, all
+                 with the pre-mj behaviour as the default:
+                   1. speak(text, opts) -- opts.eleven asks for the natural voice for
+                      ONE line, so the drill page never has to switch elevenEnabled on
+                      globally and risk speaking a generated problem in his voice;
+                      opts.profile speaks one line as a different character.
+                   2. browserSpeak(text, done, profOverride) -- the same, for the
+                      browser path. Omit it and you get the page's own speaker.
+                   3. `voiceLane` rides along in every speak-prep body. "" is every
+                      page that existed before this build. "drill" makes the SERVER
+                      refuse a ticket for anything outside the scripted closure and
+                      mint a CACHE-ONLY ticket, so the drill lane can never spend a
+                      character. ⚠️ That rule lives on the server on purpose: builds
+                      mh/mi enforced it by grepping the page for "/api/speak", which
+                      worked only while the lane never legitimately needed the route.
+                 A 409 from that gate is treated like {voice:false} -- an answer, not
+                 an outage -- so it falls straight to the browser voice with no retry.
+     2026-08-23  BUILD mi -- A SECOND CHARACTER MAY BORROW THIS FILE. Abrabot, the
+                 practice helper (phase 3), speaks on the browserSpeak path by design:
+                 a generated drill problem has no pre-rendered clip, so the natural
+                 voice would bill an ElevenLabs call per problem, per child. That path
+                 had exactly ONE voice -- Mr. Cadabra's fallback -- and two characters
+                 coming out of one throat is worse than no character at all.
+                 A page may now set `voiceProfile` to give its speaker its own voice,
+                 rate and pitch. NULL IS THE DEFAULT AND CHANGES NOTHING: every
+                 existing page takes the identical path, which is why PART 3dg pins
+                 the default rate (1.0) and pitch (0.9) as literals.
+                 ⚠️ THE GUARANTEE IS THE PITCH, NOT THE VOICE. A machine may have one
+                 English voice installed, and then no preference list on earth can
+                 separate two characters. So a profile always shifts rate and pitch,
+                 and THAT is what holds on every machine; the name preference is a
+                 bonus. pickVoice()'s early returns became a break + helper so a
+                 second pick can run after Mr. Cadabra's -- same order, same result,
+                 and profileVoice never overwrites maleVoice.
      2026-08-19  BUILD jb -- THE CLIP PROBE (?voiceprobe=1). Jim reported the first
                  words missing for a FOURTH time. This session ruled the delivery path
                  out by measurement, not argument: leading silence decodes to ~1,254ms
@@ -93,6 +129,34 @@ let elevenEnabled = false;     // natural voice available?
 // ---------- Speak: stream ElevenLabs, else browser voice ----------
 let maleVoice = null;
 
+// ===== A SECOND CHARACTER MAY BORROW THIS FILE (2026-08-23, build mi) =========
+// Abrabot -- the practice helper -- speaks in the BROWSER's voice by design: a
+// generated drill problem has no pre-rendered clip, so the natural voice would bill
+// an ElevenLabs call per problem, per child. He therefore lives entirely on the
+// browserSpeak path, which until now had exactly one voice: Mr. Cadabra's fallback.
+// Two characters coming out of one throat would be worse than no character at all.
+//
+// A page may set `voiceProfile` (after this file loads) to give its speaker its own
+// voice, rate and pitch. LEAVING IT NULL IS THE DEFAULT AND CHANGES NOTHING -- every
+// existing page takes the identical path it took before this build, which is why the
+// battery pins the default rate/pitch as literals.
+//
+// ⚠️ THE GUARANTEE IS THE PITCH, NOT THE VOICE. A machine may have exactly one
+// English voice installed, in which case no preference list can separate the two
+// characters. So the profile always shifts rate and pitch as well, and THAT is what
+// makes them different on every machine. The name preference is the bonus, not the
+// promise.
+let voiceProfile = null;      // {prefer:[names], rate, pitch} -- null = Mr. Cadabra
+let profileVoice = null;      // resolved by pickVoice(); never overwrites maleVoice
+
+// (mj) WHICH LANE IS ASKING, sent with every speak-prep. "" is every page that
+// existed before this build and means exactly what it always meant. "drill" tells the
+// server this request may only ever be an already-authored, already-rendered line:
+// speak-prep refuses a ticket for anything outside the scripted closure, and the
+// ticket it does mint is CACHE-ONLY, so a drill request can never spend a character.
+// The rule lives on the SERVER on purpose -- a page cannot get it wrong from here.
+let voiceLane = "";
+
 let paused = false;
 // build jf (2026-08-19): set by each page's setPaused() the instant a RESUME asks
 // for playback. The ONLY clip that has ever started mid-audio in this whole
@@ -166,11 +230,33 @@ function pickVoice() {
   if (!voices || !voices.length) return;
   const pref = ["david","daniel","alex","fred","google uk english male","microsoft david","male","guy","tom"];
   const en = voices.filter(v => /en(-|_)?/i.test(v.lang));
-  for (const n of pref) { const hit = en.find(v => v.name.toLowerCase().includes(n)); if (hit) { maleVoice = hit; return; } }
-  maleVoice = en[0] || voices[0];
+  // Mr. Cadabra's pick, unchanged. (mi) The early `return`s became a small helper so
+  // a second pick can run afterwards; the ORDER and the RESULT are identical.
+  maleVoice = null;
+  for (const n of pref) {
+    const hit = en.find(v => v.name.toLowerCase().includes(n));
+    if (hit) { maleVoice = hit; break; }
+  }
+  if (!maleVoice) maleVoice = en[0] || voices[0];
+  // (mi) The page's own character, when it declares one. It must not be the voice
+  // Mr. Cadabra just took -- if the machine has a second English voice, they get one
+  // each; if it has only one, the rate/pitch shift in browserSpeak carries the
+  // difference on its own.
+  profileVoice = null;
+  if (voiceProfile) {
+    const others = en.filter(v => v !== maleVoice);
+    for (const n of (voiceProfile.prefer || [])) {
+      const hit = others.find(v => v.name.toLowerCase().includes(n));
+      if (hit) { profileVoice = hit; break; }
+    }
+    if (!profileVoice) profileVoice = others[0] || null;
+  }
 }
 
-function browserSpeak(text, done) {
+// (mj) profOverride lets ONE utterance be spoken by a different character without
+// disturbing the page's own voiceProfile. Pass undefined (or omit) for the page's
+// own speaker -- which is what every caller before this build did.
+function browserSpeak(text, done, profOverride) {
   if (!window.speechSynthesis) { if (done) done(); return; }
   let called = false;
   const finish = () => { if (called) return; called = true; if (done) done(); };
@@ -178,7 +264,13 @@ function browserSpeak(text, done) {
     speechSynthesis.cancel();
     const spoken = forSpeech(text);
     const u = new SpeechSynthesisUtterance(spoken);
-    if (maleVoice) u.voice = maleVoice; u.rate = 1.0; u.pitch = 0.9;
+    // (mi) voiceProfile null -> maleVoice / 1.0 / 0.9, byte for byte what this line
+    // has always done. A page that declares a profile gets its own speaker.
+    const _prof = (profOverride === undefined) ? voiceProfile : profOverride;
+    const _v = _prof ? (profileVoice || maleVoice) : maleVoice;
+    if (_v) u.voice = _v;
+    u.rate = (_prof && _prof.rate) || 1.0;
+    u.pitch = (_prof && _prof.pitch) || 0.9;
     u.onstart = () => { usingAnalyser = false; setState("speaking"); };
     u.onend = finish;
     u.onerror = finish;
@@ -237,10 +329,18 @@ function probeClip(url, text) {
   } catch (e) {}
 }
 
-function speak(text) {
+// (mj) speak(text, opts) -- opts is OPTIONAL and every pre-mj caller passes nothing,
+// which takes the identical path it always took.
+//   opts.eleven  : ask for the natural voice for THIS line only (the drill lane's
+//                  Mr. Cadabra), without the page turning elevenEnabled on globally
+//                  and accidentally speaking a generated problem in his voice.
+//   opts.profile : speak this ONE line as a different character (null = Mr. Cadabra).
+function speak(text, opts) {
   return new Promise((resolve) => {
     if (!text) { resolve(); return; }
-    if (!elevenEnabled) { browserSpeak(text, resolve); return; }
+    const useEleven = (opts && opts.eleven !== undefined) ? !!opts.eleven : elevenEnabled;
+    const prof = (opts && ("profile" in opts)) ? opts.profile : undefined;
+    if (!useEleven) { browserSpeak(text, resolve, prof); return; }
     ensureAudioGraph();
     let started = false, doneCalled = false, lastProgress = Date.now(), watchdog = null;
     const finish = () => { if (doneCalled) return; doneCalled = true; cleanup(); resolve(); };
@@ -285,7 +385,7 @@ function speak(text) {
     // an authoritative no, not a transient failure -- retrying it would just add
     // latency to every clip of a voiceless deploy).
     let retryLeft = 1;
-    const fallToBrowser = () => { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve); };
+    const fallToBrowser = () => { cleanup(); try { ttsAudio.pause(); } catch (e) {} browserSpeak(text, resolve, prof); };
     const failedClip = (why) => {
       if (started || doneCalled) return;
       if (retryLeft > 0) {
@@ -332,10 +432,18 @@ function speak(text) {
       // browser voice); the 5s watchdog stays the outer guarantee.
       fetch("/api/speak-prep", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: CODE, text: forSpeech(text), lead: lead })
-      }).then((r) => { if (!r.ok) throw new Error("prep " + r.status); return r.json(); })
+        body: JSON.stringify({ code: CODE, text: forSpeech(text), lead: lead,
+                               lane: voiceLane })
+      }).then((r) => {
+        // (mj) 409 is the drill lane's closure gate saying "not an authored line".
+        // That is an ANSWER, not an outage: retrying it would just add latency before
+        // the browser voice we were always going to use. Same shape as {voice:false}.
+        if (r.status === 409) { fallToBrowser(); return null; }
+        if (!r.ok) throw new Error("prep " + r.status);
+        return r.json();
+      })
         .then((d) => {
-          if (doneCalled) return;
+          if (doneCalled || d === null) return;      // (mj) 409 already fell back
           if (d && d.voice === false) { fallToBrowser(); return; }   // an answer, not an outage
           if (!d || !d.t) { failedClip("empty prep"); return; }
           ttsAudio.src = "/api/speak?t=" + encodeURIComponent(d.t);

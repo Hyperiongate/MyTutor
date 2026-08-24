@@ -2,6 +2,26 @@
    tutor-face.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-23  (build mi) THE ROBOT CAN WEAR A SECOND PAINT JOB -- ABRABOT. Phase 3
+                 of Abrabot, the practice helper Jim named on 2026-08-23. Two changes,
+                 both additive, both defaulting to exactly today's behaviour:
+                   1. THE PALETTE IS A PARAMETER. The eight bare colour constants became
+                      TutorFace.PALETTES.cadabra (unchanged to the byte) plus a second
+                      entry, .abrabot -- cyan shell, amber eyes. draw() resolves
+                      opts.palette / opts.persona into the SAME eight local names the
+                      drawing code has always used, so not one drawing line moved. A
+                      caller that passes neither gets Mr. Cadabra, as before.
+                   2. ⭐ opts.presence:false DRAWS THE ROBOT ALONE. The presence layer is
+                      VIDEO OF A REAL PERSON. No other character may wear it. Without
+                      this, the drill page would have laid Mr. Cadabra's face over
+                      Abrabot's body the moment the manifest deployed -- and it would
+                      have read as a rendering bug rather than the impersonation it is.
+                 ⚠️ WHY THE ROBOT IS THE RIGHT FACE FOR ABRABOT AND ALWAYS WAS. Jim, in
+                 this file's build-ej note: "I don't like the robot... I think it's fine
+                 to have Mr. Cadabra in every instance." The robot's job has therefore
+                 been to be the fallback face nobody wants to see. Handing it to Abrabot
+                 is the one place it becomes a face somebody DOES want: a helper who is
+                 visibly a machine, next to a teacher who is visibly a person.
      2026-08-12  (build ev) A CODEC FAILURE WAS SILENT. Found while testing the Phase 2
                  talking clips in this container's Chromium, which has no H.264: a <video>
                  whose every <source> fails does NOT fire an error event on the element --
@@ -117,11 +137,32 @@
 (function () {
   "use strict";
 
-  // Brand-ish palette (matches the app's accent/accent2).
-  var SHELL_HI = "#8f8ff7", SHELL_LO = "#4a4ac9", SHELL_EDGE = "#3a3aa8";
-  var VISOR = "#23233b", VISOR_EDGE = "#171728";
-  var GLOW = "#2fe3c8", GLOW_SOFT = "rgba(47,227,200,0.55)";
-  var EAR = "#6f6fe0";
+  // ---- THE PALETTE IS DATA NOW (build mi) --------------------------------------
+  // These were eight bare constants read directly by draw(). They are the SAME eight
+  // colours, in the same order, moved into an object so a second character can wear
+  // the same robot in different paint. CADABRA is unchanged to the byte: brand-ish,
+  // matching the app's accent/accent2.
+  //
+  // ⚠️ WHY A SECOND PALETTE AND NOT A SECOND ROBOT. Jim, 2026-08-23: "we have the
+  // robot avatar. Can we have it fly in and replace mr cadabra when it enters the
+  // game." He has also said, in this file's own build-ej note, "I don't like the
+  // robot... I think it's fine to have Mr. Cadabra in every instance" -- so the
+  // robot's real job was always to be the FALLBACK face nobody wants to see. Giving
+  // it to Abrabot is the one place it becomes the face somebody DOES want: a helper
+  // who is visibly a machine, standing next to a teacher who is visibly a person.
+  var PALETTES = {
+    cadabra: { shellHi: "#8f8ff7", shellLo: "#4a4ac9", shellEdge: "#3a3aa8",
+               visor: "#23233b", visorEdge: "#171728",
+               glow: "#2fe3c8", glowSoft: "rgba(47,227,200,0.55)",
+               ear: "#6f6fe0", mouthDeep: "#0d6f60" },
+    // ABRABOT: cyan shell, amber eyes. Deliberately NOT a shade of Mr. Cadabra's
+    // purple -- at 70px a child has to tell them apart at a glance, and a slightly
+    // different purple would read as the same character in bad lighting.
+    abrabot: { shellHi: "#7fd4f0", shellLo: "#1f8fbf", shellEdge: "#12678f",
+               visor: "#10283a", visorEdge: "#0a1a26",
+               glow: "#ffc95e", glowSoft: "rgba(255,201,94,0.55)",
+               ear: "#4fb4d8", mouthDeep: "#7a4a06" }
+  };
 
   function rr(ctx, x, y, w, h, r) {
     r = Math.min(r, w / 2, h / 2);
@@ -157,6 +198,16 @@
 
   function draw(ctx, w, h, opts) {
     opts = opts || {};
+    // (mi) The eight colour names below are resolved from opts.palette and then used
+    // by the SAME names the drawing code has always used, so not one drawing line
+    // changed. opts.palette absent -> Mr. Cadabra, exactly as before this build.
+    var PAL = (opts.palette && typeof opts.palette === "object")
+      ? opts.palette
+      : (PALETTES[String(opts.persona || "cadabra")] || PALETTES.cadabra);
+    var SHELL_HI = PAL.shellHi, SHELL_LO = PAL.shellLo, SHELL_EDGE = PAL.shellEdge;
+    var VISOR = PAL.visor, VISOR_EDGE = PAL.visorEdge;
+    var GLOW = PAL.glow, GLOW_SOFT = PAL.glowSoft;
+    var EAR = PAL.ear, MOUTH_DEEP = PAL.mouthDeep || PALETTES.cadabra.mouthDeep;
     var level = Math.max(0, Math.min(1, opts.level || 0));
     var t = opts.t || 0;
     var mood = opts.mood || "idle";
@@ -267,7 +318,7 @@
          Math.min(S * 0.02, openH / 2)); ctx.fill();
       // a faint inner line while wide open, so it reads as an open mouth not a slab
       if (openH > S * 0.05) {
-        ctx.globalAlpha = 0.35; ctx.fillStyle = "#0d6f60";
+        ctx.globalAlpha = 0.35; ctx.fillStyle = MOUTH_DEEP;   // (mi) was "#0d6f60"
         rr(ctx, cx - mouthW * 0.36, mouthY - openH * 0.16, mouthW * 0.72, openH * 0.32, S * 0.01);
         ctx.fill(); ctx.globalAlpha = 1;
       }
@@ -457,6 +508,14 @@
   function drawWithPresence(ctx, w, h, opts) {
     _drawRobot(ctx, w, h, opts);                         // the robot ALWAYS draws (fallback)
     try { _lastCanvas = ctx.canvas; } catch (e) {}
+    // ⭐ (mi) THE PRESENCE LAYER IS MR. CADABRA'S REAL FACE. It is video of a specific
+    // person, and no other character may ever wear it. A page drawing a DIFFERENT
+    // persona passes presence:false and gets the robot alone -- which is why Abrabot's
+    // page can safely reuse this whole file. Without this line, the drill page would
+    // have quietly laid Mr. Cadabra's face over Abrabot's body the moment the video
+    // manifest deployed, and it would have looked like a rendering bug rather than
+    // the impersonation it actually is. PART 3dg pins that the drill page passes it.
+    if (opts && opts.presence === false) return;
     try { presenceTick(ctx.canvas, (opts && opts.mood) || "idle"); } catch (e) {}
   }
 
@@ -594,6 +653,9 @@
   }
 
   window.TutorFace = { draw: drawWithPresence, moodFrom: moodFrom, celebrate: celebrate,
-                       presenceActive: function () { return P.state === "active"; } };
+                       presenceActive: function () { return P.state === "active"; },
+                       // (mi) published so a page names a CHARACTER, never a colour --
+                       // one source of truth for what each of them looks like.
+                       PALETTES: PALETTES };
 })();
 /* I did no harm and this file is not truncated. */

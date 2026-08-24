@@ -8702,6 +8702,902 @@ _STAMP_HTML = ("static/session.html", "static/practice.html", "static/topic.html
                "static/demo.html", "static/challenge.html", "static/dashboard.html")
 
 
+def part3de_drill_pool():
+    """PART 3de (build mg) -- THE DRILL POOL IS AS SAFE AS THE COURSE.
+
+    drillpool.py turns every op's check() into a source of EXTRA practice problems --
+    ~25,000 of them against 3,947 authored. The whole design rests on one claim: a
+    pooled problem is indistinguishable, to the validator, from one a human wrote and
+    read aloud. This is where that claim is tested, on every build, for every problem.
+
+    It is not a sample. Every pooled problem goes into a bank with nine of its
+    lesson's own shipped problems and through the REAL validate(). If a future op
+    change lets a bad problem in, this fails before it can be deployed."""
+    print("\nPART 3de — the drill pool is as safe as the course (build mg)")
+    try:
+        import drillpool
+        import lessonscripts
+        import tags as _tags
+    except Exception as exc:  # noqa: BLE001
+        bad("drillpool imports", str(exc)); return
+    bt = set(_tags.BOARD_TAGS)
+    pool = drillpool.build()
+    total = sum(len(v) for v in pool.values())
+    check("the pool is worth having", total > 5000, f"only {total:,} extra problems")
+
+    bad_rows, dup, taught_clash = [], 0, 0
+    for les in lessonscripts.LESSONS:
+        ps = pool.get(les["id"]) or []
+        bad_rows += drillpool.verify(les, ps, bt)
+        keys = [drillpool._key(q) for q in ps]
+        dup += len(keys) - len(set(keys))
+        shipped = {drillpool._key(q) for q in drillpool._shipped(les)}
+        taught_clash += sum(1 for k in keys if k in shipped)
+    check(f"EVERY pooled problem passes the real validator ({total:,} checked)",
+          not bad_rows, f"{len(bad_rows)} failed, e.g. {bad_rows[0] if bad_rows else ''}")
+    check("no lesson's pool repeats itself", dup == 0, f"{dup} duplicates")
+    check("the pool never re-serves a problem the lesson TEACHES",
+          taught_clash == 0, f"{taught_clash} clashes")
+
+    # A pool is only useful if it ramps: drill should get harder, not lurch about.
+    lurch = 0
+    for les in lessonscripts.LESSONS:
+        ps = pool.get(les["id"]) or []
+        if len(ps) < 3:
+            continue
+        d = lessonscripts.OP_EXT.get(les["op"], {})
+        keyf = d.get("key") or (lambda q: lessonscripts.ans(q))
+        try:
+            ks = [keyf(q) for q in ps]
+        except Exception:  # noqa: BLE001
+            continue
+        if any(ks[i] < ks[i - 1] for i in range(1, len(ks))):
+            lurch += 1
+    check("every pool is ordered easiest-first", lurch == 0, f"{lurch} out of order")
+
+    # ⚠️ Jim's ruling, 2026-08-23: "Drill is practice, quizzes are for mastery."
+    # Nothing in this module may reach the mastery path. Pinned so it stays true.
+    # ⚠️ Read the CODE, not the prose. The first draft of this pin banned the word
+    # "mastery" anywhere in the file and then failed on drillpool's own change note,
+    # which exists to say that mastery is untouched. A pin that a correct comment can
+    # break teaches people to write worse comments, so comments and docstrings come
+    # out before the check.
+    src_raw = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "drillpool.py"), encoding="utf-8").read()
+    src = re.sub(r'"""[\s\S]*?"""', "", src_raw)
+    src = "\n".join(ln.split("#")[0] for ln in src.splitlines())
+    for banned in ("import store", "store.", "mastery", "PASS_PCT"):
+        check(f"drillpool cannot touch mastery ({banned!r} absent)",
+              banned not in src, "Jim's ruling: drill is practice, quizzes are mastery")
+
+
+_MH_DRILL = r"""import os, sys, json
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/mh.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+sys.path.insert(0, sys.argv[2])
+import main, store, lessonscripts as L, drillpool
+from fastapi.testclient import TestClient
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+CODE = "1234"          # a real persona; the drill lane validates the student
+
+# ---- 0. ABRABOT'S OWN WORDS OBEY THE COURSE'S CANON -------------------------
+# A child must not hear "subtract" from the helper and "take away" from the
+# teacher. These lines are spoken by the browser and are NOT in the audio
+# closure, so lessonscripts.validate() never sees them -- which is exactly why
+# they are checked here, against the same VOCABULARY table the validator uses.
+lines = [main._ABRA_HELLO, main._ABRA_RETRY, main._ABRA_TELL,
+         main._ABRA_ROUND, main._ABRA_EMPTY] + list(main._ABRA_YES)
+blob = " ".join(lines).lower()
+hits = [w for _canon, syns in L.VOCABULARY.items() for w in syns if w in blob]
+chk("Abrabot's lines obey the canon vocabulary", not hits, str(hits))
+chk("Abrabot introduces himself BY NAME", "abrabot" in main._ABRA_HELLO.lower(),
+    main._ABRA_HELLO)
+# He must not promise help he cannot deliver in this build (phase 4 is the handoff).
+chk("Abrabot does not promise to fetch Mr. Cadabra yet",
+    "cadabra" not in " ".join(lines[1:]).lower(),
+    "telling a stuck child help is coming and not sending it is worse than silence")
+
+# ---- 1. the picker ----------------------------------------------------------
+r = c.get("/api/drill/lessons")
+j = r.json()
+chk("GET /api/drill/lessons answers", r.status_code == 200 and j.get("ok"))
+chk("it lists the whole course", len(j.get("lessons") or []) == len(L.LESSONS),
+    str(len(j.get("lessons") or [])))
+chk("it reports whether the warm walk has finished", "ready" in j, str(list(j)))
+chk("an unmeasured lesson reports null, never zero",
+    all((x["drill"] is None or isinstance(x["drill"], int)) for x in j["lessons"]),
+    "null means NOT MEASURED YET; zero means no problems exist")
+
+# ---- 2. a lesson that HAS a pool, chosen by measuring, never by guessing -----
+target = None
+for les in L.LESSONS:
+    if len(drillpool.pool_for(les)) >= 20:
+        target = les
+        break
+chk("some lesson has a drillable pool", target is not None)
+if target is None:
+    print("ALL OK" if ok else "DONE"); sys.exit(0 if ok else 1)
+
+# answering before starting is a 409, never a crash and never a free problem
+r = c.post("/api/drill/answer", json={"code": CODE, "value": 1})
+chk("answer before start is 409", r.status_code == 409, str(r.status_code))
+
+r = c.post("/api/drill/start", json={"code": CODE, "lesson": target["id"]})
+j = r.json()
+# (mk) THE FIRST TIME a child opens the room, MR. CADABRA introduces Abrabot before
+# Abrabot says anything -- so step 0 is his "arrive", not Abrabot's "say". Until mk
+# this asserted step 0 was the hello. Both are pinned now: the introduction leads,
+# Abrabot's hello still follows it, and an ask still ends the payload.
+kinds0 = [st["kind"] for st in j["steps"]]
+chk("start returns a playable payload that ends in a question",
+    r.status_code == 200 and kinds0[-1] == "ask", str(r.status_code) + str(kinds0))
+chk("(mk) Mr. Cadabra introduces him first, and Abrabot still says hello after",
+    kinds0[0] == "arrive"
+    and any(st["kind"] == "say" and "Abrabot" in st["spoken"] for st in j["steps"]),
+    str(kinds0))
+chk("(mk) the introduction is his, and the hello is Abrabot's",
+    j["steps"][0]["who"] == "cadabra"
+    and [st for st in j["steps"] if st["kind"] == "say"][0]["who"] == "abrabot",
+    str([(st["kind"], st["who"]) for st in j["steps"]]))
+# and a SECOND lesson in the same process does not re-introduce him
+c.post("/api/drill/start", json={"code": CODE, "lesson": target["id"]})
+r2 = c.post("/api/drill/start", json={"code": CODE, "lesson": target["id"]})
+chk("(mk) a returning child is not re-introduced",
+    [st["kind"] for st in r2.json()["steps"]][0] == "say",
+    str([st["kind"] for st in r2.json()["steps"]]))
+r = c.post("/api/drill/start", json={"code": CODE, "lesson": target["id"]})
+j = r.json()
+chk("start says how many extra problems the lesson has", j.get("pool", 0) >= 20,
+    str(j.get("pool")))
+payload = json.dumps(j)
+chk("NO answer leaks: no 'expected' or 'problem' in the payload",
+    '"expected"' not in payload and '"problem"' not in payload)
+chk("the ask carries tap choices", "[[choices" in (j["steps"][-1].get("choices") or ""),
+    str(j["steps"][-1]))
+
+# ---- 3. a perfect round ------------------------------------------------------
+def expected():
+    return main._DRILL_SESSIONS[CODE]["pending"]["expected"]
+def answer(v):
+    return c.post("/api/drill/answer", json={"code": CODE, "value": v}).json()
+
+end = None
+asked_seen = []
+for _ in range(main._DRILL_ROUND):
+    j = answer(expected())
+    asked_seen.append(j["score"]["asked"])
+    for s in j["steps"]:
+        if s["kind"] == "end":
+            end = s
+chk("a round ends after exactly _DRILL_ROUND problems", end is not None,
+    str(asked_seen))
+chk("the round reports a perfect score",
+    end and end["right"] == main._DRILL_ROUND and end["asked"] == main._DRILL_ROUND,
+    str(end))
+chk("the round offers another", end and end["more"] is True, str(end))
+chk("a perfect child is never marked struggling",
+    main._drill_struggling(main._DRILL_SESSIONS[CODE]) is False)
+
+# ---- 4. another round continues DEEPER into the pool, never back to the start -
+before_i = main._DRILL_SESSIONS[CODE]["i"]
+r = c.post("/api/drill/next", json={"code": CODE})
+j = r.json()
+chk("another round starts at an ask", r.status_code == 200
+    and j["steps"][0]["kind"] == "ask", str(r.status_code))
+chk("it continues where the last round stopped",
+    main._DRILL_SESSIONS[CODE]["i"] == before_i, str(before_i))
+
+# ---- 5. the wrong-answer ladder ---------------------------------------------
+want = expected()
+prob_before = main._DRILL_SESSIONS[CODE]["pending"]["problem"]
+asked_before = main._DRILL_SESSIONS[CODE]["asked"]
+j = answer(want + 10000)                     # a value no distractor can be
+kinds = [s["kind"] for s in j["steps"]]
+chk("first wrong answer: a line, then the SAME problem again",
+    kinds == ["say", "ask"] and j["steps"][0]["spoken"] == main._ABRA_RETRY,
+    str(kinds))
+chk("the re-ask is the same problem",
+    main._DRILL_SESSIONS[CODE]["pending"]["problem"] is prob_before)
+chk("a re-ask does not count as a second problem",
+    main._DRILL_SESSIONS[CODE]["asked"] == asked_before,
+    str((asked_before, main._DRILL_SESSIONS[CODE]["asked"])))
+
+j = answer(want + 10000)                     # wrong again on the same problem
+chk("second wrong answer: Abrabot TELLS the answer and moves on",
+    j["steps"][0]["spoken"].startswith("The answer was " + str(want)),
+    str(j["steps"][0]["spoken"])[:80])
+chk("Abrabot tells but does not teach -- no lesson text is replayed",
+    len(j["steps"][0]["spoken"]) < 90, j["steps"][0]["spoken"])
+chk("the missed problem IS counted", main._DRILL_SESSIONS[CODE]["asked"] > asked_before)
+
+# (mj) MISSING A SECOND PROBLEM NOW FETCHES MR. CADABRA. Until mj this asserted the
+# flag stayed TRUE, because phase 2 detected struggle and deliberately did nothing
+# with it. Phase 4 acts on it -- and the counters RESET when he arrives, or a child
+# having a bad afternoon would be re-taught on every single miss. So the thing to pin
+# is no longer the flag; it is the HANDOFF the flag now causes. PART 3dh pins the
+# shape of that handoff in full.
+want2 = expected()
+answer(want2 + 10000)
+j = answer(want2 + 10000)
+kinds2 = [st["kind"] for st in j["steps"]]
+chk("two missed problems FETCH Mr. Cadabra", "arrive" in kinds2 and "leave" in kinds2,
+    str(kinds2))
+chk("and the struggle counters reset once he has been", j["struggling"] is False,
+    "otherwise he is re-fetched on the very next miss, forever")
+
+# ---- 6. THE RULING: drill is practice, quizzes are mastery -------------------
+rows = store.get_topics(CODE, target["course"])
+chk("drill wrote NO topic row -- mastery is untouched",
+    not any(r0.get("topic") == target["topic"] for r0 in (rows or [])),
+    str(rows))
+from sqlalchemy import select
+U = store._tables["usage_log"]
+with store._engine.connect() as conn:
+    drows = conn.execute(select(U.c.kind, U.c.ms_total, U.c.model)
+                         .where(U.c.kind == "drill")).fetchall()
+chk("every drill turn is logged, with wall time and NO model",
+    len(drows) >= 10 and all(r0[1] >= 0 and not r0[2] for r0 in drows), str(len(drows)))
+
+# ---- 7. a lesson with no pool fails CLEANLY, never with an empty drill -------
+empty = None
+for les in L.LESSONS:
+    if not drillpool.pool_for(les):
+        empty = les
+        break
+if empty is not None:
+    r = c.post("/api/drill/start", json={"code": "2345", "lesson": empty["id"]})
+    chk("a lesson with no extra problems is a clean 409", r.status_code == 409,
+        str(r.status_code))
+    chk("and it says so in words a page can show",
+        "no extra problems" in (r.json().get("detail") or "").lower(),
+        str(r.json()))
+
+# ---- 8. the front door -------------------------------------------------------
+r = c.get("/drill")
+chk("GET /drill serves the page", r.status_code == 200 and "Abrabot" in r.text,
+    str(r.status_code))
+r = c.post("/api/drill/start", json={"code": "9999999", "lesson": target["id"]})
+chk("an unknown code cannot drill", r.status_code == 404, str(r.status_code))
+
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3df_drill_lane():
+    """PART 3df (build mh) -- ABRABOT'S DRILL LANE, SERVED.
+
+    Phase 1 (PART 3de) proved the POOL is as safe as the course. This proves the
+    LANE around it: that the routes exist, that they grade honestly, that the
+    expected answer never reaches the browser, that a wrong tap gets exactly one
+    second try before Abrabot tells, and -- the pin that matters most for the bill
+    -- that the drill page never names a paid audio route.
+
+    ⭐ WHY THE VOICE PIN IS NOT PARANOIA. Mr. Cadabra's audio is free ONLY because
+    every line he can say was pre-rendered and the cache is keyed on the verbatim
+    text. A generated problem's sentence was never rendered, so serving it through
+    /api/speak is a guaranteed cache miss: a live ElevenLabs call per problem, per
+    child. Wiring drill.html to the natural voice would look like an improvement in
+    review and would quietly turn a free feature into a per-problem bill."""
+    print("\nPART 3df — Abrabot's drill lane, served (build mh)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("the lane exists: lessons, start, answer, next",
+          '@app.get("/api/drill/lessons")' in msrc
+          and '@app.post("/api/drill/start")' in msrc
+          and '@app.post("/api/drill/answer")' in msrc
+          and '@app.post("/api/drill/next")' in msrc, "")
+    check("the page has a front door", '@app.get("/drill")' in msrc, "")
+    check("the drill payload is sanitized like the scripted one",
+          "def _drill_clean(" in msrc,
+          "the expected answer must never reach a page a child can read")
+
+    # ⚠️ Jim's ruling, 2026-08-23: "Drill is practice, quizzes are for mastery."
+    # PART 3de pins that drillpool.py cannot reach mastery. This pins the LANE that
+    # calls it -- the module could stay clean while the route wrote a topic row.
+    # Read the CODE, not the prose: this section's own notes SAY "mastery" in order
+    # to record that it is untouched, and a pin a correct comment can break teaches
+    # people to write worse comments.
+    seg = msrc.split("# ABRABOT -- THE DRILL LANE", 1)
+    check("the drill section is findable", len(seg) == 2, "the marker comment moved")
+    if len(seg) == 2:
+        lane = seg[1].split("# BUILD kq -- THE PREWARM RENDER", 1)[0]
+        # ⚠️ code_only() strips //, /* */ and <!-- --> -- the comment styles of the
+        # JS and HTML files it was written for. This is PYTHON, whose comments start
+        # with '#', and the FIRST run of this pin duly failed on the lane's own note
+        # saying that mastery is untouched. Same trap PART 3de hit on drillpool.py's
+        # change note, in the same week, in the same shape: scan behaviour, not prose.
+        lane_code = re.sub(r'"""[\s\S]*?"""', "", lane)
+        lane_code = "\n".join(ln.split("#")[0] for ln in lane_code.splitlines())
+        for banned in ("record_topic", "_track_topic", "mastery", "PASS_PCT"):
+            check(f"the drill routes cannot touch mastery ({banned!r} absent)",
+                  banned not in lane_code,
+                  "Jim's ruling: drill is practice, quizzes are mastery")
+        check("the lane logs its turns as kind='drill'",
+              'kind="drill"' in lane_code,
+              "/admin proves the lane's latency with the same instrument as every "
+              "other lane -- a lane nobody can measure is a lane nobody can trust")
+
+    # ---- the page: THE VOICE PIN -------------------------------------------------
+    dpath = os.path.join(here, "static", "drill.html")
+    check("the drill page exists", os.path.exists(dpath), "static/drill.html")
+    if os.path.exists(dpath):
+        with open(dpath, encoding="utf-8") as fh:
+            dfull = fh.read()
+        # Scan the CODE. The header comment deliberately NAMES /api/speak and
+        # elevenEnabled to explain why they are absent -- the same trap that fired
+        # five times in one evening on the voice files (see code_only's note).
+        dcode = code_only(dfull.split("-->", 1)[-1])
+        # ⚠️ (mj) THIS PIN WAS REWRITTEN, AND THE REWRITE IS THE POINT.
+        # mh and mi pinned "drill.html must not contain the string /api/speak". That
+        # was the right REASON expressed as the wrong RULE. The reason: a GENERATED
+        # problem was never pre-rendered, so sending it to a paid renderer is a
+        # guaranteed cache miss -- a live call per problem, per child. The rule only
+        # worked while the lane never legitimately needed the route. Phase 4 fetches
+        # Mr. Cadabra to re-teach in his real voice from the lesson's OWN authored
+        # beats, which are cache hits and cost nothing.
+        # So the guarantee moved to where a page cannot get it wrong -- the server --
+        # and this pins what is actually true of the page now: it still never turns
+        # the natural voice on globally, and it declares the lane that makes the
+        # server enforce closure-only, cache-only. PART 3dh pins the server half.
+        check("the drill page never switches the natural voice on globally",
+              "elevenEnabled" not in dcode,
+              "a global switch would speak the NEXT generated problem in his voice; "
+              "the natural voice is asked for one authored line at a time")
+        check("the drill page declares its lane, which is what binds the server",
+              'voiceLane = "drill"' in dcode,
+              "lane:'drill' makes /api/speak-prep refuse any text outside the "
+              "scripted closure AND mint a cache-only ticket")
+        check("drill page speaks through voice.js's browser path",
+              'src="/static/voice.js"' in dfull and "window.speak" in dcode,
+              "free, instant, no cache -- and a different voice, because Abrabot is a "
+              "different character")
+        check("drill page: TAP-FIRST -- no microphone is ever loaded",
+              "mic.js" not in dcode and "getUserMedia" not in dcode, "")
+        check("drill page: it can be played SILENT (auto-advance only when AUDIBLE)",
+              "if (played) setTimeout(go" in dcode and "finish(__voiceSpoke)" in dcode,
+              "racing a reader who hears nothing is worse than the stall it fixes")
+        check("drill page: it never claims Abrabot changes progress",
+              "never changes your progress" in dfull,
+              "Jim's ruling has to be visible to the child, not only to the battery")
+
+    # ---- ONE BOARD LAYER, NOT TWO (build mh) -------------------------------------
+    sb = os.path.join(here, "static", "script-board.js")
+    check("the shared board layer exists", os.path.exists(sb), "static/script-board.js")
+    with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
+        pfull = fh.read()
+    dfull2 = open(dpath, encoding="utf-8").read() if os.path.exists(dpath) else ""
+    for name, src in (("pilot.html", pfull), ("drill.html", dfull2)):
+        body = code_only(src.split("-->", 1)[-1])
+        check(f"{name} LOADS the shared board layer",
+              'src="/static/script-board.js"' in src, "")
+        check(f"{name} does not carry its own copy of the dispatcher",
+              "function drawBoard" not in body,
+              "voice.js's header records what four hand-ported copies of one layer "
+              "cost us; the board dispatcher grew from four tags to twenty-nine")
+    if os.path.exists(sb):
+        sbsrc = open(sb, encoding="utf-8").read()
+        check("the dispatcher is declared exactly once, in the shared file",
+              code_only(sbsrc).count("function drawBoard") == 1, "")
+        check("the shared layer still provides board.js's whole ambient contract",
+              all(("function " + n + "(") in sbsrc for n in
+                  ("boardEl", "feedBlock", "showGoal", "getWorklist",
+                   "scrollFeed", "clearHint", "wipeBoard")),
+              "board.js reads these as bare globals; a missing one draws nothing "
+              "and says nothing")
+
+    # ---- the live drive ----------------------------------------------------------
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+        import httpx  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("drill-lane live drive", "sqlalchemy/fastapi/httpx not installed here")
+        return
+    import tempfile as _tfd
+    with _tfd.TemporaryDirectory() as d:
+        script = os.path.join(d, "drilllane.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_MH_DRILL)
+        res = subprocess.run([sys.executable, script, d, here],
+                             capture_output=True, text=True, timeout=600)
+        out = (res.stdout or "")
+        for line in out.splitlines():
+            if line.startswith("FAIL"):
+                bad("drill lane: " + line[5:120], "")
+        check("drill lane: the live drive ends ALL OK "
+              f"({out.count('PASS ')} client-level checks)",
+              res.returncode == 0 and "ALL OK" in out,
+              (res.stderr or out)[-400:])
+
+
+def part3dg_abrabot_character():
+    """PART 3dg (build mi) -- ABRABOT IS A DIFFERENT CHARACTER, AND STAYS ONE.
+
+    Phase 3 gave the drill helper a face, a voice and a name. Two of those three
+    borrow files that belong to Mr. Cadabra, so the pins here are mostly about the
+    line between them:
+
+    ⭐ THE ONE THAT MATTERS: tutor-face.js's presence layer is VIDEO OF A REAL PERSON.
+    A page that draws a different persona MUST pass presence:false, or the moment the
+    video manifest deploys it lays Mr. Cadabra's actual face over Abrabot's body. That
+    would be filed as a rendering glitch and it would be an impersonation.
+
+    THE OTHER HALF is that 'additive' stays additive: every existing page must take
+    exactly the path it took before this build. So the palette default and the voice
+    default are pinned as LITERALS -- a claim nothing holds is a claim that rots."""
+    print("\nPART 3dg — Abrabot is a different character, and stays one (build mi)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    def _read(rel):
+        with open(os.path.join(here, rel), encoding="utf-8") as fh:
+            return fh.read()
+
+    tf = _read("static/tutor-face.js")
+    vj = _read("static/voice.js")
+    dh = _read("static/drill.html")
+    tfc, vjc, dhc = code_only(tf), code_only(vj), code_only(dh.split("-->", 1)[-1])
+
+    # ---- the face: two characters, one robot -------------------------------------
+    check("the robot's palette is DATA, and both characters are in it",
+          "PALETTES = {" in tfc and "cadabra:" in tfc and "abrabot:" in tfc, "")
+    check("MR. CADABRA'S COLOURS ARE UNCHANGED, to the byte",
+          all(c in tfc for c in ('"#8f8ff7"', '"#4a4ac9"', '"#3a3aa8"', '"#23233b"',
+                                 '"#171728"', '"#2fe3c8"', '"rgba(47,227,200,0.55)"',
+                                 '"#6f6fe0"', '"#0d6f60"')),
+          "'additive' means the old caller cannot tell this build happened")
+    check("a caller that names no palette still gets Mr. Cadabra",
+          "PALETTES[String(opts.persona" in tfc and "|| PALETTES.cadabra" in tfc, "")
+    check("Abrabot's paint is not a shade of Mr. Cadabra's",
+          '"#7fd4f0"' in tfc and '"#ffc95e"' in tfc,
+          "at 70px a child must tell them apart at a glance; a slightly different "
+          "purple reads as the same character in bad lighting")
+    check("the palettes are PUBLISHED, so no page hardcodes a colour",
+          "PALETTES: PALETTES" in tfc, "one source of truth for what each looks like")
+
+    # ⭐ the impersonation pin
+    check("⭐ the presence layer can be refused (presence:false draws the robot alone)",
+          'opts.presence === false' in tfc and "return;" in tfc,
+          "the presence layer is VIDEO OF A REAL PERSON; no other character may "
+          "ever wear it")
+    check("⭐ and the DRILL PAGE refuses it",
+          "presence: false" in dhc,
+          "without this, Abrabot wears Mr. Cadabra's real face the moment the video "
+          "manifest deploys -- filed as a rendering glitch, actually an impersonation")
+    # (mj) The page now draws TWO characters, so it indexes the table by persona
+    # rather than naming one entry. The property being pinned is unchanged and is the
+    # one that matters: no robot colour is ever written into this page.
+    check("the drill page draws its palettes BY NAME, not by colour",
+          "PALETTES[c.persona]" in dhc
+          and not any(h in dhc for h in ("#7fd4f0", "#ffc95e", "#8f8ff7", "#2fe3c8")),
+          "a page that copies the hex is a page that drifts")
+    check("(mj) and it names BOTH characters' faces",
+          'id="botFace"' in dh and 'id="cadFace"' in dh,
+          "the handoff needs somewhere for each of them to stand")
+
+    # ---- the voice: two characters, one throat ----------------------------------
+    check("voice.js can carry a second speaker",
+          "let voiceProfile = null;" in vjc and "let profileVoice = null;" in vjc, "")
+    # (mj) speak() gained a per-utterance profile override, so the defaults now read
+    # off `_prof` -- which is voiceProfile whenever no override is passed, and no
+    # pre-mj caller passes one. Same two literals, same guarantee, one hop further in.
+    check("MR. CADABRA'S VOICE IS UNCHANGED: rate 1.0, pitch 0.9 by default",
+          "(_prof && _prof.rate) || 1.0" in vjc
+          and "(_prof && _prof.pitch) || 0.9" in vjc
+          and "(profOverride === undefined) ? voiceProfile : profOverride" in vjc,
+          "every existing page must take the identical path it took before mi")
+    check("a profile's voice NEVER overwrites Mr. Cadabra's pick",
+          "profileVoice = null;" in vjc and "en.filter(v => v !== maleVoice)" in vjc,
+          "they get one each where the machine has two")
+    check("⚠️ the difference does NOT depend on a second voice existing",
+          "rate: 1.06" in dhc and "pitch: 1.35" in dhc,
+          "a machine with ONE English voice installed cannot be separated by any "
+          "preference list; the rate/pitch shift is what holds everywhere")
+    check("Abrabot's profile is set AFTER voice.js loads",
+          dh.index('src="/static/voice.js"') < dh.index("voiceProfile = {"),
+          "voice.js declares the binding this assigns to")
+
+    # ---- the name ---------------------------------------------------------------
+    check("his name is on screen with his face, not only in the tab",
+          'class="whoname"' in dh and ">Abrabot<" in dh,
+          "a child must never wonder who is talking")
+
+    # ---- drill stays practice, even in celebration ------------------------------
+    check("a right answer earns a SMILE, not the lesson's gold burst",
+          "faceHappy(" in dhc and "TutorFace.celebrate" not in dhc,
+          "celebrate() marks a problem finished in a LESSON; drill is practice, and "
+          "borrowing the big moment would cheapen it in both places")
+
+    # ---- nothing above may have broken the paid-voice rule ----------------------
+    # (mj) Rewritten alongside PART 3df's copy -- see the long note there. The rule is
+    # no longer "do not name the route" (phase 4 legitimately needs it for Mr.
+    # Cadabra's already-rendered teach beats); it is "never switch the natural voice
+    # on globally, and let the SERVER decide what may be spoken".
+    check("phase 3/4 did not switch the natural voice on globally",
+          "elevenEnabled" not in dhc,
+          "a global switch would speak the next GENERATED problem in his voice")
+    check("Abrabot himself is still browser-voiced, always",
+          "{ eleven: false }" in dhc,
+          "his lines are generated; they have no clip and never will")
+
+
+_MJ_HANDOFF = r"""import os, sys, json
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/mj.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "pretend-there-is-a-key"
+sys.path.insert(0, sys.argv[2])
+import main, store, lessonscripts as L, drillpool
+from fastapi.testclient import TestClient
+
+# ⭐ THE MONEY TRIPWIRE. If anything in the drill lane reaches the renderer, this
+# raises instead of billing -- so "the lane cannot spend" is PROVED, not argued.
+class Spent(Exception):
+    pass
+import httpx as _httpx
+def _boom(*a, **k):
+    raise Spent("the drill lane tried to render audio")
+_httpx.stream = _boom
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+CODE = "1234"
+target = None
+for les in L.LESSONS:
+    if len(drillpool.pool_for(les)) >= 20 and les.get("pairs") and les.get("teach"):
+        target = les
+        break
+chk("a lesson with a pool AND teaching to replay exists", target is not None)
+if target is None:
+    print("DONE"); sys.exit(1)
+
+def expected():
+    return main._DRILL_SESSIONS[CODE]["pending"]["expected"]
+def answer(v):
+    return c.post("/api/drill/answer", json={"code": CODE, "value": v}).json()
+
+c.post("/api/drill/start", json={"code": CODE, "lesson": target["id"]})
+
+# ---- miss two problems: the second one must fetch him ------------------------
+w = expected(); answer(w + 9999); j = answer(w + 9999)
+chk("one missed problem does NOT fetch him",
+    "arrive" not in [s["kind"] for s in j["steps"]], str([s["kind"] for s in j["steps"]]))
+w = expected(); answer(w + 9999); j = answer(w + 9999)
+kinds = [s["kind"] for s in j["steps"]]
+chk("the second miss fetches Mr. Cadabra",
+    "arrive" in kinds and "teach" in kinds and "leave" in kinds, str(kinds))
+chk("Abrabot asks for him BEFORE he appears",
+    kinds.index("say") < kinds.index("arrive"), str(kinds))
+chk("and Abrabot has the last word before the next problem",
+    kinds.index("leave") < len(kinds) - 1 and kinds[-1] == "ask", str(kinds))
+
+by_who = {s["kind"]: s["who"] for s in j["steps"] if s["kind"] in ("arrive","teach","leave")}
+chk("every re-teach beat is attributed to Mr. Cadabra",
+    set(by_who.values()) == {"cadabra"}, str(by_who))
+chk("the ask that follows belongs to Abrabot again",
+    [s for s in j["steps"] if s["kind"] == "ask"][0]["who"] == "abrabot")
+
+# ⭐ the re-teach is the LESSON'S OWN WORDS -- which is why it is free
+teach_said = [s["spoken"] for s in j["steps"] if s["kind"] == "teach"]
+closure = set(lessonscripts.audio_lines(target)) if False else set(L.audio_lines(target))
+chk("⭐ every re-teach line is IN THE LESSON'S AUDIO CLOSURE (already rendered)",
+    teach_said and all(t in closure for t in teach_said),
+    str([t[:60] for t in teach_said if t not in closure]))
+chk("the first fetch shows ONE worked example, not the whole lesson again",
+    len(teach_said) == 1, str(len(teach_said)))
+
+# ---- the ladder deepens on the second fetch ---------------------------------
+w = expected(); answer(w + 9999); answer(w + 9999)
+w = expected(); answer(w + 9999); j2 = answer(w + 9999)
+teach2 = [s["spoken"] for s in j2["steps"] if s["kind"] == "teach"]
+chk("the SECOND fetch re-teaches from the top, not the same one line",
+    len(teach2) > len(teach_said), f"{len(teach_said)} then {len(teach2)}")
+chk("and those lines are in the closure too",
+    all(t in closure for t in teach2), "")
+
+# ---- the counters reset, or he never stops coming ---------------------------
+sess = main._DRILL_SESSIONS[CODE]
+chk("the struggle counters reset when he arrives",
+    sess["wrong_streak"] == 0 and sess["misses"] == 0, str(sess["misses"]))
+
+# ---- ⭐ THE MONEY GATE -------------------------------------------------------
+# An authored line: a ticket is minted, and serving it CANNOT call the renderer.
+line = teach_said[0]
+r = c.post("/api/speak-prep", json={"code": CODE, "text": line, "lead": 1, "lane": "drill"})
+chk("an authored line gets a drill ticket", r.status_code == 200, str(r.status_code))
+tk = r.json().get("t")
+with main._SPEAK_TICKETS_LOCK:
+    stored = main._SPEAK_TICKETS.get(tk)
+chk("and that ticket is marked cache-only", bool(stored) and stored[4] is True, str(stored))
+try:
+    rr = c.get("/api/speak?t=" + tk)
+    chk("⭐ serving it never reaches the renderer (204 on a cache miss)",
+        rr.status_code in (200, 204), str(rr.status_code))
+except Spent as e:
+    chk("⭐ serving it never reaches the renderer", False, str(e))
+
+# A GENERATED problem's sentence: refused outright, no ticket at all.
+gen = L.spoken_for(sess["pool"][0], (target.get("levels") or L.LEVELS)[0])
+chk("the generated sentence really is outside the closure", gen not in closure, gen[:70])
+r = c.post("/api/speak-prep", json={"code": CODE, "text": gen, "lead": 1, "lane": "drill"})
+chk("⭐ a GENERATED line gets NO drill ticket at all", r.status_code == 409, str(r.status_code))
+chk("and the refusal says why", "closure" in (r.json().get("detail") or "").lower(), str(r.json()))
+
+# the ordinary lane is untouched: same text, no lane, still mints (would bill)
+r = c.post("/api/speak-prep", json={"code": CODE, "text": gen, "lead": 1})
+chk("the ORDINARY lane is unchanged by all this", r.status_code == 200, str(r.status_code))
+with main._SPEAK_TICKETS_LOCK:
+    st2 = main._SPEAK_TICKETS.get(r.json().get("t"))
+chk("and its ticket is NOT cache-only", bool(st2) and st2[4] is False, str(st2))
+
+# ---- still no mastery, even now that he teaches here ------------------------
+rows = store.get_topics(CODE, target["course"])
+chk("the handoff wrote NO topic row", not any(r0.get("topic") == target["topic"]
+                                              for r0 in (rows or [])), str(rows))
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3dh_the_handoff():
+    """PART 3dh (build mj) -- ABRABOT FETCHES MR. CADABRA, AND IT COSTS NOTHING.
+
+    ⭐ THE PIN THIS PART EXISTS FOR. The drill lane now asks for Mr. Cadabra's REAL
+    voice. That is safe for exactly one reason: every line it asks for is authored
+    lesson text that audio_lines() enumerates and the prewarm already rendered. The
+    live drive proves it the only way worth proving -- it REPLACES httpx.stream with a
+    function that raises, so if anything in this lane ever reaches ElevenLabs the
+    battery fails instead of Jim's card.
+
+    Two halves are pinned separately because they fail differently:
+      (a) the re-teach text is in the lesson's closure (a fact about the CONTENT), and
+      (b) speak-prep refuses non-closure text and mints cache-only tickets (a fact
+          about the SERVER, which holds even if the content check ever rots)."""
+    print("\nPART 3dh — the handoff, and the lane that cannot spend (build mj)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("the pipeline can be told to refuse to spend",
+          "cached_only: bool = False" in msrc
+          and "if cached_only:\n        return Response(status_code=204)" in msrc,
+          "half the course is still unrendered; a drill request must never be the "
+          "thing that renders it")
+    check("the drill lane's tickets are closure-checked at mint time",
+          '_tts_cache_path(text).name in _script_closure_paths()' in msrc
+          and "status_code=409" in msrc, "")
+    check("the re-teach comes out of the LESSON, not out of a prompt",
+          "def _drill_teach_steps(" in msrc
+          and 'lesson.get("teach", [])' in msrc and '"worked"' in msrc,
+          "an authored beat is already rendered and already read aloud by a human; a "
+          "generated one is neither")
+    check("the handoff resets the struggle counters",
+          'sess["wrong_streak"] = 0' in msrc and 'sess["misses"] = 0' in msrc,
+          "or a child having a bad afternoon is re-taught on every single miss")
+    check("a pre-mj ticket still works across the deploy",
+          "bool(tk[4]) if len(tk) > 4 else False" in msrc,
+          "tickets are server memory; a redeploy must not 500 a child mid-lesson")
+
+    dh = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    dhc = code_only(dh.split("-->", 1)[-1])
+    check("the page has somewhere for each of them to stand",
+          'id="whoAbra"' in dh and 'id="whoCad"' in dh, "")
+    check("⭐ one flies out as the other flies in (Jim's ask, 2026-08-23)",
+          "function showWho(" in dhc and ".away" in dh and ".arriving" in dh, "")
+    check("the fly-in is a TRANSFORM, so the board never reflows under a reader",
+          "translateX(-150%)" in dh and "translateX(150%)" in dh, "")
+    check("and it respects prefers-reduced-motion",
+          "prefers-reduced-motion" in dh,
+          "a child who needs stillness must still get the handoff")
+    check("BOTH faces refuse the video presence layer",
+          dhc.count("presence: false") == 1 and "c.persona" in dhc,
+          "one draw call serves both characters; the 92px slot is not the session "
+          "page's orb, and mounting a real person's video here is a later decision")
+    check("only Mr. Cadabra may ever ask for the natural voice",
+          '{ eleven: !!(step && step.natural), profile: null }' in dhc
+          and "{ eleven: false }" in dhc,
+          "Abrabot's lines are generated -- they have no clip and never will")
+
+    vj = code_only(open(os.path.join(here, "static", "voice.js"), encoding="utf-8").read())
+    check("voice.js carries the lane into every prep",
+          "lane: voiceLane" in vj and 'let voiceLane = "";' in vj,
+          "\"\" is every page that existed before mj")
+    check("a 409 from the closure gate falls to the browser voice with NO retry",
+          "if (r.status === 409) { fallToBrowser(); return null; }" in vj,
+          "it is an answer, not an outage -- retrying only adds latency in front of "
+          "the voice we were always going to use")
+
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+        import httpx  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("handoff live drive", "sqlalchemy/fastapi/httpx not installed here")
+        return
+    import tempfile as _tfh
+    with _tfh.TemporaryDirectory() as d:
+        script = os.path.join(d, "handoff.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_MJ_HANDOFF)
+        res = subprocess.run([sys.executable, script, d, here],
+                             capture_output=True, text=True, timeout=600)
+        out = (res.stdout or "")
+        for line in out.splitlines():
+            if line.startswith("FAIL"):
+                bad("handoff: " + line[5:120], "")
+        check("handoff: the live drive ends ALL OK "
+              f"({out.count('PASS ')} client-level checks)",
+              res.returncode == 0 and "ALL OK" in out,
+              (res.stderr or out)[-500:])
+
+
+def part3di_standalone_speech():
+    """PART 3di (build mk) -- THE LINES NO LESSON OWNS ARE HELD TO THE SAME RULES.
+
+    ⚠️ WHY THIS PART HAD TO EXIST. lessonscripts.validate() takes a LESSON. Abrabot's
+    introduction is the first speech in the product that belongs to the COURSE, so it
+    is the first speech the validator structurally cannot see -- and speech nothing
+    checks is exactly the speech that quietly acquires "subtract" or "altogether"
+    eighteen months from now, in Mr. Cadabra's real voice, in front of a child.
+
+    It proved its keep on the build that wrote it: the first draft of line four said a
+    problem "gives you trouble", and "gives you" is a banned synonym for "equals".
+
+    THE SECOND HALF is the closure's single owner. main.py built "the closure" in SIX
+    places. A line those six disagree about is rendered but not protected (evicted,
+    then paid for twice) or protected but never rendered (silence in production)."""
+    print("\nPART 3di — the lines no lesson owns (build mk)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import lessonscripts as L
+
+    lines = list(getattr(L, "STANDALONE_LINES", ()))
+    check("there ARE standalone lines, and they are enumerable",
+          bool(lines) and hasattr(L, "course_audio_lines"), "")
+    if not lines:
+        return
+
+    # ---- the same speech rules validate() applies inside a lesson ----------------
+    blob = " ".join(lines).lower()
+    for canon, banned in L.VOCABULARY.items():
+        for term in banned:
+            check(f"standalone speech: {term!r} never appears (canon is {canon!r})",
+                  term not in blob,
+                  "a child must not hear one word from Mr. Cadabra here and a "
+                  "different word for the same idea inside a lesson")
+    long_ones = [ln for ln in lines if len(ln.split()) > L.BEAT_WORD_CAP]
+    check(f"standalone speech: every beat is under the {L.BEAT_WORD_CAP}-word cap",
+          not long_ones, str([ln[:60] for ln in long_ones]))
+    # No notation: these lines are spoken with no board beside them, so a symbol here
+    # could never be shown, only pronounced -- which is rule 14's whole concern.
+    bad_chars = sorted({c for ln in lines for c in ln
+                        if not (c.isalnum() or c in " .,!?'-—")})
+    check("standalone speech: no notation a child would have to be shown",
+          not bad_chars, f"characters with no spoken form: {bad_chars}")
+    check("standalone speech: it says the assistant's NAME",
+          any("abrabot" in ln.lower() for ln in lines),
+          "an introduction that never names him is not an introduction")
+    check("standalone speech: it tells the child drill does not change their progress",
+          any("changes what you have already learned" in ln for ln in lines),
+          "Jim's ruling has to reach the child, not only the battery")
+
+    # ---- the cost, stated out loud ----------------------------------------------
+    chars = sum(len(ln) for ln in lines)
+    usd = chars / 1000.0 * 0.22
+    check(f"standalone speech is a rounding error to render "
+          f"({chars} chars, about ${usd:.2f}, once)",
+          usd < 1.00, f"${usd:.2f} is more than this should ever cost")
+
+    # ---- ONE OWNER for the closure ----------------------------------------------
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+    check("⭐ main.py asks ONE function what the closure is",
+          "for s in lessonscripts.audio_lines(les)" not in msrc
+          and "for say in lessonscripts.audio_lines(les)" not in msrc,
+          "six hand-built copies of the closure is six chances for a rendered line to "
+          "go unprotected, or a protected line to go unrendered")
+    check("and every one of the six sites now calls it",
+          msrc.count("lessonscripts.course_audio_lines(") >= 6,
+          f"only {msrc.count('lessonscripts.course_audio_lines(')} call sites")
+
+    full = set(L.course_audio_lines())
+    check("the standalone lines really are IN the whole-course closure",
+          all(ln in full for ln in lines),
+          "if they are not, the prewarm never renders them and the evictor deletes "
+          "them the moment it does")
+    one = set(L.course_audio_lines([L.LESSONS[0]]))
+    check("but NOT in a single-lesson render",
+          not any(ln in one for ln in lines),
+          "rendering one lesson must not quietly re-price course-level speech")
+
+    # ---- the drill lane must be able to speak them in his real voice ------------
+    dh = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    check("the introduction reaches the page as Mr. Cadabra's beats",
+          "def _drill_intro_steps(" in msrc and '"who": "cadabra"' in msrc, "")
+    check("it plays once per child, with a bounded memory",
+          "_DRILL_INTRODUCED" in msrc and "_DRILL_INTRODUCED_CAP" in msrc,
+          "an unbounded set keyed by student code is a slow leak")
+    check("the page can already play his beats (arrive / teach / leave)",
+          '"arrive"' in dh and '"leave"' in dh,
+          "phase 4 built that path; the introduction reuses it rather than adding a "
+          "second narration route to keep in step")
+
+
+def part3dj_deploy_safe():
+    """PART 3dj (build mm) -- ONE NEW FILE MUST NOT BE ABLE TO TAKE THE SITE DOWN.
+
+    ⚠️ FOUND WHILE WRITING A HANDOFF, NOT BY A TEST, which is the part worth
+    remembering. drillpool.py is a NEW file and main.py imported it bare. Jim deploys
+    GitHub -> Render, and `git commit -am` does not stage an untracked file. So the
+    realistic first-deploy failure was: the file never reaches the repo, main.py
+    raises ImportError at module load, and the WHOLE SITE is down -- for a feature
+    nobody had used yet.
+
+    misconceptions, foundations, sprints and nightwatch are all optional imports
+    reported in /health. Drill is smaller than any of them and had no business being
+    the one that could take the app with it."""
+    print("\nPART 3dj — one new file cannot take the site down (build mm)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("⭐ drillpool is an OPTIONAL import, like every other subsystem",
+          "try:\n    import drillpool" in msrc and "    drillpool = None" in msrc,
+          "a bare import of a brand-new file turns a forgotten `git add` into a dead "
+          "site rather than a missing feature")
+    check("/health reports whether it actually loaded",
+          '"drillpool": drillpool is not None' in msrc,
+          "a deploy that lost the file must SAY so, not look fine until a child taps")
+    # Every route that reaches for the module must survive its absence.
+    for fn, need in (("_drill_pool", "if drillpool is None:"),
+                     ("_drill_warm_start", "if drillpool is None:"),
+                     ("drill_start", "if drillpool is None:")):
+        seg = msrc.split(f"def {fn}(", 1)
+        body = seg[1].split("\n@app.", 1)[0].split("\ndef ", 1)[0] if len(seg) == 2 else ""
+        check(f"{fn}() survives a missing drillpool", need in body,
+              "AttributeError on None is a 500; the lane should degrade with words")
+    check("the picker page says 'unavailable', never 'checking...' forever",
+          '"available": drillpool is not None' in msrc, "")
+    dh = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    check("and the page renders that honestly",
+          "j.available === false" in dh and "(unavailable)" in dh,
+          "'checking...' forever is true of the memo and useless to a person")
+
+    # ---- the same question asked of the OTHER new files -------------------------
+    # A missing static file is a 404 on one page, not a dead app -- but the deploy
+    # instruction has to name them, so the handoff pins the list here where it cannot
+    # drift from what main.py actually needs.
+    for rel in ("static/drill.html", "static/script-board.js", "drillpool.py"):
+        check(f"new-in-this-wave file is present: {rel}",
+              os.path.exists(os.path.join(here, rel)),
+              "these three are new since build mg and must be `git add`ed explicitly")
+    pilot = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    check("⚠️ pilot.html now DEPENDS on script-board.js",
+          'src="/static/script-board.js"' in pilot,
+          "if that new file is not committed, the PILOT page breaks too -- not just "
+          "the drill page. This is why the file list matters more than usual.")
+
+
 def part3ai_deploy_stamp():
     print("\nPART 3ai — the /health build stamp moves with the code")
     root = os.path.dirname(os.path.abspath(__file__))
@@ -15617,9 +16513,22 @@ def part3da_measure_the_clip():
           "a diagnostic that can spend money is not a diagnostic")
     check("build kh: it is capped, so it cannot become a bulk download route",
           "4 * 1024 * 1024" in code and "status_code=413" in code, "")
-    check("build kh: it walks the closure in the SAME sorted order as the audit",
-          "lines = sorted({s for les in lessons" in code,
-          "the two reports have to line up line for line or they cannot be read together")
+    # (mk) This used to grep for the literal comprehension `sorted({s for les in
+    # lessons ...})` that all three admin tools hand-wrote. Build mk replaced those
+    # six hand-built closures with ONE function, which is a STRONGER version of the
+    # very property this pin exists to protect: the three tools cannot disagree about
+    # order because they no longer each decide it. So the pin follows the order to
+    # where it is now decided, and checks both halves -- the call sites, and that the
+    # function they call really does sort.
+    import lessonscripts as _ls
+    import inspect as _inspect
+    check("build kh/mk: all three admin tools take their order from ONE function",
+          code.count("lessonscripts.course_audio_lines(") >= 3,
+          "the two reports have to line up line for line or they cannot be read "
+          "together")
+    check("build kh/mk: and that function returns a SORTED list",
+          "return sorted(out)" in _inspect.getsource(_ls.course_audio_lines),
+          "clip-bytes index N and the audit's line N must be the same line")
 
     with open(os.path.join(here, "static", "admin.html"), encoding="utf-8") as fh:
         a = fh.read()
@@ -15694,10 +16603,31 @@ def part3db_scripted_board():
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(here, "static", "pilot.html"), encoding="utf-8") as fh:
         p = fh.read()
-    code = code_only(p)
+    # (mh) THE LAYER THESE PINS WATCH MOVED, SO THE PINS FOLLOW IT. Build mh lifted
+    # board.js's ambient contract and the scripted tag dispatcher out of pilot.html
+    # into static/script-board.js, so the Abrabot drill page could draw the same
+    # twenty-nine tags without a second copy that would drift. FIVE checks below went
+    # red on that move -- not because anything broke (both pages are browser-driven
+    # and draw correctly) but because they were scanning the file the code LEFT.
+    # ⚠️ The tempting repair was to delete them. That is exactly backwards: these
+    # pins encode why the layer looks the way it does (lazy `feed`, the page-specific
+    # showGoal, twenty-plus tags instead of four), and a moved property still has to
+    # hold. So they scan what the page ACTUALLY GETS AT RUNTIME -- its own code plus
+    # the shared layer it loads -- which is also how ki repointed the voice pins when
+    # that layer moved out of this same file.
+    with open(os.path.join(here, "static", "script-board.js"), encoding="utf-8") as fh:
+        sb = fh.read()
+    code = code_only(p) + "\n" + code_only(sb)
     with open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8") as fh:
         mf = fh.read()
     import tags as _t
+
+    check("build mh: the board layer is ONE file, loaded by every scripted page",
+          'src="/static/script-board.js"' in p
+          and 'src="/static/script-board.js"' in
+              open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read(),
+          "the drill page needs the same twenty-nine tags; a copy would drift on the "
+          "first lesson only one page knew how to draw")
 
     check("build kj: the pilot page loads the REAL board and its figure libraries",
           all(f'src="/static/{f}"' in p for f in
@@ -15888,7 +16818,13 @@ chk("mishears: re-ask then tap-only, zero AI", j2["steps"][0].get("tap_only") is
 # 8. prewarm dry run prices the WHOLE COURSE'S deduped closure without a key
 r = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True})
 j = r.json()
-course_closure = {s for les in L.LESSONS for s in L.audio_lines(les)}
+# (mk) The closure now includes lines that belong to the COURSE and not to any
+# lesson -- Abrabot's introduction, which Mr. Cadabra speaks on a page that is not a
+# lesson. This test built its own copy of the closure the old way and so priced four
+# lines fewer than the endpoint did. That is exactly the disagreement build mk went
+# looking for: six hand-built closures, one of which would eventually be wrong. The
+# test asks the same single owner the endpoint asks.
+course_closure = set(L.course_audio_lines())
 chk("script-prewarm dry run counts the whole course closure",
     j.get("to_render", 0) + j.get("already_cached", 0) == len(course_closure), str(j))
 
@@ -15985,8 +16921,14 @@ def part3cw_script_lane():
               "bug), then VOICE_START_MS (a constant that moved files), now the "
               "MECHANISM: a clip that never makes a sound is given up on and the "
               "browser voice takes over")
+        # (mh) the dispatcher moved to script-board.js; the property is unchanged, so
+        # the pin scans what the page actually gets at runtime. PART 3db carries the
+        # full explanation, and PART 3df pins that no page keeps its own copy.
+        with open(os.path.join(here, "static", "script-board.js"), encoding="utf-8") as fh:
+            _sb = fh.read()
         check("pilot page: it renders the closure's tags and strips them from speech",
-              'name === "objects"' in psrc and "spokenOnly" in psrc, "")
+              'src="/static/script-board.js"' in pfull
+              and 'name === "objects"' in _sb and "spokenOnly" in _sb, "")
         check("pilot page: TAPPING a lesson starts it -- no buried Start button",
               "function startLesson(" in psrc and "startBtn" not in psrc,
               "Jim's playtest, 2026-08-21: with 24 lessons the Start button sat "
@@ -16379,6 +17321,12 @@ def main():
     part3cm_orphan_step()
     part3cn_resume_and_place()
     part3co_cluster_b()
+    part3de_drill_pool()
+    part3df_drill_lane()
+    part3dg_abrabot_character()
+    part3dh_the_handoff()
+    part3di_standalone_speech()
+    part3dj_deploy_safe()
     part3ai_deploy_stamp()
     if live:
         part4_live()

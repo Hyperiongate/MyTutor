@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<!--
+    drill.html  --  ABRABOT'S PRACTICE ROOM  --  Hyperion Shift LLC
+    =========================================================================
+    CHANGE NOTES (keep newest at top):
+
+    (mj) 2026-08-23 -- PHASE 4: THE HANDOFF. Jim, 2026-08-23: "if it detects a child
+    is struggling, it needs to call in Mr Cadabra to do some more teaching," and "we
+    have the robot avatar. Can we have it fly in and replace mr cadabra when it enters
+    the game." Both now happen. Abrabot flies OUT, Mr. Cadabra flies IN, re-teaches
+    from the lesson's own words, and hands back.
+
+    ⭐ AND HE SPEAKS IN HIS REAL VOICE, FOR FREE. This page's mh/mi notes said it must
+    never name /api/speak. That rule was right for the reason behind it and wrong as
+    written: the reason is that a GENERATED problem was never pre-rendered, so sending
+    it to a paid renderer is a guaranteed cache miss -- a live call per problem, per
+    child. Mr. Cadabra's re-teach is the opposite: it is the lesson's own authored
+    teach beat, enumerated by audio_lines(), rendered once by the prewarm, and a cache
+    hit forever. So the rule moved to where it can actually be enforced -- the SERVER.
+    voice.js sends lane:"drill"; /api/speak-prep then (a) refuses a ticket for any text
+    outside the scripted closure and (b) mints a CACHE-ONLY ticket, so even an authored
+    line that has not been rendered yet costs nothing and quietly 204s to the browser
+    voice. A server gate beats a grep over a file, and this one is exact.
+
+    ⚠️ WHAT ACTUALLY TRIPS THE HANDOFF, said plainly. The scope promised "the same
+    misconception twice". misconceptions.py cannot do that here: its match() reads the
+    WORDS of an answer for detect-strings, and a drill answer is a tapped NUMBER with
+    no words in it. So the trigger is what the lane can honestly measure and has
+    measured since mh -- three wrong in a row, or two problems missed even on the
+    second try. The counters RESET when he arrives, or a child having a bad afternoon
+    would be re-taught on every single miss.
+
+    (mi) 2026-08-23 -- PHASE 3: ABRABOT BECOMES A CHARACTER. Three things, and only
+    one of them is code that could break: he has a FACE, a VOICE OF HIS OWN, and his
+    NAME under both.
+      - THE FACE is tutor-face.js's robot in Abrabot's paint (cyan shell, amber eyes)
+        via TutorFace.PALETTES.abrabot. It is the same canvas the main app has drawn
+        since build ej. ⭐ It is drawn with presence:false, which is not cosmetic: the
+        presence layer is VIDEO OF A REAL PERSON, and without that flag this page
+        would lay Mr. Cadabra's actual face over Abrabot's body the moment the video
+        manifest deployed. That would read as a rendering glitch; it would be an
+        impersonation.
+        ⚠️ AND THE ROBOT WAS ALWAYS THE RIGHT FACE FOR HIM. Jim, in tutor-face.js's
+        build-ej note: "I don't like the robot... I think it's fine to have Mr.
+        Cadabra in every instance." The robot's whole job has been to be the fallback
+        face nobody wants to see. Here it becomes a face somebody DOES want: a helper
+        who is visibly a machine, next to a teacher who is visibly a person.
+      - THE VOICE is voice.js's new `voiceProfile` hook: a different browser voice
+        where the machine has one to spare, and ALWAYS a different rate and pitch,
+        because a machine with a single English voice installed cannot be separated
+        any other way. The pitch is the guarantee; the voice name is the bonus.
+      - THE NAME is under his face on the picker AND while he is asking, so a child
+        never has to wonder who is talking.
+    Nothing about the drill loop itself changed. The mh notes below still stand.
+
+    (mh) 2026-08-23 -- NEW FILE. Phase 2 of Abrabot: the drill loop. Jim, on
+    2026-08-23: "you can work additional problems with Mr. Cadabra's assistant",
+    then "the assistant needs to be introduced. it feeds questions and notes
+    correct and wrong answers but ... if it detects a child is struggling, it
+    needs to call in Mr Cadabra to do some more teaching." The assistant is
+    ABRABOT (Jim named him the same day).
+
+    ⭐ THE ONE RULE THAT SHAPES THIS PAGE: ABRABOT NEVER USES MR. CADABRA'S VOICE.
+    Mr. Cadabra is pre-rendered line by line and the TTS cache is keyed on the
+    verbatim text, so every scripted line is free forever -- and a GENERATED
+    problem's sentence was never rendered. Speaking it in his voice would be a
+    cache MISS: a live ElevenLabs call per problem, per child, at full price and
+    full latency. So this page NEVER sets elevenEnabled and NEVER calls
+    /api/voice-status. voice.js's speak() sees elevenEnabled false and takes its
+    browserSpeak path, which is the browser's own speech engine: free, instant,
+    no cache, no key. That is not a downgrade dressed up as a feature -- it is
+    why Abrabot is a different character with a different voice. The battery pins
+    that this file contains no reference to /api/speak, /api/speak-prep or
+    voice-status, because the day somebody "fixes" that is the day drilling
+    starts costing money per problem.
+
+    WHAT IT DOES. Three routes: /api/drill/lessons (the picker, with a count of
+    extra problems per lesson), /api/drill/start and /api/drill/answer. The
+    server holds the session, grades every tap, and never sends the expected
+    answer to the browser. Problems come from drillpool.py -- 24,880 of them,
+    every one put through the real lessonscripts.validate() before it was
+    admitted (build mg).
+
+    WHAT PHASE 2 DELIBERATELY DOES NOT DO. The server already reports
+    `struggling`; this page shows it only under ?dev=1. Abrabot does not say "let
+    me fetch Mr. Cadabra", because in this build he cannot: the fly-in and the
+    replayed teach beat are phase 4. Telling a stuck child that help is coming
+    and then not sending it would be a worse defect than the silence.
+
+    WHAT IT INHERITS. script-board.js (the board contract and the scripted tag
+    dispatcher, shared with pilot.html so the two cannot drift) and voice.js (the
+    audio graph, the keep-alive, the browser fallback). This page adds no voice
+    layer of its own -- voice.js's header records what four hand-ported copies
+    of one cost us.
+
+    I did no harm and this file is not truncated. (also at end of file)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Abrabot — Extra Practice</title>
+<style>
+  :root{--purple:#6d5ae6;--teal:#0aa5a0;--ink:#232336;--muted:#6b6b80;
+        --card:#ffffff;--line:#e6e4f2;--bg:#f4f8fb;--good:#177a52;--warn:#8a5a12;
+        --bot:#1f8fbf}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);
+       color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  .wrap{width:100%;max-width:720px;padding:18px}
+  header{display:flex;align-items:center;gap:10px;padding:14px 0}
+  .bot{width:38px;height:38px;display:block}
+  .who{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}
+  .who canvas{width:92px;height:92px;display:block;
+              transition:transform .42s cubic-bezier(.2,.9,.25,1.2),opacity .32s ease}
+  .who .whoname{transition:opacity .3s ease}
+  /* (mj) THE FLY-OUT / FLY-IN. One character is always mid-air; the other is home.
+     Deliberately a TRANSFORM, not a layout change, so nothing on the board reflows
+     while a child is looking at it. */
+  .who.away canvas{transform:translateX(-150%) rotate(-18deg);opacity:0}
+  .who.away .whoname{opacity:0}
+  .who.arriving canvas{transform:translateX(150%) rotate(18deg);opacity:0}
+  @media (prefers-reduced-motion:reduce){
+    .who canvas,.who .whoname{transition:none}
+    .who.away canvas,.who.arriving canvas{transform:none;opacity:0}
+  }
+  .whoname{font-size:12px;font-weight:800;color:var(--bot);letter-spacing:.02em}
+  .said{display:flex;gap:16px;align-items:flex-start}
+  .said > div:last-child{flex:1 1 auto;min-width:0}
+  @media (max-width:520px){ .who canvas{width:64px;height:64px} }
+  h1{font-size:20px;font-weight:800}
+  .pill{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);
+        border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:#fff}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;
+        padding:22px;box-shadow:0 6px 24px rgba(40,90,120,.07);margin-bottom:14px}
+  #bubble{font-size:19px;line-height:1.55;min-height:56px}
+  #bubble b{color:#b3402e}
+  #board{margin-top:14px;display:none}
+  .goalchip{display:inline-block;background:#e8f4fa;border:1.5px dashed var(--bot);
+            color:var(--bot);font-weight:800;border-radius:12px;padding:8px 16px;font-size:16px}
+  .stars{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0}
+  .grp{display:flex;gap:6px;flex-wrap:wrap;max-width:280px}
+  .grp span{font-size:34px;line-height:1}
+  .plus{font-size:30px;font-weight:800;color:var(--muted)}
+  .cap{font-size:13.5px;color:var(--muted);margin-top:2px}
+  .eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:800;
+      letter-spacing:1px;background:#fbfaff;border:1px solid var(--line);border-radius:12px;
+      padding:12px 18px;display:inline-block;margin-top:10px}
+  #controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+  button{border:0;border-radius:14px;font-size:20px;font-weight:800;cursor:pointer;
+         padding:14px 26px;transition:transform .06s}
+  button:active{transform:scale(.97)}
+  .next{background:var(--bot);color:#fff}
+  .opt{background:#fff;border:2.5px solid var(--bot);color:var(--bot);min-width:86px}
+  .opt:disabled,.next:disabled{opacity:.45;cursor:default}
+  #status{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+  #score{font-size:13px;font-weight:800;color:var(--good);margin-top:6px;min-height:18px}
+  #devbar{display:none;font:12px ui-monospace,Menlo,monospace;color:var(--muted);
+          background:#fff;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin-top:8px}
+  #gate input{font-size:22px;letter-spacing:4px;text-align:center;width:180px;
+              padding:10px;border:2px solid var(--line);border-radius:12px}
+  .big{font-size:26px;font-weight:850}
+  .count{font-size:12px;font-weight:700;color:var(--muted);margin-left:8px}
+  .none{opacity:.45}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><canvas class="bot" id="botMark" width="160" height="160" aria-hidden="true"></canvas>
+    <h1>Abrabot</h1><span class="pill">extra practice</span></header>
+
+  <div class="card" id="gate">
+    <p class="big" style="margin-bottom:10px">Extra problems</p>
+    <p style="color:var(--muted);margin-bottom:14px">Abrabot is Mr. Cadabra's practice
+      helper. Pick a lesson you have already done and he will keep the problems coming.</p>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <input id="code" inputmode="numeric" placeholder="code" autocomplete="off">
+      <span style="color:var(--muted);font-size:14px">your student code — then tap a lesson</span>
+    </div>
+    <div id="gateMsg" style="color:#b3402e;font-weight:700;margin:6px 0"></div>
+    <div id="warm" style="color:var(--muted);font-size:13px;margin:4px 0"></div>
+    <div id="picker" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <div class="card hide" id="stage">
+    <div class="said">
+      <div class="who" id="whoAbra">
+        <canvas id="botFace" width="240" height="240" aria-hidden="true"></canvas>
+        <div class="whoname">Abrabot</div>
+      </div>
+      <div class="who arriving" id="whoCad" style="display:none">
+        <canvas id="cadFace" width="240" height="240" aria-hidden="true"></canvas>
+        <div class="whoname" style="color:#6d5ae6">Mr. Cadabra</div>
+      </div>
+      <div><div id="bubble"></div></div>
+    </div>
+    <div id="board"></div>
+    <div id="controls"></div>
+    <div id="score"></div>
+    <div id="status"></div>
+    <div id="devbar"></div>
+  </div>
+</div>
+
+<!-- THE WHITEBOARD. board-text.js MUST load before board.js (it defines
+     styleVars/escapeHTML, which board.js uses); the figure libraries answer
+     MathFigures.svg / GeoFigures.svg; script-board.js provides board.js's ambient
+     contract and the scripted lane's tag dispatcher, and must precede board.js. -->
+<link rel="stylesheet" href="/static/board.css">
+<script src="/static/board-text.js"></script>
+<script src="/static/math-figures.js"></script>
+<script src="/static/geo-figures.js"></script>
+<script src="/static/script-board.js"></script>
+<script src="/static/board.js"></script>
+<!-- (mi) ABRABOT'S FACE. tutor-face.js is self-contained (it publishes window.TutorFace
+     and reaches for nothing), so loading it costs this page no contract. It is drawn
+     below with the abrabot palette and presence:false. -->
+<script src="/static/tutor-face.js"></script>
+
+<!-- THE VOICE LAYER. voice.js owns the audio graph, the keep-alive and the browser
+     fallback. This page satisfies its ambient contract (CODE / forSpeech / setState)
+     and otherwise stays out of the way.
+     ⭐ elevenEnabled IS NEVER SET HERE. See the header: a generated problem has no
+     cached clip, so the natural voice would bill per problem. Abrabot is the browser
+     voice on purpose. -->
+<script>
+  var CODE = "";                       // the login constant voice.js reads per clip
+  // Identity, for the same reason pilot.html uses identity: the drill lane never
+  // touches the TTS cache at all, so a transform here could only introduce a
+  // difference between what is shown and what is said.
+  function forSpeech(t) { return String(t == null ? "" : t); }
+  var __voiceSpoke = false;
+  var __mood = "idle";                 // (mi) what his face is doing right now
+  function setState(s) {
+    if (s === "speaking") { __voiceSpoke = true; __mood = "speaking"; }
+  }
+</script>
+<script src="/static/voice.js"></script>
+<script>
+  // ---- (mi) ABRABOT'S VOICE ----------------------------------------------------
+  // Set AFTER voice.js loads, because voice.js declares `voiceProfile` and this
+  // assigns to it. Leaving it unset is what every other page does, and that path is
+  // unchanged -- see voice.js's build-mi note.
+  // ⚠️ THE PITCH IS THE GUARANTEE. On a machine with one English voice installed,
+  // no preference list can tell two characters apart; the rate and pitch shift can,
+  // and always applies. The names below are the bonus when there IS a spare voice.
+  voiceProfile = {
+    name: "Abrabot",
+    prefer: ["zira", "samantha", "google us english", "susan", "karen", "moira",
+             "fiona", "victoria", "google uk english female", "female"],
+    rate: 1.06,        // a shade brisker than Mr. Cadabra's 1.0 -- he drills, not teaches
+    pitch: 1.35        // clearly above his 0.9: a machine helper, not the teacher
+  };
+  // (mj) THE LANE. Every speak-prep from this page carries it, and the SERVER uses it
+  // to refuse any text outside the scripted closure and to mint a cache-only ticket.
+  // This is why the page may safely ask for Mr. Cadabra's real voice at all.
+  voiceLane = "drill";
+  if (window.speechSynthesis) {
+    pickVoice();
+    speechSynthesis.onvoiceschanged = pickVoice;
+  }
+</script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var qs = new URLSearchParams(location.search);
+  var DEV = qs.get("dev") === "1";
+  CODE = (qs.get("code") || "").trim();
+  try { CODE = CODE || sessionStorage.getItem("mt_drill_code") || ""; } catch (e) {}
+  if (CODE) $("code").value = CODE;
+  if (DEV) $("devbar").style.display = "block";
+  window.boardWarn = function (msg) { devline(msg); };
+
+  var LESSONS = [];
+  var CURRENT_ID = null;
+  var queue = [];
+  var busy = false;
+
+  function devline(s) {
+    if (!DEV) return;
+    $("devbar").textContent = s + "  ·  " + ($("devbar").textContent || "").slice(0, 160);
+  }
+
+  // ---------- (mi) ABRABOT'S FACE ----------
+  // The same robot the main app has drawn since build ej, in his own paint. ONE
+  // animation loop drives both canvases -- the small mark in the header (so he is
+  // alive on the picker screen too) and the big one beside his words.
+  // ⭐ presence:false IS LOAD-BEARING. tutor-face.js's presence layer is VIDEO OF A
+  // REAL PERSON -- Mr. Cadabra. Without this flag, this page would lay his actual
+  // face over Abrabot's body the moment the video manifest deployed. PART 3dg pins it.
+  var FACES = [];          // {el, ctx, persona}
+  var faceT = 0, faceLevel = 0;
+  var WHO = "abrabot";     // who is on stage right now
+  function faceTargetLevel() {
+    if (__mood === "speaking") return 0.45 + 0.30 * Math.abs(Math.sin(faceT * 0.05));
+    return 0.10 + 0.05 * Math.sin(faceT * 0.035);          // idle breathing
+  }
+  function drawFaces() {
+    var lv = faceTargetLevel();
+    faceLevel += (lv - faceLevel) * 0.22;
+    for (var i = 0; i < FACES.length; i++) {
+      var c = FACES[i];
+      try {
+        if (window.TutorFace) {
+          // (mj) A face only animates its mouth while ITS OWN character is talking.
+          // Both canvases are always drawn -- one of them is mid-flight, and a robot
+          // that froze while it flew would read as a broken image.
+          var live = (c.persona === WHO);
+          TutorFace.draw(c.ctx, c.el.width, c.el.height, {
+            level: live ? faceLevel : 0.10, t: faceT,
+            mood: live ? __mood : "idle",
+            palette: TutorFace.PALETTES && TutorFace.PALETTES[c.persona],
+            // ⭐ presence:false on BOTH. The presence layer is video of a real person
+            // and this 92px slot is not the session page's orb -- mounting his video
+            // here is a deliberate later decision, not a side effect of phase 4. His
+            // purple robot IS his own authentic fallback face; it is what the app
+            // already shows him as whenever the video is unavailable.
+            presence: false
+          });
+        }
+      } catch (e) {}
+    }
+    faceT += 1;
+    requestAnimationFrame(drawFaces);
+  }
+  [["botMark", "abrabot"], ["botFace", "abrabot"], ["cadFace", "cadabra"]]
+    .forEach(function (pair) {
+      var e = $(pair[0]);
+      if (e && e.getContext) FACES.push({ el: e, ctx: e.getContext("2d"), persona: pair[1] });
+    });
+  if (FACES.length) drawFaces();
+
+  // ---------- (mj) THE HANDOFF: one flies out, the other flies in ----------
+  // Jim: "Can we have it fly in and replace mr cadabra when it enters the game."
+  // The slot holds both; CSS transforms do the travelling so the board never reflows
+  // under a child who is reading it.
+  var FLY_MS = 420;
+  function showWho(who) {
+    if (who === WHO) return;
+    WHO = who;
+    var inEl = $(who === "cadabra" ? "whoCad" : "whoAbra");
+    var outEl = $(who === "cadabra" ? "whoAbra" : "whoCad");
+    if (!inEl || !outEl) return;
+    outEl.classList.add("away");
+    inEl.style.display = "";
+    // a frame on screen in its "arriving" pose before the class comes off, or the
+    // browser collapses display+transform into no animation at all
+    inEl.classList.add("arriving");
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { inEl.classList.remove("arriving"); });
+    });
+    setTimeout(function () {
+      if (WHO !== who) return;
+      outEl.style.display = "none";
+      outEl.classList.remove("away");
+      outEl.classList.add("arriving");
+    }, FLY_MS);
+  }
+
+  // ---------- the picker ----------
+  // A count of null means the server's background warm walk has not measured that
+  // lesson yet -- NOT that it has no problems. Saying "checking…" is the honest
+  // rendering of an unknown, and a reload a few seconds later shows the real number.
+  function paintPicker(j) {
+    LESSONS = j.lessons || [];
+    var pk = $("picker"); pk.innerHTML = "";
+    var lastUnit = null, lastCourse = null;
+    LESSONS.forEach(function (les) {
+      if (les.course !== lastCourse) {
+        lastCourse = les.course; lastUnit = null;
+        var ch = document.createElement("div");
+        ch.textContent = les.course_title || les.course;
+        ch.style.cssText = "font-size:16px;font-weight:850;color:var(--ink);"
+          + "margin:14px 0 0;padding-top:10px;border-top:2px solid var(--line)";
+        pk.appendChild(ch);
+      }
+      if (les.unit !== lastUnit) {
+        lastUnit = les.unit;
+        var hdr = document.createElement("div");
+        hdr.textContent = "Unit " + les.unit;
+        hdr.style.cssText = "font-size:12.5px;font-weight:800;color:var(--muted);"
+          + "text-transform:uppercase;letter-spacing:.06em;margin:10px 0 2px";
+        pk.appendChild(hdr);
+      }
+      var b = document.createElement("button");
+      b.className = "opt";
+      b.style.fontSize = "16px"; b.style.textAlign = "left";
+      var label = les.topic;
+      if (les.drill === null && j.available === false) { label += "  (unavailable)"; }
+      else if (les.drill === null) { label += "  (checking…)"; }
+      else if (les.drill === 0) { label += "  (no extra problems)"; b.className += " none"; }
+      else { label += "  (" + les.drill + " extra)"; }
+      b.textContent = label;
+      b.disabled = (les.drill === 0);
+      b.onclick = function () { startDrill(les.id); };
+      pk.appendChild(b);
+    });
+    // (mm) A server that never loaded drillpool.py has no counts to give and never
+    // will. Saying "checking…" forever would be true of the memo and useless to a
+    // person, so the page says the real thing and stops.
+    if (j.available === false) {
+      $("warm").textContent = "Abrabot's extra problems are not loaded on this server "
+        + "right now — lessons still work normally.";
+    } else if (!j.ready) {
+      $("warm").textContent = "Abrabot is counting his problems (" + (j.warmed || 0)
+        + " of " + (j.total || 0) + " lessons) — reload in a moment to see them all.";
+    } else {
+      $("warm").textContent = "";
+    }
+  }
+  function loadPicker() {
+    fetch("/api/drill/lessons").then(function (r) { return r.json(); })
+      .then(paintPicker)
+      .catch(function () {
+        $("gateMsg").textContent = "Could not load the lesson list — is the server awake?";
+      });
+  }
+  loadPicker();
+
+  // ---------- starting ----------
+  function startDrill(lessonId) {
+    CODE = ($("code").value || "").trim();
+    if (!CODE) {
+      $("gateMsg").textContent = "Enter your student code first — it goes in the box at the top.";
+      $("code").focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    try { sessionStorage.setItem("mt_drill_code", CODE); } catch (e) {}
+    // A REAL TAP: the only moment a browser lets us open the audio pipeline early.
+    // The browser voice needs the gesture as much as the natural one does.
+    try { warmUpAudio(); } catch (e) {}
+    post("/api/drill/start", { code: CODE, lesson: lessonId }, function (j) {
+      CURRENT_ID = j.id || lessonId;
+      $("gate").classList.add("hide");
+      $("stage").classList.remove("hide");
+      _lastRight = 0; _justRight = false;      // (mi) a new lesson, a fresh tally
+      showScore(j.score, j.struggling);
+      ingest(j.steps);
+    });
+  }
+
+  // ---------- voice: DELEGATED to voice.js ----------
+  var VOICE_WAIT_MS = 3000;
+  // (mj) `step` decides WHO is speaking and whether his real voice is worth asking
+  // for. natural=true only for Mr. Cadabra's already-authored, already-rendered
+  // lines; the server refuses a drill ticket for anything else regardless, and a
+  // refusal or an unrendered line falls to the browser voice with no retry.
+  function speak(text, onDone, onWaiting, step) {
+    var t0 = performance.now(), done = false, warnTimer = null;
+    function finish(played) {
+      if (done) return;
+      done = true;
+      if (warnTimer) { clearTimeout(warnTimer); warnTimer = null; }
+      onDone && onDone(!!played);
+    }
+    if (!text) return finish(false);
+    __voiceSpoke = false;
+    warnTimer = setTimeout(function () {
+      if (!done) onWaiting && onWaiting();
+    }, VOICE_WAIT_MS);
+    var p;
+    var who = (step && step.who) || "abrabot";
+    var opts = (who === "cadabra")
+      ? { eleven: !!(step && step.natural), profile: null }   // profile null = HIS voice
+      : { eleven: false };                                    // Abrabot: browser, always
+    try { p = window.speak ? window.speak(text, opts) : null; } catch (e) { p = null; }
+    if (!p || !p.then) return finish(false);
+    p.then(function () {
+      devline("clip done in " + Math.round(performance.now() - t0)
+              + "ms, audible=" + __voiceSpoke);
+      __mood = "idle";                    // (mi) he stops moving his mouth when he stops
+      finish(__voiceSpoke);
+    }, function () { __mood = "idle"; finish(false); });
+  }
+
+  // ---------- score ----------
+  var _lastRight = 0, _justRight = false;
+  function showScore(score, struggling) {
+    if (!score) return;
+    // (mi) A RIGHT ANSWER IS REMEMBERED, NOT SHOWN YET. His smile lands when the
+    // praise has finished being said -- smiling underneath his own talking mouth
+    // would be invisible, which is how the first version of this looked.
+    if (score.right > _lastRight) _justRight = true;
+    _lastRight = score.right;
+    $("score").textContent = score.asked
+      ? (score.right + " right out of " + score.asked)
+      : "";
+    if (DEV && struggling) devline("STRUGGLING (phase 4 fetches Mr. Cadabra here)");
+  }
+
+  // ---------- playing the step queue ----------
+  function playStep(step) {
+    var markup = step.board || step.spoken || "";
+    var f = boardEl();
+    if (f) {
+      var keep = f.innerHTML;
+      wipeBoard();
+      if (!drawBoard(markup)) f.innerHTML = keep;      // nothing new: keep the last
+      f.style.display = f.innerHTML ? "block" : "none";
+    }
+    var words = step.spoken || "";
+    $("bubble").innerHTML = styleTerms(words);
+
+    // (mj) WHO IS ON STAGE. Every step names its speaker; a step that forgot lands on
+    // Abrabot, which is the safe default because Abrabot never uses the paid voice.
+    showWho(step.who === "cadabra" ? "cadabra" : "abrabot");
+
+    var ctl = $("controls"); ctl.innerHTML = "";
+
+    // (mj) arrive / teach / leave are Mr. Cadabra's beats. They PLAY like a say beat
+    // -- words, a board, one Next -- so there is exactly one narration path on this
+    // page rather than a second one to keep in step with the first.
+    if (step.kind === "arrive" || step.kind === "teach" || step.kind === "leave") {
+      step = { kind: "say", spoken: step.spoken, board: step.board,
+               who: step.who, natural: step.natural };
+    }
+
+    if (step.kind === "say") {
+      var b = document.createElement("button");
+      b.className = "next"; b.textContent = "Next ▶"; b.disabled = true;
+      var advanced = false;
+      var go = function () { if (!advanced) { advanced = true; playNext(); } };
+      b.onclick = go;
+      ctl.appendChild(b);
+      // Auto-advance only when the words GENUINELY played. Silent (no speech engine,
+      // blocked autoplay) means a reader is pacing themselves, and racing them is
+      // worse than the stall it fixes -- the same rule pilot.html settled on.
+      speak(words, function (played) {
+        b.disabled = false; b.focus();
+        // (mj) only Abrabot smiles at a right answer -- Mr. Cadabra is mid-lesson
+        if (_justRight && step.who !== "cadabra") { _justRight = false; faceHappy(); }
+        if (played) setTimeout(go, 650);
+      }, function () { b.disabled = false; }, step);
+      $("status").textContent = "";
+      return;
+    }
+
+    if (step.kind === "ask") {
+      var opts = choiceValues(step.choices || "");
+      opts.forEach(function (v) {
+        var ob = document.createElement("button");
+        ob.className = "opt"; ob.textContent = v; ob.disabled = true;
+        ob.onclick = function () { answer(parseInt(v, 10), ctl); };
+        ctl.appendChild(ob);
+      });
+      var enable = function () {
+        ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
+      };
+      speak(words, enable, enable, step);   // a slow clip must never lock the answers
+      $("status").textContent = "Tap your answer.";
+      return;
+    }
+
+    if (step.kind === "end") {
+      $("score").textContent = step.right + " right out of " + step.asked;
+      speak(words, function () {}, null, step);
+      if (step.more) {
+        var nb = document.createElement("button");
+        nb.className = "next"; nb.textContent = "Another round ▶";
+        nb.onclick = function () {
+          post("/api/drill/next", { code: CODE }, function (j) {
+            showScore(j.score, j.struggling);
+            ingest(j.steps);
+          });
+        };
+        ctl.appendChild(nb);
+      }
+      var done = document.createElement("button");
+      done.className = "opt"; done.textContent = "Pick another lesson";
+      done.onclick = function () { location.reload(); };
+      ctl.appendChild(done);
+      $("status").textContent = "Practice only — Abrabot never changes your progress.";
+      return;
+    }
+  }
+  // (mi) A CORRECT ANSWER SHOWS ON HIS FACE. TutorFace's "happy" mood is a real
+  // expression the robot already knows how to wear; this is the first time anything
+  // has asked Abrabot for it. Deliberately NOT TutorFace.celebrate(): that fires the
+  // gold burst the main app uses to mark a problem finished in a LESSON, and drill is
+  // practice. A brief smile is the honest size of the moment.
+  function faceHappy() {
+    __mood = "happy";
+    setTimeout(function () { if (__mood === "happy") __mood = "idle"; }, 1100);
+  }
+
+  function playNext() { if (queue.length) playStep(queue.shift()); }
+  function ingest(steps) { queue = queue.concat(steps || []); playNext(); }
+
+  // ---------- the API calls ----------
+  function post(url, body, onOk) {
+    if (busy) return;
+    busy = true;
+    var t0 = performance.now();
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (rj) {
+        busy = false;
+        devline(url.split("/").pop() + " " + Math.round(performance.now() - t0) + "ms");
+        if (rj.s !== 200) {
+          $("gateMsg").textContent = (rj.j && rj.j.detail) || "Something went wrong.";
+          $("gate").classList.remove("hide");
+          $("stage").classList.add("hide");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        onOk(rj.j);
+      })
+      .catch(function () { busy = false; $("status").textContent = "Connection hiccup — tap again."; });
+  }
+  function answer(value, ctl) {
+    ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+    post("/api/drill/answer", { code: CODE, value: value }, function (j) {
+      showScore(j.score, j.struggling);
+      ingest(j.steps);
+    });
+  }
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->
