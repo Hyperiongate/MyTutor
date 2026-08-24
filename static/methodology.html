@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+  - 2026-08-24  NEW PAGE (build mv). Jim: "people want to know what we've based our
+    pedagogical approach to. What resources did we use? What research backs up our
+    methodology? Kind of wanting to feel confident that this is something that's
+    gonna get the job done."
+    ⚠️ EVERY SOURCE ON THIS PAGE WAS READ BEFORE IT WAS NAMED. The two documents
+    cited are the ones actually in the project: the MAA Instructional Practices
+    Guide (© 2018 Mathematical Association of America, CC BY-NC 4.0, print ISBN
+    978-0-88385-198-2) and A Story of Units: Curriculum Map / Curriculum Overview /
+    CCSS Checklist for Grades P-5 (© 2015 Great Minds, eureka-math.org, version
+    SOU-1.3.0-07.2015). Their scope is stated honestly on the page rather than
+    stretched: the MAA guide is about UNDERGRADUATE teaching, and A Story of Units
+    covers PRE-K THROUGH GRADE 5 only.
+    ⚠️ NO ENDORSEMENT IS CLAIMED OR IMPLIED by either organisation, and no third
+    party content is reproduced -- the page says we READ them, which is true.
+    ⚠️ AND THE PAGE SAYS WHAT WE HAVE NOT PROVEN. There is no efficacy study of this
+    product; it has not been in enough children's hands. Saying so plainly is what
+    makes the rest of the page believable, and it is the section to defend hardest
+    if anyone ever asks to soften it.
+    Every number here is machine-counted from the app, not estimated -- see the
+    "counted, not claimed" note in the numbers strip, which carries an AS-OF DATE
+    on purpose: exact figures on a static page go stale, and an out-of-date number
+    would undercut the one thing this page is trying to establish.
+    Uses the shared two-row header (HEADER v2) and the mission-page design system.
+    NOT LINKED FROM THE TOP NAV YET -- Jim reviews the wording first. The footer
+    link and the /methodology route are live so the page can be read.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How we teach — Mr. Cadabra's Classroom</title>
+<link rel="canonical" href="https://mrcadabra.com/methodology" />
+<meta property="og:title" content="How we teach — Mr. Cadabra's Classroom">
+<meta property="og:description" content="What our teaching is built on: the standards our sequence follows, the rules our tutor is held to, and what we have not yet proven.">
+<meta property="og:url" content="https://mrcadabra.com/methodology">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr. Cadabra's Classroom">
+<meta property="og:image" content="https://mrcadabra.com/static/shots/lesson.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How we teach — Mr. Cadabra's Classroom">
+<meta name="twitter:description" content="What our teaching is built on: the standards our sequence follows, the rules our tutor is held to, and what we have not yet proven.">
+<meta name="twitter:image" content="https://mrcadabra.com/static/shots/lesson.png">
+<meta name="description" content="What our teaching is built on: the standards our sequence follows, the rules our tutor is held to, and what we have not yet proven." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<style>
+  :root{--purple:#6d5ae6;--teal:#1fb6b0;--ink:#20233a;--muted:#5b6079;--bg1:#fbf7ff;--bg2:#f2fbfa;
+    --card:#ffffff;--line:#ece8f6;--grad:linear-gradient(135deg,var(--purple),var(--teal));
+    --shadow:0 10px 30px rgba(60,40,120,.10);--shadow-lg:0 20px 50px rgba(60,40,120,.16)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.6;
+    background:radial-gradient(1200px 600px at 80% -10%,#efe9ff 0,transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%,#e4faf7 0,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-block;padding:13px 24px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:0;transition:transform .12s ease,box-shadow .12s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(255,255,255,.72);border-bottom:1px solid var(--line)}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 2px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;white-space:nowrap}
+  .brand-sub{font-size:14px}
+  .orb{width:34px;height:34px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 32% 30%,#fff 0,#c9beff 18%,var(--purple) 55%,var(--teal) 120%);box-shadow:0 4px 14px rgba(109,90,230,.45)}
+  .nav-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 26px;font-weight:600;font-size:14.5px;color:var(--muted);padding:4px 0 12px}
+  .nav-links a{white-space:nowrap}
+  .nav-links a:hover{color:var(--purple)}
+  .nav-links a.here{color:var(--purple)}
+  .nav-cta{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+  .nav-cta .btn{white-space:nowrap}
+  @media(max-width:620px){.brand-sub{display:none}.nav-top{flex-wrap:wrap;justify-content:center}.nav-links{gap:6px 16px;font-size:14px}}
+  header.page{padding:56px 0 14px;text-align:center}
+  .eyebrow{font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:42px;letter-spacing:-.02em;margin:10px 0 10px;font-weight:850}
+  h2{font-size:28px;letter-spacing:-.02em;margin:8px 0 10px;font-weight:820}
+  .sub{color:var(--muted);font-size:17px;max-width:64ch;margin:0 auto}
+  section{padding:34px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:860px){.g2{grid-template-columns:1fr}}
+  .mission-quote{max-width:820px;margin:0 auto;text-align:center;background:var(--card);border:2px solid transparent;
+    background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;border-radius:22px;padding:36px 34px;box-shadow:var(--shadow-lg)}
+  .mission-quote p{font-size:22px;font-weight:700;line-height:1.55}
+  .pillar h2{display:flex;align-items:center;gap:10px}
+  .pillar p{color:var(--muted);font-size:15.5px;margin-top:8px}
+  .pillar ul{margin:12px 0 0 20px;color:var(--muted);font-size:15px}
+  .pillar li{margin-bottom:8px}
+  .pillar li b{color:var(--ink)}
+  .promise{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+  .promise .pi{font-size:22px;line-height:1.2}
+  .promise p{color:var(--muted);font-size:15px}
+  .promise b{color:var(--ink)}
+  .cta-band{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:40px 24px;box-shadow:var(--shadow)}
+  footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px;color:var(--muted);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  .beta-ribbon{background:var(--grad);text-align:center;padding:9px 16px;font-size:14px;color:#fff}
+  .beta-ribbon a{color:#fff}
+  .beta-ribbon u{text-underline-offset:3px}
+  .beta-ribbon a:hover u{text-decoration-thickness:2px}
+</style><style>
+  .numbers{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:8px}
+  .num{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 16px;text-align:center;box-shadow:var(--shadow)}
+  .num b{display:block;font-size:30px;font-weight:850;letter-spacing:-.02em}
+  .num span{font-size:13.5px;color:var(--muted);font-weight:600}
+  @media(max-width:900px){.numbers{grid-template-columns:repeat(2,1fr)}}
+  .src{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px}
+  .src .ic{font-size:26px;line-height:1.1;flex:0 0 auto}
+  .src h3{font-size:17px;font-weight:800;margin-bottom:4px}
+  .src p{color:var(--muted);font-size:15px}
+  .src .cite{display:block;margin-top:6px;font-size:13px;color:var(--muted);font-style:italic}
+  .rule{border-left:3px solid var(--purple);padding:2px 0 2px 16px;margin-bottom:20px}
+  .rule h3{font-size:17px;font-weight:800;margin-bottom:4px}
+  .rule p{color:var(--muted);font-size:15.5px}
+  .rule .why{display:block;margin-top:6px;color:var(--ink);font-size:14.5px}
+  .plain{background:#fffdf4;border:1px solid #f0e3b8;border-radius:18px;padding:28px}
+  .plain h2{color:#7a5c12}
+  .plain p{color:#5b5029;font-size:16px;margin-bottom:12px}
+  .plain p:last-child{margin-bottom:0}
+  .foot-note{color:var(--muted);font-size:13.5px;text-align:center;max-width:70ch;margin:14px auto 0}
+</style>
+<script src="/static/analytics.js"></script>
+<script src="/static/site-nav.js" defer></script>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="nav-top">
+  <a class="brand" href="/"><img class="mark" src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"> <span>Mr. Cadabra's Classroom</span></a>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/login">Sign in</a>
+    <a class="btn btn-primary" href="/demo">Try a lesson</a>
+  </div>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/mission">Our mission</a>
+    <a href="/features">Features</a>
+    <a href="/courses">Courses</a>
+    <a href="/homeschool">Homeschool</a>
+    <a href="/students">Students</a>
+    <a href="/parents">Parents</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/community">Community</a>
+    <a href="/pricing">Pricing</a>
+    <a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+</div></nav>
+<div class="beta-ribbon"><a href="/beta">🧪 <b>We're in beta!</b> Want early access and a say in what we build? <u>Become a beta tester — 5 free sign-ins</u> →</a></div>
+
+<header class="page wrap">
+  <span class="eyebrow">How we teach</span>
+  <h1>What this is <span class="grad-text">built on</span></h1>
+  <p class="sub">Three questions, answered plainly: where our sequence comes from, what rules
+    our tutor is held to, and what we have <em>not</em> proven yet.</p>
+</header>
+
+<section class="wrap">
+  <div class="numbers">
+    <div class="num"><b>336</b><span>scripted lessons</span></div>
+    <div class="num"><b>10</b><span>full courses</span></div>
+    <div class="num"><b>25,376</b><span>practice problems</span></div>
+    <div class="num"><b>6,367</b><span>automated checks per release</span></div>
+    <div class="num"><b>90%</b><span>to master a unit</span></div>
+  </div>
+  <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
+    machine-counted from the app itself, by the same test run that has to pass before anything
+    ships. They go up as we build; none of them is an estimate.</p>
+</section>
+
+<section class="wrap">
+  <div class="card">
+    <h2>1. What we teach, and where the order comes from</h2>
+    <p class="sub" style="margin:8px 0 22px 0">A curriculum is a sequence before it is anything
+      else. Get the order wrong and a child meets an idea before the one it stands on.</p>
+
+    <div class="src">
+      <div class="ic">📐</div>
+      <div>
+        <h3>The elementary sequence follows the Common Core State Standards for Mathematics</h3>
+        <p>For our two youngest courses we worked against <em>A Story of Units</em> — the Pre-K
+          through Grade 5 curriculum map, curriculum overview and CCSS checklist published by
+          Great Minds. We used it the way a teacher uses a scope-and-sequence document: to decide
+          what comes before what, which fluencies each grade owes the next, and where the usual
+          gaps open up. Counting comes before adding; adding before carrying; carrying before
+          regrouping. That order is not our invention and we did not want it to be.
+          <span class="cite">A Story of Units: Curriculum Map, Curriculum Overview, and CCSS
+            Checklist for Grades P–5. © 2015 Great Minds, eureka-math.org (SOU-1.3.0-07.2015).
+            We are not affiliated with Great Minds and claim no endorsement by them.</span></p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">🎓</div>
+      <div>
+        <h3>The teaching practices come from the MAA Instructional Practices Guide</h3>
+        <p>Published by the Mathematical Association of America, this is a professional body's own
+          account of what good mathematics instruction looks like. It is written for
+          <strong>undergraduate</strong> teaching, so we treat it as it is: directly relevant to our
+          Calculus and Differential Equations courses, and a sound guide to teaching practice
+          everywhere else. Three of its sections shaped this product more than anything else —
+          wait time, developing persistence in problem solving, and the selection of appropriate
+          mathematical tasks.
+          <span class="cite">MAA Instructional Practices Guide. © 2018 The Mathematical Association
+            of America. Open access under CC BY-NC 4.0. Print ISBN 978-0-88385-198-2. We are not
+            affiliated with the MAA and claim no endorsement by them.</span></p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">🪜</div>
+      <div>
+        <h3>The courses between them follow the standard progression</h3>
+        <p>Pre-Algebra, Algebra I, Geometry, Algebra II, Trigonometry and Pre-Calculus, and
+          Probability and Statistics follow the conventional United States course sequence, nine
+          units each, in the order these subjects are normally taught. Where a course depends on an
+          earlier one, we say so inside the lesson rather than assuming the child remembers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="card">
+    <h2>2. How we teach — and the rules we hold ourselves to</h2>
+    <p class="sub" style="margin:8px 0 22px 0">Our tutor works from <strong>65 written teaching
+      rules</strong>. Thirty-three of them are not merely written down — they are enforced by code,
+      and <strong>37 separate checks read every reply before a child ever sees it.</strong> A reply
+      that breaks one is rejected and rewritten, not shipped and apologised for. Here are the ones
+      that matter most.</p>
+
+    <div class="rule">
+      <h3>Teach it before you ask it</h3>
+      <p>A lesson demonstrates the idea worked all the way through — out loud, on the board — before
+        the child is asked to do one. Opening with a question is not teaching, it is testing.
+        <span class="why">This is the MAA guide's <em>I do, then you do</em>, and it is the rule we
+          break least. The tutor is allowed to take the length teaching needs, even though every
+          other reply is kept short.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>No cold quizzes</h3>
+      <p>Before any quiz counts toward mastery, the child must have got <strong>two problems right
+        on that topic without hints</strong>. If they have not, the tutor teaches another one
+        instead and says why in a way that sounds like confidence rather than delay.
+        <span class="why">Without this rule a quiz score is a coin flip written permanently onto a
+          child's record.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>One more try before anyone is told the answer</h3>
+      <p>A wrong answer earns a second attempt at the same problem before the answer is given. When
+        a child misses twice, the teaching restarts rather than the score simply falling.
+        <span class="why">The MAA guide calls this developing persistence, and describes the
+          instructor resisting the urge to tell and asking a guiding question instead. That is
+          exactly the moment our tutor is designed for.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>The same word for the same idea, every time</h3>
+      <p>If a child learns "over nine, carry", they will not hear "ten or more, carry" four turns
+        later. The first phrasing a child meets is recorded and it is the one that comes back —
+        for as long as they use the app.
+        <span class="why">To an adult those are the same sentence. To a seven-year-old they are two
+          different rules, and nobody taught the second one.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>Every problem is checked before a child sees it</h3>
+      <p>Every one of our 25,376 practice problems is put through the same validator: the answer is
+        computed, never typed; the numbers stay inside the range the lesson promises; the difficulty
+        only ever climbs; and every sentence is read aloud against a fixed vocabulary.
+        <span class="why">This is the MAA guide's <em>selecting appropriate mathematical tasks</em>,
+          done in advance rather than hoped for.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>A child is compared to nobody but themselves</h3>
+      <p>There are no leaderboards, no class rankings, and no percentiles. Progress is measured
+        against where that child was, and effort is rewarded on its own terms — practice and
+        streaks earn their own awards, separately from mastery.
+        <span class="why">Mastery is earned on quizzes. Practice is for getting better, and it is
+          counted so a child can show somebody how hard they worked.</span></p>
+    </div>
+
+    <div class="rule">
+      <h3>Mastery means ninety percent</h3>
+      <p>A unit is mastered at 90% on a ten-question unit quiz — not eighty, and not five questions.
+        <span class="why">Ten questions is deliberate: on a five-question quiz there is no honest
+          way to score ninety.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="plain">
+    <h2>3. What we have not proven</h2>
+    <p><strong>There is no efficacy study of this product.</strong> We have not run a trial, we do
+      not have outcome data across a population of children, and we are not going to point at
+      somebody else's research and let you assume it was about us. This app has not yet been in
+      enough children's hands for anyone to make that claim honestly — including us.</p>
+    <p>What we can tell you is exactly what we built, what we built it from, and what it refuses to
+      do. Those are the things on this page, and every one of them is checkable.</p>
+    <p>We are in beta, and that is the honest word for it. If you want to know whether this works
+      for your child, the only real answer available today is to try a lesson and judge it
+      yourself — which is why a lesson is free and needs no card.</p>
+    <p style="margin-top:18px">
+      <a class="btn btn-primary" href="/demo">Try a lesson</a>
+      <a class="btn btn-ghost" href="/mission" style="margin-left:8px">Read our mission</a>
+    </p>
+  </div>
+  <p class="foot-note">Sources named on this page were read in full before they were cited. We
+    reproduce no third-party content, and neither organisation has reviewed or endorsed this
+    product.</p>
+</section>
+
+<footer><div class="wrap foot-in">
+  <div class="brand"><img class="mark" src="/static/brand-mark.svg" alt="" style="height:26px;width:auto;flex:0 0 auto"> Mr. Cadabra's Classroom</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <a href="/homeschool">Homeschool</a><a href="/courses">Courses</a><a href="/students">For students</a><a href="/parents">For parents</a><a href="/teachers">For teachers</a><a href="/mission">Our mission</a><a href="/methodology">How we teach</a><a href="/community">Community</a><a href="/beta">Beta program</a><a href="/pricing">Pricing</a><a href="/privacy">Parents &amp; Privacy</a><a href="/terms">Terms</a><a href="/login">Sign in</a><a href="mailto:support@mrcadabra.com">Contact</a>
+  </div>
+  <div>© 2026 Mr. Cadabra's Classroom · mrcadabra.com · Made for families</div>
+</div></footer>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

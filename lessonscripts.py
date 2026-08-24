@@ -1523,7 +1523,7 @@ LESSONS = [
              '[[goal text="Taking away single-digit numbers"]]'),
             ("Here are five stars. Watch me take two away. Count what is left: "
              "one, two, three. Three stars are left.",
-             '[[objects emoji="⭐" groups="5" caption="start with five — take two away, then count what is left"]]'),
+             '[[objects emoji="⭐" groups="5" take="2" caption="start with five — take two away, then count what is left"]]'),
             ("Mathematicians write taking away with its own sign. We write it "
              "like this, and we say it 'minus'. Five minus two.",
              '[[step eq="5 − 2"]]'),
@@ -1531,19 +1531,19 @@ LESSONS = [
              '[[step eq="5 − 2 = 3"]]'),
             ("Watch me do a whole one. Six stars, take four away. Count what is "
              "left: one, two. Six minus four equals two.",
-             '[[objects emoji="⭐" groups="6" caption="start with six — take four away"]]'
+             '[[objects emoji="⭐" groups="6" take="4" caption="start with six — take four away"]]'
              '[[step eq="6 − 4 = 2"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Four stars, take one "
                         "away. Count what is left — three. Four minus one "
                         "equals three.",
-                        '[[objects emoji="⭐" groups="4" caption="start with four — take one away"]]'
+                        '[[objects emoji="⭐" groups="4" take="1" caption="start with four — take one away"]]'
                         '[[step eq="4 − 1 = 3"]]'),
              "ask": {"a": 5, "b": 2, "op": "-"}},
             {"worked": ("One more together. Seven stars, take three away. Count "
                         "what is left — four. Seven minus three equals four.",
-                        '[[objects emoji="⭐" groups="7" caption="start with seven — take three away"]]'
+                        '[[objects emoji="⭐" groups="7" take="3" caption="start with seven — take three away"]]'
                         '[[step eq="7 − 3 = 4"]]'),
              "ask": {"a": 6, "b": 1, "op": "-"}},
         ],
@@ -1618,7 +1618,7 @@ LESSONS = [
             ("Watch me. Thirteen stars, take five away. I count back from "
              "thirteen: twelve, eleven, ten, nine, eight. Thirteen minus five "
              "equals eight.",
-             '[[objects emoji="⭐" groups="13" caption="start with thirteen — take five away"]]'
+             '[[objects emoji="⭐" groups="13" take="5" caption="start with thirteen — take five away"]]'
              '[[step eq="13 − 5 = 8"]]'),
             ("Here is a helpful trick. Counting back works for any take away. "
              "Eleven minus three: eleven — ten, nine, eight. Eleven minus three "
@@ -1629,12 +1629,12 @@ LESSONS = [
             {"worked": ("Here is one more, done for you. Twelve stars, take four "
                         "away. Count back from twelve — eight. Twelve minus four "
                         "equals eight.",
-                        '[[objects emoji="⭐" groups="12" caption="start with twelve — take four away"]]'
+                        '[[objects emoji="⭐" groups="12" take="4" caption="start with twelve — take four away"]]'
                         '[[step eq="12 − 4 = 8"]]'),
              "ask": {"a": 12, "b": 3, "op": "-"}},
             {"worked": ("One more together. Fifteen stars, take six away. Count "
                         "back from fifteen — nine. Fifteen minus six equals nine.",
-                        '[[objects emoji="⭐" groups="15" caption="start with fifteen — take six away"]]'
+                        '[[objects emoji="⭐" groups="15" take="6" caption="start with fifteen — take six away"]]'
                         '[[step eq="15 − 6 = 9"]]'),
              "ask": {"a": 14, "b": 5, "op": "-"}},
         ],
@@ -23698,7 +23698,14 @@ def board_for(p, level):
         step = f'[[step eq="{a} − {b} = ?"]]'
         if level == "abstract":
             return step
-        stars = (f'[[objects emoji="⭐" groups="{a}" '
+        # (my) ⚠️ AND HERE IS WHERE THE ASYMMETRY LIVED. One line below, ADDING gets
+        # add="{b}" and the child watches it happen. Taking away got a caption that
+        # SAID "take 2 away" over a picture where nothing was ever taken -- so the
+        # words did the teaching and the board just sat there. take="{b}" strikes
+        # the ones being removed, which is how a teacher does it with counters.
+        # It does NOT give the answer away: the child still has to count what is
+        # left, which is the whole method this level exists to support.
+        stars = (f'[[objects emoji="⭐" groups="{a}" take="{b}" '
                  f'caption="start with {a} — take {b} away, count what is left"]]')
         return stars + step
     step = f'[[step eq="{a} + {b} = ?"]]'

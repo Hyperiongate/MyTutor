@@ -289,6 +289,17 @@
   // touches the TTS cache at all, so a transform here could only introduce a
   // difference between what is shown and what is said.
   function forSpeech(t) { return String(t == null ? "" : t); }
+  // (mx) ⚠️ HIS OWN NAME, SAID PROPERLY. Jim heard the browser voice read
+  // "Abrabot" as "ah-brab-oh" -- wrong stress, and it swallows the final t
+  // entirely. Splitting the word forces the engine to say both halves:
+  // "Abra" + "bot". The SCREEN still reads Abrabot; only the speech changes.
+  // ⚠️ THIS IS APPLIED TO ABRABOT'S OWN LINES ONLY, never Mr. Cadabra's. His
+  // audio is pre-rendered and the cache is keyed on the VERBATIM text, so
+  // respelling anything he says would miss the cache and bill a live render
+  // for every line -- which is the exact rule forSpeech above exists to keep.
+  function sayableForRobot(t) {
+    return String(t == null ? "" : t).replace(/Abrabot/g, "Abra-bot");
+  }
   var __voiceSpoke = false;
   var __mood = "idle";                 // (mi) what his face is doing right now
   function setState(s) {
@@ -530,7 +541,9 @@
     var opts = (who === "cadabra")
       ? { eleven: !!(step && step.natural), profile: null }   // profile null = HIS voice
       : { eleven: false };                                    // Abrabot: browser, always
-    try { p = window.speak ? window.speak(text, opts) : null; } catch (e) { p = null; }
+    // (mx) the respelling rides ONLY on the browser-voiced robot -- see above.
+    var sayText = (who === "cadabra") ? text : sayableForRobot(text);
+    try { p = window.speak ? window.speak(sayText, opts) : null; } catch (e) { p = null; }
     if (!p || !p.then) return finish(false);
     p.then(function () {
       devline("clip done in " + Math.round(performance.now() - t0)
@@ -583,21 +596,34 @@
     }
 
     if (step.kind === "say") {
+      // (mx) ⚠️ THE BUTTON IS HIDDEN UNTIL IT IS NEEDED. Jim, 2026-08-24: "it has a
+      // button underneath each one that says next. You never need to push the
+      // button. So why is the button even there?" He was right: when the words
+      // actually play, the page advances itself and the button is furniture a
+      // child is invited to press for nothing. It still EXISTS, because when the
+      // speech is silent -- no engine, blocked autoplay, a muted tab -- a reader
+      // is pacing themselves and the button is the only way on. So it appears
+      // exactly then: when speaking finished without a sound, or when it is
+      // taking too long.
       var b = document.createElement("button");
       b.className = "next"; b.textContent = "Next ▶"; b.disabled = true;
+      b.style.display = "none";
       var advanced = false;
       var go = function () { if (!advanced) { advanced = true; playNext(); } };
       b.onclick = go;
+      var reveal = function () { b.style.display = ""; b.disabled = false; };
       ctl.appendChild(b);
       // Auto-advance only when the words GENUINELY played. Silent (no speech engine,
       // blocked autoplay) means a reader is pacing themselves, and racing them is
       // worse than the stall it fixes -- the same rule pilot.html settled on.
       speak(words, function (played) {
-        b.disabled = false; b.focus();
         // (mj) only Abrabot smiles at a right answer -- Mr. Cadabra is mid-lesson
         if (_justRight && step.who !== "cadabra") { _justRight = false; faceHappy(); }
-        if (played) setTimeout(go, 650);
-      }, function () { b.disabled = false; }, step);
+        // (mx) it PLAYED, so the page moves on by itself and the button never
+        // appears. It did NOT play, so a reader needs a way forward.
+        if (played) { setTimeout(go, 650); }
+        else { reveal(); b.focus(); }
+      }, reveal, step);
       $("status").textContent = "";
       return;
     }

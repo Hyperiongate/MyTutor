@@ -829,7 +829,17 @@
     // build gz (2026-08-17): "prose-unresolved" = a reply that SHIPPED to a student
     // carrying a known, unresolved referee finding. store.py used to fold it into
     // verify_none, so the most important number on this card silently read as zero.
-    var shipped7 = (u7["verify_prose-unresolved"] || 0);
+    // (mw) BOTH KINDS OF SHIPPED FINDING. This counted only the deterministic prose
+    // referees. The LIVE CRITIC -- the one whose first question is "does this draft
+    // grade the answer the student just gave?" -- had no counter at all, so its
+    // objections that shipped read as "no check ran". Jim met one of those: he
+    // answered 13 and was never told whether he was right.
+    var shippedProse7 = (u7["verify_prose-unresolved"] || 0);
+    var shippedCritic7 = (u7["verify_critic-unresolved"] || 0);
+    var shipped7 = shippedProse7 + shippedCritic7;
+    var unknown7 = (u7.verify_unknown || 0);
+    // (mw) shipped7 now carries the critic's unresolved rows too, so they finally
+    // count as turns that WERE checked instead of vanishing from the denominator.
     var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + (u7.verify_unverifiable || 0) + shipped7;
     var caught7 = (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + shipped7;
     var ttsTotal7 = (u7.tts_chars_generated || 0) + (u7.tts_chars_cached || 0);
@@ -913,7 +923,17 @@
       { l: "Errors caught & fixed", v: num(caught7), cls: caught7 ? "warn" : "good",
         s: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "% verified right first try" : "no checked turns yet" },
       { l: "Shipped unresolved", v: num(shipped7), cls: shipped7 ? "bad" : "good",
-        s: shipped7 ? "replies sent WITH a known referee finding (7d) — read the [prosecheck] log lines" : "no reply shipped with a known finding (7d)" }
+        s: shipped7 ? ("replies sent WITH a known referee finding (7d) — "
+                       + num(shippedProse7) + " prose, " + num(shippedCritic7)
+                       + " live critic — read the [prosecheck] and [livecritic] log lines")
+                    : "no reply shipped with a known finding (7d)" },
+      // (mw) A STATUS WITH NO COUNTER IS A MEASUREMENT GAP. It used to be added to
+      // verify_none and read as "unchecked", which is the opposite of the truth.
+      { l: "Uncounted verdicts", v: num(unknown7), cls: unknown7 ? "bad" : "good",
+        s: unknown7 ? ("a check ran and nothing counted it: "
+                       + (u7.verify_unknown_kinds || []).join(", ")
+                       + " — store.usage_stats needs a key for it")
+                    : "every referee verdict has a counter" }
     ]));
 
     // ---- (mq) THE MEASUREMENT ERA ----

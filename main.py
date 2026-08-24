@@ -2,6 +2,49 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mx-abrabot-has-a-voice". BUILDS mw-my, from
+#               ONE live session of Jim's. Six separate defects, and the two that
+#               matter most were invisible until he hit them.
+#               ⭐ mw -- A REFEREE VERDICT THAT NOBODY COUNTED. tutor.py has set
+#               status="critic-unresolved" since build iv with the note "visible in
+#               the usage log". It never was: store.py had no key for it, so every
+#               reply that SHIPPED carrying an unresolved LIVE-CRITIC objection was
+#               filed as verify_none -- "no check ran". The live critic is the one
+#               whose first question is "does this draft grade the answer the student
+#               just gave?", and Jim answered 13 and was never told. Identical to the
+#               gz bug, one referee later. /admin now counts prose AND critic
+#               findings, an unknown verdict is LOUD instead of silently "unchecked",
+#               and PART 3dn reads tutor.py's statuses and fails if store.py has
+#               nowhere to put one.
+#               ⭐ my -- THE BOARD COULD SHOW ADDING AND NOT TAKING. [[objects]] has
+#               had add="1" (drawing "⭐⭐⭐⭐⭐ + ⭐") since the elementary courses
+#               shipped, and NOTHING for subtraction -- so 7 authored boards and every
+#               generated one said "take two away" over a picture where nothing was
+#               ever taken. Jim: "it could have shown four stars and crossed out one
+#               of the stars, but instead he just laid out a problem and solved it
+#               and did no teaching." New take="2" strikes the ones removed.
+#               mx -- ABRABOT. His whole personality was eight clipped lines
+#               ("Correct!" / "Not quite. Have one more try."); Jim: "no personality
+#               to it... a strict teacher that's gonna spank me." Rewritten, FREE,
+#               because he speaks in the browser voice and is not in the paid
+#               closure. His name is respelled "Abra-bot" FOR SPEECH ONLY (the
+#               browser read it "ah-brab-oh"), on his lines alone -- never Mr.
+#               Cadabra's, whose audio is cache-keyed on verbatim text. And the Next
+#               button now appears ONLY when the speech was silent.
+#   2026-08-24  APP_BUILD -> "2026-08-24mv-what-it-is-built-on". BUILD mv -- THE
+#               METHODOLOGY PAGE. Jim: "people want to know what we've based our
+#               pedagogical approach to. What resources did we use? What research
+#               backs up our methodology?"
+#               NEW: /methodology -> static/methodology.html.
+#               ⚠️ BOTH SOURCES WERE READ BEFORE THEY WERE NAMED, and their scope is
+#               stated rather than stretched: the MAA Instructional Practices Guide
+#               (© 2018 MAA, CC BY-NC 4.0) is about UNDERGRADUATE teaching, and
+#               A Story of Units (© 2015 Great Minds) covers PRE-K THROUGH GRADE 5.
+#               Neither organisation has endorsed anything and the page says so.
+#               ⚠️ THE THIRD SECTION SAYS WE HAVE PROVEN NOTHING. There is no efficacy
+#               study of this product. That paragraph is the reason the other two are
+#               worth believing, and it is the one to defend if anyone asks to soften
+#               it. NOT IN THE TOP NAV until Jim has read the wording.
 #   2026-08-24  APP_BUILD -> "2026-08-24mu-the-practice-button". BUILD mu -- THE TOUR
 #               TELLS THEM ABOUT IT, AND THE LESSON HAS A DOOR. Jim flagged the intro
 #               himself: "we're gonna need to change the intros... here's your
@@ -6167,6 +6210,18 @@ def mission_page():
     return FileResponse(BASE_DIR / "static" / "mission.html")
 
 
+@app.get("/methodology")
+def methodology_page():
+    """(mv) How we teach, and what it is built on. Jim, 2026-08-24: "people want to
+    know what we've based our pedagogical approach to. What resources did we use?"
+
+    ⚠️ THE THIRD SECTION OF THAT PAGE SAYS WE HAVE PROVEN NOTHING, and it stays. A
+    page that implied a proven outcome would be the first thing a careful parent
+    caught us on, and the admission is what makes the two sections above it worth
+    believing. Not in the top nav until Jim has read the wording."""
+    return FileResponse(BASE_DIR / "static" / "methodology.html")
+
+
 @app.get("/community")
 def community_page():
     """The community forum (2026-07-31): parents post, everyone reads."""
@@ -9089,20 +9144,43 @@ def _drill_warm_start() -> None:
 # obey lessonscripts.VOCABULARY exactly as an authored lesson does, because a child
 # must not hear "subtract" from the helper and "take away" from the teacher. The
 # battery pins that against the real VOCABULARY table.
-_ABRA_HELLO = ("Hi! I am Abrabot, Mr. Cadabra's practice helper. I have extra "
-               "problems for you. Here is the first one.")
-_ABRA_YES = ("Correct!", "Yes!", "That is right!", "Nice work!", "Got it!")
-_ABRA_RETRY = "Not quite. Have one more try."
-_ABRA_TELL = "The answer was {v}. Let's keep going."
-_ABRA_ROUND = "That is {right} out of {asked} right. Want another round?"
-_ABRA_EMPTY = ("You have worked every extra problem I have for this lesson. "
-               "That is all of them!")
+# ---- (mx) ABRABOT HAS A PERSONALITY NOW -------------------------------------
+# Jim, 2026-08-24, after drilling with him: "it's very strict. What is this minus
+# this? What is that minus that? And there's no personality to it. It feels like a
+# strict teacher that's gonna spank me if I do something wrong."
+#
+# He was right, and the OLD lines are worth keeping here as the evidence: "Correct!"
+# / "Yes!" / "That is right!" / "Not quite. Have one more try." / "The answer was
+# {v}. Let's keep going." Eight clipped lines, no warmth, no play. A scorekeeper.
+#
+# ⭐ AND THE REWRITE IS FREE. Abrabot speaks in the BROWSER'S voice, never the paid
+# one, so his words are not in the rendered closure and cost nothing to change. Mr.
+# Cadabra's lines are the opposite -- every one of his is a paid render.
+#
+# WHO HE IS: a machine who genuinely likes problems, is pleased when you get one,
+# and is completely unbothered when you do not. He never scolds and never says a
+# child is wrong -- a miss is just a number he has not got yet.
+_ABRA_HELLO = ("Beep! I am Abrabot, Mr. Cadabra's practice helper. Problems are my "
+               "favourite thing. Here is one now.")
+_ABRA_YES = ("Correct! My circuits are pleased.", "Yes! I knew you had that one.",
+             "That is right! Beep!", "Nice work. Filing that one under easy.",
+             "Got it! You are quick today.", "Correct! Straight into my memory banks.",
+             "Yes! That is the one.",
+             "Right again. I am impressed, and I do not say that to everyone.")
+_ABRA_RETRY = ("Hmm! My circuits say not quite. Have one more try — I have all day, "
+               "I am a robot.")
+_ABRA_TELL = "The answer was {v}. Now you know it, and so do I. Onwards!"
+_ABRA_ROUND = ("That is {right} out of {asked}. Shall we do some more? I never get "
+               "tired.")
+_ABRA_EMPTY = ("You have worked every single extra problem I have for this lesson. "
+               "Every one! My problem box is empty and I am very impressed.")
 # ---- (mj) THE HANDOFF ---------------------------------------------------------
 # Jim, 2026-08-23: "if it detects a child is struggling, it needs to call in Mr
 # Cadabra to do some more teaching." Phase 2 detected it and said nothing, on
 # purpose: Abrabot must not promise help he cannot send. He can now, so he says so.
-_ABRA_FETCH = "This one is tricky. Let me get Mr. Cadabra."
-_ABRA_BACK = "Thanks, Mr. Cadabra! Let's try another one."
+_ABRA_FETCH = ("Ooh, this one is tricky. That is a job for a human — let me go "
+               "and get Mr. Cadabra.")
+_ABRA_BACK = "Thank you, Mr. Cadabra! Right — let us try another one."
 # (mn) Mr. Cadabra's two lines around the re-teach ARE closure text now. mj declared
 # them "not authored closure text" and Jim heard the result on 2026-08-24: the first
 # words of the fly-in arrived in the browser voice, then his real voice "came back"
@@ -11355,7 +11433,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mu-the-practice-button"
+APP_BUILD = "2026-08-24mx-abrabot-has-a-voice"
 
 
 @app.get("/health")

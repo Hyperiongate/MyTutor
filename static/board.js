@@ -217,12 +217,30 @@ function showChoices(a) {
 // [[objects emoji="⭐" groups="5"]] draws five big stars on the board; groups="5 | 3" draws two
 // rows so the child can COMPARE. The tutor uses it so young children SEE the things they're
 // counting instead of imagining them. The count is never printed -- counting is the child's job.
+//
+// add="1"  draws "⭐⭐⭐⭐⭐ + ⭐"  -- the child SEES the addition happen.
+// take="2" draws the LAST TWO struck through and greyed -- the child SEES the taking away.
+//
+// ⚠️ (my) take= EXISTS BECAUSE ADDITION HAD A VERB AND SUBTRACTION DID NOT. Jim drilled a
+// take-away lesson on 2026-08-24 and said of the re-teach: "it could have shown four stars
+// and crossed out one of the stars or something, but instead he just kind of laid out a
+// problem about stars and solved it and did no teaching." He was exactly right, and the
+// cause was here: for two years this tag could show things being ADDED and had no way at
+// all to show things being TAKEN. 63 boards said "take two away" over a picture in which
+// nothing was ever taken. The caption did the work the picture was supposed to do.
 function ensureObjectsCSS() {
   if (document.getElementById("mtObjectsCSS")) return;
   const st = document.createElement("style"); st.id = "mtObjectsCSS";
   st.textContent =
     ".objwrap{padding:10px 6px;text-align:center}" +
     ".objline{font-size:36px;letter-spacing:9px;line-height:1.5}" +
+    // (my) the taken ones: struck through AND faded, so it reads as "gone" at a
+    // glance and still reads as "gone" to a child who cannot tell the colours apart.
+    ".objgone{position:relative;display:inline-block}" +
+    ".objgoneimg{opacity:.30;filter:grayscale(1)}" +
+    ".objgone::after{content:'';position:absolute;left:-3px;width:40px;top:46%;" +
+    "height:5px;border-radius:3px;background:#c0392b;" +
+    "transform:rotate(-20deg);transform-origin:center;pointer-events:none}" +
     ".objcap{font-size:13px;color:#5b6079;margin-top:4px;font-weight:600}";
   document.head.appendChild(st);
 }
@@ -234,13 +252,43 @@ function showObjects(a) {
   ensureObjectsCSS();
   const emoji = (a.emoji || "⭐").trim() || "⭐";
   const addN = Math.min(Math.max(parseInt(a.add, 10) || 0, 0), 10);
+  // (my) take="2" -- how many of the FIRST row are being taken away. Clamped to the
+  // row itself: you cannot take four stars from three, and a board that tried would
+  // be teaching a child something false.
+  const takeN = Math.min(Math.max(parseInt(a.take, 10) || 0, 0), groups[0] || 0);
   const stage = feedBlock();
   const box = document.createElement("div"); box.className = "objwrap pop";
   groups.forEach((g, gi) => {
     const row = document.createElement("div"); row.className = "objline";
-    row.textContent = emoji.repeat(Math.min(g, 20))
-      // add="1" on the FIRST row draws "⭐⭐⭐⭐⭐ + ⭐" so the child SEES the addition happen.
-      + (gi === 0 && addN ? "  +  " + emoji.repeat(addN) : "");
+    if (gi === 0 && takeN) {
+      // THE ONES THAT STAY, then THE ONES BEING TAKEN, struck through. Two spans
+      // rather than one string, because the strike has to land on some of the
+      // stars and not the others -- which is the entire point of the picture.
+      const keep = document.createElement("span");
+      keep.textContent = emoji.repeat(Math.min(g - takeN, 20));
+      row.appendChild(keep);
+      // ⚠️ ONE STRIKE PER STAR, not one line across the group. The first draft wrapped
+      // all the taken ones in a single span and drew one long diagonal, which reads as
+      // a slash through a picture rather than "each of these is gone" -- checked on a
+      // render before it shipped.
+      for (let k = 0; k < Math.min(takeN, 20); k++) {
+        // ⚠️ TWO NESTED SPANS, and the nesting is the point: the FADE belongs to the
+        // star and the STRIKE must not fade with it. One span carrying both put
+        // opacity on the pseudo-element too, and the cross came out as a ghost --
+        // caught on a render, not in review.
+        const gone = document.createElement("span");
+        gone.className = "objgone";
+        const img = document.createElement("span");
+        img.className = "objgoneimg";
+        img.textContent = emoji;
+        gone.appendChild(img);
+        row.appendChild(gone);
+      }
+    } else {
+      row.textContent = emoji.repeat(Math.min(g, 20))
+        // add="1" on the FIRST row draws "⭐⭐⭐⭐⭐ + ⭐" so the child SEES the addition happen.
+        + (gi === 0 && addN ? "  +  " + emoji.repeat(addN) : "");
+    }
     box.appendChild(row);
   });
   if (a.caption) { const c = document.createElement("div"); c.className = "objcap"; c.textContent = a.caption; box.appendChild(c); }

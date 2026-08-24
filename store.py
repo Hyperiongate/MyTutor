@@ -2,6 +2,13 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mw -- THE VERDICT NOBODY COUNTED. usage_stats had keys for
+#               every referee verdict except "critic-unresolved", which tutor.py has
+#               emitted since build iv. Unknown statuses were added to verify_none,
+#               so a reply that a referee OBJECTED to and that shipped anyway was
+#               reported as a reply nobody had checked -- the opposite fact. Adds the
+#               key, and unknown verdicts now land in a LOUD verify_unknown bucket
+#               (with the offending names) instead of quietly reading as "unchecked".
 #   2026-08-24  BUILD mt -- PRACTICE IS COUNTED, AND STILL IS NOT MASTERY. Jim:
 #               "is there a way they can track how much practice problems they've
 #               done, how they've done on their practice problems AS APART FROM the
@@ -4049,6 +4056,20 @@ def usage_stats(days: int = 7, since=None) -> dict:
            # -- tutor.py sets it when a contradiction survives all three attempts) and
            # the turns where the model returned nothing twice ("empty").
            "verify_prose-unresolved": 0, "verify_empty": 0,
+           # ⚠️ (mw) AND THE CRITIC'S OWN. tutor.py has set status="critic-unresolved"
+           # since build iv, with the comment "visible in the usage log" -- but no key
+           # was ever added here, so every reply that SHIPPED carrying an unresolved
+           # LIVE-CRITIC objection fell through to verify_none and read as "no check
+           # ran". Identical to the gz bug directly above, one referee later. The
+           # live critic is the check that asks "does this draft actually grade the
+           # answer the student just gave", so the replies it objects to and cannot
+           # fix are exactly the ones Jim met: he answered 13 and was never told.
+           "verify_critic-unresolved": 0,
+           # (mw) anything tutor.py starts emitting that nothing here counts. It is
+           # NOT merged into verify_none any more -- a status with no home is a
+           # measurement gap, and silently calling it "unchecked" is how this bug
+           # survived two builds. PART 3dn fails the build if this is ever non-zero.
+           "verify_unknown": 0, "verify_unknown_kinds": [],
            "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0,
            # build jm -- the turn clock. timed_turns counts EVERY timed row in the
            # window; ms_sampled is how many of them the percentiles actually read.
@@ -4104,7 +4125,12 @@ def usage_stats(days: int = 7, since=None) -> dict:
                 if key in out:
                     out[key] += int(n or 0)
                 else:
-                    out["verify_none"] += int(n or 0)
+                    # ⚠️ (mw) LOUD, NOT SILENT. This used to add unknown statuses to
+                    # verify_none, which is a lie: "no check ran" and "a check ran,
+                    # objected, and nobody counted it" are opposite facts.
+                    out["verify_unknown"] += int(n or 0)
+                    if vs and vs not in out["verify_unknown_kinds"]:
+                        out["verify_unknown_kinds"].append(str(vs)[:24])
             out["tts_requests"] = int(conn.execute(
                 select(func.count()).where(tts)).scalar() or 0)
             out["tts_chars_generated"] = int(conn.execute(

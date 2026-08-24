@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mw/mx -- PART 3dn: EVERY REFEREE VERDICT IS COUNTED. It reads
+#               the statuses out of tutor.py and fails if store.py has nowhere to put
+#               one, because this bug has now happened TWICE in the same shape (gz
+#               for prose, iv for the critic) and both times the fix was "add the key
+#               we forgot" rather than "stop relying on remembering".
+#               ALSO: PART 3df's silent-play pin matched the exact characters
+#               "if (played) setTimeout(go" and failed when mx added braces -- while
+#               the guarantee got stronger. It matches behaviour now. A pin that
+#               fires on formatting teaches people to stop reading pins.
 #   2026-08-24  BUILD mu -- THE TOUR PIN NOW SCANS THE LINES, NOT THE PROSE ABOUT
 #               THEM. PART 3cb's layout-geometry check read the raw TOUR_STEPS block,
 #               so the moment a comment EXPLAINED which phrases are banned -- which
@@ -9174,9 +9183,20 @@ def part3df_drill_lane():
               "different character")
         check("drill page: TAP-FIRST -- no microphone is ever loaded",
               "mic.js" not in dcode and "getUserMedia" not in dcode, "")
+        # (mx) MATCHED ON BEHAVIOUR, NOT PUNCTUATION. This wanted the exact characters
+        # "if (played) setTimeout(go" and duly failed when build mx added braces --
+        # while the guarantee it protects got STRONGER, because the silent path now
+        # also reveals the Next button instead of merely enabling an invisible one.
+        # A pin that fires on formatting teaches people to stop reading pins.
         check("drill page: it can be played SILENT (auto-advance only when AUDIBLE)",
-              "if (played) setTimeout(go" in dcode and "finish(__voiceSpoke)" in dcode,
+              re.search(r"if \(played\)\s*\{?\s*setTimeout\(go", dcode)
+              and "finish(__voiceSpoke)" in dcode,
               "racing a reader who hears nothing is worse than the stall it fixes")
+        check("(mx) ...and the SILENT path is the only thing that shows the button",
+              'b.style.display = "none"' in dcode and "else { reveal();" in dcode,
+              "Jim, 2026-08-24: 'it has a button that says next. You never need to "
+              "push the button. So why is the button even there?' -- it is there "
+              "for the child whose speech engine is silent, and for nobody else")
         check("drill page: it never claims Abrabot changes progress",
               "never changes your progress" in dfull,
               "Jim's ruling has to be visible to the child, not only to the battery")
@@ -9840,6 +9860,68 @@ chk("accuracy is a percentage, not a fraction",
 print("ALL OK" if ok else "DONE")
 sys.exit(0 if ok else 1)
 """
+
+
+def part3dn_every_verdict_is_counted():
+    """PART 3dn (build mw) -- A REFEREE VERDICT WITH NO COUNTER IS A LIE.
+
+    ⚠️ THIS BUG HAS NOW HAPPENED TWICE, in the same shape, one referee apart.
+    Build gz found that "prose-unresolved" and "empty" were falling through into
+    verify_none -- so replies that SHIPPED carrying a known finding were being
+    reported as replies nobody had checked. It added the two keys and moved on.
+
+    Build iv then added the LIVE CRITIC and set status="critic-unresolved" with the
+    comment "visible in the usage log". It never became visible: store.py was never
+    given the key, so every reply that shipped with an unresolved critic objection
+    went straight back into verify_none. That is the check whose FIRST question is
+    "does this draft grade the answer the student just gave?" -- and Jim met exactly
+    that failure on 2026-08-24, answering 13 and never being told if he was right.
+
+    So this part stops trusting anyone to remember. It reads the statuses tutor.py
+    can actually emit out of tutor.py, and fails if store.py has nowhere to put one.
+    The unknown bucket is loud now instead of silent, because "no check ran" and "a
+    check ran, objected, and nobody counted it" are opposite facts about a child."""
+    print("\nPART 3dn — every referee verdict is counted (build mw)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    import store as _store
+
+    # every status literal tutor.py hands to _log_brain_usage / verify_status=
+    emitted = set(re.findall(r'_log_brain_usage\([^)]*?,\s*"([a-z-]+)"\s*\)', tsrc))
+    emitted |= set(re.findall(r'status\s*=\s*"([a-z-]+)"', tsrc))
+    emitted |= {"ok", "fixed"}          # the verdict branch
+    emitted |= set(re.findall(r'return\s+"(ok|wrong|unverifiable)"',
+                              open(os.path.join(here, "mathcheck.py"),
+                                   encoding="utf-8").read()))
+    emitted.discard("wrong")            # a wrong draft is retried, never logged as-is
+    emitted.discard("critic")           # the critic's OWN call rides kind="critic"
+    check(f"tutor.py's verdicts are discoverable ({len(emitted)} found)",
+          len(emitted) >= 6, str(sorted(emitted)))
+
+    blank = _store.usage_stats.__doc__ is not None
+    keys = set(re.findall(r'"(verify_[a-z-]+)"', ssrc))
+    missing = sorted(v for v in emitted if f"verify_{v}" not in keys)
+    check("⭐ every verdict tutor.py can emit has a counter in store.py",
+          not missing and blank,
+          f"no home for {missing} -- they land in the unknown bucket and the "
+          f"dashboard cannot tell 'unchecked' from 'checked, objected, uncounted'")
+    check("  ...including the live critic's, which had none for two builds",
+          '"verify_critic-unresolved"' in ssrc,
+          "build iv said 'visible in the usage log' and it was not")
+    check("⚠️ an unknown verdict is LOUD, not filed as 'no check ran'",
+          'out["verify_unknown"] += int(n or 0)' in ssrc
+          and 'out["verify_none"] += int(n or 0)' not in ssrc,
+          "silently calling an uncounted verdict 'unchecked' is how this survived "
+          "two builds")
+
+    dh = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("the panel counts BOTH kinds of shipped finding",
+          'u7["verify_critic-unresolved"]' in dh and "shippedProse7" in dh,
+          "'Shipped unresolved' counted only the prose referees")
+    check("  ...and shows a tile when a verdict has no counter",
+          "Uncounted verdicts" in dh,
+          "the next referee somebody adds should announce itself, not vanish")
 
 
 def part3dm_practice_is_tracked():
@@ -17942,6 +18024,7 @@ def main():
     part3dk_cost_epoch()
     part3dl_it_reads_aloud()
     part3dm_practice_is_tracked()
+    part3dn_every_verdict_is_counted()
     part3ai_deploy_stamp()
     if live:
         part4_live()
