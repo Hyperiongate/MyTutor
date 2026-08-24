@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mt-practice-counts". BUILD mt -- PRACTICE GETS
+#               A DOOR AND A COUNTER.
+#               ⚠️ THE BUG UNDERNEATH THE FEATURE: nothing in the app linked to
+#               /drill. Not the nav, not the lesson, not the dashboard. 25,376
+#               practice problems reachable only by typing the URL -- which is how
+#               Jim found it on 2026-08-24 ("I can't see how to get to the practice
+#               problems"). app-nav.js now carries a ✏️ Practice pill on every
+#               student page, and drill.html finally loads the nav so a child can
+#               get back out.
+#               NEW: /api/drill/stats/{code}; every retired practice problem is
+#               recorded via store.record_drill.
+#               ⚠️ RECORDED WHERE THE PROBLEM RETIRES, not on every tap -- a second
+#               chance is the same problem, and counting the re-ask would make a
+#               child who eventually got it look like they got it wrong.
+#               ⚠️ AND PRACTICE STILL SPENDS NOTHING. Jim, same day: "I don't want
+#               practice to cost money." PART 3dm drives the lane with httpx.stream
+#               replaced by a function that raises.
 #   2026-08-24  APP_BUILD -> "2026-08-24ms-nothing-given-away". BUILD ms -- 71 of the
 #               113 giveaways teachaudit found are closed. Nothing in this file
 #               changed but the stamp; the fix is lessonscripts', and it swapped
@@ -9169,6 +9186,24 @@ def _drill_praise(p, index: int) -> str:
     return (opener + " " + line).strip() if line else opener
 
 
+def _drill_record(code: str, sess, right: int, day: str = "") -> None:
+    """(mt) Count ONE retired practice problem. Jim, 2026-08-24: a child should be
+    able to show a parent that they practised.
+
+    ⚠️ CALLED ONLY WHERE A PROBLEM IS RETIRED -- the right answer, or the second
+    miss. NOT on the second-chance re-ask, or one problem a child eventually got
+    would count as two and their practice accuracy would be quietly wrong.
+
+    ⚠️ AND IT CANNOT MARK MASTERY. store.record_drill writes the practice ledger and
+    the day streak; it does not touch unit_checks or topic_progress. Jim's ruling of
+    2026-08-23 stands and PART 3df pins it."""
+    try:
+        store.record_drill(code, sess["lesson"]["id"], right=int(right), asked=1,
+                           course=sess["lesson"]["course"], day=day)
+    except Exception as exc:  # noqa: BLE001 -- a counter must never fail a problem
+        print(f"[drill] could not count a problem: {exc}")
+
+
 def _drill_session(code: str):
     now = _time.monotonic()
     for k in [k for k, v in _DRILL_SESSIONS.items()
@@ -9280,6 +9315,9 @@ class DrillStartIn(BaseModel):
 class DrillAnswerIn(BaseModel):
     code: str
     value: int | None = None
+    # (mt) the CHILD'S local day, same as the hours tiles send. A kid practising at
+    # 8pm is practising today; the server's date is the fallback, not the truth.
+    day: str = ""
 
 
 class DrillNextIn(BaseModel):
@@ -9373,6 +9411,7 @@ def drill_answer(body: DrillAnswerIn):
         sess["round_right"] += 1
         sess["wrong_streak"] = 0
         sess["second_chance"] = False
+        _drill_record(code, sess, right=1, day=body.day)
         steps = ([{"kind": "say",
                    "spoken": _drill_praise(pending["problem"], sess["asked"]),
                    "board": ""}]
@@ -9391,6 +9430,7 @@ def drill_answer(body: DrillAnswerIn):
         sess["wrong_streak"] += 1
         sess["misses"] += 1
         sess["second_chance"] = False
+        _drill_record(code, sess, right=0, day=body.day)
         steps = [{"kind": "say",
                   "spoken": _ABRA_TELL.format(v=pending["expected"]), "board": ""}]
         if _drill_struggling(sess):
@@ -9402,6 +9442,25 @@ def drill_answer(body: DrillAnswerIn):
     return {"ok": True, "struggling": _drill_struggling(sess),
             "score": {"right": sess["right"], "asked": sess["asked"]},
             "steps": _drill_clean(steps)}
+
+
+@app.get("/api/drill/stats/{code}")
+def drill_stats_api(request: Request, code: str = Depends(_code_dep), days: int = 7):
+    """(mt) What a child can SHOW a parent: problems practised today, this week, and
+    all time, plus which lessons they have been grinding.
+
+    Honest {tracking: false} when the database is off, exactly like /api/awards."""
+    _read_guard(request, code)
+    _student_or_404(code)
+    code = code.strip()
+    if not store.enabled():
+        return {"ok": True, "tracking": False}
+    st = store.drill_stats(code, days=max(1, min(int(days or 7), 60)))
+    st["ok"] = True
+    st["tracking"] = True
+    st["accuracy_pct"] = (round(100.0 * st["total_right"] / st["total_asked"])
+                          if st["total_asked"] else None)
+    return st
 
 
 @app.post("/api/drill/next")
@@ -11284,7 +11343,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24ms-nothing-given-away"
+APP_BUILD = "2026-08-24mt-practice-counts"
 
 
 @app.get("/health")

@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mt -- PART 3dm, PRACTICE IS COUNTED AND STILL IS NOT MASTERY.
+#               The feature pulls against Jim's own ruling, so both halves are pinned
+#               on a real database: the ledger fills AND unit_checks, topic_progress
+#               and problems_practiced all stay untouched. Money tripwire included.
+#               ALSO FIXED A BRITTLE PIN: PART 3bj asserted exactly 17 uses of
+#               Depends(_code_dep), so adding any {code} route failed it -- and the
+#               only way past a hardcoded count is to edit the number, which is the
+#               very reflex that would let a route slip through WITHOUT the
+#               dependency. It counts the {code} routes and compares now.
 #   2026-08-24  BUILD mr -- PART 3dl, THE COURSE AGREES WITH ITSELF OUT LOUD. A pin
 #               that no spoken line says "1 <plural>", swept over all 336 lessons.
 #               It exists because 224 lines DID -- "1 pennies", "1 sixths", "1
@@ -9756,6 +9765,139 @@ sys.exit(0 if ok else 1)
 """
 
 
+_MT_PRACTICE = r"""import os, sys
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/mt.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "pretend-there-is-a-key"
+sys.path.insert(0, sys.argv[2])
+import main, store
+from fastapi.testclient import TestClient
+
+# ⭐ THE MONEY TRIPWIRE, again. Practice must stay free even now that it writes.
+class Spent(Exception):
+    pass
+import httpx as _httpx
+def _boom(*a, **k):
+    raise Spent("the practice lane tried to render audio")
+_httpx.stream = _boom
+
+c = TestClient(main.app)
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+LID = "entry-u2-add-single-digit"
+c.post("/api/drill/start", json={"code": "1234", "lesson": LID})
+try:
+    for i in range(9):
+        s = main._DRILL_SESSIONS.get("1234")
+        if not s or not s.get("pending"): break
+        exp = s["pending"]["expected"]
+        c.post("/api/drill/answer",
+               json={"code": "1234", "value": exp, "day": "2026-08-24"})
+except Spent as e:
+    chk("practice never reaches the renderer", False, str(e))
+
+st = store.drill_stats("1234")
+chk("practice is COUNTED and it persists", st["total_asked"] >= 5, str(st["total_asked"]))
+chk("and it is counted per DAY, so a week can be shown",
+    st["by_day"] and st["by_day"][0]["day"] == "2026-08-24", str(st["by_day"]))
+chk("and per LESSON, so 'the multiplication tables' can be shown",
+    any(r["lesson"] == LID for r in st["by_lesson"]), str(st["by_lesson"])[:120])
+
+# ⭐⭐ JIM'S RULING, 2026-08-23: drill is practice, quizzes are mastery.
+chk("\u2b50 practice wrote NO mastery row", not (store.get_topics("1234", "entry") or []))
+m = store.get_mastery("1234", "entry")
+chk("\u2b50 practice took NO unit check", not (m.get("checks") or {}))
+chk("\u2b50 and it is tracked APART from course work "
+    "(problems_practiced untouched)",
+    int(m["stats"].get("problems_practiced") or 0) == 0,
+    "Jim asked for practice counted apart; a blended number cannot be un-blended")
+chk("but the day STREAK is kept alive by practising",
+    int(m["stats"].get("streak_days") or 0) >= 1,
+    "a child who practised every day this week HAS worked every day this week")
+
+r = c.get("/api/drill/stats/1234").json()
+chk("the page can read it back", r.get("tracking") and r["total_asked"] >= 5, str(r)[:120])
+chk("accuracy is a percentage, not a fraction",
+    r["accuracy_pct"] is None or 0 <= r["accuracy_pct"] <= 100, str(r.get("accuracy_pct")))
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3dm_practice_is_tracked():
+    """PART 3dm (build mt) -- PRACTICE IS COUNTED, AND IT IS STILL NOT MASTERY.
+
+    Jim, 2026-08-24: "is there a way they can track how much practice problems
+    they've done, how they've done on their practice problems AS APART FROM the
+    regular course so we can encourage them to practice." The parent scenario he
+    described is the design brief: "go practice your multiplication tables for
+    twenty minutes a day all week long" -- so the grain is (student, lesson, DAY),
+    and the child can SHOW the week.
+
+    ⚠️ THIS PART EXISTS BECAUSE THE FEATURE PULLS AGAINST A RULE. Jim also ruled, on
+    2026-08-23, that drill is practice and quizzes are mastery. Counting practice is
+    exactly the change that could quietly start marking mastery, so both halves are
+    pinned on a real database: the ledger fills AND unit_checks, topic_progress and
+    student_stats.problems_practiced all stay untouched.
+
+    ⭐ AND IT MUST STAY FREE. Jim, same day: "I don't want practice to cost money."
+    The live drive replaces httpx.stream with a function that raises, so if the lane
+    ever reaches ElevenLabs the battery fails instead of his card."""
+    print("\nPART 3dm — practice is counted, and still is not mastery (build mt)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    with open(os.path.join(here, "static", "app-nav.js"), encoding="utf-8") as fh:
+        nav = fh.read()
+
+    check("\u2b50 THE PRACTICE PAGE HAS A DOOR",
+          '"/drill" + q, "\u270f\ufe0f", "Practice"' in nav,
+          "until build mt NOTHING linked to /drill -- 25,000 practice problems "
+          "reachable only by typing the URL, which is how Jim found it missing")
+    dh = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    check("  ...and the practice page has a way back out",
+          "app-nav.js" in dh,
+          "a child who got there could only use the browser's back button")
+    check("the ledger is its own table, not a column on student_stats",
+          '_tables["drill_daily"]' in ssrc and 'Column("day"' in ssrc,
+          "Jim asked for practice tracked APART from the regular course")
+    check("the writer keeps the streak but not the practice counter",
+          "def record_drill(" in ssrc
+          and "_bump_stats(code)          # streak + last_active ONLY" in ssrc,
+          "practising every day IS working every day")
+
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+        import httpx  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("practice live drive", "sqlalchemy/fastapi/httpx not installed here")
+        return
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "prac.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_MT_PRACTICE)
+        res = subprocess.run([sys.executable, script, d, here],
+                             capture_output=True, text=True, timeout=600)
+        out = res.stdout or ""
+        for line in out.splitlines():
+            if line.startswith("FAIL"):
+                bad("practice: " + line[5:130], "")
+        check("practice: the live drive ends ALL OK "
+              f"({out.count('PASS ')} client-level checks)",
+              res.returncode == 0 and "ALL OK" in out,
+              (res.stderr or out)[-500:])
+
+
 def part3dl_it_reads_aloud():
     """PART 3dl (build mr) -- THE COURSE AGREES WITH ITSELF OUT LOUD.
 
@@ -12877,10 +13019,20 @@ def part3bj_credential_leaves_url():
         msrc = fh.read()
 
     # THE SERVER SIDE, wired.
+    # (mt) COUNT THE ROUTES, DON'T HARDCODE THE NUMBER. This asserted "== 17", so
+    # adding ANY new {code} route failed it -- as /api/drill/stats/{code} duly did --
+    # and the only way past a hardcoded count is to edit the number, which is exactly
+    # the reflex that lets a route slip through WITHOUT the dependency. The rule it
+    # means is "every {code} route resolves its code the one way", so it now counts
+    # the routes and compares.
+    _code_routes = re.findall(r'@app\.(?:get|post|put|delete)\("([^"]*\{code\}[^"]*)"',
+                              msrc)
     check("one code dependency exists and every {code} route uses it",
-          "def _code_dep(" in msrc and msrc.count("Depends(_code_dep)") == 17,
-          f"found {msrc.count('Depends(_code_dep)')} of 17 -- a route resolves its "
-          "own code again and the header form silently dies there")
+          "def _code_dep(" in msrc
+          and msrc.count("Depends(_code_dep)") == len(_code_routes),
+          f"{len(_code_routes)} routes take {{code}} but "
+          f"{msrc.count('Depends(_code_dep)')} use the dependency -- a route "
+          "resolves its own code again and the header form silently dies there")
     check("the voice path has its ticket mint",
           '@app.post("/api/speak-prep")' in msrc and "_SPEAK_TICKETS" in msrc,
           "an <audio src> cannot send headers -- without the ticket, the code and "
@@ -17755,6 +17907,7 @@ def main():
     part3dj_deploy_safe()
     part3dk_cost_epoch()
     part3dl_it_reads_aloud()
+    part3dm_practice_is_tracked()
     part3ai_deploy_stamp()
     if live:
         part4_live()

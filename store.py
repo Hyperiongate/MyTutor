@@ -2,6 +2,24 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mt -- PRACTICE IS COUNTED, AND STILL IS NOT MASTERY. Jim:
+#               "is there a way they can track how much practice problems they've
+#               done, how they've done on their practice problems AS APART FROM the
+#               regular course so we can encourage them to practice."
+#               His parent scenario IS the design brief -- "go practice your
+#               multiplication tables for twenty minutes a day all week long" -- so
+#               the grain is (student, lesson, DAY) and the child can SHOW the week.
+#               NEW: table drill_daily, record_drill(), drill_stats().
+#               ⚠️ ITS OWN TABLE, NOT A COLUMN ON student_stats. "Apart from the
+#               regular course" was the request, and a blended number can never be
+#               un-blended later.
+#               ⚠️ IT DOES NOT TOUCH MASTERY. Jim's ruling of 2026-08-23 stands:
+#               drill is practice, quizzes are for mastery. Nothing here writes
+#               unit_checks or topic_progress, and PART 3dm proves it on a real DB.
+#               ⚠️ BUT IT DOES KEEP THE STREAK. _bump_stats with no counters writes
+#               last_active and the streak and nothing else. A child who practised
+#               every day this week HAS worked every day this week, and a streak
+#               that ignored it would call them lazy for doing what they were asked.
 #   2026-08-24  BUILD mq -- THE COST EPOCH. Jim: "since we have restructured how
 #               things are run, we should zero out our current cost measurement so it
 #               is measuring cost based on how we do it now."
@@ -862,6 +880,27 @@ def init():
                    default=DEFAULT_COURSE),
             Column("day", String(10), primary_key=True),
             Column("minutes", Integer, default=0),
+            Column("updated_at", DateTime(timezone=True)),
+        )
+        # PRACTICE LEDGER (build mt, 2026-08-24). Jim: "is there a way they can track
+        # how much practice problems they've done, how they've done on their practice
+        # problems AS APART FROM the regular course" -- so this is its OWN table and
+        # not another column on student_stats. A parent saying "practice your
+        # multiplication tables twenty minutes a day this week" needs the child to be
+        # able to SHOW that week, so the grain is (student, lesson, DAY).
+        # ⚠️ THIS IS NOT MASTERY AND MUST NEVER BECOME IT. Jim's ruling, 2026-08-23:
+        # "Drill is practice, quizzes are for mastery." Nothing here is read by
+        # unit_checks or topic_progress, and the battery pins that the drill lane
+        # cannot reach either.
+        _tables["drill_daily"] = Table(
+            "drill_daily", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32), primary_key=True, nullable=False,
+                   default=DEFAULT_COURSE),
+            Column("lesson", String(64), primary_key=True),
+            Column("day", String(10), primary_key=True),
+            Column("asked", Integer, default=0),
+            Column("right_count", Integer, default=0),
             Column("updated_at", DateTime(timezone=True)),
         )
         # AWARDS (2026-07-30): the student's earned trophies/awards, ONE ROW PER EARN, kept
@@ -2303,6 +2342,81 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> None:
     correct = max(0, int(correct)); attempted = max(1, int(attempted))
     # build hl: one atomic write (counters + streak) -- see _bump_stats.
     _bump_stats(code, problems=attempted, correct=correct, attempted=attempted)
+
+
+def record_drill(code: str, lesson: str, right: int, asked: int = 1,
+                 course: str = DEFAULT_COURSE, day: str = "") -> None:
+    """(mt) Count practice problems worked with Abrabot. Never raises.
+
+    ⚠️ WHAT THIS DELIBERATELY DOES NOT DO. It does not touch unit_checks or
+    topic_progress -- Jim's ruling stands, drill is practice and quizzes are mastery
+    -- and it does not add to student_stats.problems_practiced either, because Jim
+    asked for practice tracked "apart from the regular course" and a blended number
+    can never be un-blended later.
+
+    ⚠️ WHAT IT DOES DO: keep the day STREAK alive. _bump_stats with no counters
+    writes last_active and the streak and nothing else. A child who practised every
+    day this week has worked every day this week, and a streak that ignored that
+    would be calling them lazy for doing exactly what their parent asked."""
+    if not _ENABLED:
+        return
+    try:
+        asked = max(1, int(asked)); right = max(0, min(int(right), asked))
+        _upsert("drill_daily",
+                {"code": code, "course": course, "lesson": str(lesson)[:64],
+                 "day": (day or "").strip() or _today()},
+                {"updated_at": _now()},
+                exprs={"asked": (asked, _sql_counter("asked", asked)),
+                       "right_count": (right, _sql_counter("right_count", right))})
+        _bump_stats(code)          # streak + last_active ONLY -- see the note above
+    except Exception as exc:  # noqa: BLE001
+        print(f"[drill] record_drill failed: {_redact(str(exc))}")
+
+
+def drill_stats(code: str, days: int = 7) -> dict:
+    """(mt) What a child can SHOW: totals, today, and the last `days` days.
+
+    {total_asked, total_right, today_asked, today_right, days_practiced,
+     by_day: [{day, asked, right}], by_lesson: [{lesson, asked, right}]}"""
+    out = {"total_asked": 0, "total_right": 0, "today_asked": 0, "today_right": 0,
+           "days_practiced": 0, "by_day": [], "by_lesson": []}
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func
+    try:
+        t = _tables["drill_daily"]
+        today = _today()
+        cut = (_now() - _dt.timedelta(days=max(0, int(days) - 1))).date().isoformat()
+        with _engine.connect() as conn:
+            row = conn.execute(select(
+                func.coalesce(func.sum(t.c.asked), 0),
+                func.coalesce(func.sum(t.c.right_count), 0)
+            ).where(t.c.code == code)).fetchone()
+            out["total_asked"] = int(row[0] or 0)
+            out["total_right"] = int(row[1] or 0)
+            row = conn.execute(select(
+                func.coalesce(func.sum(t.c.asked), 0),
+                func.coalesce(func.sum(t.c.right_count), 0)
+            ).where((t.c.code == code) & (t.c.day == today))).fetchone()
+            out["today_asked"] = int(row[0] or 0)
+            out["today_right"] = int(row[1] or 0)
+            for day, a, r in conn.execute(
+                    select(t.c.day, func.sum(t.c.asked), func.sum(t.c.right_count))
+                    .where((t.c.code == code) & (t.c.day >= cut))
+                    .group_by(t.c.day).order_by(t.c.day)).all():
+                out["by_day"].append({"day": day, "asked": int(a or 0),
+                                      "right": int(r or 0)})
+            out["days_practiced"] = len([d for d in out["by_day"] if d["asked"]])
+            for les, a, r in conn.execute(
+                    select(t.c.lesson, func.sum(t.c.asked), func.sum(t.c.right_count))
+                    .where(t.c.code == code).group_by(t.c.lesson)
+                    .order_by(func.sum(t.c.asked).desc()).limit(20)).all():
+                out["by_lesson"].append({"lesson": les, "asked": int(a or 0),
+                                         "right": int(r or 0)})
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = _redact(str(exc))
+        print(f"[drill] drill_stats failed: {out['error']}")
+    return out
 
 
 def get_mastery(code: str, course: str = DEFAULT_COURSE) -> dict:

@@ -193,12 +193,37 @@
   .count{font-size:12px;font-weight:700;color:var(--muted);margin-left:8px}
   .none{opacity:.45}
   .hide{display:none}
+  /* (mt) the practice strip */
+  .pracrow{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+  .pstat{display:flex;flex-direction:column;min-width:78px}
+  .pstat b{font-size:26px;font-weight:850;color:var(--bot);line-height:1.1}
+  .pstat span{font-size:12px;font-weight:700;color:var(--muted)}
+  .weekbar{display:flex;gap:6px;align-items:flex-end;margin-top:14px;height:44px}
+  .weekbar div{flex:1 1 0;background:#e8f4fa;border:1.5px solid var(--bot);
+               border-radius:6px 6px 0 0;min-height:4px;position:relative}
+  .weekbar div span{position:absolute;bottom:-17px;left:0;right:0;text-align:center;
+                    font-size:10px;font-weight:700;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><canvas class="bot" id="botMark" width="160" height="160" aria-hidden="true"></canvas>
+  <header class="topbar"><canvas class="bot" id="botMark" width="160" height="160" aria-hidden="true"></canvas>
     <h1>Abrabot</h1><span class="pill">extra practice</span></header>
+
+  <!-- (mt) WHAT THE CHILD CAN SHOW. Jim, 2026-08-24: a parent says "practice your
+       multiplication tables twenty minutes a day this week", and the child needs to
+       be able to prove they did. Hidden until the numbers arrive, so a first-time
+       visitor is not met with a wall of zeros. -->
+  <div class="card hide" id="pracCard">
+    <div class="pracrow">
+      <div class="pstat"><b id="pToday">0</b><span>practised today</span></div>
+      <div class="pstat"><b id="pWeek">0</b><span>this week</span></div>
+      <div class="pstat"><b id="pAll">0</b><span>all time</span></div>
+      <div class="pstat"><b id="pAcc">—</b><span id="pAccLab">keep going</span></div>
+      <div class="pstat"><b id="pDays">0</b><span>days practised</span></div>
+    </div>
+    <div id="pWeekBar" class="weekbar"></div>
+  </div>
 
   <div class="card" id="gate">
     <p class="big" style="margin-bottom:10px">Extra problems</p>
@@ -248,6 +273,9 @@
      canvas is drawn with its own persona's palette, and the presence layer -- Mr.
      Cadabra's real face -- is granted to his persona alone. -->
 <script src="/static/tutor-face.js"></script>
+<!-- (mt) THE WAY BACK OUT. This page had no navigation at all: a child who reached
+     it could only use the browser's back button. -->
+<script src="/static/app-nav.js"></script>
 
 <!-- THE VOICE LAYER. voice.js owns the audio graph, the keep-alive and the browser
      fallback. This page satisfies its ambient contract (CODE / forSpeech / setState)
@@ -453,6 +481,7 @@
       });
   }
   loadPicker();
+  loadPractice();
 
   // ---------- starting ----------
   function startDrill(lessonId) {
@@ -648,10 +677,64 @@
   }
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
-    post("/api/drill/answer", { code: CODE, value: value }, function (j) {
+    // (mt) THE CHILD'S OWN DAY travels with the answer, the same way the hours tiles
+    // send it. A kid practising at 8pm is practising today, not tomorrow.
+    post("/api/drill/answer", { code: CODE, value: value, day: localDay() },
+         function (j) {
       showScore(j.score, j.struggling);
       ingest(j.steps);
+      loadPractice();            // the counter should move while they watch
     });
+  }
+
+  // ---------- (mt) WHAT THE CHILD CAN SHOW ----------
+  function localDay() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")
+           + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function loadPractice() {
+    if (!CODE) return;
+    fetch("/api/drill/stats/" + encodeURIComponent(CODE) + "?days=7")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.tracking) return;          // DB off: say nothing, invent nothing
+        var week = (j.by_day || []).reduce(function (t, d) { return t + d.asked; }, 0);
+        if (!j.total_asked) return;             // no wall of zeros on a first visit
+        $("pracCard").classList.remove("hide");
+        $("pToday").textContent = j.today_asked;
+        $("pWeek").textContent = week;
+        $("pAll").textContent = j.total_asked;
+        // ⚠️ NO PERCENTAGE UNTIL THERE IS ENOUGH OF ONE TO BE FAIR. A child who
+        // has just met a hard idea and missed the first two would otherwise be
+        // shown "0% you got right" in 26px type, which is a billboard telling a
+        // seven-year-old they are bad at this. Ten problems in, the number means
+        // something and they have had a chance to move it.
+        var enough = j.total_asked >= 10;
+        $("pAcc").textContent = (!enough || j.accuracy_pct === null
+                                 || j.accuracy_pct === undefined)
+                                  ? "—" : j.accuracy_pct + "%";
+        $("pAccLab").textContent = enough ? "you got right" : "keep going";
+        $("pDays").textContent = j.days_practiced;
+        // seven bars, tallest = the busiest day, so a week of practice is a SHAPE a
+        // parent can read across the room rather than a number to be argued with.
+        var bar = $("pWeekBar"); bar.innerHTML = "";
+        var max = Math.max.apply(null, (j.by_day || []).map(function (d) { return d.asked; }).concat([1]));
+        var byDay = {}; (j.by_day || []).forEach(function (d) { byDay[d.day] = d.asked; });
+        for (var i = 6; i >= 0; i--) {
+          var dt = new Date(); dt.setDate(dt.getDate() - i);
+          var key = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0")
+                    + "-" + String(dt.getDate()).padStart(2, "0");
+          var n = byDay[key] || 0;
+          var el = document.createElement("div");
+          el.style.height = Math.max(4, Math.round(40 * n / max)) + "px";
+          el.style.opacity = n ? "1" : "0.28";
+          el.title = n + " practised";
+          el.innerHTML = '<span>' + "SMTWTFS".charAt(dt.getDay()) + '</span>';
+          bar.appendChild(el);
+        }
+      })
+      .catch(function () {});
   }
 })();
 </script>

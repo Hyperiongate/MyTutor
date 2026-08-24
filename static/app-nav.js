@@ -65,6 +65,11 @@
       if (page !== "/home") add("/home" + q, "🏠", "Home");
       if (page !== "/session" && COURSE) add("/session" + q, "🎓", "My lesson");
       if (page !== "/dashboard") add("/dashboard" + q, "📊", "Progress");
+      // (mt) THE DOOR. Until build mt there was NO link to /drill anywhere in the
+      // app -- 25,376 practice problems reachable only by typing the URL, which is
+      // exactly how Jim found it missing on 2026-08-24. Abrabot's room needs a door
+      // on every page a child stands on, not a mention in a lesson.
+      if (page !== "/drill") add("/drill" + q, "✏️", "Practice");
       add("/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");
     }
     // ds: /help, not mailto -- a kid on a school Chromebook has no mail app.
