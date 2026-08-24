@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mq -- PART 3dk, THE COST EPOCH. Proves both halves on a real
+#               database: the old spend is STILL in the 7-day figures, and the era
+#               reads only what came after it. Plus the subtle one -- the epoch rides
+#               system_events, which is purged at 90 days, so a pin holds the
+#               exemption.
+#               ⚠️ AND THAT PIN NEARLY SHIPPED VACUOUS. Its first draft called
+#               purge_system_events(0.0000001), which int()s to 0 days and returns
+#               immediately -- so "the purge does not eat the epoch" passed without
+#               the purge ever running. The rows are really backdated 200 days now. A
+#               test that proves nothing is worse than no test, because it is
+#               believed.
 #   2026-08-24  BUILD mp -- ⭐⭐ THE COVERAGE CLAIM IS NOW A TEST. PART 3cv's
 #               Entry-Level pin moves to all nine units, and a new pin above it
 #               walks curriculum.py and fails on ANY unit of ANY course with no
@@ -9641,6 +9652,183 @@ def part3di_standalone_speech():
           "second narration route to keep in step")
 
 
+_MQ_EPOCH = r"""import os, sys
+d = sys.argv[1]
+os.environ["DATABASE_URL"] = "sqlite:///" + d + "/mq.db"
+os.environ["DATA_DIR"] = d
+os.environ["WEEKLY_EMAIL"] = "off"
+os.environ["NIGHTWATCH"] = "off"
+os.environ["FORUM_MOD_KEY"] = "TESTKEY"
+os.environ["ELEVENLABS_API_KEY"] = "dummy"
+os.environ["ANTHROPIC_IN_USD_PER_MTOK"] = "3"
+os.environ["ANTHROPIC_OUT_USD_PER_MTOK"] = "15"
+os.environ["ELEVEN_USD_PER_1K_CHARS"] = "0.22"
+sys.path.insert(0, sys.argv[2])
+import main, store
+from fastapi.testclient import TestClient
+
+c = TestClient(main.app)
+H = {"X-Admin-Key": "TESTKEY"}
+ok = True
+def chk(label, cond, extra=""):
+    global ok
+    print(("PASS " if cond else "FAIL ") + label, extra if not cond else "")
+    if not cond: ok = False
+
+# ---- the one-time spend that started all this ------------------------------
+store.log_usage(kind="tts", code="1234", tts_chars=3_600_000, tts_cache_hit=0)
+store.record_minutes("1234", "entry", minutes_add=120)
+j = c.get("/api/admin/stats", headers=H).json()
+chk("with no era, the payload says so and adds no tiles",
+    j["cost_epoch"] is None and j["usage_epoch"] is None, str(j.get("cost_epoch")))
+polluted = j["usage7"]["usd_per_student_hour"]
+chk("and the trailing window IS polluted by one-time spend (the whole problem)",
+    polluted is not None and polluted > 100, str(polluted))
+
+# ---- stamp an era ----------------------------------------------------------
+r = c.post("/api/admin/cost-epoch", json={"note": "battery"}, headers=H)
+chk("an era can be stamped", r.status_code == 200 and r.json()["cost_epoch"], str(r.status_code))
+store.log_usage(kind="brain", code="1234", input_tokens=20000, output_tokens=4000, attempts=1)
+store.log_usage(kind="tts", code="1234", tts_chars=1000, tts_cache_hit=0)
+j = c.get("/api/admin/stats", headers=H).json()
+ue = j["usage_epoch"]
+chk("the era reading appears", bool(j["cost_epoch"]) and ue is not None)
+chk("\u2b50 NOTHING WAS DELETED -- the 7-day window still holds the old spend",
+    j["usage7"]["tts_chars_generated"] == 3_601_000,
+    str(j["usage7"]["tts_chars_generated"]))
+chk("\u2b50 and the era measures ONLY what came after it",
+    ue["tts_chars_generated"] == 1000 and ue["brain_calls"] == 1,
+    str((ue["tts_chars_generated"], ue["brain_calls"])))
+chk("the era cost is a fraction of the polluted window",
+    ue["total_usd"] < j["usage7"]["total_usd"] / 100,
+    str((ue["total_usd"], j["usage7"]["total_usd"])))
+chk("cost per student-hour is measured, not invented",
+    ue["usd_per_student_hour"] is not None and ue["student_minutes"] == 120,
+    str((ue["usd_per_student_hour"], ue["student_minutes"])))
+import datetime as _dt
+_future = _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(days=2)
+chk("\u26a0 and it is NULL, never 0, when no hours exist",
+    main._usage_with_dollars(0, since=_future)["usd_per_student_hour"] is None,
+    "printing $0.00 per hour would read as 'teaching is free'")
+
+# ---- the purge must never eat the era --------------------------------------
+# ⚠️ THE ROWS ARE REALLY BACKDATED. The first draft of this called
+# purge_system_events(0.0000001), which int()s to 0 days and returns immediately --
+# so the exemption "passed" without the purge ever running. A test that proves
+# nothing is worse than no test, because it is believed.
+store.record_event("probe", "ordinary", "should be purged")
+from sqlalchemy import update as _upd
+_t = store._tables["system_events"]
+with store._engine.begin() as _conn:
+    _conn.execute(_upd(_t).values(created_at=_dt.datetime.now(_dt.timezone.utc)
+                                  - _dt.timedelta(days=200)))
+before = store.get_cost_epoch()
+gone = store.purge_system_events(90)
+after = store.get_cost_epoch()
+chk("the purge really ran (rows were 200 days old)", gone >= 1, f"deleted {gone}")
+chk("\u2b50 the 90-day purge does NOT eat the cost epoch",
+    before is not None and after is not None and before == after,
+    "an era that expires on its own is worse than no era")
+ev = store.event_stats(365)["counts"]
+chk("  ...while ordinary events ARE still purged",
+    not ev.get("probe"), str(ev)[:120])
+
+# ---- clearing is a real state, not an absence ------------------------------
+c.post("/api/admin/cost-epoch", json={"clear": True}, headers=H)
+j = c.get("/api/admin/stats", headers=H).json()
+chk("clearing goes back to all-of-history", j["cost_epoch"] is None and j["usage_epoch"] is None)
+c.post("/api/admin/cost-epoch", json={}, headers=H)
+chk("and a new era can be stamped after a clear", store.get_cost_epoch() is not None)
+
+# ---- it is admin-gated like every other admin route ------------------------
+chk("no key is refused", c.post("/api/admin/cost-epoch", json={}).status_code == 401)
+chk("a wrong key is refused",
+    c.post("/api/admin/cost-epoch", json={}, headers={"X-Admin-Key": "nope"}).status_code == 401)
+print("ALL OK" if ok else "DONE")
+sys.exit(0 if ok else 1)
+"""
+
+
+def part3dk_cost_epoch():
+    """PART 3dk (build mq) -- "MEASURE FROM HERE", AND NOTHING IS DELETED.
+
+    Jim, 2026-08-24: "since we have restructured how things are run, we should zero
+    out our current cost measurement so it is measuring cost based on how we do it
+    now." The words "zero out" are why this part is careful: the obvious reading is
+    "delete the usage log", and that would destroy the only record of what the app
+    has ever cost in exchange for a tidier panel.
+
+    So the era moves the LEFT EDGE of the window and touches no rows, and the pins
+    below prove BOTH halves on a real database: the old spend is still in the 7-day
+    figures, AND the era reads only what came after it.
+
+    ⚠️ THE PURGE PIN IS THE SUBTLE ONE. The epoch rides system_events, which is
+    purged at 90 days. Without an exemption the era would evaporate one quiet night
+    and every figure would snap back to all-of-history with nothing on screen saying
+    so -- a measurement era that expires on its own is worse than none."""
+    print("\nPART 3dk — the cost epoch: measure from here (build mq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "store.py"), encoding="utf-8") as fh:
+        ssrc = fh.read()
+    with open(os.path.join(here, "main.py"), encoding="utf-8") as fh:
+        msrc = fh.read()
+
+    check("the era NEVER deletes usage rows",
+          "delete(" not in ssrc.split("def set_cost_epoch")[1].split("def get_cost_epoch")[0]
+          and "usage_log" not in ssrc.split("def set_cost_epoch")[1].split("def clear_cost_epoch")[0],
+          "'zero out' must not become 'destroy the only record of what this cost'")
+    check("the purge exempts the epoch by KIND, not by luck",
+          "t.c.kind != COST_EPOCH_KIND" in ssrc,
+          "system_events is purged at 90 days; the era lives there")
+    check("usage_stats takes an explicit `since` and still honours `days`",
+          "def usage_stats(days: int = 7, since=None)" in ssrc,
+          "every existing caller must be untouched")
+    check("the hours denominator is measured on the DAY WORKED",
+          "td.c.day >=" in ssrc and "def student_minutes_since" in ssrc,
+          "updated_at moves when a row is touched, so a nudged yesterday-row would "
+          "migrate windows and quietly deflate the cost per hour")
+    check("cost per student-hour is NULL, never 0, without hours",
+          'u["usd_per_student_hour"] = (round(u["total_usd"] / (mins / 60.0), 2)' in msrc
+          and "if (u[\"total_usd\"] is not None and mins) else None)" in msrc,
+          "$0.00 per hour reads as 'teaching is free', the opposite of unmeasured")
+    check("the panel shows the era only once one exists",
+          '"usage_epoch": (_usage_with_dollars(0, since=_ep) if _ep else None)' in msrc,
+          "the deploy that ships this must not change what Jim already reads")
+
+    dh = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("the admin page binds the era buttons instead of using a global onclick",
+          'id="epNew"' in dh and 'id="epClear"' in dh
+          and 'epNew.addEventListener("click", startCostEra)' in dh
+          and "onclick=" not in code_only(dh),
+          "the whole script is an IIFE -- an inline handler could not see these")
+    check("both era buttons confirm, and say that nothing is deleted",
+          "Nothing is deleted." in dh and "No usage data is affected." in dh,
+          "'zero out the cost measurement' SOUNDS destructive; Jim should not have "
+          "to take it on faith at the moment he clicks")
+
+    try:
+        import sqlalchemy  # noqa: F401
+        import fastapi  # noqa: F401
+    except Exception:  # noqa: BLE001
+        skip("cost epoch live drive", "sqlalchemy/fastapi not installed here")
+        return
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as d:
+        script = os.path.join(d, "epoch.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(_MQ_EPOCH)
+        res = subprocess.run([sys.executable, script, d, here],
+                             capture_output=True, text=True, timeout=600)
+        out = res.stdout or ""
+        for line in out.splitlines():
+            if line.startswith("FAIL"):
+                bad("cost epoch: " + line[5:130], "")
+        check("cost epoch: the live drive ends ALL OK "
+              f"({out.count('PASS ')} client-level checks)",
+              res.returncode == 0 and "ALL OK" in out,
+              (res.stderr or out)[-500:])
+
+
 def part3dj_deploy_safe():
     """PART 3dj (build mm) -- ONE NEW FILE MUST NOT BE ABLE TO TAKE THE SITE DOWN.
 
@@ -17510,6 +17698,7 @@ def main():
     part3dh_the_handoff()
     part3di_standalone_speech()
     part3dj_deploy_safe()
+    part3dk_cost_epoch()
     part3ai_deploy_stamp()
     if live:
         part4_live()

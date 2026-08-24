@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mq-measure-from-here". BUILD mq -- THE COST
+#               EPOCH, AND COST PER STUDENT-HOUR. Jim asked to "zero out our current
+#               cost measurement so it is measuring cost based on how we do it now",
+#               because the 7/30-day panels are dominated by ONE-TIME spend (~$806 to
+#               render the course, ~$11 more for Entry-Level U8/U9) and would go on
+#               being so for a month.
+#               ⚠️ NOTHING IS DELETED. New POST /api/admin/cost-epoch writes a
+#               timestamp; the payload gains cost_epoch + usage_epoch, and the cost
+#               tiles gain a SECOND reading measured from it. usage7/usage30 are
+#               byte-for-byte what they were. Until Jim starts an era, usage_epoch is
+#               None and /admin looks exactly as it does today.
+#               ⭐ COST PER STUDENT-HOUR is the number he actually asked for. Cost per
+#               STUDENT flatters a quiet week and punishes a busy one; an hour of
+#               teaching is the unit the product is sold in. NULL, never 0, when no
+#               hours have been measured -- "$0.00 per hour" reads as "teaching is
+#               free", the exact opposite of unmeasured.
 #   2026-08-24  APP_BUILD -> "2026-08-24mp-curriculum-complete". BUILD mp -- ⭐⭐
 #               ENTRY-LEVEL UNIT 9, AND WITH IT EVERY UNIT OF EVERY COURSE HAS
 #               SCRIPTED LESSONS. No change in this file beyond the stamp: the four
@@ -8352,7 +8368,7 @@ def beta_delete(body: BetaRevokeIn,
 # /health shows -- never a child's name, a parent's email, or a login code.
 # =============================================================================
 
-def _usage_with_dollars(days: int) -> dict:
+def _usage_with_dollars(days: int, since=None) -> dict:
     """store.usage_stats(days) plus estimated DOLLARS -- computed ONLY from prices Jim
     sets in Render env vars (nothing invented; dollars stay null until prices exist):
       ANTHROPIC_IN_USD_PER_MTOK   price per MILLION input tokens
@@ -8360,7 +8376,7 @@ def _usage_with_dollars(days: int) -> dict:
       ELEVEN_USD_PER_1K_CHARS     price per 1,000 ElevenLabs characters
     Cache math per Anthropic's published multipliers: cached reads bill at 10% of the
     input price; cache writes at 125%."""
-    u = store.usage_stats(days)
+    u = store.usage_stats(days, since=since)
     def _price(name):
         try:
             v = os.environ.get(name, "").strip()
@@ -8394,6 +8410,19 @@ def _usage_with_dollars(days: int) -> dict:
     u["tts_usd"] = tts_usd
     u["total_usd"] = round(brain_usd + tts_usd + (critic_usd or 0.0), 2) \
         if (brain_usd is not None and tts_usd is not None) else None
+    # (mq) COST PER STUDENT-HOUR -- the number Jim actually asked for on 2026-08-24,
+    # and the only cost figure that means anything as the app grows. Cost per STUDENT
+    # flatters a quiet week and punishes a busy one; an HOUR of teaching is the unit
+    # the product is actually sold in.
+    # ⚠️ NULL, NEVER ZERO, when there are no hours yet. Dividing by nothing and
+    # printing "$0.00 per hour" would read as "teaching is free", which is the exact
+    # opposite of unmeasured.
+    mins = store.student_minutes_since(since=since, days=(0 if since is not None
+                                                          else int(days)))
+    u["student_minutes"] = int(mins or 0)
+    u["student_hours"] = round(mins / 60.0, 1) if mins else 0.0
+    u["usd_per_student_hour"] = (round(u["total_usd"] / (mins / 60.0), 2)
+                                 if (u["total_usd"] is not None and mins) else None)
     return u
 
 
@@ -8405,6 +8434,10 @@ def admin_stats_api(key: str = "",
     in Render's logs); the query param stays for old bookmarks only."""
     _require_db()
     _require_admin(x_admin_key or key)
+    # (mq) Read the epoch ONCE, before the payload, so the two keys below cannot
+    # disagree -- a panel whose header says one era and whose tiles measure another
+    # is worse than no epoch at all.
+    _ep = store.get_cost_epoch()
     return {
         "ok": True,
         "build": APP_BUILD,
@@ -8414,10 +8447,49 @@ def admin_stats_api(key: str = "",
         "stats": store.admin_stats(),
         "usage7": _usage_with_dollars(7),
         "usage30": _usage_with_dollars(30),
+        # (mq) THE COST EPOCH. `usage_epoch` is None until Jim starts an era, so the
+        # panel shows the trailing windows exactly as it always has and the new tiles
+        # simply do not appear. Nothing about the old view changes on deploy.
+        "cost_epoch": (_ep.isoformat() if _ep else None),
+        "usage_epoch": (_usage_with_dollars(0, since=_ep) if _ep else None),
         # OPS (2026-08-05): unhandled-error visibility for the System section.
         "errors24": store.errors_count(24),
         "errors_recent": store.recent_errors(24, 20),
     }
+
+
+class CostEpochIn(BaseModel):
+    key: str = ""
+    note: str = ""
+    clear: bool = False          # go back to measuring all of history
+
+
+@app.post("/api/admin/cost-epoch")
+def admin_cost_epoch(body: CostEpochIn,
+                     x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(mq) START A NEW COST MEASUREMENT ERA -- Jim, 2026-08-24: "we should zero out
+    our current cost measurement so it is measuring cost based on how we do it now."
+
+    ⚠️ IT DELETES NOTHING. Not one usage_log row is touched; the 7- and 30-day panels
+    keep working unchanged. This writes a timestamp, and the cost tiles gain a second
+    reading measured from it. The reason Jim needs one is that the trailing windows
+    are dominated by ONE-TIME spend -- ~$806 to render the course -- which says
+    nothing about what teaching a child costs today and would go on saying nothing
+    for a month.
+
+    Idempotent in the only sense that matters: a second call simply starts a newer
+    era, and the older marker stays in the ledger."""
+    _require_db()
+    _require_admin(x_admin_key or body.key)
+    if body.clear:
+        store.clear_cost_epoch(body.note)
+        return {"ok": True, "cost_epoch": None,
+                "note": "Measuring all of history again. Nothing was deleted."}
+    stamp = store.set_cost_epoch(body.note)
+    return {"ok": True, "cost_epoch": stamp or None,
+            "note": ("Cost is now measured from this moment. Every earlier row is "
+                     "still in the usage log and the 7- and 30-day panels are "
+                     "unchanged.")}
 
 
 # =============================================================================
@@ -11198,7 +11270,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mp-curriculum-complete"
+APP_BUILD = "2026-08-24mq-measure-from-here"
 
 
 @app.get("/health")

@@ -2,6 +2,23 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mq -- THE COST EPOCH. Jim: "since we have restructured how
+#               things are run, we should zero out our current cost measurement so it
+#               is measuring cost based on how we do it now."
+#               ⚠️ "ZERO OUT" DELIBERATELY DOES NOT MEAN DELETE. The obvious reading
+#               is "empty the usage log", which would destroy the only record of what
+#               this app has ever cost in exchange for a tidier panel. An epoch moves
+#               the LEFT EDGE of the window instead: set_cost_epoch() writes ONE
+#               timestamp, usage_stats() gained an optional `since`, and every row
+#               stays exactly where it is. The 7- and 30-day panels are untouched.
+#               ⚠️ AND THE PURGE NOW EXEMPTS IT. The epoch rides system_events, which
+#               is deleted at 90 days -- so without the exemption Jim's measurement
+#               era would evaporate one quiet night and every figure would snap back
+#               to all-of-history with nothing on screen saying so.
+#               NEW: student_minutes_since() -- the DENOMINATOR for cost per
+#               student-hour, measured on the DAY WORKED and never on updated_at,
+#               which moves whenever a row is touched and would migrate a nudged
+#               yesterday-row into the wrong window.
 #   2026-08-20  BUILD jr -- CONSISTENCY MEMORY. Jim, watching a live Basic Math lesson:
 #               "since that's OVER NINE, carry" and, four turns later in the SAME lesson,
 #               "since that's TEN OR MORE, carry". Mathematically identical; two
@@ -3476,9 +3493,114 @@ def last_event_at(kind: str, name: str = ""):
         return None
 
 
+# =============================================================================
+# THE COST EPOCH (build mq, 2026-08-24) -- "measure from HERE".
+# -----------------------------------------------------------------------------
+# Jim, 2026-08-24: "since we have restructured how things are run, we should zero
+# out our current cost measurement so it is measuring cost based on how we do it
+# now."
+#
+# ⚠️ IT DOES NOT DELETE ANYTHING, and that is the whole design. The trailing
+# 7/30-day panels are dominated by ONE-TIME spend -- ~$806 to render the course,
+# ~$11 more for Entry-Level Units 8 and 9 -- which tells Jim nothing about what a
+# child costs to teach today, and keeps telling him nothing for thirty days. An
+# epoch moves the LEFT EDGE of the window. Every row stays in usage_log, the old
+# windows still work, and a second epoch tomorrow does not destroy today's.
+#
+# It rides system_events (kind="cost_epoch") rather than a new table: no migration,
+# it is already purged on a schedule... except that purge would EAT THE EPOCH after
+# 90 days, so purge_system_events now refuses to touch this kind. A measurement era
+# that silently expires is worse than no era at all.
+# =============================================================================
+COST_EPOCH_KIND = "cost_epoch"
+
+
+def set_cost_epoch(note: str = "") -> str:
+    """Start a new measurement era NOW. Returns the ISO timestamp, or "" if the DB
+    is off. Never raises -- an epoch is a reporting convenience, not a lesson."""
+    if not _ENABLED:
+        return ""
+    try:
+        stamp = _now()
+        record_event(COST_EPOCH_KIND, "set", str(note or "")[:200])
+        return stamp.isoformat()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[cost-epoch] could not set: {_redact(str(exc))}")
+        return ""
+
+
+def clear_cost_epoch(note: str = "") -> bool:
+    """Go back to measuring all of history. Recorded as its own event so the
+    ledger reads as a story rather than a gap."""
+    if not _ENABLED:
+        return False
+    try:
+        record_event(COST_EPOCH_KIND, "cleared", str(note or "")[:200])
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[cost-epoch] could not clear: {_redact(str(exc))}")
+        return False
+
+
+def get_cost_epoch():
+    """The datetime the current era began, or None for all-of-history.
+
+    The NEWEST cost_epoch row wins, and a "cleared" row means exactly that -- so
+    clearing is a real state and not the absence of one."""
+    if not _ENABLED:
+        return None
+    from sqlalchemy import select
+    try:
+        t = _tables["system_events"]
+        with _engine.connect() as conn:
+            row = conn.execute(
+                select(t.c.name, t.c.created_at)
+                .where(t.c.kind == COST_EPOCH_KIND)
+                .order_by(t.c.created_at.desc()).limit(1)).fetchone()
+        if not row or (row[0] or "") == "cleared":
+            return None
+        return _aware(row[1]) if row[1] is not None else None
+    except Exception as exc:  # noqa: BLE001
+        print(f"[cost-epoch] could not read: {_redact(str(exc))}")
+        return None
+
+
+def student_minutes_since(since=None, days: int = 0) -> int:
+    """Engaged student minutes -- the DENOMINATOR for cost per student-hour.
+
+    ⚠️ MEASURED ON time_daily.day, NOT on updated_at. A row's minutes belong to the
+    DAY the child worked; updated_at moves every time the row is touched, so a
+    yesterday row nudged today would migrate into the wrong window and quietly
+    deflate the cost per hour. `since` wins over `days` when both are given.
+    Because a day is the finest grain the table keeps, an epoch stamped mid-morning
+    counts that whole day -- stated here rather than hidden, and the honest choice:
+    dropping the day would undercount the hours and OVERstate the cost."""
+    if not _ENABLED:
+        return 0
+    from sqlalchemy import select, func
+    try:
+        td = _tables["time_daily"]
+        q = select(func.coalesce(func.sum(td.c.minutes), 0))
+        if since is not None:
+            q = q.where(td.c.day >= _aware(since).date().isoformat())
+        elif days:
+            cut = (_now() - _dt.timedelta(days=max(0, int(days) - 1))).date().isoformat()
+            q = q.where(td.c.day >= cut)
+        with _engine.connect() as conn:
+            return int(conn.execute(q).scalar() or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[cost-epoch] minutes failed: {_redact(str(exc))}")
+        return 0
+
+
 def purge_system_events(days: int = 90) -> int:
     """Delete events older than `days`. Returns how many went. Never raises. Rides the
-    same heartbeat purge pass as the usage log (main._usage_purge_pass)."""
+    same heartbeat purge pass as the usage log (main._usage_purge_pass).
+
+    ⚠️ (mq) THE COST EPOCH IS EXEMPT. It lives in this table but it is not a tally --
+    it is the left edge of Jim's cost window. Purged at 90 days it would vanish
+    silently and every epoch figure would snap back to all-of-history without a word
+    on screen. A measurement era that expires on its own is worse than none."""
     from sqlalchemy import delete
     try:
         d = int(days or 0)
@@ -3487,7 +3609,8 @@ def purge_system_events(days: int = 90) -> int:
         cutoff = _now() - _dt.timedelta(days=d)
         t = _tables["system_events"]
         with _engine.begin() as conn:
-            res = conn.execute(delete(t).where(t.c.created_at < cutoff))
+            res = conn.execute(delete(t).where(
+                (t.c.created_at < cutoff) & (t.c.kind != COST_EPOCH_KIND)))
         return int(res.rowcount or 0)
     except Exception as exc:  # noqa: BLE001
         print(f"[events] purge failed: {_redact(str(exc))}")
@@ -3792,11 +3915,16 @@ def _timing_summary(rows) -> dict:
     return out
 
 
-def usage_stats(days: int = 7) -> dict:
+def usage_stats(days: int = 7, since=None) -> dict:
     """Aggregate the usage log for /admin: token totals, verifier breakdown, retry count,
     distinct students served, and TTS characters generated vs served free from cache.
-    All-zeros when the DB is off; any query error is swallowed (never 500s)."""
-    out = {"days": days,
+    All-zeros when the DB is off; any query error is swallowed (never 500s).
+
+    (mq) `since` is the COST EPOCH: when given it replaces the trailing-days cutoff
+    entirely, so the panel can read "everything since Jim started measuring" instead
+    of "the last 7 days". Nothing is deleted and `days` still works exactly as before
+    for every existing caller -- the epoch only moves the left edge of the window."""
+    out = {"days": days, "since": None,
            "brain_calls": 0, "input_tokens": 0, "output_tokens": 0,
            "cache_read_tokens": 0, "cache_write_tokens": 0,
            "retries": 0, "brain_students": 0,
@@ -3829,7 +3957,11 @@ def usage_stats(days: int = 7) -> dict:
     from sqlalchemy import select, func
     try:
         U = _tables["usage_log"]
-        cutoff = _now() - _dt.timedelta(days=int(days))
+        if since is not None:
+            cutoff = _aware(since)
+            out["since"] = cutoff.isoformat()
+        else:
+            cutoff = _now() - _dt.timedelta(days=int(days))
         recent = U.c.created_at >= cutoff
         brain = (U.c.kind == "brain") & recent
         tts = (U.c.kind == "tts") & recent
