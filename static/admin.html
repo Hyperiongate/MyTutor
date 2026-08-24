@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <!--
+    (mz) 2026-08-24 -- "CAUGHT & FIXED" WAS COUNTING THE ONES WE DID NOT FIX. Jim's
+    screen read "40 errors caught & fixed" and "39.1% verified right first try". I went
+    after the 39.1% and found the 40 was the bigger problem.
+    THE FOUR VERDICTS, plainly: verify_ok is right first try. verify_fixed is a referee
+    caught it AND a retry repaired it before the child saw it. verify_unresolved is
+    mathcheck judging three drafts wrong and us SHIPPING the third one. The two
+    *-unresolved cousins are the same surrender from the prose referees and the live
+    critic.
+    ⚠️ THIS PAGE PUT verify_unresolved IN THE FIXED COLUMN AND LEFT IT OUT OF THE
+    SHIPPED COLUMN -- exactly backwards. A surrender was being displayed as a save. On
+    Jim's numbers that made "40 fixed" out of at most 11 real ones.
+      var caught7 = (u7.verify_fixed||0) + (u7.verify_unresolved||0) + shipped7;  // was
+    Now: shippedMath7 = verify_unresolved joins shipped7; fixed7 = verify_fixed ALONE;
+    checked7 stops double-counting; "Right first try" is its own tile with a colour
+    (>=80 good, >=60 warn, else bad); "Shipped unresolved" names the split
+    math / prose / live critic in its subtitle so the three are never one blob again.
+    ⭐ IF YOU EDIT THE NAMES shipped7 / fixed7 / checked7, edit PART 3dn of ruletests.py
+    in the same commit. Those pins read this file as text on purpose -- the vague
+    version of that pin is what let this arithmetic ship.
+    The 39.1% itself is NOT fixed by this build. The tile is honest; the number has not
+    moved. "Referee fires by name" lower on this page is where that answer lives.
+
     (lb) 2026-08-22 -- THE CACHE-FIT NUMBERS BECOME VISIBLE. Jim: "check the scripted
     course audio ... it keeps running and running, and I'm not sure it's caching what
     it's processing." It WAS caching, and then the evictor was deleting it: the voice
@@ -836,12 +858,22 @@
     // answered 13 and was never told whether he was right.
     var shippedProse7 = (u7["verify_prose-unresolved"] || 0);
     var shippedCritic7 = (u7["verify_critic-unresolved"] || 0);
-    var shipped7 = shippedProse7 + shippedCritic7;
+    // (mz) ⚠️ AND MATHCHECK'S OWN PASS-THROUGH BELONGS HERE TOO. verify_unresolved is
+    // set when mathcheck judged three drafts wrong in a row and shipped the last one
+    // anyway. That is a reply sent to a child WITH a known finding by any honest
+    // reading, and it was sitting in "Errors caught & fixed" instead -- so the
+    // reassuring tile was counting the un-fixed ones.
+    var shippedMath7 = (u7.verify_unresolved || 0);
+    var shipped7 = shippedProse7 + shippedCritic7 + shippedMath7;
     var unknown7 = (u7.verify_unknown || 0);
     // (mw) shipped7 now carries the critic's unresolved rows too, so they finally
     // count as turns that WERE checked instead of vanishing from the denominator.
-    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + (u7.verify_unverifiable || 0) + shipped7;
-    var caught7 = (u7.verify_fixed || 0) + (u7.verify_unresolved || 0) + shipped7;
+    var checked7 = (u7.verify_ok || 0) + (u7.verify_fixed || 0) + (u7.verify_unverifiable || 0) + shipped7;
+    // (mz) ⚠️ "CAUGHT AND FIXED" NOW MEANS CAUGHT AND FIXED. It used to add every
+    // pass-through to this number, so a card reading "Errors caught & fixed: 40"
+    // could be 11 fixed and 29 shipped with the defect still in them -- the most
+    // reassuring tile on the dashboard reporting the opposite of what happened.
+    var fixed7 = (u7.verify_fixed || 0);
     var ttsTotal7 = (u7.tts_chars_generated || 0) + (u7.tts_chars_cached || 0);
     var ttsFreePct = ttsTotal7 ? Math.round(100 * (u7.tts_chars_cached || 0) / ttsTotal7) : 0;
     var perStudent = (u7.total_usd !== null && u7.total_usd !== undefined && u7.brain_students)
@@ -920,12 +952,17 @@
         cls: (u7.usd_per_student_hour !== null && u7.usd_per_student_hour !== undefined) ? "good" : "",
         s: hoursNote(u7) },
       { l: "Math checks", v: num(checked7), s: "turns with a checkable claim (7d)" },
-      { l: "Errors caught & fixed", v: num(caught7), cls: caught7 ? "warn" : "good",
-        s: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "% verified right first try" : "no checked turns yet" },
+      { l: "Right first try", v: checked7 ? (100 * (u7.verify_ok || 0) / checked7).toFixed(1) + "%" : "—",
+        cls: !checked7 ? "" : ((100 * (u7.verify_ok || 0) / checked7) >= 80 ? "good"
+              : ((100 * (u7.verify_ok || 0) / checked7) >= 60 ? "warn" : "bad")),
+        s: num(u7.verify_ok || 0) + " of " + num(checked7) + " needed no retry" },
+      { l: "Caught & actually fixed", v: num(fixed7), cls: fixed7 ? "warn" : "good",
+        s: "a retry repaired the draft before the child saw it" },
       { l: "Shipped unresolved", v: num(shipped7), cls: shipped7 ? "bad" : "good",
-        s: shipped7 ? ("replies sent WITH a known referee finding (7d) — "
-                       + num(shippedProse7) + " prose, " + num(shippedCritic7)
-                       + " live critic — read the [prosecheck] and [livecritic] log lines")
+        s: shipped7 ? ("replies sent WITH a known finding (7d) — " + num(shippedMath7)
+                       + " math, " + num(shippedProse7) + " prose, " + num(shippedCritic7)
+                       + " live critic — read the [mathcheck], [prosecheck] and "
+                       + "[livecritic] log lines")
                     : "no reply shipped with a known finding (7d)" },
       // (mw) A STATUS WITH NO COUNTER IS A MEASUREMENT GAP. It used to be added to
       // verify_none and read as "unchecked", which is the opposite of the truth.

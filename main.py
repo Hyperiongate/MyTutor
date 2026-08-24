@@ -2,6 +2,39 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mz-caught-and-actually-fixed". BUILD mz --
+#               THE SECOND MEASUREMENT LIE, SAME FAMILY AS mw. Jim's /admin panel read
+#               "Errors caught & fixed: 40" and "39.1% verified right first try", and
+#               I went after the 39.1% -- which is when I found that the 40 was
+#               counting replies that were caught and NOT fixed.
+#               ⚠️ NOTHING IN THIS BUILD CHANGES WHAT A CHILD SEES. It is entirely
+#               static/admin.html arithmetic plus the pins that hold it. main.py's
+#               only change is this stamp. The numbers the server reports were always
+#               right; the page was adding them up wrong.
+#               THE ARITHMETIC, for whoever reads this next:
+#                 verify_ok             -- the draft was right first try
+#                 verify_fixed          -- a referee caught it AND a retry repaired it
+#                 verify_unresolved     -- mathcheck judged three drafts wrong and we
+#                                          SHIPPED the third one anyway
+#                 verify_prose-unresolved / verify_critic-unresolved -- the same
+#                                          surrender, from the prose referees and from
+#                                          the live critic
+#               The page used to fold verify_unresolved into "caught & fixed" while
+#               LEAVING IT OUT of "shipped unresolved" -- exactly backwards, so the
+#               one number that should have been alarming was decorating the good
+#               column instead. From Jim's own screen (caught=40, prose-shipped=29),
+#               at most 11 of the 40 were ever genuinely fixed.
+#               Now: "Caught & actually fixed" counts ONLY verify_fixed, "Shipped
+#               unresolved" counts all three surrenders and names the split, and the
+#               first-try rate is its own tile with a colour (>=80 good, >=60 warn).
+#               ⭐ THE RULE THIS KEEPS BREAKING: a dashboard that cannot be wrong is
+#               worse than no dashboard, because you act on it. Twice now (mw, mz) a
+#               tile has been quietly generous. PART 3dn in ruletests.py now pins the
+#               arithmetic itself, not just the presence of the keys.
+#               STILL OPEN and worth Jim's attention: WHY the first-try rate is 39%.
+#               The tile is honest now; the underlying number has not moved. The
+#               "Referee fires by name" panel on the same page is where that answer
+#               lives, and it needs production data, not sandbox data.
 #   2026-08-24  APP_BUILD -> "2026-08-24mx-abrabot-has-a-voice". BUILDS mw-my, from
 #               ONE live session of Jim's. Six separate defects, and the two that
 #               matter most were invisible until he hit them.
@@ -11433,7 +11466,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mx-abrabot-has-a-voice"
+APP_BUILD = "2026-08-24mz-caught-and-actually-fixed"
 
 
 @app.get("/health")

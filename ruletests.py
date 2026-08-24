@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mz -- PART 3dn GROWS TEETH. It used to check that every status
+#               tutor.py can emit has a counter in store.py. That caught the missing
+#               key; it could not catch static/admin.html ADDING THE KEYS UP WRONG,
+#               which is what it was doing: mathcheck's pass-through (verify_unresolved
+#               -- three drafts judged wrong, the third shipped) was being counted as
+#               an error CAUGHT AND FIXED, and simultaneously left out of "shipped
+#               unresolved". Three new pins read the page's own arithmetic:
+#                 * verify_unresolved is inside shipped7, not inside the fixed count
+#                 * "caught & actually fixed" resolves to verify_fixed alone
+#                 * the first-try rate is its own tile and carries a colour class
+#               ⚠️ THESE PINS READ static/admin.html AS TEXT. If you rename shipped7
+#               or fixed7, fix them here in the same commit -- they are deliberately
+#               specific, because the vague version of this pin is what let two builds
+#               of wrong arithmetic through.
 #   2026-08-24  BUILD mw/mx -- PART 3dn: EVERY REFEREE VERDICT IS COUNTED. It reads
 #               the statuses out of tutor.py and fails if store.py has nowhere to put
 #               one, because this bug has now happened TWICE in the same shape (gz
@@ -9915,10 +9929,36 @@ def part3dn_every_verdict_is_counted():
           "silently calling an uncounted verdict 'unchecked' is how this survived "
           "two builds")
 
-    dh = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    # (mz) ⚠️ code_only, AND FOR THE SIXTH TIME THE REASON IS THIS FILE'S OWN NOTES.
+    # The change note at the top of admin.html QUOTES the line it replaced --
+    # "var caught7 = ..." -- because that quote is the record of what went wrong. A
+    # pin that bans the substring across the raw file therefore fires on the warning
+    # instead of the defect, and the tempting repair is to delete the documentation.
+    # Comments stripped, code scanned. Scan documentation only when documentation is
+    # the point.
+    dh = code_only(open(os.path.join(here, "static", "admin.html"),
+                        encoding="utf-8").read())
     check("the panel counts BOTH kinds of shipped finding",
           'u7["verify_critic-unresolved"]' in dh and "shippedProse7" in dh,
           "'Shipped unresolved' counted only the prose referees")
+    # (mz) ⚠️ THE THIRD SHIPPING PATH, AND THE TILE THAT LIED ABOUT IT.
+    # verify_unresolved is mathcheck judging three drafts wrong and shipping the last
+    # one anyway. It was being added to "Errors caught & fixed" -- so a card reading
+    # "40 caught & fixed" could be 11 fixed and 29 shipped with the defect still in
+    # them. The most reassuring number on the dashboard, reporting the opposite of
+    # what happened to a child.
+    check("⭐ mathcheck's pass-through counts as SHIPPED, not as fixed",
+          "shippedMath7" in dh and "u7.verify_unresolved" in dh
+          and "var fixed7 = (u7.verify_fixed || 0);" in dh,
+          "three drafts judged wrong and the last one sent is a reply that shipped "
+          "with a known finding, however the tile used to phrase it")
+    check("  ...and 'caught & fixed' now counts ONLY the ones a retry repaired",
+          "Caught & actually fixed" in dh
+          and "var caught7" not in dh,
+          "the old caught7 summed every pass-through into the reassuring tile")
+    check("  ...and the first-try rate is its own tile, with a colour",
+          '{ l: "Right first try"' in dh,
+          "39.1% was buried in the subtitle of a tile that was overcounting")
     check("  ...and shows a tile when a verdict has no counter",
           "Uncounted verdicts" in dh,
           "the next referee somebody adds should announce itself, not vanish")
