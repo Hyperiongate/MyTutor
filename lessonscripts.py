@@ -2,6 +2,26 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mn -- THE HANDOFF'S OWN TWO LINES JOIN THE CLOSURE.
+#               Jim tested the drill handoff with the fully rendered course and HEARD
+#               THE SEAM: Mr. Cadabra flew in and his first words came out in the
+#               BROWSER voice, then his real voice "came back" for the re-teach. The
+#               cause was a deliberate mj decision: his hello ("Let's look at this
+#               one together.") and goodbye ("You have got this. Back to you,
+#               Abrabot.") were left OUT of the closure as "not authored closure
+#               text". Wrong call, honestly made -- the two lines are exactly as
+#               authored as the introduction, they never vary, and they cost under
+#               two cents to render once. They are standalone speech (no lesson owns
+#               them), so they now live here beside ABRABOT_INTRO as
+#               CADABRA_HANDOFF_HELLO / CADABRA_HANDOFF_BYE, and main.py's handoff
+#               READS them from here rather than defining its own copies -- ONE
+#               owner, the same argument as mk. PART 3di validates them like all
+#               standalone speech (both pass the canon, the cap, and the character
+#               set unchanged), and pins that main.py does not fork them.
+#               ⚠️ AFTER DEPLOY THEY ARE 2 UNRENDERED LINES (72 chars, ~$0.02):
+#               one press of ② in /admin renders them; until then the drill lane's
+#               cache-only gate quietly 204s them to the browser voice -- the exact
+#               behavior Jim heard, never a charge.
 #   2026-08-23  BUILD mk -- THE CLOSURE GREW A SECOND KIND OF LINE, AND ONE OWNER.
 #               Phase 5 of Abrabot: Mr. Cadabra introduces him, in four authored
 #               lines. They are the first speech that belongs to the COURSE rather
@@ -23235,8 +23255,18 @@ ABRABOT_INTRO = (
     "and then I will hand you back to him. Have fun!",
 )
 
+# (mn) THE HANDOFF'S OWN TWO LINES -- what Mr. Cadabra says around the re-teach when
+# Abrabot fetches him. mj left these out of the closure and Jim heard the seam on
+# 2026-08-24: the fly-in opened in the BROWSER voice, then his real voice "came back"
+# one beat later. They are as authored and as invariant as the introduction above, so
+# they belong in the closure for the same reasons: rendered once by the prewarm,
+# protected by the evictor, priced by the estimator, admitted by the drill gate.
+# main.py's _CAD_HELLO/_CAD_BYE are ALIASES of these -- never a second copy.
+CADABRA_HANDOFF_HELLO = "Let's look at this one together."
+CADABRA_HANDOFF_BYE = "You have got this. Back to you, Abrabot."
+
 # Everything above, plus anything else that is spoken outside a lesson later.
-STANDALONE_LINES = tuple(ABRABOT_INTRO)
+STANDALONE_LINES = tuple(ABRABOT_INTRO) + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
 
 
 def course_audio_lines(lessons=None):

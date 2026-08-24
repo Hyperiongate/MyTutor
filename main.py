@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mn-the-seam". BUILD mn -- MR. CADABRA KEEPS
+#               HIS VOICE THROUGH THE WHOLE HANDOFF. Jim tested the drill with the
+#               fully rendered course and heard the seam mj built: the fly-in's hello
+#               ("Let's look at this one together.") and the goodbye played in the
+#               BROWSER voice while the re-teach between them played in his REAL
+#               voice. mj had left those two lines out of the closure on purpose;
+#               build mn moves them INTO it. The strings now live in lessonscripts
+#               (CADABRA_HANDOFF_HELLO / CADABRA_HANDOFF_BYE, beside ABRABOT_INTRO)
+#               and _CAD_HELLO/_CAD_BYE below are aliases of them -- one owner, so
+#               the prewarm renders them, the evictor protects them and the drill
+#               gate admits them without a second list anywhere. NO route changed;
+#               _drill_speakable() starts answering true for these two lines the
+#               moment they are in the closure, and the page already asks for the
+#               natural voice wherever that is true.
+#               ⚠️ ONE PRESS OF ② AFTER DEPLOY renders the two new lines (~$0.02).
+#               Until then the cache-only gate 204s them to the browser voice --
+#               the old behavior, never a charge.
 #   2026-08-24  APP_BUILD -> "2026-08-24mm-deploy-safe". BUILD mm -- ONE FILE MUST
 #               NOT BE ABLE TO TAKE THE SITE DOWN. Found while preparing the handoff
 #               for the morning deploy, not by a test.
@@ -8959,10 +8976,14 @@ _ABRA_EMPTY = ("You have worked every extra problem I have for this lesson. "
 # purpose: Abrabot must not promise help he cannot send. He can now, so he says so.
 _ABRA_FETCH = "This one is tricky. Let me get Mr. Cadabra."
 _ABRA_BACK = "Thanks, Mr. Cadabra! Let's try another one."
-# Mr. Cadabra's own two lines around the re-teach. They are NOT authored closure
-# text, so they are spoken by the browser like Abrabot's -- see _drill_speakable().
-_CAD_HELLO = "Let's look at this one together."
-_CAD_BYE = "You have got this. Back to you, Abrabot."
+# (mn) Mr. Cadabra's two lines around the re-teach ARE closure text now. mj declared
+# them "not authored closure text" and Jim heard the result on 2026-08-24: the first
+# words of the fly-in arrived in the browser voice, then his real voice "came back"
+# for the re-teach. The strings live in lessonscripts beside ABRABOT_INTRO -- the
+# closure's ONE owner -- and these names are aliases, never copies, so the prewarm
+# renders them, the evictor protects them, and the drill gate admits them.
+_CAD_HELLO = lessonscripts.CADABRA_HANDOFF_HELLO
+_CAD_BYE = lessonscripts.CADABRA_HANDOFF_BYE
 
 # ---- (mk) THE INTRODUCTION ----------------------------------------------------
 # Mr. Cadabra brings Abrabot on, in four authored lines, IN HIS REAL VOICE. They live
@@ -11165,7 +11186,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mm-deploy-safe"
+APP_BUILD = "2026-08-24mn-the-seam"
 
 
 @app.get("/health")

@@ -4,6 +4,29 @@
     =========================================================================
     CHANGE NOTES (keep newest at top):
 
+    (mn) 2026-08-24 -- MR. CADABRA WEARS HIS OWN FACE HERE. Jim tested the handoff
+    with the fully rendered course and ruled: "we need to see mister Cadabra when
+    he's talking and when the robot's talking, we need to see the robot." Until now
+    BOTH canvases drew the robot (his in purple paint), which made the teacher
+    "really indistinguishable" from the helper -- the exact confusion the handoff
+    exists to prevent. Two changes, one rule:
+      - presence NOW FOLLOWS THE PERSONA: `presence: c.persona === "cadabra"`. Mr.
+        Cadabra's canvas mounts the video presence layer (his real face, the same
+        layer the session page shows); every other persona structurally gets false,
+        so no character but him can ever wear a real person's face on this page.
+        The purple robot keeps drawing underneath as the fallback -- a missing or
+        failing presence.json lands there, same as everywhere else.
+      - THE FLY TRANSFORM MOVED from the canvas to a new .faceslot wrapper DIV.
+        tutor-face.js mounts the video host on the canvas's PARENT, so a canvas
+        that flew off alone would leave his face hanging in mid-air. The slot flies
+        as one piece: canvas, video and all. Same timings, same reduced-motion
+        rules, and the board still never reflows.
+    VOICE, same complaint, fixed server-side in build mn: his hello and goodbye
+    around the re-teach joined the scripted closure (lessonscripts
+    CADABRA_HANDOFF_*), so `natural` arrives true for them and the seam Jim heard
+    -- browser voice for the first words, real voice after -- closes once they are
+    rendered. NOTHING in this page's voice path changed for that fix.
+
     (mj) 2026-08-23 -- PHASE 4: THE HANDOFF. Jim, 2026-08-23: "if it detects a child
     is struggling, it needs to call in Mr Cadabra to do some more teaching," and "we
     have the robot avatar. Can we have it fly in and replace mr cadabra when it enters
@@ -112,23 +135,29 @@
   header{display:flex;align-items:center;gap:10px;padding:14px 0}
   .bot{width:38px;height:38px;display:block}
   .who{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}
-  .who canvas{width:92px;height:92px;display:block;
+  /* (mn) .faceslot is the thing that flies, not the canvas. Mr. Cadabra's video
+     presence mounts on the canvas's PARENT (tutor-face.js appends its host there),
+     so the wrapper is what must carry the transform -- a canvas that flew off alone
+     would leave his face hanging in mid-air. position:relative is what the video
+     host's position:absolute anchors to. */
+  .who .faceslot{width:92px;height:92px;position:relative;
               transition:transform .42s cubic-bezier(.2,.9,.25,1.2),opacity .32s ease}
+  .who canvas{width:100%;height:100%;display:block}
   .who .whoname{transition:opacity .3s ease}
   /* (mj) THE FLY-OUT / FLY-IN. One character is always mid-air; the other is home.
      Deliberately a TRANSFORM, not a layout change, so nothing on the board reflows
      while a child is looking at it. */
-  .who.away canvas{transform:translateX(-150%) rotate(-18deg);opacity:0}
+  .who.away .faceslot{transform:translateX(-150%) rotate(-18deg);opacity:0}
   .who.away .whoname{opacity:0}
-  .who.arriving canvas{transform:translateX(150%) rotate(18deg);opacity:0}
+  .who.arriving .faceslot{transform:translateX(150%) rotate(18deg);opacity:0}
   @media (prefers-reduced-motion:reduce){
-    .who canvas,.who .whoname{transition:none}
-    .who.away canvas,.who.arriving canvas{transform:none;opacity:0}
+    .who .faceslot,.who .whoname{transition:none}
+    .who.away .faceslot,.who.arriving .faceslot{transform:none;opacity:0}
   }
   .whoname{font-size:12px;font-weight:800;color:var(--bot);letter-spacing:.02em}
   .said{display:flex;gap:16px;align-items:flex-start}
   .said > div:last-child{flex:1 1 auto;min-width:0}
-  @media (max-width:520px){ .who canvas{width:64px;height:64px} }
+  @media (max-width:520px){ .who .faceslot{width:64px;height:64px} }
   h1{font-size:20px;font-weight:800}
   .pill{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);
         border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:#fff}
@@ -187,11 +216,11 @@
   <div class="card hide" id="stage">
     <div class="said">
       <div class="who" id="whoAbra">
-        <canvas id="botFace" width="240" height="240" aria-hidden="true"></canvas>
+        <div class="faceslot"><canvas id="botFace" width="240" height="240" aria-hidden="true"></canvas></div>
         <div class="whoname">Abrabot</div>
       </div>
       <div class="who arriving" id="whoCad" style="display:none">
-        <canvas id="cadFace" width="240" height="240" aria-hidden="true"></canvas>
+        <div class="faceslot"><canvas id="cadFace" width="240" height="240" aria-hidden="true"></canvas></div>
         <div class="whoname" style="color:#6d5ae6">Mr. Cadabra</div>
       </div>
       <div><div id="bubble"></div></div>
@@ -215,8 +244,9 @@
 <script src="/static/script-board.js"></script>
 <script src="/static/board.js"></script>
 <!-- (mi) ABRABOT'S FACE. tutor-face.js is self-contained (it publishes window.TutorFace
-     and reaches for nothing), so loading it costs this page no contract. It is drawn
-     below with the abrabot palette and presence:false. -->
+     and reaches for nothing), so loading it costs this page no contract. (mn) Each
+     canvas is drawn with its own persona's palette, and the presence layer -- Mr.
+     Cadabra's real face -- is granted to his persona alone. -->
 <script src="/static/tutor-face.js"></script>
 
 <!-- THE VOICE LAYER. voice.js owns the audio graph, the keep-alive and the browser
@@ -286,11 +316,14 @@
 
   // ---------- (mi) ABRABOT'S FACE ----------
   // The same robot the main app has drawn since build ej, in his own paint. ONE
-  // animation loop drives both canvases -- the small mark in the header (so he is
-  // alive on the picker screen too) and the big one beside his words.
-  // ⭐ presence:false IS LOAD-BEARING. tutor-face.js's presence layer is VIDEO OF A
-  // REAL PERSON -- Mr. Cadabra. Without this flag, this page would lay his actual
-  // face over Abrabot's body the moment the video manifest deployed. PART 3dg pins it.
+  // animation loop drives all three canvases -- the small mark in the header (so he
+  // is alive on the picker screen too), the big one beside his words, and Mr.
+  // Cadabra's.
+  // ⭐ (mn) THE PRESENCE FOLLOWS THE PERSONA. tutor-face.js's presence layer is
+  // VIDEO OF A REAL PERSON -- Mr. Cadabra -- so HIS canvas wears it (Jim's ruling,
+  // 2026-08-24: "when it goes back to mister Cadabra, it needs to show his face")
+  // and every other persona structurally gets presence:false, so no other character
+  // can ever wear it here. PART 3dg pins the rule.
   var FACES = [];          // {el, ctx, persona}
   var faceT = 0, faceLevel = 0;
   var WHO = "abrabot";     // who is on stage right now
@@ -313,12 +346,13 @@
             level: live ? faceLevel : 0.10, t: faceT,
             mood: live ? __mood : "idle",
             palette: TutorFace.PALETTES && TutorFace.PALETTES[c.persona],
-            // ⭐ presence:false on BOTH. The presence layer is video of a real person
-            // and this 92px slot is not the session page's orb -- mounting his video
-            // here is a deliberate later decision, not a side effect of phase 4. His
-            // purple robot IS his own authentic fallback face; it is what the app
-            // already shows him as whenever the video is unavailable.
-            presence: false
+            // ⭐ (mn) presence BY IDENTITY, never by flag. Only Mr. Cadabra's own
+            // canvas may mount the presence layer -- it is video of the real person,
+            // and the expression below makes it impossible for any other persona to
+            // ask for it. The purple robot keeps drawing underneath as his fallback:
+            // a missing or erroring presence.json lands there (a normal state, not a
+            // fault), exactly as it does on the session page.
+            presence: c.persona === "cadabra"
           });
         }
       } catch (e) {}

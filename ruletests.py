@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mn -- TWO PINS MOVED WITH JIM'S RULING, TWO PINS ADDED.
+#               Jim tested the handoff with the rendered course and ruled that Mr.
+#               Cadabra must wear HIS OWN FACE on the drill page ("when it goes back
+#               to mister Cadabra, it needs to show his face"). So:
+#               - PART 3dg's drill-page presence pin now requires presence BY
+#                 IDENTITY (`presence: c.persona === "cadabra"`) instead of a blanket
+#                 presence:false -- the guarantee it protects is unchanged and
+#                 stronger: no persona but his can EVER mount a real person's video.
+#               - PART 3dh's twin pin now also checks the fly transform rides the
+#                 .faceslot WRAPPER, because the video host mounts on the canvas's
+#                 parent and a canvas that flew alone would leave his face mid-air.
+#               - PART 3di gains two pins: the handoff's hello/goodbye are standalone
+#                 closure lines (Jim heard the browser-voice seam they used to
+#                 cause), and main.py ALIASES lessonscripts' strings rather than
+#                 keeping its own copies -- one owner, same argument as mk.
 #   2026-08-21  BUILD kf -- PART 3cy, THE SCRIPTED LANE PICKS ITS OWN VOICE. Jim, with
 #               the course fully prewarmed and ke's repair reporting zero damage:
 #               "Still garbled when counting four stars" -- right words, bad audio, i.e.
@@ -9173,10 +9188,17 @@ def part3dg_abrabot_character():
           'opts.presence === false' in tfc and "return;" in tfc,
           "the presence layer is VIDEO OF A REAL PERSON; no other character may "
           "ever wear it")
-    check("⭐ and the DRILL PAGE refuses it",
-          "presence: false" in dhc,
-          "without this, Abrabot wears Mr. Cadabra's real face the moment the video "
-          "manifest deploys -- filed as a rendering glitch, actually an impersonation")
+    # (mn) Jim's ruling, 2026-08-24: Mr. Cadabra shows HIS face on this page too. The
+    # pin therefore moved from "the page passes presence:false" to the stronger claim
+    # that presence is granted BY IDENTITY: his persona alone can mount the video, and
+    # no bare flag exists for another character to inherit.
+    check("⭐ and the DRILL PAGE grants it to Mr. Cadabra alone, by identity",
+          'presence: c.persona === "cadabra"' in dhc
+          and "presence: true" not in dhc
+          and dhc.count("presence:") == 1,
+          "without the persona equality, Abrabot wears Mr. Cadabra's real face the "
+          "moment someone edits a flag -- filed as a rendering glitch, actually an "
+          "impersonation")
     # (mj) The page now draws TWO characters, so it indexes the table by persona
     # rather than naming one entry. The property being pinned is unchanged and is the
     # one that matters: no robot colour is ever written into this page.
@@ -9410,10 +9432,16 @@ def part3dh_the_handoff():
     check("and it respects prefers-reduced-motion",
           "prefers-reduced-motion" in dh,
           "a child who needs stillness must still get the handoff")
-    check("BOTH faces refuse the video presence layer",
-          dhc.count("presence: false") == 1 and "c.persona" in dhc,
-          "one draw call serves both characters; the 92px slot is not the session "
-          "page's orb, and mounting a real person's video here is a later decision")
+    # (mn) The later decision arrived: Jim ruled Mr. Cadabra wears his real face here.
+    # One draw call still serves every canvas; the presence rides the persona, and the
+    # fly transform rides the .faceslot WRAPPER -- the video host mounts on the
+    # canvas's PARENT, so a canvas that flew alone would leave his face in mid-air.
+    check("the presence follows the persona, and his face flies WITH the slot",
+          'presence: c.persona === "cadabra"' in dhc
+          and ".who .faceslot" in dh and ".who.away .faceslot" in dh
+          and ".who.arriving .faceslot" in dh,
+          "presence by identity keeps Abrabot out of a real person's face; the "
+          ".faceslot transform keeps that face attached to the character it belongs to")
     check("only Mr. Cadabra may ever ask for the natural voice",
           '{ eleven: !!(step && step.natural), profile: null }' in dhc
           and "{ eleven: false }" in dhc,
@@ -9525,6 +9553,21 @@ def part3di_standalone_speech():
           all(ln in full for ln in lines),
           "if they are not, the prewarm never renders them and the evictor deletes "
           "them the moment it does")
+    # (mn) The handoff's own two lines. mj left them out of the closure and Jim heard
+    # the result with the rendered course: Mr. Cadabra flew in speaking in the BROWSER
+    # voice and only "regained" his real one at the re-teach. They are as authored as
+    # the introduction, so they are standalone closure lines now.
+    check("(mn) the handoff's hello and goodbye are standalone closure lines",
+          getattr(L, "CADABRA_HANDOFF_HELLO", None) in full
+          and getattr(L, "CADABRA_HANDOFF_BYE", None) in full,
+          "outside the closure they are a browser-voice seam in the middle of the "
+          "handoff, in front of a child, forever")
+    check("(mn) main.py ALIASES them -- never a second copy of the strings",
+          "_CAD_HELLO = lessonscripts.CADABRA_HANDOFF_HELLO" in msrc
+          and "_CAD_BYE = lessonscripts.CADABRA_HANDOFF_BYE" in msrc
+          and '_CAD_HELLO = "' not in msrc and "_CAD_HELLO = '" not in msrc,
+          "a forked copy is a line the closure protects but the handoff no longer "
+          "says -- or the reverse, which is the browser-voice seam back again")
     one = set(L.course_audio_lines([L.LESSONS[0]]))
     check("but NOT in a single-lesson render",
           not any(ln in one for ln in lines),
