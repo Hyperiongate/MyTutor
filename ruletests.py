@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mp -- ⭐⭐ THE COVERAGE CLAIM IS NOW A TEST. PART 3cv's
+#               Entry-Level pin moves to all nine units, and a new pin above it
+#               walks curriculum.py and fails on ANY unit of ANY course with no
+#               scripted lessons. That is the pin whose absence let Entry-Level U8
+#               and U9 sit empty until a spreadsheet found them -- in the course
+#               where the youngest children start. Three Unit 9 pins with it: the
+#               unit covers all three things it is NAMED for, the group lessons
+#               never say "times" (Basic Math U2 names multiplying), fair sharing
+#               never leaves a remainder, and nothing demonstrated on a shape is
+#               later asked -- checked BY SHAPE, because sides and corners are two
+#               ops and workedaudit.py compares tuples.
 #   2026-08-24  BUILD mo -- ENTRY-LEVEL UNIT 8, AND A DRILL-POOL BUG IT UNCOVERED.
 #               PART 3cv: the Entry-Level span pin moves from units 1-7 to 1-8, and
 #               NAMES Unit 9 as the one unit in the whole curriculum still
@@ -15692,13 +15703,56 @@ def part3cv_scripted_engine():
     # start, and the only course not covering its own units. Unit 8 (Time, Calendar
     # & Measurement) is now built. Unit 9 (Shapes, Patterns & Groups) is the last
     # one left, and this pin names it so it cannot be quietly forgotten again.
-    check("kc/kd/mo: Entry-Level Math spans units 1-8 (counting through the clock)",
+    check("⭐ mp: Entry-Level Math spans ALL NINE of its units",
           sorted({les["unit"] for les in L.LESSONS
-                  if les["course"] == "entry"}) == [1, 2, 3, 4, 5, 6, 7, 8],
+                  if les["course"] == "entry"}) == list(range(1, 10)),
           "the Eureka audit's re-cut put single-digit through regrouping here; "
           "kd opened the course at counting (U1) and added story problems (U3) "
-          "and coins (U7); mo built U8 -- U9 (Shapes, Patterns & Groups) is the "
-          "one unit in the whole curriculum still unscripted")
+          "and coins (U7); mo built U8 and mp built U9 -- the LAST unscripted "
+          "unit in the curriculum")
+    # ⭐⭐ (mp) THE COVERAGE CLAIM, HELD FOR THE WHOLE CURRICULUM. Until today
+    # Entry-Level was the one course that did not cover its own units, and nothing
+    # would have said so -- the hole was found by a spreadsheet, not by a test.
+    # This is that test. It reads the UNITS FROM curriculum.py, so a unit added
+    # there tomorrow fails here until it has lessons.
+    import curriculum as _C
+    _holes = []
+    for _cid in _C.COURSE_ORDER:
+        _want = {n for n, _t in _C.units_for(_cid)}
+        _have = {les["unit"] for les in L.LESSONS if les["course"] == _cid}
+        if _want - _have:
+            _holes.append(f"{_cid} missing units {sorted(_want - _have)}")
+    check("⭐⭐ EVERY unit of EVERY course has scripted lessons",
+          not _holes,
+          "; ".join(_holes) + " -- a unit with no lessons is a picker entry that "
+          "opens on nothing, and Entry-Level U8/U9 sat that way unnoticed until "
+          "2026-08-24")
+    check("mp: Unit 9 teaches shapes, patterns AND groups -- all three",
+          all(i in L.LESSON_BY_ID for i in (
+              "entry-u9-sides-and-corners", "entry-u9-what-comes-next",
+              "entry-u9-equal-groups", "entry-u9-sharing-fairly")),
+          "the unit is NAMED Shapes, Patterns & Groups")
+    check("mp: the group lessons never say 'times' -- Basic Math names that",
+          not any("times" in s.lower()
+                  for i in ("entry-u9-equal-groups", "entry-u9-sharing-fairly")
+                  for s in L.audio_lines(L.LESSON_BY_ID[i])),
+          "a child should meet equal groups and fair sharing as counting and "
+          "dealing, before multiplying is named in Basic Math Unit 2")
+    check("mp: sharing fairly NEVER leaves a remainder",
+          all(p["a"] % p["b"] == 0 for p in
+              (list(L.LESSON_BY_ID["entry-u9-sharing-fairly"]["bank"])
+               + [pr["ask"] for pr in
+                  L.LESSON_BY_ID["entry-u9-sharing-fairly"]["pairs"]])),
+          "left-overs are basic-u3-left-overs' lesson; met here they teach a "
+          "child that sharing sometimes just fails")
+    check("mp: nothing DEMONSTRATED on a shape is later ASKED",
+          not ({3, 4} & {p["a"] for p in
+                (list(L.LESSON_BY_ID["entry-u9-sides-and-corners"]["bank"])
+                 + [pr["ask"] for pr in
+                    L.LESSON_BY_ID["entry-u9-sides-and-corners"]["pairs"]])}),
+          "the triangle and the square are worked out loud in the teach beats "
+          "and the worked examples, so they are reserved -- in BOTH directions, "
+          "which workedaudit.py cannot see because sides and corners are two ops")
     check("mo: Unit 8 teaches time, the calendar AND measurement -- all three",
           all(i in L.LESSON_BY_ID for i in (
               "entry-u8-later-on-the-clock", "entry-u8-minutes-past-the-hour",

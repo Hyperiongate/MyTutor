@@ -2,6 +2,31 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mp -- ⭐⭐ THE CURRICULUM IS COMPLETE. ENTRY-LEVEL UNIT 9.
+#               332 lessons -> 336, 5 new ops (sid, cor, pat, grp, eqs).
+#               With this unit EVERY unit of ALL TEN COURSES has scripted lessons,
+#               Entry-Level Math through Differential Equations. Entry-Level was the
+#               last course not covering its own units, and nothing said so -- the
+#               hole was found by a spreadsheet on 2026-08-24, not by a test. There
+#               is now a test: PART 3cv reads the units from curriculum.py and fails
+#               on any unit anywhere with no lessons.
+#               U9 -- Shapes, Patterns & Groups. sid/cor are counting, and the two
+#               together ARE the lesson: a shape has as many corners as sides, so a
+#               child who notices never counts twice. pat is counting on by a fixed
+#               step -- the skip counting U7 and U8 already built. grp and eqs are
+#               the honest precursors to multiplying and dividing.
+#               ⚠️ THE GROUP LESSONS NEVER SAY "TIMES", and a pin holds it. Basic
+#               Math Unit 2 is where multiplying is taught and named; a child should
+#               meet the IDEA -- equal groups counted up, a pile dealt out fairly --
+#               before the word and the symbol arrive.
+#               ⚠️ eqs NEVER LEAVES A REMAINDER; its check refuses one. Left-overs
+#               are basic-u3-left-overs' lesson. Met here, before fair sharing is
+#               solid, they teach a child that sharing sometimes just fails.
+#               ⚠️ THE TRIANGLE AND SQUARE ARE RESERVED in the shapes lesson -- both
+#               teach beats work the triangle, both worked examples the square, so
+#               neither is ever asked in EITHER direction. workedaudit.py cannot see
+#               that: sides and corners are two ops, so it compares two tuples and
+#               finds nothing. Pinned by shape instead.
 #   2026-08-24  BUILD mo -- ENTRY-LEVEL UNIT 8 EXISTS. 328 lessons -> 332, 4 new ops
 #               (hrl, min5, min5q, dwd, cube -- five counting min5's reverse).
 #               ⚠️ FOUND BY THE SPREADSHEET, NOT BY A TEST. Jim asked for problems
@@ -2864,6 +2889,195 @@ _MORE_LESSONS = [
             {"a": 9, "b": 4, "op": "cube"}, {"a": 10, "b": 4, "op": "cube"},
             {"a": 12, "b": 5, "op": "cube"}, {"a": 14, "b": 6, "op": "cube"},
             {"a": 16, "b": 7, "op": "cube"}, {"a": 18, "b": 8, "op": "cube"},
+        ],
+    },
+    # =========================================================================
+    # (mp) ENTRY-LEVEL UNIT 9 -- SHAPES, PATTERNS & GROUPS
+    # -------------------------------------------------------------------------
+    # ⭐ THE LAST UNSCRIPTED UNIT IN THE CURRICULUM. With these four lessons every
+    # unit of all ten courses -- Entry-Level Math through Differential Equations
+    # -- has scripted lessons.
+    #
+    # ⚠️ THE TWO GROUP LESSONS NEVER SAY "TIMES", and that is deliberate rather
+    # than squeamish. Basic Math Unit 2 is where multiplying is taught and named;
+    # a child should meet the IDEA -- equal groups counted up, and a pile shared
+    # fairly -- before the word and the symbol arrive. So grp counts by repeated
+    # addition out loud and eqs deals one at a time, exactly as a six-year-old
+    # would with real counters.
+    #
+    # ⚠️ AND eqs NEVER LEAVES A REMAINDER. Its check refuses anything that does.
+    # Left-overs are basic-u3-left-overs' lesson; meeting them here, before fair
+    # sharing itself is solid, teaches a child that sharing sometimes just fails.
+    # =========================================================================
+    {
+        "id": "entry-u9-sides-and-corners", "course": "entry", "unit": 9,
+        "topic": "Sides and corners",
+        "op": "sid", "max_value": 10,
+        "levels": ("abstract",),
+        "symbols": ("side", "corner"),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count the sides and corners on a shape."),
+        "teach": [
+            ("Every flat shape is made of straight sides, and the place where "
+             "two sides meet is a corner of the shape.",
+             '[[goal text="Sides and corners"]]'),
+            ("Watch me count a triangle. Side, side, side — 3 sides. Its name "
+             "even says so: tri means three.",
+             '[[step eq="triangle → 3 sides"]]'),
+            ("Now its corners, watch. Corner, corner, corner — 3 corners. A "
+             "triangle has 3 of each, and that is true for every flat shape.",
+             '[[step eq="triangle → 3 corners, the same as its sides"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. A square. Side, side, "
+                        "side, side — 4 sides.",
+                        '[[step eq="square → 4 sides"]]'),
+             "ask": {"a": 5, "b": 0, "op": "sid"}},
+            {"worked": ("One more together. A square again, but its corners "
+                        "this time. Corner, corner, corner, corner — 4 corners, "
+                        "the same as its sides.",
+                        '[[step eq="square → 4 corners"]]'),
+             "ask": {"a": 5, "b": 0, "op": "cor"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        # ⚠️ THE TRIANGLE AND THE SQUARE ARE RESERVED. Both teach beats work the
+        # triangle and both worked examples work the square, so neither shape is
+        # ever ASKED -- in either direction. That leaves the five bigger shapes,
+        # each asked for its sides and for its corners, which IS the lesson: the
+        # two counts always match.
+        "bank": [
+            {"a": 6, "b": 0, "op": "sid"}, {"a": 6, "b": 0, "op": "cor"},
+            {"a": 7, "b": 0, "op": "sid"}, {"a": 7, "b": 0, "op": "cor"},
+            {"a": 8, "b": 0, "op": "sid"}, {"a": 8, "b": 0, "op": "cor"},
+            {"a": 10, "b": 0, "op": "sid"}, {"a": 10, "b": 0, "op": "cor"},
+        ],
+    },
+    {
+        "id": "entry-u9-what-comes-next", "course": "entry", "unit": 9,
+        "topic": "What comes next",
+        "op": "pat", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("pattern",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can find what comes next in a pattern."),
+        "teach": [
+            ("A pattern is numbers that follow a rule. Find the jump from one "
+             "number to the next, then use that jump again.",
+             '[[goal text="What comes next"]]'),
+            ("Watch me. 4, 7, 10, 13. From 4 to 7 is a jump of 3. Check it: 7 "
+             "to 10 is 3, and 10 to 13 is 3. So next is 13 and 3 more — 16.",
+             '[[step eq="4, 7, 10, 13, ? — jump of 3"]]'),
+            ("One more, watch. 9, 14, 19, 24. The jump is 5 every time, so next "
+             "is 24 and 5 more — 29.",
+             '[[step eq="9, 14, 19, 24, ? — jump of 5"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 3, 7, 11, 15. The jump "
+                        "is 4 every time, so next is 15 and 4 more — 19.",
+                        '[[step eq="3, 7, 11, 15, ? — jump of 4"]]'),
+             "ask": {"a": 3, "b": 2, "op": "pat"}},
+            {"worked": ("One more together. 6, 8, 10, 12. The jump is 2, so "
+                        "next is 12 and 2 more — 14.",
+                        '[[step eq="6, 8, 10, 12, ? — jump of 2"]]'),
+             "ask": {"a": 7, "b": 4, "op": "pat"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            # ⚠️ NO JUMP OF ONE IN THE TAUGHT BANK. "1, 2, 3, 4 -- what comes
+            # next?" is counting, not a pattern, and the ramp keys on the jump, so
+            # three of them would have opened the practice -- a step DOWN from
+            # teach beats that work jumps of 3 and 5. The op still allows a jump of
+            # one so Abrabot's pool can offer an easy rung; the LESSON starts at
+            # the smallest jump a child has to actually look for.
+            {"a": 2, "b": 2, "op": "pat"}, {"a": 5, "b": 2, "op": "pat"},
+            {"a": 9, "b": 2, "op": "pat"}, {"a": 1, "b": 3, "op": "pat"},
+            {"a": 5, "b": 3, "op": "pat"}, {"a": 8, "b": 3, "op": "pat"},
+            {"a": 2, "b": 4, "op": "pat"}, {"a": 6, "b": 4, "op": "pat"},
+            {"a": 9, "b": 4, "op": "pat"}, {"a": 1, "b": 5, "op": "pat"},
+            {"a": 4, "b": 5, "op": "pat"}, {"a": 6, "b": 5, "op": "pat"},
+        ],
+    },
+    {
+        "id": "entry-u9-equal-groups", "course": "entry", "unit": 9,
+        "topic": "Equal groups",
+        "op": "grp", "max_value": 25,
+        "levels": ("abstract",),
+        "symbols": ("group",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count equal groups."),
+        "teach": [
+            ("When every group holds the same amount, you do not have to count "
+             "one at a time. Count by the size of one group instead.",
+             '[[goal text="Equal groups"]]'),
+            ("Watch me. 3 groups with 5 stars in each. Count by five: 5, 10, "
+             "15. That is 15 stars in all.",
+             '[[step eq="3 groups of 5 = 15"]]'),
+            ("One more, watch. 4 groups with 2 stars in each. Count by two: 2, "
+             "4, 6, 8. That is 8 stars in all.",
+             '[[step eq="4 groups of 2 = 8"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 5 groups with 4 stars "
+                        "in each. Count by four: 4, 8, 12, 16, 20. That is 20 "
+                        "stars in all.",
+                        '[[step eq="5 groups of 4 = 20"]]'),
+             "ask": {"a": 2, "b": 2, "op": "grp"}},
+            {"worked": ("One more together. 2 groups with 5 stars in each. 5, "
+                        "10. That is 10 stars in all.",
+                        '[[step eq="2 groups of 5 = 10"]]'),
+             "ask": {"a": 3, "b": 4, "op": "grp"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            # (3,5) is NOT here on purpose -- teach beat two works it out loud.
+            {"a": 2, "b": 3, "op": "grp"}, {"a": 3, "b": 2, "op": "grp"},
+            {"a": 2, "b": 4, "op": "grp"}, {"a": 3, "b": 3, "op": "grp"},
+            {"a": 4, "b": 3, "op": "grp"}, {"a": 5, "b": 3, "op": "grp"},
+            {"a": 4, "b": 4, "op": "grp"}, {"a": 4, "b": 5, "op": "grp"},
+            {"a": 5, "b": 5, "op": "grp"},
+        ],
+    },
+    {
+        "id": "entry-u9-sharing-fairly", "course": "entry", "unit": 9,
+        "topic": "Sharing fairly",
+        "op": "eqs", "max_value": 30,
+        "levels": ("abstract",),
+        "symbols": ("equal",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can share a pile into equal groups."),
+        "teach": [
+            ("Sharing fairly means every group ends up with the same amount — "
+             "equal groups, none of them bigger than another.",
+             '[[goal text="Sharing fairly"]]'),
+            ("Watch me. 12 stars shared into 4 groups. Deal them out one at a "
+             "time, round and round. Every group ends with 3.",
+             '[[step eq="12 shared into 4 equal groups = 3 each"]]'),
+            ("One more, watch. 15 stars shared into 5 groups. Deal them round "
+             "and round, and every group ends with 3.",
+             '[[step eq="15 shared into 5 equal groups = 3 each"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 20 stars shared into 4 "
+                        "groups. Deal them round and round — 5 in each group.",
+                        '[[step eq="20 shared into 4 equal groups = 5 each"]]'),
+             "ask": {"a": 6, "b": 2, "op": "eqs"}},
+            {"worked": ("One more together. 25 stars shared into 5 groups. "
+                        "Every group ends with 5.",
+                        '[[step eq="25 shared into 5 equal groups = 5 each"]]'),
+             "ask": {"a": 9, "b": 3, "op": "eqs"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 4, "b": 2, "op": "eqs"}, {"a": 6, "b": 3, "op": "eqs"},
+            {"a": 8, "b": 2, "op": "eqs"}, {"a": 8, "b": 4, "op": "eqs"},
+            {"a": 10, "b": 5, "op": "eqs"}, {"a": 10, "b": 2, "op": "eqs"},
+            {"a": 12, "b": 3, "op": "eqs"}, {"a": 15, "b": 3, "op": "eqs"},
+            {"a": 16, "b": 4, "op": "eqs"}, {"a": 18, "b": 3, "op": "eqs"},
+            {"a": 24, "b": 4, "op": "eqs"}, {"a": 30, "b": 5, "op": "eqs"},
         ],
     },
     {
@@ -14465,6 +14679,10 @@ COURSE_ORDER = [
     # minute hand is the same count on a rounder board.
     "entry-u8-later-on-the-clock", "entry-u8-minutes-past-the-hour",
     "entry-u8-weeks-and-days", "entry-u8-how-much-longer",
+    # (mp) Unit 9 -- Shapes, Patterns & Groups. THE LAST UNSCRIPTED UNIT. Groups
+    # come after patterns because counting equal groups IS a pattern with a jump.
+    "entry-u9-sides-and-corners", "entry-u9-what-comes-next",
+    "entry-u9-equal-groups", "entry-u9-sharing-fairly",
     # ---- BASIC MATH (grades 3-5 band) ----
     "basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
     "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review",
@@ -14945,6 +15163,14 @@ def _ncr(n, k):
     return _npr(n, k) // _fact(k)
 
 
+# (mp) THE SHAPES ENTRY-LEVEL UNIT 9 CAN NAME, by how many sides they have. The
+# side count IS the key, so two shapes cannot share one: "rectangle" and "rhombus"
+# are both four-sided and would collide with "square", which is why they are taught
+# by Geometry and not counted here.
+_SHAPE = {3: "triangle", 4: "square", 5: "pentagon", 6: "hexagon",
+          7: "heptagon", 8: "octagon", 10: "decagon"}
+
+
 def _plural(n, word):
     """(mo) '1 hour', '2 hours' -- said the way a person says it.
 
@@ -15222,6 +15448,78 @@ OP_EXT = {
         "key": lambda p: 5 * p["a"] + p["b"],
         "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 4,
                             "pennies stay under a nickel"),
+    },
+    # ---- (mp) ENTRY-LEVEL UNIT 9: SHAPES, PATTERNS & GROUPS --------------------
+    # The LAST unscripted unit in the curriculum. Same rule as Unit 8: nothing here
+    # is a new KIND of arithmetic. sid/cor are counting. pat is counting on by a
+    # fixed step -- the skip counting U7 and U8 already built. grp and eqs are the
+    # honest precursors to multiplying and dividing, taught as REPEATED ADDITION and
+    # FAIR SHARING and never with the word "times", because Basic Math Unit 2 is
+    # where multiplying is taught and a child should meet the IDEA before the word.
+    "sid": {   # how many sides does a <shape> have?
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: f"How many sides does a {_SHAPE[p['a']]} have?",
+        "board": lambda p: f'[[step eq="{_SHAPE[p["a"]]} → ? sides"]]',
+        "praise": lambda p: f"A {_SHAPE[p['a']]} has {p['a']} sides.",
+        "key": lambda p: p["a"],
+        "check": lambda p: (p["a"] in _SHAPE and p.get("b", 0) == 0,
+                            "it has to be a shape the lesson can name"),
+        # rule 44's PURPOSE is "the child heard the whole problem". The NAME is the
+        # whole problem here, and saying the number would answer it -- the same
+        # reasoning cnt's override documents.
+        "speaks": lambda p, sp: _SHAPE[p["a"]] in sp,
+    },
+    "cor": {   # how many corners does a <shape> have? -- the SAME number, and that
+               # is the lesson: a child who notices never has to count twice
+        "ans": lambda p: p["a"],
+        "spoken": lambda p: f"How many corners does a {_SHAPE[p['a']]} have?",
+        "board": lambda p: f'[[step eq="{_SHAPE[p["a"]]} → ? corners"]]',
+        "praise": lambda p: (f"A {_SHAPE[p['a']]} has {p['a']} corners — the same "
+                             f"as its sides."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (p["a"] in _SHAPE and p.get("b", 0) == 0,
+                            "it has to be a shape the lesson can name"),
+        "speaks": lambda p, sp: _SHAPE[p["a"]] in sp,
+    },
+    "pat": {   # a, a+b, a+2b, a+3b -- what comes next?
+        "ans": lambda p: p["a"] + 4 * p["b"],
+        "spoken": lambda p: (f"The pattern is {p['a']}, {p['a'] + p['b']}, "
+                             f"{p['a'] + 2 * p['b']}, {p['a'] + 3 * p['b']}. "
+                             f"What comes next?"),
+        "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] + p["b"]}, '
+                            f'{p["a"] + 2 * p["b"]}, {p["a"] + 3 * p["b"]}, ?"]]'),
+        "praise": lambda p: (f"{p['a'] + 4 * p['b']} — the pattern goes up by "
+                             f"{p['b']} every time."),
+        "key": lambda p: p["b"],
+        "check": lambda p: (1 <= p["a"] <= 10 and 1 <= p["b"] <= 5,
+                            "the step is countable and the pattern starts small"),
+        # THE STEP IS NEVER SPOKEN -- finding it is the whole question.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "grp": {   # a groups of b -- how many in all? (repeated addition, NOT "times")
+        "ans": lambda p: p["a"] * p["b"],
+        "spoken": lambda p: (f"There are {p['a']} groups with {p['b']} stars in "
+                             f"each group. How many stars are there in all?"),
+        "board": lambda p: f'[[step eq="{p["a"]} groups of {p["b"]} = ?"]]',
+        "praise": lambda p: (f"{p['a']} groups of {p['b']} is {p['a'] * p['b']} "
+                             f"stars in all."),
+        "key": lambda p: p["a"] * p["b"],
+        "check": lambda p: (2 <= p["a"] <= 5 and 2 <= p["b"] <= 5,
+                            "few enough groups to count, and none of them empty"),
+    },
+    "eqs": {   # a stars shared into b equal groups -- how many in each?
+        "ans": lambda p: p["a"] // p["b"],
+        "spoken": lambda p: (f"{p['a']} stars are shared fairly into {p['b']} "
+                             f"equal groups. How many stars are in each group?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} shared into {p["b"]} equal '
+                            f'groups = ? each"]]'),
+        "praise": lambda p: (f"{p['a']} shared into {p['b']} equal groups is "
+                             f"{p['a'] // p['b']} in each group."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (2 <= p["b"] <= 5 and p["a"] % p["b"] == 0
+                            and 2 <= p["a"] // p["b"] <= 6,
+                            "fair sharing leaves nothing over -- remainders are "
+                            "Basic Math's lesson, not this one"),
     },
     # ---- (mo) ENTRY-LEVEL UNIT 8: TIME, CALENDAR & MEASUREMENT -----------------
     # Four ops for the first unit of the curriculum that had no scripted lessons at

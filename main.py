@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mp-curriculum-complete". BUILD mp -- ⭐⭐
+#               ENTRY-LEVEL UNIT 9, AND WITH IT EVERY UNIT OF EVERY COURSE HAS
+#               SCRIPTED LESSONS. No change in this file beyond the stamp: the four
+#               lessons and five ops are lessonscripts'. Recorded here because the
+#               closure GREW -- 29,734 -> 30,101, +367 -- and Unit 9's audio costs
+#               about $4.98 to render once. Press ② in /admin until it reads `done`.
 #   2026-08-24  APP_BUILD -> "2026-08-24mo-unit-eight". BUILD mo -- ENTRY-LEVEL UNIT 8.
 #               No change in this file beyond the stamp: the four new lessons and the
 #               five new ops are lessonscripts', and the drill-pool ranking fix is
@@ -11192,7 +11198,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mo-unit-eight"
+APP_BUILD = "2026-08-24mp-curriculum-complete"
 
 
 @app.get("/health")
