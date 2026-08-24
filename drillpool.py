@@ -2,6 +2,24 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mo -- THE RANK IS THE VALIDATOR'S OWN. A REAL BUG, found while
+#               building Entry-Level Unit 8's clock lesson.
+#               ⚠️ WHAT WAS WRONG. Three functions here (_probe_ok, _ordered, verify)
+#               sorted a candidate bank by ONE key function, taken off the LESSON'S
+#               op and applied to every problem in the bank. That is correct only
+#               while a lesson has a single op. The clock lesson reads the same fact
+#               two ways (min5 / min5q), so its min5q problems were ranked with
+#               min5's key, the sort came out unramped, validate() rejected EVERY
+#               candidate, and pool_for() returned an EMPTY POOL.
+#               ⚠️ AND IT HAD ALREADY HAPPENED, SILENTLY. basic-u9-quarter-turns
+#               (ang/angq) has been mixed-op since build kd and had no drill pool for
+#               the same reason -- invisible, because an empty pool looks exactly
+#               like a domain with nothing left in it. The fix moved the pool from
+#               24,880 problems to 25,343, and lessons-with-no-pool from 53 to 50.
+#               THE FIX: lessonscripts.difficulty_key -- the public name for the
+#               measure validate() actually ramps on, per PROBLEM and per its own op.
+#               A private second copy of the ramp measure is what caused this; there
+#               is now one owner, and PART 3de pins that this file calls it.
 #   2026-08-23  NEW FILE (build mg, phase 1 of ABRABOT). Jim: "you can work additional
 #               problems with Mr. Cadabra's assistant" -- named Abrabot, 2026-08-23.
 #               ABRABOT drills; MR. CADABRA teaches. Abrabot speaks in the browser's
@@ -215,8 +233,14 @@ def _probe_ok(les, candidate, board_tags):
     base = _shipped(les)[:9]
     if len(base) < 9:
         return False
-    d = L.OP_EXT.get(les["op"], {})
-    keyf = d.get("key") or (lambda q: L.ans(q))
+    # (mo) RANK BY THE SAME MEASURE validate() RAMPS ON. This used to take ONE key
+    # function off the LESSON'S op and apply it to every problem in the bank, which
+    # is right only while a lesson has a single op. A mixed-op lesson (the clock,
+    # read both ways; quarter turns, both ways) had its second op's problems ranked
+    # with the first op's key, the sort came out unramped, validate() rejected every
+    # candidate, and the pool came back EMPTY. lessonscripts.difficulty_key is the
+    # one owner of that measure.
+    keyf = L.difficulty_key
     try:
         bank = sorted(base + [candidate], key=lambda q: (keyf(q), L.ans(q)))
     except Exception:          # noqa: BLE001
@@ -233,8 +257,14 @@ def _probe_ok(les, candidate, board_tags):
 def _ordered(problems, les):
     """Easiest first, by the lesson's own difficulty key, so a drill session ramps the
     way a taught bank does instead of lurching between hard and easy."""
-    d = L.OP_EXT.get(les["op"], {})
-    keyf = d.get("key") or (lambda q: L.ans(q))
+    # (mo) RANK BY THE SAME MEASURE validate() RAMPS ON. This used to take ONE key
+    # function off the LESSON'S op and apply it to every problem in the bank, which
+    # is right only while a lesson has a single op. A mixed-op lesson (the clock,
+    # read both ways; quarter turns, both ways) had its second op's problems ranked
+    # with the first op's key, the sort came out unramped, validate() rejected every
+    # candidate, and the pool came back EMPTY. lessonscripts.difficulty_key is the
+    # one owner of that measure.
+    keyf = L.difficulty_key
     try:
         return sorted(problems, key=lambda q: (keyf(q), L.ans(q)))
     except Exception:          # noqa: BLE001
@@ -292,8 +322,14 @@ def verify(les, problems, board_tags):
     base = _shipped(les)[:9]
     if not problems or len(base) < 9:
         return []
-    d = L.OP_EXT.get(les["op"], {})
-    keyf = d.get("key") or (lambda q: L.ans(q))
+    # (mo) RANK BY THE SAME MEASURE validate() RAMPS ON. This used to take ONE key
+    # function off the LESSON'S op and apply it to every problem in the bank, which
+    # is right only while a lesson has a single op. A mixed-op lesson (the clock,
+    # read both ways; quarter turns, both ways) had its second op's problems ranked
+    # with the first op's key, the sort came out unramped, validate() rejected every
+    # candidate, and the pool came back EMPTY. lessonscripts.difficulty_key is the
+    # one owner of that measure.
+    keyf = L.difficulty_key
     out = []
     for n, cand in enumerate(problems):
         try:

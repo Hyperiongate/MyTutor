@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mo -- ENTRY-LEVEL UNIT 8, AND A DRILL-POOL BUG IT UNCOVERED.
+#               PART 3cv: the Entry-Level span pin moves from units 1-7 to 1-8, and
+#               NAMES Unit 9 as the one unit in the whole curriculum still
+#               unscripted -- so the hole the spreadsheet found cannot be quietly
+#               forgotten a second time. Three new pins with it: the unit covers all
+#               three of the things it is NAMED for, the clock never wraps past 12
+#               (that is modular arithmetic and this unit does not teach it), and
+#               nothing the clock lesson DEMONSTRATES is later ASKED -- checked by
+#               clock POSITION in both directions, which workedaudit.py structurally
+#               cannot do because it compares problem tuples and "the hand points to
+#               4" and "20 minutes past" are the same fact in two shapes.
+#               PART 3de: two pins on the drill pool's ranking. drillpool kept its
+#               own copy of the ramp measure and applied the LESSON'S op key to every
+#               problem in a bank; both mixed-op lessons therefore had EMPTY pools
+#               and nothing noticed. It now calls lessonscripts.difficulty_key, and
+#               these pins hold it there.
 #   2026-08-24  BUILD mn -- TWO PINS MOVED WITH JIM'S RULING, TWO PINS ADDED.
 #               Jim tested the handoff with the rendered course and ruled that Mr.
 #               Cadabra must wear HIS OWN FACE on the drill page ("when it goes back
@@ -8753,6 +8769,28 @@ def part3de_drill_pool():
     check("no lesson's pool repeats itself", dup == 0, f"{dup} duplicates")
     check("the pool never re-serves a problem the lesson TEACHES",
           taught_clash == 0, f"{taught_clash} clashes")
+    # (mo) THE RANK IS THE VALIDATOR'S OWN. drillpool sorted every candidate bank
+    # with ONE key function taken off the lesson's op -- correct only while a lesson
+    # has a single op. A mixed-op lesson had its second op's problems ranked by the
+    # first op's key, the sort came out unramped, validate() rejected everything, and
+    # the pool came back EMPTY. Both mixed-op lessons in the course were affected and
+    # nothing noticed, because an empty pool looks exactly like a small domain.
+    _mixed = [les for les in lessonscripts.LESSONS
+              if len({q.get("op", les["op"]) for q in drillpool._shipped(les)}) > 1]
+    check("mixed-op lessons exist, and the pool ranks them by the VALIDATOR's key",
+          _mixed and "keyf = L.difficulty_key" in open(
+              os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "drillpool.py"), encoding="utf-8").read()
+          and "keyf = d.get(" not in open(
+              os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "drillpool.py"), encoding="utf-8").read(),
+          f"{len(_mixed)} mixed-op lessons: "
+          f"{[l['id'] for l in _mixed]} -- a private second copy of the ramp "
+          f"measure is how they silently lost their drill pools")
+    check("  ...and lessonscripts owns that key under a PUBLIC name",
+          getattr(lessonscripts, "difficulty_key", None)
+          is lessonscripts._difficulty_key,
+          "two functions answering 'how hard is this problem' is one too many")
 
     # A pool is only useful if it ramps: drill should get harder, not lurch about.
     lurch = 0
@@ -8760,10 +8798,16 @@ def part3de_drill_pool():
         ps = pool.get(les["id"]) or []
         if len(ps) < 3:
             continue
-        d = lessonscripts.OP_EXT.get(les["op"], {})
-        keyf = d.get("key") or (lambda q: lessonscripts.ans(q))
+        # (mo) MEASURED BY THE VALIDATOR'S OWN KEY -- the THIRD copy of the ramp
+        # measure, and the last. This check used to take the key off the LESSON'S op
+        # and apply it to every problem, which for "-" meant ranking by the ANSWER
+        # (a − b) when lessonscripts has always documented and ramped on the STARTING
+        # number ("you count back from it"). While drillpool ordered pools the same
+        # wrong way the two agreed and the check passed; the moment drillpool was
+        # fixed, three subtraction pools looked disordered and were not. A test that
+        # keeps its own copy of the rule eventually grades against the wrong one.
         try:
-            ks = [keyf(q) for q in ps]
+            ks = [lessonscripts.difficulty_key(q) for q in ps]
         except Exception:  # noqa: BLE001
             continue
         if any(ks[i] < ks[i - 1] for i in range(1, len(ks))):
@@ -15642,12 +15686,54 @@ def part3cv_scripted_engine():
                   if les["course"] == "basic"}) == list(range(1, 10)),
           str(sorted({les["unit"] for les in L.LESSONS
                       if les["course"] == "basic"})))
-    check("kc/kd: Entry-Level Math spans units 1-7 (counting through coins)",
+    # (mo) THE SPAN MOVED, DELIBERATELY. The per-unit spreadsheet Jim asked for on
+    # 2026-08-24 found the only hole left in the curriculum: Entry-Level Units 8 and
+    # 9 had NO scripted lessons at all -- in the course where the youngest children
+    # start, and the only course not covering its own units. Unit 8 (Time, Calendar
+    # & Measurement) is now built. Unit 9 (Shapes, Patterns & Groups) is the last
+    # one left, and this pin names it so it cannot be quietly forgotten again.
+    check("kc/kd/mo: Entry-Level Math spans units 1-8 (counting through the clock)",
           sorted({les["unit"] for les in L.LESSONS
-                  if les["course"] == "entry"}) == [1, 2, 3, 4, 5, 6, 7],
+                  if les["course"] == "entry"}) == [1, 2, 3, 4, 5, 6, 7, 8],
           "the Eureka audit's re-cut put single-digit through regrouping here; "
           "kd opened the course at counting (U1) and added story problems (U3) "
-          "and coins (U7)")
+          "and coins (U7); mo built U8 -- U9 (Shapes, Patterns & Groups) is the "
+          "one unit in the whole curriculum still unscripted")
+    check("mo: Unit 8 teaches time, the calendar AND measurement -- all three",
+          all(i in L.LESSON_BY_ID for i in (
+              "entry-u8-later-on-the-clock", "entry-u8-minutes-past-the-hour",
+              "entry-u8-weeks-and-days", "entry-u8-how-much-longer")),
+          "the unit is NAMED Time, Calendar & Measurement; a unit that covers two "
+          "of its three promises is a unit that lies in the picker")
+    check("mo: the clock face never wraps past 12 in Entry-Level",
+          all(L.ans(p) <= 12 for p in
+              (list(L.LESSON_BY_ID["entry-u8-later-on-the-clock"]["bank"])
+               + [pr["ask"] for pr in
+                  L.LESSON_BY_ID["entry-u8-later-on-the-clock"]["pairs"]])),
+          "'11 o'clock plus 3 hours is 2 o'clock' is modular arithmetic, and this "
+          "unit never teaches the twelve-hour circle it needs")
+    check("mo: nothing DEMONSTRATED on the clock is later ASKED, either direction",
+          # min5/min5q are one fact read two ways, and the clock has only eleven
+          # positions -- so the reserved ones have to be checked by POSITION, not
+          # by problem tuple, which is more than workedaudit.py can see.
+          not ({int(m) for s, _ in
+                L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["teach"]
+                for m in re.findall(r"points to (\d+)", s)}
+               | {int(m) // 5 for s, _ in
+                  L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["teach"]
+                  for m in re.findall(r"It is (\d+) minutes", s)}
+               | {int(m) for pr in
+                  L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["pairs"]
+                  for m in re.findall(r"points to (\d+)", pr["worked"][0])}
+               | {int(m) // 5 for pr in
+                  L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["pairs"]
+                  for m in re.findall(r"It is (\d+) minutes", pr["worked"][0])})
+              & {(p["a"] if p["op"] == "min5" else p["a"] // 5) for p in
+                 (list(L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["bank"])
+                  + [pr["ask"] for pr in
+                     L.LESSON_BY_ID["entry-u8-minutes-past-the-hour"]["pairs"]])},
+          "Mr. Cadabra reads a clock position out loud and a child is asked that "
+          "same position minutes later -- 'mastered' stops meaning anything")
     check("kc: the audit's two big holes are filled",
           "basic-u2-multiply-two-digit" in L.LESSON_BY_ID
           and "basic-u3-divide-two-digit" in L.LESSON_BY_ID

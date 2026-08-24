@@ -2,6 +2,35 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mo -- ENTRY-LEVEL UNIT 8 EXISTS. 328 lessons -> 332, 4 new ops
+#               (hrl, min5, min5q, dwd, cube -- five counting min5's reverse).
+#               ⚠️ FOUND BY THE SPREADSHEET, NOT BY A TEST. Jim asked for problems
+#               per unit; the count showed Entry-Level Units 8 and 9 with NO scripted
+#               lessons at all -- in the course where the youngest children start,
+#               and the only course in the curriculum not covering its own units.
+#               Every other course runs four lessons in each of nine units.
+#               U8 -- Time, Calendar & Measurement, and every lesson is a shape the
+#               child has already met, which is the whole design: a six-year-old
+#               meeting the clock should not also be meeting new arithmetic. "Later
+#               on the clock" is counting on (U2/U3) along a number line. "Minutes
+#               past the hour" counts by five exactly as U7 counts nickels. "Weeks
+#               and days" is U7's coin shape with sevens instead of fives. "How much
+#               longer" is taking away (U3) with a ruler drawn under it.
+#               ⚠️ THE CLOCK DOES NOT WRAP, and hrl's check enforces it. "11 o'clock
+#               plus 3 hours is 2 o'clock" is modular arithmetic; this unit never
+#               teaches the twelve-hour circle it would need, so it may not ask it.
+#               ⚠️ min5 NEEDED ITS REVERSE (min5q) -- a clock has only ELEVEN
+#               positions, which is not enough for a bank plus pairs. ang/angq hit
+#               exactly this wall in kd. It is also better teaching: one direction
+#               only is a memorised list, not a clock.
+#               ⚠️ AND SO THE MINUTES BANK IS TEN, NOT TWELVE. The lesson also
+#               DEMONSTRATES four positions (two teach beats, two worked examples),
+#               so those four are reserved -- shown, never asked. Filling the bank
+#               would have meant asking a child a question Mr. Cadabra answered out
+#               loud two minutes earlier. Pinned by position, in both directions,
+#               because workedaudit.py compares problem TUPLES and cannot see that
+#               "the hand points to 4" and "20 minutes past" are one fact.
+#               NEW PUBLIC NAME: difficulty_key -- see its note above validate().
 #   2026-08-24  BUILD mn -- THE HANDOFF'S OWN TWO LINES JOIN THE CLOSURE.
 #               Jim tested the drill handoff with the fully rendered course and HEARD
 #               THE SEAM: Mr. Cadabra flew in and his first words came out in the
@@ -2635,6 +2664,206 @@ _MORE_LESSONS = [
             {"a": 3, "b": 1, "op": "nick"}, {"a": 3, "b": 2, "op": "nick"},
             {"a": 4, "b": 1, "op": "nick"}, {"a": 4, "b": 3, "op": "nick"},
             {"a": 5, "b": 2, "op": "nick"}, {"a": 6, "b": 1, "op": "nick"},
+        ],
+    },
+    # =========================================================================
+    # (mo) ENTRY-LEVEL UNIT 8 -- TIME, CALENDAR & MEASUREMENT
+    # -------------------------------------------------------------------------
+    # The spreadsheet Jim asked for on 2026-08-24 found the only hole left in the
+    # curriculum: Entry-Level Units 8 and 9 had NO scripted lessons at all, in the
+    # one course where the youngest children start. This is Unit 8.
+    #
+    # ⚠️ EVERY LESSON HERE IS A SHAPE THE CHILD HAS ALREADY MET. That is the whole
+    # design: a six-year-old meeting the clock should not also be meeting a new
+    # kind of arithmetic. "Later on the clock" is counting on (U2/U3) along a
+    # number line. "Minutes past the hour" counts by five, exactly as U7 counts
+    # nickels. "Weeks and days" is U7's coin shape with sevens instead of fives.
+    # "How much longer" is taking away (U3) with a ruler drawn under it.
+    #
+    # ⚠️ THE CLOCK FACE DOES NOT WRAP HERE, and hrl's check enforces it. "11
+    # o'clock plus 3 hours is 2 o'clock" is a real idea, and it is not this unit's
+    # -- it needs the twelve-hour circle taught first. A lesson that quietly
+    # wrapped would be teaching modular arithmetic to a child who is still
+    # counting on their fingers.
+    # =========================================================================
+    {
+        "id": "entry-u8-later-on-the-clock", "course": "entry", "unit": 8,
+        "topic": "Later on the clock",
+        "op": "hrl", "max_value": 12,
+        "levels": ("abstract",),
+        "symbols": ("o'clock",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can tell what time it will be later."),
+        "teach": [
+            ("The short hand on a clock tells the hour. When it points at 3, we "
+             "say 3 o'clock out loud.",
+             '[[goal text="Later on the clock"]]'
+             '[[numberline min="1" max="12" points="3"]]'),
+            ("Watch me. It is 9 o'clock now. Two hours later, count on: 10, 11. "
+             "It is 11 o'clock.",
+             '[[numberline min="1" max="12" points="11"]]'
+             '[[step eq="9 o\'clock, 2 hours later = 11"]]'),
+            ("One more, watch. It is 5 o'clock. Four hours later, count on: 6, "
+             "7, 8, 9. It is 9 o'clock.",
+             '[[numberline min="1" max="12" points="9"]]'
+             '[[step eq="5 o\'clock, 4 hours later = 9"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. It is 7 o'clock. Three "
+                        "hours later, count on: 8, 9, 10. It is 10 o'clock.",
+                        '[[step eq="7 o\'clock, 3 hours later = 10"]]'),
+             "ask": {"a": 3, "b": 1, "op": "hrl"}},
+            {"worked": ("One more together. It is 10 o'clock. One hour later is "
+                        "11 o'clock.",
+                        '[[step eq="10 o\'clock, 1 hour later = 11"]]'),
+             "ask": {"a": 5, "b": 2, "op": "hrl"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 1, "op": "hrl"}, {"a": 2, "b": 1, "op": "hrl"},
+            {"a": 2, "b": 2, "op": "hrl"}, {"a": 4, "b": 1, "op": "hrl"},
+            {"a": 3, "b": 2, "op": "hrl"}, {"a": 4, "b": 2, "op": "hrl"},
+            {"a": 4, "b": 3, "op": "hrl"}, {"a": 5, "b": 3, "op": "hrl"},
+            {"a": 6, "b": 3, "op": "hrl"}, {"a": 6, "b": 4, "op": "hrl"},
+            {"a": 7, "b": 4, "op": "hrl"}, {"a": 8, "b": 4, "op": "hrl"},
+        ],
+    },
+    {
+        "id": "entry-u8-minutes-past-the-hour", "course": "entry", "unit": 8,
+        "topic": "Minutes past the hour",
+        "op": "min5", "max_value": 55,
+        "levels": ("abstract",),
+        "symbols": ("minute hand",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can read the minutes on a clock."),
+        "teach": [
+            ("The long hand is the minute hand, and it moves faster than the "
+             "short one. Every number it passes is five minutes.",
+             '[[goal text="Minutes past the hour"]]'),
+            ("Watch me. The minute hand points to 6. Count by five: 5, 10, 15, "
+             "20, 25, 30. That is 30 minutes past the hour.",
+             '[[step eq="6 numbers past 12, five minutes each = 30"]]'),
+            ("Now the other way, watch. It is 20 minutes past. Count by five "
+             "until you reach 20: 5, 10, 15, 20. That is four numbers, so the "
+             "minute hand points to 4.",
+             '[[step eq="20 minutes, five minutes each = 4 on the clock"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. The minute hand points "
+                        "to 9. Count by five: 5, 10, 15, 20, 25, 30, 35, 40, 45. "
+                        "That is 45 minutes.",
+                        '[[step eq="9 numbers past 12, five minutes each = 45"]]'),
+             "ask": {"a": 10, "b": 0, "op": "min5"}},
+            {"worked": ("One more together. It is 15 minutes past. Count by "
+                        "five: 5, 10, 15. Three numbers, so the hand points to 3.",
+                        '[[step eq="15 minutes, five minutes each = 3 on the clock"]]'),
+             "ask": {"a": 55, "b": 0, "op": "min5q"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        # ⚠️ THE BANK IS TEN, NOT TWELVE, AND THAT IS THE POINT. A clock has only
+        # ELEVEN positions the minute hand can land on, and this lesson also
+        # DEMONSTRATES four of them -- teach beats two and three, and both worked
+        # examples. Positions 3, 4, 6 and 9 are therefore reserved: they are shown,
+        # so they are never asked. Filling the bank to twelve would have meant
+        # asking a child a question Mr. Cadabra answered out loud two minutes
+        # earlier, which is the exact defect workedaudit.py exists to find.
+        #
+        # BOTH DIRECTIONS, INTERLEAVED BY DIFFICULTY. The key is the clock NUMBER
+        # either way (min5's a, min5q's a divided by five), so "the hand points to
+        # 2" and "10 minutes past" sit together on the ramp. That pairing is the
+        # lesson, not a duplicate: a child who can only go one way has memorised a
+        # list rather than learned to read a clock.
+        "bank": [
+            {"a": 5, "b": 0, "op": "min5q"}, {"a": 1, "b": 0, "op": "min5"},
+            {"a": 10, "b": 0, "op": "min5q"}, {"a": 2, "b": 0, "op": "min5"},
+            {"a": 25, "b": 0, "op": "min5q"}, {"a": 5, "b": 0, "op": "min5"},
+            {"a": 35, "b": 0, "op": "min5q"}, {"a": 7, "b": 0, "op": "min5"},
+            {"a": 40, "b": 0, "op": "min5q"}, {"a": 8, "b": 0, "op": "min5"},
+        ],
+    },
+    {
+        "id": "entry-u8-weeks-and-days", "course": "entry", "unit": 8,
+        "topic": "Weeks and days",
+        "op": "dwd", "max_value": 34,
+        "levels": ("abstract",),
+        "symbols": ("week",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can count weeks and days."),
+        "teach": [
+            ("A week is seven days. Sunday, Monday, Tuesday, Wednesday, "
+             "Thursday, Friday, Saturday — and then a new one starts.",
+             '[[goal text="Weeks and days"]]'),
+            ("Watch me. 2 weeks and 2 days. Count the weeks by seven: 7, 14. "
+             "Then count the loose days on: 15, 16. That is 16 days.",
+             '[[step eq="2 weeks and 2 days = 16 days"]]'),
+            ("One more, watch. 3 weeks and 4 days. By seven: 7, 14, 21. Then "
+             "on: 22, 23, 24, 25. That is 25 days.",
+             '[[step eq="3 weeks and 4 days = 25 days"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. 1 week and 6 days. "
+                        "Seven, then on: 8, 9, 10, 11, 12, 13. That is 13 days.",
+                        '[[step eq="1 week and 6 days = 13 days"]]'),
+             "ask": {"a": 1, "b": 4, "op": "dwd"}},
+            {"worked": ("One more together. 4 weeks and 1 day. By seven: 7, 14, "
+                        "21, 28. One more day: 29 days.",
+                        '[[step eq="4 weeks and 1 day = 29 days"]]'),
+             "ask": {"a": 2, "b": 6, "op": "dwd"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 1, "b": 1, "op": "dwd"}, {"a": 1, "b": 2, "op": "dwd"},
+            {"a": 1, "b": 3, "op": "dwd"}, {"a": 1, "b": 5, "op": "dwd"},
+            {"a": 2, "b": 1, "op": "dwd"}, {"a": 2, "b": 3, "op": "dwd"},
+            {"a": 2, "b": 5, "op": "dwd"}, {"a": 3, "b": 1, "op": "dwd"},
+            {"a": 3, "b": 3, "op": "dwd"}, {"a": 3, "b": 6, "op": "dwd"},
+            {"a": 4, "b": 2, "op": "dwd"}, {"a": 4, "b": 5, "op": "dwd"},
+        ],
+    },
+    {
+        "id": "entry-u8-how-much-longer", "course": "entry", "unit": 8,
+        "topic": "How much longer",
+        "op": "cube", "max_value": 20,
+        "levels": ("abstract",),
+        "symbols": ("longer",),
+        "advance_line": ("Three in a row — you've got it! "
+                         "You can measure and compare with cubes."),
+        "teach": [
+            ("We can measure with cubes. Line them up under the pencil, start "
+             "at the very end, and count. More cubes means longer than fewer.",
+             '[[goal text="How much longer"]]'),
+            ("Watch me. The pencil is 13 cubes. The crayon is 4 cubes. 13 take "
+             "away 4 equals 9, so the pencil is 9 cubes longer.",
+             '[[bars data="pencil:13 | crayon:4"]]'
+             '[[step eq="13 cubes − 4 cubes = 9"]]'),
+            ("One more, watch. The pencil is 17 cubes. The crayon is 9 cubes. "
+             "17 take away 9 equals 8 cubes longer.",
+             '[[bars data="pencil:17 | crayon:9"]]'
+             '[[step eq="17 cubes − 9 cubes = 8"]]'),
+        ],
+        "pairs": [
+            {"worked": ("Here is one more, done for you. The pencil is 19 "
+                        "cubes. The crayon is 12 cubes. 19 take away 12 equals "
+                        "7 cubes longer.",
+                        '[[step eq="19 cubes − 12 cubes = 7"]]'),
+             "ask": {"a": 11, "b": 5, "op": "cube"}},
+            {"worked": ("One more together. The pencil is 20 cubes. The crayon "
+                        "is 13 cubes. 20 take away 13 equals 7 cubes longer.",
+                        '[[step eq="20 cubes − 13 cubes = 7"]]'),
+             "ask": {"a": 15, "b": 6, "op": "cube"}},
+        ],
+        "practice_intro": ("Now it's your turn. Three right answers in a row and "
+                           "we're done — here comes the first one."),
+        "bank": [
+            {"a": 3, "b": 1, "op": "cube"}, {"a": 4, "b": 1, "op": "cube"},
+            {"a": 5, "b": 2, "op": "cube"}, {"a": 6, "b": 2, "op": "cube"},
+            {"a": 7, "b": 3, "op": "cube"}, {"a": 8, "b": 3, "op": "cube"},
+            {"a": 9, "b": 4, "op": "cube"}, {"a": 10, "b": 4, "op": "cube"},
+            {"a": 12, "b": 5, "op": "cube"}, {"a": 14, "b": 6, "op": "cube"},
+            {"a": 16, "b": 7, "op": "cube"}, {"a": 18, "b": 8, "op": "cube"},
         ],
     },
     {
@@ -14231,6 +14460,11 @@ COURSE_ORDER = [
     "entry-u4-tens-and-ones", "entry-u5-add-two-digit-no-carry",
     "entry-u5-add-with-carrying", "entry-u6-take-away-with-regrouping",
     "entry-u7-counting-coins",
+    # (mo) Unit 8 -- Time, Calendar & Measurement. The clock lessons come after
+    # coins on purpose: counting by five is learned on nickels first, and the
+    # minute hand is the same count on a rounder board.
+    "entry-u8-later-on-the-clock", "entry-u8-minutes-past-the-hour",
+    "entry-u8-weeks-and-days", "entry-u8-how-much-longer",
     # ---- BASIC MATH (grades 3-5 band) ----
     "basic-u1-place-value-to-1000", "basic-u1-rounding-tens",
     "basic-u1-rounding-hundreds", "basic-u1-multi-digit-review",
@@ -14711,6 +14945,19 @@ def _ncr(n, k):
     return _npr(n, k) // _fact(k)
 
 
+def _plural(n, word):
+    """(mo) '1 hour', '2 hours' -- said the way a person says it.
+
+    ⚠️ THE VALIDATOR CANNOT SEE THIS. Every check in validate() passed on "What time
+    will it be 1 hours later?", because grammar is not arithmetic and no bound, ramp
+    or vocabulary rule is broken by it. Four such lines were caught in ONE read-aloud
+    pass on build mo -- "1 hours later", "1 weeks and 1 days", "1 cubes long" -- which
+    is the whole argument for reading new content out loud before it is rendered in a
+    real voice and played to a six-year-old.
+    """
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
 OP_EXT = {
     "*": {
         "ans": lambda p: p["a"] * p["b"],
@@ -14975,6 +15222,99 @@ OP_EXT = {
         "key": lambda p: 5 * p["a"] + p["b"],
         "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 4,
                             "pennies stay under a nickel"),
+    },
+    # ---- (mo) ENTRY-LEVEL UNIT 8: TIME, CALENDAR & MEASUREMENT -----------------
+    # Four ops for the first unit of the curriculum that had no scripted lessons at
+    # all. Each is deliberately shaped like something the child has ALREADY met:
+    # hrl counts on (U2/U3), min5 counts by five exactly as nick does for coins
+    # (U7), dwd is nick's shape with sevens instead of fives, and cube is taking
+    # away (U3) with a ruler under it.
+    "hrl": {   # it is a o'clock; what time b hours later?
+        "ans": lambda p: p["a"] + p["b"],
+        "spoken": lambda p: (f"It is {p['a']} o'clock. What time will it be "
+                             f"{_plural(p['b'], 'hour')} later?"),
+        "board": lambda p: (f'[[numberline min="1" max="12" points="{p["a"]}"]]'
+                            f'[[step eq="{p["a"]} o\'clock, {p["b"]} hours later = ?"]]'),
+        "praise": lambda p: (f"{_plural(p['b'], 'hour')} after {p['a']} o'clock "
+                             f"is {p['a'] + p['b']} o'clock."),
+        "key": lambda p: p["a"] + p["b"],
+        # The clock face a child reads goes to 12 and no further. Wrapping past it
+        # ("11 o'clock plus 3 is 2 o'clock") is a real idea and NOT this lesson's --
+        # it needs the twelve-hour circle taught first, which Unit 8 does not do.
+        "check": lambda p: (1 <= p["a"] <= 11 and 1 <= p["b"] <= 6
+                            and p["a"] + p["b"] <= 12,
+                            "the hand stays on the clock face, 1 through 12"),
+    },
+    "min5": {  # the minute hand points at a; how many minutes past?
+        "ans": lambda p: 5 * p["a"],
+        "spoken": lambda p: (f"The minute hand points to {p['a']}. How many "
+                             f"minutes past the hour is that?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} numbers past 12, five minutes '
+                            f'each = ? minutes"]]'),
+        "praise": lambda p: (f"{p['a']} times five equals {5 * p['a']} minutes."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (1 <= p["a"] <= 11 and p.get("b", 0) == 0,
+                            "the minute hand points at a clock number, and this "
+                            "problem has only one"),
+        # b is a placeholder 0 -- the same shape r10/aft/bef use.
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+        # ⚠️ THE NEIGHBOURS CANNOT BE +-1 HERE. Every answer is a multiple of five,
+        # so 19 | 20 | 21 hands the answer to a child who has merely noticed that.
+        # The honest distractors are the neighbouring five-minute marks.
+        "choices": lambda p: ([5 * p["a"] - 5, 5 * p["a"], 5 * p["a"] + 5]
+                              if p["a"] >= 2 else
+                              [5, 10, 15]),
+    },
+    "min5q": {  # the reverse: a minutes past -> which clock number?
+        # ⚠️ WHY THE REVERSE FORM EXISTS. min5 alone has ELEVEN distinct problems --
+        # the minute hand points at 1 through 11 and there is no twelfth -- which is
+        # not enough for a bank of twelve plus two worked pairs. ang/angq hit exactly
+        # this wall in build kd and solved it the same way. It also happens to be
+        # better teaching: a child who can only go one direction has memorised a
+        # list, not learned to read a clock.
+        "ans": lambda p: p["a"] // 5,
+        "spoken": lambda p: (f"The minute hand is {p['a']} minutes past the hour. "
+                             f"Which clock number is it pointing to?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} minutes, five minutes each '
+                            f'= ? on the clock"]]'),
+        "praise": lambda p: (f"{p['a']} minutes is the {p['a'] // 5} on the "
+                             f"clock — five minutes for each number."),
+        "key": lambda p: p["a"] // 5,
+        "check": lambda p: (5 <= p["a"] <= 55 and p["a"] % 5 == 0
+                            and p.get("b", 0) == 0,
+                            "the minute hand lands ON a clock number, so the "
+                            "minutes are a count of fives"),
+        "speaks": lambda p, sp: str(p["a"]) in sp,
+    },
+    "dwd": {   # a weeks and b days = ? days   (nick's shape, with sevens)
+        "ans": lambda p: 7 * p["a"] + p["b"],
+        "spoken": lambda p: (f"How many days are in {p['a']} "
+                             f"{'week' if p['a'] == 1 else 'weeks'} and "
+                             f"{p['b']} {'day' if p['b'] == 1 else 'days'}?"),
+        "board": lambda p: (f'[[step eq="{p["a"]} weeks and {p["b"]} days '
+                            f'= ? days"]]'),
+        "praise": lambda p: (f"{_plural(p['a'], 'week')} and "
+                             f"{_plural(p['b'], 'day')} equals "
+                             f"{7 * p['a'] + p['b']} days."),
+        "key": lambda p: 7 * p["a"] + p["b"],
+        "check": lambda p: (1 <= p["a"] <= 4 and 1 <= p["b"] <= 6,
+                            "the loose days stay under a week, or they are "
+                            "another week"),
+    },
+    "cube": {  # a cubes long against b cubes long: how many cubes longer?
+        "ans": lambda p: p["a"] - p["b"],
+        "spoken": lambda p: (f"The pencil is {_plural(p['a'], 'cube')} long. The "
+                             f"crayon is {_plural(p['b'], 'cube')} long. How many "
+                             f"cubes longer is the pencil?"),
+        "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}"]]'
+                            f'[[step eq="{p["a"]} cubes − {p["b"]} cubes = ?"]]'),
+        "praise": lambda p: (f"{_plural(p['a'], 'cube')} take away "
+                             f"{_plural(p['b'], 'cube')} — the pencil is "
+                             f"{_plural(p['a'] - p['b'], 'cube')} longer."),
+        "key": lambda p: p["a"],
+        "check": lambda p: (2 <= p["a"] <= 20 and 1 <= p["b"] < p["a"],
+                            "the pencil is the longer one, and both are "
+                            "measurable in cubes"),
     },
     "dh": {    # hundredths: 0.ab + 0.cd, answered in hundredths
         "ans": lambda p: p["a"] + p["b"],
@@ -23308,6 +23648,17 @@ def _difficulty_key(p):
     if op == "t":
         return p["b"]
     return p["a"] + p["b"]
+
+
+# (mo) THE PUBLIC NAME FOR IT. drillpool.py has to sort a candidate bank by exactly
+# the measure validate() ramps on, and it was computing its own -- one key function
+# taken from the LESSON'S op and applied to every problem in the bank. That is right
+# only while a lesson has a single op, and silently wrong the moment it does not:
+# min5q problems were ranked with min5's key, the sort came out unramped, and
+# validate() then rejected every candidate. Both mixed-op lessons in the course
+# (basic-u9-quarter-turns and entry-u8-minutes-past-the-hour) had EMPTY drill pools
+# because of it. One owner, publicly named, so no caller has to guess again.
+difficulty_key = _difficulty_key
 
 
 def validate(lesson, board_tag_names=None):
