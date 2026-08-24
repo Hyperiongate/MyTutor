@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mu -- THE TOUR PIN NOW SCANS THE LINES, NOT THE PROSE ABOUT
+#               THEM. PART 3cb's layout-geometry check read the raw TOUR_STEPS block,
+#               so the moment a comment EXPLAINED which phrases are banned -- which
+#               the new Abrabot stop does, to stop the next author repeating the
+#               mistake -- the pin fired on the warning instead of the defect. Same
+#               trap code_only() was written for, five times over, and the tempting
+#               repair is always to delete the documentation. It strips comments now.
+#               NEW PINS in PART 3dm: the lesson sidebar has its own door to Abrabot,
+#               the guided tour introduces it, and the two features that both wanted
+#               the word "practice" are not both called practice.
 #   2026-08-24  BUILD mt -- PART 3dm, PRACTICE IS COUNTED AND STILL IS NOT MASTERY.
 #               The feature pulls against Jim's own ruling, so both halves are pinned
 #               on a real database: the ledger fills AND unit_checks, topic_progress
@@ -9858,8 +9868,25 @@ def part3dm_practice_is_tracked():
     with open(os.path.join(here, "static", "app-nav.js"), encoding="utf-8") as fh:
         nav = fh.read()
 
+    # (mu) The tour and the lesson sidebar, pinned together -- Jim flagged the intro
+    # himself: "we're gonna need to change the intros... here's your practice button."
+    sess = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    check("(mu) the LESSON page has a door to Abrabot too",
+          'id="drillLink"' in sess and 'el("drillLink").href = "/drill"' in sess,
+          "the nav pill is not enough -- a child mid-lesson is where the wish to "
+          "practise actually happens")
+    check("(mu) and the guided tour introduces it",
+          '{ id: "drill",' in sess and '"drill":        "drillLink",' in sess,
+          "a button no one is told about is a button no one presses")
+    check("\u26a0 (mu) the two 'practice' features are NOT both called practice",
+          "\U0001F916 Extra practice" in sess
+          and "\u270f\ufe0f Practice a problem" in sess
+          and 'add("/drill" + q, "\U0001F916", "Practice")' in nav,
+          "one is bring-me-YOUR-problem and one is Abrabot handing out more; a "
+          "child cannot hold that difference from one word and one pencil icon")
+
     check("\u2b50 THE PRACTICE PAGE HAS A DOOR",
-          '"/drill" + q, "\u270f\ufe0f", "Practice"' in nav,
+          '"/drill" + q, "\U0001F916", "Practice"' in nav,
           "until build mt NOTHING linked to /drill -- 25,000 practice problems "
           "reachable only by typing the URL, which is how Jim found it missing")
     dh = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
@@ -14380,7 +14407,14 @@ def part3cb_tour_once():
           "a skipped tour is not recorded -- the replay bug returns for skippers")
     # build in (Jim on a phone: the sidebar stacks BELOW the chat, so "over on the
     # left" pointed at nothing): the tour's pointer is the GLOW, never the layout.
-    tour_block = hsrc[hsrc.index("const TOUR_STEPS"):hsrc.index("const delay")]
+    # (mu) ⚠️ SCAN THE LINES, NOT THE PROSE ABOUT THEM. This read the raw block, so
+    # the moment a comment EXPLAINED which phrases are banned -- which the build-mu
+    # tour stop does, to stop the next author repeating the mistake -- the pin fired
+    # on the warning instead of the defect. Same trap code_only() was written for,
+    # and the tempting repair is to delete the documentation. Strip the // comments
+    # and check what Mr. Cadabra actually SAYS.
+    tour_block = code_only(
+        hsrc[hsrc.index("const TOUR_STEPS"):hsrc.index("const delay")])
     check("no tour line points with layout geometry (the glow is the pointer)",
           not re.search(r"on the left|right below it|right under it|in the corner",
                         tour_block, re.I),

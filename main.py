@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mu-the-practice-button". BUILD mu -- THE TOUR
+#               TELLS THEM ABOUT IT, AND THE LESSON HAS A DOOR. Jim flagged the intro
+#               himself: "we're gonna need to change the intros... here's your
+#               practice button. If you wanna go practice, Abrabot will show up."
+#               Nothing in this file changed but the stamp; the work is in
+#               session.html (sidebar link + tour stop) and app-nav.js.
+#               ⚠️ AND IT UNCOVERED A NAMING COLLISION. The lesson sidebar has
+#               "✏️ Practice a problem" -- bring-me-YOUR-homework -- and mt had just
+#               added a "✏️ Practice" pill for Abrabot's drill. Two different
+#               features, one word, one pencil. Abrabot now wears his own robot face
+#               (🤖) and the word EXTRA, and the tour stop states the difference in
+#               one plain sentence instead of leaving a child to guess.
 #   2026-08-24  APP_BUILD -> "2026-08-24mt-practice-counts". BUILD mt -- PRACTICE GETS
 #               A DOOR AND A COUNTER.
 #               ⚠️ THE BUG UNDERNEATH THE FEATURE: nothing in the app linked to
@@ -11343,7 +11355,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mt-practice-counts"
+APP_BUILD = "2026-08-24mu-the-practice-button"
 
 
 @app.get("/health")

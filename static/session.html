@@ -1498,6 +1498,12 @@
         <a class="navbtn" id="assessLink" href="#">📋 Course assessment</a>
         <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
         <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
+        <!-- (mu) ⚠️ TWO DIFFERENT THINGS WERE BOTH CALLED "PRACTICE". The line above
+             is bring-me-YOUR-problem (homework help). This one is Abrabot handing
+             out MORE problems on a lesson already done. A child cannot be expected
+             to hold that difference from one word and one pencil icon, so Abrabot
+             gets his own robot face on the button and the word EXTRA. -->
+        <a class="navbtn" id="drillLink" href="#">🤖 Extra practice</a>
         <a class="navbtn" id="topicLink" href="#">💡 Explore a topic</a>
         <a class="navbtn" id="finalLink" href="#">🎓 Final Exam</a>
       </nav>
@@ -1991,6 +1997,7 @@
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("dashLink").href = "/dashboard" + cq;
     el("practiceLink").href = "/practice" + cq;
+    el("drillLink").href = "/drill" + cq;         // (mu) Abrabot's room
     el("topicLink").href = "/topic" + cq;   // 2026-08-07 build bf: Explore a topic, from the lesson too
     el("homeLink").href = "/home" + cq;
     el("assessLink").href = "/challenge" + cq;
@@ -2185,6 +2192,7 @@
       // 2026-08-07 (build bf): one glow per stop, matching the one-item-per-stop tour.
       "assess":       "assessLink",
       "practice":     "practiceLink",
+      "drill":        "drillLink",
       "topic":        "topicLink",
       "final":        "finalLink",
       // 2026-08-07 (build au): the tour introduces the 📖 Look it up button
@@ -3062,6 +3070,18 @@
         text: "Next, your Progress dashboard. That's where you'll watch yourself win — units mastered, accuracy, streaks, and your trophy case." },
       { id: "practice",
         text: "Then Practice a problem — for when you're stuck on one specific problem, from homework or anywhere. Bring it to me there and we'll work through it together." },
+      // (mu) Jim, 2026-08-24: "we're gonna need to change the intros... we're gonna
+      // have a button. Here's your practice button. If you wanna go practice,
+      // Abrabot will show up, and he'll work with you on this."
+      // ⚠️ IT COMES RIGHT AFTER "Practice a problem" ON PURPOSE -- the two stops sit
+      // together so the child hears the difference stated once, plainly, instead of
+      // meeting two buttons that say practice and guessing.
+      { id: "drill",
+        // ⚠️ NO LAYOUT WORDS. The first draft said "right under it" -- which is one
+        // of the exact phrases build in banned after Jim read the tour on a phone,
+        // where the sidebar stacks BELOW the chat and "under" points at nothing. The
+        // GLOW is the pointer; the words refer to the other button by NAME.
+        text: "Now Extra practice is glowing — that's my helper Abrabot. The button I just showed you, Practice a problem, is for a problem YOU bring me. This one is the other way round: Abrabot has more problems for you, on a lesson we have already done, as many as you want. He keeps count, so you can show somebody how much you have practised — and if one gets tricky, he comes and gets me." },
       { id: "topic",
         text: "Now glowing: Explore a topic. Curious about just one thing — fractions, slope, anything? Open it, name your topic, and we'll dig into exactly that." },
       { id: "final",

@@ -69,7 +69,10 @@
       // app -- 25,376 practice problems reachable only by typing the URL, which is
       // exactly how Jim found it missing on 2026-08-24. Abrabot's room needs a door
       // on every page a child stands on, not a mention in a lesson.
-      if (page !== "/drill") add("/drill" + q, "✏️", "Practice");
+      // (mu) 🤖 NOT ✏️. The lesson page's own sidebar already has "✏️ Practice a
+      // problem", which is homework help -- a different feature entirely. Abrabot
+      // wears his own face on his own button so the two are never one thing.
+      if (page !== "/drill") add("/drill" + q, "🤖", "Practice");
       add("/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");
     }
     // ds: /help, not mailto -- a kid on a school Chromebook has no mail app.
