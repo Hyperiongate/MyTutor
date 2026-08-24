@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mr -- PART 3dl, THE COURSE AGREES WITH ITSELF OUT LOUD. A pin
+#               that no spoken line says "1 <plural>", swept over all 336 lessons.
+#               It exists because 224 lines DID -- "1 pennies", "1 sixths", "1
+#               stars" -- all in the two courses for the youngest children, all
+#               already rendered in the real voice, and all passed by validate()
+#               because grammar is not arithmetic. Nouns only: a pin that fires on
+#               "1 equals" or "1 leaves" is a pin people learn to ignore.
 #   2026-08-24  BUILD mq -- PART 3dk, THE COST EPOCH. Proves both halves on a real
 #               database: the old spend is STILL in the 7-day figures, and the era
 #               reads only what came after it. Plus the subtle one -- the epoch rides
@@ -9749,6 +9756,54 @@ sys.exit(0 if ok else 1)
 """
 
 
+def part3dl_it_reads_aloud():
+    """PART 3dl (build mr) -- THE COURSE AGREES WITH ITSELF OUT LOUD.
+
+    ⚠️ FOUND BY A TEACH-BEAT AUDIT LOOKING FOR SOMETHING ELSE. The giveaway audit
+    printed a bank question verbatim and it read "How many cents is 3 nickels and
+    1 pennies?". A sweep of the whole closure then found 224 spoken lines with the
+    same defect across TWELVE lessons -- "1 sixths", "1 hundreds", "1 stars", "1
+    hop s" -- every one of them in Entry-Level or Basic Math, the courses for the
+    youngest children, and every one already rendered in Mr. Cadabra's REAL VOICE.
+
+    ⚠️ WHY NOTHING CAUGHT IT. Grammar is not arithmetic. No bound, ramp, closure,
+    vocabulary or notation rule is broken by "1 pennies" -- validate() passed it
+    436 times. The read-aloud habit is what catches this class, and a habit is not
+    a test. This part is the test.
+
+    _FRACWORD had carried BOTH forms since the day it was written; every caller
+    simply took [1]."""
+    print("\nPART 3dl — the course agrees with itself out loud (build mr)")
+    import lessonscripts as L
+
+    # Nouns only. Verbs after a number ("1 equals", "1 leaves") are not plurals, and
+    # a pin that fires on them teaches people to ignore it.
+    NOUNS = ("pennies|nickels|dimes|cents|stars|cubes|hops|tens|ones|hundreds|"
+             "halves|thirds|fourths|fifths|sixths|sevenths|eighths|ninths|tenths|"
+             "twelfths|groups|sides|corners|weeks|days|hours|minutes|nickel s")
+    rx = re.compile(r"\b1 (" + NOUNS + r")\b")
+    bad = {}
+    for les in L.LESSONS:
+        hits = [ln for ln in L.audio_lines(les) if rx.search(ln)]
+        if hits:
+            bad[les["id"]] = hits[0][:90]
+    check(f"no spoken line says '1 <plural>' ({len(L.LESSONS)} lessons swept)",
+          not bad,
+          f"{len(bad)} lessons: " + str(list(bad.items())[:3]))
+
+    # the helpers that fixed it, pinned by behaviour rather than by name
+    check("the singular/plural helpers agree with their counts",
+          L._plural(1, "cube") == "1 cube" and L._plural(2, "cube") == "2 cubes"
+          and L._irr(1, "penny", "pennies") == "1 penny"
+          and L._irr(3, "penny", "pennies") == "3 pennies"
+          and L._fw(1, 6) == "1 sixth" and L._fw(3, 6) == "3 sixths"
+          and L._fw(1, 2) == "1 half" and L._fw(3, 2) == "3 halves",
+          "an 's' cannot pluralise penny, and _FRACWORD has always held both forms")
+    check("⚠️ and the fraction words are taken from the TABLE, not spelled twice",
+          all(b in L._FRACWORD for b in (2, 3, 4, 5, 6, 8, 10, 12)),
+          "a second list of fraction words is a second list to disagree")
+
+
 def part3dk_cost_epoch():
     """PART 3dk (build mq) -- "MEASURE FROM HERE", AND NOTHING IS DELETED.
 
@@ -17699,6 +17754,7 @@ def main():
     part3di_standalone_speech()
     part3dj_deploy_safe()
     part3dk_cost_epoch()
+    part3dl_it_reads_aloud()
     part3ai_deploy_stamp()
     if live:
         part4_live()

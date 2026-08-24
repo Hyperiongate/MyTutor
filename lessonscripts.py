@@ -2,6 +2,25 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD mr -- "1 PENNIES". 224 SPOKEN LINES FIXED, 12 LESSONS.
+#               ⚠️ FOUND BY AN AUDIT LOOKING FOR SOMETHING ELSE. The new teach-beat
+#               giveaway audit printed a bank question verbatim and it read "How many
+#               cents is 3 nickels and 1 pennies?". A sweep of the whole closure then
+#               found 224 spoken lines with the same defect -- "1 sixths", "1
+#               hundreds", "1 stars", "1 hops", "1 ten and 1 ones" -- EVERY ONE of
+#               them in Entry-Level or Basic Math, the courses for the youngest
+#               children, and every one already rendered in Mr. Cadabra's real voice.
+#               ⚠️ WHY NOTHING CAUGHT IT. Grammar is not arithmetic. No bound, ramp,
+#               closure, vocabulary or notation rule is broken by "1 pennies", so
+#               validate() passed it 436 times. The read-aloud habit catches this
+#               class, and a habit is not a test -- PART 3dl is now the test.
+#               ⚠️ _FRACWORD HAD BOTH FORMS ALL ALONG. Every caller simply took [1].
+#               New helpers: _irr() (penny/pennies -- an "s" cannot do it) and _fw()
+#               (the fraction word agreeing with its count, read from the table).
+#               Ops touched: cnt, dt, fa, fs, fu, m, nick, nl, pv, vol, and the core
+#               +/-/t paths in spoken_for() and praise_for().
+#               ⚠️ THESE LINES ARE NEW CACHE KEYS -- about $2.70 to re-render, and
+#               the 224 old clips become orphans the evictor will collect.
 #   2026-08-24  BUILD mp -- ⭐⭐ THE CURRICULUM IS COMPLETE. ENTRY-LEVEL UNIT 9.
 #               332 lessons -> 336, 5 new ops (sid, cor, pat, grp, eqs).
 #               With this unit EVERY unit of ALL TEN COURSES has scripted lessons,
@@ -15184,6 +15203,20 @@ def _plural(n, word):
     return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
+def _irr(n, one, many):
+    """(mr) The same, for words an 's' cannot make plural -- penny/pennies."""
+    return f"{n} {one}" if n == 1 else f"{n} {many}"
+
+
+def _fw(n, bottom):
+    """(mr) '1 sixth', '3 sixths' -- the fraction word agreeing with its count.
+
+    ⚠️ _FRACWORD has ALWAYS carried both forms; every caller simply took [1]. That
+    is why the course said "1 sixths plus 3 sixths" out loud, in Mr. Cadabra's real
+    voice, to seven-year-olds, for months."""
+    return f"{n} {_FRACWORD[bottom][0 if n == 1 else 1]}"
+
+
 OP_EXT = {
     "*": {
         "ans": lambda p: p["a"] * p["b"],
@@ -15262,26 +15295,24 @@ OP_EXT = {
     },
     "fa": {   # a/c + b/c, answered in c-ths
         "ans": lambda p: p["a"] + p["b"],
-        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is {p['a']} "
-                             f"{_FRACWORD[p['c']][1]} plus {p['b']} "
-                             f"{_FRACWORD[p['c']][1]}?"),
+        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is "
+                             f"{_fw(p['a'], p['c'])} plus {_fw(p['b'], p['c'])}?"),
         "board": lambda p: f'[[step eq="{p["a"]}/{p["c"]} + {p["b"]}/{p["c"]} = ?/{p["c"]}"]]',
-        "praise": lambda p: (f"{p['a']} {_FRACWORD[p['c']][1]} plus {p['b']} "
-                             f"{_FRACWORD[p['c']][1]} equals {p['a'] + p['b']} "
-                             f"{_FRACWORD[p['c']][1]}."),
+        "praise": lambda p: (f"{_fw(p['a'], p['c'])} plus {_fw(p['b'], p['c'])} "
+                             f"equals {_fw(p['a'] + p['b'], p['c'])}."),
         "key": lambda p: p["a"] + p["b"],
         "check": lambda p: (p["a"] + p["b"] < p["c"] and p["c"] in _FRACWORD,
                             "same-bottom adding stays a proper fraction"),
     },
     "fs": {   # a/c - b/c
         "ans": lambda p: p["a"] - p["b"],
-        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is {p['a']} "
-                             f"{_FRACWORD[p['c']][1]} take away {p['b']} "
-                             f"{_FRACWORD[p['c']][1]}?"),
+        "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is "
+                             f"{_fw(p['a'], p['c'])} take away "
+                             f"{_fw(p['b'], p['c'])}?"),
         "board": lambda p: f'[[step eq="{p["a"]}/{p["c"]} − {p["b"]}/{p["c"]} = ?/{p["c"]}"]]',
-        "praise": lambda p: (f"{p['a']} {_FRACWORD[p['c']][1]} take away "
-                             f"{p['b']} {_FRACWORD[p['c']][1]} equals "
-                             f"{p['a'] - p['b']} {_FRACWORD[p['c']][1]}."),
+        "praise": lambda p: (f"{_fw(p['a'], p['c'])} take away "
+                             f"{_fw(p['b'], p['c'])} equals "
+                             f"{_fw(p['a'] - p['b'], p['c'])}."),
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] - p["b"] and p["a"] < p["c"]
                             and p["c"] in _FRACWORD,
@@ -15289,11 +15320,11 @@ OP_EXT = {
     },
     "dt": {   # tenths: 0.a + 0.b, answered in tenths
         "ans": lambda p: p["a"] + p["b"],
-        "spoken": lambda p: (f"How many tenths is {p['a']} tenths plus "
-                             f"{p['b']} tenths?"),
+        "spoken": lambda p: (f"How many tenths is {_fw(p['a'], 10)} plus "
+                             f"{_fw(p['b'], 10)}?"),
         "board": lambda p: f'[[step eq="0.{p["a"]} + 0.{p["b"]} = 0.?"]]',
-        "praise": lambda p: (f"{p['a']} tenths plus {p['b']} tenths equals "
-                             f"{p['a'] + p['b']} tenths."),
+        "praise": lambda p: (f"{_fw(p['a'], 10)} plus {_fw(p['b'], 10)} equals "
+                             f"{_fw(p['a'] + p['b'], 10)}."),
         "key": lambda p: p["a"] + p["b"],
         "check": lambda p: (p["a"] + p["b"] <= 9,
                             "the tenths must not spill into a whole (that is the "
@@ -15301,10 +15332,11 @@ OP_EXT = {
     },
     "m": {    # money: a dimes + b pennies = ? cents
         "ans": lambda p: 10 * p["a"] + p["b"],
-        "spoken": lambda p: (f"How many cents is {p['a']} dimes and {p['b']} "
-                             f"pennies?"),
+        "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'dime')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')}?"),
         "board": lambda p: f'[[step eq="{p["a"]} dimes + {p["b"]} pennies = ? cents"]]',
-        "praise": lambda p: (f"{p['a']} dimes and {p['b']} pennies equals "
+        "praise": lambda p: (f"{_plural(p['a'], 'dime')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')} equals "
                              f"{10 * p['a'] + p['b']} cents."),
         "key": lambda p: 10 * p["a"] + p["b"],
         "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9,
@@ -15335,12 +15367,14 @@ OP_EXT = {
     },
     "pv": {   # a hundreds, b tens, c ones
         "ans": lambda p: 100 * p["a"] + 10 * p["b"] + p["c"],
-        "spoken": lambda p: (f"What number is {p['a']} hundreds, {p['b']} tens "
-                             f"and {p['c']} ones?"),
+        "spoken": lambda p: (f"What number is {_plural(p['a'], 'hundred')}, "
+                             f"{_plural(p['b'], 'ten')} and "
+                             f"{_plural(p['c'], 'one')}?"),
         "board": lambda p: (f'[[step eq="{p["a"]} hundreds + {p["b"]} tens + '
                             f'{p["c"]} ones = ?"]]'),
-        "praise": lambda p: (f"{p['a']} hundreds, {p['b']} tens and {p['c']} ones "
-                             f"— that is {100 * p['a'] + 10 * p['b'] + p['c']}."),
+        "praise": lambda p: (f"{_plural(p['a'], 'hundred')}, "
+                             f"{_plural(p['b'], 'ten')} and {_plural(p['c'], 'one')}"
+                             f" — that is {100 * p['a'] + 10 * p['b'] + p['c']}."),
         "key": lambda p: 100 * p["a"] + 10 * p["b"] + p["c"],
         "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 9
                             and 1 <= p["c"] <= 9,
@@ -15390,8 +15424,8 @@ OP_EXT = {
                              f"equal hops. How many hops from 0 reach {p['a']} "
                              f"out of {p['b']}?"),
         "board": lambda p: f'[[step eq="0 —({p["b"]} hops)— 1 · land on {p["a"]}/{p["b"]} = ? hops"]]',
-        "praise": lambda p: (f"{p['a']} hops — {p['a']} out of {p['b']} lives "
-                             f"{p['a']} hops from 0."),
+        "praise": lambda p: (f"{_plural(p['a'], 'hop')} — {p['a']} out of "
+                             f"{p['b']} lives {_plural(p['a'], 'hop')} from 0."),
         "key": lambda p: p["b"],
         "check": lambda p: (1 <= p["a"] < p["b"] <= 12,
                             "the fraction stays proper and the hops countable"),
@@ -15412,7 +15446,7 @@ OP_EXT = {
         "spoken": lambda p: "Count the stars. How many stars are there?",
         "board": lambda p: (f'[[objects emoji="⭐" groups="{p["a"]}" '
                             f'caption="count them one at a time"]]'),
-        "praise": lambda p: f"{p['a']} stars — you counted every one.",
+        "praise": lambda p: f"{_plural(p['a'], 'star')} — you counted every one.",
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] <= 10, "countable on one screen"),
         # rule 44's PURPOSE is "the child heard the whole problem" -- here the whole
@@ -15440,10 +15474,11 @@ OP_EXT = {
     },
     "nick": {  # a nickels + b pennies = ? cents
         "ans": lambda p: 5 * p["a"] + p["b"],
-        "spoken": lambda p: (f"How many cents is {p['a']} nickels and {p['b']} "
-                             f"pennies?"),
+        "spoken": lambda p: (f"How many cents is {_plural(p['a'], 'nickel')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')}?"),
         "board": lambda p: f'[[step eq="{p["a"]} nickels + {p["b"]} pennies = ? cents"]]',
-        "praise": lambda p: (f"{p['a']} nickels and {p['b']} pennies equals "
+        "praise": lambda p: (f"{_plural(p['a'], 'nickel')} and "
+                             f"{_irr(p['b'], 'penny', 'pennies')} equals "
                              f"{5 * p['a'] + p['b']} cents."),
         "key": lambda p: 5 * p["a"] + p["b"],
         "check": lambda p: (1 <= p["a"] <= 9 and 1 <= p["b"] <= 4,
@@ -15629,14 +15664,14 @@ OP_EXT = {
     "fu": {    # one 1/b plus a/c, same-family bottoms (b divides c)
         "ans": lambda p: p["c"] // p["b"] + p["a"],
         "spoken": lambda p: (f"How many {_FRACWORD[p['c']][1]} is one "
-                             f"{_FRACWORD[p['b']][0]} plus {p['a']} "
-                             f"{_FRACWORD[p['c']][1]}?"),
+                             f"{_FRACWORD[p['b']][0]} plus "
+                             f"{_fw(p['a'], p['c'])}?"),
         "board": lambda p: (f'[[step eq="1/{p["b"]} + {p["a"]}/{p["c"]} = '
                             f'?/{p["c"]}"]]'),
         "praise": lambda p: (f"One {_FRACWORD[p['b']][0]} is "
-                             f"{p['c'] // p['b']} {_FRACWORD[p['c']][1]} — plus "
+                             f"{_fw(p['c'] // p['b'], p['c'])} — plus "
                              f"{p['a']} more equals "
-                             f"{p['c'] // p['b'] + p['a']} {_FRACWORD[p['c']][1]}."),
+                             f"{_fw(p['c'] // p['b'] + p['a'], p['c'])}."),
         "key": lambda p: p["c"],
         "check": lambda p: (p["c"] % p["b"] == 0 and p["c"] > p["b"]
                             and p["b"] in _FRACWORD and p["c"] in _FRACWORD
@@ -15689,12 +15724,13 @@ OP_EXT = {
     },
     "vol": {   # a x b x c cubes
         "ans": lambda p: p["a"] * p["b"] * p["c"],
-        "spoken": lambda p: (f"A box is {p['a']} cubes long, {p['b']} cubes "
-                             f"wide and {p['c']} cubes tall. How many cubes "
+        "spoken": lambda p: (f"A box is {_plural(p['a'], 'cube')} long, "
+                             f"{_plural(p['b'], 'cube')} wide and "
+                             f"{_plural(p['c'], 'cube')} tall. How many cubes "
                              f"fill it?"),
         "board": lambda p: f'[[step eq="{p["a"]} × {p["b"]} × {p["c"]} = ?"]]',
         "praise": lambda p: (f"{p['a']} times {p['b']} times {p['c']} equals "
-                             f"{p['a'] * p['b'] * p['c']} cubes."),
+                             f"{_plural(p['a'] * p['b'] * p['c'], 'cube')}."),
         "key": lambda p: p["a"] * p["b"] * p["c"],
         "check": lambda p: (p["a"] * p["b"] * p["c"] <= 96
                             and min(p["a"], p["b"], p["c"]) >= 1,
@@ -23597,24 +23633,26 @@ def spoken_for(p, level):
         return OP_EXT[p["op"]]["spoken"](p)
     if p.get("op") == "t":
         if level == "abstract":
-            return f"What number is {a} ten and {b} ones?"
+            return (f"What number is {_plural(a, 'ten')} and "
+                    f"{_plural(b, 'one')}?")
         if level == "pictorial":
-            return f"Count if you need to. What number is {a} ten and {b} ones?"
-        return (f"Let's count together. {a} ten, and {b} more ones. "
-                f"What number is that?")
+            return (f"Count if you need to. What number is "
+                    f"{_plural(a, 'ten')} and {_plural(b, 'one')}?")
+        return (f"Let's count together. {_plural(a, 'ten')}, and {b} more "
+                f"{'one' if b == 1 else 'ones'}. What number is that?")
     if p.get("op") == "-":
         if level == "abstract":
             return f"What is {a} minus {b}?"
         if level == "pictorial":
             return f"Count the stars if you need them. What is {a} minus {b}?"
-        return (f"Let's count together. {a} stars, take {b} away. "
+        return (f"Let's count together. {_plural(a, 'star')}, take {b} away. "
                 f"How many are left?")
     if level == "abstract":
         return f"What is {a} plus {b}?"
     if level == "pictorial":
         return f"Count the stars if you need them. What is {a} plus {b}?"
-    return (f"Let's count together. {a} stars, then {b} more stars. "
-            f"How many in all?")
+    return (f"Let's count together. {_plural(a, 'star')}, then {b} more "
+            f"{'star' if b == 1 else 'stars'}. How many in all?")
 
 
 def board_for(p, level):
@@ -23665,7 +23703,8 @@ def praise_for(p, index):
                 + OP_EXT[p["op"]]["praise"](p))
     if p.get("op") == "t":
         return (PRAISE_PREFIXES[index % len(PRAISE_PREFIXES)]
-                + f" {a} ten and {b} ones — that is {ans(p)}.")
+                + f" {_plural(a, 'ten')} and {_plural(b, 'one')}"
+                + f" — that is {ans(p)}.")
     word = "minus" if p.get("op") == "-" else "plus"
     return (PRAISE_PREFIXES[index % len(PRAISE_PREFIXES)]
             + f" {a} {word} {b} equals {ans(p)}.")

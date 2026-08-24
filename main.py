@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24mr-one-pennies". BUILD mr -- 224 SPOKEN LINES
+#               STOPPED SAYING "1 PENNIES". Nothing in this file changed but the
+#               stamp; the fix is lessonscripts', and teachaudit.py is a new
+#               standalone audit (not imported by anything, like workedaudit.py).
+#               ⚠️ THE 224 CHANGED LINES ARE NEW CACHE KEYS -- about $2.70 to render.
+#               Press ② after deploying. The old clips become orphans and the
+#               evictor collects them; nothing is billed twice for the same text.
 #   2026-08-24  APP_BUILD -> "2026-08-24mq-measure-from-here". BUILD mq -- THE COST
 #               EPOCH, AND COST PER STUDENT-HOUR. Jim asked to "zero out our current
 #               cost measurement so it is measuring cost based on how we do it now",
@@ -11270,7 +11277,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mq-measure-from-here"
+APP_BUILD = "2026-08-24mr-one-pennies"
 
 
 @app.get("/health")
