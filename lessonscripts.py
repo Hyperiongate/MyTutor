@@ -2,6 +2,34 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD ms -- 71 GIVEAWAYS CLOSED, AND NOT ONE WORD OF TEACHING
+#               REWRITTEN. teachaudit.py (mr) found 113 places where a teach beat or
+#               a worked example works a problem the SAME lesson later asks -- the
+#               tutor reads the answer aloud minutes before asking the question, and
+#               "mastered" stops meaning the child can do it.
+#               ⭐ THE FIX IS WHICH PROBLEM IS ASKED, NOT WHAT MR. CADABRA SAYS. The
+#               teaching prose is hand-authored and read aloud by a human ear; the
+#               bank is data. So 71 PROBLEMS were swapped and every teach beat and
+#               worked example is untouched, to the byte. 113 direct+reverse hits ->
+#               41, across 51 lessons.
+#               ⚠️ EVERY REPLACEMENT KEEPS THE ORIGINAL'S ANSWER AND DIFFICULTY.
+#               The first pass enumerated candidates from 1 upward and took the first
+#               legal one, which quietly turned "x plus 3 equals 10" into "x plus 2
+#               equals 4" -- across 87 swaps that is a course-wide difficulty
+#               regression dressed up as a bug fix. Candidates are now RANKED by
+#               distance from what the author chose: same difficulty key, then same
+#               answer, then same magnitudes.
+#               ⚠️ AND THE PROBE TESTS THE BANK IN PLACE. The first pass validated a
+#               SORTED candidate bank while writing the swap into the author's
+#               original slot -- six lessons briefly shipped a broken ramp. The probe
+#               now validates exactly what the file will contain.
+#               ⚠️ STORY PROBLEMS ARE NEVER MACHINE-SWAPPED. Their sentence is
+#               authored per problem; changing the numbers under it would leave the
+#               words describing something else.
+#               NOT FIXED, ON PURPOSE (23 lessons, 35 hits): tiny problem domains
+#               (basic-u9-quarter-turns has eight problems in total), banks built by
+#               comprehension rather than written out, and story problems. Those need
+#               a hand and a read-aloud, not a script. teachaudit.py names them.
 #   2026-08-24  BUILD mr -- "1 PENNIES". 224 SPOKEN LINES FIXED, 12 LESSONS.
 #               ⚠️ FOUND BY AN AUDIT LOOKING FOR SOMETHING ELSE. The new teach-beat
 #               giveaway audit printed a bank question verbatim and it read "How many
@@ -2594,7 +2622,7 @@ _MORE_LESSONS = [
                            "we're done — here comes the first one."),
         "bank": [
             {"a": 2, "b": 0, "op": "aft"}, {"a": 3, "b": 0, "op": "bef"},
-            {"a": 5, "b": 0, "op": "aft"}, {"a": 6, "b": 0, "op": "bef"},
+            {"a": 3, "b": 0, "op": "aft"}, {"a": 6, "b": 0, "op": "bef"},
             {"a": 8, "b": 0, "op": "aft"}, {"a": 9, "b": 0, "op": "bef"},
             {"a": 11, "b": 0, "op": "aft"}, {"a": 12, "b": 0, "op": "bef"},
             {"a": 14, "b": 0, "op": "aft"}, {"a": 15, "b": 0, "op": "bef"},
@@ -2705,7 +2733,7 @@ _MORE_LESSONS = [
             {"a": 1, "b": 1, "op": "nick"}, {"a": 1, "b": 2, "op": "nick"},
             {"a": 1, "b": 3, "op": "nick"}, {"a": 2, "b": 1, "op": "nick"},
             {"a": 2, "b": 2, "op": "nick"}, {"a": 2, "b": 3, "op": "nick"},
-            {"a": 3, "b": 1, "op": "nick"}, {"a": 3, "b": 2, "op": "nick"},
+            {"a": 3, "b": 3, "op": "nick"}, {"a": 3, "b": 2, "op": "nick"},
             {"a": 4, "b": 1, "op": "nick"}, {"a": 4, "b": 3, "op": "nick"},
             {"a": 5, "b": 2, "op": "nick"}, {"a": 6, "b": 1, "op": "nick"},
         ],
@@ -3208,9 +3236,9 @@ _MORE_LESSONS = [
         "practice_intro": ("Now it's your turn. Three right answers in a row and "
                            "we're done — here comes the first one."),
         "bank": [
-            {"a": 2, "b": 4, "op": "lcm"}, {"a": 2, "b": 3, "op": "lcm"},
-            {"a": 3, "b": 6, "op": "lcm"}, {"a": 2, "b": 5, "op": "lcm"},
-            {"a": 3, "b": 4, "op": "lcm"}, {"a": 4, "b": 6, "op": "lcm"},
+            {"a": 2, "b": 4, "op": "lcm"}, {"a": 3, "b": 2, "op": "lcm"},
+            {"a": 6, "b": 6, "op": "lcm"}, {"a": 2, "b": 10, "op": "lcm"},
+            {"a": 3, "b": 4, "op": "lcm"}, {"a": 4, "b": 3, "op": "lcm"},
             {"a": 2, "b": 7, "op": "lcm"}, {"a": 3, "b": 5, "op": "lcm"},
             {"a": 4, "b": 10, "op": "lcm"}, {"a": 3, "b": 8, "op": "lcm"},
             {"a": 5, "b": 6, "op": "lcm"},
@@ -3301,7 +3329,7 @@ _MORE_LESSONS = [
                            "we're done — here comes the first one."),
         "bank": [
             {"a": 12, "b": 13, "op": "dh"}, {"a": 21, "b": 14, "op": "dh"},
-            {"a": 23, "b": 22, "op": "dh"}, {"a": 31, "b": 24, "op": "dh"},
+            {"a": 23, "b": 22, "op": "dh"}, {"a": 30, "b": 25, "op": "dh"},
             {"a": 42, "b": 23, "op": "dh"}, {"a": 34, "b": 37, "op": "dh"},
             {"a": 44, "b": 31, "op": "dh"}, {"a": 52, "b": 33, "op": "dh"},
             {"a": 63, "b": 27, "op": "dh"}, {"a": 61, "b": 34, "op": "dh"},
@@ -3382,8 +3410,8 @@ _MORE_LESSONS = [
             {"a": 2, "b": 2, "c": 1, "op": "vol"},
             {"a": 3, "b": 2, "c": 1, "op": "vol"},
             {"a": 2, "b": 2, "c": 2, "op": "vol"},
-            {"a": 3, "b": 2, "c": 2, "op": "vol"},
-            {"a": 4, "b": 2, "c": 2, "op": "vol"},
+            {"a": 2, "b": 3, "c": 2, "op": "vol"},
+            {"a": 4, "b": 1, "c": 4, "op": "vol"},
             {"a": 3, "b": 3, "c": 2, "op": "vol"},
             {"a": 4, "b": 3, "c": 2, "op": "vol"},
             {"a": 5, "b": 3, "c": 2, "op": "vol"},
@@ -3555,7 +3583,7 @@ _PREALGEBRA_U1 = [
         "bank": [
             {"a": 3, "b": 2, "c": 2, "op": "exo"},
             {"a": 3, "b": 3, "c": 2, "op": "exo"},
-            {"a": 3, "b": 2, "c": 4, "op": "exo"},
+            {"a": 3, "b": 3, "c": 3, "op": "exo"},
             {"a": 4, "b": 2, "c": 3, "op": "exo"},
             {"a": 4, "b": 3, "c": 3, "op": "exo"},
             {"a": 5, "b": 2, "c": 4, "op": "exo"},
@@ -3802,8 +3830,8 @@ _PREALGEBRA_U23 = [
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
-            {"a": 3, "b": 2, "op": "subneg"},
-            {"a": 5, "b": 3, "op": "subneg"},
+            {"a": 2, "b": 3, "op": "subneg"},
+            {"a": 6, "b": 2, "op": "subneg"},
             {"a": 4, "b": 6, "op": "subneg"},
             {"a": 7, "b": 4, "op": "subneg"},
             {"a": 6, "b": 8, "op": "subneg"},
@@ -3939,7 +3967,7 @@ _PREALGEBRA_U4 = [
             {"a": 2, "b": 3, "op": "uic"},
             {"a": 3, "b": 2, "op": "uic"},
             {"a": 2, "b": 4, "op": "uic"},
-            {"a": 4, "b": 3, "op": "uic"},
+            {"a": 6, "b": 2, "op": "uic"},
             {"a": 5, "b": 3, "op": "uic"},
             {"a": 4, "b": 5, "op": "uic"},
             {"a": 6, "b": 4, "op": "uic"},
@@ -4108,9 +4136,9 @@ _PREALGEBRA_U5 = [
             {"a": 1, "b": 5, "op": "x10"},
             {"a": 2, "b": 3, "op": "x10"},
             {"a": 2, "b": 6, "op": "x10"},
-            {"a": 3, "b": 7, "op": "x10"},
+            {"a": 3, "b": 6, "op": "x10"},
             {"a": 4, "b": 2, "op": "x10"},
-            {"a": 5, "b": 2, "op": "x10"},
+            {"a": 5, "b": 1, "op": "x10"},
             {"a": 6, "b": 8, "op": "x10"},
             {"a": 7, "b": 4, "op": "x10"},
             {"a": 8, "b": 1, "op": "x10"},
@@ -4181,11 +4209,11 @@ _PREALGEBRA_U5 = [
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
-            {"a": 1, "b": 2, "c": 4, "op": "dsh"},
+            {"a": 1, "b": 5, "c": 5, "op": "dsh"},
             {"a": 2, "b": 8, "c": 7, "op": "dsh"},
-            {"a": 2, "b": 4, "c": 3, "op": "dsh"},
-            {"a": 4, "b": 8, "c": 6, "op": "dsh"},
-            {"a": 3, "b": 6, "c": 4, "op": "dsh"},
+            {"a": 1, "b": 6, "c": 2, "op": "dsh"},
+            {"a": 5, "b": 6, "c": 7, "op": "dsh"},
+            {"a": 2, "b": 7, "c": 3, "op": "dsh"},
             {"a": 5, "b": 4, "c": 6, "op": "dsh"},
             {"a": 6, "b": 3, "c": 7, "op": "dsh"},
             {"a": 7, "b": 2, "c": 8, "op": "dsh"},
@@ -4314,12 +4342,12 @@ _PREALGEBRA_U6 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 2, "b": 3, "c": 6, "op": "prop"},
-            {"a": 2, "b": 5, "c": 10, "op": "prop"},
+            {"a": 2, "b": 4, "c": 8, "op": "prop"},
             {"a": 2, "b": 7, "c": 14, "op": "prop"},
-            {"a": 3, "b": 4, "c": 8, "op": "prop"},
+            {"a": 2, "b": 3, "c": 9, "op": "prop"},
             {"a": 3, "b": 8, "c": 16, "op": "prop"},
             {"a": 4, "b": 9, "c": 18, "op": "prop"},
-            {"a": 3, "b": 5, "c": 15, "op": "prop"},
+            {"a": 3, "b": 4, "c": 12, "op": "prop"},
             {"a": 5, "b": 6, "c": 12, "op": "prop"},
             {"a": 4, "b": 3, "c": 9, "op": "prop"},
             {"a": 7, "b": 4, "c": 20, "op": "prop"},
@@ -4401,10 +4429,10 @@ _PREALGEBRA_U7 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. 20 percent of 50. Ten percent of 50 is 5, and 20 percent is two tens: 2 times 5 equals 10.",
                         '[[step eq="10% of 50 = 5"]][[step eq="2 × 5 = 10"]]'],
-             "ask": {"a": 20, "b": 50, "op": "pcn"}},
+             "ask": {"a": 90, "b": 10, "op": "pcn"}},
             {"worked": ["One more together. 80 percent of 40. Ten percent of 40 is 4, and eight of those is 8 times 4, which equals 32.",
                         '[[step eq="10% of 40 = 4"]][[step eq="8 × 4 = 32"]]'],
-             "ask": {"a": 80, "b": 40, "op": "pcn"}},
+             "ask": {"a": 40, "b": 80, "op": "pcn"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
@@ -4439,10 +4467,10 @@ _PREALGEBRA_U7 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. 2 out of 5. The bottom 5 becomes 100 by timesing by 20, so the top does too: 2 times 20 equals 40 percent.",
                         '[[step eq="2/5 = 40/100"]]'],
-             "ask": {"a": 2, "b": 5, "op": "asp"}},
+             "ask": {"a": 4, "b": 10, "op": "asp"}},
             {"worked": ["One more together. 11 out of 20. Times both by 5: 11 times 5 equals 55, so that is 55 percent.",
                         '[[step eq="11/20 = 55/100"]]'],
-             "ask": {"a": 11, "b": 20, "op": "asp"}},
+             "ask": {"a": 22, "b": 40, "op": "asp"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
@@ -4485,7 +4513,7 @@ _PREALGEBRA_U7 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 60, "b": 18, "op": "pwh"},
-            {"a": 30, "b": 12, "op": "pwh"},
+            {"a": 50, "b": 20, "op": "pwh"},
             {"a": 40, "b": 16, "op": "pwh"},
             {"a": 20, "b": 10, "op": "pwh"},
             {"a": 60, "b": 36, "op": "pwh"},
@@ -4573,10 +4601,10 @@ _PREALGEBRA_U8 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. 6 centimetres in millimetres. One centimetre is 10 millimetres, so 6 times 10 equals 60 millimetres.",
                         '[[step eq="6 × 10 = 60"]]'],
-             "ask": {"a": 6, "b": 10, "op": "cnv"}},
+             "ask": {"a": 7, "b": 10, "op": "cnv"}},
             {"worked": ["One more together. 3 kilograms in grams. One kilogram is 1000 grams, so 3 times 1000 equals 3000 grams.",
                         '[[step eq="3 × 1000 = 3000"]]'],
-             "ask": {"a": 3, "b": 1000, "op": "cnv"}},
+             "ask": {"a": 8, "b": 100, "op": "cnv"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
@@ -4621,7 +4649,7 @@ _PREALGEBRA_U8 = [
             {"a": 4, "b": 2, "op": "tri"},
             {"a": 3, "b": 4, "op": "tri"},
             {"a": 4, "b": 5, "op": "tri"},
-            {"a": 6, "b": 4, "op": "tri"},
+            {"a": 4, "b": 6, "op": "tri"},
             {"a": 5, "b": 6, "op": "tri"},
             {"a": 8, "b": 5, "op": "tri"},
             {"a": 6, "b": 9, "op": "tri"},
@@ -4690,7 +4718,7 @@ _PREALGEBRA_U8 = [
              "ask": {"a": 65, "b": 75, "op": "tri3"}},
             {"worked": ["One more together. Two angles are 20 and 30. Together they are 50, so the third is 180 take away 50, which equals 130 degrees.",
                         '[[step eq="20° + 30° = 50°"]][[step eq="180° − 50° = 130°"]]'],
-             "ask": {"a": 50, "b": 60, "op": "tri3"}},
+             "ask": {"a": 49, "b": 61, "op": "tri3"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
@@ -4758,7 +4786,7 @@ _PREALGEBRA_U9 = [
             {"a": 2, "b": 3, "op": "evx"},
             {"a": 4, "b": 2, "op": "evx"},
             {"a": 3, "b": 4, "op": "evx"},
-            {"a": 5, "b": 3, "op": "evx"},
+            {"a": 4, "b": 4, "op": "evx"},
             {"a": 6, "b": 3, "op": "evx"},
             {"a": 4, "b": 7, "op": "evx"},
             {"a": 8, "b": 4, "op": "evx"},
@@ -4800,7 +4828,7 @@ _PREALGEBRA_U9 = [
             {"a": 5, "b": 3, "op": "mlx"},
             {"a": 4, "b": 4, "op": "mlx"},
             {"a": 6, "b": 3, "op": "mlx"},
-            {"a": 5, "b": 4, "op": "mlx"},
+            {"a": 3, "b": 7, "op": "mlx"},
             {"a": 7, "b": 4, "op": "mlx"},
             {"a": 6, "b": 6, "op": "mlx"},
         ],
@@ -4834,7 +4862,7 @@ _PREALGEBRA_U9 = [
             {"a": 2, "b": 4, "op": "clt"},
             {"a": 4, "b": 3, "op": "clt"},
             {"a": 6, "b": 2, "op": "clt"},
-            {"a": 4, "b": 5, "op": "clt"},
+            {"a": 3, "b": 6, "op": "clt"},
             {"a": 7, "b": 4, "op": "clt"},
             {"a": 8, "b": 5, "op": "clt"},
             {"a": 9, "b": 5, "op": "clt"},
@@ -4862,7 +4890,7 @@ _PREALGEBRA_U9 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. Times the whole of x plus 2 by 5. The rooms are 5 x and 5 times 2, which equals 10. So it is 5 x plus 10.",
                         '[[areamodel rows="5" cols="x,2"]][[step eq="5(x + 2) = 5x + 10"]]'],
-             "ask": {"a": 4, "b": 3, "op": "dst"}},
+             "ask": {"a": 6, "b": 2, "op": "dst"}},
             {"worked": ["One more together. Times the whole of x plus 4 by 3. The rooms are 3 x and 3 times 4, which equals 12: 3 x plus 12.",
                         '[[areamodel rows="3" cols="x,4"]][[step eq="3(x + 4) = 3x + 12"]]'],
              "ask": {"a": 5, "b": 6, "op": "dst"}},
@@ -4918,7 +4946,7 @@ _ALGEBRA1_U1 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. x is holding 5. 2 x plus 7: times first, 2 times 5 equals 10, then 10 plus 7 equals 17.",
                         '[[step eq="2x + 7 = 10 + 7 = 17"]]'],
-             "ask": {"a": 4, "b": 3, "c": 2, "op": "ev2"}},
+             "ask": {"a": 3, "b": 4, "c": 2, "op": "ev2"}},
             {"worked": ["One more together. x is holding 3. 5 x plus 4: 5 times 3 equals 15, and 15 plus 4 equals 19.",
                         '[[step eq="5x + 4 = 15 + 4 = 19"]]'],
              "ask": {"a": 5, "b": 4, "c": 6, "op": "ev2"}},
@@ -4956,7 +4984,7 @@ _ALGEBRA1_U1 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. x holds 5, y holds 2. x plus 4 y: 4 times 2 equals 8, and 5 plus 8 equals 13.",
                         '[[step eq="5 + 4 × 2 = 13"]]'],
-             "ask": {"a": 3, "b": 4, "c": 2, "op": "evxy"}},
+             "ask": {"a": 2, "b": 3, "c": 3, "op": "evxy"}},
             {"worked": ["One more together. x holds 6, y holds 3. x plus 5 y: 5 times 3 equals 15, and 6 plus 15 equals 21.",
                         '[[step eq="6 + 5 × 3 = 21"]]'],
              "ask": {"a": 7, "b": 5, "c": 4, "op": "evxy"}},
@@ -5002,7 +5030,7 @@ _ALGEBRA1_U1 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 2, "b": 3, "c": 3, "op": "cl2"},
-            {"a": 3, "b": 2, "c": 4, "op": "cl2"},
+            {"a": 3, "b": 3, "c": 4, "op": "cl2"},
             {"a": 4, "b": 3, "c": 4, "op": "cl2"},
             {"a": 5, "b": 4, "c": 4, "op": "cl2"},
             {"a": 6, "b": 3, "c": 5, "op": "cl2"},
@@ -5032,7 +5060,7 @@ _ALGEBRA1_U1 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. Times the whole of x take away 2 by 5. The rooms are 5 x, and 5 times 2, which equals 10, taken away: 5 x take away 10.",
                         '[[areamodel rows="5" cols="x,-2"]][[step eq="5(x − 2) = 5x − 10"]]'],
-             "ask": {"a": 4, "b": 3, "op": "dstm"}},
+             "ask": {"a": 6, "b": 2, "op": "dstm"}},
             {"worked": ["One more together. Times the whole of x take away 4 by 3. The rooms are 3 x and 12, taken away: 3 x take away 12.",
                         '[[areamodel rows="3" cols="x,-4"]][[step eq="3(x − 4) = 3x − 12"]]'],
              "ask": {"a": 7, "b": 3, "op": "dstm"}},
@@ -5101,7 +5129,7 @@ _ALGEBRA1_U2 = [
             {"a": 4, "b": 7, "op": "un1"},
             {"a": 2, "b": 7, "op": "un1"},
             {"a": 5, "b": 11, "op": "un1"},
-            {"a": 3, "b": 10, "op": "un1"},
+            {"a": 2, "b": 9, "op": "un1"},
             {"a": 6, "b": 14, "op": "un1"},
             {"a": 4, "b": 14, "op": "un1"},
             {"a": 7, "b": 19, "op": "un1"},
@@ -5212,7 +5240,7 @@ _ALGEBRA1_U2 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 2, "b": 5, "op": "ineq"},
-            {"a": 3, "b": 7, "op": "ineq"},
+            {"a": 2, "b": 6, "op": "ineq"},
             {"a": 4, "b": 9, "op": "ineq"},
             {"a": 2, "b": 8, "op": "ineq"},
             {"a": 5, "b": 12, "op": "ineq"},
@@ -5309,7 +5337,7 @@ _ALGEBRA1_U3 = [
             {"a": 2, "b": 3, "op": "fnot"},
             {"a": 4, "b": 2, "op": "fnot"},
             {"a": 3, "b": 4, "op": "fnot"},
-            {"a": 5, "b": 3, "op": "fnot"},
+            {"a": 4, "b": 4, "op": "fnot"},
             {"a": 4, "b": 5, "op": "fnot"},
             {"a": 6, "b": 4, "op": "fnot"},
             {"a": 5, "b": 7, "op": "fnot"},
@@ -5337,7 +5365,7 @@ _ALGEBRA1_U3 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. First adds 3, second times by 2. Feed 5: 5 plus 3 equals 8, and 8 times 2 equals 16.",
                         '[[machine input="5" rule="x + 3" output="8"]][[machine input="8" rule="2x" output="16" fname="g"]]'],
-             "ask": {"a": 3, "b": 2, "c": 4, "op": "fm2"}},
+             "ask": {"a": 2, "b": 2, "c": 5, "op": "fm2"}},
             {"worked": ["One more together. First adds 2, second times by 4. Feed 3: 3 plus 2 equals 5, and 5 times 4 equals 20.",
                         '[[step eq="(3 + 2) × 4 = 20"]]'],
              "ask": {"a": 4, "b": 4, "c": 2, "op": "fm2"}},
@@ -5349,7 +5377,7 @@ _ALGEBRA1_U3 = [
             {"a": 2, "b": 2, "c": 4, "op": "fm2"},
             {"a": 2, "b": 3, "c": 3, "op": "fm2"},
             {"a": 3, "b": 3, "c": 2, "op": "fm2"},
-            {"a": 2, "b": 4, "c": 3, "op": "fm2"},
+            {"a": 2, "b": 5, "c": 2, "op": "fm2"},
             {"a": 4, "b": 3, "c": 3, "op": "fm2"},
             {"a": 3, "b": 3, "c": 5, "op": "fm2"},
             {"a": 5, "b": 3, "c": 4, "op": "fm2"},
@@ -5439,7 +5467,7 @@ _ALGEBRA1_U4 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 2, "b": 3, "op": "lny"},
-            {"a": 4, "b": 2, "op": "lny"},
+            {"a": 2, "b": 4, "op": "lny"},
             {"a": 3, "b": 4, "op": "lny"},
             {"a": 5, "b": 3, "op": "lny"},
             {"a": 4, "b": 5, "op": "lny"},
@@ -5652,7 +5680,7 @@ _ALGEBRA1_U5 = [
             {"a": 4, "b": 8, "op": "sys2"},
             {"a": 2, "b": 8, "op": "sys2"},
             {"a": 5, "b": 11, "op": "sys2"},
-            {"a": 2, "b": 10, "op": "sys2"},
+            {"a": 7, "b": 15, "op": "sys2"},
             {"a": 6, "b": 14, "op": "sys2"},
             {"a": 3, "b": 13, "op": "sys2"},
             {"a": 4, "b": 16, "op": "sys2"},
@@ -5679,7 +5707,7 @@ _ALGEBRA1_U5 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. Together 12, difference 2. Two bigs equal 14, so the bigger is 7 and the smaller is 5.",
                         '[[step eq="two bigs = 14 → big = 7"]]'],
-             "ask": {"a": 10, "b": 4, "op": "sumd"}},
+             "ask": {"a": 8, "b": 6, "op": "sumd"}},
             {"worked": ["One more together. Together 16, difference 6. Two bigs equal 22, the bigger is 11, the smaller is 5.",
                         '[[step eq="two bigs = 22 → big = 11"]]'],
              "ask": {"a": 22, "b": 6, "op": "sumd"}},
@@ -5717,7 +5745,7 @@ _ALGEBRA1_U5 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. Two pencils and an eraser, 12 cents; one pencil and the eraser, 7. Take away: one pencil equals 5 cents.",
                         '[[step eq="1 pencil = 12 − 7 = 5"]]'],
-             "ask": {"a": 14, "b": 9, "op": "elim"}},
+             "ask": {"a": 18, "b": 13, "op": "elim"}},
             {"worked": ["One more together. Two pencils and an eraser, 16 cents; one pencil and the eraser, 9. The pencil is 16 take away 9 — 7 cents.",
                         '[[step eq="1 pencil = 16 − 9 = 7"]]'],
              "ask": {"a": 24, "b": 13, "op": "elim"}},
@@ -5728,9 +5756,9 @@ _ALGEBRA1_U5 = [
             {"a": 8, "b": 5, "op": "elim"},
             {"a": 10, "b": 7, "op": "elim"},
             {"a": 10, "b": 6, "op": "elim"},
-            {"a": 12, "b": 7, "op": "elim"},
+            {"a": 16, "b": 11, "op": "elim"},
             {"a": 14, "b": 8, "op": "elim"},
-            {"a": 16, "b": 9, "op": "elim"},
+            {"a": 18, "b": 11, "op": "elim"},
             {"a": 18, "b": 10, "op": "elim"},
             {"a": 20, "b": 11, "op": "elim"},
             {"a": 22, "b": 12, "op": "elim"},
@@ -5819,9 +5847,9 @@ _ALGEBRA1_U6 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 2, "b": 3, "op": "exmul"},
-            {"a": 4, "b": 2, "op": "exmul"},
+            {"a": 2, "b": 4, "op": "exmul"},
             {"a": 3, "b": 3, "op": "exmul"},
-            {"a": 2, "b": 5, "op": "exmul"},
+            {"a": 5, "b": 2, "op": "exmul"},
             {"a": 4, "b": 3, "op": "exmul"},
             {"a": 2, "b": 7, "op": "exmul"},
             {"a": 5, "b": 3, "op": "exmul"},
@@ -5992,7 +6020,7 @@ _ALGEBRA1_U7 = [
             {"a": 2, "b": 5, "c": 0, "op": "fnum"},
             {"a": 3, "b": 5, "c": 0, "op": "fnum"},
             {"a": 4, "b": 5, "c": 0, "op": "fnum"},
-            {"a": 5, "b": 6, "c": 0, "op": "fnum"},
+            {"a": 6, "b": 6, "op": "fnum"},
         ],
     },
     {
@@ -6188,7 +6216,7 @@ _ALGEBRA1_U8 = [
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
-            {"a": 3, "b": 2, "op": "vtx"},
+            {"a": 4, "b": 2, "op": "vtx"},
             {"a": 5, "b": 3, "op": "vtx"},
             {"a": 2, "b": 4, "op": "vtx"},
             {"a": 7, "b": 4, "op": "vtx"},
@@ -6285,7 +6313,7 @@ _ALGEBRA1_U9 = [
             {"a": 3, "b": 2, "op": "mean"},
             {"a": 4, "b": 3, "op": "mean"},
             {"a": 5, "b": 4, "op": "mean"},
-            {"a": 3, "b": 5, "op": "mean"},
+            {"a": 4, "b": 5, "op": "mean"},
             {"a": 6, "b": 5, "op": "mean"},
             {"a": 4, "b": 6, "op": "mean"},
             {"a": 5, "b": 8, "op": "mean"},
@@ -6448,16 +6476,16 @@ _GEOMETRY_U1 = [
              "ask": {"a": 50, "b": 0, "op": "comp"}},
             {"worked": ["One more together. One piece is 70, so the other is 90 take away 70, which equals 20 degrees.",
                         '[[step eq="90° − 70° = 20°"]]'],
-             "ask": {"a": 30, "b": 0, "op": "comp"}},
+             "ask": {"a": 29, "b": 0, "op": "comp"}},
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 80, "b": 0, "op": "comp"},
-            {"a": 70, "b": 0, "op": "comp"},
+            {"a": 69, "b": 0, "op": "comp"},
             {"a": 65, "b": 0, "op": "comp"},
             {"a": 60, "b": 0, "op": "comp"},
             {"a": 55, "b": 0, "op": "comp"},
-            {"a": 40, "b": 0, "op": "comp"},
+            {"a": 39, "b": 0, "op": "comp"},
             {"a": 35, "b": 0, "op": "comp"},
             {"a": 25, "b": 0, "op": "comp"},
             {"a": 20, "b": 0, "op": "comp"},
@@ -6492,11 +6520,11 @@ _GEOMETRY_U1 = [
         "bank": [
             {"a": 70, "b": 0, "op": "vert"},
             {"a": 65, "b": 0, "op": "vert"},
-            {"a": 60, "b": 0, "op": "vert"},
+            {"a": 59, "b": 0, "op": "vert"},
             {"a": 55, "b": 0, "op": "vert"},
-            {"a": 50, "b": 0, "op": "vert"},
+            {"a": 49, "b": 0, "op": "vert"},
             {"a": 40, "b": 0, "op": "vert"},
-            {"a": 35, "b": 0, "op": "vert"},
+            {"a": 34, "b": 0, "op": "vert"},
             {"a": 30, "b": 0, "op": "vert"},
             {"a": 25, "b": 0, "op": "vert"},
             {"a": 20, "b": 0, "op": "vert"},
@@ -6566,7 +6594,7 @@ _GEOMETRY_U1 = [
         ],
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
-            {"a": 2, "b": 10, "op": "mid"},
+            {"a": 2, "b": 8, "op": "mid"},
             {"a": 2, "b": 14, "op": "mid"},
             {"a": 6, "b": 14, "op": "mid"},
             {"a": 4, "b": 16, "op": "mid"},
@@ -6823,10 +6851,10 @@ _GEOMETRY_U3 = [
         "practice_intro": "Now it's your turn. Three right answers in a row and we're done — here comes the first one.",
         "bank": [
             {"a": 25, "b": 0, "op": "isos"},
-            {"a": 30, "b": 0, "op": "isos"},
+            {"a": 29, "b": 0, "op": "isos"},
             {"a": 35, "b": 0, "op": "isos"},
             {"a": 40, "b": 0, "op": "isos"},
-            {"a": 45, "b": 0, "op": "isos"},
+            {"a": 44, "b": 0, "op": "isos"},
             {"a": 50, "b": 0, "op": "isos"},
             {"a": 55, "b": 0, "op": "isos"},
             {"a": 65, "b": 0, "op": "isos"},
@@ -6901,7 +6929,7 @@ _GEOMETRY_U3 = [
             {"a": 22, "b": 0, "op": "chas"},
             {"a": 28, "b": 0, "op": "chas"},
             {"a": 34, "b": 0, "op": "chas"},
-            {"a": 40, "b": 0, "op": "chas"},
+            {"a": 38, "b": 0, "op": "chas"},
             {"a": 46, "b": 0, "op": "chas"},
             {"a": 52, "b": 0, "op": "chas"},
             {"a": 64, "b": 0, "op": "chas"},
@@ -6992,7 +7020,7 @@ _GEOMETRY_U4 = [
             {"a": 4, "b": 8, "op": "sfac"},
             {"a": 2, "b": 8, "op": "sfac"},
             {"a": 5, "b": 10, "op": "sfac"},
-            {"a": 4, "b": 12, "op": "sfac"},
+            {"a": 2, "b": 10, "op": "sfac"},
             {"a": 3, "b": 12, "op": "sfac"},
             {"a": 4, "b": 16, "op": "sfac"},
             {"a": 6, "b": 18, "op": "sfac"},
@@ -7287,7 +7315,7 @@ _GEOMETRY_U6 = [
             {"a": 30, "b": 0, "op": "cent"},
             {"a": 40, "b": 0, "op": "cent"},
             {"a": 50, "b": 0, "op": "cent"},
-            {"a": 60, "b": 0, "op": "cent"},
+            {"a": 59, "b": 0, "op": "cent"},
             {"a": 70, "b": 0, "op": "cent"},
             {"a": 110, "b": 0, "op": "cent"},
             {"a": 120, "b": 0, "op": "cent"},
@@ -7326,7 +7354,7 @@ _GEOMETRY_U6 = [
             {"a": 50, "b": 0, "op": "insc"},
             {"a": 60, "b": 0, "op": "insc"},
             {"a": 70, "b": 0, "op": "insc"},
-            {"a": 80, "b": 0, "op": "insc"},
+            {"a": 78, "b": 0, "op": "insc"},
             {"a": 100, "b": 0, "op": "insc"},
             {"a": 120, "b": 0, "op": "insc"},
             {"a": 140, "b": 0, "op": "insc"},
@@ -7363,7 +7391,7 @@ _GEOMETRY_U6 = [
             {"a": 24, "b": 0, "op": "iarc"},
             {"a": 30, "b": 0, "op": "iarc"},
             {"a": 36, "b": 0, "op": "iarc"},
-            {"a": 40, "b": 0, "op": "iarc"},
+            {"a": 38, "b": 0, "op": "iarc"},
             {"a": 50, "b": 0, "op": "iarc"},
             {"a": 60, "b": 0, "op": "iarc"},
             {"a": 64, "b": 0, "op": "iarc"},
@@ -7978,7 +8006,7 @@ _ALGEBRA2_U1 = [
         "pairs": [
             {"worked": ["Here is one more, done for you. Less than 5: that is 4 negatives, 4 positives, and zero — 9 whole numbers.",
                         '[[numberline min="-5" max="5" points="-4,4"]][[step eq="4 + 4 + 1 = 9"]]'],
-             "ask": {"a": 2, "b": 0, "op": "absc"}},
+             "ask": {"a": 3, "b": 0, "op": "absc"}},
             {"worked": ["One more together. Less than 20: 19 negatives, 19 positives, and zero — 39.",
                         '[[step eq="19 + 19 + 1 = 39"]]'],
              "ask": {"a": 13, "b": 0, "op": "absc"}},
@@ -11896,7 +11924,7 @@ _PROBSTAT_U7 = [
             {"a": 45, "b": 30, "op": "pdis"},
             {"a": 20, "b": 50, "op": "pdis"},
             {"a": 50, "b": 20, "op": "pdis"},
-            {"a": 25, "b": 40, "op": "pdis"},
+            {"a": 20, "b": 45, "op": "pdis"},
             {"a": 55, "b": 10, "op": "pdis"},
         ],
     },

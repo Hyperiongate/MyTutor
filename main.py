@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24ms-nothing-given-away". BUILD ms -- 71 of the
+#               113 giveaways teachaudit found are closed. Nothing in this file
+#               changed but the stamp; the fix is lessonscripts', and it swapped
+#               WHICH PROBLEM IS ASKED rather than rewriting any teaching.
+#               ⚠️ 462 NEW CACHE KEYS -- about $8.49 to render. Press ② after
+#               deploying. The 462 old clips fall out of the closure and the evictor
+#               collects them; nothing is billed twice for the same text.
 #   2026-08-24  APP_BUILD -> "2026-08-24mr-one-pennies". BUILD mr -- 224 SPOKEN LINES
 #               STOPPED SAYING "1 PENNIES". Nothing in this file changed but the
 #               stamp; the fix is lessonscripts', and teachaudit.py is a new
@@ -11277,7 +11284,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mr-one-pennies"
+APP_BUILD = "2026-08-24ms-nothing-given-away"
 
 
 @app.get("/health")
