@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD na -- PART 3do: BUILDING THE COURSE IS NOT TEACHING A CHILD.
+#               Third build running that the defect was a tile adding real numbers
+#               into a false claim (mw, mz, now na), so this part does not check that
+#               the build/serve split EXISTS -- it checks the two things that would
+#               silently un-split it: ① a new kind="tts" render pass in main.py whose
+#               mode is not in store.TTS_BUILD_MODES (it reads main.py's own call
+#               sites and flags any mode containing "prewarm" that is unclassified),
+#               and ② the headline dividing total_usd again instead of serve_usd.
+#               ⭐ AND IT DOES THE ARITHMETIC ON A LIVE DATABASE, not just a grep:
+#               logs a render pass and a child's line, then asserts build dollars are
+#               not inside serve dollars AND that the two halves still re-account for
+#               every character the old single total covered. Run the battery with
+#               DATABASE_URL set or those five checks SKIP -- they are the half that
+#               actually proves the money is right.
 #   2026-08-24  BUILD mz -- PART 3dn GROWS TEETH. It used to check that every status
 #               tutor.py can emit has a counter in store.py. That caught the missing
 #               key; it could not catch static/admin.html ADDING THE KEYS UP WRONG,
@@ -9964,6 +9978,126 @@ def part3dn_every_verdict_is_counted():
           "the next referee somebody adds should announce itself, not vanish")
 
 
+def part3do_build_is_not_serve():
+    """PART 3do (build na) -- BUILDING THE COURSE IS NOT TEACHING A CHILD.
+
+    Jim's /admin read "Cost / student-hour: $610.76" on 2026-08-24. The arithmetic
+    was right and the statement was false: it divided ~$1,000 of ONE-TIME course
+    construction -- rendering 30,000 scripted lines to audio, into a permanent disk
+    cache -- by ONE WEEK of children's engaged hours. Render the course again next
+    month and the number doubles while teaching gets no more expensive. Teach ten
+    times as many children and it collapses while nothing improves. A number that
+    moves for reasons unrelated to its own question is not a measurement.
+
+    ⚠️ AND IT IS THE SAME FAMILY AS mw AND mz. Three builds running, the defect has
+    been a tile that adds up real numbers into a false claim. So this part does not
+    check that the split EXISTS -- it checks the two things that would silently
+    un-split it:
+      ① a new render pass in main.py whose mode nobody added to TTS_BUILD_MODES
+      ② the headline dividing total_usd again instead of serve_usd
+
+    ⭐ THE ASYMMETRY IS DELIBERATE AND PINNED. Anything not named as build counts as
+    serve. Understating what teaching costs is how you misprice a product; over-
+    stating it only makes you cautious."""
+    print("\nPART 3do — building the course is not teaching a child (build na)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    import store as _store
+
+    check("store.py owns ONE definition of build-vs-serve",
+          hasattr(_store, "TTS_BUILD_MODES") and len(_store.TTS_BUILD_MODES) >= 2,
+          "the rule must live in one place or two files will disagree about it")
+
+    # ① every kind="tts" call site in main.py, and the mode literal it passes.
+    sites = re.findall(r'log_usage\(\s*kind="tts"[^)]*?mode=(?:"([a-z-]+)"|([A-Za-z_]+))',
+                       code_only(msrc), re.S)
+    named = sorted({a for a, b in sites if a})
+    check(f"main.py's tts call sites are discoverable ({len(sites)} found)",
+          len(sites) >= 3, str(sites))
+    # A render pass announces itself: its mode says prewarm. If one of those is not
+    # in the tuple, its dollars are about to be billed to children.
+    strays = [m for m in named
+              if "prewarm" in m and m not in _store.TTS_BUILD_MODES]
+    check("⭐ every render pass in main.py is named in TTS_BUILD_MODES",
+          not strays,
+          f"{strays} renders the course but is not classified as build -- its "
+          f"dollars would land in cost-per-student-hour and inflate it")
+    check("  ...and the live speak lane is NOT classified as build",
+          "speak" not in _store.TTS_BUILD_MODES and "demo" not in _store.TTS_BUILD_MODES,
+          "a child asking to hear a line is teaching cost, always")
+
+    # ② the headline divides SERVE cost. This is the exact line that was wrong.
+    check("⭐ cost-per-student-hour divides SERVE cost, not the blended total",
+          'u["usd_per_student_hour"] = (round(u["serve_usd"]' in code_only(msrc),
+          "dividing total_usd puts the course build back on the children's bill")
+    check("  ...and serve cost excludes the course build",
+          'u["serve_usd"]' in msrc and 'u["tts_serve_usd"]' in msrc
+          and 'u["build_usd"] = u["tts_build_usd"]' in msrc,
+          "serve = brain + second opinion + LIVE voice only")
+    check("  ...and the blended figure is kept, not deleted",
+          'u["usd_per_student_hour_blended"]' in msrc,
+          "a number that vanishes with no trace is how a dashboard loses an "
+          "argument with its own history")
+
+    # the aggregate the dollars are computed from
+    for k in ("tts_chars_build", "tts_chars_serve",
+              "tts_chars_cached_build", "tts_chars_cached_serve"):
+        check(f"  store.usage_stats reports {k}", f'"{k}"' in ssrc,
+              "main.py prices these; a missing key silently prices zero")
+
+    # the panel
+    dh = code_only(open(os.path.join(here, "static", "admin.html"),
+                        encoding="utf-8").read())
+    check("the panel shows the build cost as ONE-TIME, on its own tile",
+          '{ l: "Course build cost"' in dh and "ONE-TIME" in dh,
+          "one voice-cost tile is how capital got blended into marginal cost")
+    check("  ...and the headline tile says it is TEACHING cost",
+          '{ l: "Teaching cost / student-hour"' in dh
+          and '"Cost / student-hour (7d)"' not in dh,
+          "the old label asked a question the number was not answering")
+    check("  ...and the cache-hit rate is measured on TEACHING characters",
+          "ttsServeFreePct" in dh,
+          "the blended rate reads 0% during a render week -- I once called that a "
+          "live money leak to Jim's face and had to retract it")
+    check("  ...and the measurement era splits the same way",
+          '{ l: "Spent teaching since"' in dh and '{ l: "Spent building since"' in dh,
+          "the epoch card would re-blend what the panel above it just separated")
+
+    # ③ ARITHMETIC, on a real database. The tiles are only as honest as this.
+    if not _store._ENABLED:
+        skip("build/serve arithmetic on a live DB", "no database in this sandbox")
+        return
+    import main as _main
+    os.environ.setdefault("ELEVEN_USD_PER_1K_CHARS", "0.30")
+    os.environ.setdefault("ANTHROPIC_IN_USD_PER_MTOK", "3")
+    os.environ.setdefault("ANTHROPIC_OUT_USD_PER_MTOK", "15")
+    tag = "NA" + os.urandom(3).hex()
+    _store.log_usage(kind="tts", code="", mode="script-prewarm",
+                     tts_chars=1_000_000, tts_cache_hit=False)
+    _store.log_usage(kind="tts", code=tag, mode="speak",
+                     tts_chars=10_000, tts_cache_hit=False)
+    _store.log_usage(kind="tts", code=tag, mode="speak",
+                     tts_chars=90_000, tts_cache_hit=True)
+    u = _main._usage_with_dollars(1)
+    check("the render pass is counted as BUILD",
+          u["tts_chars_build"] >= 1_000_000, str(u["tts_chars_build"]))
+    check("the child's line is counted as SERVE",
+          10_000 <= u["tts_chars_serve"] < 1_000_000, str(u["tts_chars_serve"]))
+    check("⭐ build dollars are NOT inside serve dollars",
+          u["tts_build_usd"] > u["tts_serve_usd"] * 10,
+          f"build ${u['tts_build_usd']} vs serve ${u['tts_serve_usd']} -- if these "
+          f"are close, the split is not splitting")
+    check("  ...and the two halves still add up to the old total",
+          abs((u["tts_build_usd"] + u["tts_serve_usd"]) - u["tts_usd"]) < 0.02,
+          f"{u['tts_build_usd']} + {u['tts_serve_usd']} != {u['tts_usd']} -- the "
+          f"split must re-account for every character, not lose some")
+    check("  ...and the teaching cache rate ignores the render pass",
+          u["tts_chars_cached_serve"] == 90_000
+          and u["tts_chars_cached_build"] == 0,
+          str((u["tts_chars_cached_serve"], u["tts_chars_cached_build"])))
+
+
 def part3dm_practice_is_tracked():
     """PART 3dm (build mt) -- PRACTICE IS COUNTED, AND IT IS STILL NOT MASTERY.
 
@@ -10133,10 +10267,23 @@ def part3dk_cost_epoch():
           "td.c.day >=" in ssrc and "def student_minutes_since" in ssrc,
           "updated_at moves when a row is touched, so a nudged yesterday-row would "
           "migrate windows and quietly deflate the cost per hour")
+    # (na) ⚠️ THIS PIN USED TO MATCH THE EXACT CHARACTERS, total_usd INCLUDED, and it
+    # failed the moment build na changed the NUMERATOR to serve_usd -- while the
+    # guarantee it exists to protect ("null, never zero") got no weaker. Third pin in
+    # this battery to fail for spelling rather than behaviour (see 3df's silent-play
+    # and the hardcoded "== 17"). It tests the GUARD now, and lets the numerator be
+    # whatever the current honest one is.
+    m = re.search(r'u\["usd_per_student_hour"\] = \(round\(u\["(\w+)"\] / \(mins / 60\.0\)',
+                  code_only(msrc))
     check("cost per student-hour is NULL, never 0, without hours",
-          'u["usd_per_student_hour"] = (round(u["total_usd"] / (mins / 60.0), 2)' in msrc
-          and "if (u[\"total_usd\"] is not None and mins) else None)" in msrc,
+          bool(m) and "and mins) else None)" in msrc,
           "$0.00 per hour reads as 'teaching is free', the opposite of unmeasured")
+    # (na) ...and it must divide SERVE cost. The full argument is in PART 3do; this
+    # one line keeps the epoch part from silently disagreeing with it.
+    check("  ...and the numerator is SERVE cost, not the blended total",
+          bool(m) and m.group(1) == "serve_usd",
+          f"divides {m.group(1) if m else '???'} -- the course build is not something "
+          f"a child's hour should be charged for")
     check("the panel shows the era only once one exists",
           '"usage_epoch": (_usage_with_dollars(0, since=_ep) if _ep else None)' in msrc,
           "the deploy that ships this must not change what Jim already reads")
@@ -18065,6 +18212,7 @@ def main():
     part3dl_it_reads_aloud()
     part3dm_practice_is_tracked()
     part3dn_every_verdict_is_counted()
+    part3do_build_is_not_serve()
     part3ai_deploy_stamp()
     if live:
         part4_live()

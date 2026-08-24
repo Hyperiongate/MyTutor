@@ -2,6 +2,21 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD na -- BUILD COST AND SERVE COST ARE DIFFERENT QUESTIONS.
+#               usage_stats reported tts_chars_generated as one number, so the ~30,000
+#               lines of the course rendered ONCE to audio were indistinguishable from
+#               a line a child asked to hear today. /admin divided the sum by one
+#               week of engaged hours and printed "$610.76 per student-hour".
+#               Adds TTS_BUILD_MODES -- the ONE definition of "this row was course
+#               construction" -- and six additive keys (tts_chars_build/_serve,
+#               tts_chars_cached_build/_serve, tts_requests_build/_serve).
+#               ⚠️ THE THREE ORIGINAL TOTALS ARE UNCHANGED and still mean build+serve,
+#               so every existing caller reads exactly what it read before.
+#               ⭐ ANYTHING NOT NAMED AS BUILD COUNTS AS SERVE, including rows written
+#               before `mode` existed (they carry ""). Understating what teaching
+#               costs is how you misprice a product; overstating it only makes you
+#               cautious. PART 3do fails the battery if main.py grows a render pass
+#               this tuple does not name.
 #   2026-08-24  BUILD mw -- THE VERDICT NOBODY COUNTED. usage_stats had keys for
 #               every referee verdict except "critic-unresolved", which tutor.py has
 #               emitted since build iv. Unknown statuses were added to verify_none,
@@ -4036,6 +4051,39 @@ def _timing_summary(rows) -> dict:
     return out
 
 
+# =============================================================================
+# (na) 2026-08-24 -- BUILDING THE COURSE IS NOT TEACHING A CHILD.
+# -----------------------------------------------------------------------------
+# ⚠️ THE MODES BELOW ARE ONE-TIME CONSTRUCTION COST. main.py renders every line of
+# the scripted course through ElevenLabs ONCE, into a disk cache keyed on
+# sha256(voice|model|text); after that the same line is served free forever. Those
+# render passes log as TTS misses BY DEFINITION -- that is what a render pass IS --
+# and until this build every one of them was being added to the cost of teaching.
+# Jim's /admin read "Cost / student-hour: $610.76" because ~$1,000 of course
+# CONSTRUCTION was being divided by one week of children's hours.
+#
+# Two different questions, and they must never share a tile again:
+#   BUILD  -- what did it cost to make the course?      Paid once. Capital.
+#   SERVE  -- what does it cost to teach one child?     Paid every hour. Marginal.
+#
+# ⭐ ANYTHING NOT NAMED HERE COUNTS AS SERVE. That asymmetry is deliberate: a mode
+# nobody classified is more safely treated as a live cost we are paying than as a
+# one-time cost we already paid. Understating serve cost is how you misprice a
+# product; overstating it only makes you cautious. Rows written before `mode`
+# existed carry "" and land in serve for the same reason.
+#
+# ⚠️ IF YOU ADD A NEW RENDER PASS IN main.py, ADD ITS MODE HERE IN THE SAME COMMIT.
+# PART 3do of ruletests.py reads main.py's own kind="tts" call sites and fails the
+# build if it finds a mode containing "prewarm" that this tuple does not name -- so
+# forgetting is a red battery, not a wrong dashboard six weeks later.
+TTS_BUILD_MODES = ("script-prewarm", "prewarm")
+
+
+def _is_build_mode(m) -> bool:
+    """True when this usage row is COURSE CONSTRUCTION rather than live teaching."""
+    return str(m or "") in TTS_BUILD_MODES
+
+
 def usage_stats(days: int = 7, since=None) -> dict:
     """Aggregate the usage log for /admin: token totals, verifier breakdown, retry count,
     distinct students served, and TTS characters generated vs served free from cache.
@@ -4071,6 +4119,13 @@ def usage_stats(days: int = 7, since=None) -> dict:
            # survived two builds. PART 3dn fails the build if this is ever non-zero.
            "verify_unknown": 0, "verify_unknown_kinds": [],
            "tts_requests": 0, "tts_chars_generated": 0, "tts_chars_cached": 0,
+           # (na) THE SAME THREE NUMBERS, SPLIT ON WHY THE CHARACTERS WERE SPENT.
+           # The three totals directly above are UNCHANGED and still mean
+           # build+serve, so every existing caller reads what it always read.
+           # These six say which half. See TTS_BUILD_MODES above for the rule.
+           "tts_chars_build": 0, "tts_chars_serve": 0,
+           "tts_chars_cached_build": 0, "tts_chars_cached_serve": 0,
+           "tts_requests_build": 0, "tts_requests_serve": 0,
            # build jm -- the turn clock. timed_turns counts EVERY timed row in the
            # window; ms_sampled is how many of them the percentiles actually read.
            # build jp -- the SECOND OPINION, counted on its own. A critic row is
@@ -4139,6 +4194,21 @@ def usage_stats(days: int = 7, since=None) -> dict:
             out["tts_chars_cached"] = int(conn.execute(
                 select(func.coalesce(func.sum(U.c.tts_chars), 0))
                 .where(tts & (U.c.tts_cache_hit == 1))).scalar() or 0)
+            # (na) THE SPLIT. is_build is the ONLY place the rule is applied, so
+            # there is exactly one definition of "this was course construction".
+            is_build = U.c.mode.in_(TTS_BUILD_MODES)
+            def _tts_sum(cond):
+                return int(conn.execute(
+                    select(func.coalesce(func.sum(U.c.tts_chars), 0))
+                    .where(cond)).scalar() or 0)
+            out["tts_chars_build"] = _tts_sum(tts & (U.c.tts_cache_hit == 0) & is_build)
+            out["tts_chars_serve"] = _tts_sum(tts & (U.c.tts_cache_hit == 0) & ~is_build)
+            out["tts_chars_cached_build"] = _tts_sum(tts & (U.c.tts_cache_hit == 1) & is_build)
+            out["tts_chars_cached_serve"] = _tts_sum(tts & (U.c.tts_cache_hit == 1) & ~is_build)
+            out["tts_requests_build"] = int(conn.execute(
+                select(func.count()).where(tts & is_build)).scalar() or 0)
+            out["tts_requests_serve"] = int(conn.execute(
+                select(func.count()).where(tts & ~is_build)).scalar() or 0)
             # build jm: the turn clock. Only rows that were actually timed.
             timed = brain & (U.c.ms_total > 0)
             out["timed_turns"] = int(conn.execute(

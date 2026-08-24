@@ -2,6 +2,43 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24na-build-is-not-serve". BUILD na -- BUILDING
+#               THE COURSE IS NOT TEACHING A CHILD, AND THE DASHBOARD NOW KNOWS IT.
+#               Jim's /admin read "Cost / student-hour: $610.76". The arithmetic was
+#               right and the statement was false: it divided roughly $1,000 of
+#               ONE-TIME course construction -- rendering ~30,000 scripted lines to
+#               audio, once, into a permanent disk cache -- by ONE WEEK of children's
+#               engaged hours.
+#               ⚠️ WHY THAT NUMBER WAS MEANINGLESS, not merely high: render the course
+#               again next month and it DOUBLES while teaching gets no more expensive.
+#               Teach ten times as many children and it COLLAPSES while nothing
+#               improves. A number that moves for reasons unrelated to its own
+#               question cannot be used to price anything.
+#               TWO QUESTIONS, AND THEY MUST NEVER SHARE A TILE AGAIN:
+#                 BUILD -- what did it cost to MAKE the course?   Paid once. Capital.
+#                 SERVE -- what does an hour of teaching cost?    Paid every hour.
+#               store.py owns the single definition (TTS_BUILD_MODES = script-prewarm,
+#               prewarm) and splits the characters; this file only prices each half.
+#               ⭐ usd_per_student_hour CHANGED MEANING IN THIS BUILD. It divides
+#               serve_usd now, not total_usd. That is deliberate and it is the point
+#               of the build -- see the ⚠️ block at the bottom of _usage_with_dollars.
+#               The blended figure is NOT deleted: total_usd is untouched (the cost
+#               alarm and the 30-day tiles read it), build_usd is reported beside it,
+#               and usd_per_student_hour_blended keeps the old number inspectable.
+#               A number that vanishes with no trace is how a dashboard loses an
+#               argument with its own history.
+#               ⚠️ NOTHING A CHILD SEES CHANGES. No lesson, no lane, no prompt.
+#               ⭐ WHAT THE SPLIT IMMEDIATELY REVEALED, on a reconstruction of Jim's
+#               own week: THE SECOND OPINION COSTS NEARLY TWICE THE TEACHING BRAIN
+#               ($27.42 of critic against $14.77 of tutor). LIVE_CRITIC is the
+#               majority of marginal cost, and build jp already measured it at ~21%
+#               of turn time. It is now the single biggest lever on both the money
+#               and the wait -- and that was invisible while ~$1,000 of course build
+#               sat on top of it.
+#               PART 3do of ruletests.py pins all of it, including the arithmetic on
+#               a live database: a new render pass in this file whose mode is not in
+#               TTS_BUILD_MODES fails the battery, because forgetting should be a red
+#               battery today rather than a wrong dashboard in six weeks.
 #   2026-08-24  APP_BUILD -> "2026-08-24mz-caught-and-actually-fixed". BUILD mz --
 #               THE SECOND MEASUREMENT LIE, SAME FAMILY AS mw. Jim's /admin panel read
 #               "Errors caught & fixed: 40" and "39.1% verified right first try", and
@@ -8530,6 +8567,14 @@ def _usage_with_dollars(days: int, since=None) -> dict:
                            + u["output_tokens"] * pout) / 1_000_000, 2)
     if ptts is not None:
         tts_usd = round(u["tts_chars_generated"] / 1000 * ptts, 2)
+        # (na) ⚠️ THE SAME DOLLARS, SPLIT ON WHY THEY WERE SPENT. store.py has already
+        # separated the characters on mode; this only prices each half. tts_usd above
+        # is UNCHANGED and still means build+serve -- the cost alarm and the 30-day
+        # tiles read it and must keep reading the same number.
+        u["tts_build_usd"] = round(u.get("tts_chars_build", 0) / 1000 * ptts, 2)
+        u["tts_serve_usd"] = round(u.get("tts_chars_serve", 0) / 1000 * ptts, 2)
+    else:
+        u["tts_build_usd"] = u["tts_serve_usd"] = None
     critic_usd = None
     if cin is not None and cout is not None:
         critic_usd = round((u.get("critic_input_tokens", 0) * cin
@@ -8541,6 +8586,18 @@ def _usage_with_dollars(days: int, since=None) -> dict:
     u["tts_usd"] = tts_usd
     u["total_usd"] = round(brain_usd + tts_usd + (critic_usd or 0.0), 2) \
         if (brain_usd is not None and tts_usd is not None) else None
+    # (na) BUILD vs SERVE, IN DOLLARS. The two questions the old single total could
+    # not tell apart:
+    #   build_usd -- what it cost to MAKE the course. Paid once. Capital.
+    #   serve_usd -- what it costs to TEACH. Paid every hour. Marginal.
+    # Every brain and critic token is serve: nothing pre-generates teaching turns.
+    # Only the voice splits, and it splits on the render passes named in
+    # store.TTS_BUILD_MODES.
+    u["build_usd"] = u["tts_build_usd"]
+    u["serve_usd"] = (round((brain_usd or 0.0) + (critic_usd or 0.0)
+                            + (u["tts_serve_usd"] or 0.0), 2)
+                      if (brain_usd is not None and u["tts_serve_usd"] is not None)
+                      else None)
     # (mq) COST PER STUDENT-HOUR -- the number Jim actually asked for on 2026-08-24,
     # and the only cost figure that means anything as the app grows. Cost per STUDENT
     # flatters a quiet week and punishes a busy one; an HOUR of teaching is the unit
@@ -8552,8 +8609,23 @@ def _usage_with_dollars(days: int, since=None) -> dict:
                                                           else int(days)))
     u["student_minutes"] = int(mins or 0)
     u["student_hours"] = round(mins / 60.0, 1) if mins else 0.0
-    u["usd_per_student_hour"] = (round(u["total_usd"] / (mins / 60.0), 2)
-                                 if (u["total_usd"] is not None and mins) else None)
+    # ⚠️ (na) 2026-08-24 -- THIS KEY CHANGED MEANING. IT NOW DIVIDES SERVE COST, NOT
+    # TOTAL COST. Jim's dashboard read "$610.76 per student-hour", which was true
+    # arithmetic and a false statement: it was dividing ~$1,000 of ONE-TIME course
+    # construction by ONE WEEK of children's hours. Render the course again next
+    # month and the number would double while teaching got no more expensive; teach
+    # ten times as many children and it would collapse while nothing improved.
+    # The question "what does an hour of teaching cost?" has exactly one honest
+    # numerator, and it is serve_usd.
+    # The blended figure is NOT lost -- total_usd is right above, and build_usd is
+    # reported beside it so the capital cost is visible instead of smuggled.
+    u["usd_per_student_hour"] = (round(u["serve_usd"] / (mins / 60.0), 2)
+                                 if (u.get("serve_usd") is not None and mins) else None)
+    # (na) kept so the old blended figure stays inspectable rather than deleted --
+    # nothing displays it as a headline any more, but a number that vanishes with no
+    # trace is how a dashboard loses an argument with its own history.
+    u["usd_per_student_hour_blended"] = (round(u["total_usd"] / (mins / 60.0), 2)
+                                         if (u["total_usd"] is not None and mins) else None)
     return u
 
 
@@ -11466,7 +11538,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24mz-caught-and-actually-fixed"
+APP_BUILD = "2026-08-24na-build-is-not-serve"
 
 
 @app.get("/health")
