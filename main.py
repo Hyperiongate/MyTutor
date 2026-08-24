@@ -2,6 +2,34 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  APP_BUILD -> "2026-08-24nb-let-him-finish". BUILD nb -- NOTHING
+#               APPEARS UNDER A TEACHER WHO IS STILL TALKING. Jim: "when Mr. Cadabra
+#               is introducing Abrabot it still shows the Next button... it's very
+#               distracting to have him talk and then have this next button show up,
+#               because it feels like I'm supposed to push it."
+#               ⚠️ BUILD mx BELIEVED IT HAD FIXED THIS, AND HALF-DID. mx hid the
+#               button and revealed it on two paths -- speech finished silently, or
+#               `onWaiting` fired -- but never asked what onWaiting MEANT. The timer
+#               behind it asks "has this finished yet?" after THREE SECONDS, and his
+#               introduction is four sentences, about twenty seconds of speech. So it
+#               fired every single time, mid-sentence, and handed the button back the
+#               key mx had just taken away. The hiding was real; the lock had a
+#               second door.
+#               ⭐ TWO FAILURES WERE SHARING ONE TIMER, and they are opposites:
+#                 nothing audible after 3s -- it is not coming. Offer the button.
+#                 audible and still going  -- he is TALKING. A button under a talking
+#                                             teacher invites a child to interrupt him.
+#               ⚠️ AND THE `ask` BEAT WANTS THE OPPOSITE OF THE FIX. It passes the same
+#               callback to UNLOCK THE ANSWER BUTTONS, where being early is correct --
+#               a child who can hear the question must never be locked out of
+#               answering while it finishes. So patience is opt-in per call
+#               (`patient`), not a new default. Changing the default would have been
+#               the one-line version of this fix and would have broken answering.
+#               ONLY static/drill.html CHANGES. main.py's change is this stamp.
+#               PART 3dp pins it by LIFTING speak() and its constants out of
+#               drill.html and driving them on a virtual clock -- the real 3000ms /
+#               6000ms / 85-per-character values, four scenarios, about 50ms. Checked
+#               against the mx code first: it fails ① at 3.0s, exactly as Jim saw.
 #   2026-08-24  APP_BUILD -> "2026-08-24na-build-is-not-serve". BUILD na -- BUILDING
 #               THE COURSE IS NOT TEACHING A CHILD, AND THE DASHBOARD NOW KNOWS IT.
 #               Jim's /admin read "Cost / student-hour: $610.76". The arithmetic was
@@ -11538,7 +11566,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24na-build-is-not-serve"
+APP_BUILD = "2026-08-24nb-let-him-finish"
 
 
 @app.get("/health")

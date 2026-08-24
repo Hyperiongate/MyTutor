@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-24  BUILD nb -- PART 3dp: NO BUTTON UNDER A TALKING TEACHER. And this one
+#               is the answer to "why did a grep-shaped pin let build mx ship a bug
+#               Jim could see in ten seconds?" -- because mx's guarantee was about
+#               TIMING and every pin on it was about TEXT. 3dp lifts speak() and its
+#               constants straight out of static/drill.html and RUNS them on a virtual
+#               clock: real 3000ms, real 6000ms, real 85-per-character, four
+#               scenarios, ~50ms total. It was validated by first running it against
+#               the mx code, where scenario ① fails at 3.0s exactly as Jim reported.
+#               ⚠️ IT LIFTS BY LANDMARK -- "var VOICE_WAIT_MS =" through the "score"
+#               divider. If you move those, this part says so loudly rather than
+#               quietly testing the wrong region; there is a pin for that too.
 #   2026-08-24  BUILD na -- PART 3do: BUILDING THE COURSE IS NOT TEACHING A CHILD.
 #               Third build running that the defect was a tile adding real numbers
 #               into a false claim (mw, mz, now na), so this part does not check that
@@ -9978,6 +9989,161 @@ def part3dn_every_verdict_is_counted():
           "the next referee somebody adds should announce itself, not vanish")
 
 
+_DRILL_VOICE_HARNESS = r"""// Drives the REAL speak() lifted from static/drill.html on a VIRTUAL CLOCK, so the
+// shipped constants (3000ms, 6000ms, 85ms/char) are tested exactly as they ship and
+// the whole battery costs milliseconds instead of a minute.
+const fs = require("fs");
+const lifted = fs.readFileSync(process.argv[2], "utf8");
+let NOW = 0, Q = [];
+const vSetTimeout = (fn, ms) => { const h = { t: NOW + (ms || 0), fn, dead: false }; Q.push(h); return h; };
+const vClearTimeout = (h) => { if (h) h.dead = true; };
+async function run(until) {
+  for (;;) {
+    const live = Q.filter(h => !h.dead && h.t <= until).sort((a, b) => a.t - b.t);
+    if (!live.length) break;
+    const h = live[0]; Q.splice(Q.indexOf(h), 1); NOW = h.t; h.fn();
+    await Promise.resolve(); await Promise.resolve(); await Promise.resolve();
+  }
+  NOW = until;
+}
+const M = new Function("performance", "devline", "setTimeout", "clearTimeout", `
+  ${lifted.replace(/__voiceSpoke/g, "globalThis.__spoke").replace(/__mood/g, "globalThis.__mood")}
+  return { speak, sayMsEstimate, VOICE_WAIT_MS, VOICE_STALL_PAD_MS };
+`)({ now: () => NOW }, () => {}, vSetTimeout, vClearTimeout);
+
+async function scenario({ text, ms, audibleAt, patient, watch }) {
+  NOW = 0; Q = []; globalThis.__spoke = false;
+  let revealedAt = null;
+  globalThis.window = { speak: () => new Promise(r => {
+    if (audibleAt !== null) vSetTimeout(() => { globalThis.__spoke = true; }, audibleAt);
+    if (ms !== null) vSetTimeout(r, ms);
+  })};
+  M.speak(text, () => {}, () => { if (revealedAt === null) revealedAt = NOW; },
+          { who: "cadabra", natural: true }, patient);
+  await run(watch);
+  return revealedAt;
+}
+const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. This is " +
+  "Abrabot, my practice helper. He has a whole box of extra problems, and he never gets " +
+  "tired of them. When you want to practise, he is the one to ask. Off you go!";
+(async () => {
+  const out = {
+    estimate_ms: M.sayMsEstimate(INTRO), intro_chars: INTRO.length,
+    talking:  await scenario({ text: INTRO, ms: 14000, audibleAt: 400, patient: true,  watch: 15000 }),
+    silent:   await scenario({ text: INTRO, ms: null,  audibleAt: null, patient: true,  watch: 6000 }),
+    stalled:  await scenario({ text: "Four take away one is three.", ms: null,
+                               audibleAt: 400, patient: true, watch: 20000 }),
+    askbeat:  await scenario({ text: INTRO, ms: 14000, audibleAt: 400, patient: false, watch: 6000 }),
+  };
+  process.stdout.write(JSON.stringify(out));
+})();
+"""
+
+
+def part3dp_no_button_under_a_talking_teacher():
+    """PART 3dp (build nb) -- NOTHING APPEARS UNDER A TEACHER WHO IS STILL TALKING.
+
+    Jim, 2026-08-24: "when Mr. Cadabra is introducing Abrabot, it still shows the Next
+    button, and that button should not show up unless it has to. It's very distracting
+    to have him talk and then have this next button show up, because it feels like I'm
+    supposed to push it."
+
+    ⚠️ BUILD mx BELIEVED IT HAD FIXED THIS. It hid the button and revealed it on two
+    paths: speech finished silently, or `onWaiting` fired. It never looked at what
+    onWaiting MEANT. The timer behind it asks "has this finished yet?" after three
+    seconds -- and Mr. Cadabra's introduction is four sentences, about twenty seconds
+    of speech. So it fired EVERY time, mid-sentence, and handed the button the key
+    that mx had just taken away. The hiding was real; the lock had a second door.
+
+    TWO FAILURES WERE SHARING ONE TIMER:
+      nothing audible after 3s   -- it really is not coming. Offer the button.
+      audible and still going    -- he is TALKING. Putting a button under him invites
+                                    a child to interrupt their own teacher.
+
+    ⭐ AND THE `ask` BEAT WANTS THE OPPOSITE. It passes onWaiting to UNLOCK THE ANSWER
+    BUTTONS, where being early is correct: a child who can hear the question must
+    never be locked out of answering while it finishes. One timer, two honest
+    meanings -- so the patient behaviour is opt-in per call and this part pins BOTH.
+
+    ⚠️ THIS RUNS THE REAL SHIPPED CODE, not a description of it. The harness lifts
+    speak() and its constants straight out of static/drill.html and drives them on a
+    VIRTUAL CLOCK, so the actual 3000ms / 6000ms / 85-per-character values are the
+    ones under test and the whole part costs about 50ms. A grep would have passed
+    build mx."""
+    print("\nPART 3dp — no button under a talking teacher (build nb)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    dp = os.path.join(here, "static", "drill.html")
+    src = open(dp, encoding="utf-8").read()
+
+    check("the patient flag is opt-in, and the say beat opts in",
+          "function speak(text, onDone, onWaiting, step, patient)" in src
+          and "}, reveal, step, true);" in src,
+          "a default-on flag would silently make the ask beat lock the answers")
+    check("  ...and the ask beat does NOT opt in",
+          "speak(words, enable, enable, step);" in code_only(src),
+          "a child who can hear the question must never be locked out of answering it")
+
+    try:
+        subprocess.run(["node", "--version"], capture_output=True, check=True)
+    except Exception:  # noqa: BLE001
+        skip("the drill voice clock", "node not available")
+        return
+
+    # Lift the SHIPPED source: the constants block through the end of speak().
+    try:
+        i = src.index("var VOICE_WAIT_MS =")
+        j = src.index("// ---------- score ----------", i)
+        lifted = src[i:j]
+    except ValueError:
+        bad("lift speak() out of drill.html",
+            "the landmarks moved -- update this part in the same commit")
+        return
+    check("the lifted block carries the real constants and the estimator",
+          "VOICE_STALL_PAD_MS" in lifted and "function sayMsEstimate" in lifted
+          and "function speak(" in lifted,
+          "if this ever lifts the wrong region the timings below are meaningless")
+
+    import json
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        hp = os.path.join(tmp, "vh.js")
+        lp = os.path.join(tmp, "lifted.js")
+        with open(hp, "w", encoding="utf-8") as fh:
+            fh.write(_DRILL_VOICE_HARNESS)
+        with open(lp, "w", encoding="utf-8") as fh:
+            fh.write(lifted)
+        res = subprocess.run(["node", hp, lp], capture_output=True, text=True, timeout=60)
+    if res.returncode != 0:
+        bad("the drill voice clock", (res.stderr or "").strip()[:300])
+        return
+    r = json.loads(res.stdout)
+
+    # ① THE DEFECT ITSELF. His introduction is ~20s of speech; the clip plays for 14s.
+    check("⭐ NO BUTTON APPEARS WHILE MR. CADABRA IS AUDIBLY TALKING",
+          r["talking"] is None,
+          f"the button arrived {r['talking']}ms into a clip that was still playing -- "
+          f"this is the exact thing Jim reported, and build mx did not fix it")
+    # ② The reason the button exists at all must still work.
+    check("  ...but a silent tab still gets one, promptly",
+          r["silent"] is not None and r["silent"] <= 3500,
+          f"no audio ever played and the reader was left with no way forward "
+          f"(reveal at {r['silent']})")
+    # ③ A clip CAN die half-way. The escape hatch must survive, just later.
+    check("  ...and a stalled clip still gets one, after it should have ended",
+          r["stalled"] is not None and 4000 < r["stalled"] < 30000,
+          f"a clip that started and died must not strand a child (reveal at "
+          f"{r['stalled']})")
+    # ④ DO NO HARM: the answer buttons must not start waiting on the question.
+    check("  ...and the ask beat still unlocks answers early",
+          r["askbeat"] is not None and r["askbeat"] <= 3500,
+          f"patience belongs under a `say`, never under a question a child can "
+          f"already hear (unlock at {r['askbeat']})")
+    check("  ...and his introduction is estimated as SPEECH, not as three seconds",
+          r["estimate_ms"] > 12000,
+          f"{r['intro_chars']} characters estimated at {r['estimate_ms']}ms -- if this "
+          f"collapses, the watchdog starts interrupting him again")
+
+
 def part3do_build_is_not_serve():
     """PART 3do (build na) -- BUILDING THE COURSE IS NOT TEACHING A CHILD.
 
@@ -18213,6 +18379,7 @@ def main():
     part3dm_practice_is_tracked()
     part3dn_every_verdict_is_counted()
     part3do_build_is_not_serve()
+    part3dp_no_button_under_a_talking_teacher()
     part3ai_deploy_stamp()
     if live:
         part4_live()

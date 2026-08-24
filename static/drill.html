@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <!--
+    (nb) 2026-08-24 -- THE BUTTON MX THOUGHT IT HAD HIDDEN. Jim: "when Mr. Cadabra is
+    introducing Abrabot it still shows the Next button... it's very distracting to have
+    him talk and then have this next button show up, because it feels like I'm supposed
+    to push it."
+    ⚠️ MX HID THE BUTTON AND THEN HANDED THE TIMER THE KEY. It revealed on two paths:
+    speech finished silently, or onWaiting fired. onWaiting is VOICE_WAIT_MS, which asks
+    "has this finished yet?" after three seconds -- and his introduction is four
+    sentences, about twenty seconds of speech. It fired every time, mid-sentence.
+    TWO OPPOSITE FAILURES WERE SHARING ONE TIMER:
+      nothing audible after 3s  -> it is not coming. Offer the button.
+      audible and still going   -> he is TALKING. Do not put a button under him.
+    A stalled clip is still real, so the second case is not "no watchdog" -- it waits
+    out sayMsEstimate(text) + VOICE_STALL_PAD_MS, deliberately slower than any real
+    narration, and then offers the button.
+    ⭐ AND THE ask BEAT WANTS THE OPPOSITE. It hands onWaiting to the ANSWER buttons,
+    where early is right: a child who can hear the question must never be locked out of
+    answering it. So `patient` is opt-in per call. Making it the default would have
+    been the one-line version of this fix and would have broken answering -- if you
+    ever "simplify" that flag away, read PART 3dp of ruletests.py first.
+
     drill.html  --  ABRABOT'S PRACTICE ROOM  --  Hyperion Shift LLC
     =========================================================================
     CHANGE NOTES (keep newest at top):
@@ -519,11 +539,37 @@
 
   // ---------- voice: DELEGATED to voice.js ----------
   var VOICE_WAIT_MS = 3000;
+  // (nb) 2026-08-24 -- THE TWO FAILURES THIS TIMER WAS CONFLATING.
+  // Jim: "it's very distracting to have him talk and then have this next button show
+  // up, because it feels like I'm supposed to push it."
+  // ⚠️ THREE SECONDS OF *NOT HAVING FINISHED* IS NOT A FAILURE. The timer above asked
+  // "has this finished yet?" and Mr. Cadabra's introduction is several sentences --
+  // fifteen, twenty seconds of speech -- so it fired EVERY time, mid-sentence, while
+  // he was still audibly talking. Build mx hid the button until it was needed and
+  // then handed the timer the key.
+  //   nothing audible after 3s  -> it really is not coming. Offer the button.
+  //   audible and still going   -> he is TALKING. Do not put a button under him.
+  // The second case still needs a floor -- a clip CAN stall half-way -- so instead of
+  // no watchdog we wait out the clip's whole estimated length and then some.
+  var VOICE_STALL_PAD_MS = 6000;
+  // ⭐ DELIBERATELY SLOWER THAN ANY REAL NARRATION. 85ms/char is about 12 characters a
+  // second; Mr. Cadabra's rendered voice runs nearer 15. Over-estimating costs a few
+  // seconds in the rare stall; under-estimating puts a button under a talking teacher,
+  // which is the defect being fixed. When in doubt, let him finish.
+  function sayMsEstimate(t) {
+    var n = String(t == null ? "" : t).length;
+    return Math.min(180000, Math.max(2500, n * 85));
+  }
   // (mj) `step` decides WHO is speaking and whether his real voice is worth asking
   // for. natural=true only for Mr. Cadabra's already-authored, already-rendered
   // lines; the server refuses a drill ticket for anything else regardless, and a
   // refusal or an unrendered line falls to the browser voice with no retry.
-  function speak(text, onDone, onWaiting, step) {
+  // (nb) `patient` -- TRUE means "never interrupt a clip that is audibly playing".
+  // ⚠️ IT IS NOT THE DEFAULT, AND THAT IS ON PURPOSE. The `ask` beat passes its
+  // onWaiting to UNLOCK THE ANSWER BUTTONS, and a child who can hear the question
+  // must never be locked out of answering it while it finishes -- being early is
+  // right there and wrong under a `say`. One timer, two honest meanings, named.
+  function speak(text, onDone, onWaiting, step, patient) {
     var t0 = performance.now(), done = false, warnTimer = null;
     function finish(played) {
       if (done) return;
@@ -533,8 +579,17 @@
     }
     if (!text) return finish(false);
     __voiceSpoke = false;
+    var nudge = function () { if (!done) onWaiting && onWaiting(); };
     warnTimer = setTimeout(function () {
-      if (!done) onWaiting && onWaiting();
+      if (done) return;
+      // ⚠️ (nb) NOTHING HAS BEEN HEARD YET -- and that, only that, is what three
+      // seconds of silence is evidence of. voice.js flips __voiceSpoke through
+      // setState("speaking") the moment audio is actually audible.
+      if (!__voiceSpoke || !patient) return nudge();
+      // HE IS TALKING. Wait out the whole clip before offering a way past him; if it
+      // really has stalled, the button still arrives, just not on top of his voice.
+      warnTimer = setTimeout(nudge, Math.max(0,
+        (t0 + sayMsEstimate(text) + VOICE_STALL_PAD_MS) - performance.now()));
     }, VOICE_WAIT_MS);
     var p;
     var who = (step && step.who) || "abrabot";
@@ -623,7 +678,8 @@
         // appears. It did NOT play, so a reader needs a way forward.
         if (played) { setTimeout(go, 650); }
         else { reveal(); b.focus(); }
-      }, reveal, step);
+        // (nb) patient=true: while he is audibly talking, no button appears under him.
+      }, reveal, step, true);
       $("status").textContent = "";
       return;
     }
