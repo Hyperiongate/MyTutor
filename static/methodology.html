@@ -4,6 +4,12 @@
   methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-25  IN THE MENU (build ne). Jim: "I like this methodology page. Let's go
+    ahead and add it to the menu." The link is INJECTED site-wide by site-nav.js
+    (after "Our mission", all 13 marketing pages, one file); THIS page hardcodes its
+    own copy with class="here" so it highlights as current without JavaScript, and
+    the injector's guard leaves the hardcoded one alone. The mv-era note below
+    saying "NOT LINKED FROM THE TOP NAV YET" is now history.
   - 2026-08-25  JIM REVIEWED THE PAGE, AND THIS IS HIS EDIT (build nd). "Under
     methodology, it looks pretty good" -- then three asks, all shipped here:
     ① SAY WHAT HAPPENS, PLAINLY. New section 1, "What actually happens in a lesson":
@@ -194,6 +200,7 @@
   <div class="nav-links">
     <a href="/">Home</a>
     <a href="/mission">Our mission</a>
+    <a class="here" href="/methodology">How we teach</a>
     <a href="/features">Features</a>
     <a href="/courses">Courses</a>
     <a href="/homeschool">Homeschool</a>
@@ -220,7 +227,7 @@
     <div class="num"><b>10</b><span>full courses</span></div>
     <div class="num"><b>25,376</b><span>practice problems</span></div>
     <div class="num"><b>37</b><span>checks on every single reply</span></div>
-    <div class="num"><b>6,420</b><span>automated checks per release</span></div>
+    <div class="num"><b>6,423</b><span>automated checks per release</span></div>
   </div>
   <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
     machine-counted from the app itself, by the same test run that has to pass before anything

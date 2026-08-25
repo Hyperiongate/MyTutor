@@ -2,6 +2,15 @@
    site-nav.js  --  MyTutor  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+   - 2026-08-25  "HOW WE TEACH" JOINS THE MENU (build ne). Jim reviewed /methodology
+     twice, made his edits in build nd, then: "I like this methodology page. Let's go
+     ahead and add it to the menu." Injected here rather than hand-edited into the 13
+     marketing pages' nav rows, for the same reason the college dropdown lives here:
+     one file, every page, and a page added next month gets the link for free. Placed
+     right after "Our mission" (the two answer the same visitor question: who are
+     these people and can I trust them). Guard: if a page already hardcodes a
+     /methodology nav link (methodology.html itself does, so it can highlight as
+     "here" without JavaScript), the injector leaves it alone.
    - 2026-08-09  DEMO BUTTON (Jim). Adds a highlighted ORANGE "Try the demo" pill to the
      end of the marketing nav on every page that has a .nav-links row, linking to /demo.
      The demo is the strongest thing we have to sell with (a full guided lesson in
@@ -100,11 +109,46 @@
     if (coursesLink && coursesLink.nextSibling) links.insertBefore(wrap, coursesLink.nextSibling);
     else links.appendChild(wrap);
 
+    // ---- HOW WE TEACH (2026-08-25, build ne) ------------------------------------
+    // Jim approved the page and asked for it in the menu. After "Our mission",
+    // because a parent asking "can I trust these people?" should meet both answers
+    // side by side.
+    addHowWeTeach(links);
+
     // ---- THE DEMO BUTTON (2026-08-09) -------------------------------------------
     // Last item in the row so it reads as the call to action, and orange so it is the
     // only thing in the menu competing for a first-time visitor's eye.
     addDemoButton(links);
   });
+
+  function addHowWeTeach(links) {
+    if (document.getElementById("methodNav")) return;                // already added
+    var onPage = (location.pathname || "").replace(/\/+$/, "") === "/methodology";
+    var existing = links.querySelector('a[href="/methodology"], a[href="/methodology/"]');
+    if (existing) {                       // the page hardcodes it (methodology.html)
+      existing.id = "methodNav";
+      if (onPage && existing.className.indexOf("here") < 0) {
+        existing.className = (existing.className ? existing.className + " " : "") + "here";
+      }
+      return;
+    }
+    var a = document.createElement("a");
+    a.id = "methodNav";
+    a.href = "/methodology";
+    a.textContent = "How we teach";
+    if (onPage) a.className = "here";
+    // Right after "Our mission" when the page has one; otherwise before "Features";
+    // otherwise the end of the row. Never crashes the nav -- worst case it appends.
+    var anchors = links.querySelectorAll("a"), after = null, before = null;
+    for (var i = 0; i < anchors.length; i++) {
+      var h = (anchors[i].getAttribute("href") || "").split("#")[0];
+      if (h === "/mission") { after = anchors[i]; break; }
+      if (h === "/features" && !before) before = anchors[i];
+    }
+    if (after && after.nextSibling) links.insertBefore(a, after.nextSibling);
+    else if (before) links.insertBefore(a, before);
+    else links.appendChild(a);
+  }
 
   function addDemoButton(links) {
     if (document.getElementById("demoNav")) return;                  // already added

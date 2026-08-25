@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25ne-on-the-menu". BUILD ne -- "HOW WE TEACH"
+#               JOINS THE TOP NAV. Jim approved the reviewed page: "I like this
+#               methodology page. Let's go ahead and add it to the menu." One
+#               injector in site-nav.js covers all 13 marketing pages (the college-
+#               dropdown pattern); methodology.html hardcodes its own link with
+#               class="here". Placed after "Our mission" -- the two answer the same
+#               visitor question. Only site-nav.js, methodology.html and ruletests.py
+#               change; this is the stamp.
 #   2026-08-25  APP_BUILD -> "2026-08-25nd-what-actually-happens". BUILD nd -- JIM
 #               REVIEWED /methodology AND THIS IS HIS EDIT. New section 1 tells the
 #               whole story plainly: an AI teaches and talks WITH the student, more
@@ -11596,7 +11604,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nd-what-actually-happens"
+APP_BUILD = "2026-08-25ne-on-the-menu"
 
 
 @app.get("/health")

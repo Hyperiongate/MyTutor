@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ne -- 3dq: THE MENU LINK IS PINNED. site-nav.js now injects
+#               "How we teach" after "Our mission" on every marketing page; the pins
+#               hold the injector, its double-link guard, and methodology.html's own
+#               hardcoded here-link. Verified first by HEADLESS RENDER of all 13
+#               pages (exactly one link each) -- the pin is the cheap daily echo of
+#               that expensive proof.
 #   2026-08-25  BUILD nd -- PART 3dq GROWS JIM'S REVIEW PINS. He approved the page
 #               with three edits (the AI story plainly, the feedback story, retire
 #               the word "scripted", drop the 90% tile) and each is now a pin, so a
@@ -10127,6 +10133,23 @@ def part3dq_the_methodology_page_keeps_its_receipts():
     check("(nd) the 90% tile is gone from the numbers strip",
           "to master a unit</span>" not in visible,
           "Jim: not important to say on this page")
+    # (ne) Jim: "I like this methodology page. Let's go ahead and add it to the menu."
+    # The link is INJECTED by site-nav.js (one file, all 13 marketing pages -- the
+    # college-dropdown pattern), and methodology.html hardcodes its own with "here".
+    # A headless render of all 13 pages verified exactly one link each, placed after
+    # "Our mission", before this pin was written.
+    nav = code_only(open(os.path.join(here, "static", "site-nav.js"),
+                         encoding="utf-8").read())
+    check("(ne) site-nav.js injects 'How we teach' on every marketing page",
+          "addHowWeTeach(links)" in nav and '"/methodology"' in nav
+          and "How we teach" in nav,
+          "the injector is gone -- 12 pages just lost the methodology link at once")
+    check("  ...and the injector guards against a page's own hardcoded link",
+          "methodNav" in nav and "existing" in nav.split("function addHowWeTeach")[1][:900],
+          "without the guard, methodology.html shows the link twice")
+    check("  ...and methodology.html hardcodes its own, highlighted as here",
+          '<a class="here" href="/methodology">How we teach</a>' in page,
+          "the page's own nav must work without JavaScript")
     check("⭐ the 'What we have not proven' confession is intact",
           "There is no efficacy study of this product" in page
           and "we are not going to point at" in page,
@@ -10136,7 +10159,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,420</b>" in page,
+          "<b>6,423</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
