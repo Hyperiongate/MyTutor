@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nl-an-angle-is-an-angle". BUILD nl -- THE
+#               FORTY-FIRST REFEREE. Jim: the tutor said "piece" for "angle" in the
+#               vocabulary lesson itself. Root cause: the geometry template's own
+#               [[angle]] instructions modelled the word ("the 60° piece") -- the
+#               tutor echoed its prompt. Template reworded, vocabulary rule added
+#               (geometry-local), referee course-gated to geometry/precalc so
+#               fractions keep their pieces and a pie chart's piece may be 90°.
+#               Methodology count 40 -> 41. THIS FILE: stamp only.
 #   2026-08-25  APP_BUILD -> "2026-08-25nk-no-up-there". BUILD nk -- THE FORTIETH
 #               REFEREE. Jim's live catch: "looking at those three points up there"
 #               while the points sat BELOW his words. board_layout_conflict rejects a
@@ -11685,7 +11693,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nk-no-up-there"
+APP_BUILD = "2026-08-25nl-an-angle-is-an-angle"
 
 
 @app.get("/health")

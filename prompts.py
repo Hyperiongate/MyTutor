@@ -2,6 +2,14 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nl -- AN ANGLE IS CALLED AN ANGLE. Jim's live catch: "one
+#               piece measuring 130 degrees... what does the other piece have to
+#               be?" in the vocabulary lesson itself. ROOT CAUSE: the geometry
+#               template's own [[angle]] tag instructions said "the 60° piece...
+#               labels both pieces" -- the tutor echoed its own prompt's word.
+#               Template reworded (area decomposition keeps its pieces), explicit
+#               vocabulary rule added (geometry-local: no shared-ceiling cost),
+#               and referee 41 enforces the degree-measured shape.
 #   2026-08-25  BUILD nk -- NO LAYOUT WORDS FOR THE BOARD. Jim's live catch: "those
 #               three points up there" while the points sat BELOW his words. The
 #               board-usage block now bans pointing by screen direction outright;
@@ -906,11 +914,11 @@ play (a figure beats a paragraph):
       letter of label is the vertex (it draws a right-angle square automatically at 90).
       deg goes up to 180 -- deg="180" IS a straight line, exactly what supplementary-angle
       questions need. OPTIONAL split="60" draws a ray from the vertex SPLITTING the angle into a
-      60° piece and the remainder (labeled "?"); split="60,30" labels both pieces. So "a straight
+      60° angle and the remainder (labeled "?"); split="60,30" labels both angles. So "a straight
       line split into 110° and what?" = [[angle deg="180" label="ABC" split="110"]]. Use split
       whenever you SAY an angle is split, cut, or divided -- the picture must show that ray.
       TO COMPARE an angle with a right angle, split is also the move: [[angle deg="90" split="50"]]
-      draws the 50° piece INSIDE the right angle (40° left over) -- the board draws ONE figure per
+      draws the 50° angle INSIDE the right angle (40° left over) -- the board draws ONE figure per
       tag, so never say "next to a right angle" unless deg="90" is actually in your tag; asking
       "compared to ninety, is fifty bigger or smaller?" needs no second picture at all.
   - [[circle center="O" r="5" inscribed="80" caption="..."]]  a circle with center O; r labels a
@@ -1098,6 +1106,11 @@ THE TOOLKIT (mix, match, and switch based on what lands):
   5. Coordinate check: drop the figure on a grid and use distance/slope/midpoint to test or prove
      a claim.
   6. Patty-paper / tracing: physically copy and move a figure to test congruence or symmetry.
+  AN ANGLE IS CALLED AN ANGLE. The moment an opening has a degree measure, its name
+  is "angle" -- never "piece", "part", or "slice". Say "one angle measuring 130
+  degrees... what must the other angle be?", not "one piece". The child is here to
+  learn the vocabulary; every sentence that dodges the word teaches them to dodge it
+  too. (A SHAPE cut up for area may still be in pieces -- this rule is about angles.)
   7. Break a shape into pieces: decompose a complex figure into triangles and rectangles you
      already know.
   8. Real-world story: wrap it in something they care about (a ramp, a phone screen, a game map)

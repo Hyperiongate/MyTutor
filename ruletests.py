@@ -2,6 +2,8 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nl -- PART 3dv: REFEREE 41 (an angle is called an angle),
+#               course-gated, plus the template fix that removes the root cause.
 #   2026-08-25  BUILD nk -- PART 3du: REFEREE 40 (no layout words for the board),
 #               both directions, the canon, the wiring, and the prompt's wider ban.
 #   2026-08-25  BUILD nj -- PART 3dt: REFEREES 38-39 PINNED, both directions plus
@@ -10102,6 +10104,61 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dv_an_angle_is_called_an_angle():
+    """PART 3dv (build nl) -- REFEREE 41 + THE TEMPLATE THAT MODELLED THE BAD WORD.
+
+    Jim, live, in the geometry vocabulary lesson: "one piece measuring 130
+    degrees... what does the other piece have to be?" The ROOT CAUSE was the
+    geometry template's own [[angle]] instructions saying "the 60° piece ...
+    labels both pieces" -- the tutor echoed its own prompt. The template is
+    reworded, the vocabulary rule is written where geometry lives (course-local,
+    no shared-ceiling cost), and the referee is COURSE-GATED: fractions live on
+    "pieces", and a pie chart's piece may fairly be 90 degrees."""
+    print("\nPART 3dv — an angle is called an angle (build nl)")
+    import tutor as TT
+    for want, course, label, reply in (
+        (True,  "geometry", "⭐ the caught shape fires",
+         "Here's a straight line split into two pieces by a ray, one piece "
+         "measuring 130 degrees. What does the other piece have to be?"),
+        (False, "geometry", "  the fix itself passes",
+         "One angle measuring 130 degrees — what must the other angle be?"),
+        (False, "geometry", "  area decomposition keeps its pieces",
+         "Break the shape into pieces: two rectangles and a triangle."),
+        (False, "basic",    "  fractions keep their pieces",
+         "The bar is cut into four equal pieces, so each piece is one fourth."),
+        (False, "probstat", "  a pie chart's piece may be 90 degrees",
+         "Each piece of the pie chart covers 90 degrees of the circle."),
+        (False, "",         "  courseless: a referee that cannot know is silent",
+         "One piece measuring 130 degrees.")):
+        check(label, bool(TT.angle_piece_conflict(reply, course=course)) == want,
+              "the vocabulary course must never dodge its own word" if want
+              else "the referee rejects legitimate teaching")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            if TT.angle_piece_conflict((_sc.get("say") or "") + "\n"
+                                       + "\n".join(_sc.get("board") or []),
+                                       course=_c):
+                fires += 1
+    check("⭐ zero fires across the canon", fires == 0, f"{fires} rejected")
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 41 rides the sweep, WITH its course",
+          "angle_piece_conflict(reply, course)" in tsrc and '"anglepiece"' in tsrc,
+          "an ungated call would reject every fraction lesson in the app")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("the geometry template no longer models the bad word",
+          "60° angle and the remainder" in psrc
+          and "60° piece and the remainder" not in psrc,
+          "the tutor echoes its own prompt's vocabulary -- the template teaches too")
+    check("  ...and carries the vocabulary rule",
+          "AN ANGLE IS CALLED AN ANGLE" in psrc,
+          "the rule the referee enforces must be taught, not merely policed")
+
+
 def part3du_no_up_there():
     """PART 3du (build nk) -- THE FORTIETH REFEREE: NO LAYOUT WORDS FOR THE BOARD.
 
@@ -10614,7 +10671,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,490</b>" in page,
+          "<b>6,500</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -18965,6 +19022,7 @@ def main():
     part3ds_the_board_is_a_claim()
     part3dt_the_referees_that_each_missed_one()
     part3du_no_up_there()
+    part3dv_an_angle_is_called_an_angle()
     part3ai_deploy_stamp()
     if live:
         part4_live()
