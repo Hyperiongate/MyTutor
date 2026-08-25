@@ -2,6 +2,18 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nq -- THE OWNER'S FLAG. Jim, watching geometry live, caught
+#               the tutor saying "piece" for "angle" and asked: "It would be great if
+#               I could point this out while in the app and have it fix it itself."
+#               This is the storage half: table `flags` -- one row per sentence Jim
+#               flags from a tutor bubble (page, course, student code, the quoted
+#               sentence, his note, resolved flag). OWNER-ONLY by Jim's ruling
+#               2026-08-25: "I only want it when I'm online. I don't want the parents
+#               or teachers to see it." -- so writes arrive only through an
+#               admin-key-gated route; nothing here is readable by student/parent/
+#               teacher surfaces. Brand-new table -> create_all builds it, no
+#               migration, nothing existing touched. Helpers: add_flag / list_flags /
+#               resolve_flag, all never-raise in the read path like their siblings.
 #   2026-08-24  BUILD na -- BUILD COST AND SERVE COST ARE DIFFERENT QUESTIONS.
 #               usage_stats reported tts_chars_generated as one number, so the ~30,000
 #               lines of the course rendered ONCE to audio were indistinguishable from
@@ -924,6 +936,24 @@ def init():
             Column("asked", Integer, default=0),
             Column("right_count", Integer, default=0),
             Column("updated_at", DateTime(timezone=True)),
+        )
+        # OWNER'S FLAGS (build nq, 2026-08-25). One row per sentence Jim flags in a
+        # live lesson ("he said 'piece', should be 'angle'"). Written ONLY via the
+        # admin-key-gated /api/flag route; no student/parent/teacher surface reads
+        # this table. `quote` is the bubble text he tapped (capped), `note` is what
+        # he typed, `resolved` flips when the correction has been folded into the
+        # prompts/referees and verified. This is the app's own suggestion box, and
+        # the only person with a key to it is the owner.
+        _tables["flags"] = Table(
+            "flags", _meta,
+            Column("id", Integer, primary_key=True, autoincrement=True),
+            Column("created_at", DateTime(timezone=True)),
+            Column("page", String(32)),
+            Column("course", String(32)),
+            Column("code", String(64)),
+            Column("quote", String(600)),
+            Column("note", String(400)),
+            Column("resolved", Integer, default=0),
         )
         # AWARDS (2026-07-30): the student's earned trophies/awards, ONE ROW PER EARN, kept
         # forever. Badges/trophies are recomputed from mastery data, but effort awards
@@ -2364,6 +2394,68 @@ def record_practice(code: str, correct: int, attempted: int = 1) -> None:
     correct = max(0, int(correct)); attempted = max(1, int(attempted))
     # build hl: one atomic write (counters + streak) -- see _bump_stats.
     _bump_stats(code, problems=attempted, correct=correct, attempted=attempted)
+
+
+def add_flag(page: str, course: str, code: str, quote: str, note: str = "") -> int:
+    """(nq) Record one owner-flagged sentence. Called ONLY by the admin-key-gated
+    /api/flag route in main.py -- students, parents, and teachers have no path here.
+    Returns the new flag's id (0 if the write failed; never raises)."""
+    from sqlalchemy import insert
+    try:
+        t = _tables["flags"]
+        vals = {
+            "created_at": _now(),
+            "page": str(page or "")[:32],
+            "course": str(course or "")[:32],
+            "code": str(code or "")[:64],
+            "quote": str(quote or "")[:600],
+            "note": str(note or "")[:400],
+            "resolved": 0,
+        }
+        with _engine.begin() as conn:
+            r = conn.execute(insert(t).values(**vals))
+            pk = r.inserted_primary_key
+            return int(pk[0]) if pk and pk[0] is not None else 0
+    except Exception:
+        return 0
+
+
+def list_flags(include_resolved: bool = False, limit: int = 200) -> list:
+    """(nq) The owner's flag queue, newest first. Admin surface only. Never raises."""
+    from sqlalchemy import select
+    try:
+        t = _tables["flags"]
+        q = select(t.c.id, t.c.created_at, t.c.page, t.c.course, t.c.code,
+                   t.c.quote, t.c.note, t.c.resolved)
+        if not include_resolved:
+            q = q.where((t.c.resolved == 0) | (t.c.resolved.is_(None)))
+        q = q.order_by(t.c.id.desc()).limit(max(1, min(int(limit), 1000)))
+        out = []
+        with _engine.connect() as conn:
+            for r in conn.execute(q):
+                out.append({
+                    "id": int(r[0]),
+                    "created_at": r[1].isoformat() if r[1] else "",
+                    "page": r[2] or "", "course": r[3] or "", "code": r[4] or "",
+                    "quote": r[5] or "", "note": r[6] or "",
+                    "resolved": bool(r[7]),
+                })
+        return out
+    except Exception:
+        return []
+
+
+def resolve_flag(flag_id: int) -> bool:
+    """(nq) Mark one flag handled (the fix has shipped). Admin surface only."""
+    from sqlalchemy import update
+    try:
+        t = _tables["flags"]
+        with _engine.begin() as conn:
+            r = conn.execute(update(t).where(t.c.id == int(flag_id))
+                             .values(resolved=1))
+            return bool(r.rowcount)
+    except Exception:
+        return False
 
 
 def record_drill(code: str, lesson: str, right: int, asked: int = 1,

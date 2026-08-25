@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <!--
+    (nq) 2026-08-25 -- THE OWNER'S FLAG QUEUE. Jim, live in geometry, caught the
+    tutor saying "piece" for "angle" and asked to point at the sentence IN THE APP.
+    His ruling: "I only want it when I'm online. I don't want the parents or
+    teachers to see it." Two additions here, both riding the SAME admin key this
+    page already holds:
+      ① "Enable 🚩 on this device" -- copies the unlocked admin key into
+         localStorage "mt_owner_key". board.js checks that stash and shows a small
+         flag on every tutor bubble ONLY when it is present; the flag POSTs to
+         /api/flag with the key in the X-Admin-Key header, and the SERVER re-checks
+         it, so a child typing a fake value into localStorage gets a 403 and an
+         un-savable flag. Disable removes the stash. localStorage (not session-)
+         on purpose: Jim enables once per device, then flags from lesson tabs.
+      ② The Corrections queue card -- GET /api/admin/flags newest-first, each row
+         with the quoted sentence, Jim's note, page/course/code, and a Resolve
+         button (POST /api/admin/flags/resolve) for when the fix has shipped.
+    Nothing else on this page changed.
     (na) 2026-08-24 -- THE COST PANEL WAS PUTTING THE COURSE BUILD ON THE CHILDREN'S
     BILL. It read "Cost / student-hour: $610.76". True arithmetic, false statement:
     roughly $1,000 of ONE-TIME course construction -- ~30,000 scripted lines rendered
@@ -693,6 +709,21 @@
       <b>crashes</b>, <b>client errors</b> and <b>pass-throughs</b> (a reply shipped WITH a known
       finding) should be zero &mdash; each one is a real event with its name and detail below.
       Rows age out after EVENTS_DAYS (default 90).</p>
+  </div></section>
+
+  <!-- Corrections queue (build nq) -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>🚩 Corrections queue</h2>
+      <span class="note">sentences you flagged from inside a live lesson &mdash; owner-only, parents and teachers never see the flag</span></div>
+    <div style="margin:6px 0 10px">
+      <button class="btn" id="fgDevice" type="button">Enable 🚩 on this device</button>
+      <span class="note" id="fgDevNote"></span>
+    </div>
+    <div class="note" id="fgLine">reading flags&hellip;</div>
+    <div id="fgList" style="margin-top:8px"></div>
+    <p class="note" style="margin-top:10px">Enable puts your admin key in this browser's
+      local storage; every tutor bubble in a lesson then grows a small 🚩. Tap it, say what's
+      wrong, and the sentence lands here. Press <b>Resolve</b> once the fix has shipped.</p>
   </div></section>
 
   <!-- Quick links -->
@@ -1506,6 +1537,57 @@
     }
   }
 
+  // ---------- corrections queue (build nq) ----------
+  function fgDeviceOn() {
+    try { return (localStorage.getItem("mt_owner_key") || "").trim() !== ""; }
+    catch (e) { return false; }
+  }
+  function fgPaintDevice() {
+    var on = fgDeviceOn();
+    $("fgDevice").textContent = on ? "Disable \u{1F6A9} on this device" : "Enable \u{1F6A9} on this device";
+    $("fgDevNote").textContent = on ? "flags are ON for lessons opened in this browser"
+                                    : "flags are OFF on this device";
+  }
+  $("fgDevice").addEventListener("click", function () {
+    try {
+      if (fgDeviceOn()) localStorage.removeItem("mt_owner_key");
+      else localStorage.setItem("mt_owner_key", KEY);
+    } catch (e) {}
+    fgPaintDevice();
+  });
+  async function fgStatus() {
+    try {
+      var d = await api("/api/admin/flags");
+      var flags = d.flags || [];
+      $("fgLine").textContent = flags.length
+        ? (d.open + " open flag" + (d.open === 1 ? "" : "s"))
+        : "No open flags \u2014 nothing waiting on you.";
+      if (!flags.length) { $("fgList").innerHTML = ""; return; }
+      var rows = flags.map(function (f) {
+        return "<tr><td>" + esc((f.created_at || "").replace("T", " ").slice(0, 16)) +
+               "</td><td>" + esc(f.page) + (f.course ? " / " + esc(f.course) : "") +
+               "</td><td>\u201C" + esc(f.quote) + "\u201D" +
+               (f.note ? '<div class="note">' + esc(f.note) + "</div>" : "") +
+               '</td><td><button class="btn" data-fg="' + f.id + '">Resolve</button></td></tr>';
+      }).join("");
+      $("fgList").innerHTML = '<table class="mini"><tr><th>when (UTC)</th><th>where</th>' +
+        "<th>what you flagged</th><th></th></tr>" + rows + "</table>";
+      $("fgList").querySelectorAll("button[data-fg]").forEach(function (b) {
+        b.addEventListener("click", async function () {
+          b.disabled = true;
+          try {
+            await api("/api/admin/flags/resolve", { method: "POST",
+              body: JSON.stringify({ key: KEY, id: parseInt(b.getAttribute("data-fg"), 10) }) });
+            fgStatus();
+          } catch (e) { $("fgLine").textContent = "could not resolve: " + e.message; b.disabled = false; }
+        });
+      });
+    } catch (e) {
+      $("fgLine").textContent = "could not read flags: " + e.message;
+      $("fgList").innerHTML = "";
+    }
+  }
+
   // ---------- night watch (build gp) ----------
   function nwMsg(t, kind) { var e = $("nwMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
   async function nwStatus() {
@@ -2074,7 +2156,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); nwStatus(); tmStatus(); } catch (e) {}   // build dj backups + gp night watch + ha telemetry
+      try { bkStatus(); nwStatus(); tmStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + ha telemetry + nq flags
       // BUILD kq: an interrupted render used to be invisible -- the page came back
       // clean and Jim had no way to know a job had died mid-way. Ask once, on load.
       try {

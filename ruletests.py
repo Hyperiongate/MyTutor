@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nq -- PART 3ea: the owner's flag. Jim can flag a wrong
+#               sentence from inside a live lesson; owner-only by admin key on BOTH
+#               sides (no key -> no button in board.js, and 401 on all three routes).
+#               Static pins + a LIVE TestClient drill (gate/write/caps/queue/resolve).
 #   2026-08-25  BUILD np -- PART 3dz: the first production week's three root
 #               fixes (pendcheck's check-in phantom, spokenlen's unsatisfiable
 #               nudge, the critic nudge's first-sentence rule), both directions.
@@ -10166,6 +10170,143 @@ def part3dz_the_first_week_of_telemetry():
           "generic 'fix that' lost to the model's momentum 11 times in week one")
 
 
+def part3ea_the_owners_flag():
+    """PART 3ea (build nq) -- THE OWNER'S FLAG: POINT AT THE SENTENCE FROM THE APP.
+
+    Jim, live in geometry (2026-08-25), caught "piece" where "angle" belonged:
+    "It would be great if I could point this out while in the app and have it fix
+    it itself for all future events." And the ruling that shapes everything here:
+    "I only want it when I'm online. I don't want the parents or teachers to see
+    it." So the feature rides the ADMIN KEY on BOTH sides -- board.js renders the
+    flag button only when localStorage holds the owner key (blessed from /admin),
+    and the three routes all pass _require_admin, so a forged localStorage value
+    writes nothing. ⚠️ THE OWNER-ONLY PROMISE IS A PIN: exactly one file in the
+    shipped app may WRITE mt_owner_key, and it is admin.html. The live drill
+    proves gate -> write -> caps -> queue -> resolve on a real sqlite."""
+    print("\nPART 3ea — the owner's flag (build nq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ---- board.js: the button is owner-gated, tutor-only, honest about its quote --
+    b = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    bc = code_only(b)
+    check("⭐ no key -> ownerFlagAttach exits before touching the bubble",
+          "ownerFlagKey" in bc and "if (!key) return;" in bc,
+          "the whole owner-only promise starts on this line")
+    check("  the hook rides addBubble and ONLY the tutor role",
+          'if (role === "tutor") ownerFlagAttach(div)' in bc,
+          "a flag on the child's own bubbles is clutter; on system bubbles, noise")
+    check("  the key travels in the X-Admin-Key HEADER to /api/flag",
+          '"X-Admin-Key": key' in bc and '"/api/flag"' in bc,
+          "a key in a URL lands in Render's logs in plaintext (build dg's lesson)")
+    check("  the quote comes from a CLONE with the button stripped",
+          "cloneNode(true)" in bc and '".mtflag"' in bc,
+          "otherwise every flag ends with its own flag character")
+    check("  cancelling the note prompt writes NOTHING",
+          "if (note === null) return;" in bc,
+          "an accidental tap must not fill the queue with empty flags")
+
+    # ---- owner-only: exactly ONE shipped file may write mt_owner_key ------------
+    writers = []
+    for fn in sorted(os.listdir(os.path.join(here, "static"))):
+        if not (fn.endswith(".html") or fn.endswith(".js")):
+            continue
+        s = open(os.path.join(here, "static", fn), encoding="utf-8").read()
+        if 'setItem("mt_owner_key"' in s:
+            writers.append(fn)
+    check("⭐ exactly one file writes mt_owner_key, and it is admin.html",
+          writers == ["admin.html"],
+          f"writers={writers} -- a student page setting the owner key would hand "
+          f"every child the button (the server still 401s, but the promise is BOTH sides)")
+
+    # ---- admin.html: the queue panel and the device blessing --------------------
+    a = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    ac = code_only(a)
+    check("admin.html has the corrections queue and calls it on load",
+          "fgStatus" in ac and "fgStatus();" in ac and '"/api/admin/flags"' in ac,
+          "a queue nobody renders is a suggestion box nailed shut")
+    check('  "Enable on this device" copies the UNLOCKED key, never asks twice',
+          'localStorage.setItem("mt_owner_key", KEY)' in ac
+          and 'localStorage.removeItem("mt_owner_key")' in ac,
+          "enable/disable must be one tap each on a device Jim already unlocked")
+    check("  resolve buttons post to the resolve route",
+          '"/api/admin/flags/resolve"' in ac,
+          "a flag that can never be closed makes the queue unreadable in a month")
+
+    # ---- main.py: three routes, all behind the same constant-time gate ----------
+    m = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    for fn in ("def flag_sentence(", "def admin_flags(", "def admin_flags_resolve("):
+        i = m.find(fn)
+        blk = m[i:i + 1200] if i >= 0 else ""
+        check(f"  {fn.strip('def (')} exists and passes _require_admin",
+              i >= 0 and "_require_admin(" in blk,
+              "an ungated flag route would let anyone write into Jim's queue")
+
+    # ---- store.py: the table is additive and the helpers never raise ------------
+    s = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    sc = code_only(s)
+    check("store.flags is its own additive table (quote 600, note 400)",
+          '_tables["flags"]' in sc
+          and 'Column("quote", String(600))' in sc
+          and 'Column("note", String(400))' in sc,
+          "a new feature must never be a column bolted onto someone else's table")
+    for h in ("def add_flag(", "def list_flags(", "def resolve_flag("):
+        check(f"  {h.strip('def (')} exists", h in sc, "the route calls it by name")
+
+    # ---- LIVE: gate -> write -> caps -> queue -> resolve on real sqlite ---------
+    import tempfile as _tfq
+    with _tfq.TemporaryDirectory() as tmpq:
+        drill = os.path.join(tmpq, "flagdrill.py")
+        with open(drill, "w") as fh:
+            fh.write(
+                "from fastapi.testclient import TestClient\n"
+                "import main, store\n"
+                "c = TestClient(main.app)\n"
+                "H = {'X-Admin-Key': 'TESTMOD123'}\n"
+                "J = {'page': 'session', 'course': 'geometry', 'code': '1234',\n"
+                "     'quote': 'that little piece up there', 'note': 'say ANGLE'}\n"
+                "# 1. no key / wrong key -> 401, and NOTHING lands in the table\n"
+                "assert c.post('/api/flag', json=J).status_code == 401\n"
+                "assert c.post('/api/flag', headers={'X-Admin-Key': 'WRONG'},\n"
+                "              json=J).status_code == 401\n"
+                "assert store.list_flags() == []\n"
+                "# 2. the owner's flag lands\n"
+                "r = c.post('/api/flag', headers=H, json=J)\n"
+                "assert r.status_code == 200 and r.json()['id'] > 0, r.text\n"
+                "# 3. an empty quote is refused, not stored blank\n"
+                "assert c.post('/api/flag', headers=H, json=dict(J, quote='  ')\n"
+                "              ).status_code == 400\n"
+                "# 4. oversize input is CAPPED, never crashes\n"
+                "r = c.post('/api/flag', headers=H,\n"
+                "           json=dict(J, quote='q' * 900, note='n' * 900))\n"
+                "assert r.status_code == 200, r.text\n"
+                "# 5. the queue reads newest-first behind the same gate\n"
+                "assert c.get('/api/admin/flags').status_code == 401\n"
+                "d = c.get('/api/admin/flags', headers=H).json()\n"
+                "assert d['ok'] and d['open'] == 2, d\n"
+                "assert len(d['flags'][0]['quote']) <= 600, len(d['flags'][0]['quote'])\n"
+                "assert len(d['flags'][0]['note']) <= 400\n"
+                "assert d['flags'][1]['quote'] == 'that little piece up there', d\n"
+                "assert d['flags'][1]['course'] == 'geometry', d\n"
+                "# 6. resolve closes it; a ghost id 404s\n"
+                "fid = d['flags'][1]['id']\n"
+                "r = c.post('/api/admin/flags/resolve', headers=H, json={'id': fid})\n"
+                "assert r.status_code == 200, r.text\n"
+                "assert c.get('/api/admin/flags', headers=H).json()['open'] == 1\n"
+                "assert c.post('/api/admin/flags/resolve', headers=H,\n"
+                "              json={'id': 999999}).status_code == 404\n"
+                "# 7. resolved rows are kept (include_resolved=1 shows the history)\n"
+                "d = c.get('/api/admin/flags?include_resolved=1', headers=H).json()\n"
+                "assert len(d['flags']) == 2, d\n"
+                "print('FLAG-DRILL-OK')\n")
+        env = dict(os.environ,
+                   DATABASE_URL=f"sqlite:///{os.path.join(tmpq, 'q.db')}",
+                   FORUM_MOD_KEY="TESTMOD123", WEEKLY_EMAIL="off", PYTHONPATH=here)
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True)
+        check("⭐ LIVE: gate -> write -> caps -> queue -> resolve, on real sqlite",
+              r.returncode == 0 and "FLAG-DRILL-OK" in r.stdout,
+              (r.stdout + r.stderr)[-300:])
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -10877,7 +11018,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,537</b>" in page,
+          "<b>6,554</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19237,6 +19378,7 @@ def main():
     part3dx_small_answer_spaces_ship_buttons()
     part3dy_one_keyboard_not_two()
     part3dz_the_first_week_of_telemetry()
+    part3ea_the_owners_flag()
     part3ai_deploy_stamp()
     if live:
         part4_live()

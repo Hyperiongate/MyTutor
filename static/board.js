@@ -2,6 +2,22 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-25  BUILD nq -- THE OWNER'S FLAG. Jim, live in geometry, caught the
+                 tutor saying "piece" for "angle": "It would be great if I could
+                 point this out while in the app." Ruling: "I only want it when I'm
+                 online. I don't want the parents or teachers to see it." So: a tiny
+                 flag button rides every TUTOR bubble, but ONLY when this device
+                 holds the owner key (localStorage "mt_owner_key", set from /admin's
+                 "Enable flag on this device"). Tap -> type what's wrong -> POST
+                 /api/flag with the key in the X-Admin-Key header; the server
+                 re-checks the key, so a forged localStorage value gets a 403 and
+                 writes nothing. Students/parents/teachers never hold the key, so
+                 for them this build changes NOTHING -- ownerFlagAttach() returns on
+                 the first line. The quote is read from a CLONE of the bubble with
+                 the button removed, so the flag never quotes itself, and it is read
+                 at TAP time so streamed-in board work is included. addBubble is the
+                 one shared door every tutor bubble passes through (session, topic,
+                 practice, drill, demo alike), so one hook covers every page.
      2026-08-19  BUILD jc -- THE COLUMN REDRAWS ITSELF, NEW MARKS IN RED (Jim, live on
                  a five-digit addition: "as you complete steps, what you just did
                  disappears off the top of the screen... it would be better if they
@@ -719,6 +735,64 @@ function scrollFeed() {
   });
 }
 
+/* ---- THE OWNER'S FLAG (build nq, 2026-08-25) ----------------------------------
+   Owner-only: the button exists only when localStorage holds the admin key this
+   device was blessed with on /admin. The key gates BOTH sides -- no key means no
+   button here, and the server 403s /api/flag without it -- so no student, parent,
+   or teacher can ever see or use this. */
+function ownerFlagKey() {
+  try { return (localStorage.getItem("mt_owner_key") || "").trim(); }
+  catch (e) { return ""; }
+}
+let _flagCssDone = false;
+function ownerFlagCss() {
+  if (_flagCssDone) return; _flagCssDone = true;
+  const st = document.createElement("style");
+  st.textContent =
+    ".mtflag{position:absolute;top:2px;right:4px;border:0;background:transparent;" +
+    "cursor:pointer;font-size:13px;line-height:1;opacity:.25;padding:2px;}" +
+    ".mtflag:hover{opacity:1;}" +
+    ".mtflag.sent{opacity:1;cursor:default;}";
+  document.head.appendChild(st);
+}
+function ownerFlagAttach(div) {
+  const key = ownerFlagKey();
+  if (!key) return;                       // everyone but the owner exits here
+  ownerFlagCss();
+  div.style.position = "relative";
+  const btn = document.createElement("button");
+  btn.type = "button"; btn.className = "mtflag"; btn.textContent = "\u{1F6A9}";
+  btn.title = "Flag this for correction (owner)";
+  btn.addEventListener("click", function () {
+    if (btn.classList.contains("sent")) return;
+    // Quote from a CLONE with the button stripped, AT TAP TIME, so streamed-in
+    // board work is included and the flag never quotes its own button.
+    const clone = div.cloneNode(true);
+    clone.querySelectorAll(".mtflag").forEach(function (b) { b.remove(); });
+    const quote = (clone.textContent || "").replace(/\s+/g, " ").trim().slice(0, 600);
+    const note = prompt("What's wrong with this line? (what SHOULD it say?)");
+    if (note === null) return;            // owner changed his mind -- write nothing
+    const body = {
+      page: (location.pathname.split("/").pop() || "").replace(".html", "") || "board",
+      course: (typeof COURSE !== "undefined" ? COURSE : ""),
+      code: (typeof CODE !== "undefined" ? CODE : ""),
+      quote: quote,
+      note: (note || "").trim().slice(0, 400)
+    };
+    fetch("/api/flag", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Key": key },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (r.ok) { btn.textContent = "\u2705"; btn.classList.add("sent"); btn.title = "Flagged -- it's in your queue on /admin"; }
+      else { alert("Flag not saved (" + r.status + "). Is the owner key on this device still current? Re-enable it from /admin."); }
+    }).catch(function () {
+      alert("Flag not saved -- network error. It is safe to try again.");
+    });
+  });
+  div.appendChild(btn);
+}
+
 function addBubble(role, text) {
   clearHint();
   const div = document.createElement("div"); div.className = "bubble " + role; div.innerHTML = styleVars(text);
@@ -726,6 +800,8 @@ function addBubble(role, text) {
   // the view to the start of his turn; a student/system bubble pins to the bottom.
   lastTurnEl = (role === "tutor") ? div : null;
   stickBottom = true;
-  feed.appendChild(div); scrollFeed(); return div;
+  feed.appendChild(div); scrollFeed();
+  if (role === "tutor") ownerFlagAttach(div);   // build nq: owner-only, no-op without the key
+  return div;
 }
 /* I did no harm and this file is not truncated. */

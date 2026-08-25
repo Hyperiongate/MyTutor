@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nq-the-owners-flag". BUILD nq -- THE
+#               OWNER'S FLAG. Jim, in a live geometry lesson, caught "piece" where
+#               "angle" belonged and asked to be able to point at a sentence IN THE
+#               APP and queue the fix. Ruling: "I only want it when I'm online. I
+#               don't want the parents or teachers to see it." So the whole feature
+#               rides the ADMIN KEY: board.js shows a tiny flag button on tutor
+#               bubbles ONLY when the device holds the owner key (enabled from
+#               /admin), and the three routes here -- POST /api/flag, GET
+#               /api/admin/flags, POST /api/admin/flags/resolve -- all pass
+#               _require_admin (same constant-time FORUM_MOD_KEY gate as every
+#               admin call; header preferred, key never rides a URL we ship).
+#               Students/parents/teachers have no key, so no button and 403 on the
+#               routes. Data lands in store.flags (new table, additive); /admin
+#               gained a Corrections queue panel. Nothing existing changed.
 #   2026-08-25  APP_BUILD -> "2026-08-25np-the-phantom-and-the-nudges". BUILD np --
 #               JIM'S FIRST TELEMETRY PANEL, ACTED ON. 274 fires across 560 turns
 #               (49%% of turns paid a retry). The three roots: ① pendcheck (13%%,
@@ -11125,6 +11139,66 @@ def forum_moderate(body: ForumModIn,
     return {"ok": True}
 
 
+class FlagIn(BaseModel):
+    """(nq) One owner-flagged sentence from a live lesson."""
+    key: str = ""              # legacy transport; the page sends X-Admin-Key header
+    page: str = ""             # 'session' | 'practice' | 'topic' | ...
+    course: str = ""
+    code: str = ""             # the student login code the owner was watching
+    quote: str = ""            # the bubble text he tapped
+    note: str = ""             # what should have been said / what's wrong
+
+
+class FlagResolveIn(BaseModel):
+    key: str = ""
+    id: int
+
+
+@app.post("/api/flag")
+def flag_sentence(body: FlagIn,
+                  x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """BUILD nq (2026-08-25): the owner's flag. Jim taps the flag on a tutor bubble,
+    types what's wrong, and the sentence lands in his corrections queue on /admin.
+    ADMIN-KEY GATED on purpose -- Jim: "I only want it when I'm online. I don't want
+    the parents or teachers to see it." No key, no write; the button itself never
+    renders without the key, but the server does not trust the page."""
+    _require_db()
+    _require_admin(x_admin_key or body.key)
+    quote = (body.quote or "").strip()
+    if len(quote) < 2:
+        raise HTTPException(status_code=400, detail="Nothing to flag -- empty quote.")
+    fid = store.add_flag(page=(body.page or "").strip(),
+                         course=(body.course or "").strip(),
+                         code=(body.code or "").strip(),
+                         quote=quote,
+                         note=(body.note or "").strip())
+    if not fid:
+        raise HTTPException(status_code=500, detail="Could not save the flag.")
+    return {"ok": True, "id": fid}
+
+
+@app.get("/api/admin/flags")
+def admin_flags(key: str = "", include_resolved: int = 0,
+                x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(nq) The owner's corrections queue, newest first. Same admin gate."""
+    _require_db()
+    _require_admin(x_admin_key or key)
+    flags = store.list_flags(include_resolved=bool(include_resolved))
+    return {"ok": True, "flags": flags,
+            "open": sum(1 for f in flags if not f.get("resolved"))}
+
+
+@app.post("/api/admin/flags/resolve")
+def admin_flags_resolve(body: FlagResolveIn,
+                        x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(nq) Mark a flag handled once the correction has shipped."""
+    _require_db()
+    _require_admin(x_admin_key or body.key)
+    if not store.resolve_flag(body.id):
+        raise HTTPException(status_code=404, detail="No flag with that id.")
+    return {"ok": True, "flags": store.list_flags(include_resolved=False)}
+
+
 @app.get("/api/courses/{code}")
 def student_courses(request: Request, code: str = Depends(_code_dep)):
     """EVERY course this student has actually worked in, with units mastered/started -- for the
@@ -11738,7 +11812,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25np-the-phantom-and-the-nudges"
+APP_BUILD = "2026-08-25nq-the-owners-flag"
 
 
 @app.get("/health")
