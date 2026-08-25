@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nc-the-receipts". BUILD nc -- THE MIDDLE
+#               COURSES GET THEIR RECEIPTS. The deep dive found /methodology cited
+#               real sources for the elementary courses and for Calc/DiffEq, while
+#               the six courses between them got one uncited "standard progression"
+#               paragraph. Jim: "I want people to know we've done all the research."
+#               ⭐ THE RESEARCH WAS ALREADY IN THE RULES. Rules 53-58 have carried
+#               WWC guide-and-recommendation tags since builds dl/ee. The page now
+#               tells that story: three WWC practice guides mapped BY NAME to the
+#               written rules implementing them, plus GAISE II for statistics (read
+#               from the ASA's own PDF; our nine units follow its four-step arc).
+#               ⚠️ NCTM's Principles to Actions deliberately NOT cited -- paid book,
+#               unread, and the page's standard is read-before-named.
+#               ONLY static/methodology.html + ruletests.py change; this is the stamp.
+#               PART 3dq pins the citations, the quoted rule names (via RULES.md, the
+#               generated bridge to tutor.py), the not-proven confession, and the
+#               numbers strip (6,416). Page still NOT in the top nav -- Jim has not
+#               reviewed the wording.
 #   2026-08-24  APP_BUILD -> "2026-08-24nb-let-him-finish". BUILD nb -- NOTHING
 #               APPEARS UNDER A TEACHER WHO IS STILL TALKING. Jim: "when Mr. Cadabra
 #               is introducing Abrabot it still shows the Next button... it's very
@@ -11566,7 +11583,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-24nb-let-him-finish"
+APP_BUILD = "2026-08-25nc-the-receipts"
 
 
 @app.get("/health")

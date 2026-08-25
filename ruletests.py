@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nc -- PART 3dq: THE METHODOLOGY PAGE KEEPS ITS RECEIPTS. The
+#               page now quotes teaching-rule names next to the research they came
+#               from; this part fails the build if a quoted rule stops existing
+#               (checked through RULES.md, which --rules regenerates from tutor.py),
+#               if a citation vanishes, or if the not-proven confession is softened.
+#               ⚠️ Search is WHITESPACE-NORMALIZED -- the first draft failed on a
+#               title wrapped across two source lines. FOURTH pin to fail on spelling
+#               rather than behaviour (3df, 3dk, 3dn's quote, now this). Normalize
+#               before you match; the defect is never the line break.
 #   2026-08-24  BUILD nb -- PART 3dp: NO BUTTON UNDER A TALKING TEACHER. And this one
 #               is the answer to "why did a grep-shaped pin let build mx ship a bug
 #               Jim could see in ten seconds?" -- because mx's guarantee was about
@@ -10040,6 +10049,71 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dq_the_methodology_page_keeps_its_receipts():
+    """PART 3dq (build nc) -- A CITATION PAGE THAT DRIFTS IS WORSE THAN NO PAGE.
+
+    /methodology now maps three WWC practice guides and GAISE II to NAMED teaching
+    rules ("teach the student to check themselves", "the number line is a tool you
+    use on purpose"...). Those names are quoted on a marketing page a parent reads
+    to decide whether to trust us -- so if a rule is ever renamed or deleted in
+    tutor.py, the page starts citing research for a rule that no longer exists,
+    which is precisely the kind of quiet dishonesty the page was built to answer.
+
+    ⚠️ RULES.md IS THE BRIDGE. It is generated from tutor.py by --rules, so a name
+    on the page that still appears in RULES.md is a name the tutor still carries.
+    ⭐ AND THE CONFESSION IS LOAD-BEARING. The "What we have not proven" section is
+    what makes the rest of the page believable; a well-meaning edit that softens it
+    away would be the most expensive copy change anyone could make."""
+    print("\nPART 3dq — the methodology page keeps its receipts (build nc)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    # ⚠️ WHITESPACE-NORMALIZED before searching: the page wraps long titles across
+    # source lines, and a pin that requires a title on ONE line fails on prettier
+    # HTML while the citation stands -- the same spelling-not-behaviour trap as
+    # 3df's silent-play pin and 3dk's numerator pin. Fourth time. Normalize first.
+    page = re.sub(r"\s+", " ", open(os.path.join(here, "static", "methodology.html"),
+                                    encoding="utf-8").read())
+    rules = re.sub(r"\s+", " ", open(os.path.join(here, "RULES.md"),
+                                     encoding="utf-8").read().upper())
+
+    for needle, label in (
+            ("Improving Mathematical Problem Solving in Grades 4", "the grades 4-8 guide"),
+            ("Teaching Strategies for", "the algebra guide"),
+            ("Assisting Students Struggling with Mathematics", "the 2021 elementary guide"),
+            ("GAISE II", "the ASA statistics guidelines"),
+            ("Instructional Practices Guide", "the MAA guide"),
+            ("A Story of Units", "the Eureka scope-and-sequence")):
+        check(f"the page still cites {label}", needle in page,
+              f"'{needle}' vanished from /methodology -- the middle courses just "
+              f"lost their receipts again")
+
+    # The rule names the page quotes must still be rules the tutor carries.
+    for name in ("TEACH THE STUDENT TO CHECK THEMSELVES",
+                 "THE NUMBER LINE IS A TOOL YOU USE ON PURPOSE",
+                 "ONE NAME PER THING, ALL LESSON",
+                 "VOCABULARY IS TAUGHT, NEVER ASSUMED",
+                 "FIND THE ERROR"):
+        check(f"  ...and '{name.title()[:34]}...' is still a real rule",
+              name in rules,
+              "the page cites research for a rule tutor.py no longer has -- "
+              "rename them together or not at all")
+    check("  ...and 'two ways, one board' is still a real rule",
+          "TWO WAYS, ONE BOARD" in rules, "rule 58 renamed or gone")
+
+    check("⭐ the 'What we have not proven' confession is intact",
+          "There is no efficacy study of this product" in page
+          and "we are not going to point at" in page,
+          "the honesty section is what makes the citations believable -- it must "
+          "not be softened, ever, without Jim saying so in writing")
+    check("  ...and no endorsement is claimed anywhere a source is",
+          page.count("endorsement") >= 4,
+          "every cite block carries its own no-endorsement line")
+    check("  ...and the numbers strip counts THIS battery",
+          "<b>6,416</b>" in page,
+          "the automated-checks tile went stale -- update it when the battery grows "
+          "(this pin's own number included, deliberately: growing the battery means "
+          "touching the page, which is the reminder working)")
+
+
 def part3dp_no_button_under_a_talking_teacher():
     """PART 3dp (build nb) -- NOTHING APPEARS UNDER A TEACHER WHO IS STILL TALKING.
 
@@ -18380,6 +18454,7 @@ def main():
     part3dn_every_verdict_is_counted()
     part3do_build_is_not_serve()
     part3dp_no_button_under_a_talking_teacher()
+    part3dq_the_methodology_page_keeps_its_receipts()
     part3ai_deploy_stamp()
     if live:
         part4_live()

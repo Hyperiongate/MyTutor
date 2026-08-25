@@ -4,6 +4,33 @@
   methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-25  THE MIDDLE GETS ITS RECEIPTS (build nc). Jim, in the deep dive: "I want
+    people to know that we've done all the research... I understand a couple of our middle
+    classes maybe don't have that much research done on them." He was right: this page cited
+    real sources for the elementary courses (Eureka/CCSS) and for Calculus/DiffEq (MAA IPG),
+    and the middle six courses got one uncited paragraph saying "standard progression."
+    ⚠️ THE FIX WAS A CITATION JOB, NOT A REBUILD — the research was already IN the rules.
+    Rules 53-58 have carried WWC guide-and-recommendation numbers since builds dl/ee
+    ("WWC g26 r4", "g16 r2", "g20 r1"...). The page just never told that story. Two new
+    source blocks: ① the three WWC practice guides the rules were written against, each
+    recommendation mapped BY NAME to the written rule that implements it; ② GAISE II for the
+    statistics course (its four-step process read against our nine units — the sequence
+    matches: data, then collection, then probability, then inference).
+    ⚠️ EVERY EVIDENCE CLAIM WAS RE-VERIFIED against ies.ed.gov before shipping: guide 16 has
+    TWO Strong recommendations (the first draft said "its strongest-rated" — fixed to "one of
+    only two rated Strong"); the algebra guide's strategy-choice rec is Moderate, its best;
+    ALL SIX recs of the 2021 elementary guide are Strong. GAISE II's framework was read from
+    the ASA's own full PDF, and the cite says "consulted for our course's sequence" — the
+    honest scope.
+    ⚠️ NCTM's Principles to Actions was DELIBERATELY NOT CITED. It fits Geometry/Trig, but it
+    is a paid book nobody here has read, and this page's founding standard is that every
+    source was read before it was named. If Jim buys it (~$30), a future build can map its
+    eight practices the same way.
+    Numbers strip: 6,367 automated checks -> 6,401 (the battery grew through builds mw-nb).
+    PART 3dq in ruletests.py now pins this page: the cited guides stay named, the mapped rule
+    names still exist verbatim in RULES.md, and the not-proven section stays intact.
+    STILL NOT IN THE TOP NAV — Jim has not reviewed the wording yet. Footer link and
+    /methodology route remain the only doors.
   - 2026-08-24  NEW PAGE (build mv). Jim: "people want to know what we've based our
     pedagogical approach to. What resources did we use? What research backs up our
     methodology? Kind of wanting to feel confident that this is something that's
@@ -168,7 +195,7 @@
     <div class="num"><b>336</b><span>scripted lessons</span></div>
     <div class="num"><b>10</b><span>full courses</span></div>
     <div class="num"><b>25,376</b><span>practice problems</span></div>
-    <div class="num"><b>6,367</b><span>automated checks per release</span></div>
+    <div class="num"><b>6,416</b><span>automated checks per release</span></div>
     <div class="num"><b>90%</b><span>to master a unit</span></div>
   </div>
   <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
@@ -223,6 +250,66 @@
           Probability and Statistics follow the conventional United States course sequence, nine
           units each, in the order these subjects are normally taught. Where a course depends on an
           earlier one, we say so inside the lesson rather than assuming the child remembers.</p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">🏛️</div>
+      <div>
+        <h3>The teaching moves in those courses come from the federal What Works Clearinghouse</h3>
+        <p>The What Works Clearinghouse, run by the U.S. Department of Education's Institute of
+          Education Sciences, publishes practice guides that grade classroom techniques by the
+          strength of the research behind them. Three of those guides were open on the desk while
+          our teaching rules were written — and the rules carry the guide numbers to this day:</p>
+        <ul style="margin:10px 0 8px 20px;color:var(--muted);font-size:15px">
+          <li style="margin-bottom:8px"><b style="color:var(--ink)">Improving Mathematical Problem
+            Solving in Grades 4–8</b> — its recommendation that students monitor and
+            reflect while they solve, one of only two the guide rates at Strong Evidence, is our
+            rule <em>"teach the student to check
+            themselves."</em> Its multiple-strategies recommendation is our rule <em>"two ways, one
+            board, then 'which would you choose?'"</em></li>
+          <li style="margin-bottom:8px"><b style="color:var(--ink)">Teaching Strategies for
+            Improving Algebra Knowledge in Middle and High School Students</b> (grades 6–12) — its
+            solved-problems recommendation is our rule <em>"find the error: a wrong solution,
+            clearly labeled, is a problem type of its own,"</em> and its strategy-choice
+            recommendation (the guide's best-evidenced) is the <em>"which would you choose?"</em>
+            question our tutor asks after showing two ways.</li>
+          <li><b style="color:var(--ink)">Assisting Students Struggling with Mathematics
+            (2021)</b> — all six of its recommendations carry the Clearinghouse's strongest
+            evidence rating. Its number-line recommendation is our rule <em>"the number line is a
+            tool you use on purpose, not a decoration."</em> Its word-problems recommendation is
+            our rule <em>"a word problem has a type — name the type, never teach key words."</em>
+            Its mathematical-language recommendation is two of ours: <em>"one name per thing, all
+            lesson"</em> and <em>"vocabulary is taught, never assumed."</em></li>
+        </ul>
+        <p>We did not adopt these guides as decoration. Each mapping above names a written rule in
+          our tutor, and most of those rules are enforced by code on every reply — the same
+          release checks that count the numbers at the top of this page verify them.
+          <span class="cite">What Works Clearinghouse practice guides: Improving Mathematical
+            Problem Solving in Grades 4 Through 8 (NCEE 2012-4055, revised 2018); Teaching
+            Strategies for Improving Algebra Knowledge in Middle and High School Students (NCEE
+            2015-4010, revised 2019); Assisting Students Struggling with Mathematics: Intervention
+            in the Elementary Grades (WWC 2021006). All are public documents of the U.S. Department
+            of Education, Institute of Education Sciences, available free at ies.ed.gov. No
+            endorsement by the Department or the Institute is claimed or implied.</span></p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">📊</div>
+      <div>
+        <h3>The statistics course follows the GAISE II framework</h3>
+        <p>For Probability &amp; Statistics we checked our unit sequence against <em>GAISE II</em> —
+          the Pre-K–12 guidelines for statistics education published by the American Statistical
+          Association with the National Council of Teachers of Mathematics. Its four-step
+          investigative process — formulate a statistical question, collect the data, analyze the
+          data, interpret the results — is the arc of our course: exploring and describing data
+          first, then how data is collected, then probability as the tool for quantifying
+          randomness, and inference last, once the child has everything inference stands on.
+          <span class="cite">Pre-K–12 Guidelines for Assessment and Instruction in Statistics
+            Education II (GAISE II), © 2020 American Statistical Association. Available free at
+            amstat.org. Consulted for our course's sequence; no content is reproduced and no
+            endorsement is claimed or implied.</span></p>
       </div>
     </div>
   </div>
