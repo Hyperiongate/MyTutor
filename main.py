@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25np-the-phantom-and-the-nudges". BUILD np --
+#               JIM'S FIRST TELEMETRY PANEL, ACTED ON. 274 fires across 560 turns
+#               (49%% of turns paid a retry). The three roots: ① pendcheck (13%%,
+#               #1) fired on rule 39(d)'s required check-ins whenever they mention
+#               numbers -- exempted via _PQ_CHECKIN; expect its rate to drop by
+#               half or more. ② spokenlen's nudge was unsatisfiable ("keep every
+#               word" + fewer words) -- now first-beat-only, ~60 words. ③ the
+#               critic nudge assigns the fix a place: the FIRST sentence grades
+#               the ungraded answer / honors the skipped request. ALSO NOTED from
+#               the same panel: the critic costs $0.92 against the brain's $5.85
+#               -- my earlier "the critic is the top money lever" was WRONG in
+#               production; retries and voice are the levers. ONLY tutor.py +
+#               ruletests.py change; this is the stamp.
 #   2026-08-25  APP_BUILD -> "2026-08-25no-one-keyboard-not-two". BUILD no -- JIM'S
 #               UI ITEM 4, THE LAST OF THE REVIEW. math-keyboard.js reborn as a
 #               SYMBOL STRIP living inside every answer bar (session's one box,
@@ -11725,7 +11738,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25no-one-keyboard-not-two"
+APP_BUILD = "2026-08-25np-the-phantom-and-the-nudges"
 
 
 @app.get("/health")

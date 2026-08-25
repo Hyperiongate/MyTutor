@@ -196,6 +196,18 @@
 #               unfixed. Each _NOTATIONS entry now carries the ready sentence,
 #               and the referee message QUOTES it, so a retry only has to
 #               include it. Pinned in ruletests PART 3ce.
+#   2026-08-25  BUILD np -- THE FIRST PRODUCTION WEEK'S THREE ROOT FIXES, from
+#               Jim's telemetry panel (560 turns, 274 fires, 37 pass-throughs).
+#               ① pendcheck (13%% of turns, the #1 firer) was firing on rule
+#               39(d)'s REQUIRED comprehension check-ins whenever they mentioned
+#               numbers ("does that 'zero over zero' make sense... or should I
+#               slow down?") -- an unsatisfiable nudge, the iz phantom signature.
+#               _PQ_CHECKIN exempts the check-in shapes. ② spokenlen's nudge said
+#               "keep every word" while demanding fewer -- unsatisfiable by
+#               construction; it now prescribes the first beat only, ~60 words,
+#               cut by stopping earlier. ③ _CRITIC_NUDGE puts the fix in a place:
+#               THE FIRST SENTENCE grades the ungraded answer / honors the skipped
+#               request -- the commonest of the 11 unresolved critic objections.
 #   2026-08-25  BUILD nn -- REFEREE 42: A SMALL ANSWER SPACE SHIPS ITS BUTTONS
 #               (rule 39e). The either-or / yes-or-no question shapes must carry
 #               [[choices]]; quiz moments exempt; rule 39(d)'s required check-in
@@ -2708,6 +2720,15 @@ _STEP_TAG_RE = re.compile(
 #   (b) THE PRONOUN "one". "try ONE more", "see ONE yourself" made offers read as
 #       two-number arithmetic. "one" now counts as a number only in arithmetic company:
 #       beside an operator word, a fraction word, or "more/less than".
+# (np) The rule 39(d) check-in shapes: comprehension asks and their escape-hatch
+# "or" clause. Either half marks the sentence as a check-in, never a computation.
+_PQ_CHECKIN = re.compile(
+    r"\bmakes?\s+sense\b|\bis\s+that\s+clear\b|\bdoes\s+that\s+(?:click|help|"
+    r"feel\s+right|sound\s+right)\b|\bwith\s+me\s+so\s+far\b|\bfollow(?:ing)?\s+"
+    r"(?:me|that|so\s+far)\b"
+    r"|,\s*or\s+(?:should\s+i|do\s+you\s+want|would\s+you|want\s+(?:me|to)|"
+    r"is\s+there\s+a\s+part)\b", re.I)
+
 _PQ_OFFER = re.compile(
     r"^(?:(?:and|so|now|or|okay|ok|alright|great|nice|perfect)[,\s]+)*"
     r"(?:do you want|want to|want me to|want another|want more|wanna|"
@@ -2775,6 +2796,17 @@ def prose_pending_question_conflict(reply: str):
                 continue
             if _pq_is_offer(sent):
                 continue          # an invitation, not a computation (build dg)
+            # (np) A COMPREHENSION CHECK-IN IS NOT A COMPUTATION -- even when it
+            # mentions numbers. Jim's production telemetry (2026-08-25) caught this
+            # referee firing on 'Does that "zero over zero" make sense as the reason
+            # x = 2 is off-limits, or should I slow down?' -- rule 39(d)'s REQUIRED
+            # check-in wording, which happens to contain three number tokens. The
+            # nudge then demands a pending board line for a question that needs
+            # none, no retry can satisfy it honestly, and the turn ships as a
+            # pass-through: the iz phantom signature, at 13%% of all turns the
+            # single most expensive referee on the board.
+            if _PQ_CHECKIN.search(sent):
+                continue          # "does that make sense / or should I ..." asks
             nums = _pq_numeric_tokens(sent)
             if (nums >= 2
                     or (nums >= 1 and re.search(_PQ_OPERATOR, sent, re.I))
@@ -4424,15 +4456,19 @@ def spoken_length_conflict(reply: str):
         if n <= _SPOKEN_WORD_CEILING:
             return ""
         secs = int(n / 2.8)
+        # (np) ⚠️ THE OLD MESSAGE WAS UNSATISFIABLE: it ended "keep every word of
+        # the teaching" while the ceiling demands FEWER words -- and Jim's telemetry
+        # showed exactly that: 113-159-word turns shipping after three failed
+        # retries, spokenlen the #2 firer at 7%% of turns. A nudge must be
+        # achievable in one rewrite: say the FIRST beat only, hold the rest.
         return ("this turn is {n} spoken words -- about {s} seconds of unbroken talking "
                 "at a child, who cannot skim it, scroll it back, or see where it ends. "
-                "Rule 19: teaching takes the length it needs, but IN BEATS. Land ONE "
-                "piece now, put its line on the board, and end this turn with a short "
-                "continue-check ('with me so far?') -- never a question they must "
-                "compute. The rest of the explanation is the NEXT turn's job, and it "
-                "will land far better after they have nodded once. Keep every word of "
-                "the teaching; just break it where a teacher would breathe."
-                ).format(n=n, s=secs)
+                "Rewrite it as the FIRST BEAT ONLY, aiming for about 60 spoken words: "
+                "keep your grading of their last answer (if any), then ONE idea or ONE "
+                "step with its board line, then end with a short check-in ('with me so "
+                "far?'). EVERYTHING ELSE YOU WANTED TO SAY IS NEXT TURN'S MATERIAL -- "
+                "hold it back; it lands better after they nod. Do not compress by "
+                "talking faster; CUT by stopping earlier.").format(n=n, s=secs)
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[spokenlen] crashed (fail open): {exc}")
         _event("referee_crash", "spokenlen", str(exc))
@@ -6352,13 +6388,21 @@ _CRITIC_SYSTEM = (
     'Answer with pure JSON and nothing else: {"ok": true} OR '
     '{"ok": false, "problem": "<one specific sentence a rewrite can act on>"}')
 
+# (np) "fixing exactly that problem" was not landing: 11 of 28 critic objections
+# shipped unresolved in Jim's first production week, and the commonest class was
+# "the draft never grades the student's correct answer" -- objected to, retried,
+# and the retry STILL opened somewhere else. The nudge now puts the fix in a
+# specific PLACE: the first sentence.
 _CRITIC_NUDGE = (
     "(SYSTEM: A second teacher read your previous draft and found a real problem: "
     "{detail} The student NEVER saw that draft. Write your reply again from "
-    "scratch -- same warm teaching flow, keeping whatever was right -- fixing "
-    "exactly that problem. Your new reply must STAND ALONE: the student saw and "
-    "heard nothing of the discarded draft, so everything they need must appear "
-    "here in full. Do not mention this note or any checking.)")
+    "scratch -- same warm teaching flow, keeping whatever was right. YOUR FIRST "
+    "SENTENCE must be the fix: if the problem says an answer went ungraded, your "
+    "first sentence grades THAT answer by name; if it says the student's request "
+    "or objection was skipped, your reply does THAT first, before anything else "
+    "you had planned. Your new reply must STAND ALONE: the student saw and heard "
+    "nothing of the discarded draft, so everything they need must appear here in "
+    "full. Do not mention this note or any checking.)")
 
 
 def _live_critic_seat():

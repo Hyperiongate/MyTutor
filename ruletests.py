@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD np -- PART 3dz: the first production week's three root
+#               fixes (pendcheck's check-in phantom, spokenlen's unsatisfiable
+#               nudge, the critic nudge's first-sentence rule), both directions.
 #   2026-08-25  BUILD no -- PART 3dy: the symbol strip (one keyboard, not two),
 #               with the never-touch-the-mic history pin. Validated by an eight-
 #               assertion browser drive across the three teaching pages first.
@@ -10113,6 +10116,56 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dz_the_first_week_of_telemetry():
+    """PART 3dz (build np) -- THE FIRST PRODUCTION WEEK'S THREE ROOT FIXES.
+
+    Jim's telemetry (2026-08-25): 560 turns, 274 referee fires, 37 pass-throughs.
+    ① pendcheck fired on 13%% of ALL turns -- and its pass-through log showed it
+      firing on rule 39(d)'s REQUIRED comprehension check-in ("does that 'zero
+      over zero' make sense... or should I slow down?") because the sentence
+      mentions numbers. An unsatisfiable nudge = the iz phantom signature.
+      _PQ_CHECKIN now exempts the check-in shapes; real computations still fire.
+    ② spokenlen (7%%, #2) carried a nudge that said "keep every word of the
+      teaching" WHILE demanding fewer words -- unsatisfiable by construction,
+      which is why 113-159-word turns shipped after three retries. The message
+      now prescribes: first beat only, ~60 words, cut by stopping earlier.
+    ③ The critic's commonest unresolved objection (11 of 28) was "the draft never
+      grades the student's correct answer" -- and the generic "fix that problem"
+      nudge kept losing to the model's momentum. The nudge now assigns the fix a
+      PLACE: the first sentence."""
+    print("\nPART 3dz — the first week of telemetry (build np)")
+    import tutor as TT
+    for want, label, reply in (
+        (False, "⭐ the production phantom is silent (39d check-in with numbers)",
+         'Does that "zero over zero" make sense as the reason x = 2 is '
+         "off-limits, or should I slow down on any part?"),
+        (False, "  'with me so far?' after numbers is silent",
+         "So 3 plus 4 makes 7, and 7 times 2 makes 14. With me so far?"),
+        (False, "  the escape-hatch or-clause is silent",
+         "We split 180 into 130 and 50. Is that clear, or should I show it a "
+         "different way?"),
+        (True,  "  a real computation still fires",
+         "So what is 12 divided by 3? Take your time."),
+        (True,  "  the bare answer-demand still fires (build gw)",
+         'Add column by column. What do you get? [[step eq="2.6 + 1.35"]]'),
+        (False, "  a computation with its pending line still passes",
+         'What is 12 divided by 3? [[step eq="12 ÷ 3 = ?"]]')):
+        check(label, bool(TT.prose_pending_question_conflict(reply)) == want,
+              "the #1 firer at 13%% of turns -- every false fire is a paid retry"
+              if not want else "the exemption over-widened and rule 15 sleeps")
+    d = TT.spoken_length_conflict(" ".join(["w"] * 120) + "?")
+    check("spokenlen's nudge is SATISFIABLE (first beat, not keep-every-word)",
+          bool(d) and "FIRST BEAT ONLY" in d and "keep every word" not in d.lower(),
+          "a nudge that cannot be satisfied ships pass-throughs by design")
+    check("  ...and its boundary did not move",
+          not TT.spoken_length_conflict(" ".join(["w"] * 80)),
+          "the fix was the MESSAGE, never the ceiling")
+    check("the critic's nudge assigns the fix a PLACE",
+          "YOUR FIRST" in TT._CRITIC_NUDGE
+          and "grades THAT answer by name" in TT._CRITIC_NUDGE,
+          "generic 'fix that' lost to the model's momentum 11 times in week one")
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -10824,7 +10877,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,528</b>" in page,
+          "<b>6,537</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -16233,8 +16286,12 @@ def part3ck_spoken_length():
           not tutor.spoken_length_conflict(
               "Here it is. [[card title=\"t\" items=\"" + ("x | " * 200) + "\"]]"),
           "a tag-heavy teaching turn is punished for what it DRAWS")
+    # (np) needle updated with the message: the old nudge said "IN BEATS" and
+    # ALSO "keep every word" -- unsatisfiable, and Jim's telemetry showed it
+    # shipping 113-159-word pass-throughs. The new message's anchor phrase is
+    # "FIRST BEAT ONLY"; the guarantee (the sweep calls the referee) is unchanged.
     check("  and via the sweep",
-          "IN BEATS" in str(tutor.prose_board_conflict("word " * 126)),
+          "FIRST BEAT ONLY" in str(tutor.prose_board_conflict("word " * 126)),
           "the referee exists but the sweep never calls it")
     check("rule 19(c) gives a number the model can aim at",
           "ONE BEAT PER TURN" in flat and "about 80 spoken words" in flat
@@ -19179,6 +19236,7 @@ def main():
     part3dw_ten_doors_not_a_wall()
     part3dx_small_answer_spaces_ship_buttons()
     part3dy_one_keyboard_not_two()
+    part3dz_the_first_week_of_telemetry()
     part3ai_deploy_stamp()
     if live:
         part4_live()
