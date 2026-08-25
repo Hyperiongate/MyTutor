@@ -1,6 +1,12 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-08-25  THE PLUS KEY (build ns, Jim): "there is a combo button for +- and
+ *               a - button but no + button." He is right, and + EARNS its spot: on
+ *               a US keyboard + is Shift+= -- a two-finger reach mid-answer -- and
+ *               a strip that offers minus, times, and divide but not plus reads as
+ *               an oversight to a child. One additive entry, right of −, nothing
+ *               else moved.
  *   2026-08-25  ONE KEYBOARD, NOT TWO (build no; Jim's UI review, item 4): "if I
  *               decide to type things in, I want more of a conventional looking
  *               keyboard where I can type the letters AND the symbols... I don't
@@ -42,6 +48,7 @@
     ["÷",  "÷",  0, "divided by"],
     ["×",  "×",  0, "times"],
     ["−",  "−",  0, "minus"],
+    ["+",  "+",  0, "plus"],
     ["±",  "±",  0, "plus or minus"],
     ["²",  "²",  0, "squared"],
     ["³",  "³",  0, "cubed"],

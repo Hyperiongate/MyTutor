@@ -2,6 +2,25 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-25  BUILD ns -- FOLLOW THE PEN. Jim, next lesson after nr: "same
+                 problem with the sizing of the keyboard." He was right and nr was
+                 INCOMPLETE: the ResizeObserver only repairs the moment the board
+                 CHANGES size. In his lesson the keyboard was ALREADY open, the
+                 board was already short, and a tall turn simply OUTGREW it -- the
+                 ir top-anchor held the turn's start on screen while the question
+                 at its end landed below the fold. No resize, no repair.
+                 THE REAL FIX is one line in scrollFeed's anchored mode: the scroll
+                 target is now max(turnTop, contentEnd - windowHeight) -- the turn
+                 still STARTS at the top (ir's ruling intact for turns that fit),
+                 but once the board work outgrows the window the view advances with
+                 the writing, like eyes following a teacher's pen, so the newest
+                 line -- and the question always lands last -- is ALWAYS visible.
+                 History stays one scroll-up away; a student who scrolled away is
+                 still never touched (stickBottom rules, build ay's latch intact).
+                 feedResized() collapses to a thin guard + scrollFeed() call, since
+                 scrollFeed itself now handles a shrunken board correctly.
+                 ⚠️ LESSON, PINNED: a repair that only fires on the EVENT (resize)
+                 misses the STATE (already small). Fix the invariant, not the moment.
      2026-08-25  BUILD nr -- THE BOARD ANSWERS FOR ITS OWN SIZE. Jim, live in
                  Pre-Algebra with the new symbol strip: "it says what do you get?
                  and I have to scroll down to see it... the keyboard is now taking
@@ -745,7 +764,14 @@ function scrollFeed() {
       const natural = feed.scrollHeight - pad.offsetHeight;    // real content, without the blank
       const extra = Math.max(0, Math.round(turnTop + feed.clientHeight - natural));
       if (Math.abs(pad.offsetHeight - extra) > 1) pad.style.height = extra + "px";
-      const target = Math.max(0, turnTop - 6);
+      // build ns (2026-08-25): FOLLOW THE PEN. The turn starts at the top (ir) --
+      // but once its board work has outgrown the window (a keyboard-shortened
+      // board, a long worked example), the newest line used to land BELOW the fold
+      // and the child had to scroll (Jim, twice). The anchor now advances just far
+      // enough to keep the END of the content visible: top-anchored while the turn
+      // fits, following the writing once it does not. The question lands last, so
+      // the question is always on screen when it is asked.
+      const target = Math.max(0, turnTop - 6, natural - feed.clientHeight);
       if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
       return;
     }
@@ -764,35 +790,17 @@ function scrollFeed() {
 // to a second row, a tablet rotating. Armed lazily from addBubble because `feed`
 // is a page global that does not exist when this file parses.
 let _feedRO = null;
-let _feedH = 0;
 function feedResized() {
-  const h = feed.clientHeight;
-  const shrank = h < _feedH - 1;
-  _feedH = h;
-  if (!h) return;                       // hidden/collapsed layout: nothing to place
+  // build ns: scrollFeed's anchored mode now follows the pen on its own, so a
+  // resize only needs to RE-RUN the placement -- no special shrink branch. (nr's
+  // branch repaired the resize MOMENT and missed the already-small STATE; the
+  // invariant now lives in one place, scrollFeed.)
+  if (!feed.clientHeight) return;       // hidden/collapsed layout: nothing to place
   if (!stickBottom) return;             // the student scrolled away -- their board
-  if (shrank && lastTurnEl && lastTurnEl.isConnected) {
-    const pad = feedPadEl();
-    const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
-    const natural = feed.scrollHeight - pad.offsetHeight;      // real content, no blank
-    if (natural - turnTop > h) {
-      // The turn no longer fits in the smaller board. The question and the answer
-      // row live at the END of the turn -- that is what the child needs to see to
-      // type, so show the end. (The next tutor bubble re-anchors to the top as
-      // always; this only repairs the view the keyboard just ate.)
-      pad.style.height = "0px";
-      requestAnimationFrame(() => {
-        autoScroll = true;
-        feed.scrollTop = feed.scrollHeight - feed.clientHeight;
-      });
-      return;
-    }
-  }
-  scrollFeed();                          // fits (or grew): the ir anchor, recomputed
+  scrollFeed();
 }
 function armFeedWatch() {
   if (_feedRO || typeof ResizeObserver === "undefined" || typeof feed === "undefined" || !feed) return;
-  _feedH = feed.clientHeight;
   _feedRO = new ResizeObserver(() => feedResized());
   _feedRO.observe(feed);
 }

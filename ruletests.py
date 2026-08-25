@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ns -- PART 3ec: follow the pen. Jim, one lesson after nr:
+#               "same problem." nr repaired the resize MOMENT and missed the
+#               already-small STATE (keyboard open before the tall turn arrived).
+#               scrollFeed's anchor now advances with the writing; the + key joins
+#               the symbol strip ("a combo button for +- and a - button but no +").
+#               3eb's two pins on nr's removed shrink-branch updated to the new
+#               single invariant.
 #   2026-08-25  BUILD nr -- PART 3eb: the board answers for its own size (the
 #               symbol strip ate board room and the QUESTION slid below the fold;
 #               ResizeObserver in board.js re-anchors, shrink-that-no-longer-fits
@@ -10345,16 +10352,17 @@ def part3eb_the_board_answers_for_its_size():
           'typeof ResizeObserver === "undefined"' in bc
           and 'typeof feed === "undefined"' in bc,
           "board.js also rides pages that define feed later or not at all")
-    check("⭐ a shrink that no longer fits shows the END of the turn",
-          "natural - turnTop > h" in bc
-          and "feed.scrollTop = feed.scrollHeight - feed.clientHeight" in bc,
-          "the question lives at the end -- anchoring the top hides exactly it")
+    check("⭐ the anchored scroll target follows the pen (build ns supersedes "
+          "nr's shrink branch)",
+          "natural - feed.clientHeight" in bc
+          and "Math.max(0, turnTop - 6, natural - feed.clientHeight)" in bc,
+          "the question lives at the end -- anchoring only the top hides exactly it")
     check("  the student who scrolled away is left alone",
           "if (!stickBottom) return;" in bc.split("function feedResized")[1][:600],
           "build ay/ir law: a reading child is never yanked")
-    check("  our repair scrolls are marked as our own (build ay's latch)",
-          bc.split("function feedResized")[1][:900].count("autoScroll = true") >= 1,
-          "unmarked, the scroll listener disables following on our own fix")
+    check("  the repair lives in ONE place (feedResized defers to scrollFeed)",
+          "scrollFeed();" in bc.split("function feedResized")[1][:600],
+          "nr kept a second copy of the placement logic and the copies disagreed")
     for page, copies in (("session.html", 1), ("practice.html", 2), ("topic.html", 2)):
         p = open(os.path.join(here, "static", page), encoding="utf-8").read()
         pc = code_only(p)
@@ -10367,6 +10375,51 @@ def part3eb_the_board_answers_for_its_size():
               pc.count("background:#2e9e5b; border-color:#237a46") == copies
               and "background:#fff3d6; border-color:#f0c674" not in pc,
               "the way BACK from paused must be as loud as the way in")
+
+def part3ec_follow_the_pen():
+    """PART 3ec (build ns) -- FOLLOW THE PEN, AND THE PLUS KEY.
+
+    Jim, one lesson after nr shipped: "same problem with the sizing of the
+    keyboard." He was right. nr's ResizeObserver repaired the moment the board
+    CHANGED size -- but in his lesson the keyboard was ALREADY open, the board was
+    already short, and the tall turn simply OUTGREW it. No resize, no repair, and
+    the question sat below the fold again. ⚠️ THE LESSON, PINNED FOR GOOD: a
+    repair that fires on the EVENT misses the STATE; fix the INVARIANT. The
+    invariant now lives in scrollFeed itself: target = max(turnTop, contentEnd -
+    window) -- top-anchored while the turn fits (ir intact), advancing with the
+    writing once it does not, so the newest line (the question is always last) is
+    always on screen. ALSO: the strip offered −, ×, ÷, ± but no + ("a combo
+    button for +- and a - button but no + button") -- + is Shift+= on a US
+    keyboard, a two-finger reach mid-answer. One additive entry, right of −.
+    The 6-assertion live drive (real session.html, keyboard open FIRST, tall turn
+    arrives, question visible with zero student scrolls) ran green first."""
+    print("\nPART 3ec — follow the pen (build ns)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    b = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    bc = code_only(b)
+    check("⭐ the anchor advances with the writing once the turn outgrows the window",
+          "Math.max(0, turnTop - 6, natural - feed.clientHeight)" in bc,
+          "Jim hit the below-the-fold question TWICE; this line is the fix both times")
+    check("  ...computed on real content (the ir pad never counts toward the end)",
+          "feed.scrollHeight - pad.offsetHeight" in bc,
+          "chasing the blank spacer would scroll past the question into nothing")
+    check("  nr's duplicate shrink branch is gone (one invariant, one place)",
+          "natural - turnTop > h" not in bc,
+          "two copies of placement logic is how nr and scrollFeed disagreed")
+    check("  the follow scroll is still marked as our own (build ay's latch)",
+          "autoScroll = true; feed.scrollTop = target" in bc,
+          "unmarked, the listener reads our fix as the student scrolling away")
+    k = open(os.path.join(here, "static", "math-keyboard.js"), encoding="utf-8").read()
+    kc = code_only(k)
+    check("⭐ the strip has a + key, spoken name and all",
+          '["+",  "+",  0, "plus"]' in kc,
+          "minus, times, and divide with no plus reads as an oversight to a child")
+    check("  ...sitting right of − with ± still present (nothing else moved)",
+          kc.find('"minus"') < kc.find('"plus"') < kc.find('"plus or minus"'),
+          "the strip order is part of build no's reviewed layout")
+    check("  ...and the strip still never touches the mic (2026-07-30 law)",
+          "talkBtn" not in kc and "typeToggle" not in kc,
+          "the keypad that hid the microphone broke voice for a week")
 
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
@@ -11079,7 +11132,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,568</b>" in page,
+          "<b>6,575</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -16047,8 +16100,9 @@ def part3cd_board_room():
           "Today's Progress button" in hsrc,
           "the bars vanish after the tour and the student was never told where")
     check("every tutor turn anchors at the visible top (ax's taller-than-window "
-          "condition is gone)",
-          "Math.max(0, turnTop - 6)" in bsrc
+          "condition is gone; build ns lets the anchor FOLLOW once the turn "
+          "outgrows the window -- turnTop still rules while it fits)",
+          "Math.max(0, turnTop - 6, natural - feed.clientHeight)" in bsrc
           and "feed.scrollHeight - turnTop > feed.clientHeight" not in bsrc,
           "short turns pin to the bottom again -- Jim's eyes go back to hunting the bottom edge")
     check("the spacer lets short turns reach the top, rides last, and never loops "
@@ -19441,6 +19495,7 @@ def main():
     part3dz_the_first_week_of_telemetry()
     part3ea_the_owners_flag()
     part3eb_the_board_answers_for_its_size()
+    part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
         part4_live()

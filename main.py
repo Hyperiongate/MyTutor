@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25ns-follow-the-pen". BUILD ns -- Jim:
+#               "same problem with the sizing of the keyboard." nr repaired the
+#               resize MOMENT; the failing case was the already-open keyboard with
+#               a tall turn OUTGROWING the short board. scrollFeed's anchor now
+#               follows the writing (see board.js's ns note); the symbol strip
+#               gained its missing + key. All client-side; only this stamp here.
 #   2026-08-25  APP_BUILD -> "2026-08-25nr-the-board-answers-for-its-size".
 #               BUILD nr -- Jim, live in Pre-Algebra: the build-no symbol strip
 #               opened and the tutor's "what do you get?" slid below the fold; he
@@ -11819,7 +11825,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nr-the-board-answers-for-its-size"
+APP_BUILD = "2026-08-25ns-follow-the-pen"
 
 
 @app.get("/health")
