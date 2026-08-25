@@ -2,6 +2,14 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ni -- RULE 42 JOINS THE REVIEWER'S CONDUCT LIST. The 2026-08-25
+#               report refuted two rule-42 findings ("the tutor compares the student
+#               to other children") and BOTH refutations gave the same reason: "rule
+#               42 is not one of the conduct promises provided". That is not a
+#               judgment -- it is the reviewer reporting a hole in its own list. Rule
+#               42 is enforced on live replies by student_compare_conflict (the 25th
+#               referee, build id), which is this list's own membership criterion.
+#               Those two findings may have been real; the next run will tell.
 #   2026-08-20  BUILD jk -- THE REVIEWER GETS A SECOND TEST. The 2026-08-20 report
 #               refuted 19 of 20 findings (95%; the first real night was 73%, and the
 #               /admin card's own scale calls near-100% MISCALIBRATED). Reading the 19
@@ -238,6 +246,10 @@ THIS TUTOR IS JUDGED ON TWO THINGS, NOT ONE.
       - rules 14 and 48  notation is read aloud the first time it appears
       - rule 40  a returning student is ASKED before being made to sit through the same
                  introduction a second time
+      - rule 42  a student is compared to NOBODY but themselves -- "most kids",
+                 "other students", age norms, class averages: the kind-sounding
+                 comfort forms included. Comparisons to the student's OWN earlier
+                 work are fine.
     Every one of these is enforced on live replies by a machine referee. If a referee
     would regenerate the reply for it, it is not "taste".
 

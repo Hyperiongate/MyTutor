@@ -196,6 +196,18 @@
 #               unfixed. Each _NOTATIONS entry now carries the ready sentence,
 #               and the referee message QUOTES it, so a retry only has to
 #               include it. Pinned in ruletests PART 3ce.
+#   2026-08-25  BUILD ni -- THE NIGHT WATCH'S DETERMINISTIC HALF. Two changes here:
+#               ① _NOTATIONS grows ÷, the TIGHT multiplication dot, and subscripts --
+#               "8 ÷ 2 = ?" reached a beginner unread, and the three-forms card
+#               handed an Algebra II student r₁, r₂ and · with no reading. The dot
+#               demands no surrounding space (a spaced dot is a separator -- the iz
+#               pipe phantom's second verse, caught in THIS build's sweep before it
+#               shipped). ② _note_tag_vals replaces the old one-value regex, which
+#               captured only the FIRST quoted attribute per tag -- the caught card
+#               showed this referee nothing but its TITLE. Titles, items, captions:
+#               drawn means read. Both directions + separator phantoms pinned in
+#               PART 3ds; mathcheck.py gained the board-equation checker the same
+#               night (see its notes).
 #   2026-08-18  BUILDS ih/ii/ij -- REFEREES 30-32, THE TIER-B REMAINDER. ih:
 #               notation_intro_conflict (rule 14's runtime half) -- a reply whose
 #               BOARD tags carry a symbol new to this conversation (√, π, ^, |x|,
@@ -2079,7 +2091,15 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # hr discipline applies: raise deliberately with a dated note, never trim. The
 # experiment's SMALL result is already in (7 findings); the LARGE result, when Jim
 # delivers it, is the evidence that should finally set this number.
-PROMPT_CEILING = 186_000
+# 2026-08-25 (build ni): RAISED 186,000 -> 188,000. The night watch's 17 confirmed
+# findings wrote rules 47(h)/(i)/(j), 59(e) and two 61(c) catalogue entries into the
+# shared block, and the all-heard algebra2 deferred prompt measured 186,680. The
+# first draft of this build TRIMMED three battle-tested 61(c) entries to duck the
+# wire -- and broke two pins guarding their exact wording, which is this ledger's
+# own discipline working: teaching is never trimmed to duck a tripwire. Trims
+# reverted, ceiling raised, note dated -- the hr/il shape, fourth verse. The
+# two-prompt-sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 188_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -3985,8 +4005,43 @@ _NOTATIONS = (
      re.compile(r"\b[fgh]\s+of\s+[a-z]\b", re.I),
      'We read f(x) out loud as "f of x" -- the name of a machine that takes x '
      "in and sends one number back out."),
+    # (ni) 2026-08-25 -- THREE SYMBOLS THE NIGHT WATCH CAUGHT SHIPPING UNREAD.
+    # "8 ÷ 2 = ?" reached a beginner with nobody saying "divided by" (i-dont-know,
+    # basic), and the three-forms card handed an Algebra II student r₁, r₂ and the
+    # multiplication dot with no reading (returning-student). The watched set was
+    # √ π ^ |x| f(x) -- these three simply were not on the list.
+    ("the division sign", re.compile(r"÷"),
+     re.compile(r"\bdivided\s+by\b|\bdivision\s+sign\b", re.I),
+     'That symbol is the DIVISION sign -- we read "8 ÷ 2" out loud as "eight '
+     'divided by two": eight things shared into two equal groups.'),
+    # ⚠️ the dot must be TIGHT (2·4, a·x) -- a dot floating between spaces is a
+    # SEPARATOR ("mastered · 94% · Sep 26"), the same phantom class as build iz's
+    # choice-list pipes. No \s allowed on either side, ever.
+    ("the multiplication dot", re.compile(r"(?<=[0-9a-z\)²³₁₂])·(?=[0-9a-z\(])"),
+     re.compile(r"\btimes\b|\bmultipl|\bproduct\b", re.I),
+     'That raised dot means TIMES -- "a · x" is read "a times x"; it is how '
+     "grown-up math writes multiplication without the x-shaped sign."),
+    ("subscript labels", re.compile(r"[a-z][₀₁₂₃₄₅₆₇₈₉]"),
+     re.compile(r"\bsub\b|\b[a-z]\s+(?:one|two|zero)\b|\bfirst\b.{0,24}\bsecond\b", re.I),
+     'Those small low numbers are SUBSCRIPTS -- labels, not arithmetic: we read '
+     'r₁ and r₂ as "r one" and "r two", the names of the first and second roots.'),
 )
-_NOTE_TAG_VALS = re.compile(r'\[\[[^\]]*?"([^"]*)"[^\]]*\]\]')
+_NOTE_TAG_RE = re.compile(r"\[\[([^\]]*)\]\]")
+_NOTE_VAL_RE = re.compile(r'"([^"]*)"')
+
+
+def _note_tag_vals(text):
+    """EVERY quoted attribute value inside every [[...]] tag.
+
+    ⚠️ (ni) The old regex captured only the FIRST quoted value per tag -- so a
+    [[card title="The three forms" items="a·(x − r₁)·(x − r₂) ..."]] showed this
+    referee nothing but its TITLE, and the night watch caught exactly that card
+    shipping r₁, r₂ and the dot to a student with no reading. Titles, items,
+    captions -- if it is drawn, it is read here."""
+    out = []
+    for tag in _NOTE_TAG_RE.findall(str(text or "")):
+        out.extend(_NOTE_VAL_RE.findall(tag))
+    return out
 
 
 def notation_intro_conflict(reply: str, heard=None):
@@ -3997,7 +4052,7 @@ def notation_intro_conflict(reply: str, heard=None):
         if heard is None:
             return ""
         text = str(reply or "")
-        vals = " ".join(_NOTE_TAG_VALS.findall(text))
+        vals = " ".join(_note_tag_vals(text))
         if not vals:
             return ""
         prose = _spoken_only(text)
@@ -4022,7 +4077,7 @@ def notation_intro_conflict(reply: str, heard=None):
             # finding WHICH board line is accused -- so the message now quotes
             # it, and the server log finally shows us what keeps writing bars.
             culprit = ""
-            for v in _NOTE_TAG_VALS.findall(text):
+            for v in _note_tag_vals(text):
                 if sym.search(v):
                     culprit = " ".join(v.split())[:80]
                     break

@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25ni-the-board-is-a-claim". BUILD ni -- THE
+#               NIGHT WATCH'S 17 FINDINGS, THE MACHINE-FIXABLE HALF. ① mathcheck now
+#               re-computes every ALL-CONSTANT equality chain drawn on the board (the
+#               shipped 3/4-1/2=2/4-1/2 lie was invisible to a checker that read only
+#               verify tags); a false board line now rides the same wrong->retry
+#               machinery as a false spoken claim. ② The notation referee gains ÷,
+#               the tight dot, and subscripts -- and finally reads EVERY quoted
+#               attribute per tag, not just the first (the three-forms card had shown
+#               it only its title). ③ Rules 47(h,i,j), 59(e) and two 61(c) entries
+#               hold the quiz-conduct cluster. ④ Nightwatch's reviewer list gains
+#               rule 42 -- it refuted two comparison findings for that exact
+#               omission. NOTHING in main.py changes but this stamp; the work lives
+#               in mathcheck.py, tutor.py, prompts.py, nightwatch.py. Swept clean:
+#               0 false alarms across 306 canonical scripts; PART 3ds re-sweeps every
+#               build. STILL OPEN from the same report: rules 44/16/15 referees each
+#               missed one (build nj, next), and prosecheck's 28 pass-throughs are
+#               the retry-prompt problem, not a referee problem.
 #   2026-08-25  APP_BUILD -> "2026-08-25nh-let-them-finish-and-fly-in". BUILD nh --
 #               JIM WATCHED THE FULL DEMO: "very good, just a couple of small things."
 #               ① Feedback lines were cut off mid-word: four sites advanced on fixed
@@ -11640,7 +11657,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nh-let-them-finish-and-fly-in"
+APP_BUILD = "2026-08-25ni-the-board-is-a-claim"
 
 
 @app.get("/health")

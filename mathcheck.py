@@ -1,6 +1,23 @@
 # =============================================================================
 # mathcheck.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
+# CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ni -- THE BOARD ITSELF IS A CLAIM. The night watch confirmed a
+#               shipped [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]] -- a false chain,
+#               drawn for a child, invisible here because verify_reply read only
+#               [[verify]] tags. New check_board_equations(): every ALL-CONSTANT
+#               equality chain in step/write/solve tags is re-computed; chains with a
+#               free symbol are problems (never judged), placeholders are pending
+#               questions, wide spacing is a COLUMN BREAK (two authored side-by-side
+#               lines taught that), rule 56's find-the-error game is exempt, and the
+#               board path gains superscript (2³) and tight-dot (2·4) normalization.
+#               Wired INSIDE verify_reply so a false board line rides the existing
+#               wrong->retry machinery -- and it runs even when the reply has no
+#               verify tag at all, which is precisely how the caught line hid.
+#               Swept clean: 0 false alarms over all 306 canonical scripts + the
+#               demo's boards (21 chains judged). PART 3ds re-runs that sweep on
+#               every build.
+#
 # THE MATH VERIFIER (new file, 2026-08-03)
 #
 # WHY THIS FILE EXISTS: Mr. Cadabra invents problems and states answers on the
@@ -459,6 +476,104 @@ def extract_tags(reply: str):
     return out
 
 
+# --------------------------------------------------------------------------- #
+# (ni) THE BOARD ITSELF IS A CLAIM.
+# --------------------------------------------------------------------------- #
+# On 2026-08-25 the night watch confirmed a shipped board line:
+#     [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]]
+# -- a FALSE equality chain (the middle expression equals 0), drawn for a child,
+# and this module never looked at it, because verify_reply reads only [[verify]]
+# tags. A wrong number the tutor SAYS gets re-computed; a wrong number the tutor
+# WRITES sailed straight through. That asymmetry ends here.
+#
+# ⚠️ DELIBERATELY CONSERVATIVE, in this exact order:
+#   * only step/write/solve tags (eq= or text=), the ones that draw equations;
+#   * skipped when the line carries a placeholder (? _ … □) -- that is a PENDING
+#     question, which rule 15 machinery owns, not a claim;
+#   * skipped when any segment fails the same parse gate the verify tags use;
+#   * ⭐ skipped when ANY segment has a free symbol. "2x + 3 = 11" is a PROBLEM
+#     the child is being asked to solve, not an identity the tutor asserts.
+#     Only all-constant chains -- arithmetic the board presents as FACT -- are
+#     judged. This is what keeps the false-alarm rate at zero on all 306
+#     canonical scripts (measured before shipping; PART 3ds re-measures).
+#   * skipped entirely when the reply announces a find-the-error game (rule 56:
+#     a wrong solution, CLEARLY LABELED, is a legitimate problem type).
+# Anything skipped is simply not judged -- a board checker that guesses would
+# reject good teaching, and the retry it triggers costs real money and seconds.
+_BOARD_EQ_TAG_RE = re.compile(r"\[\[\s*(?:step|write|solve)\b([^\]]*)\]\]")
+_GAME_RE = re.compile(r"find\s+(?:the|my)\s+(?:error|mistake)|spot\s+(?:the|my)\s+"
+                      r"(?:error|mistake)|on\s+purpose|deliberate(?:ly)?\s+wrong",
+                      re.IGNORECASE)
+_PLACEHOLDER_RE = re.compile(r"[?_…□]|\bblank\b", re.IGNORECASE)
+_SUP_MAP = {"⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
+            "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9"}
+
+
+def _desuperscript(s: str) -> str:
+    """'2³' -> '2^3', '2·4' -> '2*4' -- board typography into parseable math.
+    Board-path only, deliberately: the verify-tag path keeps its own contract."""
+    def _swap(m):
+        return "^" + "".join(_SUP_MAP[c] for c in m.group(1))
+    return re.sub(r"([⁰¹²³⁴⁵⁶⁷⁸⁹]+)", _swap, s).replace("·", "*")
+
+
+def check_board_equations(reply: str):
+    """Every all-constant equality chain drawn on the board is re-computed.
+
+    Returns (wrongs, checked): a list of human-readable findings (empty when the
+    board is sound) and how many chains were actually judged."""
+    if not reply or _GAME_RE.search(reply):
+        return [], 0
+    wrongs, checked = [], 0
+    for m in _BOARD_EQ_TAG_RE.finditer(reply):
+        attrs = dict(_ATTR_RE.findall(m.group(1)))
+        line = (attrs.get("eq") or attrs.get("text") or "").strip()
+        if not line or "=" not in line:
+            continue
+        # ⚠️ (ni) ONE LINE CAN CARRY SEVERAL EQUATIONS, laid out side by side with
+        # wide spacing ("0.07  =  7/100          0.7  =  7/10") -- the sweep found
+        # two authored lines exactly like that, and chaining across the gap turned
+        # a TRUE pair into a false alarm. Four or more spaces is a column break:
+        # each column is its own chain, judged alone.
+        for raw in re.split(r"\s{4,}", line):
+          raw = raw.strip()
+          if not raw or "=" not in raw or _PLACEHOLDER_RE.search(raw):
+            continue
+          if _REL_RE.search(raw) or "≠" in raw or "≤" in raw or "≥" in raw:
+            continue                      # relations are the inequality checker's turf
+          s2 = _normalize(_desuperscript(raw))
+          parts = [p.strip() for p in _EQ_SPLIT_RE.split(s2)]
+          if len(parts) < 2 or any(not p for p in parts):
+            continue
+          if any(_reject_reason(p) for p in parts):
+            continue
+          try:
+            exprs = [_parse(p) for p in parts]
+          except Exception:  # noqa: BLE001 -- unparseable board decoration: not judged
+            continue
+          if any(e.free_symbols for e in exprs):
+            continue                      # a problem statement, never a claim
+          try:
+            vals = [complex(e.evalf(chop=True)) for e in exprs]
+          except Exception:  # noqa: BLE001
+            continue
+          checked += 1
+          tol = _decimal_tolerance(raw)
+          first = vals[0]
+          for k in range(1, len(vals)):
+            if abs(vals[k] - first) > max(tol, tol * abs(first)):
+              def _pretty(c):
+                  r = c.real
+                  return str(int(r)) if abs(r - round(r)) < 1e-9 else f"{r:.6g}"
+              wrongs.append(
+                  f'the board line "{raw}" is FALSE: "{parts[k]}" equals '
+                  f'{_pretty(vals[k])} but "{parts[0]}" equals {_pretty(first)} -- '
+                  f'every link in an equality chain must equal the same value. '
+                  f'Rewrite the chain so each step is literally true.')
+              break
+    return wrongs, checked
+
+
 def verify_reply(reply: str):
     """
     Check every [[verify]] tag in a tutor reply.
@@ -471,10 +586,15 @@ def verify_reply(reply: str):
                          (tutor.py feeds this back for a silent rewrite).
     """
     tags = extract_tags(reply)
-    if not tags:
-        return "none", ""
     if not _SYMPY_OK:
-        return "unverifiable", "sympy not installed"
+        return ("unverifiable", "sympy not installed") if tags else ("none", "")
+    # (ni) the board is checked EVEN WHEN no verify tag exists -- the night-watch
+    # line that motivated this had no tag at all, which is precisely how it hid.
+    board_wrongs, board_checked = check_board_equations(reply)
+    if board_wrongs:
+        return "wrong", " AND ".join(board_wrongs)
+    if not tags:
+        return ("ok", "") if board_checked else ("none", "")
     if len(tags) > MAX_TAGS_PER_REPLY:
         print(f"[mathcheck] {len(tags)} tags in one reply; checking first {MAX_TAGS_PER_REPLY}")
         tags = tags[:MAX_TAGS_PER_REPLY]

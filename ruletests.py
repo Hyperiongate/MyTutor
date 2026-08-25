@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ni -- PART 3ds: THE BOARD IS A CLAIM. The night watch's
+#               machine-fixable findings pinned: the board-equation checker (both
+#               directions + the STANDING 306-script sweep, in-battery, zero false
+#               alarms), the notation referee's three new symbols and its
+#               all-attribute-values fix, the 47/59/61 prompt clauses by verbatim
+#               anchor, and rule 42 on nightwatch's reviewer list.
 #   2026-08-25  BUILD nh -- 3dr: THE SEAMS JIM HEARD. Fixed timers under spoken
 #               feedback (cut praise) are banned -- every advance chains on the line
 #               finishing -- and Abrabot's 220px flying entrance is pinned. The
@@ -10088,6 +10094,105 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3ds_the_board_is_a_claim():
+    """PART 3ds (build ni) -- THE NIGHT WATCH'S HAUL, PINNED.
+
+    2026-08-25, ten lessons, seventeen confirmed findings. Four machine-fixable
+    classes, each held here:
+    ① [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]] SHIPPED -- a false equality chain
+      drawn for a child, invisible because mathcheck read only [[verify]] tags.
+      check_board_equations now re-computes every ALL-CONSTANT chain on the board;
+      chains with a free symbol are problems, not claims, and are never judged.
+    ② "8 ÷ 2 = ?" and the three-forms card (r₁, r₂, ·) shipped unread-aloud: the
+      notation referee's symbol set lacked all three, AND its tag reader captured
+      only the FIRST quoted attribute per tag -- the card showed it nothing but
+      its title. Both fixed; the dot demands TIGHT contact (a spaced dot is a
+      separator -- the iz pipe phantom, second verse).
+    ③ Rules 47(h,i,j), 59(e), and two new rule-61 catalogue entries hold the
+      quiz-conduct cluster in the prompt.
+    ④ Nightwatch's reviewer refuted two rule-42 findings for the stated reason
+      that rule 42 was not on its conduct list. It is now.
+
+    ⭐ THE SWEEP RUNS HERE, EVERY BUILD: all 306 canonical scripts plus the demo's
+    boards through the board checker -- zero false alarms is the bar the checker
+    shipped with, and the bar it keeps."""
+    print("\nPART 3ds — the board is a claim (build ni)")
+    import mathcheck as MC
+    import tutor as TT
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    # ① the board checker, both directions
+    bad = 'Look: [[step eq="3/4 - 1/2 = 2/4 - 1/2 = 1/4"]] done.'
+    v, d = MC.verify_reply(bad)
+    check("⭐ the night-watch board lie is caught, with a correction",
+          v == "wrong" and "2/4 - 1/2" in d and "0" in d,
+          f"got {v}: a false chain drawn on the board must never reach a child")
+    check("  ...and the corrected chain passes",
+          MC.verify_reply('Look: [[step eq="3/4 - 1/2 = 3/4 - 2/4 = 1/4"]] done.')[0] == "ok",
+          "the fix the finding prescribed is being rejected")
+    for frag, why in (('[[step eq="2x + 3 = 11"]]', "a problem with x is not a claim"),
+                      ('[[step eq="90 + 35 + ? = 180"]]', "pending questions are rule 15's"),
+                      ('[[step eq="f(x) = x^2 - 2"]]', "a function rule is a definition"),
+                      ('find the error! [[step eq="2 + 2 = 5"]]', "rule 56's game is exempt")):
+        check(f"  silent: {why}", MC.verify_reply(frag)[0] == "none", frag)
+    check("  side-by-side board columns are separate chains",
+          MC.check_board_equations('[[write text="0.07  =  7/100          0.7  =  7/10"]]') == ([], 2),
+          "the sweep's own catch: wide spacing is a column break, not a chain link")
+    check("  a wrong ALL-CONSTANT chain with the tight dot is caught",
+          MC.verify_reply('[[step eq="2·4 + 3 = 12"]]')[0] == "wrong",
+          "the dot must normalize on the board path")
+
+    # ⭐ the standing sweep
+    import foundations as FND
+    fa = 0; judged = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = scripts.values() if isinstance(scripts, dict) else scripts
+        for sc in items:
+            text = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            w, c = MC.check_board_equations(text)
+            fa += len(w); judged += c
+    dsrc = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    for t in re.findall(r"\[\[(?:step|write|solve)[^\]]*\]\]", dsrc):
+        w, c = MC.check_board_equations(t)
+        fa += len(w); judged += c
+    check(f"⭐ zero false alarms across the canon ({judged} chains judged)",
+          fa == 0 and judged >= 15,
+          f"{fa} authored lines rejected -- the checker got aggressive, and every "
+          f"false alarm is a paid retry in production")
+
+    # ② the notation referee's new reach
+    for want, label, reply in (
+            (True,  "÷ unread fires", 'Try. [[step eq="8 ÷ 2 = ?"]] Go!'),
+            (False, "÷ read is silent", 'Eight divided by two. [[step eq="8 ÷ 2 = ?"]] Go!'),
+            (True,  "the night-watch CARD fires (items read at last)",
+             'Here. [[card title="The three forms" items="a·(x − r₁)·(x − r₂)"]] Pick!'),
+            (False, "separator dots stay silent (iz, second verse)",
+             'Progress! [[card title="Fractions" items="mastered · 94% · Oct 10"]] Nice!'),
+            (True,  "subscripts fire", 'Roots. [[write text="x₁ + x₂ = 7"]] Try!'),
+            (False, "subscripts read stay silent",
+             'We say x one and x two. [[write text="x₁ + x₂ = 7"]] Try!')):
+        got = bool(TT.notation_intro_conflict(reply, heard=""))
+        check(f"  {label}", got == want,
+              "the night watch caught exactly this shape shipping")
+
+    # ③ the prompt clauses exist, verbatim anchors
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    for needle, rule in (("NOTHING IS TAUGHT BETWEEN THE TWO QUALIFYING ANSWERS", "47(h)"),
+                         ("A NO-HINTS QUIZ MEANS NO TEACHING UNTIL IT ENDS", "47(i)"),
+                         ("NEVER PROMISE A QUIZ YOU ALREADY KNOW YOU MUST REFUSE", "47(j)"),
+                         ("A BARE NUMBER EARNS NO METHOD CLAIM", "59(e)"),
+                         ("division is when you split a group into equal smaller groups", "61(c)"),
+                         ("sometimes as a crossing and sometimes as a touch", "61(c)")):
+        check(f"  rule {rule} carries its night-watch clause", needle in psrc,
+              f"'{needle[:44]}...' left the prompt -- the quiz-eighty cluster returns")
+
+    # ④ the reviewer's list carries rule 42
+    nsrc = open(os.path.join(here, "nightwatch.py"), encoding="utf-8").read()
+    check("  nightwatch's reviewer now holds rule 42",
+          "rule 42" in nsrc and "NOBODY but themselves" in nsrc,
+          "two findings were refuted for this exact omission on 2026-08-25")
+
+
 def part3dr_the_demo_practices_too():
     """PART 3dr (build nf) -- THE DEMO NOW SHOWS THE PRACTICE HALF OF THE PRODUCT.
 
@@ -10344,7 +10449,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,444</b>" in page,
+          "<b>6,466</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -18692,6 +18797,7 @@ def main():
     part3dp_no_button_under_a_talking_teacher()
     part3dq_the_methodology_page_keeps_its_receipts()
     part3dr_the_demo_practices_too()
+    part3ds_the_board_is_a_claim()
     part3ai_deploy_stamp()
     if live:
         part4_live()
