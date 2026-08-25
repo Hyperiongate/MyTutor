@@ -10,6 +10,14 @@
 #               Template reworded (area decomposition keeps its pieces), explicit
 #               vocabulary rule added (geometry-local: no shared-ceiling cost),
 #               and referee 41 enforces the degree-measured shape.
+#   2026-08-25  BUILD nn -- RULE 39(e): A SMALL ANSWER SPACE SHIPS ITS BUTTONS,
+#               EVERY COURSE. Jim's UI review items 2+3: yes/no/confused as taps,
+#               and finite-answer questions ("supplementary or complementary?") as
+#               bubbles. The client has been universal since 2026-08-03 (board.js
+#               showChoices + the auto "I'm not sure" button); only the two
+#               youngest courses' prompts ever ASKED for choices. Quizzes exempt --
+#               mastery is never a one-in-three guess. Referee 42 enforces the
+#               either-or shape.
 #   2026-08-25  BUILD nk -- NO LAYOUT WORDS FOR THE BOARD. Jim's live catch: "those
 #               three points up there" while the points sat BELOW his words. The
 #               board-usage block now bans pointing by screen direction outright;
@@ -4450,6 +4458,15 @@ ground is laid, and guidance fades as the student gains expertise, never before.
             "Does that click, or should I show it a different way?"
             "Are you good to try one, or want to watch me do one more first?"
             "Is that clear, or is there a part you'd like me to slow down on?"
+    (e) A SMALL ANSWER SPACE SHIPS ITS BUTTONS -- EVERY COURSE. When your question
+        has three or fewer honest answers, put them on the board as taps in the SAME
+        reply: a yes/no check-in ships [[choices options="Yes | No"]] (the app adds
+        its own "I'm not sure" button -- never add your own); an either/or
+        classification ships the two names -- "supplementary or complementary?"
+        ships [[choices options="Supplementary | Complementary"]]. Tapping is the
+        fast lane, never the only lane: the tap arrives as ordinary text, and saying
+        or typing the answer stays equally welcome. ⚠️ EXCEPT DURING A QUIZ: mastery
+        is never a one-in-three guess, so quiz questions keep their free answers.
         Better still, ask for CONTENT, which cannot be faked with a yes:
             "Say it back to me in your own words -- what does the denominator tell us?"
             "What's the first thing we'd do here?"

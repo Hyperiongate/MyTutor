@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nn-buttons-for-small-answers". BUILD nn --
+#               JIM'S UI ITEMS 2+3 IN ONE BUILD. Yes/no check-ins and either-or
+#               questions now ship [[choices]] taps in EVERY course (rule 39e); the
+#               client has rendered them universally since 2026-08-03 -- only the
+#               elementary prompts ever asked. The app's auto "I'm not sure" button
+#               IS Jim's third button. Quizzes exempt: mastery is never a
+#               one-in-three guess. Referee 42 holds the either-or shape; rule
+#               39(d)'s required check-in wording is deliberately unmatched. Voice
+#               and typing stay equally welcome -- taps are the fast lane, never
+#               the only lane. Methodology count 41 -> 42. THIS FILE: stamp only.
 #   2026-08-25  APP_BUILD -> "2026-08-25nm-ten-doors-not-a-wall". BUILD nm -- THE
 #               DRILL PICKER, REBUILT FROM JIM'S UI REVIEW (item 1 of 4). One card
 #               per course, tap to open its units, one open at a time, the arrival
@@ -11704,7 +11714,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nm-ten-doors-not-a-wall"
+APP_BUILD = "2026-08-25nn-buttons-for-small-answers"
 
 
 @app.get("/health")

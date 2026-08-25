@@ -2,6 +2,8 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nn -- PART 3dx: rule 39(e) + referee 42 (small answer spaces
+#               ship buttons), with the 39(d) required-wording exclusion pinned.
 #   2026-08-25  BUILD nm -- PART 3dw: the drill picker becomes a per-course
 #               accordion and every complaint lands under the tapped button.
 #               Validated first by a six-assertion headless drive with a stubbed
@@ -10108,6 +10110,70 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dx_small_answer_spaces_ship_buttons():
+    """PART 3dx (build nn) -- RULE 39(e) + REFEREE 42: TAPS FOR SMALL ANSWER SPACES.
+
+    Jim's UI review, items 2+3: "maybe we should always have a button that says
+    yes, no, I'm confused" and "is this supplementary or complementary -- much
+    easier if those popped up as bubbles." The CLIENT has been ready since
+    2026-08-03 (board.js showChoices on every page, auto "I'm not sure" button);
+    only the elementary prompts ever asked for choices. Rule 39(e) asks in every
+    course now, quizzes exempt (mastery is never a one-in-three guess), and the
+    referee holds the either-or shape. ⚠️ Rule 39(d)'s REQUIRED check-in wording
+    ("...or should I show it a different way?") must never fire it -- the
+    alternatives there are whole clauses, and the pattern demands short names."""
+    print("\nPART 3dx — a small answer space ships its buttons (build nn)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ 'supplementary or complementary?' without buttons fires",
+         "Look at the pair on the board. Is this pair supplementary or complementary?"),
+        (False, "  ...and with its buttons, passes",
+         'Is this pair supplementary or complementary? '
+         '[[choices options="Supplementary | Complementary"]]'),
+        (True,  "  'yes or no' without buttons fires",
+         "Yes or no — does a square have four equal sides?"),
+        (False, "  rule 39(d)'s required check-in wording never fires",
+         "Does that click, or should I show it a different way?"),
+        (False, "  the ready-check never fires",
+         "Are you good to try one, or want to watch me do one more first?"),
+        (False, "  a numbered quiz question keeps its free answer",
+         "Question 3: is the angle acute or obtuse? Write your answer."),
+        (False, "  a [[quiz]] moment is exempt",
+         'Is it acute or obtuse? [[quiz n="5"]]'),
+        (False, "  an open question fires nothing",
+         "What should we do to both sides of the equation?")):
+        check(label, bool(TT.finite_answer_conflict(reply)) == want,
+              "the buttons are the fast lane Jim asked for" if want
+              else "the referee rejects legitimate teaching or REQUIRED wording")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            if TT.finite_answer_conflict((_sc.get("say") or "") + "\n"
+                                         + "\n".join(_sc.get("board") or [])):
+                fires += 1
+    check("⭐ zero fires across the canon", fires == 0,
+          f"{fires} scripts rejected -- foundation says ride live replies verbatim, "
+          f"and a retry would mangle them")
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 42 rides the sweep",
+          "finite_answer_conflict(reply)" in tsrc and '"finiteanswer"' in tsrc,
+          "a referee that exists but is never called protects nobody")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("rule 39(e) is in the shared block, every course",
+          "A SMALL ANSWER SPACE SHIPS ITS BUTTONS" in psrc,
+          "the client was universal for two years while only two courses asked")
+    check("  ...and quizzes are exempt IN THE RULE'S OWN TEXT",
+          "EXCEPT DURING A QUIZ" in psrc and "one-in-three guess" in psrc,
+          "a multiple-choice mastery quiz is a different assessment")
+    check("  ...and the tutor never doubles the app's own not-sure button",
+          "never add your own" in psrc,
+          "two 'I'm not sure' buttons is how the row stops being fast")
+
+
 def part3dw_ten_doors_not_a_wall():
     """PART 3dw (build nm) -- THE DRILL PICKER: TEN DOORS, ANSWERS AT THE FINGER.
 
@@ -10711,7 +10777,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,507</b>" in page,
+          "<b>6,520</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19064,6 +19130,7 @@ def main():
     part3du_no_up_there()
     part3dv_an_angle_is_called_an_angle()
     part3dw_ten_doors_not_a_wall()
+    part3dx_small_answer_spaces_ship_buttons()
     part3ai_deploy_stamp()
     if live:
         part4_live()
