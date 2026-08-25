@@ -4,6 +4,30 @@
   methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-25  JIM REVIEWED THE PAGE, AND THIS IS HIS EDIT (build nd). "Under
+    methodology, it looks pretty good" -- then three asks, all shipped here:
+    ① SAY WHAT HAPPENS, PLAINLY. New section 1, "What actually happens in a lesson":
+    an AI talks with the student and teaches before it asks; more help comes when the
+    student is stuck; every problem's answer is computed by a math engine; every claim
+    in a reply is re-computed; 37 checks read every reply; A SECOND, INDEPENDENT AI
+    reviews what the first wrote. Then the feedback block: spoken, on the board, on
+    the site, to parents and teachers -- "when you're learning, feedback is important"
+    -- and all of it positively structured (compared to nobody but themselves).
+    ② ⚠️ THE WORD "SCRIPTED" IS RETIRED from the visible page. Jim: "it sounds like
+    everybody else, where a lot of this is scripted, a lot of it is not." The honest
+    replacement is the BLEND, said outright: "the curriculum is not improvised, and
+    the conversation is not canned." Tile renamed to "hand-built lessons". Do not
+    reintroduce the word in visible copy; PART 3dq now fails the build if it returns
+    (comments like this one are exempt -- the pin reads code_only).
+    ③ The 90% tile is gone ("not important to say"), replaced by "37 checks on every
+    single reply" -- and the Mastery-means-ninety rule card went with it. The 90%
+    STANDARD ITSELF IS UNCHANGED in the product; it is only no longer a headline here.
+    Sections renumbered 1-4; header now says four questions.
+    ⚠️ EVERY CLAIM IN THE NEW SECTION WAS CHECKED AGAINST THE RULES BEFORE SHIPPING:
+    "never the same question the same way twice" is rule 22 (ENFORCED), the math
+    engine is mathcheck/SymPy (rules 10+13, ENFORCED), the 37 is the referee count,
+    the second AI is the live critic (every accepted draft), practice-never-hurts-
+    mastery is build mt, the honest tally is rule 45.
   - 2026-08-25  THE MIDDLE GETS ITS RECEIPTS (build nc). Jim, in the deep dive: "I want
     people to know that we've done all the research... I understand a couple of our middle
     classes maybe don't have that much research done on them." He was right: this page cited
@@ -186,17 +210,17 @@
 <header class="page wrap">
   <span class="eyebrow">How we teach</span>
   <h1>What this is <span class="grad-text">built on</span></h1>
-  <p class="sub">Three questions, answered plainly: where our sequence comes from, what rules
-    our tutor is held to, and what we have <em>not</em> proven yet.</p>
+  <p class="sub">Four questions, answered plainly: what actually happens in a lesson, where our
+    sequence comes from, what rules our tutor is held to, and what we have <em>not</em> proven yet.</p>
 </header>
 
 <section class="wrap">
   <div class="numbers">
-    <div class="num"><b>336</b><span>scripted lessons</span></div>
+    <div class="num"><b>336</b><span>hand-built lessons</span></div>
     <div class="num"><b>10</b><span>full courses</span></div>
     <div class="num"><b>25,376</b><span>practice problems</span></div>
-    <div class="num"><b>6,416</b><span>automated checks per release</span></div>
-    <div class="num"><b>90%</b><span>to master a unit</span></div>
+    <div class="num"><b>37</b><span>checks on every single reply</span></div>
+    <div class="num"><b>6,420</b><span>automated checks per release</span></div>
   </div>
   <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
     machine-counted from the app itself, by the same test run that has to pass before anything
@@ -205,7 +229,60 @@
 
 <section class="wrap">
   <div class="card">
-    <h2>1. What we teach, and where the order comes from</h2>
+    <h2>1. What actually happens in a lesson</h2>
+    <p class="sub" style="margin:8px 0 22px 0">No mystery, no hand-waving. Here is the whole thing,
+      plainly.</p>
+
+    <div class="src">
+      <div class="ic">🗣️</div>
+      <div>
+        <h3>An AI teacher talks with your student — really talks</h3>
+        <p>Mr. Cadabra speaks out loud, draws each step on the whiteboard as he says it, and your
+          student answers him — out loud, or by tapping, or by typing. He teaches the idea first,
+          working a problem all the way through, and then hands one over. If the student is stuck,
+          he gives more help: a hint before a smaller step, a smaller step before the answer, and
+          never the same question the same way twice. Every lesson follows a plan we wrote and
+          tested by hand — what to teach, in what order, with which problems — and the AI walks
+          your student through that plan, listening and adapting as it goes. That blend is
+          deliberate: the curriculum is not improvised, and the conversation is not canned.</p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">🔬</div>
+      <div>
+        <h3>The AI is powerful — so we built machinery to keep it accurate</h3>
+        <p>Artificial intelligence is what makes a real conversation possible, and we use it
+          proudly. We also do not simply trust it. Every practice problem's answer is computed by a
+          math engine, never typed in by a person. When the tutor speaks, every mathematical claim
+          in the reply is re-computed by that same engine to confirm it is literally true, and
+          <strong>37 separate automated checks</strong> read the reply before your student sees
+          it — a reply that fails one is rejected and rewritten, not shipped. Then a
+          <strong>second, independent AI</strong> reviews what the first one wrote. Two AIs and a
+          math engine, checking each other, on every single reply.</p>
+      </div>
+    </div>
+
+    <div class="src">
+      <div class="ic">💬</div>
+      <div>
+        <h3>Feedback everywhere — all of it built to encourage</h3>
+        <p>Learning runs on feedback, so it comes from every direction: spoken in the moment, in a
+          warm voice that says what was right before what to fix; written on the board, where the
+          running tally is honest arithmetic, never judgment; and on the site, where progress,
+          practice, and streaks each earn their own recognition. Parents see it too — a plain-English
+          dashboard of what their child has mastered and where to help next — and teachers get the
+          same for a whole class. All of it is positively structured: your child is compared to
+          nobody but themselves, effort is praised on its own terms, and practice can never hurt a
+          mastery record — it can only show how hard they worked.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="card">
+    <h2>2. What we teach, and where the order comes from</h2>
     <p class="sub" style="margin:8px 0 22px 0">A curriculum is a sequence before it is anything
       else. Get the order wrong and a child meets an idea before the one it stands on.</p>
 
@@ -317,7 +394,7 @@
 
 <section class="wrap">
   <div class="card">
-    <h2>2. How we teach — and the rules we hold ourselves to</h2>
+    <h2>3. How we teach — and the rules we hold ourselves to</h2>
     <p class="sub" style="margin:8px 0 22px 0">Our tutor works from <strong>65 written teaching
       rules</strong>. Thirty-three of them are not merely written down — they are enforced by code,
       and <strong>37 separate checks read every reply before a child ever sees it.</strong> A reply
@@ -378,18 +455,12 @@
           counted so a child can show somebody how hard they worked.</span></p>
     </div>
 
-    <div class="rule">
-      <h3>Mastery means ninety percent</h3>
-      <p>A unit is mastered at 90% on a ten-question unit quiz — not eighty, and not five questions.
-        <span class="why">Ten questions is deliberate: on a five-question quiz there is no honest
-          way to score ninety.</span></p>
-    </div>
   </div>
 </section>
 
 <section class="wrap">
   <div class="plain">
-    <h2>3. What we have not proven</h2>
+    <h2>4. What we have not proven</h2>
     <p><strong>There is no efficacy study of this product.</strong> We have not run a trial, we do
       not have outcome data across a population of children, and we are not going to point at
       somebody else's research and let you assume it was about us. This app has not yet been in

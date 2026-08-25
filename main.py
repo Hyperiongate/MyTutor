@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nd-what-actually-happens". BUILD nd -- JIM
+#               REVIEWED /methodology AND THIS IS HIS EDIT. New section 1 tells the
+#               whole story plainly: an AI teaches and talks WITH the student, more
+#               help when stuck, a math engine re-computes every claim, 37 checks
+#               read every reply, and a second independent AI reviews the first --
+#               "two AIs and a math engine, checking each other." Plus the feedback
+#               section: spoken / board / site / parents / teachers, all positively
+#               structured. The word "scripted" is RETIRED from visible copy at
+#               Jim's direction (the blend is stated instead: "the curriculum is not
+#               improvised, and the conversation is not canned"); the 90% tile and
+#               rule card are gone from this page (the standard itself unchanged).
+#               ONLY static/methodology.html + ruletests.py change; this is the
+#               stamp. PART 3dq grew four (nd) pins holding Jim's review decisions.
 #   2026-08-25  APP_BUILD -> "2026-08-25nc-the-receipts". BUILD nc -- THE MIDDLE
 #               COURSES GET THEIR RECEIPTS. The deep dive found /methodology cited
 #               real sources for the elementary courses and for Calc/DiffEq, while
@@ -11583,7 +11596,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nc-the-receipts"
+APP_BUILD = "2026-08-25nd-what-actually-happens"
 
 
 @app.get("/health")

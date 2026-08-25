@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nd -- PART 3dq GROWS JIM'S REVIEW PINS. He approved the page
+#               with three edits (the AI story plainly, the feedback story, retire
+#               the word "scripted", drop the 90% tile) and each is now a pin, so a
+#               future copy pass cannot quietly re-introduce what he removed. The
+#               scripted pin reads code_only + whitespace-normalized text -- change
+#               notes may still say the word; the page may not.
 #   2026-08-25  BUILD nc -- PART 3dq: THE METHODOLOGY PAGE KEEPS ITS RECEIPTS. The
 #               page now quotes teaching-rule names next to the research they came
 #               from; this part fails the build if a quoted rule stops existing
@@ -10099,6 +10105,28 @@ def part3dq_the_methodology_page_keeps_its_receipts():
     check("  ...and 'two ways, one board' is still a real rule",
           "TWO WAYS, ONE BOARD" in rules, "rule 58 renamed or gone")
 
+    # (nd) Jim's review notes, pinned so a future rewrite cannot quietly undo them.
+    # He approved the page and asked for three things: the AI story told plainly, the
+    # feedback story, and the word "scripted" gone -- "it sounds like everybody else,
+    # where a lot of this is scripted, a lot of it is not."
+    visible = re.sub(r"\s+", " ", code_only(
+        open(os.path.join(here, "static", "methodology.html"), encoding="utf-8").read()))
+    check("(nd) the word 'scripted' is gone from the visible page",
+          "scripted" not in visible.lower(),
+          "Jim, 2026-08-25: retire the word -- say the blend instead (a hand-built "
+          "plan, a live AI conversation)")
+    check("(nd) the lesson section tells the AI story plainly",
+          "second, independent AI" in visible and "math engine" in visible
+          and "What actually happens in a lesson" in visible,
+          "two AIs and a math engine checking each other is the accuracy story Jim "
+          "asked to have on this page")
+    check("(nd) the feedback story is on the page, positively structured",
+          "Feedback everywhere" in visible and "compared to nobody but themselves" in visible,
+          "spoken, on the board, on the site, to parents and teachers -- and all of "
+          "it built to encourage")
+    check("(nd) the 90% tile is gone from the numbers strip",
+          "to master a unit</span>" not in visible,
+          "Jim: not important to say on this page")
     check("⭐ the 'What we have not proven' confession is intact",
           "There is no efficacy study of this product" in page
           and "we are not going to point at" in page,
@@ -10108,7 +10136,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,416</b>" in page,
+          "<b>6,420</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
