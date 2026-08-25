@@ -2,6 +2,25 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nj-the-ones-that-got-away". BUILD nj -- THE
+#               TWO REFEREES THAT EACH MISSED ONE, CLOSED. ① rule 16: "what would
+#               f(4) be?" over a board showing only the worked f(3) -- the existing
+#               referee needs a plug/substitute/check phrase, and a function ask
+#               wears none. function_ask_rewrite_conflict (the 38th referee) demands
+#               f(N) itself or the rule f(x)= on THIS reply's board. ② rule 44: a
+#               NEW function DEFINITION written and questioned but never read --
+#               the existing referee examines only board values carrying "?", and a
+#               definition carries none. func_rule_spoken_conflict (the 39th),
+#               heard-gated like the notation referee. ③ rule 15's column shape is
+#               prompt-tier (a referee would have to guess which questions need a
+#               written computation): COLUMN ARITHMETIC TOO clause added. The
+#               canonical sweep caught ONE authored gap on the way in -- algebra1's
+#               domain script wrote f(x)=1/x and never read it; fixed at source
+#               (⚠️ one foundation clip re-renders on the next audio pass, pennies).
+#               Methodology page: 37 -> 39 checks, three places. RULES.md
+#               regenerated. THIS FILE: stamp only. STILL OPEN: prosecheck's 28
+#               pass-throughs need the production "Referee fires by name" panel --
+#               that is data only Jim's deploy can produce.
 #   2026-08-25  APP_BUILD -> "2026-08-25ni-the-board-is-a-claim". BUILD ni -- THE
 #               NIGHT WATCH'S 17 FINDINGS, THE MACHINE-FIXABLE HALF. ① mathcheck now
 #               re-computes every ALL-CONSTANT equality chain drawn on the board (the
@@ -11657,7 +11676,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25ni-the-board-is-a-claim"
+APP_BUILD = "2026-08-25nj-the-ones-that-got-away"
 
 
 @app.get("/health")

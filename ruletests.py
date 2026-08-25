@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nj -- PART 3dt: REFEREES 38-39 PINNED, both directions plus
+#               the standing canonical sweep and a \x08 tripwire (a backspace-eaten
+#               \b parses fine and matches nothing -- the worst combination). The
+#               domain-script pin reads the LOADED script, not the source: the
+#               phrase spans a string-concat boundary, and that is the SIXTH pin
+#               that would have failed on spelling rather than behaviour.
 #   2026-08-25  BUILD ni -- PART 3ds: THE BOARD IS A CLAIM. The night watch's
 #               machine-fixable findings pinned: the board-equation checker (both
 #               directions + the STANDING 306-script sweep, in-battery, zero false
@@ -4047,7 +4053,7 @@ RULE_VERIFY = {
     13: ("ENFORCED",  "mathcheck re-computes the claim with SymPy"),
     14: ("ENFORCED",  "define every notation on first use (build ih, the 30th "
                       "referee): notation_intro_conflict rejects a reply whose BOARD "
-                      "tags carry a symbol new to this conversation (√, π, ^, |x|, "
+                      "tags carry a symbol new to this conversation (√, π, ^, |x|, ÷, ·, subscripts, "
                       "f(x)) while the prose never reads it aloud; silent without "
                       "heard. Rule 48 (also ENFORCED) owns the course-content tier. "
                       "PART 3by"),
@@ -10094,6 +10100,113 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dt_the_referees_that_each_missed_one():
+    """PART 3dt (build nj) -- RULES 16 AND 44 GET THE SHAPES THEY MISSED.
+
+    The 2026-08-25 night watch caught both referees letting one through:
+    ① RULE 16: "what would f(4) be?" shipped over a board showing only the worked
+      f(3). substitution_rewrite_conflict needs a plug/substitute/check PHRASE; a
+      function-notation ask wears none of those words. function_ask_rewrite_conflict
+      owns that shape now: the ask must find f(N) itself or the rule f(x)= on THIS
+      reply's board -- a worked f(3) is neither, a different input is a different
+      problem.
+    ② RULE 44: [[write text="f(x) = (x^2-1)/(x-1)"]] shipped unspoken because
+      prose_unspoken_problem_conflict examines only board values carrying "?" --
+      a DEFINITION carries none. func_rule_spoken_conflict owns it: a NEW rule
+      (heard-gated, like the notation referee), questioned, must be read -- name
+      and numbers -- in the prose or inside the tag (the authored style).
+    ③ RULE 15's column shape ("add the hundredths column" with no pending line) is
+      PROMPT-tier: a referee cannot know which questions need a written computation
+      without guessing, and a referee that guesses does harm. The clause is anchored.
+    ⚠️ THE SWEEP RUNS HERE: all 306 canonical scripts through both new referees,
+    zero fires -- and it caught one AUTHORED gap on the way in (algebra1's domain
+    script wrote f(x)=1/x and never read it; fixed at source, one clip re-renders).
+    ⚠️ ALSO A TOOLING LESSON, EXPENSIVE: the first cut of these regexes reached the
+    file with LITERAL BACKSPACE BYTES (\x08) where \b should be -- an escaping
+    layer ate them, ast.parse was happy, and only the failing directional cases
+    caught it. Pin the BEHAVIOUR, run the cases; never trust a pattern you have
+    not seen match."""
+    print("\nPART 3dt — the referees that each missed one (build nj)")
+    import tutor as TT
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    check("no backspace bytes hide in tutor.py's patterns",
+          "\x08" not in open(os.path.join(here, "tutor.py"), encoding="utf-8").read(),
+          "\\b collapsed to a literal backspace once already -- it matches nothing "
+          "and parses fine, the worst combination")
+
+    for want, label, detail in (
+        (True,  "⭐ fnask: the night-watch f(4) shape fires",
+         TT.function_ask_rewrite_conflict('Nice! [[step eq="f(3) = 2·3 + 1 = 7"]] '
+                                          'Want to try one yourself — what would f(4) be?')),
+        (False, "  fnask silent: the rule is on this board",
+         TT.function_ask_rewrite_conflict('Here. [[step eq="f(x) = 2x + 1"]] '
+                                          '[[step eq="f(4) = ?"]] What would f(4) be?')),
+        (False, "  fnask silent: the same f(4) is on the board",
+         TT.function_ask_rewrite_conflict('Look. [[step eq="f(4) = ?"]] What is f of 4?')),
+        (False, "  fnask silent: not a function ask",
+         TT.function_ask_rewrite_conflict('What is seven times eight? [[step eq="7 × 8 = ?"]]')),
+        (True,  "⭐ funcrule: the unread limits function fires",
+         TT.func_rule_spoken_conflict('Now a table. [[write text="f(x) = (x^2 - 1)/(x - 1)"]] '
+                                      'What do you get plugging 0.99 in?', heard="")),
+        (False, "  funcrule silent: the rule is read aloud (the fix itself)",
+         TT.func_rule_spoken_conflict('This reads: f of x equals x squared minus one, all over '
+                                      'x minus one. [[write text="f(x) = (x^2 - 1)/(x - 1)"]] '
+                                      'Plug 0.99 in — what do you get?', heard="")),
+        (True,  "⭐ funcrule: the unread x^2 - 2 rule fires",
+         TT.func_rule_spoken_conflict('New rule: [[step eq="f(x) = x^2 - 2"]] '
+                                      '[[step eq="f(4) = ?"]] What is f of 4?', heard="")),
+        (False, "  funcrule silent: the conversation met this rule before",
+         TT.func_rule_spoken_conflict('Back. [[step eq="f(x) = x^2 - 2"]] What is f of 5?',
+                                      heard='[[step eq="f(x) = x^2 - 2"]] f of x equals '
+                                            'x squared minus two')),
+        (False, "  funcrule silent: no question rides on the rule",
+         TT.func_rule_spoken_conflict('For next time. [[step eq="f(x) = x^2 - 2"]] Bye!', heard="")),
+        (False, "  funcrule silent: no heard supplied (a referee that cannot know)",
+         TT.func_rule_spoken_conflict('New. [[step eq="f(x) = x^2 - 2"]] What is f of 4?',
+                                      heard=None))):
+        check(label, bool(detail) == want,
+              "the night watch caught exactly this shape shipping" if want
+              else "the fix's own prescribed reply is being rejected")
+
+    # the sweep -- standing, in-battery
+    import foundations as FND
+    fires = 0
+    for course, scripts in FND.FOUNDATIONS.items():
+        items = scripts.values() if isinstance(scripts, dict) else scripts
+        for sc in items:
+            reply = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if TT.function_ask_rewrite_conflict(reply): fires += 1
+            if TT.func_rule_spoken_conflict(reply, heard=""): fires += 1
+    check("⭐ zero fires across all canonical scripts (both referees)",
+          fires == 0,
+          f"{fires} authored scripts rejected -- every false alarm is a paid retry")
+
+    # wiring + the prompt clause + the fixed script
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("both referees ride the sweep",
+          'function_ask_rewrite_conflict(reply)' in tsrc
+          and 'func_rule_spoken_conflict(reply, heard)' in tsrc
+          and '"fnask"' in tsrc and '"funcrule"' in tsrc,
+          "a referee that exists but is never called protects nobody")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("rule 15 carries its column-arithmetic clause",
+          "COLUMN ARITHMETIC TOO" in psrc,
+          "the decimal-alignment finding's shape, prompt-tier by design")
+    # behaviour, not spelling: the phrase spans a string-concat boundary in the
+    # SOURCE, so grep the LOADED script -- the thing the child actually hears.
+    dom_say = ""
+    for _c, _scripts in FND.FOUNDATIONS.items():
+        _items = _scripts.values() if isinstance(_scripts, dict) else _scripts
+        for _sc in _items:
+            if _c == "algebra1" and _sc.get("term") == "domain":
+                dom_say = _sc.get("say") or ""
+    check("the domain script reads its own rule now",
+          "f of x equals one over x" in dom_say,
+          "the sweep's authored catch -- fixed at source, not exempted")
+
+
 def part3ds_the_board_is_a_claim():
     """PART 3ds (build ni) -- THE NIGHT WATCH'S HAUL, PINNED.
 
@@ -10449,7 +10562,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,466</b>" in page,
+          "<b>6,481</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -18798,6 +18911,7 @@ def main():
     part3dq_the_methodology_page_keeps_its_receipts()
     part3dr_the_demo_practices_too()
     part3ds_the_board_is_a_claim()
+    part3dt_the_referees_that_each_missed_one()
     part3ai_deploy_stamp()
     if live:
         part4_live()

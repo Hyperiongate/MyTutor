@@ -71,7 +71,7 @@ machine. The right-hand column is how much better we have got at that.
 
 ### 14. DEFINE EVERY NOTATION THE FIRST TIME IT APPEARS
 
-**ENFORCED** — define every notation on first use (build ih, the 30th referee): notation_intro_conflict rejects a reply whose BOARD tags carry a symbol new to this conversation (√, π, ^, |x|, f(x)) while the prose never reads it aloud; silent without heard. Rule 48 (also ENFORCED) owns the course-content tier. PART 3by
+**ENFORCED** — define every notation on first use (build ih, the 30th referee): notation_intro_conflict rejects a reply whose BOARD tags carry a symbol new to this conversation (√, π, ^, |x|, ÷, ·, subscripts, f(x)) while the prose never reads it aloud; silent without heard. Rule 48 (also ENFORCED) owns the course-content tier. PART 3by
 
 ### 15. A QUESTION MUST BE COMPLETE ON SCREEN BEFORE YOU ASK IT
 

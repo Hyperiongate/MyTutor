@@ -2,6 +2,12 @@
 # foundations.py  --  CANONICAL FOUNDATION SCRIPTS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nj -- THE DOMAIN SCRIPT READS ITS RULE. The new func-rule
+#               referee's canonical sweep caught algebra1/domain writing f(x)=1/x
+#               and never reading it -- a real rule-44 gap in authored content, the
+#               same class the night watch flagged live. One sentence added to the
+#               say ("The rule on the board reads: f of x equals one over x...").
+#               ⚠️ ONE CLIP RE-RENDERS on the next course-audio pass (pennies).
 #   2026-08-20  BUILD jn -- THE TAUTOLOGY A CHILD ACTUALLY READ. Jim, from one live
 #               precalc lesson: the screen said "We write f of x, which is read as f of
 #               x." Both halves of a sentence whose whole job is to separate the SYMBOL
@@ -904,7 +910,8 @@ FOUNDATIONS = {
                    '[[card title="the letter is only a name" items="f(x) — the rule called f | g(x) — a second rule, called g | both are read “… of x”"]]']},
         {"term": "domain", "say":
             "The **domain** of a function is the complete collection of inputs it is allowed to take. "
-            "Most of the time every number works, but not always. If the rule divides by x, then x cannot "
+            "Most of the time every number works, but not always. The rule on the board reads: f of x "
+            "equals one over x -- and if the rule divides by x, then x cannot "
             "be zero, because dividing by zero has no answer at all. If the rule takes a square root, "
             "whatever sits under that root cannot be negative. So the domain is not a formality you write "
             "down to be tidy. It is the honest answer to one question. Which numbers can I actually put "

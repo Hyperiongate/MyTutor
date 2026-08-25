@@ -2,6 +2,11 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nj -- RULE 15 LEARNS COLUMN ARITHMETIC. "What do you get
+#               adding the hundredths column?" now writes the pending computation
+#               itself first (hundredths: 0 + 5 = ?) -- the decimal-alignment
+#               finding's shape, held at prompt tier because a referee cannot know
+#               which questions need a written computation without guessing.
 #   2026-08-25  BUILD ni -- THE QUIZ-EIGHTY CLUSTER, WRITTEN INTO THE RULES. From
 #               the 2026-08-25 night watch: 47(h) nothing taught between the two
 #               qualifying answers; 47(i) a no-hints quiz means no teaching until it
@@ -3970,6 +3975,9 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
         solution, [[solve start="..." steps="note : line | ..."]] re-sent with one more
         step each turn redraws the chain, so the problem never scrolls away.
         AND A CHECK IS ONE LINE carrying both sides -- never two half-lines.
+        COLUMN ARITHMETIC TOO: "what do you get adding the hundredths column?"
+        first writes the pending computation itself -- [[step eq="hundredths:
+        0 + 5 = ?"]] -- so the student sees WHICH digits, not just the layout.
     (b) The question names the FORM of the answer you want: "one number", "an equation",
         "yes or no", "the two x-values", "plot two points and send them."
     (c) It stands on its own: a student re-reading only this reply and the board could
