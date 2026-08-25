@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25no-one-keyboard-not-two". BUILD no -- JIM'S
+#               UI ITEM 4, THE LAST OF THE REVIEW. math-keyboard.js reborn as a
+#               SYMBOL STRIP living inside every answer bar (session's one box,
+#               practice/topic's two): 17 math keys (÷ × − ± ² ³ ^ √ π θ ° parens
+#               |x| ≤ ≥ ≠) inserting AT THE CARET of the same input the physical
+#               keyboard types into; pointerdown+preventDefault keeps focus so a
+#               phone's keyboard never closes mid-answer; |x| parks the caret
+#               between the bars; every key's tooltip is its spoken name. ⚠️ NOT
+#               the 2026-07-30 keypad returning: that sheet hid the microphone for
+#               a week -- this file is now PINNED to never touch the mic. ONLY
+#               static/math-keyboard.js + ruletests.py change; this is the stamp.
 #   2026-08-25  APP_BUILD -> "2026-08-25nn-buttons-for-small-answers". BUILD nn --
 #               JIM'S UI ITEMS 2+3 IN ONE BUILD. Yes/no check-ins and either-or
 #               questions now ship [[choices]] taps in EVERY course (rule 39e); the
@@ -11714,7 +11725,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nn-buttons-for-small-answers"
+APP_BUILD = "2026-08-25no-one-keyboard-not-two"
 
 
 @app.get("/health")

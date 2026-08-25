@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD no -- PART 3dy: the symbol strip (one keyboard, not two),
+#               with the never-touch-the-mic history pin. Validated by an eight-
+#               assertion browser drive across the three teaching pages first.
 #   2026-08-25  BUILD nn -- PART 3dx: rule 39(e) + referee 42 (small answer spaces
 #               ship buttons), with the 39(d) required-wording exclusion pinned.
 #   2026-08-25  BUILD nm -- PART 3dw: the drill picker becomes a per-course
@@ -10110,6 +10113,50 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dy_one_keyboard_not_two():
+    """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
+
+    Jim's UI review, item 4: "I want more of a conventional looking keyboard where
+    I can type the letters AND the symbols... not a combination of my computer
+    keyboard and picking symbols out of the thing that pops up." The strip lives
+    INSIDE the answer bar (order:-1, its first row), inserts at the caret of the
+    SAME input the physical keyboard types into, and keeps focus through the tap.
+    ⚠️ HISTORY PIN: the 2026-07-30 keypad sheet force-hid the microphone and
+    silently broke the voice classroom until 2026-08-07 found it. This file must
+    NEVER touch the mic again -- the strip decorates the typing path only.
+    The eight-assertion browser drive (three real pages + mechanics) ran before
+    these pins were written; they are the cheap daily echo."""
+    print("\nPART 3dy — one keyboard, not two (build no)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    k = open(os.path.join(here, "static", "math-keyboard.js"), encoding="utf-8").read()
+    kc = code_only(k)
+    check("the strip exists and lives INSIDE the bar as its first row",
+          "mkstrip" in kc and "order:-1" in kc and "bar.appendChild(strip)" in kc,
+          "a floating popup is the two-keyboard problem coming back")
+    check("⭐ keys insert AT THE CARET of the same input",
+          "selectionStart" in kc and "setSelectionRange" in kc,
+          "append-at-end makes mid-answer corrections impossible")
+    check("  ...and the input keeps focus through the tap",
+          '"pointerdown"' in kc and "ev.preventDefault()" in kc,
+          "a tap that steals focus closes a phone's keyboard mid-answer")
+    check("  the |x| key parks the caret between the bars",
+          '"||", 1' in kc.replace('"||",  1', '"||", 1') or '"||", 1,' in kc
+          or '["|x|", "||", 1' in kc,
+          "absolute value typed around the caret is the whole point of the key")
+    check("  every key carries its spoken name (rule 48's spirit)",
+          '"divided by"' in kc and '"squared"' in kc and '"plus or minus"' in kc,
+          "a symbol button with no name teaches a symbol with no reading")
+    check("  both answer inputs get a strip (chat AND intake)",
+          '["chatInput", "input"]' in kc,
+          "practice and topic have two boxes; one modern, one abandoned is worse")
+    check("⚠️ the mic is never touched by this file again",
+          "talkBtn" not in kc and "typeToggle" not in kc,
+          "the 2026-07-30 keypad hid the microphone and broke voice for a week")
+    check("  the Enter button and wrap layout survived the rewrite",
+          '"Enter ⏎"' in k and "flexWrap" in kc,
+          "the kept behaviours from 2026-08-06/07 are load-bearing")
+
+
 def part3dx_small_answer_spaces_ship_buttons():
     """PART 3dx (build nn) -- RULE 39(e) + REFEREE 42: TAPS FOR SMALL ANSWER SPACES.
 
@@ -10777,7 +10824,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,520</b>" in page,
+          "<b>6,528</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19131,6 +19178,7 @@ def main():
     part3dv_an_angle_is_called_an_angle()
     part3dw_ten_doors_not_a_wall()
     part3dx_small_answer_spaces_ship_buttons()
+    part3dy_one_keyboard_not_two()
     part3ai_deploy_stamp()
     if live:
         part4_live()
