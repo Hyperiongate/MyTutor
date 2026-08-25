@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <!--
+    (nm) 2026-08-25 -- TEN DOORS, NOT A WALL, AND ANSWERS AT THE FINGER. Jim: "it
+    shows all of the different things you can practice on, and it's huge... if I'm in
+    geometry I have to scroll down half a page. What would be great is if each of the
+    ten courses was there, you click on a course and get a drop down. Furthermore,
+    NONE OF THE CLICKS WORKED -- it all said checking."
+    ① THE PICKER IS AN ACCORDION NOW: one card per course (with its ready-lesson
+    count), tap to open its units, one course open at a time, and the course you
+    arrived from (?course= rides the drill links) opens itself.
+    ② THE CLICKS ALWAYS WORKED -- THEY ANSWERED WHERE NOBODY WAS LOOKING. Every
+    message (enter-your-code, server errors) went to gateMsg at the TOP of that
+    half-page wall. Now: a tapped lesson says "starting…" on its own button, and any
+    complaint appears in a .tapnote DIRECTLY UNDER the tapped button (post() grew an
+    onErr callback; the top-of-page fallback stays for callers without one).
+    ③ "(checking…)" became "(counting…)" -- same honesty, less like a stuck spinner.
+    Driven in a real browser: 6 assertions (cards not wall, auto-open, zero-problem
+    lessons stay disabled, no-code note lands under the finger, a coded tap starts,
+    one-course-at-a-time), all green.
     (nb) 2026-08-24 -- THE BUTTON MX THOUGHT IT HAD HIDDEN. Jim: "when Mr. Cadabra is
     introducing Abrabot it still shows the Next button... it's very distracting to have
     him talk and then have this next button show up, because it feels like I'm supposed
@@ -457,39 +474,75 @@
   // A count of null means the server's background warm walk has not measured that
   // lesson yet -- NOT that it has no problems. Saying "checking…" is the honest
   // rendering of an unknown, and a reload a few seconds later shows the real number.
+  // (nm) THE WALL BECOMES TEN DOORS. Jim: "if I'm in geometry, I have to scroll
+  // down half a page... it would be great if each of these courses was there, you
+  // click on a course, and you get a drop down menu." One card per course, tap to
+  // open its units; the course you arrived FROM (?course= in the drill link) opens
+  // itself. ⚠️ AND THE CLICK FEEDBACK MOVED TO THE FINGER: the old picker put every
+  // message at the TOP of a half-page wall ("none of the clicks worked" -- they
+  // worked, and answered where nobody was looking). A tapped lesson now says
+  // "Starting…" on its own button and complains right underneath itself.
   function paintPicker(j) {
     LESSONS = j.lessons || [];
     var pk = $("picker"); pk.innerHTML = "";
-    var lastUnit = null, lastCourse = null;
+    var wantCourse = (qs.get("course") || "").trim();
+    var byCourse = [];   // [{id, title, lessons:[...]}] in server order
     LESSONS.forEach(function (les) {
-      if (les.course !== lastCourse) {
-        lastCourse = les.course; lastUnit = null;
-        var ch = document.createElement("div");
-        ch.textContent = les.course_title || les.course;
-        ch.style.cssText = "font-size:16px;font-weight:850;color:var(--ink);"
-          + "margin:14px 0 0;padding-top:10px;border-top:2px solid var(--line)";
-        pk.appendChild(ch);
+      var last = byCourse[byCourse.length - 1];
+      if (!last || last.id !== les.course) {
+        byCourse.push({ id: les.course, title: les.course_title || les.course,
+                        lessons: [] });
+        last = byCourse[byCourse.length - 1];
       }
-      if (les.unit !== lastUnit) {
-        lastUnit = les.unit;
-        var hdr = document.createElement("div");
-        hdr.textContent = "Unit " + les.unit;
-        hdr.style.cssText = "font-size:12.5px;font-weight:800;color:var(--muted);"
-          + "text-transform:uppercase;letter-spacing:.06em;margin:10px 0 2px";
-        pk.appendChild(hdr);
-      }
-      var b = document.createElement("button");
-      b.className = "opt";
-      b.style.fontSize = "16px"; b.style.textAlign = "left";
-      var label = les.topic;
-      if (les.drill === null && j.available === false) { label += "  (unavailable)"; }
-      else if (les.drill === null) { label += "  (checking…)"; }
-      else if (les.drill === 0) { label += "  (no extra problems)"; b.className += " none"; }
-      else { label += "  (" + les.drill + " extra)"; }
-      b.textContent = label;
-      b.disabled = (les.drill === 0);
-      b.onclick = function () { startDrill(les.id); };
-      pk.appendChild(b);
+      last.lessons.push(les);
+    });
+    byCourse.forEach(function (co) {
+      var ready = co.lessons.filter(function (l) { return l.drill > 0; }).length;
+      var head = document.createElement("button");
+      head.type = "button"; head.className = "opt";
+      head.style.cssText = "font-size:17px;font-weight:850;text-align:left;"
+        + "display:flex;justify-content:space-between;align-items:center";
+      head.innerHTML = "<span>" + co.title + "</span>"
+        + '<span style="font-weight:600;font-size:13px;color:var(--muted)">'
+        + (j.available === false ? "unavailable"
+           : (ready ? ready + " lessons ▸" : "counting… ▸")) + "</span>";
+      var body = document.createElement("div");
+      body.style.cssText = "display:none;flex-direction:column;gap:8px;"
+        + "margin:2px 0 8px 10px;padding-left:10px;border-left:3px solid var(--line)";
+      head.onclick = function () {
+        var open = body.style.display !== "none";
+        // one course open at a time -- the whole point is not scrolling
+        pk.querySelectorAll(".drillbody").forEach(function (d) { d.style.display = "none"; });
+        pk.querySelectorAll(".drillhead .chev").forEach(function (c) { c.textContent = "▸"; });
+        body.style.display = open ? "none" : "flex";
+      };
+      head.className += " drillhead";
+      body.className = "drillbody";
+      var lastUnit = null;
+      co.lessons.forEach(function (les) {
+        if (les.unit !== lastUnit) {
+          lastUnit = les.unit;
+          var hdr = document.createElement("div");
+          hdr.textContent = "Unit " + les.unit;
+          hdr.style.cssText = "font-size:12.5px;font-weight:800;color:var(--muted);"
+            + "text-transform:uppercase;letter-spacing:.06em;margin:8px 0 0";
+          body.appendChild(hdr);
+        }
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "opt";
+        b.style.fontSize = "16px"; b.style.textAlign = "left";
+        var label = les.topic;
+        if (les.drill === null && j.available === false) { label += "  (unavailable)"; }
+        else if (les.drill === null) { label += "  (counting…)"; }
+        else if (les.drill === 0) { label += "  (no extra problems)"; b.className += " none"; }
+        else { label += "  (" + les.drill + " extra)"; }
+        b.textContent = label;
+        b.disabled = (les.drill === 0);
+        b.onclick = function () { startDrill(les.id, b); };
+        body.appendChild(b);
+      });
+      pk.appendChild(head); pk.appendChild(body);
+      if (co.id === wantCourse) { body.style.display = "flex"; }
     });
     // (mm) A server that never loaded drillpool.py has no counts to give and never
     // will. Saying "checking…" forever would be true of the memo and useless to a
@@ -515,10 +568,21 @@
   loadPractice();
 
   // ---------- starting ----------
-  function startDrill(lessonId) {
+  function noteUnder(btn, text) {
+    // (nm) the message lands where the finger is, not at the top of a long page
+    var n = btn.nextElementSibling;
+    if (!n || n.className !== "tapnote") {
+      n = document.createElement("div"); n.className = "tapnote";
+      n.style.cssText = "font-size:13.5px;font-weight:700;color:#b3411f;margin:2px 0 4px";
+      btn.parentNode.insertBefore(n, btn.nextSibling);
+    }
+    n.textContent = text;
+  }
+  function startDrill(lessonId, btn) {
     CODE = ($("code").value || "").trim();
     if (!CODE) {
       $("gateMsg").textContent = "Enter your student code first — it goes in the box at the top.";
+      if (btn) noteUnder(btn, "First type your student code in the box at the top of this page — then tap again.");
       $("code").focus();
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -527,6 +591,12 @@
     // A REAL TAP: the only moment a browser lets us open the audio pipeline early.
     // The browser voice needs the gesture as much as the natural one does.
     try { warmUpAudio(); } catch (e) {}
+    var oldLabel = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = oldLabel + "  — starting…"; }
+    var restore = function (msg) {
+      if (btn) { btn.disabled = false; btn.textContent = oldLabel;
+                 if (msg) noteUnder(btn, msg); }
+    };
     post("/api/drill/start", { code: CODE, lesson: lessonId }, function (j) {
       CURRENT_ID = j.id || lessonId;
       $("gate").classList.add("hide");
@@ -534,7 +604,7 @@
       _lastRight = 0; _justRight = false;      // (mi) a new lesson, a fresh tally
       showScore(j.score, j.struggling);
       ingest(j.steps);
-    });
+    }, restore);
   }
 
   // ---------- voice: DELEGATED to voice.js ----------
@@ -736,7 +806,7 @@
   function ingest(steps) { queue = queue.concat(steps || []); playNext(); }
 
   // ---------- the API calls ----------
-  function post(url, body, onOk) {
+  function post(url, body, onOk, onErr) {
     if (busy) return;
     busy = true;
     var t0 = performance.now();
@@ -747,15 +817,23 @@
         busy = false;
         devline(url.split("/").pop() + " " + Math.round(performance.now() - t0) + "ms");
         if (rj.s !== 200) {
-          $("gateMsg").textContent = (rj.j && rj.j.detail) || "Something went wrong.";
-          $("gate").classList.remove("hide");
-          $("stage").classList.add("hide");
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          var msg = (rj.j && rj.j.detail) || "Something went wrong.";
+          // (nm) tell the caller IN PLACE first -- the top-of-page fallback stays,
+          // but on a long picker it answered where nobody was looking.
+          if (onErr) { onErr(msg); }
+          $("gateMsg").textContent = msg;
+          if (!onErr) {
+            $("gate").classList.remove("hide");
+            $("stage").classList.add("hide");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
           return;
         }
         onOk(rj.j);
       })
-      .catch(function () { busy = false; $("status").textContent = "Connection hiccup — tap again."; });
+      .catch(function () { busy = false;
+        if (onErr) { onErr("Connection hiccup — tap again."); }
+        $("status").textContent = "Connection hiccup — tap again."; });
   }
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });

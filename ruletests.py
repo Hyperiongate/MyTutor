@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nm -- PART 3dw: the drill picker becomes a per-course
+#               accordion and every complaint lands under the tapped button.
+#               Validated first by a six-assertion headless drive with a stubbed
+#               drill API; the pins are the cheap daily echo.
 #   2026-08-25  BUILD nl -- PART 3dv: REFEREE 41 (an angle is called an angle),
 #               course-gated, plus the template fix that removes the root cause.
 #   2026-08-25  BUILD nk -- PART 3du: REFEREE 40 (no layout words for the board),
@@ -10104,6 +10108,42 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dw_ten_doors_not_a_wall():
+    """PART 3dw (build nm) -- THE DRILL PICKER: TEN DOORS, ANSWERS AT THE FINGER.
+
+    Jim: "it's huge... I have to scroll down half a page" and "none of the clicks
+    worked -- it all said checking." The clicks worked; their answers went to the
+    TOP of the wall. The accordion and the under-the-button notes are pinned here;
+    the six-assertion browser drive proved the behaviour before the pins were
+    written."""
+    print("\nPART 3dw — ten doors, not a wall (build nm)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = code_only(open(os.path.join(here, "static", "drill.html"),
+                       encoding="utf-8").read())
+    check("the picker is a course accordion",
+          "drillhead" in d and "drillbody" in d,
+          "the 336-lesson wall is back")
+    check("  ...opening a course closes the others",
+          'querySelectorAll(".drillbody")' in d,
+          "two open courses is half the wall again")
+    check("  ...and the course you came from opens itself",
+          'qs.get("course")' in d and "wantCourse" in d,
+          "a geometry student should land on geometry, open")
+    check("⭐ complaints land UNDER the tapped button",
+          "function noteUnder(btn, text)" in d and "tapnote" in d
+          and "startDrill(les.id, b)" in d,
+          "'none of the clicks worked' -- they answered at the top of the wall")
+    check("  ...and a tapped lesson says starting on ITSELF",
+          "starting…" in d or "starting\u2026" in d,
+          "silence after a tap reads as a dead button")
+    check("  ...and post() can answer in place",
+          "function post(url, body, onOk, onErr)" in d,
+          "the top-of-page fallback stays, but callers can catch errors at the finger")
+    check("  ...and the unknown count reads counting, not checking",
+          "(counting…)" in d and "(checking…)" not in d,
+          "'checking…' read as a stuck spinner to the one person who reported it")
+
+
 def part3dv_an_angle_is_called_an_angle():
     """PART 3dv (build nl) -- REFEREE 41 + THE TEMPLATE THAT MODELLED THE BAD WORD.
 
@@ -10671,7 +10711,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,500</b>" in page,
+          "<b>6,507</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19023,6 +19063,7 @@ def main():
     part3dt_the_referees_that_each_missed_one()
     part3du_no_up_there()
     part3dv_an_angle_is_called_an_angle()
+    part3dw_ten_doors_not_a_wall()
     part3ai_deploy_stamp()
     if live:
         part4_live()

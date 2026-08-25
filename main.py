@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nm-ten-doors-not-a-wall". BUILD nm -- THE
+#               DRILL PICKER, REBUILT FROM JIM'S UI REVIEW (item 1 of 4). One card
+#               per course, tap to open its units, one open at a time, the arrival
+#               course opens itself. And the "dead clicks" diagnosed: they always
+#               worked -- every answer (enter-your-code, errors) went to the TOP of
+#               a half-page wall. Messages now land in a note directly under the
+#               tapped button, and the button itself says "starting…". ONLY
+#               static/drill.html + ruletests.py change; this is the stamp.
+#               STILL QUEUED from the same review: ② yes/no/confused quick buttons,
+#               ③ finite-answer questions as tap bubbles, ④ the one-keyboard answer
+#               layout. ② and ③ are one build (the choices machinery); ④ is its own.
 #   2026-08-25  APP_BUILD -> "2026-08-25nl-an-angle-is-an-angle". BUILD nl -- THE
 #               FORTY-FIRST REFEREE. Jim: the tutor said "piece" for "angle" in the
 #               vocabulary lesson itself. Root cause: the geometry template's own
@@ -11693,7 +11704,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nl-an-angle-is-an-angle"
+APP_BUILD = "2026-08-25nm-ten-doors-not-a-wall"
 
 
 @app.get("/health")
