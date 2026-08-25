@@ -189,6 +189,12 @@
   practice.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-25  BUILD nr. (1) PAUSE IS PRONOUNCED: the ⏸ button was white-on-white
+    and Jim couldn't find it fast ("I should be able to pause it more easily") --
+    now solid amber, Type-button sized, solid green while paused. (2) The
+    keyboard-eats-the-board scroll fix lives in board.js (one copy, all pages):
+    when the answer bar opens and the feed shrinks, the board scrolls ITSELF so
+    the question stays on screen -- the student never scrolls to find it.
     2026-08-18  (build ht, Phase 5) THE TURN CANNOT HANG: 90s fetch abort + warm
                 try-again bubble (see session.html).
     2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: postJSON sends
@@ -510,9 +516,18 @@
     @media (max-width:560px){ .boardsay { font-size:17px; } }
     .youecho { font-size:12px; color:var(--muted); text-align:center; margin:2px 0 6px; }
     .youecho:empty { display:none; }
-    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
-      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
-    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
+    /* build nr (2026-08-25, Jim): "the pause button... a little more pronounced. I
+       don't really like the color... I should be able to pause it more easily."
+       Was white-on-white with a hairline border -- invisible next to the big mic.
+       Now: solid AMBER (the universal pause color), same size class as the Type
+       button; flips to solid GREEN "Resume" while paused so the way back is just
+       as loud. Same block on session, practice, and topic. */
+    .pausebtn { margin-top:8px; width:100%; padding:12px 14px; border-radius:30px; border:2px solid #e8930c;
+      background:#f9a825; color:#fff; font-weight:800; font-size:16px; cursor:pointer;
+      box-shadow:0 3px 10px rgba(244,168,37,.35); }
+    .pausebtn:hover { filter:brightness(1.06); }
+    .pausebtn.on { background:#2e9e5b; border-color:#237a46; color:#fff;
+      box-shadow:0 3px 10px rgba(46,158,91,.35); }
     /* Eraser sweep when the board is cleared for a new turn */
     .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: 20px; }
     .wipe::before { content: ""; position: absolute; inset: 0; background: var(--panel);
@@ -687,9 +702,18 @@
     .quick:not(:disabled):hover { background: #f5f5fc; }
     .quick:disabled { opacity: .4; cursor: default; }
     .quick.newp { color: var(--warm); border-color: #ffd2c4; }
-    .pausebtn { margin-top:8px; width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--line);
-      background:#fff; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; }
-    .pausebtn.on { background:#fff3d6; border-color:#f0c674; color:#8a5a00; }
+    /* build nr (2026-08-25, Jim): "the pause button... a little more pronounced. I
+       don't really like the color... I should be able to pause it more easily."
+       Was white-on-white with a hairline border -- invisible next to the big mic.
+       Now: solid AMBER (the universal pause color), same size class as the Type
+       button; flips to solid GREEN "Resume" while paused so the way back is just
+       as loud. Same block on session, practice, and topic. */
+    .pausebtn { margin-top:8px; width:100%; padding:12px 14px; border-radius:30px; border:2px solid #e8930c;
+      background:#f9a825; color:#fff; font-weight:800; font-size:16px; cursor:pointer;
+      box-shadow:0 3px 10px rgba(244,168,37,.35); }
+    .pausebtn:hover { filter:brightness(1.06); }
+    .pausebtn.on { background:#2e9e5b; border-color:#237a46; color:#fff;
+      box-shadow:0 3px 10px rgba(46,158,91,.35); }
     .link { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
     .composer { display: none; gap: 8px; width: 100%; max-width: 460px; }
     .composer.show { display: flex; }

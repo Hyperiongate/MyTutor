@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nr -- PART 3eb: the board answers for its own size (the
+#               symbol strip ate board room and the QUESTION slid below the fold;
+#               ResizeObserver in board.js re-anchors, shrink-that-no-longer-fits
+#               shows the END of the turn) + the pronounced amber pause button on
+#               all three voice pages. Live drive ran green before these pins.
 #   2026-08-25  BUILD nq -- PART 3ea: the owner's flag. Jim can flag a wrong
 #               sentence from inside a live lesson; owner-only by admin key on BOTH
 #               sides (no key -> no button in board.js, and 401 on all three routes).
@@ -10307,6 +10312,62 @@ def part3ea_the_owners_flag():
               r.returncode == 0 and "FLAG-DRILL-OK" in r.stdout,
               (r.stdout + r.stderr)[-300:])
 
+def part3eb_the_board_answers_for_its_size():
+    """PART 3eb (build nr) -- THE KEYBOARD MUST NEVER HIDE THE QUESTION.
+
+    Jim, live in Pre-Algebra with the build-no symbol strip: "it says what do you
+    get? and I have to scroll down to see it... the keyboard is now taking up
+    space the whiteboard used to extend into... we have to tell it that we have a
+    smaller whiteboard to work with, and WE have to scroll so the student doesn't
+    have to." ROOT CAUSE: #feed is flex-sized, the answer bar opening shrinks it,
+    and scrollFeed() only ran on CONTENT changes -- never on CONTAINER changes.
+    THE FIX (board.js, one copy for every page): a ResizeObserver on the feed.
+    Student scrolled away -> untouched. Turn still fits -> ir's top anchor,
+    recomputed. Feed SHRANK and the turn no longer fits -> show the END, because
+    the question and the answer row live at the end of a turn.
+    ⚠️ HISTORY: build ay's latch -- our own scrolls MUST be marked autoScroll or
+    the listener reads the repair itself as "the student scrolled away".
+    ALSO PINNED: the pronounced pause button ("I should be able to pause it more
+    easily") -- solid amber, Type-button sized, solid green while paused, SAME
+    block on session, practice, and topic. The 11-assertion live drive (real
+    session.html, real shrink, question stays on screen) ran green first."""
+    print("\nPART 3eb — the board answers for its own size (build nr)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    b = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    bc = code_only(b)
+    check("⭐ a ResizeObserver watches the feed",
+          "new ResizeObserver" in bc and "_feedRO.observe(feed)" in bc,
+          "without it the board never learns the keyboard ate its room")
+    check("  ...armed lazily from addBubble (feed is a page global)",
+          "armFeedWatch();" in bc and bc.index("function armFeedWatch") > 0,
+          "arming at parse time would throw -- feed does not exist yet")
+    check("  ...and guarded so pages without the contract stay safe",
+          'typeof ResizeObserver === "undefined"' in bc
+          and 'typeof feed === "undefined"' in bc,
+          "board.js also rides pages that define feed later or not at all")
+    check("⭐ a shrink that no longer fits shows the END of the turn",
+          "natural - turnTop > h" in bc
+          and "feed.scrollTop = feed.scrollHeight - feed.clientHeight" in bc,
+          "the question lives at the end -- anchoring the top hides exactly it")
+    check("  the student who scrolled away is left alone",
+          "if (!stickBottom) return;" in bc.split("function feedResized")[1][:600],
+          "build ay/ir law: a reading child is never yanked")
+    check("  our repair scrolls are marked as our own (build ay's latch)",
+          bc.split("function feedResized")[1][:900].count("autoScroll = true") >= 1,
+          "unmarked, the scroll listener disables following on our own fix")
+    for page, copies in (("session.html", 1), ("practice.html", 2), ("topic.html", 2)):
+        p = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        pc = code_only(p)
+        check(f"{page}: pause is the pronounced amber button ({copies} block(s))",
+              pc.count("background:#f9a825") == copies
+              and "font-weight:800; font-size:16px" in pc.split(".pausebtn")[1],
+              "Jim: 'more pronounced... I should be able to pause it more easily'")
+        check(f"  ...{page} flips solid green while paused, and the old "
+              "white-on-white is gone",
+              pc.count("background:#2e9e5b; border-color:#237a46") == copies
+              and "background:#fff3d6; border-color:#f0c674" not in pc,
+              "the way BACK from paused must be as loud as the way in")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11018,7 +11079,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,554</b>" in page,
+          "<b>6,568</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19379,6 +19440,7 @@ def main():
     part3dy_one_keyboard_not_two()
     part3dz_the_first_week_of_telemetry()
     part3ea_the_owners_flag()
+    part3eb_the_board_answers_for_its_size()
     part3ai_deploy_stamp()
     if live:
         part4_live()

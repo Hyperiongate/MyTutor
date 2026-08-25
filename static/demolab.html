@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  demolab.html  --  DEMO LAYOUT CONCEPT (TEST PAGE ONLY)  --  Hyperion Shift LLC
+  -----------------------------------------------------------------------------
+  CHANGE NOTES (keep newest at top):
+  - 2026-08-25  NEW FILE (test page, per Jim). Jim's brief, in his words: "try and
+    do it where it's less busy... things are small, and then it clicks on it, and
+    it gets big. Click on curriculum, and curriculum pops out... the progress bars
+    at the top, they need to be drop down buttons... we might start the demo with
+    saying this big thing in the middle is my board, because one of the critiques
+    I got was that that comes last -- how come it's all crammed over into the
+    side, and they're not using this big empty white space?"
+    ⚠️ THIS IS A CONCEPT PAGE, NOT THE DEMO. It is linked from NOWHERE, ships no
+    student data, calls no API, and shares no code with demo.html/board.js -- so
+    it can be deployed safely and deleted freely. If Jim approves the ideas here,
+    they get rebuilt properly inside demo.html (and the lesson pages) as their
+    own build, with the battery riding along. Do not wire this page into nav,
+    tests, or the tour.
+    THE THREE IDEAS IT SHOWS:
+      ① THE BOARD LEADS. Mr. Cadabra's first line is about the big white space
+         ("this is my board"), and he writes on it immediately -- the critique
+         answered in the first five seconds.
+      ② SMALL UNTIL TOUCHED. The side rail is a column of small chips
+         (Curriculum, Extra practice, Awards, Records). Tap one and it POPS OUT
+         large from where you tapped, says what it is, and closes away.
+      ③ PROGRESS IS A DROP-DOWN. The bars live behind two small buttons in the
+         top bar ("My progress", "Today") and unfold only when asked.
+    Everything is one self-contained file: CSS + JS inline, characters are emoji,
+    no fetches -- open it anywhere, even from disk.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Demo layout concept — TEST PAGE — Mr. Cadabra's Classroom</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A9%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --ink: #2b2340;
+    --purple: #5b3fa8;
+    --purple-soft: #ece6fb;
+    --gold: #f4a825;
+    --gold-soft: #fdf3dd;
+    --good: #2e9e5b;
+    --paper: #f7f5fb;
+    --line: #e3ddf2;
+    --shadow: 0 10px 30px rgba(43, 35, 64, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--paper); color: var(--ink);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* ---------- top bar: identity left, progress DROP-DOWNS right ---------- */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--line);
+    position: relative; z-index: 40;
+  }
+  .brand { font-weight: 700; font-size: 15px; color: var(--purple); white-space: nowrap; }
+  .brand small { display: block; font-weight: 600; font-size: 10px; color: #b6529d; letter-spacing: .06em; }
+  .spacer { flex: 1; }
+  .ddwrap { position: relative; }
+  .ddbtn {
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: box-shadow .15s, border-color .15s;
+  }
+  .ddbtn:hover { border-color: var(--purple); box-shadow: 0 2px 8px rgba(91,63,168,.15); }
+  .ddbtn .caret { display: inline-block; transition: transform .25s; font-size: 11px; margin-left: 4px; }
+  .ddwrap.open .ddbtn { border-color: var(--purple); background: var(--purple-soft); }
+  .ddwrap.open .caret { transform: rotate(180deg); }
+  .ddpanel {
+    position: absolute; right: 0; top: calc(100% + 8px); width: 300px;
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 14px 16px;
+    opacity: 0; transform: translateY(-8px) scale(.97); pointer-events: none;
+    transition: opacity .22s, transform .22s;
+  }
+  .ddwrap.open .ddpanel { opacity: 1; transform: none; pointer-events: auto; }
+  .ddpanel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #7a6fa0; margin-bottom: 10px; }
+  .prow { margin-bottom: 10px; }
+  .prow label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .prow label b { color: var(--purple); }
+  .track { height: 9px; border-radius: 999px; background: var(--purple-soft); overflow: hidden; }
+  .fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--purple), #8a6fd8); transition: width .9s cubic-bezier(.2,.7,.2,1); }
+  .fill.gold { background: linear-gradient(90deg, var(--gold), #f7c35e); }
+  .ddnote { font-size: 11.5px; color: #7a6fa0; margin-top: 4px; }
+
+  /* ---------- stage: small rail + BIG board ---------- */
+  .stage { flex: 1; display: flex; min-height: 0; position: relative; }
+
+  .rail {
+    width: 86px; padding: 14px 10px; display: flex; flex-direction: column; gap: 10px;
+    align-items: center; background: #fff; border-right: 1px solid var(--line);
+    z-index: 30; transition: opacity .4s;
+  }
+  .chip {
+    width: 66px; border: 1px solid var(--line); background: #fff; border-radius: 14px;
+    padding: 9px 4px 7px; cursor: pointer; text-align: center;
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+  }
+  .chip .ico { font-size: 22px; line-height: 1; display: block; }
+  .chip .lbl { font-size: 9.5px; font-weight: 700; color: #6f639a; display: block; margin-top: 4px; letter-spacing: .02em; }
+  .chip:hover { transform: translateY(-2px) scale(1.06); border-color: var(--purple); box-shadow: 0 4px 12px rgba(91,63,168,.18); }
+  .railhint { font-size: 9px; color: #a79cc9; text-align: center; margin-top: auto; line-height: 1.5; }
+
+  .boardwrap { flex: 1; padding: 18px 22px 20px; display: flex; min-width: 0; }
+  .board {
+    flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+    transition: box-shadow .5s;
+  }
+  .board.star { box-shadow: 0 0 0 4px var(--gold), 0 14px 40px rgba(244,168,37,.35); }
+  .boardpad { position: absolute; inset: 0; padding: 84px 40px 40px; overflow: auto; }
+  .bline {
+    font-family: "Comic Sans MS", "Segoe Print", cursive;
+    font-size: clamp(22px, 3.4vw, 34px); margin-bottom: 14px; white-space: pre-wrap;
+  }
+  .bline.ans { color: var(--good); font-weight: 700; }
+  .chalk-caret { display: inline-block; width: 3px; height: 1em; background: var(--purple); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- Mr. Cadabra + his speech bubble ---------- */
+  .cadabra {
+    position: absolute; left: 22px; top: 16px; display: flex; gap: 12px; align-items: flex-start;
+    max-width: min(560px, 78%); z-index: 20;
+  }
+  .wiz {
+    font-size: 40px; line-height: 1; flex: none;
+    filter: drop-shadow(0 3px 6px rgba(43,35,64,.25));
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
+  .say {
+    background: var(--purple); color: #fff; border-radius: 16px; border-top-left-radius: 4px;
+    padding: 12px 16px; font-size: clamp(14px, 1.6vw, 17px); line-height: 1.45;
+    box-shadow: var(--shadow); opacity: 0; transform: translateY(-10px) scale(.96);
+    transition: opacity .3s, transform .3s;
+  }
+  .say.show { opacity: 1; transform: none; }
+
+  /* ---------- pop-outs: small chip -> BIG card ---------- */
+  .veil {
+    position: absolute; inset: 0; background: rgba(43,35,64,.38); z-index: 50;
+    opacity: 0; pointer-events: none; transition: opacity .28s;
+  }
+  .veil.show { opacity: 1; pointer-events: auto; }
+  .pop {
+    position: absolute; z-index: 60; left: 50%; top: 50%;
+    width: min(620px, 86%); max-height: 78%;
+    background: #fff; border-radius: 22px; box-shadow: 0 24px 70px rgba(43,35,64,.4);
+    padding: 26px 30px 24px; overflow: auto;
+    transform: translate(-50%, -50%) scale(.18); transform-origin: 0 50%;
+    opacity: 0; pointer-events: none;
+    transition: transform .38s cubic-bezier(.22,1.2,.3,1), opacity .3s;
+  }
+  .pop.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+  .pop h2 { font-size: 24px; color: var(--purple); display: flex; align-items: center; gap: 10px; }
+  .pop h2 .big { font-size: 34px; }
+  .pop .what { margin: 10px 0 16px; font-size: 15px; line-height: 1.55; color: #4b4166; }
+  .pop .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .pop .cell { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 600; background: var(--paper); }
+  .pop .cell small { display: block; font-weight: 500; color: #8377a8; font-size: 11px; margin-top: 2px; }
+  .pop .closer {
+    position: absolute; top: 14px; right: 14px; border: 0; background: var(--purple-soft);
+    color: var(--purple); width: 34px; height: 34px; border-radius: 50%; font-size: 16px;
+    font-weight: 700; cursor: pointer;
+  }
+  .pop .closer:hover { background: var(--purple); color: #fff; }
+
+  /* ---------- spotlight dimming during the tour ---------- */
+  .dimmable { transition: opacity .45s, filter .45s; }
+  body.spot-board .rail, body.spot-board header { opacity: .25; filter: saturate(.4); }
+  body.spot-rail .boardwrap, body.spot-rail header { opacity: .3; filter: saturate(.5); }
+  body.spot-top .rail, body.spot-top .boardwrap { opacity: .3; filter: saturate(.5); }
+  .glow-rail .rail { box-shadow: inset -4px 0 0 var(--gold); }
+  .glow-top .ddbtn { border-color: var(--gold) !important; box-shadow: 0 0 0 3px var(--gold-soft), 0 4px 14px rgba(244,168,37,.4) !important; }
+
+  /* ---------- start + replay controls ---------- */
+  .startveil {
+    position: absolute; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center;
+    background: rgba(247,245,251,.9); backdrop-filter: blur(2px); flex-direction: column; gap: 14px;
+    transition: opacity .4s; text-align: center; padding: 20px;
+  }
+  .startveil.gone { opacity: 0; pointer-events: none; }
+  .startveil h1 { font-size: 22px; color: var(--purple); }
+  .startveil p { font-size: 14px; color: #6f639a; max-width: 440px; line-height: 1.5; }
+  .playbtn {
+    border: 0; background: var(--purple); color: #fff; font-size: 17px; font-weight: 700;
+    border-radius: 999px; padding: 14px 34px; cursor: pointer; box-shadow: var(--shadow);
+    transition: transform .15s;
+  }
+  .playbtn:hover { transform: scale(1.05); }
+  .ctl {
+    position: absolute; right: 18px; bottom: 16px; z-index: 70; display: flex; gap: 8px;
+  }
+  .ctl button {
+    border: 1px solid var(--line); background: #fff; border-radius: 999px;
+    padding: 7px 14px; font-size: 12.5px; font-weight: 600; color: var(--purple); cursor: pointer;
+  }
+  .ctl button:hover { border-color: var(--purple); }
+  .testtag {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 6px; z-index: 70;
+    font-size: 10px; letter-spacing: .12em; color: #b3a8d6; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header class="dimmable">
+  <div class="brand">🎩 Mr. Cadabra's Classroom<small>DEMO LAYOUT CONCEPT — TEST PAGE</small></div>
+  <div class="spacer"></div>
+
+  <!-- ② the progress bars live behind small DROP-DOWN buttons now -->
+  <div class="ddwrap" id="ddProg">
+    <button class="ddbtn" type="button" onclick="toggleDD('ddProg')">📊 My progress<span class="caret">▾</span></button>
+    <div class="ddpanel">
+      <h3>Geometry — Unit 3</h3>
+      <div class="prow"><label><span>Angles &amp; lines</span><b>80%</b></label>
+        <div class="track"><div class="fill" data-w="80%"></div></div></div>
+      <div class="prow"><label><span>Triangles</span><b>45%</b></label>
+        <div class="track"><div class="fill" data-w="45%"></div></div></div>
+      <div class="prow"><label><span>Whole course</span><b>32%</b></label>
+        <div class="track"><div class="fill gold" data-w="32%"></div></div></div>
+      <div class="ddnote">Bars stay tucked up here until you ask for them.</div>
+    </div>
+  </div>
+  <div class="ddwrap" id="ddToday">
+    <button class="ddbtn" type="button" onclick="toggleDD('ddToday')">⭐ Today<span class="caret">▾</span></button>
+    <div class="ddpanel">
+      <h3>Today's magic</h3>
+      <div class="prow"><label><span>Minutes of learning</span><b>18</b></label>
+        <div class="track"><div class="fill" data-w="60%"></div></div></div>
+      <div class="prow"><label><span>Problems tried</span><b>7</b></label>
+        <div class="track"><div class="fill gold" data-w="70%"></div></div></div>
+      <div class="ddnote">A quick peek, then it folds away again.</div>
+    </div>
+  </div>
+</header>
+
+<div class="stage">
+  <!-- ① small chips: nothing is big until it is touched -->
+  <nav class="rail dimmable" id="rail">
+    <button class="chip" type="button" onclick="openPop('curriculum', this)">
+      <span class="ico">📚</span><span class="lbl">Curriculum</span></button>
+    <button class="chip" type="button" onclick="openPop('extra', this)">
+      <span class="ico">🤖</span><span class="lbl">Extra practice</span></button>
+    <button class="chip" type="button" onclick="openPop('awards', this)">
+      <span class="ico">🏆</span><span class="lbl">Awards</span></button>
+    <button class="chip" type="button" onclick="openPop('records', this)">
+      <span class="ico">📈</span><span class="lbl">Records</span></button>
+    <div class="railhint">small<br>until you<br>tap it</div>
+  </nav>
+
+  <!-- ③ THE BOARD IS THE STAR, and the demo SAYS so first -->
+  <main class="boardwrap dimmable">
+    <div class="board" id="board">
+      <div class="cadabra">
+        <div class="wiz" id="wiz">🧙‍♂️</div>
+        <div class="say" id="say"></div>
+      </div>
+      <div class="boardpad" id="boardpad"></div>
+    </div>
+  </main>
+
+  <!-- pop-out layer -->
+  <div class="veil" id="veil" onclick="closePop()"></div>
+
+  <div class="pop" id="pop-curriculum">
+    <button class="closer" type="button" onclick="closePop()">✕</button>
+    <h2><span class="big">📚</span> This is the Curriculum</h2>
+    <p class="what">Every course, every unit, every lesson — the whole journey in one place.
+      It stays a tiny button until you want it, then it opens up big like this.</p>
+    <div class="grid">
+      <div class="cell">Entry-Level Math<small>counting → place value</small></div>
+      <div class="cell">Basic Math<small>the four operations</small></div>
+      <div class="cell">Pre-Algebra<small>fractions → negatives</small></div>
+      <div class="cell">Algebra I<small>equations &amp; graphs</small></div>
+      <div class="cell">Geometry<small>angles, shapes, proofs</small></div>
+      <div class="cell">…and 5 more<small>through Calculus &amp; Stats</small></div>
+    </div>
+  </div>
+
+  <div class="pop" id="pop-extra">
+    <button class="closer" type="button" onclick="closePop()">✕</button>
+    <h2><span class="big">🤖</span> This is Extra Practice</h2>
+    <p class="what">Abrabot's practice room — pick any skill and drill it, any time.
+      One small button on the side; a whole practice world when you tap it.</p>
+    <div class="grid">
+      <div class="cell">Times tables<small>with Abrabot</small></div>
+      <div class="cell">Fractions<small>add &amp; compare</small></div>
+      <div class="cell">Angle names<small>acute, right, obtuse</small></div>
+      <div class="cell">Solving for x<small>one-step equations</small></div>
+    </div>
+  </div>
+
+  <div class="pop" id="pop-awards">
+    <button class="closer" type="button" onclick="closePop()">✕</button>
+    <h2><span class="big">🏆</span> These are your Awards</h2>
+    <p class="what">Trophies and medals you have earned — streaks, milestones, mastered units.
+      They live behind one small button so the board stays clear.</p>
+    <div class="grid">
+      <div class="cell">🥇 7-day streak</div>
+      <div class="cell">🎖️ 100 problems</div>
+      <div class="cell">🏅 Unit 2 mastered</div>
+      <div class="cell">✨ First quiz aced</div>
+    </div>
+  </div>
+
+  <div class="pop" id="pop-records">
+    <button class="closer" type="button" onclick="closePop()">✕</button>
+    <h2><span class="big">📈</span> These are your Records</h2>
+    <p class="what">Quizzes taken, problems practiced, minutes learned — the full story,
+      one tap away, out of the way the rest of the time.</p>
+    <div class="grid">
+      <div class="cell">Quizzes<small>9 taken · 8 passed</small></div>
+      <div class="cell">Practice<small>124 problems</small></div>
+      <div class="cell">Time<small>6.2 hours so far</small></div>
+      <div class="cell">Best streak<small>7 days</small></div>
+    </div>
+  </div>
+
+  <!-- start / replay -->
+  <div class="startveil" id="startveil">
+    <h1>A less-busy classroom — concept</h1>
+    <p>The board leads, the side stays small until tapped, and progress hides in
+      drop-downs. Press play and Mr. Cadabra walks you through the idea —
+      or just click anything yourself.</p>
+    <button class="playbtn" type="button" onclick="startTour()">▶ Play the walk-through</button>
+  </div>
+  <div class="ctl">
+    <button type="button" onclick="startTour()">↺ Replay</button>
+    <button type="button" id="skipbtn" onclick="stopTour()" style="display:none">Skip ▸</button>
+  </div>
+  <div class="testtag">test page · not linked from the app · demolab.html</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var timers = [];
+  var touring = false;
+
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  // ---------- drop-downs (② the progress bars fold away) ----------
+  window.toggleDD = function (id) {
+    var el = document.getElementById(id);
+    var was = el.classList.contains("open");
+    closeDDs();
+    if (!was) { el.classList.add("open"); animateBars(el); }
+  };
+  function closeDDs() {
+    document.querySelectorAll(".ddwrap.open").forEach(function (d) { d.classList.remove("open"); });
+  }
+  function animateBars(scope) {
+    scope.querySelectorAll(".fill").forEach(function (f) {
+      f.style.width = "0";
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { f.style.width = f.getAttribute("data-w"); });
+      });
+    });
+  }
+
+  // ---------- pop-outs (① small chip -> big card) ----------
+  var openId = "";
+  window.openPop = function (id, fromChip) {
+    closePop();
+    var pop = document.getElementById("pop-" + id);
+    if (!pop) return;
+    // grow FROM the chip that was tapped, so small->big reads as one motion
+    if (fromChip && fromChip.getBoundingClientRect) {
+      var r = fromChip.getBoundingClientRect();
+      var st = document.querySelector(".stage").getBoundingClientRect();
+      pop.style.transformOrigin =
+        (r.left - st.left + r.width / 2) + "px " + (r.top - st.top + r.height / 2) + "px";
+    }
+    document.getElementById("veil").classList.add("show");
+    pop.classList.add("show");
+    openId = id;
+  };
+  window.closePop = function () {
+    if (!openId) return;
+    var pop = document.getElementById("pop-" + openId);
+    if (pop) pop.classList.remove("show");
+    document.getElementById("veil").classList.remove("show");
+    openId = "";
+  };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePop(); });
+
+  // ---------- the board writes like chalk ----------
+  function boardWrite(text, cls, done) {
+    var pad = document.getElementById("boardpad");
+    var line = document.createElement("div");
+    line.className = "bline" + (cls ? " " + cls : "");
+    var caret = document.createElement("span");
+    caret.className = "chalk-caret";
+    line.appendChild(caret);
+    pad.appendChild(line);
+    var i = 0;
+    function tick() {
+      if (i < text.length) {
+        line.insertBefore(document.createTextNode(text[i]), caret);
+        i++; later(tick, 55);
+      } else { caret.remove(); if (done) later(done, 250); }
+    }
+    tick();
+  }
+  function boardClear() { document.getElementById("boardpad").innerHTML = ""; }
+
+  // ---------- Mr. Cadabra speaks ----------
+  function say(text) {
+    var b = document.getElementById("say");
+    b.classList.remove("show");
+    later(function () { b.textContent = text; b.classList.add("show"); }, 220);
+  }
+  function spot(cls) {
+    document.body.className = cls || "";
+  }
+
+  // ---------- the walk-through (③ the board comes FIRST) ----------
+  window.startTour = function () {
+    stopTour();
+    touring = true;
+    document.getElementById("startveil").classList.add("gone");
+    document.getElementById("skipbtn").style.display = "";
+    boardClear(); closePop(); closeDDs();
+    var t = 300;
+
+    // BEAT 1 — the critique, answered in the first breath: THE BOARD LEADS.
+    later(function () {
+      spot("spot-board");
+      document.getElementById("board").classList.add("star");
+      say("See this big space in the middle? That's MY whiteboard — everything we do together happens right here.");
+    }, t); t += 2600;
+    later(function () { boardWrite("7 × 8 = ?", "", null); }, t); t += 1400;
+    later(function () { say("Watch — I write on it, you answer on it, we work on it. The board is the star of the show."); }, t); t += 2400;
+    later(function () { boardWrite("7 × 8 = 56  ✔", "ans", null); }, t); t += 2200;
+
+    // BEAT 2 — everything else stays SMALL until touched.
+    later(function () {
+      document.getElementById("board").classList.remove("star");
+      spot("spot-rail glow-rail");
+      say("Everything else keeps out of the way. These little buttons stay small until you tap one…");
+    }, t); t += 2800;
+
+    // BEAT 3 — tap Curriculum: small -> BIG.
+    later(function () {
+      spot("");
+      var chip = document.querySelector('.chip[onclick*="curriculum"]');
+      openPop("curriculum", chip);
+    }, t); t += 600;
+    later(function () { say("…and it pops out big. This is the Curriculum — all ten courses live in here."); }, t); t += 3000;
+    later(function () { closePop(); }, t); t += 700;
+
+    // BEAT 4 — tap Extra practice.
+    later(function () {
+      var chip = document.querySelector('.chip[onclick*="extra"]');
+      openPop("extra", chip);
+      say("Same trick everywhere. Extra practice with Abrabot — tap, it grows; close it, the board is back.");
+    }, t); t += 3200;
+    later(function () { closePop(); }, t); t += 700;
+
+    // BEAT 5 — the progress DROP-DOWNS up top.
+    later(function () {
+      spot("spot-top glow-top");
+      say("And your progress bars? They tuck up here, behind one small button…");
+    }, t); t += 2300;
+    later(function () {
+      var dd = document.getElementById("ddProg");
+      dd.classList.add("open"); animateBars(dd);
+    }, t); t += 900;
+    later(function () { say("…drop down when you want a peek, and fold away when you're done."); }, t); t += 2600;
+    later(function () { closeDDs(); }, t); t += 500;
+
+    // BEAT 6 — the point.
+    later(function () {
+      spot("spot-board");
+      document.getElementById("board").classList.add("star");
+      say("Less clutter, more magic: one big board, and everything else one tap away. Now click around and try it yourself!");
+    }, t); t += 2800;
+    later(function () {
+      spot("");
+      document.getElementById("board").classList.remove("star");
+      document.getElementById("skipbtn").style.display = "none";
+      touring = false;
+    }, t);
+  };
+
+  window.stopTour = function () {
+    clearTimers(); touring = false;
+    spot(""); closePop(); closeDDs();
+    document.getElementById("board").classList.remove("star");
+    document.getElementById("skipbtn").style.display = "none";
+    document.getElementById("startveil").classList.add("gone");
+    var b = document.getElementById("say");
+    if (!b.textContent) { b.textContent = "Click anything — the little buttons all grow when tapped."; b.classList.add("show"); }
+  };
+})();
+</script>
+</body>
+</html>
+<!-- I did no harm and this file is not truncated. -->

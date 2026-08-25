@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nr-the-board-answers-for-its-size".
+#               BUILD nr -- Jim, live in Pre-Algebra: the build-no symbol strip
+#               opened and the tutor's "what do you get?" slid below the fold; he
+#               had to scroll. Fix is ALL CLIENT-SIDE (board.js ResizeObserver on
+#               the feed + the pronounced amber pause button on session/practice/
+#               topic) -- nothing in this file changed but this stamp. See
+#               static/board.js's nr note for the mechanism.
 #   2026-08-25  APP_BUILD -> "2026-08-25nq-the-owners-flag". BUILD nq -- THE
 #               OWNER'S FLAG. Jim, in a live geometry lesson, caught "piece" where
 #               "angle" belonged and asked to be able to point at a sentence IN THE
@@ -11812,7 +11819,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nq-the-owners-flag"
+APP_BUILD = "2026-08-25nr-the-board-answers-for-its-size"
 
 
 @app.get("/health")

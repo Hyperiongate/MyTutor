@@ -2,6 +2,27 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-25  BUILD nr -- THE BOARD ANSWERS FOR ITS OWN SIZE. Jim, live in
+                 Pre-Algebra with the new symbol strip: "it says what do you get?
+                 and I have to scroll down to see it... the keyboard is now taking
+                 up space the whiteboard used to extend into, and I don't know that
+                 the app understands the whiteboard is as shallow as it used to
+                 be... we have to scroll so the student doesn't have to."
+                 ROOT CAUSE: #feed is flex:1 under a fixed-height column, so when
+                 the composer (and its math-keyboard strip) appears, the feed
+                 SHRINKS -- but scrollFeed() only ran when CONTENT changed, never
+                 when the CONTAINER did, so the turn's tail (where the question
+                 lives) slid below the fold and stayed there. FIX: a ResizeObserver
+                 on the feed (armed lazily from addBubble -- `feed` is a page
+                 global that does not exist yet when this file parses). On any
+                 size change: student scrolled away -> leave them alone (stickBottom
+                 still rules); the anchored turn still fits -> re-run scrollFeed
+                 (build ir's top anchor, recomputed); the feed SHRANK and the turn
+                 no longer fits -> show the END of the content, because the newest
+                 thing -- the question and the answer buttons -- lives at the end.
+                 Every programmatic scroll is marked autoScroll so build ay's
+                 latch never reads our own fix as the student scrolling away.
+                 One copy here = session, practice, topic, drill, demo all fixed.
      2026-08-25  BUILD nq -- THE OWNER'S FLAG. Jim, live in geometry, caught the
                  tutor saying "piece" for "angle": "It would be great if I could
                  point this out while in the app." Ruling: "I only want it when I'm
@@ -735,6 +756,47 @@ function scrollFeed() {
   });
 }
 
+// build nr (2026-08-25): THE BOARD ANSWERS FOR ITS OWN SIZE. When the typed-answer
+// bar (with its symbol strip) opens, the feed SHRINKS -- and until now nothing
+// noticed, so the tutor's question slid below the fold and the CHILD had to scroll
+// (Jim: "we have to scroll so the student doesn't have to"). A ResizeObserver on
+// the feed re-runs the anchoring on ANY size change: grow, shrink, strip wrapping
+// to a second row, a tablet rotating. Armed lazily from addBubble because `feed`
+// is a page global that does not exist when this file parses.
+let _feedRO = null;
+let _feedH = 0;
+function feedResized() {
+  const h = feed.clientHeight;
+  const shrank = h < _feedH - 1;
+  _feedH = h;
+  if (!h) return;                       // hidden/collapsed layout: nothing to place
+  if (!stickBottom) return;             // the student scrolled away -- their board
+  if (shrank && lastTurnEl && lastTurnEl.isConnected) {
+    const pad = feedPadEl();
+    const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+    const natural = feed.scrollHeight - pad.offsetHeight;      // real content, no blank
+    if (natural - turnTop > h) {
+      // The turn no longer fits in the smaller board. The question and the answer
+      // row live at the END of the turn -- that is what the child needs to see to
+      // type, so show the end. (The next tutor bubble re-anchors to the top as
+      // always; this only repairs the view the keyboard just ate.)
+      pad.style.height = "0px";
+      requestAnimationFrame(() => {
+        autoScroll = true;
+        feed.scrollTop = feed.scrollHeight - feed.clientHeight;
+      });
+      return;
+    }
+  }
+  scrollFeed();                          // fits (or grew): the ir anchor, recomputed
+}
+function armFeedWatch() {
+  if (_feedRO || typeof ResizeObserver === "undefined" || typeof feed === "undefined" || !feed) return;
+  _feedH = feed.clientHeight;
+  _feedRO = new ResizeObserver(() => feedResized());
+  _feedRO.observe(feed);
+}
+
 /* ---- THE OWNER'S FLAG (build nq, 2026-08-25) ----------------------------------
    Owner-only: the button exists only when localStorage holds the admin key this
    device was blessed with on /admin. The key gates BOTH sides -- no key means no
@@ -800,6 +862,7 @@ function addBubble(role, text) {
   // the view to the start of his turn; a student/system bubble pins to the bottom.
   lastTurnEl = (role === "tutor") ? div : null;
   stickBottom = true;
+  armFeedWatch();                               // build nr: the feed reports its own size from now on
   feed.appendChild(div); scrollFeed();
   if (role === "tutor") ownerFlagAttach(div);   // build nq: owner-only, no-op without the key
   return div;
