@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nf-the-demo-practices-too". BUILD nf -- EVERY
+#               LEVEL DEMO NOW INCLUDES ABRABOT'S PRACTICE. Jim: "rewrite the demos so
+#               that they include the practice problems with Abrabot." Flow per level:
+#               teach -> problem -> two practice problems with the robot (his face,
+#               his FREE browser voice, the drill's own personality and kindness, a
+#               Skip door) -> congratulations. THIS FILE: ONE line appended to
+#               DEMO_VOICE_LINES (243 -> 244) -- Mr. Cadabra's handoff, the only
+#               rendered clip; everything Abrabot says is browser-voiced and costs
+#               zero. ⚠️ The append initially LOST A COMMA and Python silently
+#               concatenated two list strings: regex counted 244, ast.literal_eval
+#               said 243. Caught before shipping because the count was verified BY
+#               PARSING, not by pattern -- do the same next time. PART 3dr pins the
+#               whole build, including re-deriving all 20 practice answers in Python
+#               against demo.html's own abraAnswer().
 #   2026-08-25  APP_BUILD -> "2026-08-25ne-on-the-menu". BUILD ne -- "HOW WE TEACH"
 #               JOINS THE TOP NAV. Jim approved the reviewed page: "I like this
 #               methodology page. Let's go ahead and add it to the menu." One
@@ -11604,7 +11618,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25ne-on-the-menu"
+APP_BUILD = "2026-08-25nf-the-demo-practices-too"
 
 
 @app.get("/health")
@@ -13671,7 +13685,8 @@ DEMO_VOICE_LINES = [
     "Now the teacher's side — and here is the right way to think of me: I'm the assistant who does what no teacher has thirty hours a day for, the patient one-on-one practice, while you do the teaching. A teacher opens a class with its class code — this is Room Twelve — and every class they run sits in one place.",
     "This column — needs attention — is me doing your triage: a student who has stalled, or whose scores are sliding, gets flagged before they get lost in the middle of a class. And the students pulling ahead surface too, in my honest read below — because no class learns at one speed, and with an assistant watching every student every day, you never have to teach as if it does.",
     "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
-    "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
+    "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose.",
+    "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!",
 ]
 
 

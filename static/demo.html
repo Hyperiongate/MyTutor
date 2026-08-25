@@ -1,5 +1,30 @@
 <!DOCTYPE html>
 <!--
+    (nf) 2026-08-25 -- THE DEMO PRACTICES TOO. Jim: "rewrite the demos so that they
+    include the practice problems with Abrabot... they'll be up and ready to run."
+    Every level demo now ends the way the real product does: teach -> problem ->
+    ABRABOT PRACTICE (two quick problems) -> congratulations. One hook in next()
+    (s.end && !practiceRan) instead of ten edits inside DEMOS; a fresh level
+    practices again (startScript resets practiceRan).
+    ⭐ THE ANSWERS ARE COMPUTED, NEVER TYPED. ABRA_BANK entries carry OPERANDS between
+    strict-JSON markers; abraAnswer() derives each correct choice, and ruletests
+    PART 3dr re-derives all twenty in Python and fails the build on any disagreement.
+    Two independent implementations agreeing IS the check -- keep them independent.
+    ⚠️ ABRABOT NEVER USES THE PAID VOICE. His lines ride browserSay(robot=true) --
+    higher pitch on the same browser voice (the one-English-voice guarantee drill.html
+    settled), "Abra-bot" respelled so engines say it right. The whole segment costs
+    zero, every visitor, forever. Mr. Cadabra's single handoff is the ONLY new
+    rendered line: appended to VOICE_LINES *and* main.py's DEMO_VOICE_LINES
+    (243 -> 244, verified byte-identical BY PARSING BOTH, after a missing comma in
+    main.py silently concatenated two Python strings -- regex said 244, ast said 243;
+    trust the parser). Addressed by lineStarting() anchor, never by index. Renders on
+    first play (build ca retry protects the first visitor).
+    His FACE is the same canvas wearing TutorFace's abrabot palette (persona flag) --
+    zero new art. Misses get the drill's own kindness: one retry, then told warmly,
+    and a right-after-retry still counts. "Skip practice ▸" keeps the impatient
+    visitor in charge and lands on the congratulations, never a dead end.
+    DRIVEN IN A REAL BROWSER before shipping: two journeys (entry played through with
+    a deliberate miss; prealgebra typed then skipped), ten assertions, all green.
     (ez) 2026-08-13 -- TWO THINGS JIM FOUND BY WALKING THE DEMO HIMSELF.
     (1) NO REPEATED DIALOGUE AFTER THE LESSON. He came through the teachers door, took
     the walk-through, clicked "See a real lesson", worked the problem — and at the end
@@ -1188,7 +1213,9 @@
         var sp=orb.classList.contains('speaking');
         var mood=Date.now()<faceHappyUntil?'happy':(sp?'speaking':'idle');
         var level=sp?0.45+0.30*Math.abs(Math.sin(faceT*0.05)):0.10+0.05*Math.sin(faceT*0.035);
-        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:level,t:faceT,mood:mood});
+        // (nf) When Abrabot has the floor, the SAME canvas wears HIS face -- the
+        // palette tutor-face.js has carried since build mi. One flag, zero new art.
+        TutorFace.draw(orbFace.getContext('2d'),200,200,{level:level,t:faceT,mood:mood,persona:(abraMode?'abrabot':'cadabra')});
       }catch(e){}
       faceT++; requestAnimationFrame(faceLoop);
     })();
@@ -1196,7 +1223,7 @@
 
   var bubble=el('bubble'), board=el('board'), answer=el('answer'), replay=el('replay'),
       statusEl=el('status'), tourTag=el('tourTag');
-  var voiceOn=true, lastSaid="";
+  var voiceOn=true, lastSaid="", lastRobot=false, abraMode=false;
 
   var VOICE_LINES=[
     "Hi! I'm Mr. Cadabra. Let's solve this one together — two x plus three equals eleven. Our whole goal is to get x all by itself. First move: what should we do to BOTH sides to undo that plus three? Type your move with the keyboard.",
@@ -1519,7 +1546,9 @@
     "This column — needs attention — is me doing your triage: a student who has stalled, or whose scores are sliding, gets flagged before they get lost in the middle of a class. And the students pulling ahead surface too, in my honest read below — because no class learns at one speed, and with an assistant watching every student every day, you never have to teach as if it does.",
     "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
-];
+,
+  "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!"
+  ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
   // rest of the demo to the flat browser voice. That is exactly what happens to the
@@ -1551,12 +1580,16 @@
     orb.classList.toggle('speaking', !!on);
     statusEl.textContent = on ? "Mr. Cadabra is talking…" : "";
   }
-  function browserSay(text){
+  function browserSay(text, robot){
     if(!voiceOn||!('speechSynthesis' in window)){ fireLineDone(); return; }
     try{
       speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(text.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
-      u.rate=0.98; u.pitch=1.06;
+      // (nf) Abrabot's register: a higher pitch on the SAME browser voice -- the
+      // guarantee that works on a machine with one English voice installed, exactly
+      // the rule drill.html settled. And "Abra-bot", so the engine says it right.
+      var sayable = robot ? text.replace(/Abrabot/g,'Abra-bot') : text;
+      var u=new SpeechSynthesisUtterance(sayable.replace(/x²/g,'x squared').replace(/\^/g,' to the '));
+      u.rate=robot?1.02:0.98; u.pitch=robot?1.32:1.06;
       u.onstart=function(){setSpeaking(true);};
       u.onend=function(){setSpeaking(false); fireLineDone();};
       u.onerror=function(){setSpeaking(false); fireLineDone();};
@@ -1632,7 +1665,7 @@
     lineStarting("Your courses. You finished Basic Math and moved up")
   ];
   function say(text){
-    lastSaid=text; bubble.textContent=text; replay.style.display="inline-block";
+    lastSaid=text; lastRobot=false; bubble.textContent=text; replay.style.display="inline-block";
     if(!voiceOn){ fireLineDone(); return; }
     var i=VOICE_LINES.indexOf(text);
     if(i>=0 && serverVoiceWorthTrying()){ playServerClip(i, text, 0); return; }
@@ -1671,7 +1704,8 @@
     lineDone=fin; say(text);
     setTimeout(fin, 4500 + String(text).split(/\s+/).length*450);
   }
-  replay.onclick=function(){ warmDemoAudio(); lineDone=null; say(lastSaid); };
+  replay.onclick=function(){ warmDemoAudio(); lineDone=null;
+    if(lastRobot){ bubble.textContent=lastSaid; browserSay(lastSaid, true); } else { say(lastSaid); } };
 
   function addRow(text, cls){
     var hint=el('stageHint'); if(hint) hint.remove();
@@ -1973,12 +2007,20 @@
   var CONGRATS_LINE="Congratulations — you just worked a real problem, step by step, exactly the way your student will! In the full classroom we talk back and forth by voice, quizzes unlock new topics, and medals land in the trophy case. Come meet me for a free lesson — I'll start right at your student's level.";
   var LEVELS=[["entry","Entry-Level Math","grades 1–3 · count the stars"],["basic","Basic Math","grades 4–6 · fractions"],["prealgebra","Pre-Algebra","negative numbers"],["algebra1","Algebra I","solve a two-step equation"],["geometry","Geometry","triangle angles"],["algebra2","Algebra II","exponents"],["precalc","Trig / Pre-Calc","the unit circle"],["probstat","Probability & Statistics","mean of three scores"],["calculus","Calculus","your first derivative"],["diffeq","Differential Equations","classify it like a pro"]];
 
-  var steps=null, cur=null, i=-1;
+  var steps=null, cur=null, i=-1, practiceRan=false;
   function next(){
     i++;
     if(!steps||i>=steps.length) return;
     var s=steps[i];
-    if(s.end){ showEnd(); return; }
+    // (nf) THE LESSON NOW ENDS THE WAY THE REAL PRODUCT DOES: with practice. Jim,
+    // 2026-08-25: "rewrite the demos so that they include the practice problems with
+    // Abrabot." One hook here instead of ten edits inside DEMOS -- every level flows
+    // teach -> problem -> Abrabot practice -> congratulations, and a Skip door keeps
+    // the impatient visitor in charge of their own time.
+    if(s.end){
+      if(!practiceRan && ABRA_BANK[curId]){ practiceRan=true; runAbraPractice(showEnd); return; }
+      showEnd(); return;
+    }
     if(s.board) s.board.forEach(function(r){ addRow(r[0], r[1]); });
     if(s.fig) addFig(s.fig);
     // A TEACH step (build bw) has no question: he demonstrates, then moves on himself.
@@ -2091,6 +2133,221 @@
     wrap.appendChild(prompt); wrap.appendChild(row); wrap.appendChild(fb);
     answer.appendChild(wrap);
     try{ input.focus(); }catch(e){}
+  }
+
+  // ============================================================
+  // (nf) ABRABOT'S PRACTICE -- the demo now shows the half of the product that
+  // parents assign: "go practice your times tables twenty minutes a day." Two quick
+  // problems per level, run by the practice robot himself.
+  // ⚠️ THE ANSWERS ARE COMPUTED, NEVER TYPED. Each bank entry carries the OPERANDS
+  // and abraAnswer() derives the correct choice -- and ruletests PART 3dr re-derives
+  // every one in Python and fails the build on any disagreement. The same rule the
+  // 25,376 real practice problems live under, applied to these twenty.
+  // ⚠️ ABRABOT NEVER USES THE PAID VOICE. Everything he says here rides the browser
+  // voice in his own register (browserSay robot=true), exactly like /drill -- so
+  // this whole segment costs zero, every visitor, forever. Mr. Cadabra's single
+  // handoff line is the only rendered clip, appended to VOICE_LINES like every
+  // other line before it.
+  // The bank between the markers is STRICT JSON -- PART 3dr parses it. Keep it so.
+  /*ABRA_BANK_START*/
+  var ABRA_BANK={
+    "entry":[
+      {"kind":"count","n":4,"show":"⭐  ⭐  ⭐  ⭐",
+       "say":"Count my stars — touch each one and say the numbers in order. How many stars? Tap your answer!",
+       "options":["3","4","5"]},
+      {"kind":"add","a":2,"b":3,"show":"2 + 3 = ?",
+       "say":"Two cookies, then three more cookies. How many cookies altogether? Tap your answer!",
+       "options":["4","5","6"]}],
+    "basic":[
+      {"kind":"fracadd","a":1,"b":2,"den":4,"show":"1/4 + 2/4 = ?",
+       "say":"One fourth plus two more fourths. The bottoms already match — so how many fourths is that? Tap it!",
+       "options":["3/4","2/4","3/8"]},
+      {"kind":"fraceq","a":2,"den":4,"show":"2/4 = ?",
+       "say":"Two fourths of a pizza. My circuits know a shorter name for that amount — which one is it?",
+       "options":["1/2","1/4","2/8"]}],
+    "prealgebra":[
+      {"kind":"add","a":-4,"b":6,"show":"−4 + 6 = ?",
+       "say":"Start four below zero and climb six steps to the right. Where do you land? Tap it!",
+       "options":["2","−2","10"]},
+      {"kind":"add","a":-1,"b":-3,"show":"−1 − 3 = ?",
+       "say":"Start one below zero and go three MORE steps down. Where are you now? Tap your answer!",
+       "options":["−4","4","2"]}],
+    "algebra1":[
+      {"kind":"solveplus","a":3,"b":10,"show":"x + 3 = 10",
+       "say":"x plus three equals ten. What number is hiding inside x? Tap it!",
+       "options":["7","13","3"]},
+      {"kind":"solvetimes","a":4,"b":20,"show":"4x = 20",
+       "say":"Four times x equals twenty. What is x? My circuits believe in you!",
+       "options":["5","16","80"]}],
+    "geometry":[
+      {"kind":"angle","a":90,"b":45,"show":"90° + 45° + ? = 180°",
+       "say":"A triangle with a ninety degree angle and a forty five degree angle. All three add to one hundred eighty — what is the third one? Tap it!",
+       "options":["45°","55°","35°"]},
+      {"kind":"angle","a":70,"b":60,"show":"70° + 60° + ? = 180°",
+       "say":"Seventy degrees, sixty degrees, and one mystery angle. They must add to one hundred eighty. Tap the mystery!",
+       "options":["50°","60°","40°"]}],
+    "algebra2":[
+      {"kind":"power","base":2,"exp":4,"show":"2⁴ = ?",
+       "say":"Two to the fourth power — that is two, doubled four times. Two, four, eight… one more! Tap it!",
+       "options":["16","8","32"]},
+      {"kind":"power","base":3,"exp":3,"show":"3³ = ?",
+       "say":"Three to the third power. Three times three times three. My circuits are humming — tap your answer!",
+       "options":["27","9","81"]}],
+    "precalc":[
+      {"kind":"rad","deg":180,"show":"180° = ? radians",
+       "say":"Half a turn around the circle is one hundred eighty degrees. In radians, that half turn has a famous name. Tap it!",
+       "options":["π","2π","π/2"]},
+      {"kind":"rad","deg":90,"show":"90° = ? radians",
+       "say":"A quarter turn — ninety degrees. How do we say that quarter turn in radians? Tap your answer!",
+       "options":["π/2","π","2π"]}],
+    "probstat":[
+      {"kind":"mean","vals":[4,6],"show":"mean of 4 and 6 = ?",
+       "say":"Two quiz scores — four and six. Share the points out fairly. What is the mean? Tap it!",
+       "options":["5","4","10"]},
+      {"kind":"mean","vals":[2,5,8],"show":"mean of 2, 5, 8 = ?",
+       "say":"Three scores this time — two, five and eight. Add them up, split them three ways. Tap the fair share!",
+       "options":["5","6","15"]}],
+    "calculus":[
+      {"kind":"derivpow","n":4,"show":"x⁴  →  4x^?",
+       "say":"The power rule again! x to the fourth — bring the four down, then DROP the power by one. What is the new power? Tap it!",
+       "options":["3","4","5"]},
+      {"kind":"derivpow","n":5,"show":"x⁵  →  5x^?",
+       "say":"x to the fifth. Five comes down in front — and the power drops by one. Tap the new power!",
+       "options":["4","5","6"]}],
+    "diffeq":[
+      {"kind":"order","ticks":2,"show":"y″ + y = 0   order?",
+       "say":"Classify before you solve! Count the tick marks on the busiest y — two ticks. What order is this equation? Tap it!",
+       "options":["2","1","3"]},
+      {"kind":"order","ticks":1,"show":"y′ = y   order?",
+       "say":"One little tick mark this time. My circuits already know — do you? Tap the order!",
+       "options":["1","2","0"]}]
+  };
+  /*ABRA_BANK_END*/
+
+  function abraAnswer(p){
+    function gcd(a,b){ return b? gcd(b,a%b) : a; }
+    switch(p.kind){
+      case "count":      return String(p.n);
+      case "add":        return String(p.a+p.b).replace("-","−");
+      case "fracadd":    return (p.a+p.b)+"/"+p.den;
+      case "fraceq":     var g=gcd(p.a,p.den); return (p.a/g)+"/"+(p.den/g);
+      case "solveplus":  return String(p.b-p.a);
+      case "solvetimes": return String(p.b/p.a);
+      case "angle":      return (180-p.a-p.b)+"°";
+      case "power":      return String(Math.pow(p.base,p.exp));
+      case "rad":        return {90:"π/2",180:"π",360:"2π"}[p.deg];
+      case "mean":       return String(p.vals.reduce(function(x,y){return x+y;},0)/p.vals.length);
+      case "derivpow":   return String(p.n-1);
+      case "order":      return String(p.ticks);
+    }
+    return "";
+  }
+
+  // Abrabot's own lines -- browser voice, HIS register, zero cost. The personality is
+  // the REAL drill's personality (main.py's _ABRA_* lines), because the demo's job is
+  // to show the product, not a nicer cousin of it.
+  var ABRA_HELLO="Beep! I am Abrabot, Mr. Cadabra's practice helper. Problems are my favourite thing. Here are two of my favourites — tap your answer!";
+  var ABRA_YES=["Correct! My circuits are pleased.","Yes! I knew you had that one.","Nice work. Filing that one under easy."];
+  var ABRA_RETRY="Hmm! My circuits say not quite. Have one more try — I have all day, I am a robot.";
+  var ABRA_NOTSURE="No problem! Look at the board, take your time. I will wait — robots are very good at waiting.";
+  function abraTell(v){ return "The answer was "+v+". Now you know it, and so do I. Onwards!"; }
+  function abraOutro(right){
+    return "Beep! That is "+right+" out of 2. In the real classroom my problem box holds "
+      +"thousands more — practice with me is always free, and it never changes your score. "
+      +"Back to you, Mr. Cadabra!";
+  }
+
+  function abraSay(text, done){
+    lastSaid=text; lastRobot=true; bubble.textContent=text; replay.style.display="inline-block";
+    var finished=false;
+    function fin(){ if(finished) return; finished=true; if(done) done(); }
+    lineDone=fin;
+    if(!voiceOn){ setTimeout(fin, 900+String(text).split(/\s+/).length*330); }
+    else browserSay(text, true);
+    // the same never-stall safety timer sayThen uses -- captions carry it either way
+    setTimeout(fin, 4500+String(text).split(/\s+/).length*450);
+  }
+
+  function runAbraPractice(done){
+    if(window.mtTrack) mtTrack('Demo Practice Started', {level:curId||'unknown'});
+    var bank=ABRA_BANK[curId]||[];
+    var right=0, finished=false;
+    function finish(){
+      if(finished) return; finished=true;
+      abraMode=false;                       // Mr. Cadabra's face is back for the congratulations
+      try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+      if(window.mtTrack) mtTrack('Demo Practice Completed', {level:curId||'unknown', right:right});
+      done();
+    }
+    el('goalText').textContent='Practice with Abrabot';
+    board.innerHTML=''; clearAnswer();
+    addRow("🤖 Abrabot's practice","big");
+    // Mr. Cadabra's handoff -- his real voice, the one new rendered line of build nf.
+    sayThen(lineStarting("Before we finish, meet my favourite helper"), function(){
+      if(finished) return;
+      abraMode=true;
+      abraSay(ABRA_HELLO, function(){ ask(0); });
+    });
+
+    function ask(idx){
+      if(finished) return;
+      if(idx>=bank.length){
+        clearAnswer();
+        abraSay(abraOutro(right), function(){ setTimeout(finish, 400); });
+        return;
+      }
+      var p=bank[idx], correct=abraAnswer(p), misses=0, doneQ=false;
+      addRow(p.show,"");
+      clearAnswer();
+      var wrap=document.createElement('div');
+      var hint=document.createElement('div'); hint.className='prompt';
+      hint.textContent='Tap your answer — practice is free and never changes a score.';
+      var grid=document.createElement('div'); grid.className='choices';
+      var fb=document.createElement('div'); fb.className='fb';
+      function advance(){ setTimeout(function(){ ask(idx+1); }, 1500); }
+      function reveal(){
+        grid.querySelectorAll('.choice').forEach(function(cb){
+          if(cb.textContent===correct) cb.classList.add('right'); });
+      }
+      p.options.forEach(function(opt){
+        var b=document.createElement('button'); b.className='choice'; b.type='button'; b.textContent=opt;
+        b.onclick=function(){
+          if(doneQ||finished) return;
+          if(opt===correct){
+            doneQ=true; right++; b.classList.add('right');
+            var praise=ABRA_YES[(idx+misses)%ABRA_YES.length];
+            fb.className='fb ok'; fb.textContent='✓ '+praise;
+            faceHappyUntil=Date.now()+1600;
+            abraSay(praise, null); advance();
+          } else {
+            b.classList.add('wrong'); setTimeout(function(){ b.classList.remove('wrong'); },900);
+            misses++;
+            if(misses===1){ fb.className='fb no'; fb.textContent=ABRA_RETRY; abraSay(ABRA_RETRY, null); }
+            else {
+              // the drill's own kindness: told, not scolded, and onwards
+              doneQ=true; reveal();
+              var told=abraTell(correct);
+              fb.className='fb ok'; fb.textContent='✓ '+told;
+              abraSay(told, null); advance();
+            }
+          }
+        };
+        grid.appendChild(b);
+      });
+      var ns=document.createElement('button'); ns.className='choice'; ns.type='button'; ns.textContent="🤔 I'm not sure";
+      ns.onclick=function(){ if(doneQ||finished) return;
+        fb.className='fb no'; fb.textContent=ABRA_NOTSURE; abraSay(ABRA_NOTSURE, null); };
+      grid.appendChild(ns);
+      // ⚠️ THE SKIP DOOR. A sales page never holds a visitor hostage -- and skipping
+      // lands on the congratulations, never on a dead end.
+      var skip=document.createElement('button'); skip.className='choice'; skip.type='button';
+      skip.style.opacity='.75'; skip.textContent='Skip practice ▸';
+      skip.onclick=finish;
+      grid.appendChild(skip);
+      wrap.appendChild(hint); wrap.appendChild(grid); wrap.appendChild(fb);
+      answer.appendChild(wrap);
+      abraSay(p.say, null);
+    }
   }
 
   function showEnd(){
@@ -2549,7 +2806,7 @@
   // ---- LEVEL PICKER ----
   var curId='';
   function startScript(id){
-    warmDemoAudio(); curId=id;
+    warmDemoAudio(); curId=id; practiceRan=false;   // (nf) a fresh level practices again
     if(window.mtTrack) mtTrack('Demo Level Picked', {level:id});
     cur=DEMOS[id]; steps=cur.steps; i=-1;
     board.innerHTML=''; clearAnswer(); clearGlow();

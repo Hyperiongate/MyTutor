@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nf -- PART 3dr: THE DEMO PRACTICES TOO. The demo's new Abrabot
+#               segment is pinned the way the product is built: the 20 bank answers
+#               are RE-DERIVED here in Python against demo.html's abraAnswer()
+#               (computed, never typed -- two implementations must agree), the bank
+#               must cover every course in curriculum.COURSE_ORDER, the handoff line
+#               must live in BOTH voice lists and be addressed by anchor, Abrabot's
+#               voice must stay the free one, and the Skip door must exist. Validated
+#               first by driving both journeys in a real headless browser.
 #   2026-08-25  BUILD ne -- 3dq: THE MENU LINK IS PINNED. site-nav.js now injects
 #               "How we teach" after "Our mission" on every marketing page; the pins
 #               hold the injector, its double-link guard, and methodology.html's own
@@ -10061,6 +10069,112 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3dr_the_demo_practices_too():
+    """PART 3dr (build nf) -- THE DEMO NOW SHOWS THE PRACTICE HALF OF THE PRODUCT.
+
+    Jim, 2026-08-25: "rewrite the demos so that they include the practice problems
+    with Abrabot." Every level demo now flows teach -> problem -> Abrabot practice
+    (two problems, his face, his browser voice, a Skip door) -> congratulations.
+
+    ⭐ THE ANSWERS ARE COMPUTED, NEVER TYPED -- the same law the 25,376 real practice
+    problems live under. Each ABRA_BANK entry carries OPERANDS; demo.html derives
+    the correct choice in abraAnswer(), and this part re-derives every one in
+    Python and fails the build on any disagreement. Two independent implementations
+    agreeing is the whole point; do not "simplify" one into reading the other.
+
+    ⚠️ AND ABRABOT MUST STAY FREE. His lines ride the browser voice in his own
+    register (browserSay robot=true), like /drill -- so the practice segment costs
+    zero for every visitor forever. Mr. Cadabra's single handoff is the only
+    rendered line, APPENDED to both voice lists and addressed by lineStarting()
+    anchor, never by index."""
+    print("\nPART 3dr — the demo practices too (build nf)")
+    import json as _json
+    from fractions import Fraction as _Fr
+    here = os.path.dirname(os.path.abspath(__file__))
+    dsrc = open(os.path.join(here, "static", "demo.html"), encoding="utf-8").read()
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+
+    HAND = "Before we finish, meet my favourite helper"
+    check("⭐ the handoff line lives in BOTH voice lists",
+          HAND in dsrc and HAND in msrc,
+          "one list without the other = the wrong clip under the right words, "
+          "the exact defect the append-only rule exists to prevent")
+    check("  ...and the demo finds it by ANCHOR, not by index",
+          'lineStarting("' + HAND + '")' in dsrc,
+          "an index would silently shift the day anyone appends another line")
+
+    # -- the bank: strict JSON between its markers, re-derived independently --
+    try:
+        raw = dsrc.split("/*ABRA_BANK_START*/")[1].split("/*ABRA_BANK_END*/")[0]
+        raw = raw.strip()
+        raw = raw[raw.index("{"):].rstrip().rstrip(";")
+        bank = _json.loads(raw)
+    except Exception as exc:  # noqa: BLE001
+        bad("ABRA_BANK parses as strict JSON", f"{type(exc).__name__}: {exc}")
+        return
+    check("ABRA_BANK parses as strict JSON", True, "")
+
+    def _ans(p):
+        k = p["kind"]
+        if k == "count":      return str(p["n"])
+        if k == "add":        return str(p["a"] + p["b"]).replace("-", "\u2212")
+        if k == "fracadd":    return f'{p["a"]+p["b"]}/{p["den"]}'
+        if k == "fraceq":
+            f = _Fr(p["a"], p["den"]); return f"{f.numerator}/{f.denominator}"
+        if k == "solveplus":  return str(p["b"] - p["a"])
+        if k == "solvetimes": return str(p["b"] // p["a"])
+        if k == "angle":      return f'{180-p["a"]-p["b"]}\u00b0'
+        if k == "power":      return str(p["base"] ** p["exp"])
+        if k == "rad":        return {90: "\u03c0/2", 180: "\u03c0", 360: "2\u03c0"}[p["deg"]]
+        if k == "mean":
+            v = p["vals"]
+            if sum(v) % len(v): raise ValueError("non-integer mean authored")
+            return str(sum(v) // len(v))
+        if k == "derivpow":   return str(p["n"] - 1)
+        if k == "order":      return str(p["ticks"])
+        raise ValueError("unknown kind " + k)
+
+    import curriculum as _cur
+    want = list(_cur.COURSE_ORDER)
+    check("⭐ every course in COURSE_ORDER has a practice pair in the demo",
+          sorted(bank) == sorted(want),
+          f"bank={sorted(bank)} courses={sorted(want)} -- a course added later must "
+          f"bring its two problems along")
+    wrongs = []
+    for lvl, probs in bank.items():
+        if len(probs) != 2:
+            wrongs.append(f"{lvl}: {len(probs)} problems (want 2)")
+        for pr in probs:
+            try:
+                a = _ans(pr)
+            except Exception as exc:  # noqa: BLE001
+                wrongs.append(f"{lvl} {pr.get('show')}: {exc}"); continue
+            if a not in pr["options"]:
+                wrongs.append(f"{lvl} {pr['show']}: computed {a!r} not in {pr['options']}")
+            if len(set(pr["options"])) != 3:
+                wrongs.append(f"{lvl} {pr['show']}: options not 3 distinct")
+    check("⭐ all 20 practice answers re-derive correctly in Python",
+          not wrongs, "; ".join(wrongs)[:400])
+
+    dcode = code_only(dsrc)
+    check("the lesson flows INTO practice (one hook, not ten edits)",
+          "runAbraPractice(showEnd)" in dcode and "practiceRan=false" in dcode,
+          "the hook in next() is gone -- lessons end without practice again")
+    check("⚠️ Abrabot's demo voice is the FREE one",
+          "browserSay(text, true)" in dcode
+          and "playServerClip" not in dcode.split("function abraSay")[1].split("function runAbraPractice")[0],
+          "his lines must never touch /api/demo-audio -- zero cost, every visitor")
+    check("his face is the abrabot persona on the same canvas",
+          "persona:(abraMode?'abrabot':'cadabra')" in dcode,
+          "the palette tutor-face.js has carried since build mi")
+    check("the Skip door exists and is a practice choice",
+          "Skip practice \u25b8" in dsrc or "Skip practice ▸" in dsrc,
+          "a sales page never holds a visitor hostage")
+    check("a told answer is kind, and the retry is the drill's own",
+          "My circuits say not quite" in dsrc and "Now you know it, and so do I" in dsrc,
+          "the demo's robot must be the REAL drill's personality, not a nicer cousin")
+
+
 def part3dq_the_methodology_page_keeps_its_receipts():
     """PART 3dq (build nc) -- A CITATION PAGE THAT DRIFTS IS WORSE THAN NO PAGE.
 
@@ -10159,7 +10273,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,423</b>" in page,
+          "<b>6,434</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -18506,6 +18620,7 @@ def main():
     part3do_build_is_not_serve()
     part3dp_no_button_under_a_talking_teacher()
     part3dq_the_methodology_page_keeps_its_receipts()
+    part3dr_the_demo_practices_too()
     part3ai_deploy_stamp()
     if live:
         part4_live()
