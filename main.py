@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25ng-the-sidebar-catches-up". BUILD ng -- JIM
+#               CAUGHT nf BEING HALF A FIX: "in the sidebar of the demo i see no
+#               practice problems." The demo's replica sidebar was still the pre-mu
+#               classroom. Now it carries the 🤖 Extra practice button (session.html's
+#               twin), the walk-around tour introduces it, and the button WORKS --
+#               a cold tap runs practice on the spot through a standalone door that
+#               skips the end-of-lesson handoff line. THIS FILE: one tour line
+#               appended to DEMO_VOICE_LINES (244 -> 245), byte-identical to
+#               demo.html's, verified by ast.literal_eval on this side and a JS-string
+#               parse on that side -- the nf comma lesson, applied.
 #   2026-08-25  APP_BUILD -> "2026-08-25nf-the-demo-practices-too". BUILD nf -- EVERY
 #               LEVEL DEMO NOW INCLUDES ABRABOT'S PRACTICE. Jim: "rewrite the demos so
 #               that they include the practice problems with Abrabot." Flow per level:
@@ -11618,7 +11628,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nf-the-demo-practices-too"
+APP_BUILD = "2026-08-25ng-the-sidebar-catches-up"
 
 
 @app.get("/health")
@@ -13687,6 +13697,7 @@ DEMO_VOICE_LINES = [
     "And you can open any student for their full dashboard, read-only — the same numbers, the same quiz history, the same short list of what to strengthen next. What happens with all of it is your call: I gather the picture, you make the teaching decisions. Adding a student is one box — their student code.",
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose.",
     "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!",
+    "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time.",
 ]
 
 

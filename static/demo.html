@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <!--
+    (ng) 2026-08-25 -- THE SIDEBAR CATCHES UP WITH THE PRODUCT. Jim deployed nf, opened
+    a demo, and: "in the sidebar of the demo i see no practice problems." He was right
+    and nf was incomplete: it put practice at the END of the lesson but never touched
+    this page's replica SIDEBAR, which still showed the pre-mu classroom -- no robot
+    button, and a tour that walked from Practice-a-problem straight to Explore-a-topic
+    as if Abrabot did not exist. The demo must look like the product it is selling.
+    THREE ADDITIONS: ① the 🤖 Extra practice button, same face, same name, same
+    position as session.html's (right after Practice a problem -- the mu comment about
+    two-things-both-called-practice applies here verbatim). ② a TOUR STOP that glows
+    it and says what it is, the line appended to BOTH voice lists (244 -> 245,
+    verified by PARSING both, the nf comma lesson applied). ③ THE BUTTON WORKS -- its
+    six neighbours are set dressing, but a visitor who taps the robot gets practice ON
+    THE SPOT: the standalone door skips the "before we finish" handoff (that sentence
+    is true at a lesson's end and false from a cold tap -- no line plays that isn't
+    true), defaults to the course the sidebar furniture shows, and lands on the level
+    picker afterwards, never a dead end.
+    Validated by FOUR headless journeys, fifteen assertions: lesson->practice with a
+    deliberate miss; typed lesson then skip; cold tap from the sidebar (handoff
+    verified ABSENT); and the full tour heard introducing the button.
     (nf) 2026-08-25 -- THE DEMO PRACTICES TOO. Jim: "rewrite the demos so that they
     include the practice problems with Abrabot... they'll be up and ready to run."
     Every level demo now ends the way the real product does: teach -> problem ->
@@ -739,6 +758,12 @@
       <span class="navbtn" id="assessLink">📋 Course assessment</span>
       <span class="navbtn" id="dashLink">📊 Progress dashboard</span>
       <span class="navbtn" id="practiceLink">✏️ Practice a problem</span>
+      <!-- (ng) The REAL classroom has carried this button since build mu; the demo's
+           replica sidebar never got it, and Jim caught the gap the day the demo learned
+           to practice: "in the sidebar of the demo i see no practice problems". Same
+           position, same face, same name as session.html -- the demo must look like
+           the product it is selling. And unlike its neighbours, this one WORKS. -->
+      <span class="navbtn" id="drillLink">🤖 Extra practice</span>
       <span class="navbtn" id="topicLink">💡 Explore a topic</span>
       <span class="navbtn" id="finalLink">🎓 Final Exam</span>
       <span class="navbtn" id="libraryLink">📖 Look it up</span>
@@ -1548,6 +1573,8 @@
     "And that's the teacher's side of the classroom. Notice what it doesn't do: it doesn't plan your lessons, grade your judgment, or run your room — it hands you what you can't get any other way, a patient assistant for every single student and an honest picture of exactly who needs you and who's ready to run ahead. If you'd like to see what your students would experience, I can teach you a lesson right now, at any level you choose."
 ,
   "Before we finish, meet my favourite helper — Abrabot, the practice robot! After every lesson, my students can practice with him as much as they like. It is always free, it never changes their scores, and parents can see every problem they worked. Abrabot — they are all yours!"
+  ,
+  "And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time."
   ];
   // 2026-08-09 (build ca, Jim heard the browser's mechanical voice halfway through):
   // serverVoiceOK used to be a ONE-WAY LATCH — a single failed clip switched the whole
@@ -2268,7 +2295,23 @@
     setTimeout(fin, 4500+String(text).split(/\s+/).length*450);
   }
 
-  function runAbraPractice(done){
+  // (ng) THE BUTTON IS REAL. Its six neighbours are set dressing the tour points at;
+  // this one does what it says, because practice is the thing Jim most wants shown.
+  // Tapping it mid-anything takes the stage cleanly (the skipTour pattern: cancel
+  // speech, drop the current step queue) and lands on the level picker afterwards.
+  el('drillLink').onclick=function(){
+    if(abraMode) return;                       // already practising
+    tourCancelled=true; lineDone=null; steps=null;
+    try{ demoAudio.pause(); }catch(e){}
+    try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
+    setSpeaking(false); clearGlow(); hideBalloons(); closeDash();
+    if(!curId) curId='prealgebra';             // the course the sidebar furniture shows
+    if(window.mtTrack) mtTrack('Demo Practice Button', {level:curId});
+    practiceRan=true;                          // their lesson, if any, already practised
+    runAbraPractice(function(){ showPicker(true); }, true);
+  };
+
+  function runAbraPractice(done, standalone){
     if(window.mtTrack) mtTrack('Demo Practice Started', {level:curId||'unknown'});
     var bank=ABRA_BANK[curId]||[];
     var right=0, finished=false;
@@ -2282,6 +2325,14 @@
     el('goalText').textContent='Practice with Abrabot';
     board.innerHTML=''; clearAnswer();
     addRow("🤖 Abrabot's practice","big");
+    if(standalone){
+      // (ng) STRAIGHT TO THE ROBOT. The handoff line says "before we finish" -- true
+      // at the end of a lesson, false when the visitor tapped his button out of
+      // curiosity. Abrabot introduces himself; no line plays that isn't true.
+      abraMode=true;
+      abraSay(ABRA_HELLO, function(){ ask(0); });
+      return;
+    }
     // Mr. Cadabra's handoff -- his real voice, the one new rendered line of build nf.
     sayThen(lineStarting("Before we finish, meet my favourite helper"), function(){
       if(finished) return;
@@ -2654,6 +2705,7 @@
     {t:'assessLink',    line:"Right below it, the Course Assessment. Whenever they're ready, it finds their strengths and builds a recommended path just for them. It's completely optional, and it's always waiting right there."},
     {t:'dashLink',      line:"Next, the Progress dashboard. That's where they watch themselves win — units mastered, accuracy, streaks, and a trophy case for every award they earn."},
     {t:'practiceLink',  line:"Then Practice a problem. When your student is stuck on one specific problem — homework, a worksheet, anything — they bring it here and we work through it together."},
+    {t:'drillLink',     line:"And see Extra practice — the one with the robot? That's Abrabot, my practice helper. Practice a problem is for a problem your student brings me; Abrabot is the other way round — he hands out more problems on lessons already done, as many as they want, always free, and he keeps count so your student can show you how hard they've worked. Stay to the end of the lesson and you'll meet him yourself — or tap his button any time."},
     {t:'topicLink',     line:"Right under it, Explore a topic. Curious about just one thing, like fractions or slope? They open it, name the topic, and we dig into exactly that."},
     {t:'finalLink',     line:"And the Final Exam — the top of the mountain. It unlocks only after all nine units are mastered, and passing it makes them a Course Champion."},
     {t:'libraryLink',   line:"Last one on the left: Look it up. Any time they just want to READ about something, they tap it, type the topic, and a page opens right on top of the lesson. Their place is waiting when they close it."},

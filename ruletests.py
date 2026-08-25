@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD ng -- 3dr GROWS THE SIDEBAR PINS. Jim opened the nf demo and
+#               said "in the sidebar of the demo i see no practice problems" -- right:
+#               nf put practice at the END of the lesson and never touched the demo's
+#               replica SIDEBAR, which was still the pre-mu classroom. Now pinned:
+#               the 🤖 Extra practice button (same face and position as session.html),
+#               the tour stop that introduces it, the tour line in both voice lists,
+#               and the standalone door (a cold tap skips the "before we finish"
+#               handoff -- no line plays that isn't true). Validated by four headless
+#               journeys, fifteen assertions, before these pins were written.
 #   2026-08-25  BUILD nf -- PART 3dr: THE DEMO PRACTICES TOO. The demo's new Abrabot
 #               segment is pinned the way the product is built: the 20 bank answers
 #               are RE-DERIVED here in Python against demo.html's abraAnswer()
@@ -10170,6 +10179,28 @@ def part3dr_the_demo_practices_too():
     check("the Skip door exists and is a practice choice",
           "Skip practice \u25b8" in dsrc or "Skip practice ▸" in dsrc,
           "a sales page never holds a visitor hostage")
+    # (ng) THE SIDEBAR IS THE PRODUCT'S FACE. Jim shipped nf, opened the demo, and
+    # said "in the sidebar of the demo i see no practice problems" -- because the
+    # demo's replica sidebar was still the pre-mu classroom. The demo must carry the
+    # same button, the tour must introduce it, and the button must WORK.
+    check("(ng) the demo sidebar carries the real classroom's practice button",
+          'id="drillLink"' in dsrc and "\ud83e\udd16 Extra practice" in dsrc
+          or ('id="drillLink"' in dsrc and "🤖 Extra practice" in dsrc),
+          "session.html has carried this button since build mu; the demo replica "
+          "must look like the product it is selling")
+    check("  ...and the walk-around tour has a stop for it",
+          "{t:'drillLink'" in dsrc,
+          "the tour walked from Practice-a-problem straight to Explore-a-topic as "
+          "if Abrabot did not exist")
+    TOURN = "And see Extra practice"
+    check("  ...and the tour line lives in BOTH voice lists",
+          TOURN in dsrc and TOURN in msrc,
+          "one list without the other = the wrong clip under the right words")
+    check("  ...and the button starts practice WITHOUT the end-of-lesson handoff",
+          "runAbraPractice(function(){ showPicker(true); }, true)" in code_only(dsrc)
+          and "if(standalone){" in code_only(dsrc),
+          "'before we finish' is true at a lesson's end and FALSE from a cold tap -- "
+          "no line plays that isn't true")
     check("a told answer is kind, and the retry is the drill's own",
           "My circuits say not quite" in dsrc and "Now you know it, and so do I" in dsrc,
           "the demo's robot must be the REAL drill's personality, not a nicer cousin")
@@ -10273,7 +10304,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,434</b>" in page,
+          "<b>6,438</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
