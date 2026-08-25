@@ -2,6 +2,8 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nk -- PART 3du: REFEREE 40 (no layout words for the board),
+#               both directions, the canon, the wiring, and the prompt's wider ban.
 #   2026-08-25  BUILD nj -- PART 3dt: REFEREES 38-39 PINNED, both directions plus
 #               the standing canonical sweep and a \x08 tripwire (a backspace-eaten
 #               \b parses fine and matches nothing -- the worst combination). The
@@ -10100,6 +10102,56 @@ const INTRO = "Hello there! I am Mr. Cadabra, and I want you to meet somebody. T
 """
 
 
+def part3du_no_up_there():
+    """PART 3du (build nk) -- THE FORTIETH REFEREE: NO LAYOUT WORDS FOR THE BOARD.
+
+    Jim, live: "looking at those three points up there" -- with the points BELOW his
+    words. Build `in` banned layout words from the TOUR after the same discovery on
+    a phone; this is the tutor's own prose getting the same law. ⚠️ NARROW BY
+    NECESSITY: "down below"/"down there" are legitimate MATH (two canonical scripts
+    use them for the number line and the denominator) and "up top" means NUMERATOR
+    in a teacher's mouth -- so the referee demands a DRAWN-OBJECT NOUN immediately
+    before the phrase, the shape that can only mean screen layout."""
+    print("\nPART 3du — no layout words for the board (build nk)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ the caught shape fires ('points up there')",
+         "Looking at those three points up there, does anything come back?"),
+        (True,  "  'the equation down there' fires",
+         "Now look at the equation down there and tell me the first move."),
+        (False, "  math direction stays legal ('down below it', the number line)",
+         "Positive numbers go up from there, and negative numbers go down below it."),
+        (False, "  the denominator idiom stays legal ('left down there')",
+         "If any of it is left down there, you get a vertical asymptote."),
+        (False, "  the numerator idiom stays legal ('the 3 up top')",
+         "See the 3 up top? Multiply it by the bottom."),
+        (False, "  the fix itself passes ('on the board')",
+         "Looking at the three points on the board, what makes a point special?")):
+        check(label, bool(TT.board_layout_conflict(reply)) == want,
+              "a student told to look UP at something that is DOWN stops trusting "
+              "the pointing" if want else "the referee rejects legitimate mathematics")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            if TT.board_layout_conflict((_sc.get("say") or "") + "\n"
+                                        + "\n".join(_sc.get("board") or [])):
+                fires += 1
+    check("⭐ zero fires across the canon", fires == 0,
+          f"{fires} authored scripts rejected")
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 40 rides the sweep",
+          "board_layout_conflict(reply)" in tsrc and '"boardlayout"' in tsrc,
+          "a referee that exists but is never called protects nobody")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("the prompt bans screen-direction pointing outright",
+          "NEVER POINT AT THE BOARD BY SCREEN DIRECTION" in psrc,
+          "the wider shapes (bare 'above', 'up top' at the board) are prompt-tier")
+
+
 def part3dt_the_referees_that_each_missed_one():
     """PART 3dt (build nj) -- RULES 16 AND 44 GET THE SHAPES THEY MISSED.
 
@@ -10562,7 +10614,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,481</b>" in page,
+          "<b>6,490</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -18912,6 +18964,7 @@ def main():
     part3dr_the_demo_practices_too()
     part3ds_the_board_is_a_claim()
     part3dt_the_referees_that_each_missed_one()
+    part3du_no_up_there()
     part3ai_deploy_stamp()
     if live:
         part4_live()

@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nk-no-up-there". BUILD nk -- THE FORTIETH
+#               REFEREE. Jim's live catch: "looking at those three points up there"
+#               while the points sat BELOW his words. board_layout_conflict rejects a
+#               drawn-object noun + screen-direction phrase ("points up there",
+#               "equation down there") -- narrow by necessity, because "down below"
+#               and "down there" are legitimate MATH in two canonical scripts and
+#               "up top" means numerator. The wider ban rides the prompt's board
+#               block. Same law build `in` gave the tour, now for the tutor's own
+#               prose. THIS FILE: stamp only. Methodology count 39 -> 40.
 #   2026-08-25  APP_BUILD -> "2026-08-25nj-the-ones-that-got-away". BUILD nj -- THE
 #               TWO REFEREES THAT EACH MISSED ONE, CLOSED. ① rule 16: "what would
 #               f(4) be?" over a board showing only the worked f(3) -- the existing
@@ -11676,7 +11685,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nj-the-ones-that-got-away"
+APP_BUILD = "2026-08-25nk-no-up-there"
 
 
 @app.get("/health")
