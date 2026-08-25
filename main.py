@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  APP_BUILD -> "2026-08-25nh-let-them-finish-and-fly-in". BUILD nh --
+#               JIM WATCHED THE FULL DEMO: "very good, just a couple of small things."
+#               ① Feedback lines were cut off mid-word: four sites advanced on fixed
+#               timers (1.9s under 5-second spoken lines). Every advance now chains
+#               on the line FINISHING -- the same family as build nb's Next button,
+#               one page over: a timer asking "done yet?" under a voice that is not.
+#               ② Abrabot now FLIES onto the whiteboard at 220px and bounces while he
+#               works; the sidebar orb stays Mr. Cadabra -- one character per face.
+#               ONLY static/demo.html + ruletests.py change; this is the stamp.
+#               No new voice lines. Verified by the upgraded headless harness: an
+#               interruption ledger proves no feedback line is cancelled before its
+#               own end, 18 assertions across four journeys, all green.
 #   2026-08-25  APP_BUILD -> "2026-08-25ng-the-sidebar-catches-up". BUILD ng -- JIM
 #               CAUGHT nf BEING HALF A FIX: "in the sidebar of the demo i see no
 #               practice problems." The demo's replica sidebar was still the pre-mu
@@ -11628,7 +11640,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25ng-the-sidebar-catches-up"
+APP_BUILD = "2026-08-25nh-let-them-finish-and-fly-in"
 
 
 @app.get("/health")

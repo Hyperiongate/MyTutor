@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-25  BUILD nh -- 3dr: THE SEAMS JIM HEARD. Fixed timers under spoken
+#               feedback (cut praise) are banned -- every advance chains on the line
+#               finishing -- and Abrabot's 220px flying entrance is pinned. The
+#               headless harness gained an INTERRUPTION LEDGER (utterances cancelled
+#               before their own end) which proves no feedback line is cut; and a
+#               harness lesson worth keeping: body.textContent.includes(...) MATCHES
+#               THE PAGE'S OWN SCRIPT SOURCE, so the old "congratulations landed"
+#               check had been vacuously true since it was written. Element-based
+#               checks only (#answer .endbox). An assertion that cannot fail is not
+#               an assertion.
 #   2026-08-25  BUILD ng -- 3dr GROWS THE SIDEBAR PINS. Jim opened the nf demo and
 #               said "in the sidebar of the demo i see no practice problems" -- right:
 #               nf put practice at the END of the lesson and never touched the demo's
@@ -10173,9 +10183,13 @@ def part3dr_the_demo_practices_too():
           "browserSay(text, true)" in dcode
           and "playServerClip" not in dcode.split("function abraSay")[1].split("function runAbraPractice")[0],
           "his lines must never touch /api/demo-audio -- zero cost, every visitor")
-    check("his face is the abrabot persona on the same canvas",
-          "persona:(abraMode?'abrabot':'cadabra')" in dcode,
-          "the palette tutor-face.js has carried since build mi")
+    # (nh) This pin originally held nf's design -- ONE canvas swapping persona by
+    # abraMode -- and failed when nh gave Abrabot his own 220px canvas while the orb
+    # stays Mr. Cadabra. The guarantee got STRONGER and the pin went stale: updated
+    # to the new invariant rather than weakened. (The nh pins below hold the rest.)
+    check("his face is the abrabot persona, on his own canvas",
+          "abraBigFace" in dcode and "persona:'abrabot'" in dcode,
+          "the palette tutor-face.js has carried since build mi, now at full size")
     check("the Skip door exists and is a practice choice",
           "Skip practice \u25b8" in dsrc or "Skip practice ▸" in dsrc,
           "a sales page never holds a visitor hostage")
@@ -10201,6 +10215,32 @@ def part3dr_the_demo_practices_too():
           and "if(standalone){" in code_only(dsrc),
           "'before we finish' is true at a lesson's end and FALSE from a cold tap -- "
           "no line plays that isn't true")
+    # (nh) JIM WATCHED THE WHOLE DEMO AND HEARD THE SEAMS. Two classes of finding,
+    # both pinned: ① feedback lines were being advanced past on FIXED TIMERS (1.9s
+    # under a 5-second "you got it right"), so praise was cut mid-word; every
+    # advance now chains on the line FINISHING. ② Abrabot was a face-swap in a
+    # 76px orb; he now FLIES onto the whiteboard at 220px and bounces while he
+    # works, and the orb stays Mr. Cadabra -- one character per face.
+    dc = code_only(dsrc)
+    check("(nh) no feedback line is advanced past on a fixed timer",
+          "setTimeout(next,1900)" not in dc and "setTimeout(next,3400)" not in dc,
+          "a timer under a spoken line is how 'you got it right' got cut mid-word")
+    check("  ...the lesson's right-lines chain on the spoken line finishing",
+          dc.count("sayThen(inp.right, function(){ setTimeout(next, 600); })") >= 2,
+          "both renderers (tap and typed) must wait for the line, not race it")
+    check("  ...and Abrabot's praise finishes before the next problem",
+          "abraSay(praise, afterLine)" in dc and "abraSay(told, afterLine)" in dc,
+          "Jim: 'his response got cut off... before he could say good job'")
+    check("(nh) Abrabot flies onto the whiteboard, big, and bounces",
+          "@keyframes abrafly" in dsrc and "@keyframes abrabob" in dsrc
+          and 'id="abraBigFace"' in dsrc and "showAbraBig" in dc,
+          "the robot with presence Jim asked for -- not a face-swap in a 76px orb")
+    check("  ...and he leaves the stage when practice ends",
+          "hideAbraBig();" in dc,
+          "two characters congratulating at once is a face too many")
+    check("  ...and the sidebar orb stays Mr. Cadabra throughout",
+          "persona:'cadabra'" in dc and "persona:'abrabot'" in dc,
+          "one character per face, never a swap -- he never left the room")
     check("a told answer is kind, and the retry is the drill's own",
           "My circuits say not quite" in dsrc and "Now you know it, and so do I" in dsrc,
           "the demo's robot must be the REAL drill's personality, not a nicer cousin")
@@ -10304,7 +10344,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,438</b>" in page,
+          "<b>6,444</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
