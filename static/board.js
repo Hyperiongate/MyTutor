@@ -2,6 +2,11 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-25  BUILD nt -- THE FLAG SHOWS ITSELF. Jim, first look for his new
+                 flag: "I don't see a flag." The server was current (checked live);
+                 the button was also drawn at 25%% opacity -- discretion that serves
+                 nobody, since the ONLY person who can ever see it is the owner who
+                 asked for it. Now 55%%, full on hover. Nothing else changed.
      2026-08-25  BUILD ns -- FOLLOW THE PEN. Jim, next lesson after nr: "same
                  problem with the sizing of the keyboard." He was right and nr was
                  INCOMPLETE: the ResizeObserver only repairs the moment the board
@@ -820,7 +825,7 @@ function ownerFlagCss() {
   const st = document.createElement("style");
   st.textContent =
     ".mtflag{position:absolute;top:2px;right:4px;border:0;background:transparent;" +
-    "cursor:pointer;font-size:13px;line-height:1;opacity:.25;padding:2px;}" +
+    "cursor:pointer;font-size:15px;line-height:1;opacity:.55;padding:2px;}" +
     ".mtflag:hover{opacity:1;}" +
     ".mtflag.sent{opacity:1;cursor:default;}";
   document.head.appendChild(st);
