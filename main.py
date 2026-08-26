@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26nw-the-second-flag-harvest". BUILD nw --
+#               Jim's four Entry-session flags + the placement gap he diagnosed
+#               himself. HERE: the placed-student note now carries the vocabulary
+#               law + first-session word tour (rule 40h holds the durable half).
+#               Elsewhere: drill.html's three end doors, math-figures.js's
+#               number line cap 660->1100, prompts.py's 15(a)/40(h)/48(h) and
+#               the elementary trick-naming line. Ceiling untouched -- headroom
+#               149 chars; the NEXT shared clause deliberates the seventh raise.
 #   2026-08-26  APP_BUILD -> "2026-08-26nv-the-night-watchs-thirteen". BUILD nv
 #               -- the 2026-08-26 night watch's 13 confirmed findings triaged:
 #               referees 45 (answeredask) + 46 (norecordresume), slash/arrow/hug
@@ -11843,7 +11851,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26nv-the-night-watchs-thirteen"
+APP_BUILD = "2026-08-26nw-the-second-flag-harvest"
 
 
 @app.get("/health")
@@ -12701,7 +12709,20 @@ def chat(req: ChatRequest):
                 f"Unit {placement.get('start_unit')} "
                 f"({placement.get('start_unit_name', '')}). Strengths: "
                 f"{', '.join(placement.get('strengths', [])) or 'building foundations'}. "
-                "Meet them at that level -- don't start below it unless they struggle.]")
+                "Meet them at that level -- don't start below it unless they struggle. "
+                # build nw (2026-08-26), Jim's ruling after being handed "fact
+                # families" cold in a unit his placement skipped: "it might be
+                # worthwhile to first spend a few minutes reviewing... so people
+                # aren't caught off guard." Rule 40(h) holds the durable law; this
+                # rides only while the placement note does (the placed-student's
+                # first sessions), which is exactly when the tour belongs.
+                "⚠️ PLACEMENT VALIDATES SKILLS, NOT VOCABULARY (rule 40h): they "
+                "have never heard this classroom's NAMES for the earlier units' "
+                "ideas. Open their first session with a two-minute friendly tour "
+                "of the key words from the units they skipped ('you clearly know "
+                "this stuff -- let me show you what we call things around here'), "
+                "and forever after introduce any skipped-unit term as brand new "
+                "the first time you use it.]")
         student_context["progress"] = (str(student_context.get("progress", "")) + note).strip()
 
     # REWARDS AWARENESS (2026-07-30): if the student earned an award in the last 48h, tell the

@@ -40,6 +40,11 @@
     drill.html  --  ABRABOT'S PRACTICE ROOM  --  Hyperion Shift LLC
     =========================================================================
     CHANGE NOTES (keep newest at top):
+  - 2026-08-26  BUILD nw. THREE DOORS AT THE END OF A DRILL RUN (Jim: "Abrabot
+    says 'pick another lesson' and no other option"): Pick another lesson (the
+    picker again), Back to my lesson (/session, same code+course), Done for now
+    (/home). The course rides the URL, read fresh at click time -- this page has
+    no COURSE global (caught in this build's own dry run).
 
     (mn) 2026-08-24 -- MR. CADABRA WEARS HIS OWN FACE HERE. Jim tested the handoff
     with the fully rendered course and ruled: "we need to see mister Cadabra when
@@ -784,10 +789,25 @@
         };
         ctl.appendChild(nb);
       }
+      // (nw, 2026-08-26) Jim: "Abrabot says 'pick another lesson' and no other
+      // option. How about return to the course, or end for now?" Three doors:
+      // another lesson (reload the picker), back to the lesson (session, same
+      // code+course), done for now (the student's home menu).
+      var _co = (new URLSearchParams(location.search).get("course") || "").trim();
+      var cq = "?code=" + encodeURIComponent(CODE) +
+               (_co ? "&course=" + encodeURIComponent(_co) : "");
       var done = document.createElement("button");
       done.className = "opt"; done.textContent = "Pick another lesson";
       done.onclick = function () { location.reload(); };
       ctl.appendChild(done);
+      var back = document.createElement("button");
+      back.className = "opt"; back.textContent = "\u{1F3EB} Back to my lesson";
+      back.onclick = function () { location.href = "/session" + cq; };
+      ctl.appendChild(back);
+      var bye = document.createElement("button");
+      bye.className = "opt"; bye.textContent = "\u{1F44B} Done for now";
+      bye.onclick = function () { location.href = "/home" + cq; };
+      ctl.appendChild(bye);
       $("status").textContent = "Practice only — Abrabot never changes your progress.";
       return;
     }

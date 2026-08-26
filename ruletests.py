@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD nw -- PART 3ef: the second flag harvest + the placement
+#               gap. Three doors end a drill run; the number line scales to the
+#               board; one equation per line; "too" never hangs after a number;
+#               techniques are named as tricks; rule 40(h) placement validates
+#               skills not vocabulary, with the first-session word tour riding
+#               the placement note. Headroom after: 149 chars -- the NEXT shared
+#               clause must deliberate a raise (hr/il/ni/nu/nv discipline).
 #   2026-08-26  BUILD nv -- PART 3ee: the night watch's thirteen. Referees 45
 #               (never ask what the board already answers) + 46 (no record means
 #               ask), three notation catalogue entries (slash/arrow/hug), "lots
@@ -10678,6 +10685,62 @@ def part3ee_the_night_watchs_thirteen():
           "PROMPT_CEILING = 193_000" in traw and "2026-08-26 (build nv): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
+def part3ef_the_second_flag_harvest():
+    """PART 3ef (build nw) -- THE SECOND FLAG HARVEST + THE PLACEMENT GAP.
+
+    Four flags from one live Entry session (2026-08-26), and the design insight
+    behind the worst of them, in Jim's words: "if a placement exam puts me in
+    unit three... it feels fair to talk about terms that maybe weren't brought
+    up yet... it might be worthwhile to first spend a few minutes reviewing...
+    so people aren't caught off guard." He was handed "fact families" cold --
+    the term is taught in a unit his placement skipped.
+    ① Abrabot's dead end -> THREE DOORS (another lesson / back to my lesson /
+      done for now), course read from the URL at click time (this page has no
+      COURSE global -- caught in this build's own dry run).
+    ② the number line's display cap 660 -> 1100 (viewBox untouched, so the
+      geometry pins hold and everything scales up together).
+    ③ ONE EQUATION PER LINE (rule 15a) -- a fact family is three lines.
+    ④ 48(h): never hang "too" after a number ("six too" reaches young ears as
+      "six, two"); the elementary template names techniques as tricks.
+    ⑤ rule 40(h) PLACEMENT VALIDATES SKILLS, NOT VOCABULARY + the first-session
+      word tour riding main.py's placement note (dynamic: placed students only,
+      so the all-heard ceiling measurement is untouched -- headroom 149)."""
+    print("\nPART 3ef — the second flag harvest (build nw)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = open(os.path.join(here, "static", "drill.html"), encoding="utf-8").read()
+    dc = code_only(d)
+    check("⭐ the drill run ends with three doors, not one",
+          '"Pick another lesson"' in dc and "Back to my lesson" in dc
+          and "Done for now" in dc,
+          "Jim: 'Abrabot says pick another lesson and no other option'")
+    check("  ...back-to-lesson carries code AND course, read at click time",
+          '"/session" + cq' in dc and 'new URLSearchParams(location.search).get("course")' in dc,
+          "a COURSE global does not exist on this page -- the URL is the truth")
+    check("  ...and done-for-now goes home, same query",
+          '"/home" + cq' in dc,
+          "an exit door that drops the code logs the child out")
+    mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("⭐ the number line may span the board (display cap 1100)",
+          "svgOpen(W, H, 1100)" in mf and "var W = 660, H = 120" in mf,
+          "Jim: 'nearly microscopic while it should span the white board' -- and "
+          "the viewBox stays 660 so the je geometry pins keep holding")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    for needle, why in (
+        ("AND ONE EQUATION PER LINE, always", "a fact family is THREE lines"),
+        ("PLACEMENT VALIDATES SKILLS, NOT VOCABULARY",
+         "'fact families' was handed to Jim cold in a unit his placement skipped"),
+        ('NEVER HANG "TOO" RIGHT AFTER A NUMBER', "young ears hear 'six, two'"),
+        ('"the counting-on trick", "the make-a-ten trick"',
+         "'learning to count on to add' is word salad to a child")):
+        check(f"  prompt: {needle[:46]}", needle in psrc, why)
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("the placed student's note carries the first-session word tour",
+          "PLACEMENT VALIDATES SKILLS, NOT VOCABULARY (rule 40h)" in msrc
+          and "two-minute friendly tour" in msrc,
+          "the durable law lives in rule 40(h); the OPENER rides the note that "
+          "only placed students get, which is exactly when the tour belongs")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11393,7 +11456,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,624</b>" in page,
+          "<b>6,633</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19758,6 +19821,7 @@ def main():
     part3eb_the_board_answers_for_its_size()
     part3ed_the_first_flag_harvest()
     part3ee_the_night_watchs_thirteen()
+    part3ef_the_second_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -2,6 +2,9 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-26  BUILD nw -- the number line's display cap 660 -> 1100px (Jim's
+                 flag: "nearly microscopic while it should span the white board").
+                 ViewBox and all geometry untouched; it scales up, text and all.
      2026-08-12  BUILD em -- [[pie parts="N" shaded="K"]]: EQUAL PARTS, COUNTABLE, and
                  with NO answer printed on it. The proportional mode draws one wedge per
                  data entry, so a fractions board captioned "cut into four equal parts"
@@ -855,7 +858,12 @@
     // build je: wider, so a long range is legible (see niceStep above).
     var W = 660, H = 120, left = 30, right = W - 30, axisY = 62, plotW = right - left;
     var mapX = function (v) { return left + (v - min) / (max - min) * plotW; };
-    var s = svgOpen(W, H, 660);
+    // (nw, 2026-08-26) Jim's flag, live in an Entry counting-on lesson: "numberline
+    // is nearly microscopic while it should span the white board." The viewBox
+    // stays 660 (every coordinate above is untouched); only the DISPLAY cap rises,
+    // so the SVG scales up to fill the feed -- ticks, dots and labels grow with
+    // it, which is exactly what young eyes need. width:100% was already there.
+    var s = svgOpen(W, H, 1100);
     var ineq = String(a.ineq || a.inequality || "").match(/(>=|<=|>|<)\s*(-?\d*\.?\d+)/);
     if (ineq) {
       var op = ineq[1], val = parseFloat(ineq[2]), right2 = (op === ">" || op === ">="), closed = (op === ">=" || op === "<=");
