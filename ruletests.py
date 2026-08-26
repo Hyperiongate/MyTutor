@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD nz -- PART 3ei: the third flag harvest. Referee 47 (count
+#               your own drawing -- the objects tag is the truth), 29(c) scoped
+#               to real boundaries (nu's same-day regression owned and fixed),
+#               referee 45 learned "what number did you build?", the seventh
+#               dated ceiling raise (193k -> 195k, deliberated since nw's 149).
 #   2026-08-26  BUILD ny -- PART 3eh: where the seconds go (the latency deep
 #               dive). PROMPT_CACHE_TTL=1h env support (unknown values fall back
 #               to the plain 5m block, never crash a turn); /api/admin/stats
@@ -10693,8 +10698,9 @@ def part3ee_the_night_watchs_thirteen():
           "a referee that exists but is never called protects nobody")
     traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
     check("the sixth ceiling raise carries its dated note",
-          "PROMPT_CEILING = 193_000" in traw and "2026-08-26 (build nv): RAISED" in traw,
-          "an undated raise is how the ledger's discipline dies")
+          "2026-08-26 (build nv): RAISED 191,000 -> 193,000" in traw,
+          "an undated raise is how the ledger's discipline dies "
+          "(the CURRENT value is the newest part's pin; this one pins the nv note)")
 
 def part3ef_the_second_flag_harvest():
     """PART 3ef (build nw) -- THE SECOND FLAG HARVEST + THE PLACEMENT GAP.
@@ -10860,6 +10866,97 @@ def part3eh_where_the_seconds_go():
           '" reads by " + (CRITIC_SEAT || "?")' in ac
           and '" Opus reads · "' not in ac,
           "the hardcoded label would lie the moment LIVE_CRITIC_MODEL changes")
+
+def part3ei_the_third_flag_harvest():
+    """PART 3ei (build nz) -- THE THIRD FLAG HARVEST: THE DRAWING IS THE TRUTH.
+
+    Four flags from one basic-course minute (2026-08-26 18:04-18:06):
+    ① "It says 4 bundles of 10 but only shows 3" -- and one turn later the
+      child's correct "3" was graded wrong ("Close, but... I see four").
+      REFEREE 47 (boardcount): every spoken drawn-count claim in a reply that
+      carries an [[objects]] tag must match SOME honest reading of the drawing
+      (a row's count, the row count, the total, adds, takes). Conservative by
+      design; canon swept 0 fires before it went live.
+    ② "I have only done 1 problem and it's asking me if I want to stop" --
+      AN HONEST REGRESSION from nu's own rule 29(c), same-day: the fork meant
+      for finished topics was offered after every problem. 29(c) now scopes the
+      stop offer to REAL boundaries; mid-topic the ask is "ready for another?".
+      ⚠️ LESSON: a rule that names a moment must also name the moments it is
+      NOT -- the model generalizes eagerly.
+    ③ "YOU SHOWED THE ANSWER BEFORE ASKING THE QUESTION" -- referee 45 learned
+      the place-value ask shapes ("what number did you build / does that make /
+      is it?").
+    Plus the SEVENTH dated ceiling raise (193k -> 195k; headroom had stood at
+    149 since nw, flagged there as the next build's deliberation)."""
+    print("\nPART 3ei — the third flag harvest (build nz)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ Jim's flag: 'four bundles' over a drawing of three fires",
+         'Here are four bundles of ten, plus some loose stars. How many bundles '
+         'of ten do you count? [[objects emoji="🔟" groups="10 | 10 | 10" add="5"]]'),
+        (False, "  the honest count passes",
+         'Here are three bundles of ten, plus five loose stars. '
+         '[[objects emoji="🔟" groups="10 | 10 | 10" add="5"]]'),
+        (True,  "  a plain miscount fires ('four stars' over five)",
+         'I see four stars there. [[objects emoji="⭐" groups="5"]]'),
+        (False, "  per-row counts are an honest reading",
+         'We have five stars and three apples. [[objects emoji="⭐" groups="5 | 3"]]'),
+        (False, "  the row count is an honest reading",
+         'Look at these two rows. [[objects emoji="🍎" groups="5 | 3"]]'),
+        (False, "  the added total is an honest reading",
+         'Here are eight stars in all. [[objects emoji="⭐" groups="5" add="3"]]'),
+        (False, "  what remains after taking is an honest reading",
+         'We see three stars left. [[objects emoji="⭐" groups="5" take="2"]]'),
+        (False, "  no drawing in the reply -> out of scope (the board may differ)",
+         "Great counting! No drawing here, just words about four bundles.")):
+        check(label, bool(TT.board_count_conflict(reply)) == want,
+              "grading a correct count as wrong teaches a child to distrust "
+              "their own eyes" if want else "an honest reading must never pay a retry")
+    for want, label, reply in (
+        (True,  "⭐ 'what number did you build?' with the answer on the board fires",
+         'What number did you build? [[step eq="2 tens + 4 ones = 24"]]'),
+        (False, "  ...and with a pending line, passes",
+         'What number did you build? [[step eq="2 tens + 4 ones = ?"]]')):
+        check(label, bool(TT.answered_ask_conflict(reply)) == want,
+              "Jim: 'YOU SHOWED THE ANSWER BEFORE ASKING THE QUESTION'" if want
+              else "a real ask with a blank must never pay a retry")
+    check("referee 47 rides the sweep",
+          "board_count_conflict(reply)" in code_only(open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read())
+          and '"boardcount"' in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "a referee that exists but is never called protects nobody")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if TT.board_count_conflict(t) or TT.answered_ask_conflict(t):
+                fires += 1
+    check("⭐ zero fires across the canon under the new shapes", fires == 0,
+          f"{fires} scripts rejected -- a retry would mangle verbatim scripts")
+    here = os.path.dirname(os.path.abspath(__file__))
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("29(c) scopes the fork to real boundaries (nu's regression fixed)",
+          "THE FORK HAS ITS MOMENTS" in psrc
+          and "After ONE problem mid-topic" in psrc,
+          "the stop offered after every problem teaches that leaving is the "
+          "expected next move")
+    check("  ...and the boundary fork itself survives (3ed's pin still holds)",
+          "FINISHING A TOPIC IS NOT FINISHING THE DAY" in psrc
+          and "END WITH THE FORK" in psrc,
+          "the fix is a SCOPE, not a retreat -- topic ends still offer the choice")
+    check("the elementary objects guidance says count your own drawing",
+          "COUNT YOUR OWN DRAWING BEFORE YOU SPEAK IT" in psrc,
+          "referee 47 enforces a rule that must exist in the prompt")
+    traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the seventh ceiling raise carries its dated note",
+          "PROMPT_CEILING = 195_000" in traw and "2026-08-26 (build nz): RAISED" in traw,
+          "an undated raise is how the ledger's discipline dies")
 
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
@@ -11576,7 +11673,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,641</b>" in page,
+          "<b>6,657</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19944,6 +20041,7 @@ def main():
     part3ef_the_second_flag_harvest()
     part3eg_the_ritual_dies()
     part3eh_where_the_seconds_go()
+    part3ei_the_third_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

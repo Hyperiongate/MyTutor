@@ -2164,7 +2164,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # prompt measured 191,915. Sixth verse, same discipline: teaching is never trimmed
 # to duck a tripwire; the raise is deliberate and this is its dated note. The
 # two-prompt-sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 193_000
+# 2026-08-26 (build nz): RAISED 193,000 -> 195,000. The third flag harvest scoped
+# 29(c)'s fork to real boundaries (fixing nu's own same-day regression -- the stop
+# offer after every problem) and the all-heard algebra2 deferred prompt measured
+# 193,263 (headroom had stood at 149 since nw, flagged then as the next
+# deliberation). Seventh verse, same discipline: teaching is never trimmed to duck
+# a tripwire; the raise is deliberate and this is its dated note. The
+# two-prompt-sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 195_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -4993,6 +5000,84 @@ def angle_piece_conflict(reply: str, course: str = ""):
         return ""
 
 
+# (nz) THE FORTY-SEVENTH REFEREE -- COUNT YOUR OWN DRAWING. Jim's flag queue,
+# 2026-08-26, twice in one basic-course minute: "Here are four bundles of ten"
+# over a board that drew THREE -- and one turn later the tutor graded the child's
+# correct "3" as wrong ("Close, but let's count them together! I see four...").
+# The [[objects]] tag IS the truth: it says exactly what is drawn. This referee
+# reads every spoken drawn-count claim ("here are four bundles", "I see three
+# groups") in a reply that carries an objects tag, and demands the number match
+# something real about the drawing: a row's count, the number of rows, the total,
+# or an added row. CONSERVATIVE by design -- a claim matching ANY honest reading
+# passes; only a number the drawing cannot support under any reading fires.
+_OBJ_TAG_ATTR_RE = re.compile(r"\[\[\s*objects\b([^\]]*)\]\]", re.I)
+_OBJ_NUMS_RE = re.compile(r"\d{1,2}")
+_NUMWORD = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+            "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+            "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+            "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+            "twenty": 20}
+_DRAWN_COUNT_CLAIM_RE = re.compile(
+    r"\b(?:here\s+are|here'?s|i\s+see|there\s+are|we\s+(?:have|drew|see)|"
+    r"i\s+count|you\s+(?:can\s+)?see|look\s+at\s+(?:the|these))\s+"
+    r"(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|"
+    r"fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|\d{1,2})\s+"
+    r"(?:separate\s+|big\s+|little\s+|more\s+)?"
+    r"(bundles?|groups?|rows?|piles?|stacks?|boxes?|tens?|stars?|apples?|"
+    r"cookies?|coins?|hearts?|balls?|dots?)\b", re.I)
+
+
+def board_count_conflict(reply: str):
+    """Return a description of a spoken drawn-count claim the [[objects]] tag
+    cannot support, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        tags = _OBJ_TAG_ATTR_RE.findall(text)
+        if not tags:
+            return ""                    # no drawing in THIS reply -- out of scope
+        ok = set()
+        for attrs in tags:
+            gm = re.search(r'groups\s*=\s*"([^"]*)"', attrs, re.I)
+            rows = [int(n) for n in _OBJ_NUMS_RE.findall(gm.group(1))] if gm else []
+            am = re.search(r'add\s*=\s*"([^"]*)"', attrs, re.I)
+            adds = [int(n) for n in _OBJ_NUMS_RE.findall(am.group(1))] if am else []
+            tm = re.search(r'take\s*=\s*"([^"]*)"', attrs, re.I)
+            takes = [int(n) for n in _OBJ_NUMS_RE.findall(tm.group(1))] if tm else []
+            for r in rows:
+                ok.add(r)
+            ok.add(len(rows))                          # "three rows/groups/bundles"
+            ok.add(sum(rows))                          # the whole picture
+            for a in adds:
+                ok.add(a); ok.add(sum(rows) + a)       # with the added ones
+            for t in takes:
+                ok.add(t); ok.add(sum(rows) - t)       # what remains
+        ok.discard(0)
+        prose = _spoken_only(text)
+        for m in _DRAWN_COUNT_CLAIM_RE.finditer(prose):
+            word = m.group(1).lower()
+            n = _NUMWORD.get(word, None)
+            if n is None:
+                try:
+                    n = int(word)
+                except ValueError:
+                    continue
+            if n in ok:
+                continue
+            said = " ".join(m.group(0).split())[:60]
+            return ('you say "{s}" but the [[objects]] drawing on this reply '
+                    "cannot support the number {n} under any honest reading "
+                    "(rows, a row's count, the total, added or taken ones). A "
+                    "child counts what is DRAWN, and grading their correct count "
+                    "as wrong teaches them not to trust their own eyes. COUNT "
+                    "YOUR OWN TAG, then re-emit with the words and the drawing "
+                    "agreeing -- fix whichever one is wrong.").format(s=said, n=n)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardcount] crashed (fail open): {exc}")
+        _event("referee_crash", "boardcount", str(exc))
+        return ""
+
+
 # (nv) THE FORTY-FIFTH REFEREE -- NEVER ASK WHAT THE BOARD ALREADY ANSWERS.
 # Night watch 2026-08-26, twice in one lesson: the board wrote "3 + 8 = 11" and
 # the very same reply asked "how many stickers are there in total?" -- a check
@@ -5002,7 +5087,8 @@ def angle_piece_conflict(reply: str, course: str = ""):
 # student to fill. Quiz moments stay exempt (their conduct is rule 47's job).
 _TOTAL_ASK_RE = re.compile(
     r"\b(?:how\s+many|how\s+much|what\s+do\s+you\s+get|what'?s\s+the\s+total|"
-    r"in\s+total)\b[^.?!]*\?", re.I)
+    r"in\s+total|what\s+number\s+(?:do(?:es)?\s+(?:that|this|it)\s+make|"
+    r"did\s+you\s+(?:build|make)|is\s+(?:that|this|it)))\b[^.?!]*\?", re.I)
 _EQ_DONE_RE = re.compile(r"=\s*-?\d[\d.,]*\s*$")
 _EQ_PEND_RE = re.compile(r"=\s*\?")
 
@@ -6472,6 +6558,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if norecord:
             _event("referee_fire", "norecordresume", norecord)
             return norecord
+        # (nz) the forty-seventh: count your own drawing.
+        bcount = board_count_conflict(reply)
+        if bcount:
+            _event("referee_fire", "boardcount", bcount)
+            return bcount
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)
