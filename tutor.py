@@ -5000,6 +5000,40 @@ def angle_piece_conflict(reply: str, course: str = ""):
         return ""
 
 
+# (oe) THE FORTY-NINTH REFEREE -- ONE THOUGHT PER LINE (THE CHECK-CRAM). Jim's
+# flag, 2026-08-26: the board wrote "Check X = 11: 3(11 - 2) = 2(11) + 5 ?" --
+# a label, the value, a colon, and the whole substituted equation welded into
+# ONE line. Jim: "as if it thinks we're being charged by the line... this is
+# just a lot of information on one line." The shape is distinctive and safe to
+# hold: a check/verify label that itself contains "=" (the value being checked),
+# then a colon, then ANOTHER equation on the same rendered line. Canon swept 0.
+# Card items split on "|" first -- each pipe piece renders as its own line.
+_CHECK_CRAM_RE = re.compile(
+    r"\b(?:check|checking|verify|verifying)\b[^:|]*=[^:|]*:\s*[^|]*=", re.I)
+
+
+def board_cram_conflict(reply: str):
+    """Return a description of a check-label crammed onto its equation, or "".
+    Never raises (fail open)."""
+    try:
+        for val in _note_tag_vals(str(reply or "")):
+            for piece in val.split("|"):
+                m = _CHECK_CRAM_RE.search(piece)
+                if m:
+                    shown = " ".join(piece.split())[:70]
+                    return ('the board line "{s}" welds a check label, the value, '
+                            "and the substituted equation into ONE line. One "
+                            "thought per line: the label (Check x = 11) is its own "
+                            "line or the caption; the substituted equation is its "
+                            "own line. Re-emit as two lines; change nothing "
+                            "else.").format(s=shown)
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardcram] crashed (fail open): {exc}")
+        _event("referee_crash", "boardcram", str(exc))
+        return ""
+
+
 # (oc) THE FORTY-EIGHTH REFEREE -- A RESULT YOU SPEAK IS A RESULT YOU DREW.
 # Jim's flag, 2026-08-26, a live algebra lesson: the student answered "+3 to each
 # side" (one step) and the very next reply said "We got X equals 5 -- nice work
@@ -6616,6 +6650,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if skipres:
             _event("referee_fire", "skippedresult", skipres)
             return skipres
+        # (oe) the forty-ninth: one thought per line (the check-cram).
+        cram = board_cram_conflict(reply)
+        if cram:
+            _event("referee_fire", "boardcram", cram)
+            return cram
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

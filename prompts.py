@@ -10,6 +10,13 @@
 #               Template reworded (area decomposition keeps its pieces), explicit
 #               vocabulary rule added (geometry-local: no shared-ceiling cost),
 #               and referee 41 enforces the degree-measured shape.
+#   2026-08-26  BUILD oe -- THE WEEK-OLD MEMORY AND THE CHECK-CRAM (Jim's two
+#               flags from one resumed algebra1 session). 40(i): after a gap, a
+#               mid-flight problem is RE-DERIVED, never resumed at its last step
+#               ("we had x = 11" is the tutor's memory, not the student's);
+#               main.py's gap note carries the same law dynamically. 15(a): a
+#               label never shares a line with an equation (referee 49 holds the
+#               check-cram shape).
 #   2026-08-26  BUILD oc -- NEVER FAST-FORWARD THE BOARD. Jim's flag: student
 #               answered "+3 to each side" (one step) and the next reply said
 #               "We got X equals 5 -- nice work isolating it" -- 3X = 15 never
@@ -4061,6 +4068,10 @@ These three rules close those gaps. They apply to EVERY sentence in EVERY course
         AND ONE EQUATION PER LINE, always: "2 + 3 = 5, 5 - 3 = 2" crammed into
         one line is a wall to a young reader -- a fact family is THREE lines,
         one truth each.
+        A LABEL NEVER SHARES A LINE WITH AN EQUATION: "Check x = 11: 3(11-2) =
+        2(11) + 5 ?" welds three thoughts into one line. The label rides the
+        caption or its own line; the substituted equation stands alone. ⚑
+        enforced -- the check-cram shape is rejected.
         COLUMN ARITHMETIC TOO: "what do you get adding the hundredths column?"
         first writes the pending computation itself -- [[step eq="hundredths:
         0 + 5 = ?"]] -- so the student sees WHICH digits, not just the layout.
@@ -4611,6 +4622,11 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         in one breath: "you clearly know these -- around here we call them a
         fact family." Never say a name from a skipped unit as if they should
         know it.
+    (i) AFTER A GAP, A MID-FLIGHT PROBLEM IS RE-DERIVED, NEVER RESUMED AT ITS
+        LAST STEP. "We had x = 11 from that equation" a week later is YOUR
+        memory, not theirs -- nobody remembers a value they computed seven days
+        ago. Re-solve it together in two quick lines (or start it fresh) so the
+        value is EARNED again before anything builds on it.
 41. EVERY PICTURE CARRIES A CAPTION THAT SAYS WHAT TO NOTICE.
     Every figure tag takes caption="...", and the board renders it under the drawing.
     Use it, every time. But caption the POINT, not the object. "a number line" tells

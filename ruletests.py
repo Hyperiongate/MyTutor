@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oe -- PART 3el: one thought per line + the week-old
+#               memory. Referee 49 (the check-cram), rule 40(i) (a mid-flight
+#               problem is re-derived after a gap), the gap note's dynamic copy
+#               of the same law. Headroom 616 -- the next shared clause
+#               deliberates the eighth raise.
 #   2026-08-26  BUILD od -- PART 3ek: the keyboard closes. A ⌨️✕ on the answer
 #               bar of all three pages; reopen = the Type button where it exists
 #               (session), a fixed ⌨️ pill where the link was retired with
@@ -11061,6 +11066,75 @@ def part3ek_the_keyboard_closes():
           "the close lives in the PAGES -- the strip file must never grow "
           "toggle knowledge (the 2026-07-30 keypad lesson)")
 
+def part3el_one_thought_per_line():
+    """PART 3el (build oe) -- ONE THOUGHT PER LINE, AND THE WEEK-OLD MEMORY.
+
+    Jim's two flags from one resumed algebra1 session (2026-08-26):
+    ① "There's no way that I would remember that we reached x equal eleven" --
+      after a WEEK away the tutor resumed a mid-flight problem at its last step,
+      trusting the student's memory of a value they computed seven days ago.
+      Rule 40(i): after a gap, a mid-flight problem is RE-DERIVED (two quick
+      lines together) or restarted -- never resumed at its last step. The
+      opener's gap note (main.py, dw's machinery) carries the same law
+      dynamically, so it reaches exactly the student it applies to.
+    ② "Check X = 11: 3(11 - 2) = 2(11) + 5 ? ... this is just a lot of
+      information on one line. As if it thinks we're being charged by the
+      line." REFEREE 49 (boardcram): a check/verify label that contains "="
+      welded by a colon to ANOTHER equation on the same rendered line. Card
+      items split on "|" first (each pipe piece renders as its own line); the
+      general colon shapes canon uses legitimately (solutions:, focus:,
+      directrix:) never match -- their labels carry no "=". Canon swept 0."""
+    print("\nPART 3el — one thought per line (build oe)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ Jim's flagged check-cram fires",
+         '[[step eq="Check X = 11: 3(11 - 2) = 2(11) + 5 ?"]]'),
+        (False, "  the same content as TWO lines passes",
+         '[[step eq="Check x = 11"]] [[step eq="3(11 - 2) = 2(11) + 5 ?"]]'),
+        (False, "  a bare check label passes",
+         '[[step eq="Check x = 11"]]'),
+        (False, "  canon's solutions: shape never matches (label has no =)",
+         '[[write text="x² − 5x + 6 = 0        solutions:  x = 2  and  x = 3"]]'),
+        (False, "  card pipe-items are separate rendered lines",
+         '[[card items="y = x^2 + C | with y(0)=3: y = x^2 + 3"]]'),
+        (True,  "  verify-crams fire too",
+         '[[step eq="Verify x = 4: 2(4) + 1 = 9"]]')):
+        check(label, bool(TT.board_cram_conflict(reply)) == want,
+              "Jim: 'a lot of information on one line'" if want
+              else "authored colon shapes and split lines must never pay a retry")
+    check("referee 49 rides the sweep",
+          "board_cram_conflict(reply)" in code_only(open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read())
+          and '"boardcram"' in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "a referee that exists but is never called protects nobody")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if TT.board_cram_conflict(t):
+                fires += 1
+    check("⭐ zero fires across the canon", fires == 0,
+          f"{fires} scripts rejected")
+    here = os.path.dirname(os.path.abspath(__file__))
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    check("40(i): a mid-flight problem is re-derived after a gap",
+          "AFTER A GAP, A MID-FLIGHT PROBLEM IS RE-DERIVED" in psrc
+          and "YOUR memory, not theirs" in psrc,
+          "nobody remembers a value they computed seven days ago")
+    check("15(a): a label never shares a line with an equation",
+          "A LABEL NEVER SHARES A LINE WITH AN EQUATION" in psrc,
+          "the referee enforces a rule that must exist in the prompt")
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("the gap note carries the mid-flight law dynamically",
+          "never resume at its last step" in msrc and "rule 40i" in msrc,
+          "the law must reach exactly the returning student it applies to")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11776,7 +11850,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,674</b>" in page,
+          "<b>6,685</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20147,6 +20221,7 @@ def main():
     part3ei_the_third_flag_harvest()
     part3ej_never_fast_forward()
     part3ek_the_keyboard_closes()
+    part3el_one_thought_per_line()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

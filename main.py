@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26oe-one-thought-per-line". BUILD oe --
+#               Jim's two flags from one resumed session: referee 49 (the check-
+#               cram: label + value + substituted equation welded into one board
+#               line) and rule 40(i) (after a gap a mid-flight problem is re-
+#               derived, never resumed at its last step) -- the gap note HERE
+#               carries the same law dynamically. Methodology 48 -> 49 referees.
 #   2026-08-26  APP_BUILD -> "2026-08-26od-the-keyboard-closes". BUILD od --
 #               Jim: "close the keyboard if I choose to do that." A ⌨️✕ on the
 #               answer bar of session/practice/topic; the board takes its room
@@ -11910,7 +11916,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26od-the-keyboard-closes"
+APP_BUILD = "2026-08-26oe-one-thought-per-line"
 
 
 @app.get("/health")
@@ -12986,7 +12992,10 @@ def chat(req: ChatRequest):
                 "out or nailed, put the key thing back on the board if it helps, THEN "
                 "ask one gentle memory-jog question before moving forward. Memory fades "
                 "in a few days -- back up a little; it should feel like a friend "
-                "catching you up, never a test.)")
+                "catching you up, never a test. And if a PROBLEM was mid-flight "
+                "when they left, re-derive it together in two quick lines or "
+                "start it fresh (rule 40i) -- never resume at its last step "
+                "trusting their memory of a value from a week ago.)")
         # 2026-08-11 (build dw, Jim live: "it's only showing two bars"): the server KNOWS
         # when the TODAY bar is empty. When it is, the opener's standing instruction to
         # emit [[today items]] becomes a per-turn order it cannot miss.
