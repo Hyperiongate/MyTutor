@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD nv -- PART 3ee: the night watch's thirteen. Referees 45
+#               (never ask what the board already answers) + 46 (no record means
+#               ask), three notation catalogue entries (slash/arrow/hug), "lots
+#               of kids" in rule 42's shapes (and percentile exempted as probstat
+#               curriculum), six prompt clauses, sixth ceiling raise (191k->193k).
+#               Three canon catches during the dry run are pinned as cases.
 #   2026-08-26  BUILD nu -- PART 3ed: the first flag harvest. Jim's in-app flag
 #               queue produced four confirmed findings in one evening; referees 43
 #               (unilateral sign-off, heard-gated) and 44 (board paren balance)
@@ -10550,7 +10556,126 @@ def part3ed_the_first_flag_harvest():
     traw = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "tutor.py"), encoding="utf-8").read()
     check("the fifth ceiling raise carries its dated note",
-          "PROMPT_CEILING = 191_000" in traw and "2026-08-26 (build nu): RAISED" in traw,
+          "2026-08-26 (build nu): RAISED 188,000 -> 191,000" in traw,
+          "an undated raise is how the ledger's discipline dies "
+          "(the CURRENT value is 3ee's pin -- this one pins the nu note)")
+
+def part3ee_the_night_watchs_thirteen():
+    """PART 3ee (build nv) -- THE NIGHT WATCH'S THIRTEEN (2026-08-26 run).
+
+    Ten lessons, thirteen confirmed findings. The machine-fixable ones land here:
+    ① REFEREE 45 (answeredask): "3 + 8 = 11" on the board and "how many in
+       total?" in the same breath -- a check the board already answered (15e/17).
+       Final-sentence only, and a DESCRIBED question ("the mean answers one
+       question: ...?") is not an ASKED one -- both shapes caught on canon during
+       this build's own dry run and pinned below.
+    ② REFEREE 46 (norecordresume): "I don't have the exact spot recorded, so
+       let's start the ladder over" -- admitted ignorance, then chose FOR the
+       student (rule 40(g) now).
+    ③ THREE CATALOGUE ENTRIES: the fraction slash (1/4 unread, basic), the
+       rewrite arrow (->, quiz-eighty), a number hugging a letter (2x+1 drawn
+       before anyone said "two x", algebra1). For hug and slash the PROSE ITSELF
+       counts as the reading (the voice lane reads digits aloud) -- checked
+       against prose ONLY, never tag values (the tag contains the notation by
+       definition; the first draft silenced itself exactly that way).
+    ④ "lots of kids" joined rule 42's shapes -- and the dry-run sweep found the
+       OLD pattern firing on "percentile" inside probstat's own percentile
+       lessons, so that vocabulary is now exempt where it is curriculum.
+    Plus prompt-tier: 15(a) pending-line-asks-YOUR-question, 17's blank-total
+    law, 48(g) read-the-whole-line, 50(h) name-the-whole-gate, 63(f) say-the-
+    stack-as-drawn. And the SIXTH dated ceiling raise (191k -> 193k)."""
+    print("\nPART 3ee — the night watch's thirteen (build nv)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ the answered ask fires (3+8=11 shown, total asked)",
+         'Count the stars: how many stickers are there in total? '
+         '[[step eq="plus the 3 you had: 3 + 8 = 11"]]'),
+        (False, "  a pending line makes it a real ask",
+         'How many in total? [[step eq="3 + 8 = ?"]]'),
+        (False, "  a completed line with a NON-counting next question passes",
+         'Nice, 3 + 8 = 11! [[step eq="3 + 8 = 11"]] Ready for the next one?'),
+        (False, "  ⚠️ canon catch #1: the mid-text rhetorical never fires",
+         "If everyone had the same amount, how much would that be? It is not "
+         'the middle number. [[write text="(3 + 5 + 10) ÷ 3 = 6"]]'),
+        (False, "  ⚠️ canon catch #2: a DESCRIBED question never fires",
+         "The mean answers one question: if everyone had the same amount, how "
+         'much would that be? [[write text="mean = (3 + 5 + 10) ÷ 3 = 6"]]')):
+        check(label, bool(TT.answered_ask_conflict(reply)) == want,
+              "a check the board answered is no check" if want
+              else "the exemptions are load-bearing -- they came from real canon")
+    for want, label, reply in (
+        (True,  "⭐ the no-record resume that chooses fires",
+         "I don't have the exact spot we stopped on recorded, so let's pick it "
+         "up from the start of that unit's ladder: solving quadratics."),
+        (False, "  the same admission WITH the fork passes",
+         "I don't have the exact spot recorded. Want a quick warm-up, or do you "
+         "remember where we should pick up?"),
+        (False, "  an ordinary resume with a record is silent",
+         "Last time we finished factoring -- ready to pick up at quadratics?")):
+        check(label, bool(TT.no_record_resume_conflict(reply)) == want,
+              "rule 40(g): the student IS the record" if want
+              else "asking IS the fix -- it must never pay a retry")
+    for want, label, reply, heard in (
+        (True,  "⭐ 'lots of kids' is a comparison now", 
+         "Oh, fractions trip up lots of kids at first", ""),
+        (False, "  ⚠️ canon catch #3: percentile as probstat CURRICULUM is exempt",
+         "the 80th percentile means 80 out of 100 fall at or below your score",
+         "probstat"),
+        (True,  "  ...but percentile as a MEASUREMENT still fires elsewhere",
+         "you're in the 90th percentile for your grade", "algebra1")):
+        check(label, bool(TT.student_compare_conflict(reply, heard)) == want,
+              "rule 42: never measure this student against a room they cannot see"
+              if want else "a percentile lesson must be able to say its own word")
+    for want, label, reply in (
+        (True,  "⭐ a board-only hug fires (2x+1 drawn, never spoken)",
+         'Watch the machine work. [[machine rule="2x+1" caption="3 goes in, 7 comes out"]]'),
+        (False, "  prose carrying 2x IS the reading (the voice reads digits)",
+         'The rule 2x + 1 doubles and adds one. [[machine rule="2x+1"]]'),
+        (False, "  4x5-style multiplication never matches the hug",
+         'Four times five. [[write text="4x5 = 20"]]'),
+        (True,  "  a bare slash fraction fires",
+         'Look at this piece. [[write text="1/4"]] Which number is on the bottom?'),
+        (False, "  ...and 'denominator' in the prose is a reading",
+         'Look at this. [[write text="1/4"]] Which number is the denominator?'),
+        (True,  "  an unread arrow fires",
+         'Now look at the board. [[write text="20% of 80  ->  0.20 x 80"]]'),
+        (False, "  ...and 'becomes' reads it",
+         'The arrow means "becomes". [[write text="20% of 80 -> 0.20 x 80"]]')):
+        check(label, bool(TT.notation_intro_conflict(reply, heard="")) == want,
+              "if it is drawn, it is read (rule 14/48)" if want
+              else "the reading acceptance is load-bearing")
+    # canon stays clean under every new shape
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if (TT.answered_ask_conflict(t) or TT.no_record_resume_conflict(t)
+                    or TT.student_compare_conflict(t, _c)):
+                fires += 1
+    check("⭐ zero fires across the canon under the new shapes", fires == 0,
+          f"{fires} scripts rejected -- a retry would mangle verbatim scripts")
+    # prompt clauses + wiring + ceiling
+    here = os.path.dirname(os.path.abspath(__file__))
+    psrc = re.sub(r"\s+", " ", open(os.path.join(here, "prompts.py"),
+                                    encoding="utf-8").read())
+    for needle, why in (
+        ("AND THE PENDING LINE ASKS *YOUR* QUESTION", "x+2=? asked the wrong question twice"),
+        ("is reading practice, not a check", "rule 17's blank-total law"),
+        ("NO RECORD MEANS ASK, NOT CHOOSE", "rule 40(g)"),
+        ('READ THE WHOLE LINE THE FIRST TIME, "= ?" INCLUDED', "rule 48(g)"),
+        ("NAME THE WHOLE GATE", "rule 50(h): review never unlocks, a passed quiz does"),
+        ("SAY THE STACK THE WAY IT IS DRAWN", "rule 63(f): first term on top")):
+        check(f"  prompt clause: {needle[:44]}", needle in psrc, why)
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referees 45 and 46 ride the sweep",
+          "answered_ask_conflict(reply)" in tsrc and '"answeredask"' in tsrc
+          and "no_record_resume_conflict(reply)" in tsrc and '"norecordresume"' in tsrc,
+          "a referee that exists but is never called protects nobody")
+    traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the sixth ceiling raise carries its dated note",
+          "PROMPT_CEILING = 193_000" in traw and "2026-08-26 (build nv): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
 def part3dy_one_keyboard_not_two():
@@ -11268,7 +11393,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,597</b>" in page,
+          "<b>6,624</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19632,6 +19757,7 @@ def main():
     part3ea_the_owners_flag()
     part3eb_the_board_answers_for_its_size()
     part3ed_the_first_flag_harvest()
+    part3ee_the_night_watchs_thirteen()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -2145,7 +2145,13 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # before this build; the wire fired exactly as designed. Teaching is never trimmed
 # to duck a tripwire (hr/il/ni discipline, fifth verse): ceiling raised, note dated.
 # The two-prompt-sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 191_000
+# 2026-08-26 (build nv): RAISED 191,000 -> 193,000. The night watch's thirteen wrote
+# six clauses into the shared block -- 15(a) pending-line-asks-your-question, 17's
+# blank-total law, 40(g), 48(g), 50(h), 63(f) -- and the all-heard algebra2 deferred
+# prompt measured 191,915. Sixth verse, same discipline: teaching is never trimmed
+# to duck a tripwire; the raise is deliberate and this is its dated note. The
+# two-prompt-sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 193_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -4087,6 +4093,36 @@ _NOTATIONS = (
      re.compile(r"\btimes\b|\bmultipl|\bproduct\b", re.I),
      'That raised dot means TIMES -- "a · x" is read "a times x"; it is how '
      "grown-up math writes multiplication without the x-shaped sign."),
+    # (nv) 2026-08-26 -- THREE MORE THE NIGHT WATCH CAUGHT SHIPPING UNREAD.
+    # "1/4" reached a beginner with nobody explaining the slash (fractions-lost,
+    # basic); "->" floated on a board with no reading (quiz-eighty); and the very
+    # first function machine drew rule="2x+1" before anyone said "two x plus one"
+    # (function-notation, algebra1). Same law as ever: if it is drawn, it is read.
+    ("the fraction slash", re.compile(r"(?<![\w./])\d{1,3}/\d{1,3}(?![\w./])"),
+     re.compile(r"\bover\b|\bout\s+of\b|\bhal(?:f|ves)\b|\bthirds?\b|"
+                r"\bquarters?\b|\bfourths?\b|\bfifths?\b|\bsixths?\b|"
+                r"\bsevenths?\b|\beighths?\b|\bninths?\b|\btenths?\b|"
+                r"\btwelfths?\b|\bfraction\b|\bnumerator\b|\bdenominator\b", re.I),
+     'That slanted line is the FRACTION BAR -- we read 1/4 out loud as "one '
+     'fourth": the bottom number says how many equal slices the whole was cut '
+     "into, and the top number says how many slices we have."),
+    ("the rewrite arrow", re.compile(r"->|→|⇒"),
+     re.compile(r"\bbecomes?\b|\brewrit(?:e|es|ten|ing)\b|\bturns?\s+into\b|"
+                r"\barrow\b|\bwhich\s+is\b|\bmeans\b", re.I),
+     'That little arrow is read "becomes" -- it says we are REWRITING the same '
+     "amount in a new outfit, not computing something new."),
+    # ⚠️ the READING may be the prose itself: the voice lane reads digits, so a
+    # spoken sentence containing "2x" IS "two x" out loud. The defect this entry
+    # holds is a hug that appears ONLY on the board, never in the spoken words.
+    # ⚠️ the letter set INCLUDES x -- the night watch's own case was "2x+1".
+    # "4x5"-style multiplication is already safe: the 5 after the x kills the
+    # word boundary, so only a TRUE hug (digit+letter then non-word) matches.
+    ("a number hugging a letter", re.compile(r"(?<![\w.,])\d{1,3}[a-z]\b"),
+     re.compile(r"\btimes\b|\b(?:one|two|three|four|five|six|seven|eight|nine|"
+                r"ten)\s+[a-z]\b|\bcoefficient\b", re.I),
+     'A number written right up against a letter -- like 2x -- means TIMES: '
+     '"two x" is two times x. Math drops the multiplication sign when a number '
+     "hugs a letter."),
     ("subscript labels", re.compile(r"[a-z][₀₁₂₃₄₅₆₇₈₉]"),
      re.compile(r"\bsub\b|\b[a-z]\s+(?:one|two|zero)\b|\bfirst\b.{0,24}\bsecond\b", re.I),
      'Those small low numbers are SUBSCRIPTS -- labels, not arithmetic: we read '
@@ -4135,6 +4171,24 @@ def notation_intro_conflict(reply: str, heard=None):
             # tag, and that IS the introduction (the canonical sweep's catch).
             if spoken.search(prose) or spoken.search(vals):
                 continue                    # the reply reads it aloud -- the fix itself
+            # (nv) For a hug (2x) or a slash fraction (1/4), the PROSE ITSELF is a
+            # reading: the voice lane reads digits, so a spoken sentence containing
+            # "2x" IS "two x" out loud. Checked against the PROSE ONLY -- the tag
+            # values contain the notation by definition, so putting the shape in
+            # the reading regex silenced the entry entirely (caught in this
+            # build's own dry run). Arrows and bars stay word-read: the voice
+            # says nothing useful for "->".
+            if name in ("a number hugging a letter", "the fraction slash"):
+                if sym.search(prose):
+                    continue
+                # ...and ANSWER OPTIONS are not board notation: a [[choices]] row
+                # of "3/4 | 2/4 | 4/8" is a set of tappable answers (build iz's
+                # phantom class). These two entries judge only NON-choices tags.
+                nvals = " ".join(v for t in _NOTE_TAG_RE.findall(str(reply or ""))
+                                 if not t.strip().lower().startswith("choices")
+                                 for v in _NOTE_VAL_RE.findall(t))
+                if not sym.search(nvals):
+                    continue
             # build it: PRESCRIPTIVE. Five straight unresolved retries proved
             # that describing the defect is not enough -- quote the exact kind
             # of sentence the reply must add, adapted to this problem's numbers.
@@ -4616,7 +4670,7 @@ def tapped_answer_conflict(reply: str, student_message: str = "", prev_tutor=Non
 # comfort form fires too, on purpose. Comparisons to the student's OWN earlier
 # work (rule 42a) contain none of these shapes and pass untouched.
 _CMP_SHAPES = re.compile(
-    r"\b(?:most|other|many)\s+(?:kids|students|children|learners)\b"
+    r"\b(?:most|other|many|lots\s+of|plenty\s+of)\s+(?:kids|students|children|learners)\b"
     r"|\b(?:kids|students|children)\s+(?:your|his|her|their)\s+age\b"
     r"|\byour\s+classmates?\b"
     r"|\bthe\s+average\s+(?:kid|student|child)\b"
@@ -4625,12 +4679,20 @@ _CMP_SHAPES = re.compile(
     r"|\beveryone\s+else\s+(?:in|at)\s+(?:your|the)\b", re.I)
 
 
-def student_compare_conflict(reply: str):
+def student_compare_conflict(reply: str, course: str = ""):
     """Return a description of a comparison to other students, or "".
     Never raises: any unexpected input yields "" (fail open)."""
     try:
         prose = _spoken_only(str(reply or ""))
         m = _CMP_SHAPES.search(prose)
+        # (nv) Canon sweep found this firing on the word "percentile" inside
+        # probstat's OWN percentile lessons -- there it is curriculum, not a
+        # measurement of the child. The other shapes still apply in probstat;
+        # only the percentile/grade-level vocabulary is exempt there.
+        if m and str(course or "").lower() == "probstat" and re.search(
+                r"percentile|grade\s+(?:level|equivalent)", m.group(0), re.I):
+            rest = _CMP_SHAPES.search(prose[m.end():])
+            m = rest
         if not m:
             return ""
         said = " ".join(m.group(0).split())[:50]
@@ -4915,6 +4977,100 @@ def angle_piece_conflict(reply: str, course: str = ""):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[anglepiece] crashed (fail open): {exc}")
         _event("referee_crash", "anglepiece", str(exc))
+        return ""
+
+
+# (nv) THE FORTY-FIFTH REFEREE -- NEVER ASK WHAT THE BOARD ALREADY ANSWERS.
+# Night watch 2026-08-26, twice in one lesson: the board wrote "3 + 8 = 11" and
+# the very same reply asked "how many stickers are there in total?" -- a check
+# that is no check, because the answer is sitting in the line above (rules 15(e)
+# and 17). Reply-only and mechanical: a counting/total ask, at least one COMPLETED
+# equation on this reply's board, and no pending "= ?" line anywhere for the
+# student to fill. Quiz moments stay exempt (their conduct is rule 47's job).
+_TOTAL_ASK_RE = re.compile(
+    r"\b(?:how\s+many|how\s+much|what\s+do\s+you\s+get|what'?s\s+the\s+total|"
+    r"in\s+total)\b[^.?!]*\?", re.I)
+_EQ_DONE_RE = re.compile(r"=\s*-?\d[\d.,]*\s*$")
+_EQ_PEND_RE = re.compile(r"=\s*\?")
+
+
+def answered_ask_conflict(reply: str):
+    """Return a description of a counting ask whose answer is already written on
+    this reply's board, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        if _QUIZ_MOMENT_RE.search(text):
+            return ""
+        prose = _spoken_only(text)
+        # ⚠️ Canon sweep, before this shipped: the mean scripts ask "if everyone
+        # had the same amount, how much would that be?" MID-explanation, as a
+        # definition's framing, with the completed board line beside it -- and
+        # keep teaching. A real check is the turn's ENDING question; only the
+        # final sentence fires this referee.
+        sents = [s for s in _vis_sentences(prose) if s.strip()]
+        if not sents:
+            return ""
+        m = _TOTAL_ASK_RE.search(sents[-1])
+        if not m:
+            return ""
+        # ⚠️ A DESCRIBED question is not an ASKED one. The probstat mean script
+        # ends "The mean answers one question: if everyone had the same amount,
+        # how much would that be?" -- the question is the OBJECT of the sentence,
+        # with its worked answer rightly beside it. (Second canon catch of this
+        # build's dry run; the first moved the referee to the final sentence.)
+        if re.search(r"\banswers?\s+(?:one|the|a)\s+question\b"
+                     r"|\bthe\s+question\s+(?:is|was)\b", sents[-1], re.I):
+            return ""
+        vals = _note_tag_vals(text)
+        if any(_EQ_PEND_RE.search(v) for v in vals):
+            return ""                    # a blank is waiting for them -- a real ask
+        done = [v for v in vals if _EQ_DONE_RE.search(v.strip())]
+        if not done:
+            return ""
+        said = " ".join(m.group(0).split())[:60]
+        shown = " ".join(done[-1].split())[:40]
+        return ('you ask "{s}" while your own board already shows "{b}" completed, '
+                "and no line ends in \"= ?\" for them to fill. Rules 15(e)/17: a "
+                "check the board has answered is no check. Re-emit with the asked "
+                "computation as its OWN line ending \"= ?\" (fill the total in "
+                "only after they answer); keep everything else the "
+                "same.").format(s=said, b=shown)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[answeredask] crashed (fail open): {exc}")
+        _event("referee_crash", "answeredask", str(exc))
+        return ""
+
+
+# (nv) THE FORTY-SIXTH REFEREE -- NO RECORD MEANS ASK, NOT CHOOSE. Night watch
+# 2026-08-26 (returning-student, algebra2): "I don't have the exact spot we
+# stopped on recorded, so let's pick it up from the start of that unit's ladder"
+# -- the tutor admitted it did not know, then decided FOR the student (rule 40's
+# whole point). Reply-only and narrow: the no-record admission with no question
+# anywhere in the reply.
+_NO_RECORD_RE = re.compile(
+    r"(?:don'?t|do\s+not)\s+have\s+the\s+exact\b[^.?!]{0,50}"
+    r"\b(?:recorded|saved|noted|written\s+down)"
+    r"|\bno\s+record\s+of\s+(?:where|the\s+(?:spot|place|stopping\s+point))", re.I)
+
+
+def no_record_resume_conflict(reply: str):
+    """Return a description of a no-record resume that never asks, or "".
+    Never raises (fail open)."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        m = _NO_RECORD_RE.search(prose)
+        if not m or "?" in prose:
+            return ""
+        said = " ".join(m.group(0).split())[:60]
+        return ('you admit "{s}" and then choose the resume point yourself, asking '
+                "nothing. Rule 40(g): when the record is missing, the student IS "
+                "the record -- KEEP the honest admission, then ASK: \"want a quick "
+                "warm-up on this unit, or do you remember where we should pick "
+                'up?\" and ADD [[choices options="Quick warm-up | I remember '
+                'where"]]. Change nothing else.').format(s=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[norecordresume] crashed (fail open): {exc}")
+        _event("referee_crash", "norecordresume", str(exc))
         return ""
 
 
@@ -6293,6 +6449,16 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if parens:
             _event("referee_fire", "boardparens", parens)
             return parens
+        # (nv) the forty-fifth: never ask what the board already answers.
+        answered = answered_ask_conflict(reply)
+        if answered:
+            _event("referee_fire", "answeredask", answered)
+            return answered
+        # (nv) the forty-sixth: no record means ask, not choose.
+        norecord = no_record_resume_conflict(reply)
+        if norecord:
+            _event("referee_fire", "norecordresume", norecord)
+            return norecord
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)
@@ -6338,7 +6504,7 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         # builds id/ie/if: referees TWENTY-FIVE through TWENTY-EIGHT -- the
         # promotion batch (Tier A of the audit): four rules that were words alone
         # until the night Jim asked why the moles kept coming. All reply-only.
-        compare = student_compare_conflict(reply)
+        compare = student_compare_conflict(reply, course)
         if compare:
             _event("referee_fire", "compare", compare)
             return compare

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26nv-the-night-watchs-thirteen". BUILD nv
+#               -- the 2026-08-26 night watch's 13 confirmed findings triaged:
+#               referees 45 (answeredask) + 46 (norecordresume), slash/arrow/hug
+#               notation entries, "lots of kids" in rule 42 (percentile exempt in
+#               probstat), six prompt clauses, sixth ceiling raise (191k->193k).
+#               All in tutor.py/prompts.py -- only this stamp changed here.
+#               Methodology tile: 44 -> 46 referees, three places.
 #   2026-08-26  APP_BUILD -> "2026-08-26nu-the-first-flag-harvest". BUILD nu --
 #               Jim's flag queue paid for itself on day one: four confirmed
 #               findings from one live evening. Referees 43 (unilateral sign-off,
@@ -11836,7 +11843,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26nu-the-first-flag-harvest"
+APP_BUILD = "2026-08-26nv-the-night-watchs-thirteen"
 
 
 @app.get("/health")
