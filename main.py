@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26nx-the-ritual-dies". BUILD nx -- CACHE-
+#               BUSTING. Every HTML/JS/CSS response now carries Cache-Control:
+#               no-cache (revalidate; ETag makes unchanged files 304s), so a
+#               deploy reaches every browser on the next ordinary load -- no more
+#               Ctrl+F5 ritual (it bit three times: demo sidebar, owner's flag,
+#               admin queue). Audio/images/JSON untouched by content-type scoping
+#               -- the voice cache must never pay a round-trip per sentence.
 #   2026-08-26  APP_BUILD -> "2026-08-26nw-the-second-flag-harvest". BUILD nw --
 #               Jim's four Entry-session flags + the placement gap he diagnosed
 #               himself. HERE: the placed-student note now carries the vocabulary
@@ -6171,6 +6178,20 @@ async def _security_headers(request: Request, call_next):
     response = await call_next(request)
     for _h, _v in _SECURITY_HEADERS.items():
         response.headers.setdefault(_h, _v)
+    # build nx (2026-08-26): THE HARD-REFRESH RITUAL DIES. Three separate times a
+    # shipped fix "wasn't there" until Jim pressed Ctrl+F5 (the demo sidebar, the
+    # owner's flag, the admin queue): StaticFiles sends no Cache-Control, so
+    # browsers cached pages and scripts on heuristics and served them STALE after
+    # a deploy. Now every HTML/JS/CSS response says "no-cache" -- which means
+    # REVALIDATE, not "don't store": the ETag/Last-Modified that FileResponse
+    # already sends makes an unchanged file a tiny 304, and a changed file
+    # arrives the moment Render restarts. ⚠️ SCOPED BY CONTENT TYPE on purpose:
+    # audio (/api/speak's clips), images and JSON are untouched -- re-validating
+    # every cached voice clip would add a round-trip to every sentence Mr.
+    # Cadabra speaks (the same landmine the CSP note above defused).
+    _ct = response.headers.get("content-type", "")
+    if ("text/html" in _ct or "javascript" in _ct or "text/css" in _ct):
+        response.headers.setdefault("Cache-Control", "no-cache")
     return response
 
 
@@ -11851,7 +11872,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26nw-the-second-flag-harvest"
+APP_BUILD = "2026-08-26nx-the-ritual-dies"
 
 
 @app.get("/health")

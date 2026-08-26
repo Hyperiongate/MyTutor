@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD nx -- PART 3eg: the hard-refresh ritual dies. HTML/JS/CSS
+#               responses carry Cache-Control: no-cache (revalidate -> 304s via
+#               ETag); audio/images/JSON untouched by content-type scoping. Live
+#               TestClient drill proves headers, 304 revalidation, and the audio
+#               lane's exemption.
 #   2026-08-26  BUILD nw -- PART 3ef: the second flag harvest + the placement
 #               gap. Three doors end a drill run; the number line scales to the
 #               board; one equation per line; "too" never hangs after a number;
@@ -10741,6 +10746,66 @@ def part3ef_the_second_flag_harvest():
           "the durable law lives in rule 40(h); the OPENER rides the note that "
           "only placed students get, which is exactly when the tour belongs")
 
+def part3eg_the_ritual_dies():
+    """PART 3eg (build nx) -- CACHE-BUSTING: THE HARD-REFRESH RITUAL DIES.
+
+    Three times a shipped fix "wasn't there" until Jim pressed Ctrl+F5 (the demo
+    sidebar, the owner's flag button, the admin corrections queue): StaticFiles
+    sent no Cache-Control, so browsers cached app pages and scripts on their own
+    heuristics and served them stale after a deploy. Now every HTML/JS/CSS
+    response says no-cache -- REVALIDATE, not "don't store": the ETag that
+    FileResponse already sends makes an unchanged file a tiny 304, and a changed
+    file arrives on the next ordinary page load. ⚠️ SCOPED BY CONTENT TYPE:
+    audio, images and JSON are untouched -- revalidating every cached voice clip
+    would add a round-trip to every sentence Mr. Cadabra speaks."""
+    print("\nPART 3eg — the hard-refresh ritual dies (build nx)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tempfile as _tfx
+    with _tfx.TemporaryDirectory() as tmpx:
+        drill = os.path.join(tmpx, "cachedrill.py")
+        with open(drill, "w") as fh:
+            fh.write(
+                "from fastapi.testclient import TestClient\n"
+                "import main\n"
+                "c = TestClient(main.app)\n"
+                "# 1. a script: no-cache + a validator to make 304s possible\n"
+                "r = c.get('/static/board.js')\n"
+                "assert r.status_code == 200, r.status_code\n"
+                "assert r.headers.get('cache-control') == 'no-cache', r.headers\n"
+                "etag = r.headers.get('etag'); assert etag, 'no ETag -- 304s impossible'\n"
+                "# 2. ...and the revalidation round-trip is a tiny 304\n"
+                "r2 = c.get('/static/board.js', headers={'If-None-Match': etag})\n"
+                "assert r2.status_code == 304, r2.status_code\n"
+                "# 3. a page route (FileResponse, text/html): same policy\n"
+                "r = c.get('/demo')\n"
+                "assert r.status_code == 200 and r.headers.get('cache-control') == 'no-cache', (r.status_code, r.headers.get('cache-control'))\n"
+                "# 4. CSS too\n"
+                "r = c.get('/static/board.css')\n"
+                "assert r.headers.get('cache-control') == 'no-cache', r.headers\n"
+                "# 5. JSON is untouched (the health check answers as application/json)\n"
+                "r = c.get('/health')\n"
+                "assert 'json' in r.headers.get('content-type', ''), r.headers\n"
+                "assert r.headers.get('cache-control') != 'no-cache', r.headers\n"
+                "# 6. an image is untouched (favicon.svg is image/svg+xml -- svg is an\n"
+                "#    image here, not a page; only html/js/css revalidate)\n"
+                "r = c.get('/static/favicon.svg')\n"
+                "assert r.status_code == 200, r.status_code\n"
+                "assert r.headers.get('cache-control') != 'no-cache', r.headers\n"
+                "print('CACHE-DRILL-OK')\n")
+        env = dict(os.environ, WEEKLY_EMAIL="off", PYTHONPATH=here)
+        r = subprocess.run([sys.executable, drill], cwd=here, env=env,
+                           capture_output=True, text=True)
+        check("⭐ LIVE: no-cache on html/js/css, 304 revalidation, json+svg untouched",
+              r.returncode == 0 and "CACHE-DRILL-OK" in r.stdout,
+              (r.stdout + r.stderr)[-300:])
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("the policy is scoped by CONTENT TYPE, never by path alone",
+          '"text/html" in _ct or "javascript" in _ct or "text/css" in _ct' in msrc,
+          "a path-scoped rule would catch /static audio or miss the page routes")
+    check("  ...and the voice-cache landmine is named at the site",
+          "round-trip to every sentence" in msrc,
+          "the next editor must know why audio is exempt before touching this")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11456,7 +11521,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,633</b>" in page,
+          "<b>6,636</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19822,6 +19887,7 @@ def main():
     part3ed_the_first_flag_harvest()
     part3ee_the_night_watchs_thirteen()
     part3ef_the_second_flag_harvest()
+    part3eg_the_ritual_dies()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
