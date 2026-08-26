@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26nu-the-first-flag-harvest". BUILD nu --
+#               Jim's flag queue paid for itself on day one: four confirmed
+#               findings from one live evening. Referees 43 (unilateral sign-off,
+#               heard-gated) + 44 (board paren balance), the offer-fork in referee
+#               42, rules 29(c)/39(e)/47(e)/48(f), and the fifth dated
+#               PROMPT_CEILING raise (188k -> 191k). All in tutor.py/prompts.py --
+#               only this stamp changed here. Methodology tile: 42 -> 44 referees.
 #   2026-08-25  APP_BUILD -> "2026-08-25nt-the-flag-shows-itself". BUILD nt --
 #               one CSS constant in board.js: the owner's flag was drawn at 25%%
 #               opacity and Jim could not find his own feature. 55%% now, and a
@@ -11829,7 +11836,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-25nt-the-flag-shows-itself"
+APP_BUILD = "2026-08-26nu-the-first-flag-harvest"
 
 
 @app.get("/health")

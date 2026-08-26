@@ -2138,7 +2138,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # own discipline working: teaching is never trimmed to duck a tripwire. Trims
 # reverted, ceiling raised, note dated -- the hr/il shape, fourth verse. The
 # two-prompt-sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 188_000
+# 2026-08-26 (build nu): RAISED 188,000 -> 191,000. The FIRST FLAG-QUEUE HARVEST --
+# Jim's own in-app catches from one live Pre-Algebra evening -- wrote rules 29(c),
+# 39(e)'s offer clause, 47(e)'s operations law and 48(f) into the shared block, and
+# the all-heard algebra2 deferred prompt measured 189,877. Headroom was 79 chars
+# before this build; the wire fired exactly as designed. Teaching is never trimmed
+# to duck a tripwire (hr/il/ni discipline, fifth verse): ceiling raised, note dated.
+# The two-prompt-sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 191_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -4911,6 +4918,77 @@ def angle_piece_conflict(reply: str, course: str = ""):
         return ""
 
 
+# (nu) THE FORTY-THIRD REFEREE -- FINISHING A TOPIC IS NOT FINISHING THE DAY.
+# Jim's flag queue, first harvest (2026-08-26): after a perfect 5/5 run the tutor
+# said "Next time we'll move into reading and rounding... Great work today, Demo
+# Student!" and went silent. Jim: "the app is assuming I want to stop. It should
+# ask if I want to continue." Rule 29(c) now demands the fork; this referee holds
+# the shape: a sign-off signature in a reply that asks NOTHING, when the student
+# never said goodbye. HEARD-GATED: if the student's own words carried a farewell,
+# rule 29(a)'s one-turn wrap-up is exactly right and this stays silent; with no
+# heard context at all it also stays silent (never punish what it cannot see).
+_SIGNOFF_RE = re.compile(
+    r"\b(?:great\s+work\s+today|see\s+you\s+(?:next\s+time|tomorrow)|"
+    r"that'?s\s+all\s+for\s+today|until\s+next\s+time|"
+    r"next\s+time,?\s+we(?:'ll|\s+will)\b)", re.I)
+_FAREWELL_RE = re.compile(
+    r"\b(?:bye|goodbye|good\s*night|i'?m\s+done|all\s+done|stop|quit|"
+    r"gotta\s+go|got\s+to\s+go|have\s+to\s+(?:go|stop|leave)|"
+    r"that'?s\s+all|i'?m\s+finished|see\s+you)\b", re.I)
+
+
+def signoff_conflict(reply: str, heard=None):
+    """Return a description of a unilateral session sign-off, or "".
+    Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        if heard is None:
+            return ""                    # cannot see the student: never accuse
+        htext = " ".join(str(h or "") for h in (heard if isinstance(heard, (list, tuple)) else [heard]))
+        if _FAREWELL_RE.search(htext):
+            return ""                    # the student said goodbye -- 29(a) applies
+        prose = _spoken_only(str(reply or ""))
+        m = _SIGNOFF_RE.search(prose)
+        if not m or "?" in prose:
+            return ""                    # no sign-off, or the reply still asks something
+        said = " ".join(m.group(0).split())[:60]
+        return ('you end the session on your own -- "{s}" with no question anywhere '
+                "-- but the student never said goodbye. Rule 29(c): finishing a "
+                "topic is not finishing the day. KEEP the celebration, then END "
+                "with the fork as a question -- e.g. \"want to keep going into the "
+                "next topic now, or is this a good stopping point?\" -- and ADD "
+                '[[choices options="Keep going | Stop for today"]]. '
+                "Change nothing else.").format(s=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[signoff] crashed (fail open): {exc}")
+        _event("referee_crash", "signoff", str(exc))
+        return ""
+
+
+# (nu) THE FORTY-FOURTH REFEREE -- THE BOARD'S PARENTHESES BALANCE. Jim's flag
+# queue, first harvest: a board expression shipped "missing a closing parenthesis"
+# (two times the quantity five plus three squared, with the "(" never closed).
+# Purely mechanical and reply-only: every quoted attribute value in every [[...]]
+# tag must hold as many ")" as "(". Prose is NOT scanned -- a smiley or an aside
+# is not an equation; the board is where balance is a promise.
+def board_parens_conflict(reply: str):
+    """Return a description of an unbalanced parenthesis in a board tag value,
+    or "". Never raises: any unexpected input yields "" (fail open)."""
+    try:
+        for val in _note_tag_vals(str(reply or "")):
+            if val.count("(") != val.count(")"):
+                shown = " ".join(val.split())[:60]
+                return ('the board line "{v}" has {o} opening but {c} closing '
+                        "parenthes(es) -- a child copies what they see, unbalanced "
+                        "and all. Re-emit the SAME tag with the expression "
+                        "completed (close every group you open); change nothing "
+                        "else.").format(v=shown, o=val.count("("), c=val.count(")"))
+        return ""
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[boardparens] crashed (fail open): {exc}")
+        _event("referee_crash", "boardparens", str(exc))
+        return ""
+
+
 # (nn) THE FORTY-SECOND REFEREE -- A SMALL ANSWER SPACE SHIPS ITS BUTTONS. Jim's UI
 # review: "sometimes it just gives you two answers -- is this supplementary or
 # complementary -- it would be much easier if those popped up as bubbles we could
@@ -4925,6 +5003,12 @@ _EITHER_OR_RE = re.compile(
     r"\b(?:is|are|was|were|does|do|did|which|acute|call)\b[^.?!]*?"
     r"\b([A-Za-z][\w-]{1,14})\s+or\s+([A-Za-z][\w-]{1,14})\s*\?", re.I)
 _YESNO_RE = re.compile(r"\byes or no\b", re.I)
+# (nu) a two-way OFFER of paths ("...still feel familiar, or would you like a
+# quick refresher?"). The alternatives are clauses, so the nudge asks for short
+# paraphrased labels instead of extracting them.
+_OFFER_FORK_RE = re.compile(
+    r",?\s*or\s+(?:would\s+you\s+like|would\s+you\s+rather|do\s+you\s+want|"
+    r"want\s+(?:me\s+to|a|to)|should\s+i)\b[^.?!]*\?", re.I)
 _QUIZ_MOMENT_RE = re.compile(r"\[\[\s*(?:quiz|check|finalexam)\b|\bQ\s*\d+\s*:"
                              r"|\bquestion\s+(?:one|two|three|four|five|six|seven|"
                              r"eight|nine|ten|\d+)\b", re.I)
@@ -4952,6 +5036,20 @@ def finite_answer_conflict(reply: str):
             if hit:
                 m, a, b = hit, hit.group(1), hit.group(2)
                 break
+            # (nu) Jim's flag: "does multiplying before adding still feel familiar,
+            # or would you like a quick refresher?" -- "binary answer so should
+            # have been bubbles." A two-way OFFER is a small answer space too; the
+            # labels are paraphrases, so the nudge asks the model to write them.
+            fork = _OFFER_FORK_RE.search(sent)
+            if fork:
+                said = " ".join(fork.group(0).split())[:70]
+                return ('you offer a two-way choice -- "{s}" -- and ship no '
+                        "buttons. Rule 39(e): ADD [[choices options=\"A | B\"]] "
+                        "right after the question, where A and B are one-to-three-"
+                        "word paraphrases of the two paths you just offered (e.g. "
+                        '"Feels familiar | Quick refresher"). The app adds its own '
+                        "\"I'm not sure\" button. Keep your wording; change "
+                        "nothing else.").format(s=said)
         if not m:
             return ""
         said = " ".join(m.group(0).split())[:60]
@@ -6185,6 +6283,16 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if finite:
             _event("referee_fire", "finiteanswer", finite)
             return finite
+        # (nu) the forty-third: finishing a topic is not finishing the day.
+        signoff = signoff_conflict(reply, heard)
+        if signoff:
+            _event("referee_fire", "signoff", signoff)
+            return signoff
+        # (nu) the forty-fourth: the board's parentheses balance.
+        parens = board_parens_conflict(reply)
+        if parens:
+            _event("referee_fire", "boardparens", parens)
+            return parens
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

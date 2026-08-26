@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD nu -- PART 3ed: the first flag harvest. Jim's in-app flag
+#               queue produced four confirmed findings in one evening; referees 43
+#               (unilateral sign-off, heard-gated) and 44 (board paren balance)
+#               plus the offer-fork in referee 42, rules 29(c)/39(e)/47(e)/48(f),
+#               and the fifth dated ceiling raise (188k -> 191k). Two 3dx pins
+#               FLIPPED deliberately: Jim's flag ruled that two-way offers -- the
+#               39(d) check-in shape included -- ship buttons now.
 #   2026-08-25  BUILD ns -- PART 3ec: follow the pen. Jim, one lesson after nr:
 #               "same problem." nr repaired the resize MOMENT and missed the
 #               already-small STATE (keyboard open before the tall turn arrived).
@@ -10421,6 +10428,131 @@ def part3ec_follow_the_pen():
           "talkBtn" not in kc and "typeToggle" not in kc,
           "the keypad that hid the microphone broke voice for a week")
 
+def part3ed_the_first_flag_harvest():
+    """PART 3ed (build nu) -- THE FIRST FLAG HARVEST: FOUR CATCHES, FOUR FIXES.
+
+    2026-08-26: Jim's new in-app flag queue (build nq) produced its first harvest
+    -- four confirmed findings from ONE live Pre-Algebra evening, each quoted with
+    his note. This part pins all four fixes:
+    ① "The app is assuming I want to stop... it should ask if I want to continue."
+       Rule 29(c) + REFEREE 43 (signoff): a sign-off signature in a reply that
+       asks nothing, when the student never said goodbye. HEARD-GATED both ways:
+       a real farewell in the student's words keeps 29(a)'s wrap-up legal, and
+       no heard context means silence -- never accuse what you cannot see.
+    ② "A square was entered into a quiz about order of operations without the
+       order being specifically addressed." Rule 47(e) grew its second law:
+       OPERATIONS AND NOTATION may not debut inside a quiz question.
+    ③ "Missing a closing parenthesis" (and '"32" is read as "three squared"').
+       REFEREE 44 (boardparens): every quoted attr value in every [[...]] tag
+       balances its parentheses -- prose is never scanned (a smiley is not an
+       equation). Rule 48(f): a power is never typed as two digits.
+    ④ "Binary answer so should have been bubbles." Referee 42 gained the OFFER-
+       FORK shape (",...or would you like / do you want / should I...?") with a
+       paraphrase-your-own-labels nudge -- ALWAYS satisfiable (the np lesson).
+       ⚠️ This deliberately FLIPPED two 3dx pins: check-in offers fire now.
+    Plus the FIFTH dated ceiling raise (188k -> 191k; headroom was 79 chars and
+    the wire fired exactly as designed). Canon swept clean before any of these
+    shapes went live: 0 fires across 306 foundation scripts + 336 lessons."""
+    print("\nPART 3ed — the first flag harvest (build nu)")
+    import tutor as TT
+    # ① the sign-off referee, both gates
+    for want, label, reply, heard in (
+        (True,  "⭐ Jim's flagged sign-off fires (no question, no goodbye heard)",
+         "That's a fantastic run! Next time we'll move into reading and rounding "
+         "whole numbers. Great work today, Demo Student!", "15 - 10 is 5"),
+        (False, "  the same words after the student says goodbye pass (29a)",
+         "Great work today, Demo Student!", "I'm done, gotta go"),
+        (False, "  a sign-off phrase WITH the fork question passes",
+         "Great work today! Want to keep going into rounding, or is this a good "
+         "stopping point?", "5"),
+        (False, "  no heard context -> silence (never accuse what it cannot see)",
+         "Great work today, Demo Student!", None),
+        (False, "  an ordinary teaching reply is silent",
+         "Nice -- multiplication first, so 12 minus 8 leaves 4. Ready for the "
+         "next one?", "4")):
+        got = bool(TT.signoff_conflict(reply, heard))
+        check(label, got == want,
+              "Jim: 'the app is assuming I want to stop'" if want
+              else "a legal wrap-up or teaching turn must never pay a retry")
+    # ② the quiz-composition law
+    psrc = re.sub(r"\s+", " ", open(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "prompts.py"),
+        encoding="utf-8").read())
+    check("47(e) covers operations and notation now",
+          "THE SAME LAW COVERS OPERATIONS AND NOTATION" in psrc
+          and "no operation makes its FIRST appearance of the session inside a "
+              "quiz question" in psrc,
+          "3-squared debuted inside an order-of-operations quiz")
+    check("29(c) demands the fork, with buttons, enforced",
+          "FINISHING A TOPIC IS NOT FINISHING THE DAY" in psrc
+          and "END WITH THE FORK" in psrc,
+          "the sign-off referee enforces a rule that must exist in the prompt")
+    check("39(e) names the two-way offer",
+          "A TWO-WAY OFFER IS A SMALL ANSWER SPACE TOO" in psrc,
+          "the offer-fork referee enforces a rule that must exist in the prompt")
+    check("48(f): a power is never typed as two digits",
+          "A POWER IS NEVER TYPED AS TWO DIGITS" in psrc
+          and "fix the board, don't teach the misreading" in psrc,
+          "the tutor explained that 32 reads as three squared instead of fixing 3²")
+    # ③ the paren referee
+    for want, label, reply in (
+        (True,  "⭐ an unclosed board group fires",
+         '[[step eq="2 × (5 + 3²"]]'),
+        (True,  "  a stray closer fires too",
+         '[[write text="12 - 4) × 2"]]'),
+        (False, "  a balanced nest passes",
+         '[[step eq="2 × (5 + (3 · 3))"]]'),
+        (False, "  prose parentheses are never scanned (an aside is not an equation)",
+         "Nice work (and that was a tricky one!). What next?"),
+        (False, "  a smiley in prose is not an equation",
+         "Great job :) ready for one more?")):
+        check(label, bool(TT.board_parens_conflict(reply)) == want,
+              "Jim: 'missing a closing parenthesis' -- a child copies what they see"
+              if want else "false fires on prose would make every aside cost a retry")
+    # ④ the offer-fork (the flagged sentence itself)
+    for want, label, reply in (
+        (True,  "⭐ Jim's flagged refresher offer fires",
+         "Does multiplying before adding still feel familiar to you, or would you "
+         "like a quick refresher before we try a trickier problem?"),
+        (False, "  ...and with its buttons, passes",
+         'Still feel familiar, or would you like a refresher? '
+         '[[choices options="Feels familiar | Quick refresher"]]'),
+        (True,  "  'or do you want' offers fire",
+         "Should we try another like this one, or do you want to move on?"),
+        (False, "  an open question still fires nothing",
+         "What should we do to both sides of the equation?"),
+        (False, "  a quiz moment stays exempt",
+         "Question 4: 15 - 2 × 5? Or is it something else? Take your time.")):
+        check(label, bool(TT.finite_answer_conflict(reply)) == want,
+              "Jim: 'binary answer so should have been bubbles'" if want
+              else "the exemptions must hold or every open question pays a retry")
+    # canon stays clean under ALL the new shapes
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if (TT.finite_answer_conflict(t) or TT.board_parens_conflict(t)
+                    or TT.signoff_conflict(t, heard="hello")):
+                fires += 1
+    check("⭐ zero fires across the canon under all three new shapes", fires == 0,
+          f"{fires} scripts rejected -- scripts ride verbatim and a retry would "
+          f"mangle them")
+    # the referees ride the sweep, and the ceiling raise is dated
+    tsrc = code_only(open(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+        encoding="utf-8").read())
+    check("referees 43 and 44 ride the sweep",
+          "signoff_conflict(reply, heard)" in tsrc and '"signoff"' in tsrc
+          and "board_parens_conflict(reply)" in tsrc and '"boardparens"' in tsrc,
+          "a referee that exists but is never called protects nobody")
+    traw = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "tutor.py"), encoding="utf-8").read()
+    check("the fifth ceiling raise carries its dated note",
+          "PROMPT_CEILING = 191_000" in traw and "2026-08-26 (build nu): RAISED" in traw,
+          "an undated raise is how the ledger's discipline dies")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -10487,9 +10619,13 @@ def part3dx_small_answer_spaces_ship_buttons():
          '[[choices options="Supplementary | Complementary"]]'),
         (True,  "  'yes or no' without buttons fires",
          "Yes or no — does a square have four equal sides?"),
-        (False, "  rule 39(d)'s required check-in wording never fires",
+        # (nu, 2026-08-26) FLIPPED from False by Jim's flag: "binary answer so
+        # should have been bubbles." A two-way offer -- the 39(d) check-in shape
+        # included -- ships buttons now; the nudge asks for short paraphrased
+        # labels, so it is always satisfiable (the np phantom lesson holds).
+        (True,  "  rule 39(d)'s check-in offer now fires without buttons (nu)",
          "Does that click, or should I show it a different way?"),
-        (False, "  the ready-check never fires",
+        (True,  "  the ready-check offer now fires without buttons (nu)",
          "Are you good to try one, or want to watch me do one more first?"),
         (False, "  a numbered quiz question keeps its free answer",
          "Question 3: is the angle acute or obtuse? Write your answer."),
@@ -11132,7 +11268,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,575</b>" in page,
+          "<b>6,597</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19495,6 +19631,7 @@ def main():
     part3dz_the_first_week_of_telemetry()
     part3ea_the_owners_flag()
     part3eb_the_board_answers_for_its_size()
+    part3ed_the_first_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
