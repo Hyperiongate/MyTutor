@@ -5340,6 +5340,12 @@ _EITHER_OR_RE = re.compile(
     r"\b(?:is|are|was|were|does|do|did|which|acute|call)\b[^.?!]*?"
     r"\b([A-Za-z][\w-]{1,14})\s+or\s+([A-Za-z][\w-]{1,14})\s*\?", re.I)
 _YESNO_RE = re.compile(r"\byes or no\b", re.I)
+# (oh) a BARE ready-check ending the turn ("Ready to see how those work?").
+# Jim's flag: "has a binary answer yes or no. should have bubbles." Final
+# sentence only -- a mid-turn rhetorical never fires -- and canon swept 0.
+_READY_CHECK_RE = re.compile(
+    r"(?:^|[.!?]\s+)(?:ready\s+(?:to|for)|want\s+to\s+(?:see|try|jump)|"
+    r"shall\s+we)\b[^.?!]{0,60}\?\s*$", re.I)
 # (nu) a two-way OFFER of paths ("...still feel familiar, or would you like a
 # quick refresher?"). The alternatives are clauses, so the nudge asks for short
 # paraphrased labels instead of extracting them.
@@ -5387,6 +5393,17 @@ def finite_answer_conflict(reply: str):
                         '"Feels familiar | Quick refresher"). The app adds its own '
                         "\"I'm not sure\" button. Keep your wording; change "
                         "nothing else.").format(s=said)
+        # (oh) the turn ENDS on a bare ready-check: a yes/no in disguise.
+        tail = prose.strip()
+        rm = _READY_CHECK_RE.search(tail)
+        if rm:
+            said = " ".join(rm.group(0).split())[:60].lstrip(".!? ")
+            return ('your turn ends on "{s}" -- a yes/no question with no '
+                    "buttons. Rule 39(e): ADD [[choices options=\"A | B\"]] "
+                    "right after it, with two short labels matching your ask "
+                    '(e.g. "Ready! | Show me again"). The app adds its own '
+                    "\"I'm not sure\". Keep your wording; change nothing "
+                    "else.").format(s=said)
         if not m:
             return ""
         said = " ".join(m.group(0).split())[:60]
@@ -5418,7 +5435,15 @@ _LEAK_SHAPES = re.compile(
     r"|\bsystem\s+prompt\b"
     r"|\b(?:my|our)\s+rule\s+\d+\b"
     r"|\brule\s+\d+\s+(?:says|requires|forbids|tells|means)\b"
-    r"|\b(?:step|write|quiz|check|finalexam|unitplan|highlight|card)\s+tag\b"
+    r"|\b(?:step|write|quiz|check|finalexam|unitplan|highlight|card|board)\s+tag\b"
+    # (oh) THE REFEREES' OWN NUDGE JARGON, spoken to a child. Jim's flag: "let's
+    # re-write the equation we're solving so the operation has something to land
+    # on" -- that is orphanstep's engineering language leaking into a lesson.
+    # A child hears gibberish; a parent hears the machinery.
+    r"|\bhas\s+(?:something|nothing)\s+to\s+land\s+on\b"
+    r"|\bre-?emit\b"
+    r"|\bpending\s+line\b"
+    r"|\bthe\s+asking\s+reply\b"
     r"|\bI(?:'m|\s+am)\s+not\s+(?:allowed|permitted)\b"
     r"|\bmy\s+rules\s+(?:don'?t|won'?t|do\s+not)\s+(?:allow|let)\b", re.I)
 

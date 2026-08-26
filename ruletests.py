@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oh -- PART 3eo: the fourth flag harvest (an algebra2
+#               absolute-value session). The leak referee learns the referees'
+#               OWN nudge jargon ("has something to land on" spoken to a child);
+#               referee 42 learns the bare final ready-check; the a2 unit-1
+#               playbook gets the full absolute-value arc (distance picture,
+#               cases BORN on the board, both answers checked, two examples).
+#               The small-numberline flag was a stale browser cache -- the 1100px
+#               file is verified LIVE; nx's no-cache ends that class.
+#   2026-08-26  BUILD og -- PART 3en: the starting blocks (Jim's speculation,
+#               V1). A computable pending line arms a full-pipeline right-answer
+#               follow-up; a matching next answer ships it with ZERO model calls
+#               on the clock; any mismatch or state drift falls through to the
+#               untouched live path. Live TestClient drill with a counted fake
+#               brain proves hit, miss, and the stale-history guard.
 #   2026-08-26  BUILD of -- PART 3em: the seat survives a typo. LIVE_CRITIC_MODEL
 #               ="claude-haiku-4.5" (dot) 404'd every critic read for four hours
 #               (28 crashes = 28 turns with NO second opinion, fail-open each).
@@ -11206,6 +11220,170 @@ def part3em_the_seat_survives_a_typo():
           and "claude-haiku-4-5" in tsrc,
           "an alarm that does not say where the valve is wastes the alarm")
 
+def part3en_the_starting_blocks():
+    """PART 3en (build og) -- THE STARTING BLOCKS: JIM'S SPECULATION, V1.
+
+    Jim: "put the right answer response in the starting blocks. If he gets it
+    right, it's ready to go. If he gets it wrong... we gotta wait the five
+    seconds and we'll pay for that one as well." A turn ending in a computable
+    pending line ("3 + 8 = ?") arms a background generation of the RIGHT-answer
+    follow-up through the FULL verified pipeline; the student's matching next
+    answer ships it instantly. RIGHT-ANSWER-ONLY by his ruling: the wrong branch
+    cannot be pre-built honestly (rule 49 -- the response to a miss depends on
+    WHICH wrong answer arrived). Never on quiz/check/exam turns, never on turns
+    that recorded results, single-use stash, history-length + TTL guards, and
+    every failure path is the untouched live pipeline."""
+    print("\nPART 3en — the starting blocks (build og)")
+    import tempfile as _tfs
+    with _tfs.TemporaryDirectory() as tmps:
+        drill = os.path.join(tmps, "specdrill.py")
+        with open(drill, "w") as fh:
+            fh.write(
+                "import os\n"
+                "os.environ['SPEC_DISABLE_THREAD'] = '1'\n"
+                "from fastapi.testclient import TestClient\n"
+                "import main, tutor\n"
+                "calls = []\n"
+                "def fake_reply(context, history, message, course, code='', turn_note=''):\n"
+                "    calls.append(message)\n"
+                "    if message == '11':\n"
+                "        return 'SPECULATED: Eleven! [[step eq=\"3 + 8 = 11\"]] Next: 4 + 4? [[step eq=\"4 + 4 = ?\"]]'\n"
+                "    return 'LIVE: got ' + message + ' [[step eq=\"3 + 8 = ?\"]]'\n"
+                "tutor.get_tutor_reply = fake_reply\n"
+                "c = TestClient(main.app)\n"
+                "# turn 1: a real turn whose reply ends in a computable pending line\n"
+                "r = c.post('/api/chat', json={'code': '1234', 'message': 'ready',\n"
+                "                              'course': 'basic'})\n"
+                "assert r.status_code == 200, r.text\n"
+                "assert len(calls) == 1, calls\n"
+                "# the handler armed nothing in-thread (disabled); run the speculation\n"
+                "# body exactly as the thread would\n"
+                "sess = main.get_session('1234', 'basic')\n"
+                "h2 = list(sess.get('history', []))\n"
+                "assert h2 and h2[-1]['role'] == 'assistant', h2[-2:]\n"
+                "main._speculate_next('1234', 'basic', {'name': 'Alex'}, h2, 11.0)\n"
+                "assert len(calls) == 2 and calls[1] == '11', calls\n"
+                "# turn 2: the student answers RIGHT -> stashed reply, NO new call\n"
+                "r = c.post('/api/chat', json={'code': '1234', 'message': '11',\n"
+                "                              'course': 'basic'})\n"
+                "assert r.status_code == 200, r.text\n"
+                "assert r.json()['reply'].startswith('SPECULATED:'), r.json()['reply'][:60]\n"
+                "assert len(calls) == 2, ('a model call was paid on a HIT', calls)\n"
+                "# ...and history remembers the REAL exchange\n"
+                "h3 = main.get_session('1234', 'basic')['history']\n"
+                "assert h3[-2]['content'] == '11' and h3[-1]['content'].startswith('SPECULATED:')\n"
+                "# turn 3: arm again, student answers WRONG -> live path, stash burned\n"
+                "h4 = list(h3)\n"
+                "main._speculate_next('1234', 'basic', {'name': 'Alex'}, h4, 8.0)\n"
+                "n = len(calls)\n"
+                "r = c.post('/api/chat', json={'code': '1234', 'message': '9',\n"
+                "                              'course': 'basic'})\n"
+                "assert r.status_code == 200 and r.json()['reply'].startswith('LIVE:')\n"
+                "assert len(calls) == n + 1, ('the miss must fall through live', calls)\n"
+                "assert main._SPEC_STASH == {}, 'the stash must be single-use'\n"
+                "# turn 4: a stale stash (history moved) is never served\n"
+                "main._SPEC_STASH[('1234', 'basic')] = {'hist_len': 1, 'expected': 5.0,\n"
+                "    'reply': 'STALE', 'ts': __import__('time').time()}\n"
+                "r = c.post('/api/chat', json={'code': '1234', 'message': '5',\n"
+                "                              'course': 'basic'})\n"
+                "assert not r.json()['reply'].startswith('STALE'), 'stale stash served!'\n"
+                "print('SPEC-DRILL-OK')\n")
+        env = dict(os.environ,
+                   DATABASE_URL=f"sqlite:///{os.path.join(tmps, 's.db')}",
+                   WEEKLY_EMAIL="off", PYTHONPATH=here_dir())
+        r = subprocess.run([sys.executable, drill], cwd=here_dir(), env=env,
+                           capture_output=True, text=True)
+        check("⭐ LIVE: arm -> hit ships stashed (zero calls) -> miss falls "
+              "through -> stale guarded",
+              r.returncode == 0 and "SPEC-DRILL-OK" in r.stdout,
+              (r.stdout + r.stderr)[-400:])
+    import main as MM
+    for reply, want in (('[[step eq="3 + 8 = ?"]]', 11.0),
+                        ('[[step eq="12 ÷ 3 = ?"]]', 4.0),
+                        ('[[step eq="x + 2 = ?"]]', None),
+                        ('[[step eq="3 + 8 = 11"]]', None)):
+        got = MM._spec_expected_answer(reply)
+        ok = (got is None) == (want is None) and (want is None or abs(got - want) < 1e-9)
+        check(f"  expected-answer reader: {reply[:26]} -> {want}", ok, got)
+    for msg, exp, want in (("11", 11.0, True), ("eleven", 11.0, True),
+                           ("x = 11", 11.0, True), ("12", 11.0, False),
+                           ("11 or 12", 11.0, False)):
+        check(f"  answer matcher: {msg!r} vs {exp:g} -> {want}",
+              MM._spec_norm_hit(msg, exp) == want, "")
+    msrc = open(os.path.join(here_dir(), "main.py"), encoding="utf-8").read()
+    check("quiz/check/exam turns never arm the blocks",
+          'quiz|check|finalexam' in msrc.replace("\\", ""),
+          "speculating a quiz grade would write mastery from a guess")
+
+
+def here_dir():
+    return os.path.dirname(os.path.abspath(__file__))
+
+def part3eo_the_fourth_flag_harvest():
+    """PART 3eo (build oh) -- THE FOURTH FLAG HARVEST (algebra2 absolute value).
+
+    Five flags from one 21:42-21:49 session:
+    ① "re-write the equation so the operation has something to land on" -- the
+      ORPHANSTEP REFEREE'S OWN NUDGE LANGUAGE, spoken to a child. The leak
+      referee (rule 4) now holds the referees' jargon: land-on, re-emit,
+      pending line, the asking reply, board tag.
+    ② "Ready to see how those work?" shipped without buttons -- referee 42
+      learns the bare FINAL ready-check (canon swept 0: scripted ready-checks
+      never end a text that way).
+    ③ "case 2 shows up out of nowhere" + "absolute values not adequately
+      explained" -- the a2 unit-1 playbook now demands the full arc: distance
+      picture on a big number line FIRST, the cases BORN on the board via the
+      bridge line (|x-3| = 7 -> x-3 = 7 or x-3 = -7), each case worked fully,
+      BOTH answers checked, two examples minimum.
+    ④ the "numberline 30%%" flag was a STALE BROWSER CACHE: the 1100px file was
+      verified live (WebFetch) -- nx's no-cache header ends that class after
+      one final hard refresh. No code change; recorded so nobody "fixes" it."""
+    print("\nPART 3eo — the fourth flag harvest (build oh)")
+    import tutor as TT
+    for want, label, reply in (
+        (True,  "⭐ the orphanstep nudge jargon fires as a leak",
+         "Let's re-write the equation we're solving so the operation has "
+         "something to land on."),
+        (True,  "  're-emit' spoken to a child fires",
+         "Let me re-emit that line for you."),
+        (False, "  ordinary landing prose never fires",
+         "The plane needs somewhere to land on the runway."),
+        (False, "  ordinary teaching about pending work never fires",
+         "We still have one step left to do -- what is it?")):
+        check(label, bool(TT.instruction_leak_conflict(reply)) == want,
+              "a child heard the machinery's own words" if want
+              else "the leak shapes must stay narrow")
+    for want, label, reply in (
+        (True,  "⭐ a turn ENDING on a bare ready-check fires",
+         "Both sides land on twenty-seven, so X equals eleven checks out "
+         "perfectly. Now, absolute value equations. Ready to see how those work?"),
+        (False, "  ...and with its buttons, passes",
+         'Ready to see how those work? [[choices options="Ready! | Show me again"]]'),
+        (False, "  a MID-turn ready phrase never fires",
+         "Ready to try one? Great, here it is: what is 3 + 4?"),
+        (False, "  an open question fires nothing",
+         "What should we do to both sides?")):
+        check(label, bool(TT.finite_answer_conflict(reply)) == want,
+              "Jim: 'has a binary answer yes or no. should have bubbles'" if want
+              else "mid-turn rhetoric and buttoned asks must never pay a retry")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if TT.finite_answer_conflict(t) or TT.instruction_leak_conflict(t):
+                fires += 1
+    check("⭐ zero fires across the canon under both widened shapes", fires == 0,
+          f"{fires} scripts rejected")
+    import pedagogy as PD
+    pb = str(PD.COURSE_PEDAGOGY["algebra2"]["units"][1])
+    for needle in ("ABSOLUTE VALUE GETS ITS FULL ARC",
+                   "THE CASES ARE BORN ON THE BOARD",
+                   "check BOTH answers", "two worked"):
+        check(f"  a2 u1 playbook: {needle[:40]}", needle in pb,
+              "Jim: 'not adequately explained. Needs more depth.'")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11921,7 +12099,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,689</b>" in page,
+          "<b>6,713</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -13178,7 +13356,13 @@ def part3ap_bare_demand_and_decimals():
          'Let us add three point five and zero point four seven. '
          '[[step eq="3.5 + 0.47 = ?"]] What do you get?'),
         ("a properly numbered ask", 'What is three plus eight? [[step eq="3 + 8 = ?"]]'),
-        ("an offer is not a computation", "Nice work today. Want to try another one?"),
+        # (oh, 2026-08-26) the offer now carries its buttons -- Jim's ruling
+        # ("binary answer... should have bubbles") made the bare final offer a
+        # 39(e) fire. The pin's original point stands unchanged: an offer is not
+        # a computation, so pendcheck demands no board line for it.
+        ("an offer is not a computation",
+         'Nice work today. Want to try another one? '
+         '[[choices options="Yes! | Done for now"]]'),
         ("money IS a reading of a decimal",
          'That is three dollars and ninety seven cents. [[step eq="3.97 + 1.00 = ?"]] '
          'What do you get?'),
@@ -20294,6 +20478,8 @@ def main():
     part3ek_the_keyboard_closes()
     part3el_one_thought_per_line()
     part3em_the_seat_survives_a_typo()
+    part3en_the_starting_blocks()
+    part3eo_the_fourth_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

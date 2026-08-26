@@ -37,6 +37,11 @@
 #               with misconceptions / how-to-teach / progression + a precalc cross-cutting list.
 #               Source: PreCalc_Curriculum_KB.md. Universal METHODOLOGY reused as-is. Additive; the
 #               four existing courses untouched. Do no harm.
+#   2026-08-26  BUILD oh -- ALGEBRA II UNIT 1: the absolute-value arc gets real
+#               depth (Jim's flags: 'not adequately explained' + 'case 2 shows up
+#               out of nowhere'). Distance picture on a big number line first,
+#               the cases BORN on the board via the bridge line, each case worked
+#               fully, both answers checked, two examples minimum.
 #   2026-07-28  ADDED COURSE 4 -- ALGEBRA II teaching brain (COURSE_PEDAGOGY["algebra2"]): 9 units
 #               (foundations/systems, quadratics & complex numbers, polynomials, rationals, radicals
 #               & rational exponents, exponentials & logs, sequences & series, trigonometry,
@@ -566,8 +571,18 @@ _ALGEBRA2_UNIT_PEDAGOGY = {
         "how_to_teach": (
             "Reuse the balance / 'do the same thing to both sides' picture from Algebra I. Graph a "
             "2x2 system so the intersection is SEEN before pushing to elimination; solve a "
-            "3-variable system by reducing it to a 2-variable one, then to one. Absolute value = "
-            "distance from zero, so it splits into two cases."
+            "3-variable system by reducing it to a 2-variable one, then to one. "
+            "ABSOLUTE VALUE GETS ITS FULL ARC, never one breath (Jim's flag, "
+            "2026-08-26: 'I don't think absolute values were adequately "
+            "explained'): (1) the DISTANCE picture first, on a big "
+            "[[numberline]] -- two dots the same distance from the center, SEEN "
+            "before any algebra; (2) THE CASES ARE BORN ON THE BOARD -- before "
+            "any 'case 1', write the bridge line |x - 3| = 7 -> x - 3 = 7 or "
+            "x - 3 = -7, so case 2 never appears out of nowhere; (3) work EACH "
+            "case fully, one step per line, the student doing the steps; (4) "
+            "check BOTH answers in the original; (5) at least two worked "
+            "examples before offering to move on. The two answers are the "
+            "payoff of the distance idea -- earn them, don't announce them."
         ),
         "progression": "3(x - 2) = 2x + 5  ->  -2x + 1 > 9 (flip!)  ->  |x - 3| = 7  ->  a 2x2 system by elimination  ->  a 3x3 system  ->  a mixture word-problem system",
     },

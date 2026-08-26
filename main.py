@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26oh-the-fourth-flag-harvest". BUILD oh --
+#               five algebra2 flags: leak referee learns the referees' own nudge
+#               jargon; referee 42 learns the bare final ready-check; the a2 u1
+#               playbook gets the full absolute-value arc (pedagogy.py); the
+#               small-numberline flag was a stale browser cache (1100px verified
+#               live). tutor.py/pedagogy.py; only this stamp here.
+#   2026-08-26  APP_BUILD -> "2026-08-26og-the-starting-blocks". BUILD og --
+#               JIM'S SPECULATION, V1. A turn ending in a computable pending line
+#               ("3 + 8 = ?") arms a background thread that generates the RIGHT-
+#               answer follow-up through the FULL verified pipeline; a matching
+#               next answer ships it instantly (zero model calls on the clock),
+#               any mismatch falls through to the untouched live path. Right-
+#               answer-only by Jim's ruling (the wrong branch cannot be pre-built
+#               honestly, rule 49). Quiz/check/exam and result-recording turns
+#               never speculate. Probes spec_armed/spec_hit/spec_miss surface the
+#               hit rate on the telemetry panel.
 #   2026-08-26  APP_BUILD -> "2026-08-26of-the-seat-survives-a-typo". BUILD of
 #               -- LIVE_CRITIC_MODEL was set to "claude-haiku-4.5" (dot; real ID
 #               claude-haiku-4-5) and the critic 404'd for four hours: 28
@@ -11922,7 +11938,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26of-the-seat-survives-a-typo"
+APP_BUILD = "2026-08-26oh-the-fourth-flag-harvest"
 
 
 @app.get("/health")
@@ -12685,6 +12701,148 @@ def _record_unintroduced(code: str, course: str, reply: str, history) -> None:
         print(f"[rule37] probe failed (ignored): {exc}")
 
 
+# =============================================================================
+# THE STARTING BLOCKS (build og, 2026-08-26) -- Jim's design, his words: "we got
+# a fifty-fifty chance of getting this right. Why don't we just put the right
+# answer response in the starting blocks? If he gets it right, it's ready to go.
+# If he gets it wrong, we don't have anything in the starting blocks, so we
+# gotta wait the five seconds and we'll pay for that one as well."
+# HOW IT WORKS: when a shipped reply ends in a COMPUTABLE pending line ("3 + 8
+# = ?"), a background thread generates the follow-up for the RIGHT answer
+# through the FULL verified pipeline (referees, retries, critic -- all off the
+# clock) and stashes it. If the student's next message IS that answer, the
+# stashed reply ships instantly and the recording path runs exactly as live; on
+# ANY mismatch the stash is discarded and the live path runs untouched.
+# WHY RIGHT-ANSWER-ONLY (Jim's ruling, latency report Lever 4): the hit rate
+# beats 50/50 (rule 47's no-cold-quizzes bar), and the WRONG branch cannot be
+# pre-built honestly -- rule 49 says the response to a miss depends on WHICH
+# wrong answer arrived. V1 SCOPE, deliberately narrow: numeric pending lines
+# only; quiz/check/exam turns never speculate (their grading writes mastery);
+# turns that recorded result tags never speculate (the context snapshot would
+# be stale). Costs: a hit costs nothing extra (the speculative call replaces
+# the live one); a miss discards one call (~+25%% brain tokens on practice
+# turns at a 75%% hit rate). Probes spec_armed / spec_hit / spec_miss make the
+# real hit rate visible on /admin's telemetry panel.
+# =============================================================================
+_SPEC_STASH: dict = {}
+_SPEC_LOCK = threading.Lock()
+_SPEC_TTL_S = 600
+_SPEC_WORDNUM = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4,
+                 "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+                 "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13,
+                 "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
+                 "eighteen": 18, "nineteen": 19, "twenty": 20}
+# ⚠️ character ORDER is load-bearing: star-then-slash (or slash-then-star)
+# ANYWHERE in this file pairs with the stray slash-star sequences that live in
+# old comments ("shots" globs, the api wildcard paths) and makes the battery's
+# comment-stripper swallow 400KB of code between them -- it did exactly that in
+# this build's own dry run, and two pinned tts call sites vanished. In every
+# regex and string here, star and slash never touch.
+_SPEC_EXPR_OK = re.compile(r"^[\d\s.+*\-/()]+$")
+
+
+def _spec_expected_answer(reply: str):
+    """The numeric answer to the reply's LAST computable pending line, or None.
+    "hundredths: 0 + 5 = ?" -> 5.  Anything with letters left after symbol
+    normalization is not V1's business."""
+    try:
+        vals = [v for v in tutor._note_tag_vals(str(reply or "")) if "= ?" in v or "=?" in v]
+        if not vals:
+            return None
+        line = vals[-1]
+        line = line.split(":", 1)[-1]                    # drop a label prefix
+        lhs = line.rsplit("=", 1)[0]
+        lhs = (lhs.replace("×", "*").replace("·", "*").replace("÷", "/")
+                  .replace("−", "-").replace("–", "-"))
+        lhs = lhs.strip()
+        if not lhs or not _SPEC_EXPR_OK.match(lhs):
+            return None
+        val = eval(lhs, {"__builtins__": {}})            # noqa: S307 -- whitelisted charset
+        if not isinstance(val, (int, float)) or abs(val) > 1e9:
+            return None
+        return float(val)
+    except Exception:
+        return None
+
+
+def _spec_norm_hit(message: str, expected: float) -> bool:
+    """Does this short answer SAY the expected number, and nothing else?"""
+    try:
+        s = str(message or "").strip().lower()
+        if not s or len(s) > 24:
+            return False
+        for w, n in _SPEC_WORDNUM.items():
+            s = re.sub(r"\b" + w + r"\b", str(n), s)
+        nums = re.findall(r"-?\d+(?:\.\d+)?", s)
+        if len(nums) != 1:
+            return False
+        leftover = re.sub(r"-?\d+(?:\.\d+)?", "", s)
+        if re.search(r"[0-9]", leftover):
+            return False
+        return abs(float(nums[0]) - expected) < 1e-9
+    except Exception:
+        return False
+
+
+def _spec_turn_note(course: str, message: str, code: str) -> str:
+    """The SAME per-turn note the live path would build for this message."""
+    note = ""
+    try:
+        if misconceptions is not None and message and not message.startswith("__"):
+            note = misconceptions.hint_note(course, message)
+    except Exception:
+        note = ""
+    try:
+        note += tutor.phrasing_note(code, course)
+    except Exception:
+        pass
+    return note
+
+
+def _speculate_next(code: str, course: str, context: dict, history2: list,
+                    expected: float) -> None:
+    """Generate + stash the right-answer follow-up. Runs in a daemon thread; any
+    failure just means no stash (the live path is always intact)."""
+    try:
+        msg = str(int(expected)) if float(expected).is_integer() else f"{expected:g}"
+        note = _spec_turn_note(course, msg, code)
+        reply = _bold_first_terms(
+            tutor.get_tutor_reply(context, history2, msg, course, code=code,
+                                  turn_note=note), history2)
+        if not reply:
+            return
+        with _SPEC_LOCK:
+            _SPEC_STASH[(code, course)] = {
+                "hist_len": len(history2), "expected": float(expected),
+                "reply": reply, "ts": time.time()}
+        _event_safe("probe", "spec_armed", f"expected={msg}", code, course)
+    except Exception as exc:  # noqa: BLE001 -- speculation must never break anything
+        print(f"[spec] speculation failed (ignored): {exc}")
+
+
+def _spec_take(code: str, course: str, history: list, message: str):
+    """The stashed reply if THIS message is the speculated right answer in the
+    same conversation state, else None. Single-use either way."""
+    with _SPEC_LOCK:
+        st = _SPEC_STASH.pop((code, course), None)
+    if not st:
+        return None
+    if time.time() - st["ts"] > _SPEC_TTL_S or len(history) != st["hist_len"]:
+        return None
+    if _spec_norm_hit(message, st["expected"]):
+        _event_safe("probe", "spec_hit", f"answer={message[:20]}", code, course)
+        return st["reply"]
+    _event_safe("probe", "spec_miss", f"answer={message[:20]}", code, course)
+    return None
+
+
+def _event_safe(kind: str, name: str, detail: str, code: str = "", course: str = "") -> None:
+    try:
+        store.record_event(kind, name, detail, code, course)
+    except Exception:
+        pass
+
+
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
@@ -13058,8 +13216,16 @@ def chat(req: ChatRequest):
     # build gi: BEFORE this turn is appended, `history` still ends with the tutor's
     # PREVIOUS words -- which is exactly what the student was reacting to.
     _record_term_gap(code, req.course, message, history)
-    reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course,
-                                                    code=code, turn_note=turn_note), history)
+    # build og: THE STARTING BLOCKS. If the previous turn speculated this very
+    # answer, the fully-verified reply is already waiting -- ship it with zero
+    # model calls. Any mismatch discarded the stash inside _spec_take; the live
+    # path below is byte-identical to before this build.
+    reply = None
+    if not final_mode:
+        reply = _spec_take(code, req.course, history, message)
+    if reply is None:
+        reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, message, req.course,
+                                                        code=code, turn_note=turn_note), history)
     _record_learned(code, req.course, reply)
     # build hu (Class E): the SERVER records the reply's own result tags -- the
     # client's POST is only an echo now (see the note above post_final).
@@ -13079,6 +13245,30 @@ def chat(req: ChatRequest):
     _exchange = [{"role": "user", "content": message},
                  {"role": "assistant", "content": reply}]
     mutate_history(code, req.course, lambda h: h + _exchange)
+
+    # build og: ARM THE STARTING BLOCKS for the next turn. Only when this reply
+    # ends in a computable pending line; never on quiz/check/exam turns (their
+    # grading writes mastery) and never on turns that recorded result tags (the
+    # context snapshot below would be stale). The thread runs the FULL verified
+    # pipeline off the clock; SPEC_DISABLE_THREAD=1 lets the battery call the
+    # speculation body synchronously instead.
+    try:
+        _spec_expected = None
+        if (not final_mode
+                and not re.search(r"\[\[\s*(?:quiz|check|finalexam)\b", reply)):
+            _spec_expected = _spec_expected_answer(reply)
+        if _spec_expected is not None:
+            _spec_hist2 = list(history) + _exchange
+            if os.environ.get("SPEC_DISABLE_THREAD") == "1":
+                pass          # the battery drives _speculate_next directly
+            else:
+                threading.Thread(
+                    target=_speculate_next,
+                    args=(code, req.course, dict(student_context), _spec_hist2,
+                          _spec_expected),
+                    daemon=True).start()
+    except Exception as _sexc:  # noqa: BLE001 -- arming must never break a turn
+        print(f"[spec] arm failed (ignored): {_sexc}")
 
     # Real tracking: the COURSE now teaches all 9 units starting at the student's
     # placed unit, so course activity counts as "learning" whatever unit they're on.
