@@ -2,6 +2,19 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oi -- THE FIFTH FLAG HARVEST (five geometry flags, 22:45-22:52).
+#               (1) finite_answer_conflict learns the LEADING fork: "Want X, or Y?"
+#               (_LEAD_FORK_RE) -- nu's shape needed the offer verb after the "or";
+#               two flags carried it up front. (2) NEW paper_drawing_conflict (the
+#               FIFTIETH referee): "grab your paper and draw two lines crossing"
+#               outsources the board's own job; fires only when NO figure exists in
+#               the reply or the conversation (heard-gated, nv's law). (3) NEW
+#               vertical_angles_conflict (the FIFTY-FIRST): a vertical-angles
+#               question asked with no crossing lines anywhere -- pairs with
+#               geo-figures.js's new [[angle cross="?"]] X. All three patterns
+#               canon-swept 0 before enforcement. The congruent-in-a-recap and
+#               long-turn flags are prompt work (prompts.py rule 37/19c) -- no
+#               referee change.
 #   2026-08-21  BUILD jy -- the intervention prompt learns CARRYING, with jr's canon
 #               words baked in: two-digit adds are modeled as step lines (ones, the
 #               carry when the ones go over nine, tens, answer), and the rule is
@@ -2171,7 +2184,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # deliberation). Seventh verse, same discipline: teaching is never trimmed to duck
 # a tripwire; the raise is deliberate and this is its dated note. The
 # two-prompt-sizes LARGE result remains the evidence that should set this number.
-PROMPT_CEILING = 195_000
+# 2026-08-26 (build oi): RAISED 195,000 -> 197,000. The fifth flag harvest wrote
+# rule 37's recap gloss (a recap is a first time too -- from Jim's live "I have
+# never heard the term congruent before") and 39(e)'s leading-fork clause into the
+# shared block, and the all-heard algebra2 deferred prompt measured 195,223.
+# Eighth verse, same discipline: teaching is never trimmed to duck a tripwire; the
+# raise is deliberate and this is its dated note. The two-prompt-sizes LARGE
+# result remains the evidence that should set this number.
+PROMPT_CEILING = 197_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -5352,6 +5372,16 @@ _READY_CHECK_RE = re.compile(
 _OFFER_FORK_RE = re.compile(
     r",?\s*or\s+(?:would\s+you\s+like|would\s+you\s+rather|do\s+you\s+want|"
     r"want\s+(?:me\s+to|a|to)|should\s+i)\b[^.?!]*\?", re.I)
+# (oi) the fork that LEADS with the offer word: "Want a quick five-question
+# check, or one more practice problem first?" / "Want to try one more
+# complementary pair, or move on?" -- two geometry flags from Jim's 2026-08-26
+# night run, both "binary so should have bubbles". nu's shape needs the offer
+# verb AFTER the "or"; these carry it up front and put plain clauses after the
+# "or", so they slipped past. The sentence must BEGIN with the offer verb and
+# hold an ", or" -- a mid-sentence "if you want" never fires. Canon swept: 0.
+_LEAD_FORK_RE = re.compile(
+    r"(?:^|[.!?]\s+)(?:want|would\s+you\s+like|do\s+you\s+want)"
+    r"\b[^.?!]*?,?\s+or\s+[^.?!]*\?", re.I)
 _QUIZ_MOMENT_RE = re.compile(r"\[\[\s*(?:quiz|check|finalexam)\b|\bQ\s*\d+\s*:"
                              r"|\bquestion\s+(?:one|two|three|four|five|six|seven|"
                              r"eight|nine|ten|\d+)\b", re.I)
@@ -5383,7 +5413,9 @@ def finite_answer_conflict(reply: str):
             # or would you like a quick refresher?" -- "binary answer so should
             # have been bubbles." A two-way OFFER is a small answer space too; the
             # labels are paraphrases, so the nudge asks the model to write them.
-            fork = _OFFER_FORK_RE.search(sent)
+            # (oi) and the offer that LEADS with its verb -- "Want X, or Y?" --
+            # is the same fork wearing its hat backwards. Same nudge.
+            fork = _OFFER_FORK_RE.search(sent) or _LEAD_FORK_RE.search(sent)
             if fork:
                 said = " ".join(fork.group(0).split())[:70]
                 return ('you offer a two-way choice -- "{s}" -- and ship no '
@@ -5417,6 +5449,99 @@ def finite_answer_conflict(reply: str):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[finiteanswer] crashed (fail open): {exc}")
         _event("referee_crash", "finiteanswer", str(exc))
+        return ""
+
+
+# BUILD oi -- THE BOARD DOES THE DRAWING (the FIFTIETH referee). Jim's 2026-08-26
+# 22:48 flag caught the tutor saying "Grab your paper and draw two lines crossing"
+# -- sending a child away from the whiteboard to make the very picture the board
+# exists to make. The student is at a SCREEN: rule 7's whole contract is that
+# anything worth picturing goes UP as a tag. Sketch-along on paper is welcome as
+# an extra, but only AFTER the board holds the figure -- never instead of it.
+# Two shapes, both canon-swept 0:
+#   - the supply run: "grab/get/take out your paper/pencil/notebook"
+#   - the outsourced figure: "draw <something> on (your) paper"
+# HEARD-GATED like quizterm: if any figure already lives in this conversation, the
+# instruction may be a legitimate "sketch what we drew" and the referee stays
+# silent; when heard is None it cannot see, so it never accuses (nv's law).
+_PAPER_DRAW_RE = re.compile(
+    r"\b(?:grab|get|take\s+out)\s+(?:your|a|some)\s+(?:paper|pencil|notebook)\b"
+    r"|\bdraw\s+[^.?!]{0,30}?\bon\s+(?:your\s+)?paper\b", re.I)
+_ANY_FIGURE_RE = re.compile(
+    r"\[\[\s*(?:angle|triangle|circle|graph|objects|numberline)\b", re.I)
+
+
+def paper_drawing_conflict(reply: str, heard=None):
+    """Return a description of a drawing outsourced to the student's paper while
+    the board sits empty, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        if _ANY_FIGURE_RE.search(text):
+            return ""                 # this reply draws -- sketch-along is welcome
+        if heard is None:
+            return ""                 # cannot see the conversation: never accuse
+        if _ANY_FIGURE_RE.search(str(heard)):
+            return ""                 # a figure already exists to sketch from
+        prose = _spoken_only(text)
+        m = _PAPER_DRAW_RE.search(prose)
+        if not m:
+            return ""
+        said = " ".join(m.group(0).split())[:70]
+        return ('you send the student to paper -- "{q}" -- and nothing has ever '
+                "been drawn on the board in this conversation. The student is at "
+                "a screen, and rule 7 says the BOARD makes every picture you talk "
+                "about: ADD the figure to this reply as a board tag ([[angle]], "
+                "[[triangle]], [[circle]], [[graph]], [[objects]] or "
+                "[[numberline]]). For two lines crossing, [[angle deg=\"...\" "
+                'cross="?"]] draws the X and labels the opposite angle. You may '
+                "still invite sketching along AFTER the figure is up. Keep your "
+                "teaching; add the drawing.").format(q=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[paperdraw] crashed (fail open): {exc}")
+        _event("referee_crash", "paperdraw", str(exc))
+        return ""
+
+
+# BUILD oi -- VERTICAL ANGLES GET THEIR X (the FIFTY-FIRST referee). Jim's
+# 2026-08-26 22:50 flag: a vertical-angles question was asked and answered
+# entirely in prose -- "show a picture," he wrote, and he is right: vertical
+# angles ARE a picture; without the two crossing lines there is nothing for the
+# words to point at. The [[angle]] tag grew cross="?" this same build precisely
+# so the figure is one attribute away. Fires only when the reply ASKS about
+# vertical angles (a "?" is present) and NO figure of any kind exists in the
+# reply or anywhere in the conversation. Heard-gated (nv's law: never accuse
+# what it cannot see); canon swept 0 -- no canonical card says "vertical angles"
+# at all, so enforcement cannot touch the scripts.
+_VERT_ANGLES_RE = re.compile(r"\bvertical\s+angles?\b", re.I)
+
+
+def vertical_angles_conflict(reply: str, heard=None):
+    """Return a description of a vertical-angles question asked with no crossing
+    lines anywhere on the board, or "". Never raises: fail open."""
+    try:
+        text = str(reply or "")
+        if _ANY_FIGURE_RE.search(text):
+            return ""                 # this reply draws its own picture
+        if heard is None:
+            return ""                 # cannot see the conversation: never accuse
+        if _ANY_FIGURE_RE.search(str(heard)):
+            return ""                 # a figure is already up for the words to point at
+        prose = _spoken_only(text)
+        if "?" not in prose:
+            return ""                 # telling, not asking -- the prompt handles style
+        m = _VERT_ANGLES_RE.search(prose)
+        if not m:
+            return ""
+        return ("you ask about vertical angles and no crossing lines have ever "
+                "been drawn in this conversation -- the student is being asked "
+                "about a picture that does not exist. Rule 7: ADD the figure to "
+                'this reply: [[angle deg="<the given measure>" cross="?"]] draws '
+                "the two full lines crossing, marks your angle, and labels the "
+                'one across from it "?". Keep your question; give it its '
+                "picture.")
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[vertangles] crashed (fail open): {exc}")
+        _event("referee_crash", "vertangles", str(exc))
         return ""
 
 
@@ -6680,6 +6805,17 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if cram:
             _event("referee_fire", "boardcram", cram)
             return cram
+        # (oi) the fiftieth: the board does the drawing -- paper is never the
+        # only picture. Heard-gated.
+        paper = paper_drawing_conflict(reply, heard)
+        if paper:
+            _event("referee_fire", "paperdraw", paper)
+            return paper
+        # (oi) the fifty-first: a vertical-angles question gets its X. Heard-gated.
+        vert = vertical_angles_conflict(reply, heard)
+        if vert:
+            _event("referee_fire", "vertangles", vert)
+            return vert
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

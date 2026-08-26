@@ -18,6 +18,13 @@
 // 2026-08-01  [[angle]] gained split="60" / split="60,30": an interior ray from the vertex
 //             splitting the angle, with the pieces labeled (second defaults to "?") -- so
 //             complementary/supplementary lessons can SHOW the split they talk about.
+// 2026-08-26  (build oi) [[angle]] gained cross="?": BOTH rays extend through the vertex,
+//             drawing two full lines crossing (the X every vertical-angles question needs).
+//             The given angle keeps its teal arc + measure; the angle OPPOSITE it gets a
+//             red arc labeled with cross's value ("?" by default, or a number/text like
+//             cross="110"). Written from Jim's 2026-08-26 22:50 flag: a vertical-angles
+//             question was asked with NO figure -- the board had nothing to draw an X with.
+//             Ignored when deg would make the X degenerate (below 10 or above 170).
 
 (function () {
   "use strict";
@@ -123,12 +130,25 @@
     // asked for 180 and got 175). Wide angles recentre the vertex so both rays stay visible.
     var deg = Math.max(5, Math.min(180, num(a.deg != null ? a.deg : a.measure, 45)));
     var label = String(a.label || "").trim();
-    var V = [deg > 150 ? 150 : 80, 172], Ln = 132, rad = deg * Math.PI / 180;
+    // 2026-08-26 (build oi): cross="?" extends both rays through the vertex -- two full
+    // lines crossing -- and labels the OPPOSITE (vertical) angle. Degenerate X's are
+    // refused: outside 10..170 the attribute is ignored and the plain angle draws.
+    var crossRaw = String(a.cross || "").trim();
+    var cross = crossRaw && deg >= 10 && deg <= 170;
+    var V = cross ? [150, 106] : [deg > 150 ? 150 : 80, 172];
+    var Ln = cross ? 106 : 132;
+    var rad = deg * Math.PI / 180;
     var r1 = [V[0] + Ln, V[1]];
     var r2 = [V[0] + Ln * Math.cos(rad), V[1] - Ln * Math.sin(rad)];
     var s = open(W, H);
-    s += line(V, r1, ACC, 2.5);
-    s += line(V, r2, ACC, 2.5);
+    if (cross) {
+      // the two FULL lines: each ray and its extension through the vertex
+      s += line([V[0] - Ln, V[1]], r1, ACC, 2.5);
+      s += line([V[0] - Ln * Math.cos(rad), V[1] + Ln * Math.sin(rad)], r2, ACC, 2.5);
+    } else {
+      s += line(V, r1, ACC, 2.5);
+      s += line(V, r2, ACC, 2.5);
+    }
     var ar = 34, a1 = [V[0] + ar, V[1]], a2 = [V[0] + ar * Math.cos(rad), V[1] - ar * Math.sin(rad)];
     if (Math.abs(deg - 90) < 0.5) {
       var d = 15;
@@ -160,10 +180,27 @@
         s += txt(V[0] + lr2 * Math.cos(l2) + 2, V[1] - lr2 * Math.sin(l2) - 2, lbl2, RED, 13, 700);
       }
     }
+    // 2026-08-26 (build oi): with cross set, arc + label the VERTICAL angle -- the one
+    // opposite the given angle, between the two ray extensions. Its size equals deg
+    // (that is the theorem), so the label defaults to "?" for the tutor to ask about;
+    // cross="110" (or any text) writes that instead.
+    if (cross) {
+      var vr = 30, vs = Math.PI, ve = Math.PI + rad;
+      var b1 = [V[0] + vr * Math.cos(vs), V[1] - vr * Math.sin(vs)];
+      var b2 = [V[0] + vr * Math.cos(ve), V[1] - vr * Math.sin(ve)];
+      s += '<path d="M ' + b1[0] + " " + b1[1] + " A " + vr + " " + vr + " 0 0 0 " + b2[0] + " " + b2[1] +
+        '" fill="none" stroke="' + RED + '" stroke-width="2"/>';
+      var vm = Math.PI + rad / 2, vlr = vr + 18;
+      var vlab = (crossRaw === "1" || crossRaw.toLowerCase() === "true" || crossRaw === "?")
+        ? "?" : (isNaN(parseFloat(crossRaw)) ? crossRaw : parseFloat(crossRaw) + "°");
+      s += txt(V[0] + vlr * Math.cos(vm), V[1] - vlr * Math.sin(vm), vlab, RED, 14, 700);
+    }
     if (label) {
       var ch = label.split("");
       s += dot(V, 3);
-      if (ch[1]) s += txt(V[0] - 15, V[1] + 9, ch[1], INK, 16, 800);           // vertex
+      // (oi) with cross, the old spot sits on the leftward line -- drop the vertex
+      // label below the X instead.
+      if (ch[1]) s += txt(cross ? V[0] - 6 : V[0] - 15, V[1] + (cross ? 20 : 9), ch[1], INK, 16, 800);  // vertex
       if (ch[0]) s += txt(r1[0] + 12, r1[1] + 3, ch[0], INK, 16, 800);          // first ray end
       if (ch[2]) s += txt(r2[0] + 13, r2[1] - 6, ch[2], INK, 16, 800);          // second ray end
     }

@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oi -- PART 3ep: the fifth flag harvest (five geometry
+#               flags). Referee 42 learns the LEADING fork ("Want X, or Y?");
+#               NEW referees 50 (the board does the drawing -- paper is never
+#               the only picture) and 51 (a vertical-angles question gets its
+#               X), both heard-gated; geo-figures.js [[angle]] grows cross="?"
+#               (two full lines crossing, opposite angle labeled); the prompt's
+#               own sketch-along clause was the paper flag's root cause and is
+#               rewritten board-first; rule 37 grows the recap gloss.
 #   2026-08-26  BUILD oh -- PART 3eo: the fourth flag harvest (an algebra2
 #               absolute-value session). The leak referee learns the referees'
 #               OWN nudge jargon ("has something to land on" spoken to a child);
@@ -10989,7 +10997,9 @@ def part3ei_the_third_flag_harvest():
           "referee 47 enforces a rule that must exist in the prompt")
     traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
     check("the seventh ceiling raise carries its dated note",
-          "PROMPT_CEILING = 195_000" in traw and "2026-08-26 (build nz): RAISED" in traw,
+          # (oi) the CURRENT value moved on to 197,000 (eighth raise, same-day);
+          # this pin now guards that nz's HISTORY note survives in the ledger.
+          "195,000 -> 197,000" in traw and "2026-08-26 (build nz): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
 def part3ej_never_fast_forward():
@@ -11383,6 +11393,159 @@ def part3eo_the_fourth_flag_harvest():
                    "check BOTH answers", "two worked"):
         check(f"  a2 u1 playbook: {needle[:40]}", needle in pb,
               "Jim: 'not adequately explained. Needs more depth.'")
+
+def part3ep_the_fifth_flag_harvest():
+    """PART 3ep (build oi) -- THE FIFTH FLAG HARVEST (five geometry flags, 22:45-22:52).
+
+    ① + ② "Want a quick five-question check, or one more practice problem
+      first?" / "Want to try one more complementary pair, or move on?" -- both
+      "binary so should have bubbles." Referee 42 learns the LEADING fork
+      (_LEAD_FORK_RE): nu's shape needed the offer verb after the "or"; these
+      carry it up front. Canon swept 0.
+    ③ "show a picture" (a vertical-angles question, nothing drawn) -- the
+      FIFTY-FIRST referee (vertical_angles_conflict) + geo-figures.js grows
+      cross="?" on [[angle]]: both rays extend through the vertex (the X) and
+      the opposite angle is labeled. Heard-gated: silent when a figure already
+      lives anywhere in the conversation, silent when it cannot see.
+    ④ "Grab your paper and draw two lines crossing" -- the FIFTIETH referee
+      (paper_drawing_conflict): the board does the drawing; paper is never the
+      only picture. Same heard gate. The prompt's OWN sketch-along clause was
+      the root cause (it asked for the paper sketch without saying the board
+      draws first) -- rewritten, and pinned here so it cannot come back.
+    ⑤ "I have never heard the term congruent before" (a recap used an untaught
+      term) -- rule 37 grows A RECAP IS A FIRST TIME TOO: three-word glosses in
+      every recap for terms this conversation hasn't taught. (The same 22:48
+      turn also ran long; that is spokenlen's existing beat -- judged from the
+      fresh era, no new machinery.)"""
+    print("\nPART 3ep — the fifth flag harvest (build oi)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+
+    # ① + ② the leading fork ----------------------------------------------------
+    for want, label, reply in (
+        (True,  "⭐ flag 22:52: 'Want a quick check, or one more...?' fires",
+         "Nice work on those. Want a quick five-question check, or one more "
+         "practice problem first?"),
+        (True,  "⭐ flag 22:46: 'Want to try one more..., or move on?' fires",
+         "That's exactly right. Want to try one more complementary pair, or "
+         "move on?"),
+        (False, "  ...and with its buttons, passes",
+         'Want a quick five-question check, or one more practice problem first? '
+         '[[choices options="Quick check | One more problem"]]'),
+        (False, "  a mid-sentence 'if you want' never fires",
+         "Tell me if you want a hint or need more time."),
+        (False, "  a quiz moment keeps its free answers",
+         "Q3: Want to name the angle pair, or classify the triangle?")):
+        check(label, bool(TT.finite_answer_conflict(reply)) == want,
+              "Jim: 'binary so should have bubbles'" if want
+              else "the fork must stay a sentence-leading shape")
+
+    # ④ the board does the drawing (referee 50) ---------------------------------
+    PAPER = ("Grab your paper and draw two lines crossing. What do you notice "
+             "about the angles across from each other?")
+    for want, label, reply, heard in (
+        (True,  "⭐ 'grab your paper' with an empty conversation fires",
+         PAPER, "Student: hi there"),
+        (False, "  silent when THIS reply draws (sketch-along is welcome)",
+         PAPER + ' [[angle deg="110" cross="?"]]', "Student: hi"),
+        (False, "  silent when a figure already lives in the conversation",
+         PAPER, 'Earlier board: [[triangle v="A,B,C" sides="3,4,5"]]'),
+        (True,  "  'draw two lines crossing on your paper' fires too",
+         "Draw two lines crossing on your paper and look at the angles.",
+         "Student: ok"),
+        (False, "  ordinary board-drawing talk never fires",
+         "Let's draw this on the board together, one line at a time.",
+         "Student: ok")):
+        check(label, bool(TT.paper_drawing_conflict(reply, heard)) == want,
+              "the board's own job was outsourced to a child" if want
+              else "legitimate sketch-along and board talk must never pay a retry")
+    check("  nv's law: silent when it cannot see (heard=None)",
+          TT.paper_drawing_conflict(PAPER, None) == "",
+          "a heard-gated referee never accuses what it cannot see")
+
+    # ③ vertical angles get their X (referee 51) --------------------------------
+    VERT = ("Two lines cross and make vertical angles. If one angle is 110 "
+            "degrees, what is the angle across from it?")
+    for want, label, reply, heard in (
+        (True,  "⭐ a vertical-angles question with no figure anywhere fires",
+         VERT, "Student: hi"),
+        (False, "  silent when this reply draws its X",
+         VERT + ' [[angle deg="110" cross="?"]]', "Student: hi"),
+        (False, "  silent when the conversation already holds a figure",
+         VERT, 'earlier: [[angle deg="50" label="ABC"]]'),
+        (False, "  telling (no question) never fires -- style is the prompt's job",
+         "Vertical angles are always equal to each other.", "Student: hi")):
+        check(label, bool(TT.vertical_angles_conflict(reply, heard)) == want,
+              "Jim: 'show a picture' -- and he is right" if want
+              else "the referee must stay a question-with-no-picture shape")
+    check("  nv's law: silent when it cannot see (heard=None)",
+          TT.vertical_angles_conflict(VERT, None) == "",
+          "a heard-gated referee never accuses what it cannot see")
+
+    # the canon stays untouched under all three new shapes ----------------------
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if (TT.finite_answer_conflict(t) or TT.paper_drawing_conflict(t, t)
+                    or TT.vertical_angles_conflict(t, t)):
+                fires += 1
+    check("⭐ zero fires across the canon under the harvest's three shapes",
+          fires == 0, f"{fires} scripts rejected")
+
+    # both referees ride the sweep, heard in hand -------------------------------
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 50 rides the sweep",
+          "paper_drawing_conflict(reply, heard)" in tsrc,
+          "an unwired referee catches nothing")
+    check("referee 51 rides the sweep",
+          "vertical_angles_conflict(reply, heard)" in tsrc,
+          "an unwired referee catches nothing")
+
+    # the X itself: geo-figures.js cross= ---------------------------------------
+    g = open(os.path.join(here, "static", "geo-figures.js"), encoding="utf-8").read()
+    gc = code_only(g)
+    check("⭐ [[angle]] knows cross= (the vertical-angles X)",
+          "a.cross" in gc and "deg >= 10 && deg <= 170" in gc,
+          "the referee demands a figure the board cannot draw")
+    check("  ...both rays extend THROUGH the vertex (two full lines)",
+          "V[0] - Ln" in gc and "V[1] + Ln * Math.sin(rad)" in gc,
+          "without the extensions there is no X, just the same old angle")
+    check("  ...and the opposite angle is labeled, '?' by default",
+          'crossRaw === "1"' in gc and '"?"' in gc,
+          "an unlabeled vertical angle gives the student nothing to answer")
+
+    # the prompt work: cross documented, board-first, recap gloss, leading fork -
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ the geometry template documents cross=",
+          'cross="?"' in psrc and "VERTICAL ANGLES ARE THIS PICTURE" in psrc,
+          "a tag the prompt never mentions is a tag the tutor never uses")
+    check("⭐ the sketch-along clause now leads with the board",
+          "THE BOARD DRAWS FIRST, ALWAYS" in psrc,
+          "the old wording asked for a paper sketch without saying the board "
+          "comes first -- the tutor obeyed it, and Jim's student paid")
+    check("  ...and the old unguarded wording is gone",
+          "still tell the student what to sketch on their own paper" not in psrc,
+          "both wordings present = the model picks the one you did not want")
+    check("⭐ rule 37: a recap is a first time too",
+          "A RECAP IS A FIRST TIME TOO" in psrc
+          and "congruent (equal measure)" in psrc,
+          "Jim's student: 'I have never heard the term congruent before'")
+    check("  39(e) names the leading fork",
+          "opens with the offer verb and is still the same fork" in psrc,
+          "the rule must name the moment the referee enforces")
+
+    # the eighth ceiling raise (the recap gloss + leading fork are SHARED clauses;
+    # the all-heard algebra2 prompt measured 195,223 and the wire fired exactly as
+    # designed) -- raised, never trimmed, and this pin demands the dated note.
+    traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the eighth ceiling raise carries its dated note",
+          "PROMPT_CEILING = 197_000" in traw
+          and "2026-08-26 (build oi): RAISED" in traw,
+          "an undated raise is how the ledger's discipline dies")
+
 
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
@@ -12099,7 +12262,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,713</b>" in page,
+          "<b>6,741</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20480,6 +20643,7 @@ def main():
     part3em_the_seat_survives_a_typo()
     part3en_the_starting_blocks()
     part3eo_the_fourth_flag_harvest()
+    part3ep_the_fifth_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
