@@ -2,6 +2,12 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oj -- [[beside]] joins TAG_INLINE (attribute-free, draws
+#               nothing itself): it arms board.js's mountBlock so the NEXT board
+#               block lands NEXT TO the previous one (side-by-side comparison,
+#               rule 58d). Registered here the moment the pages learned it -- the
+#               registry cross-check caught the omission on the first battery
+#               run, exactly as this file's design intends.
 #   2026-08-18  BUILD hm -- UNITPLAN_UNIT_PATTERN: the one regex source for reading the
 #               unit out of a [[unitplan]] tag. main.py (filing) and tutor.py (the new
 #               unitplan referee) BOTH need it, and two hand-typed copies of the same
@@ -86,6 +92,10 @@ TAG_INLINE = {
     # wrap-up mark (rule 29a) -- the only mechanical end-of-session signal there has
     # ever been -- and its whole effect is to queue the goodbye moment clip.
     "bye": set(),
+    # build oj: [[beside]] is attribute-free and draws nothing ITSELF -- it arms
+    # mountBlock (board.js) so the next board block joins the previous one in a
+    # side-by-side row (rule 58d: comparing two ways, an equation and its picture).
+    "beside": set(),
 }
 
 # ---- UNITPLAN: the one pattern for reading the declared unit out of the tag ------

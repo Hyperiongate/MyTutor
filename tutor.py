@@ -2,6 +2,10 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE (one word here). The new
+#               [[beside]] board tag (board.js + rule 58d) joins _LEAK_SHAPES'
+#               tag-name list so "I'll send a beside tag" spoken to a child is
+#               caught like its siblings. No referee added, no behavior changed.
 #   2026-08-26  BUILD oi -- THE FIFTH FLAG HARVEST (five geometry flags, 22:45-22:52).
 #               (1) finite_answer_conflict learns the LEADING fork: "Want X, or Y?"
 #               (_LEAD_FORK_RE) -- nu's shape needed the offer verb after the "or";
@@ -5560,7 +5564,7 @@ _LEAK_SHAPES = re.compile(
     r"|\bsystem\s+prompt\b"
     r"|\b(?:my|our)\s+rule\s+\d+\b"
     r"|\brule\s+\d+\s+(?:says|requires|forbids|tells|means)\b"
-    r"|\b(?:step|write|quiz|check|finalexam|unitplan|highlight|card|board)\s+tag\b"
+    r"|\b(?:step|write|quiz|check|finalexam|unitplan|highlight|card|board|beside)\s+tag\b"
     # (oh) THE REFEREES' OWN NUDGE JARGON, spoken to a child. Jim's flag: "let's
     # re-write the equation we're solving so the operation has something to land
     # on" -- that is orphanstep's engineering language leaking into a lesson.

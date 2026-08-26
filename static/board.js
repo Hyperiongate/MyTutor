@@ -2,6 +2,23 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is
+                 underutilized... they can move to the side. Say, alright, we're
+                 gonna put the other equation right next to this one so you could
+                 see it better." NEW [[beside]] tag: the NEXT board block (a
+                 worklist or a figure) joins the PREVIOUS one in a flex row
+                 (.mrow) instead of starting a new line -- so two equations, or
+                 an equation and its picture, sit shoulder to shoulder and the
+                 board's width finally works. Machinery here (armBeside /
+                 clearBeside / mountBlock -- the ONE door every new .mblock now
+                 walks through); the pages' getWorklist/feedBlock call
+                 mountBlock, their handleTags dispatch [[beside]], and their CSS
+                 adds .mrow (flex-wrap: wrap, so a phone stacks the columns --
+                 which is why prose must keep naming work by CONTENT, never by
+                 left/right; referee 40's law already says so). A block moved
+                 into a row is re-fitted (fitRow) on the next frame, folded
+                 problems are never joined, and a [[beside]] with nothing before
+                 it renders exactly as if the tag were absent.
      2026-08-25  BUILD nt -- THE FLAG SHOWS ITSELF. Jim, first look for his new
                  flag: "I don't see a flag." The server was current (checked live);
                  the button was also drawn at 25%% opacity -- discretion that serves
@@ -160,6 +177,49 @@ let autoScroll = false;
 // they return to the bottom). requestAnimationFrame lets the new content lay out FIRST, so
 // we measure the true height (fixes the "new line hides below the fold" scrolling).
 let stickBottom = true;
+
+// ---------- SIDE BY SIDE ON PURPOSE (build oj) ----------
+// [[beside]] arms this flag; the NEXT board block joins the previous one in a
+// .mrow instead of starting its own line. Consumed by mountBlock, cleared at the
+// start of every tutor turn (a dangling [[beside]] with no block after it must
+// never leak into the next turn).
+let besidePending = false;
+
+function armBeside() { besidePending = true; }
+function clearBeside() { besidePending = false; }
+
+// THE ONE DOOR every new .mblock walks through (pages' getWorklist + feedBlock).
+// Plain case: append to the feed, exactly as before. [[beside]] case: find the
+// previous board block -- never inside a folded problem (.probdone), and give up
+// at nothing found -- then wrap it (or join its existing row) and re-fit its rows
+// once the new, narrower width has laid out.
+function mountBlock(b) {
+  if (besidePending) {
+    besidePending = false;
+    let prev = null;
+    const kids = feed.children;
+    for (let i = kids.length - 1; i >= 0; i--) {
+      const k = kids[i];
+      if (!k.classList) continue;
+      if (k.classList.contains("probdone")) break;   // a folded problem is finished
+      if (k.classList.contains("mrow") || k.classList.contains("mblock")) { prev = k; break; }
+    }
+    if (prev) {
+      let row = prev;
+      if (!prev.classList.contains("mrow")) {
+        row = document.createElement("div"); row.className = "mrow";
+        feed.insertBefore(row, prev); row.appendChild(prev);
+      }
+      row.appendChild(b);
+      // rows sized for the full board are too wide for half of it -- re-fit after layout
+      requestAnimationFrame(() => { try { row.querySelectorAll(".wrow, .worow").forEach(fitRow); } catch (e) {} });
+      scrollFeed();
+      return b;
+    }
+  }
+  feed.appendChild(b);
+  return b;
+}
 
 // ---------- THE DISPLAY FUNCTIONS ----------
 

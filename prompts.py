@@ -2,6 +2,12 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is
+#               underutilized... put the other equation right next to this one."
+#               Rule 58 grows (d): the NEW [[beside]] tag (board.js) puts the next
+#               board block NEXT TO the previous one -- say the move, use it when
+#               comparing, keep pointing by content (phones stack the columns).
+#               Documented ONCE in the shared rules, not per template.
 #   2026-08-26  BUILD oi -- THE FIFTH FLAG HARVEST (five geometry flags). (1) 39(e)
 #               names the LEADING fork ("Want X, or Y?" is the same fork; referee
 #               enforces). (2) Geometry template: [[angle]] documents cross="?"
@@ -5135,6 +5141,18 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         half-known methods blur into neither -- rule 33's one-notch spirit), never as
         a quiz item, and afterward the student's chosen method is RESPECTED in the
         problems that follow (rule 23: an equivalent road is a correct road).
+    (d) SIDE BY SIDE WHEN COMPARING (2026-08-26, build oj -- Jim: "put the other
+        equation right next to this one so you could see it better"). The board can
+        place two blocks shoulder to shoulder: send [[beside]] on its own, and the
+        NEXT block you draw (a [[step]]/[[write]] worklist, or any figure) lands
+        NEXT TO the previous block instead of below it. SAY the move as you make it
+        ("I'll put the second way right next to the first so we can compare") -- and
+        reach for it wherever two things are compared: Way 1 next to Way 2, an
+        equation next to its graph, the two cases of an absolute value, the wrong
+        lineup next to the right one. Two rules ride it: [[beside]] goes immediately
+        BEFORE the block it moves, and you still point at work by its CONTENT ("the
+        Way 2 line"), never by "left/right" -- a phone stacks the columns, so sides
+        lie (rule 60's spotlight still works on whatever was drawn last).
 
 59. A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD -- CHECK THE METHOD TOO.
     (MAA guide: "right results from an unsatisfactory procedure" are their own

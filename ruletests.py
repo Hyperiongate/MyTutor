@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oj -- PART 3eq: side by side on purpose. Jim: "the
+#               whiteboard is underutilized." Bubbles 80% -> 96% on the three
+#               classroom pages, and the NEW [[beside]] tag places the next
+#               board block NEXT TO the previous one (board.js mountBlock, the
+#               one door; .mrow CSS with flex-wrap so phones stack; rule 58(d)
+#               teaches the move once, in the shared rules). 19-assertion
+#               browser drive ran green on all three pages before the pins.
 #   2026-08-26  BUILD oi -- PART 3ep: the fifth flag harvest (five geometry
 #               flags). Referee 42 learns the LEADING fork ("Want X, or Y?");
 #               NEW referees 50 (the board does the drawing -- paper is never
@@ -11547,6 +11554,77 @@ def part3ep_the_fifth_flag_harvest():
           "an undated raise is how the ledger's discipline dies")
 
 
+def part3eq_side_by_side_on_purpose():
+    """PART 3eq (build oj) -- SIDE BY SIDE ON PURPOSE.
+
+    Jim: "the whiteboard is underutilized... the bubble itself only goes about
+    seventy or eighty percent across... they can move to the side. Say, alright,
+    we're gonna put the other equation right next to this one so you could see
+    it better... half of it's underutilized, while the other half has words
+    flowing over and you have to scroll up and down."
+
+    Two changes: (1) .feed .bubble max-width 80% -> 96% on all three classroom
+    pages; (2) the NEW [[beside]] tag -- the next board block (worklist or
+    figure) joins the PREVIOUS one in a .mrow instead of starting a new line.
+    Machinery in board.js (armBeside / clearBeside / mountBlock -- the ONE door
+    every new .mblock walks through); pages dispatch the tag, clear the flag at
+    turn start, and carry the .mrow CSS. flex-wrap IS THE LAW: a phone stacks
+    the columns, which is why prose keeps naming work by CONTENT, never by
+    left/right (referee 40's ruling predates this and still holds).
+    The 19-assertion browser drive (three real pages: join, side-by-side
+    geometry, phone stacking, dangling-tag hygiene, fold isolation, bubble
+    width, zero errors) ran green before these pins were written; they are the
+    cheap daily echo."""
+    print("\nPART 3eq — side by side on purpose (build oj)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    bsrc = open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
+    bc = code_only(bsrc)
+    check("⭐ board.js holds the machinery (armBeside / clearBeside / mountBlock)",
+          "function armBeside()" in bc and "function clearBeside()" in bc
+          and "function mountBlock(b)" in bc,
+          "the [[beside]] tag has no engine")
+    check("  mountBlock is guarded: a folded problem is never joined",
+          'contains("probdone")) break' in bc,
+          "joining new work to a collapsed problem resurrects it")
+    check("  a moved block is re-fitted once the narrower width lays out",
+          "requestAnimationFrame" in bc and 'querySelectorAll(".wrow, .worow")' in bc,
+          "rows sized for the full board overflow half of it")
+    check("  the flag is single-use (consumed on the very next block)",
+          "besidePending = false" in bc.split("function mountBlock")[1][:400],
+          "a sticky flag would drag every later block into the row")
+
+    for page in ("session.html", "practice.html", "topic.html"):
+        psrc2 = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        pc = code_only(psrc2)
+        check(f"⭐ {page}: dispatches [[beside]] and clears it at turn start",
+              'name === "beside"' in pc and "armBeside()" in pc
+              and "clearBeside()" in pc,
+              "a page without the dispatch silently drops the tag")
+        check(f"  {page}: every new block walks through mountBlock (the one door)",
+              pc.count("mountBlock(b)") >= 2
+              and '"mblock"; feed.appendChild(b)' not in pc,
+              "a block appended around mountBlock can never join a row")
+        check(f"  {page}: .mrow CSS present, and flex-wrap is the law",
+              ".mrow" in psrc2 and "flex-wrap: wrap" in psrc2,
+              "without wrap, a phone shows two crushed unreadable columns")
+        check(f"  {page}: bubbles span 96% of the board (was 80%)",
+              "max-width: 96%" in psrc2,
+              "Jim: 'the bubble only goes about seventy or eighty percent across'")
+
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("⭐ rule 58(d) teaches the tag ONCE, in the shared rules",
+          "SIDE BY SIDE WHEN COMPARING" in psrc and "[[beside]]" in psrc,
+          "a tag the prompt never mentions is a tag the tutor never uses")
+    check("  ...and it keeps the pointing law (content, never left/right)",
+          "a phone stacks the columns, so sides" in psrc,
+          "side-by-side must not resurrect layout-pointing (referee 40)")
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("  the leak referee knows the new tag's name",
+          "|board|beside)" in tsrc,
+          "'I'll send a beside tag' spoken to a child must fire like its siblings")
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -12262,7 +12340,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,741</b>" in page,
+          "<b>6,760</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20644,6 +20722,7 @@ def main():
     part3en_the_starting_blocks()
     part3eo_the_fourth_flag_harvest()
     part3ep_the_fifth_flag_harvest()
+    part3eq_side_by_side_on_purpose()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

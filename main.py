@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26oj-side-by-side-on-purpose". BUILD oj --
+#               Jim: "the whiteboard is underutilized." Bubbles 80% -> 96% and
+#               the NEW [[beside]] board tag (next block lands NEXT TO the
+#               previous one; phones stack). board.js/session/practice/topic +
+#               prompts.py rule 58(d) + one leak-shape word in tutor.py; only
+#               this stamp here.
 #   2026-08-26  APP_BUILD -> "2026-08-26oi-the-fifth-flag-harvest". BUILD oi --
 #               five geometry flags: referee 42 learns the LEADING fork ("Want X,
 #               or Y?" ships buttons); NEW referees 50 (the board does the
@@ -11947,7 +11953,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26oi-the-fifth-flag-harvest"
+APP_BUILD = "2026-08-26oj-side-by-side-on-purpose"
 
 
 @app.get("/health")

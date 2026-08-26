@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (oj) 2026-08-26 -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is underutilized...
+    the bubble only goes about seventy or eighty percent across... they can move to the
+    side -- we're gonna put the other equation right next to this one so you could see it
+    better." Two changes: (1) .feed .bubble max-width 80% -> 96%; (2) NEW [[beside]] tag
+    dispatched here -- the next board block joins the previous one in a .mrow (CSS added
+    by .mblock; flex-wrap so phones stack the columns). getWorklist/feedBlock now mount
+    blocks through board.js mountBlock (the one door); clearBeside() at turn start so a
+    dangling tag never leaks. Machinery + full story in board.js's own change note.
     (iq) 2026-08-19 -- THE BOARD GETS ITS ROOM BACK. Jim, in Differential Equations: "today's
     goals and the bars up top ... need to be collapsed into two smaller things that you could
     click on ... gives us more room for the board." The goal banner and the three-bar block
@@ -1429,7 +1437,7 @@
     .feed .checkcard .ck-score { font-size:42px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
     .feed .checkcard.pass .ck-badge { color:#0e9f6e; font-weight:800; }
     .feed .checkcard.keep .ck-badge { color:#a5741a; font-weight:800; }
-    .feed .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }
+    .feed .bubble { max-width: 96%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }   /* build oj: 80% wasted a fifth of the board (Jim) */
     .feed .bubble.tutor { align-self: flex-start; background: #f2f4ff; border: 1px solid #e2e5fb;
       color: var(--ink); border-bottom-left-radius: 5px; }
     .feed .bubble.student { align-self: flex-end; background: var(--accent); color: #fff;
@@ -1439,6 +1447,12 @@
       font-size: 13px; padding: 2px; }
     .feed .mblock { align-self: center; width: 100%; display: flex; flex-direction: column;
       align-items: center; padding: 6px 0; }
+    /* build oj ([[beside]]): two board blocks shoulder to shoulder. flex-wrap is the law:
+       on a narrow screen the columns STACK, which is why prose names work by content,
+       never by left/right (referee 40). */
+    .feed .mrow { align-self: center; width: 100%; display: flex; flex-wrap: wrap;
+      justify-content: center; align-items: flex-start; gap: 4px 18px; }
+    .feed .mrow > .mblock { width: auto; flex: 1 1 320px; min-width: 280px; max-width: 560px; }
     .feed .feeddiv { align-self: stretch; text-align: center; color: var(--muted); font-size: 12px;
       border-top: 1px dashed var(--line); margin: 8px 0 2px; padding-top: 8px; }
     @media (max-width: 900px) {
@@ -2333,6 +2347,7 @@
       let sawMark = false;                       // build fy -- see the note at the end of this function
       clearHighlight();                          // each turn starts with a clean page
       clearChoices();                            // stale answer buttons never survive a new turn
+      clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
@@ -2364,6 +2379,7 @@
         else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
+        else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
         else if (name === "clear") wipeBoard();
       }
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
@@ -2838,7 +2854,7 @@
         foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
         foldOpenerOnce();        // build ge: and fold the welcome + goals once teaching starts
         clearHint();
-        const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b);
+        const b = document.createElement("div"); b.className = "mblock"; mountBlock(b);   // build oj: the one door ([[beside]] joins rows here)
         curWork = document.createElement("div"); curWork.className = "worklist"; b.appendChild(curWork);
       }
       scrollFeed();
@@ -2886,7 +2902,7 @@
       foldIfProblemClosed();   // build fy: fold the finished problem before drawing the next
       foldOpenerOnce();        // build ge: a FIGURE starts the teaching just as a step does
       clearHint(); curWork = null;
-      const b = document.createElement("div"); b.className = "mblock"; feed.appendChild(b); scrollFeed(); return b;
+      const b = document.createElement("div"); b.className = "mblock"; mountBlock(b); scrollFeed(); return b;   // build oj: the one door
     }
 
     // ---- Quick-check result + silent progress marks (Phase A2) ----
