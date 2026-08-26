@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD of -- PART 3em: the seat survives a typo. LIVE_CRITIC_MODEL
+#               ="claude-haiku-4.5" (dot) 404'd every critic read for four hours
+#               (28 crashes = 28 turns with NO second opinion, fail-open each).
+#               A model-not-found 404 now swaps the seat sticky to DEFAULT_MODEL
+#               with ONE loud event. Proven with a stubbed client.
 #   2026-08-26  BUILD oe -- PART 3el: one thought per line + the week-old
 #               memory. Referee 49 (the check-cram), rule 40(i) (a mid-flight
 #               problem is re-derived after a gap), the gap note's dynamic copy
@@ -11135,6 +11140,72 @@ def part3el_one_thought_per_line():
           "never resume at its last step" in msrc and "rule 40i" in msrc,
           "the law must reach exactly the returning student it applies to")
 
+def part3em_the_seat_survives_a_typo():
+    """PART 3em (build of) -- A MISCONFIGURED CRITIC MUST DEGRADE, NOT VANISH.
+
+    2026-08-26: LIVE_CRITIC_MODEL was set to "claude-haiku-4.5" -- a DOT where
+    the real ID (claude-haiku-4-5, the app's own July default) has a dash. Every
+    critic read 404'd for four hours: 28 referee_crash events, each one a turn
+    that shipped with NO second opinion. Fail-open per call was correct (no
+    lesson broke) and telemetry made it visible (the ha eyes doing their job) --
+    but a typo silently EMPTYING a safety seat is not acceptable. Now: the first
+    model-not-found 404 swaps the seat STICKY to DEFAULT_MODEL for the rest of
+    the process, announced ONCE, loudly; /admin's critic_seat still shows what
+    the env ASKED for, so the typo stays visible until fixed on Render."""
+    print("\nPART 3em — the seat survives a typo (build of)")
+    import tutor as TT
+    _envs = {}
+    for k, v in (("LIVE_CRITIC", "anthropic"),
+                 ("LIVE_CRITIC_MODEL", "claude-nonexistent-9.9"),
+                 ("ANTHROPIC_API_KEY", "test-key")):
+        _envs[k] = os.environ.get(k)
+        os.environ[k] = v
+    _fb_old = dict(TT._CRITIC_MODEL_FALLBACK)
+    _anth_old = TT.Anthropic
+    calls = []
+    class _FR:
+        content = [type("B", (), {"type": "text", "text": '"ok": true}'})()]
+        usage = None
+    class _FM:
+        def create(self, **kw):
+            calls.append(kw["model"])
+            if kw["model"] == "claude-nonexistent-9.9":
+                raise Exception("Error code: 404 - {'type': 'error', 'error': "
+                                "{'type': 'not_found_error', 'message': "
+                                "'model: claude-nonexistent-9.9'}}")
+            return _FR()
+    class _FA:
+        def __init__(self, **kw): self.messages = _FM()
+    try:
+        TT._CRITIC_MODEL_FALLBACK["bad"] = ""
+        TT._CRITIC_MODEL_FALLBACK["announced"] = False
+        TT.Anthropic = _FA
+        r1 = TT._live_critic_review("draft one", [], "", {"code": "0000"}, {})
+        r2 = TT._live_critic_review("draft two", [], "", {"code": "0000"}, {})
+        check("⭐ the 404 fails open (no turn is ever cost)", r1 == "" and r2 == "",
+              (r1, r2))
+        check("⭐ the SECOND read runs on DEFAULT_MODEL -- the seat refilled itself",
+              len(calls) == 2 and calls[0] == "claude-nonexistent-9.9"
+              and calls[1] == TT.DEFAULT_MODEL, calls)
+        check("  the fallback is sticky (bad name remembered, announced once)",
+              TT._CRITIC_MODEL_FALLBACK["bad"] == "claude-nonexistent-9.9"
+              and TT._CRITIC_MODEL_FALLBACK["announced"] is True,
+              TT._CRITIC_MODEL_FALLBACK)
+    finally:
+        TT.Anthropic = _anth_old
+        TT._CRITIC_MODEL_FALLBACK.update(_fb_old)
+        for k, v in _envs.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    here = os.path.dirname(os.path.abspath(__file__))
+    tsrc = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the fallback names the fix in its event (Render env, real ID)",
+          "fix LIVE_CRITIC_MODEL on Render" in tsrc
+          and "claude-haiku-4-5" in tsrc,
+          "an alarm that does not say where the valve is wastes the alarm")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11850,7 +11921,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,685</b>" in page,
+          "<b>6,689</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20222,6 +20293,7 @@ def main():
     part3ej_never_fast_forward()
     part3ek_the_keyboard_closes()
     part3el_one_thought_per_line()
+    part3em_the_seat_survives_a_typo()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

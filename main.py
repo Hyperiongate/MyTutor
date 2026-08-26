@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26of-the-seat-survives-a-typo". BUILD of
+#               -- LIVE_CRITIC_MODEL was set to "claude-haiku-4.5" (dot; real ID
+#               claude-haiku-4-5) and the critic 404'd for four hours: 28
+#               crashes, zero second opinions. tutor.py: a model-not-found 404
+#               now swaps the seat STICKY to DEFAULT_MODEL with one loud event.
+#               The env fix itself is on Render: LIVE_CRITIC_MODEL=claude-haiku-4-5.
 #   2026-08-26  APP_BUILD -> "2026-08-26oe-one-thought-per-line". BUILD oe --
 #               Jim's two flags from one resumed session: referee 49 (the check-
 #               cram: label + value + substituted equation welded into one board
@@ -11916,7 +11922,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26oe-one-thought-per-line"
+APP_BUILD = "2026-08-26of-the-seat-survives-a-typo"
 
 
 @app.get("/health")

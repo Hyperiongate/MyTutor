@@ -6895,6 +6895,22 @@ def _live_critic_seat():
     return p, (os.environ.get("LIVE_CRITIC_MODEL", "") or default)
 
 
+# (of) 2026-08-26 -- THE SEAT SURVIVES A TYPO. Jim set LIVE_CRITIC_MODEL to
+# "claude-haiku-4.5" (a dot; the real ID is claude-haiku-4-5) and every critic
+# read 404'd for four hours: 28 referee_crash events, fail-open each time, which
+# means NO second opinion at all -- a misconfigured name silently EMPTIED the
+# seat. Telemetry made it visible (the eyes working); this makes it survivable:
+# on a model-not-found 404 the seat falls back STICKY to DEFAULT_MODEL for the
+# rest of the process, one loud event marks the swap, and /admin's critic_seat
+# still shows what the env ASKED for so the typo stays visible until fixed.
+_CRITIC_MODEL_FALLBACK = {"bad": "", "announced": False}
+
+
+def _is_model_not_found(exc) -> bool:
+    s = str(exc)
+    return "not_found_error" in s and "model" in s.lower()
+
+
 def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
                         tokens=None) -> str:
     """One second-model read of an accepted draft. Returns a one-sentence
@@ -6909,6 +6925,10 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
         provider, model = _live_critic_seat()
         if not provider:
             return ""
+        # (of) a name that 404'd earlier this process is not asked again -- the
+        # main model takes the seat so the second opinion NEVER silently empties.
+        if _CRITIC_MODEL_FALLBACK["bad"] == model:
+            model = DEFAULT_MODEL
         key = os.environ.get("OPENAI_API_KEY" if provider == "openai"
                              else "ANTHROPIC_API_KEY")
         if not key:
@@ -6973,6 +6993,19 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
         prob = str(v.get("problem", "")).strip()
         return prob[:400]
     except Exception as exc:  # noqa: BLE001 -- the critic must never cost a turn
+        if _is_model_not_found(exc) and _CRITIC_MODEL_FALLBACK["bad"] != model:
+            # (of) the configured model does not exist: swap the seat to the main
+            # model for the rest of this process, loudly, ONCE. The next turn's
+            # read runs on DEFAULT_MODEL instead of crashing 28 more times.
+            _CRITIC_MODEL_FALLBACK["bad"] = model
+            if not _CRITIC_MODEL_FALLBACK["announced"]:
+                _CRITIC_MODEL_FALLBACK["announced"] = True
+                print(f"[livecritic]{log_prefix} model {model!r} NOT FOUND -- the "
+                      f"seat falls back to {DEFAULT_MODEL!r} until the env is fixed")
+                _event("referee_crash", "livecritic",
+                       f"model {model!r} not found -- seat fell back to "
+                       f"{DEFAULT_MODEL!r}; fix LIVE_CRITIC_MODEL on Render")
+            return ""
         print(f"[livecritic]{log_prefix} crashed (fail open): {exc}")
         _event("referee_crash", "livecritic", str(exc))
         return ""
