@@ -293,6 +293,9 @@
   admin.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-26  BUILD ny (latency deep dive). The Second-opinion tile names the
+    ACTUAL critic model from the payload's critic_seat instead of a hardcoded
+    "Opus" -- so the fast-critic A/B can be read honestly.
   - 2026-08-24  (build mq) THE MEASUREMENT ERA. Jim asked to "zero out our current
     cost measurement so it is measuring cost based on how we do it now": the 7/30-day
     tiles are dominated by one-time spend (~$806 to render the course) and would go on
@@ -745,6 +748,7 @@
   // the next refresh (the load that brought it here was already logged -- rotate!).
   var params = new URLSearchParams(window.location.search);
   var KEY = "";
+  var CRITIC_SEAT = "";   // build ny: the actual second-opinion model, from the payload
   try { KEY = (sessionStorage.getItem("mt_admin_key") || "").trim(); } catch (e) {}
   var legacyKey = (params.get("key") || "").trim();
   if (legacyKey) {
@@ -986,9 +990,12 @@
       { l: "Waiting on the model", v: secs(u7.ms_model_avg),
         s: "the TEACHING call only — the second opinion is counted next to this" },
       // ---- build jp: THE SECOND OPINION ----
+      // build ny: the tile names the ACTUAL critic model (payload.critic_seat) --
+      // it used to hardcode "Opus", which would silently lie during the fast-critic
+      // A/B the latency report recommends.
       { l: "Second opinion", v: secs(u7.ms_critic_avg), cls: criticCls,
         s: u7.critic_calls
-             ? num(u7.critic_calls) + " Opus reads · " + (u7.ms_critic_share || 0)
+             ? num(u7.critic_calls) + " reads by " + (CRITIC_SEAT || "?") + " · " + (u7.ms_critic_share || 0)
                + "% of all turn time · " + (u7.critic_usd === null || u7.critic_usd === undefined
                    ? "set CRITIC_IN/OUT_USD_PER_MTOK" : usd(u7.critic_usd))
              : "LIVE_CRITIC is off — no second model reads the drafts" },
@@ -2153,6 +2160,9 @@
       $("lockView").style.display = "none";
       $("dashView").style.display = "";
       $("refreshBtn").style.display = "";
+      CRITIC_SEAT = (payload.critic_seat && payload.critic_seat.model)
+        ? payload.critic_seat.model
+        : (payload.critic_seat && payload.critic_seat.provider) || "";
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}

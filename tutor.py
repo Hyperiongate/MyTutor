@@ -2016,8 +2016,21 @@ def _cacheable_system(text: str):
     """Wrap a system prompt as ONE cacheable content block so Anthropic PROMPT CACHING can reuse the
     large, mostly-stable system prompt across a student's consecutive turns instead of re-billing it
     every turn. This is billing/latency ONLY -- the model's output is identical whether or not the
-    prefix was cached, so there is NO change in teaching quality. (Added 2026-07-30.)"""
-    return [{"type": "text", "text": text or "", "cache_control": {"type": "ephemeral"}}]
+    prefix was cached, so there is NO change in teaching quality. (Added 2026-07-30.)
+
+    build ny (2026-08-26, the latency deep dive): PROMPT_CACHE_TTL env extends the
+    cache's lifetime. The default ephemeral cache lives ~5 MINUTES -- and a child
+    who thinks about one problem for six minutes comes back to a COLD cache: the
+    next turn re-processes the whole ~48k-token prompt (seconds of extra latency
+    plus full input price). PROMPT_CACHE_TTL=1h keeps the prefix warm for an hour
+    -- longer than any between-answer pause and most whole sessions. The 1h write
+    costs 2x the 5m write, but ONE avoided re-read of a 48k prompt pays for many
+    writes. Off by default; flip it on Render, watch the cached-in tile."""
+    ttl = (os.environ.get("PROMPT_CACHE_TTL", "") or "").strip().lower()
+    cc = {"type": "ephemeral"}
+    if ttl in ("1h", "1hr", "hour"):
+        cc = {"type": "ephemeral", "ttl": "1h"}
+    return [{"type": "text", "text": text or "", "cache_control": cc}]
 
 
 try:

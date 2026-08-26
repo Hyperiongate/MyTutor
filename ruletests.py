@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ny -- PART 3eh: where the seconds go (the latency deep
+#               dive). PROMPT_CACHE_TTL=1h env support (unknown values fall back
+#               to the plain 5m block, never crash a turn); /api/admin/stats
+#               exposes critic_seat + prompt_cache_ttl; the admin tile names the
+#               ACTUAL critic model. The big levers are proposals in the report
+#               doc, not unattended builds.
 #   2026-08-26  BUILD nx -- PART 3eg: the hard-refresh ritual dies. HTML/JS/CSS
 #               responses carry Cache-Control: no-cache (revalidate -> 304s via
 #               ETag); audio/images/JSON untouched by content-type scoping. Live
@@ -10806,6 +10812,55 @@ def part3eg_the_ritual_dies():
           "round-trip to every sentence" in msrc,
           "the next editor must know why audio is exempt before touching this")
 
+def part3eh_where_the_seconds_go():
+    """PART 3eh (build ny) -- THE LATENCY DEEP DIVE'S SHIPPED SLICE.
+
+    Jim: "ten seconds when somebody first signs on and about five seconds
+    between problems... it's breaking up the tempo of learning." The dive found
+    the turn is a SERIAL chain -- brain (48k-token prompt, full non-streamed
+    generation) -> possible referee retry (an ENTIRE second call) -> live critic
+    (Opus, EVERY clean turn) -> one streamed voice clip -- and the report doc
+    ranks the levers. Shipped here, the two that are safe unattended:
+    ① PROMPT_CACHE_TTL=1h -- the default cache dies in ~5 minutes, so a child
+      who THINKS for six comes back to a cold 48k-token re-read. Unknown values
+      must fall back to the plain block: a typo on Render may cost cache hits,
+      never a lesson.
+    ② the seats are visible: /api/admin/stats carries critic_seat +
+      prompt_cache_ttl, and the Second-opinion tile names the ACTUAL model --
+      it hardcoded "Opus", which would silently lie during the fast-critic A/B
+      the report recommends (the single biggest env-only lever, ~1.5-3s/turn)."""
+    print("\nPART 3eh — where the seconds go (build ny)")
+    import tutor as TT
+    _old = os.environ.pop("PROMPT_CACHE_TTL", None)
+    try:
+        check("⭐ default cache block is the plain 5m ephemeral",
+              TT._cacheable_system("x")[0]["cache_control"] == {"type": "ephemeral"},
+              "the default must stay byte-identical to the 2026-07-30 behaviour")
+        os.environ["PROMPT_CACHE_TTL"] = "1h"
+        check("  PROMPT_CACHE_TTL=1h extends the cache to an hour",
+              TT._cacheable_system("x")[0]["cache_control"] == {"type": "ephemeral", "ttl": "1h"},
+              "a six-minute thinking pause must not cost a 48k-token re-read")
+        os.environ["PROMPT_CACHE_TTL"] = "2 days"
+        check("  an unknown TTL value falls back to the plain block",
+              TT._cacheable_system("x")[0]["cache_control"] == {"type": "ephemeral"},
+              "a Render typo may cost cache hits, never a lesson")
+    finally:
+        if _old is None:
+            os.environ.pop("PROMPT_CACHE_TTL", None)
+        else:
+            os.environ["PROMPT_CACHE_TTL"] = _old
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("the admin payload exposes the critic seat and the cache TTL",
+          '"critic_seat"' in msrc and '"prompt_cache_ttl"' in msrc,
+          "an A/B whose panel cannot say which model is seated reads as noise")
+    a = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    ac = code_only(a)
+    check("the Second-opinion tile names the ACTUAL model, not a hardcoded one",
+          '" reads by " + (CRITIC_SEAT || "?")' in ac
+          and '" Opus reads · "' not in ac,
+          "the hardcoded label would lie the moment LIVE_CRITIC_MODEL changes")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11521,7 +11576,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,636</b>" in page,
+          "<b>6,641</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -19888,6 +19943,7 @@ def main():
     part3ee_the_night_watchs_thirteen()
     part3ef_the_second_flag_harvest()
     part3eg_the_ritual_dies()
+    part3eh_where_the_seconds_go()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

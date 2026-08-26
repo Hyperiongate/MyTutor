@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26ny-where-the-seconds-go". BUILD ny --
+#               THE LATENCY DEEP DIVE (Jim: "ten seconds when somebody first
+#               signs on and about five between problems... it's breaking up the
+#               tempo"). Findings + full report in the project doc. Shipped here:
+#               (1) PROMPT_CACHE_TTL=1h env support (tutor.py) -- a >5-minute
+#               thinking pause no longer comes back to a cold 48k-token prompt;
+#               (2) /api/admin/stats exposes critic_seat + prompt_cache_ttl, and
+#               the admin tile now names the ACTUAL critic model instead of a
+#               hardcoded "Opus" -- so the fast-critic A/B (the single biggest
+#               env-only latency lever, ~1.5-3s/turn) can be run and read
+#               honestly. NOT built unattended, proposed in the report: opener
+#               prefetch at /home (kills the sign-on 10s), speculative next-turn
+#               branches, sentence-streaming verification.
 #   2026-08-26  APP_BUILD -> "2026-08-26nx-the-ritual-dies". BUILD nx -- CACHE-
 #               BUSTING. Every HTML/JS/CSS response now carries Cache-Control:
 #               no-cache (revalidate; ETag makes unchanged files 304s), so a
@@ -8919,6 +8932,12 @@ def admin_stats_api(key: str = "",
         "ok": True,
         "build": APP_BUILD,
         "model": os.environ.get("CLAUDE_MODEL", tutor.DEFAULT_MODEL),
+        # build ny (latency deep dive): the SEATS, visible. The critic tile used to
+        # hardcode "Opus reads" -- if Jim A/Bs a faster critic model the panel must
+        # tell the truth about which model is actually in the seat.
+        "critic_seat": (lambda _s: {"provider": _s[0] or "off", "model": _s[1] or ""})(
+            tutor._live_critic_seat()),
+        "prompt_cache_ttl": (os.environ.get("PROMPT_CACHE_TTL", "") or "5m (default)"),
         "payments_open": _payments_open(),
         "storage": store.status(),
         "stats": store.admin_stats(),
@@ -11872,7 +11891,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26nx-the-ritual-dies"
+APP_BUILD = "2026-08-26ny-where-the-seconds-go"
 
 
 @app.get("/health")
