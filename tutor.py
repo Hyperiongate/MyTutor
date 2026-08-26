@@ -5000,6 +5000,54 @@ def angle_piece_conflict(reply: str, course: str = ""):
         return ""
 
 
+# (oc) THE FORTY-EIGHTH REFEREE -- A RESULT YOU SPEAK IS A RESULT YOU DREW.
+# Jim's flag, 2026-08-26, a live algebra lesson: the student answered "+3 to each
+# side" (one step) and the very next reply said "We got X equals 5 -- nice work
+# isolating it" -- but 3X = 15 was never drawn, the divide-by-3 was never drawn
+# or ASKED, and x = 5 never appeared on any board. Two steps were fast-forwarded
+# invisibly, and the student was praised for work the tutor did off screen. The
+# arithmetic was right; the TEACHING was wrong. HEARD-GATED: the claim is only a
+# defect if the result appears NOWHERE -- not in this reply's tags, not anywhere
+# earlier in the conversation (a student who said "x is 5" themselves, or a board
+# that showed it last turn, makes the spoken echo legitimate).
+_SOLVED_CLAIM_RE = re.compile(
+    r"\b(?:we\s+(?:got|get|found|have)|so|that\s+(?:gives|makes|means))\s*[,:]?\s*"
+    r"([a-z])\s*(?:=|equals|is)\s*(-?\d+(?:\.\d+)?)\b", re.I)
+
+
+def skipped_result_conflict(reply: str, heard=None):
+    """Return a description of a solved result announced but never shown, or "".
+    Silent when `heard` is None. Never raises (fail open)."""
+    try:
+        if heard is None:
+            return ""
+        text = str(reply or "")
+        prose = _spoken_only(text)
+        m = _SOLVED_CLAIM_RE.search(prose)
+        if not m:
+            return ""
+        var, val = m.group(1).lower(), m.group(2)
+        shown = re.compile(re.escape(var) + r"\s*(?:=|equals|is)\s*" + re.escape(val)
+                           + r"(?![\d.])", re.I)
+        vals = " ".join(_note_tag_vals(text))
+        if shown.search(vals) or shown.search(prose[m.end():]) \
+                or shown.search(str(heard)):
+            return ""                    # it is (or was) on a board, or they said it
+        said = " ".join(m.group(0).split())[:50]
+        return ('you announce "{s}" but {v} = {n} has never appeared on any board '
+                "-- not in this reply's tags and nowhere earlier in this "
+                "conversation. The steps between the student's last move and this "
+                "result happened invisibly, and praising them for work they never "
+                "saw teaches nothing. Rule 15(a): draw the move whole -- the line "
+                "their step produced, then ASK for the next step (it is theirs to "
+                "do), and {v} = {n} lands on the board before you use it.").format(
+                    s=said, v=var, n=val)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[skippedresult] crashed (fail open): {exc}")
+        _event("referee_crash", "skippedresult", str(exc))
+        return ""
+
+
 # (nz) THE FORTY-SEVENTH REFEREE -- COUNT YOUR OWN DRAWING. Jim's flag queue,
 # 2026-08-26, twice in one basic-course minute: "Here are four bundles of ten"
 # over a board that drew THREE -- and one turn later the tutor graded the child's
@@ -6563,6 +6611,11 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if bcount:
             _event("referee_fire", "boardcount", bcount)
             return bcount
+        # (oc) the forty-eighth: a result you speak is a result you drew.
+        skipres = skipped_result_conflict(reply, heard)
+        if skipres:
+            _event("referee_fire", "skippedresult", skipres)
+            return skipres
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

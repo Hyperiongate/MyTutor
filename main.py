@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26oc-never-fast-forward". BUILD oc --
+#               Jim's live algebra flag: "+3 to each side" -> "We got X equals 5"
+#               with 3X = 15 and the divide never drawn or asked. Referee 48
+#               (announced-unseen-result, heard-gated) + 15(a)'s never-fast-
+#               forward clause. tutor.py/prompts.py only; this stamp; methodology
+#               47 -> 48 referees, three places.
 #   2026-08-26  APP_BUILD -> "2026-08-26nz-the-drawing-is-the-truth". BUILD nz
 #               -- the third flag harvest: referee 47 (spoken counts must match
 #               the [[objects]] drawing), 29(c) scoped to real boundaries (nu's
@@ -11898,7 +11904,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26nz-the-drawing-is-the-truth"
+APP_BUILD = "2026-08-26oc-never-fast-forward"
 
 
 @app.get("/health")

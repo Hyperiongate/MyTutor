@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD oc -- PART 3ej: never fast-forward the board. Referee 48
+#               (a result you speak is a result you drew, heard-gated both ways)
+#               + 15(a)'s never-fast-forward clause, from Jim's live algebra
+#               flag ("+3 to each side" -> "We got X equals 5" with two steps
+#               invisible). The arithmetic was RIGHT; the teaching was wrong.
 #   2026-08-26  BUILD nz -- PART 3ei: the third flag harvest. Referee 47 (count
 #               your own drawing -- the objects tag is the truth), 29(c) scoped
 #               to real boundaries (nu's same-day regression owned and fixed),
@@ -10958,6 +10963,68 @@ def part3ei_the_third_flag_harvest():
           "PROMPT_CEILING = 195_000" in traw and "2026-08-26 (build nz): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
+def part3ej_never_fast_forward():
+    """PART 3ej (build oc) -- A RESULT YOU SPEAK IS A RESULT YOU DREW.
+
+    Jim's flag, live algebra (2026-08-26): student answered "+3 to each side" --
+    ONE step -- and the next reply said "We got X equals 5, nice work isolating
+    it." 3X = 15 was never drawn, the divide-by-3 was never drawn or ASKED, and
+    x = 5 appeared on no board, ever. The arithmetic was right; the TEACHING was
+    wrong: two moves fast-forwarded invisibly, the student praised for work done
+    FOR them, and the check question then referred to a value nowhere on screen
+    (rule 15a twice over). REFEREE 48 holds the shape, heard-gated both ways:
+    silent when the result IS on this reply's board, WAS on an earlier board, or
+    came from the student's own mouth; silent with no heard context at all."""
+    print("\nPART 3ej — never fast-forward the board (build oc)")
+    import tutor as TT
+    for want, label, reply, heard in (
+        (True,  "⭐ Jim's flagged turn fires (x=5 announced, never drawn anywhere)",
+         'We got X equals 5 — nice work isolating it. Check it against the '
+         'original. [[write text="Original: 5X - 3 = 2X + 12"]]',
+         'student: +3 to each side | earlier board: 3X - 3 = 12'),
+        (False, "  the result drawn in THIS reply passes",
+         'We got X equals 5 — nice work! [[step eq="x = 5"]]', "+3 to each side"),
+        (False, "  the result drawn in an EARLIER turn passes",
+         'We got X equals 5. Ready to check it?',
+         'earlier tutor: [[step eq="3x = 15"]] [[step eq="x = 5"]]'),
+        (False, "  the student's own announcement makes the echo legitimate",
+         'We got X equals 5 — exactly what you said!', 'student: so x is 5'),
+        (False, "  a step-by-step reply that draws as it goes is silent",
+         'So that gives us 3X = 15. [[step eq="3x - 3 + 3 = 12 + 3"]] '
+         '[[step eq="3x = 15"]] What do we do next?', "+3"),
+        (False, "  no heard context -> silence (never accuse what it cannot see)",
+         'We got X equals 5 — nice work.', None),
+        (False, "  an ordinary ask fires nothing",
+         'Nice — what should we do to both sides now?', "+3")):
+        check(label, bool(TT.skipped_result_conflict(reply, heard)) == want,
+              "two steps happened invisibly and the praise was unearned" if want
+              else "an honest board or the student's own words must never pay a retry")
+    check("referee 48 rides the sweep",
+          "skipped_result_conflict(reply, heard)" in code_only(open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read())
+          and '"skippedresult"' in open(os.path.join(
+              os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+              encoding="utf-8").read(),
+          "a referee that exists but is never called protects nobody")
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if TT.skipped_result_conflict(t, heard="hello"):
+                fires += 1
+    check("⭐ zero fires across the canon", fires == 0,
+          f"{fires} scripts rejected -- a retry would mangle verbatim scripts")
+    psrc = re.sub(r"\s+", " ", open(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "prompts.py"),
+        encoding="utf-8").read())
+    check("15(a) carries the never-fast-forward clause",
+          "AND NEVER FAST-FORWARD" in psrc
+          and "the remaining steps are THEIRS to do" in psrc,
+          "the referee enforces a rule that must exist in the prompt")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11673,7 +11740,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,657</b>" in page,
+          "<b>6,667</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20042,6 +20109,7 @@ def main():
     part3eg_the_ritual_dies()
     part3eh_where_the_seconds_go()
     part3ei_the_third_flag_harvest()
+    part3ej_never_fast_forward()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
