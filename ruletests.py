@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD od -- PART 3ek: the keyboard closes. A ⌨️✕ on the answer
+#               bar of all three pages; reopen = the Type button where it exists
+#               (session), a fixed ⌨️ pill where the link was retired with
+#               !important CSS (practice/topic). The 8-assertion live drive
+#               (close/reopen on all three pages, board room measured) ran green.
 #   2026-08-26  BUILD oc -- PART 3ej: never fast-forward the board. Referee 48
 #               (a result you speak is a result you drew, heard-gated both ways)
 #               + 15(a)'s never-fast-forward clause, from Jim's live algebra
@@ -11025,6 +11030,37 @@ def part3ej_never_fast_forward():
           and "the remaining steps are THEIRS to do" in psrc,
           "the referee enforces a rule that must exist in the prompt")
 
+def part3ek_the_keyboard_closes():
+    """PART 3ek (build od) -- THE KEYBOARD CLOSES WHEN JIM CHOOSES.
+
+    Jim: "close the keyboard if I choose to do that." The answer bar was a
+    one-way door: Type-my-answer opened it and nothing ever closed it, so the
+    strip sat on board room for the rest of the lesson (the nr/ns space war,
+    voluntary edition). Now: a ⌨️✕ on the bar of session, practice and topic.
+    Closing folds the bar; board.js's ResizeObserver hands the board its room
+    back. REOPENING is never lost: session restores its big Type button; on
+    practice/topic that link is retired with !important CSS (their own change
+    notes say so), so a small fixed ⌨️ pill appears instead -- typing is always
+    one tap away. The live drive measured all of it before these pins."""
+    print("\nPART 3ek — the keyboard closes (build od)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    for page in ("session.html", "practice.html", "topic.html"):
+        s = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        sc = code_only(s)
+        check(f"{page}: the answer bar carries the ⌨️✕ close button",
+              'id="kbClose"' in s and "function hideComposer()" in sc,
+              "the one-way door is back")
+        check(f"  ...{page}: reopening is never lost (Type button OR the pill)",
+              "typeToggle.offsetParent" in sc and '"kbPill"' in sc
+              and "showComposer();" in sc.split("function hideComposer")[1][:900],
+              "a closed keyboard with no reopen path strands a mic-less student")
+    k = code_only(open(os.path.join(here, "static", "math-keyboard.js"),
+                       encoding="utf-8").read())
+    check("math-keyboard.js is untouched (the 3dy mic law holds)",
+          "kbClose" not in k and "typeToggle" not in k,
+          "the close lives in the PAGES -- the strip file must never grow "
+          "toggle knowledge (the 2026-07-30 keypad lesson)")
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -11740,7 +11776,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,667</b>" in page,
+          "<b>6,674</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20110,6 +20146,7 @@ def main():
     part3eh_where_the_seconds_go()
     part3ei_the_third_flag_harvest()
     part3ej_never_fast_forward()
+    part3ek_the_keyboard_closes()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

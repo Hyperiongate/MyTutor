@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26od-the-keyboard-closes". BUILD od --
+#               Jim: "close the keyboard if I choose to do that." A ⌨️✕ on the
+#               answer bar of session/practice/topic; the board takes its room
+#               back (ns's ResizeObserver); reopen = the Type button (session)
+#               or a fixed ⌨️ pill (practice/topic, whose link is retired).
+#               Pages only; this stamp; referee count unchanged (48).
 #   2026-08-26  APP_BUILD -> "2026-08-26oc-never-fast-forward". BUILD oc --
 #               Jim's live algebra flag: "+3 to each side" -> "We got X equals 5"
 #               with 3X = 15 and the divide never drawn or asked. Referee 48
@@ -11904,7 +11910,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26oc-never-fast-forward"
+APP_BUILD = "2026-08-26od-the-keyboard-closes"
 
 
 @app.get("/health")

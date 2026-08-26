@@ -308,6 +308,10 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-26  BUILD od (Jim: "close the keyboard if I choose to do that").
+    The answer bar gains a ⌨️✕ close button; the board takes its room back
+    (board.js ResizeObserver). Reopen = the Type button where it exists, else a
+    small fixed ⌨️ pill (practice/topic retired their link with !important CSS).
   - 2026-08-25  BUILD nr. (1) PAUSE IS PRONOUNCED: the ⏸ button was white-on-white
     and Jim couldn't find it fast ("I should be able to pause it more easily") --
     now solid amber, Type-button sized, solid green while paused. (2) The
@@ -1209,6 +1213,19 @@
     .pausebtn { margin-top:8px; width:100%; padding:12px 14px; border-radius:30px; border:2px solid #e8930c;
       background:#f9a825; color:#fff; font-weight:800; font-size:16px; cursor:pointer;
       box-shadow:0 3px 10px rgba(244,168,37,.35); }
+    /* build od (2026-08-26, Jim): "close the keyboard if I choose to do that" --
+       the answer bar was a one-way door. The ✕ folds it away; the board grows
+       back (board.js's ResizeObserver re-anchors); reopening is the Type button
+       where it exists, or a small ⌨️ pill where that link was retired. */
+    .kbclose { flex: 0 0 auto; border: 1px solid var(--line); background: #fff;
+      color: #6f639a; border-radius: 10px; padding: 8px 11px; font-size: 14px;
+      font-weight: 700; cursor: pointer; line-height: 1; }
+    .kbclose:hover { border-color: var(--accent); color: var(--accent); }
+    .kbpill { position: fixed; right: 18px; bottom: 18px; z-index: 60;
+      border: 1px solid var(--line); background: #fff; color: var(--ink);
+      border-radius: 999px; padding: 10px 16px; font-size: 14px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 6px 18px rgba(43,35,64,.18); display: none; }
+    .kbpill.show { display: inline-block; }
     .pausebtn:hover { filter:brightness(1.06); }
     .pausebtn.on { background:#2e9e5b; border-color:#237a46; color:#fff;
       box-shadow:0 3px 10px rgba(46,158,91,.35); }
@@ -1569,6 +1586,7 @@
         <span class="ablabel">✏️ Your answer</span>
         <input id="input" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
         <button id="send">Send</button>
+        <button class="kbclose" id="kbClose" type="button" title="Close the keyboard" aria-label="Close the keyboard">⌨️✕</button>
       </div>
     </div>
   </div>
@@ -3252,6 +3270,35 @@
 
     // ---------- Text fallback (no speech recognition, or the 'Type my answer' button) ----------
     function showComposer() { composer.classList.add("show"); typeToggle.style.display = "none"; if (input) input.focus(); }
+    // build od (2026-08-26, Jim): the keyboard closes. Restores the Type button
+    // where the page still has one; where that link was retired (practice/topic
+    // CSS hides it with !important), a small ⌨️ pill appears instead so typing
+    // is always one tap away. board.js's ResizeObserver gives the board its
+    // room back the moment the bar folds.
+    function hideComposer() {
+      composer.classList.remove("show");
+      typeToggle.style.display = "";
+      if (!typeToggle.offsetParent) {          // still CSS-hidden: use the pill
+        let pill = document.getElementById("kbPill");
+        if (!pill) {
+          pill = document.createElement("button");
+          pill.id = "kbPill"; pill.className = "kbpill"; pill.type = "button";
+          pill.textContent = "⌨️ Type";
+          pill.addEventListener("click", function () {
+            pill.classList.remove("show"); showComposer();
+          });
+          document.body.appendChild(pill);
+        }
+        pill.classList.add("show");
+      }
+    }
+    (function () {
+      const kc = document.getElementById("kbClose");
+      if (kc) kc.addEventListener("click", hideComposer);
+      const pill = document.getElementById("kbPill");
+      if (pill) pill.classList.remove("show");
+    })();
+
     typeToggle.addEventListener("click", showComposer);
     function sendTyped() { const m = (input.value || "").trim(); if (!m || busy) return; input.value = ""; ensureAudioGraph(); sendToTutor(m); }
     if (sendBtn) sendBtn.addEventListener("click", sendTyped);
