@@ -1,0 +1,46 @@
+# =============================================================================
+# .gitattributes  --  Math Tutor MVP  --  Hyperion Shift LLC
+# -----------------------------------------------------------------------------
+# CHANGE NOTES (keep newest at top):
+#   2026-08-26  NEW FILE (build oa). Marketing's fresh Windows clone showed 98
+#               files "modified" with identical content: the repo stores LF,
+#               their machine checked out CRLF, and their git offered to commit
+#               a rewrite of the entire codebase as a "fix". This file ends the
+#               ambiguity FOR EVERY CLONE, present and future: text files are LF
+#               in the repo AND on disk, binaries are never touched. After this
+#               lands on main, a fresh clone shows a clean `git status` on any
+#               machine, whatever that machine's core.autocrlf says.
+#               ⚠️ NO RENORMALIZE COMMIT NEEDED: the repo already stores LF
+#               (Claude's builds write LF; GitHub Desktop normalized on commit),
+#               so this file only pins what is already true. If git ever offers
+#               anyone a many-file line-ending commit, the answer is NO --
+#               discard, pull, and ask what changed.
+# =============================================================================
+
+# Everything git detects as text: LF in the repo, LF in the working tree.
+*        text=auto eol=lf
+
+# The types this app is actually made of -- explicit, so detection never guesses.
+*.py     text eol=lf
+*.html   text eol=lf
+*.js     text eol=lf
+*.css    text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.json   text eol=lf
+*.svg    text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# Binaries: never converted, never diffed as text.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.mp3    binary
+*.wav    binary
+*.woff   binary
+*.woff2  binary
+
+# I did no harm and this file is not truncated.
