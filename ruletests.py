@@ -2,6 +2,20 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD oo -- PART 3ev: the giveaway audits join the battery. The
+#               41-hit hand tail from ms is closed (5 renumbered, 26 bank
+#               removals across 18 lessons, one ask rotated, one story
+#               renumbered with its sentence); what remains is a two-lesson
+#               documented allowlist (quarter-turns' four-fact recall domain +
+#               one false positive), pinned exactly -- any new giveaway
+#               anywhere fails the build.
+#   2026-08-27  BUILD on -- PART 3eu: the canon held to its own standard
+#               (Phase 1 of the plan Jim approved). The full 54-referee sweep
+#               now runs over all ~1,989 authored cards every battery run, with
+#               two documented exemption classes (foundations may run long, rule
+#               19a; demo beats may ask-and-answer, rule 19b) and the rest of
+#               the stack still checked BEHIND each exemption. First run found
+#               421; the night's fixes took it to 0, where this part pins it.
 #   2026-08-27  BUILD om -- PART 3et: skip the introduction. Jim: "The
 #               introduction to Abrabot should have a skip introduction button."
 #               Server-marked intro steps (intro: True through _drill_clean),
@@ -11964,6 +11978,197 @@ def part3et_skip_the_introduction():
           (codecheck.stderr or codecheck.stdout or "")[-300:])
 
 
+def part3eu_the_canon_held_to_its_own_standard():
+    """PART 3eu (build on) -- EVERY AUTHORED CARD PASSES THE FULL REFEREE SWEEP.
+
+    Phase 1 of the plan Jim approved 2026-08-27: "take another look at those
+    lesson plans in conjunction with what is being written on the whiteboard."
+    The first run of this audit found 421 findings across 1,989 authored cards
+    -- the canon had never been held to the same 54-referee standard as live
+    replies. Fixed that night: 132 arrow-after-equals board lines split into
+    honest one-claim rows; 249 figures captioned; questions moved out of
+    equation rows into captions; two promised pictures actually drawn; two
+    angle-"piece" spoken lines corrected; and TWO REFEREE BUGS the audit
+    exposed (the probstat percentile exemption skipped only the first mention;
+    skipped-result could not read a chained "x = 15² = 225").
+
+    THE DOCUMENTED EXEMPTION CLASSES -- by design, not by neglect:
+      - FOUNDATIONS may exceed the spoken-length cap: rule 19(a) names canonical
+        foundation scripts as written to be spoken whole.
+      - TEACH/WORKED demonstration beats may ask-and-answer (selfanswer) and ask
+        without a pending board line (pendcheck/answeredq): a demonstration is
+        the "I do" phase (rule 19b) -- it poses its question rhetorically and
+        answers it on purpose; the child answers only in the machine-graded
+        ask pairs, which always carry their problem.
+    Behind every exempt finding, the non-exempt referees are STILL run directly
+    -- an exemption never becomes a hiding place. Anything else is a failure."""
+    print("\nPART 3eu — the canon held to its own standard (build on)")
+    import tutor as TT
+    import foundations as FND
+    import lessonscripts as LS
+
+    EXEMPT_F = ("spoken words -- about",)
+    EXEMPT_TW = ("keep talking", "puts no pending line", "already answers")
+    openf = []
+
+    def probe(kind, course, ident, t):
+        r = TT.prose_board_conflict(t, heard=t,
+                                    course=course if kind != "foundation" else "")
+        if not r:
+            return
+        exempt = (kind == "foundation" and any(p in r for p in EXEMPT_F)) or \
+                 (kind in ("teach", "worked") and any(p in r for p in EXEMPT_TW))
+        if not exempt:
+            openf.append((kind, ident, r[:110]))
+            return
+        # behind the exemption, the rest of the stack still runs
+        for fn in (TT.malformed_tag_conflict, TT.missing_caption_conflict,
+                   TT.self_correction_conflict, TT.board_notation_conflict,
+                   TT.board_layout_conflict, TT.board_parens_conflict,
+                   TT.board_cram_conflict, TT.board_count_conflict,
+                   TT.instruction_leak_conflict, TT.finite_answer_conflict,
+                   TT.spoken_time_collision_conflict):
+            x = fn(t)
+            if x:
+                openf.append((kind, ident, "BEHIND-EXEMPT: " + x[:100]))
+        for x in (TT.angle_piece_conflict(t, course),
+                  TT.student_compare_conflict(t, course),
+                  TT.prose_visual_conflict(t, ""),
+                  TT.skipped_result_conflict(t, heard=t)):
+            if x:
+                openf.append((kind, ident, "BEHIND-EXEMPT: " + x[:100]))
+
+    n = 0
+    for c, scr in FND.FOUNDATIONS.items():
+        items = scr.values() if isinstance(scr, dict) else scr
+        for sc in items:
+            t = (sc.get("say") or "") + "\n" + "\n".join(sc.get("board") or [])
+            if t.strip():
+                n += 1
+                probe("foundation", c, sc.get("term") or "?", t)
+    for les in LS.LESSONS:
+        for i, (s, b) in enumerate(les.get("teach") or []):
+            t = (s or "") + "\n" + (b or "")
+            if t.strip():
+                n += 1
+                probe("teach", les.get("course", "?"), "%s[t%d]" % (les["id"], i), t)
+        for i, p in enumerate(les.get("pairs") or []):
+            w = p.get("worked") or ("", "")
+            t = (w[0] or "") + "\n" + (w[1] or "")
+            if t.strip():
+                n += 1
+                probe("worked", les.get("course", "?"), "%s[w%d]" % (les["id"], i), t)
+
+    check("⭐ every authored card passes the full referee sweep (%d cards)" % n,
+          not openf,
+          "; ".join("%s %s: %s" % f for f in openf[:4])
+          + (" … and %d more" % (len(openf) - 4) if len(openf) > 4 else ""))
+    check("  the sweep really covered the whole canon", n >= 1900,
+          "%d cards swept -- the canon shrank or the walker broke" % n)
+
+    # the two referee bugs the audit exposed stay fixed
+    print("  (the audit's two referee-bug regressions)")
+    check("⭐ probstat's percentile exemption skips EVERY mention",
+          TT.student_compare_conflict(
+              "That is a percentile. Sitting at the 80th percentile means you "
+              "scored higher than 80 percent. The percentile never changes.",
+              "probstat") == "",
+          "nv's exemption skipped only the first mention and convicted the second")
+    check("  ...while a real comparison in probstat still fires",
+          bool(TT.student_compare_conflict(
+              "Most kids your age find percentiles hard.", "probstat")),
+          "the exemption must stay vocabulary-narrow")
+    check("⭐ skipped-result reads a chained equality",
+          TT.skipped_result_conflict(
+              'Square both sides. So x is 225. [[step eq="x = 15² = 225"]]',
+              heard="student: ok") == "",
+          "a board that wrote x = 15² = 225 DID show x = 225")
+    check("  ...while a truly missing result still fires",
+          bool(TT.skipped_result_conflict(
+              "So x is 225, nice work.", heard="student: ok")),
+          "the widening must not blind the referee")
+    check("⭐ angle-piece demands a measure (rim pieces are innocent)",
+          TT.angle_piece_conflict(
+              "Two arcs — two pieces of the rim — and every arc is measured in "
+              "degrees.", "geometry") == ""
+          and bool(TT.angle_piece_conflict(
+              "One piece is 70 degrees, so what is the other?", "geometry")),
+          "nl's shape convicted geometry's own honest prose")
+
+
+def part3ev_the_giveaway_audits_join_the_battery():
+    """PART 3ev (build oo) -- NO DEMO ANSWERS A PROBLEM ITS OWN LESSON ASKS.
+
+    workedaudit.py (lr) and teachaudit.py (mr) existed as hand-run scripts,
+    deliberately unwired because 41 hits from long-shipped lessons would have
+    blocked every deploy. Build ms closed 71 by renumbering bank problems;
+    build oo closed the hard tail overnight (Jim's Phase-1 order):
+      - 5 problems renumbered (same answer or same difficulty, ms's ranking law)
+        -- entry-u1, basic-u5, basic-u9-perimeter, calc-u3 x2;
+      - 26 bank entries REMOVED across 18 lessons (banks stay >= 7) where the
+        problem domain offered no legal replacement -- removal beats mutilating
+        the teaching, and every removal was re-validated in place;
+      - alg2-u8-the-height's ask rotated 90 -> 180 (the only un-demoed angle
+        left in a fully-enumerated domain) with the bank's 180 removed;
+      - basic-u3's jar story renumbered (3x4 -> 2x5) WITH its sentence rewritten
+        -- a story's words and numbers move together, never apart. ⚠ that ask's
+        spoken sentence changed: one line to re-render.
+
+    THE ALLOWLIST -- documented, pinned exactly, never growable in silence:
+      - basic-u9-quarter-turns (6 hits): a FOUR-FACT recall domain (1-4 quarter
+        turns). Any demonstration exhausts part of the ask space by arithmetic
+        necessity, and re-asking a demonstrated fact there is recall practice
+        (times-tables logic), not a giveaway.
+      - entry-u3-story-problems (1 reverse hit): a false positive -- the demo
+        (3 stickers + 2) shares no fact with the problem (2 rocks + 1 -> 3);
+        the audit's own doc calls reverse evidence weaker and says read it.
+    Anything OUTSIDE the allowlist, or growth INSIDE it, fails the build."""
+    print("\nPART 3ev — the giveaway audits join the battery (build oo)")
+    import lessonscripts as LS
+    import teachaudit as TA
+    import workedaudit as WA
+
+    ALLOWED = {"basic-u9-quarter-turns", "entry-u3-story-problems"}
+    th, wh = [], []
+    for les in LS.LESSONS:
+        th += TA.direct_hits(les) + TA.reverse_hits(les)
+        wh += WA.audit([les])
+    strays = [h for h in th if h[0] not in ALLOWED] + \
+             [h for h in wh if h[0] not in ALLOWED]
+    check("⭐ no teach beat or worked example answers its own lesson's problems "
+          "(outside the documented allowlist)",
+          not strays,
+          "; ".join("%s (beat/worked %s)" % (h[0], h[1]) for h in strays[:5]))
+    check("  the allowlist holds exactly its documented size (5 teach + 2 worked)",
+          len(th) == 5 and len(wh) == 2,
+          "teach %d worked %d -- growth inside the allowlist is still growth"
+          % (len(th), len(wh)))
+    check("  quarter-turns is the only tiny-domain resident",
+          {h[0] for h in wh} <= {"basic-u9-quarter-turns"},
+          sorted({h[0] for h in wh}))
+
+    # oo's fixes stay fixed: spot pins on each fix class
+    def lesson(lid):
+        return next(l for l in LS.LESSONS if l["id"] == lid)
+    check("  the renumbered story moves words and numbers together",
+          any(p["ask"].get("a") == 2 and p["ask"].get("b") == 5
+              and "2 marbles" in str(p["ask"].get("story", ""))
+              and "5 jars" in str(p["ask"].get("story", ""))
+              for p in lesson("basic-u3-story-problems")["pairs"]),
+          "the jar story's sentence and tuple must describe the same problem")
+    check("  the-height's ask is the rotated 180, and 90 is nowhere",
+          any(p["ask"] == {"a": 180, "b": 0, "op": "sinp"}
+              for p in lesson("alg2-u8-the-height")["pairs"])
+          and not any(q == {"a": 90, "b": 0, "op": "sinp"}
+                      for q in lesson("alg2-u8-the-height")["bank"]),
+          "the sine-of-90 demo must never be an asked problem again")
+    check("  every trimmed bank still holds at least 7 problems",
+          all(len(lesson(lid)["bank"]) >= 7 for lid in (
+              "entry-u7-counting-coins", "alg1-u7-the-vanishing-middle",
+              "geo-u2-turns-onto-itself", "calc-u5-the-best-rectangle")),
+          "a removal that guts a bank starves the drill pool")
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -12689,7 +12894,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,810</b>" in page,
+          "<b>6,823</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21075,6 +21280,8 @@ def main():
     part3er_grade_what_they_said()
     part3es_the_sixth_flag_harvest()
     part3et_skip_the_introduction()
+    part3eu_the_canon_held_to_its_own_standard()
+    part3ev_the_giveaway_audits_join_the_battery()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

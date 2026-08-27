@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD on -- THREE REFEREES CORRECTED BY THE PHASE-1 CANON AUDIT
+#               (holding 1,989 authored cards to the live standard exposed
+#               referee defects no live traffic ever had): (1) student_compare's
+#               probstat percentile exemption skipped only the FIRST mention and
+#               convicted the second -- it now loops; (2) skipped_result
+#               demanded a literal "x = 225" from a board that honestly wrote
+#               "x = 15² = 225" -- chained equalities now count; (3) angle_piece
+#               convicted "pieces of the rim" and "an answer in pieces, not in
+#               degrees" -- narrowed to a piece WITH a degree measure. All three
+#               reduce false fires on live replies too.
 #   2026-08-26  BUILD ol -- THE SIXTH FLAG HARVEST (six probstat flags, 23:23-
 #               23:32). (1) finite_answer: _EITHER_OR_RE allows one trailing noun
 #               ("categorical or quantitative DATA?"); _OFFER_FORK_RE learns "or
@@ -4797,10 +4807,14 @@ def student_compare_conflict(reply: str, course: str = ""):
         # probstat's OWN percentile lessons -- there it is curriculum, not a
         # measurement of the child. The other shapes still apply in probstat;
         # only the percentile/grade-level vocabulary is exempt there.
-        if m and str(course or "").lower() == "probstat" and re.search(
+        # (on) THE EXEMPTION NOW LOOPS. The Phase-1 canon audit caught nv's
+        # version skipping only the FIRST percentile and firing on the second --
+        # probstat's own percentile lesson says the word four times, as a
+        # percentile lesson must. Every exempt-vocabulary hit is skipped, and
+        # only a NON-exempt shape left standing may fire.
+        while m and str(course or "").lower() == "probstat" and re.search(
                 r"percentile|grade\s+(?:level|equivalent)", m.group(0), re.I):
-            rest = _CMP_SHAPES.search(prose[m.end():])
-            m = rest
+            m = _CMP_SHAPES.search(prose, m.end())
         if not m:
             return ""
         said = " ".join(m.group(0).split())[:50]
@@ -5061,8 +5075,18 @@ def board_layout_conflict(reply: str):
 # fixed, and this referee holds the line. COURSE-GATED to the two angle courses:
 # fraction lessons live on "pieces", and a probstat pie chart may fairly say a
 # piece of the pie is 90 degrees -- neither may ever be rejected for it.
-_ANGLE_PIECE_RE = re.compile(r"[^.?!]*\bpieces?\b[^.?!]*(?:degrees?|\u00b0)"
-                             r"|[^.?!]*(?:degrees?|\u00b0)[^.?!]*\bpieces?\b", re.I)
+# (on) NARROWED BY THE PHASE-1 CANON AUDIT: nl's shape was "piece and degrees
+# anywhere in one sentence", which convicted geometry's own honest prose --
+# "two arcs -- two pieces of the rim -- and every arc is measured in degrees"
+# (a piece of RIM, not an angle) and "5 parts is an answer in pieces, not in
+# degrees" (the very sentence TEACHING the distinction). The disease is a piece
+# WITH A DEGREE MEASURE: a piece carrying its own number-of-degrees ("one piece
+# is 70 degrees", "piece measuring 130 degrees", "Degrees chop a turn into 360
+# pieces"). The narrowed shape demands DIGITS-plus-degrees near the word, in
+# either order; a degreeless "cut into 4 pieces" (fractions) never fires.
+_ANGLE_PIECE_RE = re.compile(
+    r"\bpieces?\b[^.?!]{0,40}?\b\d{1,3}\s*(?:degrees?|\u00b0)"
+    r"|(?:degrees?|\u00b0)\b[^.?!]{0,30}?\b\d{1,3}\s+pieces?\b", re.I)
 _ANGLE_PIECE_COURSES = ("geometry", "precalc")
 
 
@@ -5149,8 +5173,14 @@ def skipped_result_conflict(reply: str, heard=None):
         if not m:
             return ""
         var, val = m.group(1).lower(), m.group(2)
-        shown = re.compile(re.escape(var) + r"\s*(?:=|equals|is)\s*" + re.escape(val)
-                           + r"(?![\d.])", re.I)
+        # (on) THE CHAINED EQUALITY COUNTS. The Phase-1 canon audit caught this
+        # demanding a literal "x = 225" from a board that honestly wrote
+        # "x = 15² = 225" -- a chain "x = ... = N" STATES x equals N, and
+        # rejecting it would nudge boards into repeating themselves. The shown
+        # pattern now accepts any run of chained "= ..." links before the value.
+        shown = re.compile(re.escape(var)
+                           + r"\s*(?:=|equals|is)\s*(?:[^=|\n]{0,40}=\s*)*"
+                           + re.escape(val) + r"(?![\d.])", re.I)
         vals = " ".join(_note_tag_vals(text))
         if shown.search(vals) or shown.search(prose[m.end():]) \
                 or shown.search(str(heard)):

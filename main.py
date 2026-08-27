@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27oo-the-giveaways-are-closed". BUILD oo --
+#               the ms hand-tail: 41 answer-giveaway hits closed (5 problems
+#               renumbered, 26 bank removals across 18 lessons, one ask rotated,
+#               one story renumbered with its sentence); teachaudit + workedaudit
+#               now RUN IN THE BATTERY (PART 3ev) against an exact two-lesson
+#               allowlist. lessonscripts.py/ruletests.py; only this stamp here.
+#   2026-08-27  APP_BUILD -> "2026-08-27on-the-canon-held-to-its-own-standard".
+#               BUILD on -- Phase 1 overnight: all 1,989 authored cards held to
+#               the full 54-referee standard for the first time (421 findings ->
+#               0): 132 arrow board lines split, 249 figures captioned, question
+#               rows recaptioned, two promised pictures drawn, two piece->angle
+#               spoken lines, two referee bugs fixed (percentile exemption,
+#               chained equality), angle-piece narrowed. lessonscripts.py/
+#               tutor.py/ruletests.py (PART 3eu pins zero); only this stamp here.
 #   2026-08-27  APP_BUILD -> "2026-08-27om-skip-the-introduction". BUILD om --
 #               Jim: "The introduction to Abrabot should have a skip introduction
 #               button." _drill_intro_steps marks its steps intro: True and
@@ -11986,7 +12000,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27om-skip-the-introduction"
+APP_BUILD = "2026-08-27oo-the-giveaways-are-closed"
 
 
 @app.get("/health")
