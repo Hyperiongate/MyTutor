@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD op -- PART 3ew: the authored-spine pilot (Phase 3, Jim's
+#               "go"). Pre-Algebra Unit 1 served from the authored lane beside
+#               the live one: the home door, the pilot lens, the owner's 🚩 on
+#               the scripted bubble, and the lane's own numbers on the admin
+#               card. 10-assertion browser drive green before the pins.
 #   2026-08-27  BUILD oo -- PART 3ev: the giveaway audits join the battery. The
 #               41-hit hand tail from ms is closed (5 renumbered, 26 bank
 #               removals across 18 lessons, one ask rotated, one story
@@ -12169,6 +12174,81 @@ def part3ev_the_giveaway_audits_join_the_battery():
           "a removal that guts a bank starves the drill pool")
 
 
+def part3ew_the_authored_spine_pilot():
+    """PART 3ew (build op) -- PHASE 3'S PILOT: PRE-ALGEBRA UNIT 1 FROM THE
+    AUTHORED LANE (Jim's "go", 2026-08-27).
+
+    The scripted lane already existed end to end (jt/jw: /api/script/start +
+    /api/script/answer, pilot.html, bounded interventions, mastery recorded
+    through the same store calls, pre-rendered voice). What it lacked was a
+    DOOR, a LENS, a FLAG, and a NUMBER:
+      - DOOR: home's prealgebra hub grows the "Unit 1 -- the fast lessons"
+        tile -> /pilot?course=prealgebra&unit=1. The classic course tile is
+        untouched: the live lane and the authored lane sit side by side.
+      - LENS: pilot.html filters its picker by ?course=&unit=; unfiltered it
+        is byte-for-byte the old full picker.
+      - FLAG: the owner's 🚩 rides the scripted bubble (board.js's generic
+        ownerFlagAttach; the lessons array renamed LESSONLIST so the flag
+        body's COURSE global is the course STRING, not an array).
+      - NUMBER: usage_stats counts the lane (script_turns / ms_script_median /
+        script_ai_turns) and the admin Cost card shows it beside the live
+        median -- the pilot's claim, measured.
+    The 10-assertion browser drive (real pilot.html + real home.html: the
+    lens, the do-no-harm full picker, the flag's POST shape, the end-of-slice
+    doors, the prealgebra-only tile) ran green before these pins."""
+    print("\nPART 3ew — the authored-spine pilot (build op)")
+    here = os.path.dirname(os.path.abspath(__file__))
+
+    psrc = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    pc = code_only(psrc)
+    check("⭐ pilot.html carries the lens (?course= and ?unit= narrow the picker)",
+          'qs.get("course")' in pc and 'qs.get("unit")' in pc
+          and "LESSONLIST.filter" in pc.replace("LESSONLIST = LESSONLIST.filter", "LESSONLIST.filter"),
+          "the home tile links a slice the page must actually serve")
+    check("  the flag's COURSE global is a string, set per lesson",
+          'window.COURSE = ""' in pc and "(cur && cur.course) || FCOURSE" in pc,
+          "board.js's flag body would ship the lessons ARRAY as the course")
+    check("  the owner's 🚩 re-attaches after every bubble render",
+          pc.count("flagBubble()") >= 3 and "ownerFlagAttach($(\"bubble\"))" in pc,
+          "innerHTML replacement removes the button; without re-attach it shows once")
+    check("  the end of a lesson offers a way home",
+          "Back to my classroom" in psrc,
+          "a pilot student must never be stranded at slice's end")
+
+    hsrc = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
+    hc = code_only(hsrc)
+    check("⭐ home's prealgebra hub carries the pilot door, lens included",
+          'COURSE === "prealgebra"' in hc
+          and "course=prealgebra&unit=1" in hc,
+          "without the door the authored lane is a page nobody reaches")
+    check("  ...and the classic course tile is untouched beside it",
+          '"/session" + q' in hc,
+          "the pilot is an EXTRA door -- never a replacement, until it earns it")
+
+    msrc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
+    check("⭐ the /pilot route serves the page",
+          'app.get("/pilot")' in msrc.replace("@app", "app"),
+          "the tile's href 404s without the route")
+
+    ssrc = code_only(open(os.path.join(here, "store.py"), encoding="utf-8").read())
+    check("⭐ usage_stats counts the authored lane",
+          '"script_turns"' in ssrc and '"ms_script_median"' in ssrc
+          and '"script_ai_turns"' in ssrc,
+          "an unmeasured pilot cannot win or lose -- it can only be argued about")
+    asrc = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("  ...and the admin Cost card shows it beside the live median",
+          "Scripted lane" in asrc and "ms_script_median" in asrc,
+          "the number exists so Jim can SEE the two lanes side by side")
+
+    import store as ST
+    stats = ST.usage_stats(days=7)
+    check("  DB-off: the new keys exist and read zero, never crash",
+          stats.get("script_turns") == 0 and stats.get("ms_script_median") == 0
+          and stats.get("script_ai_turns") == 0,
+          {k: stats.get(k) for k in ("script_turns", "ms_script_median",
+                                     "script_ai_turns")})
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -12894,7 +12974,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,823</b>" in page,
+          "<b>6,833</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21282,6 +21362,7 @@ def main():
     part3et_skip_the_introduction()
     part3eu_the_canon_held_to_its_own_standard()
     part3ev_the_giveaway_audits_join_the_battery()
+    part3ew_the_authored_spine_pilot()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD op -- THE AUTHORED LANE COUNTS ITSELF. usage_stats gains
+#               script_turns / ms_script_median (kind="script" rows -- scripted-
+#               lesson turns, no model on the clock) and script_ai_turns (brain
+#               rows with mode="script" -- the lane's bounded interventions).
+#               The Phase-3 pilot's claim is "authored beats are instant"; now
+#               the admin card can show it next to the live lane's median.
 #   2026-08-26  BUILD ol -- THE 16-CHARACTER TRAP. "critic-unresolved" is 17 chars;
 #               verify_status is String(16), so every shipped-critic reply was
 #               stored as "critic-unresolve" and (mw)'s counter key never matched
@@ -4239,7 +4245,14 @@ def usage_stats(days: int = 7, since=None) -> dict:
            "out_tags_avg": 0.0, "out_spoken_share": 0.0,
            "timed_turns": 0, "ms_sample_cap": TIMING_SAMPLE, "ms_sampled": 0,
            "ms_avg": 0, "ms_median": 0, "ms_p90": 0, "ms_max": 0,
-           "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0}
+           "ms_model_avg": 0, "ms_retry_avg": 0, "ms_retry_share": 0.0,
+           # (op) THE AUTHORED LANE, counted beside the live one. kind="script"
+           # rows are the scripted-lesson turns (main._script_log); every other
+           # number on this card excludes them, so the pilot's whole claim --
+           # authored beats are instant -- was invisible. Median over the same
+           # window; ai_interventions is the script lane's bounded model calls
+           # (kind="brain", mode="script"), the only part of it that waits.
+           "script_turns": 0, "ms_script_median": 0, "script_ai_turns": 0}
     if not _ENABLED:
         return out
     from sqlalchemy import select, func
@@ -4354,6 +4367,26 @@ def usage_stats(days: int = 7, since=None) -> dict:
             out["critic_output_tokens"] = int(crow[2] or 0)
             out["critic_cache_read_tokens"] = int(crow[3] or 0)
             out["critic_cache_write_tokens"] = int(crow[4] or 0)
+            # (op) THE AUTHORED LANE'S OWN NUMBERS -- the pilot's evidence.
+            # kind="script" rows are scripted-lesson turns (served from the
+            # authored course, no model on the clock); the brain rows whose
+            # mode is "script" are its bounded interventions -- the only part
+            # of that lane that ever waits on a model.
+            script = (U.c.kind == "script") & recent
+            out["script_turns"] = int(conn.execute(
+                select(func.count()).where(script)).scalar() or 0)
+            if out["script_turns"]:
+                sms = sorted(int(r[0] or 0) for r in conn.execute(
+                    select(U.c.ms_total).where(script & (U.c.ms_total > 0))
+                    .order_by(U.c.id.desc()).limit(TIMING_SAMPLE)).fetchall())
+                if sms:
+                    ns = len(sms)
+                    out["ms_script_median"] = sms[(ns - 1) // 2] if ns % 2 else \
+                        int(round((sms[ns // 2 - 1] + sms[ns // 2]) / 2))
+            out["script_ai_turns"] = int(conn.execute(
+                select(func.count()).where(
+                    (U.c.kind == "brain") & (U.c.mode == "script") & recent)
+                ).scalar() or 0)
     except Exception as exc:  # noqa: BLE001
         out["error"] = _redact(str(exc))
         print(f"[store] usage_stats failed: {out['error']}")

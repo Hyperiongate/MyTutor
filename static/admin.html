@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (op) 2026-08-27 -- THE SCRIPTED-LANE TILE. The Phase-3 pilot serves
+    Pre-Algebra Unit 1 from the authored lane; this card now shows that lane's
+    median turn beside the live one ("Scripted lane": median authored turn,
+    turn count, AI interventions, 7d). An em dash until the first scripted turn
+    of the window -- never a fabricated zero.
     (nq) 2026-08-25 -- THE OWNER'S FLAG QUEUE. Jim, live in geometry, caught the
     tutor saying "piece" for "angle" and asked to point at the sentence IN THE APP.
     His ruling: "I only want it when I'm online. I don't want the parents or
@@ -989,6 +994,15 @@
              : "no turn has been timed yet — push jm, then teach one lesson" },
       { l: "Waiting on the model", v: secs(u7.ms_model_avg),
         s: "the TEACHING call only — the second opinion is counted next to this" },
+      // ---- (op) THE AUTHORED LANE -- the Phase-3 pilot's evidence tile ----
+      { l: "Scripted lane", v: (u7.script_turns ? secs(u7.ms_script_median) : "—"),
+        cls: u7.script_turns ? "good" : "",
+        s: u7.script_turns
+             ? "median authored turn · " + num(u7.script_turns) + " turns · "
+               + num(u7.script_ai_turns) + " AI interventions (7d) — compare "
+               + "with Median turn: this is the pilot lane"
+             : "no scripted turns yet (7d) — the Pre-Algebra Unit 1 pilot tile "
+               + "on /home feeds this" },
       // ---- build jp: THE SECOND OPINION ----
       // build ny: the tile names the ACTUAL critic model (payload.critic_seat) --
       // it used to hardcode "Opus", which would silently lie during the fast-critic

@@ -2,6 +2,16 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27op-the-authored-spine-pilot". BUILD op --
+#               Phase 3's pilot, on Jim's "go". Pre-Algebra Unit 1 is served from
+#               the AUTHORED lane beside the live one: NEW /pilot route; home's
+#               prealgebra hub grows the "Unit 1 -- the fast lessons" tile
+#               (classic tile untouched -- the lanes sit side by side);
+#               pilot.html gains the ?course=&unit= lens, the owner's 🚩, and a
+#               way home; store.usage_stats counts the lane (script_turns /
+#               ms_script_median / script_ai_turns) and the admin Cost card
+#               shows it next to the live median. No serve-path change to the
+#               live lane anywhere.
 #   2026-08-27  APP_BUILD -> "2026-08-27oo-the-giveaways-are-closed". BUILD oo --
 #               the ms hand-tail: 41 answer-giveaway hits closed (5 problems
 #               renumbered, 26 bank removals across 18 lessons, one ask rotated,
@@ -6736,6 +6746,15 @@ def home_page():
     return FileResponse(STATIC_DIR / "home.html")
 
 
+@app.get("/pilot")
+def pilot_page():
+    """THE AUTHORED-SPINE LANE (build op -- Phase 3's pilot, Jim's "go").
+    Scripted lessons served instantly from the authored course, the model held to
+    bounded interventions. The home hub links Pre-Algebra students here with
+    ?course=prealgebra&unit=1; unfiltered it is the full scripted picker."""
+    return FileResponse(STATIC_DIR / "pilot.html")
+
+
 @app.get("/topic")
 def topic_page():
     """Topic mode -- pick or name a topic for a focused mini-lesson."""
@@ -12000,7 +12019,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27oo-the-giveaways-are-closed"
+APP_BUILD = "2026-08-27op-the-authored-spine-pilot"
 
 
 @app.get("/health")

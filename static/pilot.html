@@ -2,6 +2,16 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (op) 2026-08-27 -- THE AUTHORED-SPINE PILOT (Phase 3, Jim's "go"). Three
+    additions, nothing moved: (1) ?course= and ?unit= narrow the picker to the
+    piloted slice -- the home hub links Pre-Algebra students here with
+    course=prealgebra&unit=1; unfiltered, the page is byte-for-byte the old
+    full picker. (2) The owner's 🚩 rides this lane now: board.js is already
+    loaded here, ownerFlagAttach() re-attaches to #bubble after every render,
+    and the lessons ARRAY was renamed LESSONLIST so the flag body's COURSE
+    global carries the current lesson's course STRING (it would have shipped
+    an array). (3) End of a lesson offers "Back to my classroom" alongside
+    Next lesson, so a pilot student is never stranded.
     (mh) 2026-08-23 -- THE BOARD LAYER IS A FILE NOW, AND THIS PAGE LOADS IT.
     Everything the kj note below describes -- board.js's ambient contract, the
     one-board-per-beat helpers, and the scripted tag dispatcher -- moved VERBATIM
@@ -295,6 +305,8 @@
   var $ = function (id) { return document.getElementById(id); };
   var qs = new URLSearchParams(location.search);
   var DEV = qs.get("dev") === "1";
+  var FCOURSE = (qs.get("course") || "").trim();   // (op) the pilot lens
+  var FUNIT = parseInt(qs.get("unit") || "", 10) || 0;
   CODE = (qs.get("code") || "").trim();       // (ki) the global voice.js reads
   try { CODE = CODE || sessionStorage.getItem("mt_pilot_code") || ""; } catch (e) {}
   if (CODE) $("code").value = CODE;
@@ -316,7 +328,12 @@
     // audio pipeline early. voice.js's warmUpAudio also starts the build-cb keep-alive.
     try { warmUpAudio(); } catch (e) {}
     post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
-      CURRENT_ID = j.id || lessonId || (COURSE[0] && COURSE[0].id) || null;
+      CURRENT_ID = j.id || lessonId || (LESSONLIST[0] && LESSONLIST[0].id) || null;
+      var cur = null;
+      for (var ci = 0; ci < LESSONLIST.length; ci++) {
+        if (LESSONLIST[ci].id === CURRENT_ID) { cur = LESSONLIST[ci]; break; }
+      }
+      window.COURSE = (cur && cur.course) || FCOURSE || "";
       $("gate").classList.add("hide");
       $("stage").classList.remove("hide");
       ingest(j.steps);
@@ -328,13 +345,22 @@
     .then(function (j) { elevenEnabled = !!(j && j.eleven); })
     .catch(function () {});
 
-  var COURSE = [];          // the ordered lessons list (kd: next-lesson flow)
+  // (op) RENAMED from COURSE: board.js's owner-flag body reads a global COURSE
+  // as the course STRING; an array there would ride into /api/flag. The string
+  // global below is set the moment a lesson starts.
+  var LESSONLIST = [];      // the ordered lessons list (kd: next-lesson flow)
+  window.COURSE = "";       // the CURRENT lesson's course, for the 🚩 flag body
   var CURRENT_ID = null;    // which lesson this session is playing
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
     .then(function (j) {
-      COURSE = j.lessons || [];
+      LESSONLIST = j.lessons || [];
+      // (op) THE PILOT LENS: ?course= and ?unit= narrow the picker to the slice
+      // being piloted (the home hub links prealgebra Unit 1 here). No filter,
+      // no change -- the full picker stays exactly as it was.
+      if (FCOURSE) LESSONLIST = LESSONLIST.filter(function (l) { return l.course === FCOURSE; });
+      if (FUNIT) LESSONLIST = LESSONLIST.filter(function (l) { return l.unit === FUNIT; });
       var pk = $("picker"), lastUnit = null, lastCourse = null;
-      COURSE.forEach(function (les, i) {
+      LESSONLIST.forEach(function (les, i) {
         if (les.course !== lastCourse) {
           lastCourse = les.course; lastUnit = null;
           var ch = document.createElement("div");
@@ -360,6 +386,17 @@
     }).catch(function () {
       $("gateMsg").textContent = "Could not load the course list — is the server awake?";
     });
+
+  // (op) THE OWNER'S FLAG, scripted lane. board.js's ownerFlagAttach is generic
+  // (it exits instantly for everyone without the owner key) and quotes the div
+  // at tap time; innerHTML replacement removes the button, so re-attach after
+  // every render.
+  function flagBubble() {
+    try {
+      if (typeof ownerFlagAttach === "function"
+          && !document.querySelector("#bubble .mtflag")) ownerFlagAttach($("bubble"));
+    } catch (e) {}
+  }
 
   var queue = [];          // steps not yet played
   var current = null;      // the step awaiting the child's tap
@@ -428,6 +465,7 @@
 
     var words = (step.kind === "ai") ? spokenOnly(step.spoken) : (step.spoken || "");
     $("bubble").innerHTML = styleTerms(words);
+    flagBubble();   // (op) the owner's 🚩 rides the scripted lane too
 
     var ctl = $("controls"); ctl.innerHTML = "";
     if (step.kind === "say") {
@@ -471,14 +509,15 @@
       ctl.innerHTML = "";
       $("bubble").innerHTML = (step.mastered ? '<span class="confetti">🎉</span> ' : "")
         + styleTerms(step.spoken || "");
+      flagBubble();
       speak(step.spoken || "", function () {});
       $("status").textContent = step.mastered
         ? "Topic mastered — it's on the dashboard."
         : "Saved as still learning — the next session re-teaches it.";
       var nextLes = null;
-      for (var ni = 0; ni < COURSE.length; ni++) {
-        if (COURSE[ni].id === CURRENT_ID && ni + 1 < COURSE.length) {
-          nextLes = COURSE[ni + 1];
+      for (var ni = 0; ni < LESSONLIST.length; ni++) {
+        if (LESSONLIST[ni].id === CURRENT_ID && ni + 1 < LESSONLIST.length) {
+          nextLes = LESSONLIST[ni + 1];
           break;
         }
       }
@@ -489,6 +528,13 @@
         nb.onclick = function () { startLesson(nextLes.id); };
         ctl.appendChild(nb);
       }
+      // (op) the way home -- a pilot student is never stranded at slice's end
+      var home = document.createElement("button");
+      home.className = "opt"; home.textContent = "\u{1F3EB} Back to my classroom";
+      home.onclick = function () {
+        location.href = "/home?code=" + encodeURIComponent(CODE);
+      };
+      ctl.appendChild(home);
       var again = document.createElement("button");
       again.className = "next"; again.textContent = "Play again";
       again.onclick = function () { location.reload(); };
