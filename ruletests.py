@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILDS or/os/ot -- PART 3ey: the walk-away list. or: session's
+#               sidebar starts collapsed behind the #sbTab edge tab, the
+#               controls reparent to the bottom strip (ordrive green). os: the
+#               [[stepcard]] step grid (board.js machinery, three transcript
+#               pages + scripted lane, rule 58e, registry; stepdrive green).
+#               ot: six new figure tags (transversal/polygon/solid + venn/
+#               tape/clock) and numberline hops=, documented per course
+#               (figdrive green, 22 render assertions).
 #   2026-08-27  BUILD oq -- PART 3ex: the raised hand. A child mid-script asks a
 #               question and gets one bounded spoken answer (pending answers
 #               fenced, no board tags, authored fallbacks on every failure
@@ -12325,6 +12333,150 @@ def part3ex_the_raised_hand():
           "Jim: 'I'm satisfied with unit one. Start expanding this.'")
 
 
+def part3ey_the_walk_away_list():
+    """PART 3ey (builds or + os + ot, 2026-08-27) -- THE WALK-AWAY LIST.
+
+    Jim, leaving for an hour: "the sidebar ... taken up a whole lot of screen
+    place ... collapsed, and there is a tab that says open the sidebar. The
+    pause, type my answer and speak buttons should be moved to the bottom ...
+    my goal is to make the page very simple." / "it clearly says this is one,
+    then two, then three ... the student doesn't have to scroll around to find
+    it." / "I want all the graphics that math teaches to be available."
+    THREE BUILDS, THREE DRIVES, ALL GREEN BEFORE THESE PINS:
+      or (ordrive, 9 assertions)  -- session.html: sidebar collapsed at start
+          behind the #sbTab edge tab; face + mic/Pause/Type reparented to the
+          bottom strip (#ctrlBar, same ids so every hook holds); phones keep
+          dz's dock byte-identically (same nodes move back). The progress
+          chips are untouched -- Jim retracted that part himself.
+      os (stepdrive, 8 assertions) -- [[stepcard n= title=]]: labeled Step-N
+          cards side by side filling the board; blocks after a stepcard land
+          INSIDE it; a new turn, a [[clear]], or a folded problem ends the
+          capture; [[beside]] joins within a card; the scripted lane draws the
+          same cards per beat.
+      ot (figdrive, 22 assertions) -- transversal / polygon / solid (geo) and
+          venn / tape / clock + numberline hops= (math), rendered and
+          shape-checked in a real browser on BOTH lanes.
+    These pins are the cheap daily echo of those live proofs."""
+    print("\nPART 3ey — the walk-away list (builds or/os/ot)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tags as TG
+    import tutor as TT
+
+    # ---- build or: the page gets simple (session.html only, by design) ----
+    ssrc = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    sc = code_only(ssrc)
+    check("⭐ or: the sidebar tab exists and startup is collapsed by design",
+          'id="sbTab"' in ssrc and "Open the sidebar" in ssrc
+          and "body:not(.sbopen) .side.left { display: none; }" in ssrc,
+          "Jim: 'when you start up ... the sidebar is collapsed'")
+    check("  or: the collapsed grid is ONE column, never a zero-width first track",
+          "body:not(.sbopen) .app { grid-template-columns: 1fr; }" in ssrc
+          and "grid-template-columns: 0 1fr" not in ssrc,
+          "a display:none aside generates no grid box -- .center would fall "
+          "into the 0 track (the ordrive caught the feed at 42px)")
+    check("⭐ or: the controls REPARENT (same nodes, same ids) between strip and dock",
+          "function placeCtrls()" in sc and 'id="ctrlBar"' in ssrc
+          and "ctrlBar.appendChild(head)" in sc and "ctrlBar.appendChild(ctr)" in sc
+          and "side.insertBefore(head, side.firstChild)" in sc,
+          "two copies of the mic button is the voice.js disease; one set moves")
+    check("  or: the choice is remembered for the visit, startup stays collapsed",
+          '"mt_sb_open"' in sc and "sessionStorage" in sc,
+          "a mid-lesson refresh must keep the student's own choice")
+    check("  or: the tour opens the sidebar and tucks it back (the iq pattern)",
+          "const sbWasOpen = sidebarOpen();" in sc
+          and "if (!sbWasOpen) setSidebar(false);" in sc,
+          "the tour glows sidebar buttons a collapsed sidebar would hide")
+    check("  or: a glow target inside the collapsed sidebar opens it first",
+          'n.closest(".side.left")' in sc,
+          "a model [[highlight]] must never point at a hidden button")
+    check("  or: the phone dock is untouched (tab hidden, strip hidden, dz rules)",
+          "#sbTab { display: none; }" in ssrc
+          and ".ctrlbar { display: none; }" in ssrc,
+          "dz's phone dock is load-bearing; or is desktop-only by design")
+    check("  or: the progress chips were left alone (Jim retracted that part)",
+          'id="goalChip"' in ssrc and 'id="progChip"' in ssrc,
+          "'I'm actually thinking that maybe ... let's leave that alone'")
+
+    # ---- build os: the board reads one, two, three ----
+    bc = code_only(open(os.path.join(here, "static", "board.js"), encoding="utf-8").read())
+    check("⭐ os: board.js carries the whole step-grid machinery",
+          "function openStepCard(" in bc and "function clearStepGrid(" in bc
+          and "function activeStepCell(" in bc and "function ensureStepGridCSS(" in bc,
+          "the cards live in the ONE shared board file, never per page")
+    check("  os: a folded problem can never be drawn into",
+          'node.closest(".probdone")' in bc,
+          "_stepCellLive must refuse a cell inside .probdone")
+    check("  os: mountBlock hosts into the open card, and [[beside]] joins within it",
+          "const cell = activeStepCell();" in bc and "const host = cell || feed;" in bc
+          and "function _joinBeside(host, b)" in bc,
+          "the one door serves both hosts or the card is a second door")
+    for page in ("session.html", "practice.html", "topic.html"):
+        p = code_only(open(os.path.join(here, "static", page), encoding="utf-8").read())
+        check("  os: %s dispatches [[stepcard]] and clears the grid at turn start" % page,
+              'name === "stepcard"' in p and "curWork = null; openStepCard(attrs);" in p
+              and "clearStepGrid();" in p,
+              "an open card capturing the NEXT turn is the leak oj's clearBeside kills")
+    sb = code_only(open(os.path.join(here, "static", "script-board.js"), encoding="utf-8").read())
+    check("  os: the scripted lane draws the same cards (dispatch + cell host + per-beat clear)",
+          'name === "stepcard"' in sb and "activeStepCell()" in sb
+          and sb.count("clearStepGrid") >= 2,
+          "a lesson authored with cards must look the same on every lane")
+    check("  os: [[stepcard]] is registered (n= and title=)",
+          TG.TAG_INLINE.get("stepcard") == {"n", "title"},
+          "the registry is the grammar; an unregistered tag fails the build")
+    import prompts as PR
+    check("⭐ os: rule 58(e) teaches the tag ONCE, in the shared rules",
+          "NUMBERED STEP CARDS FOR A MULTI-STEP DEMONSTRATION" in PR.GRAPH_TOOL_NOTE
+          and '[[stepcard n="1"' in PR.GRAPH_TOOL_NOTE,
+          "per-template copies drift; oj set the precedent (the numbered rules "
+          "1..60 live in GRAPH_TOOL_NOTE -- yes, that variable; 58d is there too)")
+    check("  os: 'a stepcard tag' spoken to a child is caught whole",
+          bool(TT._LEAK_SHAPES.search("I'll put up a stepcard tag for this"))
+          and not TT._LEAK_SHAPES.search("let's do this step by step"),
+          "stepcard rides AHEAD of step in the alternation")
+
+    # ---- build ot: the figure shelf grows ----
+    for t in ("transversal", "polygon", "solid", "venn", "tape", "clock"):
+        check("  ot: [[%s]] is a registered figure tag" % t, t in TG.FIGURE_TAGS,
+              "rule 7/41 referees key on FIGURE_TAGS; an unlisted figure is invisible to them")
+    check("  ot: venn and tape declare their content attributes",
+          TG.CONTENT_ATTRS.get("venn") == {"a", "b", "both", "left", "right"}
+          and TG.CONTENT_ATTRS.get("tape") == {"parts", "segments", "total"},
+          "a dataless venn/tape draws an empty shell")
+    g = open(os.path.join(here, "static", "geo-figures.js"), encoding="utf-8").read()
+    check("⭐ ot: geo-figures.js renders and exports the three new geometry figures",
+          all("function " + f + "(" in g for f in ("transversal", "polygon", "solid"))
+          and "transversal: transversal, polygon: polygon, solid: solid," in g,
+          "Jim: 'we had trouble making crossed lines yesterday'")
+    mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("⭐ ot: math-figures.js renders and exports venn, tape, clock -- and hops",
+          all("function " + f + "(" in mf for f in ("venn", "tape", "clock"))
+          and "venn: venn, tape: tape, clock: clock," in mf
+          and "parseNums(a.hops)" in mf,
+          "the shelf must actually hold what the registry lists")
+    for page in ("session.html", "practice.html", "topic.html"):
+        p = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        check("  ot: %s dispatches all six new figures" % page,
+              '"venn","tape","clock"' in p and '"transversal","polygon","solid"' in p,
+              "a registered tag a page cannot draw is a silent blank board")
+    check("  ot: the scripted lane dispatches them too",
+          '"venn", "tape", "clock"' in sb
+          and '"transversal", "polygon", "solid"' in sb,
+          "authored lessons must be able to draw the whole shelf")
+    check("⭐ ot: each figure is documented in the courses that teach with it",
+          "[[transversal" in PR.GEOMETRY_SYSTEM_PROMPT_TEMPLATE
+          and "[[polygon" in PR.GEOMETRY_SYSTEM_PROMPT_TEMPLATE
+          and "[[solid" in PR.GEOMETRY_SYSTEM_PROMPT_TEMPLATE
+          and "[[clock" in PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE
+          and "[[tape" in PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE
+          and 'hops="2,5,8,11"' in PR.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE
+          and "[[venn" in PR.PREALGEBRA_SYSTEM_PROMPT_TEMPLATE
+          and "[[tape" in PR.PREALGEBRA_SYSTEM_PROMPT_TEMPLATE
+          and "[[venn" in PR.PROBSTAT_SYSTEM_PROMPT_TEMPLATE,
+          "an undocumented figure is never drawn; a shared-rules copy would "
+          "cost the ceiling for courses that never use it")
+
+
 def part3dy_one_keyboard_not_two():
     """PART 3dy (build no) -- THE SYMBOL STRIP: ONE KEYBOARD, NOT TWO.
 
@@ -13050,7 +13202,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,844</b>" in page,
+          "<b>6,876</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20756,7 +20908,10 @@ def part3db_scripted_board():
     check("build kj: every drawn tag has a real renderer behind it",
           all(("function show" + n.capitalize()) in
               open(os.path.join(here, "static", "board.js"), encoding="utf-8").read()
-              or n in figs or n in ("graph", "triangle", "angle", "circle", "goal")
+              # build os (2026-08-27): stepcard's renderer is openStepCard, the
+              # one deliberate non-show* name (it opens a container, shows nothing).
+              or n in figs or n in ("graph", "triangle", "angle", "circle", "goal",
+                                    "stepcard")
               for n in dispatched - {"clear"}),
           "a dispatched tag with no renderer fails silently at a child's screen")
 
@@ -21440,6 +21595,7 @@ def main():
     part3ev_the_giveaway_audits_join_the_battery()
     part3ew_the_authored_spine_pilot()
     part3ex_the_raised_hand()
+    part3ey_the_walk_away_list()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

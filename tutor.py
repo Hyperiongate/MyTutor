@@ -50,6 +50,11 @@
 #               done" is rejected unless the conversation actually asked a
 #               question N (heard-gated). Rule 18(c) and new 47(k) are the
 #               prompt-side twins.
+#   2026-08-27  BUILD os -- THE BOARD READS ONE, TWO, THREE (one word here). The
+#               new [[stepcard]] board tag (board.js + rule 58e: labeled Step-N
+#               cards side by side) joins _LEAK_SHAPES' tag-name list -- ahead of
+#               "step" in the alternation, so "a stepcard tag" spoken to a child
+#               is caught whole. No referee added, no behavior changed.
 #   2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE (one word here). The new
 #               [[beside]] board tag (board.js + rule 58d) joins _LEAK_SHAPES'
 #               tag-name list so "I'll send a beside tag" spoken to a child is
@@ -5846,7 +5851,7 @@ _LEAK_SHAPES = re.compile(
     r"|\bsystem\s+prompt\b"
     r"|\b(?:my|our)\s+rule\s+\d+\b"
     r"|\brule\s+\d+\s+(?:says|requires|forbids|tells|means)\b"
-    r"|\b(?:step|write|quiz|check|finalexam|unitplan|highlight|card|board|beside)\s+tag\b"
+    r"|\b(?:stepcard|step|write|quiz|check|finalexam|unitplan|highlight|card|board|beside)\s+tag\b"
     # (oh) THE REFEREES' OWN NUDGE JARGON, spoken to a child. Jim's flag: "let's
     # re-write the equation we're solving so the operation has something to land
     # on" -- that is orphanstep's engineering language leaking into a lesson.

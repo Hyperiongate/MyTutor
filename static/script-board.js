@@ -2,6 +2,14 @@
    script-board.js  --  THE SCRIPTED LANE'S BOARD LAYER  --  Hyperion Shift LLC
    -------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27 (os) THE BOARD READS ONE, TWO, THREE, scripted lane. drawBoard
+       dispatches the new [[stepcard n="1" title="..."]] tag (board.js's
+       openStepCard -- labeled Step-N cards side by side); feedBlock hosts new
+       blocks into the OPEN card (board.js activeStepCell) so figures and
+       worklists after a [[stepcard]] land inside it; the grid clears per beat
+       (drawBoard start) and on wipeBoard. board.js loads AFTER this file, so
+       the calls are guarded typeof-checks resolved at call time, exactly like
+       the rest of the ambient contract.
      2026-08-23 (mh) NEW FILE. Lifted VERBATIM out of static/pilot.html, which
        had carried it inline since build kj, so that the Abrabot drill page
        (static/drill.html) could draw the same boards without a second copy.
@@ -60,7 +68,10 @@ function feedBlock() {
   _scriptWork = null;
   var b = document.createElement("div");
   b.className = "mblock";
-  (boardEl() || document.body).appendChild(b);
+  // (os) an OPEN step card captures the block; otherwise the board, as before.
+  var cell = null;
+  try { if (typeof activeStepCell === "function") cell = activeStepCell(); } catch (e) {}
+  (cell || boardEl() || document.body).appendChild(b);
   return b;
 }
 /* showGoal is PAGE-SPECIFIC by board.js's design (session.html has its own); the
@@ -82,7 +93,11 @@ function getWorklist() {
 }
 function scrollFeed() {}          // nothing to scroll: the beat IS the screen
 function clearHint() {}
-function wipeBoard() { var f = boardEl(); if (f) f.innerHTML = ""; _scriptWork = null; }
+function wipeBoard() {
+  var f = boardEl(); if (f) f.innerHTML = "";
+  _scriptWork = null;
+  try { if (typeof clearStepGrid === "function") clearStepGrid(); } catch (e) {}   // (os)
+}
 
 /* ---- small text helpers the scripted pages share ---- */
 function esc(s) {
@@ -117,15 +132,18 @@ function styleTerms(s) {          // **term** -> bold (matches the app's habit)
    scripted lesson that reached for one would be reaching outside the closure. */
 var FIGURE_KINDS = ["bars", "histogram", "dotplot", "boxplot", "scatter", "normal",
                     "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
-                    "numberline", "areamodel", "vector"];
+                    "numberline", "areamodel", "vector",
+                    "venn", "tape", "clock"];   // (ot) the shelf grows
 function drawBoard(text) {
   if (!boardEl()) return false;
   var re = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g, m, drew = false;
   _scriptWork = null;
+  try { if (typeof clearStepGrid === "function") clearStepGrid(); } catch (e) {}   // (os) per beat
   while ((m = re.exec(text)) !== null) {
     var name = m[1].toLowerCase(), a = attrs(m[0]);
     try {
       if (name === "goal" && a.text) { showGoal(a.text); drew = true; }
+      else if (name === "stepcard") { _scriptWork = null; openStepCard(a); drew = true; }   // (os)
       else if (name === "step") { showStep(a); drew = true; }
       else if (name === "write") { showWrite(a); drew = true; }
       else if (name === "column") { showColumn(a); drew = true; }
@@ -135,8 +153,8 @@ function drawBoard(text) {
       else if (name === "machine") { showMachine(a); drew = true; }
       else if (name === "graph") { showFig("graph", a); drew = true; }
       else if (FIGURE_KINDS.indexOf(name) >= 0) { showFig(name, a); drew = true; }
-      else if (name === "triangle" || name === "angle" || name === "circle") {
-        showGeo(name, a); drew = true;
+      else if (["triangle", "angle", "circle", "transversal", "polygon", "solid"].indexOf(name) >= 0) {
+        showGeo(name, a); drew = true;   // (ot) +transversal/polygon/solid
       }
       else if (name === "clear") { wipeBoard(); }
       // [[choices]] becomes tap BUTTONS in the controls row, never a board line

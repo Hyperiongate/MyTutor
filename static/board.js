@@ -2,6 +2,29 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27  BUILD os -- THE BOARD READS ONE, TWO, THREE. Jim: "I want ...
+                 Cadabra to talk and then puts up the problem as he's explaining
+                 it. And it says step one... right next to it, it says step two,
+                 and there's the drawing. And next to that is step three... if
+                 there are several steps to a process he's teaching that we use a
+                 whole board, and it clearly says this is one, then two, then
+                 three, then four, and the student doesn't have to scroll around
+                 to find it." NEW [[stepcard n="1" title="..."]] tag: opens a
+                 labeled "Step N" CARD in a flex row (.steprow) that fills the
+                 board's width; EVERY board block that follows (worklists,
+                 figures, columns, objects -- anything that walks through
+                 mountBlock, or the scripted lane's feedBlock) lands INSIDE that
+                 card until the next [[stepcard]] or the end of the turn. Cards
+                 sit shoulder to shoulder, wrap on narrow screens, and fold into
+                 a finished problem like everything else. Machinery here
+                 (openStepCard / clearStepGrid / activeStepCell / _stepCellLive /
+                 ensureStepGridCSS; mountBlock now hosts into the open card and
+                 the [[beside]] join works inside a card too); the pages'
+                 handleTags dispatch [[stepcard]] (resetting their own worklist
+                 pointer) and clearStepGrid() at turn start; script-board.js
+                 dispatches it for the scripted lane. A [[stepcard]] whose card
+                 was folded away (or cleared) simply starts a fresh row -- it
+                 can never draw into a closed problem.
      2026-08-26  BUILD oj -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is
                  underutilized... they can move to the side. Say, alright, we're
                  gonna put the other equation right next to this one so you could
@@ -188,36 +211,121 @@ let besidePending = false;
 function armBeside() { besidePending = true; }
 function clearBeside() { besidePending = false; }
 
+// ---------- THE BOARD READS ONE, TWO, THREE (build os) ----------
+// [[stepcard n="1" title="..."]] opens a labeled Step-N card; every block that
+// follows mounts INSIDE it until the next [[stepcard]] or the end of the turn.
+// Cleared at the start of every tutor turn (pages call clearStepGrid() next to
+// clearBeside()) and per beat in the scripted lane.
+let curStepRow = null;    // the .steprow flex container (one per demonstration)
+let curStepCell = null;   // the OPEN card's body -- where new blocks land
+
+// A cell (or row) is only a live target while it is on the board and NOT folded
+// into a finished problem (.probdone) -- drawing into a closed problem is the
+// one thing this machinery must never do.
+function _stepCellLive(node) {
+  return !!(node && node.isConnected && !(node.closest && node.closest(".probdone")));
+}
+function activeStepCell() { return _stepCellLive(curStepCell) ? curStepCell : null; }
+function clearStepGrid() { curStepRow = null; curStepCell = null; }
+
+function ensureStepGridCSS() {
+  if (document.getElementById("mtStepGridCSS")) return;
+  const st = document.createElement("style"); st.id = "mtStepGridCSS";
+  st.textContent =
+    ".steprow{display:flex;flex-wrap:wrap;gap:12px;width:100%;align-self:stretch;" +
+    "align-items:stretch;padding:4px 0}" +
+    ".stepcell{flex:1 1 280px;min-width:250px;max-width:100%;border:2px solid #d9d7ee;" +
+    "border-radius:16px;background:#fcfcff;padding:10px 12px 12px;" +
+    "box-shadow:0 4px 14px rgba(60,40,120,.06)}" +
+    ".stephead{display:flex;align-items:center;gap:8px;margin-bottom:6px}" +
+    ".stepnum{background:linear-gradient(90deg,#5b5bd6,#14b8a6);color:#fff;font-weight:800;" +
+    "font-size:13px;border-radius:999px;padding:4px 12px;flex:0 0 auto;white-space:nowrap}" +
+    ".steptitle{font-weight:700;font-size:14px;color:#26263a;line-height:1.25}" +
+    ".stepbody{display:flex;flex-direction:column;gap:8px;align-items:center}" +
+    ".stepbody .mblock{width:100%;padding:2px 0}" +
+    "@media (max-width:560px){.stepcell{min-width:100%}}";
+  document.head.appendChild(st);
+}
+
+// [[stepcard n="2" title="Multiply the tops"]] -> a "Step 2" card joins the row.
+// n missing -> numbered by position; a fresh row starts when there is no live row
+// (first card of a turn, after a [[clear]], or after the problem folded).
+function openStepCard(a) {
+  ensureStepGridCSS();
+  // the host board: the scripted lane's #board (boardEl) or the transcript feed
+  let host = null;
+  try { if (typeof boardEl === "function") host = boardEl(); } catch (e) {}
+  if (!host) host = feed;
+  if (!host) return;
+  // the pages' fold hooks, exactly as their feedBlock() runs them (a stepcard
+  // STARTS teaching just as a figure does); absent on the scripted lane.
+  try { if (typeof foldIfProblemClosed === "function") foldIfProblemClosed(); } catch (e) {}
+  try { if (typeof foldOpenerOnce === "function") foldOpenerOnce(); } catch (e) {}
+  try { clearHint(); } catch (e) {}
+  if (!_stepCellLive(curStepRow)) {
+    curStepRow = document.createElement("div");
+    curStepRow.className = "steprow";
+    host.appendChild(curStepRow);
+  }
+  const cell = document.createElement("div"); cell.className = "stepcell pop";
+  const head = document.createElement("div"); head.className = "stephead";
+  const badge = document.createElement("span"); badge.className = "stepnum";
+  const nRaw = String(a && (a.n || a.num || a.number) || "").trim();
+  badge.textContent = "Step " + (nRaw || (curStepRow.children.length + 1));
+  head.appendChild(badge);
+  const title = String(a && (a.title || a.label) || "").trim();
+  if (title) {
+    const t = document.createElement("span"); t.className = "steptitle";
+    t.textContent = title; head.appendChild(t);
+  }
+  cell.appendChild(head);
+  const bodyEl = document.createElement("div"); bodyEl.className = "stepbody";
+  cell.appendChild(bodyEl);
+  curStepRow.appendChild(cell);
+  curStepCell = bodyEl;
+  scrollFeed();
+}
+
 // THE ONE DOOR every new .mblock walks through (pages' getWorklist + feedBlock).
-// Plain case: append to the feed, exactly as before. [[beside]] case: find the
+// Plain case: append to the host, exactly as before. [[beside]] case: find the
 // previous board block -- never inside a folded problem (.probdone), and give up
 // at nothing found -- then wrap it (or join its existing row) and re-fit its rows
 // once the new, narrower width has laid out.
+// build os: the HOST is the open step card when one is live ([[stepcard]] captured
+// this turn's blocks), the feed otherwise -- and [[beside]] joins within whichever
+// host the block lands in.
+function _joinBeside(host, b) {
+  let prev = null;
+  const kids = host.children;
+  for (let i = kids.length - 1; i >= 0; i--) {
+    const k = kids[i];
+    if (!k.classList) continue;
+    if (k.classList.contains("probdone")) break;   // a folded problem is finished
+    if (k.classList.contains("mrow") || k.classList.contains("mblock")) { prev = k; break; }
+  }
+  if (!prev) return false;
+  let row = prev;
+  if (!prev.classList.contains("mrow")) {
+    row = document.createElement("div"); row.className = "mrow";
+    host.insertBefore(row, prev); row.appendChild(prev);
+  }
+  row.appendChild(b);
+  // rows sized for the full board are too wide for half of it -- re-fit after layout
+  requestAnimationFrame(() => { try { row.querySelectorAll(".wrow, .worow").forEach(fitRow); } catch (e) {} });
+  scrollFeed();
+  return true;
+}
+
 function mountBlock(b) {
+  const cell = activeStepCell();
+  const host = cell || feed;
   if (besidePending) {
     besidePending = false;
-    let prev = null;
-    const kids = feed.children;
-    for (let i = kids.length - 1; i >= 0; i--) {
-      const k = kids[i];
-      if (!k.classList) continue;
-      if (k.classList.contains("probdone")) break;   // a folded problem is finished
-      if (k.classList.contains("mrow") || k.classList.contains("mblock")) { prev = k; break; }
-    }
-    if (prev) {
-      let row = prev;
-      if (!prev.classList.contains("mrow")) {
-        row = document.createElement("div"); row.className = "mrow";
-        feed.insertBefore(row, prev); row.appendChild(prev);
-      }
-      row.appendChild(b);
-      // rows sized for the full board are too wide for half of it -- re-fit after layout
-      requestAnimationFrame(() => { try { row.querySelectorAll(".wrow, .worow").forEach(fitRow); } catch (e) {} });
-      scrollFeed();
-      return b;
-    }
+    if (_joinBeside(host, b)) return b;
   }
-  feed.appendChild(b);
+  host.appendChild(b);
+  // a block landing in a narrow card gets its rows re-fit once layout settles
+  if (cell) requestAnimationFrame(() => { try { cell.querySelectorAll(".wrow, .worow").forEach(fitRow); } catch (e) {} });
   return b;
 }
 

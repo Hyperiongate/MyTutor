@@ -1,5 +1,32 @@
 <!DOCTYPE html>
 <!--
+    (os) 2026-08-27 -- THE BOARD READS ONE, TWO, THREE. NEW [[stepcard n="1"
+    title="..."]] tag dispatched here (labeled Step-N cards side by side, following
+    blocks land inside the open card); clearStepGrid() at turn start. Machinery and
+    the full story live in board.js's own change note.
+    (or) 2026-08-27 -- THE PAGE GETS SIMPLE. Jim: "the sidebar ... taken up a whole lot
+    of screen place. What I'd like is for the sidebar to be collapsible... when you start
+    up ... the sidebar is collapsed, and there is a tab that says open the sidebar. The
+    pause, type my answer and speak buttons should be moved to the bottom or someplace
+    where they maybe don't take up a lot of space... my goal is to make the page very
+    simple." (He considered folding the top progress chips too, then retracted: "let's
+    leave that alone" -- iq's chips are untouched.) DESKTOP (>900px) ONLY:
+    (1) The left sidebar starts COLLAPSED (grid column 0, display:none) with a fixed
+        edge tab #sbTab ("Open the sidebar" / "Close the sidebar") that toggles a
+        body.sbopen class; the student's choice is remembered for the visit
+        (sessionStorage mt_sb_open), and every startup is collapsed again by design.
+    (2) Mr. Cadabra's face (.tutor-head) and ALL the controls (mic, Pause, Type my
+        answer, hint, live) move to a compact horizontal strip -- .ctrlbar / #ctrlBar --
+        at the BOTTOM of the board column, under the answer bar. The move is a JS
+        reparent (placeCtrls): same elements, same ids, so mic.js / voice / keyboard
+        hooks attach unchanged; on phones (<=900px) the SAME nodes move back into the
+        sidebar, so build dz's bottom dock is byte-identical in behavior.
+    (3) The opening TOUR opens the sidebar for its walk-through (its stops glow sidebar
+        buttons) and tucks it away again at the end -- the iq pbars pattern. A
+        model-driven [[highlight]] whose target lives in the collapsed sidebar opens it
+        first and leaves it open (the student can close it with the tab).
+    DO NO HARM: nr's amber pause law (its CSS block untouched, overrides only), od's
+    keyboard close, iq's chips, ir/ns scroll anchoring, dz's phone dock all stand.
     (oj) 2026-08-26 -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is underutilized...
     the bubble only goes about seventy or eighty percent across... they can move to the
     side -- we're gonna put the other equation right next to this one so you could see it
@@ -1514,13 +1541,60 @@
       .side.left .controls { margin-top: 0; padding-top: 6px; }
       .side.left .talkbtn { padding: 11px 16px; font-size: 15px; }
     }
+
+    /* ===== 2026-08-27 (build or) THE PAGE GETS SIMPLE ============================
+       Desktop only. The sidebar starts COLLAPSED (body without .sbopen) behind an
+       edge tab; the face + controls live in a compact strip (.ctrlbar) at the bottom
+       of the board column. Phones (<=900px) are untouched: #sbTab hides, placeCtrls
+       keeps the nodes in the sidebar, dz's dock rules apply as before.
+       ⚠️ These are OVERRIDES, declared last on purpose. nr's .pausebtn block above is
+       untouched (the battery pins its exact text and its single #f9a825 declaration). */
+    #sbTab { display: none; }
+    .ctrlbar { display: none; }   /* phones: the strip is empty AND hidden (dz's dock rules) */
+    @media (min-width: 901px) {
+      /* ⚠️ ONE column, not "0 1fr": with the aside display:none it generates no grid
+         box, so .center becomes the FIRST item and a 0-width first track would
+         swallow it (caught by the ordrive on a real render -- feed came out 42px). */
+      body:not(.sbopen) .app { grid-template-columns: 1fr; }
+      body:not(.sbopen) .side.left { display: none; }
+      #sbTab { display: block; position: fixed; left: 0; top: 44%; transform: translateY(-50%);
+        z-index: 40; writing-mode: vertical-rl; text-orientation: mixed;
+        border: 1px solid var(--line); border-left: none; border-radius: 0 12px 12px 0;
+        background: rgba(255,255,255,.94); color: #4a4a68; font-weight: 700; font-size: 13px;
+        letter-spacing: .02em; padding: 14px 7px; cursor: pointer;
+        box-shadow: 2px 4px 14px rgba(40,40,80,.12); }
+      #sbTab:hover { color: var(--accent); border-color: var(--accent); }
+      body.sbopen #sbTab { left: 280px; }
+      .ctrlbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        margin: 0 24px 14px; padding: 7px 12px; background: var(--panel);
+        border: 1.5px solid var(--line); border-radius: 16px;
+        box-shadow: 0 8px 22px rgba(20,30,45,.07); }
+      .ctrlbar .tutor-head { display: flex; align-items: center; gap: 9px; flex: 0 0 auto;
+        padding: 0; margin: 0; border-bottom: none; }
+      .ctrlbar .orbwrap, .ctrlbar .orbwrap canvas { width: 46px; height: 46px; }
+      .ctrlbar .tutor-name { font-size: 13px; }
+      .ctrlbar .student-name { font-size: 11px; }
+      .ctrlbar .status { font-size: 11px; min-height: 0; margin-top: 0; }
+      .ctrlbar .controls { padding: 0; margin: 0; border: none; flex-direction: row;
+        align-items: center; justify-content: flex-end; gap: 9px; flex: 1 1 auto;
+        min-width: 0; flex-wrap: wrap; }
+      .ctrlbar .talkbtn { width: auto; padding: 11px 20px; font-size: 15px; }
+      .ctrlbar .pausebtn { width: auto; margin-top: 0; padding: 10px 16px; font-size: 14px; }
+      .ctrlbar .typebtn { width: auto; margin-top: 0; padding: 10px 16px; font-size: 14px; }
+      .ctrlbar .hint { flex: 1 1 140px; min-width: 0; text-align: center; order: 5; }
+      .ctrlbar .live { flex: 1 1 100%; min-height: 0; font-size: 15px; order: 6; }
+      .ctrlbar .live:empty { display: none; }
+    }
 </style>
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>
 </head>
 <body>
+  <!-- build or (2026-08-27): the sidebar's tab. Fixed to the left edge, OUTSIDE the
+       aside (a display:none aside would swallow it). Desktop only; phones keep dz's dock. -->
+  <button id="sbTab" type="button" aria-controls="sideLeft" aria-expanded="false">&#9656; Open the sidebar</button>
   <div class="app">
-    <aside class="side left">
+    <aside class="side left" id="sideLeft">
       <div class="tutor-head" id="tutorPanel">
         <div class="orbwrap"><canvas id="orb" width="300" height="300" aria-hidden="true"></canvas></div>
         <div class="tutor-meta">
@@ -1602,6 +1676,11 @@
         <button id="send">Send</button>
         <button class="kbclose" id="kbClose" type="button" title="Close the keyboard" aria-label="Close the keyboard">⌨️✕</button>
       </div>
+
+      <!-- build or (2026-08-27): the compact control strip. EMPTY in the HTML -- on
+           desktop, placeCtrls() moves .tutor-head and .controls (same nodes, same ids)
+           in here; on phones they move back to the sidebar so dz's dock is unchanged. -->
+      <div class="ctrlbar" id="ctrlBar"></div>
     </div>
   </div>
 
@@ -1783,6 +1862,46 @@
     }
 
     const planList = el("planList");
+
+    // ===== 2026-08-27 (build or) THE PAGE GETS SIMPLE =====
+    // The sidebar starts collapsed behind an edge tab; the face + controls live in a
+    // compact strip at the bottom of the board column. See the CSS block and the
+    // header note. placeCtrls is a JS REPARENT of the same nodes (same ids), so every
+    // existing hook -- mic.js, voice.js, the keyboard, the tour glow -- just works.
+    const sbTab = el("sbTab"), ctrlBar = el("ctrlBar");
+    const DESKTOP_MQ = window.matchMedia("(min-width: 901px)");
+    function sidebarOpen() { return document.body.classList.contains("sbopen"); }
+    function setSidebar(open, remember) {
+      document.body.classList.toggle("sbopen", !!open);
+      if (sbTab) {
+        sbTab.innerHTML = open ? "&#9666; Close the sidebar" : "&#9656; Open the sidebar";
+        sbTab.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+      if (remember) { try { sessionStorage.setItem("mt_sb_open", open ? "1" : "0"); } catch (e) {} }
+    }
+    function placeCtrls() {
+      const head = document.querySelector(".tutor-head");
+      const ctr = document.querySelector(".controls");
+      const side = document.querySelector(".side.left");
+      if (!head || !ctr || !side || !ctrlBar) return;
+      if (DESKTOP_MQ.matches) {
+        if (head.parentElement !== ctrlBar) ctrlBar.appendChild(head);
+        if (ctr.parentElement !== ctrlBar) ctrlBar.appendChild(ctr);
+      } else {
+        // phones: back into the sidebar, in dz's dock order (face first, controls last)
+        if (head.parentElement !== side) side.insertBefore(head, side.firstChild);
+        if (ctr.parentElement !== side) side.appendChild(ctr);
+      }
+    }
+    if (sbTab) sbTab.addEventListener("click", function () { setSidebar(!sidebarOpen(), true); });
+    try { DESKTOP_MQ.addEventListener("change", placeCtrls); }
+    catch (e) { try { DESKTOP_MQ.addListener(placeCtrls); } catch (e2) {} }
+    placeCtrls();
+    // Startup is COLLAPSED by design (Jim's spec); a mid-visit refresh keeps the
+    // student's own choice (sessionStorage), a fresh visit starts collapsed again.
+    let _sb0 = "0";
+    try { _sb0 = sessionStorage.getItem("mt_sb_open") || "0"; } catch (e) {}
+    setSidebar(_sb0 === "1");
 
     let tutorName = "Tutor";
     let lastTutorText = "";
@@ -2294,6 +2413,13 @@
       const ids = Array.isArray(targetId) ? targetId : [targetId];
       const nodes = ids.map(el).filter(Boolean);
       if (!nodes.length) return;
+      // build or (2026-08-27): a glow target living in the COLLAPSED sidebar would glow
+      // nothing -- open the sidebar first. It stays open (the student closes it with the
+      // tab); the tour handles its own open/close around the whole walk-through.
+      if (DESKTOP_MQ.matches && !sidebarOpen()
+          && nodes.some(function (n) { return n.closest && n.closest(".side.left"); })) {
+        setSidebar(true);
+      }
       // If we're spotlighting the curriculum, open it so there's something to see.
       if (key === "curriculum" && curriculumList.style.display === "none") {
         curriculumList.style.display = "block"; curriculumBtn.classList.add("open");
@@ -2348,6 +2474,7 @@
       clearHighlight();                          // each turn starts with a clean page
       clearChoices();                            // stale answer buttons never survive a new turn
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
+      clearStepGrid();                           // build os: an open step card never captures the next turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
@@ -2355,7 +2482,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector"].indexOf(name) >= 0) showFig(name, attrs);
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock"].indexOf(name) >= 0) showFig(name, attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "highlight" && attrs.id) { if (!spotlightBoard(attrs.id)) highlightEl(attrs.id); }   // build ee: board keys first, tour ids unchanged
         else if (name === "step") showStep(attrs);
@@ -2376,10 +2503,11 @@
         else if (name === "finalexam") showFinalExam(attrs);
         else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
-        else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
+        else if (["triangle","angle","circle","transversal","polygon","solid"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
+        else if (name === "stepcard") { curWork = null; openStepCard(attrs); }   /* build os: a labeled Step-N card; following blocks land inside it */
         else if (name === "clear") wipeBoard();
       }
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
@@ -3167,6 +3295,11 @@
       // and tucks it back at the end -- the student leaves the tour with a full board.
       showBarsPreview();
       setPanelOpen("pbars", true);
+      // build or (2026-08-27): the tour's stops glow sidebar buttons, so the tour opens
+      // the collapsed sidebar for the whole walk-through and tucks it back at the end
+      // (the iq pbars pattern). A student who had opened it themselves keeps it open.
+      const sbWasOpen = sidebarOpen();
+      setSidebar(true);
       // build ik (2026-08-18, Jim: "it gets a little boring" the second time): a
       // visible SKIP button for the whole tour. Skipping counts as FINISHING — the
       // handoff below still runs, still sends __tour_done__ (or the declined form),
@@ -3193,6 +3326,7 @@
       if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
       clearHighlight();
       setPanelOpen("pbars", false);   // build iq: the tour is over -- give the board back
+      if (!sbWasOpen) setSidebar(false);   // build or: and the sidebar tucks away too
       // 2026-08-05: a first-timer with no placement gets the assessment invitation
       // right here, at the moment of maximum orientation. Choosing "skip" continues
       // the EXACT old flow (__tour_done__), so nothing is ever lost by declining.

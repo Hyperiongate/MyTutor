@@ -18,6 +18,20 @@
 // 2026-08-01  [[angle]] gained split="60" / split="60,30": an interior ray from the vertex
 //             splitting the angle, with the pieces labeled (second defaults to "?") -- so
 //             complementary/supplementary lessons can SHOW the split they talk about.
+// 2026-08-27  (build ot) THE FIGURE SHELF GROWS -- Jim: "I noticed that we had trouble
+//             making crossed lines yesterday. I want all the graphics that math teaches
+//             to be available." Three new figures:
+//               [[transversal deg="60" ask="corresponding"]] -- two PARALLEL lines cut by
+//                 a transversal (the crossed-lines picture every parallel-angles lesson
+//                 needs): the given angle arced+labeled at the TOP crossing, and ask=
+//                 ("corresponding" | "alternate" | "cointerior" | "vertical") arcs the
+//                 asked-about angle in red, labeled "?" (or ask's own text/number).
+//               [[polygon sides="6" side="4" angle="120" name="hexagon"]] -- a regular
+//                 n-gon (3..12), with an optional side-length label, an optional interior
+//                 angle arc+label, and an optional name under the shape.
+//               [[solid kind="cylinder" r="3" h="8"]] -- schematic 3D solids with dashed
+//                 hidden edges: cube, prism (w/d/h), cylinder (r/h), cone (r/h),
+//                 sphere (r), pyramid (b/h). Labels only when given.
 // 2026-08-26  (build oi) [[angle]] gained cross="?": BOTH rays extend through the vertex,
 //             drawing two full lines crossing (the X every vertical-angles question needs).
 //             The given angle keeps its teal arc + measure; the angle OPPOSITE it gets a
@@ -233,8 +247,162 @@
     return s + "</svg>";
   }
 
+  // ---- [[transversal]] : two parallel lines cut by a transversal (build ot) ----
+  // deg = the marked angle at the TOP crossing (between the rightward line and the
+  // downward transversal). ask = which related angle gets the red "?" arc:
+  // corresponding (default) | alternate (interior) | cointerior | vertical.
+  // A number/text in ask writes that instead of "?" (same convention as cross=).
+  function transversal(a) {
+    var W = 340, H = 250;
+    var deg = Math.max(25, Math.min(155, num(a.deg != null ? a.deg : a.measure, 60)));
+    var rad = deg * Math.PI / 180;
+    var y1 = 70, y2 = 180, mid = [170, 125];
+    var dx = Math.cos(rad), dy = Math.sin(rad);
+    var P1 = [mid[0] + (y1 - mid[1]) / dy * dx, y1];   // top crossing
+    var P2 = [mid[0] + (y2 - mid[1]) / dy * dx, y2];   // bottom crossing
+    var s = open(W, H);
+    // the two PARALLEL lines, with matching arrow marks so "parallel" is visible
+    s += line([16, y1], [W - 16, y1], ACC, 2.5);
+    s += line([16, y2], [W - 16, y2], ACC, 2.5);
+    [[y1], [y2]].forEach(function (yy) {
+      var ax = W - 58, ay = yy[0];
+      s += '<path d="M ' + ax + ' ' + (ay - 5) + ' L ' + (ax + 10) + ' ' + ay +
+           ' L ' + ax + ' ' + (ay + 5) + '" fill="none" stroke="' + ACC + '" stroke-width="2"/>';
+    });
+    // the transversal, extended past both lines
+    var ext = 34 / Math.max(0.35, dy);
+    s += line([P1[0] - ext * dx, P1[1] - ext * dy], [P2[0] + ext * dx, P2[1] + ext * dy], INK, 2.5);
+    var RED = "#d1345b";
+    // an arc from screen-angle a1 to a2 (degrees, y-down clockwise) around P
+    function arcAt(P, a1, a2, r, col) {
+      var s1 = a1 * Math.PI / 180, s2 = a2 * Math.PI / 180;
+      var q1 = [P[0] + r * Math.cos(s1), P[1] + r * Math.sin(s1)];
+      var q2 = [P[0] + r * Math.cos(s2), P[1] + r * Math.sin(s2)];
+      var big = (a2 - a1) > 180 ? 1 : 0;
+      return '<path d="M ' + q1[0] + ' ' + q1[1] + ' A ' + r + ' ' + r + ' 0 ' + big +
+             ' 1 ' + q2[0] + ' ' + q2[1] + '" fill="none" stroke="' + col + '" stroke-width="2"/>';
+    }
+    function labelAt(P, a1, a2, r, text2, col) {
+      var m2 = (a1 + a2) / 2 * Math.PI / 180;
+      return txt(P[0] + r * Math.cos(m2), P[1] + r * Math.sin(m2), text2, col, 13, 700);
+    }
+    // the GIVEN angle: at P1, from the east ray (0°) clockwise to the down-going
+    // transversal (deg°) -- an interior angle on the transversal's right.
+    s += arcAt(P1, 0, deg, 26, TEAL) + labelAt(P1, 0, deg, 42, deg + "°", TEAL);
+    var askRaw = String(a.ask || "corresponding").trim();
+    var kind = askRaw.toLowerCase();
+    var vlab = "?";
+    var mm2 = askRaw.match(/^(?:corresponding|alternate|cointerior|co-interior|vertical)\s*[:=]?\s*(.+)$/i);
+    if (mm2 && mm2[1]) vlab = mm2[1];
+    else if (askRaw && !/^(corresponding|alternate|cointerior|co-interior|vertical|\?|1|true)$/i.test(askRaw)) vlab = askRaw;
+    if (/^\d+(?:\.\d+)?$/.test(vlab)) vlab += "°";
+    if (/^vertical/.test(kind)) {
+      s += arcAt(P1, 180, 180 + deg, 26, RED) + labelAt(P1, 180, 180 + deg, 42, vlab, RED);
+    } else if (/^alternate/.test(kind)) {
+      s += arcAt(P2, 180, 180 + deg, 26, RED) + labelAt(P2, 180, 180 + deg, 42, vlab, RED);
+    } else if (/^co-?interior/.test(kind)) {
+      s += arcAt(P2, 180 + deg, 360, 26, RED) + labelAt(P2, 180 + deg, 360, 42, vlab, RED);
+    } else {   // corresponding (default): the same corner, one crossing down
+      s += arcAt(P2, 0, deg, 26, RED) + labelAt(P2, 0, deg, 42, vlab, RED);
+    }
+    s += dot(P1, 3) + dot(P2, 3);
+    return s + "</svg>";
+  }
+
+  // ---- [[polygon]] : a regular n-gon, optional side / interior-angle labels (build ot) ----
+  function polygon(a) {
+    var W = 300, H = 260;
+    var n = Math.max(3, Math.min(12, Math.round(num(a.sides != null ? a.sides : a.n, 5))));
+    var C = [150, 122], R = 88;
+    var P = [];
+    for (var i = 0; i < n; i++) {
+      var th = -Math.PI / 2 + i * 2 * Math.PI / n;   // a vertex at the top
+      P.push([C[0] + R * Math.cos(th), C[1] + R * Math.sin(th)]);
+    }
+    var s = open(W, H);
+    s += '<polygon points="' + P.map(function (p) { return p.join(","); }).join(" ") +
+      '" fill="' + FILL + '" stroke="' + ACC + '" stroke-width="2.5" stroke-linejoin="round"/>';
+    // side label on the LOWEST edge (reads like a base)
+    if (a.side) {
+      var bi = 0, by = -1;
+      for (var j = 0; j < n; j++) {
+        var m3 = mid(P[j], P[(j + 1) % n]);
+        if (m3[1] > by) { by = m3[1]; bi = j; }
+      }
+      var bm = mid(P[bi], P[(bi + 1) % n]);
+      s += txt(bm[0], bm[1] + 16, a.side, INK, 15, 700);
+    }
+    // interior-angle arc + label at the top vertex
+    if (a.angle) {
+      var v0 = P[0], u = norm(sub(P[1], v0)), v = norm(sub(P[n - 1], v0)), ar = 20;
+      var a1 = Math.atan2(u[1], u[0]), a2 = Math.atan2(v[1], v[0]);
+      var q1 = [v0[0] + ar * Math.cos(a1), v0[1] + ar * Math.sin(a1)];
+      var q2 = [v0[0] + ar * Math.cos(a2), v0[1] + ar * Math.sin(a2)];
+      s += '<path d="M ' + q1[0] + ' ' + q1[1] + ' A ' + ar + ' ' + ar + ' 0 0 1 ' +
+           q2[0] + ' ' + q2[1] + '" fill="none" stroke="' + TEAL + '" stroke-width="2"/>';
+      s += txt(v0[0], v0[1] + 34, String(a.angle).replace(/deg|°/i, "") + "°", TEAL, 13, 700);
+    }
+    if (a.name) s += txt(C[0], H - 14, a.name, "#6b6f82", 14, 700);
+    return s + "</svg>";
+  }
+
+  // ---- [[solid]] : schematic 3D solids with dashed hidden edges (build ot) ----
+  function solid(a) {
+    var kind = String(a.kind || a.shape || "prism").trim().toLowerCase();
+    var W = 320, H = 250, s = open(W, H);
+    var DASH = ' stroke-dasharray="5,5"';
+    function ln(p, q, hidden, col) {
+      return '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] +
+        '" stroke="' + (col || ACC) + '" stroke-width="2.3" stroke-linecap="round"' +
+        (hidden ? DASH + ' opacity="0.55"' : "") + "/>";
+    }
+    if (kind === "sphere") {
+      var C = [160, 120], R = 84;
+      s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="' + R + '" fill="' + FILL + '" stroke="' + ACC + '" stroke-width="2.5"/>';
+      s += '<path d="M ' + (C[0] - R) + ' ' + C[1] + ' A ' + R + ' ' + (R * 0.32) + ' 0 0 0 ' + (C[0] + R) + ' ' + C[1] + '" fill="none" stroke="' + ACC + '" stroke-width="1.8"/>';
+      s += '<path d="M ' + (C[0] - R) + ' ' + C[1] + ' A ' + R + ' ' + (R * 0.32) + ' 0 0 1 ' + (C[0] + R) + ' ' + C[1] + '" fill="none" stroke="' + ACC + '" stroke-width="1.6"' + DASH + ' opacity="0.55"/>';
+      if (a.r) { s += ln(C, [C[0] + R, C[1]], false, TEAL) + txt(C[0] + R / 2, C[1] - 12, a.r, INK, 14, 700); }
+    } else if (kind === "cylinder") {
+      var cx = 160, ry = 22, rx = 74, top = 62, bot = 188;
+      s += '<path d="M ' + (cx - rx) + ' ' + top + ' A ' + rx + ' ' + ry + ' 0 1 0 ' + (cx + rx) + ' ' + top + ' A ' + rx + ' ' + ry + ' 0 1 0 ' + (cx - rx) + ' ' + top + '" fill="' + FILL + '" stroke="' + ACC + '" stroke-width="2.3"/>';
+      s += ln([cx - rx, top], [cx - rx, bot]) + ln([cx + rx, top], [cx + rx, bot]);
+      s += '<path d="M ' + (cx - rx) + ' ' + bot + ' A ' + rx + ' ' + ry + ' 0 0 0 ' + (cx + rx) + ' ' + bot + '" fill="none" stroke="' + ACC + '" stroke-width="2.3"/>';
+      s += '<path d="M ' + (cx - rx) + ' ' + bot + ' A ' + rx + ' ' + ry + ' 0 0 1 ' + (cx + rx) + ' ' + bot + '" fill="none" stroke="' + ACC + '" stroke-width="1.8"' + DASH + ' opacity="0.55"/>';
+      if (a.r) { s += ln([cx, top], [cx + rx, top], false, TEAL) + txt(cx + rx / 2, top - 10, a.r, INK, 14, 700); }
+      if (a.h) { s += txt(cx + rx + 20, (top + bot) / 2, a.h, INK, 14, 700); }
+    } else if (kind === "cone") {
+      var cx2 = 160, ry2 = 22, rx2 = 76, base = 186, apex = [160, 48];
+      s += '<path d="M ' + (cx2 - rx2) + ' ' + base + ' A ' + rx2 + ' ' + ry2 + ' 0 0 0 ' + (cx2 + rx2) + ' ' + base + '" fill="' + FILL + '" stroke="' + ACC + '" stroke-width="2.3"/>';
+      s += '<path d="M ' + (cx2 - rx2) + ' ' + base + ' A ' + rx2 + ' ' + ry2 + ' 0 0 1 ' + (cx2 + rx2) + ' ' + base + '" fill="none" stroke="' + ACC + '" stroke-width="1.8"' + DASH + ' opacity="0.55"/>';
+      s += ln([cx2 - rx2, base], apex) + ln([cx2 + rx2, base], apex);
+      if (a.h) { s += ln([cx2, base], apex, true, TEAL) + txt(cx2 - 14, (base + apex[1]) / 2, a.h, INK, 14, 700); }
+      if (a.r) { s += ln([cx2, base], [cx2 + rx2, base], false, TEAL) + txt(cx2 + rx2 / 2, base + 16, a.r, INK, 14, 700); }
+    } else if (kind === "pyramid") {
+      var A2 = [70, 190], B2 = [210, 200], C2 = [258, 156], D2 = [122, 150], apex2 = [162, 46];
+      s += ln(A2, B2) + ln(B2, C2) + ln(C2, D2, true) + ln(D2, A2, true);
+      s += ln(A2, apex2) + ln(B2, apex2) + ln(C2, apex2) + ln(D2, apex2, true);
+      if (a.b) s += txt((A2[0] + B2[0]) / 2, 216, a.b, INK, 14, 700);
+      if (a.h) s += txt(apex2[0] + 16, 110, a.h, INK, 14, 700);
+    } else {   // cube / prism (rectangular box)
+      var isCube = (kind === "cube");
+      var bw2 = isCube ? 110 : 150, bh2 = isCube ? 110 : 92, off = isCube ? 44 : 46;
+      var x0 = 66, y0b = 196, F = [[x0, y0b - bh2], [x0 + bw2, y0b - bh2], [x0 + bw2, y0b], [x0, y0b]];
+      var B3 = F.map(function (p) { return [p[0] + off, p[1] - off * 0.72]; });
+      s += '<polygon points="' + F.map(function (p) { return p.join(","); }).join(" ") + '" fill="' + FILL + '" stroke="none"/>';
+      s += ln(F[0], F[1]) + ln(F[1], F[2]) + ln(F[2], F[3]) + ln(F[3], F[0]);
+      s += ln(B3[0], B3[1]) + ln(B3[1], B3[2], true) + ln(B3[2], B3[3], true) + ln(B3[3], B3[0]);
+      s += ln(F[0], B3[0]) + ln(F[1], B3[1]) + ln(F[2], B3[2]) + ln(F[3], B3[3], true);
+      var wlab = a.w || (isCube && a.side ? a.side : "");
+      if (wlab) s += txt((F[3][0] + F[2][0]) / 2, y0b + 16, wlab, INK, 14, 700);
+      if (a.d) s += txt(F[2][0] + off / 2 + 12, y0b - off * 0.36 + 4, a.d, INK, 14, 700);
+      if (a.h) s += txt(x0 - 16, y0b - bh2 / 2, a.h, INK, 14, 700);
+    }
+    return s + "</svg>";
+  }
+
   window.GeoFigures = {
     triangle: triangle, angle: angle, circle: circle,
+    transversal: transversal, polygon: polygon, solid: solid,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }
     }

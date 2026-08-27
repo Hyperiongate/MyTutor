@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (os) 2026-08-27 -- THE BOARD READS ONE, TWO, THREE. Jim: "it clearly says this is
+    one, then two, then three... and the student doesn't have to scroll around to find
+    it." NEW [[stepcard n="1" title="..."]] tag dispatched here -- a labeled Step-N card
+    joins a flex row that fills the board; every block after it (worklists, figures,
+    columns) lands INSIDE the card until the next [[stepcard]] or the end of the turn.
+    clearStepGrid() at turn start so an open card never captures the next turn; the
+    dispatcher resets curWork so a following [[step]] starts a fresh worklist in the
+    card. Machinery + CSS injection + full story in board.js's own change note.
     (oj) 2026-08-26 -- SIDE BY SIDE ON PURPOSE. Jim: "the whiteboard is underutilized...
     the bubble only goes about seventy or eighty percent across... they can move to the
     side." Two changes: (1) .feed .bubble max-width 80% -> 96%; (2) NEW [[beside]] tag
@@ -1136,6 +1144,7 @@
       clearChoices();                            // stale answer buttons never survive a new turn
       clearSpot();                               // build ee: a stale board spotlight never survives a new turn either
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
+      clearStepGrid();                           // build os: an open step card never captures the next turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
       const tagRe = /\[\[\s*([\w-]+)([^\]]*?)\]\]/g; let m;
       while ((m = tagRe.exec(text)) !== null) {
@@ -1143,7 +1152,7 @@
         if (name === "balance") showBalance(attrs);
         else if (name === "card") showCard(attrs);
         else if (name === "graph") showFig("graph", attrs);
-        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector"].indexOf(name) >= 0) showFig(name, attrs);
+        else if (["bars","histogram","dotplot","boxplot","scatter","normal","twoway","tree","pie","unitcircle","righttriangle","conic","numberline","areamodel","vector","venn","tape","clock"].indexOf(name) >= 0) showFig(name, attrs);
         else if (name === "machine") showMachine(attrs);
         else if (name === "step") showStep(attrs);
         else if (name === "highlight" && attrs.id) spotlightBoard(attrs.id);   // build ee: board spotlight (rule 60)
@@ -1154,10 +1163,11 @@
         else if (name === "quiz") showQuiz(attrs);
         else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
         else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
-        else if (name === "triangle" || name === "angle" || name === "circle") showGeo(name, attrs);
+        else if (["triangle","angle","circle","transversal","polygon","solid"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
         else if (name === "beside") armBeside();   /* build oj: the NEXT block joins the previous one side by side */
+        else if (name === "stepcard") { curWork = null; openStepCard(attrs); }   /* build os: a labeled Step-N card; following blocks land inside it */
         else if (name === "clear") wipeBoard();
       }
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.

@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27ot-the-figure-shelf". BUILDS or + os + ot
+#               (Jim's walk-away list, all front-end -- no route or API changed
+#               here; this note is the build stamp plus the map).
+#               or -- THE PAGE GETS SIMPLE (session.html + ordrive): the sidebar
+#               starts COLLAPSED behind an "Open the sidebar" edge tab; the face
+#               and the mic/Pause/Type controls move to a compact strip at the
+#               bottom of the board column (JS reparent, same ids -- phones keep
+#               dz's dock). The top progress chips are UNTOUCHED (Jim retracted
+#               that part himself: "let's leave that alone").
+#               os -- THE BOARD READS ONE, TWO, THREE (board.js + the three
+#               transcript pages + script-board.js + rule 58e + tags.py +
+#               stepdrive): NEW [[stepcard n= title=]] tag -- labeled Step-N
+#               cards side by side filling the board; blocks after a stepcard
+#               land inside it until the next one or turn end.
+#               ot -- THE FIGURE SHELF GROWS (geo-figures.js, math-figures.js,
+#               tags.py, prompts.py per-course docs + figdrive): transversal
+#               (the crossed parallel-lines picture), polygon, solid, venn,
+#               tape, clock, and numberline hops=.
 #   2026-08-27  APP_BUILD -> "2026-08-27oq-the-raised-hand". BUILD oq -- Jim's
 #               expansion order ("I'm satisfied with unit one. Start expanding").
 #               (1) NEW POST /api/script/ask: a child mid-script types a
@@ -12074,7 +12092,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27oq-the-raised-hand"
+APP_BUILD = "2026-08-27ot-the-figure-shelf"
 
 
 @app.get("/health")

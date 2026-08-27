@@ -2,6 +2,22 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-27  BUILD ot -- THE FIGURE SHELF GROWS (Jim: "I want all the graphics
+                 that math teaches to be available"). Three new figures + one new
+                 attribute:
+                   [[venn left=".." right=".." a="2,4" both="6" b="3,9"]] -- a
+                     two-circle Venn diagram, items shown verbatim per region.
+                   [[tape parts="4 | 4 | ?" total="12" label=".."]] -- a tape
+                     diagram / bar model (numeric parts get proportional widths,
+                     "?" shares evenly; the total bracketed above in red).
+                   [[clock time="3:30"]] -- an analog clock face, honest hands
+                     (the hour hand advances with the minutes).
+                   [[numberline hops="2,5,8,11"]] -- counting arcs between
+                     consecutive landing points, each labeled its own jump
+                     (+3 / -2), dots at the landings; composes with points=,
+                     open=, ineq= and range= exactly as before.
+                 Companion geometry figures (transversal, polygon, solid) landed
+                 in geo-figures.js the same build.
      2026-08-26  BUILD ol -- the bar chart's display cap 400 -> 720px (Jim's flag:
                  "tiny and takes up about 15% of the space available"). Same move
                  as nw's number line below: viewBox and geometry untouched, the
@@ -902,6 +918,119 @@
     }
     parseNums(a.points).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#e0392b"/>'; });
     parseNums(a.open).forEach(function (v) { s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="6" fill="#fff" stroke="#e0392b" stroke-width="2.5"/>'; });
+    // (ot, 2026-08-27) hops="2,5,8,11": COUNTING ARCS between consecutive landing
+    // points, each labeled with its own jump (+3, -2). The child SEES the skip-count
+    // or the count-back happen instead of imagining it. Landing points get dots too.
+    var hops = parseNums(a.hops);
+    if (hops.length >= 2) {
+      hops.forEach(function (v) {
+        if (v >= min && v <= max) s += '<circle cx="' + mapX(v) + '" cy="' + axisY + '" r="4" fill="#e0392b"/>';
+      });
+      for (var hi = 0; hi + 1 < hops.length; hi++) {
+        var hx1 = mapX(hops[hi]), hx2 = mapX(hops[hi + 1]);
+        if (!isFinite(hx1) || !isFinite(hx2) || Math.abs(hx2 - hx1) < 3) continue;
+        var hmx = (hx1 + hx2) / 2, lift = Math.min(34, 14 + Math.abs(hx2 - hx1) * 0.16);
+        s += '<path d="M ' + hx1 + ' ' + (axisY - 7) + ' Q ' + hmx + ' ' + (axisY - 7 - lift) +
+             ' ' + hx2 + ' ' + (axisY - 7) + '" fill="none" stroke="#e0392b" stroke-width="2.2"/>';
+        var hd = hx2 > hx1 ? 1 : -1;
+        s += '<path d="M ' + hx2 + ' ' + (axisY - 6) + ' l ' + (-8 * hd) + ' -6 l ' + (3 * hd) +
+             ' 8 z" fill="#e0392b"/>';
+        var jump = trimnum(hops[hi + 1] - hops[hi]);
+        s += tspan(hmx, axisY - 13 - lift, (jump >= 0 ? "+" : "") + jump, "#e0392b", 12, 800);
+      }
+    }
+    return s + "</svg>";
+  }
+
+  // ---- [[venn left="Multiples of 2" right="Multiples of 3" a="2,4,8" both="6,12" b="3,9"]] ----
+  // (ot, 2026-08-27) A two-circle Venn diagram: a = left-only items, b = right-only,
+  // both = the overlap. Items are shown verbatim (numbers or short words), up to six
+  // per region; left/right name the circles.
+  function venn(a) {
+    var W = 440, H = 270, R = 96, LC = [162, 150], RC = [278, 150];
+    var A = String(a.a || a.left_items || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6);
+    var B = String(a.b || a.right_items || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6);
+    var BOTH = String(a.both || a.overlap || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6);
+    var s = svgOpen(W, H, 480);
+    s += '<circle cx="' + LC[0] + '" cy="' + LC[1] + '" r="' + R + '" fill="rgba(91,91,214,.10)" stroke="#5b5bd6" stroke-width="2.5"/>';
+    s += '<circle cx="' + RC[0] + '" cy="' + RC[1] + '" r="' + R + '" fill="rgba(13,148,136,.10)" stroke="#0d9488" stroke-width="2.5"/>';
+    if (a.left) s += tspan(LC[0] - 34, 32, a.left, "#5b5bd6", 14, 800);
+    if (a.right) s += tspan(RC[0] + 34, 32, a.right, "#0d9488", 14, 800);
+    function stack(items, cx, col) {
+      var y0 = 150 - (items.length - 1) * 11;
+      items.forEach(function (it, i) { s += tspan(cx, y0 + i * 22, it, col, 14, 700); });
+    }
+    stack(A, LC[0] - 44, "#26263a");
+    stack(BOTH, (LC[0] + RC[0]) / 2, "#26263a");
+    stack(B, RC[0] + 44, "#26263a");
+    return s + "</svg>";
+  }
+
+  // ---- [[tape parts="4 | 4 | ?" total="12" label="three equal groups"]] ----
+  // (ot, 2026-08-27) A tape diagram / bar model: the bar is split into parts (numeric
+  // parts get proportional widths; a "?" part shares the space evenly), with the total
+  // bracketed above. THE picture for part-part-whole, equal groups, and ratio problems.
+  function tape(a) {
+    var parts = String(a.parts || a.segments || "").split("|").map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 10);
+    if (!parts.length) return "";
+    var W = 560, H = a.total ? 158 : 118, x0 = 30, bw = W - 60, y0 = a.total ? 62 : 28, bh = 48;
+    var vals = parts.map(function (p) { return parseFloat(p); });
+    var known = vals.filter(function (v) { return isFinite(v) && v > 0; });
+    var widths;
+    if (known.length === parts.length && known.length) {
+      var sum = known.reduce(function (t, v) { return t + v; }, 0);
+      widths = vals.map(function (v) { return Math.max(36, v / sum * bw); });
+      var wsum = widths.reduce(function (t, v) { return t + v; }, 0);
+      widths = widths.map(function (w) { return w / wsum * bw; });
+    } else {
+      widths = parts.map(function () { return bw / parts.length; });
+    }
+    var fills = ["rgba(91,91,214,.16)", "rgba(13,148,136,.16)", "rgba(217,119,6,.14)"];
+    var s = svgOpen(W, H, 640), xx = x0;
+    parts.forEach(function (p, i) {
+      s += '<rect x="' + xx + '" y="' + y0 + '" width="' + widths[i] + '" height="' + bh +
+           '" fill="' + fills[i % fills.length] + '" stroke="#5b5bd6" stroke-width="1.8"/>';
+      s += tspan(xx + widths[i] / 2, y0 + bh / 2 + 6, p, "#26263a", 18, 800);
+      xx += widths[i];
+    });
+    if (a.total) {   // the whole, bracketed above the bar
+      var by = y0 - 14;
+      s += '<path d="M ' + x0 + ' ' + (by + 8) + ' L ' + x0 + ' ' + by + ' L ' + (x0 + bw) + ' ' + by +
+           ' L ' + (x0 + bw) + ' ' + (by + 8) + '" fill="none" stroke="#e0392b" stroke-width="2"/>';
+      s += tspan(x0 + bw / 2, by - 8, String(a.total), "#e0392b", 15, 800);
+    }
+    if (a.label) s += tspan(x0 + bw / 2, y0 + bh + 26, a.label, "#556", 13, 700);
+    return s + "</svg>";
+  }
+
+  // ---- [[clock time="3:30"]] : an analog clock face (ot, 2026-08-27) ----
+  // The time-telling picture the Entry course teaches from: numbered face, a short
+  // hour hand and a long minute hand, both placed honestly (the hour hand advances
+  // with the minutes, the way a real clock does).
+  function clock(a) {
+    var m = String(a.time || a.t || "").match(/(\d{1,2})\s*[:.]\s*(\d{1,2})/);
+    var hh = m ? (parseInt(m[1], 10) % 12) : (num(a.h, 3) % 12);
+    var mm = m ? Math.min(59, parseInt(m[2], 10)) : Math.min(59, num(a.m, 0));
+    var W = 270, H = 270, C = [135, 135], R = 112;
+    var s = svgOpen(W, H, 300);
+    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="' + R + '" fill="#fbfbff" stroke="#5b5bd6" stroke-width="3"/>';
+    for (var i = 0; i < 60; i++) {
+      var big = i % 5 === 0, th = i * 6 * Math.PI / 180;
+      var r1 = R - (big ? 10 : 5), r2 = R - 2;
+      s += '<line x1="' + (C[0] + r1 * Math.sin(th)) + '" y1="' + (C[1] - r1 * Math.cos(th)) +
+           '" x2="' + (C[0] + r2 * Math.sin(th)) + '" y2="' + (C[1] - r2 * Math.cos(th)) +
+           '" stroke="' + (big ? "#5b5bd6" : "#c8d0da") + '" stroke-width="' + (big ? 2.4 : 1.2) + '"/>';
+    }
+    for (var k = 1; k <= 12; k++) {
+      var tk = k * 30 * Math.PI / 180, rr = R - 26;
+      s += tspan(C[0] + rr * Math.sin(tk), C[1] - rr * Math.cos(tk) + 6, String(k), "#26263a", 17, 800);
+    }
+    var ha = (hh * 30 + mm * 0.5) * Math.PI / 180, ma = mm * 6 * Math.PI / 180;
+    s += '<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + (C[0] + 52 * Math.sin(ha)) +
+         '" y2="' + (C[1] - 52 * Math.cos(ha)) + '" stroke="#26263a" stroke-width="6.5" stroke-linecap="round"/>';
+    s += '<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + (C[0] + 82 * Math.sin(ma)) +
+         '" y2="' + (C[1] - 82 * Math.cos(ma)) + '" stroke="#e0392b" stroke-width="4" stroke-linecap="round"/>';
+    s += '<circle cx="' + C[0] + '" cy="' + C[1] + '" r="5" fill="#26263a"/>';
     return s + "</svg>";
   }
 
@@ -984,6 +1113,7 @@
     scatter: scatter, normal: normal, twoway: twoway, tree: tree, pie: pie,
     unitcircle: unitcircle, righttriangle: righttriangle, conic: conic,
     numberline: numberline, areamodel: areamodel, vector: vector,
+    venn: venn, tape: tape, clock: clock,
     _compile: compile,
     svg: function (kind, a) {
       try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }

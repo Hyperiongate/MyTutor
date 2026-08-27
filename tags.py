@@ -2,6 +2,21 @@
 # tags.py  --  THE TAG GRAMMAR, ONE COPY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD ot -- THE FIGURE SHELF GROWS: six new figure tags join
+#               FIGURE_TAGS. geo-figures.js: transversal (parallel lines cut by
+#               a transversal -- the crossed-lines picture), polygon (regular
+#               n-gon), solid (cube/prism/cylinder/cone/sphere/pyramid, dashed
+#               hidden edges). math-figures.js: venn (two-circle diagram), tape
+#               (tape diagram / bar model), clock (analog face). numberline also
+#               gained hops= (counting arcs) -- an attribute, not a new tag.
+#               venn and tape join CONTENT_ATTRS (they render empty without
+#               their data); the other four draw sensible defaults bare.
+#   2026-08-27  BUILD os -- [[stepcard]] joins TAG_INLINE (n= and title=; rendered
+#               by board.js openStepCard, not a page show* function): a labeled
+#               "Step N" card in a row that fills the board; every block after it
+#               lands INSIDE the card until the next [[stepcard]] or turn end.
+#               Registered here the moment the pages learned it, per this file's
+#               design.
 #   2026-08-26  BUILD oj -- [[beside]] joins TAG_INLINE (attribute-free, draws
 #               nothing itself): it arms board.js's mountBlock so the NEXT board
 #               block lands NEXT TO the previous one (side-by-side comparison,
@@ -46,6 +61,9 @@ FIGURE_TAGS = (
     "normal", "twoway", "tree", "pie", "unitcircle", "righttriangle", "conic",
     "areamodel", "vector", "triangle", "angle", "circle", "objects", "machine",
     "balance",
+    # build ot (2026-08-27): the figure shelf grows -- Jim: "I want all the
+    # graphics that math teaches to be available."
+    "transversal", "polygon", "solid", "venn", "tape", "clock",
 )
 
 # ---- WRITING: tags that put words/equations on the board -------------------------
@@ -59,7 +77,10 @@ STEP_TAGS = ("step", "write", "solve")
 # (tutor.py's rule-7 "a picture was promised" referee keys on this.)
 BOARD_TAGS = FIGURE_TAGS + ("write", "step", "solve", "column", "card", "check",
                             "quiz", "goal", "today", "unitplan", "finalexam",
-                            "choices", "highlight")
+                            "choices", "highlight",
+                            # build os: the labeled Step-N card (rule 58e) -- on the
+                            # board like highlight/goal, but not a figure or a line.
+                            "stepcard")
 
 # ---- CONTENT tags: board material a teaching turn can consist of -----------------
 # Rule 15's pending-question referee asks "is there a worked line on the board for
@@ -96,6 +117,10 @@ TAG_INLINE = {
     # mountBlock (board.js) so the next board block joins the previous one in a
     # side-by-side row (rule 58d: comparing two ways, an equation and its picture).
     "beside": set(),
+    # build os: [[stepcard n="1" title="..."]] opens a labeled "Step N" card
+    # (rule 58e: a numbered multi-step demonstration fills the whole board);
+    # following blocks land inside the card. Rendered by board.js openStepCard.
+    "stepcard": {"n", "title"},
 }
 
 # ---- UNITPLAN: the one pattern for reading the declared unit out of the tag ------
@@ -117,6 +142,10 @@ CONTENT_ATTRS = {
     "vector": {"v", "vectors"}, "conic": {"type"}, "areamodel": {"rows", "cols"},
     "objects": {"n", "groups"}, "card": {"items", "id"},
     "write": {"text", "lines"}, "solve": {"start", "top"},
+    # build ot: a venn or tape with no data draws an empty shell; the other new
+    # figures (transversal/polygon/solid/clock) draw sensible defaults bare.
+    "venn": {"a", "b", "both", "left", "right"},
+    "tape": {"parts", "segments", "total"},
 }
 
 # I did no harm and this file is not truncated.
