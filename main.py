@@ -2,6 +2,22 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27oy-the-day-you-can-feel". BUILD oy -- Jim:
+#               "the progress bar for the daily progress needs to be more specific
+#               ... as we go lesson by lesson by lesson we should see progress
+#               being attained, not just in big chunks ... so I feel like I'm
+#               getting something done." Two different faults, two answers, both
+#               lanes: (1) the bar never SAID what today was -- both lanes now name
+#               the work in words (what is being worked on now, what is still to
+#               come); (2) a goal was all-or-nothing -- segments now FILL as work
+#               happens, driven by [[nice]] and [[mark]], the two signals the tutor
+#               already sends. The fast lane gains a day strip: one segment per
+#               lesson, the current one filling as answers land.
+#               ⭐ THE HONESTY RULE: partial fill NEVER reaches 100. Only a real
+#               [[todaydone]] tick, or the lesson's own end beat, completes a
+#               segment -- the bar may encourage, it may never claim work that did
+#               not happen. Front-end only; this file carries the stamp.
+#               PART 3fd; the oy drive proves both lanes.
 #   2026-08-27  APP_BUILD -> "2026-08-27ox-the-seventh-flag-harvest". BUILD ox --
 #               seven live flags, three of them the SAME defect flagged three
 #               times in three minutes. NEW REFEREES 56/57/58, each swept against
@@ -12323,7 +12339,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27ox-the-seventh-flag-harvest"
+APP_BUILD = "2026-08-27oy-the-day-you-can-feel"
 
 
 @app.get("/health")

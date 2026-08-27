@@ -1368,6 +1368,21 @@
     /* build il: a tick EARNED by honest work-time (kind="worked") — filled, but
        softer than a completed one, with a dashed edge that says "work went in". */
     .pbar .pbseg.worked { background: linear-gradient(90deg, #a9c1f4, #c4b3ee); border: 1px dashed var(--accent); }
+    /* build oy (2026-08-27, Jim): "as we go through lesson by lesson by lesson, we
+       should see progress being attained, not just in big chunks... so I feel like
+       I'm getting something done." A goal segment is no longer all-or-nothing: it
+       FILLS as the work inside it happens. The fill is a child of the segment so
+       the done/worked/gold rules above are untouched -- an empty fill is invisible
+       and a finished segment is painted by its own class exactly as before. */
+    .pbar .pbseg { position: relative; overflow: hidden; }
+    .pbar .pbseg > i { position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: .55; border-radius: 4px; transition: width .35s ease; }
+    .pbar .pbseg.done > i, .pbar .pbseg.worked > i, .pbar .pbseg.gold > i { display: none; }
+    /* the plain-language line under the bar: what today IS, and where you are in it */
+    .pbnow { font-size: 12px; font-weight: 700; color: var(--ink); margin: 2px 0 0 58px;
+      line-height: 1.35; }
+    .pbnow .pbnow-l { color: var(--muted); font-weight: 700; }
     .pbar .pbmark { flex: 0 0 auto; font-size: 11px; line-height: 1; opacity: .85; }
     .pbar .pbmark.done { opacity: 1; }
     .pbar .pbcap { flex: 0 0 auto; font-size: 14px; line-height: 1; }
@@ -1661,6 +1676,8 @@
            gold when mastered, ending at the 🎓 Final Exam. -->
       <div class="pbars" id="pbars">
         <div class="pbar" id="todayBar"><span class="pbl">Today</span><div class="pbtrack" id="todayTrack"></div><span class="pbt" id="todayText"></span></div>
+        <!-- build oy: today, in words. The segments show HOW FAR; this says WHAT. -->
+        <div class="pbnow" id="todayNow"></div>
         <div class="pbar" id="unitBar"><span class="pbl" id="unitBarLabel">Unit</span><div class="pbtrack" id="unitTrack"></div><span class="pbt" id="unitText"></span></div>
         <div class="pbar" id="courseBar"><span class="pbl">Course</span><div class="pbtrack" id="courseTrack"></div><span class="pbt" id="courseText"></span></div>
       </div>
@@ -2501,8 +2518,8 @@
         else if (name === "todaydone") markTodayDone(attrs);
         else if (name === "unitplan") showUnitPlan(attrs);
         else if (name === "finalexam") showFinalExam(attrs);
-        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); sawMark = true; }   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
-        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); }   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
+        else if (name === "mark") { const _c = (parseInt(attrs.correct, 10) || 0); postJSON("/api/mark/me", { correct: _c, attempted: (parseInt(attrs.attempted, 10) || 1) }); if (_c > 0 && window.TutorFace && TutorFace.celebrate) TutorFace.celebrate(); if (_c > 0) bumpTodayProgress(2); sawMark = true; }   /* build oy: a finished problem is worth two nudges */   /* build er: a FINISHED problem earns the full celebration; build fy: and it ARMS the fold */
+        else if (name === "nice") { if (window.TutorFace && TutorFace.celebrate) TutorFace.celebrate({ small: true }); bumpTodayProgress(1); }   /* build oy: and the day's bar moves */   /* build et: a correct answer ALONG THE WAY earns the quiet ring -- no tally, no server call */
         else if (["triangle","angle","circle","transversal","polygon","solid","segment"].indexOf(name) >= 0) showGeo(name, attrs);   /* build ot: +transversal/polygon/solid */
         else if (name === "choices") showChoices(attrs);
         else if (name === "objects") showObjects(attrs);
@@ -2682,12 +2699,29 @@
     // and the 🏁 Unit Quiz cap; passed quizzes light live from [[quiz]] tags + server history.
     // COURSE: nine units, gold when mastered, ending at the 🎓 Final Exam cap.
     let TODAY_ITEMS = [], TODAY_DONE = [];
+    // build oy: PARTIAL credit inside the goal you are working on now. Jim: "we
+    // should see progress being attained, not just in big chunks." Every correct
+    // answer ([[nice]]) and every finished problem ([[mark]]) nudges the CURRENT
+    // goal's segment forward. It never reaches 100 on its own -- only the real
+    // [[todaydone]] tick fills a segment -- so the bar can encourage without ever
+    // lying about what was actually finished.
+    let TODAY_STEP = [];
+    const TODAY_STEPS_PER_GOAL = 5;      // five visible nudges before a goal completes
     let UNIT_PLAN = { unit: 0, topics: [] };
     let SRV_PROGRESS = null;                       // /api/session's `progress` object
     const LIVE_TOPIC_PASSES = {};                  // unit -> count of topic quizzes passed live
     const LIVE_MASTERED = new Set();               // units mastered live this session
     function splitItems(s) { return String(s || "").split("|").map(x => x.trim()).filter(Boolean).slice(0, 8); }
-    function seg(cls, tip) { const d = document.createElement("div"); d.className = "pbseg" + (cls ? " " + cls : ""); if (tip) d.title = tip; return d; }
+    function seg(cls, tip, fillPct) {
+      const d = document.createElement("div"); d.className = "pbseg" + (cls ? " " + cls : "");
+      if (tip) d.title = tip;
+      // build oy: the partial fill. Always appended (invisible at 0), so a segment
+      // that later earns progress does not need re-building.
+      const f = document.createElement("i");
+      f.style.width = Math.max(0, Math.min(100, fillPct || 0)) + "%";
+      d.appendChild(f);
+      return d;
+    }
     function mark(txt, done, tip) { const s = document.createElement("span"); s.className = "pbmark" + (done ? " done" : ""); s.textContent = txt; if (tip) s.title = tip; return s; }
     function showBars() { el("pbars").classList.add("show"); revealChip("pbars"); }
 
@@ -2695,7 +2729,10 @@
       const items = splitItems(a.items);
       if (!items.length) return;
       // Re-emitting resets only if the items changed (a new day’s plan); done marks survive re-renders.
-      if (items.join("|") !== TODAY_ITEMS.join("|")) { TODAY_ITEMS = items; TODAY_DONE = items.map(() => false); }
+      if (items.join("|") !== TODAY_ITEMS.join("|")) {
+        TODAY_ITEMS = items; TODAY_DONE = items.map(() => false);
+        TODAY_STEP = items.map(() => 0);        // build oy: a new plan starts empty
+      }
       renderTodayBar();
     }
     function markTodayDone(a) {
@@ -2711,17 +2748,55 @@
         chipPulse("pbars");   // build iq: a tick behind a closed panel still gets noticed
       }
     }
+    // build oy: one nudge of visible progress on the goal currently being worked.
+    // Called by [[nice]] (a correct answer along the way) and [[mark]] (a finished
+    // problem) -- the two signals the tutor already sends on every piece of real
+    // work, so nothing new has to be emitted for the bar to move.
+    function bumpTodayProgress(weight) {
+      if (!TODAY_ITEMS.length) return;
+      let i = TODAY_DONE.findIndex(d => !d);
+      if (i < 0) return;                              // every goal already finished
+      while (TODAY_STEP.length < TODAY_ITEMS.length) TODAY_STEP.push(0);
+      TODAY_STEP[i] = Math.min(TODAY_STEPS_PER_GOAL - 1,
+                               (TODAY_STEP[i] || 0) + (weight || 1));
+      renderTodayBar();
+      chipPulse("pbars");     // build iq: movement behind a closed panel still shows
+    }
+
     function renderTodayBar() {
       if (!TODAY_ITEMS.length) return;
       const t = el("todayTrack"); t.innerHTML = "";
       TODAY_ITEMS.forEach((item, i) => t.appendChild(seg(
         TODAY_DONE[i] === "worked" ? "worked" : (TODAY_DONE[i] ? "done" : ""),
         item + (TODAY_DONE[i] === "worked" ? " — real work went into this one!"
-               : (TODAY_DONE[i] ? " — finished!" : "")))));
+               : (TODAY_DONE[i] ? " — finished!" : "")),
+        // build oy: how far into THIS goal the work has got
+        ((TODAY_STEP[i] || 0) / TODAY_STEPS_PER_GOAL) * 100)));
       const done = TODAY_DONE.filter(Boolean).length;
       el("todayText").textContent = done >= TODAY_ITEMS.length
         ? "🎉 All of today's goals — done!"
         : done + " of " + TODAY_ITEMS.length + " goals done";
+      // build oy: SAY WHAT TODAY IS, in words, under the bar. Jim: "This is what
+      // you need to accomplish today." A row of coloured segments is a picture of
+      // progress; it never told him what the work actually was.
+      try {
+        const now = el("todayNow");
+        if (now) {
+          const at = TODAY_DONE.findIndex(d => !d);
+          if (at < 0) {
+            now.innerHTML = '<span class="pbnow-l">Today:</span> every goal done — '
+              + TODAY_ITEMS.length + ' of ' + TODAY_ITEMS.length + ' 🎉';
+          } else {
+            const rest = TODAY_ITEMS.slice(at + 1);
+            now.innerHTML = '<span class="pbnow-l">Working on now:</span> '
+              + escapeHTML(TODAY_ITEMS[at])
+              + ' <span class="pbnow-l">(goal ' + (at + 1) + ' of '
+              + TODAY_ITEMS.length + ')</span>'
+              + (rest.length ? '<br><span class="pbnow-l">Still to come today:</span> '
+                               + escapeHTML(rest.join(" · ")) : "");
+          }
+        }
+      } catch (e) {}
       // build iq: the closed chip still tells the score at a glance.
       el("progChipCt").textContent = done + "/" + TODAY_ITEMS.length;
       // build bj: this render REPLACES any tour-preview placeholder — drop the flag.

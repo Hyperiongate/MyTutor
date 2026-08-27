@@ -251,6 +251,19 @@
     border-radius:12px;padding:11px 16px;font:inherit;font-weight:800;cursor:pointer}
   .talkbtn.recording{background:#e0392b;border-color:#c0392b;color:#fff}
   .talkbtn:disabled{opacity:.45;cursor:default}
+  /* (oy) the day strip */
+  .daybar{margin:0 0 12px}
+  .daybar[hidden]{display:none}
+  .dayline{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .dayline b{color:var(--purple)}
+  .dayline .dim{color:var(--muted);font-weight:700}
+  .daytrack{display:flex;gap:4px;align-items:center}
+  .dayseg{flex:1;height:10px;border-radius:6px;background:#fff;border:1.5px solid #d9d7ee;
+    position:relative;overflow:hidden;min-width:8px}
+  .dayseg > i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;
+    background:linear-gradient(90deg,var(--purple),#14b8a6);opacity:.55;transition:width .35s ease}
+  .dayseg.done{background:linear-gradient(90deg,var(--purple),#14b8a6);border-color:transparent}
+  .dayseg.done > i{display:none}
   /* (ov) the quiz score card -- drawn, never spoken (see the closure note) */
   .qcard{max-width:340px;margin:10px auto;padding:20px 24px;border-radius:18px;text-align:center}
   .qcard.pass{background:#e9f9f0;border:2px solid #b6e6cd}
@@ -288,6 +301,14 @@
   </div>
 
   <div class="card hide" id="stage">
+    <!-- (oy) THE DAY, LESSON BY LESSON. Jim: "as we go through lesson by lesson by
+         lesson, we should see progress at being attained, not just in big chunks...
+         so I feel like I'm getting something done." One segment per lesson in this
+         slice; the one being worked fills as problems are answered. -->
+    <div class="daybar" id="dayBar" hidden>
+      <div class="dayline" id="dayLine"></div>
+      <div class="daytrack" id="dayTrack"></div>
+    </div>
     <div id="bubble"></div>
     <div id="board"></div>
     <div id="controls"></div>
@@ -416,6 +437,7 @@
     try { warmUpAudio(); } catch (e) {}
     post("/api/script/start", { code: CODE, lesson: lessonId }, function (j) {
       CURRENT_ID = j.id || lessonId || (LESSONLIST[0] && LESSONLIST[0].id) || null;
+      LESSON_STEP = 0; renderDay();          // (oy) a new lesson, a fresh segment
       var cur = null;
       for (var ci = 0; ci < LESSONLIST.length; ci++) {
         if (LESSONLIST[ci].id === CURRENT_ID) { cur = LESSONLIST[ci]; break; }
@@ -438,6 +460,12 @@
   var LESSONLIST = [];      // the ordered lessons list (kd: next-lesson flow)
   window.COURSE = "";       // the CURRENT lesson's course, for the 🚩 flag body
   var CURRENT_ID = null;    // which lesson this session is playing
+  // (oy) THE DAY STRIP. DONE_IDS are the lessons finished in THIS sitting; STEP is
+  // how far into the current one the work has got. Progress you can watch move --
+  // every answered problem nudges it, not just the end of a lesson.
+  var DONE_IDS = {};
+  var LESSON_STEP = 0;
+  var LESSON_STEPS = 6;     // nudges before a lesson's own end beat fills it
   fetch("/api/script/lessons").then(function (r) { return r.json(); })
     .then(function (j) {
       LESSONLIST = j.lessons || [];
@@ -478,6 +506,37 @@
   // (it exits instantly for everyone without the owner key) and quotes the div
   // at tap time; innerHTML replacement removes the button, so re-attach after
   // every render.
+  // (oy) draw the day: one segment per lesson in this slice, the current one
+  // partially filled, and a plain sentence saying where you are and what is left.
+  function renderDay() {
+    var bar = $("dayBar");
+    if (!bar || !LESSONLIST.length || !CURRENT_ID) { if (bar) bar.hidden = true; return; }
+    bar.hidden = false;
+    var at = -1;
+    for (var i = 0; i < LESSONLIST.length; i++) if (LESSONLIST[i].id === CURRENT_ID) at = i;
+    var track = $("dayTrack"); track.innerHTML = "";
+    LESSONLIST.forEach(function (les, i) {
+      var d = document.createElement("div");
+      d.className = "dayseg" + (DONE_IDS[les.id] ? " done" : "");
+      d.title = les.topic + (DONE_IDS[les.id] ? " — done!" : "");
+      var f = document.createElement("i");
+      f.style.width = (i === at && !DONE_IDS[les.id])
+        ? Math.min(95, (LESSON_STEP / LESSON_STEPS) * 100) + "%" : "0%";
+      d.appendChild(f);
+      track.appendChild(d);
+    });
+    var done = 0;
+    LESSONLIST.forEach(function (l) { if (DONE_IDS[l.id]) done++; });
+    var rest = LESSONLIST.slice(at + 1).map(function (l) { return l.topic; });
+    $("dayLine").innerHTML =
+      '<span class="dim">Now:</span> <b>' + esc(LESSONLIST[at] ? LESSONLIST[at].topic : "")
+      + '</b> <span class="dim">(lesson ' + (at + 1) + ' of ' + LESSONLIST.length
+      + (done ? ' &middot; ' + done + ' finished today' : '') + ')</span>'
+      + (rest.length ? '<br><span class="dim">Next up:</span> ' + esc(rest.slice(0, 3).join(" · "))
+                       + (rest.length > 3 ? ' …' : '') : '');
+  }
+  function bumpLesson() { LESSON_STEP += 1; renderDay(); }
+
   function flagBubble() {
     try {
       if (typeof ownerFlagAttach === "function"
@@ -664,6 +723,9 @@
       return;
     }
     if (step.kind === "end") {
+      // (oy) the segment is FULL only when the lesson actually ended -- the partial
+      // fill encourages, the tick tells the truth.
+      if (CURRENT_ID) { DONE_IDS[CURRENT_ID] = true; renderDay(); }
       ctl.innerHTML = "";
       $("bubble").innerHTML = (step.mastered ? '<span class="confetti">🎉</span> ' : "")
         + styleTerms(step.spoken || "");
@@ -850,6 +912,7 @@
     var ctl = $("controls");
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
     if (QUIZ_ON) { quizAnswer(null, text, ctl); return; }   // (ov) one bar, two graders
+    bumpLesson();                            // (oy) a typed answer counts the same
     post("/api/script/answer", { code: CODE, said: text }, function (j) {
       current = null;
       hideAnswerBar();
@@ -903,6 +966,7 @@
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
     hideAnswerBar();
+    bumpLesson();                            // (oy) the day strip moves on every answer
     post("/api/script/answer", { code: CODE, value: value }, function (j) {
       current = null;
       ingest(j.steps);

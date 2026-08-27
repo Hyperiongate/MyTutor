@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD oy -- PART 3fd: the day you can feel (partial goal fill on
+#               both lanes, today stated in words, and the honesty rule that a
+#               partial fill can never reach 100).
 #   2026-08-27  BUILD ox -- PART 3fc: the seventh flag harvest (referees 56/57/58,
 #               the [[segment]] figure, the bigger number line, and the server's
 #               session-length note). Also THREE PIN REPAIRS this build earned:
@@ -12892,6 +12895,78 @@ def part3fc_seventh_flag_harvest():
           "build cm's law: per-turn information belongs next to the message")
 
 
+def part3fd_the_day_you_can_feel():
+    """PART 3fd (build oy, 2026-08-27) -- THE DAY YOU CAN FEEL.
+
+    Jim: "the progress bar for the daily progress needs to be more specific. This
+    is what you need to accomplish today. And as we go through lesson by lesson by
+    lesson, we should see progress at being attained, not just in big chunks -- you
+    finished the quiz, then we'll go to the next section... It needs to be more
+    detailed, so I feel like I'm getting something done."
+
+    TWO COMPLAINTS, and they need different answers:
+      (1) IT DOESN'T SAY WHAT TODAY IS. A row of coloured segments is a picture of
+          progress that never names the work. Both lanes now say it in words --
+          what is being worked on now, and what is still to come.
+      (2) IT ONLY MOVES IN BIG CHUNKS. A goal segment was all-or-nothing, so
+          nothing visible happened between one tick and the next. Segments now
+          FILL as the work inside them happens -- every correct answer.
+
+    ⭐ THE HONESTY RULE, and it is the whole reason this is safe: partial fill
+    NEVER reaches 100%. Only the real [[todaydone]] tick (session) or the lesson's
+    own end beat (fast lane) completes a segment. The bar may encourage; it may
+    never claim something was finished that was not."""
+    print("\nPART 3fd — the day you can feel (build oy)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    sfull = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    ssrc = code_only(sfull)
+    pfull = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    psrc = code_only(pfull)
+
+    # ---- the session lane ----
+    check("⭐ a goal segment can be PARTLY full",
+          ".pbar .pbseg > i {" in sfull and "function seg(cls, tip, fillPct)" in ssrc,
+          "all-or-nothing segments are exactly the 'big chunks' Jim named")
+    check("⭐ the partial fill is capped BELOW a finished goal",
+          "TODAY_STEPS_PER_GOAL - 1" in ssrc,
+          "a bar that reaches 100% on encouragement alone is lying about the work")
+    check("  ...and a finished segment paints itself, ignoring the fill",
+          ".pbar .pbseg.done > i, .pbar .pbseg.worked > i, .pbar .pbseg.gold > i { display: none; }"
+          in sfull,
+          "do no harm: the done/worked/gold looks from il and bj are untouched")
+    check("⭐ the two signals the tutor ALREADY sends drive it",
+          "bumpTodayProgress(1); }" in ssrc and "bumpTodayProgress(2);" in ssrc,
+          "[[nice]] and [[mark]] ride every piece of real work -- nothing new has "
+          "to be emitted for the bar to move")
+    check("⭐ today is stated in WORDS, not just colour",
+          'id="todayNow"' in sfull and "Working on now:" in ssrc
+          and "Still to come today:" in ssrc,
+          "'This is what you need to accomplish today'")
+    check("  a new day's plan resets the partial credit",
+          "TODAY_STEP = items.map(() => 0);" in ssrc,
+          "yesterday's half-finished goal must not colour today's")
+
+    # ---- the fast lane (where the flip is sending him) ----
+    check("⭐ the fast lane shows the day lesson by lesson",
+          'id="dayBar"' in pfull and "function renderDay()" in psrc
+          and ".dayseg" in pfull,
+          "'as we go through lesson by lesson by lesson'")
+    check("  ...it names the lesson, the position, and what is next",
+          '"Now:"' in psrc or "Now:" in psrc,
+          "a strip with no words is the same complaint again")
+    check("⭐ every answer nudges it -- typed or tapped",
+          psrc.count("bumpLesson();") >= 2,
+          "one road for both ways of answering, or they drift")
+    check("⭐ only the lesson's own END beat fills a segment",
+          "DONE_IDS[CURRENT_ID] = true;" in psrc
+          and "Math.min(95," in psrc,
+          "the partial fill stops at 95% -- the tick tells the truth")
+    check("  a new lesson starts a fresh segment",
+          "LESSON_STEP = 0; renderDay();" in psrc, "")
+    check("  the strip stays hidden until a lesson is actually running",
+          'id="dayBar" hidden' in pfull, "an empty strip on the picker is furniture")
+
+
 def part3ey_the_walk_away_list():
     """PART 3ey (builds or + os + ot, 2026-08-27) -- THE WALK-AWAY LIST.
 
@@ -13761,7 +13836,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,980</b>" in page,
+          "<b>6,992</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22213,6 +22288,7 @@ def main():
     part3fa_quizzes_through_the_spine()
     part3fb_use_the_whole_board()
     part3fc_seventh_flag_harvest()
+    part3fd_the_day_you_can_feel()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
