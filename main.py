@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27oq-the-raised-hand". BUILD oq -- Jim's
+#               expansion order ("I'm satisfied with unit one. Start expanding").
+#               (1) NEW POST /api/script/ask: a child mid-script types a
+#               question, gets ONE bounded spoken answer (tutor.script_question,
+#               full referee pipeline, pending answers fenced, tags stripped);
+#               five per lesson then an authored hold line; rate-limited; every
+#               failure plays an authored fallback -- the door can never stall a
+#               lesson. (2) home's prealgebra tile widens to the WHOLE course.
+#               pilot.html gains the ✋ and the quiet resume.
 #   2026-08-27  APP_BUILD -> "2026-08-27op-the-authored-spine-pilot". BUILD op --
 #               Phase 3's pilot, on Jim's "go". Pre-Algebra Unit 1 is served from
 #               the AUTHORED lane beside the live one: NEW /pilot route; home's
@@ -9433,6 +9442,52 @@ def script_start(body: ScriptStartIn):
             "steps": _script_clean(steps)}
 
 
+# (oq) THE RAISED HAND -- Jim's expansion order after approving Unit 1. Bounds:
+# five questions per lesson (then an authored hold line), ten per five minutes
+# per code, 300 characters each. A model failure or an over-cap ask both play
+# authored lines, so this door can never stall or brick a lesson. The model
+# call rides mode="script", so the admin card's Scripted-lane tile counts it
+# among the lane's AI interventions automatically.
+SCRIPT_QUESTIONS_PER_LESSON = 5
+_SCRIPT_Q_HOLD = ("Hold that thought — we are almost done! Ask me again when "
+                  "the lesson ends.")
+_SCRIPT_Q_FALLBACK = ("That is a good question. Let me think about it while we "
+                      "finish this lesson — ask me again at the end!")
+
+
+class ScriptAskIn(BaseModel):
+    code: str
+    question: str = ""
+    heard: str = ""      # what the bubble showed when the hand went up (context only)
+    pending: str = ""    # the pending ask's SPOKEN text, if one is on screen
+
+
+@app.post("/api/script/ask")
+def script_ask(body: ScriptAskIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _script_session(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No scripted lesson is running for this code -- POST /api/script/start."))
+    _rate_limit("scriptq:" + code, limit=10, window_seconds=300, what="questions")
+    q = (body.question or "").strip()[:300]
+    if not q:
+        raise HTTPException(status_code=400, detail="Type your question first.")
+    lesson = sess["lesson"]
+    asked = sess.get("q_turns", 0)
+    if asked >= SCRIPT_QUESTIONS_PER_LESSON:
+        _script_log(code, lesson["course"], t0)
+        return {"ok": True, "answer": _SCRIPT_Q_HOLD, "capped": True}
+    sess["q_turns"] = asked + 1
+    reply = tutor.script_question(
+        code, lesson["course"], lesson.get("topic", ""),
+        (body.heard or "").strip()[:300], (body.pending or "").strip()[:200], q)
+    _script_log(code, lesson["course"], t0)
+    return {"ok": True, "answer": reply or _SCRIPT_Q_FALLBACK,
+            "capped": False}
+
+
 @app.get("/api/script/lessons")
 def script_lessons():
     """The course, in order (build jw). Public and harmless: ids and titles only."""
@@ -12019,7 +12074,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27op-the-authored-spine-pilot"
+APP_BUILD = "2026-08-27oq-the-raised-hand"
 
 
 @app.get("/health")

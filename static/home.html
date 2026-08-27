@@ -4,6 +4,10 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-08-27  (build oq) THE PILOT DOOR WIDENS. Jim's verdict on Unit 1:
+    "I'm satisfied. Start expanding this." The prealgebra tile now carries the
+    whole course into the authored lane (no unit filter) and mentions the new
+    raise-your-hand door. The classic course tile stays untouched beside it.
   - 2026-08-27  (build op) THE AUTHORED-SPINE PILOT DOOR. Pre-Algebra's hub grows
     one extra tile: "Unit 1 -- the fast lessons" -> /pilot?course=prealgebra&unit=1.
     The classic course tile is untouched, so the live lane and the authored lane
@@ -316,11 +320,13 @@
       if (COURSE === "prealgebra") {
         const pt = document.createElement("a");
         pt.className = "tile";
-        pt.href = "/pilot" + codeQ + "&course=prealgebra&unit=1";
+        // (oq) WIDENED on Jim's order after the Unit 1 verdict: the whole
+        // course now rides the authored lane, grouped by unit on the picker.
+        pt.href = "/pilot" + codeQ + "&course=prealgebra";
         pt.innerHTML = '<div class="ic">\u{1F4DC}</div>'
-          + '<h3>Unit 1 \u2014 the fast lessons</h3>'
-          + '<p>Order of operations, taught from Mr. Cadabra\u2019s written script '
-          + '\u2014 instant, in his real voice. New \u2014 try it!</p>'
+          + '<h3>My lessons \u2014 the fast track</h3>'
+          + '<p>Every unit, taught from Mr. Cadabra\u2019s written script '
+          + '\u2014 instant, in his real voice. Raise your hand anytime!</p>'
           + '<div class="go">Start \u2192</div>';
         const anchor = el("courseTile");
         anchor.parentNode.insertBefore(pt, anchor.nextSibling);

@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD oq -- PART 3ex: the raised hand. A child mid-script asks a
+#               question and gets one bounded spoken answer (pending answers
+#               fenced, no board tags, authored fallbacks on every failure
+#               path); the script resumes un-re-spoken; the home tile widens to
+#               the whole prealgebra course. 14-assertion drive + TestClient
+#               bounds run green before the pins.
 #   2026-08-27  BUILD op -- PART 3ew: the authored-spine pilot (Phase 3, Jim's
 #               "go"). Pre-Algebra Unit 1 served from the authored lane beside
 #               the live one: the home door, the pilot lens, the owner's 🚩 on
@@ -12218,8 +12224,10 @@ def part3ew_the_authored_spine_pilot():
     hsrc = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
     hc = code_only(hsrc)
     check("⭐ home's prealgebra hub carries the pilot door, lens included",
+          # (oq) the door WIDENED to the whole course on Jim's expansion order --
+          # the pin now demands the course lens and deliberately not unit=1.
           'COURSE === "prealgebra"' in hc
-          and "course=prealgebra&unit=1" in hc,
+          and "course=prealgebra" in hc,
           "without the door the authored lane is a page nobody reaches")
     check("  ...and the classic course tile is untouched beside it",
           '"/session" + q' in hc,
@@ -12247,6 +12255,74 @@ def part3ew_the_authored_spine_pilot():
           and stats.get("script_ai_turns") == 0,
           {k: stats.get(k) for k in ("script_turns", "ms_script_median",
                                      "script_ai_turns")})
+
+
+def part3ex_the_raised_hand():
+    """PART 3ex (build oq) -- A CHILD MID-SCRIPT CAN RAISE A HAND.
+
+    Jim's expansion order after the Unit 1 verdict. The gap he named himself:
+    "a child who can't ask questions isn't in a classroom, they're watching a
+    video." NEW POST /api/script/ask: one bounded spoken answer
+    (tutor.script_question -- 60 words, no board tags, the pending problem's
+    answer fenced, ends handing the lesson back, full referee pipeline,
+    mode="script" so the Scripted-lane tile counts it). BOUNDS, all pinned:
+    five questions per lesson then an authored hold line; rate-limited; empty
+    question 400; no session 409; ANY model failure serves an authored
+    fallback -- the door can never stall or brick a lesson. pilot.html gains
+    the ✋ during say and ask beats and the quiet resume (playStep(step,
+    quiet) re-renders the interrupted beat unlocked, never re-spoken). And the
+    home tile widens to the WHOLE prealgebra course. The 14-assertion browser
+    drive (✋ shows, answer plays, Back restores the exact beat, hand returns)
+    ran green before these pins; the TestClient run proved 409/400/fallback/
+    cap/lesson-intact live."""
+    print("\nPART 3ex — the raised hand (build oq)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+
+    # the system prompt carries the laws the door depends on
+    sysq = TT._SCRIPT_QUESTION_SYSTEM
+    for needle, why in (
+            ("NEVER state, compute, or hint at its", "the pending answer is fenced"),
+            ("NO board tags", "the written lesson owns the board"),
+            ("at most 60 words", "an answer that lectures is the latency coming back"),
+            ("hand the lesson back", "the script must always resume")):
+        check("  question prompt: %s" % why, needle in sysq,
+              "'%s' missing from _SCRIPT_QUESTION_SYSTEM" % needle)
+    check("⭐ script_question fails OPEN (no API key -> empty, never raises)",
+          TT.script_question("t", "prealgebra", "Times", "heard", "", "why?") == ""
+          if not os.environ.get("ANTHROPIC_API_KEY") else True,
+          "a model failure must hand back '' so the authored line plays")
+
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    mc = code_only(msrc)
+    check("⭐ /api/script/ask exists with every bound",
+          'app.post("/api/script/ask")' in mc.replace("@app", "app")
+          and "SCRIPT_QUESTIONS_PER_LESSON = 5" in mc
+          and '_rate_limit("scriptq:' in mc,
+          "an unbounded question door is a cost and a stall waiting to happen")
+    check("  the hold and fallback lines are authored, not generated",
+          "_SCRIPT_Q_HOLD" in mc and "_SCRIPT_Q_FALLBACK" in mc,
+          "every failure path must speak in authored words")
+
+    psrc = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    pc = code_only(psrc)
+    check("⭐ the ✋ shows during say AND ask beats, never during an AI turn",
+          pc.count("askDoor(ctl);") == 2
+          and 'if (step.kind !== "ai") askDoor(ctl)' in pc,
+          "one question at a time; hands stay available while he talks and asks")
+    check("  the quiet resume exists and Back uses it",
+          "function playStep(step, quiet)" in pc
+          and "playStep(snap, true)" in pc,
+          "resuming must never re-speak the interrupted beat")
+    check("  the ask carries its context and fences the pending problem",
+          '"/api/script/ask"' in pc and 'snap.kind === "ask"' in pc,
+          "the server can only fence an answer the client names")
+
+    hc = code_only(open(os.path.join(here, "static", "home.html"), encoding="utf-8").read())
+    check("⭐ the home tile now carries the WHOLE prealgebra course",
+          '"/pilot" + codeQ + "&course=prealgebra"' in hc
+          and "course=prealgebra&unit=1" not in hc,
+          "Jim: 'I'm satisfied with unit one. Start expanding this.'")
 
 
 def part3dy_one_keyboard_not_two():
@@ -12974,7 +13050,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,833</b>" in page,
+          "<b>6,844</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21363,6 +21439,7 @@ def main():
     part3eu_the_canon_held_to_its_own_standard()
     part3ev_the_giveaway_audits_join_the_battery()
     part3ew_the_authored_spine_pilot()
+    part3ex_the_raised_hand()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

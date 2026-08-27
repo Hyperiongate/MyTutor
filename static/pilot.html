@@ -2,6 +2,15 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (oq) 2026-08-27 -- THE RAISED HAND, AND THE WHOLE COURSE. Jim, after Unit 1:
+    "I'm satisfied. Start expanding this." Two additions: (1) a small ✋ during
+    say and ask beats -- tapping swaps the controls for a question box, ONE
+    bounded spoken answer plays (no board: the script owns it; the pending
+    problem's answer is fenced server-side), and "Back to the lesson" restores
+    the interrupted step via playStep(step, quiet) -- re-rendered, unlocked,
+    never re-spoken. Five questions per lesson, then an authored hold line;
+    any model failure plays an authored fallback -- the door can never stall
+    the lesson. (2) home's tile now brings the WHOLE prealgebra course here.
     (op) 2026-08-27 -- THE AUTHORED-SPINE PILOT (Phase 3, Jim's "go"). Three
     additions, nothing moved: (1) ?course= and ?unit= narrow the picker to the
     piloted slice -- the home hub links Pre-Algebra students here with
@@ -448,7 +457,10 @@
   }
 
   // ---------- playing the step queue ----------
-  function playStep(step) {
+  // (oq) `quiet` = re-render a step WITHOUT re-speaking it -- the way back from a
+  // raised hand: board and words return instantly, controls unlock, no clip.
+  var lastStep = null;     // the step on stage (say/ask/ai), for the ✋ resume
+  function playStep(step, quiet) {
     // (kj) draw into a CLEARED board. A praise beat carries no board of its own, so the
     // previous picture stays up rather than blinking out -- the child keeps looking at
     // the thing being praised. Same rule as before; the drawing is just real now.
@@ -468,6 +480,7 @@
     flagBubble();   // (op) the owner's 🚩 rides the scripted lane too
 
     var ctl = $("controls"); ctl.innerHTML = "";
+    if (step.kind !== "end") lastStep = step;   // (oq) the ✋ knows where to come back to
     if (step.kind === "say") {
       var b = document.createElement("button");
       b.className = "next"; b.textContent = "Next ▶"; b.disabled = true;
@@ -481,10 +494,14 @@
       // breath. In SILENT mode (no key, blocked autoplay, an audio error) the Next
       // tap stays required: a reader paces themselves, and racing them would be a
       // worse defect than the stall was.
-      speak(words, function (played) {
-        b.disabled = false; b.focus();
-        if (played) setTimeout(go, 650);
-      }, function () { b.disabled = false; });   // (ke) slow clip: offer Next, keep playing
+      if (quiet) { b.disabled = false; }
+      else {
+        speak(words, function (played) {
+          b.disabled = false; b.focus();
+          if (played) setTimeout(go, 650);
+        }, function () { b.disabled = false; });   // (ke) slow clip: offer Next, keep playing
+      }
+      askDoor(ctl);   // (oq) a child can raise a hand while he talks
       $("status").textContent = "";
       return;
     }
@@ -500,7 +517,9 @@
       var enable = function () {
         ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
       };
-      speak(words, enable, enable);              // (ke) a slow clip must not lock the answers
+      if (step.kind !== "ai") askDoor(ctl);   // (oq) hands stay up during asks too
+      if (quiet) enable();
+      else speak(words, enable, enable);         // (ke) a slow clip must not lock the answers
       $("status").textContent = step.kind === "ai" ? "Mr. Cadabra is helping — try it again!"
                                                    : (step.tap_only ? "Tap your answer." : "");
       return;
@@ -569,6 +588,68 @@
       })
       .catch(function () { busy = false; $("status").textContent = "Connection hiccup — tap again."; });
   }
+  // ---------- (oq) THE RAISED HAND ----------
+  // A small ✋ during say and ask beats. Tapping it swaps the controls for a
+  // question box; the answer plays as spoken words only (the script owns the
+  // board), and "Back to the lesson" -- or the clip simply ending -- restores
+  // the interrupted step exactly, without re-speaking it.
+  function askDoor(ctl) {
+    var hb = document.createElement("button");
+    hb.type = "button"; hb.className = "opt";
+    hb.style.cssText = "font-size:14px;opacity:.85";
+    hb.textContent = "\u270B I have a question";
+    hb.onclick = function () {
+      var snap = lastStep;
+      if (!snap) return;
+      var box = $("controls"); box.innerHTML = "";
+      var inp = document.createElement("input");
+      inp.type = "text"; inp.maxLength = 300; inp.placeholder = "Type your question…";
+      inp.style.cssText = "flex:1;min-width:230px;font-size:16px;padding:10px 12px;"
+        + "border-radius:12px;border:1.5px solid var(--line)";
+      var send = document.createElement("button");
+      send.className = "next"; send.textContent = "Ask";
+      var nvm = document.createElement("button");
+      nvm.className = "opt"; nvm.textContent = "Never mind";
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;align-items:center";
+      row.appendChild(inp); row.appendChild(send); row.appendChild(nvm);
+      box.appendChild(row);
+      inp.focus();
+      nvm.onclick = function () { playStep(snap, true); };
+      var fire = function () {
+        var q = (inp.value || "").trim();
+        if (!q) { inp.focus(); return; }
+        send.disabled = true; nvm.disabled = true; inp.disabled = true;
+        $("status").textContent = "Mr. Cadabra is thinking…";
+        post("/api/script/ask", { code: CODE, question: q,
+                                  heard: ($("bubble").textContent || "").slice(0, 300),
+                                  pending: (snap.kind === "ask"
+                                            ? spokenOnly(snap.spoken || "").slice(0, 200) : "") },
+             function (j) {
+               var words = spokenOnly(j.answer || "");
+               $("bubble").innerHTML = styleTerms(words);
+               flagBubble();
+               $("status").textContent = "";
+               var box2 = $("controls"); box2.innerHTML = "";
+               var back = document.createElement("button");
+               back.className = "next"; back.textContent = "\u25B6 Back to the lesson";
+               back.disabled = true;
+               var resumed = false;
+               var resume = function () { if (!resumed) { resumed = true; playStep(snap, true); } };
+               back.onclick = resume;
+               box2.appendChild(back);
+               speak(words, function (played) {
+                 back.disabled = false; back.focus();
+                 if (played) setTimeout(resume, 900);
+               }, function () { back.disabled = false; });
+             });
+      };
+      send.onclick = fire;
+      inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") fire(); });
+    };
+    ctl.appendChild(hb);
+  }
+
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
     post("/api/script/answer", { code: CODE, value: value }, function (j) {

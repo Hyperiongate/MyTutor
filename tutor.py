@@ -2,6 +2,13 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD oq -- THE RAISED HAND. NEW script_question() +
+#               _SCRIPT_QUESTION_SYSTEM: one bounded spoken answer to a child's
+#               mid-script question (60 words, no board tags -- stripped if any
+#               slip -- the pending problem's answer explicitly fenced, ends by
+#               handing the lesson back). Rides _reply_pipeline like every model
+#               turn, mode="script", fails open to "" so the caller's authored
+#               hold line takes over.
 #   2026-08-27  BUILD on -- THREE REFEREES CORRECTED BY THE PHASE-1 CANON AUDIT
 #               (holding 1,989 authored cards to the live standard exposed
 #               referee defects no live traffic ever had): (1) student_compare's
@@ -7585,6 +7592,65 @@ Hard rules:
 - Do not greet, do not say goodbye, do not mention this note, do not move to any
   other problem. The lesson script resumes by itself after the child answers.
 """
+
+
+# (oq) THE RAISED HAND. Jim's ruling after test-driving the authored lane: "a
+# child who can't ask questions isn't in a classroom, they're watching a video."
+# A child mid-script taps ✋, types a question, gets ONE bounded spoken answer,
+# and the script resumes exactly where it was. The system prompt is tiny and
+# question-shaped; the reply rides the full referee pipeline like every other
+# model turn; the pending problem's answer is explicitly fenced off.
+_SCRIPT_QUESTION_SYSTEM = """\
+You are Mr. Cadabra, a warm, patient math tutor. A child in the middle of one of
+your written lessons has raised their hand and asked a question. Answer THAT
+question and hand the lesson back.
+
+Hard rules:
+- Speak at most 60 words. Plain words, one idea at a time. Warm and glad they
+  asked -- a question is a child trusting you; never make them regret it.
+- Answer only what was asked. Do not start a new topic, a new problem, or a
+  quiz. Do not greet and do not say goodbye.
+- NO board tags of any kind -- the written lesson owns the board. Your answer
+  is spoken words only.
+- If the note names a PENDING PROBLEM, NEVER state, compute, or hint at its
+  answer -- the child still has to work it. If they ask you for that answer,
+  say warmly that this one is theirs to try, and name only what KIND of first
+  step to think about.
+- If the question is not about math or the lesson, one friendly sentence, then
+  steer back.
+- End with a short handing-back line such as "Back to the lesson!" so the child
+  knows the script picks up again.
+"""
+
+
+def script_question(code: str, course: str, topic: str, heard: str,
+                    pending: str, question: str) -> str:
+    """One bounded answer to a raised hand inside a scripted lesson. Returns ""
+    on ANY failure -- the caller plays an authored hold-that-thought line, so
+    the model can never brick or stall a lesson."""
+    try:
+        note = ("(SYSTEM: The written lesson is '{t}' in the {c} course. The child "
+                'just heard: "{h}". '.format(t=str(topic or "")[:80],
+                                             c=str(course or ""),
+                                             h=str(heard or "")[:300])
+                + ('THE PENDING PROBLEM the child still must answer -- NEVER give '
+                   'or hint at its answer: "{p}". '.format(p=str(pending)[:200])
+                   if pending else "")
+                + 'The child raised their hand and asked: "{q}" -- answer that and '
+                  "hand the lesson back.)".format(q=str(question or "")[:300]))
+        reply = _reply_pipeline(
+            lambda: _SCRIPT_QUESTION_SYSTEM,
+            [], note, " [scriptq]",
+            meta={"code": code, "course": course, "mode": "script"},
+            where="script_question", label="scriptq")
+        if not reply or reply.startswith("("):
+            return ""
+        # the prompt forbids tags; strip any that slip so the page never draws
+        return re.sub(r"\[\[[^\]]*\]\]", " ", reply).strip()
+    except Exception as exc:  # noqa: BLE001 -- never brick a scripted lesson
+        print(f"[script] question failed open -- the authored hold line takes over: {exc}")
+        _event("failopen", "script_question", str(exc), code, course)
+        return ""
 
 
 def script_intervention(code: str, course: str, context: dict, history=None) -> str:
