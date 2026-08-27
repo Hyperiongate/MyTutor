@@ -2,7 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
-#   2026-08-27  BUILD pa -- PART 3ff: the gate is open. Every course's lessons door
+#   2026-08-27  BUILD pb -- PART 3ff REWRITTEN: the classroom itself gets fast. pa
+#               moved the child to a second page to make things quick; Jim wanted
+#               the same room, quicker. The authored lessons play inside
+#               session.html now, and the door pins from op/oq/pa are reconciled.
+#   2026-08-27  BUILD pa -- PART 3ff: the gate is open (SUPERSEDED by pb). Every course's lessons door
 #               is the authored lane; the live screen survives beside it as "Teach
 #               me something else". Two pins OVERTURNED and recorded in place.
 #   2026-08-27  BUILD oz -- PART 3fe: the board uses the room. MEASURED first (a
@@ -12298,21 +12302,18 @@ def part3ew_the_authored_spine_pilot():
 
     hsrc = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
     hc = code_only(hsrc)
-    # ⚠️ RULING OVERTURNED BY JIM, 2026-08-27 (build pa), recorded not deleted.
-    # This pin read "home's PREALGEBRA hub carries the pilot door" and its sibling
-    # said the pilot is "an EXTRA door -- never a replacement, UNTIL IT EARNS IT".
-    # It earned it: Jim drove it, ordered the flip, deployed the whole stack, had
-    # the course audio rendered, and said "open the gate so that every lesson at
-    # every course is fast." The lane is no longer a pilot and no longer gated to
-    # one course, so the pins now hold the OPPOSITE law -- and the live screen
-    # keeps its place beside it, which is the part that must never regress.
-    check("⭐ EVERY course's lessons door is the fast lane (the gate is open)",
-          '"/pilot" + q' in hc and 'COURSE === "prealgebra"' not in hc,
-          "a gate that opens for one course is a pilot; Jim opened it for all ten")
-    check("  ...and the live, model-taught screen is still one tap away",
-          '"/session" + q' in hc and "Teach me something else" in hsrc,
-          "the script cannot answer a problem the child brings in, or a topic they "
-          "want to explore -- retiring that screen would strand them")
+    # ⚠️ THIS PIN HAS BEEN WRONG TWICE, AND BOTH ARE RECORDED. It began as "home's
+    # PREALGEBRA hub carries the pilot door" (op/oq). Build pa flipped it to "every
+    # course's door is the scripted PAGE" on Jim's "open the gate" -- and that read
+    # the instruction as being about the door when it was about the SPEED. Jim,
+    # immediately: "I want a student to have the original layout with the
+    # whiteboard... I don't know why we have to do a whole new layout to make that
+    # happen." So the door is the classroom, for every course, and the authored
+    # lessons play INSIDE it (build pb, PART 3ff).
+    check("⭐ the course door is the CLASSROOM, for every course",
+          '"/session" + q' in hc and 'COURSE === "prealgebra"' not in hc
+          and '"/pilot" + q' not in hc,
+          "the speed belongs in the room the child already knows, not in a second room")
 
     msrc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
     check("⭐ the /pilot route serves the page",
@@ -12403,11 +12404,12 @@ def part3ex_the_raised_hand():
           "the server can only fence an answer the client names")
 
     hc = code_only(open(os.path.join(here, "static", "home.html"), encoding="utf-8").read())
-    # (pa) WIDENED AGAIN, from one course to all ten -- the tile is built from the
-    # hub's own course, so there is no course name in the code to pin any more.
-    check("⭐ the lessons tile carries whatever course the hub is showing",
-          '"/pilot" + q' in hc and 'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc,
-          "Jim: 'open the gate so that every lesson at every course is fast'")
+    # (pb) the hub builds every door from its own course; the authored lane is
+    # reached by BEING in the classroom now, not by a separate tile.
+    check("⭐ the hub's doors all carry the course it is showing",
+          'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc
+          and '"/practice" + q' in hc and '"/topic" + q' in hc,
+          "a door that drops the course logs the child out of their subject")
 
 
 def part3ez_answer_freely():
@@ -13057,55 +13059,66 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
-def part3ff_the_gate_is_open():
-    """PART 3ff (build pa, 2026-08-27) -- THE GATE IS OPEN.
+def part3ff_the_classroom_gets_fast():
+    """PART 3ff (build pb, 2026-08-27) -- THE CLASSROOM ITSELF GETS FAST.
 
-    Jim, after deploying the whole stack and rendering the course audio: "open the
-    gate so that every lesson at every course is fast." The authored lane stops
-    being a pilot. All ten courses, 336 lessons, every word pre-written,
-    pre-checked and pre-voiced -- a beat starts the moment the child taps.
+    ⚠️ THIS PART REPLACES BUILD pa'S, AND THE REASON IS THE POINT. pa read Jim's
+    "open the gate so that every lesson at every course is fast" as "send every
+    course to the scripted PAGE". He corrected it immediately: "I want a student
+    to have the original layout with the whiteboard, with all of the stuff... I
+    just want those answers to be fast. I don't know why we have to do a whole new
+    layout to make that happen." He was right. Speed was never a reason to move a
+    child to a different room.
 
-    ⭐ THE LIVE LANE IS RE-AIMED, NOT RETIRED, and that is the invariant this part
-    exists to hold. The script cannot answer a problem the child brings in, a
-    topic they want to explore, or a question its author never wrote -- and Entry
-    and Basic still have ladder topics with no script at all. A flip that removed
-    the model-taught screen would strand a child on the first such question, so it
-    stays one tap away under an honest name.
+    So the authored lessons play HERE, in session.html, through the room's own
+    addBubble, its own handleTags board, its own choices row, its own voice and
+    sidebar and bars. Nothing about the classroom changes. What changes is that a
+    scripted beat costs ZERO model calls, so the next thing he says is already
+    written and recorded before the child answers.
 
-    Two earlier pins are OVERTURNED here rather than deleted: "home's PREALGEBRA
-    hub carries the pilot door" and "the pilot is an EXTRA door -- never a
-    replacement, until it earns it". It earned it."""
-    print("\nPART 3ff — the gate is open (build pa)")
+    THE THREE INVARIANTS, all driven in a browser before these pins:
+      1. IT IS THE SAME ROOM -- sidebar, whiteboard, bars, mic, curriculum nav.
+      2. A SCRIPTED BEAT NEVER CALLS THE MODEL (measured across the grading of a
+         mid-lesson answer, separately from the end-of-script handoff).
+      3. NOTHING IS LOST -- a course or unit with no authored lesson opens the
+         live way exactly as before, an off-script question goes to the raised
+         hand, and when the script runs out the live tutor takes the same session
+         over without the child seeing a seam."""
+    print("\nPART 3ff — the classroom itself gets fast (build pb)")
     here = os.path.dirname(os.path.abspath(__file__))
     h = open(os.path.join(here, "static", "home.html"), encoding="utf-8").read()
     hc = code_only(h)
-    p = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    p = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    pc = code_only(p)
 
-    check("⭐ the lessons door is the fast lane, for whatever course the hub shows",
-          '"/pilot" + q' in hc
-          and 'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc,
-          "one course was a pilot; ten is the product")
-    check("⭐ NO COURSE IS GATED OUT any more",
-          'COURSE === "prealgebra"' not in hc,
-          "the gate that made this a pilot is the thing Jim asked me to open")
-    check("⭐ the live screen survives, named for what it is now",
-          '"/session" + q' in hc and "Teach me something else" in h,
-          "a scripted lane that pretended to cover everything would strand a child "
-          "the first time they asked something the author never wrote")
-    check("  the fast lane's copy promises the thing that changed",
-          "no waiting" in h,
-          "the tile has to say why it is different, or nobody chooses it")
-    check("⭐ the lesson room stops calling itself a pilot",
-          "scripted pilot" not in p and "Scripted Lesson Pilot" not in p
-          and "Scripted lesson pilot" not in p
-          and "My Lessons</title>" in p,
-          "build language in front of a child is a bug")
-    check("  ...and its way out lands on the course hub it came from",
-          'window.COURSE ? "&course=" + encodeURIComponent(window.COURSE)' in p,
-          "the main road's exit must not dump the child on the subject picker")
-    check("  the first-timer copy follows the gate",
-          "straight \u2014 no waiting, in his own voice." in h
-          or "no waiting" in h, "")
+    check("⭐ the course door is the CLASSROOM again, not a second page",
+          '"/session" + q' in hc and '"/pilot" + q' not in hc,
+          "build pa sent it to the scripted page; Jim sent it straight back")
+    check("  ...and no course is gated out of anything",
+          'COURSE === "prealgebra"' not in hc, "")
+
+    check("⭐ the authored lessons play INSIDE the classroom",
+          "const SCR = {" in pc and "function scriptStart(" in pc
+          and "function scrPlay(" in pc,
+          "the speed belongs in the room the child already knows")
+    check("⭐ a scripted beat is drawn by the ROOM'S OWN code, not a copy",
+          "addBubble(\"tutor\", words)" in pc and "handleTags(step.board" in pc,
+          "a second renderer is how two boards start disagreeing")
+    check("⭐ ONE answer door still -- typed, spoken and tapped all arrive here",
+          "if (SCR.on && SCR.pending) { await scrAnswer(message); return; }" in pc,
+          "sendToTutor is the single door every answer has always used")
+    check("⭐ an off-script QUESTION goes to the raised hand, not the grader",
+          '"/api/script/ask"' in pc and "asking ?" in pc.replace("asking\n", "asking "),
+          "a child who asks 'why?' must not be marked wrong")
+    check("⭐ when the script runs out, the LIVE tutor takes the same session over",
+          '__script_done__' in pc,
+          "the lesson must not stop at the end of what was written")
+    check("⭐ no script for this unit = the live opener, exactly as before",
+          "scriptStart().then(started => { if (!started) kickoff(); });" in pc,
+          "do no harm: Entry and Basic still have topics with no script at all")
+    check("  a network failure costs a beat, never the lesson",
+          "SCR.on = false; await runTutor(txt);" in pc,
+          "the live tutor picks up the turn if the script cannot be reached")
 
 
 def part3ey_the_walk_away_list():
@@ -13977,7 +13990,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,015</b>" in page,
+          "<b>7,016</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22431,7 +22444,7 @@ def main():
     part3fc_seventh_flag_harvest()
     part3fd_the_day_you_can_feel()
     part3fe_the_board_uses_the_room()
-    part3ff_the_gate_is_open()
+    part3ff_the_classroom_gets_fast()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

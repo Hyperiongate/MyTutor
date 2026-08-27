@@ -312,38 +312,13 @@
       el("courseBlurb").textContent = "Pick up your start-to-finish " + title + " lessons right where you left off.";
 
       const q = codeQ + "&course=" + encodeURIComponent(COURSE);
-      // ===== build pa (2026-08-27) THE GATE IS OPEN ==========================
-      // Jim: "open the gate so that every lesson at every course is fast."
-      // The authored lane stops being a pilot. EVERY course's lessons door now
-      // goes to it -- all ten, 336 lessons, every word pre-written, pre-checked
-      // and pre-voiced, so a beat starts the moment the child taps instead of
-      // waiting five to ten seconds on a model.
-      //
-      // ⭐ THE LIVE LANE IS NOT RETIRED, IT IS RE-AIMED. It keeps every job the
-      // script cannot do -- a problem the child brings in, a topic they want to
-      // explore, a question off the script -- and it stays one tap away under an
-      // honest name. A scripted lane that pretended to cover everything would
-      // strand a child the first time they asked something the author never
-      // wrote, and Entry and Basic genuinely have topics with no script yet.
-      el("courseTile").href = "/pilot" + q;
-      el("courseTitle").textContent = "Continue my " + title + " course";
-      el("courseBlurb").textContent =
-        "Your start-to-finish " + title + " lessons, straight through with no "
-        + "waiting \u2014 Mr. Cadabra\u2019s own voice, ready the moment you tap. "
-        + "Raise your hand any time you want to ask him something.";
-      el("courseGo").textContent = "Start \u2192";
-      // The classic, model-taught lesson screen, kept and plainly labelled.
-      const ct = document.createElement("a");
-      ct.className = "tile";
-      ct.href = "/session" + q;
-      ct.innerHTML = '<div class="ic">\u{1F4AC}</div>'
-        + '<h3>Teach me something else</h3>'
-        + '<p>Off the lesson plan \u2014 anything in ' + title + ' you want to go '
-        + 'over, at your own pace. He thinks about each answer, so it is a little '
-        + 'slower.</p>'
-        + '<div class="go">Open \u2192</div>';
-      const anchor = el("courseTile");
-      anchor.parentNode.insertBefore(ct, anchor.nextSibling);
+      // (pb, 2026-08-27) THE DOOR IS THE CLASSROOM AGAIN. Build pa sent this tile
+      // to the scripted PAGE, and that was me answering the wrong question. Jim:
+      // "I want a student to have the original layout with the whiteboard, with
+      // all of the stuff... I just want those answers to be fast. I don't know why
+      // we have to do a whole new layout to make that happen." Correct. The speed
+      // belongs INSIDE the classroom, not in a second classroom -- see session.html.
+      el("courseTile").href = "/session" + q;
       el("practiceTile").href = "/practice" + q;
       el("topicTile").href = "/topic" + q;
       el("dashChip").href = "/dashboard" + q;

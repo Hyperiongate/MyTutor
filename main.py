@@ -2,6 +2,27 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pb-the-classroom-gets-fast". BUILD pb --
+#               THE CORRECTION, and the mistake is worth recording. Build pa read
+#               Jim's "open the gate so that every lesson at every course is fast"
+#               as "send every course to the scripted PAGE". He put me straight at
+#               once: "I want a student to have the original layout with the
+#               whiteboard, with all of the stuff... I just want those answers to
+#               be fast. I don't know why we have to do a whole new layout to make
+#               that happen." He was right -- speed was never a reason to move a
+#               child into a different room.
+#               pa's home change is REVERTED: the course door is the classroom.
+#               The authored lessons now play INSIDE session.html, through its own
+#               addBubble, its own board, its own choices row, voice, sidebar and
+#               bars. The room is untouched; a scripted beat simply costs ZERO
+#               model calls, so the next thing he says is already written and
+#               recorded before the child answers.
+#               NOTHING IS LOST: a unit with no script opens the live way exactly
+#               as before, an off-script question goes to the raised hand, a
+#               network failure hands the turn to the live tutor, and when the
+#               script runs out the live tutor takes the same session over with no
+#               seam. Front-end only; this file carries the stamp. PART 3ff
+#               rewritten; the op/oq/pa door pins reconciled.
 #   2026-08-27  APP_BUILD -> "2026-08-27pa-the-gate-is-open". BUILD pa -- THE FLIP.
 #               Jim, with the whole stack deployed and the course audio rendered:
 #               "open the gate so that every lesson at every course is fast."
@@ -12382,7 +12403,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pa-the-gate-is-open"
+APP_BUILD = "2026-08-27pb-the-classroom-gets-fast"
 
 
 @app.get("/health")

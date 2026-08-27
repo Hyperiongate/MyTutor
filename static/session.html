@@ -3325,7 +3325,14 @@
       // 2026-08-05: a toured student ENTERING A NEW COURSE (no history, no placement here)
       // skips the tour but still gets the assessment invitation before the opener.
       else if (!hasHistory && !isPlaced) { busy = true; setPhase("busy"); offerAssessment(() => kickoff("__open_declined__")); }
-      else { busy = true; setPhase("busy"); kickoff(); }
+      // (pb) THE FAST PATH. A returning student whose next topic has an authored
+      // lesson starts it straight away -- no model opener, so the very first thing
+      // they hear arrives at once. No script for this unit? The live opener runs
+      // exactly as it always has.
+      else {
+        busy = true; setPhase("busy");
+        scriptStart().then(started => { if (!started) kickoff(); });
+      }
     }
     el("welcomeGo").addEventListener("click", begin);
     welcome.classList.add("show");
@@ -3442,6 +3449,135 @@
       await runTutor("__tour_done__");   // hand off WITHOUT a re-introduction (he just said his name in the tour)
     }
 
+    // =====================================================================
+    // build pb (2026-08-27) -- THE CLASSROOM ITSELF GETS FAST
+    // ---------------------------------------------------------------------
+    // Jim, after I had gone and built a second page: "I want a student to have
+    // the original layout with the whiteboard, with all of the stuff... I just
+    // want those answers to be fast. I don't know why we have to do a whole new
+    // layout to make that happen."
+    //
+    // He is right, and this is the correction. The authored lessons -- 336 of
+    // them, every word pre-written, machine-checked and PRE-RECORDED -- now play
+    // HERE, in the classroom that already exists, through the same addBubble,
+    // the same handleTags board, the same choices row, the same voice, the same
+    // sidebar and progress bars. Nothing about the room changes. What changes is
+    // that a scripted beat costs ZERO model calls, so the next thing he says is
+    // already made and starts the moment the child answers.
+    //
+    // ⭐ THE MODEL IS STILL THERE, behind the script, exactly where it was: an
+    // off-script question goes to the raised-hand door, and when the script runs
+    // out the lesson hands back to the live tutor mid-session without the child
+    // noticing a seam.
+    // =====================================================================
+    const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null };
+
+    async function scriptLessons() {
+      if (SCR.all) return SCR.all;
+      try {
+        const r = await fetch("/api/script/lessons");
+        const j = r.ok ? await r.json() : {};
+        SCR.all = (j.lessons || []).filter(l => l.course === COURSE);
+      } catch (e) { SCR.all = []; }
+      return SCR.all;
+    }
+
+    // Which authored lesson should this student be in? The unit the rail says
+    // they are in, first lesson of it that their record does not already call
+    // mastered -- the same order the curriculum teaches.
+    async function scriptPick() {
+      const list = await scriptLessons();
+      if (!list.length) return null;
+      const unit = (FOCUS_UNIT >= 1 && FOCUS_UNIT <= 9) ? FOCUS_UNIT : (currentUnit || 1);
+      const inUnit = list.filter(l => l.unit === unit);
+      const pool = inUnit.length ? inUnit : list;
+      const done = new Set();
+      try {
+        ((SRV_PROGRESS && SRV_PROGRESS.topic_quizzes) ? Object.values(SRV_PROGRESS.topic_quizzes) : [])
+          .forEach(rows => (rows || []).forEach(r => { if (r.best_pct >= 80) done.add((r.topic_name || "").toLowerCase()); }));
+      } catch (e) {}
+      return pool.find(l => !done.has((l.topic || "").toLowerCase())) || pool[0];
+    }
+
+    // Play one authored beat through the room's OWN rendering.
+    async function scrPlay(step) {
+      if (!step) { SCR.pending = false; return scrNext(); }
+      if (step.kind === "end") {
+        addBubble("tutor", step.spoken || ""); lastTutorText = step.spoken || "";
+        await withDeadline(() => speak(step.spoken || ""), speechDeadline(step.spoken || ""),
+                           "scripted line", stopAllSpeech);
+        SCR.on = false; SCR.pending = false;
+        // The script for this topic is finished. The LIVE tutor takes it from
+        // here, in the same session, so the child simply carries on.
+        busy = true; setPhase("busy");
+        await runTutor("__script_done__");
+        return;
+      }
+      const words = step.spoken || "";
+      addBubble("tutor", words); lastTutorText = words;
+      handleTags(step.board || "");
+      const isAsk = (step.kind === "ask");
+      SCR.pending = isAsk;
+      statusEl.textContent = tutorName + " is talking…";
+      await withDeadline(() => speak(words), speechDeadline(words), "scripted line", stopAllSpeech);
+      statusEl.textContent = "";
+      if (isAsk) { busy = false; setPhase("ready"); setState("idle"); }
+      else scrNext();
+    }
+    function scrNext() {
+      if (!SCR.queue.length) { busy = false; setPhase("ready"); setState("idle"); return; }
+      scrPlay(SCR.queue.shift());
+    }
+    function scrIngest(steps) { SCR.queue = SCR.queue.concat(steps || []); scrNext(); }
+
+    async function scriptStart() {
+      const les = await scriptPick();
+      if (!les) return false;
+      try {
+        const r = await fetch("/api/script/start", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: CODE, course: COURSE, lesson: les.id }) });
+        if (!r.ok) return false;
+        const j = await r.json();
+        if (!j.ok || !(j.steps || []).length) return false;
+        SCR.on = true; SCR.id = j.id || les.id; SCR.lesson = j.lesson || les.topic;
+        busy = true; setPhase("busy");
+        scrIngest(j.steps);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    // The child answered (typed, spoken, or tapped -- one door, as always).
+    async function scrAnswer(message) {
+      const txt = String(message || "").trim();
+      // A question is a QUESTION, not an answer: it goes to the raised-hand door,
+      // which answers in ≤60 words with the pending answer fenced, then hands the
+      // lesson straight back (build oq).
+      const asking = /\?\s*$/.test(txt) || /^(what|why|how|can you|i don'?t (get|understand))\b/i.test(txt);
+      const url = asking ? "/api/script/ask" : "/api/script/answer";
+      const body = asking ? { code: CODE, question: txt, heard: lastTutorText }
+                          : { code: CODE, said: txt };
+      try {
+        const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+                                     body: JSON.stringify(body) });
+        const j = await r.json();
+        if (asking) {
+          const a = (j && j.answer) || "";
+          addBubble("tutor", a); lastTutorText = a;
+          await withDeadline(() => speak(a), speechDeadline(a), "scripted answer", stopAllSpeech);
+          busy = false; setPhase("ready"); setState("idle");   // the same question still stands
+          return;
+        }
+        if (!r.ok || !j.ok) { SCR.on = false; await runTutor(txt); return; }
+        SCR.pending = false;
+        scrIngest(j.steps);
+      } catch (e) {
+        // The script could not be reached: the live tutor picks the turn up, so a
+        // network hiccup costs a beat, never the lesson.
+        SCR.on = false; await runTutor(txt);
+      }
+    }
+
     async function kickoff(msg) {   // returning-student opener (no tour)
       statusEl.textContent = tutorName + " is starting…";
       await runTutor(msg || "__open__");   // "__open_declined__" = they just declined the assessment card
@@ -3474,6 +3610,10 @@
       if (busy || paused) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
+      // (pb) ONE DOOR, TWO GRADERS. While an authored lesson is running, the answer
+      // is graded by CODE and the next beat is already written and recorded -- so
+      // it arrives instantly. Everything else about this function is unchanged.
+      if (SCR.on && SCR.pending) { await scrAnswer(message); return; }
       await runTutor(message);
     }
     async function runTutor(message) {
