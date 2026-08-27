@@ -2,6 +2,24 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27pd-let-the-lesson-breathe". BUILD pd -- Jim:
+#               "This is the worst lesson I have seen so far. There was no pause at
+#               any time. pictures showed up and disappeared." One bug, two symptoms,
+#               and it was mine: build pb's scripted player advanced on `else
+#               scrNext();` -- the instant speak() RESOLVED. A missing or blocked clip
+#               resolves in milliseconds, so the whole lesson landed in one frame and
+#               oz's supersede chip ate the earlier pictures on the way past. pb had
+#               hand-ported the player out of pilot.html and left behind all THREE
+#               protections that page grew over builds ka/kd/ke: the reading floor,
+#               the breath between beats, and "a silent beat waits for the child".
+#               All three are restored, using session.html's OWN readMs (the tour has
+#               used it since bj) rather than a second copy. The fix's first cut then
+#               served the floor on ASK beats too and left the tap buttons live-looking
+#               and inert for 2.6s -- the pb drive caught it inside the hour, and build
+#               nb's law settles it: a child who can hear the question must never be
+#               locked out of answering while it finishes. No Python changed except
+#               this stamp. Proof: /tmp/pddrive.py (14 assertions, silent AND voiced)
+#               plus all nine earlier drives re-run green.
 #   2026-08-27  APP_BUILD -> "2026-08-27pc-the-figure-fills-the-board". BUILD pc --
 #               Jim, on a live Algebra II absolute-value beat: "Why is it so hard to
 #               make a big number line". It was not hard. It had been MEASURED WRONG
@@ -12425,7 +12443,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27pc-the-figure-fills-the-board"
+APP_BUILD = "2026-08-27pd-let-the-lesson-breathe"
 
 
 @app.get("/health")

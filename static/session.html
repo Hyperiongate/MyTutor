@@ -1,5 +1,37 @@
 <!DOCTYPE html>
 <!--
+    (pd) 2026-08-27 -- LET THE LESSON BREATHE. Jim, on a live Algebra II scripted
+    lesson: "This is the worst lesson I have seen so far. There was no pause at any
+    time. pictures showed up and disappeared." He was right, and it was mine. Build
+    pb ported the scripted player into this page and DROPPED ALL THREE of the
+    protections pilot.html had grown over builds ka/kd/ke to solve this exact
+    problem. pb's advance was one line -- `else scrNext();` -- which starts the next
+    beat the instant speak() RESOLVES. If a clip is missing, blocked by autoplay, or
+    errors, speak() resolves almost immediately and the ENTIRE LESSON DUMPS AT ONCE:
+    four bubbles and three number lines land together, and oz's supersede-the-older-
+    work chip swallows the first pictures on the way past. That is the whole of
+    "no pause" AND "pictures showed up and disappeared" -- one bug, two symptoms.
+    THE PROTECTIONS, RESTORED (all three already existed in this codebase):
+    (1) A READING FLOOR. Promise.all([ speak(words), delay(readMs(words)) ]) -- the
+        beat cannot end faster than a child can read the line even when there is no
+        audio at all. This page's own TOUR has done exactly this since build bj, and
+        readMs's comment already said why: "so the tour stays readable even if the
+        voice is unavailable and speak() returns instantly". The scripted lane simply
+        never got it. ONE definition, shared -- not a second copy.
+    (2) A BREATH between beats: SCR_BREATH (650ms), the number pilot.html settled on.
+    (3) SILENCE PACES ITSELF. voice.js calls setState("speaking") the moment audio
+        genuinely begins; a beat that never heard it shows a "Next" button and WAITS
+        for the child instead of running on a timer. pilot.html's law, verbatim: "a
+        reader paces themselves, and racing them would be a worse defect than the
+        stall was." A beat that DID speak still auto-advances, so a working session
+        never asks the child to tap.
+    ⚠️ THE LESSON UNDERNEATH: voice.js's header records four hand-ports of the audio
+    layer that each lost a different protection, and script-board.js's header records
+    why the board became a file instead of a copy. pb hand-ported the PLAYER and lost
+    three at once. When a lane's behaviour has been tuned by playtesting, port the
+    tuning with the code or do not port the code.
+    NOT fast-forward (build oc): there is no skip button while he is talking. The
+    Next button appears only when nothing was heard.
     (pc) 2026-08-27 -- THE FIGURE FILLS THE BOARD. Jim, looking at a live Algebra II
     absolute-value beat whose number line was a ribbon in the corner: "Why is it so
     hard to make a big number line". It was not hard. It was MEASURED WRONG, three
@@ -1982,7 +2014,15 @@
     let phase = "idle";            // idle | ready | recording | busy (drives the talk button)
     let started = false;           // has the session been started (audio unlocked)?
     let state = "idle";            // idle | listening | thinking | speaking
+    // (pd) DID THE VOICE ACTUALLY PLAY? voice.js calls setState("speaking") from
+    // onPlaying (a real clip) and from u.onstart (browser speech) -- the moment audio
+    // GENUINELY begins, which is a better signal than anything this page could
+    // measure for itself. The scripted player latches it per beat to decide whether
+    // the lesson may pace itself or must wait for the child. pilot.html uses the same
+    // signal for the same decision.
+    let voiceHeard = false;
     function setState(s) {
+      if (s === "speaking") voiceHeard = true;
       state = s;
       // BUSY GLOW (2026-08-03): wrap Mr. Cadabra in the tour's pulsing ring while he is
       // thinking or talking, so the student SEES he's working even when it's quiet.
@@ -2546,6 +2586,7 @@
       let sawMark = false;                       // build fy -- see the note at the end of this function
       clearHighlight();                          // each turn starts with a clean page
       clearChoices();                            // stale answer buttons never survive a new turn
+      clearScrNext();                            // build pd: a scripted Next never survives a new turn
       clearBeside();                             // build oj: a dangling [[beside]] never leaks into a new turn
       clearStepGrid();                           // build os: an open step card never captures the next turn
       curWork = null;                            // this turn's [[step]]s start a fresh worklist block
@@ -3415,8 +3456,12 @@
           : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead." },
     ];
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
-    // Minimum time to dwell on a line so the tour stays readable even if the voice
-    // is unavailable and speak() returns instantly (~360ms per word, min 2.6s).
+    // Minimum time to dwell on a line so it stays readable even if the voice is
+    // unavailable and speak() returns instantly (~360ms per word, min 2.6s).
+    // ⚠️ (pd) SHARED, NOT COPIED. The tour has used this since bj; the scripted lane
+    // now uses the SAME two helpers, because build pb's scripted player advanced on
+    // speak() alone and dumped a whole lesson on screen the moment a clip was
+    // missing. Both lanes read from one definition so they can never drift apart.
     const readMs = (text) => Math.max(2600, String(text).trim().split(/\s+/).length * 360);
     async function sayTourLine(text) {
       addBubble("tutor", text); lastTutorText = text;
@@ -3498,7 +3543,8 @@
     // out the lesson hands back to the live tutor mid-session without the child
     // noticing a seam.
     // =====================================================================
-    const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null };
+    const SCR = { on: false, id: "", lesson: "", pending: false, queue: [], all: null,
+                  beat: 0 };   // (pd) which beat is on stage, so a late callback knows
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3528,12 +3574,59 @@
     }
 
     // Play one authored beat through the room's OWN rendering.
+    // (pd) THE BREATH BETWEEN BEATS. pilot.html settled on 650ms across builds
+    // ka/kd/ke of playtesting: long enough that one thought lands before the next
+    // begins, short enough that the lane still feels fast.
+    const SCR_BREATH = 650;
+
+    // (pd) SPEAK A SCRIPTED LINE THE WAY THE TOUR DOES. Promise.all means the beat
+    // ends when the audio finishes OR when a child could have read the line --
+    // WHICHEVER IS LATER. Build pb awaited speak() alone, so a missing clip resolved
+    // in milliseconds and the whole lesson landed at once. Returns whether the voice
+    // was GENUINELY heard, which is what decides who paces the next beat.
+    async function scrSay(words) {
+      // An ask beat unlocks while its own audio is still playing (see scrPlay), so a
+      // child can answer before the question finishes -- which means the NEXT line
+      // could start over the top of it. speak() does not supersede a running clip on
+      // its own, so the new line silences the old one first. A no-op when nothing is
+      // playing, which is every other beat.
+      stopAllSpeech();
+      voiceHeard = false;
+      await withDeadline(() => Promise.all([ speak(words), delay(readMs(words)) ]),
+                         speechDeadline(words) + readMs(words), "scripted line", stopAllSpeech);
+      return voiceHeard;
+    }
+
+    // (pd) THE SILENT-MODE PACER. Shown only when a beat produced no audio at all --
+    // no key, blocked autoplay, a missing clip, an error. A working session never
+    // sees it. Deliberately NOT a skip button: it does not exist while he is talking,
+    // so build oc's "never fast forward" still holds.
+    let scrNextRow = null;
+    function clearScrNext() {
+      if (scrNextRow) { scrNextRow.remove(); scrNextRow = null; }
+    }
+    function showScrNext() {
+      clearScrNext();
+      ensureChoicesCSS();                       // the same big tap target the answers use
+      const row = document.createElement("div");
+      row.className = "choicerow";
+      const b = document.createElement("button");
+      b.className = "choicebtn";
+      b.textContent = "Next ▶";
+      b.onclick = () => { clearScrNext(); scrNext(); };
+      row.appendChild(b);
+      feed.appendChild(row);
+      scrNextRow = row;
+      try { scrollFeed(); } catch (e) {}
+      try { b.focus(); } catch (e) {}
+    }
+
     async function scrPlay(step) {
       if (!step) { SCR.pending = false; return scrNext(); }
+      clearScrNext();                            // never two pacers on screen at once
       if (step.kind === "end") {
         addBubble("tutor", step.spoken || ""); lastTutorText = step.spoken || "";
-        await withDeadline(() => speak(step.spoken || ""), speechDeadline(step.spoken || ""),
-                           "scripted line", stopAllSpeech);
+        await scrSay(step.spoken || "");
         SCR.on = false; SCR.pending = false;
         // The script for this topic is finished. The LIVE tutor takes it from
         // here, in the same session, so the child simply carries on.
@@ -3541,18 +3634,43 @@
         await runTutor("__script_done__");
         return;
       }
+      const myBeat = ++SCR.beat;
       const words = step.spoken || "";
       addBubble("tutor", words); lastTutorText = words;
       handleTags(step.board || "");
       const isAsk = (step.kind === "ask");
       SCR.pending = isAsk;
       statusEl.textContent = tutorName + " is talking…";
-      await withDeadline(() => speak(words), speechDeadline(words), "scripted line", stopAllSpeech);
+      if (isAsk) {
+        // ⭐ AN ASK BEAT NEVER LOCKS THE CHILD OUT. Build nb settled this and wrote
+        // the rule down: "a child who can hear the question must never be locked out
+        // of answering while it finishes." The reading floor exists to stop the
+        // lesson RUNNING ON past a line nobody has read -- and an ask beat never runs
+        // on, it waits for an answer. Serving the floor here buys nothing and costs
+        // the child the only thing they wanted to do.
+        // ⚠️ THE FIRST CUT OF pd AWAITED THE FLOOR HERE TOO, and the pb drive caught
+        // it within the hour: the tap buttons sat on screen looking live and did
+        // NOTHING for 2.6 seconds, because showChoices's handler opens with
+        // `if (busy) return;`. That is build ka's "when I click on anything, nothing
+        // happens" reintroduced by the fix for a different complaint. The door opens
+        // the moment the question is on the board; his voice carries on underneath.
+        busy = false; setPhase("ready");
+        scrSay(words).then(() => {
+          // Only tidy up if this is still the beat on stage -- the child may have
+          // answered mid-question and moved the lesson on.
+          if (SCR.beat === myBeat) { statusEl.textContent = ""; setState("idle"); }
+        });
+        return;
+      }
+      // A beat that GENUINELY SPOKE moves itself along after a breath. A beat that
+      // said nothing hands the pace to the child rather than racing a reader.
+      const heard = await scrSay(words);
       statusEl.textContent = "";
-      if (isAsk) { busy = false; setPhase("ready"); setState("idle"); }
-      else scrNext();
+      if (heard) { await delay(SCR_BREATH); scrNext(); }
+      else showScrNext();
     }
     function scrNext() {
+      clearScrNext();
       if (!SCR.queue.length) { busy = false; setPhase("ready"); setState("idle"); return; }
       scrPlay(SCR.queue.shift());
     }
@@ -3592,7 +3710,9 @@
         if (asking) {
           const a = (j && j.answer) || "";
           addBubble("tutor", a); lastTutorText = a;
-          await withDeadline(() => speak(a), speechDeadline(a), "scripted answer", stopAllSpeech);
+          // (pd) the same reading floor, through the SAME function -- a hand-raise
+          // answer with no audio used to flash past before the child had read a word.
+          await scrSay(a);
           busy = false; setPhase("ready"); setState("idle");   // the same question still stands
           return;
         }

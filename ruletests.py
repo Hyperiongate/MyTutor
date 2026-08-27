@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD pd -- PART 3fh: let the lesson breathe. Jim: "There was no pause
+#               at any time. pictures showed up and disappeared." pb's scripted player
+#               advanced on `else scrNext()` -- the instant speak() RESOLVED -- so a
+#               missing clip dumped the whole lesson in one frame. Restores the three
+#               protections pilot.html grew over builds ka/kd/ke and pb's hand-port
+#               left behind (reading floor, 650ms breath, silence-waits-for-the-child),
+#               using this page's OWN readMs rather than a second copy. The fix's first
+#               cut served the floor on ask beats too and made the tap buttons inert
+#               for 2.6s -- caught by the pb drive, pinned here. /tmp/pddrive.py, 14
+#               assertions, silent AND voiced.
 #   2026-08-27  BUILD pc -- PART 3fg: the figure fills the board. Jim: "Why is it so
 #               hard to make a big number line". It was not hard -- .mfig was a
 #               shrink-to-fit box, so an <svg> sized in PERCENT collapsed to the
@@ -13069,6 +13079,95 @@ def part3fe_the_board_uses_the_room():
               "dz's phone layout is load-bearing")
 
 
+def part3fh_let_the_lesson_breathe():
+    """PART 3fh (build pd, 2026-08-27) -- LET THE LESSON BREATHE.
+
+    Jim, on a live Algebra II scripted lesson: "This is the worst lesson I have seen
+    so far. There was no pause at any time. pictures showed up and disappeared."
+
+    ONE BUG, TWO SYMPTOMS, AND IT WAS MINE. Build pb's scripted player advanced on a
+    single line -- `else scrNext();` -- which starts the next beat the instant
+    speak() RESOLVES. When a clip is missing, blocked by autoplay, or errors, speak()
+    resolves in milliseconds, so the WHOLE LESSON landed in one frame: four bubbles
+    together, and oz's supersede-the-older-work chip swallowing the earlier pictures
+    on the way past. "No pause" and "pictures disappeared" were the same defect.
+
+    ⚠️ AND ALL THREE PROTECTIONS ALREADY EXISTED IN THIS CODEBASE. pilot.html grew
+    them across builds ka/kd/ke of playtesting; pb hand-ported the player into
+    session.html and left every one of them behind:
+      1. A READING FLOOR -- the beat cannot end faster than a child can read the
+         line, even with no audio at all. session.html's own TOUR has done exactly
+         this since bj, and readMs's comment already said why: "so the tour stays
+         readable even if the voice is unavailable and speak() returns instantly".
+         ONE definition now serves both lanes, not a copy.
+      2. A BREATH between beats -- 650ms, pilot.html's settled number.
+      3. SILENCE PACES ITSELF -- voice.js calls setState("speaking") the moment audio
+         genuinely begins; a beat that never hears it offers a Next button and WAITS.
+         pilot.html's law verbatim: "a reader paces themselves, and racing them would
+         be a worse defect than the stall was."
+    voice.js's header records four hand-ports of the audio layer that each lost a
+    different protection; script-board.js's records why the board became a shared file
+    instead of a copy. pb lost three protections at once, the same way.
+
+    ⭐ AND THE FIX'S OWN FIRST CUT WAS CAUGHT BY A DRIVE, which is the second lesson.
+    It served the reading floor on ASK beats too -- so the tap buttons sat on screen
+    looking live and did nothing for 2.6 seconds, because showChoices's handler opens
+    with `if (busy) return;`. That is build ka's "when I click on anything, nothing
+    happens" reintroduced by the fix for a different complaint, and it contradicts
+    build nb's written law: "a child who can hear the question must never be locked
+    out of answering while it finishes." An ask beat never runs on, so the floor buys
+    it nothing. The answer door now opens the moment the question is on the board.
+
+    DRIVEN IN A REAL BROWSER BEFORE THESE PINS -- /tmp/pddrive.py, 14 assertions, in
+    BOTH modes: silent (no clip ever plays) and voiced (setState("speaking") fires).
+    Silent: one beat on screen at 4.9s where pb showed four, Next offered, the
+    picture still up, and Next advancing exactly one beat. Voiced: it walks itself to
+    the question with every gap >= 3250ms and never asks the child to tap."""
+    print("\nPART 3fh — let the lesson breathe (build pd)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    raw = open(os.path.join(here, "static", "session.html"), encoding="utf-8").read()
+    ses = code_only(raw)
+
+    check("⭐ a scripted beat is no longer advanced by speak() alone",
+          "else scrNext();" not in ses,
+          "pb's one-line advance is the whole bug -- a missing clip dumped the lesson")
+    check("⭐ THE READING FLOOR: a beat ends on the audio OR on reading time, later wins",
+          "Promise.all([ speak(words), delay(readMs(words)) ])" in ses,
+          "with no audio at all the lesson must still be readable")
+    check("  ...and it is the SAME readMs the tour uses, not a second copy",
+          ses.count("const readMs = (text) =>") == 1,
+          "voice.js's header records what copies of an audio layer do to each other")
+    check("⭐ THE BREATH between beats is real and named",
+          "const SCR_BREATH = 650;" in ses and "await delay(SCR_BREATH); scrNext();" in ses,
+          "one thought must land before the next begins")
+    check("⭐ SILENCE PACES ITSELF: no audio heard = the child taps, not a timer",
+          "if (heard) { await delay(SCR_BREATH); scrNext(); }" in ses
+          and "else showScrNext();" in ses,
+          "racing a reader is worse than stalling one -- pilot.html's law")
+    check("  the 'did it play' signal is voice.js's own, not a guess",
+          'if (s === "speaking") voiceHeard = true;' in ses,
+          "setState('speaking') fires from onPlaying and u.onstart -- real audio only")
+    check("  a Next button never survives into a new turn",
+          "clearScrNext();" in ses and ses.count("function clearScrNext()") == 1,
+          "a stale pacer under a new question would advance the wrong lesson")
+
+    check("⭐ AN ASK BEAT NEVER SERVES THE FLOOR -- build nb's law holds",
+          "busy = false; setPhase(\"ready\");\n        scrSay(words).then(" in raw,
+          "showChoices opens with `if (busy) return;` -- holding busy through the "
+          "floor made the tap buttons look live and do nothing for 2.6 seconds")
+    check("  ...and a new line silences the one still playing under it",
+          "stopAllSpeech();\n      voiceHeard = false;" in raw,
+          "an ask beat unlocks while its own audio runs, so the next line must "
+          "supersede it -- speak() does not do that on its own")
+    check("  a late callback from a superseded beat cannot clobber the live one",
+          "if (SCR.beat === myBeat)" in ses and "const myBeat = ++SCR.beat;" in ses,
+          "the child may answer mid-question and move the lesson on")
+
+    check("⭐ NOT a fast-forward: there is no skip while he is talking (build oc)",
+          "showScrNext" in ses and "skip" not in ses.split("function showScrNext")[1][:400],
+          "Next exists only when nothing was heard, never as a way past a spoken line")
+
+
 def part3fg_the_figure_fills_the_board():
     """PART 3fg (build pc, 2026-08-27) -- THE FIGURE FILLS THE BOARD.
 
@@ -14083,7 +14182,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>7,025</b>" in page,
+          "<b>7,036</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -22539,6 +22638,7 @@ def main():
     part3fe_the_board_uses_the_room()
     part3ff_the_classroom_gets_fast()
     part3fg_the_figure_fills_the_board()
+    part3fh_let_the_lesson_breathe()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:
