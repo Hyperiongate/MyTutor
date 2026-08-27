@@ -2,6 +2,23 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ol -- THE SIXTH FLAG HARVEST (six probstat flags, 23:23-
+#               23:32). (1) finite_answer: _EITHER_OR_RE allows one trailing noun
+#               ("categorical or quantitative DATA?"); _OFFER_FORK_RE learns "or
+#               want another"; NEW _CLAUSE_FORK_RE (", or is it harder...?"); and
+#               the quiz exemption is NARROWED per Jim's ruling -- a named-binary
+#               quiz question ships its buttons (the words already gave the whole
+#               answer space), while forks/ready-checks stay quiz-exempt and open
+#               quiz questions keep free answers. (2) NEW opener_grade_conflict
+#               (the FIFTY-THIRD): an opener never grades -- server-gated via
+#               meta["opener"] (main.py sets it on __open__ turns); greeting
+#               first exempts recap praise. (3) NEW spoken_time_collision_
+#               conflict (the FIFTY-FOURTH): "Question 3: 20 students" is a
+#               clock time in the ear; ratios written 3:20 untouched. All
+#               patterns canon-swept 0 (including the quiz flip: 0 canon cards
+#               affected). The tiny-bar-chart flag is math-figures.js (400 ->
+#               720 display cap) and the sign-in fast-forward also gets a
+#               dangling-answer note in main.py's opener branch.
 #   2026-08-26  BUILD ok -- GRADE WHAT THEY SAID, EARN WHAT YOU SCORE. Jim's live
 #               probstat catch: student tapped "Spring" (right!) and the reply
 #               opened "Pie chart -- correct! That's question 1 done" -- wrong
@@ -2216,7 +2233,14 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # discipline: teaching is never trimmed to duck a tripwire; the raise is
 # deliberate and this is its dated note. The two-prompt-sizes LARGE result
 # remains the evidence that should set this number.
-PROMPT_CEILING = 199_000
+# 2026-08-26 (build ol): RAISED 199,000 -> 201,000. The sixth flag harvest wrote
+# 39(e)'s named-binary quiz carve-out, 48(d2)'s clock-time law and rule 0's
+# AN OPENER NEVER GRADES into the shared blocks (six live probstat flags), and
+# the all-heard algebra2 deferred prompt measured 199,319. Tenth verse, same
+# discipline: teaching is never trimmed to duck a tripwire; the raise is
+# deliberate and this is its dated note. The two-prompt-sizes LARGE result
+# remains the evidence that should set this number.
+PROMPT_CEILING = 201_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -5400,9 +5424,13 @@ def board_parens_conflict(reply: str):
 # (mastery is never a one-in-three guess), and rule 39(d)'s required check-in
 # wording ("...or should I show it a different way?") is deliberately NOT matched:
 # the alternatives there are whole clauses, not one-or-two-word names.
+# (ol) the second alternative may carry ONE trailing noun -- Jim's flag:
+# "is favorite ice cream flavor itself categorical or quantitative DATA?" slipped
+# because "quantitative data?" is two words. The captured options stay the two
+# alternatives themselves. Canon swept 0.
 _EITHER_OR_RE = re.compile(
     r"\b(?:is|are|was|were|does|do|did|which|acute|call)\b[^.?!]*?"
-    r"\b([A-Za-z][\w-]{1,14})\s+or\s+([A-Za-z][\w-]{1,14})\s*\?", re.I)
+    r"\b([A-Za-z][\w-]{1,14})\s+or\s+([A-Za-z][\w-]{1,14})(?:\s+[a-z][\w-]{1,12})?\s*\?", re.I)
 _YESNO_RE = re.compile(r"\byes or no\b", re.I)
 # (oh) a BARE ready-check ending the turn ("Ready to see how those work?").
 # Jim's flag: "has a binary answer yes or no. should have bubbles." Final
@@ -5413,9 +5441,23 @@ _READY_CHECK_RE = re.compile(
 # (nu) a two-way OFFER of paths ("...still feel familiar, or would you like a
 # quick refresher?"). The alternatives are clauses, so the nudge asks for short
 # paraphrased labels instead of extracting them.
+# (ol) "or want ANOTHER look" added -- Jim's flag: "With me so far, or want
+# another look at that pie chart?" slipped because iy's verb list only knew
+# "want me to / want a / want to". Canon swept 0.
 _OFFER_FORK_RE = re.compile(
     r",?\s*or\s+(?:would\s+you\s+like|would\s+you\s+rather|do\s+you\s+want|"
-    r"want\s+(?:me\s+to|a|to)|should\s+i)\b[^.?!]*\?", re.I)
+    r"want\s+(?:me\s+to|a|to|another|one\s+more)|should\s+i)\b[^.?!]*\?", re.I)
+# (ol) the CLAUSE fork: "...does pepperoni still stand out as clearly, or is it
+# harder to tell...?" -- two whole clauses joined by ", or <verb>". Jim's flag:
+# "binary choice so bubbles." The comma plus a verb right after "or" is what
+# separates this from a mid-sentence list. FINAL SENTENCE ONLY: the battery's
+# canon run caught algebra2's sequence card asking "Is the difference constant,
+# or is the ratio constant?" and answering itself in the next breath -- a
+# rhetorical fork mid-turn is teaching, not an ask; a real ask comes last
+# (rule 39b), and only there does this shape fire. Canon: 0 after the scope.
+_CLAUSE_FORK_RE = re.compile(
+    r",\s*or\s+(?:is|are|does|do|did|was|were|can|could|has|have|will|"
+    r"would|should)\b[^.?!]*\?", re.I)
 # (oi) the fork that LEADS with the offer word: "Want a quick five-question
 # check, or one more practice problem first?" / "Want to try one more
 # complementary pair, or move on?" -- two geometry flags from Jim's 2026-08-26
@@ -5438,11 +5480,20 @@ def finite_answer_conflict(reply: str):
         text = str(reply or "")
         if re.search(r"\[\[\s*choices\b", text, re.I):
             return ""                    # the buttons are there
-        if _QUIZ_MOMENT_RE.search(text):
-            return ""                    # a quiz keeps its free answers
+        # (ol) THE QUIZ EXEMPTION IS NARROWED -- JIM'S RULING (live flag, 23:32:
+        # quiz question "is favorite ice cream flavor itself categorical or
+        # quantitative data?" -- "binary"). nn's blanket exemption reasoned that
+        # mastery is never a one-in-three guess -- but a question that itself
+        # NAMES both alternatives has already handed over the whole answer
+        # space, so tapping reveals nothing the words did not. Named-binary
+        # shapes (yes/no, either-or) now ship buttons even in a quiz; forks and
+        # ready-checks are conversation moves and stay quiz-exempt, and every
+        # OPEN quiz question keeps its free answer. Canon swept: 0 flips.
+        quiz = bool(_QUIZ_MOMENT_RE.search(text))
         prose = _spoken_only(text)
         m = None
-        for sent in _vis_sentences(prose):
+        sentences = _vis_sentences(prose)
+        for sent in sentences:
             if "?" not in sent:
                 continue
             if _YESNO_RE.search(sent):
@@ -5453,13 +5504,19 @@ def finite_answer_conflict(reply: str):
             if hit:
                 m, a, b = hit, hit.group(1), hit.group(2)
                 break
+            if quiz:
+                continue                 # forks/ready-checks stay quiz-exempt
             # (nu) Jim's flag: "does multiplying before adding still feel familiar,
             # or would you like a quick refresher?" -- "binary answer so should
             # have been bubbles." A two-way OFFER is a small answer space too; the
             # labels are paraphrases, so the nudge asks the model to write them.
             # (oi) and the offer that LEADS with its verb -- "Want X, or Y?" --
             # is the same fork wearing its hat backwards. Same nudge.
-            fork = _OFFER_FORK_RE.search(sent) or _LEAD_FORK_RE.search(sent)
+            # (ol) and the CLAUSE fork (", or is it harder to tell...?") too --
+            # but ONLY as the turn's final sentence (see the pattern's note).
+            fork = (_OFFER_FORK_RE.search(sent) or _LEAD_FORK_RE.search(sent)
+                    or (_CLAUSE_FORK_RE.search(sent)
+                        if sentences and sent == sentences[-1] else None))
             if fork:
                 said = " ".join(fork.group(0).split())[:70]
                 return ('you offer a two-way choice -- "{s}" -- and ship no '
@@ -5470,8 +5527,11 @@ def finite_answer_conflict(reply: str):
                         "\"I'm not sure\" button. Keep your wording; change "
                         "nothing else.").format(s=said)
         # (oh) the turn ENDS on a bare ready-check: a yes/no in disguise.
-        tail = prose.strip()
-        rm = _READY_CHECK_RE.search(tail)
+        # (ol) quiz turns are exempt from THIS shape too -- a ready-check is a
+        # conversation move, not a quiz answer (the old blanket exemption's
+        # rightful remainder).
+        tail = "" if quiz else prose.strip()
+        rm = _READY_CHECK_RE.search(tail) if tail else None
         if rm:
             said = " ".join(rm.group(0).split())[:60].lstrip(".!? ")
             return ('your turn ends on "{s}" -- a yes/no question with no '
@@ -5643,6 +5703,94 @@ def quiz_credit_conflict(reply: str, heard=None):
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[quizcredit] crashed (fail open): {exc}")
         _event("referee_crash", "quizcredit", str(exc))
+        return ""
+
+
+# BUILD ol -- AN OPENER NEVER GRADES (the FIFTY-THIRD referee). Jim's live catch,
+# 2026-08-26 23:23: "I just signed in for the first time in a while... it waited
+# 30 seconds then started with this out of nowhere" -- and "this" was "Nice --
+# categorical is exactly right for house numbers! ... That's the classifying-data
+# quiz wrapped up -- you got all four." No greeting; an answer from a PREVIOUS
+# session graded as if no time had passed; a quiz wrapped that the student never
+# watched end. The opener's SYSTEM note already said "greet them back" -- the
+# model preferred to finish the dangling thread, so instructions alone were not
+# enough (the standing lesson: a rule the model ignored once earns a referee).
+# GATED ON THE SERVER'S OWN FACT: main.py sets meta["opener"]=True only on the
+# __open__ family of turns, so this can never touch a mid-lesson reply. Fires
+# when the first two sentences GRADE and do not GREET; a legitimate recap that
+# praises past work ("Welcome back, Sam! Last time you aced...") greets first
+# and passes untouched -- the after-tour opener neither greets nor grades.
+_OPEN_GREET_RE = re.compile(
+    r"\bwelcome\b|\bhi\b|\bhello\b|\bhey\b|\bgood\s+(?:morning|afternoon|evening)\b"
+    r"|\b(?:great|good|nice)\s+to\s+see\b|\bback\s+at\s+it\b|\bgood\s+to\s+have\s+you\b",
+    re.I)
+_OPEN_GRADE_RE = re.compile(
+    r"\bcorrect\b|\bexactly\s+right\b|\bthat's\s+right\b|\bis\s+(?:exactly\s+)?right\b"
+    r"|\bnailed\s+it\b|\bspot\s+on\b|\byou\s+got\s+it\b|\bwell\s+done\b"
+    r"|\bnot\s+quite\b", re.I)
+
+
+def opener_grade_conflict(reply: str, opener: bool = False):
+    """Return a description of a session OPENER that grades a stale answer
+    instead of greeting, or "". Silent unless the server marked this turn as an
+    opener. Never raises: fail open."""
+    try:
+        if not opener:
+            return ""
+        prose = _spoken_only(str(reply or ""))
+        head = " ".join(_vis_sentences(prose)[:2])
+        if not head:
+            return ""
+        if _OPEN_GREET_RE.search(head):
+            return ""                 # greeted first -- recap praise is welcome
+        gm = _OPEN_GRADE_RE.search(head)
+        if not gm:
+            return ""
+        said = " ".join(head.split())[:80]
+        return ('this is the OPENING turn of a session -- the student typed '
+                'nothing -- and your first words grade an answer: "{q}". Any '
+                "answer sitting at the end of the stored conversation was given "
+                "BEFORE this sign-in, possibly days ago; grading it now, with no "
+                "greeting, reads as a stranger mid-argument. Rule 0: BEGIN with "
+                "the greeting by name and the short recap. If a question was "
+                "left hanging when that old session ended, RE-POSE it fresh "
+                "after the greeting (rule 40i) and let them answer it NOW -- "
+                "never grade stale words as if no time passed.").format(q=said)
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[openergrade] crashed (fail open): {exc}")
+        _event("referee_crash", "openergrade", str(exc))
+        return ""
+
+
+# BUILD ol -- THE VOICE READS "3: 20" AS A CLOCK TIME (the FIFTY-FOURTH referee).
+# Jim's live flag, 2026-08-26 23:30: "Question 3: 20 students pick their
+# favorite school subject..." -- the voice spoke "3: 20" as "three to twenty."
+# This is question 3, and 20 is the first word of the problem. The colon is
+# doing sentence work on the SCREEN and clock work in the EAR. Narrow shape on
+# purpose: ONLY "question <n>: <digit>" fires -- a ratio written 3:20 is
+# genuinely read "three to twenty" and must never be touched. Canon swept 0.
+_Q_COLON_NUM_RE = re.compile(r"\bquestion\s+(\d{1,2})\s*:\s*(\d[\d,.]*)", re.I)
+
+
+def spoken_time_collision_conflict(reply: str):
+    """Return a description of a question number colliding into a clock-time
+    reading, or "". Never raises: fail open."""
+    try:
+        prose = _spoken_only(str(reply or ""))
+        m = _Q_COLON_NUM_RE.search(prose)
+        if not m:
+            return ""
+        return ('you write "Question {n}: {v}..." -- the VOICE reads a '
+                'number-colon-number as a clock time, so the student hears '
+                '"{n}:{v}" spoken like the time of day, and the problem\'s first '
+                "number vanishes into it. End the question number with a PERIOD "
+                "and start the sentence with a WORD: \"Question {n}. \" followed "
+                "by the count spelled out (\"Twenty students...\"). Change only "
+                "that punctuation and the leading number's spelling; keep "
+                "everything else.").format(n=m.group(1), v=m.group(2))
+    except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
+        print(f"[timecollision] crashed (fail open): {exc}")
+        _event("referee_crash", "timecollision", str(exc))
         return ""
 
 
@@ -6712,7 +6860,8 @@ def narrated_method_conflict(reply: str, student_message: str = ""):
 
 def prose_board_conflict(reply: str, student_message: str = "", expected_unit=None,
                          allowed_units=None, record=None, heard=None,
-                         terms_known=None, course: str = "", prev_tutor=None):
+                         terms_known=None, course: str = "", prev_tutor=None,
+                         opener: bool = False):
     """Return a short description of a prose-vs-board contradiction, or "" if clean.
     Never raises: any unexpected input yields "" (fail open).
 
@@ -6922,6 +7071,16 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if qcredit:
             _event("referee_fire", "quizcredit", qcredit)
             return qcredit
+        # (ol) the fifty-third: an opener never grades. Server-gated (meta["opener"]).
+        ograde = opener_grade_conflict(reply, opener)
+        if ograde:
+            _event("referee_fire", "openergrade", ograde)
+            return ograde
+        # (ol) the fifty-fourth: "Question 3: 20" is a clock time in the ear.
+        tcol = spoken_time_collision_conflict(reply)
+        if tcol:
+            _event("referee_fire", "timecollision", tcol)
+            return tcol
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)
@@ -7975,7 +8134,9 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                                                 heard=heard,
                                                 terms_known=(meta or {}).get("terms_known"),
                                                 course=(meta or {}).get("course", ""),
-                                                prev_tutor=prev_tutor)
+                                                prev_tutor=prev_tutor,
+                                                # (ol) main.py marks __open__ turns
+                                                opener=bool((meta or {}).get("opener")))
             if prose_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
                 print(f"[prosecheck]{log_prefix} CONTRADICTION on attempt "
                       f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {prose_detail}")
@@ -8154,7 +8315,10 @@ def get_tutor_reply(student: dict, history: list, user_message: str,
               # build ig: the store's delivered-scripts list
               # (main._foundations_heard) for the twenty-ninth referee (the quiz
               # vocabulary gate). None/absent = it stays silent.
-              "terms_known": (student or {}).get("terms_known")},
+              "terms_known": (student or {}).get("terms_known"),
+              # (ol) main.py sets this True only on the __open__ family of turns
+              # -- the fifty-third referee (an opener never grades) keys on it.
+              "opener": bool((student or {}).get("opener"))},
         where="get_tutor_reply", label="tutor", turn_note=turn_note,
         # build bo: deterministic TODAY-bar net -- LESSON MODE ONLY (the drift the
         # review found: only this lane ever ran it, now that fact is legible here).

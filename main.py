@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  APP_BUILD -> "2026-08-26ol-the-sixth-flag-harvest". BUILD ol --
+#               six probstat flags: named-binary quiz questions ship buttons
+#               (Jim's ruling); "or want another" + clause forks; "Question 3:
+#               20" clock-time collision (referee 54 + 48(d2)); bar chart 400 ->
+#               720; AND the sign-in fast-forward: this file's opener branch now
+#               appends a DANGLING-ANSWER note when stored history ends on an
+#               unanswered student turn, and sets student_context["opener"] so
+#               referee 53 (an opener never grades) can see the door. Also
+#               store.py: the 16-char verify_status truncation hid every
+#               shipped-critic reply from the admin tiles ("0 live critic" while
+#               14 sat uncounted) -- normalized on read.
 #   2026-08-26  APP_BUILD -> "2026-08-26ok-grade-what-they-said". BUILD ok --
 #               Jim's probstat screenshot: "Spring" answered, "Pie chart --
 #               correct! That's question 1 done" replied. tapped_answer widened
@@ -11959,7 +11970,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-26ok-grade-what-they-said"
+APP_BUILD = "2026-08-26ol-the-sixth-flag-harvest"
 
 
 @app.get("/health")
@@ -13216,6 +13227,30 @@ def chat(req: ChatRequest):
                 "resume it. Welcome them back briefly, then run the full opening sequence for "
                 "their FOCUS unit (today's topic, the goal + goals card, ready-check) and teach "
                 "that unit from where their mastery actually stands.)")
+        # (ol) THE DANGLING ANSWER. Jim's live catch, 2026-08-26 23:23: he signed in
+        # after a break and the opener's first words were "Nice -- categorical is
+        # exactly right for house numbers!" -- an answer from the PREVIOUS session
+        # graded as the greeting, and a quiz "wrapped up" out of nowhere. When the
+        # stored conversation ends with a student turn the tutor never answered
+        # (that session closed before the reply), the model's instinct is to finish
+        # the thread. The note now names the trap, and referee 53 (opener_grade_
+        # conflict, keyed on the "opener" flag below) rejects any opener that
+        # grades instead of greeting.
+        try:
+            _tail = history[-1] if history else None
+            if isinstance(_tail, dict) and _tail.get("role") == "user":
+                _stale = " ".join(str(_tail.get("content", "")).split())[:80].replace('"', "'")
+                opener_note += (
+                    " (ALSO: the stored conversation ENDS with a student message -- \""
+                    + _stale + "\" -- that was never answered, because that session "
+                    "closed before your reply. That answer is STALE: it was given "
+                    "before this sign-in, possibly days ago. Do NOT grade it and do "
+                    "NOT continue that thread as if no time passed. Greet them back "
+                    "first; then, if the hanging question still matters, RE-POSE it "
+                    "fresh (rule 40i) and let them answer it NOW.)")
+        except Exception as exc:  # noqa: BLE001 -- a broken note must not cost the opener
+            print(f"[opener] dangling-answer note failed (ignored): {exc}")
+        student_context["opener"] = True   # (ol) referee 53's server-side gate
         reply = _bold_first_terms(tutor.get_tutor_reply(student_context, history, opener_note, req.course, code=code), history)
         _record_learned(code, req.course, reply)
         _record_result_tags(code, req.course, reply)   # build hu: openers can carry tags too

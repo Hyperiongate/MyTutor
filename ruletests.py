@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ol -- PART 3es: the sixth flag harvest (six probstat
+#               flags). Named-binary quiz questions ship buttons (two part3dx
+#               assertions flip DELIBERATELY, dated); "or want another" + clause
+#               forks; referee 53 an-opener-never-grades (server-gated); referee
+#               54 the "Question 3: 20" clock-time collision; bars display cap
+#               400 -> 720; store.py's 16-char verify_status truncation
+#               normalized (the invisible shipped-critic replies).
 #   2026-08-26  BUILD ok -- PART 3er: grade what they said, earn what you score
 #               (Jim's probstat screenshot: "Spring" answered, "Pie chart --
 #               correct! That's question 1 done" replied). tapped_answer's iy
@@ -11729,10 +11736,160 @@ def part3er_grade_what_they_said():
     # the ninth ceiling raise (18c + 47k are SHARED clauses; the all-heard
     # algebra2 prompt measured 197,592 and the wire fired exactly as designed)
     # -- raised, never trimmed, and this pin demands the dated note.
+    # (ol) the CURRENT value moved on to 201,000 (tenth raise, same day); this
+    # pin now guards that ok's HISTORY note survives in the ledger.
     traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
     check("the ninth ceiling raise carries its dated note",
-          "PROMPT_CEILING = 199_000" in traw
+          "197,000 -> 199,000" in traw
           and "2026-08-26 (build ok): RAISED" in traw,
+          "an undated raise is how the ledger's discipline dies")
+
+
+def part3es_the_sixth_flag_harvest():
+    """PART 3es (build ol) -- THE SIXTH FLAG HARVEST (six probstat flags, 23:23-23:32).
+
+    ① 23:32 "binary" on a QUIZ question ("categorical or quantitative data?") --
+      Jim's ruling narrows nn's blanket quiz exemption: a named-binary quiz
+      question ships its buttons (the words already gave the whole answer
+      space); open quiz questions, forks and ready-checks keep the exemption.
+      Also: the either-or shape allows ONE trailing noun ("quantitative DATA?").
+    ② 23:30 "3: 20 is being spoken as 3 to 20" -- referee 54
+      (spoken_time_collision_conflict): "Question N:" followed by a digit is a
+      clock time in the ear; a genuine ratio 3:20 is untouched. 48(d2).
+    ③ 23:28 "bar chart is tiny, about 15%% of the space" -- math-figures.js bars
+      display cap 400 -> 720 (nw's numberline move; viewBox untouched).
+    ④ 23:27 "With me so far, or want another look?" -- _OFFER_FORK_RE learns
+      "or want another / one more".
+    ⑤ 23:25 "does pepperoni still stand out, or is it harder to tell?" --
+      NEW _CLAUSE_FORK_RE (", or <verb>" joins two whole clauses).
+    ⑥ 23:23 "I just signed in... it started with this out of nowhere" (an
+      answer from a PREVIOUS session graded as the greeting) -- referee 53
+      (opener_grade_conflict), server-gated on meta["opener"], which main.py
+      sets only on the __open__ family; plus the dangling-answer opener note.
+    AND the 16-character trap: verify_status is String(16), "critic-unresolved"
+    is 17 chars -- every shipped-critic reply was stored truncated and read as
+    "Uncounted verdicts" while the Shipped tile said "0 live critic".
+    store.usage_stats now normalizes the truncated spelling on read."""
+    print("\nPART 3es — the sixth flag harvest (build ol)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+
+    # ① named-binary quiz carve-out + trailing noun ----------------------------
+    F1 = ("Correct -- bar charts make exact counts easy to read off. Last one, "
+          "question 5: is favorite ice cream flavor itself categorical or "
+          "quantitative data?")
+    r1 = TT.finite_answer_conflict(F1)
+    check("⭐ flag ①: the named-binary QUIZ question fires", bool(r1),
+          "Jim: 'binary' -- the words already gave the whole answer space")
+    check("  ...and the nudge extracts the real pair (trailing noun dropped)",
+          "Categorical | Quantitative" in (r1 or ""), r1[:120] if r1 else "")
+    check("  ...and with its buttons, passes",
+          TT.finite_answer_conflict(
+              F1 + ' [[choices options="Categorical | Quantitative"]]') == "",
+          "a buttoned ask must never pay a retry")
+
+    # ④ + ⑤ the two fork gaps ---------------------------------------------------
+    for want, label, reply in (
+        (True,  "⭐ flag ④: 'With me so far, or want another look?' fires",
+         "That's the tradeoff between the two charts. With me so far, or want "
+         "another look at that pie chart?"),
+        (True,  "⭐ flag ⑤: the clause fork ', or is it harder to tell' fires",
+         "Looking at that pie chart -- does pepperoni still stand out as "
+         "clearly, or is it harder to tell exactly how many friends picked it?"),
+        (False, "  a prose list with ', or' and no verb never fires",
+         "You could count apples, or oranges, or pears -- try any of them."),
+        (False, "  a fork inside a quiz moment stays exempt (nn's remainder)",
+         "Q3: Want to name the angle pair, or classify the triangle?")):
+        check(label, bool(TT.finite_answer_conflict(reply)) == want,
+              "Jim: 'binary choice so bubbles'" if want
+              else "the exemptions must hold exactly where they belong")
+
+    # ② the clock-time collision (referee 54) -----------------------------------
+    for want, label, reply in (
+        (True,  "⭐ flag ②: 'Question 3: 20 students' fires",
+         "Question 3: 20 students pick their favorite school subject."),
+        (False, "  'Question 3. Twenty students' passes",
+         "Question 3. Twenty students pick their favorite school subject."),
+        (False, "  a genuine ratio 3:20 never fires",
+         "The ratio of red to blue is 3:20 -- read that as three to twenty."),
+        (False, "  'Question 3: which chart...' (word next) passes",
+         "Question 3: which chart fits that best?")):
+        check(label, bool(TT.spoken_time_collision_conflict(reply)) == want,
+              "the voice speaks a colon-number as a clock time" if want
+              else "ratios and worded questions must never pay a retry")
+
+    # ⑥ an opener never grades (referee 53) -------------------------------------
+    F6 = ("Nice -- categorical is exactly right for house numbers! That's the "
+          "classifying-data quiz wrapped up -- you got all four.")
+    for want, label, reply, op in (
+        (True,  "⭐ flag ⑥: the graded no-greeting opener fires", F6, True),
+        (False, "  the same reply mid-lesson never fires (server gate)", F6, False),
+        (False, "  a greeting-first recap with praise passes",
+         "Welcome back, Sam! Last time you aced the quiz on naming angles -- "
+         "spot on work. Today we take on constructions.", True),
+        (False, "  the after-tour opener (no greet, no grade) passes",
+         "And that's the tour! Today's goal: name three kinds of angles.", True)):
+        check(label, bool(TT.opener_grade_conflict(reply, opener=op)) == want,
+              "an answer from a previous session graded as the greeting" if want
+              else "legitimate openers must never pay a retry")
+
+    # canon stays untouched under everything new --------------------------------
+    import foundations as FND
+    fires = 0
+    for _c, _scr in FND.FOUNDATIONS.items():
+        _items = _scr.values() if isinstance(_scr, dict) else _scr
+        for _sc in _items:
+            t = (_sc.get("say") or "") + "\n" + "\n".join(_sc.get("board") or [])
+            if (TT.finite_answer_conflict(t) or TT.spoken_time_collision_conflict(t)
+                    or TT.opener_grade_conflict(t, opener=False)):
+                fires += 1
+    check("⭐ zero fires across the canon under the harvest's shapes", fires == 0,
+          f"{fires} scripts rejected")
+
+    # wiring ---------------------------------------------------------------------
+    tsrc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("referee 53 rides the sweep, keyed on the server's opener fact",
+          "opener_grade_conflict(reply, opener)" in tsrc
+          and 'bool((meta or {}).get("opener"))' in tsrc,
+          "an unwired referee catches nothing")
+    check("referee 54 rides the sweep",
+          "spoken_time_collision_conflict(reply)" in tsrc,
+          "an unwired referee catches nothing")
+    msrc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
+    check("⭐ main.py marks the opener turns and names the dangling answer",
+          'student_context["opener"] = True' in msrc
+          and "that was never answered" in open(os.path.join(here, "main.py"),
+                                               encoding="utf-8").read(),
+          "referee 53 is blind without the server's own fact")
+
+    # ③ the bar chart got its room ----------------------------------------------
+    fsrc = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("⭐ flag ③: the bar chart's display cap is 720 (was 400)",
+          "svgOpen(W, H, 720)" in fsrc,
+          "Jim: 'tiny and takes up about 15% of the space available'")
+
+    # the prompt-side law --------------------------------------------------------
+    psrc = open(os.path.join(here, "prompts.py"), encoding="utf-8").read()
+    check("48(d2): a question number never touches a number through a colon",
+          "A QUESTION NUMBER NEVER TOUCHES A NUMBER THROUGH A COLON" in psrc,
+          "the referee enforces a law the prompt must state")
+    check("rule 0: an opener never grades",
+          "AN OPENER NEVER GRADES" in psrc,
+          "the opener's own rulebook must carry the law the model broke")
+
+    # the 16-character trap ------------------------------------------------------
+    ssrc = open(os.path.join(here, "store.py"), encoding="utf-8").read()
+    check("⭐ the truncated critic status is normalized on read",
+          'if vs == "critic-unresolve":' in ssrc,
+          "14 shipped-critic replies were invisible on the admin tiles")
+
+    # the tenth ceiling raise (the carve-out, 48(d2) and rule 0's opener law are
+    # SHARED clauses; the all-heard algebra2 prompt measured 199,319 and the wire
+    # fired exactly as designed) -- raised, never trimmed, dated here.
+    traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    check("the tenth ceiling raise carries its dated note",
+          "PROMPT_CEILING = 201_000" in traw
+          and "2026-08-26 (build ol): RAISED" in traw,
           "an undated raise is how the ledger's discipline dies")
 
 
@@ -11810,10 +11967,17 @@ def part3dx_small_answer_spaces_ship_buttons():
          "Does that click, or should I show it a different way?"),
         (True,  "  the ready-check offer now fires without buttons (nu)",
          "Are you good to try one, or want to watch me do one more first?"),
-        (False, "  a numbered quiz question keeps its free answer",
+        # (ol) DELIBERATE FLIPS -- Jim's ruling, live flag 2026-08-26 23:32
+        # ("binary" on a quiz question): a question that NAMES its two
+        # alternatives ships buttons even in a quiz -- the words already handed
+        # over the whole answer space, so tapping reveals nothing. These two
+        # asserted False from build nn until ol.
+        (True,  "  a NAMED-binary quiz question now ships buttons (ol)",
          "Question 3: is the angle acute or obtuse? Write your answer."),
-        (False, "  a [[quiz]] moment is exempt",
+        (True,  "  a [[quiz]]-moment named-binary now ships buttons (ol)",
          'Is it acute or obtuse? [[quiz n="5"]]'),
+        (False, "  an OPEN quiz question still keeps its free answer (nn intact)",
+         "Question 3: what is the measure of the missing angle?"),
         (False, "  an open question fires nothing",
          "What should we do to both sides of the equation?")):
         check(label, bool(TT.finite_answer_conflict(reply)) == want,
@@ -11843,6 +12007,9 @@ def part3dx_small_answer_spaces_ship_buttons():
     check("  ...and quizzes are exempt IN THE RULE'S OWN TEXT",
           "EXCEPT DURING A QUIZ" in psrc and "one-in-three guess" in psrc,
           "a multiple-choice mastery quiz is a different assessment")
+    check("  ...with ol's named-binary carve-out written into the same rule",
+          "WITH ONE CARVE-OUT" in psrc,
+          "the referee now fires on named-binary quiz questions; the rule must say so")
     check("  ...and the tutor never doubles the app's own not-sure button",
           "never add your own" in psrc,
           "two 'I'm not sure' buttons is how the row stops being fast")
@@ -12451,7 +12618,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,777</b>" in page,
+          "<b>6,803</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20835,6 +21002,7 @@ def main():
     part3ep_the_fifth_flag_harvest()
     part3eq_side_by_side_on_purpose()
     part3er_grade_what_they_said()
+    part3es_the_sixth_flag_harvest()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

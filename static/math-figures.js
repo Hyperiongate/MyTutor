@@ -2,6 +2,10 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-08-26  BUILD ol -- the bar chart's display cap 400 -> 720px (Jim's flag:
+                 "tiny and takes up about 15% of the space available"). Same move
+                 as nw's number line below: viewBox and geometry untouched, the
+                 rendering just gets the room the board actually has.
      2026-08-26  BUILD nw -- the number line's display cap 660 -> 1100px (Jim's
                  flag: "nearly microscopic while it should span the white board").
                  ViewBox and all geometry untouched; it scales up, text and all.
@@ -500,11 +504,17 @@
   }
 
   // ---- [[bars]] : labeled vertical bar chart ----
+  // 2026-08-26 (build ol, Jim's live flag: "This bar chart is tiny and takes up
+  // about 15% of the space available"): display cap raised 400 -> 720 -- the je/nz
+  // numberline move, same reasoning. The viewBox stays 400x250, so the drawing,
+  // its labels and every test that reads coordinates are untouched; the chart
+  // simply renders larger on the board (and still shrinks to fit a phone, since
+  // svgOpen keeps width:100%).
   function bars(a) {
     var d = parseData(a.data); if (!d.length) return "";
     var W = 400, H = 250, left = 36, right = W - 12, top = 22, base = H - 40, plotW = right - left, plotH = base - top;
     var max = Math.max.apply(null, d.map(function (o) { return o.value; }).concat([1]));
-    var s = svgOpen(W, H, 400);
+    var s = svgOpen(W, H, 720);
     for (var i = 0; i <= 4; i++) { var v = max * i / 4, y = base - plotH * i / 4; s += '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '" stroke="#eef0f7"/>'; s += tspan(left - 5, y + 3, String(trimnum(v)), "#8890a0", 9, 500, "end"); }
     s += '<line x1="' + left + '" y1="' + base + '" x2="' + right + '" y2="' + base + '" stroke="#9aa7b6" stroke-width="1.5"/>';
     var bw = plotW / d.length, bar = bw * 0.62;

@@ -2,6 +2,12 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-26  BUILD ol -- THE 16-CHARACTER TRAP. "critic-unresolved" is 17 chars;
+#               verify_status is String(16), so every shipped-critic reply was
+#               stored as "critic-unresolve" and (mw)'s counter key never matched
+#               -- 14 rows read "Uncounted verdicts" while the Shipped tile said
+#               "0 live critic". usage_stats now normalizes the truncated
+#               spelling on read (history included; no migration).
 #   2026-08-25  BUILD nq -- THE OWNER'S FLAG. Jim, watching geometry live, caught
 #               the tutor saying "piece" for "angle" and asked: "It would be great if
 #               I could point this out while in the app and have it fix it itself."
@@ -4268,6 +4274,16 @@ def usage_stats(days: int = 7, since=None) -> dict:
             for vs, n in conn.execute(
                     select(U.c.verify_status, func.count()).where(brain)
                     .group_by(U.c.verify_status)).fetchall():
+                # (ol) THE 16-CHARACTER TRAP. verify_status is String(16) and
+                # log_usage clips to [:16] -- but "critic-unresolved" is 17
+                # characters, so every such row was STORED as "critic-unresolve"
+                # and the (mw) key "verify_critic-unresolved" never matched: 14
+                # shipped-critic replies read as "Uncounted verdicts" on the
+                # admin panel while the Shipped-unresolved tile said "0 live
+                # critic". Normalized HERE, on read, so history and future rows
+                # both count -- no migration, no second spelling in the DB.
+                if vs == "critic-unresolve":
+                    vs = "critic-unresolved"
                 key = "verify_" + (vs or "none")
                 if key in out:
                     out[key] += int(n or 0)
