@@ -11961,9 +11961,11 @@ def part3es_the_sixth_flag_harvest():
     # SHARED clauses; the all-heard algebra2 prompt measured 199,319 and the wire
     # fired exactly as designed) -- raised, never trimmed, dated here.
     traw = open(os.path.join(here, "tutor.py"), encoding="utf-8").read()
+    # (ow) the CURRENT value moved on to 203,000 (eleventh raise); this pin now
+    # guards the tenth raise's HISTORY TEXT, which must survive every later raise.
     check("the tenth ceiling raise carries its dated note",
-          "PROMPT_CEILING = 201_000" in traw
-          and "2026-08-26 (build ol): RAISED" in traw,
+          "2026-08-26 (build ol): RAISED 199,000 -> 201,000" in traw
+          and "Tenth verse" in traw,
           "an undated raise is how the ledger's discipline dies")
 
 
@@ -12656,6 +12658,82 @@ def _quiz_set_for(les):
         pass
     import drillpool
     return drillpool.quiz_problems(les)
+
+
+def part3fb_use_the_whole_board():
+    """PART 3fb (build ow, 2026-08-27) -- THE FIFTY-FIFTH REFEREE, AND THE WIDTH.
+
+    Jim, after a live geometry question: "the screen is still not using the full
+    screen. It's not putting side by side problems as we progress, and it's not
+    saying step one, step two, step three."
+
+    ⭐ THIS WAS NOT A DEPLOY GAP. /health reported 2026-08-27ot -- os and its
+    [[stepcard]] were live on the site he was using. The tag existed and the model
+    did not reach for it, which is the exact condition this codebase has a
+    standing answer to: a rule the model ignored once earns a referee.
+
+    ⭐ AND THE CANON SWEPT IT FIRST. A second, looser arm was written for the
+    wordless form ("first ... then ... then"), swept against all 1,989 authored
+    cards, and CUT: eleven hits, every one a false positive ("first ones, then
+    tens, then hundreds"). Naming an order is not walking stages. The arm that
+    shipped caught zero canon cards. That sweep-before-enforce order is the law
+    build on wrote after a referee convicted the canon, and this part pins that it
+    was actually followed."""
+    print("\nPART 3fb — use the whole board (build ow)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import tutor as TT
+    import prompts as PR
+
+    check("⭐ the referee fires on the shape Jim named",
+          bool(TT.spoken_steps_conflict(
+              "Step one, draw the line. Step two, measure the angle.")),
+          "two spoken stages with no [[stepcard]] is the whole complaint")
+    check("  ...and goes quiet the moment the board carries the cards",
+          TT.spoken_steps_conflict(
+              'Step one, draw it. [[stepcard n="1" title="Draw"]] '
+              'Step two, measure. [[stepcard n="2" title="Measure"]]') == "",
+          "the nudge must be satisfiable in one move, or it is a trap")
+    check("⭐ ONE stage in passing is not a demonstration",
+          TT.spoken_steps_conflict("Nice work -- that was step two.") == "",
+          "a reference to a step is not a numbered walk-through")
+    check("⭐ naming an ORDER is not a staged demonstration (the cut arm)",
+          TT.spoken_steps_conflict(
+              "Numbers have places. First ones, then tens, then hundreds.") == ""
+          and TT.spoken_steps_conflict(
+              "Grouping symbols first, then exponents, then multiplying.") == "",
+          "the looser arm hit eleven canon cards on exactly these sentences and "
+          "was cut before it could enforce anything")
+    check("  a plain worked column is untouched",
+          TT.spoken_steps_conflict(
+              'Add three to both sides. [[step eq="3x = 15"]]') == "",
+          "one problem marching down the board is correct and is not the complaint")
+    check("  the referee fails open on junk",
+          TT.spoken_steps_conflict(None) == "" and TT.spoken_steps_conflict("") == "",
+          "an imperfect referee must never stall a child's lesson")
+    tc = code_only(open(os.path.join(here, "tutor.py"), encoding="utf-8").read())
+    check("⭐ it is wired into the pipeline under its own name",
+          '_event("referee_fire", "spokensteps"' in tc,
+          "an unwired referee is a comment")
+    check("⭐ the eleventh ceiling raise carries its dated note",
+          "PROMPT_CEILING = 203_000" in open(os.path.join(here, "tutor.py"),
+                                             encoding="utf-8").read()
+          and "2026-08-27 (build ow): RAISED 201,000 -> 203,000" in
+              open(os.path.join(here, "tutor.py"), encoding="utf-8").read(),
+          "rule 58(e)'s hard clause is SHARED text; the all-heard algebra2 prompt "
+          "measured 201,629 and the wire fired exactly as designed -- raised, "
+          "never trimmed")
+
+    # ---- the prompt side: the tag is now REQUIRED, not merely offered ----
+    check("⭐ rule 58(e) states the hard rule in the shared rules",
+          "THE HARD RULE" in PR.GRAPH_TOOL_NOTE
+          and "THE BOARD MUST CARRY" in PR.GRAPH_TOOL_NOTE,
+          "os OFFERED the cards and got none; ow requires them")
+    check("  ...and it carves out the thing the canon does all day",
+          "is not a staged demonstration and needs no cards" in PR.GRAPH_TOOL_NOTE,
+          "the prompt must agree with the referee, or the model is caught between")
+    check("  ...and the width half of Jim's sentence is answered too",
+          "USE THE WIDTH" in PR.GRAPH_TOOL_NOTE and "[[beside]]" in PR.GRAPH_TOOL_NOTE,
+          "'it's not putting side by side problems as we progress'")
 
 
 def part3ey_the_walk_away_list():
@@ -13527,7 +13605,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,942</b>" in page,
+          "<b>6,953</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -21977,6 +22055,7 @@ def main():
     part3ey_the_walk_away_list()
     part3ez_answer_freely()
     part3fa_quizzes_through_the_spine()
+    part3fb_use_the_whole_board()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

@@ -50,6 +50,18 @@
 #               done" is rejected unless the conversation actually asked a
 #               question N (heard-gated). Rule 18(c) and new 47(k) are the
 #               prompt-side twins.
+#   2026-08-27  BUILD ow -- THE FIFTY-FIFTH REFEREE: he says "step one, step two"
+#               and the board shows one unlabelled column. Jim, live in geometry
+#               with os ALREADY DEPLOYED (/health said 2026-08-27ot): "it's not
+#               putting side by side problems as we progress, and it's not saying
+#               step one, step two, step three." The [[stepcard]] tag existed and
+#               went unused -- a rule the model ignored once earns a referee.
+#               spoken_steps_conflict fires only when the tutor's own words name
+#               two or more numbered stages with no [[stepcard]] anywhere: a
+#               prose-versus-board mismatch, not a style opinion. A SECOND, LOOSER
+#               ARM ("first ... then ... then") was designed, swept against the
+#               canon, and CUT -- eleven hits, all false ("first ones, then tens,
+#               then hundreds"). The narrow arm swept clean at zero.
 #   2026-08-27  BUILD os -- THE BOARD READS ONE, TWO, THREE (one word here). The
 #               new [[stepcard]] board tag (board.js + rule 58e: labeled Step-N
 #               cards side by side) joins _LEAK_SHAPES' tag-name list -- ahead of
@@ -2262,7 +2274,15 @@ def _foundation_block(course: str, heard=None, verbatim: bool = True, unit=None)
 # discipline: teaching is never trimmed to duck a tripwire; the raise is
 # deliberate and this is its dated note. The two-prompt-sizes LARGE result
 # remains the evidence that should set this number.
-PROMPT_CEILING = 201_000
+# 2026-08-27 (build ow): RAISED 201,000 -> 203,000. Rule 58(e) gained its HARD
+# clause -- if the words say "step one" and "step two", the board must carry
+# [[stepcard]]s -- plus the width reminder and the carve-out that naming an ORDER
+# is not a staged demonstration, all from Jim watching a live geometry lesson that
+# used none of the board it had. The all-heard algebra2 deferred prompt measured
+# 201,629. Eleventh verse, same discipline: teaching is never trimmed to duck a
+# tripwire; the raise is deliberate and this is its dated note. The two-prompt-
+# sizes LARGE result remains the evidence that should set this number.
+PROMPT_CEILING = 203_000
 
 
 def build_system_prompt(student: dict, course: str = DEFAULT_COURSE) -> str:
@@ -5796,6 +5816,70 @@ def opener_grade_conflict(reply: str, opener: bool = False):
 _Q_COLON_NUM_RE = re.compile(r"\bquestion\s+(\d{1,2})\s*:\s*(\d[\d,.]*)", re.I)
 
 
+# =============================================================================
+# REFEREE 55 -- HE SAYS "STEP ONE" AND THE BOARD SAYS NOTHING  (build ow, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim, after a live geometry question, with builds or/os/ot already deployed (I
+# checked /health: the site was running 2026-08-27ot): "the screen is still not
+# using the full screen. It's not putting side by side problems as we progress,
+# and it's not saying step one, step two, step three."
+#
+# THE TOOLS WERE THERE AND WENT UNUSED. Build os shipped [[stepcard]] -- labeled
+# Step-N cards that fill the width -- and rule 58(e) OFFERED it. This codebase
+# has a standing law for exactly that outcome: a rule the model ignored once
+# earns a referee.
+#
+# THE SHAPE IS DELIBERATELY NARROW, and it is a PROSE-VERSUS-BOARD mismatch, not
+# a style opinion. It fires only when the tutor's own spoken words enumerate the
+# stages of a process -- "step one ... step two", or "first ... then ... then" --
+# while the board carries no [[stepcard]] at all. That is the tutor describing a
+# numbered structure the child cannot see, which is the same family as every
+# other prose/board referee here. A worked column of [[step]] lines that never
+# CLAIMS to be numbered stages is untouched: one problem marching down the board
+# is correct and is not what Jim was looking at.
+#
+# SATISFIABLE IN ONE MOVE: emit [[stepcard n="1" title="..."]] before each stage.
+# Fails open, like every referee.
+# =============================================================================
+_SS_ORDINALS = r"(?:one|two|three|four|five|1|2|3|4|5)"
+# "step one", "step 2:" -- the tutor naming numbered stages out loud
+_SS_STEP_WORD = re.compile(r"\bstep\s+" + _SS_ORDINALS + r"\b", re.I)
+_SS_CARD = re.compile(r"\[\[\s*stepcard\b", re.I)
+# ⚠️ A SECOND ARM WAS DESIGNED AND CUT, and the canon sweep is why. It matched the
+# wordless form -- "first ... then ... then/finally" -- on the theory that it is
+# the same structure without the word "step". Swept against all 1,989 authored
+# cards before enforcement (the law this file learned the hard way in build on),
+# it produced ELEVEN hits and every one was a false positive: "first ones, then
+# tens, then hundreds", "seconds, then minutes, then hours", "grouping symbols
+# first, then exponents, then multiplying". Naming an ORDER is not walking a
+# child through STAGES, and a referee that cannot tell them apart would have
+# nagged the canon on every place-value lesson in the app. The narrow arm below
+# caught zero canon cards and is exactly the shape Jim named.
+
+
+def spoken_steps_conflict(reply: str):
+    """Return a description of numbered stages spoken with no [[stepcard]] on the
+    board, or "". Never raises (fail open)."""
+    try:
+        text = str(reply or "")
+        if _SS_CARD.search(text):
+            return ""                      # the board is already carrying the cards
+        prose = _spoken_only(text)
+        if not prose.strip():
+            return ""
+        # TWO OR MORE numbered stages. One "step two" in passing ("nice, that was
+        # step two") is a reference, not a demonstration, and is left alone.
+        steps = _SS_STEP_WORD.findall(prose)
+        named = len(set(x.lower() for x in steps))
+        if named >= 2:
+            return ("the reply SAYS " + ", ".join(sorted(set(s.lower() for s in steps))[:4])
+                    + " but the board has no [[stepcard]], so the child hears a "
+                    "numbered process and sees one unlabelled column")
+        return ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def spoken_time_collision_conflict(reply: str):
     """Return a description of a question number colliding into a clock-time
     reading, or "". Never raises: fail open."""
@@ -7105,6 +7189,15 @@ def prose_board_conflict(reply: str, student_message: str = "", expected_unit=No
         if tcol:
             _event("referee_fire", "timecollision", tcol)
             return tcol
+        # (ow) the fifty-fifth: he SAYS "step one ... step two" and the board shows
+        # one unlabelled column (rule 58e). Jim saw it live with os already
+        # deployed -- the tag existed and went unused, which is what earns a
+        # referee here. Reply-only and objective; swept clean over all 1,989
+        # authored cards before it was allowed to enforce.
+        ssteps = spoken_steps_conflict(reply)
+        if ssteps:
+            _event("referee_fire", "spokensteps", ssteps)
+            return ssteps
         repeatq = repeat_question_conflict(reply, prev_tutor)
         if repeatq:
             _event("referee_fire", "repeatq", repeatq)

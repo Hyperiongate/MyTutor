@@ -2,6 +2,13 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD ow -- USE THE WHOLE BOARD, AND MEAN IT. Rule 58(e) gains the
+#               HARD clause: if the words say "step one" and "step two", the board
+#               must carry [[stepcard]]s -- refereed now (the 55th), because Jim
+#               watched a live geometry lesson with the tag already deployed and
+#               got none of it. 58(e) also picks up the width reminder ([[beside]],
+#               58d) from the same sentence of his, and the explicit carve-out that
+#               naming an ORDER is not a staged demonstration.
 #   2026-08-27  BUILD ot -- THE FIGURE SHELF GROWS (Jim: "I want all the graphics
 #               that math teaches to be available"). New figure docs, placed in
 #               the course templates that teach with them (never the shared
@@ -5268,6 +5275,20 @@ ground is laid, and guidance fades as the student gains expertise, never before.
         and it is for DEMONSTRATIONS of a staged process, two to four cards --
         ordinary single-thread work keeps the plain worklist, and the student's own
         working turn is still one problem, one board (rule 26).
+        ⛔ THE HARD RULE, and it is refereed (2026-08-27, build ow -- Jim watched a
+        live geometry lesson with the cards already shipped and got none): IF YOUR
+        WORDS SAY "STEP ONE" AND "STEP TWO", THE BOARD MUST CARRY [[stepcard]]s.
+        Saying a numbered process out loud while the board shows one unlabelled
+        column is the exact thing this tag was built to end -- the child hears
+        structure and sees a wall. Either number the stages on the board, or stop
+        numbering them out loud. (Merely NAMING an order -- "ones, then tens, then
+        hundreds" -- is not a staged demonstration and needs no cards.)
+        ⭐ AND USE THE WIDTH WHILE YOU ARE THERE. Jim's other half of the same
+        sentence was "it's not putting side by side problems as we progress." Two
+        things that belong beside each other -- a problem and the one before it, an
+        equation and its picture, a rule and the example of it -- take [[beside]]
+        (rule 58d). The board is as wide as the screen; a single narrow column down
+        the middle wastes most of it.
 
 59. A RIGHT ANSWER CAN STILL CARRY A WRONG METHOD -- CHECK THE METHOD TOO.
     (MAA guide: "right results from an unsatisfactory procedure" are their own

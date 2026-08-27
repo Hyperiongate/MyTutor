@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27ow-use-the-whole-board". BUILD ow -- THE
+#               FIFTY-FIFTH REFEREE. Jim, live in geometry: "the screen is still
+#               not using the full screen... it's not saying step one, step two,
+#               step three." NOT A DEPLOY GAP -- /health reported
+#               2026-08-27ot, so [[stepcard]] was live and the model simply did
+#               not reach for it, which is what earns a referee here.
+#               tutor.spoken_steps_conflict fires when the tutor SAYS two or more
+#               numbered stages with no [[stepcard]] on the board; rule 58(e)
+#               gains the matching HARD clause plus the [[beside]] width
+#               reminder. A looser second arm was written, swept against all
+#               1,989 authored cards, and CUT (eleven false positives -- "first
+#               ones, then tens, then hundreds"). PROMPT_CEILING 201,000 ->
+#               203,000, eleventh dated verse. This file carries the stamp only.
 #   2026-08-27  APP_BUILD -> "2026-08-27ov-quizzes-through-the-spine". BUILD ov --
 #               STEP 2 OF JIM'S FLIP. A child on the fast lane finished a topic
 #               and hit a WALL: topic quizzes existed only in the live lane. Now
@@ -12292,7 +12305,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27ov-quizzes-through-the-spine"
+APP_BUILD = "2026-08-27ow-use-the-whole-board"
 
 
 @app.get("/health")
