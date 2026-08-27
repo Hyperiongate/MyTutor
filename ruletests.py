@@ -2,6 +2,22 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD ov -- PART 3fa: quizzes through the authored spine. Also
+#               THREE FIXTURE REPAIRS this build exposed, each recorded in place:
+#               the drill-ticket test compared against ONE lesson's closure while
+#               the server uses the whole course's; the clip-outlier negative test
+#               seeded every line with an identical clip and called that healthy;
+#               and the per-lesson audio ceiling moved 20k -> 22k chars with its
+#               ledger note (quizzes joined the closure; the dollar bar did not
+#               move).
+#   2026-08-27  BUILD ou -- PART 3ez: answer freely in the fast lane. The scripted
+#               lane takes typed and spoken answers, read by a PURE PARSER
+#               (lessonscripts.read_answer) and never by a model. Three real
+#               mis-reads were caught here before shipping -- "1/2" as 2, "three
+#               point five" as 5, "one half" as 1 -- plus str(obj)'s hex address
+#               read as a number. numwords.py is the one shared number table.
+#               PART 3cw's "no microphone is ever loaded" ruling is OVERTURNED by
+#               Jim's flip order and recorded in place, not deleted.
 #   2026-08-27  BUILDS or/os/ot -- PART 3ey: the walk-away list. or: session's
 #               sidebar starts collapsed behind the #sbTab edge tab, the
 #               controls reparent to the bottom strip (ordrive green). os: the
@@ -9740,8 +9756,27 @@ except Spent as e:
     chk("⭐ serving it never reaches the renderer", False, str(e))
 
 # A GENERATED problem's sentence: refused outright, no ticket at all.
-gen = L.spoken_for(sess["pool"][0], (target.get("levels") or L.LEVELS)[0])
-chk("the generated sentence really is outside the closure", gen not in closure, gen[:70])
+# ⚠️ ASK THE SAME QUESTION THE SERVER ASKS (2026-08-27, build ov). This used to
+# test membership of ONE LESSON'S closure while /api/speak-prep tests the WHOLE
+# COURSE's -- a mismatch that lay harmless until quizzes arrived. Quiz questions
+# are drawn from the drill pool (drillpool.quiz_problems), so a subset of pooled
+# sentences is now legitimately INSIDE the course closure, pre-rendered and free;
+# granting those a ticket is correct, not a leak. What must still be refused is a
+# sentence that is genuinely nowhere in the closure, so that is what we now pick.
+course_closure = set(L.course_audio_lines())
+gen = ""
+for _p in sess["pool"]:
+    for _lv in (target.get("levels") or L.LEVELS):
+        _cand = L.spoken_for(_p, _lv)
+        if _cand and _cand not in course_closure:
+            gen = _cand
+            break
+    if gen:
+        break
+chk("a pooled sentence outside the WHOLE-COURSE closure exists to test with",
+    bool(gen), "every pooled sentence is pre-rendered -- the gate has nothing to guard")
+chk("the generated sentence really is outside the closure",
+    bool(gen) and gen not in course_closure and gen not in closure, gen[:70])
 r = c.post("/api/speak-prep", json={"code": CODE, "text": gen, "lead": 1, "lane": "drill"})
 chk("⭐ a GENERATED line gets NO drill ticket at all", r.status_code == 409, str(r.status_code))
 chk("and the refusal says why", "closure" in (r.json().get("detail") or "").lower(), str(r.json()))
@@ -12316,7 +12351,10 @@ def part3ex_the_raised_hand():
     pc = code_only(psrc)
     check("⭐ the ✋ shows during say AND ask beats, never during an AI turn",
           pc.count("askDoor(ctl);") == 2
-          and 'if (step.kind !== "ai") askDoor(ctl)' in pc,
+          # (ov) ...and never during a QUIZ either -- the raised hand is a teaching
+          # door, and a score earned with help is not a score. The condition grew a
+          # clause; the law it enforces is the one build oq wrote.
+          and 'if (step.kind !== "ai" && !QUIZ_ON) askDoor(ctl)' in pc,
           "one question at a time; hands stay available while he talks and asks")
     check("  the quiet resume exists and Back uses it",
           "function playStep(step, quiet)" in pc
@@ -12331,6 +12369,293 @@ def part3ex_the_raised_hand():
           '"/pilot" + codeQ + "&course=prealgebra"' in hc
           and "course=prealgebra&unit=1" not in hc,
           "Jim: 'I'm satisfied with unit one. Start expanding this.'")
+
+
+def part3ez_answer_freely():
+    """PART 3ez (build ou, 2026-08-27) -- ANSWER FREELY IN THE FAST LANE.
+
+    Jim, after driving the authored lane: "I like the rapid round. It's fast. I
+    like to be able to raise my hand and ask a question... go ahead and preload
+    it." Then he ordered the flip -- the fast lane becomes the main road. A lane
+    a child can only TAP in cannot be that road, so it learned to take a typed or
+    spoken answer.
+
+    ⭐ THE LAW THIS PART EXISTS TO HOLD: CODE READS THE ANSWER, NEVER THE MODEL.
+    The lane's entire speed case is that nothing thinks between the child and the
+    next sentence. lessonscripts.read_answer is a pure parser; the battery drives
+    it over the utterances a real child produces, including the three that were
+    caught MIS-READING before this shipped -- "1/2" read as 2, "three point five"
+    as 5, "one half" as 1. Each of those would have graded a wrong answer CORRECT
+    if the number happened to match, which is the one failure a grader may never
+    have. The parser now refuses instead, in authored words.
+
+    The number table itself moved to numwords.py so tutor.py's referees and the
+    engine read numbers with ONE copy of the knowledge (tags.py's precedent)."""
+    print("\nPART 3ez — answer freely in the fast lane (build ou)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import lessonscripts as LS
+    import numwords as NW
+    import tutor as TT
+
+    # ---- one copy of "what a number sounds like" ----
+    check("⭐ numwords.py is the ONE number-word table, and tutor delegates to it",
+          TT._pr_word_value is NW.word_value and TT._PR_ONES is NW.ONES
+          and TT._PR_TENS is NW.TENS and TT._PR_NUMWORD == NW.NUMWORD_PATTERN,
+          "two hand-typed copies of the same table is the Class-B disease tags.py "
+          "exists to end")
+    check("  ...and its semantics are unchanged (the referees depend on them)",
+          NW.word_value("twenty-one") == 21 and NW.word_value("one hundred eighty") == 180
+          and NW.word_value("two dogs") is None and NW.word_value("") is None,
+          "an unknown word must disqualify the phrase -- a referee counting numbers "
+          "must never invent one out of prose")
+
+    # ---- the parser: what a child actually says ----
+    for said, want in (("12", 12), ("  7 ", 7), ("twelve", 12), ("twenty-one", 21),
+                       ("ninety nine", 99), ("one hundred", 100), ("zero", 0), ("0", 0),
+                       ("-3", -3), ("negative three", -3), ("minus 4", -4),
+                       ("x = 5", 5), ("the answer is 12", 12), ("3.0", 3),
+                       ("I don't know, maybe seven?", 7)):
+        got = LS.read_answer(said)
+        check("  reads %r as %d" % (said, want),
+              got.get("kind") == "value" and got.get("value") == want, got)
+    check("⭐ the LAST number wins -- a child talks their way to the answer",
+          LS.read_answer("3 plus 4 is 7").get("value") == 7
+          and LS.read_answer("12, no wait, 15").get("value") == 15,
+          "taking the first number would grade their working, not their answer")
+    for said in ("1/2", "3.5", "three point five", "one half", "two thirds"):
+        got = LS.read_answer(said)
+        check("⭐ refuses to whole-number %r (it would grade a wrong answer right)" % said,
+              got.get("kind") == "notwhole", got)
+    for said in ("I don't know", "not sure", "dunno", "no idea", "help"):
+        check("  hears %r as unsure, not as silence" % said,
+              LS.read_answer(said).get("kind") == "unsure", LS.read_answer(said))
+    for said in ("", "   ", "um", None):
+        check("  %r is nothing usable (the unheard path owns it)" % said,
+              LS.read_answer(said).get("kind") == "none", LS.read_answer(said))
+    body = _read_answer_src(here)
+    check("⭐ only a STRING is an answer -- garbage refuses, never guesses",
+          LS.read_answer(object()).get("kind") == "none"
+          and LS.read_answer(None).get("kind") == "none"
+          and LS.read_answer(12).get("kind") == "none",
+          "str(obj) is '<object object at 0x7f3c...0>' and the numeral scan read that "
+          "hex address as an answer -- found by this very pin before it shipped")
+    check("  ...and an absurd digit run is not an answer either",
+          LS.read_answer("99999999999999").get("kind") == "none"
+          and LS.read_answer("1234567").get("value") == 1234567,
+          "no lesson problem has a fourteen-digit answer")
+    check("⭐ int() only ever sees digits -- the decimal is checked FIRST, not rounded",
+          'raw.split(".", 1)[1].strip("0") == ""' in body
+          and 'raw = raw.split(".", 1)[0]' in body
+          and "float(" not in body,
+          "int(\"3.5\") is a crash and int(3.5) is a silent 3 -- one graded a wrong "
+          "answer correct, which is the failure a grader may never have")
+
+    # ---- the authored lines are in the audio closure ----
+    check("⭐ both refusal lines are AUTHORED and in the closure (free forever)",
+          LS.LINE_WHOLE in LS.STANDALONE_LINES and LS.LINE_UNSURE in LS.STANDALONE_LINES
+          and LS.LINE_WHOLE in LS.course_audio_lines()
+          and LS.LINE_UNSURE in LS.course_audio_lines(),
+          "a spoken line outside the closure is a live TTS call per child, which is "
+          "the cost and the latency this lane exists to delete")
+
+    # ---- the route reads them in code ----
+    mc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
+    check("⭐ /api/script/answer accepts `said` and grades it with the PARSER",
+          "said: str | None = None" in mc
+          and "lessonscripts.read_answer(body.said)" in mc,
+          "the child's own words must reach the same integer a tap would send")
+    check("  ...a tap still wins, so the old request is byte-for-byte unchanged",
+          "if body.value is None and (body.said" in mc,
+          "do no harm: `value` present means nothing new runs at all")
+    check("  ...and every refusal routes to the EXISTING unheard path",
+          "body.unheard = True" in mc and "lessonscripts.LINE_WHOLE" in mc
+          and "lessonscripts.LINE_UNSURE" in mc,
+          "the re-ask, the escalation to tap-only after two, and the authored lines "
+          "were already there -- a refusal must reuse them, not invent a path")
+
+    # ---- the page ----
+    pfull = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    psrc = pfull.split("-->", 1)[-1]
+    check("⭐ the page satisfies mic.js's contract instead of re-implementing it",
+          all(n in psrc for n in ("var canRecord", "function setPhase(",
+                                  "function sendToTutor(", "micTypeHint"))
+          and 'src="/static/mic.js"' in pfull,
+          "voice.js's header records four hand-ported audio layers, each missing a "
+          "different protection; this page loads the real one")
+    check("  the typed answer and the transcript travel the SAME road",
+          "function answerSaid(" in psrc and "window.__pilotSaid" in psrc
+          and '{ code: CODE, said: text }' in psrc,
+          "one grading path, or the two ways to answer will drift")
+
+
+def _read_answer_src(here):
+    """The body of read_answer only -- so the no-int() pin reads the parser, not
+    the whole 24,000-line module it lives in."""
+    src = open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read()
+    return src.split("def read_answer(", 1)[1].split("\ndef ", 1)[0]
+
+
+def part3fa_quizzes_through_the_spine():
+    """PART 3fa (build ov, 2026-08-27) -- QUIZZES THROUGH THE AUTHORED SPINE.
+
+    Step 2 of Jim's flip. A child on the main road finishes a topic and must be
+    ASSESSED; until this build they hit a wall and had to cross to the slow lane
+    for it. Four laws, all pinned here:
+
+      1. NOTHING IN A QUIZ THINKS. There is no model call on either quiz route,
+         and no path from a quiz into the AI intervention. A score earned with
+         help is not a score, and a quiz that waits on a model is not fast.
+      2. THE QUESTIONS ARE PINNED DATA (quizsets.py), not an algorithm's mood.
+         The audio closure has to enumerate every sentence a quiz can speak --
+         computing them at call time measured MINUTES for the full course and
+         would have broken /admin's prewarm price button, and worse, a later
+         tweak to the pool scan would have silently invalidated audio already
+         paid for. Pinned questions cannot drift from pinned audio.
+      3. THE SCORE IS DRAWN, NEVER SPOKEN. Seven quiz lines in the closure
+         instead of one per possible score.
+      4. THE SAME STORE CALL THE LIVE LANE USES, at the same 80% bar, so a topic
+         passed in the fast lane is passed everywhere and no second notion of
+         "mastered" comes into existence."""
+    print("\nPART 3fa — quizzes through the authored spine (build ov)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    import lessonscripts as LS
+    import store as ST
+
+    # ---- the bar is ONE number, in two files that cannot import each other ----
+    check("⭐ the pass bar matches the rest of the app exactly",
+          LS.QUIZ_PASS_PCT == ST.QUIZ_PASS_PCT == 80,
+          "lessonscripts imports nothing with a database in it, so the number is "
+          "stated twice -- which is exactly why it is pinned against itself here")
+
+    # ---- the machine is linear, pure, and cannot teach ----
+    les = LS.LESSONS[0]
+    ps = _quiz_set_for(les)
+    steps, st = LS.quiz_start(les, ps)
+    check("⭐ a quiz opens with its intro and its FIRST question, nothing else",
+          st and steps[0]["kind"] == "say" and steps[0]["spoken"] in LS.LINE_QUIZ_INTRO.values()
+          and steps[1]["kind"] == "qask" and steps[1]["n"] == 1, steps[:2])
+    check("  a lesson that cannot field QUIZ_MIN questions gets NO quiz, not a broken one",
+          LS.quiz_start(les, ps[:1]) == ([], None),
+          "never a button that opens onto nothing")
+    # walk it: every answer right
+    st2 = LS.quiz_start(les, ps)[1]
+    seen_kinds, guard = [], 0
+    while guard < 20:
+        guard += 1
+        p = st2["problems"][st2["i"]]
+        out, st2 = LS.quiz_answer(les, st2, LS.ans(p))
+        seen_kinds += [o["kind"] for o in out]
+        if st2["finished"]:
+            break
+    endstep = [o for o in out if o["kind"] == "qend"][0]
+    check("⭐ all correct = 100%, passed, and the score is CARRIED not spoken",
+          endstep["pct"] == 100 and endstep["passed"] is True
+          and endstep["correct"] == endstep["total"]
+          and str(endstep["correct"]) not in endstep["spoken"],
+          "the number rides the payload for the board to draw")
+    check("  every right answer says only 'Right.' -- no teaching inside a quiz",
+          set(k for k in seen_kinds if k == "say") == {"say"}
+          and LS.LINE_QUIZ_RIGHT == "Right.",
+          "rule 47: the one time help is held back")
+    # walk it again: every answer wrong
+    st3 = LS.quiz_start(les, ps)[1]
+    guard = 0
+    while guard < 20:
+        guard += 1
+        p = st3["problems"][st3["i"]]
+        out3, st3 = LS.quiz_answer(les, st3, LS.ans(p) + 1)
+        if st3["finished"]:
+            break
+    end3 = [o for o in out3 if o["kind"] == "qend"][0]
+    check("⭐ all wrong = 0%, not passed, and STILL no re-teach and no retry",
+          end3["pct"] == 0 and end3["passed"] is False
+          and not any(o["kind"] == "qask" for o in out3),
+          "a quiz that re-teaches is measuring the re-teach")
+    check("  a finished quiz is inert (a late answer changes nothing)",
+          LS.quiz_answer(les, st3, 0)[0] == [], "no double-scoring")
+
+    # ---- the question sets are PINNED DATA ----
+    qs_path = os.path.join(here, "quizsets.py")
+    check("⭐ quizsets.py exists and covers every lesson", os.path.exists(qs_path), qs_path)
+    if os.path.exists(qs_path):
+        import quizsets
+        ids = {l["id"] for l in LS.LESSONS}
+        have = {k for k, v in quizsets.QUIZ_SETS.items() if len(v) >= LS.QUIZ_MIN}
+        check("  every one of the %d lessons can be quizzed" % len(ids),
+              ids <= have, sorted(ids - have)[:6])
+        check("  ...and no set is longer than QUIZ_LEN",
+              all(len(v) <= LS.QUIZ_LEN for v in quizsets.QUIZ_SETS.values()), "")
+        check("⭐ every quiz question is a REAL problem this engine can grade",
+              all(isinstance(LS.ans(p), int)
+                  for v in list(quizsets.QUIZ_SETS.values())[:40] for p in v),
+              "a question with no computable answer is an ungradeable quiz")
+        check("⭐ every quiz sentence is inside the AUDIO CLOSURE",
+              LS.LINE_QUIZ_RIGHT in LS.STANDALONE_LINES + tuple(LS.LINE_QUIZ_INTRO.values())
+              or LS.LINE_QUIZ_RIGHT in LS.audio_lines(les),
+              "a spoken line outside the closure is a live TTS call per child")
+        cl = LS.audio_lines(les)
+        want = LS.quiz_audio_lines(les, quizsets.QUIZ_SETS[les["id"]])
+        check("  ...and audio_lines() enumerates a lesson's quiz exactly",
+              want <= set(cl),
+              "the closure must know what the quiz will say BEFORE it says it")
+
+    # ---- the routes ----
+    mc = code_only(open(os.path.join(here, "main.py"), encoding="utf-8").read())
+    check("⭐ the two quiz routes exist and are SEPARATE from the teaching routes",
+          'app.post("/api/script/quiz/start")' in mc.replace("@app", "app")
+          and 'app.post("/api/script/quiz/answer")' in mc.replace("@app", "app"),
+          "a quiz must not be able to reach the teaching grader, or the reverse")
+    qblock = mc.split("_QUIZ_SESSIONS = {}", 1)[1].split("# ABRABOT", 1)[0]
+    check("⭐ NO MODEL IS REACHABLE FROM A QUIZ",
+          "_script_intervene" not in qblock and "get_tutor_reply" not in qblock
+          and "script_question" not in qblock,
+          "this is the pin that keeps a quiz both honest and fast")
+    check("  the answer key never ships (the payload is rebuilt, not filtered)",
+          "def _quiz_clean(" in mc and '"expected"' not in qblock
+          and '"problem"' not in qblock,
+          "filtering a dict leaves tomorrow's new field in it; rebuilding cannot")
+    check("⭐ a quiz records through the SAME store calls the live lane uses",
+          "store.record_topic_quiz(" in qblock and 'store.record_topic(' in qblock,
+          "one notion of mastered, or the dashboard and the gate disagree")
+    check("  an unreadable answer is RE-ASKED, never marked wrong",
+          "read_answer(body.said)" in qblock and "_quiz_ask(state)" in qblock,
+          "a quiz that scores 'I could not hear you' as wrong measures the microphone")
+
+    # ---- the page ----
+    p = open(os.path.join(here, "static", "pilot.html"), encoding="utf-8").read()
+    psrc = p.split("-->", 1)[-1]
+    check("⭐ the page hides the ✋ for the whole quiz",
+          "!QUIZ_ON) askDoor(ctl)" in psrc,
+          "the raised hand is a teaching door and a quiz is not teaching")
+    check("  the quiz beats are drawn, and the score card with them",
+          'step.kind === "qask"' in psrc and 'step.kind === "qend"' in psrc
+          and "qcard" in p, "")
+    check("  one answer bar, two graders -- a said answer knows which lane it is in",
+          "if (QUIZ_ON) { quizAnswer(null, text, ctl); return; }" in psrc,
+          "two answer paths would drift; one path with a flag cannot")
+    check("  the quiz is the FIRST door at the end of a taught topic",
+          "function endDoors(ctl, offerQuiz, retake)" in psrc
+          and "Take the quiz" in psrc and "endDoors(ctl, true);" in psrc,
+          "the point of finishing a topic is to prove it")
+    check("⭐ a PASS closes the quiz door; a FAIL reopens it as a retake",
+          "endDoors(ctl, !step.passed, true);" in psrc
+          and "Try the quiz again" in psrc,
+          "the drive caught this backwards -- a child who scored 3/3 was offered "
+          "the same quiz again, and a child who failed was not")
+
+
+def _quiz_set_for(les):
+    """The pinned set when it exists, else computed -- so this part can run before
+    quizsets.py has been generated."""
+    try:
+        import quizsets
+        got = quizsets.QUIZ_SETS.get(les["id"])
+        if got:
+            return got
+    except Exception:
+        pass
+    import drillpool
+    return drillpool.quiz_problems(les)
 
 
 def part3ey_the_walk_away_list():
@@ -13202,7 +13527,7 @@ def part3dq_the_methodology_page_keeps_its_receipts():
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
     check("  ...and the numbers strip counts THIS battery",
-          "<b>6,876</b>" in page,
+          "<b>6,942</b>" in page,
           "the automated-checks tile went stale -- update it when the battery grows "
           "(this pin's own number included, deliberately: growing the battery means "
           "touching the page, which is the reminder working)")
@@ -20063,8 +20388,20 @@ def part3cv_scripted_engine():
               _ended and _ended["mastered"] and _st["done"] == L.MIN_PROBLEMS
               and not _miss, str(_miss[:2]))
         est2 = L.audio_cost_estimate(_les)
+        # ---- THE PER-LESSON AUDIO CEILING, and its ledger --------------------
+        # 20,000 chars was the bar from the day this closure was first priced. It
+        # is a COST tripwire, not a content rule, and the same law applies here as
+        # to the prompt ceiling: a lesson is never trimmed to duck a tripwire --
+        # the tripwire is raised deliberately, in writing, with the reason.
+        #   2026-08-27 (build ov): 20,000 -> 22,000. QUIZZES joined the closure.
+        #   Every lesson now ends in a five-question topic quiz whose sentences
+        #   must be pre-rendered like every other line (quizsets.py), which added
+        #   ~400 chars to a lesson and pushed seven of the 336 -- the wordiest
+        #   probstat, calculus and diffeq lessons -- from ~19.9k to ~20.4k. The
+        #   DOLLAR bar did not move and did not need to: the worst lesson is
+        #   $4.59 against the same $5.00 it always had. Measured, not guessed.
         check(f"{_les['id']}: the closure is priceable and small",
-              0 < est2["chars"] < 20000 and est2["usd"] < 5.0, str(est2))
+              0 < est2["chars"] < 22000 and est2["usd"] < 5.0, str(est2))
 
     # ---- 9. ⭐ THE CLOSURE: everything ever spoken is pre-renderable ----
     missing = sorted({s for s in heard if s and s not in closure})
@@ -20489,9 +20826,27 @@ chk("the dry run says WHICH lesson and which model",
     one["lesson"] == L.LESSONS[0]["id"] and one.get("model"), one)
 
 # cache one lesson's lines, then prove force ignores the cache
+# ⚠️ SEED EACH LINE WITH A CLIP THAT MATCHES ITS LENGTH (2026-08-27, build ov).
+# This used to store the SAME 40-frame clip against every line, and called the
+# result a "healthy course" -- which held only while a lesson's lines were all
+# roughly one length. Quizzes broke that: the closure now also contains "Right."
+# and "Not that one.", six and fourteen characters, and an identical clip on a
+# six-character line really IS off-pace by any honest measure. The detector was
+# correct and the FIXTURE was lying, so the fixture is fixed rather than the
+# detector loosened: a healthy course is one whose clips match their text.
 lines0 = sorted(set(L.audio_lines(L.LESSONS[0])))
+# Scale from the MEDIAN line (not lines0[0], whose length is alphabetical
+# accident), and floor at main._TTS_MIN_CACHE_FRAMES: the cache REFUSES a clip
+# shorter than that (a short render is a broken render), so a proportional clip
+# for a six-character line like "Right." was silently rejected and showed up as
+# one uncached line out of sixty-nine. The floor is read from the server's own
+# constant rather than typed, so it can never drift from it.
+_MED_LEN = sorted(len(x) for x in lines0)[len(lines0) // 2] or 1
+_SEED_FRAMES_PER_CHAR = 40.0 / _MED_LEN
 for s in lines0:
-    main._tts_cache_store(s, A, source="kf-seed")
+    main._tts_cache_store(s, clip(max(main._TTS_MIN_CACHE_FRAMES,
+                                      int(round(len(s) * _SEED_FRAMES_PER_CHAR)))),
+                          source="kf-seed")
 noforce = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
                  "lesson": L.LESSONS[0]["id"]}).json()
 forced = c.post("/api/admin/script-prewarm", json={"key": "TESTKEY", "dry_run": True,
@@ -21123,9 +21478,33 @@ def part3cw_script_lane():
         # NAME mic.js and forSpeech to explain why they are absent, and a pin that
         # forbids documenting a decision would teach us to stop writing it down.
         psrc = pfull.split("-->", 1)[-1]
-        check("pilot page: TAP-FIRST -- no microphone is ever loaded",
-              "mic.js" not in psrc and "getUserMedia" not in psrc,
-              "the ruling: in scripted segments a tap cannot be misheard")
+        # ⚠️ RULING OVERTURNED BY JIM, 2026-08-27 (build ou), and recorded rather
+        # than deleted. This pin used to read "TAP-FIRST -- no microphone is ever
+        # loaded", because in a scripted segment a tap cannot be misheard. That
+        # reasoning is still true and still honored (see tap_only below) -- but
+        # Jim's flip order made the scripted lane the MAIN road, and a lane a
+        # child can only tap in is not a classroom for anyone past six. So the
+        # mic is loaded now. What must never happen is the thing voice.js's own
+        # header warns about: a SECOND recorder hand-ported into this page.
+        check("pilot page: the microphone is mic.js -- never a second recorder",
+              "mic.js" in pfull
+              and "getUserMedia" not in psrc.replace("navigator.mediaDevices.getUserMedia)", "")
+              and "new MediaRecorder" not in psrc,
+              "the page provides mic.js's ambient contract and loads the real file; "
+              "hand-porting the audio layer is what cost this lane four builds before")
+        check("  ...and the tap ruling survives it: buttons on every ask, tap_only obeyed",
+              "step.tap_only" in psrc and "hideAnswerBar" in psrc
+              and 'ob.className = "opt"' in psrc,
+              "two unheard answers in a row must still close the free bar -- a child "
+              "whose voice is not landing is not asked to keep using it")
+        # ⚠️ read the CODE, not the comments -- the note that explains WHY there is
+        # no second `paused` has to say the words "let paused" to be readable, and
+        # a pin that punishes documenting a decision teaches us to stop writing it
+        # down. (Same lesson as this part's own mic.js/forSpeech notes above.)
+        check("  ...and no second `paused` is declared (voice.js owns it)",
+              "var paused" not in code_only(pfull) and "let paused" not in code_only(pfull),
+              "the pilot drive caught exactly this: a duplicate declaration is a "
+              "SyntaxError that kills voice.js and takes his voice with it")
         # (ki) These three pinned pilot.html's OWN voice layer. ki deleted it -- the page
         # loads voice.js now -- so the properties are unchanged but the file that owns
         # them is not. Pinned where they live; PART 3cz pins that the copy stays gone.
@@ -21596,6 +21975,8 @@ def main():
     part3ew_the_authored_spine_pilot()
     part3ex_the_raised_hand()
     part3ey_the_walk_away_list()
+    part3ez_answer_freely()
+    part3fa_quizzes_through_the_spine()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
     if live:

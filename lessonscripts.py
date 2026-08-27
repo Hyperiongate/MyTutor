@@ -2,6 +2,15 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE + THE COURSE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  BUILD ou -- ANSWER FREELY. read_answer() turns what a child TYPED
+#               or SAID into the integer this engine grades: pure code, no model,
+#               no network, refusing rather than guessing (a fraction, a spoken
+#               decimal, or garbage is a refusal with an authored line, never a
+#               rounded number that could grade a wrong answer correct). Two new
+#               lines -- LINE_WHOLE and LINE_UNSURE -- join STANDALONE_LINES so
+#               every spoken refusal stays inside the audio closure and is free
+#               forever. The number-word table lives in numwords.py now, shared
+#               with tutor.py's referees (one copy, tags.py's precedent).
 #   2026-08-27  BUILD oo -- THE GIVEAWAYS ARE CLOSED (the ms hand-tail). All 41
 #               remaining hits where a demo answers a problem its own lesson
 #               asks: 5 problems renumbered under ms's ranking law (same answer,
@@ -1428,6 +1437,9 @@
 
 import re
 
+# build ou: the shared number-word reader (tutor.py imports the same one).
+import numwords as _numw
+
 # ---- THE SETTINGS (from the 2026-08-20 research ruling; change THERE first) -------
 ADVANCE_STREAK = 3        # advance on 3 consecutive unaided correct (EDM 2015)
 MIN_PROBLEMS = 4          # even a perfect child does at least 4 (DI "firming")
@@ -1466,6 +1478,42 @@ LINE_REASK = "Let me say that again."
 LINE_TAP = "Tap the answer you think is right."
 LINE_END_GRACEFUL = ("We did some strong thinking today. We'll practice this again "
                      "next time — Mr. Cadabra is proud of you.")
+
+# ---- build ou (2026-08-27): ANSWER FREELY -- the two lines free answers need ----
+# A child may now TYPE or SAY an answer instead of tapping one. Code reads it
+# (read_answer below); these are the only two things that can be said back that the
+# tap-only lane never needed. Both are in STANDALONE_LINES, so they are rendered
+# once into the audio closure and are free forever, like every other spoken line.
+# ---- build ov (2026-08-27): THE TOPIC QUIZ ----------------------------------
+# A quiz is the ONE time help is held back (the live lane's rule 47, and the
+# reason a score means anything). So these lines say right or wrong and nothing
+# else: no hint, no re-teach, no second try. THE SCORE IS NEVER SPOKEN -- it is
+# drawn on the board as a card -- which keeps the audio closure at seven lines
+# instead of one per possible score, and puts the number where a child can look
+# at it twice.
+# 80% to pass, the same bar store.QUIZ_PASS_PCT applies to every other topic
+# quiz in the app. Stated here as a number because this module imports nothing
+# with a database in it; PART 3fa pins the two against each other.
+QUIZ_PASS_PCT = 80
+QUIZ_LEN = 5                 # questions in a topic quiz, when the lesson can field them
+QUIZ_MIN = 3                 # fewer than this and the lesson is simply not quizzed
+LINE_QUIZ_INTRO = {
+    3: ("Quiz time — three questions on this topic, and no hints from me. "
+        "Show me what you have got."),
+    4: ("Quiz time — four questions on this topic, and no hints from me. "
+        "Show me what you have got."),
+    5: ("Quiz time — five questions on this topic, and no hints from me. "
+        "Show me what you have got."),
+}
+LINE_QUIZ_RIGHT = "Right."
+LINE_QUIZ_WRONG = "Not that one."
+LINE_QUIZ_PASS = ("That is a pass — this topic is yours. It is on your dashboard.")
+LINE_QUIZ_FAIL = ("Not a pass this time, and that is useful to know. "
+                  "We will practise this one again and you can retake it.")
+
+LINE_WHOLE = "That one wants a whole number. Have another go."
+LINE_UNSURE = ("Saying you are not sure is a good move. Tap the hand and ask me "
+               "anything — or take a guess, and I will help either way.")
 
 
 def ans(p):
@@ -23732,6 +23780,115 @@ def board_for(p, level):
     return stars + step
 
 
+# =============================================================================
+# READING A CHILD'S OWN WORDS  (build ou, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim: "I like to be able to raise my hand and ask a question... go ahead and
+# preload it." The fast lane was TAP-ONLY, which is fine for a six-year-old and
+# insulting to everyone else -- and a lane a child cannot answer in their own
+# words is not a classroom either.
+#
+# ⭐ CODE READS THE ANSWER. NOT THE MODEL. EVER. The whole latency case for this
+# lane is that no model sits between the child and the next sentence. Sending a
+# typed answer to an LLM to be "understood" would hand back the five to ten
+# seconds the lane exists to delete, and would put a guesser in charge of
+# grading. So this function is a parser: pure, deterministic, and importable by
+# the battery, which drives it over hundreds of real utterances.
+#
+# ⭐ IT REFUSES RATHER THAN GUESSES. Every answer this engine grades is a whole
+# number (see ans()). When the words do not yield one, the honest outcomes are
+# "ask again" or "that wants a whole number" -- never a rounded guess. Reading
+# "three point five" as 3 would mark a wrong answer CORRECT, which is the one
+# failure a grader must never have. int() is not used anywhere below.
+#
+# Returns a dict, always, one of:
+#   {"kind": "value",   "value": int}   a whole number was said
+#   {"kind": "notwhole","said": str}    a number, but not a whole one
+#   {"kind": "unsure"}                  "I don't know" -- a real answer, not silence
+#   {"kind": "none"}                    nothing usable; treat exactly like unheard
+# =============================================================================
+_RA_MAXLEN = 200                      # a child's answer; anything longer is noise
+_RA_UNSURE = re.compile(
+    r"\b(?:i\s*(?:do\s*n[o']?t|dont|don t)\s*know"
+    r"|no\s*idea|not\s*sure|unsure|dunno|no\s*clue"
+    r"|i\s*am\s*stuck|i'?m\s*stuck|stuck|help(?:\s*me)?"
+    r"|i\s*(?:ca|can)n(?:no|')?t\b)", re.I)
+# a numeral, with an optional sign and an optional decimal part
+_RA_NUMERAL = re.compile(r"(-|\u2212|minus\s+|negative\s+)?(\d+(?:\.\d+)?)", re.I)
+_RA_WORDNUM = re.compile(
+    r"(minus\s+|negative\s+)?(" + _numw.NUMWORD_PATTERN + r")", re.I)
+# ⚠️ THE SPOKEN FORMS OF "NOT A WHOLE NUMBER", found by driving the parser over
+# real utterances before it shipped: "1/2" was read as 2, "three point five" as 5,
+# and "one half" as 1 -- each one a wrong answer that would have been graded
+# CORRECT if the number happened to match. A voice lane produces exactly these
+# shapes, so they are detected FIRST, before any digit is extracted.
+_RA_FRACTION = re.compile(
+    r"\b\d+\s*/\s*\d+\b"                                   # 1/2, 3 / 4
+    r"|\b(?:point|decimal)\s+(?:\d|" + _numw.NUMWORD_PATTERN + r")"   # three point five
+    r"|\b(?:half|halves|thirds?|quarters?|fourths?|fifths?"    # one half, two thirds
+    r"|sixths?|sevenths?|eighths?|ninths?|tenths?)\b", re.I)
+
+
+def read_answer(said):
+    """Turn what the child typed or said into an answer. Pure; never raises."""
+    try:
+        # ⚠️ ONLY A STRING IS AN ANSWER. str(some_object) yields
+        # "<object object at 0x7f3c...0>" -- whose hex address is full of digits,
+        # which the numeral scan below duly read as an answer. Caught by the
+        # battery's own never-raises pin, and it is the "never guess" law in
+        # miniature: garbage in must be a refusal, not a number.
+        if not isinstance(said, str):
+            return {"kind": "none"}
+        text = said.strip()[:_RA_MAXLEN]
+        if not text:
+            return {"kind": "none"}
+        low = text.lower()
+
+        # A fraction is a number the engine cannot be answered with. Say so
+        # BEFORE the numeral scan, which would otherwise read "1/2" as 2.
+        if _RA_FRACTION.search(low):
+            return {"kind": "notwhole", "said": text}
+
+        # ⚠️ THE LAST NUMBER WINS, on purpose. A child talks their way to it --
+        # "3 plus 4 is 7", "12, no wait, 15" -- and the number they land on is
+        # the answer they mean. Taking the first would grade their working.
+        best = None
+        for m in _RA_NUMERAL.finditer(low):
+            sign = -1 if (m.group(1) or "").strip() in ("-", "\u2212", "minus", "negative") else 1
+            raw = m.group(2)
+            if "." in raw:
+                whole = raw.split(".", 1)[1].strip("0") == ""
+                if not whole:
+                    best = ("notwhole", None)
+                    continue
+                raw = raw.split(".", 1)[0]
+            if len(raw) > 7:
+                continue          # not an answer to a lesson problem; ignore it
+            try:
+                best = ("value", sign * int(raw))
+            except ValueError:
+                continue
+        if best is None:
+            for m in _RA_WORDNUM.finditer(low):
+                v = _numw.word_value(m.group(2))
+                if v is None:
+                    continue
+                sign = -1 if (m.group(1) or "").strip() in ("minus", "negative") else 1
+                best = ("value", sign * v)
+
+        # "I don't know" is checked only AFTER the numbers, so "I don't know,
+        # maybe seven?" is read as the guess it is rather than as a shrug.
+        if best is None:
+            if _RA_UNSURE.search(low):
+                return {"kind": "unsure"}
+            return {"kind": "none"}
+        if best[0] == "notwhole":
+            return {"kind": "notwhole", "said": text}
+        return {"kind": "value", "value": best[1]}
+    except Exception:
+        return {"kind": "none"}
+
+
 def choices_for(p):
     """Three tap options: the answer and its two neighbours (floor 1), shuffled by a
     FIXED per-problem rotation -- deterministic, so replays render identically.
@@ -23928,6 +24085,84 @@ def step(lesson, state, event):
 
 
 # =============================================================================
+# THE TOPIC QUIZ  (build ov, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim's flip order made this lane the main road, and a child on the main road
+# hits the end of a topic and needs a QUIZ -- until this build they hit a wall
+# and had to cross to the slow lane to be assessed.
+#
+# ⭐ A QUIZ IS NOT A LESSON, SO IT IS NOT THE LESSON'S STATE MACHINE. step() is
+# a teaching machine: it re-levels, it fetches the AI on a wrong answer, it
+# praises by name. Every one of those is exactly wrong in a quiz, and bending
+# step() to suppress them would put the assessment and the teaching in one
+# tangle where a change to either could quietly corrupt the other. So the quiz
+# is its own tiny linear machine, right here, and NOTHING in it can reach the
+# model.
+#
+# ⭐ THE QUESTION SET IS FIXED AND PURE. quiz_problems() (drillpool.py, which
+# owns "more problems from this lesson") is a deterministic function of the
+# lesson alone -- never of what this child happened to be asked -- so
+# audio_lines() can enumerate every sentence a quiz will ever speak, and the
+# closure property holds: rendered once, free forever. A quiz that picked its
+# questions at runtime would be a live TTS call per child per question.
+#
+# ⭐ THE SCORE IS BOARD WORK, NOT SPEECH. See the note on the lines above.
+# =============================================================================
+def quiz_start(lesson, problems):
+    """Open a quiz over an ALREADY-CHOSEN question list. Returns (steps, state)."""
+    ps = list(problems or [])[:QUIZ_LEN]
+    if len(ps) < QUIZ_MIN:
+        return ([], None)                     # this lesson cannot field a quiz
+    level = lesson.get("levels", LEVELS)[-1]  # a quiz asks at the lesson's own top level
+    state = {"i": 0, "correct": 0, "problems": ps, "level": level,
+             "total": len(ps), "finished": False}
+    out = [{"kind": "say", "spoken": LINE_QUIZ_INTRO[len(ps)], "board": ""}]
+    out.append(_quiz_ask(state))
+    return (out, state)
+
+
+def _quiz_ask(state):
+    p = state["problems"][state["i"]]
+    return {"kind": "qask", "spoken": spoken_for(p, state["level"]),
+            "board": board_for(p, state["level"]), "choices": choices_for(p),
+            "n": state["i"] + 1, "total": state["total"]}
+
+
+def quiz_answer(lesson, state, value):
+    """Grade ONE quiz answer in code. Returns (steps, state). Never teaches, never
+    re-asks, never reaches a model -- the next question follows immediately."""
+    if not state or state.get("finished"):
+        return ([], state)
+    p = state["problems"][state["i"]]
+    right = (value == ans(p))
+    if right:
+        state["correct"] += 1
+    out = [{"kind": "say", "spoken": (LINE_QUIZ_RIGHT if right else LINE_QUIZ_WRONG),
+            "board": ""}]
+    state["i"] += 1
+    if state["i"] < state["total"]:
+        out.append(_quiz_ask(state))
+        return (out, state)
+    state["finished"] = True
+    pct = (state["correct"] * 100) // state["total"]
+    passed = pct >= QUIZ_PASS_PCT
+    out.append({"kind": "qend", "spoken": (LINE_QUIZ_PASS if passed else LINE_QUIZ_FAIL),
+                "board": "", "correct": state["correct"], "total": state["total"],
+                "pct": pct, "passed": passed})
+    return (out, state)
+
+
+def quiz_audio_lines(lesson, problems):
+    """Every sentence a quiz on THIS lesson can speak (the closure's quiz half)."""
+    lines = set(LINE_QUIZ_INTRO.values())
+    lines.update([LINE_QUIZ_RIGHT, LINE_QUIZ_WRONG, LINE_QUIZ_PASS, LINE_QUIZ_FAIL])
+    level = lesson.get("levels", LEVELS)[-1]
+    for p in list(problems or [])[:QUIZ_LEN]:
+        lines.add(spoken_for(p, level))
+    return lines
+
+
+# =============================================================================
 # THE AUDIO CLOSURE -- every spoken string a lesson can ever emit.
 # =============================================================================
 def audio_lines(lesson):
@@ -23946,6 +24181,23 @@ def audio_lines(lesson):
             lines.add(praise_for(p, i))
     lines.update([LINE_WRONG, LINE_TAP, LINE_END_GRACEFUL,
                   lesson["advance_line"]])
+    # build ov: the TOPIC QUIZ's own sentences.
+    # ⚠️ READ THE PINNED TABLE, NEVER drillpool. The first draft called
+    # drillpool.quiz_problems() here, and the profiler caught what that meant:
+    # validate() calls audio_lines(), pool_for() calls validate() thousands of
+    # times per lesson, and quiz_problems() falls back to a pool scan for any
+    # lesson id it does not recognise -- which every SYNTHETIC candidate lesson
+    # the pool builder makes is. One line put a minutes-long scan inside the
+    # validator's inner loop (13,729 recursive calls in a single 20-second
+    # profile). It also pointed a dependency backwards: drillpool imports THIS
+    # module. quizsets.py is pure data and is the very set the audio is rendered
+    # against, so it is both the fast answer and the correct one. Guarded,
+    # because a missing table must cost the app its quizzes, never its lessons.
+    try:
+        import quizsets as _qs
+        lines.update(quiz_audio_lines(lesson, _qs.QUIZ_SETS.get(lesson.get("id")) or []))
+    except Exception:
+        pass
     return sorted(lines)
 
 
@@ -23995,7 +24247,10 @@ CADABRA_HANDOFF_HELLO = "Let's look at this one together."
 CADABRA_HANDOFF_BYE = "You have got this. Back to you, Abrabot."
 
 # Everything above, plus anything else that is spoken outside a lesson later.
-STANDALONE_LINES = tuple(ABRABOT_INTRO) + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
+STANDALONE_LINES = (tuple(ABRABOT_INTRO)
+                    + (CADABRA_HANDOFF_HELLO, CADABRA_HANDOFF_BYE)
+                    # build ou: the free-answer lines belong to no lesson
+                    + (LINE_WHOLE, LINE_UNSURE))
 
 
 def course_audio_lines(lessons=None):

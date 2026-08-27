@@ -157,6 +157,15 @@
     (ju) 2026-08-21 -- NEW FILE, Build C of the scripted-first pivot (see
     Ruling_Scripted_First_And_The_Settings_2026-08-20.md and builds js/jt).
 
+    (ou) 2026-08-27 -- ANSWER IN YOUR OWN WORDS. Jim's flip order: this lane becomes
+    the main road, and a lane a child can only TAP in is not a classroom for anyone
+    past six. An answer bar rides every ask beat -- type it, or say it (mic.js, the
+    REAL one, whose ambient contract this page now provides; never a second recorder,
+    see voice.js's header for what that cost last time). Both roads post `said` to the
+    same /api/script/answer, where CODE reads it. The tap buttons are untouched and a
+    tap still posts a bare integer. tap_only (two unheard answers) closes the bar, so
+    build ju's tap-first ruling survives where it still applies.
+
     WHAT THIS PAGE IS. The client for /api/script/start + /api/script/answer:
     the whole lesson is pre-authored and pre-voiced; this page just PLAYS it --
     one beat at a time, tap-to-answer -- and hands the very occasional AI
@@ -232,6 +241,25 @@
   .next{background:var(--purple);color:#fff}
   .opt{background:#fff;border:2.5px solid var(--purple);color:var(--purple);min-width:86px}
   .opt:disabled,.next:disabled{opacity:.45;cursor:default}
+  /* (ou) the free-answer bar: type it or say it, beside the tap buttons */
+  .answerbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
+  .answerbar[hidden]{display:none}
+  .answerbar input{flex:1 1 220px;min-width:0;font:inherit;font-size:17px;
+    padding:11px 14px;border:2px solid #d9d7ee;border-radius:12px;color:var(--ink)}
+  .answerbar input:focus{outline:none;border-color:var(--purple)}
+  .talkbtn{background:#fff;border:2.5px solid var(--purple);color:var(--purple);
+    border-radius:12px;padding:11px 16px;font:inherit;font-weight:800;cursor:pointer}
+  .talkbtn.recording{background:#e0392b;border-color:#c0392b;color:#fff}
+  .talkbtn:disabled{opacity:.45;cursor:default}
+  /* (ov) the quiz score card -- drawn, never spoken (see the closure note) */
+  .qcard{max-width:340px;margin:10px auto;padding:20px 24px;border-radius:18px;text-align:center}
+  .qcard.pass{background:#e9f9f0;border:2px solid #b6e6cd}
+  .qcard.keep{background:#fff6e6;border:2px solid #f2d59a}
+  .qcard .qtop{font-size:12px;font-weight:800;letter-spacing:.12em;color:#6b6f82}
+  .qcard .qscore{font-size:46px;font-weight:900;color:var(--ink);margin:4px 0}
+  .qcard .qpct{font-size:16px;font-weight:700;color:#6b6f82}
+  .ahint{font-size:13px;color:var(--muted);min-height:16px;margin-top:2px}
+  .alive{font-size:15px;font-weight:600;color:var(--ink);min-height:18px}
   #status{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
   #devbar{display:none;font:12px ui-monospace,Menlo,monospace;color:var(--muted);
           background:#fff;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin-top:8px}
@@ -263,6 +291,20 @@
     <div id="bubble"></div>
     <div id="board"></div>
     <div id="controls"></div>
+
+    <!-- (ou) ANSWER IN YOUR OWN WORDS. One persistent bar, shown on ask beats and
+         hidden otherwise, so mic.js has stable elements to hold (it reaches for
+         talkBtn / talkLabel / hint / live / statusEl by NAME -- see the contract
+         block below). Rebuilding these per beat would hand it dead references. -->
+    <div id="answerbar" class="answerbar" hidden>
+      <button id="talkBtn" class="talkbtn" type="button" disabled
+              aria-label="Say your answer out loud">🎤 <span id="talkLabel">Say it</span></button>
+      <input id="sayInput" autocomplete="off" placeholder="…or type your answer and press Enter">
+      <button id="sendBtn" class="opt" type="button">Send</button>
+    </div>
+    <div id="hint" class="ahint"></div>
+    <div id="live" class="alive" aria-live="polite"></div>
+
     <div id="status"></div>
     <div id="devbar"></div>
   </div>
@@ -306,12 +348,48 @@
   // is what decides whether a beat auto-advances or waits for a tap.
   var __voiceSpoke = false;
   function setState(s) { if (s === "speaking") __voiceSpoke = true; }
+
+  // ---- (ou) mic.js's ambient contract, provided by this page ----------------
+  // ⭐ ONE RECORDER, NOT TWO. mic.js owns permission handling, the 30-second cap,
+  // the transcribe call, and the F10 distinction between "the request failed" and
+  // "you said nothing". voice.js's own header records what happened the last time
+  // this lane hand-ported an audio layer instead of loading the real one: four
+  // copies, each missing a different protection. So this page satisfies the
+  // contract (the bare names below are the ones mic.js reaches for) rather than
+  // growing a recorder of its own.
+  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+    && (typeof MediaRecorder !== "undefined");
+  // ⚠️ NO `paused` HERE. voice.js declares it (let paused, build hd) and loads
+  // right after this block -- a second declaration is a SyntaxError that kills
+  // voice.js outright, taking Mr. Cadabra's voice with it. The pilot drive caught
+  // exactly that. mic.js reads `paused` at call time, by which point voice.js has
+  // defined it, so the contract is satisfied without re-declaring anything.
+  var phase = "idle";                  // idle | ready | recording | busy
+  var lastTutorText = "";              // what he just asked (expectsALetter reads it)
+  var hint = null, statusEl = null, live = null, talkBtn = null, talkLabel = null;
+  function setPhase(p) {
+    phase = p;
+    if (!talkBtn) return;
+    talkBtn.disabled = (p !== "ready" && p !== "recording");
+    talkBtn.classList.toggle("recording", p === "recording");
+    if (talkLabel) talkLabel.textContent = (p === "recording") ? "Stop" : "Say it";
+  }
+  // mic.js hands the finished transcript here; the scripted lane grades it in CODE.
+  function sendToTutor(text) { if (window.__pilotSaid) window.__pilotSaid(text); }
 </script>
 <script src="/static/voice.js"></script>
+<script src="/static/mic.js"></script>
 <script>
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
+  var QUIZ_ON = false;                 // (ov) a quiz is running: no ✋, no AI, no second try
+  // (ou) bind mic.js's contract to real elements (declared as globals above, so a
+  // bare assignment here fills them in -- this IIFE is strict, and that is fine
+  // because the names already exist).
+  hint = $("hint"); statusEl = $("status"); live = $("live");
+  talkBtn = $("talkBtn"); talkLabel = $("talkLabel");
+  micTypeHint = "type it in the box";
   var qs = new URLSearchParams(location.search);
   var DEV = qs.get("dev") === "1";
   var FCOURSE = (qs.get("course") || "").trim();   // (op) the pilot lens
@@ -461,6 +539,7 @@
   // raised hand: board and words return instantly, controls unlock, no clip.
   var lastStep = null;     // the step on stage (say/ask/ai), for the ✋ resume
   function playStep(step, quiet) {
+    if (step && step.kind !== "ask" && step.kind !== "ai") hideAnswerBar();   // (ou)
     // (kj) draw into a CLEARED board. A praise beat carries no board of its own, so the
     // previous picture stays up rather than blinking out -- the child keeps looking at
     // the thing being praised. Same rule as before; the drawing is just real now.
@@ -501,7 +580,11 @@
           if (played) setTimeout(go, 650);
         }, function () { b.disabled = false; });   // (ke) slow clip: offer Next, keep playing
       }
-      askDoor(ctl);   // (oq) a child can raise a hand while he talks
+      // (ov) ...but not inside a quiz. The drive caught this: the guard had been
+      // put on the QUESTION beats only, so the ✋ was still sitting there during
+      // the quiz's own say beats -- the intro, and every "Right." between
+      // questions. A child could have asked for help in the middle of a score.
+      if (!QUIZ_ON) askDoor(ctl);   // (oq) a child can raise a hand while he talks
       $("status").textContent = "";
       return;
     }
@@ -514,14 +597,70 @@
         ob.onclick = function () { answer(parseInt(v, 10), ctl); };
         ctl.appendChild(ob);
       });
+      // (ou) the free-answer bar opens with the question -- unless the engine has
+      // asked for taps only (two unheard answers in a row: the child's voice or
+      // typing is not landing, so we stop asking them to use it).
+      if (step.tap_only) hideAnswerBar(); else showAnswerBar(step);
       var enable = function () {
         ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
+        if (!step.tap_only) setAnswerBar(true);
       };
-      if (step.kind !== "ai") askDoor(ctl);   // (oq) hands stay up during asks too
+      // (ov) ...but NEVER during a quiz: the raised hand is a teaching door, and a
+      // score earned with help is not a score.
+      if (step.kind !== "ai" && !QUIZ_ON) askDoor(ctl);   // (oq) hands stay up during asks too
       if (quiet) enable();
       else speak(words, enable, enable);         // (ke) a slow clip must not lock the answers
       $("status").textContent = step.kind === "ai" ? "Mr. Cadabra is helping — try it again!"
                                                    : (step.tap_only ? "Tap your answer." : "");
+      return;
+    }
+    // ---- (ov) THE TOPIC QUIZ -------------------------------------------------
+    // A quiz beat looks like an ask and behaves like nothing else on this page:
+    // no ✋ (a raised hand is a teaching door and this is not teaching), no AI,
+    // no second try. The answer bar and the tap buttons work exactly as they do
+    // in a lesson, because a child should not have to learn a new way to answer
+    // in the one place it counts.
+    if (step.kind === "qask") {
+      current = step;
+      choiceValues(step.choices || "").forEach(function (v) {
+        var ob = document.createElement("button");
+        ob.className = "opt"; ob.textContent = v; ob.disabled = true;
+        ob.onclick = function () { quizAnswer(parseInt(v, 10), null, ctl); };
+        ctl.appendChild(ob);
+      });
+      QUIZ_ON = true;
+      showAnswerBar(step);
+      var qenable = function () {
+        ctl.querySelectorAll("button").forEach(function (x) { x.disabled = false; });
+        setAnswerBar(true);
+      };
+      if (quiet) qenable(); else speak(words, qenable, qenable);
+      $("status").textContent = "Quiz — question " + step.n + " of " + step.total
+        + ". No hints on these!";
+      return;
+    }
+    if (step.kind === "qend") {
+      QUIZ_ON = false;
+      ctl.innerHTML = "";
+      hideAnswerBar();
+      $("bubble").innerHTML = (step.passed ? '<span class="confetti">🎉</span> ' : "")
+        + styleTerms(step.spoken || "");
+      flagBubble();
+      // THE SCORE IS DRAWN, NOT SPOKEN -- which is why the audio closure needs
+      // seven quiz lines instead of one per possible score, and why the child can
+      // look at the number twice.
+      var f = boardEl();
+      if (f) {
+        f.innerHTML = '<div class="qcard ' + (step.passed ? "pass" : "keep") + '">'
+          + '<div class="qtop">' + (step.passed ? "PASSED" : "KEEP PRACTISING") + '</div>'
+          + '<div class="qscore">' + step.correct + " / " + step.total + '</div>'
+          + '<div class="qpct">' + step.pct + '%</div></div>';
+      }
+      speak(step.spoken || "", function () {});
+      $("status").textContent = step.passed
+        ? "Topic passed — it's on your dashboard."
+        : "Saved. You can retake this quiz any time.";
+      endDoors(ctl, !step.passed, true);   // (ov) a pass closes the door; a fail reopens it
       return;
     }
     if (step.kind === "end") {
@@ -533,34 +672,54 @@
       $("status").textContent = step.mastered
         ? "Topic mastered — it's on the dashboard."
         : "Saved as still learning — the next session re-teaches it.";
-      var nextLes = null;
-      for (var ni = 0; ni < LESSONLIST.length; ni++) {
-        if (LESSONLIST[ni].id === CURRENT_ID && ni + 1 < LESSONLIST.length) {
-          nextLes = LESSONLIST[ni + 1];
-          break;
-        }
-      }
-      if (nextLes) {
-        var nb = document.createElement("button");
-        nb.className = "next";
-        nb.textContent = "Next lesson \u25b6 " + nextLes.topic;
-        nb.onclick = function () { startLesson(nextLes.id); };
-        ctl.appendChild(nb);
-      }
-      // (op) the way home -- a pilot student is never stranded at slice's end
-      var home = document.createElement("button");
-      home.className = "opt"; home.textContent = "\u{1F3EB} Back to my classroom";
-      home.onclick = function () {
-        location.href = "/home?code=" + encodeURIComponent(CODE);
-      };
-      ctl.appendChild(home);
-      var again = document.createElement("button");
-      again.className = "next"; again.textContent = "Play again";
-      again.onclick = function () { location.reload(); };
-      ctl.appendChild(again);
+      // (ov) THE QUIZ IS THE FIRST DOOR at the end of a taught topic -- before
+      // "next lesson", because the point of finishing a topic is to prove it.
+      endDoors(ctl, true);
       current = null;
       return;
     }
+  }
+
+  // (ov) the doors at the end of a lesson OR a quiz, in one place so the two
+  // endings can never drift apart. THE QUIZ DOOR APPEARS when there is a quiz
+  // still worth taking: after the lesson (take it), and after a FAILED quiz
+  // (retake it, and the status line has just said so). After a PASS it must not
+  // appear -- the drive caught this the wrong way round, offering a child who had
+  // just scored 3/3 the same quiz again.
+  function endDoors(ctl, offerQuiz, retake) {
+    if (offerQuiz && CURRENT_ID) {
+      var qb = document.createElement("button");
+      qb.className = "next";
+      qb.textContent = retake ? "\u{1F4DD} Try the quiz again \u25b6"
+                              : "\u{1F4DD} Take the quiz \u25b6";
+      qb.onclick = function () { startQuiz(CURRENT_ID); };
+      ctl.appendChild(qb);
+    }
+    var nextLes = null;
+    for (var ni = 0; ni < LESSONLIST.length; ni++) {
+      if (LESSONLIST[ni].id === CURRENT_ID && ni + 1 < LESSONLIST.length) {
+        nextLes = LESSONLIST[ni + 1];
+        break;
+      }
+    }
+    if (nextLes) {
+      var nb = document.createElement("button");
+      nb.className = offerQuiz ? "opt" : "next";
+      nb.textContent = "Next lesson \u25b6 " + nextLes.topic;
+      nb.onclick = function () { startLesson(nextLes.id); };
+      ctl.appendChild(nb);
+    }
+    // (op) the way home -- a pilot student is never stranded at slice's end
+    var home = document.createElement("button");
+    home.className = "opt"; home.textContent = "\u{1F3EB} Back to my classroom";
+    home.onclick = function () {
+      location.href = "/home?code=" + encodeURIComponent(CODE);
+    };
+    ctl.appendChild(home);
+    var again = document.createElement("button");
+    again.className = "opt"; again.textContent = "Play again";
+    again.onclick = function () { location.reload(); };
+    ctl.appendChild(again);
   }
   function playNext() {
     if (!queue.length) return;
@@ -650,8 +809,100 @@
     ctl.appendChild(hb);
   }
 
+  // ---- (ou) ANSWER IN YOUR OWN WORDS -------------------------------------
+  // The tap buttons stay exactly as they were -- this is an ADDITION beside them.
+  // Typed text and transcribed speech travel the same road: `said` on the same
+  // POST, read by code on the server (lessonscripts.read_answer), never a model.
+  function showAnswerBar(step) {
+    var bar = $("answerbar");
+    bar.hidden = false;
+    $("sayInput").value = "";
+    live.textContent = "";
+    hint.textContent = canRecord
+      ? "Say your answer out loud, type it, or tap one of the buttons."
+      : "Type your answer and press Enter — or tap one of the buttons.";
+    talkBtn.hidden = !canRecord;
+    lastTutorText = step.spoken || "";      // mic.js reads this for expect=letter
+    setAnswerBar(false);
+  }
+  function setAnswerBar(on) {
+    var bar = $("answerbar");
+    if (bar.hidden) return;
+    $("sayInput").disabled = !on;
+    $("sendBtn").disabled = !on;
+    setPhase(on ? "ready" : "busy");
+  }
+  function hideAnswerBar() {
+    $("answerbar").hidden = true;
+    setPhase("idle");
+    hint.textContent = ""; live.textContent = "";
+  }
+  function sendSaid() {
+    var t = ($("sayInput").value || "").trim();
+    if (!t || busy) return;
+    live.textContent = t;                    // the child sees what we heard
+    answerSaid(t);
+  }
+  function answerSaid(text) {
+    if (busy) return;
+    live.textContent = text;
+    setAnswerBar(false);
+    var ctl = $("controls");
+    ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+    if (QUIZ_ON) { quizAnswer(null, text, ctl); return; }   // (ov) one bar, two graders
+    post("/api/script/answer", { code: CODE, said: text }, function (j) {
+      current = null;
+      hideAnswerBar();
+      ingest(j.steps);
+    });
+  }
+  // mic.js hands its finished transcript to sendToTutor, which calls this.
+  window.__pilotSaid = function (text) { answerSaid(text); };
+  $("sendBtn").onclick = sendSaid;
+  $("sayInput").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); sendSaid(); }
+  });
+  // ONE tap starts recording, the next sends it -- mic.js owns both sides.
+  talkBtn.onclick = function () {
+    if (phase === "recording") stopRecording(true);
+    else startRecording();
+  };
+
+  // ---- (ov) THE TOPIC QUIZ ------------------------------------------------
+  // Its own two calls, deliberately separate from the lesson's: a quiz must not
+  // be able to reach the teaching routes, and the teaching routes must not be
+  // able to reach a quiz's grading.
+  function startQuiz(lessonId) {
+    QUIZ_ON = true;
+    queue = [];
+    $("controls").innerHTML = "";
+    hideAnswerBar();
+    post("/api/script/quiz/start", { code: CODE, lesson: lessonId }, function (j) {
+      if (!j.ok) {            // this lesson cannot field a quiz -- say so, do not stall
+        QUIZ_ON = false;
+        $("status").textContent = "No quiz for this topic yet — the lesson is saved.";
+        endDoors($("controls"), false);
+        return;
+      }
+      current = null;
+      ingest(j.steps);
+    });
+  }
+  function quizAnswer(value, said, ctl) {
+    if (ctl) ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+    setAnswerBar(false);
+    var body = { code: CODE };
+    if (said) body.said = said; else body.value = value;
+    post("/api/script/quiz/answer", body, function (j) {
+      current = null;
+      hideAnswerBar();
+      ingest(j.steps);
+    });
+  }
+
   function answer(value, ctl) {
     ctl.querySelectorAll("button").forEach(function (x) { x.disabled = true; });
+    hideAnswerBar();
     post("/api/script/answer", { code: CODE, value: value }, function (j) {
       current = null;
       ingest(j.steps);

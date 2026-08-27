@@ -2,6 +2,39 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-08-27  APP_BUILD -> "2026-08-27ov-quizzes-through-the-spine". BUILD ov --
+#               STEP 2 OF JIM'S FLIP. A child on the fast lane finished a topic
+#               and hit a WALL: topic quizzes existed only in the live lane. Now
+#               every one of the 336 authored lessons ends in a five-question
+#               quiz. NEW /api/script/quiz/start + /answer; the questions are
+#               PINNED DATA (quizsets.py, generated once) because the audio
+#               closure has to enumerate every sentence a quiz can speak;
+#               grading is code; recording goes through the SAME
+#               store.record_topic_quiz the live lane uses, at the same 80% bar.
+#               NOTHING IN A QUIZ THINKS -- there is no model call on either
+#               route -- and the ✋ is hidden for the duration, because a score
+#               earned with help is not a score. The score is DRAWN on the board,
+#               never spoken, which keeps the closure at seven quiz lines.
+#               Quizzes add ~1,337 lines to the audio closure (~$30 one-time
+#               across all ten courses). PART 3fa; the ov drive proves the page.
+#               ⚠️ TWO REAL BUGS THE DRIVE CAUGHT: the ✋ was still up during a
+#               quiz's own say beats, and a PASS re-offered the same quiz while a
+#               FAIL offered no retake -- exactly backwards.
+#   2026-08-27  APP_BUILD -> "2026-08-27ou-answer-freely". BUILD ou -- STEP 1 OF
+#               JIM'S FLIP ("go ahead and preload it... are you thinking of making
+#               this a permanent option?"). The scripted lane was TAP-ONLY, which
+#               cannot be the main road. /api/script/answer now also accepts
+#               `said` -- what the child typed, or what mic.js transcribed -- and
+#               lessonscripts.read_answer turns it into the same integer a tap
+#               sends. ⭐ CODE READS IT, NEVER THE MODEL: the lane's whole speed
+#               case is that nothing thinks between the child and the next
+#               sentence. The parser REFUSES rather than guesses (a fraction, a
+#               spoken decimal, or garbage gets an authored line and the existing
+#               unheard re-ask), because reading "three point five" as 3 would
+#               grade a wrong answer correct. A tap still sends a bare `value`, so
+#               the old request is byte-for-byte unchanged. numwords.py is new:
+#               one copy of the number-word table, shared with tutor.py's
+#               referees. PART 3ez; the pilot drive proves the page.
 #   2026-08-27  APP_BUILD -> "2026-08-27ot-the-figure-shelf". BUILDS or + os + ot
 #               (Jim's walk-away list, all front-end -- no route or API changed
 #               here; this note is the build stamp plus the map).
@@ -9435,6 +9468,12 @@ class ScriptAnswerIn(BaseModel):
     code: str
     value: int | None = None
     unheard: bool = False
+    # build ou (2026-08-27): the child's OWN words -- typed, or transcribed from
+    # their voice. Read by CODE (lessonscripts.read_answer), never by a model:
+    # the whole latency case for this lane is that nothing thinks between the
+    # child and the next sentence. `value` still wins when both arrive, so a tap
+    # is byte-for-byte the request it has always been.
+    said: str | None = None
 
 
 @app.post("/api/script/start")
@@ -9536,12 +9575,36 @@ def script_answer(body: ScriptAnswerIn):
             "No scripted lesson is running for this code -- POST /api/script/start."))
     lesson, state = sess["lesson"], sess["state"]
 
+    # ---- build ou: THE CHILD'S OWN WORDS BECOME AN ANSWER, IN CODE ----------
+    # A tap sends `value` and nothing here runs. A typed or spoken answer sends
+    # `said`, and lessonscripts.read_answer -- a pure parser, no model, no
+    # network -- turns it into the same integer a tap would have sent. It
+    # REFUSES rather than guesses, and each refusal has an authored line:
+    #   none      -> exactly the unheard path (Let me say that again / Tap it),
+    #                which already escalates to tap-only after two.
+    #   notwhole  -> "that one wants a whole number", then the same re-ask.
+    #   unsure    -> "saying you are not sure is a good move" + the ✋ is right
+    #                there, then the same re-ask. Never graded wrong for it.
+    pre = []
+    if body.value is None and (body.said or "").strip():
+        got = lessonscripts.read_answer(body.said)
+        if got["kind"] == "value":
+            body.value = got["value"]
+        else:
+            if got["kind"] == "notwhole":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_WHOLE,
+                            "board": ""})
+            elif got["kind"] == "unsure":
+                pre.append({"kind": "say", "spoken": lessonscripts.LINE_UNSURE,
+                            "board": ""})
+            body.unheard = True
+
     # ---- the child is inside an AI intervention: CODE grades the redo ----
     if sess["mode"] == "intervene":
         redo = sess["redo"]
         if body.unheard:
             _script_log(code, lesson["course"], t0)
-            return {"ok": True, "steps": [{"kind": "say",
+            return {"ok": True, "steps": pre + [{"kind": "say",
                     "spoken": lessonscripts.LINE_TAP, "board": redo["choices"]}]}
         if body.value is not None and int(body.value) == redo["expected"]:
             praise = lessonscripts.praise_for(redo["problem"], state["done"])
@@ -9578,7 +9641,7 @@ def script_answer(body: ScriptAnswerIn):
     event = ("unheard",) if body.unheard else ("answer", int(body.value or 0))
     steps, state = lessonscripts.step(lesson, state, event)
     sess["state"] = state
-    out = []
+    out = list(pre)          # build ou: the authored refusal line leads, then the re-ask
     for s in steps:
         if s["kind"] == "intervene":
             context = dict(s)
@@ -9604,6 +9667,143 @@ def script_answer(body: ScriptAnswerIn):
                 _script_finish(code, sess, s)
     _script_log(code, lesson["course"], t0)
     return {"ok": True, "steps": out}
+
+# =============================================================================
+# THE TOPIC QUIZ, THROUGH THE AUTHORED SPINE  (build ov, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim ordered the flip: the scripted lane becomes the main road. A child on the
+# main road finishes a topic and needs to be ASSESSED -- and until this build
+# they hit a wall and had to cross to the slow lane for it.
+#
+# ⭐ NOTHING IN A QUIZ THINKS. No model call exists on either route below. A
+# quiz is code asking pinned questions and code grading them, which is what
+# makes a score mean something and what keeps the lane fast.
+#
+# ⭐ NO HELP, BY DESIGN. The engine's quiz machine says only "Right." or "Not
+# that one." (rule 47: the one time help is held back, or the score measures the
+# help). The page hides the ✋ door for the duration -- the raised hand is a
+# teaching door, and a quiz is not teaching.
+#
+# ⭐ THE SAME STORE CALL THE LIVE LANE USES. store.record_topic_quiz, at the
+# same 80% bar, into the same table the dashboard and the unit gate already
+# read -- so a topic passed in the fast lane is passed everywhere, and no second
+# notion of "mastered" comes into existence.
+# =============================================================================
+_QUIZ_SESSIONS = {}          # code -> {lesson, state}; in memory, dies with the process
+
+
+class ScriptQuizStartIn(BaseModel):
+    code: str
+    lesson: str = ""
+
+
+class ScriptQuizAnswerIn(BaseModel):
+    code: str
+    value: int | None = None
+    said: str | None = None
+
+
+def _quiz_clean(steps):
+    """Never ship the answer key. The engine's qask carries `expected` nowhere,
+    but the problem dict itself would let a determined child compute it, so the
+    payload is rebuilt field by field rather than filtered."""
+    out = []
+    for s in steps:
+        k = s.get("kind")
+        if k == "qask":
+            out.append({"kind": "qask", "spoken": s.get("spoken", ""),
+                        "board": s.get("board", ""), "choices": s.get("choices", ""),
+                        "n": s.get("n", 0), "total": s.get("total", 0)})
+        elif k == "qend":
+            out.append({"kind": "qend", "spoken": s.get("spoken", ""), "board": "",
+                        "correct": s.get("correct", 0), "total": s.get("total", 0),
+                        "pct": s.get("pct", 0), "passed": bool(s.get("passed"))})
+        else:
+            out.append({"kind": "say", "spoken": s.get("spoken", ""),
+                        "board": s.get("board", "")})
+    return out
+
+
+def _quiz_questions(lesson):
+    """The pinned set for this lesson (quizsets.py), or nothing when it has none."""
+    try:
+        import quizsets
+        ps = quizsets.QUIZ_SETS.get(lesson.get("id")) or []
+        if ps:
+            return ps
+    except Exception:  # noqa: BLE001
+        pass
+    try:                      # a lesson added since the table was generated
+        return drillpool.quiz_problems(lesson) if drillpool else []
+    except Exception:  # noqa: BLE001
+        return []
+
+
+@app.post("/api/script/quiz/start")
+def script_quiz_start(body: ScriptQuizStartIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    if not code or not store.get_student(code):
+        raise HTTPException(status_code=403, detail="That student code is not valid.")
+    lesson = lessonscripts.LESSON_BY_ID.get((body.lesson or "").strip())
+    if not lesson:
+        raise HTTPException(status_code=404, detail="No such lesson.")
+    steps, state = lessonscripts.quiz_start(lesson, _quiz_questions(lesson))
+    if not state:
+        # This lesson cannot honestly field a quiz. Say so plainly; the page
+        # simply does not offer the button, so this is a belt-and-braces path.
+        return {"ok": False, "reason": "no-quiz", "steps": []}
+    _QUIZ_SESSIONS[code] = {"lesson": lesson, "state": state}
+    _script_log(code, lesson["course"], t0, kind="quiz")
+    return {"ok": True, "lesson": lesson["topic"], "total": state["total"],
+            "steps": _quiz_clean(steps)}
+
+
+@app.post("/api/script/quiz/answer")
+def script_quiz_answer(body: ScriptQuizAnswerIn):
+    t0 = _time.monotonic()
+    code = (body.code or "").strip()
+    sess = _QUIZ_SESSIONS.get(code)
+    if not sess:
+        raise HTTPException(status_code=409, detail=(
+            "No quiz is running for this code -- POST /api/script/quiz/start."))
+    lesson, state = sess["lesson"], sess["state"]
+
+    # build ou's reader, reused verbatim: a quiz answer may be tapped, typed or
+    # spoken. A refusal is NOT graded -- the child is asked the same question
+    # again, because a quiz that marks "I could not hear you" as wrong is
+    # measuring the microphone.
+    value = body.value
+    if value is None:
+        got = lessonscripts.read_answer(body.said)
+        if got["kind"] != "value":
+            line = (lessonscripts.LINE_WHOLE if got["kind"] == "notwhole"
+                    else lessonscripts.LINE_TAP)
+            again = lessonscripts._quiz_ask(state)
+            _script_log(code, lesson["course"], t0, kind="quiz")
+            return {"ok": True, "steps": [{"kind": "say", "spoken": line, "board": ""}]
+                    + _quiz_clean([again])}
+
+    steps, state = lessonscripts.quiz_answer(lesson, state, int(value))
+    sess["state"] = state
+    result = None
+    for s in steps:
+        if s.get("kind") == "qend":
+            result = s
+    if result is not None:
+        _QUIZ_SESSIONS.pop(code, None)
+        try:
+            store.record_topic_quiz(code, lesson["unit"], lesson["topic"],
+                                    result["correct"], result["total"],
+                                    lesson["course"])
+            if result["passed"]:
+                store.record_topic(code, lesson["unit"], lesson["topic"],
+                                   "mastered", lesson["course"])
+        except Exception as exc:  # noqa: BLE001
+            print(f"[quiz] outcome record failed (non-fatal): {exc}")
+    _script_log(code, lesson["course"], t0, kind="quiz")
+    return {"ok": True, "steps": _quiz_clean(steps)}
+
 
 # =============================================================================
 # ABRABOT -- THE DRILL LANE  (build mh, phase 2 of Abrabot)
@@ -12092,7 +12292,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-08-27ot-the-figure-shelf"
+APP_BUILD = "2026-08-27ov-quizzes-through-the-spine"
 
 
 @app.get("/health")

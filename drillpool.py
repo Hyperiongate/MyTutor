@@ -354,4 +354,87 @@ def build(lessons=None, cap=_MAX_PER_LESSON):
             for les in (lessons if lessons is not None else L.LESSONS)}
 
 
+
+# =============================================================================
+# THE TOPIC QUIZ'S QUESTION SET  (build ov, 2026-08-27)
+# -----------------------------------------------------------------------------
+# Jim's flip made the scripted lane the main road, so a finished topic now ends
+# in a quiz. The questions belong HERE because this file already owns the one
+# hard question -- "what else can this lesson honestly ask?" -- and every answer
+# it gives has already been through lessonscripts.validate().
+#
+# ⭐ PURE AND FIXED, ON PURPOSE. The set is a function of the LESSON alone,
+# never of what this child was asked, because lessonscripts.audio_lines() has to
+# enumerate every sentence a quiz can ever speak. That is the closure property
+# the whole lane's speed rests on: rendered once, free forever. Choosing
+# questions at runtime would be a live TTS call per child, per question.
+#
+# ⭐ SPACED ACROSS THE POOL, NOT ITS EASY END. The pool is ramped (see the sort
+# note above), so taking the first five would quiz only the easiest. Even
+# spacing asks across the whole range the lesson admits.
+#
+# ⚠️ 73 OF 336 LESSONS HAVE FEWER THAN FIVE POOL PROBLEMS, and 42 have none at
+# all -- their ops simply do not admit extra tuples the validator will accept
+# (counting to ten has only so many honest questions). Those top up from the
+# BANK's own tail, which the child may have seen; a repeat in a quiz is a real
+# weakness, and it is a smaller one than a main road where most topics cannot be
+# assessed at all. Lessons that still cannot field QUIZ_MIN get no quiz and end
+# exactly as they did before -- never a broken button.
+# ⚠️ MEMOISED, AND IT HAS TO BE. pool_for() runs a bounded triple scan with the
+# real validator on every survivor -- perfectly fine once, and far too slow 336
+# times, which is what course_audio_lines() asks for when it prices the closure.
+# Lessons are static data, so the answer for a given id can never change within a
+# process. (Measured: the un-cached closure did not finish in two minutes.)
+_QUIZ_CACHE = {}
+
+
+def quiz_problems(les):
+    """The fixed question set for this lesson's topic quiz (may be shorter than
+    QUIZ_LEN, and empty when the lesson cannot honestly field one)."""
+    key = les.get("id") or id(les)
+    if key in _QUIZ_CACHE:
+        return _QUIZ_CACHE[key]
+    # ⭐ THE PINNED TABLE IS THE ANSWER, and computing is only the fallback for a
+    # lesson added since it was generated. This is not just a speed trick: the
+    # audio closure is priced and rendered against these exact questions, so a
+    # scan that quietly returned something else would leave a child hearing
+    # silence where a quiz question should be. quizsets.py's own header carries
+    # the full reasoning. (Measured: computing the whole course took the better
+    # part of an hour; the table is a dict lookup.)
+    try:
+        import quizsets
+        pinned = quizsets.QUIZ_SETS.get(key)
+        if pinned:
+            _QUIZ_CACHE[key] = list(pinned)
+            return _QUIZ_CACHE[key]
+    except Exception:
+        pass
+    try:
+        want = L.QUIZ_LEN
+        pool = pool_for(les)
+        out = []
+        if pool:
+            if len(pool) <= want:
+                out = list(pool)
+            else:
+                stride = len(pool) / float(want)
+                out = [pool[int(i * stride)] for i in range(want)]
+        if len(out) < want:
+            seen = {_key(p) for p in out}
+            for p in reversed(list(les.get("bank") or [])):
+                k = _key(p)
+                if k in seen:
+                    continue
+                seen.add(k)
+                out.append(p)
+                if len(out) >= want:
+                    break
+        out = out if len(out) >= L.QUIZ_MIN else []
+        _QUIZ_CACHE[key] = out
+        return out
+    except Exception:      # a quiz that cannot be built is simply not offered
+        _QUIZ_CACHE[key] = []
+        return []
+
+
 # I did no harm and this file is not truncated.

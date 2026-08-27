@@ -2585,35 +2585,17 @@ def ensure_today_tag(reply: str, history=None, today_live: bool = False) -> str:
 # number at all. Everything is wrapped so any surprise fails OPEN -- an imperfect
 # referee must never stall a child's lesson.
 # =============================================================================
-_PR_ONES = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
-            "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
-            "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
-            "eighteen": 18, "nineteen": 19}
-_PR_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60,
-            "seventy": 70, "eighty": 80, "ninety": 90}
+# build ou (2026-08-27): THE TABLE MOVED TO numwords.py and the scripted lane
+# imports the same one to read a child's typed or spoken answer. Semantics here are
+# unchanged -- these three names are now thin aliases of the shared reader, so every
+# referee that counts numbers behaves exactly as it did (the battery proves it).
+# Hard import on purpose, like tags: a missing numwords.py must fail loudly at boot.
+import numwords as _numw
 
-
-def _pr_word_value(phrase: str):
-    """'fifteen' -> 15, 'twenty-one' -> 21, 'one hundred eighty' -> 180. None if not a number."""
-    words = re.split(r"[\s-]+", str(phrase).strip().lower())
-    words = [w for w in words if w and w != "and"]
-    if not words:
-        return None
-    total, current, seen = 0, 0, False
-    for w in words:
-        if w in _PR_ONES:
-            current += _PR_ONES[w]; seen = True
-        elif w in _PR_TENS:
-            current += _PR_TENS[w]; seen = True
-        elif w == "hundred" and seen:
-            current *= 100
-        else:
-            return None
-    return total + current if seen else None
-
-
-_PR_NUMWORD = "(?:" + "|".join(sorted(list(_PR_ONES) + list(_PR_TENS), key=len, reverse=True)) + \
-              r")(?:[\s-](?:hundred|" + "|".join(sorted(list(_PR_ONES) + list(_PR_TENS), key=len, reverse=True)) + r"))*"
+_PR_ONES = _numw.ONES
+_PR_TENS = _numw.TENS
+_pr_word_value = _numw.word_value
+_PR_NUMWORD = _numw.NUMWORD_PATTERN
 # "<label>: <anything> = <number>"  -- the shape our own board rules ask for.
 _PR_BOARD_LINE = re.compile(r"([A-Za-z][A-Za-z' ]{0,24}?)\s*:\s*([^=]{0,80}?)=\s*(-?\d+(?:\.\d+)?)\s*$")
 
